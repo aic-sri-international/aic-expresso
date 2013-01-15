@@ -1,0 +1,26 @@
+#summary Check List for Creating an AIC-Expresso Release
+
+= Setup Required for doing a Release =
+  # Ensure you can deploy to the Maven Central repository from your workspace, see: [https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide Deploying via Nexus Guide] for details.
+
+= Preparing the Release =
+  # Checkout the latest version of aic-expresso into a clean workspace.
+  # Ensure all tests pass and there are no compiler warnings.
+  # Ensure the version number in the pom.xml file is updated appropriately.
+  # Commit changes to Subversion
+
+= Publish the Release =
+  # Run the following command from your aic-expresso workspace directory:
+{{{
+mvn -P sonatype-oss-release deploy
+}}}
+  # Close the Staged artifacts and then Release them to the Maven Central Repository, by following steps 8 onwards from [https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide the guide for deploying via Nexus] from the [https://oss.sonatype.org/ Nexus Server]
+  # Upload the classes,javadoc, and source files to the Downloads page.
+  # Tag the release under Subversion.
+  # Create a release page for the released version and add to the [ReleaseHistory release history wiki page] (in reverse chronological order).
+  # Ensure the Wiki Pages relating to usage are updated to take into account any changes to the APIs.
+
+= Useful Resources =
+  * [https://oss.sonatype.org/ Sonatype/Nexus Open Source Repository]
+  * [http://search.maven.org/ The Maven Central Repository]
+  * [http://www.sonatype.com/books/mvnref-book/reference/public-book.html The Complete Maven Reference]
