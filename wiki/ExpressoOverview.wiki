@@ -30,7 +30,6 @@ The important things to remember when working with expressions (one rarely works
 
 We do not make a fundamental distinction between variable symbols and constant symbols. Constant symbols can be seen as variable symbols which are always interpreted to the same value. However, sometimes one needs to know which symbols are being used as unique names, that is, whether two constants of distinct names are automatically considered as referring to distinct objects (we will talk more about this later). 
 
-In logic, quantification can typically be done on variables only. We allow [QuantificationOfFunctionApplications function applications to be quantified as well].
   
 
   
