@@ -8,6 +8,7 @@ Expression objects are _immutable_, that is, they cannot be modified once they a
 
 
 === Expressions and Syntax Trees, and why they are confused in the code right now ===
+One of the basic units of the library is the syntax tree, and another is the expression. Unfortunately, the distinction between them was not all that clear when the library was first developed, and this confusion is present in the code even now. We will eventually clean that up; for now, please bear with us. 
 
 An expression is an object that can be interpreted. Here are some examples of expressions: 
   * `1 + 2`
@@ -17,7 +18,6 @@ An expression is an object that can be interpreted. Here are some examples of ex
   * `{1, Y, 3}`
   * `there exists X : f(X)`
 
+The interpretation of an expression is defined in terms of interpretations of its _sub-expressions_. There are multiple types of expressions, each of them with their own way of having their interpretations defined in terms of their sub-expressions interpretations. The first three examples above are _function applications_. The fourth one is a _symbol_ expression, the fifth an _extensional set_ expression, and the last one is an _existential quantification expression_. There are still a few other types that we introduce later.  
 
 
-
-One of the basic units of the library is the syntax tree, and another is the expression. Unfortunately, the distinction between them was not all that clear when the library was first developed, and this confusion is present in the code even now. We will eventually clean that up; for now, please bear with us. 
