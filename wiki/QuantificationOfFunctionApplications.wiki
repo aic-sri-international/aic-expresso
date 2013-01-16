@@ -46,3 +46,7 @@ or even:
 
 Quantification of function applications may also be used with intensional set notation, for example:
 <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="{f(1) + f(10)}_{f(1) in {3,5}}" height="25"/>
+
+<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="bag{f(1) + f(10)}_{f(1) in {3,5}}" height="25"/>
+
+<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="{{f(1) + f(10)}}_{f(1) in {3,5}}" height="25"/>
