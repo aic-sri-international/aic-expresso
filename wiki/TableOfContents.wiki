@@ -2,7 +2,7 @@
   * [Introduction Introduction]
   * [ExpressoOverview Expresso (Representation)]
   * [BrewerOverview Brewer (Parsing)]
-  * [GrinderOverview Grinder (Rewrite System)]  
+  * [GrinderOverview Grinder (Rewriting System)]  
     * [GrinderArithmetic Arithmetic]
     * [GrinderSets Sets]
     * [GrinderLogic Logic]
