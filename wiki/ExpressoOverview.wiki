@@ -32,6 +32,7 @@ The important things to remember when working with expressions (one rarely works
 
 We do not make a fundamental distinction between variable symbols and constant symbols. Constant symbols can be seen as variable symbols which are always interpreted to the same value. However, sometimes one needs to know which symbols are being used as unique names, that is, whether two constants of distinct names are automatically considered as referring to distinct objects (we will talk more about this later). 
 
+===Quantification of Function Applications===
 In logic, quantification can typically be done on variables only. We allow function applications to be quantified as well. For example, the expression corresponding to `sum_f(10) (f(1) + f(10))` computes a sum over all possible interpretations of `f(10)` while leaving the interpretation of other "positions" of `f` untouched.
   
 
