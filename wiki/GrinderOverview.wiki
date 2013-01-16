@@ -36,4 +36,13 @@ Other current modules are `MutuallyExclusiveCoDomainsModule` and `ExpressionKnow
 
 *Note:* currently, modules are implemented as rewriters (that usually don't perform any rewriting and therefore also implement the `NoOpRewriter` interface), but this will eventually not be true. The reason this was done so was because there was a need for rewriters to find a module upon the beginning of a rewriting process, so they can register specific providers with it. Since there was already a `RewritingProcess` method for finding rewriters, modules were created as rewriters so they can be found in the same way. However, this requires modules to have a rewriting method, which should not be necessary. At some point, we will abstract the notion of "something that can be found in a rewriting process" that will be extended by both rewriters and modules.  
 
+
+=== A further note on differences between Symbol Trees and Expressions ===
+Symbol Trees and Expressions behave in very similar manners for the most common types of expressions: symbol and function applications. More specific forms show more differences. For example, in [http://code.google.com/p/aic-praise/ probabilistic reasoning], we use the notation `[if sick(X) then 0.1 else 0.9]` to denote a factor. This is a symbol tree with `[ . ]` in its root, with a child equal to the syntax tree of `if sick(X) then 0.1 else 0.9`. However, only `X' is defined as a subexpression of this expression; the rest of it acts as an atomic syntactic indicator of the factor being represented. This means that the if-then-else sub-expression is not rewritten or evaluated.
+
+The way Grinder decides which parts are actually sub-expressions of an expression is by using the module `ExpressionKnowledgeModule`. The providers registered with this module know which expressions are special in this regard, and indicate their sub-expressions. This allows users to create their own special expressions with specific sub-expressions. Expression that do not have such a provider for them are assumed to be function applications, with all subtrees being subexpressions as well. This is the mechanism by which expressions of types different from function applications and symbols (that is, sets and quantified expressions) are implemented.
+
+=== More Complex Rewriters ===
+
+
   
