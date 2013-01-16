@@ -14,3 +14,5 @@ then there are a total of 4^3^ = 64 possible interpretations. If we take it `f` 
 
 then the previous summation would be iterated over 4 times, which would result in the following expanded out summation:
 <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="(1+1) + (1+3) + (1+5) + (1+7) = 20" height="25"/>
+
+In other words, when <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="sum_{f(10)}" height="25"/> is written, `f` is a new "locally" scoped symbol that agrees with the outside `f`'s interpretation on everything that is not `f(10)`.
