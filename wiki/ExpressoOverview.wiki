@@ -5,8 +5,6 @@ The package responsible for representing expressions is called `expresso`. It fo
 
 Expression objects are _immutable_, that is, they cannot be modified once they are constructed (just like the Java `String` class). This allows them to freely share sub-expressions. When a method such as `Expression.replace` (which replaces a given sub-expression in an original expression by another sub-expression) is invoked, the result is not the original expression object after having been modified, but a brand-new expression object. This new object will typically share the remaining, non-affected sub-expressions with the original expression. Note also that, if the sub-expression to be replaced is not present in the original expression, the result of replace will be identical to the original expression, and in this case it will indeed be the very same object; there is no need to create a new identical object representing the same expression. 
 
-
-
 === Expressions and Syntax Trees, and why they are confused in the code right now ===
 One of the basic units of the library is the syntax tree, and another is the expression. Unfortunately, the distinction between them was not all that clear when the library was first developed, and this confusion is present in the code even now. We will eventually clean that up; for now, please bear with us. 
 
@@ -32,8 +30,7 @@ The important things to remember when working with expressions (one rarely works
 
 We do not make a fundamental distinction between variable symbols and constant symbols. Constant symbols can be seen as variable symbols which are always interpreted to the same value. However, sometimes one needs to know which symbols are being used as unique names, that is, whether two constants of distinct names are automatically considered as referring to distinct objects (we will talk more about this later). 
 
-===Quantification of Function Applications===
-In logic, quantification can typically be done on variables only. We allow function applications to be quantified as well. For example, the expression corresponding to `sum_f(10) (f(1) + f(10))` computes a sum over all possible interpretations of `f(10)` while leaving the interpretation of other "positions" of `f` untouched.
+In logic, quantification can typically be done on variables only. We allow [QuantificationOfFunctionApplications function applications to be quantified as well].
   
 
   
