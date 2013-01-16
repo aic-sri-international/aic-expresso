@@ -8,7 +8,7 @@
     * [GrinderLogic Logic]
        * [QuantificationOfFunctionApplications Quantification of Function Applications]
     * [ModelCountingOverview Model Counting]
-    * [GrinderOtherBasicRewriters Other Basic Rewriters]
+    * [GrinderSubstitute Substituting Expressions]
   * For Developers/Contributors
     * [GettingStarted Getting Started]
     * [CodingConventions Coding Conventions]
