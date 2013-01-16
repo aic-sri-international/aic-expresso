@@ -32,9 +32,9 @@ Indices are not restricted to (variable) symbols; we can also use function appli
 
 which iterates over possible values for `f(2)`, without affecting `f(1)`. We can even write:
 
-    `{(on f(X)) f(X) + f(1)}` 
+    `{(on f(X) in {1,2,3}) f(X) + f(1)}` 
 
-where `X` is a free variable. In this example, if `X` has value `2`, then we have the same set as 
+where `X` is a free variable. In this example, if `X` has value `2`, then we have the same set as: 
 
     `{(on f(2) in {1,2,3}) f(2) + f(1)}` 
 
@@ -42,7 +42,9 @@ If `X` is `1`, however, the set is:
 
     `{(on f(1) in {1,2,3}) f(1) + f(1)}`
 
-in which case, of course, both occurrences of `f(1)` are affected (and, as one might imagine, this is the same as simply `{(on f(1) in {1,2,3}) 2*f(1)}`).
+in which case, of course, both occurrences of `f(1)` are affected and, as one might imagine, this is the same as simply:
+    
+    `{(on f(1) in {1,2,3}) 2*f(1)}`
 
 
 ===Multisets===
