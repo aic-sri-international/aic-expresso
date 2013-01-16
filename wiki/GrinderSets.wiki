@@ -12,5 +12,17 @@ Intensional definitions list a tuple of _indices_ and their domains, a condition
 
     `{ (on X in {1,2,3,4}) X + 1 | X != 3}`
 
+is an intensional definition of the extensional set `{2, 3, 5}`. The index domain can be any expression evaluating to a set, including other intensional set definitions, which is of course why intensional definitions are more powerful than extensional ones. Here is an example of an intensional definition using multiple indices:
+
+    `{ (on X in {1,2,3,4}, Y in {a,b,c}) f(X,Y) | X != 3 and Y != b}`
+
+The examples above illustrate the actual syntax defined by `CommonGrammar` for set definitions. This syntax is identical to the one used in informal mathematics taught in primary school, but for the exception that indices are explicitly indicated, so that free variables can be used, thereby allowing something like:
+
+    `{(on X in {1,2,3})             X + Y | X != 2}`
+
+to be properly distinguished from:
+
+    `{(on X in {1,2,3}, Y in {5,6}) X + Y | X != 2}`
+
 ===Multisets===
 Multiset definitions are denoted by the use of double curly brackets (`{{ }}`) instead of single ones (`{ }`), for both intensional and extensional definitions. 
