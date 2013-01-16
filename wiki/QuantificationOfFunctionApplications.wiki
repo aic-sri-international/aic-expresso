@@ -1,3 +1,7 @@
 #summary Quantification of Function Applications
 
-<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="root3x + x^phi + x_1" height="15"/>
+In logic, quantification can typically be done on variables only. We allow function applications to be quantified as well. For example, the expression corresponding to:
+
+<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="sum_{f(10)} f(1) + f(10)"/>
+
+computes a sum over all possible interpretations of f(10) while leaving the interpretation of other ‘positions’ of f untouched. For example, if:
