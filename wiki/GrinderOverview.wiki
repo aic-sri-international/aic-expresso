@@ -1,5 +1,7 @@
 #summary Grinder Overview
 
+=Overview=
+
 Java programmers can use the _expresso_ and _brewer_ packages to represent and construct expressions, and then use them any way they like, as any other type of Java objects. One possible way of using them is in a [http://en.wikipedia.org/wiki/Rewriting Rewriting System], in which expressions (and parts of expressions) are iteratively rewritten until no further rewriting is possible (not unlike the way people sometimes work out expressions in informal mathematics). The _grinder_ pacakge provides support for this kind of use.
 
 The way grinder operates is simple. A rewriter can be seen as a function mapping each expression into another, possibly itself (this latter case is interpreted as the rewriter "not applying" to that expression). Grinder takes one rewriter and one expression, and applies the rewriter to the expression, returning the result.
@@ -22,6 +24,4 @@ There is a large, and ever growing, library of rewriters contained in grinder, f
 
 
 ===Modules===
-
-
 
