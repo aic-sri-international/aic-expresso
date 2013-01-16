@@ -46,6 +46,27 @@ in which case, of course, both occurrences of `f(1)` are affected and, as one mi
     
     `{(on f(1) in {1,2,3}) 2*f(1)}`
 
+Finally, we explain a more sophisticated construct that allows even the _index_ of an intensional set definition to be _evaluated_ on the fly. The examples above use indices known in advance: `X` and `Y`. There are situations in which the index to be used is determined "at runtime", from the evaluation of an expression. We indicate this by prefixing the index by `value of`, as in:
 
+    `{(on value of Index in {1,2,3}) X + Y}`
+
+where `Index` is an expression-valued variable, that is, its interpretation maps to value that is an expression itself. Suppose `Index` has value `<X>`, that is, it represents the symbol `X` itself (angle brackets indicate a quoted expression). Then the set definition is the same as:
+
+    `{(on value of <X> in {1,2,3}) X + Y}` 
+
+the operator `value of`, when applied to an expression value, "plugs" that expression it its own place, so we get:
+
+    `{(on X in {1,2,3}) X + Y}`
+
+As a further example, consider:
+
+    `{(on value of {<X>,<Y>} - {<Y>} in {1,2,3}) X + Y}`
+
+which, after the set difference is evaluated, is found to be equivalent to:
+
+    `{(on X in {1,2,3}) X + Y}`
+
+as well.
+ 
 ===Multisets===
 Multiset definitions are denoted by the use of double curly brackets (`{{ }}`) instead of single ones (`{ }`), for both intensional and extensional definitions. 
