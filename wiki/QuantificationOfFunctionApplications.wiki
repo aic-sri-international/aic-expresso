@@ -25,3 +25,24 @@ If `y = 1` we would get the same value 20 as before. However, if `y = 10` then w
 
 i.e. the original expanded out summation would have been:
 <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="(1+1) + (3+3) + (5+5) + (7+7) = 32" height="25"/>
+
+We can also move the free variable `y` into the index of the summation, for example:
+<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="sum_{f(y)} f(1) + f(10)" height="25"/>
+
+consider the cases where `y = 1`, `y = 10`, and `y = 3`. The outside `f` is mapped to the same interpretation as before (i.e. `{(1,1),(3,3),(10,5)}`) then in case 1 where `y = 1`, we are iterating over `f(1)` giving us:
+<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="(1+5) + (3+5) + (5+5) + (7+5) = 36" height="25"/>
+
+in case 2 where `y = 10`, it iterates over `f(10)` giving us:
+<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="(1+1) + (1+3) + (1+5) + (1+7) = 20" height="25"/>
+
+and in case 3 where `y = 3`, it iterates over `f(3)`, even though it is not in the expression, giving us:
+<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="(1+5) + (1+5) + (1+5) + (1+5) = 24" height="25"/>
+
+The main point here is that, even though `y` appears in the index of the summation, it is not a "new" locally scoped symbol. This indexing of function applications only makes the "functor" be a new locally scoped symbol. The arguments are a normal expression, to be evaluated so the we know which "position" of `f` is being iterated. For example, it is fine to write:
+<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="sum_{f(1+9)} f(1) + f(10)" height="25"/> 
+
+or even:
+<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="sum_{f(y+9)} f(1) + f(10)" height="25"/>
+
+Quantification of function applications may also be used with intensional set notation, for example:
+ 
