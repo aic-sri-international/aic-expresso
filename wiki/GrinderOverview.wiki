@@ -8,6 +8,20 @@ Naturally, it is more common to successively apply several rewriters to an expre
 
 `RewriteOnce`, as the name indicates, does a single rewriting. If we wish to keep applying a list of rewriters to an expression until no more rewritings are possible, we can use a rewriter called `ExhaustiveRewriter`. An exhaustive rewriter takes some other rewriter (typically a `RewriteOnce` rewriter containing a list of rewriters) and keeps applying it until no more rewritings are done. Similarly, `TotalRewriter` exhaustively rewrites an expression until no more rewriting is possible but instead takes a list of rewriters to apply (this is essentially an optimized version of the `ExhaustiveRewriter` and `RewriteOnce` rewrite mechanism, as it reduces the overhead needed in between each individual rewrite call).
 
+The most common way of using grinder is, thus, having a list of rewriters able to perform a task in some domain of interest, and using them in conjunction with `RewriteOnce` and `ExhaustiveRewriter` or `TotalRewriter`. Typically, the "most useful" rewriters will be at the top of this list, since they will be attempted first. One such rewriter is, for example, one that replaces `0 * Something`, where `Something` is some potentially complex expression, by `0`, since that eliminates a potentially complex sub-expression at a very low cost. Note that applying rewriters top-down makes sense here too. If we did it bottom-up, then we would try to apply rewriters inside `Something` before "noticing" that it can simply be eliminated. Another way of looking at this is that the top-down ordering lends a "lazy evaluation" aspect to the rewriting. 
+
+There is a large, and ever growing, library of rewriters contained in grinder, for dealing with basic mathematics constructs such as numbers, booleans and sets. The rewriters are the part of grinder which actually implements the semantics of expressions. They work in groups, and sometimes communicate with one another during processing. Often, a rewriter uses, as a pre-condition, the fact that some other rewriter must have attempted a rewriting first (that is, is placed higher up in the list of rewriters). For example, rewriters computing the cardinality of sets assume that other rewriters normalizing set condition formulas are applied earlier and that, therefore, those conditions must already be normalized when expressions get to them. Right now, the user must make sure the required rewriters are present and placed before the ones requiring them; a planned future feature is having a rewriter "requires" declaration that automatically does that. Other relationships between rewriters will become clearer as we explain the main groups of rewriters:
+
+  * Arithmetic
+  * Boolean
+  * Sets
+  * Model Counting
+  * Other Basic Rewriters
+
+===Rewriting Process===
 
 
-   
+===Modules===
+
+
+
