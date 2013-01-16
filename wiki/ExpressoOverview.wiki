@@ -6,6 +6,6 @@ Expression objects are _immutable_, that is, they cannot be modified once they a
 
 
 
-= Expressions and Syntax Trees, and why they are confused in the code right now =
+=== Expressions and Syntax Trees, and why they are confused in the code right now ===
 
 One of the basic units of the library is the syntax tree, and another is the expression. Unfortunately, the distinction between them was not all that clear when the library was first developed, and this confusion is present in the code even now. We will eventually clean that up; for now, please bear with us. 
