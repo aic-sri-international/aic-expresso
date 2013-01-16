@@ -1,3 +1,5 @@
 #summary Logic Rewriters
 
 TODO
+
+In logic, quantification can typically be done on variables only. We allow [QuantificationOfFunctionApplications function applications to be quantified as well].
