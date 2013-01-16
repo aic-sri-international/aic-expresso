@@ -1,10 +1,14 @@
 #summary Table of Contents
   * [Introduction Introduction]
   * [ExpressoOverview Expresso]
-    * [QuantificationOfFunctionApplications Quantification of Function Applications]
   * [BrewerOverview Brewer]
-  * [GrinderOverview Grinder]
+  * [GrinderOverview Grinder]  
+    * [GrinderArithmetic Arithmetic]
+    * [GrinderSets Sets]
+    * [GrinderLogic Logic]
+       * [QuantificationOfFunctionApplications Quantification of Function Applications]
     * [ModelCountingOverview Model Counting]
+    * [GrinderOtherBasicRewriters Other Basic Rewriters]
   * For Developers/Contributors
     * [GettingStarted Getting Started]
     * [CodingConventions Coding Conventions]
