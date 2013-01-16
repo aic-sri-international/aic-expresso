@@ -47,4 +47,16 @@ or even:
 Quantification of function applications may also be used with intensional set notation, for example:
 <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="{f(1) + f(10)}_{f(1) in {3,5}}" height="25"/>
 
-<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="multiset{f(1) + f(10)}_{f(1) in {3,5}}" height="25"/>
+would, using our prior interpretation for `f = {(1,1),(3,3),(10,5)}`, give us:
+<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="{3+5, 5+5} = {8, 10}" height="25"/>
+
+Here,
+<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="f(1) in {3,5}" height="25"/>
+
+refers to the codomain of `f(1)` meaning the value of `f(1)` is going to take the values 3 and 5 in successive iterations. You can see this by analogy with the single variable case. If you write:
+<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="{i}_{i in {3,5}}" height="25"/>
+
+you expect `i` to take on the values 3 and 5. A single variable can actually be seen as a function from an empty domain to a codomain, so in this case `{3,5}` had to be the codomain since there is no domain. Another example in which this is more clear is that it is perfectly fine to write something like:
+<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="{f(1)}_{f(1) in {"hi", "hello", "ciao"}}" height="25"/>
+
+that is, cases in which the set inside is not even of the same type as the domain of the function.
