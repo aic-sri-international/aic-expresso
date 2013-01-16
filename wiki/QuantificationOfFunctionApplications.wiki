@@ -1,21 +1,12 @@
 #summary Quantification of Function Applications
 
 In logic, quantification can typically be done on variables only. We allow function applications to be quantified as well. For example, the expression corresponding to:
-
 <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="sum_{f(10)} f(1) + f(10)" height="25"/>
-
 computes a sum over all possible interpretations of `f(10)` while leaving the interpretation of other "positions" of `f` untouched. For example, if:
-
 <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="A = {1, 3, 10}, B = {1, 3, 5, 7}" height="25"/>
-
 and:
-
 <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="f : A -> B" height="25"/>
-
 then there are a total of 4^3^ = 64 possible interpretations. If we take it `f` is mapped to the interpretation:
-
 <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="{(1,1),(3,3),(10,5)}" height="25"/>
-
 then the previous summation would be iterated over 4 times, which would result in the following expanded out summation:
-
 <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="(1+1) + (1+3) + (1+5) + (1+7) = 20" height="25"/>
