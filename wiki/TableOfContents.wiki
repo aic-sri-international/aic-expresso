@@ -1,8 +1,8 @@
 #summary Table of Contents
   * [Introduction Introduction]
-  * [ExpressoOverview Expresso]
-  * [BrewerOverview Brewer]
-  * [GrinderOverview Grinder]  
+  * [ExpressoOverview Expresso (Representation)]
+  * [BrewerOverview Brewer (Parsing)]
+  * [GrinderOverview Grinder (Rewrite System)]  
     * [GrinderArithmetic Arithmetic]
     * [GrinderSets Sets]
     * [GrinderLogic Logic]
