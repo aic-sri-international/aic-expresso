@@ -3,7 +3,7 @@
   * [ExpressoOverview Expresso]
   * [BrewerOverview Brewer]
   * [GrinderOverview Grinder]
-  * [ModelCountingOverview Model Counting]
+    * [ModelCountingOverview Model Counting]
   * For Developers/Contributors
     * [GettingStarted Getting Started]
     * [CodingConventions Coding Conventions]
