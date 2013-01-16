@@ -1,6 +1,7 @@
 #summary Table of Contents
   * [Introduction Introduction]
   * [ExpressoOverview Expresso]
+    *[QuantificationOfFunctionApplications Quantification of Function Applications]
   * [BrewerOverview Brewer]
   * [GrinderOverview Grinder]
     * [ModelCountingOverview Model Counting]
