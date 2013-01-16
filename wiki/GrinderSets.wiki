@@ -26,7 +26,7 @@ to be properly distinguished from:
 
 The syntax makes the set condition optional (when it is just assumed `true`). If an index, say, `X`, does not include a domain, it is assumed to be `type(X)`. Therefore, `{(on X) f(X)}` is equivalent to `{(on X in type(X)) f(X) | true}`.
 
-Indices are not restricted to (variable) symbols; we can also use function applications. For example, it is valid to write:
+Indices are not restricted to (variable) symbols; we can also use function applications (see [QuantificationOfFunctionApplications Quantification of Function Applications] for more details). For example, it is valid to write:
 
     `{(on f(2) in {1,2,3}) f(2) + f(1)}`
 
