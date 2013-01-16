@@ -57,6 +57,6 @@ refers to the codomain of `f(1)` meaning the value of `f(1)` is going to take th
 <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="{i}_{i in {3,5}}" height="25"/>
 
 you expect `i` to take on the values 3 and 5. A single variable can actually be seen as a function from an empty domain to a codomain, so in this case `{3,5}` had to be the codomain since there is no domain. Another example in which this is more clear is that it is perfectly fine to write something like:
-<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="{f(1)}_{f(1) in {"hi", "hello", "ciao"}}" height="25"/>
+<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="{f(1)}_{f(1) in {'hi', 'hello', 'ciao'}}" height="25"/>
 
 that is, cases in which the set inside is not even of the same type as the domain of the function.
