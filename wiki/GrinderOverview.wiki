@@ -30,7 +30,7 @@ Rewriters often rely on properties of expressions in order to modify them. The r
 
 Instead, we use the notion of _modules_. A module object exposes an interface for a particular type of property. The module `ScopedVariables`, for instance, has methods indicating what are the scoping variables in any given expression such as the example above. When a user introduces a new function scoping variables, he or she writes a class implementing the `ScopedVariables.Provider` interface and _registers_ it with the module when a rewriting process is initiated. This way, the user does not have to modify `ScopedVariables`, but simply writes a provider, which is like a plug-in containing specific semantic knowledge about a type of expression. In fact, providers are used for all scoping functions in the system, for e.g. intensional sets, which could have been written by any user.
 
-There are other modules for other types of properties as well. For example, it is sometimes useful to know that a function is injective, because if `f` is injective then we know that `f(X)=f(a)` is equivalent to `X=a`. The module `InjectiveModule' takes care of that, and can have its own providers registered for particular types of functions introduced by a user. 
+There are other modules for other types of properties as well. For example, it is sometimes useful to know that a function is injective, because if `f` is injective then we know that `f(X)=f(a)` is equivalent to `X=a`. The module `InjectiveModule` takes care of that, and can have its own providers registered for particular types of functions introduced by a user. 
 
 Other current modules are `MutuallyExclusiveCoDomainsModule` and `ExpressionKnowledgeModule`. 
 
