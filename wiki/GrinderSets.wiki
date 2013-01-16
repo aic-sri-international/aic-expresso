@@ -2,12 +2,12 @@
 
 This library manipulates _extensional_ and _intensional_ set definitions. 
 
-===Extensional Sets===
+===Extensional===
 Extensional definitions simply explicitly enumerate the elements of a set, for example:
 
     `{1,2,3}`
 
-===Intensional Sets===
+===Intensional===
 Intensional definitions list a tuple of _indices_ and their domains, a condition on those indices, and a function application on idices (the set's _head_). Indices satisfying the condition are used by the function application to compute a member of thee set. For example:
 
     `{ (on X in {1,2,3,4}) X + 1 | X != 3}`
@@ -23,6 +23,27 @@ The examples above illustrate the actual syntax defined by `CommonGrammar` for s
 to be properly distinguished from:
 
     `{(on X in {1,2,3}, Y in {5,6}) X + Y | X != 2}`
+
+The syntax makes the set condition optional (when it is just assumed `true`). If an index, say, `X`, does not include a domain, it is assumed to be `type(X)`. Therefore, `{(on X) f(X)}` is equivalent to `{(on X in type(X)) f(X) | true}`.
+
+Indices are not restricted to (variable) symbols; we can also use function applications. For example, it is valid to write:
+
+    `{(on f(2) in {1,2,3}) f(2) + f(1)}`
+
+which iterates over possible values for `f(2)`, without affecting `f(1)`. We can even write:
+
+    `{(on f(X)) f(X) + f(1)}` 
+
+where `X` is a free variable. In this example, if `X` has value `2`, then we have the same set as 
+
+    `{(on f(2) in {1,2,3}) f(2) + f(1)}` 
+
+If `X` is `1`, however, the set is:
+
+    `{(on f(1) in {1,2,3}) f(1) + f(1)}`
+
+in which case, of course, both occurrences of `f(1)` are affected (and, as one might imagine, this is the same as simply `{(on f(1) in {1,2,3}) 2*f(1)}`).
+
 
 ===Multisets===
 Multiset definitions are denoted by the use of double curly brackets (`{{ }}`) instead of single ones (`{ }`), for both intensional and extensional definitions. 
