@@ -3,3 +3,9 @@
 The package responsible for representing expressions is called `expresso`. It forms the base of the AIC-Expresso library, and does not commit to a particular string-based representation syntax for expressions, nor to any particular way of processing them. It simply concerns itself with representing expressions and their properties as Java objects. 
 
 Expression objects are _immutable_, that is, they cannot be modified once they are constructed (just like the Java `String` class). This allows them to freely share sub-expressions. When a method such as `Expression.replace` (which replaces a given sub-expression in an original expression by another sub-expression) is invoked, the result is not the original expression object after having been modified, but a brand-new expression object. This new object will typically share the remaining, non-affected sub-expressions with the original expression. Note also that, if the sub-expression to be replaced is not present in the original expression, the result of replace will be identical to the original expression, and in this case it will indeed be the very same object; there is no need to create a new identical object representing the same expression. 
+
+
+
+= Expressions and Syntax Trees, and why they are confused in the code right now =
+
+One of the basic units of the library is the syntax tree, and another is the expression. Unfortunately, the distinction between them was not all that clear when the library was first developed, and this confusion is present in the code even now. We will eventually clean that up; for now, please bear with us. 
