@@ -1,4 +1,8 @@
 #summary Introduction and Overview
 #labels Featured
 
-TODO
+This document is a working draft with a high-level explanation of the AIC Symbolic Manipulation and Evaluation Library (AIC-Expresso) from a programmer's point of view. It explains the architecture of the system. The best way to read it is by having the code in front of you, so you can check for yourself what is meant in greater detail. The code is supposed to be auto-explanatory, clear and thoroughly documented (see [CodingConventions Coding Conventions]). Ideally, anyone who understands the theory should be able to look at the code and understand it with little work. It is not meant to be simply a software library, but an integral part of the research and a reference for people who want to understand all details involved in the algorithms. If the documentation is insufficient at places, please let us know so we can fix it. 
+
+The library's original application is to perform probabilistic reasoning (PR) in a symbolic evaluation form. While this is beyond the scope of this document (see [http://code.google.com/p/aic-praise/ AIC-PRAiSE] for more details), what this basically means is that the library encodes PR problems as mathematical expressions such as summations and products over variables (some of them variable functions). (More technically speaking, these expressions are terms in a higher-order logic, but the basic intuition is the same as expressions in everyday informal mathematics, or expressions in a functional programming language such as Scheme when used in a purely functional form, that is, without data modification.)
+
+While the library has been created with PR in mind, PR is a relatively small part of it, much like the tip of an iceberg. The code, and most of what is explained here, refers to AIC-Expresso, which is independent from that particular task, and can be reused for a number of different tasks. 
