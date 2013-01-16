@@ -14,11 +14,11 @@ The most common way of using grinder is, thus, having a list of rewriters able t
 
 There is a large, and ever growing, library of rewriters contained in grinder, for dealing with basic mathematics constructs such as numbers, booleans and sets. The rewriters are the part of grinder which actually implements the semantics of expressions. They work in groups, and sometimes communicate with one another during processing. Often, a rewriter uses, as a pre-condition, the fact that some other rewriter must have attempted a rewriting first (that is, is placed higher up in the list of rewriters). For example, rewriters computing the cardinality of sets assume that other rewriters normalizing set condition formulas are applied earlier and that, therefore, those conditions must already be normalized when expressions get to them. Right now, the user must make sure the required rewriters are present and placed before the ones requiring them; a planned future feature is having a rewriter "requires" declaration that automatically does that. Other relationships between rewriters will become clearer as we explain the main groups of rewriters:
 
-  * Arithmetic
-  * Sets
-  * Logic
-  * Model Counting
-  * Other Basic Rewriters
+  * [GrinderArithmetic Arithmetic]
+  * [GrinderSets Sets]
+  * [GrinderLogic Logic]
+  * [ModelCountingOverview Model Counting]
+  * [GrinderOtherBasicRewriters Other Basic Rewriters]
 
 ===Rewriting Process===
 
