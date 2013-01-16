@@ -5,4 +5,10 @@ This document is a working draft with a high-level explanation of the AIC Symbol
 
 The library's original application is to perform probabilistic reasoning (PR) in a symbolic evaluation form. While this is beyond the scope of this document (see [http://code.google.com/p/aic-praise/ AIC-PRAiSE] for more details), what this basically means is that the library encodes PR problems as mathematical expressions such as summations and products over variables (some of them variable functions). (More technically speaking, these expressions are terms in a higher-order logic, but the basic intuition is the same as expressions in everyday informal mathematics, or expressions in a functional programming language such as Scheme when used in a purely functional form, that is, without data modification.)
 
-While the library has been created with PR in mind, PR is a relatively small part of it, much like the tip of an iceberg. The code, and most of what is explained here, refers to AIC-Expresso, which is independent from that particular task, and can be reused for a number of different purposes. 
+While the library has been created with PR in mind, PR is a relatively small part of it, much like the tip of an iceberg. The code, and most of what is explained here, refers to AIC-Expresso, which is independent from that particular task, and can be reused for a number of different purposes.
+
+The Library itself is broken into three main packages:
+  * Expresso : which forms the foundation and is responsible for the representation of expressions as Java Objects. It is a basic library that does not commit to a particular string-based representation syntax for expressions, nor to any particular way of processing them.
+  * Brewer :  provides support for parsing human-readable strings into expressions and, conversely, transforming expressions into human-readable strings.
+  * Grinder : Is a Rewriting System, in which expressions (and parts of expressions) are iteratively rewritten until no further rewriting is possible. It contains a large, and ever growing, library of general purpose rewriters.
+    * ModelCounting : a detailed algorithm/implementation for calculating the cardinality of an Expression with Free Variables and Quantifier Elimination for Function-Free Equality Logic is included.
