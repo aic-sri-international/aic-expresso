@@ -21,7 +21,7 @@ is written, `f` is a new "locally" scoped symbol that agrees with the outside `f
 <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="sum_{f(10)} f(y) + f(10)" height="25"/>
 
 If `y = 1` we would get the same value 20 as before. However, if `y = 10` then we would end up with `f(10) + f(10)` which would be equivalent to:
-<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="sum_{f(10)} 2 \times f(10) = 2 \times 16 = 32" height="25"/>
+<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="sum_{f(10)} 2 xx f(10) = 2 xx 16 = 32" height="25"/>
 
 i.e. the original expanded out summation would have been:
 <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="(1+1) + (3+3) + (5+5) + (7+7) = 32" height="25"/>
