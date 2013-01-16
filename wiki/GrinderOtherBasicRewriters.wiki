@@ -1,3 +1,0 @@
-#summary Other Basic Rewriters
-
-TODO
