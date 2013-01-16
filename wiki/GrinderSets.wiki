@@ -1,6 +1,9 @@
 #summary Set Rewriters
 
-This library manipulates _extensional_ and _intensional_ set definitions. Extensional definitions simply explicitly enumerate the elements of a set, for example:
+This library manipulates _extensional_ and _intensional_ set definitions. 
+
+===Extensional Sets===
+Extensional definitions simply explicitly enumerate the elements of a set, for example:
 
     `{1,2,3}`
 
