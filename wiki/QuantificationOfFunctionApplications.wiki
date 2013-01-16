@@ -45,4 +45,4 @@ or even:
 <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="sum_{f(y+9)} f(1) + f(10)" height="25"/>
 
 Quantification of function applications may also be used with intensional set notation, for example:
- 
+<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="{f(1) + f(10)}_{f(1) in {3,5}}" height="25"/>
