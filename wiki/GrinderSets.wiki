@@ -1,3 +1,13 @@
 #summary Set Rewriters
 
-TODO
+This library manipulates _extensional_ and _intensional_ set definitions. Extensional definitions simply explicitly enumerate the elements of a set, for example:
+
+    `{1,2,3}`
+
+===Intensional Sets===
+Intensional definitions list a tuple of _indices_ and their domains, a condition on those indices, and a function application on idices (the set's _head_). Indices satisfying the condition are used by the function application to compute a member of thee set. For example:
+
+    `{ (on X in {1,2,3,4}) X + 1 | X != 3}`
+
+===Multisets===
+Multiset definitions are denoted by the use of double curly brackets (`{{ }}`) instead of single ones (`{ }`), for both intensional and extensional definitions. 
