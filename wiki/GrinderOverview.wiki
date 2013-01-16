@@ -47,7 +47,9 @@ Initially we expected Grinder and the exhaustive rewriting of expressions to be 
 
 This idea has proven naive because it is hard to control where the computation is going when more than one rewriter is available. This has led to the introduction of _hierarchical rewriters_, rewriters that take one expression and (by often invoking other rewriters) return an equivalent expression completely rewritten to satisfy a certain desired form. In other words, these rewriters do the "whole job" as opposed to the _atomic_ rewriters used by exhaustive rewriting, which typically take a small step and step back, letting other rewriters have a chance.  
 
-An example of a hierarchical rewriter is the one called Cardinality, which takes a logical formaula and rewrites it to its answer. That is of course a complex process, that the rewriter does all by itself by invoking successively simpler rewriters. The advantage of hierarchical rewriters is that their execution is guided by a very thought-out algorithm that does the job in an efficient manner. The disadvantage is that they are not as generic as atomic rewriters and need to be thought out. That said, we still use exhaustive rewriting by atomic rewriters at certain points, particularly the simplification of expressions.
+An example of a hierarchical rewriter is the one called Cardinality, which takes a logical formaula and rewrites it to its answer. That is of course a complex process, that the rewriter does all by itself by invoking successively simpler rewriters. 
+
+The advantage of hierarchical rewriters is that their execution is guided by a very thought-out algorithm that does the job in an efficient manner. The disadvantage is that they are not as generic as atomic rewriters and need to be thought out. That said, we still use exhaustive rewriting by atomic rewriters at certain points, particularly the simplification of expressions.
  
  
 
