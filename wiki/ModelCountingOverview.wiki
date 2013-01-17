@@ -5,7 +5,19 @@ TODO
 
 TODO - list related research papers.
 
-=== Pseudo-Code for Computing the Cardinallity of a Set ===
-Let `L` be a language with no function symbols and a single predicate representing equality, but it may have distinct constant symbols. Let `F` be a quantifier formula in `L`. Let `|F|_{x1, ..., xn}` denote the cardinality of the set `{(x1, ..., xn) | F}{x1, ..., xn}`. We shall define a series of rewriters to compute `|F|_{x1, ..., xn}`.
+== Pseudo-Code for Computing the Cardinallity of a Set ==
+Let `L` be a language with no function symbols and a single predicate representing equality, but it may have distinct constant symbols. Let `F` be a quantifier formula in `L`. Let
+    <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="|F|_{x_1, ..., x_n}" height="25"/> 
 
+denote the cardinality of the set 
+
+    <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="{(x1, ..., xn) | F}_{x_1, ..., x_n}" height="25"/>
+
+We shall define a series of rewriters to compute 
+
+    <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="|F|_{x_1, ..., x_n}" height="25"/> 
+
+===List of Cardinality Rewriters===
   * [RewriterCard R_card(|F|_X, quantification)] 
+
+===List of Cardinality Support Routines===
