@@ -1,3 +1,5 @@
 #summary Model Counting Overview
 
 TODO
+
+  * [RewriterCard R_card(|F|_X, quantification)] 
