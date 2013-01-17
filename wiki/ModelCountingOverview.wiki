@@ -15,7 +15,15 @@ denote the cardinality of the set
 
 We shall define a series of rewriters to compute 
 
-    <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="|F|_{x_1, ..., x_n}" height="25"/> 
+    <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="|F|_{x_1, ..., x_n}" height="25"/>
+
+We need the following definition for our process.
+
+Definition:  An expression `E` is Easily Summable `(ES)` with respect to variables x,,1,...,x,,n iff it has one of the following forms:
+  * `E` is some constant `c`.
+  * `E` is a variable other than x,,1,...,x,,n
+  * `E` is of the form "if C then t,,1 else t,,2" where t,,1 and t,,2 are `ES` with respect to x,,1,...,x,,n and `C` is a quantifier-free formaula in `L`.
+  * `E` is of the form f(t,,1, ..., t,,n) where t,,1,...,t,,n are `ES` with respect to x,,1,...,x,,n.
 
 ===List of Cardinality Rewriters===
   * [RewriterCard R_card(|F|_X, quantification)] 
