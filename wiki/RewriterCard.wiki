@@ -1,1 +1,8 @@
 #summary R_card(| F |_{x1, ..., xn})
+R_card(| F |_{x,,1,,, ..., x,,n,,})
+<pre>
+  inputs: F a first-order formula on equalities,
+          i.e. F is a boolean combination of equalities and disequalities of variables and constants. 
+          F may have quantifiers.
+  return: a basic expression representing |F|.
+</pre>
