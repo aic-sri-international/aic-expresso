@@ -9,9 +9,9 @@ R_card(| F |_{x,,1,,, ..., x,,n,,})
 F <- R_top_simplify(F) // this is the only function that does not assume its input is top-simplified
 
 if n = 0
-    return [RewriterSimplify R_simplify(if F then 1 else 0)]
+    return R_simplify(if F then 1 else 0)
 if n > 0
-    if [FunctionNegationHasLessNumberOfDisjuncts negationHasLessNumberOfDisjuncts(F)]:
-        return [RewriterSimplify R_simplify(`||X||` - [RewriterCardWithQuantification R_card( | not F |_X, "none" )] )]
+    if negationHasLessNumberOfDisjuncts(F):
+        return R_simplify(||X|| - R_card( | not F |,,X,,, "none" ))
     else
-        return [RewriterCardWithQuantification R_card( | F |_X, "none")]
+        return R_card( | F |_X, "none")
