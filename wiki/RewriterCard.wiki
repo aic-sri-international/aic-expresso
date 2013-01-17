@@ -12,6 +12,6 @@ return: a basic expression representing |F|.
     `return `[RewriterSimplify R_simplify]`(if F then 1 else 0)`
 `if n > 0`
     `if `[FunctionNegationHasLessNumberOfDisjuncts negationHasLessNumberOfDisjuncts]`(F):`
-        `return `[RewriterSimplify R_simplify]`(||X|| - `[RewriterCardWithQuantification R_card]`( | not F |_X "none" ))`
+        `return `[RewriterSimplify R_simplify]`(||X|| - `[RewriterCardWithQuantification R_card]`( | not F |`,,X,,` "none" ))`
     `else`
         `return `[RewriterCardWithQuantification R_card]`( | F |_X, "none")`
