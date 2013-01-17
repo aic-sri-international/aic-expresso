@@ -30,6 +30,6 @@ For a set of index variables `X`, `||X||` denotes the project of the cardinaliti
 
 
 ===List of Cardinality Rewriters===
-  * [RewriterCard R_card(|F|_X, quantification)] 
+  * [RewriterCard R_card(| F |_{x,,1,,, ..., x,,n,,})] 
 
 ===List of Cardinality Support Routines===
