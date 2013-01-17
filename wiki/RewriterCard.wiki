@@ -1,6 +1,1 @@
-#summary R_card( | F |_X, quantification )
-F is any top-simplified formula
-"quantification" is either "there exists", "for all", or "none", and indicates whether we are solving `there exists x1, ..., xn : F`, `for all x1, ..., xn : F` where `X = {x1, ..., xn}`, or neither of those.
-Returns a basic expression equivalent to `| F |_X`, if quantification is "none".
-If quantification is "for all", returns a counting-solution, the leaves of which may differ from the exact one in the following way: when the exact one is not `||X||`, it may be any value but `||X||`.
-If quantification is "there exists", returns a counting-solution, the leaves of which may differ from the exact one in the following way: when the exact one is not 0, it may be any value but 0.
+#summary R_card(| F |_{x,,1,,, ..., x,,n,,})
