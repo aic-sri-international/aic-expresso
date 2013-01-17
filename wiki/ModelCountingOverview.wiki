@@ -31,7 +31,7 @@ For a set of index variables `X`, `||X||` denotes the project of the cardinaliti
 
 ===List of Cardinality Rewriters===
   * [RewriterCard R_card(| F |_{x1, ..., xn})] 
-  * [RewriterCardWitQuantification R_card( | F |_X, quantification )]
+  * [RewriterCardWithQuantification R_card( | F |_X, quantification )]
   * [RewriterSumOverOneVariable R_sum_over_one_variable(sum_{x: Cx} S)]
   * [RewriterCardConjunction R_card_conjunction( | F |_X, quantification )]
   * [RewriterEqualityInConjunction R_equality_in_conjunction(| x_i = t and Phi |_X, quantification)]
