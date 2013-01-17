@@ -9,11 +9,11 @@ TODO - list related research papers.
 Let `L` be a language with no function symbols and a single predicate representing equality, but it may have distinct constant symbols. Let `F` be a quantifier formula in `L`. Let
     <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="|F|_{x_1, ..., x_n}" height="25"/> 
 
-denote the cardinality of the set 
+denote the cardinality of the set: 
 
     <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="{(x1, ..., xn) | F}_{x_1, ..., x_n}" height="25"/>
 
-We shall define a series of rewriters to compute 
+We shall define a series of rewriters to compute: 
 
     <wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="|F|_{x_1, ..., x_n}" height="25"/>
 
