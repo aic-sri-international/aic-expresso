@@ -14,4 +14,4 @@ return: a basic expression representing |F|.
     `if `[FunctionNegationHasLessNumberOfDisjuncts negationHasLessNumberOfDisjuncts]`(F):`
         `return `[RewriterSimplify R_simplify]`(||X|| - `[RewriterCardWithQuantification R_card]`( | not F |`,,X,,` "none" ))`
     `else`
-        `return `[RewriterCardWithQuantification R_card]`( | F |_X, "none")`
+        `return `[RewriterCardWithQuantification R_card]`( | F |`,,X,,`, "none")`
