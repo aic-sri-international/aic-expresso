@@ -6,6 +6,6 @@ TODO
 TODO - list related research papers.
 
 === Pseudo-Code for Computing the Cardinallity of a Set ===
-Let `L` be a language with no function symbols and a single predicate representing equality, but it may have distinct constant symbols. Let `F` be a quantifier formula in `L`. Let `|F|_{x1, ..., xn}` denote the cardinality of the set `{(x1, …, xn) | F}{x1, ..., xn}`. We shall define a series of rewriters to compute `|F|_{x1, ..., xn}`.
+Let `L` be a language with no function symbols and a single predicate representing equality, but it may have distinct constant symbols. Let `F` be a quantifier formula in `L`. Let `|F|_{x1, ..., xn}` denote the cardinality of the set `{(x1, ..., xn) | F}{x1, ..., xn}`. We shall define a series of rewriters to compute `|F|_{x1, ..., xn}`.
 
   * [RewriterCard R_card(|F|_X, quantification)] 
