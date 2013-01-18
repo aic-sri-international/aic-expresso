@@ -56,3 +56,9 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
 | `if N1 = ||X||`<br>
 |.... `return ||X||` // | F2 |,,X,, = | F1 and F2 |,,X,, and cancel out<br>
 |<br>
+| `N2 <- `[RewriterCardWithQuantification R_card]`(| F2 |`,,X,,`, quantification)`<br>
+| `if N2 = 0`<br>
+|.... `return N1` // | F1 and F2 |,,X,, is 0<br>
+| `if N2 = ||X||`<br>
+|.... `return ||X||` // N1 = | F1 |,,X,, = | F1 and F2 |,,X,, and cancel out<br>
+|<br>
