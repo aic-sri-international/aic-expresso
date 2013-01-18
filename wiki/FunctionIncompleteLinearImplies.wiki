@@ -7,3 +7,15 @@ return: whether G is known to imply H according the methods used by this functio
         (a return value of "false" does not mean that G does not imply H, 
          it merely means that this function does not know that it does).
 </pre>
+| `if G and H are the same expression`<br>
+|........ `or`<br>
+|.... `G is "t1 = t2" or "not (t1 != t2)" and`<br>
+|.... `H is "t2 = t1" or "not (t2 != t1)"`<br>
+|........ `or`<br>
+|.... `G is "t1 = c1" or G is "c1 = t1" with c1 a constant,`<br>
+|.... `and H is "not t1 = c2" or H is "not c2 = t1" or H is "t1 != c2" or H is "c2 != t1"`<br>
+|.... `with c2 a constant distinct from c1`<br>
+|........ `or`<br>
+|.... `G is t1 != t2 or "not (t1 = t2)" and H is "t2 != t1" or "not (t2 = t1)"`<br>
+|........ `return true`<br>
+| `return false`<br>
