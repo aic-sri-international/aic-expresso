@@ -1,4 +1,12 @@
 #summary R_cardExtensionalSet( | {t1,...,tn} | )
 R_cardExtensionalSet( | {t,,1,,,...,t,,n,,} | )
 <pre>
+inputs: Each ti is an expression.
+return: a basic expression equivalent to | {t1,...,tn} |.
 </pre>
+| `if n = 0` // empty set<br>
+|.... `return 0`<br>
+| // cardinality of the set expression without the first element expression<br>
+| `N <- `[RewriterCardExtensionalSet R_cardExtensionalSet]`( | {t`,,2,,`,...,t`,,k,,`} | )`<br>
+| `Irrelevant <- `[RewriterSimplify R_simplify]`(t`,,1,,` = t`,,2,,` or ... or t`,,1,,` = t`,,n,,`)`<br>
+| `return if Irrelevant then N else `[FunctionPlusOne plusOne]`(N)`<br>
