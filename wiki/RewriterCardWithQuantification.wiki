@@ -28,7 +28,7 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
 
 `if F is "not G"`
     `F' <- `[RewriterTopSimplify R_top_simplify]`(`[RewriterMoveNotIn R_move_not_in]`(F))`
-    `return [RewriterCardWithQunatification R_card]`(| F' |`,,X,,`, quantification)`
+    `return `[RewriterCardWithQunatification R_card]`(| F' |`,,X,,`, quantification)`
 
 `if F is an implication of the form G => H`
     `return `[RewriterCardImplication R_card_implication]`( | F |`,,X,,`, quantification)`
