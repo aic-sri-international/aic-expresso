@@ -11,17 +11,17 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
             of which may differ from the exact one in the following way: 
             when the exact one is not 0, it may be any value but 0.
 </pre>
-`if F is a conjunction which can be partitioned into two or more independent sub problems`<br>
-// i.e. there is a partition {I,,1,,, ..., I,,k,,} of indices such that there is a partition {C,,1,,, ..., C,,k,,}<br>
-// of the conjuncts of F where indices in I,,j,, occur in C,,j,, only, for every j:
-    `if I`,,1,,` is empty:`
-        `return if C`,,1,,` then `[RewriterSimplify R_simplify]`(`
-            [RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(C`,,2,,`)|`,,I2,,`, quantification)  * ... *`<br>
-            [RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(C`,,k,,`)|`,,Ik,,`, quantification) ) else 0`
-    `else`
-        `return `[RewriterSimplify R_simplify]`(` 
-            [RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(C`,,1,,`)|`,,I1,,`, quantification)  * ... *` <br>
-            [RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(C`,,k,,`)|`,,Ik,,`, quantification) )`
+| `if F is a conjunction which can be partitioned into two or more independent sub problems`<br>
+| // i.e. there is a partition {I,,1,,, ..., I,,k,,} of indices such that there is a partition {C,,1,,, ..., C,,k,,}<br>
+| // of the conjuncts of F where indices in I,,j,, occur in C,,j,, only, for every j:<br>
+|.... `if I`,,1,,` is empty:`<br>
+|........ `return if C`,,1,,` then `[RewriterSimplify R_simplify]`(`<br>
+|............ [RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(C`,,2,,`)|`,,I2,,`, quantification)  * ... *`<br>
+|............ [RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(C`,,k,,`)|`,,Ik,,`, quantification) ) else 0`<br>
+|.... `else`<br>
+|........ `return `[RewriterSimplify R_simplify]`(`<br>
+|............ [RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(C`,,1,,`)|`,,I1,,`, quantification)  * ... *` <br>
+|............ [RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(C`,,k,,`)|`,,Ik,,`, quantification) )`<br>
 
 `if F is True or empty conjunction`
     `return ||X||`
