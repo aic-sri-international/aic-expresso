@@ -1,1 +1,20 @@
-TODO
+#summary replace_disjunct_and_top_simplify(F, i, F1 or ... or Fn)
+replace_disjunct_and_top_simplify(F, i, F,,1,, or ... or F,,n,,)
+<pre>
+This function is intended for simplifying disjunctions obtained from replacing a given disjunct 
+by another in a disjunction that has already been checked for obvious simplifications.
+
+inputs: F and each Fi is any formula.
+        i is an integer in {1,..., n}
+return: a possibly simplified expression equivalent to
+        F1 or ... or Fi-1 or F or Fi+1 or ... or Fn, in linear time.
+</pre>
+| `if F is True`<br>
+|.... `return True`<br>
+| `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(F, F`,,j,,`), for some j != i`<br>
+|.... `return F`,,1,,` or ... or F`,,i-1,,` or F`,,i+1,,` or ... or F`,,n,,<br>
+| `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(not F, F`,,j,,`) or `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(not F`,,j,,`, F) for some j != i`<br>
+|.... `return True`<br>
+| `D <- F`,,1,,` or ... or F`,,i-1,,` or F or F`,,i+1,,` or ... or F`,,n,,<br>
+| `D <- remove from D all disjuncts F`,,j,,`, j != i, such that `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(F`,,j,,`, F)`<br>
+| `return D`<br>
