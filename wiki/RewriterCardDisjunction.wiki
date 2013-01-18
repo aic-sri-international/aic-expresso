@@ -1,1 +1,29 @@
-TODO
+#summary R_card_disjunction(| F |_X, quantification)
+R_card_disjunction(| F |,,X,,, quantification)
+<pre>
+inputs: F is a disjunction.
+        "quantification" is either "there exists", "for all", or "none".
+return: a basic expression equivalent to | F |_X, if quantification is "none".
+        If quantification is "for all", returns a counting-solution, the leaves 
+            of which may differ from the exact one in the following way: 
+            when the exact one is not ||X||, it may be any value but ||X||.
+        If quantification is "there exists", returns a counting-solution, the leaves 
+            of which may differ from the exact one in the following way: 
+            when the exact one is not 0, it may be any value but 0.
+</pre>
+| `if F is a disjunction which can be partitioned into a few subproblems`<br>
+| `such that F can be partitioned into D, D`,,1,,`, and D`,,2,,`; where I`,,1,,` and I`,,2,,` are`<br> 
+| `two partitions of the indices in X, and the index variables in D`,,1,,` and D`,,2,,<br>
+| `are I`,,1,,` and I`,,2,,` respectively, and D is independent of X. Either D or D`,,2,,` may be empty.`<br>
+|.... `D,,1,,` = `[RewriterTopSimplify R_top_simplify]`(D`,,1,,`)`<br>
+|.... `if D`,,2,,` is empty:`<br>
+|........ `R <- `[RewriterCardWithQuantification R_card]`(| D`,,1,,` |`,,X,,`, quantification)`<br>
+|.... `else`<br>
+|........ `D,,2,,` = `[RewriterTopSimplify R_top_simplify]`(D`,,2,,`)`<br>
+|........ `R <- `[RewriterSimplify R_simplify]`(`[RewriterCardWithQuantification R_card]`(|D`,,1,,`|`,,I1,,`, quantification)*||I`,,2,,`|| +`<br>
+|............ [RewriterCardWithQuantification R_card]`(|D`,,2,,`|`,,I2,,`, quantification)*||I`,,1,,`|| -`<br>
+|............ [RewriterCardWithQuantification R_card]`(|D`,,1,,`|`,,I1,,`, quantification)* `[RewriterCardWithQuantification R_card]`(|D`,,2,,`|`,,I2,,`, quantification))`<br>
+|.... `if D is empty:`<br>
+|........ `return R`<br>
+|.... `else`<br>
+|........ `return `[RewriterSimplify R_simplify]`(if D then ||X|| else R)`<br>
