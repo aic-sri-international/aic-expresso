@@ -362,7 +362,7 @@ public interface CardinalityRewriter {
 	/**
 	 * <pre>
 	 * R_card_equivalence(| F |_X, quantification)
-	 * F is an equivalence of the form “G <=> H”.
+	 * F is an equivalence of the form "G <=> H".
 	 * "quantification" is either "there exists", "for all", or "none".
 	 * 
 	 * Returns a basic expression equivalent to | F |_x, if quantification is "none".
