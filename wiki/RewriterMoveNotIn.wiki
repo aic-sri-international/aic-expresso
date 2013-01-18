@@ -27,7 +27,7 @@ return: a formula that is not a negation and is equivalent to "F"
 | `F is "not (G <=> H)"`<br>
 |... `return `[RewriterTopSimplifyDisjunction R_top_simplify_disjunction]`(`<br>
 |....... [RewriterTopSimplifyConjunction R_top_simplify_conjunction]`(G and not H)`<br>
-|....... `o`r<br>
+|....... `or`<br>
 |....... [RewriterTopSimplifyConjunction R_top_simplify_conjunction]`(not G and H))`<br>
 | `F is "not (Qx G)" for Q a quantifier`<br>
 |.... `return Q'x not G`<br>
