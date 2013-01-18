@@ -40,6 +40,13 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
 | `F1 <- first disjunct in F`<br>
 | `F2 <- remaining disjuncts in F`<br>
 |<br>
-| `F1 <- `[RewriterTopSimplify R_top_simplify]`(F1)`
-| `F2 <- `[RewriterTopSimplify R_top_simplify]`(F2)`
+| `F1 <- `[RewriterTopSimplify R_top_simplify]`(F1)`<br>
+| `F2 <- `[RewriterTopSimplify R_top_simplify]`(F2)`<br>
 |<br>
+| `if quantification is "for all"`<br>
+|.... `return `[RewriterSimplify R_simplify]`(`<br>
+|........ `if `[RewriterCardWithQuantification R_card]`(| `[RewriterTopSimplifyConjunction R_top_simplify_conjunction]`(not F1 and not F2) |`,,X,,`, "there exists") > 0`<br>
+|........ `then 0 else ||X||)`<br>
+|<br>
+| `(F1, F2) <- `[FunctionSortPair sort_pair]`(F1, F2)`<br>
+|<br> 
