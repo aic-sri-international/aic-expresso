@@ -11,8 +11,8 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
             of which may differ from the exact one in the following way: 
             when the exact one is not 0, it may be any value but 0.
 </pre>
-`if F is True
-    return`[RewriterSimplify R_simplify]`(||X||)`
+`if F is True`<br>
+    `return `[RewriterSimplify R_simplify]`(||X||)`
 
 `if F is False`
     `return 0`
