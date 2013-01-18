@@ -10,5 +10,5 @@ return: a top-simplified equivalent of F1 or ... or Fn and F in linear time.
 |.... `return F`,,1,,` or ... or F`,,n,,<br>
 | `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(not F, F`,,i,,`) or `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(not F`,,i,,`, F) for some i`<br>
 |.... `return True`<br>
-| `D <- remove from F`,,1,,` or ... or F`,,n,,` all disjuncts F`,,i,,` such that [FunctionIncompleteLinearImplies incomplete_linear_implies]`(F`,,i,,`, F)`<br>
+| `D <- remove from F`,,1,,` or ... or F`,,n,,` all disjuncts F`,,i,,` such that `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(F`,,i,,`, F)`<br>
 | `return D or F`<br>
