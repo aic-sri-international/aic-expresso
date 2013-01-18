@@ -19,7 +19,7 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
 |.... `if D`,,2,,` is empty:`<br>
 |........ `R <- `[RewriterCardWithQuantification R_card]`(| D`,,1,,` |`,,X,,`, quantification)`<br>
 |.... `else`<br>
-|........ `D,,2,,` = `[RewriterTopSimplify R_top_simplify]`(D`,,2,,`)`<br>
+|........ `D`,,2,,` = `[RewriterTopSimplify R_top_simplify]`(D`,,2,,`)`<br>
 |........ `R <- `[RewriterSimplify R_simplify]`(`[RewriterCardWithQuantification R_card]`(|D`,,1,,`|`,,I1,,`, quantification)*||I`,,2,,`|| +`<br>
 |............ [RewriterCardWithQuantification R_card]`(|D`,,2,,`|`,,I2,,`, quantification)*||I`,,1,,`|| -`<br>
 |............ [RewriterCardWithQuantification R_card]`(|D`,,1,,`|`,,I1,,`, quantification)* `[RewriterCardWithQuantification R_card]`(|D`,,2,,`|`,,I2,,`, quantification))`<br>
