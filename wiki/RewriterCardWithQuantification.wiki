@@ -12,7 +12,7 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
             when the exact one is not 0, it may be any value but 0.
 </pre>
 `if F is True`<br>
-<span style="padding: 0 40px">`return `[RewriterSimplify R_simplify]`(||X||)`&nbsp;</span>
+<span>`    return `[RewriterSimplify R_simplify]`(||X||)`&nbsp;</span>
 
 `if F is False`
     `return 0`
