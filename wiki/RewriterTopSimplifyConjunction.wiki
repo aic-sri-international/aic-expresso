@@ -21,7 +21,7 @@ return: simplification of top level of conjunction.
 |........ `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(T`,,j,,`, T`,,i,,`)`<br>
 |............ `i_is_irrelevant <- true`<br>
 |............ `continue to next i`<br>
-|........ `if [FunctionIncompleteLinearImplies incomplete_linear_implies]`(T`,,i,,`, T`,,j,,`)`<br>
+|........ `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(T`,,i,,`, T`,,j,,`)`<br>
 |............ `irrelevant <- irrelevant union { T`,,j,,` }`<br>
 |........ `else if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(T`,,i,,`, not T`,,j,,`) or `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(T`,,j,,`, not T`,,i,,`)`<br>
 |............ `return False` // conjunction is contradiction<br>
