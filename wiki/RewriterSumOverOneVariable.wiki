@@ -4,6 +4,7 @@ R_sum_over_one_variable(sum_{x: Cx}_ S)
 inputs: Cx is a formula in boolean logic, constraining the values of the summation index x.
         S is an Easily-Summable expression with respect to x, that is:
             if S is not an if-then-else expression, then x does not occur in S.
-            if S is an expression of the form 'if Q then E1 else E2' where E1 and E2 are Easily-Summable with respect to x.
+            if S is an expression of the form 'if Q then E1 else E2' 
+                where E1 and E2 are Easily-Summable with respect to x.
 return: a counting solution.
 </pre>
