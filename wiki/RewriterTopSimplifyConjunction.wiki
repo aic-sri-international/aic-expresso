@@ -4,28 +4,28 @@ R_top_simplify_conjunction(F1 and ... and Fn)
 inputs: Each Fi is any formula.
 return: simplification of top level of conjunction.
 </pre>
-| T <- empty tuple // T will contain conjuncts of F not equal to True or False<br>
-| for all i<br>
-|.... if Fi is False or Alpha != Alpha<br>
-|........ return False<br>
-|.... if Fi is not "True" and Fi is not Alpha = Alpha<br>
-|........ add Fi to T<br>
+| `T <- empty tuple` // T will contain conjuncts of F not equal to True or False<br>
+| `for all i`<br>
+|.... `if F`,,i,,` is False or Alpha != Alpha`<br>
+|........ `return False`<br>
+|.... `if F`,,i,,` is not "True" and F`,,i,,` is not Alpha = Alpha`<br>
+|........ `add F`,,i,,` to T`<br>
 |<br> 
-| T' <- empty tuple // T' will contain the elements of T that are needed in the final conjunction<br>
-| irrelevant <- empty set<br>
-| for all i in 1,..., |T|<br>
-|.... if Ti is in irrelevant<br>
-|........ continue to next i<br>
-|.... i_is_irrelevant <- false<br>
-|.... for all j in i + 1, ..., |T|<br>
-|........ if incomplete_linear_implies(Tj, Ti)<br>
-|............ i_is_irrelevant <- true<br>
-|............ continue to next i<br>
-|........ if incomplete_linear_implies(Ti, Tj)<br>
-|............ irrelevant <- irrelevant union { Tj }<br>
-|........ else if incomplete_linear_implies(Ti, not Tj) or incomplete_linear_implies(Tj, not Ti)<br>
-|............ return False // conjunction is contradiction<br>
-|.... if not i_is_irrelevant<br>
-|........ add Ti to T'<br>
+| `T' <- empty tuple` // T' will contain the elements of T that are needed in the final conjunction<br>
+| `irrelevant <- empty set`<br>
+| `for all i in 1,..., |T|`<br>
+|.... `if T`,,i,,` is in irrelevant`<br>
+|........ `continue to next i`<br>
+|.... `i_is_irrelevant <- false`<br>
+|.... `for all j in i + 1, ..., |T|`<br>
+|........ `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(T`,,j,,`, T`,,i,,`)`<br>
+|............ `i_is_irrelevant <- true`<br>
+|............ `continue to next i`<br>
+|........ `if [FunctionIncompleteLinearImplies incomplete_linear_implies]`(T`,,i,,`, T`,,j,,`)`<br>
+|............ `irrelevant <- irrelevant union { T`,,j,,` }`<br>
+|........ `else if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(T`,,i,,`, not T`,,j,,`) or `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(T`,,j,,`, not T`,,i,,`)`<br>
+|............ `return False` // conjunction is contradiction<br>
+|.... `if not i_is_irrelevant`<br>
+|........ `add T`,,i,,` to T'`<br>
 |<br> 
-| return conjunction on elements of T'<br>
+| `return conjunction on elements of T'`<br>
