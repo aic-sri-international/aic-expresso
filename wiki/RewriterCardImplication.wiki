@@ -1,1 +1,16 @@
-TODO
+#summary R_card_implication(| F |_X, quantification)
+R_card_implication(| F |,,X,,, quantification)
+<pre>
+inputs: F is an implication of the form "G => H".
+        "quantification" is either "there exists", "for all", or "none".
+return: a basic expression equivalent to | F |_X, if quantification is "none".
+        If quantification is "for all", returns a counting-solution, the leaves 
+            of which may differ from the exact one in the following way: 
+            when the exact one is not ||X||, it may be any value but ||X||.
+        If quantification is "there exists", returns a counting-solution, the leaves 
+            of which may differ from the exact one in the following way: 
+            when the exact one is not 0, it may be any value but 0.
+</pre>
+| `G <- `[RewriterTopSimplify R_top_simplify]`(G)`<br>
+| `H <- `[RewriterTopSimplify R_top_simplify]`(H)`<br>
+| `return `[RewriterCardWithQuantification R_card]`( | `[RewriterTopSimplifyDisjunction R_top_simplify_disjunction]`(not G or H) |`,,X,,`, quantification )`<br>
