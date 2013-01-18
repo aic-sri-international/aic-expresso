@@ -1,1 +1,16 @@
-TODO
+#summary R_quantifier_elimination(F)
+R_quantifier_elimination(F)
+<pre>
+inputs: F is any formula. 
+return: a quantifier-free formula equivalent to F
+</pre>
+| `if F is "for all x: Y"`<br>
+|.... `return `[RewriterSimplify R_simplify]`(`[RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(Y)|`,,X,,`, "for all") = |type(x)| )`<br>
+| `if F is "there exists x: Y"`<br>
+|.... `return `[RewriterSimplify R_simplify]`(`[RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(Y)|`,,X,,`, "there exists") > 0)`<br>
+| `if F is "not G"`<br>
+|.... `return `[RewriterQuantifierElimination R_quantifier_elimination]`(`[RewriterMoveNotIn R_move_not_in]`(not G))`<br>
+| `if F is G => H`<br>
+|.... `return `[RewriterQuantifierElimination R_quantifier_elimination]`(`[RewriterTopSimplifyDisjunction R_top_simplify_disjunction]`(not G or H))`<br>
+| `if F is G <=> H`<br>
+|.... `return `[RewriterQuantifierElimination R_quantifier_elimination]`(`[RewriterTopSimplifyConjunction R_top_simplify_conjunction]`((not G or H) and (G or not H)))`<br>
