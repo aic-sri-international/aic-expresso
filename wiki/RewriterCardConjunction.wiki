@@ -25,7 +25,7 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
             R_card(|R_top_simplify(C_k)|_I_k, quantification) )
 
 if F is True or empty conjunction
-    return ||X||
+    `return ||X||`
 
 if F is False
     return 0
