@@ -13,7 +13,7 @@ return: a formula that is not a negation and is equivalent to "F"
 |.... `return t`,,1,,` != t`,,2,,` or ... or t`,,{n-1},,` != t`,,n,,<br>
 | `F is "not x != t"`<br>
 |.... `return x = t`<br>
-| `F is "not not G "`<br>
+| `F is "not not G"`<br>
 |.... `G <- `[RewriterTopSimplify R_top_simplify]`(G)`<br>
 |.... `return G`<br>
 | `F is "not (G`,,1,,` and ... and G`,,n,,`)"`<br>
