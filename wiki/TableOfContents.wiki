@@ -39,7 +39,6 @@
         * [FunctionPlusOne plusOne(N)]
         * [FunctionWorstCaseNumberOfDisjuncts worstCaseNumberOfDisjuncts(F)]
         * [FunctionWorstCaseNumberOfDisjunctsWithSign worstCaseNumberOfDisjuncts(F, sign)]
-
     * [GrinderSubstitute Substituting Expressions]
   * For Developers/Contributors
     * [GettingStarted Getting Started]
