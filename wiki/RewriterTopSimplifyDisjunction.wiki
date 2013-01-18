@@ -1,1 +1,13 @@
-TODO
+#summary R_top_simplify_disjunction(F1 or ... or Fn)
+R_top_simplify_disjunction(F1 or ... or Fn)
+<pre>
+inputs: Each Fi is any formula.
+return: simplification of top level disjunction.
+</pre>
+| `T <- empty tuple` // T will contain disjuncts of F not equal to True or False<br>
+| `for all i`<br>
+|.... `if F`,,i,,` is True or Alpha = Alpha`<br>
+|........ `return True`<br>
+|.... `if F`,,i,,` is not "False" and F`,,i,,` is not Alpha != Alpha`<br>
+|........ `add F`,,i,,` to T`<br>
+|<br>
