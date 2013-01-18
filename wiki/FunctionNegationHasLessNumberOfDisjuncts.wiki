@@ -1,3 +1,3 @@
 #summary negationHasLessNumberOfDisjuncts(F)
-negationHasLessNumberOfDisjuncts(F)
+negationHasLessNumberOfDisjuncts(F)<br>
 | `return `[FunctionWorstCaseNumberOfDisjuncts worstCaseNumberOfDisjuncts]`(F) > `[FunctionWorstCaseNumberOfDisjuncts worstCaseNumberOfDisjuncts]`(not F)`
