@@ -44,10 +44,11 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 
 /**
  * <b>Rewriters for Computing the cardinality of a set</b><br>
- * Let L be a language with no function or predicate symbols, but it may have
- * distinct constant symbols. Let F be a quantifier formula in L. Let |F|_{x1,
- * ..., xn} denote the cardinality of the set {(x1, ..., xn) | F}{x1, ..., xn}.
- * We shall define a series of rewriters to compute |F|_{x1, ..., xn}.<br>
+ * Let L be a language with no function and a single predicate representing
+ * equality, but it may have distinct constant symbols. Let F be a quantifier
+ * formula in L. Let |F|_{x1, ..., xn} denote the cardinality of the set {(x1,
+ * ..., xn) | F}{x1, ..., xn}. We shall define a series of rewriters to compute
+ * |F|_{x1, ..., xn}.<br>
  * <br>
  * We need the following definition for our process:<br>
  * Definition: An expression E is Easily Summable (ES) with respect to variables
@@ -57,7 +58,8 @@ import com.sri.ai.expresso.core.DefaultSymbol;
  * <li>E is a variable other than x1, ..., xn</li>
  * <li>E is of the form "if C then t1 else t2" where both t1 and t2 are ES with
  * respect to x1,...,xn and C is a quantifier-free formula in L.</li>
- * <li>E is of the form f(t1, ..., tn) where t1, …, tn are ES with respect to x1,...,xn.</li>
+ * <li>E is of the form f(t1, ..., tn) where t1, …, tn are ES with respect to
+ * x1,...,xn.</li>
  * </ul>
  * For a set of index variables X, ||X|| denotes the product of the
  * cardinalities of domain sizes of index variables in X. For instance, if X =
@@ -534,7 +536,7 @@ public interface CardinalityRewriter {
 	 * Returns a counting solution
 	 * Cases for input:
 	 * S is "if F then S1 else S2".
-	 *     return R_simplify(R_sum(sum_{x:Cx and F} S1) + R_sum(sum_{x:Cx and not F} S2)))
+	 *     return R_simplify(R_sum_over_one_variable(sum_{x:Cx and F} S1) + R_sum_over_one_variable(sum_{x:Cx and not F} S2)))
 	 * S is a numeric constant expression.
 	 *     if S is 0
 	 *         return 0
