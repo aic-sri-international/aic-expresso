@@ -27,3 +27,19 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
 |........ `return R`<br>
 |.... `else`<br>
 |........ `return `[RewriterSimplify R_simplify]`(if D then ||X|| else R)`<br>
+|<br>
+| // Assume F is of the form F1 or F2<br>
+| // | F1 or F2 |,,X,, = | F1 |,,X,, + | F2 |,,X,, - | F1 and F2 |,,X,,<br>
+| // but we do not compute it like that, see below for optimized version.<br>
+|<br>
+| `(F1, F2) <- split_disjuncts_on_X(F) as follows:`<br>
+| `if F1 contains all the disjuncts independent of X (not empty)`<br>
+|.... `return `[RewriterSimplify R_simplify]`(if F1 then ||X|| else R_card(|F2|`,,X,,`, quantification))`<br>
+|<br>
+| `otherwise (if all disjuncts of F have some index variable occurring in them):`<br>
+| `F1 <- first disjunct in F`<br>
+| `F2 <- remaining disjuncts in F`<br>
+|<br>
+| `F1 <- `[RewriterTopSimplify R_top_simplify]`(F1)`
+| `F2 <- `[RewriterTopSimplify R_top_simplify]`(F2)`
+|<br>
