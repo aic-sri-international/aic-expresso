@@ -1,1 +1,10 @@
-TODO
+#summary plusOne(N)
+plusOne(N)
+<pre>
+inputs: N is a counting solution.
+return: a counting solution equivalent to N + 1.
+</pre>
+| `If N is a number`<br>
+|.... `return the number N + 1`<br>
+| `if N is if C then N1 else N2`<br>
+|.... `return if N then `[FunctionPlusOne plusOne]`(N1) else `[FunctionPlusOne plusOne]`(N2)`<br>
