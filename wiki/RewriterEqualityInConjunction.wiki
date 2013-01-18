@@ -1,4 +1,4 @@
-#summary R_equality_in_conjunction(| x_i = t and Phi |_X, quantification)
+#summary R_equality_in_conjunction(| x,,i,, = t and Phi |,,X,,, quantification)
 R_equality_in_conjunction(| x,,i,, = t and Phi |,,X,,, quantification)
 <pre>
 inputs: Phi is a formula, x_i is one of the index variables in X, t is a variable or a constant.
