@@ -1,1 +1,20 @@
-TODO
+#summary replace_conjunct_and_top_simplify(F, i, F1 and ... and Fn)
+replace_conjunct_and_top_simplify(F, i, F,,1,, and ... and F,,n,,)
+<pre>
+This function is intended for simplifying conjunctions obtained from replacing a given conjunct 
+by another in a conjunction that has already been checked for obvious simplifications.
+
+inputs: F and each Fi is any formula.
+        i is an integer in {1,..., n}
+return: a possibly simplified expression equivalent to
+        F1 and ... and Fi-1 and F and Fi+1 and ... and Fn, in linear time.
+<pre>
+| `if F is False`<br>
+|.... `return False`<br>
+| `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(F`,,j,,`, F), for some j != i`<br>
+|.... `return F`,,1,,` and ... and F`,,i-1,,` and F`,,i+1,,` and ... and F`,,n,,<br>
+| `if `[FunctionIncompleteLinearImplies  incomplete_linear_implies]`(F, not F`,,j,,`) or `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(F`,,j,,`, not F) for some j != i`<br>
+|.... `return False`<br>
+| `C <- F`,,1,,` and ... and F`,,i-1,,` and F and F`,,i+1,,` and ... and F`,,n,,<br>
+| `C <- remove from C all conjuncts F`,,j,,`, j != i, such that `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(F, F`,,j,,`)`<br>
+| `return C`<br>
