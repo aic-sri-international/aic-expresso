@@ -104,7 +104,7 @@ public class SumOverOneVariable extends AbstractHierarchicalRewriter implements 
 			Expression f  = IfThenElse.getCondition(s);
 			Expression s1 = IfThenElse.getThenBranch(s);
 			Expression s2 = IfThenElse.getElseBranch(s);
-			Trace.log("    return R_simplify(R_sum(sum_{x:Cx and F} S1) + R_sum(sum_{x:Cx and not F} S2)))");
+			Trace.log("    return R_simplify(R_sum_over_one_variable(sum_{x:Cx and F} S1) + R_sum_over_one_variable(sum_{x:Cx and not F} S2)))");
 			Expression sumS1 = CardinalityUtil.makeSummationExpression(x, CardinalityUtil.makeAnd(cX, f), s1);
 			Expression sumS2 = CardinalityUtil.makeSummationExpression(x, CardinalityUtil.makeAnd(cX, CardinalityUtil.makeNot(f)), s2);
 			
