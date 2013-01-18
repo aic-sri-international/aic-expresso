@@ -52,7 +52,7 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
 
 `if Fi is G1 => G2`
     `return `[RewriterCardWithQuantification R_card]`(`
-        `| `[FunctionTopSimplifyDisjunction top_simplify_disjunction]`(`[FunctionReplaceConjunctAndTopSimplify] replace_conjunct_and_top_simplify]`((not G1), i, F)`<br>
+        `| `[FunctionTopSimplifyDisjunction top_simplify_disjunction]`(`[FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`((not G1), i, F)`<br>
         `or`<br>
         [FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`(G2, i, F)) |`,,X,,`, quantification )`
 
