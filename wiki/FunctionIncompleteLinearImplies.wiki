@@ -9,13 +9,13 @@ return: whether G is known to imply H according the methods used by this functio
 </pre>
 | `if G and H are the same expression`<br>
 |........ `or`<br>
-|.... `G is "t1 = t2" or "not (t1 != t2)" and`<br>
-|.... `H is "t2 = t1" or "not (t2 != t1)"`<br>
+|.... `G is "t`,,1,,` = t`,,2,,`" or "not (t`,,1,,` != t`,,2,,`)" and`<br>
+|.... `H is "t`,,2,,` = t`,,1,,`" or "not (t`,,2,,` != t`,,1,,`)"`<br>
 |........ `or`<br>
-|.... `G is "t1 = c1" or G is "c1 = t1" with c1 a constant,`<br>
-|.... `and H is "not t1 = c2" or H is "not c2 = t1" or H is "t1 != c2" or H is "c2 != t1"`<br>
-|.... `with c2 a constant distinct from c1`<br>
+|.... `G is "t`,,1,,` = c`,,1,,`" or G is "c`,,1,,` = t`,,1,,`" with c`,,1,,` a constant,`<br>
+|.... `and H is "not t`,,1,,` = c`,,2,,`" or H is "not c`,,2,,` = t`,,1,,`" or H is "t`,,1,,` != c`,,2,,`" or H is "c`,,2,,` != t`,,1,,"`<br>
+|.... `with c`,,2,,` a constant distinct from c`,,1,,`<br>
 |........ `or`<br>
-|.... `G is t1 != t2 or "not (t1 = t2)" and H is "t2 != t1" or "not (t2 = t1)"`<br>
+|.... `G is t`,,1,,` != t`,,2,,` or "not (t`,,1,,` = t`,,2,,`)" and H is "t`,,2,,` != t`,,1,,`" or "not (t`,,2,,` = t`,,1,,`)"`<br>
 |........ `return true`<br>
 | `return false`<br>
