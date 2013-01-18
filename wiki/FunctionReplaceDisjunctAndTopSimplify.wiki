@@ -3,7 +3,6 @@ replace_disjunct_and_top_simplify(F, i, F,,1,, or ... or F,,n,,)
 <pre>
 This function is intended for simplifying disjunctions obtained from replacing a given disjunct 
 by another in a disjunction that has already been checked for obvious simplifications.
-
 inputs: F and each Fi is any formula.
         i is an integer in {1,..., n}
 return: a possibly simplified expression equivalent to
