@@ -1,1 +1,34 @@
-TODO
+#summary R_move_not_in(F)
+R_move_not_in(F)
+<pre>
+inputs: F is a negation.
+return: a formula that is not a negation and is equivalent to "F"
+</pre>
+| Cases for input:<br>
+| F is “not FALSE”<br>
+|.... return TRUE<br>
+| F is “not TRUE”<br>
+|.... return FALSE<br>
+| F is "not (t1 = t2 = ... = tn)"<br>
+|.... return t1 != t2 or ... or t_{n-1} != tn<br>
+| F is “not x != t”<br>
+|.... return x = t<br>
+| F is "not not G "<br>
+|.... G <- R_top_simplify(G)<br>
+|.... return G<br>
+| F is “not (G1 and ... and Gn)”<br>
+|.... (G1 and ... and Gn) <- R_top_simplify_conjunction(G1 and ... and Gn)<br>
+|.... return not G1 or ... or not Gn<br>
+| F is “not (G1 or ... or Gn)”<br>
+|.... (G1 or ... or Gn) <- R_top_simplify_disjunction(G1 or ... or Gn)<br>
+|.... return not G1 and ... and not Gn<br>
+| F is “not (G => H)”<br>
+|.... return R_top_simplify_conjunction(G and not H)<br>
+| F is “not (G <=> H)”<br>
+|... return R_top_simplify_disjunction(<br>
+|....... R_top_simplify_conjunction(G and not H)<br>
+|....... or<br>
+|....... R_top_simplify_conjunction(not G and H))<br>
+| F is “not (Qx G)” for Q a quantifier<br>
+|.... return Q’x not G<br>
+|........ where Q’ is the opposite quantifier of Q<br>
