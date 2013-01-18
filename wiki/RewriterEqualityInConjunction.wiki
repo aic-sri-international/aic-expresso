@@ -1,1 +1,1 @@
-TODO
+#summary R_equality_in_conjunction(| x_i = t and Phi |,,X,,, quantification)
