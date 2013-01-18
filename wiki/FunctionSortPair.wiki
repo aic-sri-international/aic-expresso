@@ -1,1 +1,10 @@
-TODO
+#summary sort_pair(F1, F2)
+sort_pair(F1, F2)
+<pre>
+inputs: F1 and F2 are formulas.
+return: a tuple with the cheapest formula in the first position.
+</pre>
+| (F', k) <- [FunctionPickCheapest pick_cheapest]( (F1, 1), (F2, 2) )<br>
+| if k = 1<br>
+|.... return (F1, F2)<br>
+| return (F2, F1)<br>
