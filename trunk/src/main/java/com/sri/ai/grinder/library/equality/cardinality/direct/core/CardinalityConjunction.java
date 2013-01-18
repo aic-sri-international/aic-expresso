@@ -294,7 +294,7 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 			}
 			else if (fi.hasFunctor(FunctorConstants.IMPLICATION)) {
 				Trace.log("if Fi is G1 => G2");
-				Trace.log("    return R_card(| top_simplify_disjunction(replace_conjunct_and_top_simplify((not G1), i, F) or replace_conjunct_and_top_simplify(G2, i, F)) |_X, quantification)");
+				Trace.log("    return R_card(| R_top_simplify_disjunction(replace_conjunct_and_top_simplify((not G1), i, F) or replace_conjunct_and_top_simplify(G2, i, F)) |_X, quantification)");
 				Expression g1    = fi.get(0);
 				Expression g2    = fi.get(1);
 				Expression notG1 = CardinalityUtil.makeNot(g1);
@@ -337,7 +337,7 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 			}
 			else if (Or.isDisjunction(fi)) {
 				Trace.log("if Fi is (F1 or F2)");
-				Trace.log("    return R_card(| top_simplify_disjunction((replace_conjunct_and_top_simplify(F1, i, F) or replace_conjunct_and_top_simplify(F2, i, F)) |_X, quantification)");
+				Trace.log("    return R_card(| R_top_simplify_disjunction((replace_conjunct_and_top_simplify(F1, i, F) or replace_conjunct_and_top_simplify(F2, i, F)) |_X, quantification)");
 				Expression f1 = CardinalityUtil.getF1FromDisjunction(fi);
 				Expression f2 = CardinalityUtil.getF2FromDisjunction(fi);
 				
