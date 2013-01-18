@@ -15,7 +15,7 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
 | `such that F can be partitioned into D, D`,,1,,`, and D`,,2,,`; where I`,,1,,` and I`,,2,,` are`<br> 
 | `two partitions of the indices in X, and the index variables in D`,,1,,` and D`,,2,,<br>
 | `are I`,,1,,` and I`,,2,,` respectively, and D is independent of X. Either D or D`,,2,,` may be empty.`<br>
-|.... `D,,1,,` = `[RewriterTopSimplify R_top_simplify]`(D`,,1,,`)`<br>
+|.... `D`,,1,,` = `[RewriterTopSimplify R_top_simplify]`(D`,,1,,`)`<br>
 |.... `if D`,,2,,` is empty:`<br>
 |........ `R <- `[RewriterCardWithQuantification R_card]`(| D`,,1,,` |`,,X,,`, quantification)`<br>
 |.... `else`<br>
