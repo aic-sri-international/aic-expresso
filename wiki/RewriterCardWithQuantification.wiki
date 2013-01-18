@@ -11,30 +11,30 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
             of which may differ from the exact one in the following way: 
             when the exact one is not 0, it may be any value but 0.
 </pre>
-`if F is True`
-    `return `[RewriterSimplify R_simplify]`(||X||)`
-
-`if F is False`
-    `return 0`
-
-`if x does not occur in F for any x in X`
-    `return `[RewriterSimplify R_simplify]`(if F then ||X|| else 0)`
-
-`if F is a conjunction // including F being a literal or a multi-equality`
-    `return `[RewriterCardConjunction R_card_conjunction]`(|F|`,,X,,`, quantification)`
-
-`if F is disjunction`
-    `return `[RewriterCardDisjunction R_card_disjunction]`(| F |`,,X,,`, quantification)`
-
-`if F is "not G"`
-    `F' <- `[RewriterTopSimplify R_top_simplify]`(`[RewriterMoveNotIn R_move_not_in]`(F))`<br>
-    `return `[RewriterCardWithQuantification R_card]`(| F' |`,,X,,`, quantification)`
-
-`if F is an implication of the form G => H`
-    `return `[RewriterCardImplication R_card_implication]`( | F |`,,X,,`, quantification)`
-
-`if F is an equivalence of the form G <=> H`
-    `return `[RewriterCardEquivalence R_card_equivalence]`( | F |`,,X,,`, quantification)`
-
-`if F is Q y : G`
-    `return `[RewriterCardWithQuantification R_card]`( | `[RewriterTopQuantifierElimination R_top_quantifier_elimination]`(Q y : G) |`,,X,,`, quantification)`
+| `if F is True`<br>
+|.... `return `[RewriterSimplify R_simplify]`(||X||)`<br>
+|<br>
+| `if F is False`<br>
+|.... `return 0`<br>
+|<br>
+| `if x does not occur in F for any x in X`<br>
+|.... `return `[RewriterSimplify R_simplify]`(if F then ||X|| else 0)`<br>
+|<br>
+| `if F is a conjunction // including F being a literal or a multi-equality`<br>
+|.... `return `[RewriterCardConjunction R_card_conjunction]`(|F|`,,X,,`, quantification)`<br>
+|<br>
+| `if F is disjunction`<br>
+|.... `return `[RewriterCardDisjunction R_card_disjunction]`(| F |`,,X,,`, quantification)`<br>
+|<br>
+| `if F is "not G"`<br>
+|.... `F' <- `[RewriterTopSimplify R_top_simplify]`(`[RewriterMoveNotIn R_move_not_in]`(F))`<br>
+|.... `return `[RewriterCardWithQuantification R_card]`(| F' |`,,X,,`, quantification)`<br>
+|<br>
+| `if F is an implication of the form G => H`<br>
+|.... `return `[RewriterCardImplication R_card_implication]`( | F |`,,X,,`, quantification)`<br>
+|<br>
+| `if F is an equivalence of the form G <=> H`<br>
+|.... `return `[RewriterCardEquivalence R_card_equivalence]`( | F |`,,X,,`, quantification)`<br>
+|<br>
+| `if F is Q y : G`<br>
+|.... `return `[RewriterCardWithQuantification R_card]`( | `[RewriterTopQuantifierElimination R_top_quantifier_elimination]`(Q y : G) |`,,X,,`, quantification)`
