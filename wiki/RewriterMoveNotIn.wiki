@@ -4,31 +4,31 @@ R_move_not_in(F)
 inputs: F is a negation.
 return: a formula that is not a negation and is equivalent to "F"
 </pre>
-| Cases for input:<br>
-| F is “not FALSE”<br>
-|.... return TRUE<br>
-| F is “not TRUE”<br>
-|.... return FALSE<br>
-| F is "not (t1 = t2 = ... = tn)"<br>
-|.... return t1 != t2 or ... or t_{n-1} != tn<br>
-| F is “not x != t”<br>
-|.... return x = t<br>
-| F is "not not G "<br>
-|.... G <- R_top_simplify(G)<br>
-|.... return G<br>
-| F is “not (G1 and ... and Gn)”<br>
-|.... (G1 and ... and Gn) <- R_top_simplify_conjunction(G1 and ... and Gn)<br>
-|.... return not G1 or ... or not Gn<br>
-| F is “not (G1 or ... or Gn)”<br>
-|.... (G1 or ... or Gn) <- R_top_simplify_disjunction(G1 or ... or Gn)<br>
-|.... return not G1 and ... and not Gn<br>
-| F is “not (G => H)”<br>
-|.... return R_top_simplify_conjunction(G and not H)<br>
-| F is “not (G <=> H)”<br>
-|... return R_top_simplify_disjunction(<br>
-|....... R_top_simplify_conjunction(G and not H)<br>
-|....... or<br>
-|....... R_top_simplify_conjunction(not G and H))<br>
-| F is “not (Qx G)” for Q a quantifier<br>
-|.... return Q’x not G<br>
-|........ where Q’ is the opposite quantifier of Q<br>
+| `Cases for input:`<br>
+| `F is "not FALSE"`<br>
+|.... `return TRUE`<br>
+| `F is "not TRUE"`<br>
+|.... `return FALSE`<br>
+| `F is "not (t`,,1,,` = t`,,2,,` = ... = t`,,n,,`)`"<br>
+|.... `return t`,,1,,` != t`,,2,,` or ... or t`,,{n-1},,` != t`,,n,,<br>
+| `F is "not x != t"`<br>
+|.... `return x = t`<br>
+| `F is "not not G "`<br>
+|.... `G <- `[RewriterTopSimplify R_top_simplify]`(G)`<br>
+|.... `return G`<br>
+| `F is "not (G`,,1,,` and ... and G`,,n,,`)"`<br>
+|.... `(G`,,1,,` and ... and G`,,n,,`) <- `[RewriterTopSimplifyConjunction R_top_simplify_conjunction]`(G`,,1,,` and ... and G`,,n,,`)`<br>
+|.... `return not G`,,1,, or ... or not G`,,n,,<br>
+| `F is "not (G`,,1,,` or ... or G`,,n,,)"`<br>
+|.... `(G`,,1,,` or ... or G`,,n,,`) <- `[RewriterTopSimplifyDisjunction R_top_simplify_disjunction]`(G`,,1,,` or ... or G`,,n,,`)`<br>
+|.... `return not G`,,1,,` and ... and not G`,,n,,<br>
+| `F is "not (G => H)"`<br>
+|.... `return `[RewriterTopSimplifyConjunction R_top_simplify_conjunction]`(G and not H)`<br>
+| `F is "not (G <=> H)"`<br>
+|... `return `[RewriterTopSimplifyDisjunction R_top_simplify_disjunction]`(`<br>
+|....... [RewriterTopSimplifyConjunction R_top_simplify_conjunction]`(G and not H)`<br>
+|....... `o`r<br>
+|....... [RewriterTopSimplifyConjunction R_top_simplify_conjunction]`(not G and H))`<br>
+| `F is "not (Qx G)" for Q a quantifier`<br>
+|.... `return Q'x not G`<br>
+|........ `where Q' is the opposite quantifier of Q`<br>
