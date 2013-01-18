@@ -1,1 +1,14 @@
-TODO
+#summary add_conjunct_and_top_simplify(F, F1 and ... and Fn)
+add_conjunct_and_top_simplify(F, F,,1,, and ... and F,,n,,)
+<pre>
+inputs: F and each Fi is any formula.
+return: a top-simplified equivalent of F1 and ... and Fn and F in linear time.
+</pre>
+| `if F is False`<br>
+|.... `return False`<br>
+| `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(F`,,i,,`, F), for some i`<br>
+|.... `return F`,,1,,` and ... and F`,,n,,<br>
+| `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(F, not F`,,i,,`) or `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(F`,,i,,`, not F) for some i`<br>
+|.... `return False`<br>
+| `C <- remove from F`,,1,,` and ... and F`,,n,,` all conjuncts F`,,i,,` such that `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(F, F`,,i,,`)`<br>
+| `return C and F`<br>
