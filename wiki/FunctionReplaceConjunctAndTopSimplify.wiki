@@ -8,7 +8,7 @@ inputs: F and each Fi is any formula.
         i is an integer in {1,..., n}
 return: a possibly simplified expression equivalent to
         F1 and ... and Fi-1 and F and Fi+1 and ... and Fn, in linear time.
-<pre>
+</pre>
 | `if F is False`<br>
 |.... `return False`<br>
 | `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(F`,,j,,`, F), for some j != i`<br>
