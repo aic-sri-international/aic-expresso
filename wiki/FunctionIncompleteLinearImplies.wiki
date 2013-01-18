@@ -2,7 +2,6 @@
 incomplete_linear_implies(G, H)
 <pre>
 Runs in linear time on the size of G and H.
-
 inputs: G and H are formulas.
 return: whether G is known to imply H according the methods used by this function 
         (a return value of "false" does not mean that G does not imply H, 
