@@ -235,7 +235,7 @@ public interface CardinalityRewriter {
 	 * 
 	 * if Fi is G1 => G2
 	 *     return R_card(
-	 *             | top_simplify_disjunction(
+	 *             | R_top_simplify_disjunction(
 	 *                 replace_conjunct_and_top_simplify((not G1), i, F)
 	 *                      or
 	 *                 replace_conjunct_and_top_simplify(G2, i, F)) 
@@ -247,7 +247,7 @@ public interface CardinalityRewriter {
 	 * 
 	 * if Fi is (F1 or F2)
 	 *     return R_card(
-	 *             | top_simplify_disjunction(
+	 *             | R_top_simplify_disjunction(
 	 *                 replace_conjunct_and_top_simplify(F1, i, F)
 	 *                      or
 	 *                 replace_conjunct_and_top_simplify(F2, i, F)) 
