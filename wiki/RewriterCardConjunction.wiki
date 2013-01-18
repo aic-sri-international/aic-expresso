@@ -14,7 +14,7 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
 `if F is a conjunction which can be partitioned into two or more independent sub problems`<br>
 // i.e. there is a partition {I,,1,,, ..., I,,k,,} of indices such that there is a partition {C,,1,,, ..., C,,k,,}<br>
 // of the conjuncts of F where indices in I,,j,, occur in C,,j,, only, for every j:
-    `if I_1 is empty:`
+    `if I`,,1,,` is empty:`
         `return if C`,,1,,` then `[RewriterSimplify R_simplify]`(`
             [RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(C`,,2,,`)|`,,I2,,`, quantification)  * ... *`<br>
             [RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(C`,,k,,`)|`,,Ik,,`, quantification) ) else 0`
@@ -32,20 +32,20 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
 `if F is F1 and F2 where F1 is a formula independent of all x's in X`
     // note that F1 is the conjunction of all conjuncts of F that are X-independent,<br>
     // or F itself if it is X-free<br>
-    F2 = R_top_simplify_conjunction(F2)<br>
-    return R_simplify( if F1 then R_card_conjunction(| F2 |_X, quantification) else 0 )<br>
+    `F2 = `[RewriterTopSimplifyConjunction R_top_simplify_conjunction]`(F2)`<br>
+    `return `[RewriterSimplify R_simplify]`( if F1 then `[RewriterCardConjunction R_card_conjunction]`(| F2 |`,,X,,`, quantification) else 0 )`<br>
 
-if F is a conjunction of the form 'x = t and Phi', where x is one of the index variables in X
-    return R_equality_in_conjunction(| F |_X, quantification)
+`if F is a conjunction of the form 'x = t and Phi', where x is one of the index variables in X`
+    `return `[RewriterEqualityInConjunction R_equality_in_conjunction]`(| F |`,,X,,`, quantification)`
 
-if F is x1 != t1 and ... xn != tk // F is a conjunction of disequalities
-    return R_conjunction_disequalities(| F |_X, quantification)
+`if F is x1 != t1 and ... xn != tk` // F is a conjunction of disequalities
+    `return `[RewriterConjunctionDisequalities R_conjunction_disequalities]`(| F |`,,X,,, quantification)`
 
-Candidates <- { (Fi, i) : Fi satisfies one of the cases below }<br>
-(Fi, i) <- pick_cheapest( Candidates )
+`Candidates <- { (Fi, i) : Fi satisfies one of the cases below }`<br>
+`(Fi, i) <- `[FunctionPickCheapest pick_cheapest]`( Candidates )`
 
-if Fi is “ not G ”
-    return R_card(|replace_conjunct_and_top_simplify(R_move_not_in(Fi), i, F)|_X, quantification )
+`if Fi is "not G"`
+    `return `[RewriterCardWithQuantification R_card]`(|`[FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`(`[RewriterMoveNotIn R_move_not_in]`(Fi), i, F)|`,,X,,`, quantification )`
 
 if Fi is (nested) conjunction (G1 and … and Gk)
     return R_card(| R_top_simplify_conjunction(F1 and ... Fi-1 and G1 and ... and Gk and Fi+1 and … and Fn) |_X, quantification )
