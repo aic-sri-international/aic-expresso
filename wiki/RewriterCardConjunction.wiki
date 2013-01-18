@@ -22,52 +22,50 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
 |........ `return `[RewriterSimplify R_simplify]`(`<br>
 |............ [RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(C`,,1,,`)|`,,I1,,`, quantification)  * ... *` <br>
 |............ [RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(C`,,k,,`)|`,,Ik,,`, quantification) )`<br>
-
-`if F is True or empty conjunction`
-    `return ||X||`
-
-`if F is False`
-    `return 0`
-
-`if F is F1 and F2 where F1 is a formula independent of all x's in X`
-    // note that F1 is the conjunction of all conjuncts of F that are X-independent,<br>
-    // or F itself if it is X-free<br>
-    `F2 = `[RewriterTopSimplifyConjunction R_top_simplify_conjunction]`(F2)`<br>
-    `return `[RewriterSimplify R_simplify]`( if F1 then `[RewriterCardConjunction R_card_conjunction]`(| F2 |`,,X,,`, quantification) else 0 )`<br>
-
-`if F is a conjunction of the form 'x = t and Phi', where x is one of the index variables in X`
-    `return `[RewriterEqualityInConjunction R_equality_in_conjunction]`(| F |`,,X,,`, quantification)`
-
-`if F is x1 != t1 and ... xn != tk` // F is a conjunction of disequalities
-    `return `[RewriterCardConjunctionOfDisequalities R_card_conjunction_of_disequalities]`(| F |`,,X,,`, quantification)`
-
-`Candidates <- { (Fi, i) : Fi satisfies one of the cases below }`<br>
-`(Fi, i) <- `[FunctionPickCheapest pick_cheapest]`( Candidates )`
-
-`if Fi is "not G"`
-    `return `[RewriterCardWithQuantification R_card]`(|`[FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`(`[RewriterMoveNotIn R_move_not_in]`(Fi), i, F)|`,,X,,`, quantification )`
-
-`if Fi is (nested) conjunction (G1 and ... and Gk)`
-    `return `[RewriterCardWithQuantification R_card]`(| `[RewriterTopSimplifyConjunction R_top_simplify_conjunction]`(F1 and ... Fi-1 and G1 and ... and Gk and Fi+1 and ... and Fn) |`,,X,,`, quantification )`
-
-`if Fi is G1 => G2`
-    `return `[RewriterCardWithQuantification R_card]`(`
-        `| `[RewriterTopSimplifyDisjunction R_top_simplify_disjunction]`(`[FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`((not G1), i, F)`<br>
-        `or`<br>
-        [FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`(G2, i, F)) |`,,X,,`, quantification )`
-
-
-`if Fi is G1 <=> G2`
-    `return `[RewriterCardWithQuantification R_card]`(`
-        `| `[FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`(G1 and G2), i, F) |`,,X,,`, quantification)`<br> 
-        `+ `[RewriterCardWithQuantification R_card]`(`<br>
-        `| `[FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`(not G1 and not G2), i, F) |`,,X,,`, quantification)`
-
-`if Fi is (F1 or F2)`
-    `return` [RewriterCardWithQuantification R_card]`(`
-        `| `[RewriterTopSimplifyDisjunction R_top_simplify_disjunction]`(`[FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`(F1, i, F)`
-        `or`<br>
-        [FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`(F2, i, F)) |`,,X,,`, quantification )`
-
-`if Fi is Q y : G`
-    `return `[RewriterCardWithQuantification R_card]`(| `[FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`(`[RewriterTopQuantifierElimination R_top_quantifier_elimination]`(Fi), i, F) |`,,X,,`, quantification )`
+|<br>
+| `if F is True or empty conjunction`<br>
+|.... `return ||X||`<br>
+|<br>
+| `if F is False`<br>
+|.... `return 0`<br>
+|<br>
+| `if F is F1 and F2 where F1 is a formula independent of all x's in X`<br>
+|.... // note that F1 is the conjunction of all conjuncts of F that are X-independent, or F itself if it is X-free<br>
+|....`F2 = `[RewriterTopSimplifyConjunction R_top_simplify_conjunction]`(F2)`<br>
+|.... `return `[RewriterSimplify R_simplify]`( if F1 then `[RewriterCardConjunction R_card_conjunction]`(| F2 |`,,X,,`, quantification) else 0 )`<br>
+|<br>
+| `if F is a conjunction of the form 'x = t and Phi', where x is one of the index variables in X`<br>
+|.... `return `[RewriterEqualityInConjunction R_equality_in_conjunction]`(| F |`,,X,,`, quantification)`<br>
+|<br>
+| `if F is x1 != t1 and ... xn != tk` // F is a conjunction of disequalities<br>
+|.... `return `[RewriterCardConjunctionOfDisequalities R_card_conjunction_of_disequalities]`(| F |`,,X,,`, quantification)`<br>
+|<br>
+| `Candidates <- { (Fi, i) : Fi satisfies one of the cases below }`<br>
+| `(Fi, i) <- `[FunctionPickCheapest pick_cheapest]`( Candidates )`<br>
+|<br>
+|`if Fi is "not G"`<br>
+|.... `return `[RewriterCardWithQuantification R_card]`(|`[FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`(`[RewriterMoveNotIn R_move_not_in]`(Fi), i, F)|`,,X,,`, quantification )`<br>
+|<br>
+| `if Fi is (nested) conjunction (G1 and ... and Gk)`<br>
+|.... `return `[RewriterCardWithQuantification R_card]`(| `[RewriterTopSimplifyConjunction R_top_simplify_conjunction]`(F1 and ... Fi-1 and G1 and ... and Gk and Fi+1 and ... and Fn) |`,,X,,`, quantification )`<br>
+|<br>
+| `if Fi is G1 => G2`
+|.... `return `[RewriterCardWithQuantification R_card]`(`<br>
+|........ `| `[RewriterTopSimplifyDisjunction R_top_simplify_disjunction]`(`[FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`((not G1), i, F)`<br>
+|........ `or`<br>
+|........ [FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`(G2, i, F)) |`,,X,,`, quantification )`<br>
+|<br>
+| `if Fi is G1 <=> G2`<br>
+|.... `return `[RewriterCardWithQuantification R_card]`(`<br>
+|........ `| `[FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`(G1 and G2), i, F) |`,,X,,`, quantification)`<br> 
+|........ `+ `[RewriterCardWithQuantification R_card]`(`<br>
+|........ `| `[FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`(not G1 and not G2), i, F) |`,,X,,`, quantification)`<br>
+|<br>
+| `if Fi is (F1 or F2)`<br>
+|.... `return` [RewriterCardWithQuantification R_card]`(`<br>
+|........ `| `[RewriterTopSimplifyDisjunction R_top_simplify_disjunction]`(`[FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`(F1, i, F)`<br>
+|........ `or`<br>
+|........ [FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`(F2, i, F)) |`,,X,,`, quantification )`<br>
+|<br>
+| `if Fi is Q y : G`<br>
+|.... `return `[RewriterCardWithQuantification R_card]`(| `[FunctionReplaceConjunctAndTopSimplify replace_conjunct_and_top_simplify]`(`[RewriterTopQuantifierElimination R_top_quantifier_elimination]`(Fi), i, F) |`,,X,,`, quantification )`<br>
