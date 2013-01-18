@@ -6,13 +6,13 @@ inputs: F a first-order formula on equalities,
           F may have quantifiers.
 return: a basic expression representing |F|.
 </pre>
-| `F <- `[RewriterTopSimplify R_top_simplify]`(F) // this is the only function that does not assume its input is top-simplified`<br>
-| <br>
-| `if n = 0`<br>
-| ....`return `[RewriterSimplify R_simplify]`(if F then 1 else 0)`<br>
-| <br>
-| `if n > 0`<br>
-| ....`if `[FunctionNegationHasLessNumberOfDisjuncts negationHasLessNumberOfDisjuncts]`(F):`<br>
-| ........`return `[RewriterSimplify R_simplify]`(||X|| - `[RewriterCardWithQuantification R_card]`( | not F |`,,X,,,` "none" ))`<br>
-| ....`else`<br>
-| ........`return `[RewriterCardWithQuantification R_card]`( | F |`,,X,,`, "none")`
+`F <- `[RewriterTopSimplify R_top_simplify]`(F) // this is the only function that does not assume its input is top-simplified`
+
+`if n = 0`<br>
+....`return `[RewriterSimplify R_simplify]`(if F then 1 else 0)`
+
+`if n > 0`<br>
+....`if `[FunctionNegationHasLessNumberOfDisjuncts negationHasLessNumberOfDisjuncts]`(F):`<br>
+........`return `[RewriterSimplify R_simplify]`(||X|| - `[RewriterCardWithQuantification R_card]`( | not F |`,,X,,,` "none" ))`<br>
+....`else`<br>
+........`return `[RewriterCardWithQuantification R_card]`( | F |`,,X,,`, "none")`
