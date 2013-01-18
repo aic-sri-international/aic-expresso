@@ -1,1 +1,7 @@
-TODO
+#summary R_top_simplify(F)
+R_top_simplify(F)<br>
+| `if F is a conjunction`<br>
+|.... `F <- `[RewriterTopSimplifyConjunction R_top_simplify_conjunction]`(F)`<br>
+| `if F is a disjunction`<br>
+|.... `F <- `[RewriterTopSimplifyDisjunction R_top_simplify_disjunction]`(F)`<br>
+| `return F`<br>
