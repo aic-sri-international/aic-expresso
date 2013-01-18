@@ -9,10 +9,10 @@ return: a basic expression representing |F|.
 `F <- `[RewriterTopSimplify R_top_simplify]`(F) // this is the only function that does not assume its input is top-simplified`
 
 `if n = 0`<br>
-....`return `[RewriterSimplify R_simplify]`(if F then 1 else 0)`
+`....return `[RewriterSimplify R_simplify]`(if F then 1 else 0)`
 
 `if n > 0`<br>
-....`if `[FunctionNegationHasLessNumberOfDisjuncts negationHasLessNumberOfDisjuncts]`(F):`<br>
-........`return `[RewriterSimplify R_simplify]`(||X|| - `[RewriterCardWithQuantification R_card]`( | not F |`,,X,,,` "none" ))`<br>
-....`else`<br>
-........`return `[RewriterCardWithQuantification R_card]`( | F |`,,X,,`, "none")`
+`....if `[FunctionNegationHasLessNumberOfDisjuncts negationHasLessNumberOfDisjuncts]`(F):`<br>
+`........return `[RewriterSimplify R_simplify]`(||X|| - `[RewriterCardWithQuantification R_card]`( | not F |`,,X,,,` "none" ))`<br>
+`....else`<br>
+`........return `[RewriterCardWithQuantification R_card]`( | F |`,,X,,`, "none")`
