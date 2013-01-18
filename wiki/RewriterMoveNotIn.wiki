@@ -19,7 +19,7 @@ return: a formula that is not a negation and is equivalent to "F"
 | `F is "not (G`,,1,,` and ... and G`,,n,,`)"`<br>
 |.... `(G`,,1,,` and ... and G`,,n,,`) <- `[RewriterTopSimplifyConjunction R_top_simplify_conjunction]`(G`,,1,,` and ... and G`,,n,,`)`<br>
 |.... `return not G`,,1,,` or ... or not G`,,n,,<br>
-| `F is "not (G`,,1,,` or ... or G`,,n,,)"`<br>
+| `F is "not (G`,,1,,` or ... or G`,,n,,`)"`<br>
 |.... `(G`,,1,,` or ... or G`,,n,,`) <- `[RewriterTopSimplifyDisjunction R_top_simplify_disjunction]`(G`,,1,,` or ... or G`,,n,,`)`<br>
 |.... `return not G`,,1,,` and ... and not G`,,n,,<br>
 | `F is "not (G => H)"`<br>
