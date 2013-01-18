@@ -11,3 +11,21 @@ return: simplification of top level disjunction.
 |.... `if F`,,i,,` is not "False" and F`,,i,,` is not Alpha != Alpha`<br>
 |........ `add F`,,i,,` to T`<br>
 |<br>
+| `T' <- empty tuple` // T' will contain the elements of T that are needed in the final disjunction<br>
+| `irrelevant <- empty set`<br>
+| `for all i in 1, ..., |T|`<br>
+|.... `if T`,,i,,` is in irrelevant`<br>
+|........ `continue to next i`<br>
+|.... `i_is_irrelevant <- false`<br>
+|.... `for all j in i + 1, ..., |T|`<br>
+|........ `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(T`,,i,,`, T`,,j,,`)`
+|............ `i_is_irrelevant <- true`
+|............ `continue to next i`
+|........ `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(T`,,j,,`, T`,,i,,`)`
+|............ `irrelevant <- irrelevant union { T`,,j,,` }`
+|........ `else if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(not T`,,i,,`, T`,,j,,`) or `[[FunctionIncompleteLinearImplies incomplete_linear_implies]`(not T`,,j,,`, T`,,i,,`)`
+|............ `return True` // disjunction is tautology
+|.... `if not i_is_irrelevant`
+|........ `add T`,,i,,` to T'`
+|<br>
+| `return disjunction of elements of T'`<br>
