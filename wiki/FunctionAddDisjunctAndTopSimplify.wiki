@@ -1,1 +1,14 @@
-TODO
+#summary add_disjunct_and_top_simplify(F, F1 or ... or Fn)
+add_disjunct_and_top_simplify(F, F,,1,, or ... or F,,n,,)
+<pre>
+inputs: F and each Fi is any formula.
+return: a top-simplified equivalent of F1 or ... or Fn and F in linear time.
+<pre>
+| `if F is True`<br>
+|.... `return True`<br>
+| `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(F, F`,,i,,`), for some i`<br>
+|.... `return F`,,1,,` or ... or F`,,n,,<br>
+| `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(not F, F`,,i,,`) or `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(not F`,,i,,`, F) for some i`<br>
+|.... `return True`<br>
+| `D <- remove from F`,,1,,` or ... or F`,,n,,` all disjuncts F`,,i,,` such that [FunctionIncompleteLinearImplies incomplete_linear_implies]`(F`,,i,,`, F)`<br>
+| `return D or F`<br>
