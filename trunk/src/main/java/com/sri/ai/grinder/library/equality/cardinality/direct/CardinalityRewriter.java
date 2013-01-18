@@ -219,7 +219,7 @@ public interface CardinalityRewriter {
 	 *     return R_equality_in_conjunction(| F |_X)
 	 * 
 	 * if F is x1 != t1 and ... xn != tk // F is a conjunction of disequalities
-	 *     return R_conjunction_disequalities(| F |_X, quantification)
+	 *     return R_card_conjunction_of_disequalities(| F |_X, quantification)
 	 * 
 	 * Candidates <- { (Fi, i) : Fi satisfies one of the cases below }
 	 * (Fi, i) <- pick_cheapest( Candidates )
