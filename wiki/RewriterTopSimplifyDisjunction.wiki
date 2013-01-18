@@ -18,14 +18,14 @@ return: simplification of top level disjunction.
 |........ `continue to next i`<br>
 |.... `i_is_irrelevant <- false`<br>
 |.... `for all j in i + 1, ..., |T|`<br>
-|........ `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(T`,,i,,`, T`,,j,,`)`
-|............ `i_is_irrelevant <- true`
-|............ `continue to next i`
-|........ `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(T`,,j,,`, T`,,i,,`)`
-|............ `irrelevant <- irrelevant union { T`,,j,,` }`
-|........ `else if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(not T`,,i,,`, T`,,j,,`) or `[[FunctionIncompleteLinearImplies incomplete_linear_implies]`(not T`,,j,,`, T`,,i,,`)`
-|............ `return True` // disjunction is tautology
-|.... `if not i_is_irrelevant`
-|........ `add T`,,i,,` to T'`
+|........ `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(T`,,i,,`, T`,,j,,`)`<br>
+|............ `i_is_irrelevant <- true`<br>
+|............ `continue to next i`<br>
+|........ `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(T`,,j,,`, T`,,i,,`)`<br>
+|............ `irrelevant <- irrelevant union { T`,,j,,` }`<br>
+|........ `else if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(not T`,,i,,`, T`,,j,,`) or `[[FunctionIncompleteLinearImplies incomplete_linear_implies]`(not T`,,j,,`, T`,,i,,`)`<br>
+|............ `return True` // disjunction is tautology<br>
+|.... `if not i_is_irrelevant`<br>
+|........ `add T`,,i,,` to T'`<br>
 |<br>
 | `return disjunction of elements of T'`<br>
