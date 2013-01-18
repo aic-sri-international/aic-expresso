@@ -2,7 +2,7 @@
 R_card( | F |,,X,,, quantification )
 <pre>
 inputs: F is any top-simplified formula.
-        quantification is one of "none", "for all", or "there exists".
+        quantification is "none", "for all", or "there exists".
 return: a basic expression equivalent to | F |_X, if quantification is "none".
         If quantification is "for all", returns a counting-solution, the leaves 
             of which may differ from the exact one in the following way: 
