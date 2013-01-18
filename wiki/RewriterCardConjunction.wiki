@@ -39,7 +39,7 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
     `return `[RewriterEqualityInConjunction R_equality_in_conjunction]`(| F |`,,X,,`, quantification)`
 
 `if F is x1 != t1 and ... xn != tk` // F is a conjunction of disequalities
-    `return `[RewriterCardConjunctionOfDisequalities R_card_conjunction_of_disequalities]`(| F |`,,X,,, quantification)`
+    `return `[RewriterCardConjunctionOfDisequalities R_card_conjunction_of_disequalities]`(| F |`,,X,,`, quantification)`
 
 `Candidates <- { (Fi, i) : Fi satisfies one of the cases below }`<br>
 `(Fi, i) <- `[FunctionPickCheapest pick_cheapest]`( Candidates )`
