@@ -1,1 +1,8 @@
-TODO
+#summary is_contradiction(F)
+is_contradiction(F)
+<pre>
+inputs: F is a formula.
+return: whether F is a contradiction or not.
+</pre>
+| `let x`,,1,,`, ..., x`,,n,,` be the free variables in F`
+| `return whether `[RewriterSimplify R_simplify]`(`[RewriterQuantifierElimination R_quantifier_elimination]`( there exists x`,,1,,` : ... there exists x`,,n,,` : F )) is "False"`
