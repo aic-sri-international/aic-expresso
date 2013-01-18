@@ -50,3 +50,9 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
 |<br>
 | `(F1, F2) <- `[FunctionSortPair sort_pair]`(F1, F2)`<br>
 |<br> 
+| `N1 <- `[RewriterCardWithQuantification R_card]`(| F1 |`,,X,,`, quantification)`<br>
+| `if N1 = 0`<br>
+|.... `return `[RewriterCardWithQuantification R_card]`(| F2 |`,,X,,`, quantification)` // | F1 and F2 |,,X,, is 0<br>
+| `if N1 = ||X||`<br>
+|.... `return ||X||` // | F2 |,,X,, = | F1 and F2 |,,X,, and cancel out<br>
+|<br>
