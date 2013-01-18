@@ -6,27 +6,26 @@ return: simplification of top level of conjunction.
 </pre>
 | T <- empty tuple // T will contain conjuncts of F not equal to True or False<br>
 | for all i<br>
-|     if Fi is False or Alpha != Alpha<br>
-|         return False<br>
-|     if Fi is not "True" and Fi is not Alpha = Alpha<br>
-|         add Fi to T<br>
+|.... if Fi is False or Alpha != Alpha<br>
+|........ return False<br>
+|.... if Fi is not "True" and Fi is not Alpha = Alpha<br>
+|........ add Fi to T<br>
 |<br> 
 | T' <- empty tuple // T' will contain the elements of T that are needed in the final conjunction<br>
 | irrelevant <- empty set<br>
 | for all i in 1,..., |T|<br>
-|     if Ti is in irrelevant<br>
-|         continue to next i<br>
-|     i_is_irrelevant <- false<br>
-|     for all j in i + 1, ..., |T|<br>
-|         if incomplete_linear_implies(Tj, Ti)<br>
-|             i_is_irrelevant <- true<br>
-|             continue to next i<br>
-|         if incomplete_linear_implies(Ti, Tj)<br>
-|             irrelevant <- irrelevant union { Tj }<br>
-|         else if incomplete_linear_implies(Ti, not Tj)<br>
-|                 or incomplete_linear_implies(Tj, not Ti)<br>
-|             return False // conjunction is contradiction<br>
-|     if not i_is_irrelevant<br>
-|         add Ti to T'<br>
+|.... if Ti is in irrelevant<br>
+|........ continue to next i<br>
+|.... i_is_irrelevant <- false<br>
+|.... for all j in i + 1, ..., |T|<br>
+|........ if incomplete_linear_implies(Tj, Ti)<br>
+|............ i_is_irrelevant <- true<br>
+|............ continue to next i<br>
+|........ if incomplete_linear_implies(Ti, Tj)<br>
+|............ irrelevant <- irrelevant union { Tj }<br>
+|........ else if incomplete_linear_implies(Ti, not Tj) or incomplete_linear_implies(Tj, not Ti)<br>
+|............ return False // conjunction is contradiction<br>
+|.... if not i_is_irrelevant<br>
+|........ add Ti to T'<br>
 |<br> 
 | return conjunction on elements of T'<br>
