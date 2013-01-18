@@ -1,5 +1,5 @@
 #summary R_sum_over_one_variable(sum_{x: Cx} S)
-R_sum_over_one_variable(sum__{x: Cx} S)
+R_sum_over_one_variable(sum___{x: Cx} S)
 <pre>
 inputs: Cx is a formula in boolean logic, constraining the values of the summation index x.
         S is an Easily-Summable expression with respect to x, that is:
