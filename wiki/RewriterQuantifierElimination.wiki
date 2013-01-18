@@ -22,3 +22,12 @@ return: a quantifier-free formula equivalent to F
 |........ `F' <- `[FunctionAddConjunctAndTopSimplify add_conjunct_and_top_simplify]`(G`,,i,,`, F')`<br>
 |........ `i <- i + 1`<br>
 |.... `return F'`<br>
+| `if F is a disjunction F`,,1,,` or ... or F`,,n,,<br>
+|.... `F' <- False`<br>
+|.... `i <- 1`<br>
+|.... `while F' is not "True" and i <= n`<br>
+|........ `G`,,i,,` <- `[RewriterQuantifierElimination R_quantifier_elimination]`(F`,,i,,`)`<br>
+|........ `F' <- `[FunctionAddDisjunctAndTopSimplify add_disjunct_and_top_simplify]`(G`,,i,,`, F')`<br>
+|........ `i <- i + 1`<br>
+|.... `return F'`<br>
+| `return F`<br>
