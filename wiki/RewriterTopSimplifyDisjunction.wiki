@@ -23,7 +23,7 @@ return: simplification of top level disjunction.
 |............ `continue to next i`<br>
 |........ `if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(T`,,j,,`, T`,,i,,`)`<br>
 |............ `irrelevant <- irrelevant union { T`,,j,,` }`<br>
-|........ `else if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(not T`,,i,,`, T`,,j,,`) or `[[FunctionIncompleteLinearImplies incomplete_linear_implies]`(not T`,,j,,`, T`,,i,,`)`<br>
+|........ `else if `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(not T`,,i,,`, T`,,j,,`) or `[FunctionIncompleteLinearImplies incomplete_linear_implies]`(not T`,,j,,`, T`,,i,,`)`<br>
 |............ `return True` // disjunction is tautology<br>
 |.... `if not i_is_irrelevant`<br>
 |........ `add T`,,i,,` to T'`<br>
