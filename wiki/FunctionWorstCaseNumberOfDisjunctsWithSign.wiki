@@ -1,1 +1,8 @@
-TODO
+#summary worstCaseNumberOfDisjuncts(F, sign)
+worstCaseNumberOfDisjuncts(F, sign)
+<pre>
+inputs: F is a formula.
+        sign is "true" or "false".
+return: a worst-case estimate of the number of disjuncts of the DNF
+        equivalent to formula F, if sign is true, or to not F, if sign is false.
+</pre>
