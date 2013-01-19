@@ -6,3 +6,27 @@ inputs: F is a formula.
 return: a worst-case estimate of the number of disjuncts of the DNF
         equivalent to formula F, if sign is true, or to not F, if sign is false.
 </pre>
+| `if F is not F'`<br>
+|.... `return `[FunctionWorstCaseNumberOfDisjunctsWithSign worstCaseNumberOfDisjuncts]`(F', not sign)`<br>
+|<br>
+| `if F is F`,,1,,` and ... and F`,,n,,<br>
+|.... `if sign`<br>
+|........ `return prod_i `[FunctionWorstCaseNumberOfDisjunctsWithSign worstCaseNumberOfDisjuncts]`(F`,,i,,`, sign)`<br>
+|.... `else` // sign is negative, this will be a disjunction in the DNF.<br>
+|........ `return sum_i` [FunctionWorstCaseNumberOfDisjunctsWithSign worstCaseNumberOfDisjuncts]`(F`,,i,,`, sign)`<br>
+|<br>
+| `if F is F`,,1,,` or ... or F`,,n,,<br>
+|.... `if sign`<br>
+|........ `return sum_i `[FunctionWorstCaseNumberOfDisjunctsWithSign worstCaseNumberOfDisjuncts]`(F`,,i,,`, sign)`<br>
+|.... `else` // sign is negative, this will be a conjunction in the DNF.<br>
+|........ `return prod_i `[FunctionWorstCaseNumberOfDisjunctsWithSign  worstCaseNumberOfDisjuncts]`(F`,,i,,`, sign)`<br>
+|<br>
+| `if F is there exists X : F'`<br>
+|.... `return `[FunctionWorstCaseNumberOfDisjunctsWithSign worstCaseNumberOfDisjuncts]`(F', sign)`<br>
+|<br>
+| `if F is for all X : F'`<br>
+|.... `return `[FunctionWorstCaseNumberOfDisjunctsWithSign worstCaseNumberOfDisjuncts]`(F', sign)`<br>
+|<br>
+| // if the expression is not the application of a boolean connective as above,<br>
+| // we assume an atom:<br>
+| `return 1`<br>
