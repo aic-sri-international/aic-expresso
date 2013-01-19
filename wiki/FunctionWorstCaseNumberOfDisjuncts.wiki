@@ -1,1 +1,7 @@
-TODO
+#summary worstCaseNumberOfDisjuncts(F)
+worstCaseNumberOfDisjuncts(F)
+<pre>
+inputs: F is a formula.
+return: a worst-case estimate of the number of disjuncts of the DNF equivalent to formula F.
+</pre>
+| `return `[FunctionWorstCaseNumberOfDisjunctsWithSign worstCaseNumberOfDisjuncts]`(F, true)`<br>
