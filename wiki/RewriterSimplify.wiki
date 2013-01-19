@@ -1,1 +1,8 @@
-TODO
+#summary R_simplify(F)
+R_simplify(F)
+<pre>
+inputs: F is an expression.
+return: a simplification of F if possible, otherwise F if already in simplest form.
+</pre>
+| // Exhaustively simplifies the given expression until no further simplification is possible.<br>
+| // Note: It will not necessarily use full satisfiability testing as part of its simplification logic.<br>
