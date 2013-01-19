@@ -25,6 +25,7 @@
         * [RewriterTopQuantifierElimination R_top_quantifier_elimination(Qx F)]
         * [RewriterQuantifierElimination R_quantifier_elimination(F)]
         * [RewriterCardExtensionalSet R_cardExtensionalSet( | {t1,...,tn} | )]
+        * [RewriterSimplify R_simplify(F)]
       * Supporting Functions
         * [FunctionNegationHasLessNumberOfDisjuncts negationHasLessNumberOfDisjuncts(F)]
         * [FunctionPickCheapest pick_cheapest( Candidates )]
