@@ -3,11 +3,16 @@
 A collection of Rewriters is included that can be applied to first order logic formulas.
 
 ===Logical Connectives===
-  * `not` :
-  * `and` (conjunction) :
-  * `or` (disjunction) :
-  * `=>` (implies) :
-  * `<=>` (equivalence) :
+  * `not` (negation) e.g.: 
+{{{
+not true  -> false
+not false -> true
+not not X -> X
+}}}
+  * `and` (conjunction) e.g.:
+  * `or` (disjunction) e.g.:
+  * `=>` (implies) e.g.:
+  * `<=>` (equivalence) e.g.:
 
 ===Quantification===
 In addition, support for the standard quantification in first order logic:
