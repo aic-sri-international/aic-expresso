@@ -12,13 +12,13 @@ not not X -> X
   * `and` (conjunction) e.g.s:
 {{{
 true and false -> false
-true and x     -> x
+true and X     -> X
 and()          -> true
 }}}
   * `or` (disjunction) e.g.s:
 {{{
 true or false -> true
-false or x    -> x
+false or X    -> X
 or()          -> false
 }}}
   * `=>` (implies) e.g.s:
