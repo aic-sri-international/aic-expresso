@@ -32,8 +32,8 @@ X <=> Y -> (X and Y) or (not(X) and not(Y))
 
 ===Quantification===
 In addition, support for the standard quantification in first order logic:
-  * `there exists . : .` (existential) :
-  * `for all . : .` (universal):
+  * `there exists . : .` (existential) : `there exists X : X != a`
+  * `for all . : .` (universal): `for all X : X = a or X = b or X = c`
 
 *Note:* Quantification of more than one variable is achieved by nesting the quantifiers, for example:
 
