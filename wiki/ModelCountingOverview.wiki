@@ -3,7 +3,7 @@
 =Overview=
 TODO
 
-  * Braz, Saadati, Bui, O'Reilly: [http://code.google.com/p/aic-expresso/source/browse/wiki/docs/LiftedArbitraryConstraintSolvingForLiftedProbabilisticInference.pdf Lifted Arbitrary Constraint Solving for Lifted Probabilistic Inference]. In: [http://tsi.wfubmc.edu/labs/strait/StaRAI/starai.html 2nd International Workshop on Statistical Relational AI]. (2012)
+  * Braz, Saadati, Bui, O'Reilly: [http://aic-expresso.googlecode.com/svn/wiki/docs/LiftedArbitraryConstraintSolvingForLiftedProbabilisticInference.pdf Lifted Arbitrary Constraint Solving for Lifted Probabilistic Inference]. In: [http://tsi.wfubmc.edu/labs/strait/StaRAI/starai.html 2nd International Workshop on Statistical Relational AI]. (2012)
 
 == Pseudo-Code for Computing the Cardinallity of a Set ==
 Let `L` be a language with no function symbols and a single predicate representing equality, but it may have distinct constant symbols. Let `F` be a quantifier formula in `L`. Let
