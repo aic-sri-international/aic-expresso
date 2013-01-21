@@ -14,6 +14,8 @@ In addition, support for the standard quantification in first order logic:
   * `there exists . : .` (existential) :
   * `for all . : .` (universal):
 
-*Note:* 
+*Note:* Quantification of more than one variable is achieved by nesting the quantifiers, for example:
+
+`for all X : for all Y : X != Y`
 
 In standard first order logic, quantification can typically be done on variables only. However, we allow [QuantificationOfFunctionApplications function applications to be quantified as well].
