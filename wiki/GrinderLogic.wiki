@@ -1,5 +1,19 @@
 #summary Logic Rewriters
 
-TODO
+A collection of Rewriters is included that can be applied to first order logic formulas.
 
-In logic, quantification can typically be done on variables only. We allow [QuantificationOfFunctionApplications function applications to be quantified as well].
+===Standard Logical Connectives===
+  * `not` :
+  * `and` (conjunction) :
+  * `or` (disjunction) :
+  * `=>` (implies) :
+  * `<=>` (equivalence) :
+
+===Quantification===
+In addition, support for the standard quantification in first order logic:
+  * `there exists . : .` (existential) :
+  * `for all . : .` (universal):
+
+*Note:* 
+
+In standard first order logic, quantification can typically be done on variables only. However, we allow [QuantificationOfFunctionApplications function applications to be quantified as well].
