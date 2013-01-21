@@ -14,7 +14,7 @@ recognizing that the second `X` is not the same as the free one.
 
 It can also deal with substituting function applications in a truth-preserving way. For example, substituting 'f(X)' by `2` in:
 
-    `f(X) + f(Y)'
+    `f(X) + f(Y)`
 
 produces:
 
