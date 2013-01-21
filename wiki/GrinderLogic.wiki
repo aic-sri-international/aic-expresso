@@ -2,7 +2,7 @@
 
 A collection of Rewriters is included that can be applied to first order logic formulas.
 
-===Standard Logical Connectives===
+===Logical Connectives===
   * `not` :
   * `and` (conjunction) :
   * `or` (disjunction) :
