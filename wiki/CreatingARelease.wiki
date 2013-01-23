@@ -12,9 +12,9 @@
 = Publish the Release =
   # Run the following command from your aic-expresso workspace directory:
 {{{
-mvn -P sonatype-oss-release deploy -D!skipTests=true
+mvn -P sonatype-oss-release deploy -DskipTests=true
 }}}
-    // *Note:* the -DskipTests is used to bypass running the integration/stress tests.
+    // *Note:* the -!DskipTests is used to bypass running the integration/stress tests.
   # Close the Staged artifacts and then Release them to the Maven Central Repository, by following steps 8 onwards from [https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide the guide for deploying via Nexus] from the [https://oss.sonatype.org/ Nexus Server]
   # Upload the classes,javadoc, and source files to the Downloads page.
   # Tag the release under Subversion.
