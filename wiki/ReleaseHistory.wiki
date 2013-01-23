@@ -1,3 +1,4 @@
 #summary List of Releases
 || Release || Date || javadoc || API changes ||
+|| [Release_1_0_1] || 2013-01-22 || [http://code.google.com/p/aic-expresso/downloads/detail?name=aic-expresso-1.0.1-javadoc.jar javadoc] ||  ||
 || [Release_1_0_0] || 2013-01-15 || [http://code.google.com/p/aic-expresso/downloads/detail?name=aic-expresso-1.0.0-javadoc.jar javadoc] ||  ||
