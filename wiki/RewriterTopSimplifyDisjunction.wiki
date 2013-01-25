@@ -1,5 +1,5 @@
 #summary R_top_simplify_disjunction(F1 or ... or Fn)
-R_top_simplify_disjunction(F1 or ... or Fn)
+R_top_simplify_disjunction(F1 or ... or Fn) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/TopSimplifyDisjunction.java implementation])
 <pre>
 inputs: Each Fi is any formula.
 return: simplification of top level disjunction.
