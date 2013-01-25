@@ -1,5 +1,5 @@
 #summary R_card( | F |_X, quantification )
-R_card( | F |,,X,,, quantification )
+R_card( | F |,,X,,, quantification ) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/Cardinality.java implementation])
 <pre>
 inputs: F is any top-simplified formula.
         quantification is "none", "for all", or "there exists".
