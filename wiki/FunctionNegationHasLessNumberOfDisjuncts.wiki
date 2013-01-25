@@ -1,3 +1,3 @@
 #summary negationHasLessNumberOfDisjuncts(F)
-negationHasLessNumberOfDisjuncts(F)<br>
+negationHasLessNumberOfDisjuncts(F) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/Cardinality.java implementation])<br>
 | `return `[FunctionWorstCaseNumberOfDisjuncts worstCaseNumberOfDisjuncts]`(F) > `[FunctionWorstCaseNumberOfDisjuncts worstCaseNumberOfDisjuncts]`(not F)`
