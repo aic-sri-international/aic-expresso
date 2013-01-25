@@ -1,5 +1,5 @@
 #summary is_contradiction(F)
-is_contradiction(F)
+is_contradiction(F) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/IsContradiction.java implementation])
 <pre>
 inputs: F is a formula.
 return: whether F is a contradiction or not.
