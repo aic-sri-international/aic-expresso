@@ -1,5 +1,5 @@
 #summary R_cardExtensionalSet( | {t1,...,tn} | )
-R_cardExtensionalSet( | {t,,1,,,...,t,,n,,} | )
+R_cardExtensionalSet( | {t,,1,,,...,t,,n,,} | ) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/CardinalityExtensionalSet.java implementation])
 <pre>
 inputs: Each ti is an expression.
 return: a basic expression equivalent to | {t1,...,tn} |.
