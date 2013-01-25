@@ -1,5 +1,5 @@
 #summary R_top_simplify_conjunction(F1 and ... and Fn)
-R_top_simplify_conjunction(F1 and ... and Fn)
+R_top_simplify_conjunction(F1 and ... and Fn) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/TopSimplifyConjunction.java implementation])
 <pre>
 inputs: Each Fi is any formula.
 return: simplification of top level of conjunction.
