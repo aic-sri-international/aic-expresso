@@ -1,5 +1,5 @@
 #summary plusOne(N)
-plusOne(N)
+plusOne(N) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/CardinalityExtensionalSet.java implementation])
 <pre>
 inputs: N is a counting solution.
 return: a counting solution equivalent to N + 1.
