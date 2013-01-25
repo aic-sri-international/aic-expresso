@@ -1,5 +1,5 @@
 #summary R_equality_in_conjunction(| x_i = t and Phi |_X, quantification)
-R_equality_in_conjunction(| x,,i,, = t and Phi |,,X,,, quantification)
+R_equality_in_conjunction(| x,,i,, = t and Phi |,,X,,, quantification) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/EqualityInConjunction.java implementation])
 <pre>
 inputs: Phi is a formula, x_i is one of the index variables in X, t is a variable or a constant.
         "quantification" is either "there exists", "for all", or "none".
