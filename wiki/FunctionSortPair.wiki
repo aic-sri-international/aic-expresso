@@ -1,5 +1,5 @@
 #summary sort_pair(F1, F2)
-sort_pair(F1, F2)
+sort_pair(F1, F2) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/SortPair.java implementation])
 <pre>
 inputs: F1 and F2 are formulas.
 return: a tuple with the cheapest formula in the first position.
