@@ -1,5 +1,5 @@
 #summary R_top_simplify(F)
-R_top_simplify(F)<br>
+R_top_simplify(F) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/TopSimplify.java implementation])<br>
 | `if F is a conjunction`<br>
 |.... `F <- `[RewriterTopSimplifyConjunction R_top_simplify_conjunction]`(F)`<br>
 | `if F is a disjunction`<br>
