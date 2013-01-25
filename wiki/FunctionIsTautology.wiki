@@ -1,5 +1,5 @@
 #summary is_tautology(F)
-is_tautology(F)
+is_tautology(F) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/IsTautology.java implementation])
 <pre>
 inputs: F is a formula.
 return: whether F is a tautology(F)or not.
