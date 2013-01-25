@@ -1,5 +1,5 @@
 #summary worstCaseNumberOfDisjuncts(F)
-worstCaseNumberOfDisjuncts(F)
+worstCaseNumberOfDisjuncts(F) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/WorstCaseNumberOfDisjuncts.java implementation])
 <pre>
 inputs: F is a formula.
 return: a worst-case estimate of the number of disjuncts of the DNF equivalent to formula F.
