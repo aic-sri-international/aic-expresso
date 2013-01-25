@@ -1,5 +1,5 @@
 #summary R_top_quantifier_elimination(Qx F)
-R_top_quantifier_elimination(Qx F)
+R_top_quantifier_elimination(Qx F) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/TopQuantifierElimination.java implementation])
 <pre>
 inputs: Q is a quantifier ("there exists", or "for all") over x, F is a boolean formula on equalities.
 return: an equivalent formula to Qx F by eliminating the quantification Qx.
