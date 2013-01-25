@@ -1,5 +1,5 @@
 #summary R_move_not_in(F)
-R_move_not_in(F)
+R_move_not_in(F) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/MoveNotIn.java implementation])
 <pre>
 inputs: F is a negation.
 return: a formula that is not a negation and is equivalent to "F"
