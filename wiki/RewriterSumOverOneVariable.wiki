@@ -1,5 +1,5 @@
 #summary R_sum_over_one_variable(sum_{x: Cx} S)
-R_sum_over_one_variable(sum`_`{x: Cx} S)
+R_sum_over_one_variable(sum`_`{x: Cx} S) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/SumOverOneVariable.java implementation])
 <pre>
 inputs: Cx is a formula in boolean logic, constraining the values of the summation index x.
         S is an Easily-Summable expression with respect to x, that is:
