@@ -1,5 +1,5 @@
 #summary incomplete_linear_implies(G, H)
-incomplete_linear_implies(G, H)
+incomplete_linear_implies(G, H) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/IncompleteLinearImplies.java implementation])
 <pre>
 Runs in linear time on the size of G and H.
 inputs: G and H are formulas.
