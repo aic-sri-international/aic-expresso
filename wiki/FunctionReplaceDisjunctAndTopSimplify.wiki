@@ -1,5 +1,5 @@
 #summary replace_disjunct_and_top_simplify(F, i, F1 or ... or Fn)
-replace_disjunct_and_top_simplify(F, i, F,,1,, or ... or F,,n,,)
+replace_disjunct_and_top_simplify(F, i, F,,1,, or ... or F,,n,,) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/ReplaceDisjunctAndTopSimplify.java implementation])
 <pre>
 This function is intended for simplifying disjunctions obtained from replacing a given disjunct 
 by another in a disjunction that has already been checked for obvious simplifications.
