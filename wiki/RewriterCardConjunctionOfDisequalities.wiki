@@ -1,5 +1,5 @@
 #summary R_card_conjunction_of_disequalities(| F |_X, quantification)
-R_card_conjunction_of_disequalities(| F |,,X,,, quantification)
+R_card_conjunction_of_disequalities(| F |,,X,,, quantification) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/CardinalityConjunctionOfDisequalities.java implementation])
 <pre>
 inputs: F is a conjunction of disequalities. Every disequality in F contains at least one index variable in X.
         "quantification" is either "there exists", "for all", or "none".
