@@ -90,6 +90,31 @@ public interface Expression extends Cloneable, Serializable {
 	/**
 	 * Returns the result of replacing one or all sub-expressions of this expression
 	 * according to a replacement function.
+	 * 
+	 * The method works by traversing every sub-expression of this expression (including the expression itself, unless the argument ignoreTopExpression is true) and
+	 * calling a replacement function on it.
+	 * If the replacement function returns exactly the same expression object, then nothing happens.
+	 * If a new expression object is returned by the replacement function, then it replaces the original sub-expression.
+	 * Note that, because expression objects are immutable, replacing a sub-expression S by a new sub-expression S'
+	 * will necessarily replace its parent P as well by a new version P' that is equal to P but for having S' where S used to be.
+	 * The parent's replacement trigger its own parent to be replaced and so on, all the way to the root.
+	 * The replacement of parents happens automatically and the user need not worry about making it happen.
+	 * 
+	 * To this basic functionality the method adds several more detailed options (note the many auxiliary methods that do not require some of these options to be specified, using defaults for them):
+	 * 
+	 * A prune predicate can be provided that will be invoked on a sub-expression and its context and indicates whether it (and its descendants) should be ignored.
+	 * A context is the condition holding for the free variables of an expression (see {@link ExpressionAndContext} for more details),
+	 * and is automatically updated as the replace method traverses the sub-expressions.
+	 * 
+	 * Sometimes we wish the replacement and prune functions to be updated or changed accordingly to the characteristics of the sub-expressions or trees they are being used on.
+	 * For this reason, the replace method can take two function arguments, makeSpecificSubExpressionAndContextReplacementFunction and makeSpecificSubExpressionAndContextPrunePredicate,
+	 * which take this expression, the replacement function or pruning predicate, and the current sub-expression, and provides a new replacement function or prune predicate to be used
+	 * on that sub-expression and its descendants. This is a more advanced and less commonly used feature.
+	 * 
+	 * The argument onlyTheFirstOne allows us to choose to replace only the first sub-expression for which the replacement function returns a distinct object, or to continue examining all sub-expressions. 
+	 * 
+	 * We can provide a listener procedure that gets notified of every replacement.
+	 * 
 	 * @param makeSpecificSubExpressionAndContextPrunePredicate Takes the current expression, the current replacement function and the sub-expression and its context about to be processed (the top one inclusive), and returns the pruning predicate to be used for that specific sub-expression.
 	 * @param replacementFunction: takes a expression and returns a new expression, or itself in case no replacement is warranted.
 	 * @param makeSpecificSubExpressionAndContextReplacementFunction: Takes the current expression, the current replacement function and the sub-expression and its context about to be processed (the top one inclusive), and returns the replacement function to be used for that specific sub-expression.
