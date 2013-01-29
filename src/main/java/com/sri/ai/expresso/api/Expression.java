@@ -100,6 +100,12 @@ public interface Expression extends Cloneable, Serializable {
 	 * The parent's replacement trigger its own parent to be replaced and so on, all the way to the root.
 	 * The replacement of parents happens automatically and the user need not worry about making it happen.
 	 * 
+	 * Note that new sub-expressions replacing old ones are not further examined and left as is. If they contain sub-expressions that would be replaced themselves by the replacement function,
+	 * these sub-expressions are not replaced.
+	 * For example, if a replacement function replaces expressions "a" by an expression "f(a)", calling this method with this replacement function on "g(a,a)" produces "g(f(a),f(a))", 
+	 * with the "a"s in the result not being replaced.
+	 * If the user wishes this to happen, she must re-run the function on the result.
+	 * 
 	 * To this basic functionality the method adds several more detailed options (note the many auxiliary methods that do not require some of these options to be specified, using defaults for them):
 	 * 
 	 * A prune predicate can be provided that will be invoked on a sub-expression and its context and indicates whether it (and its descendants) should be ignored.
