@@ -76,6 +76,9 @@ public class GrinderConfiguration extends Configuration {
 	// A colon separated string of rewrites who should have their output excluded.
 	public static final String  KEY_FILTER_OUT_LOGGING_BY_REWRITERS_NAMED                       = "grinder.rewriting.filter.out.logging.by.rewriters.named";
 	public static final String  DEFAULT_VALUE_FILTER_OUT_LOGGING_BY_REWRITERS_NAMED             = ""; 
+	//
+	public static final String  KEY_DEMO_APP_DEFAULT_LOOK_AND_FEEL                              = "grinder.demo.ui.default.look.and.feel";
+	public static final String  DEFAULT_VALUE_DEMO_APP_DEFAULT_LOOK_AND_FEEL                    = "Nimbus"; // available as of JDK 1.6u10, see: http://docs.oracle.com/javase/tutorial/uiswing/lookandfeel/nimbus.html
 	
 	/**
 	 * Enable the output of trace information.
@@ -159,6 +162,12 @@ public class GrinderConfiguration extends Configuration {
 	
 	public static String getFilterOutLoggingByRewritersNamed() {
 		String result = getString(KEY_FILTER_OUT_LOGGING_BY_REWRITERS_NAMED, DEFAULT_VALUE_FILTER_OUT_LOGGING_BY_REWRITERS_NAMED);
+		
+		return result;
+	}
+	
+	public static String getDemoAppDefaultLookAndFeel() {
+		String result = getString(KEY_DEMO_APP_DEFAULT_LOOK_AND_FEEL, DEFAULT_VALUE_DEMO_APP_DEFAULT_LOOK_AND_FEEL);
 		
 		return result;
 	}
