@@ -606,6 +606,19 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 		string = "'foo bar'(a, b, c)";
 		test(string, new DefaultCompoundSyntaxTree("foo bar", "a", "b", "c"));
+		
+		string = "foo(bar(X))";
+		test(string, new DefaultCompoundSyntaxTree("foo", 
+				new DefaultCompoundSyntaxTree("bar", "X")));
+		
+		string = "foo(bar(X), baz(Y))";
+		test(string, new DefaultCompoundSyntaxTree("foo", 
+				new DefaultCompoundSyntaxTree("bar", "X"), 
+						new DefaultCompoundSyntaxTree("baz", "Y")));
+		
+		string = "foo(W, bar(X), Y)";
+		test(string, new DefaultCompoundSyntaxTree("foo", "W", 
+				new DefaultCompoundSyntaxTree("bar", "X"), "Y"));
 
 		string = "(lambda x : y)(a, b, c)";
 		test(string, new DefaultCompoundSyntaxTree(
