@@ -81,7 +81,7 @@ public class AbstractRewritePanel extends JPanel {
 		add(mainSplitPane, BorderLayout.CENTER);
 		
 		JSplitPane expressionAndOutputSplitPane = new JSplitPane();
-		expressionAndOutputSplitPane.setPreferredSize(new Dimension(500, 500));
+		expressionAndOutputSplitPane.setPreferredSize(new Dimension(480, 500));
 		expressionAndOutputSplitPane.setOneTouchExpandable(true);
 		expressionAndOutputSplitPane.setResizeWeight(1.0);
 		expressionAndOutputSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -101,6 +101,7 @@ public class AbstractRewritePanel extends JPanel {
 		examplePanel.add(exampleLabel);
 		
 		exampleComboBox = new JComboBox();
+		exampleComboBox.setPreferredSize(new Dimension(240, 25));
 		exampleComboBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				ExampleRewrite eg = (ExampleRewrite) exampleComboBox.getItemAt(exampleComboBox.getSelectedIndex());
@@ -111,6 +112,18 @@ public class AbstractRewritePanel extends JPanel {
 		});
 		exampleComboBox.setModel(getExampleComboBoxModel());
 		examplePanel.add(exampleComboBox);
+		
+		JButton button = new JButton("| >");
+		button.setToolTipText("Single rewrte step.");
+		examplePanel.add(button);
+		
+		JButton button_1 = new JButton("->");
+		button_1.setToolTipText("Exhaustve Rewrite");
+		examplePanel.add(button_1);
+		
+		JButton button_2 = new JButton("Clear");
+		button_2.setToolTipText("Clear All");
+		examplePanel.add(button_2);
 		
 		JPanel expressionViews = new JPanel();
 		expressionPanel.add(expressionViews, BorderLayout.CENTER);
@@ -198,22 +211,6 @@ public class AbstractRewritePanel extends JPanel {
 			}
 		));
 		activeRewritersScrollPane.setViewportView(tree);
-		
-		JPanel actionPanel = new JPanel();
-		actionPanel.setBorder(new TitledBorder(null, "Action", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		controlPanel.add(actionPanel, BorderLayout.SOUTH);
-		
-		JButton singleRewriteButton = new JButton("| >");
-		singleRewriteButton.setToolTipText("Single rewrte step.");
-		actionPanel.add(singleRewriteButton);
-		
-		JButton exhaustiveRewriteButton = new JButton("->");
-		exhaustiveRewriteButton.setToolTipText("Exhaustve Rewrite");
-		actionPanel.add(exhaustiveRewriteButton);
-		
-		JButton clearButton = new JButton("Clear");
-		clearButton.setToolTipText("Clear All");
-		actionPanel.add(clearButton);
 
 		postGUIInitialization();
 	}
@@ -228,9 +225,9 @@ public class AbstractRewritePanel extends JPanel {
 	 */
 	protected ExampleRewrite[] getExampleRewrites() {
 		return new ExampleRewrite[] {
-			new ExampleRewrite("Example 1", "1 + 1"),
-			new ExampleRewrite("Example 2", "2 + 2"),
-			new ExampleRewrite("Example 3", "3 + 3")
+			new ExampleRewrite("1. Addition 1 + 1", "1 + 1"),
+			new ExampleRewrite("2. Addition 2 + 2", "2 + 2"),
+			new ExampleRewrite("3. Addition 3 + 3", "3 + 3")
 		};
 	}
 	
