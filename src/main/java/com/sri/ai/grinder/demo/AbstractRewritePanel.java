@@ -48,6 +48,7 @@ import java.awt.FlowLayout;
 import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.BoxLayout;
+import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JEditorPane;
@@ -56,9 +57,17 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.JTextArea;
 
+import com.sri.ai.grinder.demo.model.ExampleRewrite;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
 public class AbstractRewritePanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
+	
+	//
+	private JEditorPane inputExpressionEditor;
+	private JComboBox exampleComboBox;
 
 	/**
 	 * Create the panel.
@@ -91,9 +100,17 @@ public class AbstractRewritePanel extends JPanel {
 		JLabel exampleLabel = new JLabel("Example:");
 		examplePanel.add(exampleLabel);
 		
-		JComboBox comboBox = new JComboBox();
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Example 1", "Example 2", "Example 3"}));
-		examplePanel.add(comboBox);
+		exampleComboBox = new JComboBox();
+		exampleComboBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				ExampleRewrite eg = (ExampleRewrite) exampleComboBox.getItemAt(exampleComboBox.getSelectedIndex());
+				if (eg != null) {
+					inputExpressionEditor.setText(eg.getInputExpression());
+				}
+			}
+		});
+		exampleComboBox.setModel(getExampleComboBoxModel());
+		examplePanel.add(exampleComboBox);
 		
 		JPanel expressionViews = new JPanel();
 		expressionPanel.add(expressionViews, BorderLayout.CENTER);
@@ -107,7 +124,7 @@ public class AbstractRewritePanel extends JPanel {
 		JScrollPane inputExpressionEditorScrollPane = new JScrollPane();
 		expressionInputPanel.add(inputExpressionEditorScrollPane, BorderLayout.CENTER);
 		
-		JEditorPane inputExpressionEditor = new JEditorPane();
+		inputExpressionEditor = new JEditorPane();
 		inputExpressionEditor.setText("2+2");
 		inputExpressionEditorScrollPane.setViewportView(inputExpressionEditor);
 		
@@ -198,6 +215,35 @@ public class AbstractRewritePanel extends JPanel {
 		clearButton.setToolTipText("Clear All");
 		actionPanel.add(clearButton);
 
+		postGUIInitialization();
+	}
+	
+	//
+	// PROTECTED
+	//
+	
+	/**
+	 * To be overridden by sub-classes.
+	 * @return the example rewrite expressions.
+	 */
+	protected ExampleRewrite[] getExampleRewrites() {
+		return new ExampleRewrite[] {
+			new ExampleRewrite("Example 1", "1 + 1"),
+			new ExampleRewrite("Example 2", "2 + 2"),
+			new ExampleRewrite("Example 3", "3 + 3")
+		};
+	}
+	
+	//
+	// PRIVATE
+	//
+	
+	private ComboBoxModel getExampleComboBoxModel() {
+		return new DefaultComboBoxModel(getExampleRewrites());
+	}
+	
+	private void postGUIInitialization() {
+		exampleComboBox.setSelectedIndex(0);
 	}
 
 }
