@@ -48,6 +48,7 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.OpenInterpretationModule;
 import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
@@ -55,11 +56,14 @@ import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.PlainSubstitution;
 import com.sri.ai.grinder.library.ScopedVariables;
+import com.sri.ai.grinder.library.SyntacticFunctionsSubExpressionsProvider;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Equivalence;
+import com.sri.ai.grinder.library.boole.ForAllSubExpressionsAndScopedVariablesProvider;
 import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
+import com.sri.ai.grinder.library.boole.ThereExistsSubExpressionsAndScopedVariablesProvider;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.controlflow.IfThenElseBranchesAreBooleanConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch;
@@ -79,7 +83,9 @@ import com.sri.ai.grinder.library.number.NestedArithmeticOperation;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.library.number.UnaryMinus;
+import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsProvider;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
 
 /**
  * Default implementation of  R_simplify(E).
@@ -172,11 +178,17 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 						// only modules from here on: they don't actually
 						// rewrite anything, so why test them sooner than
 						// needed?
-						new ScopedVariables(),
-						new IntensionalSet(), // Note: This is just a provider for scoped variables and not a rewriter.
 						new ExpressionKnowledgeModule(),
 						new ImposedConditionsModule(),
-						new IfThenElseSubExpressionsAndImposedConditionsProvider() }));
+						new IfThenElseSubExpressionsAndImposedConditionsProvider(),
+						new IntensionalSetSubExpressionsAndImposedConditionsProvider(),
+						new ExtensionalSetSubExpressionsProvider(),
+						new ScopedVariables(),
+						new ForAllSubExpressionsAndScopedVariablesProvider(),
+						new ThereExistsSubExpressionsAndScopedVariablesProvider(),
+						new IntensionalSet(), // Note: This is just a provider for scoped variables and not a rewriter.
+						new SyntacticFunctionsSubExpressionsProvider("type", "scoped variables"),
+						new OpenInterpretationModule() }));
 	}
 }
 
