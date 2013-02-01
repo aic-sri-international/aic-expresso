@@ -39,6 +39,8 @@ package com.sri.ai.grinder.demo;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.awt.Component;
+
 import javax.swing.JSplitPane;
 import java.awt.Dimension;
 import javax.swing.JLabel;
@@ -50,24 +52,50 @@ import javax.swing.border.TitledBorder;
 import javax.swing.BoxLayout;
 import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JScrollPane;
 import javax.swing.JEditorPane;
 import javax.swing.JTree;
+import javax.swing.tree.DefaultTreeCellEditor;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
 import javax.swing.JTextArea;
 
+import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.grinder.demo.model.EnableItem;
 import com.sri.ai.grinder.demo.model.ExampleRewrite;
+import com.sri.ai.grinder.demo.model.GroupEnableItem;
+import com.sri.ai.grinder.demo.model.LeafEnableItem;
+import com.sri.ai.grinder.library.number.Division;
+import com.sri.ai.grinder.library.number.Exponentiation;
+import com.sri.ai.grinder.library.number.Minus;
+import com.sri.ai.grinder.library.number.NestedArithmeticOperation;
+import com.sri.ai.grinder.library.number.Plus;
+import com.sri.ai.grinder.library.number.Times;
+import com.sri.ai.grinder.library.number.UnaryMinus;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.EventObject;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AbstractRewritePanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	
 	//
+	private DefaultMutableTreeNode exampleRewritersRootNode = null;
+	//
 	private JEditorPane inputExpressionEditor;
 	private JComboBox exampleComboBox;
+	private JTree rewriterEnableTree;
 
 	/**
 	 * Create the panel.
@@ -81,14 +109,14 @@ public class AbstractRewritePanel extends JPanel {
 		add(mainSplitPane, BorderLayout.CENTER);
 		
 		JSplitPane expressionAndOutputSplitPane = new JSplitPane();
-		expressionAndOutputSplitPane.setPreferredSize(new Dimension(480, 500));
+		expressionAndOutputSplitPane.setPreferredSize(new Dimension(380, 500));
 		expressionAndOutputSplitPane.setOneTouchExpandable(true);
 		expressionAndOutputSplitPane.setResizeWeight(1.0);
 		expressionAndOutputSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		mainSplitPane.setLeftComponent(expressionAndOutputSplitPane);
 		
 		JPanel expressionPanel = new JPanel();
-		expressionPanel.setPreferredSize(new Dimension(500, 300));
+		expressionPanel.setPreferredSize(new Dimension(400, 300));
 		expressionAndOutputSplitPane.setLeftComponent(expressionPanel);
 		expressionPanel.setLayout(new BorderLayout(0, 0));
 		
@@ -154,7 +182,7 @@ public class AbstractRewritePanel extends JPanel {
 		outputExpressionEditorScrollPane.setViewportView(outputExpressionEditor);
 		
 		JPanel outputPanel = new JPanel();
-		outputPanel.setPreferredSize(new Dimension(500, 160));
+		outputPanel.setPreferredSize(new Dimension(300, 160));
 		expressionAndOutputSplitPane.setRightComponent(outputPanel);
 		outputPanel.setLayout(new BorderLayout(0, 0));
 		
@@ -188,29 +216,10 @@ public class AbstractRewritePanel extends JPanel {
 		JScrollPane activeRewritersScrollPane = new JScrollPane();
 		rewriterSelectionPanel.add(activeRewritersScrollPane, BorderLayout.CENTER);
 		
-		JTree tree = new JTree();
-		tree.setRootVisible(false);
-		tree.setModel(new DefaultTreeModel(
-			new DefaultMutableTreeNode("Active Rewriters") {
-				private static final long serialVersionUID = 1L;
-
-				{
-					DefaultMutableTreeNode node_1;
-					node_1 = new DefaultMutableTreeNode("Basic");
-						node_1.add(new DefaultMutableTreeNode("Plus\t"));
-						node_1.add(new DefaultMutableTreeNode("Minus "));
-						node_1.add(new DefaultMutableTreeNode("Unary Minus"));
-						node_1.add(new DefaultMutableTreeNode("Times"));
-						node_1.add(new DefaultMutableTreeNode("Division"));
-					add(node_1);
-					node_1 = new DefaultMutableTreeNode("Advanced");
-						node_1.add(new DefaultMutableTreeNode("Exponentiation"));
-						node_1.add(new DefaultMutableTreeNode("Nested Arithmetic Operation"));
-					add(node_1);
-				}
-			}
-		));
-		activeRewritersScrollPane.setViewportView(tree);
+		rewriterEnableTree = new JTree();
+		rewriterEnableTree.setRootVisible(false);
+		rewriterEnableTree.setModel(getRewriterEnabledTreeModel());
+		activeRewritersScrollPane.setViewportView(rewriterEnableTree);
 
 		postGUIInitialization();
 	}
@@ -231,16 +240,155 @@ public class AbstractRewritePanel extends JPanel {
 		};
 	}
 	
+	protected EnableItem<Rewriter> getExampleRewriters() {
+		
+		List<EnableItem<Rewriter>> basicRewriters = new ArrayList<EnableItem<Rewriter>>();
+		basicRewriters.add(new LeafEnableItem<Rewriter>("Plus",  new Plus()));
+		basicRewriters.add(new LeafEnableItem<Rewriter>("Minus", new Minus()));
+		basicRewriters.add(new LeafEnableItem<Rewriter>("Unary Minus", new UnaryMinus()));
+		basicRewriters.add(new LeafEnableItem<Rewriter>("Times", new Times()));
+		basicRewriters.add(new LeafEnableItem<Rewriter>("Division", new Division()));
+		GroupEnableItem<Rewriter> basicGroup = new GroupEnableItem<Rewriter>("Basic", basicRewriters);
+				
+		List<EnableItem<Rewriter>> advancedRewriters = new ArrayList<EnableItem<Rewriter>>();
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Exponentiation",  new Exponentiation()));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Nested Arithmetic Operation", new NestedArithmeticOperation()));
+		GroupEnableItem<Rewriter> advancedGroup = new GroupEnableItem<Rewriter>("Advanced", advancedRewriters);
+		
+		List<EnableItem<Rewriter>> groups = new ArrayList<EnableItem<Rewriter>>();
+		groups.add(basicGroup);
+		groups.add(advancedGroup);
+		GroupEnableItem<Rewriter> root = new GroupEnableItem<Rewriter>("Addition Rewriters", groups);
+				
+		return root; 
+	}
+	
 	//
 	// PRIVATE
 	//
+	private void postGUIInitialization() {
+		exampleComboBox.setSelectedIndex(0);
+		DefaultTreeCellRenderer renderer = new RewriterEnableTreeRenderer();
+		rewriterEnableTree.setCellRenderer(renderer);
+		rewriterEnableTree.setCellEditor(new RewriterEnableTreeCellEditor(rewriterEnableTree, renderer));
+		rewriterEnableTree.setEditable(true);
+		for (int i = 0; i < rewriterEnableTree.getRowCount(); i++) {
+			rewriterEnableTree.expandRow(i);
+		}
+	}
 	
 	private ComboBoxModel getExampleComboBoxModel() {
 		return new DefaultComboBoxModel(getExampleRewrites());
 	}
 	
-	private void postGUIInitialization() {
-		exampleComboBox.setSelectedIndex(0);
-	}
+	private TreeModel getRewriterEnabledTreeModel() {
+		EnableItem<Rewriter> rootEnableItem = getExampleRewriters();
 
+		exampleRewritersRootNode = new DefaultMutableTreeNode(exampleRewritersRootNode);
+		populateChildrenNodes(exampleRewritersRootNode, rootEnableItem.getChildren());
+		
+		return new DefaultTreeModel(exampleRewritersRootNode);
+	}
+	
+	private void populateChildrenNodes(DefaultMutableTreeNode parentNode, List<EnableItem<Rewriter>> children) {
+		for (EnableItem<Rewriter> child : children) {
+			DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(child);
+			parentNode.add(childNode);
+			populateChildrenNodes(childNode, child.getChildren());
+		}
+	}
+	
+	private class RewriterEnableTreeRenderer extends DefaultTreeCellRenderer {
+		private static final long serialVersionUID = 1L;
+		private Map<EnableItem<Rewriter>, JCheckBox> checkBoxes = new HashMap<EnableItem<Rewriter>, JCheckBox>();
+
+		public RewriterEnableTreeRenderer() {
+		}
+
+		public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+			
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+			@SuppressWarnings("unchecked")
+			final EnableItem<Rewriter> enableItem = (EnableItem<Rewriter>) node.getUserObject();
+			
+			JCheckBox checkBox = findCheckBox(enableItem);	
+			
+			Component result = checkBox;
+			if (null == checkBox) {
+				result = this;
+			}
+			
+			return result;
+		}
+		
+		private JCheckBox findCheckBox(final EnableItem<Rewriter> item) {
+			JCheckBox checkBox = checkBoxes.get(item);
+			if (checkBox == null && item.getChildren().size() == 0) {
+				checkBox = new JCheckBox(item.toString());
+				checkBox.setSelected(item.isEnabled());
+				checkBox.setFocusable(true);
+				checkBox.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent actionEvent) {
+						JCheckBox checkBox = (JCheckBox) actionEvent.getSource();						
+						item.setEnabled(checkBox.isSelected());
+					}
+				});	
+				
+				checkBoxes.put(item, checkBox);
+			}
+			
+			return checkBox;
+		}
+	}
+	
+	private class RewriterEnableTreeCellEditor extends DefaultTreeCellEditor {
+		private DefaultTreeCellRenderer renderer = null;
+		
+		public RewriterEnableTreeCellEditor(JTree tree, DefaultTreeCellRenderer renderer) {
+			super(tree, renderer);
+			this.renderer = renderer;
+		}
+		
+		@Override
+		public boolean isCellEditable(EventObject event) {
+			super.isCellEditable(event);
+
+			boolean editable = false;
+
+			if (event instanceof MouseEvent) {
+
+				MouseEvent mouseEvent = (MouseEvent) event;
+				TreePath path = tree.getPathForLocation(mouseEvent.getX(),
+						mouseEvent.getY());
+
+				if (path != null) {
+
+					Object node = path.getLastPathComponent();
+					if ((node != null)
+							&& (node instanceof DefaultMutableTreeNode)) {
+						DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) node;
+						if (treeNode.isLeaf()) {
+							editable = true;
+						}
+					}
+				}
+			}
+			return editable;
+		}
+		
+		public Component getTreeCellEditorComponent(JTree tree,
+                Object value,
+                boolean sel,
+                boolean expanded,
+                boolean leaf,
+                int row) {		
+			Component component = renderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, true);
+			if (component == null) {
+				component = super.getTreeCellEditorComponent(tree, value, sel, expanded, leaf, row);
+			}
+			
+			return component;
+		}
+	}
 }
