@@ -69,13 +69,7 @@ import com.sri.ai.grinder.demo.model.EnableItem;
 import com.sri.ai.grinder.demo.model.ExampleRewrite;
 import com.sri.ai.grinder.demo.model.GroupEnableItem;
 import com.sri.ai.grinder.demo.model.LeafEnableItem;
-import com.sri.ai.grinder.library.number.Division;
-import com.sri.ai.grinder.library.number.Exponentiation;
-import com.sri.ai.grinder.library.number.Minus;
-import com.sri.ai.grinder.library.number.NestedArithmeticOperation;
 import com.sri.ai.grinder.library.number.Plus;
-import com.sri.ai.grinder.library.number.Times;
-import com.sri.ai.grinder.library.number.UnaryMinus;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -166,7 +160,6 @@ public class AbstractRewritePanel extends JPanel {
 		expressionInputPanel.add(inputExpressionEditorScrollPane, BorderLayout.CENTER);
 		
 		inputExpressionEditor = new JEditorPane();
-		inputExpressionEditor.setText("2+2");
 		inputExpressionEditorScrollPane.setViewportView(inputExpressionEditor);
 		
 		JPanel expressionOutputPanel = new JPanel();
@@ -178,7 +171,6 @@ public class AbstractRewritePanel extends JPanel {
 		expressionOutputPanel.add(outputExpressionEditorScrollPane, BorderLayout.CENTER);
 		
 		JEditorPane outputExpressionEditor = new JEditorPane();
-		outputExpressionEditor.setText("4");
 		outputExpressionEditorScrollPane.setViewportView(outputExpressionEditor);
 		
 		JPanel outputPanel = new JPanel();
@@ -197,7 +189,6 @@ public class AbstractRewritePanel extends JPanel {
 		consolePanel.add(consoleScrollPane, BorderLayout.CENTER);
 		
 		JTextArea txtrTraceOutput = new JTextArea();
-		txtrTraceOutput.setText("| Trace Output");
 		consoleScrollPane.setViewportView(txtrTraceOutput);
 		
 		JPanel tracePanel = new JPanel();
@@ -244,20 +235,10 @@ public class AbstractRewritePanel extends JPanel {
 		
 		List<EnableItem<Rewriter>> basicRewriters = new ArrayList<EnableItem<Rewriter>>();
 		basicRewriters.add(new LeafEnableItem<Rewriter>("Plus",  new Plus()));
-		basicRewriters.add(new LeafEnableItem<Rewriter>("Minus", new Minus()));
-		basicRewriters.add(new LeafEnableItem<Rewriter>("Unary Minus", new UnaryMinus()));
-		basicRewriters.add(new LeafEnableItem<Rewriter>("Times", new Times()));
-		basicRewriters.add(new LeafEnableItem<Rewriter>("Division", new Division()));
 		GroupEnableItem<Rewriter> basicGroup = new GroupEnableItem<Rewriter>("Basic", basicRewriters);
-				
-		List<EnableItem<Rewriter>> advancedRewriters = new ArrayList<EnableItem<Rewriter>>();
-		advancedRewriters.add(new LeafEnableItem<Rewriter>("Exponentiation",  new Exponentiation()));
-		advancedRewriters.add(new LeafEnableItem<Rewriter>("Nested Arithmetic Operation", new NestedArithmeticOperation()));
-		GroupEnableItem<Rewriter> advancedGroup = new GroupEnableItem<Rewriter>("Advanced", advancedRewriters);
 		
 		List<EnableItem<Rewriter>> groups = new ArrayList<EnableItem<Rewriter>>();
 		groups.add(basicGroup);
-		groups.add(advancedGroup);
 		GroupEnableItem<Rewriter> root = new GroupEnableItem<Rewriter>("Addition Rewriters", groups);
 				
 		return root; 

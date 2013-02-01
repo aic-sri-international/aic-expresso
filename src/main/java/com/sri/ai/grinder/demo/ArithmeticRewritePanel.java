@@ -37,7 +37,55 @@
  */
 package com.sri.ai.grinder.demo;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.grinder.demo.model.EnableItem;
+import com.sri.ai.grinder.demo.model.ExampleRewrite;
+import com.sri.ai.grinder.demo.model.GroupEnableItem;
+import com.sri.ai.grinder.demo.model.LeafEnableItem;
+import com.sri.ai.grinder.library.number.Division;
+import com.sri.ai.grinder.library.number.Exponentiation;
+import com.sri.ai.grinder.library.number.Minus;
+import com.sri.ai.grinder.library.number.NestedArithmeticOperation;
+import com.sri.ai.grinder.library.number.Plus;
+import com.sri.ai.grinder.library.number.Times;
+import com.sri.ai.grinder.library.number.UnaryMinus;
+
 public class ArithmeticRewritePanel extends AbstractRewritePanel {
 	private static final long serialVersionUID = 1L;
 
+	@Override
+	protected ExampleRewrite[] getExampleRewrites() {
+		return new ExampleRewrite[] {
+			new ExampleRewrite("1. Addition 1 + 1", "1 + 1"),
+			new ExampleRewrite("2. Addition 1 + 2 + 3", "1 + 2 + 3"),
+			new ExampleRewrite("3. Addition +(1,2,3)", "+(1,2,3)")
+		};
+	}
+	
+	@Override
+	protected EnableItem<Rewriter> getExampleRewriters() {
+		
+		List<EnableItem<Rewriter>> basicRewriters = new ArrayList<EnableItem<Rewriter>>();
+		basicRewriters.add(new LeafEnableItem<Rewriter>("Plus",  new Plus()));
+		basicRewriters.add(new LeafEnableItem<Rewriter>("Minus", new Minus()));
+		basicRewriters.add(new LeafEnableItem<Rewriter>("Unary Minus", new UnaryMinus()));
+		basicRewriters.add(new LeafEnableItem<Rewriter>("Times", new Times()));
+		basicRewriters.add(new LeafEnableItem<Rewriter>("Division", new Division()));
+		GroupEnableItem<Rewriter> basicGroup = new GroupEnableItem<Rewriter>("Basic", basicRewriters);
+				
+		List<EnableItem<Rewriter>> advancedRewriters = new ArrayList<EnableItem<Rewriter>>();
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Exponentiation",  new Exponentiation()));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Nested Arithmetic Operation", new NestedArithmeticOperation()));
+		GroupEnableItem<Rewriter> advancedGroup = new GroupEnableItem<Rewriter>("Advanced", advancedRewriters);
+		
+		List<EnableItem<Rewriter>> groups = new ArrayList<EnableItem<Rewriter>>();
+		groups.add(basicGroup);
+		groups.add(advancedGroup);
+		GroupEnableItem<Rewriter> root = new GroupEnableItem<Rewriter>("Addition Rewriters", groups);
+				
+		return root; 
+	}
 }

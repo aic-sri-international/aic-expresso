@@ -27,7 +27,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<name>AIC-Expresso</name>
-	<version>1.0.1</version>
+	<version>1.0.2-SNAPSHOT</version>
 	<groupId>com.googlecode.aic-expresso</groupId>
 	<artifactId>aic-expresso</artifactId>
 
