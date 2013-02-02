@@ -1,2 +1,57 @@
 #summary Road Map
-TODO
+
+= Road Map for AIC Expresso =
+
+This page details the development road map for AIC Expresso. It works as a to-do list and gives users an idea of what features are to come, and where AIC Expresso is going.
+
+== Incremental rewriting ==
+
+If we have just resolved a large expression E and now need to solve a new large expression E' equal to E but for a few parts, we would want Expresso to be smart about it and only recompute parts that really need to be recomputed. This already happens with rewriting caching, which remembers what expressions have been rewritten to in the past. However, say E is an application of {{{+}}} to one hundred arguments: {{{1 + 2 + ... + 100}}}. If E' is {{{1 + 2 + ... + 99 + 400}}}, caching will not help because E' is different from E (it _would_ work if the summation was represented as the nesting of lots of _binary_ {{{+}}}, because then most of the sub-expressions would have their result cached).
+
+Incremental rewriting is a capability in which Expresso can be provided with incremental versions of rewriters (provided by the user or, in the case of basic operators like {{{+}}}, being in a library) so that it would be efficient even in cases like the above.
+
+== Scalability ==
+
+Since Expresso is in early development, there is quite a bit of optimization that can be done on it. We also plan to achieve greater scalability by enabling it to work concurrently and on a cluster.The code has been written since a very early stage with this in mind and most of what is needed is already in there, but we need to test and tune this.
+
+== Complete substitution of function applications ==
+
+One of the most useful and unique features of Expresso is its support of function applications being treated as "variables", which allows for expressions like
+
+{{{
+lambda salary(bob) : salary(ann) + salary(bob)
+}}}
+
+The above is equivalent to
+
+{{{
+lambda X : salary(ann) + X
+}}}
+
+A more interesting case is
+
+{{{
+lambda salary(X) : salary(Y) + salary(Z)
+}}}
+
+for {{{X,Y,Z}}} variables with unknown values. This will iterate over values for {{{salary(X)}}} and replace _either_ {{{salary(Y)}}} or {{{salary(Z)}}} if {{{X=Y}}} or {{{X=Z}}} respectively (and neither if it is not equal to either of them). When {{{salary(X)}}} gets value, say, {{{1000}}}, the above is reduced to
+
+{{{
+(lambda salary(X) : salary(Y) + salary(Z))(1000)
+=
+(if X = Y then 1000 else salary(Y)) + (if X = Z then 1000 else salary(Z))
+}}}
+
+which gets simplified to
+
+{{{
+if X = Y
+    then if X = Z
+        then 2000
+        else 1000 + salary(Z)
+    else if X = Z
+        then salary(Y) + 1000
+        else salary(Y) + salary(Z)
+}}}
+
+This is a powerful feature and it is possible to devise quite complex cases involving substitution of a function application by a value. The current implementation covers the most used cases but is not ready to operate on all possible cases. A full implementation is therefore on the plans.
