@@ -55,3 +55,17 @@ if X = Y
 }}}
 
 This is a powerful feature and it is possible to devise quite complex cases involving substitution of a function application by a value. The current implementation covers the most used cases but is not ready to operate on all possible cases. A full implementation is therefore on the plans.
+
+== Unification-based caching ==
+
+Caching is an essential part of symbolic evaluation because typically the same expression is found several times during the solving of a problem.
+
+However, simple lookup of an expression does not yield the best possible caching. For example, if an expression {{{f(X,3)}}} has been reduced to, say, {{{X + 1}}}, we could in principle deduce that {{{f(2,3)}}} can be reduced to {{{2 + 1}}}, while not being able to say much about {{{f(X,4)}}}. What is needed for this is a _unification_-based caching mechanism that stores expressions with free variables and identifies cases unifying with them.
+
+== Support for multiple sorts in a model ==
+
+We should also be able to indicate what sort a variable belongs to. This is currently supported in the intensional set notation, as in {{{ {{(on X in Person) salary(X) }} }}}, but not supported in the other types of quantifications {{{for all}}}, {{{there exists}}}, and {{{lambda}}}. Being able to keep the sort of quantified variables in these types of expressions will allow us to solve problems with multiple sorts.
+
+== Cleaning of code regarding distinction between expressions and syntax trees ==
+
+There was an error in the initial design of Expresso and, as a result, the distinction between expressions and their syntax trees is currently confusing. Cleaning that up will make the library easier to use.
