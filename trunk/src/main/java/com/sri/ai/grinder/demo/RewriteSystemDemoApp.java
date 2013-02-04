@@ -45,18 +45,28 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.io.PrintStream;
+
 import javax.swing.JTabbedPane;
 
+import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.GrinderConfiguration;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 
 /**
  * 
  * @author oreilly
  *
  */
+@Beta
 public class RewriteSystemDemoApp {
 
+	private PrintStream defaultOutStream;
+	//
 	private JFrame frmGrinderRewriteSystem;
+	private JTabbedPane tabbedPane;
 
 	/**
 	 * Launch the application.
@@ -91,6 +101,7 @@ public class RewriteSystemDemoApp {
 	 */
 	public RewriteSystemDemoApp() {
 		initialize();
+		postInitialize();
 	}
 
 	/**
@@ -106,29 +117,46 @@ public class RewriteSystemDemoApp {
 		frmGrinderRewriteSystem.getContentPane().add(backgroundPanel, BorderLayout.CENTER);
 		backgroundPanel.setLayout(new BorderLayout(0, 0));
 		
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				// Ensure the standard output is set correctly based on the current tab.
+				Component selectedTab = tabbedPane.getSelectedComponent();
+				if (selectedTab instanceof AbstractRewritePanel) {
+					System.setOut(((AbstractRewritePanel)selectedTab).getConsoleOutputPrintStream());
+				}
+				else {
+					System.setOut(defaultOutStream);
+				}
+			}
+		});
 		backgroundPanel.add(tabbedPane, BorderLayout.CENTER);
 		
 		JPanel arithmeticPanel = new ArithmeticRewritePanel();
 		tabbedPane.addTab("Arithmetic", null, arithmeticPanel, null);
 		
-		JPanel equalityPanel = new JPanel();
+		JPanel equalityPanel = new ArithmeticRewritePanel();
 		tabbedPane.addTab("(In)Equality", null, equalityPanel, null);
 		
-		JPanel setsPanel = new JPanel();
+		JPanel setsPanel = new ArithmeticRewritePanel();
 		tabbedPane.addTab("Sets", null, setsPanel, null);
 		
-		JPanel logicPanel = new JPanel();
+		JPanel logicPanel = new ArithmeticRewritePanel();
 		tabbedPane.addTab("Logic", null, logicPanel, null);
 		
-		JPanel controlFlowPanel = new JPanel();
+		JPanel controlFlowPanel = new ArithmeticRewritePanel();
 		tabbedPane.addTab("Control Flow", null, controlFlowPanel, null);
 		
-		JPanel functionPanel = new JPanel();
+		JPanel functionPanel = new ArithmeticRewritePanel();
 		tabbedPane.addTab("Function", null, functionPanel, null);
 		
-		JPanel allPanel = new JPanel();
+		JPanel allPanel = new ArithmeticRewritePanel();
 		tabbedPane.addTab("All", null, allPanel, null);
+	}
+	
+	private void postInitialize() {
+		defaultOutStream = System.out;
+		tabbedPane.setSelectedIndex(0);
 	}
 
 }

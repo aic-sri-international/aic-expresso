@@ -37,6 +37,9 @@
  */
 package com.sri.ai.grinder.demo.model;
 
+import com.google.common.annotations.Beta;
+
+@Beta
 public class ExampleRewrite {
 	
 	private String name            = null;
