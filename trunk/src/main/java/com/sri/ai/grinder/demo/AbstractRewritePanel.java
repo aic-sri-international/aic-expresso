@@ -114,6 +114,7 @@ public class AbstractRewritePanel extends JPanel {
 	//
 	private DefaultMutableTreeNode exampleRewritersRootNode = null;
 	private List<EnableItem<Rewriter>> rewriterEnableList   = new ArrayList<EnableItem<Rewriter>>();
+	private String lastSingleStepInput = "";
 	//
 	private JEditorPane inputExpressionEditor;
 	private JComboBox exampleComboBox;
@@ -135,7 +136,7 @@ public class AbstractRewritePanel extends JPanel {
 		JSplitPane expressionAndOutputSplitPane = new JSplitPane();
 		expressionAndOutputSplitPane.setPreferredSize(new Dimension(380, 500));
 		expressionAndOutputSplitPane.setOneTouchExpandable(true);
-		expressionAndOutputSplitPane.setResizeWeight(1.0);
+		expressionAndOutputSplitPane.setResizeWeight(0.3);
 		expressionAndOutputSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		mainSplitPane.setLeftComponent(expressionAndOutputSplitPane);
 		
@@ -168,8 +169,14 @@ public class AbstractRewritePanel extends JPanel {
 		JButton button = new JButton("| >");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				System.out.println("Single Step Rewrite:");
+				String currentSingleStepInput = inputExpressionEditor.getText();
+				if (currentSingleStepInput.equals(lastSingleStepInput)) {
+					currentSingleStepInput = outputExpressionEditor.getText();
+					inputExpressionEditor.setText(currentSingleStepInput);
+				}
+				System.out.println("Single Step Rewrite:\n"+currentSingleStepInput);
 				performRewrite(false);
+				lastSingleStepInput = currentSingleStepInput;
 			}
 		});
 		button.setToolTipText("Single rewrte step.");
@@ -178,7 +185,7 @@ public class AbstractRewritePanel extends JPanel {
 		JButton button_1 = new JButton("->");
 		button_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Exhaustive Rewriter:");
+				System.out.println("Exhaustive Rewriter:\n"+inputExpressionEditor.getText());
 				performRewrite(true);
 			}
 		});

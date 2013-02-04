@@ -52,6 +52,7 @@ import javax.swing.JTabbedPane;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.GrinderConfiguration;
+
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 

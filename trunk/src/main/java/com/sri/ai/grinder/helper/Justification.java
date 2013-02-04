@@ -144,7 +144,7 @@ public class Justification extends RewriterLogging {
 	
 	public static void begin(Marker marker, Expression lhs) {
 		if (isEnabled()) {
-			getDefaultLogX().indent(marker, "", lhs);
+			getDefaultLogX().indent(marker, "{}", lhs);
 		}
 	}
 	
@@ -164,7 +164,7 @@ public class Justification extends RewriterLogging {
 	
 	public static void endStepWithResult(Marker marker, Object rhs) {
 		if (isEnabled()) {
-			getDefaultLogX().trace(marker, "", rhs);
+			getDefaultLogX().trace(marker, "{}", rhs);
 		}
 	}
 
@@ -178,7 +178,7 @@ public class Justification extends RewriterLogging {
 	public static void step(Marker marker, String equalityMessage, Expression rhs) {
 		if (isEnabled()) {
 			getDefaultLogX().trace(marker, "= (" + equalityMessage + ")");
-			getDefaultLogX().trace(marker, "", rhs);
+			getDefaultLogX().trace(marker, "{}", rhs);
 		}
 	}
 
