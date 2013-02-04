@@ -40,6 +40,7 @@ package com.sri.ai.grinder.demo;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Font;
 
 import javax.swing.JSplitPane;
 import java.awt.Dimension;
@@ -64,32 +65,61 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.JTextArea;
 
+import com.google.common.annotations.Beta;
+import com.sri.ai.brewer.BrewerConfiguration;
+import com.sri.ai.brewer.api.Grammar;
+import com.sri.ai.brewer.api.Parser;
+import com.sri.ai.brewer.api.Writer;
+import com.sri.ai.brewer.core.CommonGrammar;
+import com.sri.ai.brewer.core.DefaultWriter;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.core.OpenInterpretationModule;
+import com.sri.ai.grinder.core.RewriteOnce;
+import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.demo.model.EnableItem;
 import com.sri.ai.grinder.demo.model.ExampleRewrite;
 import com.sri.ai.grinder.demo.model.GroupEnableItem;
 import com.sri.ai.grinder.demo.model.LeafEnableItem;
+import com.sri.ai.grinder.library.ScopedVariables;
+import com.sri.ai.grinder.library.SyntacticFunctionsSubExpressionsProvider;
+import com.sri.ai.grinder.library.boole.ForAllSubExpressionsAndScopedVariablesProvider;
+import com.sri.ai.grinder.library.boole.ThereExistsSubExpressionsAndScopedVariablesProvider;
+import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
+import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
 import com.sri.ai.grinder.library.number.Plus;
+import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsProvider;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
+import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Beta
 public class AbstractRewritePanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	
 	//
 	private DefaultMutableTreeNode exampleRewritersRootNode = null;
+	private List<EnableItem<Rewriter>> rewriterEnableList   = new ArrayList<EnableItem<Rewriter>>();
 	//
 	private JEditorPane inputExpressionEditor;
 	private JComboBox exampleComboBox;
 	private JTree rewriterEnableTree;
+	private JTextArea consoleOutputTextArea;
+	private JEditorPane outputExpressionEditor;
 
 	/**
 	 * Create the panel.
@@ -136,14 +166,31 @@ public class AbstractRewritePanel extends JPanel {
 		examplePanel.add(exampleComboBox);
 		
 		JButton button = new JButton("| >");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("Single Step Rewrite:");
+				performRewrite(false);
+			}
+		});
 		button.setToolTipText("Single rewrte step.");
 		examplePanel.add(button);
 		
 		JButton button_1 = new JButton("->");
+		button_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Exhaustive Rewriter:");
+				performRewrite(true);
+			}
+		});
 		button_1.setToolTipText("Exhaustve Rewrite");
 		examplePanel.add(button_1);
 		
 		JButton button_2 = new JButton("Clear");
+		button_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				consoleOutputTextArea.setText("");
+			}
+		});
 		button_2.setToolTipText("Clear All");
 		examplePanel.add(button_2);
 		
@@ -170,7 +217,7 @@ public class AbstractRewritePanel extends JPanel {
 		JScrollPane outputExpressionEditorScrollPane = new JScrollPane();
 		expressionOutputPanel.add(outputExpressionEditorScrollPane, BorderLayout.CENTER);
 		
-		JEditorPane outputExpressionEditor = new JEditorPane();
+		outputExpressionEditor = new JEditorPane();
 		outputExpressionEditorScrollPane.setViewportView(outputExpressionEditor);
 		
 		JPanel outputPanel = new JPanel();
@@ -188,8 +235,9 @@ public class AbstractRewritePanel extends JPanel {
 		JScrollPane consoleScrollPane = new JScrollPane();
 		consolePanel.add(consoleScrollPane, BorderLayout.CENTER);
 		
-		JTextArea txtrTraceOutput = new JTextArea();
-		consoleScrollPane.setViewportView(txtrTraceOutput);
+		consoleOutputTextArea = new JTextArea();
+		consoleOutputTextArea.setEditable(false);
+		consoleScrollPane.setViewportView(consoleOutputTextArea);
 		
 		JPanel tracePanel = new JPanel();
 		outputPane.addTab("Trace", null, tracePanel, null);
@@ -213,6 +261,14 @@ public class AbstractRewritePanel extends JPanel {
 		activeRewritersScrollPane.setViewportView(rewriterEnableTree);
 
 		postGUIInitialization();
+	}
+	
+	/**
+	 * Provides a print stream which can be used to redirect standard output
+	 * streams.
+	 */
+	public PrintStream getConsoleOutputPrintStream() {
+		return new PrintStream(new ConsoleOutputStream());
 	}
 	
 	//
@@ -244,11 +300,39 @@ public class AbstractRewritePanel extends JPanel {
 		return root; 
 	}
 	
+	protected EnableItem<Rewriter> getExampleModulesAndProviders() {
+		List<EnableItem<Rewriter>> modules = new ArrayList<EnableItem<Rewriter>>();
+		modules.add(new LeafEnableItem<Rewriter>("Expression Knowledge", new ExpressionKnowledgeModule()));
+		modules.add(new LeafEnableItem<Rewriter>("Imposed Conditions", new ImposedConditionsModule()));
+		modules.add(new LeafEnableItem<Rewriter>("Scoped Variables", new ScopedVariables()));
+		modules.add(new LeafEnableItem<Rewriter>("Open Interpretation Module", new OpenInterpretationModule()));
+		GroupEnableItem<Rewriter> modulesGroup = new GroupEnableItem<Rewriter>("Modules", modules);
+		
+		List<EnableItem<Rewriter>> providers = new ArrayList<EnableItem<Rewriter>>();
+		providers.add(new LeafEnableItem<Rewriter>("if . then . else - subexpression and imposed conditions provider", new IfThenElseSubExpressionsAndImposedConditionsProvider()));
+		providers.add(new LeafEnableItem<Rewriter>("Intensional Set - subexpression and imposed conditions provider", new IntensionalSetSubExpressionsAndImposedConditionsProvider()));
+		providers.add(new LeafEnableItem<Rewriter>("Extensional Set - subexpression provider", new ExtensionalSetSubExpressionsProvider()));
+		providers.add(new LeafEnableItem<Rewriter>("For All - subexpression and scoped variables provider", new ForAllSubExpressionsAndScopedVariablesProvider()));
+		providers.add(new LeafEnableItem<Rewriter>("There Exists - subexpression and scoped variables provider", new ThereExistsSubExpressionsAndScopedVariablesProvider()));
+		providers.add(new LeafEnableItem<Rewriter>("Internsion Set - Scoped Variables provider", new IntensionalSet()));
+		providers.add(new LeafEnableItem<Rewriter>("Syntactic Function - subexpression provider", new SyntacticFunctionsSubExpressionsProvider("type", "scoped variables")));
+		GroupEnableItem<Rewriter> providersGroup = new GroupEnableItem<Rewriter>("Providers", providers);
+		
+		List<EnableItem<Rewriter>> groups = new ArrayList<EnableItem<Rewriter>>();
+		groups.add(modulesGroup);
+		groups.add(providersGroup);
+		GroupEnableItem<Rewriter> root = new GroupEnableItem<Rewriter>("Modules and Providers", groups);
+		
+		return root;
+	}
+	
 	//
 	// PRIVATE
 	//
 	private void postGUIInitialization() {
+		// Select the first e.g. by default
 		exampleComboBox.setSelectedIndex(0);
+		// Setup, populate and expand the rewriter selection tree
 		DefaultTreeCellRenderer renderer = new RewriterEnableTreeRenderer();
 		rewriterEnableTree.setCellRenderer(renderer);
 		rewriterEnableTree.setCellEditor(new RewriterEnableTreeCellEditor(rewriterEnableTree, renderer));
@@ -256,6 +340,44 @@ public class AbstractRewritePanel extends JPanel {
 		for (int i = 0; i < rewriterEnableTree.getRowCount(); i++) {
 			rewriterEnableTree.expandRow(i);
 		}
+		// Configure the output consoled window.
+		consoleOutputTextArea.setFont(new Font(Font.MONOSPACED, consoleOutputTextArea.getFont().getStyle(), 14));
+	}
+	
+	private void performRewrite(boolean exhaustive) {
+		Grammar grammar = new CommonGrammar();
+		// Ensure the grammar class passed in is used where necessary.
+		BrewerConfiguration.setProperty(BrewerConfiguration.KEY_DEFAULT_GRAMMAR_CLASS, grammar.getClass().getName());
+		
+		Parser parser = new AntlrGrinderParserWrapper();
+		
+		Writer writer = DefaultWriter.newDefaultConfiguredWriter();
+		
+		Expression input = parser.parse(inputExpressionEditor.getText());
+		RewritingProcess process = new DefaultRewritingProcess(input, new RewriteOnce(getRewritersAndModules()));
+		Rewriter rewriter = null;
+		if (exhaustive) {
+			rewriter = new TotalRewriter(getRewritersAndModules());
+		}
+		else {
+			rewriter = new RewriteOnce(getRewritersAndModules());
+		}
+		
+		Expression output = rewriter.rewrite(input, process);
+		
+		outputExpressionEditor.setText(writer.toString(output));
+	}
+	
+	private List<Rewriter> getRewritersAndModules() {
+		List<Rewriter> rewriters = new ArrayList<Rewriter>();
+		
+		for (EnableItem<Rewriter> enabledRewriter : rewriterEnableList) {
+			if (enabledRewriter.isEnabled()) {
+				rewriters.add(enabledRewriter.getUserObject());
+			}
+		}
+		
+		return rewriters;
 	}
 	
 	private ComboBoxModel getExampleComboBoxModel() {
@@ -263,10 +385,15 @@ public class AbstractRewritePanel extends JPanel {
 	}
 	
 	private TreeModel getRewriterEnabledTreeModel() {
-		EnableItem<Rewriter> rootEnableItem = getExampleRewriters();
+		
 
 		exampleRewritersRootNode = new DefaultMutableTreeNode(exampleRewritersRootNode);
-		populateChildrenNodes(exampleRewritersRootNode, rootEnableItem.getChildren());
+		
+		EnableItem<Rewriter> rootRewriterEnableItem = getExampleRewriters();
+		populateChildrenNodes(exampleRewritersRootNode, rootRewriterEnableItem.getChildren());
+		
+		EnableItem<Rewriter> rootModulesAndProvidersEnableItem = getExampleModulesAndProviders();
+		populateChildrenNodes(exampleRewritersRootNode, rootModulesAndProvidersEnableItem.getChildren());
 		
 		return new DefaultTreeModel(exampleRewritersRootNode);
 	}
@@ -275,7 +402,12 @@ public class AbstractRewritePanel extends JPanel {
 		for (EnableItem<Rewriter> child : children) {
 			DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(child);
 			parentNode.add(childNode);
-			populateChildrenNodes(childNode, child.getChildren());
+			if (child.getChildren().size() > 0) {
+				populateChildrenNodes(childNode, child.getChildren());
+			}
+			else {
+				rewriterEnableList.add(child);
+			}
 		}
 	}
 	
@@ -370,6 +502,15 @@ public class AbstractRewritePanel extends JPanel {
 			}
 			
 			return component;
+		}
+	}
+	
+	/** Writes everything into the text area. */
+	private class ConsoleOutputStream extends java.io.OutputStream {
+		@Override
+		public void write(int b) throws java.io.IOException {
+			String s = new String(new char[] { (char) b });
+			consoleOutputTextArea.append(s);
 		}
 	}
 }

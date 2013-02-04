@@ -40,6 +40,7 @@ package com.sri.ai.grinder.demo;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.demo.model.EnableItem;
 import com.sri.ai.grinder.demo.model.ExampleRewrite;
@@ -53,6 +54,7 @@ import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.library.number.UnaryMinus;
 
+@Beta
 public class ArithmeticRewritePanel extends AbstractRewritePanel {
 	private static final long serialVersionUID = 1L;
 

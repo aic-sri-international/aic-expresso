@@ -41,6 +41,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.annotations.Beta;
+
+@Beta
 public class GroupEnableItem<T> implements EnableItem<T> {
 	private String              groupName = "";
 	private boolean             enabled   = true;

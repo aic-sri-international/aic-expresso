@@ -39,7 +39,9 @@ package com.sri.ai.grinder.demo.model;
 
 import java.util.List;
 
+import com.google.common.annotations.Beta;
 
+@Beta
 public interface EnableItem<T> {
 	
 	/**

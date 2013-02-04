@@ -40,6 +40,9 @@ package com.sri.ai.grinder.demo.model;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.annotations.Beta;
+
+@Beta
 public class LeafEnableItem<T> implements EnableItem<T> {
 	private String        leafName   = "";
 	private T             userObject = null;
