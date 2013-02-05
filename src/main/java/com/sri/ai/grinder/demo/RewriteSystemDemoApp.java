@@ -64,6 +64,7 @@ import javax.swing.event.ChangeEvent;
 @Beta
 public class RewriteSystemDemoApp {
 
+	private AbstractRewritePanel lastRewritePanelSelected;
 	private PrintStream defaultOutStream;
 	//
 	private JFrame frmGrinderRewriteSystem;
@@ -124,10 +125,19 @@ public class RewriteSystemDemoApp {
 				// Ensure the standard output is set correctly based on the current tab.
 				Component selectedTab = tabbedPane.getSelectedComponent();
 				if (selectedTab instanceof AbstractRewritePanel) {
-					System.setOut(((AbstractRewritePanel)selectedTab).getConsoleOutputPrintStream());
+					AbstractRewritePanel currentRewritePanelSelected = (AbstractRewritePanel) selectedTab;
+					
+					currentRewritePanelSelected.notifySelected();
+					System.setOut(currentRewritePanelSelected.getConsoleOutputPrintStream());
+								
+					if (lastRewritePanelSelected != null) {
+						lastRewritePanelSelected.notifyUnselected();
+					}
+					lastRewritePanelSelected = currentRewritePanelSelected;
 				}
 				else {
 					System.setOut(defaultOutStream);
+					lastRewritePanelSelected = null;
 				}
 			}
 		});
