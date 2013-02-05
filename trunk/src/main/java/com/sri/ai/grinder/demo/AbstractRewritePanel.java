@@ -40,6 +40,7 @@ package com.sri.ai.grinder.demo;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.Font;
 
 import javax.swing.JSplitPane;
@@ -63,7 +64,15 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import javax.swing.JTextArea;
+
+import org.slf4j.ILoggerFactory;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.AppenderBase;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.brewer.BrewerConfiguration;
@@ -84,6 +93,8 @@ import com.sri.ai.grinder.demo.model.EnableItem;
 import com.sri.ai.grinder.demo.model.ExampleRewrite;
 import com.sri.ai.grinder.demo.model.GroupEnableItem;
 import com.sri.ai.grinder.demo.model.LeafEnableItem;
+import com.sri.ai.grinder.helper.RewriterLoggingNamedRewriterFilter;
+import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.SyntacticFunctionsSubExpressionsProvider;
 import com.sri.ai.grinder.library.boole.ForAllSubExpressionsAndScopedVariablesProvider;
@@ -95,6 +106,10 @@ import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsPr
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
+import com.sri.ai.grinder.ui.ExpressionNode;
+import com.sri.ai.grinder.ui.ExpressionTreeView;
+import com.sri.ai.grinder.ui.TreeUtil;
+import com.sri.ai.util.log.LogX;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -112,6 +127,13 @@ public class AbstractRewritePanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
 	//
+	private ExpressionNode activeTraceNode, rootTraceNode = new ExpressionNode("", null);
+	private DefaultTreeModel treeTraceModel = new DefaultTreeModel(rootTraceNode);
+	//
+	//
+	private LoggerContext               loggerContext = null;
+	private AppenderBase<ILoggingEvent> traceAppender = null;
+	//
 	private DefaultMutableTreeNode exampleRewritersRootNode = null;
 	private List<EnableItem<Rewriter>> rewriterEnableList   = new ArrayList<EnableItem<Rewriter>>();
 	private String lastSingleStepInput = "";
@@ -121,6 +143,7 @@ public class AbstractRewritePanel extends JPanel {
 	private JTree rewriterEnableTree;
 	private JTextArea consoleOutputTextArea;
 	private JEditorPane outputExpressionEditor;
+	private ExpressionTreeView traceTree;
 
 	/**
 	 * Create the panel.
@@ -196,6 +219,7 @@ public class AbstractRewritePanel extends JPanel {
 		button_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				consoleOutputTextArea.setText("");
+				clearTraceTree();
 			}
 		});
 		button_2.setToolTipText("Clear All");
@@ -248,6 +272,18 @@ public class AbstractRewritePanel extends JPanel {
 		
 		JPanel tracePanel = new JPanel();
 		outputPane.addTab("Trace", null, tracePanel, null);
+		tracePanel.setLayout(new BorderLayout(0, 0));
+		
+		JScrollPane traceTreeScrollPane = new JScrollPane();
+		tracePanel.add(traceTreeScrollPane, BorderLayout.CENTER);
+		
+		traceTree = new ExpressionTreeView(treeTraceModel, true);
+		traceTree.setEditable(true);
+		traceTree.setRootVisible(false);
+		traceTree.getSelectionModel().setSelectionMode(
+				TreeSelectionModel.SINGLE_TREE_SELECTION);
+		traceTree.setShowsRootHandles(true);
+		traceTreeScrollPane.setViewportView(traceTree);
 		
 		JPanel controlPanel = new JPanel();
 		controlPanel.setPreferredSize(new Dimension(300, 500));
@@ -268,6 +304,83 @@ public class AbstractRewritePanel extends JPanel {
 		activeRewritersScrollPane.setViewportView(rewriterEnableTree);
 
 		postGUIInitialization();
+	}
+	
+	public void notifySelected() {
+		if (loggerContext == null) {
+			while (loggerContext == null) {
+				ILoggerFactory lf = LoggerFactory.getILoggerFactory();
+				if (lf instanceof LoggerContext) {
+					loggerContext = (LoggerContext) lf;
+				} 
+				else {
+					try {
+						Thread.sleep(100);
+					} catch (Exception ex) {
+						
+					}
+				}
+			}
+			traceAppender = new AppenderBase<ILoggingEvent>() {
+				//
+				private int currentIndentLevel = 0;
+				private boolean firstTime = true;
+				//
+				@Override
+				protected void append(ILoggingEvent eventObject) {
+					String msg = eventObject.getFormattedMessage();
+					Object[] args = eventObject.getArgumentArray();
+
+					int indentLevel = LogX.getTraceLevel(eventObject.getLoggerName());
+
+					while (indentLevel > currentIndentLevel) {
+						if (!firstTime) {
+							addTrace(">>");
+						}
+						startTraceLevel();
+						currentIndentLevel++;
+					}
+					
+					firstTime = false;
+
+					StringBuilder sb = new StringBuilder(msg);
+					while (indentLevel < currentIndentLevel) {
+						endTraceLevel();
+						currentIndentLevel--;
+					}
+					
+					// Suffix the profiler information to the message
+					// if available.
+					Long profileInfo = LogX.getProfileInfo(eventObject.getLoggerName());
+					if (profileInfo != null) {
+						sb.append(" [");
+						// Convert nanoseconds to milliseconds
+						sb.append(profileInfo / 1000000);
+						sb.append("ms.]");
+					}
+
+					if (msg != null && !msg.equals("")) {
+						addTrace(sb.toString());
+					}
+
+					if (args != null) {
+						for (Object arg : args) {
+							addTrace(arg);
+						}
+					}
+				}
+			};
+			
+			traceAppender.addFilter(new RewriterLoggingNamedRewriterFilter());
+			traceAppender.setContext(loggerContext);
+			loggerContext.getLogger(Trace.getDefaultLoggerName()).addAppender(traceAppender);
+		}
+		
+		traceAppender.start();
+	}
+	
+	public void notifyUnselected() {
+		traceAppender.stop();
 	}
 	
 	/**
@@ -349,6 +462,43 @@ public class AbstractRewritePanel extends JPanel {
 		}
 		// Configure the output consoled window.
 		consoleOutputTextArea.setFont(new Font(Font.MONOSPACED, consoleOutputTextArea.getFont().getStyle(), 14));
+		
+		TreeUtil.setWriter(DefaultWriter.newDefaultConfiguredWriter());
+		clearTraceTree();
+	}
+	
+	private void clearTraceTree() {
+		rootTraceNode = new ExpressionNode("", null);
+		activeTraceNode = rootTraceNode;
+		treeTraceModel = new DefaultTreeModel(rootTraceNode);
+		traceTree.setModel(treeTraceModel);
+	}
+	
+	private void startTraceLevel() {
+		if (activeTraceNode.getChildCount() == 0) {
+			activeTraceNode = rootTraceNode;
+		} 
+		else {
+			activeTraceNode = (ExpressionNode) activeTraceNode
+					.getChildAt(activeTraceNode.getChildCount() - 1);
+		}
+	}
+	
+	private void endTraceLevel() {
+		activeTraceNode = (ExpressionNode) activeTraceNode.getParent();
+		if (activeTraceNode == null) {
+			activeTraceNode = rootTraceNode; 
+		}
+	}
+
+	private void addTrace(Object obj) {
+		activeTraceNode.add(obj);
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				treeTraceModel.reload();
+				traceTree.restoreExpandedPaths();
+			}
+		});
 	}
 	
 	private void performRewrite(boolean exhaustive) {
