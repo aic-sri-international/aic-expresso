@@ -4,6 +4,11 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
@@ -15,6 +20,13 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
+
+import org.antlr.runtime.ANTLRStringStream;
+import org.antlr.runtime.CharStream;
+import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.Token;
+
+import com.sri.ai.grinder.parser.antlr.AntlrGrinderLexer;
 
 public class ExpressionEditor extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -118,17 +130,45 @@ public class ExpressionEditor extends JPanel {
 			format((StyledDocument)fb.getDocument());
 		}
 		
-		private void format(StyledDocument styledDocument) throws BadLocationException {
-			
+		private void format(StyledDocument styledDocument) throws BadLocationException {				
 			String expressionText = styledDocument.getText(0, styledDocument.getLength());
-			for (int i = 0; i < expressionText.length(); i++) {
-				if (i % 2 == 0) {
-					styledDocument.setCharacterAttributes(i, 1, styledDocument.getStyle("bold"), true);
-				} 
-				else {
-					styledDocument.setCharacterAttributes(i, 1, styledDocument.getStyle("regular"), true);
+
+			styledDocument.setCharacterAttributes(0, expressionText.length(), styledDocument.getStyle("regular"), true);
+			
+			List<String> lines        = new ArrayList<String>();
+			List<Integer> lineOffsets = new ArrayList<Integer>();
+			BufferedReader reader = new BufferedReader(new StringReader(expressionText));
+			String line;
+			int offset = 0;
+			try {
+				while ((line = reader.readLine()) != null) {
+					lines.add(line);
+					lineOffsets.add(offset);
+					
+					offset += line.length()+1; // i.e. include the newline.
 				}
+				reader.close();
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
 			}
+			
+    		CharStream cs = new ANTLRStringStream(expressionText);
+    		AntlrGrinderLexer lexer = new AntlrGrinderLexer(cs);
+    		CommonTokenStream tokens = new CommonTokenStream(lexer);
+    		
+    		Token token = tokens.LT(1);
+    		while (token.getType() != AntlrGrinderLexer.EOF) {   			
+    			offset = lineOffsets.get(token.getLine()-1) + token.getCharPositionInLine();    			
+    			if (token.getType() == AntlrGrinderLexer.PLUS) {     				
+    				styledDocument.setCharacterAttributes(offset, token.getText().length(), styledDocument.getStyle("bold"), true);
+    			}
+    			else {  				
+    				styledDocument.setCharacterAttributes(offset, token.getText().length(), styledDocument.getStyle("regular"), true);
+    			}
+    			
+    			tokens.consume();
+    			token = tokens.LT(1);
+    		}
 		}
 	}
 }
