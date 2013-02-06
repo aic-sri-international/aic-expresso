@@ -94,6 +94,8 @@ import com.sri.ai.grinder.demo.model.GroupEnableItem;
 import com.sri.ai.grinder.demo.model.LeafEnableItem;
 import com.sri.ai.grinder.helper.RewriterLoggingNamedRewriterFilter;
 import com.sri.ai.grinder.helper.Trace;
+import com.sri.ai.grinder.library.AbsorbingElement;
+import com.sri.ai.grinder.library.Associative;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.SyntacticFunctionsSubExpressionsProvider;
 import com.sri.ai.grinder.library.boole.ForAllSubExpressionsAndScopedVariablesProvider;
@@ -491,9 +493,13 @@ public class AbstractRewritePanel extends JPanel {
 				rewriter = new RewriteOnce(getRewritersAndModules());
 			}
 			
-			Expression output = rewriter.rewrite(input, process);
+			try {
+				Expression output = rewriter.rewrite(input, process);
 			
-			outputExpressionEditor.setText(writer.toString(output));
+				outputExpressionEditor.setText(writer.toString(output));
+			} catch (RuntimeException ore) {
+				outputExpressionEditor.setText("// ERROR: Rewriting Input - \n"+inputExpressionEditor.getText());
+			}
 		}
 		else {
 			outputExpressionEditor.setText("ERROR: Malformed Input Expression.");
@@ -541,6 +547,13 @@ public class AbstractRewritePanel extends JPanel {
 	}
 	
 	private void addModulesAndProviders() {
+		// Important Expected Rewrite Behavior
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Expression Knowledge", new AbsorbingElement(
+				"and", "false",
+				"or", "true",
+				"*", "0")));
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Expression Knowledge", new Associative("+", "*", "and")));
+		
 		// Modules
 		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Expression Knowledge", new ExpressionKnowledgeModule()));
 		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Imposed Conditions", new ImposedConditionsModule()));
