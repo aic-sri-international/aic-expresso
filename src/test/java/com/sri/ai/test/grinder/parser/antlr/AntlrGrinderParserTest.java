@@ -344,6 +344,39 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 						new DefaultCompoundSyntaxTree("{ . }", "E"), 
 						new DefaultCompoundSyntaxTree("{ . }", "f"))));
 	}
+	
+	@Test 
+	public void testComment () {
+		String string;
+		string = "3";
+		test(string, DefaultSymbol.createSymbol(3));
+
+		string = "3 // This is a test.\n";
+		test(string, DefaultSymbol.createSymbol(3));
+
+		string = "// This is a test.\n 3";
+		test(string, DefaultSymbol.createSymbol(3));
+
+		string = "3 // This is a test.";
+		test(string, DefaultSymbol.createSymbol(3));
+
+		string = "3 // This is a test.\n + 4";
+		test(string, new DefaultCompoundSyntaxTree("+", 3, 4));
+
+		string = "// Test\n 3 // This is a test.\n + 4 // Test";
+		test(string, new DefaultCompoundSyntaxTree("+", 3, 4));
+
+		string = "3 /* This is a test. */";
+		test(string, DefaultSymbol.createSymbol(3));
+
+		string = "/* This is a test. */ 3";
+		test(string, DefaultSymbol.createSymbol(3));
+
+		string = "3 /* This is a test. */ + 4";
+		test(string, new DefaultCompoundSyntaxTree("+", 3, 4));
+
+
+	}
 
 	@Test
 	public void testSymbol () {
