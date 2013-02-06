@@ -56,7 +56,6 @@ import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JScrollPane;
-import javax.swing.JEditorPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellEditor;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -138,11 +137,11 @@ public class AbstractRewritePanel extends JPanel {
 	private List<EnableItem<Rewriter>> rewriterEnableList   = new ArrayList<EnableItem<Rewriter>>();
 	private String lastSingleStepInput = "";
 	//
-	private JEditorPane inputExpressionEditor;
+	private ExpressionEditor inputExpressionEditor;
+	private ExpressionEditor outputExpressionEditor;
 	private JComboBox exampleComboBox;
 	private JTree rewriterEnableTree;
 	private JTextArea consoleOutputTextArea;
-	private JEditorPane outputExpressionEditor;
 	private ExpressionTreeView traceTree;
 
 	/**
@@ -234,22 +233,19 @@ public class AbstractRewritePanel extends JPanel {
 		expressionViews.add(expressionInputPanel);
 		expressionInputPanel.setLayout(new BorderLayout(0, 0));
 		
-		JScrollPane inputExpressionEditorScrollPane = new JScrollPane();
-		expressionInputPanel.add(inputExpressionEditorScrollPane, BorderLayout.CENTER);
 		
-		inputExpressionEditor = new JEditorPane();
-		inputExpressionEditorScrollPane.setViewportView(inputExpressionEditor);
+		
+		inputExpressionEditor = new ExpressionEditor();
+		expressionInputPanel.add(inputExpressionEditor, BorderLayout.CENTER);
 		
 		JPanel expressionOutputPanel = new JPanel();
 		expressionOutputPanel.setBorder(new TitledBorder(null, "Output", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		expressionViews.add(expressionOutputPanel);
 		expressionOutputPanel.setLayout(new BorderLayout(0, 0));
 		
-		JScrollPane outputExpressionEditorScrollPane = new JScrollPane();
-		expressionOutputPanel.add(outputExpressionEditorScrollPane, BorderLayout.CENTER);
 		
-		outputExpressionEditor = new JEditorPane();
-		outputExpressionEditorScrollPane.setViewportView(outputExpressionEditor);
+		outputExpressionEditor = new ExpressionEditor();
+		expressionOutputPanel.add(outputExpressionEditor, BorderLayout.CENTER);
 		
 		JPanel outputPanel = new JPanel();
 		outputPanel.setPreferredSize(new Dimension(300, 160));
@@ -420,32 +416,6 @@ public class AbstractRewritePanel extends JPanel {
 		return root; 
 	}
 	
-	protected EnableItem<Rewriter> getExampleModulesAndProviders() {
-		List<EnableItem<Rewriter>> modules = new ArrayList<EnableItem<Rewriter>>();
-		modules.add(new LeafEnableItem<Rewriter>("Expression Knowledge", new ExpressionKnowledgeModule()));
-		modules.add(new LeafEnableItem<Rewriter>("Imposed Conditions", new ImposedConditionsModule()));
-		modules.add(new LeafEnableItem<Rewriter>("Scoped Variables", new ScopedVariables()));
-		modules.add(new LeafEnableItem<Rewriter>("Open Interpretation Module", new OpenInterpretationModule()));
-		GroupEnableItem<Rewriter> modulesGroup = new GroupEnableItem<Rewriter>("Modules", modules);
-		
-		List<EnableItem<Rewriter>> providers = new ArrayList<EnableItem<Rewriter>>();
-		providers.add(new LeafEnableItem<Rewriter>("if . then . else - subexpression and imposed conditions provider", new IfThenElseSubExpressionsAndImposedConditionsProvider()));
-		providers.add(new LeafEnableItem<Rewriter>("Intensional Set - subexpression and imposed conditions provider", new IntensionalSetSubExpressionsAndImposedConditionsProvider()));
-		providers.add(new LeafEnableItem<Rewriter>("Extensional Set - subexpression provider", new ExtensionalSetSubExpressionsProvider()));
-		providers.add(new LeafEnableItem<Rewriter>("For All - subexpression and scoped variables provider", new ForAllSubExpressionsAndScopedVariablesProvider()));
-		providers.add(new LeafEnableItem<Rewriter>("There Exists - subexpression and scoped variables provider", new ThereExistsSubExpressionsAndScopedVariablesProvider()));
-		providers.add(new LeafEnableItem<Rewriter>("Internsion Set - Scoped Variables provider", new IntensionalSet()));
-		providers.add(new LeafEnableItem<Rewriter>("Syntactic Function - subexpression provider", new SyntacticFunctionsSubExpressionsProvider("type", "scoped variables")));
-		GroupEnableItem<Rewriter> providersGroup = new GroupEnableItem<Rewriter>("Providers", providers);
-		
-		List<EnableItem<Rewriter>> groups = new ArrayList<EnableItem<Rewriter>>();
-		groups.add(modulesGroup);
-		groups.add(providersGroup);
-		GroupEnableItem<Rewriter> root = new GroupEnableItem<Rewriter>("Modules and Providers", groups);
-		
-		return root;
-	}
-	
 	//
 	// PRIVATE
 	//
@@ -542,15 +512,12 @@ public class AbstractRewritePanel extends JPanel {
 	}
 	
 	private TreeModel getRewriterEnabledTreeModel() {
-		
-
 		exampleRewritersRootNode = new DefaultMutableTreeNode(exampleRewritersRootNode);
 		
 		EnableItem<Rewriter> rootRewriterEnableItem = getExampleRewriters();
 		populateChildrenNodes(exampleRewritersRootNode, rootRewriterEnableItem.getChildren());
 		
-		EnableItem<Rewriter> rootModulesAndProvidersEnableItem = getExampleModulesAndProviders();
-		populateChildrenNodes(exampleRewritersRootNode, rootModulesAndProvidersEnableItem.getChildren());
+		addModulesAndProviders();
 		
 		return new DefaultTreeModel(exampleRewritersRootNode);
 	}
@@ -566,6 +533,23 @@ public class AbstractRewritePanel extends JPanel {
 				rewriterEnableList.add(child);
 			}
 		}
+	}
+	
+	private void addModulesAndProviders() {
+		// Modules
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Expression Knowledge", new ExpressionKnowledgeModule()));
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Imposed Conditions", new ImposedConditionsModule()));
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Scoped Variables", new ScopedVariables()));
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Open Interpretation Module", new OpenInterpretationModule()));
+			
+		// Providers
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("if . then . else - subexpression and imposed conditions provider", new IfThenElseSubExpressionsAndImposedConditionsProvider()));
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Intensional Set - subexpression and imposed conditions provider", new IntensionalSetSubExpressionsAndImposedConditionsProvider()));
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Extensional Set - subexpression provider", new ExtensionalSetSubExpressionsProvider()));
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("For All - subexpression and scoped variables provider", new ForAllSubExpressionsAndScopedVariablesProvider()));
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("There Exists - subexpression and scoped variables provider", new ThereExistsSubExpressionsAndScopedVariablesProvider()));
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Internsion Set - Scoped Variables provider", new IntensionalSet()));
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Syntactic Function - subexpression provider", new SyntacticFunctionsSubExpressionsProvider("type", "scoped variables")));
 	}
 	
 	private class RewriterEnableTreeRenderer extends DefaultTreeCellRenderer {
