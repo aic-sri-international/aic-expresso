@@ -52,7 +52,6 @@ import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.number.NestedArithmeticOperation;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
-import com.sri.ai.grinder.library.number.UnaryMinus;
 
 @Beta
 public class ArithmeticRewritePanel extends AbstractRewritePanel {
@@ -61,19 +60,38 @@ public class ArithmeticRewritePanel extends AbstractRewritePanel {
 	@Override
 	protected ExampleRewrite[] getExampleRewrites() {
 		return new ExampleRewrite[] {
-			new ExampleRewrite("1. Addition 1 + 1", "1 + 1"),
-			new ExampleRewrite("2. Addition 1 + 2 + 3", "1 + 2 + 3"),
-			new ExampleRewrite("3. Addition +(1,2,3)", "+(1,2,3)")
+			// Plus
+			new ExampleRewrite("Addition: 1 + 2", "1 + 2"),
+			new ExampleRewrite("Addition: 1 + x + 2 + y", "1 + x + 2 + y"),
+			new ExampleRewrite("Addition: +(x, +(1, y), 11)", "+(x, +(1, y), 11)"),
+			// Minus
+			new ExampleRewrite("Minus: 3 - 1", "3 - 1"),
+			new ExampleRewrite("Minus: 1 - 3", "1 - 3"),
+			new ExampleRewrite("Minus: 0 - X", "0 - X"),
+			// Times
+			new ExampleRewrite("Times: 2 * 2", "2 * 2"),
+			new ExampleRewrite("Times: x * 2 * 1 * 2 * 1 * y * 6", "x * 2 * 1 * 2 * 1 * y * 6"),
+			// Division
+			new ExampleRewrite("Division: 4/2", "4/2"),
+			new ExampleRewrite("Division: 2.1/4.2", "2.1/4.2"),
+			// Exponentiation
+			new ExampleRewrite("Exponentiation: 3^2", "3^2"),
+			new ExampleRewrite("Exponentiation: x^0", "x^0"),
+			new ExampleRewrite("Exponentiation: 1^4", "1^4"),
+			// Nested Arithmetic Operation
+			new ExampleRewrite("Nested Arithmetic: (A-B)-C", "(A-B)-C"),
+			new ExampleRewrite("Nested Arithmetic: (A/B)/C", "(A/B)/C"),
+			// Mixed.
+			new ExampleRewrite("Mixed: 1 + 2 - 2 + 5^2 + 49 / 7 + 8 * 4", "1 + 2 - 2 + 5^2 + 49 / 7 + 8 * 4 "),
 		};
 	}
 	
 	@Override
 	protected EnableItem<Rewriter> getExampleRewriters() {
-		
+
 		List<EnableItem<Rewriter>> basicRewriters = new ArrayList<EnableItem<Rewriter>>();
 		basicRewriters.add(new LeafEnableItem<Rewriter>("Plus",  new Plus()));
 		basicRewriters.add(new LeafEnableItem<Rewriter>("Minus", new Minus()));
-		basicRewriters.add(new LeafEnableItem<Rewriter>("Unary Minus", new UnaryMinus()));
 		basicRewriters.add(new LeafEnableItem<Rewriter>("Times", new Times()));
 		basicRewriters.add(new LeafEnableItem<Rewriter>("Division", new Division()));
 		GroupEnableItem<Rewriter> basicGroup = new GroupEnableItem<Rewriter>("Basic", basicRewriters);
