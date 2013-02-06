@@ -481,18 +481,23 @@ public class AbstractRewritePanel extends JPanel {
 		Writer writer = DefaultWriter.newDefaultConfiguredWriter();
 		
 		Expression input = parser.parse(inputExpressionEditor.getText());
-		RewritingProcess process = new DefaultRewritingProcess(input, new RewriteOnce(getRewritersAndModules()));
-		Rewriter rewriter = null;
-		if (exhaustive) {
-			rewriter = new TotalRewriter(getRewritersAndModules());
+		if (input != null) {
+			RewritingProcess process = new DefaultRewritingProcess(input, new RewriteOnce(getRewritersAndModules()));
+			Rewriter rewriter = null;
+			if (exhaustive) {
+				rewriter = new TotalRewriter(getRewritersAndModules());
+			}
+			else {
+				rewriter = new RewriteOnce(getRewritersAndModules());
+			}
+			
+			Expression output = rewriter.rewrite(input, process);
+			
+			outputExpressionEditor.setText(writer.toString(output));
 		}
 		else {
-			rewriter = new RewriteOnce(getRewritersAndModules());
+			outputExpressionEditor.setText("");
 		}
-		
-		Expression output = rewriter.rewrite(input, process);
-		
-		outputExpressionEditor.setText(writer.toString(output));
 	}
 	
 	private List<Rewriter> getRewritersAndModules() {
