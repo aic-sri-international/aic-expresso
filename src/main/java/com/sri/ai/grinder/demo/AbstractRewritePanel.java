@@ -496,7 +496,7 @@ public class AbstractRewritePanel extends JPanel {
 			outputExpressionEditor.setText(writer.toString(output));
 		}
 		else {
-			outputExpressionEditor.setText("");
+			outputExpressionEditor.setText("ERROR: Malformed Input Expression.");
 		}
 	}
 	
