@@ -121,10 +121,10 @@ FLOAT
     ;
 
 
-//COMMENT
-//    :   '//' ~('\n'|'\r')* '\r'? '\n' {$channel=HIDDEN;}
-//    |   '/*' ( options {greedy=false;} : . )* '*/' {$channel=HIDDEN;}
-//    ;
+COMMENT
+    :   '//' ~('\n'|'\r')* '\r'? '\n'? {$channel=HIDDEN;}
+    |   '/*' ( options {greedy=false;} : . )* '*/' {$channel=HIDDEN;}
+    ;
 
 
 
