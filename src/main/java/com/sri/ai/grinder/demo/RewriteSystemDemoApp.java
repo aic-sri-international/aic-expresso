@@ -146,8 +146,8 @@ public class RewriteSystemDemoApp {
 		JPanel arithmeticPanel = new ArithmeticRewritePanel();
 		tabbedPane.addTab("Arithmetic", null, arithmeticPanel, null);
 		
-		JPanel equalityPanel = new ArithmeticRewritePanel();
-		tabbedPane.addTab("(In)Equality", null, equalityPanel, null);
+		JPanel equalityPanel = new EqualityRewritePanel();
+		tabbedPane.addTab("Equality", null, equalityPanel, null);
 		
 		JPanel setsPanel = new ArithmeticRewritePanel();
 		tabbedPane.addTab("Sets", null, setsPanel, null);
