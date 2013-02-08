@@ -158,10 +158,7 @@ public class RewriteSystemDemoApp {
 		JPanel controlFlowPanel = new ControlFlowRewritePanel();
 		tabbedPane.addTab("Control Flow", null, controlFlowPanel, null);
 		
-		JPanel functionPanel = new ArithmeticRewritePanel();
-		tabbedPane.addTab("Function", null, functionPanel, null);
-		
-		JPanel allPanel = new ArithmeticRewritePanel();
+		JPanel allPanel = new AllRewritePanel();
 		tabbedPane.addTab("All", null, allPanel, null);
 	}
 	
