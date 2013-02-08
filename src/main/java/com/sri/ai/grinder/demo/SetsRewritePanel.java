@@ -46,7 +46,6 @@ import com.sri.ai.grinder.demo.model.EnableItem;
 import com.sri.ai.grinder.demo.model.ExampleRewrite;
 import com.sri.ai.grinder.demo.model.GroupEnableItem;
 import com.sri.ai.grinder.demo.model.LeafEnableItem;
-import com.sri.ai.grinder.library.set.extensional.NormalizeExtensionalUniSet;
 import com.sri.ai.grinder.library.set.extensional.UnionOnExtensionalSets;
 import com.sri.ai.grinder.library.set.intensional.EqualityOfIntensionalUniSets;
 
@@ -58,9 +57,7 @@ public class SetsRewritePanel extends AbstractRewritePanel {
 	protected ExampleRewrite[] getExampleRewrites() {
 		return new ExampleRewrite[] {
 			// Extensional
-			new ExampleRewrite("Extensional Normalize: {a, a}", "{a, a}"),
-			new ExampleRewrite("Extensional Normalize: {a, a, b}", "{a, a, b}"),
-			new ExampleRewrite("Extensional Union", "{x, y} union {y, z}"),
+			new ExampleRewrite("Extensional Union", "{x, y} union { z }"),
 			// Intensional
 			new ExampleRewrite("Intensional Condition", "{ (on X) Alpha | false }"),
 			new ExampleRewrite("Intensional Equality", "{ (on X, Y) Alpha | X != Y } = { (on Z, W) Beta | Z != a }"),
@@ -71,7 +68,6 @@ public class SetsRewritePanel extends AbstractRewritePanel {
 	protected EnableItem<Rewriter> getExampleRewriters() {
 
 		List<EnableItem<Rewriter>> extensionalRewriters = new ArrayList<EnableItem<Rewriter>>();
-		extensionalRewriters.add(new LeafEnableItem<Rewriter>("Normalize Externsional Uni-Set",  new NormalizeExtensionalUniSet()));
 		extensionalRewriters.add(new LeafEnableItem<Rewriter>("Union on Extensional Sets",  new UnionOnExtensionalSets()));
 		GroupEnableItem<Rewriter> extensionalGroup = new GroupEnableItem<Rewriter>("Extensional", extensionalRewriters);
 		
