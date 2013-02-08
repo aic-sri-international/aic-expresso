@@ -149,13 +149,13 @@ public class RewriteSystemDemoApp {
 		JPanel equalityPanel = new EqualityRewritePanel();
 		tabbedPane.addTab("Equality", null, equalityPanel, null);
 		
-		JPanel setsPanel = new ArithmeticRewritePanel();
+		JPanel setsPanel = new SetsRewritePanel();
 		tabbedPane.addTab("Sets", null, setsPanel, null);
 		
-		JPanel logicPanel = new ArithmeticRewritePanel();
+		JPanel logicPanel = new LogicRewritePanel();
 		tabbedPane.addTab("Logic", null, logicPanel, null);
 		
-		JPanel controlFlowPanel = new ArithmeticRewritePanel();
+		JPanel controlFlowPanel = new ControlFlowRewritePanel();
 		tabbedPane.addTab("Control Flow", null, controlFlowPanel, null);
 		
 		JPanel functionPanel = new ArithmeticRewritePanel();
