@@ -493,12 +493,17 @@ public class AbstractRewritePanel extends JPanel {
 				rewriter = new RewriteOnce(getRewritersAndModules());
 			}
 			
-			try {
-				Expression output = rewriter.rewrite(input, process);
-			
-				outputExpressionEditor.setText(writer.toString(output));
+			try {				
+				Expression output = rewriter.rewrite(input, process);			
+				try {
+					outputExpressionEditor.setText(writer.toString(output));
+				} catch (RuntimeException ire) {
+					outputExpressionEditor.setText("// ERROR: Rewriting Output - \n"+output);
+					ire.printStackTrace();
+				}
 			} catch (RuntimeException ore) {
 				outputExpressionEditor.setText("// ERROR: Rewriting Input - \n"+inputExpressionEditor.getText());
+				ore.printStackTrace();
 			}
 		}
 		else {
