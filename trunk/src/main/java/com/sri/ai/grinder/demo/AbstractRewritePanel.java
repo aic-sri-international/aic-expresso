@@ -53,6 +53,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.BoxLayout;
 import javax.swing.ComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JScrollPane;
@@ -138,6 +139,10 @@ public class AbstractRewritePanel extends JPanel {
 	private DefaultMutableTreeNode exampleRewritersRootNode = null;
 	private List<EnableItem<Rewriter>> rewriterEnableList   = new ArrayList<EnableItem<Rewriter>>();
 	private String lastSingleStepInput = "";
+	// 
+	private ImageIcon imageStep        = createImageIcon("media-skip-forward.png");
+	private ImageIcon imageExhaustive  = createImageIcon("media-seek-forward.png");
+	private ImageIcon imageClear       = createImageIcon("document-new.png");
 	//
 	private ExpressionEditor inputExpressionEditor;
 	private ExpressionEditor outputExpressionEditor;
@@ -178,7 +183,7 @@ public class AbstractRewritePanel extends JPanel {
 		examplePanel.add(exampleLabel);
 		
 		exampleComboBox = new JComboBox();
-		exampleComboBox.setPreferredSize(new Dimension(240, 25));
+		exampleComboBox.setPreferredSize(new Dimension(210, 25));
 		exampleComboBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				ExampleRewrite eg = (ExampleRewrite) exampleComboBox.getItemAt(exampleComboBox.getSelectedIndex());
@@ -204,6 +209,8 @@ public class AbstractRewritePanel extends JPanel {
 			}
 		});
 		button.setToolTipText("Single rewrite step.");
+		button.setIcon(imageStep);
+		button.setText("");
 		examplePanel.add(button);
 		
 		JButton button_1 = new JButton("->");
@@ -214,6 +221,8 @@ public class AbstractRewritePanel extends JPanel {
 			}
 		});
 		button_1.setToolTipText("Exhaustive Rewrite");
+		button_1.setIcon(imageExhaustive);
+		button_1.setText("");
 		examplePanel.add(button_1);
 		
 		JButton button_2 = new JButton("Clear");
@@ -224,6 +233,8 @@ public class AbstractRewritePanel extends JPanel {
 			}
 		});
 		button_2.setToolTipText("Clear Console and Trace");
+		button_2.setIcon(imageClear);
+		button_2.setText("");
 		examplePanel.add(button_2);
 		
 		JPanel expressionViews = new JPanel();
@@ -573,6 +584,12 @@ public class AbstractRewritePanel extends JPanel {
 		rewriterEnableList.add(new LeafEnableItem<Rewriter>("There Exists - subexpression and scoped variables provider", new ThereExistsSubExpressionsAndScopedVariablesProvider()));
 		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Internsion Set - Scoped Variables provider", new IntensionalSet()));
 		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Syntactic Function - subexpression provider", new SyntacticFunctionsSubExpressionsProvider("type", "scoped variables")));
+	}
+	
+
+	private static ImageIcon createImageIcon(String path) {
+	    java.net.URL imgURL = AbstractRewritePanel.class.getResource(path);
+	    return new ImageIcon(imgURL);
 	}
 	
 	private class RewriterEnableTreeRenderer extends DefaultTreeCellRenderer {
