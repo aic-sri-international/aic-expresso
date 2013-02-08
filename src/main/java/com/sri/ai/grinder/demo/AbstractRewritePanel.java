@@ -203,7 +203,7 @@ public class AbstractRewritePanel extends JPanel {
 				lastSingleStepInput = currentSingleStepInput;
 			}
 		});
-		button.setToolTipText("Single rewrte step.");
+		button.setToolTipText("Single rewrite step.");
 		examplePanel.add(button);
 		
 		JButton button_1 = new JButton("->");
@@ -213,7 +213,7 @@ public class AbstractRewritePanel extends JPanel {
 				performRewrite(true);
 			}
 		});
-		button_1.setToolTipText("Exhaustve Rewrite");
+		button_1.setToolTipText("Exhaustive Rewrite");
 		examplePanel.add(button_1);
 		
 		JButton button_2 = new JButton("Clear");
@@ -223,7 +223,7 @@ public class AbstractRewritePanel extends JPanel {
 				clearTraceTree();
 			}
 		});
-		button_2.setToolTipText("Clear All");
+		button_2.setToolTipText("Clear Console and Trace");
 		examplePanel.add(button_2);
 		
 		JPanel expressionViews = new JPanel();
