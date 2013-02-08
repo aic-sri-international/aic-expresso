@@ -70,7 +70,7 @@ public class ArithmeticRewritePanel extends AbstractRewritePanel {
 			new ExampleRewrite("Minus: 0 - X", "0 - X"),
 			// Times
 			new ExampleRewrite("Times: 2 * 2", "2 * 2"),
-			new ExampleRewrite("Times: x * 2 * 1 * 2 * 1 * y * 6", "x * 2 * 1 * 2 * 1 * y * 6"),
+			new ExampleRewrite("Times: x * 2 * 1 * 2 * 1", "x * 2 * 1 * 2 * 1"),
 			// Division
 			new ExampleRewrite("Division: 4/2", "4/2"),
 			new ExampleRewrite("Division: 2.1/4.2", "2.1/4.2"),
@@ -82,7 +82,7 @@ public class ArithmeticRewritePanel extends AbstractRewritePanel {
 			new ExampleRewrite("Nested Arithmetic: (A-B)-C", "(A-B)-C"),
 			new ExampleRewrite("Nested Arithmetic: (A/B)/C", "(A/B)/C"),
 			// Mixed.
-			new ExampleRewrite("Mixed: 1 + 2 - 2 + 5^2 + 49 / 7 + 8 * 4", "1 + 2 - 2 + 5^2 + 49 / 7 + 8 * 4 "),
+			new ExampleRewrite("Mixed", "1 + 2 - 2 + 5^2 + 49 / 7 + 8 * 4 "),
 		};
 	}
 	
