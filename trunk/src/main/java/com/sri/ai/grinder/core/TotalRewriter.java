@@ -130,6 +130,7 @@ public class TotalRewriter extends AbstractRewriter {
 	public Expression rewriteAfterBookkeeping(final Expression topExpression, RewritingProcess process) {
 		Expression current  = topExpression;
 		Expression previous = null;
+		final Expression[] currentTopExpression = new Expression[1];
 		// Note: make the rewriter function local so that it can be multi-threaded correctly with respect 
 		// to tracking the topExpression for trace output. This is where the guts of the logic occurs.
 		final boolean       traceEnabled         = Trace.isEnabled();
@@ -180,7 +181,7 @@ public class TotalRewriter extends AbstractRewriter {
 							if (traceEnabled) {
 								long relativeTime = System.currentTimeMillis() - startTime;
 								
-								boolean isWholeExpressionRewrite = priorResult == topExpression;
+								boolean isWholeExpressionRewrite = priorResult == currentTopExpression[0];
 								String  indent = "";
 								if (isWholeExpressionRewrite) {
 									Trace.log(indent+"Rewriting whole expression:");
@@ -193,12 +194,8 @@ public class TotalRewriter extends AbstractRewriter {
 								
 								Trace.log(indent+"   ----> ("+rewriter.getName()+",  "+relativeTime+" ms, #"+(++rewritingCount)+", "+numberOfSelections+" rewriter selections ("+totalNumberOfSelections+" since start))");
 	
-								if (isWholeExpressionRewrite) {
+								if (!isWholeExpressionRewrite) {
 									Trace.log(indent+"{}", result);
-								} 
-								else {
-									Trace.log(indent+"{}", result);
-									Trace.log("{}", result);
 								}
 							}
 						
@@ -232,7 +229,11 @@ public class TotalRewriter extends AbstractRewriter {
 		// Keep rewriting until no changes occur.
 		while (current != previous) {
 			previous = current;
+			currentTopExpression[0] = current;
 			current  = previous.replaceAllOccurrences(rewriteFunction, deadEndPruner, deadEndListener, process);
+			if (current != previous) {
+				Trace.log("{}", current);
+			}
 		}
 		
 		Expression result = current;

@@ -116,7 +116,7 @@ public class RewriteSystemDemoApp {
 	 */
 	private void initialize() {
 		frmGrinderRewriteSystem = new JFrame();
-		frmGrinderRewriteSystem.setTitle("Grinder: Rewrite System Demo");
+		frmGrinderRewriteSystem.setTitle("Grinder: Rewriting System Demo");
 		frmGrinderRewriteSystem.setBounds(100, 100, 800, 600);
 		frmGrinderRewriteSystem.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
