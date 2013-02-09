@@ -66,7 +66,6 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.TrivialQuanti
 import com.sri.ai.grinder.library.number.Division;
 import com.sri.ai.grinder.library.number.Exponentiation;
 import com.sri.ai.grinder.library.number.Minus;
-import com.sri.ai.grinder.library.number.NestedArithmeticOperation;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.library.number.UnaryMinus;
@@ -101,7 +100,6 @@ public class AllRewritePanel extends AbstractRewritePanel {
 		allRewriters.add(new LeafEnableItem<Rewriter>("Times", new Times()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Division", new Division()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Exponentiation",  new Exponentiation()));
-		allRewriters.add(new LeafEnableItem<Rewriter>("Nested Arithmetic Operation", new NestedArithmeticOperation()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Known Condition",  new IfThenElse()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Equality",  new Equality()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Disequality",  new Disequality()));
