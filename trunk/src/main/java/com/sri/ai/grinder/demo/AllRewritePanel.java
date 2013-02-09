@@ -83,9 +83,10 @@ public class AllRewritePanel extends AbstractRewritePanel {
 			// Example
 			new ExampleRewrite("Example 1", "if A = b then 200/32 else 29^3"),
 			new ExampleRewrite("Example 2", "{ (on X) Alpha | a = b }"),
-			new ExampleRewrite("Example 3", "{ 1, (if A = B then 2 + 4 else 3 * 9^3) }"),
-			new ExampleRewrite("Example 4", "if (1+2) = 3 then X = a else Y = b"),
-			new ExampleRewrite("Example 5", "if ((1+2) = 3) and ((2-1) = 3) then X = a else Y = b"),
+			new ExampleRewrite("Example 3", "if { f(X) | X != 2 and 1 = 2 } = {} then yeah else nah"),
+			new ExampleRewrite("Example 4", "{ 1, (if A = B then 2 + 4 else 3 * 9^3) }"),
+			new ExampleRewrite("Example 5", "if (1+2) = 3 then X = a else Y = b"),
+			new ExampleRewrite("Example 6", "if ((1+2) = 3) and ((2-1) = 3) then X = a else Y = b"),
 		};
 	}
 	
