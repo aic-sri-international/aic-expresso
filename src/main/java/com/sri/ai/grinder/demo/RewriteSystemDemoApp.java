@@ -51,6 +51,8 @@ import java.io.PrintStream;
 import javax.swing.JTabbedPane;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.brewer.BrewerConfiguration;
+import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.grinder.GrinderConfiguration;
 
 import javax.swing.event.ChangeListener;
@@ -74,6 +76,9 @@ public class RewriteSystemDemoApp {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		// Ensure the grammar class passed in is used where necessary.
+		BrewerConfiguration.setProperty(BrewerConfiguration.KEY_DEFAULT_GRAMMAR_CLASS, CommonGrammar.class.getName());
+
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {				
 				try {

@@ -60,7 +60,7 @@ public class SetsRewritePanel extends AbstractRewritePanel {
 			new ExampleRewrite("Extensional Union", "{x, y} union { z }"),
 			// Intensional
 			new ExampleRewrite("Intensional Condition", "{ (on X) Alpha | false }"),
-			new ExampleRewrite("Intensional Equality", "{ (on X, Y) Alpha | X != Y } = { (on Z, W) Beta | Z != a }"),
+			new ExampleRewrite("Intensional Equality", "{ (on X, Y) (a,Y) | X != Y } = { (on Z, W) (Z,W) | Z = a and W != Z }"),
 		};
 	}
 	
