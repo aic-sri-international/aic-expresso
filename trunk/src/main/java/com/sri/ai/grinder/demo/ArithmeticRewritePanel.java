@@ -49,7 +49,6 @@ import com.sri.ai.grinder.demo.model.LeafEnableItem;
 import com.sri.ai.grinder.library.number.Division;
 import com.sri.ai.grinder.library.number.Exponentiation;
 import com.sri.ai.grinder.library.number.Minus;
-import com.sri.ai.grinder.library.number.NestedArithmeticOperation;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 
@@ -78,9 +77,6 @@ public class ArithmeticRewritePanel extends AbstractRewritePanel {
 			new ExampleRewrite("Exponentiation: 3^2", "3^2"),
 			new ExampleRewrite("Exponentiation: x^0", "x^0"),
 			new ExampleRewrite("Exponentiation: 1^4", "1^4"),
-			// Nested Arithmetic Operation
-			new ExampleRewrite("Nested Arithmetic: (A-B)-C", "(A-B)-C"),
-			new ExampleRewrite("Nested Arithmetic: (A/B)/C", "(A/B)/C"),
 			// Mixed.
 			new ExampleRewrite("Mixed", "1 + 2 - 2 + 5^2 + 49 / 7 + 8 * 4 "),
 		};
@@ -89,22 +85,17 @@ public class ArithmeticRewritePanel extends AbstractRewritePanel {
 	@Override
 	protected EnableItem<Rewriter> getExampleRewriters() {
 
-		List<EnableItem<Rewriter>> basicRewriters = new ArrayList<EnableItem<Rewriter>>();
-		basicRewriters.add(new LeafEnableItem<Rewriter>("Plus",  new Plus()));
-		basicRewriters.add(new LeafEnableItem<Rewriter>("Minus", new Minus()));
-		basicRewriters.add(new LeafEnableItem<Rewriter>("Times", new Times()));
-		basicRewriters.add(new LeafEnableItem<Rewriter>("Division", new Division()));
-		GroupEnableItem<Rewriter> basicGroup = new GroupEnableItem<Rewriter>("Basic", basicRewriters);
-				
-		List<EnableItem<Rewriter>> advancedRewriters = new ArrayList<EnableItem<Rewriter>>();
-		advancedRewriters.add(new LeafEnableItem<Rewriter>("Exponentiation",  new Exponentiation()));
-		advancedRewriters.add(new LeafEnableItem<Rewriter>("Nested Arithmetic Operation", new NestedArithmeticOperation()));
-		GroupEnableItem<Rewriter> advancedGroup = new GroupEnableItem<Rewriter>("Advanced", advancedRewriters);
+		List<EnableItem<Rewriter>> arithmeticRewriters = new ArrayList<EnableItem<Rewriter>>();
+		arithmeticRewriters.add(new LeafEnableItem<Rewriter>("Plus",  new Plus()));
+		arithmeticRewriters.add(new LeafEnableItem<Rewriter>("Minus", new Minus()));
+		arithmeticRewriters.add(new LeafEnableItem<Rewriter>("Times", new Times()));
+		arithmeticRewriters.add(new LeafEnableItem<Rewriter>("Division", new Division()));
+		arithmeticRewriters.add(new LeafEnableItem<Rewriter>("Exponentiation",  new Exponentiation()));
+		GroupEnableItem<Rewriter> basicGroup = new GroupEnableItem<Rewriter>("Arithmetic", arithmeticRewriters);
 		
 		List<EnableItem<Rewriter>> groups = new ArrayList<EnableItem<Rewriter>>();
 		groups.add(basicGroup);
-		groups.add(advancedGroup);
-		GroupEnableItem<Rewriter> root = new GroupEnableItem<Rewriter>("Addition Rewriters", groups);
+		GroupEnableItem<Rewriter> root = new GroupEnableItem<Rewriter>("Arithmetic Rewriters", groups);
 				
 		return root; 
 	}

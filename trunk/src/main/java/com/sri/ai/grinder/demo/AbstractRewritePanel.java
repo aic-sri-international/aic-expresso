@@ -75,11 +75,8 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.brewer.BrewerConfiguration;
-import com.sri.ai.brewer.api.Grammar;
 import com.sri.ai.brewer.api.Parser;
 import com.sri.ai.brewer.api.Writer;
-import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.brewer.core.DefaultWriter;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
@@ -142,7 +139,7 @@ public class AbstractRewritePanel extends JPanel {
 	// 
 	private ImageIcon imageStep        = createImageIcon("media-skip-forward.png");
 	private ImageIcon imageExhaustive  = createImageIcon("media-seek-forward.png");
-	private ImageIcon imageClear       = createImageIcon("document-new.png");
+	private ImageIcon imageClear       = createImageIcon("edit-clear.png");
 	//
 	private ExpressionEditor inputExpressionEditor;
 	private ExpressionEditor outputExpressionEditor;
@@ -203,12 +200,13 @@ public class AbstractRewritePanel extends JPanel {
 					currentSingleStepInput = outputExpressionEditor.getText();
 					inputExpressionEditor.setText(currentSingleStepInput);
 				}
-				System.out.println("Single Step Rewrite:\n"+currentSingleStepInput);
+				System.out.println("------------");
 				performRewrite(false);
+				System.out.println("");
 				lastSingleStepInput = currentSingleStepInput;
 			}
 		});
-		button.setToolTipText("Single rewrite step.");
+		button.setToolTipText("Single rewrite step");
 		button.setIcon(imageStep);
 		button.setText("");
 		examplePanel.add(button);
@@ -216,8 +214,9 @@ public class AbstractRewritePanel extends JPanel {
 		JButton button_1 = new JButton("->");
 		button_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Exhaustive Rewriter:\n"+inputExpressionEditor.getText());
+				System.out.println("------------");
 				performRewrite(true);
+				System.out.println("");
 			}
 		});
 		button_1.setToolTipText("Exhaustive Rewrite");
@@ -484,11 +483,7 @@ public class AbstractRewritePanel extends JPanel {
 		});
 	}
 	
-	private void performRewrite(boolean exhaustive) {
-		Grammar grammar = new CommonGrammar();
-		// Ensure the grammar class passed in is used where necessary.
-		BrewerConfiguration.setProperty(BrewerConfiguration.KEY_DEFAULT_GRAMMAR_CLASS, grammar.getClass().getName());
-		
+	private void performRewrite(boolean exhaustive) {	
 		Parser parser = new AntlrGrinderParserWrapper();
 		
 		Writer writer = DefaultWriter.newDefaultConfiguredWriter();

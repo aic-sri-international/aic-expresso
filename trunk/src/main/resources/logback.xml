@@ -38,7 +38,7 @@
 -->
 <configuration>
   <conversionRule conversionWord="logxtracemsg" 
-                  converterClass="com.sri.ai.util.log.LogXTraceConverter" />
+                  converterClass="com.sri.ai.grinder.demo.CommonGrammarLogXTraceConverter" />
 
   <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -49,7 +49,7 @@
   <appender name="logx.console" class="ch.qos.logback.core.ConsoleAppender">
   	<filter class="com.sri.ai.grinder.helper.RewriterLoggingNamedRewriterFilter" />
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-      <Pattern>|%logxtracemsg%n</Pattern>
+      <Pattern>%logxtracemsg%n</Pattern>
     </encoder>
   </appender>
    
