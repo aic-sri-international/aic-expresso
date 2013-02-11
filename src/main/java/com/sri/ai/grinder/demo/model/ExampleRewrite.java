@@ -44,10 +44,16 @@ public class ExampleRewrite {
 	
 	private String name            = null;
 	private String inputExpression = null;
+	private String inputContext    = null;
 	
 	public ExampleRewrite(String name, String inputExpression) {
+		this(name, inputExpression, "true");
+	}
+	
+	public ExampleRewrite(String name, String inputExpression, String inputContext) {
 		setName(name);
 		setInputExpression(inputExpression);
+		setInputContext(inputContext);
 	}
 
 	public String getName() {
@@ -64,6 +70,14 @@ public class ExampleRewrite {
 
 	public void setInputExpression(String inputExpression) {
 		this.inputExpression = inputExpression;
+	}
+	
+	public String getInputContext() {
+		return inputContext;
+	}
+	
+	public void setInputContext(String inputContext) {
+		this.inputContext = inputContext;
 	}
 	
 	@Override
