@@ -80,8 +80,10 @@ import com.sri.ai.brewer.api.Writer;
 import com.sri.ai.brewer.core.DefaultWriter;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultRewriterLookup;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.OpenInterpretationModule;
 import com.sri.ai.grinder.core.RewriteOnce;
@@ -90,17 +92,26 @@ import com.sri.ai.grinder.demo.model.EnableItem;
 import com.sri.ai.grinder.demo.model.ExampleRewrite;
 import com.sri.ai.grinder.demo.model.GroupEnableItem;
 import com.sri.ai.grinder.demo.model.LeafEnableItem;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.RewriterLoggingNamedRewriterFilter;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
+import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.Distributive;
+import com.sri.ai.grinder.library.PlainSubstitution;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.SyntacticFunctionsSubExpressionsProvider;
 import com.sri.ai.grinder.library.boole.ForAllSubExpressionsAndScopedVariablesProvider;
 import com.sri.ai.grinder.library.boole.ThereExistsSubExpressionsAndScopedVariablesProvider;
 import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityWrapper;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.QuantifierElimination;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.QuantifierEliminationWrapper;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopImpliedCertainty;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopSimplify;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsProvider;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
@@ -142,7 +153,9 @@ public class AbstractRewritePanel extends JPanel {
 	private ImageIcon imageExhaustive  = createImageIcon("media-seek-forward.png");
 	private ImageIcon imageClear       = createImageIcon("edit-clear.png");
 	//
+	private ExpressionEditor inputContextExpressionEditor;
 	private ExpressionEditor inputExpressionEditor;
+	private ExpressionEditor outputContextExpressionEditor;
 	private ExpressionEditor outputExpressionEditor;
 	private JComboBox exampleComboBox;
 	private JTree rewriterEnableTree;
@@ -186,6 +199,7 @@ public class AbstractRewritePanel extends JPanel {
 			public void actionPerformed(ActionEvent arg0) {
 				ExampleRewrite eg = (ExampleRewrite) exampleComboBox.getItemAt(exampleComboBox.getSelectedIndex());
 				if (eg != null) {
+					inputContextExpressionEditor.setText(eg.getInputContext());
 					inputExpressionEditor.setText(eg.getInputExpression());
 				}
 			}
@@ -251,6 +265,16 @@ public class AbstractRewritePanel extends JPanel {
 		inputExpressionEditor = new ExpressionEditor();
 		expressionInputPanel.add(inputExpressionEditor, BorderLayout.CENTER);
 		
+		JPanel inputContextPanel = new JPanel();
+		expressionInputPanel.add(inputContextPanel, BorderLayout.NORTH);
+		inputContextPanel.setLayout(new BorderLayout(0, 0));
+		
+		JLabel lblNewLabel = new JLabel("Context:");
+		inputContextPanel.add(lblNewLabel, BorderLayout.WEST);
+		
+		inputContextExpressionEditor = new ExpressionEditor();
+		inputContextPanel.add(inputContextExpressionEditor);
+		
 		JPanel expressionOutputPanel = new JPanel();
 		expressionOutputPanel.setBorder(new TitledBorder(null, "Output", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		expressionViews.add(expressionOutputPanel);
@@ -259,6 +283,16 @@ public class AbstractRewritePanel extends JPanel {
 		
 		outputExpressionEditor = new ExpressionEditor();
 		expressionOutputPanel.add(outputExpressionEditor, BorderLayout.CENTER);
+		
+		JPanel outputContextPanel = new JPanel();
+		outputExpressionEditor.add(outputContextPanel, BorderLayout.NORTH);
+		outputContextPanel.setLayout(new BorderLayout(0, 0));
+		
+		JLabel lblNewLabel_1 = new JLabel("Context:");
+		outputContextPanel.add(lblNewLabel_1, BorderLayout.WEST);
+		
+		outputContextExpressionEditor = new ExpressionEditor();
+		outputContextPanel.add(outputContextExpressionEditor, BorderLayout.CENTER);
 		
 		JPanel outputPanel = new JPanel();
 		outputPanel.setPreferredSize(new Dimension(300, 160));
@@ -446,6 +480,8 @@ public class AbstractRewritePanel extends JPanel {
 		// Configure the output consoled window.
 		consoleOutputTextArea.setFont(new Font(Font.MONOSPACED, consoleOutputTextArea.getFont().getStyle(), 14));
 		
+		inputContextExpressionEditor.setText("true");
+		
 		TreeUtil.setWriter(DefaultWriter.newDefaultConfiguredWriter());
 		clearTraceTree();
 	}
@@ -489,9 +525,31 @@ public class AbstractRewritePanel extends JPanel {
 		
 		Writer writer = DefaultWriter.newDefaultConfiguredWriter();
 		
+		Expression inputContext = parser.parse(inputContextExpressionEditor.getText());
+		if (inputContext == null) {
+			outputContextExpressionEditor.setText("ERROR: Malformed Input Context.");
+		}
 		Expression input = parser.parse(inputExpressionEditor.getText());
-		if (input != null) {
-			RewritingProcess process = new DefaultRewritingProcess(input, new RewriteOnce(getRewritersAndModules()));
+		if (input == null) {
+			outputExpressionEditor.setText("ERROR: Malformed Input Expression.");
+		}
+		if (inputContext  != null && input != null) {
+			List<Rewriter> rewriters = getRewritersAndModules();
+			RewritingProcess process = new DefaultRewritingProcess(input, new RewriteOnce(rewriters));
+			if (isCardinalityRewriterLookupNeeded(rewriters)) {
+				((DefaultRewritingProcess)process).setRewriterLookup(new DefaultRewriterLookup(DirectCardinalityComputationFactory.getCardinalityRewritersMap()));
+			}
+			CardinalityTypeOfLogicalVariable.registerDomainSizeOfLogicalVariableWithProcess(new CardinalityTypeOfLogicalVariable.DomainSizeOfLogicalVariable() {
+				@Override
+				public Integer size(Expression logicalVariable, RewritingProcess process) {
+// TODO - get this from the model count panel
+					return 10;
+				}
+			}, process);
+			if (!Expressions.TRUE.equals(inputContext)) {
+				process = GrinderUtil.extendContextualConstraint(inputContext, process);
+			}
+			
 			Rewriter rewriter = null;
 			if (exhaustive) {
 				rewriter = new TotalRewriter(getRewritersAndModules());
@@ -503,7 +561,8 @@ public class AbstractRewritePanel extends JPanel {
 			try {				
 				Expression output = rewriter.rewrite(input, process);			
 				try {
-					outputExpressionEditor.setText(writer.toString(output));
+					outputContextExpressionEditor.setText(writer.toString(process.getContextualConstraint()));
+					outputExpressionEditor.setText(writer.toString(output));					
 				} catch (RuntimeException ire) {
 					outputExpressionEditor.setText("// ERROR: Rewriting Output - \n"+output);
 					ire.printStackTrace();
@@ -513,9 +572,6 @@ public class AbstractRewritePanel extends JPanel {
 				ore.printStackTrace();
 			}
 		}
-		else {
-			outputExpressionEditor.setText("ERROR: Malformed Input Expression.");
-		}
 	}
 	
 	private List<Rewriter> getRewritersAndModules() {
@@ -523,12 +579,34 @@ public class AbstractRewritePanel extends JPanel {
 		
 		for (EnableItem<Rewriter> enabledRewriter : rewriterEnableList) {
 			if (enabledRewriter.isEnabled()) {
-				rewriters.add(enabledRewriter.getUserObject());
+				Rewriter r = enabledRewriter.getUserObject();
+				rewriters.add(r);
+				
 			}
 		}
 		
 		return rewriters;
 	}
+		
+	private boolean isCardinalityRewriterLookupNeeded(List<Rewriter> rewriters) {
+		boolean result = false;
+		
+		for (Rewriter r : rewriters) {
+			if (r.getClass() == TopSimplify.class ||
+					r.getClass() == QuantifierElimination.class ||
+					r.getClass() == QuantifierEliminationWrapper.class ||
+					r.getClass() == TopImpliedCertainty.class ||
+					r.getClass() == CardinalityWrapper.class) {
+				
+				result = true;
+				break;
+			}
+		}
+		
+		return result;
+	}
+		
+	
 	
 	private ComboBoxModel getExampleComboBoxModel() {
 		return new DefaultComboBoxModel(getExampleRewrites());
@@ -560,6 +638,8 @@ public class AbstractRewritePanel extends JPanel {
 	
 	private void addModulesAndProviders() {
 		// Important Expected Rewrite Behavior
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Plain Substitution",new PlainSubstitution()));
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Cardinality Type of Logical Variable", new CardinalityTypeOfLogicalVariable()));
 		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Absorbing Element", new AbsorbingElement(
 				"and", "false",
 				"or", "true",

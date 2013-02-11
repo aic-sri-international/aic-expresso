@@ -47,7 +47,6 @@ import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
-import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.OpenInterpretationModule;
 import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.AbsorbingElement;
@@ -73,7 +72,6 @@ import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposed
 import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
 import com.sri.ai.grinder.library.equality.NotOnDisequality;
 import com.sri.ai.grinder.library.equality.NotOnEquality;
-import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.number.Division;
 import com.sri.ai.grinder.library.number.Exponentiation;
@@ -190,23 +188,4 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 						new SyntacticFunctionsSubExpressionsProvider("type", "scoped variables"),
 						new OpenInterpretationModule() }));
 	}
-}
-
-// Note: This wrapper is required as the default implementation throws an 
-// assertion exception if the input arguments are not what is expected.
-class QuantifierEliminationWrapper extends AbstractRewriter {	
-	public QuantifierEliminationWrapper() {
-	}
-	
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression result = expression;
-		if (CardinalityUtil.isFormula(expression, process)) {
-			result = process.rewrite(CardinalityRewriter.R_quantifier_elimination, expression);
-			if (result.equals(expression)) {
-				result = expression;
-			}
-		}
-		return result;
-	}	
 }
