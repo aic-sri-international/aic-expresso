@@ -66,6 +66,7 @@ public class LogicRewritePanel extends AbstractRewritePanel {
 			new ExampleRewrite("And: true and x", "true and x"),
 			new ExampleRewrite("And: and(true, false)", "and(true, false)"),
 			new ExampleRewrite("Or: true or x", "true or x"),
+			new ExampleRewrite("And Or", "and(x, or(y, z))"),
 			new ExampleRewrite("Not: not(true)", "not(true)"),
 			new ExampleRewrite("Implication: true => false", "true => false"),
 			new ExampleRewrite("Implication: false => true", "false => true"),

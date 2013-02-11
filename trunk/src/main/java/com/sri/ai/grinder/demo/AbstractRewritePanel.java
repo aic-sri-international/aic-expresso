@@ -94,6 +94,7 @@ import com.sri.ai.grinder.helper.RewriterLoggingNamedRewriterFilter;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
+import com.sri.ai.grinder.library.Distributive;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.SyntacticFunctionsSubExpressionsProvider;
 import com.sri.ai.grinder.library.boole.ForAllSubExpressionsAndScopedVariablesProvider;
@@ -559,11 +560,13 @@ public class AbstractRewritePanel extends JPanel {
 	
 	private void addModulesAndProviders() {
 		// Important Expected Rewrite Behavior
-		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Expression Knowledge", new AbsorbingElement(
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Absorbing Element", new AbsorbingElement(
 				"and", "false",
 				"or", "true",
 				"*", "0")));
-		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Expression Knowledge", new Associative("+", "*", "and")));
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Associative",  new Associative("+", "*", "and")));
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Distributive * +", new Distributive("*", "+")));
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Distributive and or", new Distributive("and", "or")));
 		
 		// Modules
 		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Expression Knowledge", new ExpressionKnowledgeModule()));

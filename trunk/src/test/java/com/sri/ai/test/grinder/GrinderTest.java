@@ -69,6 +69,7 @@ import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
 import com.sri.ai.grinder.library.CommonLibrary;
 import com.sri.ai.grinder.library.Disequality;
+import com.sri.ai.grinder.library.Distributive;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.ScopedVariables;
@@ -836,6 +837,28 @@ public class GrinderTest extends AbstractGrinderTest {
 				parse("x")
 				);
 		Assert.assertEquals(expected, Util.listFrom(new SubExpressionsDepthFirstIterator(expression)));
+	}
+	
+	@Test
+	public void testDistributive() {
+		Library library = new DefaultLibrary(
+				new Distributive("*", "+"),
+				new Associative("+", "*", "and"));
+		evaluator = new ExhaustiveRewriter(library);
+		
+		expressionString = "(1 + x + y)*(x + 3)";
+		expected = parse("1*x + 1*3 + x*x + x*3 + y*x + y*3");
+		evaluationTest();
+
+		// Testing case where one one of the operator applications is empty.
+		// We use an evaluator with the distributive law alone so +() does not get evaluated to 0.
+		expressionString = "+()*(x + 3)";
+		expected = parse("+()"); // Cartesian product of arguments of + in first expression is empty, so the list of resulting applications of * is also empty.
+		evaluationTest(new ExhaustiveRewriter(new Distributive("*", "+")));
+
+		expressionString = "(1 * x * y)+(x * 3)"; // + does not distribute over *
+		expected = parse("(1 * x * y)+(x * 3)");
+		evaluationTest();
 	}
 	
 	@Test
