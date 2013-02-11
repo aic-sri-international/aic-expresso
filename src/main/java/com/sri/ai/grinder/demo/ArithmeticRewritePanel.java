@@ -79,7 +79,8 @@ public class ArithmeticRewritePanel extends AbstractRewritePanel {
 			new ExampleRewrite("Exponentiation: 1^4", "1^4"),
 			// Mixed.
 			new ExampleRewrite("Mixed 1", "2.1/4.2 + 3/4"),
-			new ExampleRewrite("Mixed 2", "1 + 2 - 2 + 5^2 + 49 / 7 + 8 * 4 "),
+			new ExampleRewrite("Mixed 2", "(1 + x + y)*(x + 3)"),
+			new ExampleRewrite("Mixed 3", "1 + 2 - 2 + 5^2 + 49 / 7 + 8 * 4 "),
 		};
 	}
 	
