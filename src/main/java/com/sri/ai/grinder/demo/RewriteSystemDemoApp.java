@@ -54,6 +54,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.brewer.BrewerConfiguration;
 import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.grinder.GrinderConfiguration;
+import com.sri.ai.grinder.demo.model.Options;
 
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
@@ -66,13 +67,21 @@ import javax.swing.event.ChangeEvent;
 @Beta
 public class RewriteSystemDemoApp {
 
+	private Options options = new Options();
 	private AbstractRewritePanel lastRewritePanelSelected;
 	private PrintStream defaultOutStream;
 	//
 	private JFrame frmGrinderRewriteSystem;
 	private JTabbedPane tabbedPane;
-	private CardinalityOptionsPanel cardinalityOptionsPanel;
+	private ArithmeticRewritePanel arithmeticPanel;
+	private EqualityRewritePanel equalityPanel;
+	private SetsRewritePanel setsPanel;
+	private LogicRewritePanel logicPanel;
+	private ControlFlowRewritePanel controlFlowPanel;
 	private CardinalityRewritePanel cardinalityRewritePanel;
+	private AllRewritePanel allPanel;
+	//
+	private CardinalityOptionsPanel cardinalityOptionsPanel;
 
 	/**
 	 * Launch the application.
@@ -152,31 +161,41 @@ public class RewriteSystemDemoApp {
 		
 		cardinalityOptionsPanel = new CardinalityOptionsPanel();
 		
-		JPanel arithmeticPanel = new ArithmeticRewritePanel();
+		arithmeticPanel = new ArithmeticRewritePanel();
 		tabbedPane.addTab("Arithmetic", null, arithmeticPanel, null);
 		
-		JPanel equalityPanel = new EqualityRewritePanel();
+		equalityPanel = new EqualityRewritePanel();
 		tabbedPane.addTab("Equality", null, equalityPanel, null);
 		
-		JPanel setsPanel = new SetsRewritePanel();
+		setsPanel = new SetsRewritePanel();
 		tabbedPane.addTab("Sets", null, setsPanel, null);
 		
-		JPanel logicPanel = new LogicRewritePanel();
+		logicPanel = new LogicRewritePanel();
 		tabbedPane.addTab("Logic", null, logicPanel, null);
 		
-		JPanel controlFlowPanel = new ControlFlowRewritePanel();
+		controlFlowPanel = new ControlFlowRewritePanel();
 		tabbedPane.addTab("Control Flow", null, controlFlowPanel, null);
 		
 		cardinalityRewritePanel = new CardinalityRewritePanel();
 		tabbedPane.addTab("Cardinality", null, cardinalityRewritePanel, null);
 		cardinalityRewritePanel.setOptionsPanel(cardinalityOptionsPanel);
 		
-		JPanel allPanel = new AllRewritePanel();
+		allPanel = new AllRewritePanel();
 		tabbedPane.addTab("All", null, allPanel, null);
 	}
 	
 	private void postInitialize() {
 		defaultOutStream = System.out;
+		
+		arithmeticPanel.setOptions(options);
+		equalityPanel.setOptions(options);
+		setsPanel.setOptions(options);
+		logicPanel.setOptions(options);
+		controlFlowPanel.setOptions(options);
+		cardinalityRewritePanel.setOptions(options);
+		allPanel.setOptions(options);
+		cardinalityOptionsPanel.setOptions(options);
+		
 		tabbedPane.setSelectedIndex(0);
 	}
 

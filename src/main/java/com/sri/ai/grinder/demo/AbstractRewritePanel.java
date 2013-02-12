@@ -80,6 +80,7 @@ import com.sri.ai.brewer.core.DefaultWriter;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewriterLookup;
@@ -91,6 +92,7 @@ import com.sri.ai.grinder.demo.model.EnableItem;
 import com.sri.ai.grinder.demo.model.ExampleRewrite;
 import com.sri.ai.grinder.demo.model.GroupEnableItem;
 import com.sri.ai.grinder.demo.model.LeafEnableItem;
+import com.sri.ai.grinder.demo.model.Options;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.RewriterLoggingNamedRewriterFilter;
 import com.sri.ai.grinder.helper.Trace;
@@ -137,6 +139,8 @@ public class AbstractRewritePanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private static final String _iconResolution = "22x22";
 	
+	//
+	private Options options = null;
 	//
 	private ExpressionNode activeTraceNode, rootTraceNode = new ExpressionNode("", null);
 	private DefaultTreeModel treeTraceModel = new DefaultTreeModel(rootTraceNode);
@@ -393,6 +397,14 @@ public class AbstractRewritePanel extends JPanel {
 		postGUIInitialization();
 	}
 	
+	public Options getOptions() {
+		return options;
+	}
+	
+	public void setOptions(Options options) {
+		this.options = options;
+	}
+	
 	public JPanel getOptionsPanel() {
 		return optionsPanel;
 	}
@@ -591,11 +603,15 @@ public class AbstractRewritePanel extends JPanel {
 			if (isCardinalityRewriterLookupNeeded(rewriters)) {
 				((DefaultRewritingProcess)process).setRewriterLookup(new DefaultRewriterLookup(DirectCardinalityComputationFactory.getCardinalityRewritersMap()));
 			}
+			GrinderConfiguration.setProperty(GrinderConfiguration.KEY_ASSUME_DOMAIN_ALWAYS_LARGE, ""+getOptions().isAssumeDomainsAlwaysLarge());
 			CardinalityTypeOfLogicalVariable.registerDomainSizeOfLogicalVariableWithProcess(new CardinalityTypeOfLogicalVariable.DomainSizeOfLogicalVariable() {
 				@Override
 				public Integer size(Expression logicalVariable, RewritingProcess process) {
-// TODO - get this from the model count panel
-					return 10;
+					Integer result = null; // unknown by default
+					if (getOptions().isDomainSizeKnown()) {
+						result = getOptions().getDomainSize();
+					}
+					return result;
 				}
 			}, process);
 			if (!Expressions.TRUE.equals(inputContext)) {
