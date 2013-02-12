@@ -72,6 +72,7 @@ public class TotalRewriter extends AbstractRewriter {
 	private List<Rewriter>  activeRewriters         = new ArrayList<Rewriter>();
 	private int             totalNumberOfSelections = 0;
 	private int             rewritingCount          = 0; 
+	private boolean         outerTraceEnabled       = true;
 	private ExpressionCache deadEndsCache           = new ExpressionCache(
 			GrinderConfiguration.getRewriteDeadEndsCacheMaximumSize(),
 			null,
@@ -106,6 +107,14 @@ public class TotalRewriter extends AbstractRewriter {
 		}
 	}
 	
+	public boolean isOuterTraceEnabled() {
+		return outerTraceEnabled;
+	}
+	
+	public void setOuterTraceEnabled(boolean enabled) {
+		this.outerTraceEnabled = enabled;
+	}
+	
 	//
 	// START-Rewriter
 	@Override
@@ -133,7 +142,7 @@ public class TotalRewriter extends AbstractRewriter {
 		final Expression[] currentTopExpression = new Expression[1];
 		// Note: make the rewriter function local so that it can be multi-threaded correctly with respect 
 		// to tracking the topExpression for trace output. This is where the guts of the logic occurs.
-		final boolean       traceEnabled         = Trace.isEnabled();
+		final boolean       traceEnabled         = Trace.isEnabled() && isOuterTraceEnabled();
 		final boolean       justificationEnabled = Justification.isEnabled();
 		final AtomicInteger numberOfSelections   = new AtomicInteger(0);
 		ReplacementFunctionWithContextuallyUpdatedProcess rewriteFunction = new ReplacementFunctionWithContextuallyUpdatedProcess() {
@@ -231,8 +240,10 @@ public class TotalRewriter extends AbstractRewriter {
 			previous = current;
 			currentTopExpression[0] = current;
 			current  = previous.replaceAllOccurrences(rewriteFunction, deadEndPruner, deadEndListener, process);
-			if (current != previous) {
-				Trace.log("{}", current);
+			if (traceEnabled) {
+				if (current != previous) {
+					Trace.log("{}", current);
+				}
 			}
 		}
 		

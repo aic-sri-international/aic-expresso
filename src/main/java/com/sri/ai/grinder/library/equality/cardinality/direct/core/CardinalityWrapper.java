@@ -46,7 +46,7 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewrite
 public class CardinalityWrapper  extends AbstractRewriter {	
 	@Override
 	public String getName() {
-		return CardinalityRewriter.R_card;
+		return "Cardinality";
 	}
 	
 	@Override

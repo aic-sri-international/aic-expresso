@@ -35,52 +35,32 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.helper;
+package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.GrinderConfiguration;
-
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.filter.Filter;
-import ch.qos.logback.core.spi.FilterReply;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 
 /**
- * A logback filter for removing named Rewriter output.
+ * Note: This wrapper is required as the default implementation throws an
+ * assertion exception if the input arguments are not what is expected.
  * 
  * @author oreilly
- *
  */
-@Beta
-public class RewriterLoggingNamedRewriterFilter extends Filter<ILoggingEvent> {
-
-	private Set<String> rewritersToFilter = new HashSet<String>();
-
-	public RewriterLoggingNamedRewriterFilter() {
-		String rewriterNames = GrinderConfiguration
-				.getFilterOutLoggingByRewritersNamed();
-		String[] namesToFilter = rewriterNames.split(":");
-		for (String rewriterName : namesToFilter) {		
-			rewritersToFilter.add(rewriterName);
-		}
+public class TopSimplifyWrapper extends AbstractRewriter {	
+	public TopSimplifyWrapper() {
 	}
 	
-	public boolean isRewriterFiltered(String rewriterName) {
-		boolean result = rewritersToFilter.contains(rewriterName);
-		
-		return result;
-	}
-
 	@Override
-	public FilterReply decide(ILoggingEvent event) {
-		if (rewritersToFilter
-				.contains(RewriterLogging.getCurrentRewriterName())) {	
-			return FilterReply.DENY;
-		} 
-		else {
-			return FilterReply.NEUTRAL;
-		}
+	public String getName() {
+		return "Top Simplify";
 	}
+	
+	@Override
+	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		Expression result = process.rewrite(CardinalityRewriter.R_top_simplify, expression);
+			
+		return result;
+	}	
 }

@@ -65,7 +65,7 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.FromCondition
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.IncompleteLinearImpliedCertainty;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.QuantifierEliminationWrapper;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopImpliedCertainty;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopSimplify;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopSimplifyWrapper;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.TrivialQuantifiedCases;
 import com.sri.ai.grinder.library.number.Division;
 import com.sri.ai.grinder.library.number.Exponentiation;
@@ -121,7 +121,7 @@ public class AllRewritePanel extends AbstractRewritePanel {
 		allRewriters.add(new LeafEnableItem<Rewriter>("Conditional Formula",  new FromConditionalFormulaToFormula()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Incomplete Linear Implied Certainty", new IncompleteLinearImpliedCertainty()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Trivial Quantified Cases",  new TrivialQuantifiedCases()));
-		allRewriters.add(new LeafEnableItem<Rewriter>("Top Simplify",  new TopSimplify()));
+		allRewriters.add(new LeafEnableItem<Rewriter>("Top Simplify",  new TopSimplifyWrapper()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination",  new QuantifierEliminationWrapper()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Top Implied Certainty",  new TopImpliedCertainty()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Irrelevant Condition",  new IfThenElseIrrelevantCondition()));

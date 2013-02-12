@@ -53,11 +53,6 @@ import com.sri.ai.grinder.library.boole.ThereExists;
  */
 @Beta
 public class TrivialQuantifiedCases extends AbstractRewriter {
-
-	@Override
-	public String getName() {
-		return "R_trivial_quantified_cases";
-	}
 	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
