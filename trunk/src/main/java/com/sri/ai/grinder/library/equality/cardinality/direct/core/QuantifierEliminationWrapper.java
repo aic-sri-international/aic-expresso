@@ -55,7 +55,7 @@ public class QuantifierEliminationWrapper extends AbstractRewriter {
 	
 	@Override
 	public String getName() {
-		return CardinalityRewriter.R_quantifier_elimination;
+		return "Quantifier Elimination";
 	}
 	
 	@Override

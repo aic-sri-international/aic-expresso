@@ -45,7 +45,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.IncompleteLinearImpliedFormulasExtractor;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
@@ -59,22 +59,12 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public class IncompleteLinearImpliedCertainty extends AbstractHierarchicalRewriter {
+public class IncompleteLinearImpliedCertainty extends AbstractRewriter {
 
 	private static final boolean replaceVariableByConstantItIsBoundTo = GrinderConfiguration.isReplaceVariableWithConstantItIsBoundTo();
 
 	public IncompleteLinearImpliedCertainty() {
 	}
-	
-	//
-	// START-Rewriter
-	@Override
-	public String getName() {
-		return "R_incomplete_linear_implied_certainty";
-	}
-	
-	// END-Rewriter
-	//
 	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {

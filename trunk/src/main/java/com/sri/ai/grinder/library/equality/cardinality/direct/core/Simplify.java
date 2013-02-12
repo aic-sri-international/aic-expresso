@@ -49,6 +49,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.core.OpenInterpretationModule;
 import com.sri.ai.grinder.core.TotalRewriter;
+import com.sri.ai.grinder.helper.RewriterLoggingNamedRewriterFilter;
 import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
 import com.sri.ai.grinder.library.Disequality;
@@ -107,7 +108,16 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 		// Lazy initialize so that required supporting classes
 		// can be setup an configured as necessary.
 		if (rRootRewriter == null) {
-			rRootRewriter = new TotalRewriter(getAtomicRewriters());
+			TotalRewriter rootRewriter = new TotalRewriter(getAtomicRewriters());
+			RewriterLoggingNamedRewriterFilter rewriterFilter = new RewriterLoggingNamedRewriterFilter();
+			if (rewriterFilter.isRewriterFiltered(getName())) {
+				rootRewriter.setOuterTraceEnabled(false);
+			} 
+			else {
+				rootRewriter.setOuterTraceEnabled(true);
+			}
+			
+			rRootRewriter = rootRewriter;
 			this.updateChildRewriter(null, rRootRewriter);
 		}
 		return rRootRewriter;
@@ -159,7 +169,7 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 						// new, cheap simplifiers to be used instead of full ImpliedCertainty
 						new IncompleteLinearImpliedCertainty(),
 						new TrivialQuantifiedCases(),
-						new TopSimplify(),
+						new TopSimplifyWrapper(),
 						
 						//
 						// Support for: Quantifier Elimination
