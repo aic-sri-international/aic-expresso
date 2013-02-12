@@ -157,8 +157,7 @@ public class RewriteOnce extends AbstractRewriter {
 				BinaryPredicate<Expression, RewritingProcess> pruner 
 					= new DeadEndPruner(deadEndsCache, rewriter);
 				
-				expression = expression.replaceFirstOccurrence(
-						replacementFunction, pruner, listener, process);
+				expression = expression.replaceFirstOccurrence(replacementFunction, pruner, listener, process);
 				numberOfSelections += replacementFunction.getNumberOfSelections();
 				if (expression != original) {
 					result      = expression;
