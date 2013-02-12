@@ -46,48 +46,34 @@ import com.sri.ai.grinder.demo.model.EnableItem;
 import com.sri.ai.grinder.demo.model.ExampleRewrite;
 import com.sri.ai.grinder.demo.model.GroupEnableItem;
 import com.sri.ai.grinder.demo.model.LeafEnableItem;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.controlflow.IfThenElseBranchesAreBooleanConstants;
-import com.sri.ai.grinder.library.controlflow.IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch;
-import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
-import com.sri.ai.grinder.library.controlflow.IfThenElseIrrelevantCondition;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.FromConditionalFormulaToFormula;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityWrapper;
 @Beta
-public class ControlFlowRewritePanel extends AbstractRewritePanel {
+public class CardinalityRewritePanel extends AbstractRewritePanel {
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	protected ExampleRewrite[] getExampleRewrites() {
 		return new ExampleRewrite[] {
 			// Basic
-			new ExampleRewrite("Known Condition", "if true then X = a else X = b"),
-			new ExampleRewrite("Irrelevant Condition", "if X = a then Y = a else Y = a"),
-			new ExampleRewrite("Boolean Constant Branches", "if X = a then false else true"),
-			new ExampleRewrite("Condition matches Branches", "if even(X) then f(even(X)) else g(even(X))"),
-			new ExampleRewrite("Externalization", "+(if X = a then 1 else 2, if Y = b then 3 else 4)"),
-			new ExampleRewrite("Conditional Formula", "if X = a then Y = b else Z = c"),
+			new ExampleRewrite("#1: | X = a |_x", "| {(on X) tuple(X) | X = a } |"),
+			new ExampleRewrite("#2: | X != a |_x", "| {(on X) tuple(X) | X != a } |"),
+			new ExampleRewrite("#3: | Y = b |_x,y", "| {(on X, Y) tuple(X, Y) | Y = b } |"),
+			new ExampleRewrite("#4: | Y != b |_x,y", "| {(on X, Y) tuple(X, Y) | Y != b } |"),
+			new ExampleRewrite("#5: | true |_x,y", "| {(on X, Y) tuple(X, Y) | true } |"),
+			new ExampleRewrite("#6: | False |_x,y", "| {(on X, Y) tuple(X, Y) | false } |"),
+			new ExampleRewrite("#7: | Z = c |", "| {(on ) tuple() | Z = c } |"),
+			new ExampleRewrite("#8: | X = a |", "| {(on ) tuple() | X = a } |"),
+			new ExampleRewrite("#9: there exists", "| {(on Y) tuple(Y) | there exists X : X = Y and Z = a } |"),
 		};
 	}
 	
 	@Override
 	protected EnableItem<Rewriter> getExampleRewriters() {
 
-		List<EnableItem<Rewriter>> basicRewriters = new ArrayList<EnableItem<Rewriter>>();
-		basicRewriters.add(new LeafEnableItem<Rewriter>("Known Condition",  new IfThenElse()));
-		basicRewriters.add(new LeafEnableItem<Rewriter>("Irrelevant Condition",  new IfThenElseIrrelevantCondition()));
-		basicRewriters.add(new LeafEnableItem<Rewriter>("Branches are Boolean Constants",  new IfThenElseBranchesAreBooleanConstants()));
-		basicRewriters.add(new LeafEnableItem<Rewriter>("Condition matches branches",  new IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch()));
-		basicRewriters.add(new LeafEnableItem<Rewriter>("Externalization",  new IfThenElseExternalization()));
-		GroupEnableItem<Rewriter> basicGroup = new GroupEnableItem<Rewriter>("Basic", basicRewriters);
-		
-		List<EnableItem<Rewriter>> advancedRewriters = new ArrayList<EnableItem<Rewriter>>();
-		advancedRewriters.add(new LeafEnableItem<Rewriter>("Conditional Formula",  new FromConditionalFormulaToFormula()));
-		GroupEnableItem<Rewriter> advancedGroup = new GroupEnableItem<Rewriter>("Advanced", advancedRewriters);
-		
-		List<EnableItem<Rewriter>> groups = new ArrayList<EnableItem<Rewriter>>();
-		groups.add(basicGroup);
-		groups.add(advancedGroup);
-		GroupEnableItem<Rewriter> root = new GroupEnableItem<Rewriter>("Conditional Rewriters", groups);
+		List<EnableItem<Rewriter>> cardinalityRewriters = new ArrayList<EnableItem<Rewriter>>();
+		cardinalityRewriters.add(new LeafEnableItem<Rewriter>("Cardinality",  new CardinalityWrapper()));
+
+		GroupEnableItem<Rewriter> root = new GroupEnableItem<Rewriter>("Cardinality Rewriters", cardinalityRewriters);
 				
 		return root; 
 	}
