@@ -163,6 +163,9 @@ public class RewriteSystemDemoApp {
 		JPanel controlFlowPanel = new ControlFlowRewritePanel();
 		tabbedPane.addTab("Control Flow", null, controlFlowPanel, null);
 		
+		JPanel cardinalityPanel = new CardinalityRewritePanel();
+		tabbedPane.addTab("Cardinality", null, cardinalityPanel, null);
+		
 		JPanel allPanel = new AllRewritePanel();
 		tabbedPane.addTab("All", null, allPanel, null);
 	}
