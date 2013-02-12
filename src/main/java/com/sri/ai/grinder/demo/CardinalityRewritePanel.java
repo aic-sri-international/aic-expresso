@@ -55,12 +55,12 @@ public class CardinalityRewritePanel extends AbstractRewritePanel {
 	protected ExampleRewrite[] getExampleRewrites() {
 		return new ExampleRewrite[] {
 			// Basic
-			new ExampleRewrite("#1: | X = a |_x", "| {(on X) tuple(X) | X = a } |"),
-			new ExampleRewrite("#2: | X != a |_x", "| {(on X) tuple(X) | X != a } |"),
-			new ExampleRewrite("#3: | Y = b |_x,y", "| {(on X, Y) tuple(X, Y) | Y = b } |"),
-			new ExampleRewrite("#4: | Y != b |_x,y", "| {(on X, Y) tuple(X, Y) | Y != b } |"),
-			new ExampleRewrite("#5: | true |_x,y", "| {(on X, Y) tuple(X, Y) | true } |"),
-			new ExampleRewrite("#6: | False |_x,y", "| {(on X, Y) tuple(X, Y) | false } |"),
+			new ExampleRewrite("#1: | X = a |_X", "| {(on X) tuple(X) | X = a } |"),
+			new ExampleRewrite("#2: | X != a |_X", "| {(on X) tuple(X) | X != a } |"),
+			new ExampleRewrite("#3: | Y = b |_X,Y", "| {(on X, Y) tuple(X, Y) | Y = b } |"),
+			new ExampleRewrite("#4: | Y != b |_X,Y", "| {(on X, Y) tuple(X, Y) | Y != b } |"),
+			new ExampleRewrite("#5: | true |_X,Y", "| {(on X, Y) tuple(X, Y) | true } |"),
+			new ExampleRewrite("#6: | false |_X,Y", "| {(on X, Y) tuple(X, Y) | false } |"),
 			new ExampleRewrite("#7: | Z = c |", "| {(on ) tuple() | Z = c } |"),
 			new ExampleRewrite("#8: | X = a |", "| {(on ) tuple() | X = a } |"),
 			new ExampleRewrite("#9: there exists", "| {(on Y) tuple(Y) | there exists X : X = Y and Z = a } |"),
