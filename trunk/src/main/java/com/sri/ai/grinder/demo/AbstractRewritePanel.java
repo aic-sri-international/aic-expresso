@@ -48,7 +48,6 @@ import java.awt.Dimension;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
-import java.awt.FlowLayout;
 import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.BoxLayout;
@@ -136,6 +135,7 @@ import java.util.Map;
 public class AbstractRewritePanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
+	private static final String _iconResolution = "22x22";
 	
 	//
 	private ExpressionNode activeTraceNode, rootTraceNode = new ExpressionNode("", null);
@@ -149,9 +149,11 @@ public class AbstractRewritePanel extends JPanel {
 	private List<EnableItem<Rewriter>> rewriterEnableList   = new ArrayList<EnableItem<Rewriter>>();
 	private String lastSingleStepInput = "";
 	// 
-	private ImageIcon imageStep        = createImageIcon("media-skip-forward.png");
-	private ImageIcon imageExhaustive  = createImageIcon("media-seek-forward.png");
-	private ImageIcon imageClear       = createImageIcon("edit-clear.png");
+	private ImageIcon imageStep        = createImageIcon("media-skip-forward"+_iconResolution+".png");
+	private ImageIcon imageExhaustive  = createImageIcon("media-seek-forward"+_iconResolution+".png");
+	private ImageIcon imageUndo        = createImageIcon("edit-undo"+_iconResolution+".png");
+	private ImageIcon imageRedo        = createImageIcon("edit-redo"+_iconResolution+".png");
+	private ImageIcon imageClear       = createImageIcon("edit-clear"+_iconResolution+".png");
 	//
 	private ExpressionEditor inputContextExpressionEditor;
 	private ExpressionEditor inputExpressionEditor;
@@ -161,6 +163,7 @@ public class AbstractRewritePanel extends JPanel {
 	private JTree rewriterEnableTree;
 	private JTextArea consoleOutputTextArea;
 	private ExpressionTreeView traceTree;
+	private JPanel optionsPanel;
 
 	/**
 	 * Create the panel.
@@ -181,34 +184,32 @@ public class AbstractRewritePanel extends JPanel {
 		mainSplitPane.setLeftComponent(expressionAndOutputSplitPane);
 		
 		JPanel expressionPanel = new JPanel();
-		expressionPanel.setPreferredSize(new Dimension(400, 300));
+		expressionPanel.setPreferredSize(new Dimension(450, 360));
 		expressionAndOutputSplitPane.setLeftComponent(expressionPanel);
 		expressionPanel.setLayout(new BorderLayout(0, 0));
 		
 		JPanel examplePanel = new JPanel();
-		FlowLayout flowLayout = (FlowLayout) examplePanel.getLayout();
-		flowLayout.setAlignment(FlowLayout.LEFT);
 		expressionPanel.add(examplePanel, BorderLayout.NORTH);
+		examplePanel.setLayout(new BorderLayout(0, 0));
 		
-		JLabel exampleLabel = new JLabel("Example:");
-		examplePanel.add(exampleLabel);
+		JPanel panel = new JPanel();
+		examplePanel.add(panel, BorderLayout.WEST);
+		panel.setLayout(new BorderLayout(0, 0));
 		
-		exampleComboBox = new JComboBox();
-		exampleComboBox.setPreferredSize(new Dimension(210, 25));
-		exampleComboBox.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				ExampleRewrite eg = (ExampleRewrite) exampleComboBox.getItemAt(exampleComboBox.getSelectedIndex());
-				if (eg != null) {
-					inputContextExpressionEditor.setText(eg.getInputContext());
-					inputExpressionEditor.setText(eg.getInputExpression());
-				}
-			}
-		});
-		exampleComboBox.setModel(getExampleComboBoxModel());
-		examplePanel.add(exampleComboBox);
+		optionsPanel = new JPanel();
+		panel.add(optionsPanel, BorderLayout.CENTER);
+		optionsPanel.setLayout(new BorderLayout(0, 0));
 		
-		JButton button = new JButton("| >");
-		button.addActionListener(new ActionListener() {
+		JPanel deaultsPanel = new JPanel();
+		panel.add(deaultsPanel, BorderLayout.WEST);
+		deaultsPanel.setLayout(new BorderLayout(0, 0));
+		
+		JPanel actionButtonsPanel = new JPanel();
+		deaultsPanel.add(actionButtonsPanel, BorderLayout.SOUTH);
+		
+		JButton btnRewriteSingle = new JButton("| >");
+		actionButtonsPanel.add(btnRewriteSingle);
+		btnRewriteSingle.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String currentSingleStepInput = inputExpressionEditor.getText();
 				if (currentSingleStepInput.equals(lastSingleStepInput)) {
@@ -221,35 +222,78 @@ public class AbstractRewritePanel extends JPanel {
 				lastSingleStepInput = currentSingleStepInput;
 			}
 		});
-		button.setToolTipText("Single rewrite step");
-		button.setIcon(imageStep);
-		button.setText("");
-		examplePanel.add(button);
+		btnRewriteSingle.setToolTipText("Single rewrite step");
+		btnRewriteSingle.setIcon(imageStep);
+		btnRewriteSingle.setText("");
 		
-		JButton button_1 = new JButton("->");
-		button_1.addActionListener(new ActionListener() {
+		JButton btnRewriteExhaustive = new JButton("->");
+		actionButtonsPanel.add(btnRewriteExhaustive);
+		btnRewriteExhaustive.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("------------");
 				performRewrite(true);
 				System.out.println("");
 			}
 		});
-		button_1.setToolTipText("Exhaustive Rewrite");
-		button_1.setIcon(imageExhaustive);
-		button_1.setText("");
-		examplePanel.add(button_1);
+		btnRewriteExhaustive.setToolTipText("Exhaustive Rewrite");
+		btnRewriteExhaustive.setIcon(imageExhaustive);
+		btnRewriteExhaustive.setText("");
 		
-		JButton button_2 = new JButton("Clear");
-		button_2.addActionListener(new ActionListener() {
+		JButton btnUndo = new JButton("");
+		actionButtonsPanel.add(btnUndo);
+		btnUndo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+// TODO
+			}
+		});
+		btnUndo.setToolTipText("Undo");
+		btnUndo.setIcon(imageUndo);
+		btnUndo.setText("");
+		
+		JButton btnRedo = new JButton("");
+		actionButtonsPanel.add(btnRedo);
+		btnRedo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+// TODO				
+			}
+		});
+		btnRedo.setToolTipText("Redo");
+		btnRedo.setIcon(imageRedo);
+		btnRedo.setText("");
+		
+		JButton btnClear = new JButton("Clear");
+		actionButtonsPanel.add(btnClear);
+		btnClear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				consoleOutputTextArea.setText("");
 				clearTraceTree();
 			}
 		});
-		button_2.setToolTipText("Clear Console and Trace");
-		button_2.setIcon(imageClear);
-		button_2.setText("");
-		examplePanel.add(button_2);
+		btnClear.setToolTipText("Clear Console and Trace");
+		btnClear.setIcon(imageClear);
+		btnClear.setText("");
+		
+		JPanel exampleSelectionPanel = new JPanel();
+		deaultsPanel.add(exampleSelectionPanel, BorderLayout.NORTH);
+		
+		JLabel exampleLabel = new JLabel("Example:");
+		exampleSelectionPanel.add(exampleLabel);
+		
+		exampleComboBox = new JComboBox();
+		exampleSelectionPanel.add(exampleComboBox);
+		exampleComboBox.setPreferredSize(new Dimension(214, 25));
+		exampleComboBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				ExampleRewrite eg = (ExampleRewrite) exampleComboBox.getItemAt(exampleComboBox.getSelectedIndex());
+				if (eg != null) {
+					inputContextExpressionEditor.setText(eg.getInputContext());
+					inputExpressionEditor.setText(eg.getInputExpression());
+				}
+			}
+		});
+		exampleComboBox.setModel(getExampleComboBoxModel());
+		
+		
 		
 		JPanel expressionViews = new JPanel();
 		expressionPanel.add(expressionViews, BorderLayout.CENTER);
@@ -295,7 +339,7 @@ public class AbstractRewritePanel extends JPanel {
 		outputContextPanel.add(outputContextExpressionEditor, BorderLayout.CENTER);
 		
 		JPanel outputPanel = new JPanel();
-		outputPanel.setPreferredSize(new Dimension(300, 160));
+		outputPanel.setPreferredSize(new Dimension(300, 60));
 		expressionAndOutputSplitPane.setRightComponent(outputPanel);
 		outputPanel.setLayout(new BorderLayout(0, 0));
 		
@@ -347,6 +391,14 @@ public class AbstractRewritePanel extends JPanel {
 		activeRewritersScrollPane.setViewportView(rewriterEnableTree);
 
 		postGUIInitialization();
+	}
+	
+	public JPanel getOptionsPanel() {
+		return optionsPanel;
+	}
+	
+	public void setOptionsPanel(JPanel panel) {
+		optionsPanel.add(panel, BorderLayout.CENTER);
 	}
 	
 	public void notifySelected() {

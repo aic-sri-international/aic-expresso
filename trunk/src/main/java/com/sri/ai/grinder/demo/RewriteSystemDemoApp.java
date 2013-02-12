@@ -71,6 +71,8 @@ public class RewriteSystemDemoApp {
 	//
 	private JFrame frmGrinderRewriteSystem;
 	private JTabbedPane tabbedPane;
+	private CardinalityOptionsPanel cardinalityOptionsPanel;
+	private CardinalityRewritePanel cardinalityRewritePanel;
 
 	/**
 	 * Launch the application.
@@ -117,7 +119,7 @@ public class RewriteSystemDemoApp {
 	private void initialize() {
 		frmGrinderRewriteSystem = new JFrame();
 		frmGrinderRewriteSystem.setTitle("Grinder: Rewriting System Demo");
-		frmGrinderRewriteSystem.setBounds(100, 100, 800, 600);
+		frmGrinderRewriteSystem.setBounds(100, 100, 860, 640);
 		frmGrinderRewriteSystem.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JPanel backgroundPanel = new JPanel();
@@ -148,6 +150,8 @@ public class RewriteSystemDemoApp {
 		});
 		backgroundPanel.add(tabbedPane, BorderLayout.CENTER);
 		
+		cardinalityOptionsPanel = new CardinalityOptionsPanel();
+		
 		JPanel arithmeticPanel = new ArithmeticRewritePanel();
 		tabbedPane.addTab("Arithmetic", null, arithmeticPanel, null);
 		
@@ -163,8 +167,9 @@ public class RewriteSystemDemoApp {
 		JPanel controlFlowPanel = new ControlFlowRewritePanel();
 		tabbedPane.addTab("Control Flow", null, controlFlowPanel, null);
 		
-		JPanel cardinalityPanel = new CardinalityRewritePanel();
-		tabbedPane.addTab("Cardinality", null, cardinalityPanel, null);
+		cardinalityRewritePanel = new CardinalityRewritePanel();
+		tabbedPane.addTab("Cardinality", null, cardinalityRewritePanel, null);
+		cardinalityRewritePanel.setOptionsPanel(cardinalityOptionsPanel);
 		
 		JPanel allPanel = new AllRewritePanel();
 		tabbedPane.addTab("All", null, allPanel, null);
