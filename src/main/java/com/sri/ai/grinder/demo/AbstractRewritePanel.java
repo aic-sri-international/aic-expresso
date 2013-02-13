@@ -50,6 +50,8 @@ import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
 import javax.swing.BoxLayout;
 import javax.swing.ComboBoxModel;
 import javax.swing.ImageIcon;
@@ -64,6 +66,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 import javax.swing.JTextArea;
 
 import org.slf4j.ILoggerFactory;
@@ -142,6 +147,7 @@ public class AbstractRewritePanel extends JPanel {
 	//
 	private Options options = null;
 	//
+	private UndoManager undoManager = new UndoManager();
 	private ExpressionNode activeTraceNode, rootTraceNode = new ExpressionNode("", null);
 	private DefaultTreeModel treeTraceModel = new DefaultTreeModel(rootTraceNode);
 	//
@@ -168,6 +174,8 @@ public class AbstractRewritePanel extends JPanel {
 	private JTextArea consoleOutputTextArea;
 	private ExpressionTreeView traceTree;
 	private JPanel optionsPanel;
+	private JButton btnUndo;
+	private JButton btnRedo;
 
 	/**
 	 * Create the panel.
@@ -243,25 +251,39 @@ public class AbstractRewritePanel extends JPanel {
 		btnRewriteExhaustive.setIcon(imageExhaustive);
 		btnRewriteExhaustive.setText("");
 		
-		JButton btnUndo = new JButton("");
+		btnUndo = new JButton("");
 		actionButtonsPanel.add(btnUndo);
 		btnUndo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-// TODO
+				if (undoManager.canUndo()) {
+					try {
+						undoManager.undo();						
+					} catch (CannotUndoException cue) {
+						// ignore
+					}
+				}
+				handleUndoRedo();
 			}
 		});
-		btnUndo.setToolTipText("Undo");
+		btnUndo.setToolTipText("Undo Input Expression");
 		btnUndo.setIcon(imageUndo);
 		btnUndo.setText("");
 		
-		JButton btnRedo = new JButton("");
+		btnRedo = new JButton("");
 		actionButtonsPanel.add(btnRedo);
 		btnRedo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-// TODO				
+				if (undoManager.canRedo()) {
+					try {
+						undoManager.redo();						
+					} catch (CannotRedoException cue) {
+						// ignore
+					}
+				}
+				handleUndoRedo();
 			}
 		});
-		btnRedo.setToolTipText("Redo");
+		btnRedo.setToolTipText("Redo Input Expression");
 		btnRedo.setIcon(imageRedo);
 		btnRedo.setText("");
 		
@@ -531,6 +553,12 @@ public class AbstractRewritePanel extends JPanel {
 	// PRIVATE
 	//
 	private void postGUIInitialization() {
+		//
+		undoManager.setLimit(-1);
+		//
+		RewriteUndoableEditListener undoableEditListener = new RewriteUndoableEditListener();
+		inputExpressionEditor.addUndoableEditListener(undoableEditListener);
+		
 		// Select the first e.g. by default
 		exampleComboBox.setSelectedIndex(0);
 		// Setup, populate and expand the rewriter selection tree
@@ -548,6 +576,11 @@ public class AbstractRewritePanel extends JPanel {
 		
 		TreeUtil.setWriter(DefaultWriter.newDefaultConfiguredWriter());
 		clearTraceTree();
+	}
+	
+	private void handleUndoRedo() {
+		btnUndo.setEnabled(undoManager.canUndo());
+		btnRedo.setEnabled(undoManager.canRedo());
 	}
 	
 	private void clearTraceTree() {
@@ -838,6 +871,17 @@ public class AbstractRewritePanel extends JPanel {
 		public void write(int b) throws java.io.IOException {
 			String s = new String(new char[] { (char) b });
 			consoleOutputTextArea.append(s);
+		}
+	}
+	
+	private class RewriteUndoableEditListener implements UndoableEditListener {
+		
+		@Override
+		public void undoableEditHappened(UndoableEditEvent e) {
+			// Remember the edit and update the menus
+			undoManager.addEdit(e.getEdit());
+			btnUndo.setEnabled(undoManager.canUndo());
+			btnRedo.setEnabled(undoManager.canRedo());
 		}
 	}
 }
