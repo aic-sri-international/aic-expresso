@@ -1388,13 +1388,13 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			new QEData(false,
 					"a != a or b != b",
 					new CountsDeclaration(10),
-					"a != a or b != b"),	
-			//
-			// Illegal Arguments Test
-			new QEData(true,
+					"a != a or b != b"),
+			new QEData(false,
 					"X = 0",
 					new CountsDeclaration(10),
-					"N/A"),
+					"X = 0"),
+			//
+			// Illegal Arguments Test
 			new QEData(true,
 					"if X = a then true else false",
 					new CountsDeclaration(10),
@@ -1583,7 +1583,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			new TautologyData(false,
 					"for all Y : Y = Y and X = X",
 					new CountsDeclaration("X", "11", "Y", "7"),
-					"true"),		
+					"true"),
 			//
 			// Basic: if F has free variables, is not a tautology
 			new TautologyData(false,
@@ -1623,11 +1623,13 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					new CountsDeclaration("X", "11", "Y", "7"),
 					"false"),
 			//
-			// Illegal Argument Tests
-			new TautologyData(true,
-					"0 = 0", // i.e. a numeric expression but not a formula
+			// Basic: Other
+			new TautologyData(false,
+					"0 = 0", // i.e. a numeric expression
 					new CountsDeclaration(10),
-					"N/A"),
+					"true"),
+			//
+			// Illegal Argument Tests
 			new TautologyData(true,
 					"if a = a then true else false",
 					new CountsDeclaration(10),
@@ -1868,11 +1870,13 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					new CountsDeclaration("X", "11", "Y", "7"),
 					"false"),
 			//
-			// Illegal Argument Tests
-			new ContradictionData(true,
-					"0 = 0", // i.e. a numeric expression but not a formula
+			// Basic: Other
+			new ContradictionData(false,
+					"0 = 0", 
 					new CountsDeclaration(10),
-					"N/A"),
+					"false"),
+			//
+			// Illegal Argument Tests
 			new ContradictionData(true,
 					"if a != a then true else false",
 					new CountsDeclaration(10),

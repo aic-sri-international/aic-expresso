@@ -112,6 +112,7 @@ import com.sri.ai.grinder.library.boole.ForAllSubExpressionsAndScopedVariablesPr
 import com.sri.ai.grinder.library.boole.ThereExistsSubExpressionsAndScopedVariablesProvider;
 import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
+import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityWrapper;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.QuantifierElimination;
@@ -167,7 +168,6 @@ public class AbstractRewritePanel extends JPanel {
 	//
 	private ExpressionEditor inputContextExpressionEditor;
 	private ExpressionEditor inputExpressionEditor;
-	private ExpressionEditor outputContextExpressionEditor;
 	private ExpressionEditor outputExpressionEditor;
 	private JComboBox exampleComboBox;
 	private JTree rewriterEnableTree;
@@ -357,12 +357,6 @@ public class AbstractRewritePanel extends JPanel {
 		JPanel outputContextPanel = new JPanel();
 		outputExpressionEditor.add(outputContextPanel, BorderLayout.NORTH);
 		outputContextPanel.setLayout(new BorderLayout(0, 0));
-		
-		JLabel lblNewLabel_1 = new JLabel("Context:");
-		outputContextPanel.add(lblNewLabel_1, BorderLayout.WEST);
-		
-		outputContextExpressionEditor = new ExpressionEditor();
-		outputContextPanel.add(outputContextExpressionEditor, BorderLayout.CENTER);
 		
 		JPanel outputPanel = new JPanel();
 		outputPanel.setPreferredSize(new Dimension(300, 60));
@@ -619,12 +613,11 @@ public class AbstractRewritePanel extends JPanel {
 	
 	private void performRewrite(boolean exhaustive) {	
 		Parser parser = new AntlrGrinderParserWrapper();
-		
 		Writer writer = DefaultWriter.newDefaultConfiguredWriter();
 		
 		Expression inputContext = parser.parse(inputContextExpressionEditor.getText());
 		if (inputContext == null) {
-			outputContextExpressionEditor.setText("ERROR: Malformed Input Context.");
+			outputExpressionEditor.setText("ERROR: Malformed Input Context.");
 		}
 		Expression input = parser.parse(inputExpressionEditor.getText());
 		if (input == null) {
@@ -647,8 +640,15 @@ public class AbstractRewritePanel extends JPanel {
 					return result;
 				}
 			}, process);
+			
+			String outputPrefix = "";
 			if (!Expressions.TRUE.equals(inputContext)) {
-				process = GrinderUtil.extendContextualConstraint(inputContext, process);
+				if (CardinalityUtil.isFormula(inputContext, process)) {
+					process = GrinderUtil.extendContextualConstraint(inputContext, process);
+				}
+				else {
+					outputPrefix = "// WARNING: Input Context is not a Formula (defaulting to true).\n";
+				}
 			}
 			
 			Rewriter rewriter = null;
@@ -662,8 +662,7 @@ public class AbstractRewritePanel extends JPanel {
 			try {				
 				Expression output = rewriter.rewrite(input, process);			
 				try {
-					outputContextExpressionEditor.setText(writer.toString(process.getContextualConstraint()));
-					outputExpressionEditor.setText(writer.toString(output));					
+					outputExpressionEditor.setText(outputPrefix+writer.toString(output));					
 				} catch (RuntimeException ire) {
 					outputExpressionEditor.setText("// ERROR: Rewriting Output - \n"+output);
 					ire.printStackTrace();
@@ -782,7 +781,7 @@ public class AbstractRewritePanel extends JPanel {
 			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 			
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-			@SuppressWarnings("unchecked")
+
 			final EnableItem<Rewriter> enableItem = (EnableItem<Rewriter>) node.getUserObject();
 			
 			JCheckBox checkBox = findCheckBox(enableItem);	
