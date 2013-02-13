@@ -219,37 +219,23 @@ public class AbstractRewritePanel extends JPanel {
 		JPanel actionButtonsPanel = new JPanel();
 		deaultsPanel.add(actionButtonsPanel, BorderLayout.SOUTH);
 		
-		JButton btnRewriteSingle = new JButton("| >");
-		actionButtonsPanel.add(btnRewriteSingle);
-		btnRewriteSingle.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				String currentSingleStepInput = inputExpressionEditor.getText();
-				if (currentSingleStepInput.equals(lastSingleStepInput)) {
-					currentSingleStepInput = outputExpressionEditor.getText();
-					inputExpressionEditor.setText(currentSingleStepInput);
-				}
-				System.out.println("------------");
-				performRewrite(false);
-				System.out.println("");
-				lastSingleStepInput = currentSingleStepInput;
-			}
-		});
-		btnRewriteSingle.setToolTipText("Single rewrite step");
-		btnRewriteSingle.setIcon(imageStep);
-		btnRewriteSingle.setText("");
-		
-		JButton btnRewriteExhaustive = new JButton("->");
-		actionButtonsPanel.add(btnRewriteExhaustive);
-		btnRewriteExhaustive.addActionListener(new ActionListener() {
+		btnRedo = new JButton("");
+		actionButtonsPanel.add(btnRedo);
+		btnRedo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("------------");
-				performRewrite(true);
-				System.out.println("");
+				if (undoManager.canRedo()) {
+					try {
+						undoManager.redo();						
+					} catch (CannotRedoException cue) {
+						// ignore
+					}
+				}
+				handleUndoRedo();
 			}
 		});
-		btnRewriteExhaustive.setToolTipText("Exhaustive Rewrite");
-		btnRewriteExhaustive.setIcon(imageExhaustive);
-		btnRewriteExhaustive.setText("");
+		btnRedo.setToolTipText("Redo Input");
+		btnRedo.setIcon(imageRedo);
+		btnRedo.setText("");
 		
 		btnUndo = new JButton("");
 		actionButtonsPanel.add(btnUndo);
@@ -265,27 +251,50 @@ public class AbstractRewritePanel extends JPanel {
 				handleUndoRedo();
 			}
 		});
-		btnUndo.setToolTipText("Undo Input Expression");
+		btnUndo.setToolTipText("Undo Input");
 		btnUndo.setIcon(imageUndo);
 		btnUndo.setText("");
 		
-		btnRedo = new JButton("");
-		actionButtonsPanel.add(btnRedo);
-		btnRedo.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (undoManager.canRedo()) {
-					try {
-						undoManager.redo();						
-					} catch (CannotRedoException cue) {
-						// ignore
+		JButton btnRewriteSingle = new JButton("| >");
+		actionButtonsPanel.add(btnRewriteSingle);
+		btnRewriteSingle.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (!inputExpressionEditor.getText().equals(outputExpressionEditor.getText())) {
+					String currentSingleStepInput = inputExpressionEditor.getText();
+					if (currentSingleStepInput.equals(lastSingleStepInput)) {
+						currentSingleStepInput = outputExpressionEditor.getText();
+						inputExpressionEditor.setText(currentSingleStepInput);
 					}
+					System.out.println("------------");
+					performRewrite(false);
+					System.out.println("");
+					lastSingleStepInput = currentSingleStepInput;
+				} else {
+					System.out.println("NO REWRITE: DUPLICATE INPUT/OUTPUT");
 				}
-				handleUndoRedo();
 			}
 		});
-		btnRedo.setToolTipText("Redo Input Expression");
-		btnRedo.setIcon(imageRedo);
-		btnRedo.setText("");
+		btnRewriteSingle.setToolTipText("Single rewrite step");
+		btnRewriteSingle.setIcon(imageStep);
+		btnRewriteSingle.setText("");
+		
+		JButton btnRewriteExhaustive = new JButton("->");
+		actionButtonsPanel.add(btnRewriteExhaustive);
+		btnRewriteExhaustive.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!inputExpressionEditor.getText().equals(
+						outputExpressionEditor.getText())) {
+					System.out.println("------------");
+					performRewrite(true);
+					System.out.println("");
+				} else {
+					System.out.println("NO REWRITE: DUPLICATE INPUT/OUTPUT");
+				}
+			}
+		});
+		btnRewriteExhaustive.setToolTipText("Exhaustive Rewrite");
+		btnRewriteExhaustive.setIcon(imageExhaustive);
+		btnRewriteExhaustive.setText("");
 		
 		JButton btnClear = new JButton("Clear");
 		actionButtonsPanel.add(btnClear);
@@ -319,8 +328,6 @@ public class AbstractRewritePanel extends JPanel {
 		});
 		exampleComboBox.setModel(getExampleComboBoxModel());
 		
-		
-		
 		JPanel expressionViews = new JPanel();
 		expressionPanel.add(expressionViews, BorderLayout.CENTER);
 		expressionViews.setLayout(new BoxLayout(expressionViews, BoxLayout.Y_AXIS));
@@ -329,8 +336,6 @@ public class AbstractRewritePanel extends JPanel {
 		expressionInputPanel.setBorder(new TitledBorder(null, "Input", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		expressionViews.add(expressionInputPanel);
 		expressionInputPanel.setLayout(new BorderLayout(0, 0));
-		
-		
 		
 		inputExpressionEditor = new ExpressionEditor();
 		expressionInputPanel.add(inputExpressionEditor, BorderLayout.CENTER);
@@ -551,6 +556,7 @@ public class AbstractRewritePanel extends JPanel {
 		undoManager.setLimit(-1);
 		//
 		RewriteUndoableEditListener undoableEditListener = new RewriteUndoableEditListener();
+		inputContextExpressionEditor.addUndoableEditListener(undoableEditListener);
 		inputExpressionEditor.addUndoableEditListener(undoableEditListener);
 		
 		// Select the first e.g. by default
@@ -565,8 +571,6 @@ public class AbstractRewritePanel extends JPanel {
 		}
 		// Configure the output consoled window.
 		consoleOutputTextArea.setFont(new Font(Font.MONOSPACED, consoleOutputTextArea.getFont().getStyle(), 14));
-		
-		inputContextExpressionEditor.setText("true");
 		
 		TreeUtil.setWriter(DefaultWriter.newDefaultConfiguredWriter());
 		clearTraceTree();
