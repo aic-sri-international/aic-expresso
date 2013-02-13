@@ -72,6 +72,8 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderLexer;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 @Beta
 public class ExpressionEditor extends JPanel {
@@ -159,7 +161,7 @@ public class ExpressionEditor extends JPanel {
 	}
 	
 	//
-	private List<UndoableEditListener> undoableListeners = new ArrayList<UndoableEditListener>();
+	private CompoundUndoableEditListener compoundListener = new CompoundUndoableEditListener();
 	//
 	private JTextPane textPane;
 	
@@ -171,6 +173,12 @@ public class ExpressionEditor extends JPanel {
 		add(editorScrollPane, BorderLayout.CENTER);
 		
 		textPane = new JTextPane();
+		textPane.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				compoundListener.triggerUndoableEditEvent();
+			}
+		});
 		editorScrollPane.setViewportView(textPane);
 		
 		postGUISetup();
@@ -202,15 +210,17 @@ public class ExpressionEditor extends JPanel {
 			// can always assume +1 for the line end, when trying
 			// to map between token positions and the underlying text.
 			text = text.replaceAll("\r\n", "\n");
-			styledDoc.insertString(0, text, null);		
+			styledDoc.insertString(0, text, null);	
+			
+			compoundListener.triggerUndoableEditEvent();		
 		} catch (BadLocationException ble) {
+				
 			ble.printStackTrace();
 		}
 	}
 	
 	public void addUndoableEditListener(UndoableEditListener listener) {
-		textPane.getStyledDocument().addUndoableEditListener(listener);
-		undoableListeners.add(listener);
+		compoundListener.undoableListeners.add(listener);
 	}
 	
 	//
@@ -266,6 +276,7 @@ public class ExpressionEditor extends JPanel {
 		    doc.setDocumentFilter(new ExpressionFormatFilter());
 		} 
 		addStylesToDocument(styledDoc);
+		styledDoc.addUndoableEditListener(compoundListener);
 	}
 	
 	private void addStylesToDocument(StyledDocument doc) {
@@ -304,29 +315,6 @@ public class ExpressionEditor extends JPanel {
         StyleConstants.setForeground(s, COLOR_STRING); 
 	}
 	
-	private CompoundUndoableEditListener beforeEdit(StyledDocument styledDocument) {
-		CompoundUndoableEditListener compoundListener = new CompoundUndoableEditListener();
-		
-		for (UndoableEditListener l : undoableListeners) {
-			styledDocument.removeUndoableEditListener(l);
-		}
-		
-		styledDocument.addUndoableEditListener(compoundListener);
-		
-		return compoundListener;
-	}
-	
-	private void afterEdit(StyledDocument styledDocument, CompoundUndoableEditListener compoundListener) {
-		styledDocument.removeUndoableEditListener(compoundListener);
-		compoundListener.compoundEdit.end();		
-		for (UndoableEditListener l : undoableListeners) {
-			if (compoundListener.hasEdits) {
-				l.undoableEditHappened(new UndoableEditEvent(compoundListener.source, compoundListener.compoundEdit));
-			}
-			styledDocument.addUndoableEditListener(l);
-		}
-	}
-	
 	private class ExpressionFormatFilter extends DocumentFilter {
 		public ExpressionFormatFilter() {
 			
@@ -337,12 +325,8 @@ public class ExpressionEditor extends JPanel {
 			
 			StyledDocument styledDocument = (StyledDocument)fb.getDocument();
 			
-			CompoundUndoableEditListener compoundListener = beforeEdit(styledDocument);
-			
 			super.remove(fb, offset, length);			
 			format(styledDocument);
-			
-			afterEdit(styledDocument, compoundListener);
 		}
 		
 		@Override
@@ -350,12 +334,8 @@ public class ExpressionEditor extends JPanel {
 			
 			StyledDocument styledDocument = (StyledDocument)fb.getDocument();
 			
-			CompoundUndoableEditListener compoundListener = beforeEdit(styledDocument);
-			
 			super.insertString(fb, offset, string, attr);
 			format(styledDocument);
-			
-			afterEdit(styledDocument, compoundListener);
 		}
 		
 		@Override
@@ -363,12 +343,8 @@ public class ExpressionEditor extends JPanel {
 			
 			StyledDocument styledDocument = (StyledDocument)fb.getDocument();
 			
-			CompoundUndoableEditListener compoundListener = beforeEdit(styledDocument);
-			
 			super.replace(fb, offset, length, text, attrs);
 			format(styledDocument);
-			
-			afterEdit(styledDocument, compoundListener);
 		}
 		
 		private void format(StyledDocument styledDocument) throws BadLocationException {
@@ -451,9 +427,23 @@ public class ExpressionEditor extends JPanel {
 	}
 	
 	private class CompoundUndoableEditListener implements UndoableEditListener {
+		public List<UndoableEditListener> undoableListeners = new ArrayList<UndoableEditListener>();
 		public boolean hasEdits = false;
 		public Object source = null;
 		public CompoundEdit compoundEdit = new CompoundEdit();
+		
+		public void triggerUndoableEditEvent() {
+			if (hasEdits) {
+				compoundEdit.end();
+				UndoableEditEvent event = new UndoableEditEvent(source, compoundEdit);
+				for (UndoableEditListener l : undoableListeners) {
+					l.undoableEditHappened(event);
+				}
+			}
+			// Setup for the next compound undoable edit event
+			compoundEdit = new CompoundEdit();
+			hasEdits = false;
+		}
 		
 		@Override
 		public void undoableEditHappened(UndoableEditEvent e) {
