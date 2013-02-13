@@ -51,6 +51,8 @@ import java.util.Set;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -59,6 +61,7 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
+import javax.swing.undo.CompoundEdit;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
@@ -156,6 +159,8 @@ public class ExpressionEditor extends JPanel {
 	}
 	
 	//
+	private List<UndoableEditListener> undoableListeners = new ArrayList<UndoableEditListener>();
+	//
 	private JTextPane textPane;
 	
 	
@@ -187,7 +192,12 @@ public class ExpressionEditor extends JPanel {
 	public void setText(String text) {
 		try {
 			StyledDocument styledDoc = textPane.getStyledDocument();
-			styledDoc.remove(0, styledDoc.getLength());
+						
+			CompoundUndoableEditListener compoundListener = beforeEdit(styledDoc);
+			
+			if (styledDoc.getLength() > 0) {
+				styledDoc.remove(0, styledDoc.getLength());
+			}
 			// Ensure carriage return linefeeds are replaced with just
 			// a single linefeed. This will ensure that the logic in:
 		    // ExpressionFormatFilter.format()
@@ -195,9 +205,16 @@ public class ExpressionEditor extends JPanel {
 			// to map between token positions and the underlying text.
 			text = text.replaceAll("\r\n", "\n");
 			styledDoc.insertString(0, text, null);
+			
+			afterEdit(styledDoc, compoundListener);
 		} catch (BadLocationException ble) {
 			ble.printStackTrace();
 		}
+	}
+	
+	public void addUndoableEditListener(UndoableEditListener listener) {
+		textPane.getStyledDocument().addUndoableEditListener(listener);
+		undoableListeners.add(listener);
 	}
 	
 	//
@@ -291,6 +308,29 @@ public class ExpressionEditor extends JPanel {
         StyleConstants.setForeground(s, COLOR_STRING); 
 	}
 	
+	private CompoundUndoableEditListener beforeEdit(StyledDocument styledDocument) {
+		CompoundUndoableEditListener compoundListener = new CompoundUndoableEditListener();
+		
+		for (UndoableEditListener l : undoableListeners) {
+			styledDocument.removeUndoableEditListener(l);
+		}
+		
+		styledDocument.addUndoableEditListener(compoundListener);
+		
+		return compoundListener;
+	}
+	
+	private void afterEdit(StyledDocument styledDocument, CompoundUndoableEditListener compoundListener) {
+		styledDocument.removeUndoableEditListener(compoundListener);
+		compoundListener.compoundEdit.end();		
+		for (UndoableEditListener l : undoableListeners) {
+			if (compoundListener.hasEdits) {
+				l.undoableEditHappened(new UndoableEditEvent(compoundListener.source, compoundListener.compoundEdit));
+			}
+			styledDocument.addUndoableEditListener(l);
+		}
+	}
+	
 	private class ExpressionFormatFilter extends DocumentFilter {
 		public ExpressionFormatFilter() {
 			
@@ -298,100 +338,132 @@ public class ExpressionEditor extends JPanel {
 		
 		@Override
 		public void remove(DocumentFilter.FilterBypass fb, int offset, int length) throws BadLocationException {
-			super.remove(fb, offset, length);
 			
-			format((StyledDocument)fb.getDocument());
+			StyledDocument styledDocument = (StyledDocument)fb.getDocument();
+			
+			CompoundUndoableEditListener compoundListener = beforeEdit(styledDocument);
+			
+			super.remove(fb, offset, length);			
+			format(styledDocument);
+			
+			afterEdit(styledDocument, compoundListener);
 		}
 		
 		@Override
 		public void insertString(DocumentFilter.FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
-			super.insertString(fb, offset, string, attr);
 			
-			format((StyledDocument)fb.getDocument());
+			StyledDocument styledDocument = (StyledDocument)fb.getDocument();
+			
+			CompoundUndoableEditListener compoundListener = beforeEdit(styledDocument);
+			
+			super.insertString(fb, offset, string, attr);
+			format(styledDocument);
+			
+			afterEdit(styledDocument, compoundListener);
 		}
 		
 		@Override
 		public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
-			super.replace(fb, offset, length, text, attrs);
 			
-			format((StyledDocument)fb.getDocument());
+			StyledDocument styledDocument = (StyledDocument)fb.getDocument();
+			
+			CompoundUndoableEditListener compoundListener = beforeEdit(styledDocument);
+			
+			super.replace(fb, offset, length, text, attrs);
+			format(styledDocument);
+			
+			afterEdit(styledDocument, compoundListener);
 		}
 		
-		
-		private void format(StyledDocument styledDocument) throws BadLocationException {				
-			String expressionText = styledDocument.getText(0, styledDocument.getLength());
-
-			// Everything is considered a comment up front (i.e. these won't be tokenized)
-			styledDocument.setCharacterAttributes(0, expressionText.length(), styledDocument.getStyle(STYLE_COMMENT), true);
-			
-			List<String> lines        = new ArrayList<String>();
-			List<Integer> lineOffsets = new ArrayList<Integer>();
-			BufferedReader reader = new BufferedReader(new StringReader(expressionText));
-			String line;
-			int offset = 0;
-			try {				
-				while ((line = reader.readLine()) != null) {
-					lines.add(line);
-					lineOffsets.add(offset);
-					
-					offset += line.length()+1; // i.e. include the newline.
+		private void format(StyledDocument styledDocument) throws BadLocationException {
+			if (styledDocument.getLength() > 0) {
+				String expressionText = styledDocument.getText(0, styledDocument.getLength());
+				
+				// Everything is considered a comment up front (i.e. these won't be tokenized)
+				styledDocument.setCharacterAttributes(0, expressionText.length(), styledDocument.getStyle(STYLE_COMMENT), true);
+				
+				List<String> lines        = new ArrayList<String>();
+				List<Integer> lineOffsets = new ArrayList<Integer>();
+				BufferedReader reader = new BufferedReader(new StringReader(expressionText));
+				String line;
+				int offset = 0;
+				try {				
+					while ((line = reader.readLine()) != null) {
+						lines.add(line);
+						lineOffsets.add(offset);
+						
+						offset += line.length()+1; // i.e. include the newline.
+					}
+					reader.close();
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
 				}
-				reader.close();
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
+	    		CharStream cs = new ANTLRStringStream(expressionText);
+	    		AntlrGrinderLexer lexer = new AntlrGrinderLexer(cs);
+	    		CommonTokenStream tokens = new CommonTokenStream(lexer);
+	    		
+	    		Token token = null;
+	    		int lastMarkedUpPos = 0;
+	    		boolean lexerFailed = false;
+	    		try {
+	    			token = tokens.LT(1);
+	    		} catch (RuntimeException ex) {
+	    			lexerFailed = true;
+	    		}
+	    		while (!lexerFailed && token.getType() != AntlrGrinderLexer.EOF) {   			
+	    			offset = lineOffsets.get(token.getLine()-1) + token.getCharPositionInLine();
+	    			int length = token.getText().length();
+	    			Style style  = styledDocument.getStyle(STYLE_REGULAR);
+	    			if (isTerminal(token)) {     				
+	    				style = styledDocument.getStyle(STYLE_TERMINAL);
+	    			}
+	    			else if (isKeyword(token)) {
+	    				style = styledDocument.getStyle(STYLE_KEYWORD);
+	    			}
+	    			else if (isNumber(token)) {
+	    				style = styledDocument.getStyle(STYLE_NUMBER);
+	    			}
+	    			else if (isVariable(token)) {
+	    				style = styledDocument.getStyle(STYLE_VARIABLE);
+	    			}
+	    			// Note: Test isSymbol after isNumber and isVariable as both of them are 
+	    			// types of symbols.
+	    			else if (isSymbol(token)) {
+	    				style = styledDocument.getStyle(STYLE_SYMBOL);
+	    			}
+	    			else if (isString(token)) {
+	    				style = styledDocument.getStyle(STYLE_STRING);
+	    				length += 2;
+	    			}
+	    			    			
+	    			styledDocument.setCharacterAttributes(offset, length, style, true);
+	    			lastMarkedUpPos = offset + length;
+	    			try {
+	        			tokens.consume();
+	    				token = tokens.LT(1);
+	    			} catch (RuntimeException ex) {
+	    				// ignore and exit.
+	    				lexerFailed = true;
+	    			}
+	    		}
+	    		
+	    		if (lexerFailed) {
+	    			styledDocument.setCharacterAttributes(lastMarkedUpPos, expressionText.length(), styledDocument.getStyle(STYLE_REGULAR), true);
+	    		}
 			}
-    		CharStream cs = new ANTLRStringStream(expressionText);
-    		AntlrGrinderLexer lexer = new AntlrGrinderLexer(cs);
-    		CommonTokenStream tokens = new CommonTokenStream(lexer);
-    		
-    		Token token = null;
-    		int lastMarkedUpPos = 0;
-    		boolean lexerFailed = false;
-    		try {
-    			token = tokens.LT(1);
-    		} catch (RuntimeException ex) {
-    			lexerFailed = true;
-    		}
-    		while (!lexerFailed && token.getType() != AntlrGrinderLexer.EOF) {   			
-    			offset = lineOffsets.get(token.getLine()-1) + token.getCharPositionInLine();
-    			int length = token.getText().length();
-    			Style style  = styledDocument.getStyle(STYLE_REGULAR);
-    			if (isTerminal(token)) {     				
-    				style = styledDocument.getStyle(STYLE_TERMINAL);
-    			}
-    			else if (isKeyword(token)) {
-    				style = styledDocument.getStyle(STYLE_KEYWORD);
-    			}
-    			else if (isNumber(token)) {
-    				style = styledDocument.getStyle(STYLE_NUMBER);
-    			}
-    			else if (isVariable(token)) {
-    				style = styledDocument.getStyle(STYLE_VARIABLE);
-    			}
-    			// Note: Test isSymbol after isNumber and isVariable as both of them are 
-    			// types of symbols.
-    			else if (isSymbol(token)) {
-    				style = styledDocument.getStyle(STYLE_SYMBOL);
-    			}
-    			else if (isString(token)) {
-    				style = styledDocument.getStyle(STYLE_STRING);
-    				length += 2;
-    			}
-    			    			
-    			styledDocument.setCharacterAttributes(offset, length, style, true);
-    			lastMarkedUpPos = offset + length;
-    			try {
-        			tokens.consume();
-    				token = tokens.LT(1);
-    			} catch (RuntimeException ex) {
-    				// ignore and exit.
-    				lexerFailed = true;
-    			}
-    		}
-    		
-    		if (lexerFailed) {
-    			styledDocument.setCharacterAttributes(lastMarkedUpPos, expressionText.length(), styledDocument.getStyle(STYLE_REGULAR), true);
-    		}
+		}
+	}
+	
+	private class CompoundUndoableEditListener implements UndoableEditListener {
+		public boolean hasEdits = false;
+		public Object source = null;
+		public CompoundEdit compoundEdit = new CompoundEdit();
+		
+		@Override
+		public void undoableEditHappened(UndoableEditEvent e) {
+			this.source = e.getSource();
+			compoundEdit.addEdit(e.getEdit());
+			hasEdits = true;
 		}
 	}
 }
