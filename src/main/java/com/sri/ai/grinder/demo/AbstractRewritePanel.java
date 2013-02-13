@@ -786,6 +786,7 @@ public class AbstractRewritePanel extends JPanel {
 			
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
 
+			@SuppressWarnings("unchecked")
 			final EnableItem<Rewriter> enableItem = (EnableItem<Rewriter>) node.getUserObject();
 			
 			JCheckBox checkBox = findCheckBox(enableItem);	
