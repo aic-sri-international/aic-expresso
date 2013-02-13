@@ -191,9 +191,7 @@ public class ExpressionEditor extends JPanel {
 	
 	public void setText(String text) {
 		try {
-			StyledDocument styledDoc = textPane.getStyledDocument();
-						
-			CompoundUndoableEditListener compoundListener = beforeEdit(styledDoc);
+			StyledDocument styledDoc = textPane.getStyledDocument();		
 			
 			if (styledDoc.getLength() > 0) {
 				styledDoc.remove(0, styledDoc.getLength());
@@ -204,9 +202,7 @@ public class ExpressionEditor extends JPanel {
 			// can always assume +1 for the line end, when trying
 			// to map between token positions and the underlying text.
 			text = text.replaceAll("\r\n", "\n");
-			styledDoc.insertString(0, text, null);
-			
-			afterEdit(styledDoc, compoundListener);
+			styledDoc.insertString(0, text, null);		
 		} catch (BadLocationException ble) {
 			ble.printStackTrace();
 		}

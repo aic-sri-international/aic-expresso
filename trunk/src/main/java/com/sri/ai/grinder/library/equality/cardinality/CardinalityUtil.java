@@ -395,7 +395,7 @@ public class CardinalityUtil {
 			// in this case assume is a formula till proven otherwise
 			result = true;
 			for (Expression arg : expression.getArguments()) {
-				if (!(process.isVariable(arg) || isFiniteConstant(arg, process))) {
+				if (!(process.isVariable(arg) || isLegalFormulaConstant(arg, process))) {
 					// is not a formula.
 					result = false; 
 					break;
@@ -432,6 +432,27 @@ public class CardinalityUtil {
 		// if phi is a formula, then 'for all x phi' is a formula
 		else if (expression.hasFunctor(FunctorConstants.FOR_ALL)) {
 			result = isFormula(ForAll.getBody(expression), process);
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Determine if an expression is a legal formula constant.
+	 * 
+	 * @param expression
+	 *            the expression to be tested if it is a legal formula constant.
+	 * @param process
+	 *            the rewriting process in which the expression is being used.
+	 * @return true if the expression passed in is a legal formula constant, false otherwise.
+	 */
+	public static boolean isLegalFormulaConstant(Expression expression, RewritingProcess process) {
+		boolean result = false;
+		
+		// Note: the corresponding paper describes a legal constant as being finite but in the
+		// implementation we will allow all constants (including numbers).
+		if (process.isConstant(expression)) {
+			result = true;
 		}
 		
 		return result;

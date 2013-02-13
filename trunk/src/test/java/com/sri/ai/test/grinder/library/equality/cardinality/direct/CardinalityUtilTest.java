@@ -67,6 +67,22 @@ public class CardinalityUtilTest extends AbstractGrinderTest {
 	}
 	
 	@Test
+	public void testILegalFormulaConstant() {
+		RewritingProcess process = new DefaultRewritingProcess(parse(""), new Basic());
+		
+		Assert.assertTrue(CardinalityUtil.isLegalFormulaConstant(parse("a"), process));
+		Assert.assertTrue(CardinalityUtil.isLegalFormulaConstant(parse("ab"), process));
+		Assert.assertTrue(CardinalityUtil.isLegalFormulaConstant(parse("aB"), process));
+		Assert.assertTrue(CardinalityUtil.isLegalFormulaConstant(DefaultSymbol.createSymbol(false), process));
+		Assert.assertTrue(CardinalityUtil.isLegalFormulaConstant(DefaultSymbol.createSymbol(true), process));
+		Assert.assertTrue(CardinalityUtil.isLegalFormulaConstant(parse("1"), process));
+		Assert.assertTrue(CardinalityUtil.isLegalFormulaConstant(parse("3.14"), process));
+		Assert.assertTrue(CardinalityUtil.isLegalFormulaConstant(parse("<a>"), process));
+		
+		Assert.assertFalse(CardinalityUtil.isLegalFormulaConstant(parse("a = b"), process));
+	}
+	
+	@Test
 	public void testIsFiniteConstant() {
 		RewritingProcess process = new DefaultRewritingProcess(parse(""), new Basic());
 		
@@ -109,17 +125,17 @@ public class CardinalityUtilTest extends AbstractGrinderTest {
 		Assert.assertTrue(CardinalityUtil.isFormula(parse("a != b"), process));
 		Assert.assertTrue(CardinalityUtil.isFormula(parse("true != false"), process));
 		//
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("1 = true"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("1 = a"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("1 = X"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("true != 1"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("a != 1"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("X != 1"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("1 = true"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("1 = a"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("1 = X"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("true != 1"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("a != 1"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("X != 1"), process));
 		//
 		// if phi is a formula, then not(phi) is a formula
 		Assert.assertTrue(CardinalityUtil.isFormula(parse("not(a = X)"), process));
 		//
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("not(X = 1)"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("not(X = 1)"), process));
 		//
 		// if phi and phi' are formulas, then and(phi, phi'), and or(phi, phi') are formulas
 		Assert.assertTrue(CardinalityUtil.isFormula(parse("and()"), process));
@@ -133,14 +149,14 @@ public class CardinalityUtilTest extends AbstractGrinderTest {
 		Assert.assertTrue(CardinalityUtil.isFormula(parse("or(a = X, b = Y, and(c = Z))"), process));
 		Assert.assertTrue(CardinalityUtil.isFormula(parse("or(a = X, b = Y, or(c = Z))"), process));
 		//
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("and(a = 1)"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("and(a = X, b = 1)"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("and(a = X, b = Y, and(c = 1))"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("and(a = X, b = Y, or(c = 1))"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("or(a = 1)"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("or(a = X, b = 1)"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("or(a = X, b = Y, and(c = 1))"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("or(a = X, b = Y, or(c = 1))"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("and(a = 1)"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("and(a = X, b = 1)"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("and(a = X, b = Y, and(c = 1))"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("and(a = X, b = Y, or(c = 1))"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("or(a = 1)"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("or(a = X, b = 1)"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("or(a = X, b = Y, and(c = 1))"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("or(a = X, b = Y, or(c = 1))"), process));
 		//
 		// if phi and phi' are formulas then phi => phi' and phi <=> phi' are formulas
 		Assert.assertTrue(CardinalityUtil.isFormula(parse("(X = a) => (Y = b)"), process));
@@ -152,24 +168,24 @@ public class CardinalityUtilTest extends AbstractGrinderTest {
 		Assert.assertFalse(CardinalityUtil.isFormula(parse("X => y"), process));
 		Assert.assertFalse(CardinalityUtil.isFormula(parse("a <=> b"), process));
 		Assert.assertFalse(CardinalityUtil.isFormula(parse("X <=> y"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("(X = a) => (Y = 1)"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("(X = a) => (Y = 1)"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("(X = a) <=> (Y = 1)"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("(X = a) <=> (Y != 1)"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("(X = a) => (Y = 1)"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("(X = a) => (Y = 1)"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("(X = a) <=> (Y = 1)"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("(X = a) <=> (Y != 1)"), process));
 		//
 		// if phi is a formula, then 'exists x phi' is a formula
 		Assert.assertTrue(CardinalityUtil.isFormula(parse("there exists X : X = a"), process));
 		Assert.assertTrue(CardinalityUtil.isFormula(parse("there exists X : there exists Y : X = a and Y = b"), process));
 		//
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("there exists X : X = 1"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("there exists X : there exists Y : X = 1 and Y = b"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("there exists X : X = 1"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("there exists X : there exists Y : X = 1 and Y = b"), process));
 		//
 		// if phi is a formula, then 'for all x phi' is a formula 
 		Assert.assertTrue(CardinalityUtil.isFormula(parse("for all X : X = a"), process));
 		Assert.assertTrue(CardinalityUtil.isFormula(parse("for all X : for all Y : X = a and Y = b"), process));
 		//
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("for all X : X = 1"), process));
-		Assert.assertFalse(CardinalityUtil.isFormula(parse("for all X : for all Y : X = 1 and Y = b"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("for all X : X = 1"), process));
+		Assert.assertTrue(CardinalityUtil.isFormula(parse("for all X : for all Y : X = 1 and Y = b"), process));
 		//
 		// conditional expressions irrespective of their sub-expressions are not formulas.
 		Assert.assertFalse(CardinalityUtil.isFormula(parse("if X = a then false else true"), process));
