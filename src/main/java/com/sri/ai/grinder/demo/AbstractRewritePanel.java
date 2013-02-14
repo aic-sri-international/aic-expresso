@@ -37,39 +37,47 @@
  */
 package com.sri.ai.grinder.demo;
 
-import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.EventObject;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
-import javax.swing.JSplitPane;
-import java.awt.Dimension;
-import javax.swing.JLabel;
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JTabbedPane;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.UndoableEditEvent;
-import javax.swing.event.UndoableEditListener;
 import javax.swing.BoxLayout;
 import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JTree;
+import javax.swing.border.TitledBorder;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellEditor;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.StateEdit;
+import javax.swing.undo.StateEditable;
 import javax.swing.undo.UndoManager;
-import javax.swing.JTextArea;
 
 import org.slf4j.ILoggerFactory;
 import org.slf4j.LoggerFactory;
@@ -92,7 +100,6 @@ import com.sri.ai.grinder.core.DefaultRewriterLookup;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.OpenInterpretationModule;
 import com.sri.ai.grinder.core.RewriteOnce;
-import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.demo.model.EnableItem;
 import com.sri.ai.grinder.demo.model.ExampleRewrite;
 import com.sri.ai.grinder.demo.model.GroupEnableItem;
@@ -129,16 +136,6 @@ import com.sri.ai.grinder.ui.ExpressionTreeView;
 import com.sri.ai.grinder.ui.TreeUtil;
 import com.sri.ai.util.log.LogX;
 
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.EventObject;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 @Beta
 public class AbstractRewritePanel extends JPanel {
 
@@ -150,8 +147,11 @@ public class AbstractRewritePanel extends JPanel {
 	
 	//
 	private Options options = null;
+	private InputUndoManager undoManager = new InputUndoManager();
+	private InputStateEdit currentInputStateEdit = null;
+	private String         currentInputContext   = "";
+	private String         currentInput          = "";
 	//
-	private UndoManager undoManager = new UndoManager();
 	private ExpressionNode activeTraceNode, rootTraceNode = new ExpressionNode("", null);
 	private DefaultTreeModel treeTraceModel = new DefaultTreeModel(rootTraceNode);
 	//
@@ -163,11 +163,11 @@ public class AbstractRewritePanel extends JPanel {
 	private List<EnableItem<Rewriter>> rewriterEnableList   = new ArrayList<EnableItem<Rewriter>>();
 	private String lastSingleStepInput = "";
 	// 
-	private ImageIcon imageStep        = createImageIcon("media-skip-forward"+ICON_RESOLUTION+".png");
-	private ImageIcon imageExhaustive  = createImageIcon("media-seek-forward"+ICON_RESOLUTION+".png");
-	private ImageIcon imageUndo        = createImageIcon("edit-undo"+ICON_RESOLUTION+".png");
-	private ImageIcon imageRedo        = createImageIcon("edit-redo"+ICON_RESOLUTION+".png");
-	private ImageIcon imageClear       = createImageIcon("edit-clear"+ICON_RESOLUTION+".png");
+	private ImageIcon imageUndoToInitialStep = createImageIcon("media-seek-backward"+ICON_RESOLUTION+".png");
+	private ImageIcon imageUndoSingleStep    = createImageIcon("media-skip-backward"+ICON_RESOLUTION+".png");
+	private ImageIcon imageStep              = createImageIcon("media-skip-forward"+ICON_RESOLUTION+".png");
+	private ImageIcon imageExhaustive        = createImageIcon("media-seek-forward"+ICON_RESOLUTION+".png");
+	private ImageIcon imageClear             = createImageIcon("edit-clear"+ICON_RESOLUTION+".png");
 	//
 	private ExpressionEditor inputContextExpressionEditor;
 	private ExpressionEditor inputExpressionEditor;
@@ -177,8 +177,8 @@ public class AbstractRewritePanel extends JPanel {
 	private JTextArea consoleOutputTextArea;
 	private ExpressionTreeView traceTree;
 	private JPanel optionsPanel;
-	private JButton btnUndo;
-	private JButton btnRedo;
+	private JButton btnUndoSingleStep;
+	private JButton btnUndoToInitialStep;
 
 	/**
 	 * Create the panel.
@@ -222,54 +222,44 @@ public class AbstractRewritePanel extends JPanel {
 		JPanel actionButtonsPanel = new JPanel();
 		deaultsPanel.add(actionButtonsPanel, BorderLayout.SOUTH);
 		
-		btnRedo = new JButton("");
-		actionButtonsPanel.add(btnRedo);
-		btnRedo.addActionListener(new ActionListener() {
+		btnUndoToInitialStep = new JButton("");
+		btnUndoToInitialStep.setEnabled(false);
+		actionButtonsPanel.add(btnUndoToInitialStep);
+		btnUndoToInitialStep.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (undoManager.canRedo()) {
-					try {
-						undoManager.redo();						
-					} catch (CannotRedoException cue) {
-						// ignore
-					}
-				}
-				handleUndoRedo();
+				handleUndo(true);
 			}
 		});
-		btnRedo.setToolTipText("Redo Input");
-		btnRedo.setIcon(imageRedo);
-		btnRedo.setText("");
+		btnUndoToInitialStep.setToolTipText("Undo input to initial step");
+		btnUndoToInitialStep.setIcon(imageUndoToInitialStep);
+		btnUndoToInitialStep.setText("");
 		
-		btnUndo = new JButton("");
-		actionButtonsPanel.add(btnUndo);
-		btnUndo.addActionListener(new ActionListener() {
+		btnUndoSingleStep = new JButton("");
+		btnUndoSingleStep.setEnabled(false);
+		actionButtonsPanel.add(btnUndoSingleStep);
+		btnUndoSingleStep.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (undoManager.canUndo()) {
-					try {
-						undoManager.undo();						
-					} catch (CannotUndoException cue) {
-						// ignore
-					}
-				}
-				handleUndoRedo();
+				handleUndo(false);
 			}
 		});
-		btnUndo.setToolTipText("Undo Input");
-		btnUndo.setIcon(imageUndo);
-		btnUndo.setText("");
+		btnUndoSingleStep.setToolTipText("Undo input by a single step");
+		btnUndoSingleStep.setIcon(imageUndoSingleStep);
+		btnUndoSingleStep.setText("");
 		
 		JButton btnRewriteSingle = new JButton("| >");
 		actionButtonsPanel.add(btnRewriteSingle);
 		btnRewriteSingle.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (!inputExpressionEditor.getText().equals(outputExpressionEditor.getText())) {
+					boolean initialStep = true;
 					String currentSingleStepInput = inputExpressionEditor.getText();
 					if (currentSingleStepInput.equals(lastSingleStepInput)) {
 						currentSingleStepInput = outputExpressionEditor.getText();
 						inputExpressionEditor.setText(currentSingleStepInput);
+						initialStep = false;
 					}
 					System.out.println(REWRITE_SEPARATOR);
-					performRewrite(false);
+					performRewrite(false, initialStep);
 					System.out.println("");
 					lastSingleStepInput = currentSingleStepInput;
 				} else {
@@ -288,7 +278,7 @@ public class AbstractRewritePanel extends JPanel {
 				if (!inputExpressionEditor.getText().equals(
 						outputExpressionEditor.getText())) {
 					System.out.println(REWRITE_SEPARATOR);
-					performRewrite(true);
+					performRewrite(true, true);
 					System.out.println("");
 				} else {
 					System.out.println(NO_FUTHER_SIMPLIFICATION_POSSIBLE);
@@ -554,16 +544,10 @@ public class AbstractRewritePanel extends JPanel {
 	//
 	// PRIVATE
 	//
-	private void postGUIInitialization() {
-		//
-		undoManager.setLimit(-1);
-		//
-		RewriteUndoableEditListener undoableEditListener = new RewriteUndoableEditListener();
-		inputContextExpressionEditor.addUndoableEditListener(undoableEditListener);
-		inputExpressionEditor.addUndoableEditListener(undoableEditListener);
-		
+	private void postGUIInitialization() {		
 		// Select the first e.g. by default
 		exampleComboBox.setSelectedIndex(0);
+		
 		// Setup, populate and expand the rewriter selection tree
 		DefaultTreeCellRenderer renderer = new RewriterEnableTreeRenderer();
 		rewriterEnableTree.setCellRenderer(renderer);
@@ -579,9 +563,21 @@ public class AbstractRewritePanel extends JPanel {
 		clearTraceTree();
 	}
 	
-	private void handleUndoRedo() {
-		btnUndo.setEnabled(undoManager.canUndo());
-		btnRedo.setEnabled(undoManager.canRedo());
+	private void handleUndo(boolean toInitialStep) {
+		
+		if (undoManager.canUndo()) {
+			undoManager.undoTo(toInitialStep);
+			currentInputStateEdit = null;
+		}	
+
+		if (undoManager.canUndo()) {
+			btnUndoSingleStep.setEnabled(true);
+			btnUndoToInitialStep.setEnabled(true);
+		}
+		else {
+			btnUndoSingleStep.setEnabled(false);
+			btnUndoToInitialStep.setEnabled(false);
+		}
 	}
 	
 	private void clearTraceTree() {
@@ -618,7 +614,7 @@ public class AbstractRewritePanel extends JPanel {
 		});
 	}
 	
-	private void performRewrite(boolean exhaustive) {	
+	private void performRewrite(boolean exhaustiveRewrite, boolean initialStep) {	
 		Parser parser = new AntlrGrinderParserWrapper();
 		Writer writer = DefaultWriter.newDefaultConfiguredWriter();
 		
@@ -658,25 +654,56 @@ public class AbstractRewritePanel extends JPanel {
 				}
 			}
 			
-			Rewriter rewriter = null;
-			if (exhaustive) {
-				rewriter = new TotalRewriter(getRewritersAndModules());
-			}
-			else {
-				rewriter = new RewriteOnce(getRewritersAndModules());
-			}
+			Rewriter rewriter = new RewriteOnce(getRewritersAndModules());
 			
-			try {				
-				Expression output = rewriter.rewrite(input, process);			
+			boolean exitRewriteLoop = false;
+			if (!exhaustiveRewrite) {
+				exitRewriteLoop = true;
+			}
+			boolean first = true;
+			do {
 				try {
-					outputExpressionEditor.setText(outputPrefix+writer.toString(output));					
-				} catch (RuntimeException ire) {
-					outputExpressionEditor.setText("// ERROR: Rewriting Output - \n"+output);
-					ire.printStackTrace();
+					if (first) {
+						// Want to keep the text looking the same as what the user entered
+						// and not what can potentially be reformatted.
+						currentInputContext = inputContextExpressionEditor.getText();
+						currentInput        = inputExpressionEditor.getText();
+						first = false;
+					} else {
+						currentInputContext = writer.toString(inputContext);
+						currentInput        = writer.toString(input);
+					}
+					if (currentInputStateEdit != null) {					
+						currentInputStateEdit.end();
+						undoManager.addEdit(currentInputStateEdit);
+					}				
+					currentInputStateEdit = new InputStateEdit(new InputState(), initialStep);
+					
+					Expression output = rewriter.rewrite(input, process);
+					
+					if (!exitRewriteLoop && output == input) {
+						currentInputStateEdit = null;
+						exitRewriteLoop       = true;
+					}
+					input = output;
+					initialStep = false;
+					try {
+						outputExpressionEditor.setText(outputPrefix+writer.toString(output));					
+					} catch (RuntimeException ire) {
+						outputExpressionEditor.setText("// ERROR: Rewriting Output - \n"+output);
+						ire.printStackTrace();
+						exitRewriteLoop = true;
+					}
+				} catch (RuntimeException ore) {
+					outputExpressionEditor.setText("// ERROR: Rewriting Input - \n"+inputExpressionEditor.getText());
+					ore.printStackTrace();
+					exitRewriteLoop = true;
 				}
-			} catch (RuntimeException ore) {
-				outputExpressionEditor.setText("// ERROR: Rewriting Input - \n"+inputExpressionEditor.getText());
-				ore.printStackTrace();
+			} while (!exitRewriteLoop);
+			
+			if (undoManager.canUndo()) {
+				btnUndoSingleStep.setEnabled(true);
+				btnUndoToInitialStep.setEnabled(true);
 			}
 		}
 	}
@@ -881,14 +908,53 @@ public class AbstractRewritePanel extends JPanel {
 		}
 	}
 	
-	private class RewriteUndoableEditListener implements UndoableEditListener {
+	private class InputUndoManager extends UndoManager {
+		private static final long serialVersionUID = 1L;
+
+		public void undoTo(boolean toInitialStep) {
+			if (canUndo()) {
+				if (toInitialStep) {
+					InputStateEdit toBeUndone;
+					do {
+						toBeUndone = (InputStateEdit) editToBeUndone();
+						undo();
+					} while (canUndo() && !toBeUndone.isInitialStateEdit);
+				} else {
+					undo();
+				}
+			}
+		}
+	}
+	
+	private class InputState implements StateEditable {
+		public static final String CONTEXT_EXPRESSION = "context";
+		public static final String INPUT_EXPRESSION   = "input";
 		
 		@Override
-		public void undoableEditHappened(UndoableEditEvent e) {
-			// Remember the edit and update the menus
-			undoManager.addEdit(e.getEdit());
-			btnUndo.setEnabled(undoManager.canUndo());
-			btnRedo.setEnabled(undoManager.canRedo());
+		public void storeState(Hashtable<Object,Object> state) {			
+			state.put(CONTEXT_EXPRESSION, currentInputContext);
+			state.put(INPUT_EXPRESSION, currentInput);
+		}
+		
+		@Override
+		public void restoreState(Hashtable<?,?> state) {		
+			if (state.containsKey(CONTEXT_EXPRESSION)) {
+				inputContextExpressionEditor.setText((String)state.get(CONTEXT_EXPRESSION));
+			}
+			if (state.containsKey(INPUT_EXPRESSION)) {
+				inputExpressionEditor.setText((String)state.get(INPUT_EXPRESSION));
+			}
+		}
+	}
+	
+	private class InputStateEdit extends StateEdit {
+		private static final long serialVersionUID = 1L;
+		//
+		public boolean isInitialStateEdit;
+		
+		public InputStateEdit(InputState inputState, boolean isInitialStateEdit) {
+			super(inputState);
+			this.isInitialStateEdit = isInitialStateEdit;
 		}
 	}
 }

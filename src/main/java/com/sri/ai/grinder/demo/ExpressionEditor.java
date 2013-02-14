@@ -37,11 +37,11 @@
  */
 package com.sri.ai.grinder.demo;
 
-import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -51,11 +51,10 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
-import javax.swing.event.UndoableEditEvent;
-import javax.swing.event.UndoableEditListener;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -64,7 +63,6 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
-import javax.swing.undo.CompoundEdit;
 
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
@@ -75,10 +73,6 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderLexer;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 
 @Beta
 public class ExpressionEditor extends JPanel {
@@ -166,8 +160,6 @@ public class ExpressionEditor extends JPanel {
 	}
 	
 	//
-	private CompoundUndoableEditListener compoundListener = new CompoundUndoableEditListener();
-	//
 	private JTextPane textPane;
 	
 	
@@ -178,12 +170,6 @@ public class ExpressionEditor extends JPanel {
 		add(editorScrollPane, BorderLayout.CENTER);
 		
 		textPane = new JTextPane();
-		textPane.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				compoundListener.triggerUndoableEditEvent();
-			}
-		});
 		editorScrollPane.setViewportView(textPane);
 		
 		postGUISetup();
@@ -216,16 +202,10 @@ public class ExpressionEditor extends JPanel {
 			// to map between token positions and the underlying text.
 			text = text.replaceAll("\r\n", "\n");
 			styledDoc.insertString(0, text, null);	
-			
-			compoundListener.triggerUndoableEditEvent();		
 		} catch (BadLocationException ble) {
 				
 			ble.printStackTrace();
 		}
-	}
-	
-	public void addUndoableEditListener(UndoableEditListener listener) {
-		compoundListener.undoableListeners.add(listener);
 	}
 	
 	//
@@ -281,12 +261,9 @@ public class ExpressionEditor extends JPanel {
 		    doc.setDocumentFilter(new ExpressionFormatFilter());
 		} 
 		addStylesToDocument(styledDoc);
-		styledDoc.addUndoableEditListener(compoundListener);
 		
 		textPane.getInputMap().put(KeyStroke.getKeyStroke("TAB"),
                 "doTab");
-		textPane.getInputMap().put(KeyStroke.getKeyStroke("shift TAB"),
-                "doShiftTab");
 		
 		textPane.getActionMap().put("doTab", new AbstractAction() {
 			private static final long serialVersionUID = 1L;
@@ -298,6 +275,8 @@ public class ExpressionEditor extends JPanel {
 			}
 		});
 		
+		textPane.getInputMap().put(KeyStroke.getKeyStroke("shift TAB"),
+                "doShiftTab");
 		textPane.getActionMap().put("doShiftTab", new AbstractAction() {
 			private static final long serialVersionUID = 1L;
 
@@ -307,7 +286,6 @@ public class ExpressionEditor extends JPanel {
 				comp.requestFocus();			
 			}
 		});
-		
 	}
 	
 	private void addStylesToDocument(StyledDocument doc) {
@@ -454,33 +432,6 @@ public class ExpressionEditor extends JPanel {
 	    			styledDocument.setCharacterAttributes(lastMarkedUpPos, expressionText.length(), styledDocument.getStyle(STYLE_REGULAR), true);
 	    		}
 			}
-		}
-	}
-	
-	private class CompoundUndoableEditListener implements UndoableEditListener {
-		public List<UndoableEditListener> undoableListeners = new ArrayList<UndoableEditListener>();
-		public boolean hasEdits = false;
-		public Object source = null;
-		public CompoundEdit compoundEdit = new CompoundEdit();
-		
-		public void triggerUndoableEditEvent() {
-			if (hasEdits) {
-				compoundEdit.end();
-				UndoableEditEvent event = new UndoableEditEvent(source, compoundEdit);
-				for (UndoableEditListener l : undoableListeners) {
-					l.undoableEditHappened(event);
-				}
-			}
-			// Setup for the next compound undoable edit event
-			compoundEdit = new CompoundEdit();
-			hasEdits = false;
-		}
-		
-		@Override
-		public void undoableEditHappened(UndoableEditEvent e) {
-			this.source = e.getSource();
-			compoundEdit.addEdit(e.getEdit());
-			hasEdits = true;
 		}
 	}
 }
