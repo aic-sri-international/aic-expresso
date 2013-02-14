@@ -40,6 +40,7 @@ package com.sri.ai.grinder.demo;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -49,8 +50,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.AbstractAction;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.AbstractDocument;
@@ -72,6 +75,8 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderLexer;
+
+import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
@@ -277,6 +282,32 @@ public class ExpressionEditor extends JPanel {
 		} 
 		addStylesToDocument(styledDoc);
 		styledDoc.addUndoableEditListener(compoundListener);
+		
+		textPane.getInputMap().put(KeyStroke.getKeyStroke("TAB"),
+                "doTab");
+		textPane.getInputMap().put(KeyStroke.getKeyStroke("shift TAB"),
+                "doShiftTab");
+		
+		textPane.getActionMap().put("doTab", new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Component comp = textPane.getFocusTraversalPolicy().getComponentAfter(textPane.getFocusCycleRootAncestor(), textPane);
+				comp.requestFocus();			
+			}
+		});
+		
+		textPane.getActionMap().put("doShiftTab", new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Component comp = textPane.getFocusTraversalPolicy().getComponentBefore(textPane.getFocusCycleRootAncestor(), textPane);
+				comp.requestFocus();			
+			}
+		});
+		
 	}
 	
 	private void addStylesToDocument(StyledDocument doc) {

@@ -143,7 +143,10 @@ import java.util.Map;
 public class AbstractRewritePanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	private static final String _iconResolution = "22x22";
+	//
+	private static final String ICON_RESOLUTION = "22x22";
+	private static final String REWRITE_SEPARATOR = "------------";
+	private static final String NO_FUTHER_SIMPLIFICATION_POSSIBLE = "No further possible simplification";
 	
 	//
 	private Options options = null;
@@ -160,11 +163,11 @@ public class AbstractRewritePanel extends JPanel {
 	private List<EnableItem<Rewriter>> rewriterEnableList   = new ArrayList<EnableItem<Rewriter>>();
 	private String lastSingleStepInput = "";
 	// 
-	private ImageIcon imageStep        = createImageIcon("media-skip-forward"+_iconResolution+".png");
-	private ImageIcon imageExhaustive  = createImageIcon("media-seek-forward"+_iconResolution+".png");
-	private ImageIcon imageUndo        = createImageIcon("edit-undo"+_iconResolution+".png");
-	private ImageIcon imageRedo        = createImageIcon("edit-redo"+_iconResolution+".png");
-	private ImageIcon imageClear       = createImageIcon("edit-clear"+_iconResolution+".png");
+	private ImageIcon imageStep        = createImageIcon("media-skip-forward"+ICON_RESOLUTION+".png");
+	private ImageIcon imageExhaustive  = createImageIcon("media-seek-forward"+ICON_RESOLUTION+".png");
+	private ImageIcon imageUndo        = createImageIcon("edit-undo"+ICON_RESOLUTION+".png");
+	private ImageIcon imageRedo        = createImageIcon("edit-redo"+ICON_RESOLUTION+".png");
+	private ImageIcon imageClear       = createImageIcon("edit-clear"+ICON_RESOLUTION+".png");
 	//
 	private ExpressionEditor inputContextExpressionEditor;
 	private ExpressionEditor inputExpressionEditor;
@@ -265,12 +268,12 @@ public class AbstractRewritePanel extends JPanel {
 						currentSingleStepInput = outputExpressionEditor.getText();
 						inputExpressionEditor.setText(currentSingleStepInput);
 					}
-					System.out.println("------------");
+					System.out.println(REWRITE_SEPARATOR);
 					performRewrite(false);
 					System.out.println("");
 					lastSingleStepInput = currentSingleStepInput;
 				} else {
-					System.out.println("NO REWRITE: DUPLICATE INPUT/OUTPUT");
+					System.out.println(NO_FUTHER_SIMPLIFICATION_POSSIBLE);
 				}
 			}
 		});
@@ -284,11 +287,11 @@ public class AbstractRewritePanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				if (!inputExpressionEditor.getText().equals(
 						outputExpressionEditor.getText())) {
-					System.out.println("------------");
+					System.out.println(REWRITE_SEPARATOR);
 					performRewrite(true);
 					System.out.println("");
 				} else {
-					System.out.println("NO REWRITE: DUPLICATE INPUT/OUTPUT");
+					System.out.println(NO_FUTHER_SIMPLIFICATION_POSSIBLE);
 				}
 			}
 		});
