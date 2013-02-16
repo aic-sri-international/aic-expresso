@@ -593,8 +593,7 @@ public class AbstractRewritePanel extends JPanel {
 	
 		if (singleStepCount > 0 && !currentInput.equals(currentOutput)) {
 			currentInput = outputExpressionEditor.getText();
-			inputExpressionEditor.setText(currentInput);						
-			trackUndoState(false, currentContext, currentInput, currentOutput);
+			inputExpressionEditor.setText(currentInput);
 		}
 		Expression input = parser.parse(inputExpressionEditor.getText());
 		if (input == null) {
@@ -648,6 +647,9 @@ public class AbstractRewritePanel extends JPanel {
 					Expression output = rewriter.rewrite(input, process);					
 					if (first && output == input) {
 						exitRewriteLoop = true;
+						if (singleStepCount > 1) {
+							trackUndoState(false, currentContext, currentInput, currentOutput);
+						}
 						singleStepCount = 0;
 						System.out.println(NO_FUTHER_SIMPLIFICATION_POSSIBLE);
 					}
@@ -655,9 +657,7 @@ public class AbstractRewritePanel extends JPanel {
 						currentOutput = writer.toString(output);
 						outputExpressionEditor.setText(currentOutput);
 						
-						if (singleStepCount <= 1) {	
-							trackUndoState(false, currentContext, currentInput, currentOutput);
-						}
+						trackUndoState(false, currentContext, currentInput, currentOutput);
 						
 						if (!exitRewriteLoop && output == input) {							
 							exitRewriteLoop = true;
