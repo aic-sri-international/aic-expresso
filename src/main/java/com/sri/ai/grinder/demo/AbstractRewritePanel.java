@@ -590,6 +590,12 @@ public class AbstractRewritePanel extends JPanel {
 		if (inputContext == null) {
 			outputExpressionEditor.setText("ERROR: Malformed Input Context.");
 		}
+	
+		if (singleStepCount > 0 && !currentInput.equals(currentOutput)) {
+			currentInput = outputExpressionEditor.getText();
+			inputExpressionEditor.setText(currentInput);						
+			trackUndoState(false, currentContext, currentInput, currentOutput);
+		}
 		Expression input = parser.parse(inputExpressionEditor.getText());
 		if (input == null) {
 			outputExpressionEditor.setText("ERROR: Malformed Input Expression.");
@@ -657,12 +663,6 @@ public class AbstractRewritePanel extends JPanel {
 							exitRewriteLoop = true;
 						}
 						input = output;
-						
-						if (singleStepCount > 1) {
-							currentInput = writer.toString(input);
-							inputExpressionEditor.setText(currentInput);						
-							trackUndoState(false, currentContext, currentInput, currentOutput);
-						}
 					
 						try {
 							outputExpressionEditor.setText(outputPrefix+writer.toString(output));					
