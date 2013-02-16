@@ -38,27 +38,21 @@
 package com.sri.ai.grinder.demo;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.EventObject;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -69,11 +63,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.border.TitledBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellEditor;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import javax.swing.undo.StateEdit;
 import javax.swing.undo.StateEditable;
@@ -100,6 +92,8 @@ import com.sri.ai.grinder.core.DefaultRewriterLookup;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.OpenInterpretationModule;
 import com.sri.ai.grinder.core.RewriteOnce;
+import com.sri.ai.grinder.demo.common.RewriterEnableTreeCellEditor;
+import com.sri.ai.grinder.demo.common.RewriterEnableTreeRenderer;
 import com.sri.ai.grinder.demo.model.EnableItem;
 import com.sri.ai.grinder.demo.model.ExampleRewrite;
 import com.sri.ai.grinder.demo.model.GroupEnableItem;
@@ -135,6 +129,8 @@ import com.sri.ai.grinder.ui.ExpressionNode;
 import com.sri.ai.grinder.ui.ExpressionTreeView;
 import com.sri.ai.grinder.ui.TreeUtil;
 import com.sri.ai.util.log.LogX;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 @Beta
 public class AbstractRewritePanel extends JPanel {
@@ -146,11 +142,13 @@ public class AbstractRewritePanel extends JPanel {
 	private static final String NO_FUTHER_SIMPLIFICATION_POSSIBLE = "No further possible simplification";
 	
 	//
-	private Options options = null;
-	private InputUndoManager undoManager = new InputUndoManager();
-	private InputStateEdit currentInputStateEdit = null;
-	private String         currentInputContext   = "";
-	private String         currentInput          = "";
+	private Options          options               = null;
+	private InputUndoManager undoManager           = new InputUndoManager();
+	private int              singleStepCount       = 0;
+	private InputStateEdit   currentInputStateEdit = null;
+	private String           currentContext        = "";
+	private String           currentInput          = "";
+	private String           currentOutput         = "";
 	//
 	private ExpressionNode activeTraceNode, rootTraceNode = new ExpressionNode("", null);
 	private DefaultTreeModel treeTraceModel = new DefaultTreeModel(rootTraceNode);
@@ -161,7 +159,6 @@ public class AbstractRewritePanel extends JPanel {
 	//
 	private DefaultMutableTreeNode exampleRewritersRootNode = null;
 	private List<EnableItem<Rewriter>> rewriterEnableList   = new ArrayList<EnableItem<Rewriter>>();
-	private String lastSingleStepInput = "";
 	// 
 	private ImageIcon imageUndoToInitialStep = createImageIcon("media-seek-backward"+ICON_RESOLUTION+".png");
 	private ImageIcon imageUndoSingleStep    = createImageIcon("media-skip-backward"+ICON_RESOLUTION+".png");
@@ -250,21 +247,7 @@ public class AbstractRewritePanel extends JPanel {
 		actionButtonsPanel.add(btnRewriteSingle);
 		btnRewriteSingle.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if (!inputExpressionEditor.getText().equals(outputExpressionEditor.getText())) {
-					boolean initialStep = true;
-					String currentSingleStepInput = inputExpressionEditor.getText();
-					if (currentSingleStepInput.equals(lastSingleStepInput)) {
-						currentSingleStepInput = outputExpressionEditor.getText();
-						inputExpressionEditor.setText(currentSingleStepInput);
-						initialStep = false;
-					}
-					System.out.println(REWRITE_SEPARATOR);
-					performRewrite(false, initialStep);
-					System.out.println("");
-					lastSingleStepInput = currentSingleStepInput;
-				} else {
-					System.out.println(NO_FUTHER_SIMPLIFICATION_POSSIBLE);
-				}
+				callRewrite(false);
 			}
 		});
 		btnRewriteSingle.setToolTipText("Single rewrite step");
@@ -275,14 +258,7 @@ public class AbstractRewritePanel extends JPanel {
 		actionButtonsPanel.add(btnRewriteExhaustive);
 		btnRewriteExhaustive.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (!inputExpressionEditor.getText().equals(
-						outputExpressionEditor.getText())) {
-					System.out.println(REWRITE_SEPARATOR);
-					performRewrite(true, true);
-					System.out.println("");
-				} else {
-					System.out.println(NO_FUTHER_SIMPLIFICATION_POSSIBLE);
-				}
+				callRewrite(true);
 			}
 		});
 		btnRewriteExhaustive.setToolTipText("Exhaustive Rewrite");
@@ -316,6 +292,8 @@ public class AbstractRewritePanel extends JPanel {
 				if (eg != null) {
 					inputContextExpressionEditor.setText(eg.getInputContext());
 					inputExpressionEditor.setText(eg.getInputExpression());
+					outputExpressionEditor.setText("");
+					trackUndoState(true);
 				}
 			}
 		});
@@ -331,6 +309,21 @@ public class AbstractRewritePanel extends JPanel {
 		expressionInputPanel.setLayout(new BorderLayout(0, 0));
 		
 		inputExpressionEditor = new ExpressionEditor();
+		inputExpressionEditor.addFocusListener(new FocusAdapter() {
+			private String focusGainedState = "";
+			@Override
+			public void focusGained(FocusEvent e) {
+				focusGainedState = inputExpressionEditor.getText();
+			}
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+				String current = inputExpressionEditor.getText();
+				if (!current.equals(focusGainedState)) {
+					trackUndoState(true);
+				}
+			}
+		});
 		expressionInputPanel.add(inputExpressionEditor, BorderLayout.CENTER);
 		
 		JPanel inputContextPanel = new JPanel();
@@ -341,6 +334,21 @@ public class AbstractRewritePanel extends JPanel {
 		inputContextPanel.add(lblNewLabel, BorderLayout.WEST);
 		
 		inputContextExpressionEditor = new ExpressionEditor();
+		inputContextExpressionEditor.addFocusListener(new FocusAdapter() {
+			private String focusGainedState = "";
+			@Override
+			public void focusGained(FocusEvent e) {
+				focusGainedState = inputContextExpressionEditor.getText();
+			}
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+				String current = inputContextExpressionEditor.getText();
+				if (!current.equals(focusGainedState)) {
+					trackUndoState(true);
+				}
+			}
+		});
 		inputContextPanel.add(inputContextExpressionEditor);
 		
 		JPanel expressionOutputPanel = new JPanel();
@@ -350,6 +358,7 @@ public class AbstractRewritePanel extends JPanel {
 		
 		
 		outputExpressionEditor = new ExpressionEditor();
+		outputExpressionEditor.setEditable(false);
 		expressionOutputPanel.add(outputExpressionEditor, BorderLayout.CENTER);
 		
 		JPanel outputContextPanel = new JPanel();
@@ -563,13 +572,142 @@ public class AbstractRewritePanel extends JPanel {
 		clearTraceTree();
 	}
 	
+	private void callRewrite(boolean exhaustiveRewrite) {
+		System.out.println(REWRITE_SEPARATOR);
+		performRewrite(exhaustiveRewrite);
+		System.out.println("");
+	}
+	
+	private void performRewrite(boolean exhaustiveRewrite) {	
+		Parser parser  = new AntlrGrinderParserWrapper();
+		Writer writer  = DefaultWriter.newDefaultConfiguredWriter();
+		String context = inputContextExpressionEditor.getText();
+		if (context.trim().length() == 0) {
+			// The empty string is considered equivalent to true.
+			context = "true";
+		}
+		Expression inputContext = parser.parse(context);
+		if (inputContext == null) {
+			outputExpressionEditor.setText("ERROR: Malformed Input Context.");
+		}
+		Expression input = parser.parse(inputExpressionEditor.getText());
+		if (input == null) {
+			outputExpressionEditor.setText("ERROR: Malformed Input Expression.");
+		}
+		if (inputContext  != null && input != null) {
+			List<Rewriter> rewriters = getRewritersAndModules();
+			RewritingProcess process = new DefaultRewritingProcess(input, new RewriteOnce(rewriters));
+			if (isCardinalityRewriterLookupNeeded(rewriters)) {
+				((DefaultRewritingProcess)process).setRewriterLookup(new DefaultRewriterLookup(DirectCardinalityComputationFactory.getCardinalityRewritersMap()));
+			}
+			GrinderConfiguration.setProperty(GrinderConfiguration.KEY_ASSUME_DOMAIN_ALWAYS_LARGE, ""+getOptions().isAssumeDomainsAlwaysLarge());
+			CardinalityTypeOfLogicalVariable.registerDomainSizeOfLogicalVariableWithProcess(new CardinalityTypeOfLogicalVariable.DomainSizeOfLogicalVariable() {
+				@Override
+				public Integer size(Expression logicalVariable, RewritingProcess process) {
+					Integer result = null; // unknown by default
+					if (getOptions().isDomainSizeKnown()) {
+						result = getOptions().getDomainSize();
+					}
+					return result;
+				}
+			}, process);
+			
+			String outputPrefix = "";
+			if (!Expressions.TRUE.equals(inputContext)) {
+				if (CardinalityUtil.isFormula(inputContext, process)) {
+					process = GrinderUtil.extendContextualConstraint(inputContext, process);
+				}
+				else {
+					outputPrefix = "// WARNING: Input Context is not a Formula (defaulting to true).\n";
+				}
+			}
+			
+			Rewriter rewriter = new RewriteOnce(getRewritersAndModules());
+			
+			boolean exitRewriteLoop = false;
+			if (exhaustiveRewrite) {
+				singleStepCount = 0;
+			} 
+			else {
+				singleStepCount++;
+				exitRewriteLoop = true;
+			}
+			boolean first = true;
+			do {
+				try {	
+					if (!first) {
+						currentInput = writer.toString(input);
+						inputExpressionEditor.setText(currentInput);
+					}
+					Expression output = rewriter.rewrite(input, process);					
+					if (first && output == input) {
+						exitRewriteLoop = true;
+						singleStepCount = 0;
+						System.out.println(NO_FUTHER_SIMPLIFICATION_POSSIBLE);
+					}
+					else {
+						currentOutput = writer.toString(output);
+						outputExpressionEditor.setText(currentOutput);
+						
+						if (singleStepCount <= 1) {	
+							trackUndoState(false, currentContext, currentInput, currentOutput);
+						}
+						
+						if (!exitRewriteLoop && output == input) {							
+							exitRewriteLoop = true;
+						}
+						input = output;
+						
+						if (singleStepCount > 1) {
+							currentInput = writer.toString(input);
+							inputExpressionEditor.setText(currentInput);						
+							trackUndoState(false, currentContext, currentInput, currentOutput);
+						}
+					
+						try {
+							outputExpressionEditor.setText(outputPrefix+writer.toString(output));					
+						} catch (RuntimeException ire) {
+							outputExpressionEditor.setText("// ERROR: Rewriting Output - \n"+output);
+							ire.printStackTrace();
+							exitRewriteLoop = true;
+						}
+					}
+				} catch (RuntimeException ore) {
+					outputExpressionEditor.setText("// ERROR: Rewriting Input - \n"+inputExpressionEditor.getText());
+					ore.printStackTrace();
+					exitRewriteLoop = true;
+				}
+				first = false;
+			} while (!exitRewriteLoop);
+		}
+	}
+	
 	private void handleUndo(boolean toInitialStep) {
 		
 		if (undoManager.canUndo()) {
 			undoManager.undoTo(toInitialStep);
-			currentInputStateEdit = null;
-		}	
-
+			singleStepCount = 0;
+		}
+	}
+	
+	private void trackUndoState(boolean initialStep) {		
+		trackUndoState(initialStep,
+						inputContextExpressionEditor.getText(),
+						inputExpressionEditor.getText(),
+						outputExpressionEditor.getText());
+	}
+	
+	private void trackUndoState(boolean isInitialStep, String context, String input, String output) {
+		currentContext = context;
+		currentInput   = input;
+		currentOutput  = output;
+				
+		if (currentInputStateEdit != null) {					
+			currentInputStateEdit.end();
+			undoManager.addEdit(currentInputStateEdit);
+		}
+		currentInputStateEdit = new InputStateEdit(new InputState(isInitialStep));
+		
 		if (undoManager.canUndo()) {
 			btnUndoSingleStep.setEnabled(true);
 			btnUndoToInitialStep.setEnabled(true);
@@ -614,100 +752,6 @@ public class AbstractRewritePanel extends JPanel {
 		});
 	}
 	
-	private void performRewrite(boolean exhaustiveRewrite, boolean initialStep) {	
-		Parser parser = new AntlrGrinderParserWrapper();
-		Writer writer = DefaultWriter.newDefaultConfiguredWriter();
-		
-		Expression inputContext = parser.parse(inputContextExpressionEditor.getText());
-		if (inputContext == null) {
-			outputExpressionEditor.setText("ERROR: Malformed Input Context.");
-		}
-		Expression input = parser.parse(inputExpressionEditor.getText());
-		if (input == null) {
-			outputExpressionEditor.setText("ERROR: Malformed Input Expression.");
-		}
-		if (inputContext  != null && input != null) {
-			List<Rewriter> rewriters = getRewritersAndModules();
-			RewritingProcess process = new DefaultRewritingProcess(input, new RewriteOnce(rewriters));
-			if (isCardinalityRewriterLookupNeeded(rewriters)) {
-				((DefaultRewritingProcess)process).setRewriterLookup(new DefaultRewriterLookup(DirectCardinalityComputationFactory.getCardinalityRewritersMap()));
-			}
-			GrinderConfiguration.setProperty(GrinderConfiguration.KEY_ASSUME_DOMAIN_ALWAYS_LARGE, ""+getOptions().isAssumeDomainsAlwaysLarge());
-			CardinalityTypeOfLogicalVariable.registerDomainSizeOfLogicalVariableWithProcess(new CardinalityTypeOfLogicalVariable.DomainSizeOfLogicalVariable() {
-				@Override
-				public Integer size(Expression logicalVariable, RewritingProcess process) {
-					Integer result = null; // unknown by default
-					if (getOptions().isDomainSizeKnown()) {
-						result = getOptions().getDomainSize();
-					}
-					return result;
-				}
-			}, process);
-			
-			String outputPrefix = "";
-			if (!Expressions.TRUE.equals(inputContext)) {
-				if (CardinalityUtil.isFormula(inputContext, process)) {
-					process = GrinderUtil.extendContextualConstraint(inputContext, process);
-				}
-				else {
-					outputPrefix = "// WARNING: Input Context is not a Formula (defaulting to true).\n";
-				}
-			}
-			
-			Rewriter rewriter = new RewriteOnce(getRewritersAndModules());
-			
-			boolean exitRewriteLoop = false;
-			if (!exhaustiveRewrite) {
-				exitRewriteLoop = true;
-			}
-			boolean first = true;
-			do {
-				try {
-					if (first) {
-						// Want to keep the text looking the same as what the user entered
-						// and not what can potentially be reformatted.
-						currentInputContext = inputContextExpressionEditor.getText();
-						currentInput        = inputExpressionEditor.getText();
-						first = false;
-					} else {
-						currentInputContext = writer.toString(inputContext);
-						currentInput        = writer.toString(input);
-					}
-					if (currentInputStateEdit != null) {					
-						currentInputStateEdit.end();
-						undoManager.addEdit(currentInputStateEdit);
-					}				
-					currentInputStateEdit = new InputStateEdit(new InputState(), initialStep);
-					
-					Expression output = rewriter.rewrite(input, process);
-					
-					if (!exitRewriteLoop && output == input) {
-						currentInputStateEdit = null;
-						exitRewriteLoop       = true;
-					}
-					input = output;
-					initialStep = false;
-					try {
-						outputExpressionEditor.setText(outputPrefix+writer.toString(output));					
-					} catch (RuntimeException ire) {
-						outputExpressionEditor.setText("// ERROR: Rewriting Output - \n"+output);
-						ire.printStackTrace();
-						exitRewriteLoop = true;
-					}
-				} catch (RuntimeException ore) {
-					outputExpressionEditor.setText("// ERROR: Rewriting Input - \n"+inputExpressionEditor.getText());
-					ore.printStackTrace();
-					exitRewriteLoop = true;
-				}
-			} while (!exitRewriteLoop);
-			
-			if (undoManager.canUndo()) {
-				btnUndoSingleStep.setEnabled(true);
-				btnUndoToInitialStep.setEnabled(true);
-			}
-		}
-	}
-	
 	private List<Rewriter> getRewritersAndModules() {
 		List<Rewriter> rewriters = new ArrayList<Rewriter>();
 		
@@ -739,8 +783,6 @@ public class AbstractRewritePanel extends JPanel {
 		
 		return result;
 	}
-		
-	
 	
 	private ComboBoxModel getExampleComboBoxModel() {
 		return new DefaultComboBoxModel(getExampleRewrites());
@@ -804,101 +846,6 @@ public class AbstractRewritePanel extends JPanel {
 	    return new ImageIcon(imgURL);
 	}
 	
-	private class RewriterEnableTreeRenderer extends DefaultTreeCellRenderer {
-		private static final long serialVersionUID = 1L;
-		private Map<EnableItem<Rewriter>, JCheckBox> checkBoxes = new HashMap<EnableItem<Rewriter>, JCheckBox>();
-
-		public RewriterEnableTreeRenderer() {
-		}
-
-		public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-			
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-
-			@SuppressWarnings("unchecked")
-			final EnableItem<Rewriter> enableItem = (EnableItem<Rewriter>) node.getUserObject();
-			
-			JCheckBox checkBox = findCheckBox(enableItem);	
-			
-			Component result = checkBox;
-			if (null == checkBox) {
-				result = this;
-			}
-			
-			return result;
-		}
-		
-		private JCheckBox findCheckBox(final EnableItem<Rewriter> item) {
-			JCheckBox checkBox = checkBoxes.get(item);
-			if (checkBox == null && item.getChildren().size() == 0) {
-				checkBox = new JCheckBox(item.toString());
-				checkBox.setSelected(item.isEnabled());
-				checkBox.setFocusable(true);
-				checkBox.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent actionEvent) {
-						JCheckBox checkBox = (JCheckBox) actionEvent.getSource();						
-						item.setEnabled(checkBox.isSelected());
-					}
-				});	
-				
-				checkBoxes.put(item, checkBox);
-			}
-			
-			return checkBox;
-		}
-	}
-	
-	private class RewriterEnableTreeCellEditor extends DefaultTreeCellEditor {
-		private DefaultTreeCellRenderer renderer = null;
-		
-		public RewriterEnableTreeCellEditor(JTree tree, DefaultTreeCellRenderer renderer) {
-			super(tree, renderer);
-			this.renderer = renderer;
-		}
-		
-		@Override
-		public boolean isCellEditable(EventObject event) {
-			super.isCellEditable(event);
-
-			boolean editable = false;
-
-			if (event instanceof MouseEvent) {
-
-				MouseEvent mouseEvent = (MouseEvent) event;
-				TreePath path = tree.getPathForLocation(mouseEvent.getX(),
-						mouseEvent.getY());
-
-				if (path != null) {
-
-					Object node = path.getLastPathComponent();
-					if ((node != null)
-							&& (node instanceof DefaultMutableTreeNode)) {
-						DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) node;
-						if (treeNode.isLeaf()) {
-							editable = true;
-						}
-					}
-				}
-			}
-			return editable;
-		}
-		
-		public Component getTreeCellEditorComponent(JTree tree,
-                Object value,
-                boolean sel,
-                boolean expanded,
-                boolean leaf,
-                int row) {		
-			Component component = renderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, true);
-			if (component == null) {
-				component = super.getTreeCellEditorComponent(tree, value, sel, expanded, leaf, row);
-			}
-			
-			return component;
-		}
-	}
-	
 	/** Writes everything into the text area. */
 	private class ConsoleOutputStream extends java.io.OutputStream {
 		@Override
@@ -929,21 +876,37 @@ public class AbstractRewritePanel extends JPanel {
 	private class InputState implements StateEditable {
 		public static final String CONTEXT_EXPRESSION = "context";
 		public static final String INPUT_EXPRESSION   = "input";
+		public static final String OUTPUT_EXPRESSION  = "output";
+		
+		public boolean isInitialStateEdit;
+		
+		public InputState(boolean isInitialStateEdit) {
+			this.isInitialStateEdit = isInitialStateEdit;
+		}
 		
 		@Override
 		public void storeState(Hashtable<Object,Object> state) {			
-			state.put(CONTEXT_EXPRESSION, currentInputContext);
-			state.put(INPUT_EXPRESSION, currentInput);
+			state.put(CONTEXT_EXPRESSION, currentContext);
+			state.put(INPUT_EXPRESSION,   currentInput);
+			state.put(OUTPUT_EXPRESSION,  currentOutput);
 		}
 		
 		@Override
 		public void restoreState(Hashtable<?,?> state) {		
 			if (state.containsKey(CONTEXT_EXPRESSION)) {
-				inputContextExpressionEditor.setText((String)state.get(CONTEXT_EXPRESSION));
+				currentContext = (String)state.get(CONTEXT_EXPRESSION);
+				inputContextExpressionEditor.setText(currentContext);
 			}
 			if (state.containsKey(INPUT_EXPRESSION)) {
-				inputExpressionEditor.setText((String)state.get(INPUT_EXPRESSION));
+				currentInput = (String)state.get(INPUT_EXPRESSION);
+				inputExpressionEditor.setText(currentInput);
 			}
+			if (state.containsKey(OUTPUT_EXPRESSION)) {
+				currentOutput = (String)state.get(OUTPUT_EXPRESSION);
+				outputExpressionEditor.setText(currentOutput);
+			}
+			currentInputStateEdit = null;
+			trackUndoState(isInitialStateEdit, currentContext, currentInput, currentOutput);
 		}
 	}
 	
@@ -952,9 +915,9 @@ public class AbstractRewritePanel extends JPanel {
 		//
 		public boolean isInitialStateEdit;
 		
-		public InputStateEdit(InputState inputState, boolean isInitialStateEdit) {
+		public InputStateEdit(InputState inputState) {
 			super(inputState);
-			this.isInitialStateEdit = isInitialStateEdit;
+			this.isInitialStateEdit = inputState.isInitialStateEdit;
 		}
 	}
 }

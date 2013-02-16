@@ -42,6 +42,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -206,6 +207,18 @@ public class ExpressionEditor extends JPanel {
 				
 			ble.printStackTrace();
 		}
+	}
+	
+	public boolean isEditable() {
+		return textPane.isEditable();
+	}
+	
+	public void setEditable(boolean editable) {
+		textPane.setEditable(editable);
+	}
+	
+	public void addFocusListener(FocusListener l) {
+		textPane.addFocusListener(l);
 	}
 	
 	//
