@@ -247,7 +247,7 @@ public class AbstractRewritePanel extends JPanel {
 		actionButtonsPanel.add(btnRewriteSingle);
 		btnRewriteSingle.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				callRewrite(false);
+				performRewrite(false);
 			}
 		});
 		btnRewriteSingle.setToolTipText("Single rewrite step");
@@ -258,7 +258,7 @@ public class AbstractRewritePanel extends JPanel {
 		actionButtonsPanel.add(btnRewriteExhaustive);
 		btnRewriteExhaustive.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				callRewrite(true);
+				performRewrite(true);
 			}
 		});
 		btnRewriteExhaustive.setToolTipText("Exhaustive Rewrite");
@@ -572,12 +572,6 @@ public class AbstractRewritePanel extends JPanel {
 		clearTraceTree();
 	}
 	
-	private void callRewrite(boolean exhaustiveRewrite) {
-		System.out.println(REWRITE_SEPARATOR);
-		performRewrite(exhaustiveRewrite);
-		System.out.println("");
-	}
-	
 	private void performRewrite(boolean exhaustiveRewrite) {	
 		Parser parser  = new AntlrGrinderParserWrapper();
 		Writer writer  = DefaultWriter.newDefaultConfiguredWriter();
@@ -590,8 +584,15 @@ public class AbstractRewritePanel extends JPanel {
 		if (inputContext == null) {
 			outputExpressionEditor.setText("ERROR: Malformed Input Context.");
 		}
+		
+		if (exhaustiveRewrite) {
+			singleStepCount = 0;
+		} 
+		else {
+			singleStepCount++;
+		}
 	
-		if (singleStepCount > 0 && !currentInput.equals(currentOutput)) {
+		if (singleStepCount > 1 && !currentInput.equals(currentOutput)) {
 			currentInput = outputExpressionEditor.getText();
 			inputExpressionEditor.setText(currentInput);
 		}
@@ -630,21 +631,23 @@ public class AbstractRewritePanel extends JPanel {
 			Rewriter rewriter = new RewriteOnce(getRewritersAndModules());
 			
 			boolean exitRewriteLoop = false;
-			if (exhaustiveRewrite) {
-				singleStepCount = 0;
-			} 
-			else {
-				singleStepCount++;
-				exitRewriteLoop = true;
-			}
 			boolean first = true;
 			do {
 				try {	
 					if (!first) {
 						currentInput = writer.toString(input);
 						inputExpressionEditor.setText(currentInput);
+						// Note: Re-parsing the writer.toString version of the expression
+						// ensure we process exhaustive steps the same way as single steps
+						// as the writer toString logic can end up partially simplifying
+						// expressions.
+						input = parser.parse(currentInput);
 					}
-					Expression output = rewriter.rewrite(input, process);					
+					
+					System.out.println(REWRITE_SEPARATOR);
+					Expression output = rewriter.rewrite(input, process);	
+					System.out.println("");
+					
 					if (first && output == input) {
 						exitRewriteLoop = true;
 						if (singleStepCount > 1) {
@@ -659,8 +662,11 @@ public class AbstractRewritePanel extends JPanel {
 						
 						trackUndoState(false, currentContext, currentInput, currentOutput);
 						
-						if (!exitRewriteLoop && output == input) {							
+						if ((!exitRewriteLoop && output == input) || !exhaustiveRewrite) {							
 							exitRewriteLoop = true;
+							if (exhaustiveRewrite) {
+								System.out.println(NO_FUTHER_SIMPLIFICATION_POSSIBLE);
+							}
 						}
 						input = output;
 					
@@ -701,6 +707,10 @@ public class AbstractRewritePanel extends JPanel {
 		currentContext = context;
 		currentInput   = input;
 		currentOutput  = output;
+		
+		if (isInitialStep) {
+			singleStepCount = 0;
+		}
 				
 		if (currentInputStateEdit != null) {					
 			currentInputStateEdit.end();
