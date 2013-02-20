@@ -1,0 +1,108 @@
+<html>
+<head><title>aic-expresso Rewriter Demo</title>
+</head>
+<body>
+<h1 style="text-align:left">
+  <div style="border:1px solid black;background-color: #09B5C9">
+  <a href="http://code.google.com/p/aic-expresso/">AIC-Expresso</a> Grinder: Rewriting System Demo Application
+  </div>
+</h1>
+<p style="text-align:center">
+	Note: To start, click on the left hand side link below. Requires <a href="http://www.oracle.com/technetwork/java/javase/overview-137531.html">Java Web Start</a> to be supported by your browser.
+</p>
+<table border="0" width="96%" align="center">
+<tr>
+  <td align="left" valign="top"><a href="aic-expresso-RewriteDemo.jnlp"><img src="images/smallrewritingdemo.png" /></a>&nbsp;</td>
+  <td valign="top">
+  <a href="aic-expresso-RewriteDemo.jnlp">Grinder: Rewriting System Demo</a> - is a graphical application, intended to demonstrate how expressions
+  can be iteratively rewritten until no further rewriting is possible. Each of the application's tabs allows the user to experiment with a subset of
+  rewriters. Individual rewriters can be enabled or disabled by checking them on or off in the list that is visible on the right hand side of the 
+  application. Predefined example expressions can be selected from the drop down box that is situated just below the application tabs. Modifications
+  to the input context (which represents a constraint under which an expression is to be rewritten) and input expression are saved in an undo buffer. 
+  Any change to these two input fields is marked as being an 'initial input expression' (see below for two possible undo actions). At the bottom
+  of the application two tabs are available:<br>
+  <ul>
+  	<li><b>Console:</b> provides textual feedback on rewrite actions performed.</li>
+  	<li><b>Trace:</b> similar output to the 'Console' but the information is presented in a nested tree structure form.
+  	This permits the structure of individual expressions to be inspected.
+   </li>
+	</ul>
+  </td>
+</tr>
+<tr>
+  <td></td>
+  <td><hr /></td>
+</tr>
+<tr>
+  <th align="left"></th>
+  <th align="left">
+  	<img src="images/help-browser.png" align="middle" /> <img src="images/controlpanel.png" align="middle" />
+  </th>
+</tr>
+<tr>
+  <td></td>
+  <td><hr /></td>
+</tr>
+<tr>
+  <td align="right"><img src="images/undotoinitial.png" align="middle" />&nbsp;&nbsp;&nbsp;</td>
+  <td><b>Undo Input to Initial Step:</b> causes the input and output to revert back to the state they were in the last time the user modified either or the
+  input fields (manually or by selecting an example).</td>
+</tr>
+<tr>
+  <td align="right"><img src="images/undosingle.png" align="middle" />&nbsp;&nbsp;&nbsp;</td>
+  <td><b>Undo Input by a single Step:</b> reverts the input and output fields one rewrite step.</td>
+</tr>
+<tr>
+  <td align="right"><img src="images/rewritesingle.png" align="middle" />&nbsp;&nbsp;&nbsp;</td>
+  <td><b>Single Rewrite Step:</b> attempts a single rewrite, with the selected rewriters, of the input expression under the given contextual constraint.</td>
+</tr>
+<tr>
+  <td align="right"><img src="images/rewriteexhaustive.png" align="middle" />&nbsp;&nbsp;&nbsp;</td>
+  <td><b>Exhaustive Rewrite:</b> will iteratively apply all enabled rewriters to the initial input expression and all intermediate ouputs, 
+  	under the given input context, until no further rewrites can be applied.</td>
+</tr>
+<tr>
+  <td align="right"><img src="images/clear.png" align="middle" />&nbsp;&nbsp;&nbsp;</td>
+  <td><b>Clear:</b> will remove all of the currently displayed information in the 'Console' and 'Trace' tabs at the bottom of the application.</b></td>
+</tr>
+<tr>
+  <td></td>
+  <td><hr /></td>
+</tr>
+<tr>
+  <th align="left"></th>
+  <th align="left">
+  	<img src="images/help-browser.png" align="middle" /> <img src="images/cardinalityoptions.png" align="middle" />
+  </th>
+</tr>
+<tr>
+  <td></td>
+  <td><hr /></td>
+</tr>
+<tr>
+  <td></td>
+  <td><b>Known Domain Size:</b> Indicates whether or not the domain size of the logical variables in the given input expression are
+  known in advance by the cardinality computation algorithm. If not known, the output expression will often contain expressions of the following
+  form:<br><br>
+  <code>| type(X) |</code><br>
+  <br>
+  which represents the cardinality of the domain of the logical variable X in this example. If the domain size is known the value in the field 
+  on the right hand side of the check box is used in the cardinality computations.
+  </td>
+</tr>
+<tr>
+  <td></td>
+  <td><b>Assume Domains Always Large:</b> Indicates to the cardinality computation algorithm if it can assume that the domain is always larger than
+  the number of unique constants in the given input expression (applicable when dealing with quantification, in particular when the domain size is
+  unknown).</td>
+</tr>
+<tr>
+  <td></td>
+  <td></td>
+</tr>
+</table>
+<div style="border:1px solid black;background-color: #09B5C9">
+<br/>
+</div>
+</body>
+</html> 
