@@ -21,7 +21,7 @@
 	STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN 
 	ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
 	OF SUCH DAMAGE. -->
-<jnlp  spec="6.0+" codebase="."  href="aic-expresso-RewriteDemo.jnlp">  
+<jnlp  spec="6.0+" codebase="http://aic-expresso.googlecode.com/svn/demo/"  href="aic-expresso-RewriteDemo.jnlp">  
   <information>    
     <title>Grinder: Rewriting System Demo</title>
     <description>Grinder: Rewriting System Demo Application</description>      
