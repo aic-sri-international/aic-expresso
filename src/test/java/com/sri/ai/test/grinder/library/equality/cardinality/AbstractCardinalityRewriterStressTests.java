@@ -56,7 +56,6 @@ import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.base.Triple;
 import com.sri.ai.util.concurrent.BranchAndMerge;
 
-
 public abstract class AbstractCardinalityRewriterStressTests extends AbstractGrinderTest {
 	
 	public interface CardinalityRewriter {
@@ -75,8 +74,9 @@ public abstract class AbstractCardinalityRewriterStressTests extends AbstractGri
 	}
 
 	//
+	protected static final int				 _domainSize = 10;
 	protected static final int               _numberRewritesToAverage = 3;
-	protected static final CountsDeclaration _sharedCountsDeclaration = new CountsDeclaration(10);
+	protected static final CountsDeclaration _sharedCountsDeclaration = new CountsDeclaration(_domainSize);
 	
 	@Before
 	public void setup() {

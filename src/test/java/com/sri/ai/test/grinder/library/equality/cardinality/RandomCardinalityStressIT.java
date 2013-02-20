@@ -37,23 +37,38 @@
  */
 package com.sri.ai.test.grinder.library.equality.cardinality;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
+import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.core.SimpleFormulaGenerator;
 
 public class RandomCardinalityStressIT extends AbstractCardinalityRewriterStressTests {
-	private SimpleFormulaGenerator gn = new SimpleFormulaGenerator(20, 20);  // with 20 variables and 20 constants
+	public static final String PYTHON_OUTPUT_DIR = "/home/saadati/projects/Formula/src/";
 	
-	private boolean ADD_PRE_GENERATED_FORMULAS = false;
-	private boolean ADD_GENERAL_FORMULAS = false;
-	private boolean ADD_CONJUNCTION_OF_DISEQUALITIES = false;
-	private boolean ADD_CNF_FORMULAS = false;
-	private boolean ADD_DNF_FORMULAS = true;
-	private boolean GENERATE_FORMULAS_WITH_FREE_VARIABLES = false;
+	private static int numberOfVariables = 20;
+	private static int numberOfConstants = 20;
+	private static int numberOfLiterals  = 5;
+	private static int numberOfClauses   = 5;
+	
+	private SimpleFormulaGenerator gn = new SimpleFormulaGenerator(numberOfConstants, numberOfVariables);
+	
+	private static boolean ADD_PRE_GENERATED_FORMULAS                         = false;
+	private static boolean ADD_PRE_GENERATED_FORMULAS_FOR_SHARPSAT_COMPARISON = true;
+	private static boolean ADD_PRE_GENERATED_FORMULAS_WITH_FREE_VARIABLES     = false;
+	private static boolean ADD_GENERAL_FORMULAS                               = false;
+	private static boolean ADD_CONJUNCTION_OF_DISEQUALITIES                   = false;
+	private static boolean ADD_CNF_FORMULAS                                   = false;
+	private static boolean ADD_DNF_FORMULAS                                   = false;
+	//
+	private static boolean GENERATE_FORMULAS_WITH_FREE_VARIABLES              = false;
 	
 	public List<CardinalityRewriter> makeCardinalityRewriters() {
 		List<CardinalityRewriter> result = super.makeCardinalityRewriters();
@@ -77,6 +92,12 @@ public class RandomCardinalityStressIT extends AbstractCardinalityRewriterStress
 		if ( ADD_PRE_GENERATED_FORMULAS ) {
 			addPreGeneratedTests(result);
 		}
+		if ( ADD_PRE_GENERATED_FORMULAS_FOR_SHARPSAT_COMPARISON ) {
+			addPreGenerateTestsToCompareWithSharpSAT(result);
+		}
+		if ( ADD_PRE_GENERATED_FORMULAS_WITH_FREE_VARIABLES ) {
+			addPreGenerateTestsWithFreeVariables(result);
+		}
 		if ( ADD_GENERAL_FORMULAS ) {
 			generateAndAddNewGeneralFormulas(result, GENERATE_FORMULAS_WITH_FREE_VARIABLES);
 		}
@@ -90,6 +111,33 @@ public class RandomCardinalityStressIT extends AbstractCardinalityRewriterStress
 			generateAndAddNewDNFFormulas(result, GENERATE_FORMULAS_WITH_FREE_VARIABLES);
 		}
 		return result;
+	}
+	
+	private String asPythonList(Expression formula) {
+		if ( And.isConjunction(formula) ) {
+			String str = "[\"and\"";
+			for (Expression e: formula.getArguments()) {
+				str += ", " + asPythonList(e);
+			}
+			str += "]";
+			return str;
+		}
+		else if ( Or.isDisjunction(formula) ) {
+			String str = "[\"or\"";
+			for (Expression e: formula.getArguments()) {
+				str += ", " + asPythonList(e);
+			}
+			str += "]";
+			return str;
+		}
+		else if ( formula.hasFunctor("=") || formula.hasFunctor("!=") ) {
+			return "\"" + writer.toString(formula) + "\"";
+		}
+		else if ( formula.hasFunctor(Not.FUNCTOR) ) {
+			return "[\"not\", " + asPythonList(formula.get(0)) + "]";
+		}
+		System.out.println("    Ignoring " + formula);
+		return "IGNORE";
 	}
 	
 	private void generateAndAddNewGeneralFormulas(List<CardinalityStressTest> result, boolean withPossibleFreeVariables) {
@@ -114,23 +162,238 @@ public class RandomCardinalityStressIT extends AbstractCardinalityRewriterStress
 	
 	private void generateAndAddNewCNFFormulas(List<CardinalityStressTest> result, boolean withPossibleFreeVariables) {
 		List<String> newTests = new ArrayList<String>();
-		for (int i = 20; i<60; i+= 3) {
-			Expression formula = gn.generateCNF(i, i);
-			Expression ex = gn.generateRandomCardinality(formula, withPossibleFreeVariables);
-			newTests.add(writer.toString(ex));
-		}		
+		try {
+			FileWriter fstream = new FileWriter(PYTHON_OUTPUT_DIR+"java_out.py");
+			BufferedWriter out = new BufferedWriter(fstream);		
+			int counter = 1;
+			for (int i = 2; i<=numberOfClauses; i++) {
+				for (int j = 2; j<=2*numberOfLiterals+1; j++) {
+					Expression formula = gn.generateCNF(i, j/2);
+					Expression ex = gn.generateRandomCardinality(formula, withPossibleFreeVariables);
+					String pyt = asPythonList(formula);
+					if ( !pyt.contains("IGNORE") ) {
+						String ttt = "c" + counter + " = " + pyt;
+						out.write(ttt + "\n");
+						System.out.println(ttt);
+						counter++;
+						newTests.add(writer.toString(ex));
+					}
+				}
+			}
+			out.close();
+		} catch (Exception e) {}
+		System.out.println("____");
+		for (String s: newTests) {
+			System.out.println("" + s);			
+		}
+		System.out.println("____________________________");
 		result.add(new CannedFormulaStressTest("Randomly genrated CNF formulas", newTests.toArray(new String[0])));
 	}	
 	
 	private void generateAndAddNewDNFFormulas(List<CardinalityStressTest> result, boolean withPossibleFreeVariables) {
 		List<String> newTests = new ArrayList<String>();
-		for (int i = 20; i<60; i+= 3) {
-			Expression formula = gn.generateDNF(i, i);
-			Expression ex = gn.generateRandomCardinality(formula, withPossibleFreeVariables);
-			newTests.add(writer.toString(ex));
-		}		
+		try {
+			FileWriter fstream = new FileWriter(PYTHON_OUTPUT_DIR+"java_out.py");
+			BufferedWriter out = new BufferedWriter(fstream);		
+			int counter = 1;
+			for (int i = 2; i<=numberOfClauses; i++) {
+				for (int j = 2; j<=2*numberOfLiterals+1; j++) {
+					Expression formula = gn.generateDNF(i, j/2);
+					Expression ex = gn.generateRandomCardinality(formula, withPossibleFreeVariables);
+					String pyt = asPythonList(formula);
+					if ( !pyt.contains("IGNORE") ) {
+						String ttt = "d" + counter + " = " + pyt;
+						out.write(ttt + "\n");
+						System.out.println(ttt);
+						counter++;
+						newTests.add(writer.toString(ex));
+					}
+				}
+			}
+			out.close();
+		} catch (Exception e) {}
+		System.out.println("____");
+		for (String s: newTests) {
+			System.out.println("" + s);			
+		}
+		System.out.println("____________________________");
 		result.add(new CannedFormulaStressTest("Randomly genrated DNF formulas", newTests.toArray(new String[0])));
 	}	
+	
+	private void addPreGenerateTestsWithFreeVariables(List<CardinalityStressTest> result) {
+		result.add(new CannedFormulaStressTest("Randomly pre-genrated formulas by SimpleFormulaGenerator", new String[] {
+		// CNF Formulas:
+				"| { ( on X1, X2, X3, X4, X5, X6, X8, X9, X10, X11, X13, X14, X15, X16, X17, X18, X19 ) ( X1, X2, X3, X4, X5, X6, X8, X9, X10, X11, X13, X14, X15, X16, X17, X18, X19 ) | X16 = X8 and X14 = a1 } |",
+				"| { ( on X2, X3, X5, X6, X9, X11, X12, X13, X15, X16, X18, X19, X20 ) ( X2, X3, X5, X6, X9, X11, X12, X13, X15, X16, X18, X19, X20 ) | X1 != X16 and X12 != X10 } |", 
+				"| { ( on X3, X5, X7, X8, X12, X14, X15, X16, X17, X19, X20 ) ( X3, X5, X7, X8, X12, X14, X15, X16, X17, X19, X20 ) | (X8 = X2 or X9 != X11) and (X15 != X10 or X7 != X8) } |", 
+				"| { ( on X1, X3, X5, X6, X8, X9, X12, X14, X15, X17, X18, X19, X20 ) ( X1, X3, X5, X6, X8, X9, X12, X14, X15, X17, X18, X19, X20 ) | (X18 != X12 or X15 = X2) and (X6 != a2 or X17 = X1) } |", 
+				"| { ( on X2, X4, X6, X7, X8, X11, X12, X13, X15, X16, X17, X18, X19 ) ( X2, X4, X6, X7, X8, X11, X12, X13, X15, X16, X17, X18, X19 ) | (X19 = X9 or X18 = a5 or X15 != X11) and (X19 = a5 or X13 = X7 or X10 != X4) } |", 
+				"| { ( on X2, X3, X4, X6, X8, X9, X10, X12, X13, X15, X16, X17, X19, X20 ) ( X2, X3, X4, X6, X8, X9, X10, X12, X13, X15, X16, X17, X19, X20 ) | (X4 = X18 or X5 != X16 or X3 != X7) and (X6 != X4 or X11 = X7 or X3 != X4) } |", 
+				"| { ( on X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X12, X15, X17, X18, X19 ) ( X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X12, X15, X17, X18, X19 ) | (X8 = X11 or X15 != X5 or X8 != X4 or X8 = X4) and (X1 = X5 or X14 != X15 or X10 = X19 or X18 != X16) } |", 
+				"| { ( on X1, X2, X4, X8, X9, X10, X12, X13, X14, X15, X16, X17, X18, X19, X20 ) ( X1, X2, X4, X8, X9, X10, X12, X13, X14, X15, X16, X17, X18, X19, X20 ) | (X1 = a3 or X14 = X11 or X12 != X7 or X19 != X14) and (X12 != a1 or X7 = X6 or X4 = a4 or X1 != X10) } |", 
+				"| { ( on X1, X2, X3, X5, X6, X7, X9, X10, X11, X12, X13, X14, X15, X16, X17, X20 ) ( X1, X2, X3, X5, X6, X7, X9, X10, X11, X12, X13, X14, X15, X16, X17, X20 ) | (X16 = X20 or X17 != X2 or X14 != a5 or X9 != X19 or X1 = X7) and (X3 = a3 or X15 != X9 or X1 = X5 or X5 != X14 or X2 != a3) } |", 
+				"| { ( on X3, X4, X9, X10, X11, X13, X14, X16, X17, X18, X19, X20 ) ( X3, X4, X9, X10, X11, X13, X14, X16, X17, X18, X19, X20 ) | (X4 != a5 or X3 != X1 or X9 != X4 or X20 = X14 or X9 != X20) and (X17 = X4 or X5 != X8 or X19 != a5 or X11 != X2 or X2 != X11) } |", 
+				"| { ( on X2, X3, X5, X8, X11, X13, X15, X16, X19, X20 ) ( X2, X3, X5, X8, X11, X13, X15, X16, X19, X20 ) | X17 != X10 and X20 != X8 and X18 = X15 } |", 
+				"| { ( on X2, X4, X8, X11, X12, X13, X14, X17, X18, X19 ) ( X2, X4, X8, X11, X12, X13, X14, X17, X18, X19 ) | X6 = X14 and X1 = X12 and X4 != a3 } |", 
+				"| { ( on X1, X2, X4, X5, X6, X7, X8, X9, X11, X12, X15, X17, X18, X19, X20 ) ( X1, X2, X4, X5, X6, X7, X8, X9, X11, X12, X15, X17, X18, X19, X20 ) | (X4 = a2 or X16 != X7) and (X15 != X20 or X17 != X5) and (X19 != X2 or X1 != X13) } |", 
+				"| { ( on X1, X2, X3, X5, X6, X7, X8, X9, X10, X11, X12, X14, X16, X17, X19, X20 ) ( X1, X2, X3, X5, X6, X7, X8, X9, X10, X11, X12, X14, X16, X17, X19, X20 ) | (X18 = X5 or X9 = X13) and (X2 = X6 or X4 = a3) and (X1 != X18 or X4 != X9) } |", 
+				"| { ( on X1, X3, X5, X6, X8, X9, X11, X12, X13, X14, X16, X17, X20 ) ( X1, X3, X5, X6, X8, X9, X11, X12, X13, X14, X16, X17, X20 ) | (X6 = a2 or X16 = X4 or X3 = X7) and (X20 != X6 or X20 = X11 or X2 = a1) and (X2 = X11 or X8 = a2 or X8 != X5) } |", 
+				"| { ( on X2, X4, X5, X7, X8, X9, X10, X11, X12, X14, X15, X17, X18, X20 ) ( X2, X4, X5, X7, X8, X9, X10, X11, X12, X14, X15, X17, X18, X20 ) | (X16 = X14 or X10 != X8 or X9 = X20) and (X20 = X1 or X10 != X18 or X9 = X16) and (X3 != X16 or X16 != X18 or X12 = a5) } |", 
+				"| { ( on X2, X5, X6, X7, X8, X9, X11, X13, X15, X16, X17, X18 ) ( X2, X5, X6, X7, X8, X9, X11, X13, X15, X16, X17, X18 ) | (X4 != X11 or X8 = X20 or X16 != X2 or X13 = X17) and (X13 = X4 or X3 = X13 or X20 != a4 or X18 != X12) and (X16 != X5 or X7 != X10 or X9 != a3 or X1 != a2) } |", 
+				"| { ( on X2, X3, X4, X5, X6, X7, X8, X9, X11, X12, X14, X15, X16, X18 ) ( X2, X3, X4, X5, X6, X7, X8, X9, X11, X12, X14, X15, X16, X18 ) | (X11 != X3 or X14 = X4 or X1 = X15 or X6 = X1) and (X19 != X5 or X6 = a2 or X1 != a4 or X16 = X11) and (X15 != a1 or X6 != X11 or X11 = X6 or X19 = X6) } |", 
+				"| { ( on X2, X3, X6, X7, X8, X9, X10, X11, X12, X14, X15, X16, X17, X18, X19 ) ( X2, X3, X6, X7, X8, X9, X10, X11, X12, X14, X15, X16, X17, X18, X19 ) | (X5 != X20 or X20 != X3 or X10 != a3 or X6 = X3 or X5 != a3) and (X16 != a3 or X14 != X16 or X15 != X17 or X1 != X3 or X3 != a1) and (X15 = X11 or X14 != X17 or X16 != X5 or X9 = a1 or X4 != X8) } |", 
+				"| { ( on X2, X4, X5, X6, X7, X8, X9, X10, X12, X14, X15, X16, X17, X18, X19, X20 ) ( X2, X4, X5, X6, X7, X8, X9, X10, X12, X14, X15, X16, X17, X18, X19, X20 ) | (X7 != a1 or X19 != a2 or X11 = a1 or X6 != X14 or X18 != X5) and (X12 != X20 or X12 = a3 or X17 = X1 or X14 != a5 or X15 = a3) and (X14 != X10 or X8 = a4 or X11 = X14 or X11 = X18 or X14 = X12) } |",
+				"| { ( on X2, X4, X7, X9, X10, X13, X14, X15, X18, X19, X20 ) ( X2, X4, X7, X9, X10, X13, X14, X15, X18, X19, X20 ) | X11 != X14 and X4 != a5 and X20 != X3 and X1 = X19 } |", 
+				"| { ( on X1, X2, X3, X5, X7, X8, X10, X13, X14, X15, X16, X17, X19, X20 ) ( X1, X2, X3, X5, X7, X8, X10, X13, X14, X15, X16, X17, X19, X20 ) | X11 != X9 and X15 = X16 and X6 != X11 and X10 = X4 } |", 
+				"| { ( on X1, X3, X4, X5, X9, X10, X11, X12, X13, X14, X16, X17, X19 ) ( X1, X3, X4, X5, X9, X10, X11, X12, X13, X14, X16, X17, X19 ) | (X8 = a3 or X2 != X10) and (X17 != X13 or X7 = X18) and (X7 != X17 or X20 != X11) and (X15 = X13 or X5 != X8) } |", 
+				"| { ( on X1, X2, X3, X4, X5, X6, X7, X8, X10, X12, X13, X14, X15, X17, X18, X19, X20 ) ( X1, X2, X3, X4, X5, X6, X7, X8, X10, X12, X13, X14, X15, X17, X18, X19, X20 ) | (X7 != a1 or X10 != X5) and (X4 = X7 or X16 != a2) and (X4 != X6 or X5 = X3) and (X14 = X13 or X10 != X17) } |", 
+				"| { ( on X1, X2, X3, X4, X7, X8, X9, X12, X13, X15, X16, X17, X18, X19, X20 ) ( X1, X2, X3, X4, X7, X8, X9, X12, X13, X15, X16, X17, X18, X19, X20 ) | (X18 = X11 or X9 != X20 or X6 = a1) and (X7 != a2 or X17 = X18 or X17 != X13) and (X17 = X4 or X20 = X14 or X17 = X9) and (X16 = a2 or X16 != X14 or X1 = a2) } |", 
+				"| { ( on X1, X2, X3, X4, X5, X6, X9, X10, X12, X13, X16, X19, X20 ) ( X1, X2, X3, X4, X5, X6, X9, X10, X12, X13, X16, X19, X20 ) | (X11 != a2 or X8 != a1 or X12 = X16) and (X8 = a4 or X14 != X13 or X7 != a5) and (X16 = X19 or X9 = X13 or X8 = X4) and (X14 != X1 or X4 = X6 or X8 != X12) } |", 
+				"| { ( on X3, X5, X7, X10, X13, X15, X16, X17, X18, X20 ) ( X3, X5, X7, X10, X13, X15, X16, X17, X18, X20 ) | (X14 != X9 or X12 != a4 or X10 = X19 or X5 = X10) and (X8 = X17 or X20 != X2 or X5 != X19 or X6 != X4) and (X6 != X5 or X2 != X20 or X3 = X5 or X8 = X1) and (X9 = X18 or X13 != X3 or X2 != X17 or X20 != X3) } |", 
+				"| { ( on X2, X3, X4, X5, X7, X8, X11, X12, X13, X14, X15, X16, X17, X19 ) ( X2, X3, X4, X5, X7, X8, X11, X12, X13, X14, X15, X16, X17, X19 ) | (X2 != X20 or X14 != X13 or X15 = X10 or X10 = X5) and (X2 = X14 or X13 = X7 or X13 = a2 or X4 != X17) and (X9 != a1 or X9 != a3 or X3 = X20 or X20 != X11) and (X10 != X19 or X15 != X18 or X14 != a2 or X15 = X6) } |", 
+				"| { ( on X1, X2, X3, X4, X5, X8, X9, X10, X11, X13, X14, X16, X17, X18, X19, X20 ) ( X1, X2, X3, X4, X5, X8, X9, X10, X11, X13, X14, X16, X17, X18, X19, X20 ) | (X17 != a4 or X10 != a5 or X14 != a2 or X11 != a4 or X5 = X13) and (X15 != X5 or X4 = X8 or X12 != X7 or X7 = X10 or X11 != X12) and (X9 = X13 or X10 = a1 or X3 != X17 or X11 != a2 or X12 != X16) and (X11 = X14 or X9 = X2 or X6 = a3 or X10 = a1 or X16 = a2) } |", 
+				"| { ( on X2, X4, X6, X9, X11, X13, X16, X18, X19, X20 ) ( X2, X4, X6, X9, X11, X13, X16, X18, X19, X20 ) | (X13 = X20 or X19 = a4 or X4 = X8 or X5 = a2 or X12 != a4) and (X4 = a4 or X9 = X14 or X8 != X20 or X18 = X6 or X6 = X12) and (X6 = X4 or X19 = X17 or X19 != X3 or X5 != a5 or X4 = a3) and (X7 != X20 or X20 != X4 or X16 = X2 or X20 = X7 or X18 = X9) } |", 
+				"| { ( on X1, X2, X3, X4, X5, X6, X7, X8, X10, X11, X14, X15, X16, X17, X18, X19 ) ( X1, X2, X3, X4, X5, X6, X7, X8, X10, X11, X14, X15, X16, X17, X18, X19 ) | X17 != X8 and X16 = X13 and X14 != X5 and X16 != a4 and X5 = a2 } |", 
+				"| { ( on X1, X2, X4, X5, X6, X7, X8, X9, X11, X12, X13, X14, X15, X18, X19 ) ( X1, X2, X4, X5, X6, X7, X8, X9, X11, X12, X13, X14, X15, X18, X19 ) | X5 = X18 and X3 != X18 and X19 != X5 and X11 != X1 and X5 = X13 } |", 
+				"| { ( on X4, X11, X12, X13, X14, X15, X16, X17, X19, X20 ) ( X4, X11, X12, X13, X14, X15, X16, X17, X19, X20 ) | (X20 != X12 or X2 != X15) and (X8 = X14 or X7 != X12) and (X7 != X11 or X6 = X1) and (X3 != X5 or X6 != a2) and (X2 != X9 or X11 = X15) } |", 
+				"| { ( on X1, X2, X3, X4, X5, X7, X8, X9, X13, X15, X18, X19 ) ( X1, X2, X3, X4, X5, X7, X8, X9, X13, X15, X18, X19 ) | (X17 = X16 or X15 != X3) and (X19 != X3 or X11 != a1) and (X19 = X8 or X3 != X2) and (X16 = X3 or X11 != a1) and (X3 = X15 or X1 = X13) } |", 
+				"| { ( on X1, X2, X5, X6, X7, X8, X9, X10, X11, X15, X16, X19 ) ( X1, X2, X5, X6, X7, X8, X9, X10, X11, X15, X16, X19 ) | (X16 = X3 or X12 = X8 or X14 = X18) and (X20 = X16 or X2 != X18 or X18 = X15) and (X13 = X7 or X14 = X19 or X12 != X16) and (X16 = a5 or X6 = X19 or X11 != X1) and (X1 = X12 or X20 = X14 or X12 = X3) } |", 
+				"| { ( on X2, X3, X4, X6, X7, X8, X9, X10, X12, X13, X15, X16, X18, X19 ) ( X2, X3, X4, X6, X7, X8, X9, X10, X12, X13, X15, X16, X18, X19 ) | (X1 != a2 or X1 = X16 or X4 != X12) and (X5 = X14 or X8 != X19 or X1 = X4) and (X10 != X8 or X14 != X3 or X15 != X3) and (X13 != X16 or X1 = X12 or X8 != X2) and (X5 = X18 or X15 = a5 or X5 = a4) } |", 
+				"| { ( on X1, X3, X4, X6, X7, X8, X10, X12, X13, X14, X15, X16, X18, X19, X20 ) ( X1, X3, X4, X6, X7, X8, X10, X12, X13, X14, X15, X16, X18, X19, X20 ) | (X3 = X6 or X19 = X15 or X20 = X17 or X3 = X8) and (X17 = X20 or X2 != X13 or X14 = a3 or X3 != X7) and (X5 = a5 or X8 = X13 or X13 = X15 or X18 = X17) and (X20 != X15 or X12 = a4 or X1 = a3 or X4 = X16) and (X2 = X10 or X15 = X17 or X14 != X6 or X11 = X3) } |", 
+				"| { ( on X1, X3, X5, X7, X8, X9, X10, X11, X12, X13, X15, X16, X17, X18, X20 ) ( X1, X3, X5, X7, X8, X9, X10, X11, X12, X13, X15, X16, X17, X18, X20 ) | (X14 != X16 or X7 = X2 or X14 != X17 or X6 != X2) and (X20 = X4 or X16 = X6 or X3 != X13 or X18 != X10) and (X8 = a3 or X14 = X6 or X12 = X3 or X16 = a5) and (X2 = a4 or X14 = a2 or X11 = X20 or X7 != X2) and (X10 = X17 or X16 != X7 or X5 = X19 or X6 = X9) } |", 
+				"| { ( on X2, X3, X7, X8, X10, X11, X13, X14, X15, X16, X17, X19, X20 ) ( X2, X3, X7, X8, X10, X11, X13, X14, X15, X16, X17, X19, X20 ) | (X1 != X16 or X4 = a4 or X13 = X11 or X7 = X4 or X12 != X2) and (X12 = X1 or X3 = a3 or X3 != a4 or X6 != X2 or X1 != X6) and (X13 != a2 or X2 = X9 or X18 != X4 or X1 != X4 or X8 = X18) and (X13 != X20 or X6 != a3 or X15 = X5 or X9 != a1 or X13 = X4) and (X18 = X4 or X8 != X14 or X17 = a1 or X12 = X3 or X8 = a4) } |", 
+				"| { ( on X1, X2, X4, X6, X7, X9, X10, X11, X12, X13, X14, X16, X18, X19, X20 ) ( X1, X2, X4, X6, X7, X9, X10, X11, X12, X13, X14, X16, X18, X19, X20 ) | (X17 = X11 or X12 != X7 or X4 = a2 or X12 = a2 or X12 != X15) and (X10 = X20 or X20 = X6 or X4 != X1 or X9 != X7 or X6 = X10) and (X6 != a2 or X18 = X10 or X16 = a1 or X1 = X7 or X4 = a3) and (X20 != X1 or X3 != a5 or X2 != X20 or X14 = a2 or X14 != X11) and (X11 = X15 or X17 = X4 or X1 != X8 or X11 = a4 or X5 = X9) } |",
+		// DNF Formulas:
+				"| { ( on X1, X2, X3, X5, X7, X8, X9, X10, X12, X13, X14, X15, X17, X19, X20 ) ( X1, X2, X3, X5, X7, X8, X9, X10, X12, X13, X14, X15, X17, X19, X20 ) | X6 = X20 or X1 = X15 } |", 
+				"| { ( on X1, X2, X3, X5, X6, X8, X10, X11, X13, X14, X15, X19, X20 ) ( X1, X2, X3, X5, X6, X8, X10, X11, X13, X14, X15, X19, X20 ) | X13 = X18 or X12 = X19 } |", 
+				"| { ( on X1, X2, X3, X4, X5, X6, X7, X8, X9, X11, X12, X13, X14, X15, X17, X18, X19, X20 ) ( X1, X2, X3, X4, X5, X6, X7, X8, X9, X11, X12, X13, X14, X15, X17, X18, X19, X20 ) | X1 != X6 and X18 != X11 or X10 != X13 and X6 != X10 } |", 
+				"| { ( on X1, X2, X4, X5, X9, X11, X13, X15, X16, X17, X18, X19, X20 ) ( X1, X2, X4, X5, X9, X11, X13, X15, X16, X17, X18, X19, X20 ) | X5 = X13 and X18 = X20 or X9 = a2 and X8 != a2 } |", 
+				"| { ( on X1, X2, X3, X4, X5, X7, X9, X12, X13, X17, X18, X19, X20 ) ( X1, X2, X3, X4, X5, X7, X9, X12, X13, X17, X18, X19, X20 ) | X20 = X14 and X9 != X3 and X5 != X9 or X19 != X7 and X2 = X7 and X7 = X16 } |", 
+				"| { ( on X1, X6, X7, X8, X9, X10, X12, X13, X14, X16, X17, X18, X19, X20 ) ( X1, X6, X7, X8, X9, X10, X12, X13, X14, X16, X17, X18, X19, X20 ) | X16 = X19 and X10 = X19 and X15 = X5 or X7 != X16 and X11 = a2 and X15 = X19 } |", 
+				"| { ( on X1, X2, X4, X5, X6, X9, X12, X13, X15, X17, X18, X20 ) ( X1, X2, X4, X5, X6, X9, X12, X13, X15, X17, X18, X20 ) | X1 = a2 and X6 != X7 and X12 = X9 and X16 = X9 or X10 != X18 and X2 != X20 and X4 != X19 and X3 != X19 } |", 
+				"| { ( on X2, X3, X4, X7, X8, X9, X10, X11, X12, X13, X14, X16, X17, X19, X20 ) ( X2, X3, X4, X7, X8, X9, X10, X11, X12, X13, X14, X16, X17, X19, X20 ) | X6 = X17 and X12 = X9 and X18 = X10 and X20 = X4 or X2 != X19 and X4 = X6 and X19 = X8 and X2 = X10 } |", 
+				"| { ( on X2, X3, X4, X5, X8, X9, X13, X14, X17, X18, X20 ) ( X2, X3, X4, X5, X8, X9, X13, X14, X17, X18, X20 ) | X18 = X19 and X6 != X19 and X13 = X1 and X17 = X9 and X1 != X20 or X7 = X19 and X4 = a4 and X20 != a1 and X12 = X9 and X17 = X9 } |", 
+				"| { ( on X1, X3, X4, X5, X6, X12, X13, X14, X16, X17, X18, X19, X20 ) ( X1, X3, X4, X5, X6, X12, X13, X14, X16, X17, X18, X19, X20 ) | X18 = X13 and X16 = a5 and X16 = X19 and X12 != X19 and X3 != X12 or X11 != X7 and X15 = a5 and X4 != X13 and X13 = X6 and X16 = X5 } |", 
+				"| { ( on X1, X2, X3, X5, X10, X11, X12, X13, X15, X18, X19, X20 ) ( X1, X2, X3, X5, X10, X11, X12, X13, X15, X18, X19, X20 ) | X8 = X11 or X15 = X20 or X5 = X20 } |", 
+				"| { ( on X1, X3, X5, X6, X7, X9, X11, X12, X13, X14, X18, X19, X20 ) ( X1, X3, X5, X6, X7, X9, X11, X12, X13, X14, X18, X19, X20 ) | X8 = X2 or X10 != X2 or X17 = X14 } |", 
+				"| { ( on X1, X6, X8, X11, X12, X13, X14, X15, X16, X19 ) ( X1, X6, X8, X11, X12, X13, X14, X15, X16, X19 ) | X17 != a4 and X2 = X15 or X16 != a5 and X14 = X16 or X5 != X6 and X13 = a4 } |", 
+				"| { ( on X1, X3, X5, X6, X7, X8, X12, X16, X17, X18, X20 ) ( X1, X3, X5, X6, X7, X8, X12, X16, X17, X18, X20 ) | X10 = X14 and X18 = X3 or X9 != X8 and X14 != X8 or X1 = X4 and X17 = X8 } |", 
+				"| { ( on X1, X2, X3, X4, X5, X7, X9, X10, X11, X12, X13, X15, X18, X19 ) ( X1, X2, X3, X4, X5, X7, X9, X10, X11, X12, X13, X15, X18, X19 ) | X19 != X5 and X2 != X6 and X1 != X15 or X1 = X6 and X8 != X9 and X10 = X1 or X16 != X12 and X2 != a1 and X20 = X9 } |", 
+				"| { ( on X2, X3, X4, X5, X6, X7, X8, X9, X10, X12, X13, X14, X17, X18, X19, X20 ) ( X2, X3, X4, X5, X6, X7, X8, X9, X10, X12, X13, X14, X17, X18, X19, X20 ) | X8 = a2 and X14 = X1 and X3 != X2 or X3 = X7 and X4 != X1 and X11 = X8 or X18 != X4 and X8 != X13 and X17 != X1 } |", 
+				"| { ( on X2, X3, X4, X6, X8, X11, X12, X16, X18, X20 ) ( X2, X3, X4, X6, X8, X11, X12, X16, X18, X20 ) | X9 != X13 and X17 = X11 and X1 != X19 and X12 = X7 or X6 = X20 and X4 != X14 and X10 != X15 and X8 != a4 or X16 != a2 and X12 != X14 and X2 = X17 and X3 != X4 } |", 
+				"| { ( on X1, X2, X3, X4, X6, X7, X9, X10, X11, X13, X14, X15, X16, X17, X18, X19, X20 ) ( X1, X2, X3, X4, X6, X7, X9, X10, X11, X13, X14, X15, X16, X17, X18, X19, X20 ) | X20 != X2 and X18 != X16 and X5 != X8 and X8 = X11 or X5 != X6 and X20 != X3 and X2 != a4 and X12 = a2 or X12 = X20 and X13 != X17 and X4 = X5 and X11 = X13 } |", 
+				"| { ( on X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X14, X17, X19, X20 ) ( X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X14, X17, X19, X20 ) | X7 != X5 and X9 = X8 and X3 = X14 and X17 != X7 and X11 = X2 or X11 = X7 and X19 != X15 and X13 != a5 and X19 != a4 and X7 != X11 or X12 = X13 and X2 = X5 and X3 != X13 and X11 != X4 and X9 = a3 } |",
+				"| { ( on X1, X2, X4, X5, X6, X7, X8, X9, X13, X14, X15, X16, X17, X19, X20 ) ( X1, X2, X4, X5, X6, X7, X8, X9, X13, X14, X15, X16, X17, X19, X20 ) | X2 = a5 and X11 = X2 and X19 != X5 and X17 = a5 and X1 = a1 or X6 = X3 and X17 != a5 and X15 = X18 and X6 != X16 and X1 = X12 or X13 = X1 and X8 = X4 and X17 = X20 and X3 != a5 and X13 != a5 } |", 
+				"| { ( on X1, X2, X3, X4, X5, X7, X8, X9, X10, X11, X12, X13, X16, X17, X19 ) ( X1, X2, X3, X4, X5, X7, X8, X9, X10, X11, X12, X13, X16, X17, X19 ) | X10 != X11 or X9 != X12 or X14 != a5 or X6 != X3 } |", 
+				"| { ( on X2, X3, X4, X5, X6, X7, X8, X9, X11, X13, X14, X15, X16, X17, X18, X19 ) ( X2, X3, X4, X5, X6, X7, X8, X9, X11, X13, X14, X15, X16, X17, X18, X19 ) | X13 != a1 or X1 = X5 or X5 = X10 or X14 != a5 } |", 
+				"| { ( on X1, X2, X3, X5, X6, X7, X8, X9, X10, X11, X14, X15, X17, X18, X19, X20 ) ( X1, X2, X3, X5, X6, X7, X8, X9, X10, X11, X14, X15, X17, X18, X19, X20 ) | X18 != X20 and X11 = X1 or X19 != X15 and X5 = X11 or X6 = X11 and X7 != X15 or X6 != X7 and X12 != a5 } |", 
+				"| { ( on X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X14, X17, X18, X19, X20 ) ( X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X14, X17, X18, X19, X20 ) | X13 = a3 and X17 != X8 or X3 = X5 and X1 != X16 or X14 = X11 and X15 != X5 or X16 = X14 and X4 = X18 } |", 
+				"| { ( on X2, X4, X6, X7, X8, X10, X11, X13, X14, X15, X16, X17, X18, X19 ) ( X2, X4, X6, X7, X8, X10, X11, X13, X14, X15, X16, X17, X18, X19 ) | X18 != a5 and X9 != X10 and X19 != X12 or X4 = X2 and X19 != X13 and X5 != X18 or X17 = X18 and X2 = a5 and X9 = a5 or X14 != X4 and X9 != a1 and X9 = a3 } |", 
+				"| { ( on X1, X2, X3, X4, X6, X7, X8, X9, X13, X14, X15, X16, X17, X18, X19, X20 ) ( X1, X2, X3, X4, X6, X7, X8, X9, X13, X14, X15, X16, X17, X18, X19, X20 ) | X18 = X13 and X13 != X18 and X14 = X12 or X4 != X18 and X19 = X20 and X4 != a4 or X7 = X8 and X18 = X3 and X11 != X2 or X1 != X12 and X8 != X5 and X14 != X3 } |", 
+				"| { ( on X1, X3, X5, X6, X8, X10, X11, X12, X13, X16, X17, X18, X19, X20 ) ( X1, X3, X5, X6, X8, X10, X11, X12, X13, X16, X17, X18, X19, X20 ) | X13 = a3 and X14 != X16 and X1 = a3 and X17 != X6 or X13 != X4 and X5 != X16 and X12 = X6 and X8 != X11 or X20 = X11 and X1 != X15 and X3 != X12 and X4 = X17 or X5 = a4 and X11 = X7 and X18 != X8 and X17 = a2 } |", 
+				"| { ( on X1, X2, X3, X4, X5, X6, X8, X9, X10, X11, X12, X15, X16, X18, X19, X20 ) ( X1, X2, X3, X4, X5, X6, X8, X9, X10, X11, X12, X15, X16, X18, X19, X20 ) | X15 = X11 and X18 != a2 and X16 != X9 and X17 != X14 or X7 != X11 and X16 != X2 and X1 != a4 and X17 = a3 or X5 = X1 and X19 = a1 and X2 = X12 and X1 = X20 or X1 != X13 and X4 != X20 and X13 = X12 and X18 != a5 } |", 
+				"| { ( on X3, X4, X5, X8, X9, X10, X11, X12, X13, X14, X15, X17, X18, X19, X20 ) ( X3, X4, X5, X8, X9, X10, X11, X12, X13, X14, X15, X17, X18, X19, X20 ) | X16 != a5 and X11 = a3 and X18 = a1 and X9 != X15 and X17 = X15 or X3 = X1 and X16 != X7 and X5 = X11 and X12 != X19 and X4 != X11 or X12 = X10 and X10 != a3 and X10 != X15 and X11 = X1 and X17 != X16 or X11 = X5 and X20 = X12 and X7 = X10 and X13 != a2 and X19 = X13 } |", 
+				"| { ( on X1, X3, X7, X10, X11, X12, X13, X14, X16, X17, X18, X19, X20 ) ( X1, X3, X7, X10, X11, X12, X13, X14, X16, X17, X18, X19, X20 ) | X3 != X1 and X12 != X5 and X19 = X16 and X20 = X18 and X19 = X5 or X14 = X11 and X14 = X12 and X5 = X20 and X11 = a5 and X16 != X7 or X11 != X19 and X15 != X18 and X11 = X15 and X20 != X8 and X18 != a1 or X2 = a3 and X17 != X4 and X11 = X10 and X8 != a4 and X4 != X6 } |", 
+				"| { ( on X1, X2, X3, X4, X5, X6, X8, X9, X10, X11, X12, X13, X16, X17, X18, X20 ) ( X1, X2, X3, X4, X5, X6, X8, X9, X10, X11, X12, X13, X16, X17, X18, X20 ) | X3 != X17 or X3 != X13 or X19 = X15 or X18 != a1 or X18 != X20 } |", 
+				"| { ( on X2, X3, X4, X5, X6, X8, X10, X11, X12, X13, X16, X18, X20 ) ( X2, X3, X4, X5, X6, X8, X10, X11, X12, X13, X16, X18, X20 ) | X20 = a2 or X8 = X13 or X15 = X16 or X19 != X7 or X18 = X15 } |", 
+				"| { ( on X1, X5, X7, X8, X9, X10, X12, X13, X14, X15, X16, X18, X19, X20 ) ( X1, X5, X7, X8, X9, X10, X12, X13, X14, X15, X16, X18, X19, X20 ) | X17 = X10 and X15 != X4 or X7 = X16 and X10 != X12 or X14 != X19 and X16 = X6 or X1 = X7 and X20 = X3 or X9 = a2 and X17 != X9 } |", 
+				"| { ( on X1, X3, X4, X5, X6, X7, X8, X9, X12, X13, X14, X15, X18, X19, X20 ) ( X1, X3, X4, X5, X6, X7, X8, X9, X12, X13, X14, X15, X18, X19, X20 ) | X20 != X11 and X19 = X8 or X14 != X3 and X4 = X10 or X7 != a4 and X6 != X10 or X8 = a2 and X9 = X2 or X14 = X20 and X1 = X17 } |", 
+				"| { ( on X2, X3, X4, X5, X6, X12, X13, X14, X18, X20 ) ( X2, X3, X4, X5, X6, X12, X13, X14, X18, X20 ) | X14 != X1 and X1 = X6 and X11 = a2 or X11 != a5 and X18 != X3 and X10 != a5 or X15 = X1 and X20 = X17 and X6 != a1 or X6 = X5 and X18 != X8 and X11 != X7 or X9 != X3 and X5 = X9 and X7 != X18 } |", 
+				"| { ( on X1, X2, X7, X8, X9, X10, X11, X13, X14, X16, X17, X18, X19, X20 ) ( X1, X2, X7, X8, X9, X10, X11, X13, X14, X16, X17, X18, X19, X20 ) | X17 = X1 and X6 = a2 and X1 != X20 or X8 != X19 and X1 = X16 and X20 != X5 or X5 != a2 and X20 = X11 and X9 = X10 or X11 = X12 and X13 = X19 and X17 = X18 or X18 = X19 and X10 = X2 and X4 != X9 } |", 
+				"| { ( on X1, X2, X3, X5, X7, X9, X10, X11, X12, X14, X15, X18, X19, X20 ) ( X1, X2, X3, X5, X7, X9, X10, X11, X12, X14, X15, X18, X19, X20 ) | X1 = X12 and X7 = X16 and X5 = X13 and X12 != a3 or X19 != a5 and X10 = X9 and X8 = X2 and X11 != X9 or X11 = X8 and X16 = a4 and X16 != a1 and X20 != X11 or X6 = X1 and X14 != a2 and X10 != X20 and X15 != X5 or X11 = X15 and X12 = X1 and X18 = a4 and X11 = X7 } |", 
+				"| { ( on X1, X2, X3, X4, X5, X7, X8, X9, X11, X12, X13, X14, X15, X16, X17, X18, X20 ) ( X1, X2, X3, X4, X5, X7, X8, X9, X11, X12, X13, X14, X15, X16, X17, X18, X20 ) | X19 != X13 and X12 = a1 and X8 = X3 and X12 != a4 or X13 != X6 and X8 = X14 and X9 != a3 and X17 = X14 or X14 != X3 and X6 = X20 and X7 != a2 and X20 = X7 or X10 = X8 and X14 != X12 and X15 != X19 and X5 = X2 or X13 != X4 and X20 != X9 and X10 != a5 and X9 != X11 } |", 
+				"| { ( on X1, X2, X4, X6, X7, X8, X9, X10, X11, X12, X14, X15, X16, X17, X18 ) ( X1, X2, X4, X6, X7, X8, X9, X10, X11, X12, X14, X15, X16, X17, X18 ) | X11 = X10 and X11 != X1 and X17 = X7 and X20 = X5 and X11 != X5 or X2 = X13 and X12 != X6 and X5 = X17 and X13 != a4 and X7 = a2 or X9 = a4 and X3 = X12 and X16 = a2 and X19 != X16 and X10 != X13 or X7 = X4 and X14 = X16 and X7 = X20 and X16 = X10 and X10 != X3 or X17 = X20 and X9 != X3 and X15 = X4 and X18 = X6 and X16 != X13 } |", 
+				"| { ( on X1, X2, X3, X4, X5, X7, X8, X9, X10, X12, X13, X14, X15, X16, X17, X18, X19 ) ( X1, X2, X3, X4, X5, X7, X8, X9, X10, X12, X13, X14, X15, X16, X17, X18, X19 ) | X3 = X19 and X20 != X11 and X19 = X1 and X15 != a1 and X16 = X20 or X15 != X13 and X10 != X6 and X10 = X15 and X10 = X12 and X5 = a2 or X7 != a3 and X7 != X18 and X8 = X13 and X12 != X4 and X3 = X19 or X5 = X8 and X5 = X1 and X13 = X1 and X10 != X19 and X6 = X18 or X8 = X10 and X19 = a4 and X1 = X15 and X10 = X19 and X7 = X17 } |", 
+				
+		}));
+	}
+	private void addPreGenerateTestsToCompareWithSharpSAT(List<CardinalityStressTest> result) {
+		result.add(new CannedFormulaStressTest("Randomly pre-genrated formulas by SimpleFormulaGenerator", new String[] {
+		// CNF Formulas:
+				"| { ( on X10, X6 ) ( X10, X6 ) | X10 != a1 and X6 != a2 } |", 
+				"| { ( on X2, X7, X14, X12 ) ( X2, X7, X14, X12 ) | X2 = X7 and X12 = X14 } |", 
+				"| { ( on X3, X4, X7, X12, X11, X19, X17 ) ( X3, X4, X7, X12, X11, X19, X17 ) | (X17 = X4 or X12 != X11) and (X19 = X3 or X19 != X7) } |", 
+				"| { ( on X10, X5, X13, X18, X16 ) ( X10, X5, X13, X18, X16 ) | (X10 != X16 or X13 != X18) and (X18 != X13 or X5 != X16) } |", 
+				"| { ( on X1, X3, X6, X14, X13, X18, X17 ) ( X1, X3, X6, X14, X13, X18, X17 ) | (X13 = X3 or X14 != X18 or X1 = a3) and (X3 != X6 or X1 = a1 or X18 = X17) } |", 
+				"| { ( on X1, X10, X4, X8, X11, X18, X17, X16, X15 ) ( X1, X10, X4, X8, X11, X18, X17, X16, X15 ) | (X1 = X18 or X11 = X17 or X15 = a2) and (X8 != X10 or X15 != X4 or X15 != X16) } |", 
+				"| { ( on X1, X4, X13, X9, X12, X20, X11, X18, X17, X19 ) ( X1, X4, X13, X9, X12, X20, X11, X18, X17, X19 ) | (X18 = X1 or X19 != X11 or X4 != X11 or X20 = a5) and (X13 = a2 or X9 = X18 or X17 = X12 or X4 != X12) } |", 
+				"| { ( on X1, X6, X14, X20, X12, X9, X8, X18, X19, X17, X16 ) ( X1, X6, X14, X20, X12, X9, X8, X18, X19, X17, X16 ) | (X1 = X9 or X9 != X16 or X8 = a4 or X6 != a1) and (X18 = X14 or X19 != X9 or X20 = a4 or X12 = X17) } |", 
+				"| { ( on X2, X3, X4, X5, X7, X14, X12, X11, X18, X17, X19 ) ( X2, X3, X4, X5, X7, X14, X12, X11, X18, X17, X19 ) | (X11 != X18 or X5 = X12 or X14 = a4 or X3 = X12 or X3 != X19) and (X5 = a2 or X2 = X4 or X17 = X2 or X4 = a2 or X7 = X11) } |", 
+				"| { ( on X1, X3, X4, X5, X6, X7, X14, X20, X9, X11, X17, X16, X15 ) ( X1, X3, X4, X5, X6, X7, X14, X20, X9, X11, X17, X16, X15 ) | (X7 != X9 or X11 = X6 or X1 != X3 or X16 != X4 or X6 != X5) and (X15 = X14 or X20 != X1 or X7 = X15 or X20 != X17 or X3 != X9) } |", 
+				"| { ( on X3, X4, X13, X20, X19 ) ( X3, X4, X13, X20, X19 ) | X13 != a2 and X3 = X19 and X20 = X4 } |", 
+				"| { ( on X1, X2, X10, X13, X20 ) ( X1, X2, X10, X13, X20 ) | X10 != X13 and X20 != a3 and X1 = X2 } |", 
+				"| { ( on X2, X3, X10, X6, X14, X12, X11, X17, X15 ) ( X2, X3, X10, X6, X14, X12, X11, X17, X15 ) | (X11 != X3 or X10 != X3) and (X2 != X14 or X15 != X6) and (X11 = X12 or X15 != X17) } |", 
+				"| { ( on X4, X6, X7, X9, X12, X8, X11, X19, X17 ) ( X4, X6, X7, X9, X12, X8, X11, X19, X17 ) | (X11 != X6 or X17 != a5) and (X19 = X8 or X12 = a3) and (X4 != X9 or X12 != X7) } |", 
+				"| { ( on X1, X10, X7, X14, X12, X9, X8, X19, X17, X16, X15 ) ( X1, X10, X7, X14, X12, X9, X8, X19, X17, X16, X15 ) | (X12 != a1 or X12 = a1 or X9 = X1) and (X15 != X8 or X14 != X16 or X14 = X7) and (X10 != X15 or X19 = a4 or X17 = X19) } |", 
+				"| { ( on X1, X2, X3, X10, X5, X14, X13, X9, X8, X11, X16 ) ( X1, X2, X3, X10, X5, X14, X13, X9, X8, X11, X16 ) | (X5 != X11 or X2 != X16 or X13 != X10) and (X8 = X1 or X11 != X13 or X5 != X3) and (X5 = X9 or X14 = X13 or X13 = X5) } |", 
+				"| { ( on X2, X3, X4, X10, X6, X7, X14, X12, X11, X18, X19, X16, X15 ) ( X2, X3, X4, X10, X6, X7, X14, X12, X11, X18, X19, X16, X15 ) | (X18 = X6 or X2 != X12 or X14 = X15 or X7 != X10) and (X12 != X14 or X16 = X19 or X7 != X6 or X11 = X4) and (X2 != a4 or X7 != a4 or X4 != X2 or X3 = X15) } |", 
+				"| { ( on X1, X2, X10, X4, X6, X7, X14, X20, X11, X18, X16, X15, X9, X19 ) ( X1, X2, X10, X4, X6, X7, X14, X20, X11, X18, X16, X15, X9, X19 ) | (X14 != X7 or X7 != a1 or X19 != X16 or X9 != X4) and (X19 != X1 or X11 != X18 or X15 = X1 or X19 = X6) and (X4 != a2 or X16 = X2 or X14 != a4 or X10 != X20) } |", 
+				"| { ( on X2, X3, X4, X10, X5, X14, X13, X12, X9, X20, X11, X18, X19, X16, X15 ) ( X2, X3, X4, X10, X5, X14, X13, X12, X9, X20, X11, X18, X19, X16, X15 ) | (X12 != X4 or X14 = a3 or X4 != X13 or X10 != X3 or X20 != X9) and (X18 != a3 or X4 = a2 or X12 != a4 or X15 != X11 or X14 = X2) and (X19 != X4 or X5 = X3 or X16 != a1 or X20 != X13 or X19 = a3) } |", 
+				"| { ( on X1, X2, X3, X10, X4, X5, X6, X12, X20, X11, X18, X17, X16, X9, X8, X19 ) ( X1, X2, X3, X10, X4, X5, X6, X12, X20, X11, X18, X17, X16, X9, X8, X19 ) | (X6 != a1 or X1 != X3 or X8 = X16 or X4 = X3 or X11 != X6) and (X9 != X2 or X17 != X19 or X16 != X5 or X16 = X2 or X19 = X11) and (X12 != X18 or X4 = X3 or X19 = X20 or X1 != X16 or X10 = a4) } |", 
+				"| { ( on X2, X5, X14, X20, X12, X17 ) ( X2, X5, X14, X20, X12, X17 ) | X12 != X17 and X12 = X14 and X2 != X5 and X20 != a1 } |", 
+				"| { ( on X10, X4, X6, X7, X11, X19 ) ( X10, X4, X6, X7, X11, X19 ) | X11 != X4 and X19 != X10 and X7 = X6 and X10 != X7 } |", 
+				"| { ( on X3, X6, X7, X14, X13, X12, X9, X8, X18, X17, X16, X15 ) ( X3, X6, X7, X14, X13, X12, X9, X8, X18, X17, X16, X15 ) | (X16 = X18 or X9 != X17) and (X7 != X13 or X13 = X15) and (X3 = X6 or X15 = a4) and (X14 != X12 or X12 != X8) } |", 
+				"| { ( on X2, X10, X5, X6, X14, X13, X11, X8, X18, X17 ) ( X2, X10, X5, X6, X14, X13, X11, X8, X18, X17 ) | (X2 != a1 or X5 != a1) and (X13 != X18 or X8 = X18) and (X14 != X10 or X17 = X10) and (X6 != X11 or X8 != a5) } |", 
+				"| { ( on X1, X2, X3, X10, X5, X6, X7, X12, X20, X17, X15, X9, X19 ) ( X1, X2, X3, X10, X5, X6, X7, X12, X20, X17, X15, X9, X19 ) | (X2 != X17 or X15 != X10 or X19 = X7) and (X17 = X20 or X15 != X19 or X19 = X10) and (X3 = X2 or X1 = X9 or X9 = X2) and (X19 != X12 or X10 = X6 or X19 = X5) } |", 
+				"| { ( on X1, X2, X3, X4, X10, X5, X6, X7, X14, X11, X18, X15, X9, X8 ) ( X1, X2, X3, X4, X10, X5, X6, X7, X14, X11, X18, X15, X9, X8 ) | (X11 != a3 or X15 = X11 or X2 = X18) and (X5 = X7 or X11 = a5 or X14 != X10) and (X1 = X14 or X3 = X6 or X8 = X5) and (X4 != X5 or X9 = X2 or X8 != X15) } |", 
+				"| { ( on X1, X2, X3, X10, X4, X5, X6, X14, X13, X20, X12, X18, X16, X15, X9 ) ( X1, X2, X3, X10, X4, X5, X6, X14, X13, X20, X12, X18, X16, X15, X9 ) | (X9 != X6 or X16 != X6 or X12 != X13 or X20 != X4) and (X20 != X1 or X4 != X18 or X15 != X4 or X3 = X4) and (X4 = X5 or X14 = X2 or X20 = a1 or X16 != a5) and (X5 != X2 or X14 = X10 or X14 != X18 or X14 != X16) } |", 
+				"| { ( on X1, X3, X10, X4, X5, X6, X20, X12, X8, X11, X18, X17, X16, X15 ) ( X1, X3, X10, X4, X5, X6, X20, X12, X8, X11, X18, X17, X16, X15 ) | (X17 = X4 or X17 = a5 or X12 = X5 or X6 != X3) and (X15 != X5 or X16 != X20 or X15 != X11 or X12 != X15) and (X10 = a4 or X11 = X8 or X18 = X12 or X20 = a5) and (X8 = X10 or X4 != X5 or X1 = X12 or X1 != X17) } |", 
+				"| { ( on X1, X2, X3, X10, X4, X5, X6, X7, X14, X13, X20, X12, X18, X17, X16, X15, X9, X19 ) ( X1, X2, X3, X10, X4, X5, X6, X7, X14, X13, X20, X12, X18, X17, X16, X15, X9, X19 ) | (X1 = a4 or X13 = X6 or X15 = X4 or X1 = X12 or X10 != X20) and (X16 = a2 or X20 = X9 or X7 != X16 or X10 != X3 or X19 != X10) and (X5 = X13 or X17 != a3 or X18 != X16 or X15 = a2 or X19 != a5) and (X2 != X16 or X14 != X15 or X1 = X7 or X4 != a4 or X17 = X20) } |", 
+				"| { ( on X1, X3, X10, X4, X6, X7, X14, X13, X20, X12, X11, X18, X17, X16, X9, X8, X19 ) ( X1, X3, X10, X4, X6, X7, X14, X13, X20, X12, X11, X18, X17, X16, X9, X8, X19 ) | (X10 = X1 or X12 != X13 or X6 = a1 or X18 = X20 or X14 = X12) and (X10 != X8 or X16 = a3 or X3 = X4 or X20 = X7 or X12 = X1) and (X12 != X1 or X19 = X11 or X9 != X17 or X8 != X1 or X18 = a3) and (X16 != X20 or X4 = X11 or X16 = a1 or X9 != X20 or X14 != a2) } |", 
+				"| { ( on X3, X6, X7, X13, X20, X9, X16 ) ( X3, X6, X7, X13, X20, X9, X16 ) | X20 != X9 and X13 != X6 and X3 = X16 and X20 != X9 and X7 = X9 } |", 
+				"| { ( on X1, X3, X5, X7, X18, X19, X17, X16 ) ( X1, X3, X5, X7, X18, X19, X17, X16 ) | X5 != X7 and X17 != a5 and X19 = X3 and X1 != X19 and X18 = X16 } |", 
+				"| { ( on X2, X3, X4, X10, X5, X6, X7, X14, X8, X18, X17, X16 ) ( X2, X3, X4, X10, X5, X6, X7, X14, X8, X18, X17, X16 ) | (X5 = X7 or X10 != X3) and (X17 != X5 or X6 != X5) and (X14 != X18 or X7 != X16) and (X7 != X8 or X7 = X4) and (X8 != a5 or X3 = X2) } |", 
+				"| { ( on X2, X3, X10, X5, X6, X7, X9, X20, X18, X19, X16 ) ( X2, X3, X10, X5, X6, X7, X9, X20, X18, X19, X16 ) | (X6 != X19 or X18 = X3) and (X9 = X18 or X20 != X18) and (X19 = a5 or X10 = X19) and (X7 = a3 or X20 != X2) and (X16 != X9 or X5 = X6) } |", 
+				"| { ( on X1, X2, X10, X4, X5, X6, X14, X13, X12, X11, X18, X17, X16, X15, X9, X19 ) ( X1, X2, X10, X4, X5, X6, X14, X13, X12, X11, X18, X17, X16, X15, X9, X19 ) | (X5 = X12 or X2 != X13 or X13 = X12) and (X18 != X6 or X16 != X15 or X17 != a3) and (X12 = X11 or X14 != X13 or X9 != X19) and (X10 = X13 or X4 = X11 or X11 != X14) and (X4 != X11 or X1 = X13 or X19 = X16) } |", 
+				"| { ( on X1, X2, X3, X10, X5, X7, X13, X20, X11, X18, X17, X16, X9, X8, X19 ) ( X1, X2, X3, X10, X5, X7, X13, X20, X11, X18, X17, X16, X9, X8, X19 ) | (X17 = a2 or X10 != a1 or X7 = X5) and (X20 = a2 or X9 = X19 or X9 != X11) and (X17 = X5 or X18 = X9 or X10 != X13) and (X18 != X16 or X3 != X2 or X8 != X1) and (X13 = X11 or X3 != X5 or X20 = X8) } |", 
+				"| { ( on X1, X2, X4, X5, X6, X7, X14, X13, X20, X12, X11, X18, X17, X16, X15, X9, X19 ) ( X1, X2, X4, X5, X6, X7, X14, X13, X20, X12, X11, X18, X17, X16, X15, X9, X19 ) | (X5 != a1 or X7 != X12 or X6 = X19 or X11 != X13) and (X2 = X15 or X4 != X18 or X17 != X11 or X13 != X4) and (X1 = X20 or X15 = X12 or X1 = a5 or X7 != a2) and (X13 != a2 or X7 != X19 or X11 != X14 or X12 != X16) and (X9 = X15 or X6 = X2 or X5 = X16 or X4 != X5) } |", 
+				"| { ( on X1, X2, X3, X4, X10, X5, X6, X7, X14, X13, X20, X12, X18, X17, X16, X9, X8, X19 ) ( X1, X2, X3, X4, X10, X5, X6, X7, X14, X13, X20, X12, X18, X17, X16, X9, X8, X19 ) | (X9 != X12 or X3 != X19 or X19 != X6 or X13 = X1) and (X1 = X16 or X14 != X8 or X16 = X7 or X10 != a1) and (X13 != X7 or X17 != X5 or X18 != X5 or X5 = X1) and (X3 = X10 or X10 != X3 or X1 != X12 or X6 != a3) and (X20 != X4 or X13 = X19 or X16 != X2 or X5 = a3) } |", 
+				"| { ( on X1, X2, X3, X10, X4, X5, X6, X7, X14, X13, X20, X12, X11, X18, X17, X16, X15, X9, X8, X19 ) ( X1, X2, X3, X10, X4, X5, X6, X7, X14, X13, X20, X12, X11, X18, X17, X16, X15, X9, X8, X19 ) | (X12 = a2 or X13 = X3 or X1 != a3 or X6 = a5 or X9 != X18) and (X8 != X11 or X12 = X7 or a5 = X5 or X2 = X19 or X5 = X17) and (X15 != a2 or X16 = X9 or X4 != X20 or X15 = X4 or X17 != X15) and (X14 != X13 or X10 = X16 or X19 != X10 or X20 = X5 or X8 != a3) and (X2 != a3 or X3 != X15 or X19 = X16 or X1 = X15 or X1 != a2) } |", 
+				"| { ( on X1, X2, X4, X10, X5, X6, X14, X13, X20, X12, X11, X18, X17, X16, X15, X9, X8, X19 ) ( X1, X2, X4, X10, X5, X6, X14, X13, X20, X12, X11, X18, X17, X16, X15, X9, X8, X19 ) | (X11 != X14 or X16 != X5 or X10 != X1 or X14 != a2 or X18 = a4) and (a2 = X8 or X19 = X12 or X2 = X20 or X16 != a2 or X5 = X16) and (X13 != X10 or X6 != a1 or X4 != X17 or X6 = X2 or X4 != X1) and (X20 != X12 or X14 != X19 or X1 = X19 or X13 != a1 or X9 = X17) and (X15 = a5 or X12 != X11 or X12 = X8 or X2 = a4 or X16 = X12) } |", 
+		// DNF Formulas:
+				"| { ( on X1, X4, X12, X15 ) ( X1, X4, X12, X15 ) | X1 = X15 or X4 != X12 } |", 
+				"| { ( on X4, X5, X7, X20 ) ( X4, X5, X7, X20 ) | X5 = X20 or X7 != X4 } |", 
+				"| { ( on X1, X10, X4, X6, X20, X19 ) ( X1, X10, X4, X6, X20, X19 ) | X6 = X19 and X6 = X4 or X1 != X10 and X6 != X20 } |", 
+				"| { ( on X6, X12, X11, X19, X16, X15 ) ( X6, X12, X11, X19, X16, X15 ) | X11 = X15 and X12 = X6 or X19 = X16 and X19 != X6 } |", 
+				"| { ( on X2, X4, X5, X6, X7, X14, X9, X11, X17 ) ( X2, X4, X5, X6, X7, X14, X9, X11, X17 ) | X5 = a3 and X17 = X4 and X9 != X2 or X2 != a5 and X7 != X6 and X11 != X14 } |", 
+				"| { ( on X2, X3, X6, X14, X13, X11, X19, X16 ) ( X2, X3, X6, X14, X13, X11, X19, X16 ) | X11 = X19 and X3 = a4 and X13 = X6 or X11 != X14 and X2 != X16 and X6 = X16 } |", 
+				"| { ( on X1, X2, X3, X4, X14, X13, X11, X18, X15 ) ( X1, X2, X3, X4, X14, X13, X11, X18, X15 ) | X11 = a3 and X4 = X15 and X3 = X2 and X2 != a2 or X14 = a4 and X13 != X2 and X18 != X15 and X1 != a2 } |", 
+				"| { ( on X2, X10, X6, X13, X20, X11, X8, X18, X17, X16, X15 ) ( X2, X10, X6, X13, X20, X11, X8, X18, X17, X16, X15 ) | X10 != a5 and X18 = a4 and X8 = X11 and X15 = X20 or X18 != X6 and X20 != X13 and X15 != X16 and X17 = X2 } |", 
+				"| { ( on X2, X10, X5, X6, X7, X13, X20, X11, X18, X17, X16, X9, X8, X19 ) ( X2, X10, X5, X6, X7, X13, X20, X11, X18, X17, X16, X9, X8, X19 ) | X8 = X16 and X17 = X19 and X18 != X11 and X2 != a1 and X18 != X5 or X6 = a4 and X20 = X10 and X7 = a4 and X9 != X13 and X2 = X19 } |", 
+				"| { ( on X1, X2, X3, X10, X7, X14, X13, X9, X8, X11, X18, X17, X15 ) ( X1, X2, X3, X10, X7, X14, X13, X9, X8, X11, X18, X17, X15 ) | X2 != X17 and X3 != X14 and X15 != X7 and X13 = X10 and X11 = a5 or X18 != X10 and X1 = X9 and X8 != X17 and X15 = X3 and X14 = X8 } |", 
+				"| { ( on X18, X19, X17, X16 ) ( X18, X19, X17, X16 ) | X18 != X17 or X17 = a4 or X19 != X16 } |", 
+				"| { ( on X2, X6, X13, X20, X16 ) ( X2, X6, X13, X20, X16 ) | X13 = X6 or X16 = a2 or X20 != X2 } |", 
+				"| { ( on X10, X4, X6, X7, X13, X12, X20, X8, X19, X16 ) ( X10, X4, X6, X7, X13, X12, X20, X8, X19, X16 ) | X8 = X4 and X7 = X13 or X20 != X6 and X19 = X10 or X10 = X12 and X10 != X16 } |", 
+				"| { ( on X10, X7, X13, X12, X8, X11, X16 ) ( X10, X7, X13, X12, X8, X11, X16 ) | X11 != X7 and X11 != X16 or X13 = X10 and X16 != a5 or X7 = X12 and X8 = a4 } |", 
+				"| { ( on X1, X10, X5, X6, X7, X14, X13, X20, X18, X19, X17, X16 ) ( X1, X10, X5, X6, X7, X14, X13, X20, X18, X19, X17, X16 ) | X5 = X13 and X20 != X6 and X18 = X7 or X20 = X16 and X17 != X10 and X10 != X14 or X13 != X6 and X16 = X19 and X13 = X1 } |", 
+				"| { ( on X1, X2, X3, X5, X7, X14, X20, X9, X12, X8, X16 ) ( X1, X2, X3, X5, X7, X14, X20, X9, X12, X8, X16 ) | X7 = a1 and X12 != a3 and X2 = a2 or X14 != X8 and X1 != X9 and X16 != X3 or X2 != X20 and X8 = X1 and X5 != X20 } |", 
+				"| { ( on X2, X3, X4, X13, X12, X11, X8, X18, X19, X16, X15 ) ( X2, X3, X4, X13, X12, X11, X8, X18, X19, X16, X15 ) | X2 = a1 and X13 = a2 and X18 != X16 and X18 = X16 or X13 != a2 and X13 != X4 and X19 = X8 and X12 != X3 or X2 != X11 and X11 != a5 and X2 = X8 and X15 = X8 } |", 
+				"| { ( on X1, X5, X6, X7, X9, X20, X8, X11, X19, X16, X15 ) ( X1, X5, X6, X7, X9, X20, X8, X11, X19, X16, X15 ) | X5 = X8 and X20 != X15 and X11 != X16 and X8 != X19 or X16 = X1 and X11 != X9 and X7 != a1 and X7 = a5 or X19 = X15 and X5 != X1 and X5 = X6 and X11 = X8 } |", 
+				"| { ( on X1, X2, X3, X4, X10, X5, X6, X7, X14, X12, X18, X16, X15, X9 ) ( X1, X2, X3, X4, X10, X5, X6, X7, X14, X12, X18, X16, X15, X9 ) | X5 = X16 and a1 != X12 and X6 != X3 and X18 != X10 and X3 != X14 or X15 = a3 and X6 != X1 and X7 != a2 and X14 = X10 and X18 = X2 or X4 = X6 and X5 != X16 and X9 = X5 and X2 != a3 and X12 = X3 } |", 
+				"| { ( on X1, X2, X4, X10, X5, X6, X7, X14, X13, X12, X20, X11, X17, X15, X9, X8, X19 ) ( X1, X2, X4, X10, X5, X6, X7, X14, X13, X12, X20, X11, X17, X15, X9, X8, X19 ) | X7 != a4 and X19 != X5 and X5 != a1 and X17 != a2 and X1 != X7 or X8 != X11 and X11 != a1 and X10 != X1 and X15 != X4 and X2 != X17 or X14 = X12 and X13 != a1 and X20 != X9 and X7 != a2 and X6 = X10 } |", 
+				"| { ( on X4, X7, X14, X9, X8 ) ( X4, X7, X14, X9, X8 ) | X4 != X7 or X9 = X7 or X8 != a4 or X14 = X9 } |", 
+				"| { ( on X1, X4, X10, X5, X18, X16, X15 ) ( X1, X4, X10, X5, X18, X16, X15 ) | X10 != X15 or X1 != X18 or X4 != X10 or X16 = X5 } |", 
+				"| { ( on X2, X10, X4, X5, X6, X13, X12, X11, X19, X16 ) ( X2, X10, X4, X5, X6, X13, X12, X11, X19, X16 ) | X19 != X6 and X11 != a1 or X2 != X16 and X13 != X4 or X6 != a5 and X12 != X11 or X10 != a5 and X5 != X12 } |", 
+				"| { ( on X1, X4, X6, X7, X14, X13, X9, X18, X17, X19, X15 ) ( X1, X4, X6, X7, X14, X13, X9, X18, X17, X19, X15 ) | X15 = X19 and X15 = X7 or X6 != X18 and X13 != X4 or X18 = a4 and X15 != X17 or X9 != X14 and X1 = X6 } |", 
+				"| { ( on X1, X2, X10, X5, X6, X7, X14, X12, X20, X17, X16, X15, X9, X8, X19 ) ( X1, X2, X10, X5, X6, X7, X14, X12, X20, X17, X16, X15, X9, X8, X19 ) | X17 = X5 and X16 = X7 and X2 = X15 or X14 = X5 and X19 = X17 and X1 = X20 or X6 != X9 and X6 != X14 and X2 = X10 or X1 != X12 and X8 != X17 and X10 != X12 } |", 
+				"| { ( on X1, X3, X10, X4, X5, X7, X14, X13, X20, X12, X11, X18, X17, X16, X8, X19 ) ( X1, X3, X10, X4, X5, X7, X14, X13, X20, X12, X11, X18, X17, X16, X8, X19 ) | X7 = a1 and X11 = X12 and X3 = X19 or X4 = a5 and X17 = X10 and X13 = X12 or X8 != a1 and X16 != a1 and X7 = a1 or X8 = X18 and X14 = X20 and X5 = X1 } |", 
+				"| { ( on X1, X2, X3, X4, X5, X7, X14, X13, X20, X11, X17, X16, X9, X8, X19 ) ( X1, X2, X3, X4, X5, X7, X14, X13, X20, X11, X17, X16, X9, X8, X19 ) | X5 != X17 and X17 = X7 and X8 = a2 and X1 != X7 or X16 = X20 and X4 != X19 and X14 != a3 and X5 != X4 or X9 != X19 and X19 = X13 and X19 = a5 and X3 != X13 or X3 != X2 and X19 = X17 and X14 != a3 and X8 = X11 } |", 
+				"| { ( on X1, X2, X3, X4, X5, X7, X14, X13, X20, X12, X11, X17, X16, X15, X9, X8, X19 ) ( X1, X2, X3, X4, X5, X7, X14, X13, X20, X12, X11, X17, X16, X15, X9, X8, X19 ) | X12 = X3 and X17 = X20 and X3 != X7 and X13 = X12 or X5 = X13 and X14 != X8 and X15 = a5 and X7 != X9 or X4 != a1 and X5 != X11 and X17 = X19 and X7 = X19 or X2 = X1 and X20 = X19 and X14 != X20 and X16 != X4 } |", 
+				"| { ( on X1, X2, X3, X4, X10, X5, X7, X14, X20, X12, X11, X18, X17, X15, X9, X8, X19 ) ( X1, X2, X3, X4, X10, X5, X7, X14, X20, X12, X11, X18, X17, X15, X9, X8, X19 ) | X18 != X9 and X10 = X5 and X3 != X17 and X17 = X19 and X11 = X3 or X11 != X8 and X14 = X12 and X3 = X19 and X17 = X10 and X15 != a2 or X7 = X10 and X18 = X11 and X3 = X17 and X3 != X1 and X10 = X4 or X20 = X18 and X8 = X2 and X8 = a2 and X1 = X18 and X4 = X15 } |", 
+				"| { ( on X1, X2, X3, X10, X4, X5, X6, X7, X14, X13, X20, X11, X18, X17, X16, X15, X9, X8, X19 ) ( X1, X2, X3, X10, X4, X5, X6, X7, X14, X13, X20, X11, X18, X17, X16, X15, X9, X8, X19 ) | X7 != X6 and X14 != a3 and X13 = X7 and X8 = X3 and X16 != a4 or X7 = X15 and X18 = a1 and X16 = X2 and X5 != X11 and X4 = X19 or X7 = a5 and X17 = X9 and X20 != a1 and X14 = X7 and X14 = X8 or X13 = X6 and X10 != a3 and X16 = a5 and X1 = X9 and X11 != X14 } |", 
+				"| { ( on X1, X2, X9, X12, X11, X17, X16, X15 ) ( X1, X2, X9, X12, X11, X17, X16, X15 ) | X17 != X2 or X9 != X12 or X15 = a5 or X16 = X1 or X9 != X11 } |", 
+				"| { ( on X1, X4, X10, X14, X20, X12, X11, X16 ) ( X1, X4, X10, X14, X20, X12, X11, X16 ) | X12 != a5 or X10 != X20 or X16 != X1 or X14 = X11 or X14 = X4 } |", 
+				"| { ( on X1, X3, X10, X6, X14, X20, X9, X11, X8, X18, X19, X16, X15 ) ( X1, X3, X10, X6, X14, X20, X9, X11, X8, X18, X19, X16, X15 ) | X18 = X9 and X18 = a4 or X19 != X8 and X3 = X15 or X9 = X11 and X10 = X1 or X14 != X20 and X20 != a1 or X6 = a5 and X16 = a2 } |", 
+				"| { ( on X3, X4, X13, X12, X9, X11, X8, X18, X17, X16 ) ( X3, X4, X13, X12, X9, X11, X8, X18, X17, X16 ) | X16 != X4 and X13 = X4 or X12 = X18 and X3 = X9 or X8 != a2 and X8 = X12 or X3 != X11 and X9 != X16 or X9 = X13 and X17 != X4 } |", 
+				"| { ( on X2, X3, X10, X4, X5, X6, X7, X14, X13, X20, X11, X17, X16, X8, X19 ) ( X2, X3, X10, X4, X5, X6, X7, X14, X13, X20, X11, X17, X16, X8, X19 ) | X3 = X7 and X17 = X4 and X13 != X20 or X2 != X19 and X7 != a1 and X6 != X7 or X7 != a4 and X20 != X14 and X16 = X19 or X14 != X3 and X11 = a4 and X8 != X7 or X10 != X17 and X5 != X10 and X11 = a5 } |", 
+				"| { ( on X2, X10, X4, X5, X6, X7, X14, X9, X20, X11, X18, X17, X19, X16, X15 ) ( X2, X10, X4, X5, X6, X7, X14, X9, X20, X11, X18, X17, X19, X16, X15 ) | X2 = a1 and X14 != X2 and X19 != X20 or X18 = X9 and X16 != X10 and X11 != X4 or X10 = X15 and X6 = a4 and X16 != X17 or X10 != X5 and X19 != X5 and X11 != a5 or X18 != X2 and X7 != X10 and X20 != X18 } |", 
+				"| { ( on X1, X2, X3, X4, X10, X5, X6, X7, X14, X12, X20, X11, X18, X17, X9, X19 ) ( X1, X2, X3, X4, X10, X5, X6, X7, X14, X12, X20, X11, X18, X17, X9, X19 ) | X4 = X20 and X9 != X11 and X12 = a1 and X18 != X5 or X5 = X10 and X12 != X11 and X18 = a4 and X18 = X5 or X2 != a3 and X6 = X2 and X2 != a3 and X20 = X3 or X14 = X9 and X19 != X17 and X12 != X11 and X17 != a5 or X10 != X2 and X7 = X10 and X17 = X1 and X10 != a3 } |", 
+				"| { ( on X1, X2, X3, X10, X4, X5, X6, X7, X14, X20, X12, X11, X17, X16, X15, X9 ) ( X1, X2, X3, X10, X4, X5, X6, X7, X14, X20, X12, X11, X17, X16, X15, X9 ) | X2 = X1 and X12 = X7 and X17 = X9 and X11 = a2 or X6 != X3 and X4 != a2 and X2 = X15 and X14 != a5 or X12 != X16 and X4 != X10 and X3 != X7 and X9 = X15 or X20 != X16 and X15 != X16 and X1 = X16 and X6 = a4 or X1 != X5 and X5 = X12 and X6 = a5 and X20 = X10 } |", 
+				"| { ( on X1, X2, X3, X10, X4, X5, X6, X7, X14, X13, X12, X11, X18, X17, X16, X9 ) ( X1, X2, X3, X10, X4, X5, X6, X7, X14, X13, X12, X11, X18, X17, X16, X9 ) | X3 != a3 and X14 != a1 and X5 = a3 and X7 = a3 and X1 = X7 or X17 != a4 and X7 != X1 and X9 != X12 and X12 = X2 and X2 != X18 or X6 != X17 and X14 = X6 and X18 = X16 and a5 != X4 and X6 != X18 or a2 = X9 and X18 != X10 and X7 != a1 and X2 = X11 and X10 = a3 or X5 != a3 and X13 != X3 and X13 != X11 and X3 = a2 and X18 != a1 } |", 
+				"| { ( on X1, X2, X10, X4, X5, X6, X7, X14, X13, X20, X12, X11, X18, X17, X16, X15, X9, X19 ) ( X1, X2, X10, X4, X5, X6, X7, X14, X13, X20, X12, X11, X18, X17, X16, X15, X9, X19 ) | X14 != X5 and X4 = a2 and X18 = a3 and X16 != X18 and X17 = X16 or X12 = a3 and X18 != a3 and X20 != X15 and X9 = X2 and X11 != X1 or X14 != X12 and X1 = X19 and X15 = X1 and X15 != X7 and X1 = X10 or X18 = a3 and X10 != a3 and X17 = a3 and X13 = X19 and X9 != X20 or X15 = X16 and X1 != X6 and X18 = a1 and X16 = X14 and X17 = X1 } |", 
+		}));
+
+	}
 	
 	private void addPreGeneratedTests(List<CardinalityStressTest> result) {
 		result.add(new CannedFormulaStressTest("Randomly pre-genrated formulas by SimpleFormulaGenerator", new String[] {
