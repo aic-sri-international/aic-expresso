@@ -45,6 +45,7 @@
     * [GettingStarted Getting Started]
     * [CodingConventions Coding Conventions]
     * [CreatingARelease Creating a Release]
+    * [DeployingDemoApp Deploying Demo Application]
   * [RoadMap Road Map]
   * [ReleaseHistory Releases]
     * [Release_1_0_1 Release 1.0.1]
