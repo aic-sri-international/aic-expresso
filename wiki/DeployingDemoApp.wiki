@@ -15,7 +15,7 @@ To update the demo(s) the following steps need to be performed:
     * Under your local workspace as 'aic-expresso-demo'
   * From your aic-expresso workspace run the command: 
     * mvn package
-  * This will create a file named: 
+  * This will create a file named (in the /target directory): 
     * aic-expresso-<Current Version>-jar-with-dependencies.jar
   * Copy this file over to the aic-expresso-demo project and rename it to (replacing the same named file):
     * aic-expresso-jar-with-dependencies.jar
