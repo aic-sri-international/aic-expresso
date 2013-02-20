@@ -25,17 +25,17 @@ To update the demo(s) the following steps need to be performed:
       * > Enter keystore password: <Enter an appropriate password>
       * > Re-enter new password: <Same password>
       * > What is your first and last name?
-        * [Unknown]: <Your Name>
+        * [_Unknown_]: <Your Name>
       * > What is the name of your organizational unit?
-        * [Unknown]: AIC-Expresso Open Source Project 
+        * [_Unknown_]: AIC-Expresso Open Source Project 
       * > What is the name of your organization?
-        * [Unknown]: AIC-Expresso Open Source Project
+        * [_Unknown_]: AIC-Expresso Open Source Project
       * > What is the name of your City or Locality?
-        * [Unknown]: Mountain View
+        * [_Unknown_]: Mountain View
       * > What is the name of your State or Province?
-        * [Unknown]: California
+        * [_Unknown_]: California
       * > What is the two-letter country code for this unit?
-        * [Unknown]: US 
+        * [_Unknown_]: US 
       * > ...
         * [no]: yes
     * Sign the Jar:
