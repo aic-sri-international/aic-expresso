@@ -37,7 +37,7 @@ To update the demo(s) the following steps need to be performed:
       * > What is the two-letter country code for this unit?
         * [_Unknown_]: US 
       * > ...
-        * [no]: yes
+        * [_no_]: yes
     * Sign the Jar:
       * jarsigner -keystore c:/temp/aicexpresso.keystore aic-expresso-jar-with-dependencies.jar aicexpresso
   * Commit the aic-expresso-demo changes to the repository and ensure the updates are reflected in the newly deployed demo:
