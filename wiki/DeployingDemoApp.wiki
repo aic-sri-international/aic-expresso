@@ -31,7 +31,7 @@ To update the demo(s) the following steps need to be performed:
       * > What is the name of your organization?
         * [_Unknown_]: AIC-Expresso Open Source Project
       * > What is the name of your City or Locality?
-        * [_Unknown_]: Mountain View
+        * [_Unknown_]: Menlo Park
       * > What is the name of your State or Province?
         * [_Unknown_]: California
       * > What is the two-letter country code for this unit?
