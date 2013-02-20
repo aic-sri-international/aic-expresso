@@ -75,6 +75,7 @@ public class SimpleFormulaGenerator {
 	private List<String> constants = null;
 	private List<String> variables = null;
 	private ArrayList<String> terms = new ArrayList<String>();
+	private static boolean ALLOW_IMPLICATION_AND_EQUIVALENCE = true;
 	private static final int MAXIMUM_NUMBER_OF_TYPES_OF_FORMULAS = 5;
 	private static final int USE_NEGATION = 0;
 	private static final int USE_IMPLICATION = 1;
@@ -130,7 +131,7 @@ public class SimpleFormulaGenerator {
 	}
 
 	/**
-	 * Create a string that is represents the cardinality of an intensiona set
+	 * Create a string that is represents the cardinality of an intensional set
 	 * @param formula
 	 * 			the formula that represents the intentional set
 	 * @param possibleFreeVariables
@@ -163,7 +164,9 @@ public class SimpleFormulaGenerator {
 		Expression result = null;
 		int selector = rand.nextInt(MAXIMUM_NUMBER_OF_TYPES_OF_FORMULAS);
 		if ( approximateLength < 10 ) {
-			selector = rand.nextInt(2) + 3;
+			do {
+				selector = rand.nextInt(2) + 3;
+			} while ( ALLOW_IMPLICATION_AND_EQUIVALENCE || (selector != USE_IMPLICATION && selector != USE_EQUIVALENCE) );
 		}
 		switch(selector) {
 		case USE_NEGATION:
@@ -206,6 +209,30 @@ public class SimpleFormulaGenerator {
 			dis[i] = Disequality.make(getRandomTerm(), getRandomTerm());
 		}
 		return And.make(dis);
+	}
+	
+	/**
+	 * Create a random CNF formula in equality logic
+	 * @param numberOfLiterals
+	 * 			number of literals in the formula
+	 * @return the expression representing a CNF formula in equality logic         
+	 */
+	public Expression generateCNF(int numberOfLiterals) {
+		Expression result = generateXNF(numberOfLiterals, USE_CNF);
+		return result;
+	}
+	
+	/**
+	 * Create a random DNF formula in equality logic
+	 * @param numberOfLiterals
+	 * 			number of literals in the formula
+	 * @param maxLiteralsInEachClause
+	 * 			maximum number of literals in each clause
+	 * @return the expression representing a DNF formula in equality logic         
+	 */
+	public Expression generateDNF(int numberOfLiterals) {
+		Expression result = generateXNF(numberOfLiterals, USE_DNF);
+		return result;
 	}
 	
 	/**
@@ -259,7 +286,7 @@ public class SimpleFormulaGenerator {
 		return result;
 	}
 	
-	protected Expression generateXNF(int numberOfClauses, int maxLiteralsInEachClause, int type) {
+	protected Expression generateXNF(int numberOfClauses, int literalsInEachClause, int type) {
 		Expression result = null;
 		Object clauseConnector = null, literalConnector = null;
 		switch ( type ) {
@@ -274,7 +301,67 @@ public class SimpleFormulaGenerator {
 		}
 		ArrayList<Expression> clauses = new ArrayList<Expression>();
 		for (int i=0; i<numberOfClauses; i++) {
-			Expression clause = generateClause(maxLiteralsInEachClause, literalConnector);
+			Expression clause = generateClause(literalsInEachClause, literalConnector);
+			clauses.add(clause);
+		}
+
+		if ( clauses.size()==1 ) {
+			result = clauses.get(0);
+		} 
+		else if ( clauses.size()==0 ) {
+			if ( clauses.equals(And.FUNCTOR) ) {
+				result = Expressions.TRUE;
+			} 
+			else {
+				result = Expressions.FALSE;
+			}
+		} 
+		else {
+			result = Expressions.make(clauseConnector, clauses.toArray());
+		}
+		
+		return result;
+	}
+	
+	protected Expression generateXNF(int numberOfLiterals, int type) {
+		Expression result = null;
+		Object clauseConnector = null, literalConnector = null;
+		switch ( type ) {
+		case USE_CNF:
+			clauseConnector = And.FUNCTOR;
+			literalConnector = Or.FUNCTOR;
+			break;
+		case USE_DNF:
+			clauseConnector = Or.FUNCTOR;
+			literalConnector = And.FUNCTOR;
+			break;
+		}
+		ArrayList<Expression> literals = new ArrayList<Expression>();
+		for (int i=0; i<numberOfLiterals; i++) {
+			Expression literal = generateLiteral();
+			literals.add(literal);
+		}
+		int numberOfClauses = rand.nextInt(numberOfLiterals) + 1;
+		ArrayList<ArrayList<Expression>> clausesList = new ArrayList<ArrayList<Expression>>();
+		for (int i=0; i< numberOfClauses; i++) {
+			clausesList.add(new ArrayList<Expression>());
+			clausesList.get(i).add(literals.get(i));
+		}
+		for (int i=numberOfClauses; i<numberOfLiterals; i++) {
+			int k = rand.nextInt(numberOfClauses);
+			clausesList.get(k).add(literals.get(i));			
+		}
+		
+		ArrayList<Expression> clauses = new ArrayList<Expression>();
+		for (int i=0; i<numberOfClauses; i++) {
+			
+			Expression clause = null;
+			if ( clausesList.get(i).size() == 1 ) {
+				clause = clausesList.get(i).get(0);
+			}
+			else {
+				clause = Expressions.make(literalConnector, clausesList.get(i).toArray());
+			}
 			clauses.add(clause);
 		}
 
@@ -320,16 +407,18 @@ public class SimpleFormulaGenerator {
 		while ( literal == null ) {
 			int decider = rand.nextInt(3);
 			if ( decider != 0 ) {
-				int x = rand.nextInt(termsN);
+				int x = rand.nextInt(variables.size());
 				int y = rand.nextInt(termsN);
 				if ( x != y ) {
-					String term1 = getRandomTerm();
+					String term1 = variables.get(x);  // getRandomTerm();
 					String term2 = terms.get(y);
-					if ( decider == 1 ) {
-						literal = Equality.make(term1, term2);
-					}
-					else {
-						literal = Disequality.make(term1, term2);
+					if ( !term1.equals(term2) ) {
+						if ( decider == 1 ) {
+							literal = Expressions.apply("=", term1, term2);
+						}
+						else {
+							literal = Expressions.apply("!=", term1, term2);
+						}
 					}
 				}
 			}
@@ -343,9 +432,9 @@ public class SimpleFormulaGenerator {
 		return term;
 	}
 	
-	protected Expression generateClause(int maxLiteralsInClause, Object connector) {
+	protected Expression generateClause(int literalsInClause, Object connector) {
 		Expression result = null;
-		int numberOfLiterals = rand.nextInt(maxLiteralsInClause) + 1;
+		int numberOfLiterals = literalsInClause; //rand.nextInt(maxLiteralsInClause) + 1;
 		ArrayList<Expression> literals = new ArrayList<Expression>();
 		while ( literals.size() < numberOfLiterals ) {
 			Expression literal = generateLiteral();
