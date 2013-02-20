@@ -4,7 +4,7 @@
 
 Currently, there is a single Demo Application:
 
-com.sri.ai.grinder.demo.RewriteSystemDemoApp
+`com.sri.ai.grinder.demo.RewriteSystemDemoApp`
 
 that can be deployed as a Java Web Stat Application.
 
