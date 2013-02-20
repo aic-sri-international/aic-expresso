@@ -13,7 +13,7 @@ that can be deployed as a Java Web Stat Application.
 To update the demo(s) the following steps need to be performed:
   * Checkout: https://aic-expresso.googlecode.com/svn/demo
     * Under your local workspace as 'aic-expresso-demo'
-  * From your aic-expresso package run the command: 
+  * From your aic-expresso workspace run the command: 
     * mvn package
   * This will create a file named: 
     * aic-expresso-<Current Version>-jar-with-dependencies.jar
