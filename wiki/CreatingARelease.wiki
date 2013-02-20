@@ -20,6 +20,7 @@ mvn -P sonatype-oss-release deploy -DskipTests=true
   # Tag the release under Subversion.
   # Create a release page for the released version and add to the [ReleaseHistory release history wiki page] (in reverse chronological order).
   # Ensure the Wiki Pages relating to usage are updated to take into account any changes to the APIs.
+  # [DeployingDemoApp Deploy an updated demo application] if necessary.
 
 = Useful Resources =
   * [https://oss.sonatype.org/ Sonatype/Nexus Open Source Repository]
