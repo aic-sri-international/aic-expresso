@@ -39,10 +39,10 @@ package com.sri.ai.grinder.demo;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -58,25 +58,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.border.TitledBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreeSelectionModel;
 import javax.swing.undo.StateEdit;
 import javax.swing.undo.StateEditable;
 import javax.swing.undo.UndoManager;
-
-import org.slf4j.ILoggerFactory;
-import org.slf4j.LoggerFactory;
-
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.AppenderBase;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.brewer.api.Parser;
@@ -100,8 +90,6 @@ import com.sri.ai.grinder.demo.model.GroupEnableItem;
 import com.sri.ai.grinder.demo.model.LeafEnableItem;
 import com.sri.ai.grinder.demo.model.Options;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.helper.RewriterLoggingNamedRewriterFilter;
-import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
@@ -125,12 +113,6 @@ import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsPr
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
-import com.sri.ai.grinder.ui.ExpressionNode;
-import com.sri.ai.grinder.ui.ExpressionTreeView;
-import com.sri.ai.grinder.ui.TreeUtil;
-import com.sri.ai.util.log.LogX;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 
 @Beta
 public class AbstractRewritePanel extends JPanel {
@@ -150,13 +132,6 @@ public class AbstractRewritePanel extends JPanel {
 	private String           currentInput          = "";
 	private String           currentOutput         = "";
 	//
-	private ExpressionNode activeTraceNode, rootTraceNode = new ExpressionNode("", null);
-	private DefaultTreeModel treeTraceModel = new DefaultTreeModel(rootTraceNode);
-	//
-	//
-	private LoggerContext               loggerContext = null;
-	private AppenderBase<ILoggingEvent> traceAppender = null;
-	//
 	private DefaultMutableTreeNode exampleRewritersRootNode = null;
 	private List<EnableItem<Rewriter>> rewriterEnableList   = new ArrayList<EnableItem<Rewriter>>();
 	// 
@@ -171,9 +146,8 @@ public class AbstractRewritePanel extends JPanel {
 	private ExpressionEditor outputExpressionEditor;
 	private JComboBox exampleComboBox;
 	private JTree rewriterEnableTree;
-	private JTextArea consoleOutputTextArea;
-	private ExpressionTreeView traceTree;
 	private JPanel optionsPanel;
+	private OutputPanel outputPanel;
 	private JButton btnUndoSingleStep;
 	private JButton btnUndoToInitialStep;
 
@@ -269,8 +243,7 @@ public class AbstractRewritePanel extends JPanel {
 		actionButtonsPanel.add(btnClear);
 		btnClear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				consoleOutputTextArea.setText("");
-				clearTraceTree();
+				outputPanel.clearAllOutputs();
 			}
 		});
 		btnClear.setToolTipText("Clear Console and Trace");
@@ -365,39 +338,9 @@ public class AbstractRewritePanel extends JPanel {
 		outputExpressionEditor.add(outputContextPanel, BorderLayout.NORTH);
 		outputContextPanel.setLayout(new BorderLayout(0, 0));
 		
-		JPanel outputPanel = new JPanel();
+		outputPanel = new OutputPanel();
 		outputPanel.setPreferredSize(new Dimension(300, 60));
 		expressionAndOutputSplitPane.setRightComponent(outputPanel);
-		outputPanel.setLayout(new BorderLayout(0, 0));
-		
-		JTabbedPane outputPane = new JTabbedPane(JTabbedPane.TOP);
-		outputPanel.add(outputPane, BorderLayout.CENTER);
-		
-		JPanel consolePanel = new JPanel();
-		outputPane.addTab("Console", null, consolePanel, null);
-		consolePanel.setLayout(new BorderLayout(0, 0));
-		
-		JScrollPane consoleScrollPane = new JScrollPane();
-		consolePanel.add(consoleScrollPane, BorderLayout.CENTER);
-		
-		consoleOutputTextArea = new JTextArea();
-		consoleOutputTextArea.setEditable(false);
-		consoleScrollPane.setViewportView(consoleOutputTextArea);
-		
-		JPanel tracePanel = new JPanel();
-		outputPane.addTab("Trace", null, tracePanel, null);
-		tracePanel.setLayout(new BorderLayout(0, 0));
-		
-		JScrollPane traceTreeScrollPane = new JScrollPane();
-		tracePanel.add(traceTreeScrollPane, BorderLayout.CENTER);
-		
-		traceTree = new ExpressionTreeView(treeTraceModel, true);
-		traceTree.setEditable(true);
-		traceTree.setRootVisible(false);
-		traceTree.getSelectionModel().setSelectionMode(
-				TreeSelectionModel.SINGLE_TREE_SELECTION);
-		traceTree.setShowsRootHandles(true);
-		traceTreeScrollPane.setViewportView(traceTree);
 		
 		JPanel controlPanel = new JPanel();
 		controlPanel.setPreferredSize(new Dimension(300, 500));
@@ -437,88 +380,15 @@ public class AbstractRewritePanel extends JPanel {
 	}
 	
 	public void notifySelected() {
-		if (loggerContext == null) {
-			while (loggerContext == null) {
-				ILoggerFactory lf = LoggerFactory.getILoggerFactory();
-				if (lf instanceof LoggerContext) {
-					loggerContext = (LoggerContext) lf;
-				} 
-				else {
-					try {
-						Thread.sleep(100);
-					} catch (Exception ex) {
-						
-					}
-				}
-			}
-			traceAppender = new AppenderBase<ILoggingEvent>() {
-				//
-				private int currentIndentLevel = 0;
-				private boolean firstTime = true;
-				//
-				@Override
-				protected void append(ILoggingEvent eventObject) {
-					String msg = eventObject.getFormattedMessage();
-					Object[] args = eventObject.getArgumentArray();
-
-					int indentLevel = LogX.getTraceLevel(eventObject.getLoggerName());
-
-					while (indentLevel > currentIndentLevel) {
-						if (!firstTime) {
-							addTrace(">>");
-						}
-						startTraceLevel();
-						currentIndentLevel++;
-					}
-					
-					firstTime = false;
-
-					StringBuilder sb = new StringBuilder(msg);
-					while (indentLevel < currentIndentLevel) {
-						endTraceLevel();
-						currentIndentLevel--;
-					}
-					
-					// Suffix the profiler information to the message
-					// if available.
-					Long profileInfo = LogX.getProfileInfo(eventObject.getLoggerName());
-					if (profileInfo != null) {
-						sb.append(" [");
-						// Convert nanoseconds to milliseconds
-						sb.append(profileInfo / 1000000);
-						sb.append("ms.]");
-					}
-
-					if (msg != null && !msg.equals("")) {
-						addTrace(sb.toString());
-					}
-
-					if (args != null) {
-						for (Object arg : args) {
-							addTrace(arg);
-						}
-					}
-				}
-			};
-			
-			traceAppender.addFilter(new RewriterLoggingNamedRewriterFilter());
-			traceAppender.setContext(loggerContext);
-			loggerContext.getLogger(Trace.getDefaultLoggerName()).addAppender(traceAppender);
-		}
-		
-		traceAppender.start();
+		outputPanel.notifySelected();
 	}
 	
 	public void notifyUnselected() {
-		traceAppender.stop();
+		outputPanel.notifyUnselected();
 	}
 	
-	/**
-	 * Provides a print stream which can be used to redirect standard output
-	 * streams.
-	 */
 	public PrintStream getConsoleOutputPrintStream() {
-		return new PrintStream(new ConsoleOutputStream());
+		return outputPanel.getConsoleOutputPrintStream();
 	}
 	
 	//
@@ -565,11 +435,6 @@ public class AbstractRewritePanel extends JPanel {
 		for (int i = 0; i < rewriterEnableTree.getRowCount(); i++) {
 			rewriterEnableTree.expandRow(i);
 		}
-		// Configure the output consoled window.
-		consoleOutputTextArea.setFont(new Font(Font.MONOSPACED, consoleOutputTextArea.getFont().getStyle(), 14));
-		
-		TreeUtil.setWriter(DefaultWriter.newDefaultConfiguredWriter());
-		clearTraceTree();
 	}
 	
 	private void performRewrite(boolean exhaustiveRewrite) {	
@@ -728,40 +593,6 @@ public class AbstractRewritePanel extends JPanel {
 		}
 	}
 	
-	private void clearTraceTree() {
-		rootTraceNode = new ExpressionNode("", null);
-		activeTraceNode = rootTraceNode;
-		treeTraceModel = new DefaultTreeModel(rootTraceNode);
-		traceTree.setModel(treeTraceModel);
-	}
-	
-	private void startTraceLevel() {
-		if (activeTraceNode.getChildCount() == 0) {
-			activeTraceNode = rootTraceNode;
-		} 
-		else {
-			activeTraceNode = (ExpressionNode) activeTraceNode
-					.getChildAt(activeTraceNode.getChildCount() - 1);
-		}
-	}
-	
-	private void endTraceLevel() {
-		activeTraceNode = (ExpressionNode) activeTraceNode.getParent();
-		if (activeTraceNode == null) {
-			activeTraceNode = rootTraceNode; 
-		}
-	}
-
-	private void addTrace(Object obj) {
-		activeTraceNode.add(obj);
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				treeTraceModel.reload();
-				traceTree.restoreExpandedPaths();
-			}
-		});
-	}
-	
 	private List<Rewriter> getRewritersAndModules() {
 		List<Rewriter> rewriters = new ArrayList<Rewriter>();
 		
@@ -854,15 +685,6 @@ public class AbstractRewritePanel extends JPanel {
 	private static ImageIcon createImageIcon(String path) {
 	    java.net.URL imgURL = AbstractRewritePanel.class.getResource(path);
 	    return new ImageIcon(imgURL);
-	}
-	
-	/** Writes everything into the text area. */
-	private class ConsoleOutputStream extends java.io.OutputStream {
-		@Override
-		public void write(int b) throws java.io.IOException {
-			String s = new String(new char[] { (char) b });
-			consoleOutputTextArea.append(s);
-		}
 	}
 	
 	private class InputUndoManager extends UndoManager {
