@@ -3,6 +3,19 @@
 Each package in aic-expresso has its own default [http://code.google.com/p/aic-util/wiki/Configuration configuration] settings, which can be overridden at run time.
 
 = Grinder =
+The [http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/GrinderConfiguration.java Grinder Configuration] options are as follows:
+
+Note: The following options must be set before any [http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/helper/Trace.java Trace]  or [http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/helper/Justtification.java Justification] calls are made in the code as they apply to the underlying logging system.
+
+||Name||Default||Description||
+|| trace.level                          || trace  ||  ||
+|| justification.level                  || trace  ||  ||
+|| grinder.display.tree.util.ui         || true   ||  || 
+|| grinder.wait.until.ui.closed.enabled || false  ||  ||
+
+||Name||Default||Description||
+|| trace.level                          || trace  ||  ||
+
 
 = Brewer =
 The [http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/brewer/BrewerConfiguration.java Brewer Configuration] options are as follows:
