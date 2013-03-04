@@ -1,6 +1,26 @@
 #summary Configuration Options
 
 Each package in aic-expresso has its own default [http://code.google.com/p/aic-util/wiki/Configuration configuration] settings, which can be overridden at run time.
+
+= Grinder =
+
+= Brewer =
+The [http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/brewer/BrewerConfiguration.java Brewer Configuration] options are as follows:
+
+||Name||Default||Description||
+|| brewer.default.grammar.class || `CommonGrammar.class.getName()` || The name of the class for the Expression Grammar to be used by the [http://code.google.com/p/aic-expresso/wiki/BrewerOverview Writer] when outputting String representations of Expression objects. ||
+
+Note: The following options all refer to the original [http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/brewer/api/BrewerParser.java Brewer Parser] implementation, which has been largely replaced by a faster [http://www.antlr.org/ ANTLR-generated parser]:
+||Name||Default||Description||
+|| brewer.use.parsing.cache                                                     || true  ||  ||
+|| brewer.parser.flag.look.ahead                                                || false ||  ||
+|| brewer.parser.flag.set.limit.based.on.parenthetical.tokens                   || true  ||  ||
+|| brewer.parser.flag.prune.by.length.lower.bound.and.limit                     || true  ||  ||
+|| brewer.parser.flag.log.is.on                                                 || false ||  ||
+|| brewer.parser.flag.log.cache.usage.unless.logging.is.off                     || true  ||  ||
+|| brewer.parser.flag.log.list.of.cache.items.unless.cache.usage.logging.is.off || false ||  ||
+|| brewer.output.parsing.time.info                                              || true  ||  ||
+
 = Expresso =
 The [http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/expresso/ExpressoConfiguration.java Expresso Configuration] options are as follows:
 
@@ -10,7 +30,3 @@ The [http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com
 ||expresso.global.symbol.table.maximum.size||No Maximum Size|| The maximum size allowed for the global symbol table (defaults to no maximum, i.e. -1). Setting to 0 is the same as having no global symbol table. ||
 ||expresso.syntax.to.string.unary.function.class||`SyntaxTreeToStringFunction.class.getName()`|| The name of the Function to instantiate, which is used to convert Expression objects to a corresponding String representation. ||
 ||expresso.syntax.to.string.thread.cache.timeout||60|| The amount of time, in seconds, that a cache for maintaining instances of syntax to string functions on a per-thread basis is to maintain its entries. ||
-
-= Brewer =
-
-= Grinder =
