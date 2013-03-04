@@ -11,11 +11,17 @@ Note: The following options must be set before any [http://code.google.com/p/aic
 || trace.level                          || trace  || Enabled by default, set to 'off' to disable globally.  ||
 || justification.level                  || trace  || Enabled by default, set to 'off' to disable globally. ||
 || grinder.display.tree.util.ui         || true   || Relevant appenders are configured in the logback-test.xml to output trace and justification information to a GUI during testing.  || 
-|| grinder.wait.until.ui.closed.enabled || false  || If the Tree Util UI is enabled keep it open even when testing is complete. Useful to turn on if investigating a particular test case. ||
+|| grinder.wait.until.ui.closed.enabled || false  || If the Tree Util UI is enabled, keep it open even when testing is complete. Useful to turn on if investigating a particular test case and you want to inspect the trace our justification output generated once the test has completed. ||
 
 ||Name||Default||Description||
-|| trace.level                          || trace  ||  ||
-
+|| grinder.cardinalilty.assume.domains.always.large || false || Used to determine if the [http://code.google.com/p/aic-expresso/wiki/RewriterCard cardinality] computation logic makes the assumption whether the domain size of all logical variables is always greater than the number of constants present in the model.  ||
+|| grinder.replace.variable.by.constant.it.is.bound.to || true || Used by the [http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/IncompleteLinearImpliedCertainty.java Incomplete Linear Implied Certainty] atomic rewriter (used in [http://code.google.com/p/aic-expresso/wiki/RewriterSimplify R_simplify]) to determine if it should replace logical variables the the value it is bound to in a particular execution context (e.g. `if X = ann then hello(X) else goodbye()`, would change `hello(X)` to `hello(ann)`)||
+|| grinder.rewrite.dead.ends.cache.maximum.size || No Maximum ||  ||
+|| grinder.rewrite.dead.ends.cache.garbage.collection.period || No Collection ||  ||
+|| grinder.rewriting.process.cache.maximum.size || No Maximum ||  ||
+|| grinder.rewriting.process.cache.garbage.collection.period || No Collection ||  ||
+|| grinder.rewriting.filter.out.logging.by.rewriters.named || Empty String  ||  ||
+|| grinder.demo.ui.default.look.and.feel || Nimbus ||  ||
 
 = Brewer =
 The [http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/brewer/BrewerConfiguration.java Brewer Configuration] options are as follows:
