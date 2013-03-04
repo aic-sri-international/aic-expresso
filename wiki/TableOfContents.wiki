@@ -41,6 +41,7 @@
         * [FunctionWorstCaseNumberOfDisjuncts worstCaseNumberOfDisjuncts(F)]
         * [FunctionWorstCaseNumberOfDisjunctsWithSign worstCaseNumberOfDisjuncts(F, sign)]
     * [GrinderSubstitute Substituting Expressions]
+  * [ConfigurationOptions Configuration Options]
   * For Developers/Contributors
     * [GettingStarted Getting Started]
     * [CodingConventions Coding Conventions]
