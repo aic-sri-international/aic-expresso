@@ -8,7 +8,7 @@ The [http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com
 ||expresso.display.numeric.precision.for.symbols||9|| ||
 ||expresso.use.global.symbol.table||true|| ||
 ||expresso.global.symbol.table.maximum.size||No Maximum Size|| ||
-||expresso.syntax.to.string.unary.function.class||SyntaxTreeToStringFunction.class.getName()|| ||
+||expresso.syntax.to.string.unary.function.class||'SyntaxTreeToStringFunction.class.getName()'|| ||
 ||expresso.syntax.to.string.thread.cache.timeout||60|| ||
 
 = Brewer =
