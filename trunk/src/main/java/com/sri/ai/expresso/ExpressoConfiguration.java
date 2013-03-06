@@ -59,6 +59,9 @@ public class ExpressoConfiguration extends Configuration {
 	public static final String  KEY_GLOBAL_SYMBOL_TABLE_MAXIMUM_SIZE                = "expresso.global.symbol.table.maximum.size";
 	public static final Long    DEFAULT_VALUE_GLOBAL_SYMBOL_TABLE_MAXIMUM_SIZE      = CacheMap.NO_MAXIMUM_SIZE;
 	//
+	public static final String  KEY_GLOBAL_SYMBOL_TABLE_CACHES_NUMERICS             = "expresso.global.symbol.table.cache.numerics";
+	public static final Boolean DEFAULT_VALUE_GLOBAL_SYMBOL_TABLE_CACHES_NUMERICS   = Boolean.FALSE;
+ 	//
 	public static final String KEY_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS           = "expresso.syntax.to.string.unary.function.class";
 	public static final String DEFAULT_VALUE_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS = SyntaxTreeToStringFunction.class.getName();
 	//
@@ -80,6 +83,12 @@ public class ExpressoConfiguration extends Configuration {
 	
 	public static long getGlobalSymbolTableMaximumSize() {
 		long result = getLong(KEY_GLOBAL_SYMBOL_TABLE_MAXIMUM_SIZE, DEFAULT_VALUE_GLOBAL_SYMBOL_TABLE_MAXIMUM_SIZE);
+		
+		return result;
+	}
+	
+	public static boolean isGlobalSymbolTableToCacheNumerics() {
+		boolean result = getBoolean(KEY_GLOBAL_SYMBOL_TABLE_CACHES_NUMERICS, DEFAULT_VALUE_GLOBAL_SYMBOL_TABLE_CACHES_NUMERICS);
 		
 		return result;
 	}

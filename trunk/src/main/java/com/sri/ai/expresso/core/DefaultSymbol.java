@@ -40,14 +40,12 @@ package com.sri.ai.expresso.core;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
@@ -100,8 +98,9 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	private static final DefaultSymbol SYMBOL_8     = new DefaultSymbol(new Rational(8));
 	private static final DefaultSymbol SYMBOL_9     = new DefaultSymbol(new Rational(9));
 	//
-	private static boolean                             _useGlobalSymbolTable    = ExpressoConfiguration.isUseGlobalSymbolTable();
-	private static LoadingCache<Object, DefaultSymbol> _globalSymbolTable       = newSymbolTable();
+	private static boolean                      _useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
+	private static boolean                      _cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
+	private static Cache<Object, DefaultSymbol> _globalSymbolTable    = newSymbolTable();
 	static {
 		flushGlobalSymbolTable();
 	}
@@ -112,6 +111,10 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		if (AICUtilConfiguration.isRecordCacheStatistics()) {
 			System.out.println("Global Symbol Table Cache Stats="+_globalSymbolTable.stats());
 		}
+		// Causes relevant flags to be reset.
+		_useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
+		_cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
+		
 		_globalSymbolTable.invalidateAll();
 		_globalSymbolTable = newSymbolTable();
 		// Add well known symbols to the table
@@ -164,11 +167,13 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		// parsed correctly.
 		if (_useGlobalSymbolTable &&
 			!(value instanceof Expression)) {
-			try {
-				result = _globalSymbolTable.get(value);
-			} catch (ExecutionException ee) {
+			
+			result = _globalSymbolTable.getIfPresent(value);
+			if (result == null) {
 				result = new DefaultSymbol(value);
-				_globalSymbolTable.put(value, result);
+				if (!(!_cacheNumericSymbols && result.getValue() instanceof Number)) {
+					_globalSymbolTable.put(value, result);
+				}
 			}
 		} 
 		else {
@@ -418,7 +423,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		return escaped;
 	}
 	
-	private static LoadingCache<Object, DefaultSymbol> newSymbolTable() {
+	private static Cache<Object, DefaultSymbol> newSymbolTable() {
 		CacheBuilder<Object, Object> cb = CacheBuilder.newBuilder();
 		
 		long maximumSize = ExpressoConfiguration.getGlobalSymbolTableMaximumSize();
@@ -432,12 +437,8 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		if (AICUtilConfiguration.isRecordCacheStatistics()) {
 			cb.recordStats();
 		}
-		LoadingCache<Object, DefaultSymbol> result = cb.build(new CacheLoader<Object, DefaultSymbol>() {
-				@Override
-				public DefaultSymbol load(Object key) {
-					return new DefaultSymbol(key);
-				}
-		});
+		
+		Cache<Object, DefaultSymbol> result = cb.build();
 		
 		return result;
 	}
