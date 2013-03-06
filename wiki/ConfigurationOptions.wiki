@@ -47,5 +47,6 @@ The [http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com
 ||expresso.display.numeric.precision.for.symbols||9|| The dot relative precision to which numeric Symbols should be displayed (e.g. toString() representation). ||
 ||expresso.use.global.symbol.table||true|| Whether or not a global symbol table should be used. ||
 ||expresso.global.symbol.table.maximum.size||No Maximum Size|| The maximum size allowed for the global symbol table (defaults to no maximum, i.e. -1). Setting to 0 is the same as having no global symbol table. ||
+||expresso.global.symbol.table.cache.numerics||false||Whether or not numeric symbols should be cached in the global symbol table||
 ||expresso.syntax.to.string.unary.function.class||`SyntaxTreeToStringFunction.class.getName()`|| The name of the Function to instantiate, which is used to convert Expression objects to a corresponding String representation. ||
 ||expresso.syntax.to.string.thread.cache.timeout||60|| The amount of time, in seconds, that a cache for maintaining instances of syntax to string functions on a per-thread basis is to maintain its entries. ||
