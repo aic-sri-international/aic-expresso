@@ -411,6 +411,70 @@ public class GrinderTest extends AbstractGrinderTest {
 	}
 	
 	@Test
+	public void testExponentiationPrecision() {
+		Library library = new DefaultLibrary(
+				new Minus(),
+				new Exponentiation());
+		evaluator = new ExhaustiveRewriter(library);
+		
+		Rational nonZeroMinAbsValue = new Rational(1).divide(new Rational(10).pow(324));
+		
+		expressionString = "10^1022";
+		expected   = DefaultSymbol.createSymbol(new Rational(10).pow(1022));
+		evaluationTest();
+		
+		expressionString = "10^1023";
+		expected   = DefaultSymbol.createSymbol(Double.MAX_VALUE);
+		evaluationTest();
+		
+		expressionString = "10^1024";
+		expected   = DefaultSymbol.createSymbol(Double.MAX_VALUE);
+		evaluationTest();
+		
+		//
+		expressionString = "0.1^324";
+		expected   = DefaultSymbol.createSymbol(new Rational(10).pow(-324));
+		evaluationTest();
+		
+		expressionString = "0.1^325";
+		expected   = DefaultSymbol.createSymbol(nonZeroMinAbsValue);
+		evaluationTest();
+		
+		expressionString = "0.1^1022";
+		expected   = DefaultSymbol.createSymbol(nonZeroMinAbsValue);
+		evaluationTest();
+		
+		expressionString = "0.1^1023";
+		expected   = DefaultSymbol.createSymbol(nonZeroMinAbsValue);
+		evaluationTest();
+		
+		expressionString = "0.1^2000";
+		expected   = DefaultSymbol.createSymbol(nonZeroMinAbsValue);
+		evaluationTest();
+		
+		//
+		expressionString = "10^(0-324)";
+		expected   = DefaultSymbol.createSymbol(new Rational(10).pow(-324));
+		evaluationTest();
+		
+		expressionString = "10^(0-325)";
+		expected   = DefaultSymbol.createSymbol(nonZeroMinAbsValue);
+		evaluationTest();
+		
+		expressionString = "10^(0-1022)";
+		expected   = DefaultSymbol.createSymbol(nonZeroMinAbsValue);
+		evaluationTest();
+		
+		expressionString = "10^(0-1023)";
+		expected   = DefaultSymbol.createSymbol(nonZeroMinAbsValue);
+		evaluationTest();
+		
+		expressionString = "10^(0-2000)";
+		expected   = DefaultSymbol.createSymbol(nonZeroMinAbsValue);
+		evaluationTest();
+	}
+	
+	@Test
 	public void testDivision() {
 		Library library = new DefaultLibrary(
 				new Division());

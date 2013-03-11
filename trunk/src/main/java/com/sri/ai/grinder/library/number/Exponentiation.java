@@ -39,6 +39,7 @@ package com.sri.ai.grinder.library.number;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -53,6 +54,24 @@ import com.sri.ai.util.math.Rational;
  */
 @Beta
 public class Exponentiation extends AbstractRewriter {
+	
+	private int      maxAbsExponentSizeBeforeLoosePrecision = Math.min(Math.abs(Double.MAX_EXPONENT), Math.abs(Double.MIN_EXPONENT));
+	private Rational nonZeroMinAbsValue                     = new Rational(1).divide(new Rational(10).pow(324)); // Note: 324 is based on # digits in numerator of Double.MIN_VALUE
+	private Symbol   nonZeroMinPosSymbol                    = DefaultSymbol.createSymbol(nonZeroMinAbsValue);
+	private Symbol   nonZeroMinNegSymbol                    = DefaultSymbol.createSymbol(nonZeroMinAbsValue.negate());
+	
+	// Note: Experimental Code for determining precision bounds.
+	public static void main(String[] args) {
+		Rational maxValue = new Rational(Double.MAX_VALUE);
+		Rational minValue = new Rational(Double.MIN_VALUE);
+		Rational maxExp   = new Rational(Double.MAX_EXPONENT);
+		Rational minExp   = new Rational(Double.MIN_EXPONENT);
+		
+		System.out.println("max value="+maxValue);
+		System.out.println("min value="+minValue);
+		System.out.println("max exp  ="+maxExp);
+		System.out.println("min exp  ="+minExp);
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
@@ -79,20 +98,66 @@ public class Exponentiation extends AbstractRewriter {
 				
 				if (Expressions.isNumber(exponent)) {
 					Expression result = null;
+					boolean  loosePrecision = false;
 					try {
 						int exponentIntValue = exponent.intValueExact();
-						result = DefaultSymbol.createSymbol(baseValue.pow(exponentIntValue));
+						if (Math.abs(exponentIntValue) <= maxAbsExponentSizeBeforeLoosePrecision) {
+							Rational ratValue = baseValue.pow(exponentIntValue);
+							result = boundPrecision(ratValue);
+						}
+						else {
+							// The value is going to be too large/small to be processed efficiently
+							// therefore loose some of the precision now.
+							loosePrecision = true;
+						}
 					}
 					catch (ArithmeticException e) {
-						// Rational.pow does not work for non-int exponents, so we have no choice but lose precision here.
+						// Rational.pow does not work for non-int exponents, so we have no choice but loose precision here.
+						loosePrecision = true;						
+					}
+					if (loosePrecision) {
 						double exponentDoubleValue = exponent.doubleValue();
-						double baseDoubleValue = base.doubleValue();
-						result = DefaultSymbol.createSymbol(Math.pow(baseDoubleValue, exponentDoubleValue));
+						double baseDoubleValue     = base.doubleValue();
+						double newValue            = Math.pow(baseDoubleValue, exponentDoubleValue);
+						
+						if (newValue == 0 && !baseValue.isZero()) {
+							result = nonZeroMinPosSymbol;
+						}
+						else if (newValue == Double.POSITIVE_INFINITY) {
+							result = DefaultSymbol.createSymbol(Double.MAX_VALUE);
+						}
+						else if (newValue == Double.NEGATIVE_INFINITY) {
+							result = DefaultSymbol.createSymbol(Double.MAX_VALUE * -1);
+						}
+						else {
+							result = boundPrecision(new Rational(newValue));
+						}
 					}
 					return result;
 				}
 			}
 		}
 		return expression;
+	}
+	
+	private Expression boundPrecision(Rational ratValue) {
+		Expression result = null;
+		
+		Rational ratValueAbs = ratValue.abs();
+		if (ratValue.isZero()) {
+			result = Expressions.ZERO;
+		} else if (ratValueAbs.max(nonZeroMinAbsValue) == ratValueAbs) {
+			result = DefaultSymbol.createSymbol(ratValue);
+		}
+		else {
+			if (ratValue.isPositive()) {
+				result = nonZeroMinPosSymbol;
+			}
+			else {
+				result = nonZeroMinNegSymbol;
+			}
+		}
+		
+		return result;
 	}
 }
