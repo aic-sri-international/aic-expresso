@@ -42,6 +42,7 @@ import ch.qos.logback.core.AppenderBase;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.brewer.core.DefaultWriter;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.GrinderConfiguration;
 
 /**
@@ -56,6 +57,24 @@ public abstract class BaseTreeUtilAppender extends AppenderBase<ILoggingEvent> {
 	public BaseTreeUtilAppender() {
 		super();
 		initialize();
+	}
+	
+	public static boolean outputFormattedMessage(String msg, Object[] args) {
+		boolean result = true;
+		if (args != null && args.length == 1) {
+			String argToString = "";
+			if (args[0] instanceof Expression) {
+				argToString = TreeUtil.getWriter().toString((Expression)args[0]);
+			}
+			else {
+				argToString = args[0].toString();
+			}
+			if (argToString.equals(msg)) {
+				result = false;
+			}
+		}
+		
+		return result;
 	}
 
 	protected synchronized static void initialize() {
