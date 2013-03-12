@@ -107,6 +107,22 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
 	
+	/**
+	 * Set the numeric display precision for numeric valued symbols.
+	 * 
+	 * @param precision
+	 *        the decimal display precision.
+	 *        
+	 * @return the old numeric display precision;
+	 */
+	public static int setNumericDisplayPrecision(int precision) {
+		int oldPrecision = _displayNumericPrecision;
+		
+		_displayNumericPrecision = precision;
+		
+		return oldPrecision;
+	}
+	
 	public static void flushGlobalSymbolTable() {
 		if (AICUtilConfiguration.isRecordCacheStatistics()) {
 			System.out.println("Global Symbol Table Cache Stats="+_globalSymbolTable.stats());
@@ -317,8 +333,11 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 			if (rLabel.isInteger()) {
 				return rLabel.toString();
 			} 
-			else {
-				return rLabel.toStringDotRelative(_displayNumericPrecision);
+			else {	
+				Rational absValue    = rLabel.abs();
+				Rational integerPart = absValue.round(Rational.ROUND_FLOOR);
+				Rational decimalPart = absValue.subtract(integerPart);
+				return (rLabel.isNegative() ? "-" : "") + integerPart.toString() + "." + removeTrailingZerosToRight(decimalPart.toStringDotRelative(_displayNumericPrecision)).substring(2);
 			}
 		}
 		return label.toString();
@@ -400,6 +419,26 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		}
 
 		this.label = value;
+	}
+	
+	private static String removeTrailingZerosToRight(String number) {
+		String result = number; 
+		int dot = result.indexOf('.');
+		int end = result.length();
+	
+		if (dot >= 0) {
+			for (int i = end-1; i > dot; i--) {
+				if (result.charAt(i) == '0') {
+					end--;
+				}
+				else {
+					break;
+				}
+			}
+			result = result.substring(0, end);
+		}
+	
+		return result;
 	}
 	
 	private static boolean escapedAlready(StringBuilder sb, int pos) {
