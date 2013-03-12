@@ -76,7 +76,7 @@ public class RewriterJustificationTreeUtilAppender extends BaseTreeUtilAppender 
 				currentIndentLevel--;
 			}
 
-			if (msg != null && !msg.equals("")) {
+			if (msg != null && !msg.equals("") && outputFormattedMessage(msg, args)) {
 				TreeUtil.addJustification(msg);
 			}
 

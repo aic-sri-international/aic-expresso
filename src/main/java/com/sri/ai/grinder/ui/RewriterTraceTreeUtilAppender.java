@@ -94,7 +94,7 @@ public class RewriterTraceTreeUtilAppender extends BaseTreeUtilAppender {
 				sb.append("ms.]");
 			}
 
-			if (msg != null && !msg.equals("")) {
+			if (msg != null && !msg.equals("") && outputFormattedMessage(msg, args)) {
 				TreeUtil.addTrace(sb.toString());
 			}
 
