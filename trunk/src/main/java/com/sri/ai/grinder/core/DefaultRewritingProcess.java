@@ -157,6 +157,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	private Predicate<Expression>        isConstantPredicate                                                   = null;
 	private boolean                      isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess = true;
 	private int                          recursionLevel                                                        = 0;
+	private boolean                      interrupted                                                           = false;
 	//
 	private ConcurrentHashMap<Object, Object>            globalObjects       = null;
 	private ConcurrentHashMap<Class<?>, Rewriter>        lookedUpModuleCache = null;
@@ -223,6 +224,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				new ConcurrentHashMap<Object, Object>(globalObjects),
 				new ConcurrentHashMap<Rewriter, ExpressionCache>(),
 				new ConcurrentHashMap<Class<?>, Rewriter>(), 
+				false,
 				true);
 	}
 
@@ -306,6 +308,9 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	
 	@Override
 	public Expression rewrite(String rewriterName, Expression expression) {
+		
+		checkInterrupted();
+		
 		Rewriter   rewriter = rewriterLookup.getRewriterFor(rewriterName);
 		Expression result   = null;
 		
@@ -370,6 +375,9 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	
 	@Override
 	public Expression rewrite(String rewriterName, Expression expression, ChildRewriterCallIntercepter childCallIntercepter) {
+		
+		checkInterrupted();
+		
 		Rewriter                rewriter         = rewriterLookup.getRewriterFor(rewriterName);
 		// Create a sub-process with the specified child intercepter.
 		DefaultRewritingProcess childCallProcess = new DefaultRewritingProcess(this, childCallIntercepter, this.contextualVariables, this.contextualConstraint);
@@ -516,6 +524,11 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		return result;
 	}
 	
+	@Override
+	public void interrupt() {
+		interrupted = true;
+	}
+	
 	// END-RewritingProcess
 	//
 	
@@ -523,14 +536,15 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	//  PROTECTED METHODS
 	//
 	protected Expression getCached(Rewriter rewriter, Expression expression) {
+		checkInterrupted();
+		
 		ExpressionCache rewriterCache = getRewriterCache(rewriter);
 		Expression cachedItem         = rewriterCache.get(rewriterCache.getCacheKeyFor(expression, this));
 		
 		return cachedItem;
 	}
 
-	protected void putInCache(Rewriter rewriter, Expression expression, Expression resultingExpression) {
-
+	protected void putInCache(Rewriter rewriter, Expression expression, Expression resultingExpression) {		
 		ExpressionCache rewriterCache = getRewriterCache(rewriter);
 		rewriterCache.put(rewriterCache.getCacheKeyFor(expression, this), resultingExpression);
 	}
@@ -555,6 +569,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				parentProcess.globalObjects,
 				parentProcess.rewriterCaches,
 				parentProcess.lookedUpModuleCache, 
+				parentProcess.interrupted,
 				false /* isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess */				
 				);
 		
@@ -571,6 +586,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			ConcurrentHashMap<Object, Object> globalObjects,
 			ConcurrentHashMap<Rewriter, ExpressionCache> rewriterCaches,
 			ConcurrentHashMap<Class<?>, Rewriter> lookedUpModuleCache,
+			boolean interrupted,
 			boolean isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess) {
 		this.id                   = _uniqueIdGenerator.addAndGet(1L);
 		this.parentProcess        = parentProcess;
@@ -586,6 +602,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		this.globalObjects        = globalObjects;
 		this.rewriterCaches       = rewriterCaches;
 		this.lookedUpModuleCache  = lookedUpModuleCache;
+		this.interrupted          = interrupted;
 		//
 		this.isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess = isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess;
 		if (parentProcess != null) {
@@ -601,5 +618,27 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	private ExpressionCache getRewriterCache(Rewriter rewriter) {
 		ExpressionCache rewriterCache = Util.getValuePossiblyCreatingIt(rewriterCaches, rewriter, cacheMaker);
 		return rewriterCache;
+	}
+	
+	private void checkInterrupted() {
+		boolean interrupt = false;
+		if (interrupted) {
+			interrupt = true;
+		}
+		else {
+			// Check if parent process interrupted
+			DefaultRewritingProcess parent = this.parentProcess;
+			while (parent != null) {
+				if (parent.interrupted) {
+					interrupt = true;
+					break;
+				}
+				parent = parent.parentProcess;
+			}
+		}
+		
+		if (interrupt) {
+			throw new RuntimeException("Rewriting Process Interrupted.");
+		}
 	}
 }

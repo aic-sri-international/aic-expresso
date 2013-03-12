@@ -214,5 +214,10 @@ public interface RewritingProcess {
 	 * for the purpose of dead-ends detection (see {@link RewriteOnce}).
 	 * Specific types of processes can override this method for the type of expressions it uses.
 	 */
-	public Pair<IdentityWrapper, Expression> getExpressionEquivalenceClassForDeadEnd(Expression expression);
+	Pair<IdentityWrapper, Expression> getExpressionEquivalenceClassForDeadEnd(Expression expression);
+	
+	/**
+	 * Interrupt the rewriting process, will cause a RuntimeException to be thrown during execution at key points in the logic. 
+	 */
+	void interrupt();
 }
