@@ -209,10 +209,9 @@ public class TotalRewriter extends AbstractRewriter {
 							}
 						
 							if (justificationEnabled) {
-								Justification.begin(expression);
-								Justification.beginStepWithJustification(rewriter.getName());
-								Justification.endStepWithResult(result);
-								Justification.end();
+								Justification.current(expression);
+								Justification.beginStep(rewriter.getName());
+								Justification.endStep(result);
 							}
 						}
 //						if (result != priorResult) {

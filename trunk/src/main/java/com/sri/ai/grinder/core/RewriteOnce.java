@@ -170,6 +170,10 @@ public class RewriteOnce extends AbstractRewriter {
 		}
 		totalNumberOfSelections += numberOfSelections;
 		if (result != original) {
+
+			Justification.current(original);
+			Justification.beginStep(rewroteWith.getName());
+			
 			boolean isWholeExpressionRewrite = rewroteFrom == original;
 			String indent = "";
 			if (isWholeExpressionRewrite) {
@@ -201,10 +205,7 @@ public class RewriteOnce extends AbstractRewriter {
 				}
 			}
 			
-			Justification.begin(original);
-			Justification.beginStepWithJustification(rewroteWith.getName());
-			Justification.endStepWithResult(result);
-			Justification.end();
+			Justification.endStep(result);
 		}
 		
 		return result;
