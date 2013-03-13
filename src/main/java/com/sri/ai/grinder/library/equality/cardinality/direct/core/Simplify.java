@@ -50,6 +50,7 @@ import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.core.OpenInterpretationModule;
 import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.helper.RewriterLoggingNamedRewriterFilter;
+import com.sri.ai.grinder.helper.Justification;
 import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
 import com.sri.ai.grinder.library.Disequality;
@@ -126,8 +127,9 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		//Justification.beginStep("basic simplifications");
 		Expression result = getRootRewriter().rewrite(expression, process);
-		
+		//Justification.endStep(result);
 		return result;
 	}
 	
