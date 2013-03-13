@@ -226,12 +226,12 @@ public class TreeUtil {
 	// START - Justification output routines
 	public static void startJustificationLevel() {
 		if (activeJustificationNode.getChildCount() == 0) {
-			activeJustificationNode = rootJustificationNode;
+			// Add an indenter for levels that had no output.
+			addJustification(">>");
 		} 
-		else {
-			activeJustificationNode = (ExpressionNode) activeJustificationNode
-					.getChildAt(activeJustificationNode.getChildCount() - 1);
-		}
+		
+		activeJustificationNode = (ExpressionNode) activeJustificationNode
+				.getChildAt(activeJustificationNode.getChildCount() - 1);
 	}
 
 	public static void endJustificationLevel() {
@@ -259,12 +259,12 @@ public class TreeUtil {
 	// START - Trace ouput routines
 	public static void startTraceLevel() {
 		if (activeTraceNode.getChildCount() == 0) {
-			activeTraceNode = rootTraceNode;
+			// Add an indenter for levels that had no output.
+			addTrace(">>");
 		} 
-		else {
-			activeTraceNode = (ExpressionNode) activeTraceNode
+
+		activeTraceNode = (ExpressionNode) activeTraceNode
 					.getChildAt(activeTraceNode.getChildCount() - 1);
-		}
 	}
 
 	public static void endTraceLevel() {
