@@ -363,15 +363,15 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 			new SimplifyTestData(
 				"X != X",
 				"false"),
-			// Note: as we don't support normailziation (i.e. an ordering)
+			// Note: as we support normalization (i.e. an ordering)
 		    // on equalities and disequalities the following
-			// won't simplify, which is expected.
+			// will simplify.
 			new SimplifyTestData(
 				"(X != x) = (x != X)",
-				"(X != x) = (x != X)"),
+				"true"),
 			new SimplifyTestData(
 				"(X != x) != (x != X)",
-				"(X != x) != (x != X)"),
+				"false"),
 			//
 			// Basic: 5 conjuncts with equality on different constants
 			new SimplifyTestData(

@@ -2971,15 +2971,13 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | and(and((X = b) <=> (X != Y))) } |",
 					CardinalityRewriter.Quantification.NONE,
 					new CountsDeclaration(10),
-					"if b != Y then 2 else 0"),
-//					"if b = Y then 0 else 2"),
+					"if Y != b then 2 else 0"),
 			new Cardinality1ConjunctionData(false,
 					// equivalent 'and(and((X = b) <=> (X != Y)))'
 					"| {(on X) tuple(X) | and(and(or(not(X = b), X != Y), or(X = b, not(X != Y)))) } |",
 					CardinalityRewriter.Quantification.NONE,
 					new CountsDeclaration(10),
-					"if b != Y then 2 else 0"),
-//					"if b = Y then 0 else 2"),
+					"if Y != b then 2 else 0"),
 		    //
 			// Basic: if Fi is G1 => G2
 			new Cardinality1ConjunctionData(false,
@@ -2993,7 +2991,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | and((X = b) <=> (X != Y)) } |",
 					CardinalityRewriter.Quantification.NONE,
 					new CountsDeclaration(10),
-					"if b != Y then 2 else 0"),	
+					"if Y != b then 2 else 0"),	
 			new Cardinality1ConjunctionData(false,
 					"| {(on X) tuple(X) | and((X != b) <=> (X != Y)) } |",
 					CardinalityRewriter.Quantification.NONE,
@@ -3820,13 +3818,13 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) |  for all Y: X = Y } |",
 					new CountsDeclaration("X", "10", "Y", "10"),
 					// "if |type(Y)| <= 1 then |People| else 0"
-					"( (if 1 = | type(Y) | then | type(X) | else 0), 0 )"),
+					"( (if | type(Y) | = 1 then | type(X) | else 0), 0 )"),
 			new CardinalityData(false,
 					// "|{{(on X in People) 1 | for all Y: X=Y}}|"
 					"| {(on X) tuple(X) |  for all Y: X = Y } |",
 					new CountsDeclaration("X", "10", "Y", "1"),
 					// "if |type(Y)| <= 1 then |People| else 0"
-					"( (if 1 = | type(Y) | then | type(X) | else 0), 10 )"),
+					"( (if | type(Y) | = 1 then | type(X) | else 0), 10 )"),
 // Note: moved to testCardinalityKnownSizesRequired()
 //			new CardinalityData(false,
 //					"{(on X) tuple(X) | there exists Y : X != Y or Y != Z }",
@@ -4030,9 +4028,9 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			new CardinalityData(false,
 					"| { (on X, Y, Z) tuple(X, Y, Z) |  X != a and X != V and X != Y and Y != Z and Y != b and Z != v } |",
 					new CountsDeclaration(10),
-					"( anyof( (if b != V then if V = a or V = v then if v != V then | type(Z) | - 1 + (| type(Y) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Z) | - 1 + (| type(Y) | - 3) * (| type(Z) | - 2)) + (| type(Y) | - 2) * (| type(Z) | - 2) else | type(Z) | - 1 + (| type(Y) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Z) | - 1 + (| type(Y) | - 3) * (| type(Z) | - 2)) else | type(Z) | - 1 + (| type(Y) | - 2) * (| type(Z) | - 2) + (| type(X) | - 4) * (| type(Z) | - 1 + (| type(Y) | - 3) * (| type(Z) | - 2)) + (| type(Y) | - 2) * (| type(Z) | - 2) else (if v != V then (| type(X) | - 3) * (| type(Z) | - 1 + (| type(Y) | - 3) * (| type(Z) | - 2)) + (| type(Y) | - 2) * (| type(Z) | - 2) else (| type(X) | - 3) * (| type(Z) | - 1 + (| type(Y) | - 3) * (| type(Z) | - 2)))), " +
-					"(if b != V then if V = a or V = v then if v != V then (| type(Z) | + (| type(Y) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * ((| type(Z) | + (| type(Y) | - 3) * (| type(Z) | - 2)) - 1) + (| type(Y) | - 2) * (| type(Z) | - 2)) - 1 else (| type(Z) | + (| type(Y) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * ((| type(Z) | + (| type(Y) | - 3) * (| type(Z) | - 2)) - 1)) - 1 else (| type(Z) | + (| type(Y) | - 2) * (| type(Z) | - 2) + (| type(X) | - 4) * ((| type(Z) | + (| type(Y) | - 3) * (| type(Z) | - 2)) - 1) + (| type(Y) | - 2) * (| type(Z) | - 2)) - 1 else (if v != V then (| type(X) | - 3) * ((| type(Z) | + (| type(Y) | - 3) * (| type(Z) | - 2)) - 1) + (| type(Y) | - 2) * (| type(Z) | - 2) else (| type(X) | - 3) * ((| type(Z) | + (| type(Y) | - 3) * (| type(Z) | - 2)) - 1))) " +
-					" ), (if b != V then if V = a or V = v then if v != V then 592 else 528 else 527 else (if v != V then 519 else 455)) )"),
+					"( anyof( (if V != b then if V = a or V = v then if V != c then | type(Z) | - 1 + (| type(Y) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Z) | - 1 + (| type(Y) | - 3) * (| type(Z) | - 2)) + (| type(Y) | - 2) * (| type(Z) | - 2) else | type(Z) | - 1 + (| type(Y) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Z) | - 1 + (| type(Y) | - 3) * (| type(Z) | - 2)) else | type(Z) | - 1 + (| type(Y) | - 2) * (| type(Z) | - 2) + (| type(X) | - 4) * (| type(Z) | - 1 + (| type(Y) | - 3) * (| type(Z) | - 2)) + (| type(Y) | - 2) * (| type(Z) | - 2) else (if V != v then (| type(X) | - 3) * (| type(Z) | - 1 + (| type(Y) | - 3) * (| type(Z) | - 2)) + (| type(Y) | - 2) * (| type(Z) | - 2) else (| type(X) | - 3) * (| type(Z) | - 1 + (| type(Y) | - 3) * (| type(Z) | - 2)))), " +
+					"(if V != b then if V = a or V = v then if V != v then (| type(Z) | + (| type(Y) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * ((| type(Z) | + (| type(Y) | - 3) * (| type(Z) | - 2)) - 1) + (| type(Y) | - 2) * (| type(Z) | - 2)) - 1 else (| type(Z) | + (| type(Y) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * ((| type(Z) | + (| type(Y) | - 3) * (| type(Z) | - 2)) - 1)) - 1 else (| type(Z) | + (| type(Y) | - 2) * (| type(Z) | - 2) + (| type(X) | - 4) * ((| type(Z) | + (| type(Y) | - 3) * (| type(Z) | - 2)) - 1) + (| type(Y) | - 2) * (| type(Z) | - 2)) - 1 else (if V != v then (| type(X) | - 3) * ((| type(Z) | + (| type(Y) | - 3) * (| type(Z) | - 2)) - 1) + (| type(Y) | - 2) * (| type(Z) | - 2) else (| type(X) | - 3) * ((| type(Z) | + (| type(Y) | - 3) * (| type(Z) | - 2)) - 1))) " +
+					" ), (if V != b then if V = a or V = v then if V != v then 592 else 528 else 527 else (if V != v then 519 else 455)) )"),
 
 			new CardinalityData(false,
 					"| { (on X, Y) tuple(X, Y) |  X != a and ( X = Z <=> Y != b ) and Y != X } |",

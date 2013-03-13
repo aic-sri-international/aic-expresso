@@ -201,6 +201,9 @@ public class CardinalityUtil {
 	public static boolean isCardinalityOfIndexedFormulaExpression(Expression expression) {
 		boolean result = false;
 		if (expression.hasFunctor(FunctorConstants.CARDINALITY) && expression.numberOfArguments() == 1) {
+			if (Sets.isEmptySet(expression.get(0))) {
+				return true;
+			}
 			Expression intensionalSet = expression.get(0);
 			if (Sets.isIntensionalMultiSet(intensionalSet)) {
 				// | {{(x1, ..., xn) | F}{x1,..., xn}} | and | {{ E | F}{x1,..., xn}} |

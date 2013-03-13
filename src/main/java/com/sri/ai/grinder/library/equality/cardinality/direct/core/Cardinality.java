@@ -53,6 +53,7 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 
@@ -91,6 +92,11 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 			// Assert input arguments, | F |_x
 			// 
 			CardinalityUtil.assertIsCardinalityOfIndexedFormulaExpression(expression);
+			
+			if (Sets.isEmptySet(expression.get(0))) {
+				return Expressions.ZERO;
+			}
+			
 			// | {(on x1,..., xn) (x1, ..., xn) | F} |
 			Expression       intensionalSet   = expression.get(0);
 			Expression       f                = IntensionalSet.getCondition(intensionalSet);

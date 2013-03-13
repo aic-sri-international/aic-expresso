@@ -125,4 +125,21 @@ public class Disequality extends AbstractRewriter {
 			return make(e1, e2);
 		}
 	};
+
+	public static boolean isDisequality(Expression expression) {
+		return expression.hasFunctor(FunctorConstants.INEQUALITY);
+	}
+	
+	/**
+	 * Returns X != c, if 'expression' is c != X, for X a variable and c a constant, or 'expression' otherwise. 
+	 */
+	public static Expression normalize(Expression expression, RewritingProcess process) {
+		if (process.isConstant(expression.get(0))) {
+			if ( ! process.isConstant(expression.get(1))) {
+				Expression result = Expressions.make(expression.getFunctor(), expression.get(1), expression.get(0));
+				return result;
+			}
+		}
+		return expression;
+	}
 }

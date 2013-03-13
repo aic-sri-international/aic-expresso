@@ -46,7 +46,7 @@ import com.sri.ai.util.log.LogXFactory;
 
 /**
  * Helper class for obtaining and calling methods statically on the LogX
- * instance to be used exclusively by Rewriters for outputing high level human
+ * instance to be used exclusively by Rewriters for outputting high level human
  * readable justifications in a formal proof format, detailing how the
  * expressions are being rewritten. An example of how this kind of proof should
  * look is as follows: <br>
@@ -59,6 +59,20 @@ import com.sri.ai.util.log.LogXFactory;
  * ...
  * </pre>
  * 
+ * This is done in the following way:
+ * 
+ * First, we use {@link #current(Expression)} to show the current expression. This is typically used at the start of sequence of manipulations.
+ * Then, we use {@link #beginStep(String justification)} to indicate that a manipulation is doing to start by providing its description.
+ * After that we perform the computations needed. They may involve nested steps, that will show in a nested way in the output.
+ * When the result of the manipulation is obtained, we indicate it with {@link #endStep(Object result)}.
+ * 
+ * Nested steps will typically reproduce the stages above, starting with their own call to {@link #current(Expression)};
+ * 
+ * If arguments being passed to these methods are expensive to compute, it is advisable to test whether
+ * justifications are enabled with {@link #isEnabled()} first.
+ * 
+ * There are versions of the methods above accepting a {@link Marker} argument.
+
  * @see LogX
  * 
  * @author oreilly
@@ -125,73 +139,48 @@ public class Justification extends RewriterLogging {
 	/**
 	 * Start a sequence of justification statements at the same level.
 	 */
-	public static void begin(String format, Object... args) {
-		begin(null, format, args);
-	}
-	
-	public static void begin(Marker marker, String format, Object... args) {
-		if (isEnabled()) {
-			getDefaultLogX().indent(marker, format, args);
-		}
+	public static void current(String format, Object... args) {
+		current(null, format, args);
 	}
 	
 	/**
 	 * Start a sequence of justification statements at the same level.
 	 */
-	public static void begin(Expression lhs) {
-		begin(null, lhs);
+	public static void current(Expression lhs) {
+		current(null, lhs);
 	}
 	
-	public static void begin(Marker marker, Expression lhs) {
-		if (isEnabled()) {
-			getDefaultLogX().indent(marker, "{}", lhs);
-		}
-	}
-	
-	public static void beginStepWithJustification(String justification) {
+	public static void beginStep(String justification) {
 		beginStepWithJustification(null, justification);
 	}
 	
-	public static void beginStepWithJustification(Marker marker, String justification) {
-		if (isEnabled()) {
-			getDefaultLogX().trace(marker, "= (" + justification + ")");
-		}
-	}
-
-	public static void endStepWithResult(Object rhs) {
+	public static void endStep(Object rhs) {
 		endStepWithResult(null, rhs);
 	}
 	
+	public static void current(Marker marker, String format, Object... args) {
+		if (isEnabled()) {
+			getDefaultLogX().trace(marker, format, args);
+		}
+	}
+
+	public static void current(Marker marker, Expression lhs) {
+		if (isEnabled()) {
+			getDefaultLogX().trace(marker, "{}", lhs);
+		}
+	}
+
+	public static void beginStepWithJustification(Marker marker, String justification) {
+		if (isEnabled()) {
+			getDefaultLogX().trace(marker, "= (" + justification + ")");
+			getDefaultLogX().setTraceLevel(getDefaultLogX().getTraceLevel() + 1);
+		}
+	}
+
 	public static void endStepWithResult(Marker marker, Object rhs) {
 		if (isEnabled()) {
+			getDefaultLogX().setTraceLevel(getDefaultLogX().getTraceLevel() - 1);
 			getDefaultLogX().trace(marker, "{}", rhs);
-		}
-	}
-
-	/**
-	 * Add a self contained step to the overall justification at this level.
-	 */
-	public static void step(String equalityMessage, Expression rhs) {
-		step(null, equalityMessage, rhs);
-	}
-	
-	public static void step(Marker marker, String equalityMessage, Expression rhs) {
-		if (isEnabled()) {
-			getDefaultLogX().trace(marker, "= (" + equalityMessage + ")");
-			getDefaultLogX().trace(marker, "{}", rhs);
-		}
-	}
-
-	/**
-	 * End a sequence of justification statements at the same level.
-	 */
-	public static void end() {
-		end(null);
-	}
-	
-	public static void end(Marker marker) {
-		if (isEnabled()) {
-			getDefaultLogX().outdent(marker, "");
 		}
 	}
 }

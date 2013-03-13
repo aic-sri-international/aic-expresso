@@ -71,6 +71,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
 import com.sri.ai.grinder.library.controlflow.IfThenElseIrrelevantCondition;
 import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
+import com.sri.ai.grinder.library.controlflow.NormalizeEqualitiesAndDisequalities;
 import com.sri.ai.grinder.library.equality.NotOnDisequality;
 import com.sri.ai.grinder.library.equality.NotOnEquality;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
@@ -149,6 +150,7 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 
 						new Equality(),
 						new Disequality(),
+						new NormalizeEqualitiesAndDisequalities(),
 						new NotOnEquality(),
 						new NotOnDisequality(), 
 						new GreaterThan(), 
@@ -179,6 +181,7 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 						new QuantifierEliminationWrapper(),
 										
 						new IfThenElseIrrelevantCondition(),
+						// new DisequalityToEqualityInIfThenElseCondition(),
 						new IfThenElseBranchesAreBooleanConstants(),
 						new IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch(),
 						new IfThenElseExternalization(),

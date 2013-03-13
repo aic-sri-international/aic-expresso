@@ -250,7 +250,7 @@ abstract public class AbstractGrinderTest {
 					
 				}
 				else {
-					if (!IGNORE_EXPECTED.equals(tests[i].expected)) {
+					if (!tests[i].expected.equals(IGNORE_EXPECTED)) {
 						if ( !succeded ) {
 							assertFailed = "tests[i]=" + i + ", " + topExpression
 									+ "expected:<" + tests[i].expected

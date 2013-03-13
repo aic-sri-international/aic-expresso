@@ -207,4 +207,19 @@ public class Equality extends AbstractRewriter {
 	public static boolean isEquality(Expression expression) {
 		return expression.hasFunctor(FunctorConstants.EQUAL);
 	}
+
+	/**
+	 * Returns X = c, if 'expression' is c = X, for X a variable and c a constant, or 'expression' otherwise.
+	 * It actually works for any other functor as well. 
+	 */
+	public static Expression normalize(Expression expression, RewritingProcess process) {
+		if (expression.numberOfArguments() == 2
+				&& process.isConstant(expression.get(0))) {
+			if ( ! process.isConstant(expression.get(1))) {
+				Expression result = Expressions.make(expression.getFunctor(), expression.get(1), expression.get(0));
+				return result;
+			}
+		}
+		return expression;
+	}
 }
