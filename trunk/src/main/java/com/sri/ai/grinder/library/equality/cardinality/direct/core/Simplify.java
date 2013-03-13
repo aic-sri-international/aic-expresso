@@ -127,9 +127,9 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		//Justification.beginStep("basic simplifications");
+		Justification.beginStep("basic simplifications");
 		Expression result = getRootRewriter().rewrite(expression, process);
-		//Justification.endStep(result);
+		Justification.endStep(result);
 		return result;
 	}
 	

@@ -97,46 +97,47 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 			CardinalityUtil.assertIsCardinalityOfIndexedFormulaExpression(expression);
 			
 			if (Sets.isEmptySet(expression.get(0))) {
-				return Expressions.ZERO;
+				result = Expressions.ZERO;
 			}
-			
-			// | {(on x1,..., xn) (x1, ..., xn) | F} |
-			Expression       intensionalSet   = expression.get(0);
-			Expression       f                = IntensionalSet.getCondition(intensionalSet);
-			List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
-			
-			Trace.log("F <- R_top_simplify(F)");
-			f = process.rewrite(CardinalityRewriter.R_top_simplify, f);
-			
-			if (indexExpressions.size() == 0) {
-				Trace.log("if n = 0");
-				Trace.log("    return R_simplify(if F then 1 else 0)");
-				Expression ifThenElse = IfThenElse.make(f, Expressions.ONE, Expressions.ZERO);
-				result = process.rewrite(CardinalityRewriter.R_simplify, ifThenElse);
-			} 
 			else {
-				Trace.log("if n > 0");
-				// Note: the input f may have been simplified.
-				if ( negationHasLessNumberOfDisjuncts(f) ) {
-					Trace.log("    if negationHasLessNumberOfDisjuncts(F):");
-					Trace.log("        return R_simplify(||X|| - R_card( | not F |_X, \"none\" ) ) ");
-					Expression[] indicesAsArray    = indexExpressions.toArray(new Expression[indexExpressions.size()]);
-					Expression cardIndexX          = CardinalityUtil.makeCardinalityOfIndexExpressions(indicesAsArray);
-					Expression negationCardinality = process.rewrite(R_card,
-								CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(
-									CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(Not.make(f), indicesAsArray), 
-									CardinalityRewriter.Quantification.NONE));
-					Expression subtraction = Expressions.make(FunctorConstants.MINUS, cardIndexX, negationCardinality);
-					result = process.rewrite(CardinalityRewriter.R_simplify, subtraction);
-				}
+				// | {(on x1,..., xn) (x1, ..., xn) | F} |
+				Expression       intensionalSet   = expression.get(0);
+				Expression       f                = IntensionalSet.getCondition(intensionalSet);
+				List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
+				
+				Trace.log("F <- R_top_simplify(F)");
+				f = process.rewrite(CardinalityRewriter.R_top_simplify, f);
+			
+				if (indexExpressions.size() == 0) {
+					Trace.log("if n = 0");
+					Trace.log("    return R_simplify(if F then 1 else 0)");
+					Expression ifThenElse = IfThenElse.make(f, Expressions.ONE, Expressions.ZERO);
+					result = process.rewrite(CardinalityRewriter.R_simplify, ifThenElse);
+				} 
 				else {
-					Trace.log("    if not negationHasLessNumberOfDisjuncts(F):");
-					Trace.log("        return R_card( | F |_X, \"none\")");
-					result = process.rewrite(R_card,
-								CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(
-									expression, CardinalityRewriter.Quantification.NONE));
+					Trace.log("if n > 0");
+					// Note: the input f may have been simplified.
+					if ( negationHasLessNumberOfDisjuncts(f) ) {
+						Trace.log("    if negationHasLessNumberOfDisjuncts(F):");
+						Trace.log("        return R_simplify(||X|| - R_card( | not F |_X, \"none\" ) ) ");
+						Expression[] indicesAsArray    = indexExpressions.toArray(new Expression[indexExpressions.size()]);
+						Expression cardIndexX          = CardinalityUtil.makeCardinalityOfIndexExpressions(indicesAsArray);
+						Expression negationCardinality = process.rewrite(R_card,
+									CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(
+										CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(Not.make(f), indicesAsArray), 
+										CardinalityRewriter.Quantification.NONE));
+						Expression subtraction = Expressions.make(FunctorConstants.MINUS, cardIndexX, negationCardinality);
+						result = process.rewrite(CardinalityRewriter.R_simplify, subtraction);
+					}
+					else {
+						Trace.log("    if not negationHasLessNumberOfDisjuncts(F):");
+						Trace.log("        return R_card( | F |_X, \"none\")");
+						result = process.rewrite(R_card,
+									CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(
+										expression, CardinalityRewriter.Quantification.NONE));
+					}
 				}
-			}		
+			}
 		}
 		Justification.endStep(result);
 		return result;
