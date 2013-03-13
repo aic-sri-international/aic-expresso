@@ -151,11 +151,11 @@ public class Justification extends RewriterLogging {
 	}
 	
 	public static void beginStep(String justification) {
-		beginStepWithJustification(null, justification);
+		beginStep(null, justification);
 	}
 	
 	public static void endStep(Object rhs) {
-		endStepWithResult(null, rhs);
+		endStep(null, rhs);
 	}
 	
 	public static void current(Marker marker, String format, Object... args) {
@@ -170,14 +170,14 @@ public class Justification extends RewriterLogging {
 		}
 	}
 
-	public static void beginStepWithJustification(Marker marker, String justification) {
+	public static void beginStep(Marker marker, String justification) {
 		if (isEnabled()) {
 			getDefaultLogX().trace(marker, "= (" + justification + ")");
 			getDefaultLogX().setTraceLevel(getDefaultLogX().getTraceLevel() + 1);
 		}
 	}
 
-	public static void endStepWithResult(Marker marker, Object rhs) {
+	public static void endStep(Marker marker, Object rhs) {
 		if (isEnabled()) {
 			getDefaultLogX().setTraceLevel(getDefaultLogX().getTraceLevel() - 1);
 			getDefaultLogX().trace(marker, "{}", rhs);

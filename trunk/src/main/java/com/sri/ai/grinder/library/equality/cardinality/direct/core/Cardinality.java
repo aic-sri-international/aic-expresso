@@ -44,6 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.helper.Justification;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.ForAll;
@@ -79,6 +80,8 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 	 * @see CardinalityRewriter#R_card
 	 */
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		Justification.beginStep("cardinality of equality boolean formula");
+		
 		Expression result = null;
 		
 		if ( Tuple.isTuple(expression) && Tuple.size(expression) == 2 ) {
@@ -135,6 +138,7 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 				}
 			}		
 		}
+		Justification.endStep(result);
 		return result;
 	}
 	
