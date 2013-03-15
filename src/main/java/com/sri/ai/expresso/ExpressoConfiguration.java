@@ -50,20 +50,23 @@ import com.sri.ai.util.cache.CacheMap;
  */
 @Beta
 public class ExpressoConfiguration extends Configuration {
-	public static final String  KEY_DISPLAY_NUMERIC_PRECISION_FOR_SYMBOLS           = "expresso.display.numeric.precision.for.symbols";
-	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERIC_PRECISION_FOR_SYMBOLS = new Integer(9);
+	public static final String  KEY_DISPLAY_NUMERIC_PRECISION_FOR_SYMBOLS                     = "expresso.display.numeric.precision.for.symbols";
+	public static final Integer DEFAULT_VALUE_DISPLAY_NUMERIC_PRECISION_FOR_SYMBOLS           = new Integer(9);
 	//
-	public static final String  KEY_USE_GLOBAL_SYMBOL_TABLE                         = "expresso.use.global.symbol.table";
-	public static final Boolean DEFAULT_VALUE_USE_GLOBAL_SYMBOL_TABLE               = Boolean.TRUE; 
+	public static final String  KEY_DISPLAY_SCIENTIFIC_AFTER_N_DECIMAL_PLACES                 = "expresso.display.scientific.after.n.decimal.places";
+	public static final Integer DEFAULT_VALUE_DISPLAY_SCIENTIFIC_AFTER_N_DECIMAL_PLACES       = new Integer(40);
+	//
+	public static final String  KEY_USE_GLOBAL_SYMBOL_TABLE                                   = "expresso.use.global.symbol.table";
+	public static final Boolean DEFAULT_VALUE_USE_GLOBAL_SYMBOL_TABLE                         = Boolean.TRUE; 
 	// Note: < 0 means no limit, 0 means no caching, > 0 means cache to that size.
-	public static final String  KEY_GLOBAL_SYMBOL_TABLE_MAXIMUM_SIZE                = "expresso.global.symbol.table.maximum.size";
-	public static final Long    DEFAULT_VALUE_GLOBAL_SYMBOL_TABLE_MAXIMUM_SIZE      = CacheMap.NO_MAXIMUM_SIZE;
+	public static final String  KEY_GLOBAL_SYMBOL_TABLE_MAXIMUM_SIZE                          = "expresso.global.symbol.table.maximum.size";
+	public static final Long    DEFAULT_VALUE_GLOBAL_SYMBOL_TABLE_MAXIMUM_SIZE                = CacheMap.NO_MAXIMUM_SIZE;
 	//
-	public static final String  KEY_GLOBAL_SYMBOL_TABLE_CACHES_NUMERICS             = "expresso.global.symbol.table.cache.numerics";
-	public static final Boolean DEFAULT_VALUE_GLOBAL_SYMBOL_TABLE_CACHES_NUMERICS   = Boolean.FALSE;
+	public static final String  KEY_GLOBAL_SYMBOL_TABLE_CACHES_NUMERICS                       = "expresso.global.symbol.table.cache.numerics";
+	public static final Boolean DEFAULT_VALUE_GLOBAL_SYMBOL_TABLE_CACHES_NUMERICS             = Boolean.FALSE;
  	//
-	public static final String KEY_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS           = "expresso.syntax.to.string.unary.function.class";
-	public static final String DEFAULT_VALUE_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS = SyntaxTreeToStringFunction.class.getName();
+	public static final String KEY_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS              = "expresso.syntax.to.string.unary.function.class";
+	public static final String DEFAULT_VALUE_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS    = SyntaxTreeToStringFunction.class.getName();
 	//
 	public static final String KEY_SYNTAX_TO_STRING_THREAD_CACHE_TIMEOUT_IN_SECONDS           = "expresso.syntax.to.string.thread.cache.timeout";
 	public static final Long   DEFAULT_VALUE_SYNTAX_TO_STRING_THREAD_CACHE_TIMEOUT_IN_SECONDS = new Long(60);
@@ -71,6 +74,12 @@ public class ExpressoConfiguration extends Configuration {
 			
 	public static int getDisplayNumericPrecisionForSymbols() {
 		int result = getInt(KEY_DISPLAY_NUMERIC_PRECISION_FOR_SYMBOLS, DEFAULT_VALUE_DISPLAY_NUMERIC_PRECISION_FOR_SYMBOLS);
+	
+		return result;
+	}
+	
+	public static int getDisplayScientificAfterNDecimalPlaces() {
+		int result = getInt(KEY_DISPLAY_SCIENTIFIC_AFTER_N_DECIMAL_PLACES, DEFAULT_VALUE_DISPLAY_SCIENTIFIC_AFTER_N_DECIMAL_PLACES);
 	
 		return result;
 	}
