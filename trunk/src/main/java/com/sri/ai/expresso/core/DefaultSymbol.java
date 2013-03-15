@@ -82,7 +82,8 @@ import com.sri.ai.util.math.Rational;
 public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	private static final long serialVersionUID = 1L;
 	
-	private static int _displayNumericPrecision = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
+	private static int _displayNumericPrecision              = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
+	private static int _displayScientificAfterNDecimalPlaces = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
 	//
 	// Well known static Symbols
 	private static final DefaultSymbol SYMBOL_TRUE  = new DefaultSymbol(true);
@@ -121,6 +122,21 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		_displayNumericPrecision = precision;
 		
 		return oldPrecision;
+	}
+	
+	/**
+	 * Set the number of decimal places a number is to have before it is
+	 * displayed in scientific notation.
+	 * 
+	 * @param numDecimalPlaces
+	 * @return the value previously used before being set here.
+	 */
+	public static int setDisplayScientificAfterNDecimalPlaces(int numDecimalPlaces) {
+		int oldValue = _displayScientificAfterNDecimalPlaces;
+		
+		_displayScientificAfterNDecimalPlaces = numDecimalPlaces;
+				
+		return oldValue;
 	}
 	
 	public static void flushGlobalSymbolTable() {
@@ -322,25 +338,52 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 
 	@Override
 	public String defaultToString() {
+		String result = "";
 		if (label instanceof String && ((String) label).contains(" ")) {
-			return "'" + label + "'";
+			result = "'" + label + "'";
 		}
-		if (label instanceof Expression) {
-			return "<" + label + ">";
+		else if (label instanceof Expression) {
+			result = "<" + label + ">";
 		}
-		if (label instanceof Number && _displayNumericPrecision != 0) {
+		else if (label instanceof Number && _displayNumericPrecision != 0) {
 			Rational rLabel = ((Rational) label);
 			if (rLabel.isInteger()) {
-				return rLabel.toString();
+				result = rLabel.toString();
 			} 
 			else {	
 				Rational absValue    = rLabel.abs();
 				Rational integerPart = absValue.round(Rational.ROUND_FLOOR);
 				Rational decimalPart = absValue.subtract(integerPart);
-				return (rLabel.isNegative() ? "-" : "") + integerPart.toString() + "." + removeTrailingZerosToRight(decimalPart.toStringDotRelative(_displayNumericPrecision)).substring(2);
+				
+				String formattedDecimalPart = removeTrailingZerosToRight(decimalPart.toStringDotRelative(_displayNumericPrecision));
+				// If rounded up to 1, e.g. 0.999 to two decimal places will give you 1.0
+				if (isOne(formattedDecimalPart)) {
+					result = (rLabel.isNegative() ? "-" : "") + integerPart.add(1).toString();
+				}
+				else {
+
+					formattedDecimalPart        = formattedDecimalPart.substring(2);				
+					String formattedIntegerPart = integerPart.toString();
+					
+					if (formattedDecimalPart.length() > _displayScientificAfterNDecimalPlaces) {
+						if (formattedIntegerPart.equals("0")) {
+							result = rLabel.toStringExponent(_displayNumericPrecision);
+						}
+						else {
+							result = rLabel.toStringExponent(formattedIntegerPart.length() + formattedDecimalPart.length());
+						}
+					}
+					else {
+						result = (rLabel.isNegative() ? "-" : "") + formattedIntegerPart + "." + formattedDecimalPart;
+					}
+				}
 			}
 		}
-		return label.toString();
+		else {
+			result = label.toString();
+		}
+		
+		return result;
 	}
 
 	@Override
@@ -422,22 +465,30 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	}
 	
 	private static String removeTrailingZerosToRight(String number) {
-		String result = number; 
-		int dot = result.indexOf('.');
-		int end = result.length();
-	
-		if (dot >= 0) {
-			for (int i = end-1; i > dot; i--) {
-				if (result.charAt(i) == '0') {
-					end--;
+		String result = number;
+		// If not rounded up to 1.
+		if (!(isOne(number))) { 
+			int dot = result.indexOf('.');
+			int end = result.length();
+		
+			if (dot >= 0) {
+				for (int i = end-1; i > dot; i--) {
+					if (result.charAt(i) == '0') {
+						end--;
+					}
+					else {
+						break;
+					}
 				}
-				else {
-					break;
-				}
+				result = result.substring(0, end);
 			}
-			result = result.substring(0, end);
 		}
 	
+		return result;
+	}
+	
+	private static boolean isOne(String number) {
+		boolean result = number.equals("1.0") || number.equals("1.") || number.equals("1");
 		return result;
 	}
 	
