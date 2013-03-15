@@ -82,8 +82,9 @@ import com.sri.ai.util.math.Rational;
 public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	private static final long serialVersionUID = 1L;
 	
-	private static int _displayNumericPrecision              = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
-	private static int _displayScientificAfterNDecimalPlaces = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
+	private static int _displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
+	private static int _displayScientificGreaterNIntegerPlaces = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
+	private static int _displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
 	//
 	// Well known static Symbols
 	private static final DefaultSymbol SYMBOL_TRUE  = new DefaultSymbol(true);
@@ -122,6 +123,21 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		_displayNumericPrecision = precision;
 		
 		return oldPrecision;
+	}
+	
+	/**
+	 * Set the number of integer places a number is to have before it is
+	 * displayed in scientific notation.
+	 * 
+	 * @param numIntegerPlaces
+	 * @return the value previously used before being set here.
+	 */
+	public static int setDisplayScientificGreaterNIntegerPlaces(int numIntegerPlaces) {
+		int oldValue = _displayScientificGreaterNIntegerPlaces;
+		
+		_displayScientificGreaterNIntegerPlaces = numIntegerPlaces;
+				
+		return oldValue;
 	}
 	
 	/**
@@ -351,31 +367,24 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 				result = rLabel.toString();
 			} 
 			else {	
-				Rational absValue    = rLabel.abs();
-				Rational integerPart = absValue.round(Rational.ROUND_FLOOR);
-				Rational decimalPart = absValue.subtract(integerPart);
+				Rational absValue       = rLabel.abs();
+				Rational integerPart    = absValue.round(Rational.ROUND_FLOOR);
 				
-				String formattedDecimalPart = removeTrailingZerosToRight(decimalPart.toStringDotRelative(_displayNumericPrecision));
-				// If rounded up to 1, e.g. 0.999 to two decimal places will give you 1.0
-				if (isOne(formattedDecimalPart)) {
-					result = (rLabel.isNegative() ? "-" : "") + integerPart.add(1).toString();
+				// We don't want to loose any precision in the integer part.
+				String formattedIntegerPart = integerPart.toString();
+				int displayNumericPrecision = Math.max(formattedIntegerPart.length(), _displayNumericPrecision);
+				
+				String formattedAbsResult = removeTrailingZerosToRight(absValue.toStringDotRelative(displayNumericPrecision));
+				
+				// Once we have precision taken care of, now determine if we should instead
+				// output the result in scientific notation.
+				int[] integerAndFractionalPartSizes = getIntegerAndFractionalPartSizes(formattedAbsResult);
+				if (integerAndFractionalPartSizes[0] > _displayScientificGreaterNIntegerPlaces ||
+					integerAndFractionalPartSizes[1] > _displayScientificAfterNDecimalPlaces     ) {
+					result = rLabel.toStringExponent(displayNumericPrecision);
 				}
 				else {
-
-					formattedDecimalPart        = formattedDecimalPart.substring(2);				
-					String formattedIntegerPart = integerPart.toString();
-					
-					if (formattedDecimalPart.length() > _displayScientificAfterNDecimalPlaces) {
-						if (formattedIntegerPart.equals("0")) {
-							result = rLabel.toStringExponent(_displayNumericPrecision);
-						}
-						else {
-							result = rLabel.toStringExponent(formattedIntegerPart.length() + formattedDecimalPart.length());
-						}
-					}
-					else {
-						result = (rLabel.isNegative() ? "-" : "") + formattedIntegerPart + "." + formattedDecimalPart;
-					}
+					result = (rLabel.isNegative() ? "-" : "") + formattedAbsResult;
 				}
 			}
 		}
@@ -466,29 +475,42 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	
 	private static String removeTrailingZerosToRight(String number) {
 		String result = number;
-		// If not rounded up to 1.
-		if (!(isOne(number))) { 
-			int dot = result.indexOf('.');
-			int end = result.length();
+		int dot = result.indexOf('.');
+		int end = result.length();
 		
-			if (dot >= 0) {
-				for (int i = end-1; i > dot; i--) {
-					if (result.charAt(i) == '0') {
-						end--;
-					}
-					else {
-						break;
-					}
+		if (dot >= 0) {
+			for (int i = end-1; i > dot; i--) {
+				if (result.charAt(i) == '0') {
+					end--;
 				}
-				result = result.substring(0, end);
+				else {
+					break;
+				}
 			}
+			result = result.substring(0, end);
+		}
+		// 11.0 would get converted to 11. 
+		// This logic ensures the trailing dot is removed.
+		if (result.endsWith(".")) {
+			result = result.substring(0, result.length()-1);
 		}
 	
 		return result;
 	}
 	
-	private static boolean isOne(String number) {
-		boolean result = number.equals("1.0") || number.equals("1.") || number.equals("1");
+	private static int[] getIntegerAndFractionalPartSizes(String absValue) {
+		int[] result = new int[] {0, 0};
+		
+		int dot = absValue.indexOf('.');
+		// No Fractional part
+		if (dot == -1) {
+			result[0] = absValue.length();
+		}
+		else {
+			result[0] = dot;
+			result[1] = absValue.length() - dot - 1; // exclude the dot as well
+		}
+		
 		return result;
 	}
 	
