@@ -115,7 +115,9 @@ public class StandardizedApartFrom {
 		}
 		Collection<Expression> variablesToBeRenamed  = Util.intersection(scopedVariables1, variablesThatCannotBeScopingInExpression);
 		Collection<Expression> variablesInExpression = Variables.get(expression, process);
-		Collection<Expression> forbiddenVariables    = Util.union(variablesInExpression, variablesThatCannotBeScopingInExpression);
+		Collection<Expression> forbiddenVariables    = new HashSet<Expression>();
+		forbiddenVariables.addAll(variablesInExpression);
+		forbiddenVariables.addAll(variablesThatCannotBeScopingInExpression);
 		Predicate<Expression>  isNovel               = new NotContainedBy<Expression>(forbiddenVariables);
 		Expression result = expression;
 		for (Expression variableToBeRenamed : variablesToBeRenamed) {
