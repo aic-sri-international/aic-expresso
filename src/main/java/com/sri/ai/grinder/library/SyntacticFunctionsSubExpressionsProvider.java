@@ -39,7 +39,9 @@ package com.sri.ai.grinder.library;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -64,10 +66,10 @@ import com.sri.ai.grinder.core.AbstractRewriter;
 public class SyntacticFunctionsSubExpressionsProvider extends AbstractRewriter
 implements NoOpRewriter, ExpressionKnowledgeModule.Provider
 {
-	private List<SyntaxTree> functionNameSymbols;
+	private Set<SyntaxTree> functionNameSymbols;
 
 	public SyntacticFunctionsSubExpressionsProvider(String... names) {
-		functionNameSymbols = Expressions.wrap(names);
+		functionNameSymbols = new LinkedHashSet<SyntaxTree>(Expressions.wrap(names));
 	}
 	
 	@Override
