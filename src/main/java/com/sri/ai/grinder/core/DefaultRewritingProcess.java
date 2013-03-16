@@ -250,6 +250,21 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	public static void setGlobalRewritingProcessForKnowledgeBasedExpressions(RewritingProcess process) {
 		threadToGlobalRewritingProcessForKnowledgeBasedExpressions.put(Thread.currentThread(), (DefaultRewritingProcess) process);
 	}
+	
+	public static void cleanUpGlobalRewritingProcessForKnowledgeBasedExpressions() {
+		List<Thread> toRemove = new ArrayList<Thread>();
+		for (Thread t : threadToGlobalRewritingProcessForKnowledgeBasedExpressions.asMap().keySet()) {
+			if (!t.isAlive()) {
+				toRemove.add(t);
+			}
+		}
+		if (toRemove.size() > 0) {
+			for (Thread t : toRemove) {				
+				threadToGlobalRewritingProcessForKnowledgeBasedExpressions.invalidate(t);
+			}
+			threadToGlobalRewritingProcessForKnowledgeBasedExpressions.cleanUp();
+		}
+	}
 
 	public void setRecursionLevel(int recursiveLevel) {
 		this.recursionLevel = recursiveLevel;
