@@ -44,7 +44,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
-import com.sri.ai.grinder.helper.Justification;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.ForAll;
