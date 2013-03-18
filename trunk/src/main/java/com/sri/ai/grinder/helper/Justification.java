@@ -47,32 +47,20 @@ import com.sri.ai.util.log.LogXFactory;
 /**
  * Helper class for obtaining and calling methods statically on the LogX
  * instance to be used exclusively by Rewriters for outputting high level human
- * readable justifications in a formal proof format, detailing how the
- * expressions are being rewritten. An example of how this kind of proof should
- * look is as follows: <br>
+ * readable justifications.
  * 
- * <pre>
- * belief([p(X)]) 
- * = (definition of belief) 
- * normalize(product( {{ (on F in Neigh([p(X)])) message to [p(X)] from F }} ) )
- * = (neighbors of random variable) 
- * ...
- * </pre>
- * 
- * This is done in the following way:
- * 
- * First, we use {@link #current(Expression)} to show the current expression. This is typically used at the start of sequence of manipulations.
- * Then, we use {@link #beginStep(String justification)} to indicate that a manipulation is doing to start by providing its description.
- * After that we perform the computations needed. They may involve nested steps, that will show in a nested way in the output.
- * When the result of the manipulation is obtained, we indicate it with {@link #endStep(Object result)}.
- * 
- * Nested steps will typically reproduce the stages above, starting with their own call to {@link #current(Expression)};
+ * The basic method is {@link #log(String, Object...)}, which shows a justification at the current nesting level in the justifications log.
+ * Methods {@link #begin(String, Object...)} and {@link #end(String, Object...)} do essentially the same thing, but increase and decrease the nesting level respectively,
+ * so justifications in between them are collapsed in the tree view of the log.
+ * {@link #beginEqualityStep(Marker, String)} and {@link #endEqualityStep(Object)} are special cases of 'begin' and 'end';
+ * the string arguments to the former is shown surrounded by "= (" and ")" (meant to justify a rewriting of an expression shown in the previous line)
+ * and the latter shows the result of that rewriting step. Intermediate manipulations are included in a more nested level in between them.
  * 
  * If arguments being passed to these methods are expensive to compute, it is advisable to test whether
  * justifications are enabled with {@link #isEnabled()} first.
  * 
  * There are versions of the methods above accepting a {@link Marker} argument.
-
+ *
  * @see LogX
  * 
  * @author oreilly
@@ -139,48 +127,66 @@ public class Justification extends RewriterLogging {
 	/**
 	 * Start a sequence of justification statements at the same level.
 	 */
-	public static void current(String format, Object... args) {
-		current(null, format, args);
+	public static void log(String format, Object... args) {
+		log(null, format, args);
 	}
 	
 	/**
 	 * Start a sequence of justification statements at the same level.
 	 */
-	public static void current(Expression lhs) {
-		current(null, lhs);
+	public static void log(Expression lhs) {
+		log(null, lhs);
 	}
 	
-	public static void beginStep(String justification) {
-		beginStep(null, justification);
+	public static void beginEqualityStep(String justification) {
+		beginEqualityStep(null, justification);
 	}
 	
-	public static void endStep(Object rhs) {
-		endStep(null, rhs);
+	public static void endEqualityStep(Object rhs) {
+		endEqualityStep(null, rhs);
 	}
 	
-	public static void current(Marker marker, String format, Object... args) {
+	public static void begin(String format, Object... args) {
+		begin(null, format, args);
+	}
+
+	public static void end(String format, Object... args) {
+		end(null, format, args);
+	}
+
+	public static void log(Marker marker, String format, Object... args) {
 		if (isEnabled()) {
 			getDefaultLogX().trace(marker, format, args);
 		}
 	}
 
-	public static void current(Marker marker, Expression lhs) {
+	public static void log(Marker marker, Expression lhs) {
 		if (isEnabled()) {
 			getDefaultLogX().trace(marker, "{}", lhs);
 		}
 	}
 
-	public static void beginStep(Marker marker, String justification) {
+	public static void beginEqualityStep(Marker marker, String justification) {
+		String format = "= (" + justification + ")";
+		begin(marker, format);
+	}
+
+	public static void endEqualityStep(Marker marker, Object rhs) {
+		String format = "{}";
+		end(marker, format, rhs);
+	}
+
+	public static void begin(Marker marker, String format, Object... args) {
 		if (isEnabled()) {
-			getDefaultLogX().trace(marker, "= (" + justification + ")");
+			getDefaultLogX().trace(marker, format, args);
 			getDefaultLogX().setTraceLevel(getDefaultLogX().getTraceLevel() + 1);
 		}
 	}
 
-	public static void endStep(Marker marker, Object rhs) {
+	public static void end(Marker marker, String format, Object... args) {
 		if (isEnabled()) {
 			getDefaultLogX().setTraceLevel(getDefaultLogX().getTraceLevel() - 1);
-			getDefaultLogX().trace(marker, "{}", rhs);
+			getDefaultLogX().trace(marker, format, args);
 		}
 	}
 }
