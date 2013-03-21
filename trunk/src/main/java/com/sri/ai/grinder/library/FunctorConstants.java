@@ -70,6 +70,7 @@ public class FunctorConstants {
 	public final static String UNION = "union";
 	public final static String PARTITION = "partition";
 	public final static String SET_DIFFERENCE = "\\";
+	public final static String INTERSECTION = "intersection";
 	public final static String CARDINALITY = "| . |";
 	public final static String ON  = "( on . )";
 	public final static String VALUE_OF  = "value of";
