@@ -687,4 +687,19 @@ public class Expressions {
 			return Util.list(expression);
 		}
 	}
+
+	/**
+	 * Returns a list of applications of a given functor to the corresponding elements in two lists
+	 * (two elements are correspondent if they have the same indices).
+	 */
+	public static List<Expression> makePairwiseApplications(Object functor, List<Expression> list1, List<Expression> list2) {
+		if (list1.size() != list2.size()) {
+			throw new Error("Expressions.makePairwiseApplications(Object, List<Expression>, List<Expression>) expects two lists of same size.");
+		}
+		List<Expression> result = new LinkedList<Expression>();
+		for (int i = 0; i != list1.size(); i++) {
+			result.add(Expressions.make(functor, list1.get(i), list2.get(2)));
+		}
+		return result;
+	}
 }
