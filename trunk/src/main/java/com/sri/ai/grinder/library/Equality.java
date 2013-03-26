@@ -144,7 +144,7 @@ public class Equality extends AbstractRewriter {
 	}
 
 	/**
-	 * Makes an equality of some expressions, returning Expressions.TRUE if the expressions are identical.
+	 * Makes an equality of some expressions, returning Expressions. Returns TRUE if the expressions are identical.
 	 */
 	public static Expression make(Object... arguments) {
 		List<SyntaxTree> expressions = Expressions.wrap(arguments);
@@ -221,5 +221,18 @@ public class Equality extends AbstractRewriter {
 			}
 		}
 		return expression;
+	}
+
+	/**
+	 * Returns a conjunction of equalities between the corresponding elements of two lists
+	 * (two elements are corresponding if they have the indices).
+	 * Returns false if the lists have different sizes.
+	 */
+	public static Expression makePairwiseEquality(List<Expression> list1, List<Expression> list2) {
+		if (list1.size() == list2.size()) {
+			Expression result = And.make(Expressions.makePairwiseApplications(FunctorConstants.EQUAL, list1, list2));
+			return result;
+		}
+		return Expressions.FALSE;
 	}
 }
