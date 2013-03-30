@@ -868,10 +868,11 @@ public class GrinderTest extends AbstractGrinderTest {
 		
 	}
 	
-	@Test
+//	@Test
 	public void testNewSubstitute() {
 		Library library = new DefaultLibrary(
 				new ScopedVariables(),
+				new IntensionalSet(),
 				new ExpressionKnowledgeModule(),
 				new ImposedConditionsModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
@@ -882,61 +883,61 @@ public class GrinderTest extends AbstractGrinderTest {
 		Map<Expression, Expression> replacements;
 		DefaultRewritingProcess process = new DefaultRewritingProcess(null, evaluator);
 
-////		replacements = Util.map(parse("y"), parse("1"));
-////		result = NewSubstitute.replaceAll(
-////				parse("x + 2"),
-////				replacements, process);
-////		assertEquals(parse("x + 2"), result);
-////		
-////		replacements = Util.map(parse("x"), parse("1"));
-////		result = NewSubstitute.replaceAll(
-////				parse("x + 2"),
-////				replacements, process);
-////		assertEquals(parse("1 + 2"), result);
-////		
-////		replacements = Util.map();
-////		result = NewSubstitute.replaceAll(
-////				parse("x + 2"),
-////				replacements, process);
-////		assertEquals(parse("x + 2"), result);
-////		
-////		replacements = Util.map(
-////				parse("x"), parse("2"),
-////				parse("2"), parse("10"));
-////		result = NewSubstitute.replaceAll(
-////				parse("x + 2"),
-////				replacements, process);
-////		assertEquals(parse("2 + 10"), result);
-////		
-////		replacements = Util.map(parse("x"), parse("2"));
-////		result = NewSubstitute.replaceAll(
-////				parse("f(g(h(x)))"),
-////				replacements, process);
-////		assertEquals(parse("f(g(h(2)))"), result);
-//		
-//		replacements =Util.map(parse("X"), parse("2"));
+//		replacements = Util.map(parse("y"), parse("1"));
 //		result = NewSubstitute.replaceAll(
-//				parse("{(on X) X}"),
+//				parse("x + 2"),
 //				replacements, process);
-//		assertEquals(parse("{(on X) X}"), result); // should respect scoped symbols
+//		assertEquals(parse("x + 2"), result);
+//		
+//		replacements = Util.map(parse("x"), parse("1"));
+//		result = NewSubstitute.replaceAll(
+//				parse("x + 2"),
+//				replacements, process);
+//		assertEquals(parse("1 + 2"), result);
+//		
+//		replacements = Util.map();
+//		result = NewSubstitute.replaceAll(
+//				parse("x + 2"),
+//				replacements, process);
+//		assertEquals(parse("x + 2"), result);
+//		
+//		replacements = Util.map(
+//				parse("x"), parse("2"),
+//				parse("2"), parse("10"));
+//		result = NewSubstitute.replaceAll(
+//				parse("x + 2"),
+//				replacements, process);
+//		assertEquals(parse("2 + 10"), result);
 //		
 //		replacements = Util.map(parse("x"), parse("2"));
 //		result = NewSubstitute.replaceAll(
-//				parse("x + {(on x) f(x)}"),
+//				parse("f(g(h(x)))"),
 //				replacements, process);
-//		assertEquals(parse("2 + {(on x) f(x)}"), result); // should respect scoped symbols
-//		
-//		replacements = Util.map(parse("x"), parse("2"));
-//		result = NewSubstitute.replaceAll(
-//				parse("x + {(on x in group(x)) f(x)}"),
-//				replacements, process);
-//		assertEquals(parse("2 + {(on x in group(2)) f(x)}"), result); //  should respect scoped symbols; group(x) is not scoped by inner x
-//		
-//		replacements = Util.map(parse("x"), parse("2"));
-//		result = NewSubstitute.replaceAll(
-//				parse("x + {(on y) f(x)}"),
-//				replacements, process);
-//		assertEquals(parse("2 + {(on y) f(2)}"), result); // x is not scoped here
+//		assertEquals(parse("f(g(h(2)))"), result);
+		
+		replacements = Util.map(parse("X"), parse("2"));
+		result = NewSubstitute.replaceAll(
+				parse("{(on X) X}"),
+				replacements, process);
+		assertEquals(parse("{(on X) X}"), result); // should respect scoped symbols
+		
+		replacements = Util.map(parse("x"), parse("2"));
+		result = NewSubstitute.replaceAll(
+				parse("x + {(on x) f(x)}"),
+				replacements, process);
+		assertEquals(parse("2 + {(on x) f(x)}"), result); // should respect scoped symbols
+		
+		replacements = Util.map(parse("x"), parse("2"));
+		result = NewSubstitute.replaceAll(
+				parse("x + {(on x in group(x)) f(x)}"),
+				replacements, process);
+		assertEquals(parse("2 + {(on x in group(2)) f(x)}"), result); //  should respect scoped symbols; group(x) is not scoped by inner x
+		
+		replacements = Util.map(parse("x"), parse("2"));
+		result = NewSubstitute.replaceAll(
+				parse("x + {(on y) f(x)}"),
+				replacements, process);
+		assertEquals(parse("2 + {(on y) f(2)}"), result); // x is not scoped here
 		
 	}
 	
