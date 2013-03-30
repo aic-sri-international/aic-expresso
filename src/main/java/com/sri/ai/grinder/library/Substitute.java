@@ -57,6 +57,7 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractExpression;
+import com.sri.ai.grinder.core.ReplacementFunctionMaker;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.Util;
@@ -390,9 +391,9 @@ public class Substitute {
 		}
 	}
 	
-	private static class MakeReplacementFunctionForSpecificSubExpression implements TernaryFunction<Expression, Function<Expression, Expression>, ExpressionAndContext, Function<Expression, Expression>> {
+	private static class MakeReplacementFunctionForSpecificSubExpression implements ReplacementFunctionMaker {
 		@Override
-		public Function<Expression, Expression> apply(Expression expression, Function<Expression, Expression> substitutionFunctionObject, ExpressionAndContext subExpressionAndContext) {
+		public Function<Expression, Expression> apply(Expression expression, Function<Expression, Expression> substitutionFunctionObject, ExpressionAndContext subExpressionAndContext, RewritingProcess process) {
 			Substitution substitutionFunction = (Substitution) substitutionFunctionObject;
 			Collection<Expression> subExpressionScopedVariables = subExpressionAndContext.getQuantifiedVariables();
 			List<Expression> newScopedVariables = new LinkedList<Expression>(substitutionFunction.scopedVariables);

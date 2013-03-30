@@ -134,7 +134,7 @@ public abstract class AbstractExpression implements Expression {
 	}
 
 	@Override
-	public Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, TernaryFunction<Expression, Function<Expression, Expression>, ExpressionAndContext, Function<Expression, Expression>> makeSpecificSubExpressionAndContextReplacementFunction, BinaryPredicate<Expression, RewritingProcess> prunePredicate, TernaryFunction<Expression, BinaryPredicate<Expression, RewritingProcess>, ExpressionAndContext, BinaryPredicate<Expression, RewritingProcess>> makeSpecificSubExpressionAndContextPrunePredicate, RewritingProcess process) {
+	public Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, ReplacementFunctionMaker makeSpecificSubExpressionAndContextReplacementFunction, BinaryPredicate<Expression, RewritingProcess> prunePredicate, TernaryFunction<Expression, BinaryPredicate<Expression, RewritingProcess>, ExpressionAndContext, BinaryPredicate<Expression, RewritingProcess>> makeSpecificSubExpressionAndContextPrunePredicate, RewritingProcess process) {
 		return replace(
 				replacementFunction, makeSpecificSubExpressionAndContextReplacementFunction,
 				prunePredicate, makeSpecificSubExpressionAndContextPrunePredicate,
@@ -142,7 +142,7 @@ public abstract class AbstractExpression implements Expression {
 	}
 
 	@Override
-	public Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, TernaryFunction<Expression, Function<Expression, Expression>, ExpressionAndContext, Function<Expression, Expression>> makeSpecificSubExpressionAndContextReplacementFunction, BinaryPredicate<Expression, RewritingProcess> prunePredicate, TernaryFunction<Expression, BinaryPredicate<Expression, RewritingProcess>, ExpressionAndContext, BinaryPredicate<Expression, RewritingProcess>> makeSpecificSubExpressionAndContextPrunePredicate, RewritingProcess process) {
+	public Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, ReplacementFunctionMaker makeSpecificSubExpressionAndContextReplacementFunction, BinaryPredicate<Expression, RewritingProcess> prunePredicate, TernaryFunction<Expression, BinaryPredicate<Expression, RewritingProcess>, ExpressionAndContext, BinaryPredicate<Expression, RewritingProcess>> makeSpecificSubExpressionAndContextPrunePredicate, RewritingProcess process) {
 		return replace(
 				replacementFunction, makeSpecificSubExpressionAndContextReplacementFunction,
 				prunePredicate, makeSpecificSubExpressionAndContextPrunePredicate,
@@ -201,7 +201,7 @@ public abstract class AbstractExpression implements Expression {
 	@Override
 	public Expression replace(
 			Function<Expression, Expression> replacementFunction,
-			TernaryFunction<Expression, Function<Expression, Expression>, ExpressionAndContext, Function<Expression, Expression>> makeSpecificSubExpressionAndContextReplacementFunction,
+			ReplacementFunctionMaker makeSpecificSubExpressionAndContextReplacementFunction,
 			BinaryPredicate<Expression, RewritingProcess> prunePredicate,
 			TernaryFunction<Expression, BinaryPredicate<Expression, RewritingProcess>, ExpressionAndContext, BinaryPredicate<Expression, RewritingProcess>> makeSpecificSubExpressionAndContextPrunePredicate,
 			boolean onlyTheFirstOne, 
@@ -255,8 +255,8 @@ public abstract class AbstractExpression implements Expression {
 			Function<Expression, Expression> replacementFunctionForThisSubExpressionAndContext = replacementFunction;
 			if (makeSpecificSubExpressionAndContextReplacementFunction != null) {
 				replacementFunctionForThisSubExpressionAndContext =
-					makeSpecificSubExpressionAndContextReplacementFunction.apply(
-							this, replacementFunction, subExpressionAndContext);
+					makeSpecificSubExpressionAndContextReplacementFunction
+					.apply(this, replacementFunction, subExpressionAndContext, process);
 			}
 
 			RewritingProcess subProcess = GrinderUtil.extendContextualVariablesAndConstraint(subExpressionAndContext, process);

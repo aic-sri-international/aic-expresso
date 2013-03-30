@@ -44,6 +44,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.ReplacementFunctionMaker;
 import com.sri.ai.util.base.BinaryPredicate;
 import com.sri.ai.util.base.TernaryFunction;
 import com.sri.ai.util.base.TernaryProcedure;
@@ -76,8 +77,8 @@ public interface Expression extends Cloneable, Serializable {
 	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, RewritingProcess process);
 	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, BinaryPredicate<Expression, RewritingProcess> prunePredicate, RewritingProcess process);
 	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, BinaryPredicate<Expression, RewritingProcess> prunePredicate, RewritingProcess process);
-	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, TernaryFunction<Expression, Function<Expression, Expression>, ExpressionAndContext, Function<Expression, Expression>> makeSpecificSubExpressionAndContextReplacementFunction, BinaryPredicate<Expression, RewritingProcess> prunePredicate, TernaryFunction<Expression, BinaryPredicate<Expression, RewritingProcess>, ExpressionAndContext, BinaryPredicate<Expression, RewritingProcess>> makeSpecificSubExpressionAndContextPrunePredicate, RewritingProcess process);
-	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, TernaryFunction<Expression, Function<Expression, Expression>, ExpressionAndContext, Function<Expression, Expression>> makeSpecificSubExpressionAndContextReplacementFunction, BinaryPredicate<Expression, RewritingProcess> prunePredicate, TernaryFunction<Expression, BinaryPredicate<Expression, RewritingProcess>, ExpressionAndContext, BinaryPredicate<Expression, RewritingProcess>> makeSpecificSubExpressionAndContextPrunePredicate, RewritingProcess process);
+	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, ReplacementFunctionMaker makeSpecificSubExpressionAndContextReplacementFunction, BinaryPredicate<Expression, RewritingProcess> prunePredicate, TernaryFunction<Expression, BinaryPredicate<Expression, RewritingProcess>, ExpressionAndContext, BinaryPredicate<Expression, RewritingProcess>> makeSpecificSubExpressionAndContextPrunePredicate, RewritingProcess process);
+	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, ReplacementFunctionMaker makeSpecificSubExpressionAndContextReplacementFunction, BinaryPredicate<Expression, RewritingProcess> prunePredicate, TernaryFunction<Expression, BinaryPredicate<Expression, RewritingProcess>, ExpressionAndContext, BinaryPredicate<Expression, RewritingProcess>> makeSpecificSubExpressionAndContextPrunePredicate, RewritingProcess process);
 	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
 	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
 	Expression replaceFirstOccurrence(Expression replaced, Expression replacement, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
@@ -132,7 +133,7 @@ public interface Expression extends Cloneable, Serializable {
 	 * @param process: the rewriting process, used here for defining what is a sub-expression of what.
 	 */
 	Expression replace(Function<Expression, Expression> replacementFunction, 
-			           TernaryFunction<Expression, Function<Expression, Expression>, ExpressionAndContext, Function<Expression, Expression>> makeSpecificSubExpressionAndContextReplacementFunction, 
+			           ReplacementFunctionMaker makeSpecificSubExpressionAndContextReplacementFunction, 
 			           BinaryPredicate<Expression, RewritingProcess> prunePredicate, 
 			           TernaryFunction<Expression, BinaryPredicate<Expression, RewritingProcess>, ExpressionAndContext, BinaryPredicate<Expression, RewritingProcess>> makeSpecificSubExpressionAndContextPrunePredicate, 
 			           boolean onlyTheFirstOne, 

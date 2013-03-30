@@ -3,12 +3,19 @@ package com.sri.ai.grinder.library;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.ReplacementFunctionMaker;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.util.base.BinaryPredicate;
+import com.sri.ai.util.base.TernaryFunction;
 
 /**
  * A class providing a static method for substituting symbols or function applications in an expression
@@ -48,84 +55,65 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
  */
 public class NewSubstitute {
 
-	private static Expression substitute(Expression replaced, Expression replacement, Expression expression, int nextScopedVariableIndex, RewritingProcess process) {
-		System.out.println("Substitute: " + replaced + ", " + replacement + " in " + expression + ", with nextScopedVariableIndex " + nextScopedVariableIndex);
-		return expression.replaceAllOccurrences(new Replace(replaced, replacement, nextScopedVariableIndex), process);
-	}
-	
-	public static Expression substitute(Expression replaced, Expression replacement, Expression expression, RewritingProcess process) {
-		return substitute(replaced, replacement, expression, 0, process);
+	private static Expression substitute(Expression expression, Expression replaced, Expression constraintOnReplaced, Expression replacement, RewritingProcess process) {
+		Expression result = expression.replaceAllOccurrences(new NewReplace(replaced, constraintOnReplaced, replacement), process);
+		return result;
 	}
 	
 	public static Expression replaceAll(Expression expression,
 			Map<? extends Expression, ? extends Expression> replacements,
 			RewritingProcess process) {
 		for (Map.Entry<? extends Expression, ? extends Expression> entry : replacements.entrySet()) {
-			expression = substitute(entry.getKey(), entry.getValue(), expression, process);
+			expression = substitute(expression, entry.getKey(), Expressions.TRUE, entry.getValue(), process);
 		}
 		return expression;
 	}
 
-	private static class Replace implements ReplacementFunctionWithContextuallyUpdatedProcess {
+	private static class NewReplace implements ReplacementFunctionWithContextuallyUpdatedProcess {
 
-		private Expression replaced;
-		private Expression replacement;
-		private int nextScopedVariableIndex;
+		public Expression replaced;
+		public Expression constraintOnReplaced;
+		public Expression replacement;
 		
-		public Replace(Expression replaced, Expression replacement, int nextScopedVariableIndex) {
+		public NewReplace(Expression replaced, Expression constraintOnReplaced, Expression replacement) {
 			this.replaced = replaced;
+			this.constraintOnReplaced = constraintOnReplaced;
 			this.replacement = replacement;
-			this.nextScopedVariableIndex = nextScopedVariableIndex;
-		}
-		
-		public Replace(Expression replaced, Expression replacement) {
-			this(replaced, replacement, 0);
 		}
 		
 		@Override
 		public Expression apply(Expression arg0) {
-			throw new Error(Replace.class + ".apply(Expression) must not be invoked");
+			throw new Error(NewReplace.class + ".apply(Expression) must not be invoked");
 		}
 
 		@Override
 		public Expression apply(Expression expression, RewritingProcess process) {
-			Expression result = null;
-			List<Expression> scopedVariables = ScopedVariables.get(expression, process);
-			if (scopedVariables != null && ! scopedVariables.isEmpty()) {
-				result = replaceQuantifiedExpression(expression, scopedVariables, process);
-			}
-			else if (expression.getFunctorOrSymbol().equals(replaced.getFunctorOrSymbol())) {
-				result = replaceNonQuantifiedExpression(expression, process);
-			}
-			return result;
-		}
-
-		private Expression replaceQuantifiedExpression(Expression expression, List<Expression> scopedVariables, RewritingProcess process) {
 			Expression result = expression;
-			Expression nextScopedVariable = scopedVariables.get(nextScopedVariableIndex);
-			if (nextScopedVariable.getFunctorOrSymbol().equals(replaced.getFunctorOrSymbol())) {
-				Expression conditionForScopedVariableToRedefineReplaced = Equality.makePairwiseEquality(nextScopedVariable.getArguments(), replaced.getArguments());
-				result = replaceIfConditionHolds(conditionForScopedVariableToRedefineReplaced, expression, nextScopedVariableIndex + 1, process);
+			if ( ! constraintOnReplaced.equals(Expressions.FALSE) && expression.getFunctorOrSymbol().equals(replaced.getFunctorOrSymbol())) {
+				Expression conditionForExpressionToMatchReplaced = process.rewrite("R_complete_simplify", Equality.makePairwiseEquality(expression.getArguments(), replaced.getArguments()));
+				RewritingProcess newProcess = GrinderUtil.extendContextualConstraint(conditionForExpressionToMatchReplaced, process);
+				Expression replacementIfConditionHolds = substitute(replacement, replaced, constraintOnReplaced, replacement, newProcess);
+				result = IfThenElse.make(conditionForExpressionToMatchReplaced, replacementIfConditionHolds, expression);
 			}
 			return result;
+			// Note: ideally we should prune when replaceConstraint = false, but the replace API's prune predicate does not have access to the replacement function, which is where this information is.
 		}
+	}
 
-		private Expression replaceNonQuantifiedExpression(Expression expression, RewritingProcess process) {
-			Expression conditionForExpressionToMatchReplaced = Equality.makePairwiseEquality(expression.getArguments(), replaced.getArguments());
-			Expression result = replaceIfConditionHolds(conditionForExpressionToMatchReplaced, expression, 1, process);
-			return result;
-		}
-
-		private Expression replaceIfConditionHolds(Expression condition, Expression expression, int indexOfWhichScopedVariableToConsiderIfAnyAreFound, RewritingProcess process) {
-			Expression result = null;
-			if (condition.equals(Expressions.FALSE)) {
-				result = expression;
+	private static class ReplacementMaker implements ReplacementFunctionMaker {
+		@Override
+		public Function<Expression, Expression> apply(Expression expression, Function<Expression, Expression> replacementFunctionFunction, ExpressionAndContext expressionAndContext, RewritingProcess process) {
+			NewReplace replacementFunction = (NewReplace) replacementFunctionFunction;
+			Expression constraintOnReplaced = replacementFunction.constraintOnReplaced;
+			for (Expression quantifiedVariable : expressionAndContext.getQuantifiedVariables()) {
+				Expression conditionForShadowing;
+				if (quantifiedVariable.getFunctorOrSymbol().equals(replacementFunction.replaced.getFunctorOrSymbol())) {
+//					conditionForShadowing = process.rewrite("R_complete_simplify",
+//							And.make(constraintOnReplaced,
+//									Equality.makePairwiseEquality(expression.getArguments(), replacementFunction.replaced.getArguments())));
+				}
 			}
-			else {
-				RewritingProcess newProcess = GrinderUtil.extendContextualConstraint(condition, process);
-				Expression replacementIfConditionHolds = substitute(replaced, replacement, replacement, indexOfWhichScopedVariableToConsiderIfAnyAreFound, newProcess);
-				result = IfThenElse.make(condition, replacementIfConditionHolds, expression);
-			}
+			NewReplace result = new NewReplace(replacementFunction.replaced, constraintOnReplaced, replacementFunction.replacement);
 			return result;
 		}
 	}
