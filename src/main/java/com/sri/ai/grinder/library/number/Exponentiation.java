@@ -98,7 +98,7 @@ public class Exponentiation extends AbstractRewriter {
 				
 				if (Expressions.isNumber(exponent)) {
 					Expression result = null;
-					boolean  loosePrecision = false;
+					boolean  losePrecision = false;
 					try {
 						int exponentIntValue = exponent.intValueExact();
 						if (Math.abs(exponentIntValue) <= maxAbsExponentSizeBeforeLoosePrecision) {
@@ -107,15 +107,15 @@ public class Exponentiation extends AbstractRewriter {
 						}
 						else {
 							// The value is going to be too large/small to be processed efficiently
-							// therefore loose some of the precision now.
-							loosePrecision = true;
+							// therefore lose some of the precision now.
+							losePrecision = true;
 						}
 					}
 					catch (ArithmeticException e) {
-						// Rational.pow does not work for non-int exponents, so we have no choice but loose precision here.
-						loosePrecision = true;						
+						// Rational.pow does not work for non-int exponents, so we have no choice but lose precision here.
+						losePrecision = true;						
 					}
-					if (loosePrecision) {
+					if (losePrecision) {
 						double exponentDoubleValue = exponent.doubleValue();
 						double baseDoubleValue     = base.doubleValue();
 						double newValue            = Math.pow(baseDoubleValue, exponentDoubleValue);

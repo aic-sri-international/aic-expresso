@@ -61,6 +61,7 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.DefaultLibrary;
+import com.sri.ai.grinder.core.DefaultRewriterLookup;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.ExhaustiveRewriter;
 import com.sri.ai.grinder.core.OpenInterpretationModule;
@@ -68,6 +69,7 @@ import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
 import com.sri.ai.grinder.library.CommonLibrary;
+import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Distributive;
 import com.sri.ai.grinder.library.Equality;
@@ -86,6 +88,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElseConditionIsTrueInThenBra
 import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
 import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CompleteSimplify;
 import com.sri.ai.grinder.library.equality.injective.DisequalityOnInjectiveSubExpressions;
 import com.sri.ai.grinder.library.equality.injective.DisequalityOnMutuallyExclusiveCoDomainExpressions;
 import com.sri.ai.grinder.library.equality.injective.EqualityOnInjectiveSubExpressions;
@@ -868,7 +871,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		
 	}
 	
-//	@Test
+	@Test
 	public void testNewSubstitute() {
 		Library library = new DefaultLibrary(
 				new ScopedVariables(),
@@ -876,44 +879,46 @@ public class GrinderTest extends AbstractGrinderTest {
 				new ExpressionKnowledgeModule(),
 				new ImposedConditionsModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
+				new CompleteSimplify(),
 				new IntensionalSetSubExpressionsAndImposedConditionsProvider());
 		evaluator = new ExhaustiveRewriter(library);
 
 		Expression result;
 		Map<Expression, Expression> replacements;
 		DefaultRewritingProcess process = new DefaultRewritingProcess(null, evaluator);
+		process.setRewriterLookup(new DefaultRewriterLookup(DirectCardinalityComputationFactory.getCardinalityRewritersMap()));
 
-//		replacements = Util.map(parse("y"), parse("1"));
-//		result = NewSubstitute.replaceAll(
-//				parse("x + 2"),
-//				replacements, process);
-//		assertEquals(parse("x + 2"), result);
-//		
-//		replacements = Util.map(parse("x"), parse("1"));
-//		result = NewSubstitute.replaceAll(
-//				parse("x + 2"),
-//				replacements, process);
-//		assertEquals(parse("1 + 2"), result);
-//		
-//		replacements = Util.map();
-//		result = NewSubstitute.replaceAll(
-//				parse("x + 2"),
-//				replacements, process);
-//		assertEquals(parse("x + 2"), result);
-//		
-//		replacements = Util.map(
-//				parse("x"), parse("2"),
-//				parse("2"), parse("10"));
-//		result = NewSubstitute.replaceAll(
-//				parse("x + 2"),
-//				replacements, process);
-//		assertEquals(parse("2 + 10"), result);
-//		
-//		replacements = Util.map(parse("x"), parse("2"));
-//		result = NewSubstitute.replaceAll(
-//				parse("f(g(h(x)))"),
-//				replacements, process);
-//		assertEquals(parse("f(g(h(2)))"), result);
+		replacements = Util.map(parse("y"), parse("1"));
+		result = NewSubstitute.replaceAll(
+				parse("x + 2"),
+				replacements, process);
+		assertEquals(parse("x + 2"), result);
+		
+		replacements = Util.map(parse("x"), parse("1"));
+		result = NewSubstitute.replaceAll(
+				parse("x + 2"),
+				replacements, process);
+		assertEquals(parse("1 + 2"), result);
+		
+		replacements = Util.map();
+		result = NewSubstitute.replaceAll(
+				parse("x + 2"),
+				replacements, process);
+		assertEquals(parse("x + 2"), result);
+		
+		replacements = Util.map(
+				parse("x"), parse("2"),
+				parse("2"), parse("10"));
+		result = NewSubstitute.replaceAll(
+				parse("x + 2"),
+				replacements, process);
+		assertEquals(parse("2 + 10"), result);
+		
+		replacements = Util.map(parse("x"), parse("2"));
+		result = NewSubstitute.replaceAll(
+				parse("f(g(h(x)))"),
+				replacements, process);
+		assertEquals(parse("f(g(h(2)))"), result);
 		
 		replacements = Util.map(parse("X"), parse("2"));
 		result = NewSubstitute.replaceAll(
@@ -939,6 +944,23 @@ public class GrinderTest extends AbstractGrinderTest {
 				replacements, process);
 		assertEquals(parse("2 + {(on y) f(2)}"), result); // x is not scoped here
 		
+		replacements = Util.map(parse("p(a)"), parse("2"));
+		result = NewSubstitute.replaceAll(
+				parse("{(on q(a)) p(a)}"),
+				replacements, process);
+		assertEquals(parse("{(on q(a)) 2}"), result); // x is not scoped here
+		
+		replacements = Util.map(parse("p(a)"), parse("2"));
+		result = NewSubstitute.replaceAll(
+				parse("{(on p(a)) p(a)}"),
+				replacements, process);
+		assertEquals(parse("{(on p(a)) p(a)}"), result); // x is not scoped here
+//		
+//		replacements = Util.map(parse("p(a)"), parse("2"));
+//		result = NewSubstitute.replaceAll(
+//				parse("{(on p(X)) p(a)}"),
+//				replacements, process);
+//		assertEquals(parse("{(on p(X)) if X = a then 2 else p(a)}"), result); // x is not scoped here
 	}
 	
 	@Test

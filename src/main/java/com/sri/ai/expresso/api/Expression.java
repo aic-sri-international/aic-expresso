@@ -44,9 +44,9 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.PruningPredicate;
+import com.sri.ai.grinder.core.PruningPredicateMaker;
 import com.sri.ai.grinder.core.ReplacementFunctionMaker;
-import com.sri.ai.util.base.BinaryPredicate;
-import com.sri.ai.util.base.TernaryFunction;
 import com.sri.ai.util.base.TernaryProcedure;
 import com.sri.ai.util.math.Rational;
 
@@ -71,23 +71,23 @@ public interface Expression extends Cloneable, Serializable {
 	
 	Expression replaceFirstOccurrence(Expression replaced, Expression replacement, RewritingProcess process);
 	Expression replaceAllOccurrences(Expression replaced, Expression replacement, RewritingProcess process);
-	Expression replaceFirstOccurrence(Expression replaced, Expression replacement, BinaryPredicate<Expression, RewritingProcess> prunePredicate, RewritingProcess process);
-	Expression replaceAllOccurrences(Expression replaced, Expression replacement, BinaryPredicate<Expression, RewritingProcess> prunePredicate, RewritingProcess process);
+	Expression replaceFirstOccurrence(Expression replaced, Expression replacement, PruningPredicate prunePredicate, RewritingProcess process);
+	Expression replaceAllOccurrences(Expression replaced, Expression replacement, PruningPredicate prunePredicate, RewritingProcess process);
 	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, RewritingProcess process);
 	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, RewritingProcess process);
-	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, BinaryPredicate<Expression, RewritingProcess> prunePredicate, RewritingProcess process);
-	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, BinaryPredicate<Expression, RewritingProcess> prunePredicate, RewritingProcess process);
-	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, ReplacementFunctionMaker makeSpecificSubExpressionAndContextReplacementFunction, BinaryPredicate<Expression, RewritingProcess> prunePredicate, TernaryFunction<Expression, BinaryPredicate<Expression, RewritingProcess>, ExpressionAndContext, BinaryPredicate<Expression, RewritingProcess>> makeSpecificSubExpressionAndContextPrunePredicate, RewritingProcess process);
-	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, ReplacementFunctionMaker makeSpecificSubExpressionAndContextReplacementFunction, BinaryPredicate<Expression, RewritingProcess> prunePredicate, TernaryFunction<Expression, BinaryPredicate<Expression, RewritingProcess>, ExpressionAndContext, BinaryPredicate<Expression, RewritingProcess>> makeSpecificSubExpressionAndContextPrunePredicate, RewritingProcess process);
+	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, RewritingProcess process);
+	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, RewritingProcess process);
+	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, ReplacementFunctionMaker makeSpecificSubExpressionAndContextReplacementFunction, PruningPredicate prunePredicate, PruningPredicateMaker makeSpecificSubExpressionAndContextPrunePredicate, RewritingProcess process);
+	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, ReplacementFunctionMaker makeSpecificSubExpressionAndContextReplacementFunction, PruningPredicate prunePredicate, PruningPredicateMaker makeSpecificSubExpressionAndContextPrunePredicate, RewritingProcess process);
 	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
 	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
 	Expression replaceFirstOccurrence(Expression replaced, Expression replacement, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
 	Expression replaceAllOccurrences(Expression replaced, Expression replacement, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
-	Expression replaceFirstOccurrence(Expression replaced, Expression replacement, BinaryPredicate<Expression, RewritingProcess> prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
-	Expression replaceAllOccurrences(Expression replaced, Expression replacement, BinaryPredicate<Expression, RewritingProcess> prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
-	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, BinaryPredicate<Expression, RewritingProcess> prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
-	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, BinaryPredicate<Expression, RewritingProcess> prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
-	Expression replace(Function<Expression, Expression> replacementFunction, boolean onlyTheFirstOne, BinaryPredicate<Expression, RewritingProcess> prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process, boolean ignoreTopExpression);
+	Expression replaceFirstOccurrence(Expression replaced, Expression replacement, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
+	Expression replaceAllOccurrences(Expression replaced, Expression replacement, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
+	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
+	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
+	Expression replace(Function<Expression, Expression> replacementFunction, boolean onlyTheFirstOne, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process, boolean ignoreTopExpression);
 	/**
 	 * Returns the result of replacing one or all sub-expressions of this expression
 	 * according to a replacement function.
@@ -134,8 +134,8 @@ public interface Expression extends Cloneable, Serializable {
 	 */
 	Expression replace(Function<Expression, Expression> replacementFunction, 
 			           ReplacementFunctionMaker makeSpecificSubExpressionAndContextReplacementFunction, 
-			           BinaryPredicate<Expression, RewritingProcess> prunePredicate, 
-			           TernaryFunction<Expression, BinaryPredicate<Expression, RewritingProcess>, ExpressionAndContext, BinaryPredicate<Expression, RewritingProcess>> makeSpecificSubExpressionAndContextPrunePredicate, 
+			           PruningPredicate prunePredicate, 
+			           PruningPredicateMaker makeSpecificSubExpressionAndContextPrunePredicate, 
 			           boolean onlyTheFirstOne, 
 			           boolean ignoreTopExpression, 
 			           TernaryProcedure<Expression, Expression, RewritingProcess> listener, 

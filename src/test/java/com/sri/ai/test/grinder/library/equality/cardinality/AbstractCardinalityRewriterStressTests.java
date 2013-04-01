@@ -111,11 +111,10 @@ public abstract class AbstractCardinalityRewriterStressTests extends AbstractGri
 	
 	public List<CardinalityStressTest> makeCardinalityStressTests() {
 		List<CardinalityStressTest> result = new ArrayList<CardinalityStressTest>();
-		
 		return result;
 	}
 	
-	//@Test
+	@Test
 	public void stressTestCardinalityRewriters() {
 		List<CardinalityRewriter>   cardinalityRewriters   = makeCardinalityRewriters();
 		List<CardinalityStressTest> cardinalityStressTests = makeCardinalityStressTests();

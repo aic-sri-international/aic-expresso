@@ -77,7 +77,7 @@ public class TotalRewriter extends AbstractRewriter {
 			GrinderConfiguration.getRewriteDeadEndsCacheMaximumSize(),
 			null,
 			CacheMap.NO_GARBAGE_COLLECTION);
-	private BinaryPredicate<Expression, RewritingProcess> deadEndPruner = new BinaryPredicate<Expression, RewritingProcess>() {
+	private PruningPredicate deadEndPruner = new PruningPredicate() {
 		@Override
 		public boolean apply(Expression expression, RewritingProcess process) {
 			boolean result = deadEndsCache.containsKeyFor(expression, process);
