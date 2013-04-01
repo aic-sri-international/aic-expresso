@@ -1,6 +1,5 @@
 package com.sri.ai.grinder.library;
 
-import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Function;
@@ -12,10 +11,8 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.ReplacementFunctionMaker;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.util.base.BinaryPredicate;
-import com.sri.ai.util.base.TernaryFunction;
+import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 
 /**
  * A class providing a static method for substituting symbols or function applications in an expression
@@ -55,11 +52,6 @@ import com.sri.ai.util.base.TernaryFunction;
  */
 public class NewSubstitute {
 
-	private static Expression substitute(Expression expression, Expression replaced, Expression constraintOnReplaced, Expression replacement, RewritingProcess process) {
-		Expression result = expression.replaceAllOccurrences(new NewReplace(replaced, constraintOnReplaced, replacement), process);
-		return result;
-	}
-	
 	public static Expression replaceAll(Expression expression,
 			Map<? extends Expression, ? extends Expression> replacements,
 			RewritingProcess process) {
@@ -69,13 +61,18 @@ public class NewSubstitute {
 		return expression;
 	}
 
-	private static class NewReplace implements ReplacementFunctionWithContextuallyUpdatedProcess {
+	private static Expression substitute(Expression expression, Expression replaced, Expression constraintOnReplaced, Expression replacement, RewritingProcess process) {
+		Expression result = expression.replaceAllOccurrences(new SubstituteReplacementFunction(replaced, constraintOnReplaced, replacement), new SubstituteReplacementFunctionMaker(), null, null, process);
+		return result;
+	}
+	
+	private static class SubstituteReplacementFunction implements ReplacementFunctionWithContextuallyUpdatedProcess {
 
 		public Expression replaced;
 		public Expression constraintOnReplaced;
 		public Expression replacement;
 		
-		public NewReplace(Expression replaced, Expression constraintOnReplaced, Expression replacement) {
+		public SubstituteReplacementFunction(Expression replaced, Expression constraintOnReplaced, Expression replacement) {
 			this.replaced = replaced;
 			this.constraintOnReplaced = constraintOnReplaced;
 			this.replacement = replacement;
@@ -83,14 +80,14 @@ public class NewSubstitute {
 		
 		@Override
 		public Expression apply(Expression arg0) {
-			throw new Error(NewReplace.class + ".apply(Expression) must not be invoked");
+			throw new Error(SubstituteReplacementFunction.class + ".apply(Expression) must not be invoked");
 		}
 
 		@Override
 		public Expression apply(Expression expression, RewritingProcess process) {
 			Expression result = expression;
 			if ( ! constraintOnReplaced.equals(Expressions.FALSE) && expression.getFunctorOrSymbol().equals(replaced.getFunctorOrSymbol())) {
-				Expression conditionForExpressionToMatchReplaced = process.rewrite("R_complete_simplify", Equality.makePairwiseEquality(expression.getArguments(), replaced.getArguments()));
+				Expression conditionForExpressionToMatchReplaced = process.rewrite(CardinalityRewriter.R_complete_simplify, Equality.makePairwiseEquality(expression.getArguments(), replaced.getArguments()));
 				RewritingProcess newProcess = GrinderUtil.extendContextualConstraint(conditionForExpressionToMatchReplaced, process);
 				Expression replacementIfConditionHolds = substitute(replacement, replaced, constraintOnReplaced, replacement, newProcess);
 				result = IfThenElse.make(conditionForExpressionToMatchReplaced, replacementIfConditionHolds, expression);
@@ -100,20 +97,19 @@ public class NewSubstitute {
 		}
 	}
 
-	private static class ReplacementMaker implements ReplacementFunctionMaker {
+	private static class SubstituteReplacementFunctionMaker implements ReplacementFunctionMaker {
 		@Override
 		public Function<Expression, Expression> apply(Expression expression, Function<Expression, Expression> replacementFunctionFunction, ExpressionAndContext expressionAndContext, RewritingProcess process) {
-			NewReplace replacementFunction = (NewReplace) replacementFunctionFunction;
+			SubstituteReplacementFunction replacementFunction = (SubstituteReplacementFunction) replacementFunctionFunction;
 			Expression constraintOnReplaced = replacementFunction.constraintOnReplaced;
 			for (Expression quantifiedVariable : expressionAndContext.getQuantifiedVariables()) {
-				Expression conditionForShadowing;
 				if (quantifiedVariable.getFunctorOrSymbol().equals(replacementFunction.replaced.getFunctorOrSymbol())) {
-//					conditionForShadowing = process.rewrite("R_complete_simplify",
-//							And.make(constraintOnReplaced,
-//									Equality.makePairwiseEquality(expression.getArguments(), replacementFunction.replaced.getArguments())));
+					constraintOnReplaced = process.rewrite(CardinalityRewriter.R_complete_simplify,
+							And.make(constraintOnReplaced,
+									Equality.makePairwiseEquality(expression.getArguments(), replacementFunction.replaced.getArguments())));
 				}
 			}
-			NewReplace result = new NewReplace(replacementFunction.replaced, constraintOnReplaced, replacementFunction.replacement);
+			SubstituteReplacementFunction result = new SubstituteReplacementFunction(replacementFunction.replaced, constraintOnReplaced, replacementFunction.replacement);
 			return result;
 		}
 	}

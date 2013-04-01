@@ -57,13 +57,13 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractExpression;
+import com.sri.ai.grinder.core.PruningPredicate;
+import com.sri.ai.grinder.core.PruningPredicateMaker;
 import com.sri.ai.grinder.core.ReplacementFunctionMaker;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.BinaryPredicate;
 import com.sri.ai.util.base.IdentityWrapper;
-import com.sri.ai.util.base.TernaryFunction;
 import com.sri.ai.util.collect.FunctionIterator;
 
 /**
@@ -113,7 +113,7 @@ public class Substitute {
 
 	private static Expression replace(Expression expression,
 			Expression replaced, Expression replacement,
-			BinaryPredicate<Expression, RewritingProcess> prunePredicate,
+			PruningPredicate prunePredicate,
 			boolean needTotalReplacement, RewritingProcess process) {
 		Expression result = expression.replace(new Substitution(replaced,
 				replacement, needTotalReplacement, process),
@@ -403,8 +403,7 @@ public class Substitute {
 		}
 	}
 
-	private static class MakePruningPredicateForSpecificSubExpression implements
-			TernaryFunction<Expression, BinaryPredicate<Expression, RewritingProcess>, ExpressionAndContext, BinaryPredicate<Expression, RewritingProcess>> {
+	private static class MakePruningPredicateForSpecificSubExpression implements PruningPredicateMaker {
 		private Expression replaced;
 
 		public MakePruningPredicateForSpecificSubExpression(Expression replaced) {
@@ -413,21 +412,19 @@ public class Substitute {
 		}
 
 		@Override
-		public BinaryPredicate<Expression, RewritingProcess> apply(Expression expression, BinaryPredicate<Expression, RewritingProcess> prunePredicate,
+		public PruningPredicate apply(Expression expression, PruningPredicate prunePredicate,
 				ExpressionAndContext subExpressionAndContext) {
 			if (replaced.getSyntacticFormType().equals("Function application")
-					&& expression.getSyntacticFormType().equals(
-							"Function application")
+					&& expression.getSyntacticFormType().equals("Function application")
 					&& replaced.hasFunctor(expression.getFunctor())
-					&& replaced.numberOfArguments() == expression
-							.numberOfArguments()
+					&& replaced.numberOfArguments() == expression.numberOfArguments()
 					&& subExpressionAndContext.getPath().equals(_pathMinusOne)) { // sub-expression
 																					// is
 																					// the
 																					// functor
 																					// of
 																					// expression
-				return AbstractExpression.TRUE_PRUNE_PREDICATE;
+				return AbstractExpression.TRUE_PRUNING_PREDICATE;
 				// We should not recurse into the functor of the function
 				// application, because the
 				// substitution will already be taken care of at the level of

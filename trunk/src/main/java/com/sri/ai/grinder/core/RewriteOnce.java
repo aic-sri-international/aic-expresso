@@ -154,7 +154,7 @@ public class RewriteOnce extends AbstractRewriter {
 					= getDeadEndsCacheMap(rewriter, process);
 				TernaryProcedure<Expression, Expression, RewritingProcess> listener 
 					= new DeadEndListener(deadEndsCache, rewriter);
-				BinaryPredicate<Expression, RewritingProcess> pruner 
+				PruningPredicate pruner 
 					= new DeadEndPruner(deadEndsCache, rewriter);
 				
 				expression = expression.replaceFirstOccurrence(replacementFunction, pruner, listener, process);
@@ -288,7 +288,7 @@ public class RewriteOnce extends AbstractRewriter {
 		}
 	}
 	
-	private static class DeadEndPruner implements BinaryPredicate<Expression, RewritingProcess> {
+	private static class DeadEndPruner implements PruningPredicate {
 		private CacheMap<Pair<IdentityWrapper, Expression>, Object> cache;
 //		private Rewriter rewriter;
 			

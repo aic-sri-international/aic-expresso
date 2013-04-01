@@ -698,7 +698,7 @@ public class Expressions {
 		}
 		List<Expression> result = new LinkedList<Expression>();
 		for (int i = 0; i != list1.size(); i++) {
-			result.add(Expressions.make(functor, list1.get(i), list2.get(2)));
+			result.add(Expressions.make(functor, list1.get(i), list2.get(i)));
 		}
 		return result;
 	}
