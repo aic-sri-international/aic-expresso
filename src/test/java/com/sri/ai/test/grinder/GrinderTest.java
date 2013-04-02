@@ -978,6 +978,12 @@ public class GrinderTest extends AbstractGrinderTest {
 				replacements, process);
 		assertEquals(parse("if X = Y then 2 else p(X)"), result);
 		
+		replacements = Util.map(parse("p(X)"), parse("2"));
+		result = NewSubstitute.replaceAll(
+				parse("{(on p(a), p(b), p(c)) p(X)}"),
+				replacements, process);
+		assertEquals(parse("{(on p(a), p(b), p(c)) if X != a and X != b and X != c then 2 else p(X)}"), result);
+		
 		replacements = Util.map(parse("p(X,Y)"), parse("2"));
 		result = NewSubstitute.replaceAll(
 				parse("{(on p(Y,X)) p(X,Y)}"),
