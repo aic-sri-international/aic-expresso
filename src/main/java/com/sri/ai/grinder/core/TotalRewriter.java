@@ -55,7 +55,6 @@ import com.sri.ai.grinder.expression.ExpressionCache;
 import com.sri.ai.grinder.helper.Justification;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.BinaryPredicate;
 import com.sri.ai.util.base.TernaryProcedure;
 import com.sri.ai.util.cache.CacheMap;
 
