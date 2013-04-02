@@ -11,6 +11,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.ReplacementFunctionMaker;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 
@@ -46,6 +47,19 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewrite
  * If Y = bob, then the quantification is essentially defining a "local", distinct age(bob) (which is also age(Y)), so we do <i>not</i> substitute age(bob) by anything in that context
  * (because age(bob) inside that context is a distinct, new, local age(bob), much in the same way we have locally quantified symbols).
  * If Y != bob, however, "local" age(Y) is not the same as age(bob) and we do proceed with the substitution of age(bob) under that context.
+ * 
+ * Here are a few more examples:
+ * 
+ *      Replacing    Replacement                                    Expression                                                              Result
+ * 		p(a)                   2                              {(on q(a)) p(a)}                                                       {(on q(a)) 2}
+ *      p(a)                   2                              {(on p(a)) p(a)}                                                    {(on p(a)) p(a)}
+ *      p(a)                   2                              {(on p(X)) p(a)}                              {(on p(X)) if X != a then 2 else p(a)}
+ *      p(X)                   2                              {(on p(a)) p(X)}                              {(on p(a)) if X != a then 2 else p(X)}
+ *      p(Y)                   2                                          p(X)                                           if X = Y then 2 else p(X)
+ *      p(X,Y)                 2                          {(on p(Y,X)) p(X,Y)}                          {(on p(Y,X)) if X != Y then 2 else p(X,Y)} 
+ *      p(X,Y)                 2                          {(on p(W,Z)) p(Y,X)}    {(on p(W,Z)) if (W != X or Z != Y) and X = Y then 2 else p(Y,X)}
+ *      p(X,Y)                 2                          {(on p(Y,X)) p(Y,X)}                                                {(on p(Y,X)) p(Y,X)}
+ *      p(X,Y)                 2  if W != X and Z != Y then p(W,Z) else p(a,Y)   if W != X and Z != Y then p(W,Z) else if X = a then 2 else p(a,Y)
  *
  * @author braz
  *
@@ -87,7 +101,9 @@ public class NewSubstitute {
 		public Expression apply(Expression expression, RewritingProcess process) {
 			Expression result = expression;
 			if ( ! constraintOnReplaced.equals(Expressions.FALSE) && expression.getFunctorOrSymbol().equals(replaced.getFunctorOrSymbol())) {
-				Expression conditionForExpressionToMatchReplaced = process.rewrite(CardinalityRewriter.R_complete_simplify, Equality.makePairwiseEquality(expression.getArguments(), replaced.getArguments()));
+				Expression argumentsAreTheSame = Equality.makePairwiseEquality(expression.getArguments(), replaced.getArguments());
+				Expression argumentsAreTheSameAndReplacedIsConstrained = And.make(constraintOnReplaced, argumentsAreTheSame);
+				Expression conditionForExpressionToMatchReplaced = process.rewrite(CardinalityRewriter.R_complete_simplify, argumentsAreTheSameAndReplacedIsConstrained);
 				RewritingProcess newProcess = GrinderUtil.extendContextualConstraint(conditionForExpressionToMatchReplaced, process);
 				Expression replacementIfConditionHolds = substitute(replacement, replaced, constraintOnReplaced, replacement, newProcess);
 				result = IfThenElse.make(conditionForExpressionToMatchReplaced, replacementIfConditionHolds, expression);
@@ -104,9 +120,9 @@ public class NewSubstitute {
 			Expression constraintOnReplaced = replacementFunction.constraintOnReplaced;
 			for (Expression quantifiedVariable : expressionAndContext.getQuantifiedVariables()) {
 				if (quantifiedVariable.getFunctorOrSymbol().equals(replacementFunction.replaced.getFunctorOrSymbol())) {
-					constraintOnReplaced = process.rewrite(CardinalityRewriter.R_complete_simplify,
-							And.make(constraintOnReplaced,
-									Equality.makePairwiseEquality(expression.getArguments(), replacementFunction.replaced.getArguments())));
+					Expression argumentsAreDistinct = Not.make(Equality.makePairwiseEquality(quantifiedVariable.getArguments(), replacementFunction.replaced.getArguments()));
+					Expression argumentsAreDistinctAndReplacedIsConstrained = And.make(constraintOnReplaced, argumentsAreDistinct);
+					constraintOnReplaced = process.rewrite(CardinalityRewriter.R_complete_simplify, argumentsAreDistinctAndReplacedIsConstrained);
 				}
 			}
 			SubstituteReplacementFunction result = new SubstituteReplacementFunction(replacementFunction.replaced, constraintOnReplaced, replacementFunction.replacement);

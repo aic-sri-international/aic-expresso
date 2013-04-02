@@ -887,6 +887,10 @@ public class GrinderTest extends AbstractGrinderTest {
 		Map<Expression, Expression> replacements;
 		DefaultRewritingProcess process = new DefaultRewritingProcess(null, evaluator);
 		process.setRewriterLookup(new DefaultRewriterLookup(DirectCardinalityComputationFactory.getCardinalityRewritersMap()));
+		process.putGlobalObject(parse("|type(X)|"), parse("10"));
+		process.putGlobalObject(parse("|type(Y)|"), parse("10"));
+		process.putGlobalObject(parse("|type(Z)|"), parse("10"));
+		process.putGlobalObject(parse("|type(W)|"), parse("10"));
 
 		replacements = Util.map(parse("y"), parse("1"));
 		result = NewSubstitute.replaceAll(
@@ -948,20 +952,64 @@ public class GrinderTest extends AbstractGrinderTest {
 		result = NewSubstitute.replaceAll(
 				parse("{(on q(a)) p(a)}"),
 				replacements, process);
-		assertEquals(parse("{(on q(a)) 2}"), result); // x is not scoped here
+		assertEquals(parse("{(on q(a)) 2}"), result);
 		
 		replacements = Util.map(parse("p(a)"), parse("2"));
 		result = NewSubstitute.replaceAll(
 				parse("{(on p(a)) p(a)}"),
 				replacements, process);
-		assertEquals(parse("{(on p(a)) p(a)}"), result); // x is not scoped here
-//		
-//		replacements = Util.map(parse("p(a)"), parse("2"));
-//		result = NewSubstitute.replaceAll(
-//				parse("{(on p(X)) p(a)}"),
-//				replacements, process);
-//		assertEquals(parse("{(on p(X)) if X = a then 2 else p(a)}"), result); // x is not scoped here
-	}
+		assertEquals(parse("{(on p(a)) p(a)}"), result);
+		
+		replacements = Util.map(parse("p(a)"), parse("2"));
+		result = NewSubstitute.replaceAll(
+				parse("{(on p(X)) p(a)}"),
+				replacements, process);
+		assertEquals(parse("{(on p(X)) if X != a then 2 else p(a)}"), result);
+		
+		replacements = Util.map(parse("p(X)"), parse("2"));
+		result = NewSubstitute.replaceAll(
+				parse("{(on p(a)) p(X)}"),
+				replacements, process);
+		assertEquals(parse("{(on p(a)) if X != a then 2 else p(X)}"), result);
+		
+		replacements = Util.map(parse("p(Y)"), parse("2"));
+		result = NewSubstitute.replaceAll(
+				parse("p(X)"),
+				replacements, process);
+		assertEquals(parse("if X = Y then 2 else p(X)"), result);
+		
+		replacements = Util.map(parse("p(X,Y)"), parse("2"));
+		result = NewSubstitute.replaceAll(
+				parse("{(on p(Y,X)) p(X,Y)}"),
+				replacements, process);
+		assertEquals(parse("{(on p(Y,X)) if X != Y then 2 else p(X,Y)}"), result);
+		
+		replacements = Util.map(parse("p(X,Y)"), parse("2"));
+		result = NewSubstitute.replaceAll(
+				parse("{(on p(W,Z)) p(Y,X)}"),
+				replacements, process);
+		assertEquals(parse("{(on p(W,Z)) if (W != X or Z != Y) and X = Y then 2 else p(Y,X)}"), result);
+		
+		replacements = Util.map(parse("p(X,Y)"), parse("2"));
+		result = NewSubstitute.replaceAll(
+				parse("{(on p(Y,X)) p(Y,X)}"),
+				replacements, process);
+		assertEquals(parse("{(on p(Y,X)) p(Y,X)}"), result);
+
+		replacements = Util.map(parse("p(X,Y)"), parse("2"));
+		result = NewSubstitute.replaceAll(
+				parse("if W != X and Z != Y then p(W,Z) else p(a,Y)"),
+				replacements, process);
+		assertEquals(parse("if W != X and Z != Y then p(W,Z) else if X = a then 2 else p(a,Y)"), result);
+
+		replacements = Util.map(parse("p(X,Y)"), parse("2"));
+		result = NewSubstitute.replaceAll(
+				parse("{{ (on p(a,Y)) {{ (on p(c,Y)) p(X,Y) }} or p(X,Y) | X != b }}"),
+				replacements, process);
+		assertEquals(parse("{{ (on p(a,Y))" +
+				               "{{ (on p(c,Y)) if X != a and X != c then 2 else p(X,Y) }} or (if X != a then 2 else p(X,Y))" +
+				               "| X != b }}"), result);
+}
 	
 	@Test
 	public void testDepthFirstIterator() {

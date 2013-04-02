@@ -56,7 +56,6 @@ import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.CommonLibrary;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.BinaryPredicate;
 import com.sri.ai.util.base.IdentityWrapper;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.base.Pair;
