@@ -8,6 +8,7 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.PruningPredicate;
 import com.sri.ai.grinder.core.ReplacementFunctionMaker;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
@@ -76,7 +77,11 @@ public class NewSubstitute {
 	}
 
 	private static Expression substitute(Expression expression, Expression replaced, Expression constraintOnReplaced, Expression replacement, RewritingProcess process) {
-		Expression result = expression.replaceAllOccurrences(new SubstituteReplacementFunction(replaced, constraintOnReplaced, replacement), new SubstituteReplacementFunctionMaker(), null, null, process);
+		Expression result =
+				expression.replaceAllOccurrences(
+						new SubstituteReplacementFunction(replaced, constraintOnReplaced, replacement), new SubstituteReplacementFunctionMaker(),
+						new SubstitutePruningPredicate(), null,
+						process);
 		return result;
 	}
 	
@@ -100,7 +105,7 @@ public class NewSubstitute {
 		@Override
 		public Expression apply(Expression expression, RewritingProcess process) {
 			Expression result = expression;
-			if ( ! constraintOnReplaced.equals(Expressions.FALSE) && expression.getFunctorOrSymbol().equals(replaced.getFunctorOrSymbol())) {
+			if (expression.getFunctorOrSymbol().equals(replaced.getFunctorOrSymbol())) {
 				Expression argumentsAreTheSame = Equality.makePairwiseEquality(expression.getArguments(), replaced.getArguments());
 				Expression argumentsAreTheSameAndReplacedIsConstrained = And.make(constraintOnReplaced, argumentsAreTheSame);
 				Expression conditionForExpressionToMatchReplaced = process.rewrite(CardinalityRewriter.R_complete_simplify, argumentsAreTheSameAndReplacedIsConstrained);
@@ -109,10 +114,18 @@ public class NewSubstitute {
 				result = IfThenElse.make(conditionForExpressionToMatchReplaced, replacementIfConditionHolds, expression);
 			}
 			return result;
-			// Note: ideally we should prune when replaceConstraint = false, but the replace API's prune predicate does not have access to the replacement function, which is where this information is.
 		}
 	}
 
+	private static class SubstitutePruningPredicate implements PruningPredicate {
+		@Override
+		public boolean apply(Expression expression, Function<Expression, Expression> replacementFunctionFunction, RewritingProcess process) {
+			SubstituteReplacementFunction replacementFunction = (SubstituteReplacementFunction) replacementFunctionFunction;
+			boolean result = replacementFunction.constraintOnReplaced.equals(Expressions.FALSE);
+			return result;
+		}
+	}
+	
 	private static class SubstituteReplacementFunctionMaker implements ReplacementFunctionMaker {
 		@Override
 		public Function<Expression, Expression> apply(Expression expression, Function<Expression, Expression> replacementFunctionFunction, ExpressionAndContext expressionAndContext, RewritingProcess process) {

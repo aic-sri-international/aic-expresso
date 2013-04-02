@@ -298,7 +298,7 @@ public class RewriteOnce extends AbstractRewriter {
 		}
 
 		@Override
-		public boolean apply(Expression expression, RewritingProcess process) {
+		public boolean apply(Expression expression, Function<Expression, Expression> replacementFunction, RewritingProcess process) {
 			Object equivalenceClass = process.getExpressionEquivalenceClassForDeadEnd(expression);
 //			System.out.println("DeadEndPruner: " + rewriter);
 //			System.out.println("Checking for pruning:\n" + equivalenceClass);
