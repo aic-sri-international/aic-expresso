@@ -49,6 +49,12 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewrite
  * (because age(bob) inside that context is a distinct, new, local age(bob), much in the same way we have locally quantified symbols).
  * If Y != bob, however, "local" age(Y) is not the same as age(bob) and we do proceed with the substitution of age(bob) under that context.
  * 
+ * IMPLEMENTATION NOTE: this implementation assumes that symbols or functions modified by quantification are not used as an argument to another quantified function application in the same scoping level, such as in
+ * (on X, f(X)), or (on f(a), g(f(X))).
+ * This is ultimately due to the fact that the current implementation does not consider the subsequent quantifications to be sub-expressions of the first, even though it should.
+ * When the framework is modified to do that, this code should work correctly without any changes.
+ * The current code works correctly if one re-structures such expressions as multiple separate quantifications, as in (on X) {{ (on f(X)) ..., or (on f(a) {{ (on g(f(X)) ... and so on.
+ * 
  * Here are a few more examples:
  * 
  *      Replacing    Replacement                                    Expression                                                              Result
