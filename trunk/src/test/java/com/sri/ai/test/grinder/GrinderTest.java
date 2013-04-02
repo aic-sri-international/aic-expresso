@@ -891,7 +891,17 @@ public class GrinderTest extends AbstractGrinderTest {
 		process.putGlobalObject(parse("|type(Y)|"), parse("10"));
 		process.putGlobalObject(parse("|type(Z)|"), parse("10"));
 		process.putGlobalObject(parse("|type(W)|"), parse("10"));
+		
+		//
+		// IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch failure condition (i.e. keeps expanding else branch in the manner below), 
+		// when calling NewSubstitute.
+		replacements = Util.map(parse("W = 10"), parse("false"));
+		result = NewSubstitute.replaceAll(
+				parse("if false then false else 10 = | type(X) |"),
+				replacements, process);
+		assertEquals(parse("if false then false else (if W = 10 then false else 10 = | type(X) |)"), result);
 
+		//
 		replacements = Util.map(parse("y"), parse("1"));
 		result = NewSubstitute.replaceAll(
 				parse("x + 2"),

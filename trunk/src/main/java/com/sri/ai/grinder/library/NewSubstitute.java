@@ -81,6 +81,14 @@ public class NewSubstitute {
 		}
 		return expression;
 	}
+	
+	public static Expression replace(Expression expression,
+			Expression replaced, Expression replacement,
+			RewritingProcess process) {
+		Expression result =  substitute(expression, replaced, Expressions.TRUE, replacement, process);
+		
+		return result;
+	}
 
 	private static Expression substitute(Expression expression, Expression replaced, Expression constraintOnReplaced, Expression replacement, RewritingProcess process) {
 		Expression result =
