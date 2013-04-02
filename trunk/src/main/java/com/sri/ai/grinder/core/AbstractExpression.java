@@ -66,7 +66,7 @@ public abstract class AbstractExpression implements Expression {
 	//
 	public static final PruningPredicate TRUE_PRUNING_PREDICATE = new PruningPredicate() {
 		@Override
-		public boolean apply(Expression o1, RewritingProcess o2) {
+		public boolean apply(Expression o1, Function<Expression, Expression> replacementFunction, RewritingProcess o2) {
 			return true;
 		}
 	};
@@ -207,7 +207,7 @@ public abstract class AbstractExpression implements Expression {
 			TernaryProcedure<Expression, Expression, RewritingProcess> listener, 
 			RewritingProcess process) {
 		
-		if (prunePredicate != null && prunePredicate.apply(this, process)) {
+		if (prunePredicate != null && prunePredicate.apply(this, replacementFunction, process)) {
 			return this;
 		}
 		

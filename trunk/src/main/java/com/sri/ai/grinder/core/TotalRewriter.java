@@ -78,7 +78,7 @@ public class TotalRewriter extends AbstractRewriter {
 			CacheMap.NO_GARBAGE_COLLECTION);
 	private PruningPredicate deadEndPruner = new PruningPredicate() {
 		@Override
-		public boolean apply(Expression expression, RewritingProcess process) {
+		public boolean apply(Expression expression, Function<Expression, Expression> replacementFunction, RewritingProcess process) {
 			boolean result = deadEndsCache.containsKeyFor(expression, process);
 			return result;
 		}
