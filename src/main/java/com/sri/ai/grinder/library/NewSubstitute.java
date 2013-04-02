@@ -56,9 +56,9 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewrite
  * The current code works correctly if one re-structures such expressions as multiple separate quantifications, as in (on X) {{ (on f(X)) ..., or (on f(a) {{ (on g(f(X)) ... and so on.
  * 
  * Here are a few more examples:
- * 
+ * <pre>
  *      Replacing    Replacement                                    Expression                                                              Result
- * 		p(a)                   2                              {(on q(a)) p(a)}                                                       {(on q(a)) 2}
+ *      p(a)                   2                              {(on q(a)) p(a)}                                                       {(on q(a)) 2}
  *      p(a)                   2                              {(on p(a)) p(a)}                                                    {(on p(a)) p(a)}
  *      p(a)                   2                              {(on p(X)) p(a)}                              {(on p(X)) if X != a then 2 else p(a)}
  *      p(X)                   2                              {(on p(a)) p(X)}                              {(on p(a)) if X != a then 2 else p(X)}
@@ -67,7 +67,7 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewrite
  *      p(X,Y)                 2                          {(on p(W,Z)) p(Y,X)}    {(on p(W,Z)) if (W != X or Z != Y) and X = Y then 2 else p(Y,X)}
  *      p(X,Y)                 2                          {(on p(Y,X)) p(Y,X)}                                                {(on p(Y,X)) p(Y,X)}
  *      p(X,Y)                 2  if W != X and Z != Y then p(W,Z) else p(a,Y)   if W != X and Z != Y then p(W,Z) else if X = a then 2 else p(a,Y)
- *
+ * </pre>
  * @author braz
  *
  */
