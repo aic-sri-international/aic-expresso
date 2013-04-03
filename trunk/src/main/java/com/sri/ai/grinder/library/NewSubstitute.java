@@ -129,7 +129,7 @@ public class NewSubstitute {
 		return result;
 	}
 
-	private static Expression substitute(Expression expression, Expression replaced, Expression constraintOnReplaced, Expression replacement, RewritingProcess process) {
+	private static Expression substitute(Expression expression, Expression replaced, Expression constraintOnReplaced, Expression replacement, RewritingProcess process) {	
 		Expression result =
 				expression.replaceAllOccurrences(
 						new SubstituteReplacementFunction(replaced, constraintOnReplaced, replacement), new SubstituteReplacementFunctionMaker(),
@@ -163,7 +163,10 @@ public class NewSubstitute {
 				Expression argumentsAreTheSameAndReplacedIsConstrained = And.make(constraintOnReplaced, argumentsAreTheSame);
 				Expression conditionForExpressionToMatchReplaced = process.rewrite(CardinalityRewriter.R_complete_simplify, argumentsAreTheSameAndReplacedIsConstrained);
 				RewritingProcess newProcess = GrinderUtil.extendContextualConstraint(conditionForExpressionToMatchReplaced, process);
-				Expression replacementIfConditionHolds = substitute(replacement, replaced, constraintOnReplaced, replacement, newProcess);
+				Expression replacementIfConditionHolds = replacement;
+				if (!replacement.equals(replaced)) {
+					replacementIfConditionHolds = substitute(replacement, replaced, constraintOnReplaced, replacement, newProcess);
+				}
 				result = IfThenElse.make(conditionForExpressionToMatchReplaced, replacementIfConditionHolds, expression);
 			}
 			return result;

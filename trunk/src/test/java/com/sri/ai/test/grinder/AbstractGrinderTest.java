@@ -177,7 +177,7 @@ abstract public class AbstractGrinderTest {
 		System.out.println(expression);
 		System.out.println();
 
-		process.setGlobalObjects(globalObjects);
+		process.getGlobalObjects().putAll(globalObjects);
 		
 		Stopwatch stopwatch = new Stopwatch().start();
 		actual = evaluator.rewrite(expression, process);

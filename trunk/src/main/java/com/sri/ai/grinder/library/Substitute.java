@@ -78,7 +78,7 @@ import com.sri.ai.util.collect.FunctionIterator;
 @Beta
 public class Substitute {
 
-	public static boolean USE_NEW_SUBSTITUTE_LOGIC = false;
+	public static boolean USE_NEW_SUBSTITUTE_LOGIC = true;
 	
 	private static final List<Integer> _pathMinusOne = Collections
 			.unmodifiableList(Arrays.asList(new Integer(-1)));

@@ -899,6 +899,13 @@ public class GrinderTest extends AbstractGrinderTest {
 				replacements, process);
 		assertEquals(parse("if false then false else (if W = 10 then false else 10 = | type(X) |)"), result);
 
+		// Test stack overflow condition.
+		replacements = Util.map(parse("sick(john)"), parse("sick(john)"));
+		result = NewSubstitute.replaceAll(
+				parse("sick(john)"),
+				replacements, process);
+		assertEquals(parse("sick(john)"), result);
+		
 		//
 		replacements = Util.map(parse("y"), parse("1"));
 		result = NewSubstitute.replaceAll(
@@ -1267,15 +1274,18 @@ public class GrinderTest extends AbstractGrinderTest {
 
 		expressionString = "if even(X) then f(even(X)) else g(even(X))";
 		expected = parse("if even(X) then f(true) else g(false)");
-		evaluationTest();
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 
 		expressionString = "if even(X) then f(even(Y)) else g(even(X))";
 		expected = parse("if even(X) then f(if Y = X then true else even(Y)) else g(false)");
-		evaluationTest();
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 
 		expressionString = "if even(X) then {(on even(a)) f(even(Y))} else g(even(X))";
-		expected = parse("if even(X) then {(on even(a)) f(if Y != a and Y = X then true else even(Y))} else g(false)");
-		evaluationTest();
+		expected = Expressions.make(ANY_OF, 
+					parse("if even(X) then {(on even(a)) f(if Y != a and Y = X then true else even(Y))} else g(false)"),
+					parse("if even(X) then {(on even(a)) f(if X != a and Y = X then true else even(Y))} else g(false)"));
+		
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 	}
 	
 	
@@ -1734,23 +1744,23 @@ public class GrinderTest extends AbstractGrinderTest {
 
 		expressionString = "if Z = a then f(lambda Z : g(Z)) else 0";
 		expected = parse("if Z = a then f(lambda Z : g(Z)) else 0");
-		evaluationTest();
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 		
 		expressionString = "'scoped variables'(lambda Z : Z)";
 		expected = parse("list(Z)");
-		evaluationTest();
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 		
 		expressionString = "'scoped variables'(lambda f(X) : f(X))";
 		expected = parse("list(f(X))");
-		evaluationTest();
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 		
 		expressionString = "if X = a then lambda f(X) : f(X) else 1";
 		expected = parse("if X = a then lambda f(X) : f(X) else 1");
-		evaluationTest();
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 		
 		expressionString = "(lambda f(X) : 2 + f(X))(1)";
 		expected = parse("2 + 1");
-		evaluationTest();
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 	}
 	
 	@Test
