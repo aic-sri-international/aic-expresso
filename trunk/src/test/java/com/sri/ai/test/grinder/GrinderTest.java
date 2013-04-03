@@ -115,6 +115,7 @@ import com.sri.ai.grinder.library.set.intensional.EqualityOfIntensionalUniSets;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
+import com.sri.ai.test.grinder.library.equality.cardinality.CountsDeclaration;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
@@ -811,7 +812,8 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluator = new ExhaustiveRewriter(library);
 
 		Expression result;
-		DefaultRewritingProcess process = new DefaultRewritingProcess(null, evaluator);
+		
+		RewritingProcess process = newRewritingProcessWithCardinalityAndCounts(evaluator);
 
 		Map<Expression, Expression> replacements= Util.map(parse("y"), parse("1"));
 		result = Substitute.replaceAll(
@@ -885,12 +887,8 @@ public class GrinderTest extends AbstractGrinderTest {
 
 		Expression result;
 		Map<Expression, Expression> replacements;
-		DefaultRewritingProcess process = new DefaultRewritingProcess(null, evaluator);
-		process.setRewriterLookup(new DefaultRewriterLookup(DirectCardinalityComputationFactory.getCardinalityRewritersMap()));
-		process.putGlobalObject(parse("|type(X)|"), parse("10"));
-		process.putGlobalObject(parse("|type(Y)|"), parse("10"));
-		process.putGlobalObject(parse("|type(Z)|"), parse("10"));
-		process.putGlobalObject(parse("|type(W)|"), parse("10"));
+
+		RewritingProcess process = newRewritingProcessWithCardinalityAndCounts(evaluator);
 		
 		//
 		// IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch failure condition (i.e. keeps expanding else branch in the manner below), 
@@ -1278,24 +1276,48 @@ public class GrinderTest extends AbstractGrinderTest {
 		expressionString = "if even(X) then {(on even(a)) f(even(Y))} else g(even(X))";
 		expected = parse("if even(X) then {(on even(a)) f(if Y != a and Y = X then true else even(Y))} else g(false)");
 		evaluationTest();
-
+	}
+	
+	
+	@Ignore("Not currently supported.")
+	@Test
+	public void testIfThenElseConditionIsTrueInThenBranchAndFalseInElseBranchOnEquality() {
+		Library library = new DefaultLibrary(
+				new IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch(),
+				new Equality(),
+				new Disequality(),
+				new IfThenElse(),
+				new And(),
+				new Or(),
+				// Required Modules
+				new ScopedVariables(),
+				new IntensionalSet(),
+				new ExpressionKnowledgeModule(),
+				new ImposedConditionsModule(),
+				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
+				new IntensionalSetSubExpressionsAndImposedConditionsProvider());
+		
+		evaluator = new ExhaustiveRewriter(library);
+		
+		RewritingProcess process = newRewritingProcessWithCardinalityAndCounts(evaluator);
+		
 		// substitutions on = and != only take place when they are non-trivial.
 		expressionString = "if X = Y then f(X = Y) else g(X = Y)";
-		expected = parse("if X = Y then f(true) else g(false)");
-		evaluationTest();
+		expected =   parse("if X = Y then f(true) else g(false)");
+		evaluationTest(process);
 
 		expressionString = "if X = Y then f(X = Z) else g(X = Y)";
-		expected = parse("if X = Y then f(X = Z) else g(false)");
-		evaluationTest();
+		expected =   parse("if X = Y then f(X = Z) else g(false)");
+		evaluationTest(process);
 
 		expressionString = "if X = Y then {(on X = a) f(X = Y)} else g(X = Y)";
-		expected = parse("if X = Y then {(on X = a) f(X = Y)} else g(false)");
-		evaluationTest();
+		expected =   parse("if X = Y then {(on X = a) f(X = Y)} else g(false)");
+		evaluationTest(process);
 		
 		// Test For: ALBP-78
 		expressionString = "if X = a and Y = b then if p(a) and q(a, b) then E1 else E2 else if p(X) and q(X, Y) then E1 else E2";
-		expected = parse("if X = a and Y = b then if p(a) and q(a, b) then E1 else E2 else if p(X) and q(X, Y) then E1 else E2");
-		evaluationTest();
+		expected =   parse("if X = a and Y = b then if p(a) and q(a, b) then E1 else E2 else if p(X) and q(X, Y) then E1 else E2");
+		evaluationTest(process);
 	}
 	
 	@Test
@@ -1934,5 +1956,15 @@ public class GrinderTest extends AbstractGrinderTest {
 		process = new DefaultRewritingProcess(expression1, evaluator);
 		unificationCondition = Unification.unificationCondition(expression1, expression2, process);
 		assertEquals(expected, unificationCondition);
+	}
+	
+	private RewritingProcess newRewritingProcessWithCardinalityAndCounts(Rewriter evaluator) {
+		
+		DefaultRewritingProcess process = new DefaultRewritingProcess(null, evaluator);
+		process.setRewriterLookup(new DefaultRewriterLookup(DirectCardinalityComputationFactory.getCardinalityRewritersMap()));
+		CountsDeclaration countsDeclaration = new CountsDeclaration(10);
+		countsDeclaration.setup(process);
+		
+		return process;
 	}
 }
