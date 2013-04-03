@@ -162,6 +162,14 @@ abstract public class AbstractGrinderTest {
 	}
 
 	protected void evaluationTest(Rewriter evaluator) {
+		evaluationTest(evaluator, globalObjects, new DefaultRewritingProcess(evaluator));
+	}
+	
+	protected void evaluationTest(RewritingProcess process) {
+		evaluationTest(evaluator, globalObjects, process);
+	}
+	
+	protected void evaluationTest(Rewriter evaluator, Map<Object, Object> globalObjects, RewritingProcess process) {
 		System.out.println("Solving " + expressionString);
 
 		expression = parse(expressionString);
@@ -169,8 +177,10 @@ abstract public class AbstractGrinderTest {
 		System.out.println(expression);
 		System.out.println();
 
+		process.setGlobalObjects(globalObjects);
+		
 		Stopwatch stopwatch = new Stopwatch().start();
-		actual = evaluator.rewrite(expression, globalObjects);
+		actual = evaluator.rewrite(expression, process);
 		long evaluationTime = stopwatch.elapsedMillis();
 		System.out.println("Evaluation time: " + evaluationTime + " ms");
 	

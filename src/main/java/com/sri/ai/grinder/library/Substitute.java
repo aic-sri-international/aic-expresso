@@ -78,6 +78,8 @@ import com.sri.ai.util.collect.FunctionIterator;
 @Beta
 public class Substitute {
 
+	public static boolean USE_NEW_SUBSTITUTE_LOGIC = false;
+	
 	private static final List<Integer> _pathMinusOne = Collections
 			.unmodifiableList(Arrays.asList(new Integer(-1)));
 
@@ -107,10 +109,15 @@ public class Substitute {
 	public static Expression replace(Expression expression,
 			Expression replaced, Expression replacement,
 			boolean needTotalReplacement, RewritingProcess process) {
-		return replace(expression, replaced, replacement, null,
-				needTotalReplacement, process);
+		
+		if (USE_NEW_SUBSTITUTE_LOGIC) {
+			return NewSubstitute.replace(expression, replaced, replacement, process);
+		}
+		else {
+			return replace(expression, replaced, replacement, null, needTotalReplacement, process);
+		}
 	}
-
+	
 	private static Expression replace(Expression expression,
 			Expression replaced, Expression replacement,
 			PruningPredicate prunePredicate,

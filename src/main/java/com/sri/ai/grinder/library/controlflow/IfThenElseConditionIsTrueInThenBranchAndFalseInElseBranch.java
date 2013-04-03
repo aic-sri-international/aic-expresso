@@ -53,7 +53,7 @@ import com.sri.ai.grinder.library.Substitute;
  */
 @Beta
 public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends AbstractRewriter {
-
+	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		if (IfThenElse.isIfThenElse(expression)) {
@@ -87,8 +87,9 @@ public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends A
 		// or we don't support replacement in these cases yet 
 		// (boolean formulas other than conjunctions).
 		else if (!(Expressions.isBooleanOperatorApplication(condition) ||
-				condition.equals(FunctorConstants.TRUE) ||
-				condition.equals(FunctorConstants.FALSE))) {
+				   Expressions.isEqualityFormulaOnAtomicSymbols(condition) ||
+				   condition.equals(FunctorConstants.TRUE) ||
+				   condition.equals(FunctorConstants.FALSE))) {
 			thenBranch = Substitute.replace(thenBranch, condition, Expressions.TRUE, false /* no need for total replacement */, process);
 		}
 
@@ -107,8 +108,9 @@ public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends A
 		// or we don't support replacement in these cases yet 
 		// (boolean formulas other than conjunctions).
 		else if (!(Expressions.isBooleanOperatorApplication(condition) ||
-				condition.equals(FunctorConstants.TRUE) ||
-				condition.equals(FunctorConstants.FALSE))) {
+				   Expressions.isEqualityFormulaOnAtomicSymbols(condition) ||
+				   condition.equals(FunctorConstants.TRUE) ||
+				   condition.equals(FunctorConstants.FALSE))) {
 			elseBranch = Substitute.replace(elseBranch, condition, Expressions.FALSE, false /* no need for total replacement */, process);
 		}
 		
