@@ -40,6 +40,8 @@ package com.sri.ai.test.grinder.library.equality.cardinality.direct;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Assume;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -87,6 +89,11 @@ public class DirectSimplifyStressIT extends AbstractGrinderTest {
 		BranchAndMerge.reset();
 		// For convenience
 		BrewerConfiguration.setProperty(BrewerConfiguration.KEY_OUTPUT_PARSING_TIME_INFO, "false");
+	}
+	
+	@Before
+	public void ignoreTest() {
+		Assume.assumeFalse("Stress Tests Ignored.", Boolean.getBoolean("ignore.stress.tests"));
 	}
 	
 	@Override
