@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -77,6 +78,11 @@ public abstract class AbstractCardinalityRewriterStressTests extends AbstractGri
 	protected static final int				 _domainSize = 10;
 	protected static final int               _numberRewritesToAverage = 3;
 	protected static final CountsDeclaration _sharedCountsDeclaration = new CountsDeclaration(_domainSize);
+	
+	@Before
+	public void ignoreTest() {
+		Assume.assumeFalse("Stress Tests Ignored.", Boolean.getBoolean("ignore.stress.tests"));
+	}
 	
 	@Before
 	public void setup() {
