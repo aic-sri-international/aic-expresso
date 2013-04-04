@@ -120,7 +120,7 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 				// i.e {x \ xi}
 				oi.x.remove(oi.xi);
 				Trace.log("return R_card(| R_simplify(Phi[x_i / t]) |_X\\{xi}, quantification) // Phi={}, x_i={}, t={}", oi.phi, oi.xi, t);
-				Expression phiXiReplacedWithT           = Substitute.replace(oi.phi, oi.xi, t, true, process);
+				Expression phiXiReplacedWithT           = Substitute.replace(oi.phi, oi.xi, t, process);
 				Expression simplifiedPhiXiReplacedWithT = process.rewrite(R_simplify, phiXiReplacedWithT);
 				
 				Expression cardPhiXiReplacedWithTIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(simplifiedPhiXiReplacedWithT, oi.x.toArray(new Expression[oi.x.size()]));

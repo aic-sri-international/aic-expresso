@@ -74,7 +74,6 @@ import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Distributive;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.NewSubstitute;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.StandardizedApartFrom;
 import com.sri.ai.grinder.library.Substitute;
@@ -802,79 +801,7 @@ public class GrinderTest extends AbstractGrinderTest {
 	}
 
 	@Test
-	public void testSubstitution() {
-		Library library = new DefaultLibrary(
-				new ScopedVariables(),
-				new ExpressionKnowledgeModule(),
-				new ImposedConditionsModule(),
-				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new IntensionalSetSubExpressionsAndImposedConditionsProvider());
-		evaluator = new ExhaustiveRewriter(library);
-
-		Expression result;
-		
-		RewritingProcess process = newRewritingProcessWithCardinalityAndCounts(evaluator);
-
-		Map<Expression, Expression> replacements= Util.map(parse("y"), parse("1"));
-		result = Substitute.replaceAll(
-				parse("x + 2"),
-				replacements, process);
-		assertEquals(parse("x + 2"), result);
-		
-		replacements = Util.map(parse("x"), parse("1"));
-		result = Substitute.replaceAll(
-				parse("x + 2"),
-				replacements, process);
-		assertEquals(parse("1 + 2"), result);
-		
-		replacements = Util.map();
-		result = Substitute.replaceAll(
-				parse("x + 2"),
-				replacements, process);
-		assertEquals(parse("x + 2"), result);
-		
-		replacements = Util.map(
-				parse("x"), parse("2"),
-				parse("2"), parse("10"));
-		result = Substitute.replaceAll(
-				parse("x + 2"),
-				replacements, process);
-		assertEquals(parse("2 + 10"), result);
-		
-		replacements = Util.map(parse("x"), parse("2"));
-		result = Substitute.replaceAll(
-				parse("f(g(h(x)))"),
-				replacements, process);
-		assertEquals(parse("f(g(h(2)))"), result);
-		
-		replacements =Util.map(parse("x"), parse("2"));
-		result = Substitute.replaceAll(
-				parse("{(on x) x}"),
-				replacements, process);
-		assertEquals(parse("{(on x) x}"), result); // should respect scoped symbols
-		
-		replacements = Util.map(parse("x"), parse("2"));
-		result = Substitute.replaceAll(
-				parse("x + {(on x) f(x)}"),
-				replacements, process);
-		assertEquals(parse("2 + {(on x) f(x)}"), result); // should respect scoped symbols
-		
-		replacements = Util.map(parse("x"), parse("2"));
-		result = Substitute.replaceAll(
-				parse("x + {(on x in group(x)) f(x)}"),
-				replacements, process);
-		assertEquals(parse("2 + {(on x in group(2)) f(x)}"), result); //  should respect scoped symbols; group(x) is not scoped by inner x
-		
-		replacements = Util.map(parse("x"), parse("2"));
-		result = Substitute.replaceAll(
-				parse("x + {(on y) f(x)}"),
-				replacements, process);
-		assertEquals(parse("2 + {(on y) f(2)}"), result); // x is not scoped here
-		
-	}
-	
-	@Test
-	public void testNewSubstitute() {
+	public void testSubstitute() {
 		Library library = new DefaultLibrary(
 				new ScopedVariables(),
 				new IntensionalSet(),
@@ -894,33 +821,33 @@ public class GrinderTest extends AbstractGrinderTest {
 		// IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch failure condition (i.e. keeps expanding else branch in the manner below), 
 		// when calling NewSubstitute.
 		replacements = Util.map(parse("W = 10"), parse("false"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("if false then false else 10 = | type(X) |"),
 				replacements, process);
 		assertEquals(parse("if false then false else (if W = 10 then false else 10 = | type(X) |)"), result);
 
 		// Test stack overflow condition.
 		replacements = Util.map(parse("sick(john)"), parse("sick(john)"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("sick(john)"),
 				replacements, process);
 		assertEquals(parse("sick(john)"), result);
 		
 		//
 		replacements = Util.map(parse("y"), parse("1"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("x + 2"),
 				replacements, process);
 		assertEquals(parse("x + 2"), result);
 		
 		replacements = Util.map(parse("x"), parse("1"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("x + 2"),
 				replacements, process);
 		assertEquals(parse("1 + 2"), result);
 		
 		replacements = Util.map();
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("x + 2"),
 				replacements, process);
 		assertEquals(parse("x + 2"), result);
@@ -928,109 +855,109 @@ public class GrinderTest extends AbstractGrinderTest {
 		replacements = Util.map(
 				parse("x"), parse("2"),
 				parse("2"), parse("10"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("x + 2"),
 				replacements, process);
 		assertEquals(parse("2 + 10"), result);
 		
 		replacements = Util.map(parse("x"), parse("2"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("f(g(h(x)))"),
 				replacements, process);
 		assertEquals(parse("f(g(h(2)))"), result);
 		
 		replacements = Util.map(parse("X"), parse("2"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("{(on X) X}"),
 				replacements, process);
 		assertEquals(parse("{(on X) X}"), result); // should respect scoped symbols
 		
 		replacements = Util.map(parse("x"), parse("2"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("x + {(on x) f(x)}"),
 				replacements, process);
 		assertEquals(parse("2 + {(on x) f(x)}"), result); // should respect scoped symbols
 		
 		replacements = Util.map(parse("x"), parse("2"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("x + {(on x in group(x)) f(x)}"),
 				replacements, process);
 		assertEquals(parse("2 + {(on x in group(2)) f(x)}"), result); //  should respect scoped symbols; group(x) is not scoped by inner x
 		
 		replacements = Util.map(parse("x"), parse("2"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("x + {(on y) f(x)}"),
 				replacements, process);
 		assertEquals(parse("2 + {(on y) f(2)}"), result); // x is not scoped here
 		
 		replacements = Util.map(parse("p(a)"), parse("2"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("{(on q(a)) p(a)}"),
 				replacements, process);
 		assertEquals(parse("{(on q(a)) 2}"), result);
 		
 		replacements = Util.map(parse("p(a)"), parse("2"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("{(on p(a)) p(a)}"),
 				replacements, process);
 		assertEquals(parse("{(on p(a)) p(a)}"), result);
 		
 		replacements = Util.map(parse("p(a)"), parse("2"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("{(on p(X)) p(a)}"),
 				replacements, process);
 		assertEquals(parse("{(on p(X)) if X != a then 2 else p(a)}"), result);
 		
 		replacements = Util.map(parse("p(X)"), parse("2"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("{(on p(a)) p(X)}"),
 				replacements, process);
 		assertEquals(parse("{(on p(a)) if X != a then 2 else p(X)}"), result);
 		
 		replacements = Util.map(parse("p(Y)"), parse("2"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("p(X)"),
 				replacements, process);
 		assertEquals(parse("if X = Y then 2 else p(X)"), result);
 		
 		replacements = Util.map(parse("p(X)"), parse("2"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("{(on p(a), p(b), p(c)) p(X)}"),
 				replacements, process);
 		assertEquals(parse("{(on p(a), p(b), p(c)) if X != a and X != b and X != c then 2 else p(X)}"), result);
 		
 		replacements = Util.map(parse("p(X,Y)"), parse("2"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("{(on p(Y,X)) p(X,Y)}"),
 				replacements, process);
 		assertEquals(parse("{(on p(Y,X)) if X != Y then 2 else p(X,Y)}"), result);
 		
 		replacements = Util.map(parse("p(X,Y)"), parse("2"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("{(on p(W,Z)) p(Y,X)}"),
 				replacements, process);
 		assertEquals(parse("{(on p(W,Z)) if (W != X or Z != Y) and X = Y then 2 else p(Y,X)}"), result);
 		
 		replacements = Util.map(parse("p(X,Y)"), parse("2"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("{(on p(Y,X)) p(Y,X)}"),
 				replacements, process);
 		assertEquals(parse("{(on p(Y,X)) p(Y,X)}"), result);
 
 		replacements = Util.map(parse("p(X,Y)"), parse("2"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("if W != X and Z != Y then p(W,Z) else p(a,Y)"),
 				replacements, process);
 		assertEquals(parse("if W != X and Z != Y then p(W,Z) else if X = a then 2 else p(a,Y)"), result);
 
 		replacements = Util.map(parse("p(X,Y)"), parse("2"));
-		result = NewSubstitute.replaceAll(
+		result = Substitute.replaceAll(
 				parse("{{ (on p(a,Y)) {{ (on p(c,Y)) p(X,Y) }} or p(X,Y) | X != b }}"),
 				replacements, process);
 		assertEquals(parse("{{ (on p(a,Y))" +
 				               "{{ (on p(c,Y)) if X != a and X != c then 2 else p(X,Y) }} or (if X != a then 2 else p(X,Y))" +
 				               "| X != b }}"), result);
-}
+	}
 	
 	@Test
 	public void testDepthFirstIterator() {

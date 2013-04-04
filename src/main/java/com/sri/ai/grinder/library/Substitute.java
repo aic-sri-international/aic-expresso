@@ -37,412 +37,165 @@
  */
 package com.sri.ai.grinder.library;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractExpression;
 import com.sri.ai.grinder.core.PruningPredicate;
-import com.sri.ai.grinder.core.PruningPredicateMaker;
 import com.sri.ai.grinder.core.ReplacementFunctionMaker;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.util.Util;
-import com.sri.ai.util.base.IdentityWrapper;
-import com.sri.ai.util.collect.FunctionIterator;
+import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 
 /**
- * A class providing a set of static methods for substitution of sub-expressions
- * matching a given 'replaced' expression by a 'replacement'. This substitution
- * is semantic rather than syntactic, aiming at keeping an expression's
- * interpretation unchanged when the interpretation of 'replaced' is the same as
- * the interpretation of 'replacement'.
+ * A class providing a static method for substituting symbols or function applications in an expression
+ * by another expression (not subject itself to the same substitution).
  * 
+ * Replacing a symbol works as one would expect:
+ * 
+ * Replacing <code>X</code> by 99 in <code>foo</code> returns <code>foo</code>
+ * Replacing <code>X</code> by 99 in <code>X</code> returns <code>99</code>
+ * 
+ * However, quantifications need to be taken into account:
+ * replacing <code>X</code> by 99 in <code>X + if there exists X : X = 9 then X else 0</code> returns <code>99 + if there exists X : X = 9 then 99 else 0</code>
+ * because the quantified X works as a distinct variable. Its scope is limited to the if's condition,
+ * so the X in the then branch corresponds to the original X.
+ * 
+ * When replacing a function substitution, the function's corresponding "cell" has its value replaced.
+ * Here are some examples:
+ * 
+ * Replacing <code>f(10)</code> by 99 in <code>f(9)</code> returns <code>f(9)</code>
+ * Replacing <code>f(10)</code> by 99 in <code>f(X)</code> returns <code>if X = 10 then 99 else f(X)</code>
+ * Replacing <code>f(Y)</code> by 99 in <code>f(X)</code> returns <code>if X = Y then 99 else f(X)</code>
+ * Replacing <code>f(Y)</code> by 99 in <code>f(Y)</code> returns <code>99</code>
+ * 
+ * Quantification for function applications extends the symbol case, but may seem more confusing:
+ * 
+ * Replacing <code>age(bob)</code> by 99 in <code>age(bob) + if there exists age(Y) : age(Y) = age(bob) then 1 else 0</code>
+ * returns <code>99 + if Y = bob then (if there exists age(Y) : age(Y) = age(bob) then 1 else 0) else (if there exists age(Y) : age(Y) = 99 then 1 else 0)</code>
+ * 
+ * The above is justified in the following way: we know that the age of bob is 99, so we replace the first <code>age(bob)</code> by 99.
+ * The there exists quantification is asking the question of whether there is a possible age for a person Y (which may or may not be bob) satisfying a condition.
+ * If Y = bob, then the quantification is essentially defining a "local", distinct age(bob) (which is also age(Y)), so we do <i>not</i> substitute age(bob) by anything in that context
+ * (because age(bob) inside that context is a distinct, new, local age(bob), much in the same way we have locally quantified symbols).
+ * If Y != bob, however, "local" age(Y) is not the same as age(bob) and we do proceed with the substitution of age(bob) under that context.
+ * 
+ * IMPLEMENTATION NOTE: this implementation assumes that symbols or functions modified by quantification are not used as an argument to another quantified function application in the same scoping level, such as in
+ * (on X, f(X)), or (on f(a), g(f(X))).
+ * This is ultimately due to the fact that the current implementation does not consider the subsequent quantifications to be sub-expressions of the first, even though it should.
+ * When the framework is modified to do that, this code should work correctly without any changes.
+ * The current code works correctly if one re-structures such expressions as multiple separate quantifications, as in (on X) {{ (on f(X)) ..., or (on f(a) {{ (on g(f(X)) ... and so on.
+ * 
+ * Here are a few more examples:
+ * <pre>
+ *      Replacing    Replacement                                    Expression                                                              Result
+ *      p(a)                   2                              {(on q(a)) p(a)}                                                       {(on q(a)) 2}
+ *      p(a)                   2                              {(on p(a)) p(a)}                                                    {(on p(a)) p(a)}
+ *      p(a)                   2                              {(on p(X)) p(a)}                              {(on p(X)) if X != a then 2 else p(a)}
+ *      p(X)                   2                              {(on p(a)) p(X)}                              {(on p(a)) if X != a then 2 else p(X)}
+ *      p(Y)                   2                                          p(X)                                           if X = Y then 2 else p(X)
+ *      p(X,Y)                 2                          {(on p(Y,X)) p(X,Y)}                          {(on p(Y,X)) if X != Y then 2 else p(X,Y)} 
+ *      p(X,Y)                 2                          {(on p(W,Z)) p(Y,X)}    {(on p(W,Z)) if (W != X or Z != Y) and X = Y then 2 else p(Y,X)}
+ *      p(X,Y)                 2                          {(on p(Y,X)) p(Y,X)}                                                {(on p(Y,X)) p(Y,X)}
+ *      p(X,Y)                 2  if W != X and Z != Y then p(W,Z) else p(a,Y)   if W != X and Z != Y then p(W,Z) else if X = a then 2 else p(a,Y)
+ * </pre>
  * @author braz
+ *
  */
 @Beta
 public class Substitute {
 
-	public static boolean USE_NEW_SUBSTITUTE_LOGIC = true;
-	
-	private static final List<Integer> _pathMinusOne = Collections
-			.unmodifiableList(Arrays.asList(new Integer(-1)));
-
 	public static Expression replaceAll(Expression expression,
 			Map<? extends Expression, ? extends Expression> replacements,
 			RewritingProcess process) {
-		for (Map.Entry<? extends Expression, ? extends Expression> entry : replacements
-				.entrySet()) {
-			expression = replace(expression, entry.getKey(), entry.getValue(),
-					true, process);
+		for (Map.Entry<? extends Expression, ? extends Expression> entry : replacements.entrySet()) {
+			expression = substitute(expression, entry.getKey(), Expressions.TRUE, entry.getValue(), process);
 		}
 		return expression;
 	}
-
-	/**
-	 * Replaces all occurrences of an expression by another, taking into account
-	 * that expressions can unify; for example, replacing <code>p(a)</code> by
-	 * <code>true</code> will make <code>p(X)</code> be replaced by
-	 * <code>if X = a then true else p(X)</code>.
-	 * 
-	 * @param needTotalReplacement
-	 *            a flag indicating that replacements should be done only if the
-	 *            resulting expression is not dependent on the interpretation of
-	 *            expression anymore, or a {@link #NoSubstitution} exception be
-	 *            thrown.
-	 */
+	
 	public static Expression replace(Expression expression,
 			Expression replaced, Expression replacement,
-			boolean needTotalReplacement, RewritingProcess process) {
+			RewritingProcess process) {
+		Expression result =  substitute(expression, replaced, Expressions.TRUE, replacement, process);
 		
-		if (USE_NEW_SUBSTITUTE_LOGIC) {
-			return NewSubstitute.replace(expression, replaced, replacement, process);
-		}
-		else {
-			return replace(expression, replaced, replacement, null, needTotalReplacement, process);
-		}
-	}
-	
-	private static Expression replace(Expression expression,
-			Expression replaced, Expression replacement,
-			PruningPredicate prunePredicate,
-			boolean needTotalReplacement, RewritingProcess process) {
-		Expression result = expression.replace(new Substitution(replaced,
-				replacement, needTotalReplacement, process),
-				new MakeReplacementFunctionForSpecificSubExpression(),
-				prunePredicate,
-				new MakePruningPredicateForSpecificSubExpression(replaced),
-				false, // all occurrences
-				false, // do not ignore top expression
-				null, // no listener
-				process);
 		return result;
 	}
 
-	/**
-	 * NoSubstitution indicates that the function in a replaced function
-	 * application has been found in a form other than an applications of the
-	 * same arity. For example, we are replacing f(x) and find (f + g)(y). In
-	 * this case, we abstain from substitution altogether because NOT
-	 * substituting that f but substituting other applications of f would be
-	 * incorrect. So we just return the original expression in this case.
-	 * Another interesting case is replacing p or q and finding, say, p or r or
-	 * q; again, just not replacing it may lead to inconsistencies. In the
-	 * future, once we have stronger manipulation of lambda, perhaps we can do
-	 * better than that by dealing with replacement of function applications
-	 * being translated into the replacement of the function by a lambda
-	 * expression: that is, replacing f(x) with 'replacement' is the same as
-	 * replacing f with lambda z : if z = x then replacement else f(z)
-	 */
-	public static class NoSubstitution extends Error {
-		private static final long serialVersionUID = 1L;
-		
-		public NoSubstitution(String message) {
-			super(message);
-		}
+	private static Expression substitute(Expression expression, Expression replaced, Expression constraintOnReplaced, Expression replacement, RewritingProcess process) {	
+		Expression result =
+				expression.replaceAllOccurrences(
+						new SubstituteReplacementFunction(replaced, constraintOnReplaced, replacement), new SubstituteReplacementFunctionMaker(),
+						new SubstitutePruningPredicate(), null,
+						process);
+		return result;
 	}
+	
+	private static class SubstituteReplacementFunction implements ReplacementFunctionWithContextuallyUpdatedProcess {
 
-	private static class Substitution implements Function<Expression, Expression> {
-		private static Lock failedUnificationMapLock = new ReentrantLock();
+		public Expression replaced;
+		public Expression constraintOnReplaced;
+		public Expression replacement;
 		
-		private Expression replaced;
-		private Expression replacedFunctorOrSymbol;
-		private Expression replacement;
-		private boolean needTotalReplacement;
-		private List<Expression> scopedVariables;
-		private RewritingProcess process;
-		private Map<IdentityWrapper, Set<Expression>> failedPreviousUnificationsMap = null;
-
-		@SuppressWarnings("unchecked")
-		public Substitution(Expression replaced, Expression replacement, List<Expression> scopedVariables,
-				boolean needTotalReplacement, RewritingProcess process) {
-			super();
+		public SubstituteReplacementFunction(Expression replaced, Expression constraintOnReplaced, Expression replacement) {
 			this.replaced = replaced;
-			this.replacedFunctorOrSymbol = replaced.getFunctorOrSymbol();
+			this.constraintOnReplaced = constraintOnReplaced;
 			this.replacement = replacement;
-			this.scopedVariables = scopedVariables;
-			this.needTotalReplacement = needTotalReplacement;
-			this.process = process;
-			failedPreviousUnificationsMap = (Map<IdentityWrapper, Set<Expression>>) process.getGlobalObject("Substitute unification failed");
-			if (failedPreviousUnificationsMap == null) {
-				failedUnificationMapLock.lock();
-				try {
-					// Note: Ensure still null when acquire the lock
-					if (failedPreviousUnificationsMap == null) {
-						failedPreviousUnificationsMap = new ConcurrentHashMap<IdentityWrapper, Set<Expression>>();
-						process.putGlobalObject("Substitute unification failed", failedPreviousUnificationsMap);
-					}
-				} finally {
-					failedUnificationMapLock.unlock();
-				}
-			}
-		}
-		
-		public Substitution(Expression replaced, Expression replacement, boolean needTotalReplacement, RewritingProcess process) {
-			this(replaced, replacement, new LinkedList<Expression>(), needTotalReplacement, process);
-		}
-		
-		public Substitution copyButForNewScopedVariables(List<Expression> newScopedVariables) {
-			Substitution result = new Substitution(replaced, replacement, newScopedVariables, needTotalReplacement, process);
-			return result;
 		}
 		
 		@Override
-		public Expression apply(Expression expression) {
-
-			Expression expressionFunctorOrSymbol = expression
-					.getFunctorOrSymbol();
-			
-			Set<Expression> failedPreviousUnifications = failedPreviousUnificationsMap.get(new IdentityWrapper(expression));
-			
-			if (failedPreviousUnifications == null || ! failedPreviousUnifications.contains(replaced)) {
-				// See explanation of this condition below, when the result is annotated with the same kind of thing.
-				if (Util.equals(expressionFunctorOrSymbol, replacedFunctorOrSymbol)) {
-					// We perform two types of substitution: of a functor (for
-					// example, replacing f by g in f(x)), and of entire
-					// function applications
-					// (for example, f(x) by g(x) in h(f(x))).
-					// If we don't have one of those two cases, we don't know
-					// how to safely make a substitution.
-					// For example, it is not clear how to replace f(x) in
-					// h(f(x,y)) or in h(f).
-					// In that situation, we simply ignore that occurrence.
-					// However, if the flag needTotalReplacement is true, we can
-					// not ignore any occurrences.
-					// For example, we may have a 'replaced' equal to f(x) and
-					// an expression f(x) + (f + g)(x).
-					// Ignoring f (in f + g) when needTotalReplacement is true
-					// would be incorrect because replacing the value of f(x)
-					// does affect f as a whole.
-					// This would lead to a situation in which an expression has
-					// been "half-replaced".
-					// We therefore check whether the flag needTotalReplacement
-					// is true, and raise an exception NoSubstitution (an error,
-					// in fact, so that method signatures don't need to be
-					// changed everywhere)
-					// that can be caught by whatever code is using this
-					// UnaryFunction.
-					if (replaced.numberOfArguments() > 0
-							&& replaced.numberOfArguments() != expression
-									.numberOfArguments()) {
-						if (needTotalReplacement) {
-							throw new NoSubstitution(
-									"Cannot substitute "
-											+ replaced
-											+ " in an expression containing "
-											+ expression
-											+ " because current methods do not deal with a function application being replaced in an expression containing that same function applied to a distinct number of arguments, or by itself.");
-						} 
-						else {
-							return expression; // we cannot do the replacement,
-												// but we can move on and leave
-												// things partially replaced.
-						}
-					}
-	
-					Expression conditionForNotBeingShadowed = getConditionForNotBeingShadowedByScopedVariables(expression);			
-					if (conditionForNotBeingShadowed.equals(Expressions.FALSE)) {
-						// it is unconditionally shadowed by scoped variables,
-						// so no replacement
-						return expression;
-					}
-	
-					Expression conditionForCoincidingWithReplaced =
-							Equality.conditionForSubExpressionsEquality(expression, replaced);
-					if (conditionForCoincidingWithReplaced.equals(Expressions.FALSE)) {
-						// expression and replaced are unconditionally not
-						// coinciding, so no replacement
-						return expression;
-					}
-	
-					Expression conditionForNotBeingShadowedAndCoincideWithReplaced =
-							And.make(conditionForNotBeingShadowed, conditionForCoincidingWithReplaced);
-					if (conditionForNotBeingShadowedAndCoincideWithReplaced.equals(Expressions.TRUE)) {
-						// It's unconditionally replaced.
-						return replacement;
-					}
-	
-					// At this point, the result will be an expression depending
-					// on a non-trivial unification.
-					// Because substitution is justified (from a rewriting
-					// system point of view) by the fact that dependencies
-					// on 'replaced' are eliminated,
-					// the non-trivial unification condition prevents the
-					// simplification from holding in the cases in which
-					// 'replaced'
-					// is an equality application,
-					// since it might *introduce* equalities, possibly ones
-					// depending on 'replaced'.
-					// For this reason, we test for 'replaced' being an equality
-					// application and, if so, return the expression unchanged.
-					if (replaced.hasFunctor(FunctorConstants.EQUAL)
-							|| replaced.hasFunctor(FunctorConstants.INEQUALITY)) {
-						return expression;
-					}
-	
-					// Similarly, if the expression being replaced is an if then
-					// else, it may unify again with the if then else that is
-					// introduced
-					// because of the non-trivial unification.
-					// So we abstain from replacing in these cases.
-					// Obs.: these types of heuristics are not guarantees of no
-					// infinite substitutions -- the problem of deciding when
-					// that happens is probably very
-					// hard and we have not solved it.
-					// Instead, users will have to know what substitution does,
-					// and prove by themselves that, in the context of their
-					// applications and with
-					// the type of expressions they use, there will be no
-					// infinite substitutions.
-					if (IfThenElse.isIfThenElse(replaced)) {
-						return expression;
-					}
-	
-					// At this point, the result will be a conditional
-					// expression with 'expression' in the else branch.
-					// This will lead to a situation in which it might be
-					// rewritten again in the same way if we attempt further
-					// substitutions.
-					// For example, we may want to replace true conditions by
-					// 'true' and have
-					// if p(X) then f(p(Y)) else q
-					// which gets rewritten to
-					// if p(X) then if X = Y then f(true) else f(p(Y))
-					// If the same operation is attempted again, we get
-					// if p(X) then if X = Y then f(true) else f(if X = Y then
-					// f(true) else f(p(Y)))
-					// to infinity...
-					// To avoid that, we annotate the expression in the else branch (here, f(p(Y))) with the fact that it's already been checked for substitution.
-					// However, annotating the 'expression' instance is not correct because it may be present somewhere else
-					// where it still needs to be replaced.
-					// Therefore we make a clone of it to be used and annotated instead.
-					// This assumes that wherever that instance is moved to later, it will be in a context in which this substitution does
-					// not need to be done.
-					// This naturally depends on what other rewriters do, but it seems reasonable to assume that it will be true.
-					Expression newExpressionInstance = null;
-					try {
-						newExpressionInstance = (Expression) expression.clone();
-					} catch (CloneNotSupportedException e) {
-						e.printStackTrace();
-					}
-					Set<Expression> newFailedPreviousUnifications = failedPreviousUnifications == null? new HashSet<Expression>() :  new HashSet<Expression>(failedPreviousUnifications);
-					newFailedPreviousUnifications.add(replaced);
-					failedPreviousUnificationsMap.put(new IdentityWrapper(newExpressionInstance), newFailedPreviousUnifications);
-
-					Expression result =
-						IfThenElse.make(conditionForNotBeingShadowedAndCoincideWithReplaced,
-								replacement,
-								newExpressionInstance);
-	
-					return result;
-				}
-			}
-
-			return expression;
+		public Expression apply(Expression arg0) {
+			throw new Error(SubstituteReplacementFunction.class + ".apply(Expression) must not be invoked");
 		}
 
-		private Expression getConditionForNotBeingShadowedByScopedVariables(Expression expression) {
-			Iterator<Expression> conditionsForNotBeingShadowedByEachScopedVariableIterator = new FunctionIterator<Expression, Expression>(
-					scopedVariables,
-					new GetConditionForNotBeingShadowedByScopedVariable(
-							expression));
-			Expression result = And
-					.make(conditionsForNotBeingShadowedByEachScopedVariableIterator);
-			return result;
-		}
-
-		public class GetConditionForNotBeingShadowedByScopedVariable implements
-				Function<Expression, Expression> {
-
-			private Expression expression;
-
-			public GetConditionForNotBeingShadowedByScopedVariable(
-					Expression expression) {
-				super();
-				this.expression = expression;
-			}
-
-			@Override
-			public Expression apply(Expression scopedVariable) {
-				Expression result = getConditionForNotBeingShadowedByScopedVariable(
-						expression, scopedVariable);
-				return result;
-			}
-		}
-
-		public Expression getConditionForNotBeingShadowedByScopedVariable(
-				Expression expression, Expression scopedVariable) throws Error {
-			if (!expression.getFunctorOrSymbol().equals(
-					scopedVariable.getFunctorOrSymbol())) {
-				return Expressions.TRUE;
-			}
-			Expression condition = Disequality
-					.conditionForSubExpressionsDisequality(expression,
-							scopedVariable);
-			return condition;
-		}
-	}
-	
-	private static class MakeReplacementFunctionForSpecificSubExpression implements ReplacementFunctionMaker {
 		@Override
-		public Function<Expression, Expression> apply(Expression expression, Function<Expression, Expression> substitutionFunctionObject, ExpressionAndContext subExpressionAndContext, RewritingProcess process) {
-			Substitution substitutionFunction = (Substitution) substitutionFunctionObject;
-			Collection<Expression> subExpressionScopedVariables = subExpressionAndContext.getQuantifiedVariables();
-			List<Expression> newScopedVariables = new LinkedList<Expression>(substitutionFunction.scopedVariables);
-			newScopedVariables.addAll(subExpressionScopedVariables);
-			Substitution result = substitutionFunction.copyButForNewScopedVariables(newScopedVariables);
+		public Expression apply(Expression expression, RewritingProcess process) {
+			Expression result = expression;
+			if (expression.getFunctorOrSymbol().equals(replaced.getFunctorOrSymbol())) {
+				Expression argumentsAreTheSame = Equality.makePairwiseEquality(expression.getArguments(), replaced.getArguments());
+				Expression argumentsAreTheSameAndReplacedIsConstrained = And.make(constraintOnReplaced, argumentsAreTheSame);
+				Expression conditionForExpressionToMatchReplaced = process.rewrite(CardinalityRewriter.R_complete_simplify, argumentsAreTheSameAndReplacedIsConstrained);
+				RewritingProcess newProcess = GrinderUtil.extendContextualConstraint(conditionForExpressionToMatchReplaced, process);
+				Expression replacementIfConditionHolds = replacement;
+				if (!replacement.equals(replaced)) {
+					replacementIfConditionHolds = substitute(replacement, replaced, constraintOnReplaced, replacement, newProcess);
+				}
+				result = IfThenElse.make(conditionForExpressionToMatchReplaced, replacementIfConditionHolds, expression);
+			}
 			return result;
 		}
 	}
 
-	private static class MakePruningPredicateForSpecificSubExpression implements PruningPredicateMaker {
-		private Expression replaced;
-
-		public MakePruningPredicateForSpecificSubExpression(Expression replaced) {
-			super();
-			this.replaced = replaced;
-		}
-
+	private static class SubstitutePruningPredicate implements PruningPredicate {
 		@Override
-		public PruningPredicate apply(Expression expression, PruningPredicate prunePredicate,
-				ExpressionAndContext subExpressionAndContext) {
-			if (replaced.getSyntacticFormType().equals("Function application")
-					&& expression.getSyntacticFormType().equals("Function application")
-					&& replaced.hasFunctor(expression.getFunctor())
-					&& replaced.numberOfArguments() == expression.numberOfArguments()
-					&& subExpressionAndContext.getPath().equals(_pathMinusOne)) { // sub-expression
-																					// is
-																					// the
-																					// functor
-																					// of
-																					// expression
-				return AbstractExpression.TRUE_PRUNING_PREDICATE;
-				// We should not recurse into the functor of the function
-				// application, because the
-				// substitution will already be taken care of at the level of
-				// the function application itself.
-				// If we let it recurse, we would get a {@link #NoSubstitution}
-				// error, which would cancel the entire current substitution.
-				// See the description of that situation at the point in which
-				// it is thrown.
+		public boolean apply(Expression expression, Function<Expression, Expression> replacementFunctionFunction, RewritingProcess process) {
+			SubstituteReplacementFunction replacementFunction = (SubstituteReplacementFunction) replacementFunctionFunction;
+			boolean result = replacementFunction.constraintOnReplaced.equals(Expressions.FALSE);
+			return result;
+		}
+	}
+	
+	private static class SubstituteReplacementFunctionMaker implements ReplacementFunctionMaker {
+		@Override
+		public Function<Expression, Expression> apply(Expression expression, Function<Expression, Expression> replacementFunctionFunction, ExpressionAndContext expressionAndContext, RewritingProcess process) {
+			SubstituteReplacementFunction replacementFunction = (SubstituteReplacementFunction) replacementFunctionFunction;
+			Expression constraintOnReplaced = replacementFunction.constraintOnReplaced;
+			for (Expression quantifiedVariable : expressionAndContext.getQuantifiedVariables()) {
+				if (quantifiedVariable.getFunctorOrSymbol().equals(replacementFunction.replaced.getFunctorOrSymbol())) {
+					Expression argumentsAreDistinct = Not.make(Equality.makePairwiseEquality(quantifiedVariable.getArguments(), replacementFunction.replaced.getArguments()));
+					Expression argumentsAreDistinctAndReplacedIsConstrained = And.make(constraintOnReplaced, argumentsAreDistinct);
+					constraintOnReplaced = process.rewrite(CardinalityRewriter.R_complete_simplify, argumentsAreDistinctAndReplacedIsConstrained);
+				}
 			}
-			return prunePredicate; // otherwise, proceed with the regular prune
-									// predicate
+			SubstituteReplacementFunction result = new SubstituteReplacementFunction(replacementFunction.replaced, constraintOnReplaced, replacementFunction.replacement);
+			return result;
 		}
 	}
 }

@@ -90,7 +90,7 @@ public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends A
 				   Expressions.isEqualityFormulaOnAtomicSymbols(condition) ||
 				   condition.equals(FunctorConstants.TRUE) ||
 				   condition.equals(FunctorConstants.FALSE))) {
-			thenBranch = Substitute.replace(thenBranch, condition, Expressions.TRUE, false /* no need for total replacement */, process);
+			thenBranch = Substitute.replace(thenBranch, condition, Expressions.TRUE, process);
 		}
 
 		return thenBranch;
@@ -111,7 +111,7 @@ public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends A
 				   Expressions.isEqualityFormulaOnAtomicSymbols(condition) ||
 				   condition.equals(FunctorConstants.TRUE) ||
 				   condition.equals(FunctorConstants.FALSE))) {
-			elseBranch = Substitute.replace(elseBranch, condition, Expressions.FALSE, false /* no need for total replacement */, process);
+			elseBranch = Substitute.replace(elseBranch, condition, Expressions.FALSE, process);
 		}
 		
 		return elseBranch;

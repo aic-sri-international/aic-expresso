@@ -112,7 +112,7 @@ public class Lambda extends QuantifierSubExpressionAndScopedVariableProvider {
 				Expression parameter2 = parameter2Iterator.next();
 				if ( ! parameter1.equals(parameter2)) {
 					if (parameter1 instanceof Symbol && parameter2 instanceof Symbol) {
-						body2 = Substitute.replace(body2, parameter2, parameter1, true, process);
+						body2 = Substitute.replace(body2, parameter2, parameter1, process);
 //						body2 = Substitute.replaceWithoutTryingToUnify(body2, parameter2, parameter1, process);
 					}
 					else {
