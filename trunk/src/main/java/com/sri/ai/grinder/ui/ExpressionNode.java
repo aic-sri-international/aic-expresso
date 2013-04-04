@@ -178,21 +178,17 @@ public class ExpressionNode implements TreeNode {
 
 	@Override
 	public boolean isLeaf() {
-		if ( userObject instanceof Symbol ) { 
-			return true;
-		} 
-		else if ( userObject instanceof SyntaxTree ) {
-			return false;
-		} 
-		else {
-			process();
-			return children.isEmpty();
-		}
+		process();
+		return children.isEmpty();
 	}
 	
 	protected Vector<ExpressionNode> getChildren() {
 		Vector<ExpressionNode> result = new Vector<ExpressionNode>();
-		if ( !(userObject instanceof SyntaxTree) ) return result;
+		if ( !(userObject instanceof SyntaxTree) ||  
+			  (userObject instanceof Symbol))  {
+			return result;
+		}
+		
 		SyntaxTree expression = (SyntaxTree)userObject;
 		BasicParsingExpression parsingExpression = writer.getGrammar().getBasicParsingExpressionFor(expression);
 		if (parsingExpression == null) {
@@ -204,6 +200,7 @@ public class ExpressionNode implements TreeNode {
 		else if ( parsingExpression instanceof Sequence ) {
 			result = sequenceToTree((Sequence)parsingExpression, expression);
 		}
+		
 		return result;
 	}
 	
