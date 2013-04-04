@@ -188,9 +188,9 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 			RewritingProcess process) {
 		Expression indexValueExpression = getIndexValueExpressionFromIndex(index);
 		Expression newHead =
-			Substitute.replace(getHead(intensionalSet), indexValueExpression, value, true /* need total replacement */, process);
+			Substitute.replace(getHead(intensionalSet), indexValueExpression, value, process);
 		Expression conditionToUseAfterSubstitution =
-			Substitute.replace(conditionToUseBeforeSubstitution, indexValueExpression, value, true /* need total replacement */, process);
+			Substitute.replace(conditionToUseBeforeSubstitution, indexValueExpression, value, process);
 		List<Expression> indexExpressions = getIndexExpressions(intensionalSet);
 		indexExpressions = Util.listCopyWithoutSatisfyingElementOrNull(indexExpressions, new IndexExpressionHasIndex(indexValueExpression));
 		// at some point we should look for occurrences of the index in the domain of the other indices.

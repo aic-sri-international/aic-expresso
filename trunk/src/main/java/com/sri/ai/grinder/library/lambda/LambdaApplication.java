@@ -88,7 +88,7 @@ public class LambdaApplication extends AbstractRewriter {
 			while (parameterIterator.hasNext()) {
 				Expression parameter = parameterIterator.next();
 				Expression argument = argumentIterator.next();
-				result = Substitute.replace(result, parameter, argument, true, process);
+				result = Substitute.replace(result, parameter, argument, process);
 			}
 			return result;
 		}

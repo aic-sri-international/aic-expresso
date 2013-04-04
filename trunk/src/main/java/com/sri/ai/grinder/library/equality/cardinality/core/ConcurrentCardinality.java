@@ -295,7 +295,7 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 			}
 			conjuncts.remove(firstGoodEquality);
 			Expression newCon = And.make(conjuncts);
-			Expression newCondition = Substitute.replace(newCon, replaceVar, replacedBy, true, process);
+			Expression newCondition = Substitute.replace(newCon, replaceVar, replacedBy, process);
 			indices.remove(replaceVar);
 			result = cardinalityCompute(newCondition, indices, process);
 		} 

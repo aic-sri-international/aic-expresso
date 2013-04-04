@@ -173,7 +173,7 @@ public class Equality extends AbstractRewriter {
 			Pair<List<Expression>, Expression> variablesListAndConstant = getVariablesListAndConstantOrNullIfNoConstant(constraint, process);
 			if (variablesListAndConstant != null) {
 				for (Expression variable : variablesListAndConstant.first) {
-					expression = Substitute.replace(expression, variable, variablesListAndConstant.second, true /* needTotalReplacement */, process);
+					expression = Substitute.replace(expression, variable, variablesListAndConstant.second, process);
 				}
 			}
 		}
