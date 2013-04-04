@@ -37,17 +37,26 @@
  */
 package com.sri.ai.grinder.ui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -59,11 +68,13 @@ import com.google.common.annotations.Beta;
  *
  */
 @Beta
-public class ExpressionTreeView extends JTree implements TreeSelectionListener, TreeExpansionListener {
+public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 	private static final long serialVersionUID = 1L;
 	private Set<TreePath> expandedPaths = null;
 	private TreePath lastCollapsed = null;
 	private boolean supressExpansionEvent = false;
+	//
+	private JPopupMenu popupMenu = new JPopupMenu();
 	
 	public ExpressionTreeView(ExpressionNode node, boolean keepExpandedNodesOpen) {
 		super(node);
@@ -74,31 +85,16 @@ public class ExpressionTreeView extends JTree implements TreeSelectionListener, 
 		super(model);
 		init(keepExpandedNodesOpen);
 	}	
-
-	private void init(boolean keepExpandedNodesOpen) {
-		expandedPaths = Collections.synchronizedSet(new HashSet<TreePath>());
-		setCellRenderer(new ExpressionNodeRenderer());
-		getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		addTreeSelectionListener(this);
-		if ( keepExpandedNodesOpen )
-			addTreeExpansionListener(this);
-		supressExpansionEvent = false;
-	}
-	
 	
 	public String getToolTipText(MouseEvent evt) {
-        if (getRowForLocation(evt.getX(), evt.getY()) == -1)
+        if (getRowForLocation(evt.getX(), evt.getY()) == -1) {
           return null;
+        }
+        
         TreePath curPath = getPathForLocation(evt.getX(), evt.getY());
+        
         return ((ExpressionNode) curPath.getLastPathComponent()).getToolTipText();
-      }
-
-	@Override
-	public void valueChanged(TreeSelectionEvent e) {
-		//ExpressionNode node = (ExpressionNode)getLastSelectedPathComponent();
-		//if (node == null) return;
-	}
-
+    }
 
 	@Override
 	public void treeCollapsed(TreeExpansionEvent e) {
@@ -131,4 +127,75 @@ public class ExpressionTreeView extends JTree implements TreeSelectionListener, 
 		supressExpansionEvent = false;
 	}
 	
+	//
+	// PRIVATE 	
+	//
+	private void init(boolean keepExpandedNodesOpen) {
+		expandedPaths = Collections.synchronizedSet(new HashSet<TreePath>());
+		setCellRenderer(new ExpressionNodeRenderer());
+		getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		if (keepExpandedNodesOpen) {
+			addTreeExpansionListener(this);
+		}
+		supressExpansionEvent = false;
+
+		initPopupMenu();
+	}
+	
+	private void initPopupMenu() {
+		JMenuItem goLast = new JMenuItem("Go Last");
+		goLast.setAction(new GoLastAction());
+		popupMenu.add(goLast);
+		
+		//Add listener to components that can bring up popup menus.
+	    MouseListener popupListener = new PopupListener();
+	    addMouseListener(popupListener);
+	}
+	
+	class PopupListener extends MouseAdapter {
+	    public void mousePressed(MouseEvent e) {
+	        maybeShowPopup(e);
+	    }
+
+	    public void mouseReleased(MouseEvent e) {
+	        maybeShowPopup(e);
+	    }
+
+	    private void maybeShowPopup(MouseEvent e) {
+	        if (e.isPopupTrigger()) {
+	            popupMenu.show(e.getComponent(),
+	                       e.getX(), e.getY());
+	        }
+	    }
+	}
+	
+	class GoLastAction extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+		
+		public GoLastAction() {
+			putValue(Action.NAME, "Go Last");
+			putValue(Action.SHORT_DESCRIPTION, "Go Last");
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent ae) {
+			TreeModel      model = getModel();
+			Object         last  = model.getRoot();
+			List<TreeNode> path  = new ArrayList<TreeNode>();
+			if (last != null) {
+				path.add((TreeNode)last);
+				int childCount = model.getChildCount(last);
+				while (childCount > 0) {
+					last = model.getChild(last, childCount-1);
+					path.add((TreeNode)last);
+					childCount = model.getChildCount(last);
+				}
+				TreePath treePath = new TreePath(path.toArray(new TreeNode[path.size()]));
+				
+				addSelectionPath(treePath);
+				scrollPathToVisible(treePath);
+			}
+			
+		}
+	}
 }
