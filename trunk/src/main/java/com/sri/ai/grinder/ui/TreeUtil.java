@@ -95,6 +95,7 @@ public class TreeUtil {
 	public static void main(String[] args) {
 		TreeUtil.setWriter(DefaultWriter.newDefaultConfiguredWriter());
 		TreeUtil.displayExpressionsTrees();
+		
 		TreeUtil.addTrace("root");
 		TreeUtil.startTraceLevel();
 		
