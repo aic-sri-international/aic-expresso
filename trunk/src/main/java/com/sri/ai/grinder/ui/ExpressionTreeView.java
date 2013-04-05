@@ -110,21 +110,21 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 		return findPanel;
 	}
 	
-	public boolean findNext(String findWhat) {
+	public boolean findNext(String findWhat, boolean regularExpression) {
 		TreePath startFrom = getLeadSelectionPath();
 		if (startFrom == null) {
 			startFrom = getRoot();
 		}
-		boolean result = search(startFrom, findWhat, true);
+		boolean result = search(startFrom, findWhat, true, regularExpression);
 		return result;
 	}
 	
-	public boolean findPrevious(String findWhat) {
+	public boolean findPrevious(String findWhat, boolean regularExpression) {
 		TreePath startFrom = getLeadSelectionPath();
 		if (startFrom == null) {
 			startFrom = getLastLeaf();
 		}
-		boolean result = search(startFrom, findWhat, false);
+		boolean result = search(startFrom, findWhat, false, regularExpression);
 		return result;
 	}
 
@@ -199,24 +199,6 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 		return treePath;
 	}
 	
-	private TreePath getFirstLeaf() {
-		TreeModel      model = getModel();
-		TreeNode       next  = (TreeNode) model.getRoot();
-		List<TreeNode> path  = new ArrayList<TreeNode>();
-		while (next != null) {
-			path.add(next);
-			if (next.getChildCount() > 0) {
-				next = next.getChildAt(0);
-			}
-			else {
-				next = null;
-			}
-		}
-		
-		TreePath treePath = new TreePath(path.toArray(new TreeNode[path.size()]));
-		return treePath;
-	}
-	
 	private TreePath getLastLeaf() {
 		TreeModel      model = getModel();
 		Object         last  = model.getRoot();
@@ -252,77 +234,86 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 		return treePath;
 	}
 	
-	private boolean search(TreePath startFromPath, String findWhat, boolean searchForward) {
+	private boolean search(TreePath startFromPath, String findWhat, boolean searchForward, boolean regularExpression) {
 		boolean result = false;
 		
-		Pattern   pattern   = Pattern.compile(findWhat);
+		Pattern   pattern   = null;
+		if (regularExpression) {
+			pattern = Pattern.compile(findWhat);
+		}
 		TreeModel model     = getModel();
 		if (model.getRoot() != null) {
 			TreeNode root      = (TreeNode) getRoot().getLastPathComponent();
-			TreeNode firstLeaf = (TreeNode) getFirstLeaf().getLastPathComponent();
 			TreeNode lastLeaf  = (TreeNode) getLastLeaf().getLastPathComponent();
-			TreeNode startFrom = (TreeNode) startFromPath.getLastPathComponent();			
-			TreeNode current   = startFrom;
-			
-			do {
-				if (searchForward) {
-					current = next(root, firstLeaf, lastLeaf, current, current);
-				}
-				else {
-					current = prev(root, firstLeaf, lastLeaf, current, current);
-				}
-				
-				Matcher m = pattern.matcher(current.toString());
-				if (m.find()) {
-					result = true;
-					gotoNode(makePath(current));
-					startFrom = current;
-				}
-			} while (current != startFrom);
+			// Ensure more than just a root node in the tree
+			if (root != lastLeaf) {
+				TreeNode startFrom = (TreeNode) startFromPath.getLastPathComponent();			
+				TreeNode current   = startFrom;
+				boolean found = false;
+				do {
+					if (searchForward) {
+						current = next(root, lastLeaf, current, current);
+					}
+					else {
+						current = prev(root, lastLeaf, current, current);
+					}
+					
+					if (regularExpression) {
+						Matcher m = pattern.matcher(current.toString());
+						found = m.find();
+					}
+					else {
+						found = current.toString().contains(findWhat);
+					}
+					
+					if (found) {
+						result = true;
+						gotoNode(makePath(current));
+						startFrom = current;
+					}
+				} while (current != startFrom);
+			}
 		}
 		
 		return result;
 	}
 	
 	// We walk through the tree in depth first order
-	private TreeNode next(TreeNode root, TreeNode firstLeaf, TreeNode lastLeaf, TreeNode current, TreeNode previous) {
+	private TreeNode next(TreeNode root, TreeNode lastLeaf, TreeNode current, TreeNode previous) {
 		TreeNode result = current;
 		
-		// If more than just a root node in the tree
-		if (firstLeaf != lastLeaf) {
-			if (current == lastLeaf) {
-				result = root;
+		if (current == lastLeaf) {
+			result = root;
+		}
+		else {
+			// At a leaf
+			if (current.getChildCount() == 0) {
+				result = next(root, lastLeaf, current.getParent(), current);
 			}
-			else {
-				// At a leaf
-				if (current.getChildCount() == 0) {
-					result = next(root, firstLeaf, lastLeaf, current.getParent(), current);
-				}
-				else  {
-					// Have children, fist check if previous in children
-					boolean foundPrevious = false;
-					for (int i = 0; i < current.getChildCount(); i++) {
-						TreeNode child = current.getChildAt(i);
-						if (child == previous) {
-							foundPrevious = true;
-						}
-						else {
-							if (foundPrevious) {
-								result = child;
-								break;
-							}						
-						}
-					}
-					// Did not find previous in the children, means first time visiting this parent's children
-					if (!foundPrevious) {
-						// Take the first one
-						result = current.getChildAt(0);
+			else  {
+				// Have children, fist check if previous in children
+				boolean foundPrevious = false;
+				for (int i = 0; i < current.getChildCount(); i++) {
+					TreeNode child = current.getChildAt(i);
+					if (child == previous) {
+						foundPrevious = true;
 					}
 					else {
-						if (result == current) {
-							// Move up to the next level
-							result = next(root, firstLeaf, lastLeaf, current.getParent(), current);
-						}
+						if (foundPrevious) {
+							result = child;
+							break;
+						}						
+					}
+				}
+				// Did not find previous in the children, means first time visiting this parent's children
+				if (!foundPrevious) {
+					// Take the first one
+					result = current.getChildAt(0);
+				}
+				else {
+					if (result == current) {
+						// Move up to the next level
+						result = next(root, lastLeaf, current.getParent(), current);
 					}
 				}
 			}
@@ -331,46 +322,34 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 		return result;
 	}
 	
-	private TreeNode prev(TreeNode root, TreeNode firstLeaf, TreeNode lastLeaf, TreeNode current, TreeNode previous) {
+	private TreeNode prev(TreeNode root, TreeNode lastLeaf, TreeNode current, TreeNode previous) {
 		TreeNode result = current;
 		
-		// If more than just a root node in the tree
-		if (firstLeaf != lastLeaf) {
-			if (current == root) {
-				result = lastLeaf;
+		if (current == root) {
+			result = lastLeaf;
+		}
+		else {
+			TreeNode parent = current.getParent();
+			boolean foundCurrent = false;
+			for (int i = parent.getChildCount()-1; i >= 0; i--) {
+				TreeNode child = parent.getChildAt(i);
+				if (child == current) {
+					foundCurrent = true;
+				}
+				else {
+					if (foundCurrent) {
+						result = child;
+						while (result.getChildCount() > 0) {
+							result = result.getChildAt(result.getChildCount()-1);
+						}
+						break;
+					}						
+				}
 			}
-			else {
-				// At a leaf
-				if (current.getChildCount() == 0) {
-					result = prev(root, firstLeaf, lastLeaf, current.getParent(), current);
-				}
-				else  {
-					// Have children, fist check if previous in children
-					boolean foundPrevious = false;
-					for (int i = current.getChildCount()-1; i >= 0; i--) {
-						TreeNode child = current.getChildAt(i);
-						if (child == previous) {
-							foundPrevious = true;
-						}
-						else {
-							if (foundPrevious) {
-								result = child;
-								break;
-							}						
-						}
-					}
-					// Did not find previous in the children, means first time visiting this parent's children
-					if (!foundPrevious) {
-						// Take the last one
-						result = current.getChildAt(current.getChildCount()-1);
-					}
-					else {
-						if (result == current) {
-							// Move up to the next level
-							result = prev(root, firstLeaf, lastLeaf, current.getParent(), current);
-						}
-					}
-				}
+			// Means current is first child
+			if (result == current) {
+				// Move up to the next level
+				result = parent;
 			}
 		}
 		
