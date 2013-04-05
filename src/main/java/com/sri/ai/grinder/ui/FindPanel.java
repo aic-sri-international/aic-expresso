@@ -9,6 +9,9 @@ import javax.swing.JButton;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.SwingConstants;
+import javax.swing.JCheckBox;
+import javax.swing.border.EmptyBorder;
 
 public class FindPanel extends JPanel {
 	private static final long serialVersionUID = 1L;	
@@ -17,9 +20,11 @@ public class FindPanel extends JPanel {
 	//
 	private JTextField textFieldFindWhat;
 	private JLabel lblNotification;
+	private JCheckBox chckbxRegularExpressions;
 	//
 	
 	public FindPanel() {
+		setBorder(new EmptyBorder(2, 2, 2, 2));
 		initialize();
 	}
 
@@ -54,7 +59,7 @@ public class FindPanel extends JPanel {
 		textFieldFindWhat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (expressionTreeView != null) {
-					notifyFindOutcome(expressionTreeView.findNext(textFieldFindWhat.getText()));
+					notifyFindOutcome(expressionTreeView.findNext(textFieldFindWhat.getText(), chckbxRegularExpressions.isSelected()));
 				}
 			}
 		});
@@ -69,7 +74,7 @@ public class FindPanel extends JPanel {
 		btnNext.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (expressionTreeView != null) {
-					notifyFindOutcome(expressionTreeView.findNext(textFieldFindWhat.getText()));
+					notifyFindOutcome(expressionTreeView.findNext(textFieldFindWhat.getText(), chckbxRegularExpressions.isSelected()));
 				}
 			}
 		});
@@ -79,7 +84,7 @@ public class FindPanel extends JPanel {
 		btnPrevious.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (expressionTreeView != null) {
-					notifyFindOutcome(expressionTreeView.findPrevious(textFieldFindWhat.getText()));
+					notifyFindOutcome(expressionTreeView.findPrevious(textFieldFindWhat.getText(), chckbxRegularExpressions.isSelected()));
 				}
 			}
 		});
@@ -99,7 +104,11 @@ public class FindPanel extends JPanel {
 		notificationPanel.setLayout(new BorderLayout(0, 0));
 		
 		lblNotification = new JLabel("");
-		notificationPanel.add(lblNotification, BorderLayout.NORTH);
+		lblNotification.setHorizontalAlignment(SwingConstants.LEFT);
+		notificationPanel.add(lblNotification, BorderLayout.CENTER);
+		
+		chckbxRegularExpressions = new JCheckBox("Is Regular Expression");
+		notificationPanel.add(chckbxRegularExpressions, BorderLayout.WEST);
 	}
 	
 	private void notifyFindOutcome(boolean found) {
@@ -107,7 +116,7 @@ public class FindPanel extends JPanel {
 			lblNotification.setText("");
 		}
 		else {
-			lblNotification.setText("Search String '"+textFieldFindWhat.getText()+"' not found!");
+			lblNotification.setText(" : Search String '"+textFieldFindWhat.getText()+"' not found!");
 		}
 	}
 }
