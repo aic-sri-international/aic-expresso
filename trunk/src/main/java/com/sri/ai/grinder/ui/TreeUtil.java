@@ -45,6 +45,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
@@ -56,6 +57,7 @@ import com.sri.ai.brewer.api.Grammar;
 import com.sri.ai.brewer.api.ParsingProcess;
 import com.sri.ai.brewer.api.Writer;
 import com.sri.ai.brewer.core.DefaultParsingProcess;
+import com.sri.ai.brewer.core.DefaultWriter;
 import com.sri.ai.expresso.api.Expression;
 
 /**
@@ -88,6 +90,32 @@ public class TreeUtil {
 	protected static Writer writer;
 	protected static final String CLOSE = "CLOSE";
 	protected static final String EXIT = "EXIT";
+	
+	// Note: Just for standalone testing.
+	public static void main(String[] args) {
+		TreeUtil.setWriter(DefaultWriter.newDefaultConfiguredWriter());
+		TreeUtil.displayExpressionsTrees();
+		TreeUtil.addTrace("root");
+		TreeUtil.startTraceLevel();
+		
+		TreeUtil.addTrace("root:1");
+		TreeUtil.startTraceLevel();
+		TreeUtil.addTrace("root:1:1");
+		TreeUtil.addTrace("root:1:2");
+		TreeUtil.endTraceLevel();
+		
+		TreeUtil.addTrace("root:2");
+		TreeUtil.startTraceLevel();
+		TreeUtil.addTrace("root:2:1");
+		TreeUtil.startTraceLevel();
+		TreeUtil.addTrace("root:2:1:1");
+		TreeUtil.addTrace("root:2:1:2");
+		TreeUtil.endTraceLevel();
+		TreeUtil.addTrace("root:2:2");
+		TreeUtil.endTraceLevel();
+		
+		TreeUtil.endTraceLevel();
+	}
 
 	public static void setWriter(Writer writer) {
 		TreeUtil.writer = writer;
@@ -166,11 +194,21 @@ public class TreeUtil {
 
 		JScrollPane spTrace = new JScrollPane();
 		spTrace.getViewport().add(jTraceTree);
+		
+		JPanel justificationPanel = new JPanel();
+		justificationPanel.setLayout(new BorderLayout(0, 0));
+		justificationPanel.add(spJustification, BorderLayout.CENTER);
+		justificationPanel.add(jJustificationTree.getFindPanel(), BorderLayout.SOUTH);
+		
+		JPanel tracePanel = new JPanel();
+		tracePanel.setLayout(new BorderLayout(0, 0));
+		tracePanel.add(spTrace, BorderLayout.CENTER);
+		tracePanel.add(jTraceTree.getFindPanel(), BorderLayout.SOUTH);
 
 		// Place both the justification and trace views into a tabbed pane
 		JTabbedPane tabbedPane = new JTabbedPane();
-		tabbedPane.addTab("Justification", spJustification);
-		tabbedPane.addTab("Trace", spTrace);
+		tabbedPane.addTab("Justification", justificationPanel);
+		tabbedPane.addTab("Trace", tracePanel);
 
 		frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 		frame.setSize(800, 800);

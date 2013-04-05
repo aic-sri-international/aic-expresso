@@ -46,10 +46,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.event.TreeExpansionEvent;
@@ -75,6 +78,7 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 	private boolean supressExpansionEvent = false;
 	//
 	private JPopupMenu popupMenu = new JPopupMenu();
+	private FindPanel  findPanel = null;
 	
 	public ExpressionTreeView(ExpressionNode node, boolean keepExpandedNodesOpen) {
 		super(node);
@@ -95,6 +99,34 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
         
         return ((ExpressionNode) curPath.getLastPathComponent()).getToolTipText();
     }
+	
+	public JPanel getFindPanel() {
+		if (findPanel == null) {
+			findPanel = new FindPanel();
+			findPanel.setExpressionTreeView(this);
+			// Invisible by default.
+			findPanel.setVisible(false);
+		}
+		return findPanel;
+	}
+	
+	public boolean findNext(String findWhat) {
+		TreePath startFrom = getLeadSelectionPath();
+		if (startFrom == null) {
+			startFrom = getRoot();
+		}
+		boolean result = search(startFrom, findWhat, true);
+		return result;
+	}
+	
+	public boolean findPrevious(String findWhat) {
+		TreePath startFrom = getLeadSelectionPath();
+		if (startFrom == null) {
+			startFrom = getLastLeaf();
+		}
+		boolean result = search(startFrom, findWhat, false);
+		return result;
+	}
 
 	@Override
 	public void treeCollapsed(TreeExpansionEvent e) {
@@ -147,9 +179,201 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 		goLast.setAction(new GoLastAction());
 		popupMenu.add(goLast);
 		
+		JMenuItem find = new JMenuItem("Find");
+		find.setAction(new FindAction());
+		popupMenu.add(find);
+		
 		//Add listener to components that can bring up popup menus.
 	    MouseListener popupListener = new PopupListener();
 	    addMouseListener(popupListener);
+	}
+	
+	private TreePath getRoot() {
+		TreeModel      model = getModel();
+		List<TreeNode> path  = new ArrayList<TreeNode>();
+		if (model.getRoot() != null) {
+			path.add((TreeNode)model.getRoot());
+		}
+
+		TreePath treePath = new TreePath(path.toArray(new TreeNode[path.size()]));
+		return treePath;
+	}
+	
+	private TreePath getFirstLeaf() {
+		TreeModel      model = getModel();
+		TreeNode       next  = (TreeNode) model.getRoot();
+		List<TreeNode> path  = new ArrayList<TreeNode>();
+		while (next != null) {
+			path.add(next);
+			if (next.getChildCount() > 0) {
+				next = next.getChildAt(0);
+			}
+			else {
+				next = null;
+			}
+		}
+		
+		TreePath treePath = new TreePath(path.toArray(new TreeNode[path.size()]));
+		return treePath;
+	}
+	
+	private TreePath getLastLeaf() {
+		TreeModel      model = getModel();
+		Object         last  = model.getRoot();
+		List<TreeNode> path  = new ArrayList<TreeNode>();
+		if (last != null) {
+			path.add((TreeNode)last);
+			int childCount = model.getChildCount(last);
+			while (childCount > 0) {
+				last = model.getChild(last, childCount-1);
+				path.add((TreeNode)last);
+				childCount = model.getChildCount(last);
+			}
+		}
+		
+		TreePath treePath = new TreePath(path.toArray(new TreeNode[path.size()]));
+		return treePath;
+	}
+	
+	private void gotoNode(TreePath path) {
+		addSelectionPath(path);
+		scrollPathToVisible(path);
+	}
+	
+	private TreePath makePath(TreeNode toNode) {
+		List<TreeNode> path  = new ArrayList<TreeNode>();
+		path.add(toNode);
+		while (toNode.getParent() != null) {
+			path.add(0, toNode.getParent());
+			toNode = toNode.getParent();
+		}
+		
+		TreePath treePath = new TreePath(path.toArray(new TreeNode[path.size()]));
+		return treePath;
+	}
+	
+	private boolean search(TreePath startFromPath, String findWhat, boolean searchForward) {
+		boolean result = false;
+		
+		Pattern   pattern   = Pattern.compile(findWhat);
+		TreeModel model     = getModel();
+		if (model.getRoot() != null) {
+			TreeNode firstLeaf = (TreeNode) getFirstLeaf().getLastPathComponent();
+			TreeNode lastLeaf  = (TreeNode) getLastLeaf().getLastPathComponent();
+			TreeNode startFrom = (TreeNode) startFromPath.getLastPathComponent();
+			TreeNode current   = startFrom;
+			
+			do {
+				if (searchForward) {
+					current = next(firstLeaf, lastLeaf, current, current);
+				}
+				else {
+					current = prev(firstLeaf, lastLeaf, current, current);
+				}
+				
+				Matcher m = pattern.matcher(current.toString());
+				if (m.find()) {
+					result = true;
+					gotoNode(makePath(current));
+					startFrom = current;
+				}
+			} while (current != startFrom);
+		}
+		
+		return result;
+	}
+	
+	// We walk through the tree in depth first order
+	private TreeNode next(TreeNode firstLeaf, TreeNode lastLeaf, TreeNode current, TreeNode previous) {
+		TreeNode result = current;
+		
+		// If more than just a root node in the tree
+		if (firstLeaf != lastLeaf) {
+			if (current == lastLeaf) {
+				result = firstLeaf;
+			}
+			else {
+				// At a leaf
+				if (current.getChildCount() == 0) {
+					result = next(firstLeaf, lastLeaf, current.getParent(), current);
+				}
+				else  {
+					// Have children, fist check if previous in children
+					boolean foundPrevious = false;
+					for (int i = 0; i < current.getChildCount(); i++) {
+						TreeNode child = current.getChildAt(i);
+						if (child == previous) {
+							foundPrevious = true;
+						}
+						else {
+							if (foundPrevious) {
+								result = child;
+								break;
+							}						
+						}
+					}
+					// Did not find previous in the children, means first time visiting this parent's children
+					if (!foundPrevious) {
+						// Take the first one
+						result = current.getChildAt(0);
+					}
+					else {
+						if (result == current) {
+							// Move up to the next level
+							result = next(firstLeaf, lastLeaf, current.getParent(), current);
+						}
+					}
+				}
+			}
+		}
+		
+		return result;
+	}
+	
+	private TreeNode prev(TreeNode firstLeaf, TreeNode lastLeaf, TreeNode current, TreeNode previous) {
+		TreeNode result = current;
+		
+		// If more than just a root node in the tree
+		if (firstLeaf != lastLeaf) {
+			if (current == firstLeaf) {
+				result = lastLeaf;
+			}
+			else {
+				// At a leaf
+				if (current.getChildCount() == 0) {
+					result = prev(firstLeaf, lastLeaf, current.getParent(), current);
+				}
+				else  {
+					// Have children, fist check if previous in children
+					boolean foundPrevious = false;
+					for (int i = current.getChildCount()-1; i >= 0; i--) {
+						TreeNode child = current.getChildAt(i);
+						if (child == previous) {
+							foundPrevious = true;
+						}
+						else {
+							if (foundPrevious) {
+								result = child;
+								break;
+							}						
+						}
+					}
+					// Did not find previous in the children, means first time visiting this parent's children
+					if (!foundPrevious) {
+						// Take the last one
+						result = current.getChildAt(current.getChildCount()-1);
+					}
+					else {
+						if (result == current) {
+							// Move up to the next level
+							result = prev(firstLeaf, lastLeaf, current.getParent(), current);
+						}
+					}
+				}
+			}
+		}
+		
+		return result;
 	}
 	
 	class PopupListener extends MouseAdapter {
@@ -179,23 +403,22 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 		
 		@Override
 		public void actionPerformed(ActionEvent ae) {
-			TreeModel      model = getModel();
-			Object         last  = model.getRoot();
-			List<TreeNode> path  = new ArrayList<TreeNode>();
-			if (last != null) {
-				path.add((TreeNode)last);
-				int childCount = model.getChildCount(last);
-				while (childCount > 0) {
-					last = model.getChild(last, childCount-1);
-					path.add((TreeNode)last);
-					childCount = model.getChildCount(last);
-				}
-				TreePath treePath = new TreePath(path.toArray(new TreeNode[path.size()]));
-				
-				addSelectionPath(treePath);
-				scrollPathToVisible(treePath);
-			}
-			
+			gotoNode(getLastLeaf());
+		}
+	}
+	
+	class FindAction extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+		
+		public FindAction() {
+			putValue(Action.NAME, "Find...");
+			putValue(Action.SHORT_DESCRIPTION, "Find...");
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent ae) {
+			getFindPanel().setVisible(true);
+			getFindPanel().invalidate();
 		}
 	}
 }
