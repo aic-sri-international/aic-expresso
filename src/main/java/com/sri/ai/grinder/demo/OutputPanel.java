@@ -211,6 +211,8 @@ public class OutputPanel extends JPanel {
 				TreeSelectionModel.SINGLE_TREE_SELECTION);
 		traceTree.setShowsRootHandles(true);
 		traceTreeScrollPane.setViewportView(traceTree);
+		
+		tracePanel.add(traceTree.getFindPanel(), BorderLayout.SOUTH);
 	}
 	
 	private void postGUIInitialization() {
