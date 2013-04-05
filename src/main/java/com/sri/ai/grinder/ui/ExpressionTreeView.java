@@ -258,17 +258,18 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 		Pattern   pattern   = Pattern.compile(findWhat);
 		TreeModel model     = getModel();
 		if (model.getRoot() != null) {
+			TreeNode root      = (TreeNode) getRoot().getLastPathComponent();
 			TreeNode firstLeaf = (TreeNode) getFirstLeaf().getLastPathComponent();
 			TreeNode lastLeaf  = (TreeNode) getLastLeaf().getLastPathComponent();
-			TreeNode startFrom = (TreeNode) startFromPath.getLastPathComponent();
+			TreeNode startFrom = (TreeNode) startFromPath.getLastPathComponent();			
 			TreeNode current   = startFrom;
 			
 			do {
 				if (searchForward) {
-					current = next(firstLeaf, lastLeaf, current, current);
+					current = next(root, firstLeaf, lastLeaf, current, current);
 				}
 				else {
-					current = prev(firstLeaf, lastLeaf, current, current);
+					current = prev(root, firstLeaf, lastLeaf, current, current);
 				}
 				
 				Matcher m = pattern.matcher(current.toString());
@@ -284,18 +285,18 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 	}
 	
 	// We walk through the tree in depth first order
-	private TreeNode next(TreeNode firstLeaf, TreeNode lastLeaf, TreeNode current, TreeNode previous) {
+	private TreeNode next(TreeNode root, TreeNode firstLeaf, TreeNode lastLeaf, TreeNode current, TreeNode previous) {
 		TreeNode result = current;
 		
 		// If more than just a root node in the tree
 		if (firstLeaf != lastLeaf) {
 			if (current == lastLeaf) {
-				result = firstLeaf;
+				result = root;
 			}
 			else {
 				// At a leaf
 				if (current.getChildCount() == 0) {
-					result = next(firstLeaf, lastLeaf, current.getParent(), current);
+					result = next(root, firstLeaf, lastLeaf, current.getParent(), current);
 				}
 				else  {
 					// Have children, fist check if previous in children
@@ -320,7 +321,7 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 					else {
 						if (result == current) {
 							// Move up to the next level
-							result = next(firstLeaf, lastLeaf, current.getParent(), current);
+							result = next(root, firstLeaf, lastLeaf, current.getParent(), current);
 						}
 					}
 				}
@@ -330,18 +331,18 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 		return result;
 	}
 	
-	private TreeNode prev(TreeNode firstLeaf, TreeNode lastLeaf, TreeNode current, TreeNode previous) {
+	private TreeNode prev(TreeNode root, TreeNode firstLeaf, TreeNode lastLeaf, TreeNode current, TreeNode previous) {
 		TreeNode result = current;
 		
 		// If more than just a root node in the tree
 		if (firstLeaf != lastLeaf) {
-			if (current == firstLeaf) {
+			if (current == root) {
 				result = lastLeaf;
 			}
 			else {
 				// At a leaf
 				if (current.getChildCount() == 0) {
-					result = prev(firstLeaf, lastLeaf, current.getParent(), current);
+					result = prev(root, firstLeaf, lastLeaf, current.getParent(), current);
 				}
 				else  {
 					// Have children, fist check if previous in children
@@ -366,7 +367,7 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 					else {
 						if (result == current) {
 							// Move up to the next level
-							result = prev(firstLeaf, lastLeaf, current.getParent(), current);
+							result = prev(root, firstLeaf, lastLeaf, current.getParent(), current);
 						}
 					}
 				}
