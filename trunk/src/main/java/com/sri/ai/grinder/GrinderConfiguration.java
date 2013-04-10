@@ -63,13 +63,13 @@ public class GrinderConfiguration extends Configuration {
 	public static final Boolean DEFAULT_VALUE_REPLACE_VARIABLE_WITH_CONSTANT_IT_IS_BOUND_TO     = Boolean.TRUE;
 	//
 	public static final String  KEY_REWRITE_DEAD_ENDS_CACHE_MAXIMUM_SIZE                        = "grinder.rewrite.dead.ends.cache.maximum.size";
-	public static final Long    DEFAULT_VALUE_REWRITE_DEAD_ENDS_CACHE_MAXIMUM_SIZE              = CacheMap.NO_MAXIMUM_SIZE;
+	public static final Long    DEFAULT_VALUE_REWRITE_DEAD_ENDS_CACHE_MAXIMUM_SIZE              = 100L;
 	//
 	public static final String  KEY_REWRITE_DEAD_ENDS_CACHE_GARBAGE_COLLECTION_PERIOD           = "grinder.rewrite.dead.ends.cache.garbage.collection.period";
 	public static final Integer DEFAULT_VALUE_REWRITE_DEAD_ENDS_CACHE_GARBAGE_COLLECTION_PERIOD = CacheMap.NO_GARBAGE_COLLECTION; //new Integer(10000);
 	//
 	public static final String  KEY_REWRITING_PROCESS_CACHE_MAXIMUM_SIZE                        = "grinder.rewriting.process.cache.maximum.size";
-	public static final Long    DEFAULT_VALUE_REWRITING_PROCESS_CACHE_MAXIMUM_SIZE              = CacheMap.NO_MAXIMUM_SIZE;
+	public static final Long    DEFAULT_VALUE_REWRITING_PROCESS_CACHE_MAXIMUM_SIZE              = 100L;
 	//
 	public static final String  KEY_REWRITING_PROCESS_CACHE_GARBAGE_COLLECTION_PERIOD           = "grinder.rewriting.process.cache.garbage.collection.period";
 	public static final Integer DEFAULT_VALUE_REWRITING_PROCESS_CACHE_GARBAGE_COLLECTION_PERIOD = CacheMap.NO_GARBAGE_COLLECTION; //new Integer(5000);
