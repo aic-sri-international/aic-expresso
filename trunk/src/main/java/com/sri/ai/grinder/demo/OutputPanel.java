@@ -60,6 +60,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.brewer.core.DefaultWriter;
 import com.sri.ai.grinder.helper.RewriterLoggingNamedRewriterFilter;
 import com.sri.ai.grinder.helper.Trace;
+import com.sri.ai.grinder.ui.BaseTreeUtilAppender;
 import com.sri.ai.grinder.ui.ExpressionNode;
 import com.sri.ai.grinder.ui.ExpressionTreeView;
 import com.sri.ai.grinder.ui.TreeUtil;
@@ -154,7 +155,7 @@ public class OutputPanel extends JPanel {
 						sb.append("ms.]");
 					}
 
-					if (msg != null && !msg.equals("")) {
+					if (msg != null && !msg.equals("") && BaseTreeUtilAppender.outputFormattedMessage(msg, args)) {
 						addTrace(sb.toString());
 					}
 
