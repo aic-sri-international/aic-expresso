@@ -77,7 +77,7 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 
 	public static boolean isOptimizable(Expression expression, RewritingProcess process) {
 		boolean result = false;
-		if (getFirstOptimizableInformation(expression, process) != null) {
+		if (getFirstEqualityOnIndexInformation(expression, process) != null) {
 			result = true;
 		}
 		
@@ -102,28 +102,27 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 		Expression quantificationSymbol                   = Tuple.get(expression, 1);
 		CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
 		
-		OptimizableInformation oi = getFirstOptimizableInformation(cardinalityOfIndexedFormulaExpression, process);
-		if (oi == null) {
+		EqualityOnIndexInformation equalityOnIndexInformation = getFirstEqualityOnIndexInformation(cardinalityOfIndexedFormulaExpression, process);
+		if (equalityOnIndexInformation == null) {
 			throw new IllegalArgumentException("Invalid input argument expression, cannot be optimized:"+cardinalityOfIndexedFormulaExpression);
 		} 
 		else {			
-			if (oi.ts.size() == 0) {
+			if (equalityOnIndexInformation.valuesEquatedToIndex.size() == 0) {
 				Trace.log("if t is the same expression as x_i");
 				Trace.log("    return R_card(| Phi |_X, quantification)");
-				Expression phiIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(oi.phi, oi.x.toArray(new Expression[oi.x.size()]));
+				Expression phiIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(equalityOnIndexInformation.phi, equalityOnIndexInformation.indices.toArray(new Expression[equalityOnIndexInformation.indices.size()]));
 				
-				result = process.rewrite(R_card,
-							CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(phiIndexedByX, quantification));
+				result = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(phiIndexedByX, quantification));
 			} 
 			else {
-				Expression t = oi.ts.iterator().next();
+				Expression t = equalityOnIndexInformation.valuesEquatedToIndex.iterator().next();
 				// i.e {x \ xi}
-				oi.x.remove(oi.xi);
-				Trace.log("return R_card(| R_simplify(Phi[x_i / t]) |_X\\{xi}, quantification) // Phi={}, x_i={}, t={}", oi.phi, oi.xi, t);
-				Expression phiXiReplacedWithT           = Substitute.replace(oi.phi, oi.xi, t, process);
+				equalityOnIndexInformation.indices.remove(equalityOnIndexInformation.index);
+				Trace.log("return R_card(| R_simplify(Phi[x_i / t]) |_X\\{xi}, quantification) // Phi={}, x_i={}, t={}", equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t);
+				Expression phiXiReplacedWithT           = Substitute.replace(equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t, process);
 				Expression simplifiedPhiXiReplacedWithT = process.rewrite(R_simplify, phiXiReplacedWithT);
 				
-				Expression cardPhiXiReplacedWithTIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(simplifiedPhiXiReplacedWithT, oi.x.toArray(new Expression[oi.x.size()]));
+				Expression cardPhiXiReplacedWithTIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(simplifiedPhiXiReplacedWithT, equalityOnIndexInformation.indices.toArray(new Expression[equalityOnIndexInformation.indices.size()]));
 				result = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardPhiXiReplacedWithTIndexedByX, quantification));
 			}
 		}
@@ -134,71 +133,71 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 	//
 	// PRIVATE METHODS
 	//
-	private static class OptimizableInformation {
-		public Expression xi;
-		public Set<Expression> ts = new HashSet<Expression>();
+	private static class EqualityOnIndexInformation {
+		public Expression index;
+		public Set<Expression> valuesEquatedToIndex = new HashSet<Expression>();
 		public Expression phi;
-		public Set<Expression> x;
+		public Set<Expression> indices;
 	}
 	
-	private static OptimizableInformation getFirstOptimizableInformation(Expression expression, RewritingProcess process) {
-		OptimizableInformation result = null;
+	private static EqualityOnIndexInformation getFirstEqualityOnIndexInformation(Expression expression, RewritingProcess process) {
+		EqualityOnIndexInformation result = null;
 		
 		if (CardinalityUtil.isCardinalityOfIndexedFormulaExpression(expression)) {
 			// | {(on x1,..., xn) (x1, ..., xn) | F} |
 			Expression intensionalSet = expression.get(0);
-			Expression f              = IntensionalSet.getCondition(intensionalSet);
-			if (And.isConjunction(f)) {
+			Expression constraint     = IntensionalSet.getCondition(intensionalSet);
+			Set<Expression> indexExpressions = new LinkedHashSet<Expression>(IntensionalSet.getIndexExpressions(intensionalSet));
+			if (And.isConjunction(constraint)) {
 				// Note: want to use a set for efficiency but keep the order by using a linked hash set.
-				Set<Expression> indexExpressions = new LinkedHashSet<Expression>(IntensionalSet.getIndexExpressions(intensionalSet));
-				int idx = 0;
-				for (Expression conjunct : f.getArguments()) {
+				int index = 0;
+				for (Expression conjunct : constraint.getArguments()) {
 					// x_i = t and Phi
 					if (conjunct.hasFunctor(FunctorConstants.EQUAL)) {
-						result = getOptimizableInformation(f, conjunct, indexExpressions, idx, process);
+						result = getEqualityOnIndexInformation(constraint, conjunct, indexExpressions, index, process);
 						if (result != null) {
 							break;
 						}
 					}
-					idx++;
+					index++;
 				}
 			} 
-			else if (f.hasFunctor(FunctorConstants.EQUAL)) {
+			else if (constraint.hasFunctor(FunctorConstants.EQUAL)) {
 				// Note: want to use a set for efficiency but keep the order by using a linked hash set.
-				Set<Expression> indexExpressions = new LinkedHashSet<Expression>(IntensionalSet.getIndexExpressions(intensionalSet));
-				result = getOptimizableInformation(f, f, indexExpressions, 0, process);
+				result = getEqualityOnIndexInformation(constraint, constraint, indexExpressions, 0, process);
 			}
 		}
 		
 		return result;
 	}
 	
-	private static OptimizableInformation getOptimizableInformation(Expression f, Expression conjunct, Set<Expression> indexExpressions, int idx, RewritingProcess process) {
-		OptimizableInformation result = null;
-		for (Expression xi : conjunct.getArguments()) {
-			if (indexExpressions.contains(xi)) {
-				result = new OptimizableInformation();
-				result.xi = xi;
-				result.ts.addAll(conjunct.getArguments());
+	private static EqualityOnIndexInformation getEqualityOnIndexInformation(Expression formula, Expression equality, Set<Expression> indexExpressions, int indexIndex, RewritingProcess process) {
+		EqualityOnIndexInformation result = null;
+		for (Expression equalityArgument : equality.getArguments()) {
+			if (indexExpressions.contains(equalityArgument)) {
+				result = new EqualityOnIndexInformation();
+				result.index = equalityArgument;
+				result.valuesEquatedToIndex.addAll(equality.getArguments());
 				List<Expression> phiConjuncts = new ArrayList<Expression>();
-				if (f != conjunct) {
-					phiConjuncts.addAll(f.getArguments().subList(0, idx));
-					phiConjuncts.addAll(f.getArguments().subList(idx+1, f.getArguments().size()));
+				if (formula != equality) { // formula is a conjunction, and equality is one of its conjuncts
+					phiConjuncts.addAll(formula.getArguments().subList(0, indexIndex));
+					phiConjuncts.addAll(formula.getArguments().subList(indexIndex + 1, formula.getArguments().size()));
 				} 
 				// Using a Set ensures this case is handled:
 				// X = X = Y
-				result.ts.remove(xi);
+				result.valuesEquatedToIndex.remove(equalityArgument);
+				
 				// Ensure this case is handled:
 				// X = Y = Z
 				// by returning X = Y and pushing X = Z into Phi to be handled later on
-				while (result.ts.size() > 1) {
-					Expression t = result.ts.iterator().next();
-					phiConjuncts.add(Equality.make(result.xi, t));
-					result.ts.remove(t);
+				while (result.valuesEquatedToIndex.size() > 1) {
+					Expression anotherTerm = result.valuesEquatedToIndex.iterator().next();
+					phiConjuncts.add(Equality.make(result.index, anotherTerm));
+					result.valuesEquatedToIndex.remove(anotherTerm);
 				}
 				
 				result.phi = And.make(phiConjuncts);
-				result.x = indexExpressions;
+				result.indices = indexExpressions;
 				break;
 			}
 		}

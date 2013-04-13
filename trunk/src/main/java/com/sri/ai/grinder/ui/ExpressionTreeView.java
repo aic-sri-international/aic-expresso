@@ -175,7 +175,7 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 	}
 	
 	private void initPopupMenu() {
-		JMenuItem goLast = new JMenuItem("Go Last");
+		JMenuItem goLast = new JMenuItem("Go to last line");
 		goLast.setAction(new GoLastAction());
 		popupMenu.add(goLast);
 		
@@ -377,8 +377,8 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 		private static final long serialVersionUID = 1L;
 		
 		public GoLastAction() {
-			putValue(Action.NAME, "Go Last");
-			putValue(Action.SHORT_DESCRIPTION, "Go Last");
+			putValue(Action.NAME, "Go to last line");
+			putValue(Action.SHORT_DESCRIPTION, "Go to last line, expanding all parent nodes in the process");
 		}
 		
 		@Override

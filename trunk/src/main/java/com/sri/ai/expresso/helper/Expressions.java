@@ -56,13 +56,15 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
+import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.Variables;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
 import com.sri.ai.util.base.GetFirstOfPair;
@@ -699,6 +701,53 @@ public class Expressions {
 		List<Expression> result = new LinkedList<Expression>();
 		for (int i = 0; i != list1.size(); i++) {
 			result.add(Expressions.make(functor, list1.get(i), list2.get(i)));
+		}
+		return result;
+	}
+
+	/**
+	 * A small class for gathering the information regarding an index bound to some value in a given condition
+	 * @author braz
+	 */
+	public static class BoundIndexInformation {
+		/** The bound index */
+		public Expression index;
+		
+		/** One of the values the index is bound to. */
+		public Expression value;
+		
+		/** The index expressions minus the one on the bound index. */
+		public List<Expression> indexExpressionsWithoutBoundIndex;
+	}
+
+	/**
+	 * Returns a {@link BoundIndexInformation} object for the first index (among those defined in indexExpressions)
+	 * bound in a given formula.
+	 */
+	public static BoundIndexInformation getBoundIndexInformation(Expression formula, List<Expression> indexExpressions) {
+		BoundIndexInformation result = null;
+		for (Expression conjunct : And.getConjuncts(formula)) {
+			if (Equality.isEquality(conjunct)) {
+				Collection<Expression> indexOrNothing = Util.list();
+				Collection<Expression> remaining = Util.list();
+		
+				Util.collectFirstN(
+						conjunct.getArguments(),
+						1,
+						new IntensionalSet.IsIndexIn(indexExpressions),
+						indexOrNothing,
+						remaining);
+				
+				if (indexOrNothing.size() == 1) {
+					result = new BoundIndexInformation();
+					result.index = Util.getFirst(indexOrNothing);
+					result.value = Util.getFirst(remaining);
+					result.indexExpressionsWithoutBoundIndex =
+							Util.removeNonDestructively(
+									indexExpressions, new IntensionalSet.IsIndexExpressionOnIndex(result.index));
+					break;
+				}
+			}
 		}
 		return result;
 	}

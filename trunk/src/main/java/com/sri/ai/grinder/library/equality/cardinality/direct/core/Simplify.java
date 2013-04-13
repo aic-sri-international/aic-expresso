@@ -88,6 +88,7 @@ import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsProvider;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithBoundIndex;
 
 /**
  * Default implementation of  R_simplify(E).
@@ -170,6 +171,8 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 						new Associative("+", "*", "and"),
 						
 						new FromConditionalFormulaToFormula(),
+
+						new IntensionalSetWithBoundIndex(),
 						
 						// new, cheap simplifiers to be used instead of full ImpliedCertainty
 						new IncompleteLinearImpliedCertainty(),
