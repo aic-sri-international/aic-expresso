@@ -272,6 +272,38 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		return makeInstance().getScopedVariablesDynamic(intensionalSet);
 	}
 
+	public static class IsIndexIn implements Predicate<Expression> {
+		private List<Expression> indexExpressions;
+		
+		public IsIndexIn(List<Expression> indexExpressions) {
+			super();
+			this.indexExpressions = indexExpressions;
+		}
+
+		@Override
+		public boolean apply(Expression possibleIndex) {
+			boolean result = Util.thereExists(indexExpressions, new IntensionalSet.IsIndexExpressionOnIndex(possibleIndex));
+			return result;
+		}
+	}
+
+	public static class IsIndexExpressionOnIndex implements Predicate<Expression> {
+
+		private Expression index;
+
+		public IsIndexExpressionOnIndex(Expression index) {
+			super();
+			this.index = index;
+		}
+
+		@Override
+		public boolean apply(Expression indexExpression) {
+			boolean result = IntensionalSet.getIndex(indexExpression).equals(index);
+			return result;
+		}
+
+	}
+
 	public static Expression getHead(Expression expression) {
 		return makeInstance().getHeadDynamic(expression);
 	}
@@ -415,17 +447,19 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		return result;
 	}
 
-	public static Expression makeSetFromIndexExpressionsList(Object functor, List<Expression> indexExpressionsList, Expression head, Expression condition) {
-		return makeInstance().makeSetFromIndexExpressionsListDynamic(functor, indexExpressionsList, head, condition);
+	public static Expression makeSetFromIndexExpressionsList(Object label, List<Expression> indexExpressionsList, Expression head, Expression condition) {
+		return makeInstance().makeSetFromIndexExpressionsListDynamic(label, indexExpressionsList, head, condition);
 	}
 
 	public Expression makeSetFromIndexExpressionsListDynamic(
 			Object functor, List<Expression> indexExpressionsList,
 			Expression head, Expression condition) {
-		if (indexExpressionsList == null || indexExpressionsList.isEmpty()) {
-			String extensionalSetLabel = Sets.fromIntensionalToExtensionalSetSyntaxTreeLabel(functor);
-			return IfThenElse.make(condition, ExtensionalSet.make(extensionalSetLabel, Lists.newArrayList(head)), ExtensionalSet.makeEmptySet());
-		}
+//		if (indexExpressionsList == null || indexExpressionsList.isEmpty()) {
+//			String extensionalSetLabel = Sets.fromIntensionalToExtensionalSetSyntaxTreeLabel(functor);
+//			return IfThenElse.make(condition, ExtensionalSet.make(extensionalSetLabel, Lists.newArrayList(head)), ExtensionalSet.makeEmptySet());
+//		}
+// the above is nice, but it can hurt algorithms expecting an intensional set back and getting an extensional one, conditional no less.
+// Perhaps it's better to have it as a rewriter somewhere else.
 		
 		Expression result = make(
 				Expressions.wrap(functor),

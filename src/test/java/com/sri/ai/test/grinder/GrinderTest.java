@@ -113,6 +113,7 @@ import com.sri.ai.grinder.library.set.extensional.UnionOnExtensionalSets;
 import com.sri.ai.grinder.library.set.intensional.EqualityOfIntensionalUniSets;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithBoundIndex;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.test.grinder.library.equality.cardinality.CountsDeclaration;
 import com.sri.ai.util.Util;
@@ -1394,6 +1395,34 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluationTest();
 	}
 	
+	@Test
+	public void testIntensionalSetWithBoundIndex() {
+		Library library = new DefaultLibrary(
+				new ScopedVariables(),
+				new ExpressionKnowledgeModule(),
+				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
+				new IntensionalSetSubExpressionsAndImposedConditionsProvider(),
+				new IntensionalSet(),
+				new UnionOnExtensionalSets(),
+				new Plus(),
+				new And(),
+				new Or(),
+				new Equality(),
+				new Disequality(),
+				new IntensionalSetWithBoundIndex(),
+				new IfThenElse());
+		
+		evaluator = new ExhaustiveRewriter(library);
+		
+		expressionString = "{(on X in {1,2,3}, Y) p(X) | X = 1 and X != Y and (X != 1 or X != 2)}";
+		expected = parse("{(on Y) p(1) | 1 != Y}");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+		
+		expressionString = "{{(on Z in {1,2}, X in {1,2,3}, Y) p(X) | X = 1 and X != Y and (X != 1 or X != 2)}}";
+		expected = parse("{{(on Z in {1,2}, Y) p(1) | 1 != Y}}");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+	}
+
 	@Test
 	public void testCannotIndirectlyMutateExpression() {
 		Library library = new DefaultLibrary(
