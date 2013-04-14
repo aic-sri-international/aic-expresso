@@ -660,4 +660,6 @@ public interface CardinalityRewriter {
 	 * </pre>
 	 */
 	String R_top_simplify_disjunction = CARDINALITY_NAMESPACE+"R_top_simplify_disjunction";
+	
+	String R_incomplete_implied_certainty = CARDINALITY_NAMESPACE+"R_incomplete_implied_certainty";
 }
