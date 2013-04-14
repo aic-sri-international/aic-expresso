@@ -751,4 +751,13 @@ public class Expressions {
 		}
 		return result;
 	}
+
+	/**
+	 * Return a function application identical to the one received but for the i-th argument being removed.
+	 */
+	public static Expression removeIthArgument(Expression expression, int i) {
+		List<Expression> newArguments = Util.removeNonDestructively(expression.getArguments(), i);
+		Expression result = Expressions.make(expression.getFunctor(), newArguments);
+		return result;
+	}
 }

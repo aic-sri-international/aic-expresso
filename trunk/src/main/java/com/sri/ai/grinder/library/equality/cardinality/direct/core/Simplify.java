@@ -171,13 +171,12 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 						new Associative("+", "*", "and"),
 						
 						new FromConditionalFormulaToFormula(),
-
-						new IntensionalSetWithBoundIndex(),
-						
 						// new, cheap simplifiers to be used instead of full ImpliedCertainty
 						new IncompleteLinearImpliedCertainty(),
 						new TrivialQuantifiedCases(),
 						new TopSimplifyWrapper(),
+//						new IntensionalSetWithBoundIndex(),
+//						new ConjunctsHoldTrueForEachOther(),
 						
 						//
 						// Support for: Quantifier Elimination
