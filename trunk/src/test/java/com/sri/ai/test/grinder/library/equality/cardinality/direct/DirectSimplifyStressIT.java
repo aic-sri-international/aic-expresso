@@ -202,7 +202,9 @@ public class DirectSimplifyStressIT extends AbstractGrinderTest {
 					// 7 variables, i.e.: X'', Y', X', Y, X, X''', Y'', 
 					"((X''' = Y' and X'' != X''' or X''' = Y' and X''' != Y'') or Y' = Y'' and X'' != X''') and ((X = X' = Y' = b and X != Y) and X'' = Y and X'' != b and X'' != Y' or (X = X' = Y' = b and X != Y) and X'' = Y and X'' != Y' and X'' != b)",
 					new CountsDeclaration(100),
-					"((X''' = Y' and X'' != X''' or X''' = Y' and X''' != Y'') or Y' = Y'' and X'' != X''') and (X = X' = Y' = b and X != Y and X'' = Y and X'' != b and X'' != Y' or X = X' = Y' = b and X != Y and X'' = Y and X'' != Y' and X'' != b)")	
+					//"((X''' = Y' and X'' != X''' or X''' = Y' and X''' != Y'') or Y' = Y'' and X'' != X''') and (X = X' = Y' = b and X != Y and X'' = Y and X'' != b and X'' != Y' or X = X' = Y' = b and X != Y and X'' = Y and X'' != Y' and X'' != b)"
+					   "(X''' = b or X''' = b and Y'' != b or Y'' = b and X'' != X''') and X = X' = Y' = b and Y != b and X'' = Y and X'' != b"
+					)	
 		});			
 	}
 	
@@ -221,7 +223,8 @@ public class DirectSimplifyStressIT extends AbstractGrinderTest {
 				// 11 variables, i.e.: A'', B''', A, A'''', B, A', B', A''', B'''', X, B''
 				"(A = A'''' or A' = A'''' or A'' = A'''') and ((A = B = X and A != B' and A != A' and A != A'' and A != A''') and A' = B' and A' != B'' and A' != A'' and A' != A''' and A'' = B'' and A'' != B''' and A'' != A''' and not (A' = A''' = B''') and A''' = B''' and A''' != B'''' and A''' != A'''' and not (A' = A'''' = B'''') and not (A'' = A'''' = B'''') and A'''' = B'''')",
 				new CountsDeclaration(100),
-				"(A = A'''' or A' = A'''' or A'' = A'''') and A = B = X and A != B' and A != A' and A != A'' and A != A''' and A' = B' and A' != B'' and A' != A'' and A' != A''' and A'' = B'' and A'' != B''' and A'' != A''' and (A' != A''' or A''' != B''') and A''' = B''' and A''' != B'''' and A''' != A'''' and (A' != A'''' or A'''' != B'''') and (A'' != A'''' or A'''' != B'''') and A'''' = B''''")	
+				//"(A = A'''' or A' = A'''' or A'' = A'''') and A = B = X and A != B' and A != A' and A != A'' and A != A''' and A' = B' and A' != B'' and A' != A'' and A' != A''' and A'' = B'' and A'' != B''' and A'' != A''' and (A' != A''' or A''' != B''') and A''' = B''' and A''' != B'''' and A''' != A'''' and (A' != A'''' or A'''' != B'''') and (A'' != A'''' or A'''' != B'''') and A'''' = B''''"
+				"A = A'''' and A = B = X and A != B' and A != A' and A != A'' and A != A''' and A' = B' and A' != B'' and A' != A'' and A' != A''' and A'' = B'' and A'' != B''' and A'' != A''' and A''' = B''' and A''' != B'''' and A''' != A'''' and A' != A'''' and A'' != A'''' and A'''' = B''''")	
 		});
 	}
 	
