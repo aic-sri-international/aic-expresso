@@ -235,7 +235,7 @@ public class GrinderUtil {
 			List<CallableRewriteOnConditionedBranch> rewriteTasks = new ArrayList<CallableRewriteOnConditionedBranch>();
 			// Create the then branch rewriter task if necessary
 			CallableRewriteOnConditionedBranch thenRewriteTask = new CallableRewriteOnConditionedBranch(
-					!Expressions.FALSE.equals(condition),
+					!condition.equals(Expressions.FALSE),
 					CallableRewriteOnBranch.BRANCH_TYPE_THEN,
 					condition,
 					thenRewriter,
@@ -247,7 +247,7 @@ public class GrinderUtil {
 				
 			// Create the else branch rewriter task if necessary
 			CallableRewriteOnConditionedBranch elseRewriteTask = new CallableRewriteOnConditionedBranch(
-					!Expressions.TRUE.equals(condition),
+					!condition.equals(Expressions.TRUE),
 					CallableRewriteOnBranch.BRANCH_TYPE_ELSE,
 					Not.make(condition),
 					elseRewriter,

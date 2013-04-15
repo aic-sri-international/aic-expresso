@@ -175,8 +175,8 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 						new IncompleteLinearImpliedCertainty(),
 						new TrivialQuantifiedCases(),
 						new TopSimplifyWrapper(),
-//						new IntensionalSetWithBoundIndex(),
-//						new ConjunctsHoldTrueForEachOther(),
+						new IntensionalSetWithBoundIndex(),
+						new ConjunctsHoldTrueForEachOther(),
 						
 						//
 						// Support for: Quantifier Elimination
