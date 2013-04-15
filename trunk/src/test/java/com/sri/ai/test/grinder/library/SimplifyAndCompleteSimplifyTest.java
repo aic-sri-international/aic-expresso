@@ -286,8 +286,8 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 			// Basic: 1. if-then-elses are externalized.
 			new SimplifyTestData(
 				"and(A = a, (if B = b then C = c else C = d), E = e)",
-				//"A = a and (B = b and C = c or B != b and C = d) and E = e"
-				"B = b and A = a and C = c and E = e or B != b and A = a and C = d and E = e"),
+				"A = a and (B = b and C = c or B != b and C = d) and E = e"),
+				//"B = b and A = a and C = c and E = e or B != b and A = a and C = d and E = e"),
 				// Note: before FromConditionalFormulaToFormula, used to be
 				// if B = b then and(A = a, C = c, E = e) else and(A = a, C = d, E = e)
 			//
