@@ -468,6 +468,17 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 		perform(tests);
 	}
 	
+	@Test
+	public void testCompleteSimplifyUnreachableBranch() {
+		TestData[] tests = new TestData[] {
+				new CompleteSimplifyTestData(
+					"if X = person1 or X = person2 or X = person3 then (if X != person1 and X != person2 and X != person3 then 1 else 2) else 3", 
+					"if X = person1 or X = person2 or X = person3 then 2 else 3"),
+			};
+			
+			perform(tests);
+	}
+	
 	//
 	// PRIVATE METHODS
 	//
