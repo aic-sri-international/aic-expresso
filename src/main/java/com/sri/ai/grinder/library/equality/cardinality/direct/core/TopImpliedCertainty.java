@@ -79,7 +79,7 @@ public class TopImpliedCertainty extends AbstractHierarchicalRewriter implements
 		Expression result = expression;
 		
 		if (!(expression instanceof Symbol)) {
-			if (CardinalityUtil.isFormula(expression, process)) {
+			if (CardinalityUtil.isFormula(expression, process)) {				
 				// Note: as is_tautology relies on R_complete_simplify,
 				// which this rewriter is a part of, ensure we do not
 				// recurse indefinitely in the case where a similar formula
@@ -93,19 +93,21 @@ public class TopImpliedCertainty extends AbstractHierarchicalRewriter implements
 					}
 				}
 				if (test) {
+					// Need to perform the tautology tests with an empty context.
+					RewritingProcess tautologyProcess = process.newSubProcessWithContext(new HashSet<Expression>(), Expressions.TRUE);
 					Trace.log("if F is a formula");
 					Expression c            = process.getContextualConstraint();
 					Expression cImpliesF    = Implication.make(c, expression);
 					Expression cImpliesNotF = Implication.make(c, CardinalityUtil.makeNot(expression));
 					Trace.log("    if is_tautology(C => F)");
-					if (IsTautology.isTautology(cImpliesF, process)) {
+					if (IsTautology.isTautology(cImpliesF, tautologyProcess)) {
 						Trace.log("        return true");
 						result = Expressions.TRUE;
 					} 
 					
 					if (result == expression) {
 						Trace.log("    if is_tautology(C => not F)");
-						if (IsTautology.isTautology(cImpliesNotF, process)) {
+						if (IsTautology.isTautology(cImpliesNotF, tautologyProcess)) {
 							Trace.log("        return false");
 							result = Expressions.FALSE;
 						}

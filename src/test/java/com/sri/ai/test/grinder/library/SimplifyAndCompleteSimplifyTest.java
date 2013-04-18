@@ -469,11 +469,37 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 	}
 	
 	@Test
+	public void testCompleteSimplifyContradictions() {
+		TestData[] tests = new TestData[] {
+				// This is a contradiction
+				new CompleteSimplifyTestData(
+				"X = w7 => not(X0 != Y and X0 != Z and Z != Y and (X0 = w7 and X = Y or X0 = w7 and X = Z))", 
+				"true"),
+				// This is the same contradiction just formulated slightly differently
+				new CompleteSimplifyTestData(
+				"not(X != w7) => not(X0 != Y and X0 != Z and Z != Y and (X0 = w7 and X = Y or X0 = w7 and X = Z))", 
+				"true"),				
+				new CompleteSimplifyTestData(
+						"X = w7 and X0 != Y and X0 != Z and Z != Y and (X0 = w7 and X = Y or X0 = w7 and X = Z)", 
+						"false"),
+				new CompleteSimplifyTestData(
+						"not(X != w7) and X0 != Y and X0 != Z and Z != Y and (X0 = w7 and X = Y or X0 = w7 and X = Z)", 
+						"false"),
+
+			};
+			
+			perform(tests);
+	}
+	
+	@Test
 	public void testCompleteSimplifyUnreachableBranch() {
 		TestData[] tests = new TestData[] {
 				new CompleteSimplifyTestData(
 					"if X = person1 or X = person2 or X = person3 then (if X != person1 and X != person2 and X != person3 then 1 else 2) else 3", 
 					"if X = person1 or X = person2 or X = person3 then 2 else 3"),
+				new CompleteSimplifyTestData(
+						"if X != w7 then 1 else (if (X0 != Y and X0 != Z and Z != Y and (X0 = w7 and X = Y or X0 = w7 and X = Z)) then 2 else 3)", 
+						"if X != w7 then 1 else 3"),
 			};
 			
 			perform(tests);
