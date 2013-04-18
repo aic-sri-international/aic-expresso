@@ -1068,24 +1068,11 @@ public class CardinalityUtil {
 				result = process.rewrite(CardinalityRewriter.R_simplify, CardinalityUtil.makeCardinalityOfIndexExpressions(indicesX));
 			}
 			else {
-				if (quantification == Quantification.THERE_EXISTS) {
-					Trace.log("if quantification is \"there exists\"");
-					// there is no need to compute N3, since it is enough that there is x for either F1 or F2
-					Trace.log("    return R_simplify(if N1 > 0 or N2 > 0 then ||X|| else 0)");
-					Expression n1NotEqual0     = Expressions.make(FunctorConstants.GREATER_THAN, n1, Expressions.ZERO);
-					Expression n2NotEqual0     = Expressions.make(FunctorConstants.GREATER_THAN, n2, Expressions.ZERO);
-					Expression n1orn2NotEqual0 = CardinalityUtil.makeOr(n1NotEqual0, n2NotEqual0);
-					Expression ifThenElse      = IfThenElse.make(n1orn2NotEqual0, CardinalityUtil.makeCardinalityOfIndexExpressions(indicesX), Expressions.ZERO);
-					
-					result = process.rewrite(CardinalityRewriter.R_simplify, ifThenElse);
-				}
-				else {
-					Trace.log("return R_simplify(N1 + N2)");
-					List<Expression> arguments = new ArrayList<Expression>();
-					arguments.add(n1);
-					arguments.add(n2);
-					result = process.rewrite(CardinalityRewriter.R_simplify, Plus.make(arguments));
-				}
+				Trace.log("return R_simplify(N1 + N2)");
+				List<Expression> arguments = new ArrayList<Expression>();
+				arguments.add(n1);
+				arguments.add(n2);
+				result = process.rewrite(CardinalityRewriter.R_simplify, Plus.make(arguments));
 			}
 		}
 		
