@@ -61,77 +61,94 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 @Beta
 public class FormulaToSharpSAT {
 	
+	public enum EndState {TRIVIAL_TAUTOLOGY, TRIVIAL_CONTRADICTION, NEEDS_SOLVING};
+	
 	public interface ConversionListener {
 		void start(int numberVariables);
 		void clause(int[] clause);
-		void end();
+		void end(EndState state);
 	}
 	
-	public static void converToSharpSAT(Expression formula, int domainSize, RewritingProcess process, ConversionListener conversionListener) {
+	public static void convertToSharpSAT(Expression formula, RewritingProcess process, ConversionListener conversionListener) {
+		Expression cnfFormula = FormulaToCNF.convertToCNF(formula, process);
+		int minimumDomainSize = FormulaUtil.getConstants(cnfFormula, process).size() + Variables.get(cnfFormula, process).size();
+		
+		convertToSharpSAT(cnfFormula, minimumDomainSize, process, conversionListener);
+	}
+	
+	public static void convertToSharpSAT(Expression formula, int domainSize, RewritingProcess process, ConversionListener conversionListener) {
 
 		Expression cnfFormula = FormulaToCNF.convertToCNF(formula, process);
 		
-		Map<Expression, Integer> constIds = getConstants(cnfFormula, process);
-		Map<Expression, Integer> varIds   = getVariables(cnfFormula, process);
-		
-		// Converting the problem to a propositional problem: Assume we are
-		// X1=X2 or X1!=a1 where |type(X1)|=|type(X2)|=3. 
-		// So, F is "X1=X2 or X1!=a1". First, we name the 
-		// other two elements in the domain as a2 and a3. 
-		// Then, we define the following propositional variables: 
-		//	v1: X1 = a1
-		//	v2: X1 = a2
-		//	v3: X1 = a3
-		//	v4: X2 = a1
-		//	v5: X2 = a2
-		//	v6: X2 = a3
-		
-		if (constIds.size() > domainSize) {
-			throw new IllegalArgumentException("Domain size too small to represent constants : "+constIds.keySet());
+		if (cnfFormula.equals(Expressions.TRUE)) {
+			conversionListener.end(EndState.TRIVIAL_TAUTOLOGY);
 		}
-		else if (constIds.size() < domainSize) {
-			// Extend with additional constants to represent the full domain size
-			int id = 1;
-			while (constIds.size() < domainSize) {
-				Symbol newConst = DefaultSymbol.createSymbol("a"+id);
-				if (!constIds.containsKey(newConst)) {
-					constIds.put(newConst, constIds.size()+1);
-				}
-				id++;
-			}
+		else if (cnfFormula.equals(Expressions.FALSE)) {
+			conversionListener.end(EndState.TRIVIAL_CONTRADICTION);
 		}
-		
-		conversionListener.start(varIds.size() * domainSize);
-
-		//
-		// Describe the domain
-		describeDomain(conversionListener, varIds.size(), domainSize);
-		
-		//
-		// Describe the formula
-		for (Expression fClause : cnfFormula.getArguments()) {
+		else {
+			Map<Expression, Integer> constIds = getConstants(cnfFormula, process);
+			Map<Expression, Integer> varIds   = getVariables(cnfFormula, process);
 			
-			Expression propEquivFormula    = expandHardLiterals(fClause, constIds.keySet(), domainSize, process);
-			// Ensure expansion in CNF form so we can just read of the clauses.
-			Expression cnfPropEquivFormula = FormulaToCNF.convertToCNF(propEquivFormula, process);
+			// Converting the problem to a propositional problem: Assume we are
+			// X1=X2 or X1!=a1 where |type(X1)|=|type(X2)|=3. 
+			// So, F is "X1=X2 or X1!=a1". First, we name the 
+			// other two elements in the domain as a2 and a3. 
+			// Then, we define the following propositional variables: 
+			//	v1: X1 = a1
+			//	v2: X1 = a2
+			//	v3: X1 = a3
+			//	v4: X2 = a1
+			//	v5: X2 = a2
+			//	v6: X2 = a3
 			
-			for (Expression pClause : cnfPropEquivFormula.getArguments()) {
-				int[] clause = new int[pClause.numberOfArguments()];
-				int current = 0;
-				for (Expression literal : pClause.getArguments()) {
-					int sign    = Equality.isEquality(literal) ? 1 : -1;
-					int varId   = varIds.get(literal.get(0));
-					int constId = constIds.get(literal.get(1));					
-					
-					clause[current] = getPropVarId(varId, constId, domainSize) * sign;
-
-					current++;
-				}
-				conversionListener.clause(clause);
+			if (constIds.size() > domainSize) {
+				throw new IllegalArgumentException("Domain size too small to represent constants : "+constIds.keySet());
 			}
+			else if (constIds.size() < domainSize) {
+				// Extend with additional constants to represent the full domain size
+				int id = 1;
+				while (constIds.size() < domainSize) {
+					Symbol newConst = DefaultSymbol.createSymbol("a"+id);
+					if (!constIds.containsKey(newConst)) {
+						constIds.put(newConst, constIds.size()+1);
+					}
+					id++;
+				}
+			}
+			
+			conversionListener.start(varIds.size() * domainSize);
+	
+			//
+			// Describe the domain
+			describeDomain(conversionListener, varIds.size(), domainSize);
+			
+			//
+			// Describe the formula
+			for (Expression fClause : cnfFormula.getArguments()) {
+				
+				Expression propEquivFormula    = expandHardLiterals(fClause, constIds.keySet(), domainSize, process);
+				// Ensure expansion in CNF form so we can just read of the clauses.
+				Expression cnfPropEquivFormula = FormulaToCNF.convertToCNF(propEquivFormula, process);
+				
+				for (Expression pClause : cnfPropEquivFormula.getArguments()) {
+					int[] clause = new int[pClause.numberOfArguments()];
+					int current = 0;
+					for (Expression literal : pClause.getArguments()) {
+						int sign    = Equality.isEquality(literal) ? 1 : -1;
+						int varId   = varIds.get(literal.get(0));
+						int constId = constIds.get(literal.get(1));					
+						
+						clause[current] = getPropVarId(varId, constId, domainSize) * sign;
+	
+						current++;
+					}
+					conversionListener.clause(clause);
+				}
+			}
+			
+			conversionListener.end(EndState.NEEDS_SOLVING);
 		}
-		
-		conversionListener.end();
 	}
 	
 	//
