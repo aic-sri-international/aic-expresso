@@ -37,8 +37,10 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.helper;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,9 +48,13 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.Variables;
+import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.equality.formula.FormulaToCNF;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 
@@ -105,21 +111,20 @@ public class FormulaToSharpSAT {
 		// Describe the formula
 		for (Expression fClause : cnfFormula.getArguments()) {
 			
-// TODO - do the rewriter to introduce the appropriate formulas for hard literals
-			Expression propFormula = fClause;
+			Expression propEquivFormula    = expandHardLiterals(fClause, constIds.keySet(), domainSize, process);
+			// Ensure expansion in CNF form so we can just read of the clauses.
+			Expression cnfPropEquivFormula = FormulaToCNF.convertToCNF(propEquivFormula, process);
 			
-			Expression cnfPropFormula = FormulaToCNF.convertToCNF(propFormula, process);
-			
-			for (Expression pClause : cnfPropFormula.getArguments()) {
+			for (Expression pClause : cnfPropEquivFormula.getArguments()) {
 				int[] clause = new int[pClause.numberOfArguments()];
 				int current = 0;
 				for (Expression literal : pClause.getArguments()) {
-					int multiplier = Equality.isEquality(literal) ? 1 : -1;
-					int varId      = varIds.get(literal.get(0));
-					int constId    = constIds.get(literal.get(1));
+					int sign    = Equality.isEquality(literal) ? 1 : -1;
+					int varId   = varIds.get(literal.get(0));
+					int constId = constIds.get(literal.get(1));					
 					
-					
-					clause[current] = (((varId-1) * domainSize) + constId) * multiplier;
+					clause[current] = getPropVarId(varId, constId, domainSize) * sign;
+
 					current++;
 				}
 				conversionListener.clause(clause);
@@ -192,5 +197,49 @@ public class FormulaToSharpSAT {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * "Hard Literals" are of the form "X=Y" or "X!=Y" (i.e. no constant) and
+	 * need to be expanded. For instance, the literal "X1=X2" need be defined
+	 * using the propositional variables above. First, note that "X1=X2" is
+	 * equivalent to:
+	 * "(X1=a1 and X2=a1) or (X1=a2 and X2=a2) or (X1=a3 and X2=a3)". 
+	 * Similarly "X1!=X2" is equivalent to:
+	 * "(X1=a1 and X2!=a1) or (X1=a2 and X2!=a2) or (X1=a3 and X2!=a3)".
+	 */
+	private static Expression expandHardLiterals(Expression clause, Set<Expression> consts, int domainSize, RewritingProcess process) {
+		Expression result = clause;
+		
+		List<Expression> disjuncts = new ArrayList<Expression>();
+		for (Expression literal : clause.getArguments()) {
+			if (process.isVariable(literal.get(0)) && process.isVariable(literal.get(1))) {
+				for (Expression cons : consts) {
+					List<Expression> conjuncts = new ArrayList<Expression>();
+					
+					conjuncts.add(Equality.make(literal.get(0), cons));
+					if (Equality.isEquality(literal)) {
+						conjuncts.add(Equality.make(literal.get(1), cons));
+					}
+					else {
+						conjuncts.add(Disequality.make(literal.get(1), cons));
+					}
+					
+					disjuncts.add(And.make(conjuncts));
+				}
+			}
+			else {
+				// Is a literal that maps to a propositional variable (i.e. has a constant).
+				disjuncts.add(literal);
+			}
+		}
+		
+		result = Expressions.make(Or.FUNCTOR, disjuncts);
+ 		
+		return result;
+	}
+	
+	private static int getPropVarId(int varId, int constId, int domainSize) {
+		return (((varId-1) * domainSize) + constId);
 	}
 }
