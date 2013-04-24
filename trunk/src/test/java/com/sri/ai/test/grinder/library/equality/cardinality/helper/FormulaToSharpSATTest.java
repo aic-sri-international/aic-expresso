@@ -38,6 +38,7 @@
 package com.sri.ai.test.grinder.library.equality.cardinality.helper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
@@ -63,23 +64,53 @@ public class FormulaToSharpSATTest  extends AbstractGrinderTest {
 		RewritingProcess process = newProcess();
 
 		SharpSATConversion conversionListener = new SharpSATConversion();
-		
 		FormulaToSharpSAT.converToSharpSAT(parse("and(or(X = a, Y = b, Z = c))"), 3, process, conversionListener);
+				
+		assertBasicDomain(conversionListener, 1);
+		//
+		Assert.assertEquals(Arrays.asList(1, 5, 9), conversionListener.clauses.get(12));
 		
-		Assert.assertEquals(9, conversionListener.numberVariables);
+		FormulaToSharpSAT.converToSharpSAT(parse("and(or(X != a, Y != b, Z != c))"), 3, process, conversionListener);
 		
-		Assert.assertEquals(1, conversionListener.clauses.size());
+		assertBasicDomain(conversionListener, 1);
+		//
+		Assert.assertEquals(Arrays.asList(-1, -5, -9), conversionListener.clauses.get(12));
+	}
+	
+	@Test
+	public void test_numberConstantsSmallerThanDomain() {
+// TODO		
 	}
 	
 	//
 	// PRIVATE
 	//
+	private void assertBasicDomain(SharpSATConversion conversionListener, int expectedFormulaClauses) {
+		Assert.assertEquals(9, conversionListener.numberVariables);
+		Assert.assertEquals(12+expectedFormulaClauses, conversionListener.clauses.size());
+		//
+		Assert.assertEquals(Arrays.asList(1, 2, 3), conversionListener.clauses.get(0));
+		Assert.assertEquals(Arrays.asList(4, 5, 6), conversionListener.clauses.get(1));
+		Assert.assertEquals(Arrays.asList(7, 8, 9), conversionListener.clauses.get(2));
+		//
+		Assert.assertEquals(Arrays.asList(-1, -2), conversionListener.clauses.get(3));
+		Assert.assertEquals(Arrays.asList(-1, -3), conversionListener.clauses.get(4));
+		Assert.assertEquals(Arrays.asList(-2, -3), conversionListener.clauses.get(5));
+		Assert.assertEquals(Arrays.asList(-4, -5), conversionListener.clauses.get(6));
+		Assert.assertEquals(Arrays.asList(-4, -6), conversionListener.clauses.get(7));
+		Assert.assertEquals(Arrays.asList(-5, -6), conversionListener.clauses.get(8));
+		Assert.assertEquals(Arrays.asList(-7, -8), conversionListener.clauses.get(9));
+		Assert.assertEquals(Arrays.asList(-7, -9), conversionListener.clauses.get(10));
+		Assert.assertEquals(Arrays.asList(-8, -9), conversionListener.clauses.get(11));
+	}
+	
 	private class SharpSATConversion implements FormulaToSharpSAT.ConversionListener {
 		public int                 numberVariables = 0;
 		public List<List<Integer>> clauses         = new ArrayList<List<Integer>>();
 		
 		@Override
 		public void start(int numberVariables) {
+			clauses.clear();
 			this.numberVariables = numberVariables;
 		}
 		
