@@ -177,6 +177,25 @@ public class FormulaToCNFTest extends AbstractGrinderTest {
 	}
 	
 	@Test
+	public void test_convertToCNF_StandardizeVariables() {
+		RewritingProcess process = newProcess();
+		
+		Assert.assertEquals(parse("and(or(X != Y), or(X' = Z))"), FormulaToCNF.convertToCNF(parse("(for all X : X != Y) and (for all X : X = Z)"), process));
+	}
+	
+	@Test
+	public void test_convertToCNF_ExistentialsOut() {
+		// TODO 0 RewritingProcess process = newProcess();
+	}
+	
+	@Test
+	public void test_convertToCNF_AllsOut() {
+		RewritingProcess process = newProcess();
+		
+		Assert.assertEquals(parse("and(or(X != Y))"), FormulaToCNF.convertToCNF(parse("for all X : X != Y"), process));
+	}
+	
+	@Test
 	public void test_convertToCNF_Distribution() {
 		RewritingProcess process = newProcess();
 		
