@@ -48,7 +48,6 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -61,6 +60,7 @@ import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter.Quantification;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
@@ -377,116 +377,9 @@ public class CardinalityUtil {
 		return result;
 	}
 	
-	/**
-	 * Determine if an expression is a formula.
-	 * 
-	 * @param expression
-	 *            the expression to be tested if it is a formula.
-	 * @param process
-	 *            the rewriting process in which the expression is being used.
-	 * @return true if the expression passed in is a formula, false otherwise.
-	 */
+	// TODO - replace calls to this with calls to FormulaUtil
 	public static boolean isFormula(Expression expression, RewritingProcess process) {
-		boolean result = false;
-		
-		// the Boolean constants False and True are formulas;
-		if (expression.equals(Expressions.TRUE) || expression.equals(Expressions.FALSE)) {
-			result = true; 
-		} 
-		// if alpha and beta are variable or constant symbols of finite types,
-		// then alpha = beta is a formula.
-		else if ((expression.hasFunctor(FunctorConstants.EQUAL) || expression.hasFunctor(FunctorConstants.INEQUALITY)) &&
-				expression.numberOfArguments() > 1) {
-			// in this case assume is a formula till proven otherwise
-			result = true;
-			for (Expression arg : expression.getArguments()) {
-				if (!(process.isVariable(arg) || isLegalFormulaConstant(arg, process))) {
-					// is not a formula.
-					result = false; 
-					break;
-				}
-			}
-		} 
-		// if phi is a formula, then not(phi) is a formula
-		else if (expression.hasFunctor(FunctorConstants.NOT) && 
-				 expression.numberOfArguments() == 1) {
-			result = isFormula(expression.get(0), process);
-		}
-		// if phi and phi' are formulas, then and(phi, phi'), and or(phi, phi') are formulas
-		else if (expression.hasFunctor(FunctorConstants.AND) ||
-				 expression.hasFunctor(FunctorConstants.OR)) {
-			// in this case assume is a formula till proven otherwise.
-			result = true;
-			for (Expression arg : expression.getArguments()) {
-				if (!(result = isFormula(arg, process))) {
-					// is not a formula
-					break;
-				}
-			} 
-		}
-		// if phi and phi' are formulas then phi => phi' and phi <=> phi' are formulas
-		else if ((expression.hasFunctor(FunctorConstants.IMPLICATION) ||
-				  expression.hasFunctor(FunctorConstants.EQUIVALENCE)   ) &&
-				  expression.numberOfArguments() == 2) {
-			result = isFormula(expression.get(0), process) && isFormula(expression.get(1), process);
-		}
-		// if phi is a formula, then 'exists x phi' is a formula
-		else if (expression.hasFunctor(FunctorConstants.THERE_EXISTS)) {
-			result = isFormula(ThereExists.getBody(expression), process);
-		}
-		// if phi is a formula, then 'for all x phi' is a formula
-		else if (expression.hasFunctor(FunctorConstants.FOR_ALL)) {
-			result = isFormula(ForAll.getBody(expression), process);
-		}
-		
-		return result;
-	}
-	
-	/**
-	 * Determine if an expression is a legal formula constant.
-	 * 
-	 * @param expression
-	 *            the expression to be tested if it is a legal formula constant.
-	 * @param process
-	 *            the rewriting process in which the expression is being used.
-	 * @return true if the expression passed in is a legal formula constant, false otherwise.
-	 */
-	public static boolean isLegalFormulaConstant(Expression expression, RewritingProcess process) {
-		boolean result = false;
-		
-		// Note: the corresponding paper describes a legal constant as being finite but in the
-		// implementation we will allow all constants (including numbers).
-		if (process.isConstant(expression)) {
-			result = true;
-		}
-		
-		return result;
-	}
-	
-	/**
-	 * Determine if an expression is a finite constant.
-	 * 
-	 * @param expression
-	 *            the expression to be tested if it is a finite constant.
-	 * @param process
-	 *            the rewriting process in which the expression is being used.
-	 * @return true if the expression passed in is a finite constant, false otherwise.
-	 */
-	public static boolean isFiniteConstant(Expression expression, RewritingProcess process) {
-		boolean result = false;
-		
-		if (process.isConstant(expression)) {
-			// if a constant we know its a symbol at least
-			Object value = ((Symbol) expression).getValue();
-			// We only consider string or boolean values to be finite.
-			// Expression values are not really constant
-			// and numeric values are not finite.
-			if (value instanceof String || value instanceof Boolean  ) {
-				result = true;
-			}
-		}
-		
-		return result;
+		return FormulaUtil.isFormula(expression, process);
 	}
 	
 	/**
