@@ -65,15 +65,15 @@ public class FormulaToSharpSATTest  extends AbstractGrinderTest {
 
 		SharpSATConversion conversionListener = new SharpSATConversion();
 		
-		FormulaToSharpSAT.converToSharpSAT(parse("and(or(X = a, Y = b, Z = c))"), 3, process, conversionListener);		
+		FormulaToSharpSAT.convertToSharpSAT(parse("and(or(X = a, Y = b, Z = c))"), 3, process, conversionListener);		
 		assertBasicDomain(conversionListener, 1);
 		Assert.assertEquals(Arrays.asList(1, 5, 9), conversionListener.clauses.get(12));
 		
-		FormulaToSharpSAT.converToSharpSAT(parse("and(or(X != a, Y != b, Z != c))"), 3, process, conversionListener);
+		FormulaToSharpSAT.convertToSharpSAT(parse("and(or(X != a, Y != b, Z != c))"), 3, process, conversionListener);
 		assertBasicDomain(conversionListener, 1);
 		Assert.assertEquals(Arrays.asList(-1, -5, -9), conversionListener.clauses.get(12));
 		
-		FormulaToSharpSAT.converToSharpSAT(parse("and(or(X != a), or(Y != b), or(Z != c))"), 3, process, conversionListener);
+		FormulaToSharpSAT.convertToSharpSAT(parse("and(or(X != a), or(Y != b), or(Z != c))"), 3, process, conversionListener);
 		assertBasicDomain(conversionListener, 3);
 		Assert.assertEquals(Arrays.asList(-1), conversionListener.clauses.get(12));
 		Assert.assertEquals(Arrays.asList(-5), conversionListener.clauses.get(13));
@@ -86,13 +86,27 @@ public class FormulaToSharpSATTest  extends AbstractGrinderTest {
 
 		SharpSATConversion conversionListener = new SharpSATConversion();
 		
-		FormulaToSharpSAT.converToSharpSAT(parse("and(or(X != a, Y != b, Z != b))"), 3, process, conversionListener);
+		FormulaToSharpSAT.convertToSharpSAT(parse("and(or(X != a, Y != b, Z != b))"), 3, process, conversionListener);
 		assertBasicDomain(conversionListener, 1);
 		Assert.assertEquals(Arrays.asList(-1, -5, -8), conversionListener.clauses.get(12));	
 		
-		FormulaToSharpSAT.converToSharpSAT(parse("and(or(X != a1, Y != a2, Z != a2))"), 3, process, conversionListener);
+		FormulaToSharpSAT.convertToSharpSAT(parse("and(or(X != a1, Y != a2, Z != a2))"), 3, process, conversionListener);
 		assertBasicDomain(conversionListener, 1);
 		Assert.assertEquals(Arrays.asList(-1, -5, -8), conversionListener.clauses.get(12));	
+	}
+	
+	@Test
+	public void test_MinimumDomain() {
+		RewritingProcess process = newProcess();
+
+		SharpSATConversion conversionListener = new SharpSATConversion();
+		
+		FormulaToSharpSAT.convertToSharpSAT(parse("and(or(X = a))"), process, conversionListener);
+		Assert.assertEquals(2, conversionListener.numberVariables);
+		Assert.assertEquals(3, conversionListener.clauses.size());
+		Assert.assertEquals(Arrays.asList(1, 2),   conversionListener.clauses.get(0));	
+		Assert.assertEquals(Arrays.asList(-1, -2), conversionListener.clauses.get(1));
+		Assert.assertEquals(Arrays.asList(1),      conversionListener.clauses.get(2));
 	}
 	
 	@Test
@@ -101,13 +115,13 @@ public class FormulaToSharpSATTest  extends AbstractGrinderTest {
 
 		SharpSATConversion conversionListener = new SharpSATConversion();
 		
-		FormulaToSharpSAT.converToSharpSAT(parse("and(or(X = Y))"), 3, process, conversionListener);
+		FormulaToSharpSAT.convertToSharpSAT(parse("and(or(X = Y))"), 3, process, conversionListener);
 		assertHardDomain(conversionListener, 8);
 		Assert.assertEquals(Arrays.asList(1, 2, 3), conversionListener.clauses.get(8));
 		// ...
 		Assert.assertEquals(Arrays.asList(4, 5, 6), conversionListener.clauses.get(15));	
 		
-		FormulaToSharpSAT.converToSharpSAT(parse("and(or(X != Y))"), 3, process, conversionListener);
+		FormulaToSharpSAT.convertToSharpSAT(parse("and(or(X != Y))"), 3, process, conversionListener);
 		assertHardDomain(conversionListener, 8);
 		Assert.assertEquals(Arrays.asList(1, 2, 3), conversionListener.clauses.get(8));
 		// ...
@@ -173,7 +187,7 @@ public class FormulaToSharpSATTest  extends AbstractGrinderTest {
 		}
 		
 		@Override
-		public void end() {
+		public void end(FormulaToSharpSAT.EndState state) {
 			
 		}
 	}
