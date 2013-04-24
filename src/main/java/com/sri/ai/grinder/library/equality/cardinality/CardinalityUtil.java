@@ -377,11 +377,6 @@ public class CardinalityUtil {
 		return result;
 	}
 	
-	// TODO - replace calls to this with calls to FormulaUtil
-	public static boolean isFormula(Expression expression, RewritingProcess process) {
-		return FormulaUtil.isFormula(expression, process);
-	}
-	
 	/**
 	 * Determines if an expression is an explicit conjunction 'and(...)' or an
 	 * equality or inequality formula (i.e. literal), or the boolean constant
@@ -400,7 +395,7 @@ public class CardinalityUtil {
 			expression.equals(Expressions.FALSE) ||
 			expression.equals(Expressions.TRUE)  ||
 			((expression.hasFunctor(FunctorConstants.EQUAL) || expression.hasFunctor(FunctorConstants.INEQUALITY)) 
-					&& isFormula(expression, process))
+					&& FormulaUtil.isFormula(expression, process))
 			) {
 			result = true;
 		}

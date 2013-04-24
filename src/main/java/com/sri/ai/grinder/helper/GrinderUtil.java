@@ -61,6 +61,7 @@ import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.concurrent.BranchAndMerge;
@@ -641,7 +642,7 @@ public class GrinderUtil {
 		Expression contextualConstraintPrime = contextualConstraint;
 		
 		// Only extend the contextual constraint with formulas
-		if (!additionalConstraints.equals(Expressions.TRUE) && CardinalityUtil.isFormula(additionalConstraints, process)) {
+		if (!additionalConstraints.equals(Expressions.TRUE) && FormulaUtil.isFormula(additionalConstraints, process)) {
 			// Ensure any variables mentioned in the additional constraint are added
 			// to the contextual variables set.
 			newContextualVariables.addAll(Variables.freeVariables(additionalConstraints, process));

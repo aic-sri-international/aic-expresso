@@ -40,8 +40,8 @@ package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 
 /**
  * Note: This wrapper is required as the default implementation throws an
@@ -61,7 +61,7 @@ public class QuantifierEliminationWrapper extends AbstractRewriter {
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expression result = expression;
-		if (CardinalityUtil.isFormula(expression, process)) {
+		if (FormulaUtil.isFormula(expression, process)) {
 			result = process.rewrite(CardinalityRewriter.R_quantifier_elimination, expression);
 			if (result.equals(expression)) {
 				result = expression;

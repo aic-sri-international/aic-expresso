@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.helper;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -46,12 +45,11 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.SubExpressionSelection;
 import com.sri.ai.grinder.library.equality.formula.FormulaToCNF;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 
 @Beta
 public class FormulaToSharpSAT {
@@ -115,19 +113,7 @@ public class FormulaToSharpSAT {
 	// PRIVATE
 	//
 	private static Map<Expression, Integer> getConstants(Expression formula, final RewritingProcess process) {
-		Set<Expression> consts = new LinkedHashSet<Expression>();
-		
-		Iterator<Expression> subExpressionsIterator =  new SubExpressionsDepthFirstIterator(formula);
-		while (subExpressionsIterator.hasNext()) {
-			Expression expression = subExpressionsIterator.next();
-			if (Equality.isEquality(expression) || Disequality.isDisequality(expression)) {
-				for (Expression term : expression.getArguments()) {
-					if (process.isConstant(term)) {
-						consts.add(term);
-					}
-				}
-			}
-		}
+		Set<Expression> consts = FormulaUtil.getConstants(formula, process);
 		
 		Map<Expression, Integer> constIds = new LinkedHashMap<Expression, Integer>();
 		int id = 0;
