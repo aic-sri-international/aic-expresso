@@ -1,4 +1,4 @@
-package com.sri.ai.grinder.library.equality.cardinality;
+package com.sri.ai.grinder.library.equality.cardinality.helper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +24,7 @@ import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
+import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 
 @Beta

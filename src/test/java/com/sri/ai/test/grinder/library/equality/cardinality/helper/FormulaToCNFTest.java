@@ -1,4 +1,4 @@
-package com.sri.ai.test.grinder.library.equality.cardinality.direct;
+package com.sri.ai.test.grinder.library.equality.cardinality.helper;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -8,7 +8,7 @@ import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
-import com.sri.ai.grinder.library.equality.cardinality.FormulaToCNF;
+import com.sri.ai.grinder.library.equality.cardinality.helper.FormulaToCNF;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 
 public class FormulaToCNFTest extends AbstractGrinderTest {
