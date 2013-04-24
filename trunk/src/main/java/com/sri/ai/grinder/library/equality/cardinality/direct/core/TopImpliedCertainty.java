@@ -51,6 +51,7 @@ import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 
 /**
  * Rewriter replacing expression by true or false if it or its negation is implied by the context.
@@ -79,7 +80,7 @@ public class TopImpliedCertainty extends AbstractHierarchicalRewriter implements
 		Expression result = expression;
 		
 		if (!(expression instanceof Symbol)) {
-			if (CardinalityUtil.isFormula(expression, process)) {				
+			if (FormulaUtil.isFormula(expression, process)) {				
 				// Note: as is_tautology relies on R_complete_simplify,
 				// which this rewriter is a part of, ensure we do not
 				// recurse indefinitely in the case where a similar formula

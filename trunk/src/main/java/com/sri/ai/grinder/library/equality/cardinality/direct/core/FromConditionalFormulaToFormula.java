@@ -45,7 +45,7 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 
 /**
  * A rewriter rewriting conditional formulas of the type
@@ -63,8 +63,8 @@ public class FromConditionalFormulaToFormula extends AbstractRewriter {
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		
 		if (IfThenElse.isIfThenElse(expression) &&
-				CardinalityUtil.isFormula(IfThenElse.getThenBranch(expression), process) &&
-				CardinalityUtil.isFormula(IfThenElse.getElseBranch(expression), process)) {
+				FormulaUtil.isFormula(IfThenElse.getThenBranch(expression), process) &&
+				FormulaUtil.isFormula(IfThenElse.getElseBranch(expression), process)) {
 
 			Expression result =
 					Or.make(

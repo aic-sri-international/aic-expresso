@@ -101,13 +101,13 @@ import com.sri.ai.grinder.library.boole.ForAllSubExpressionsAndScopedVariablesPr
 import com.sri.ai.grinder.library.boole.ThereExistsSubExpressionsAndScopedVariablesProvider;
 import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
-import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityWrapper;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.QuantifierElimination;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.QuantifierEliminationWrapper;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopImpliedCertainty;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopSimplify;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsProvider;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
@@ -485,7 +485,7 @@ public class AbstractRewritePanel extends JPanel {
 			
 			String outputPrefix = "";
 			if (!Expressions.TRUE.equals(inputContext)) {
-				if (CardinalityUtil.isFormula(inputContext, process)) {
+				if (FormulaUtil.isFormula(inputContext, process)) {
 					process = GrinderUtil.extendContextualConstraint(inputContext, process);
 				}
 				else {

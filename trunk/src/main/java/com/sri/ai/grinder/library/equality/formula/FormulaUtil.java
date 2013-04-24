@@ -37,10 +37,15 @@
  */
 package com.sri.ai.grinder.library.equality.formula;
 
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
@@ -169,6 +174,37 @@ public class FormulaUtil {
 		}
 		
 		return result;
+	}
+	
+	/**
+	 * Extract the constants from the given formula. This is done by checking
+	 * the terms of any diseaulities or equalities in the formula as to whether
+	 * or not they are constants. These are the only locations constants should
+	 * exist in a formula.
+	 * 
+	 * @param formula
+	 *            the formula constants are to be collected from.
+	 * @param process
+	 *            the current rewriting process, which is used to identify if a
+	 *            term is a constant.
+	 * @return the set of constants present in the given formula (may be empty).
+	 */
+	public static Set<Expression> getConstants(Expression formula, RewritingProcess process) {
+		Set<Expression> consts = new LinkedHashSet<Expression>();
+		
+		Iterator<Expression> subExpressionsIterator =  new SubExpressionsDepthFirstIterator(formula);
+		while (subExpressionsIterator.hasNext()) {
+			Expression expression = subExpressionsIterator.next();
+			if (Equality.isEquality(expression) || Disequality.isDisequality(expression)) {
+				for (Expression term : expression.getArguments()) {
+					if (process.isConstant(term)) {
+						consts.add(term);
+					}
+				}
+			}
+		}
+		
+		return consts;
 	}
 	
 	/**

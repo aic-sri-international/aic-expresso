@@ -46,8 +46,8 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Variables;
 import com.sri.ai.grinder.library.boole.ThereExists;
-import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 
 /**
  * Default implementation of is_contradiction(F).
@@ -78,7 +78,7 @@ public class IsContradiction {
 		boolean result = false;
 		
 		// Assert input argument
-		if (!CardinalityUtil.isFormula(expressionF, process)) {
+		if (!FormulaUtil.isFormula(expressionF, process)) {
 			throw new IllegalArgumentException("F is not a formula:"+expressionF);
 		}
 		

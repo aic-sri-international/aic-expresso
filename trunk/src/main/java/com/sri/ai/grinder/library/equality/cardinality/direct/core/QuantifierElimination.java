@@ -51,6 +51,7 @@ import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 
 /**
  * Default implementation of R_quantifier_elimination(F).
@@ -77,7 +78,7 @@ public class QuantifierElimination extends AbstractHierarchicalRewriter implemen
 		Expression result = null;
 		
 		// Assert input argument
-		if (!CardinalityUtil.isFormula(expressionF, process)) {
+		if (!FormulaUtil.isFormula(expressionF, process)) {
 			throw new IllegalArgumentException("F is not a formula:"+expressionF);
 		}
 				

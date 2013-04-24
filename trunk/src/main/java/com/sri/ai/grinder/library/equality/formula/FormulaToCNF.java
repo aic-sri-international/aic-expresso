@@ -61,7 +61,6 @@ import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
-import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 
 @Beta
@@ -84,12 +83,12 @@ public class FormulaToCNF {
 	 * @return false, true, or a conjunction of clauses.
 	 * @throws IllegalArgumentException
 	 *             if the input formula expression is not actually a formula.
-	 * @see CardinalityUtil#isFormula(Expression, RewritingProcess)
+	 * @see FormulaUtil#isFormula(Expression, RewritingProcess)
 	 */
 	public static Expression convertToCNF(Expression formula, RewritingProcess process) {
 		Expression result = formula;
 
-		if (!CardinalityUtil.isFormula(formula, process)) {
+		if (!FormulaUtil.isFormula(formula, process)) {
 			throw new IllegalArgumentException(
 					"Expression to be converted is not a formula: " + formula);
 		}
