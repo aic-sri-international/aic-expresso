@@ -67,7 +67,7 @@ public class FormulaToCNF {
 		result = standardizeVariables(result, process);
 		
 		// INSE)ADO
-		// TODO - Existential Out
+		result = existentialsOut(result, process);
 		
 		// INSEA)DO
 		result = allsOut(result, process);
@@ -213,6 +213,25 @@ public class FormulaToCNF {
 			input  = result;
 			result = svRewriter.rewrite(input, process);
 		} while (result != input);
+		
+		return result;
+	}
+	
+	private static Expression existentialsOut(Expression formula, RewritingProcess process) {
+		Expression result = formula;
+// TODO - Step 1 - create skolem functions for existentials scoped by universals
+		
+		// Step 2 - The variables should already be standardized apart at this point
+		// therefore just need to drop existentials as we want to introduce 
+		// uniquely named free variables as opposed to constants in the 
+		// translation of formulas due to the unique names assumption.
+		TotalRewriter eoRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+				// INSE)ADO
+				new ExistentialsOutRewriter()
+			));
+		result = eoRewriter.rewrite(result, process);
+		
+// TODO - Step 3 - translate the uninterpreted skolem functions to an equivalent equality formula.
 		
 		return result;
 	}
@@ -550,6 +569,27 @@ public class FormulaToCNF {
 				else {
 					seenIndices.add(index);
 				}
+			}
+			
+			return result;
+		}
+	}
+	
+	/**
+	 * Performs the drop existential quantifiers portion of the formula conversion to CNF:
+	 * 
+	 * there exists X: X = Y -> X = Y
+	 * 
+	 */
+	private static class ExistentialsOutRewriter extends AbstractRewriter {
+		
+		@Override
+		public Expression rewriteAfterBookkeeping(Expression expression,
+				RewritingProcess process) {
+			Expression result = expression;
+			
+			if (ThereExists.isThereExists(expression)) {
+				result = ThereExists.getBody(expression);
 			}
 			
 			return result;

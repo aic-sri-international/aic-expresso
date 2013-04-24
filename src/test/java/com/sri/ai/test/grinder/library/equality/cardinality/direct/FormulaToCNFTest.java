@@ -171,9 +171,11 @@ public class FormulaToCNFTest extends AbstractGrinderTest {
 		// not(F1 or F2)           -> not(F1) and not(F2)
 		Assert.assertEquals(parse("and(or(X != Y), or(W != Z))"), FormulaToCNF.convertToCNF(parse("not(or(X = Y, W = Z))"), process));
 		
-// TODO -
 		// not(for all X : F)      -> there exists X : not(F)
+		Assert.assertEquals(parse("and(or(X != Y))"), FormulaToCNF.convertToCNF(parse("not(for all X: X = Y)"), process));
+		
 		// not(there exists X : F) -> for all X : not(F)
+		Assert.assertEquals(parse("and(or(X != Y))"), FormulaToCNF.convertToCNF(parse("not(there exists X: X = Y)"), process));
 	}
 	
 	@Test
@@ -181,11 +183,17 @@ public class FormulaToCNFTest extends AbstractGrinderTest {
 		RewritingProcess process = newProcess();
 		
 		Assert.assertEquals(parse("and(or(X != Y), or(X' = Z))"), FormulaToCNF.convertToCNF(parse("(for all X : X != Y) and (for all X : X = Z)"), process));
+		Assert.assertEquals(parse("and(or(X != Y), or(X' = Z))"), FormulaToCNF.convertToCNF(parse("(there exists X : X != Y) and (there exists X : X = Z)"), process));
 	}
 	
 	@Test
 	public void test_convertToCNF_ExistentialsOut() {
-		// TODO 0 RewritingProcess process = newProcess();
+		RewritingProcess process = newProcess();
+		
+		Assert.assertEquals(parse("and(or(X != Y))"), FormulaToCNF.convertToCNF(parse("there exists X : X != Y"), process));
+		Assert.assertEquals(parse("and(or(X != Y, X' = Z))"), FormulaToCNF.convertToCNF(parse("(there exists X : X != Y) or (there exists X : X = Z)"), process));
+		
+// TODO - tests related to skolem functions when logic supported.		
 	}
 	
 	@Test
@@ -222,7 +230,6 @@ public class FormulaToCNFTest extends AbstractGrinderTest {
 		
 		// L1 and L2 -> and(or(L1), or(L2))
 		Assert.assertEquals(parse("and(or(A = B), or(B = C))"), FormulaToCNF.convertToCNF(parse("A = B and B = C"), process));
-
 	}
 	
 	//
