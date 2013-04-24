@@ -2,7 +2,9 @@ package com.sri.ai.grinder.library.equality.cardinality;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -10,15 +12,19 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.RewriteOnce;
 import com.sri.ai.grinder.core.TotalRewriter;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.StandardizedApartFrom;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
+import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 
 @Beta
 public class FormulaToCNF {
@@ -58,16 +64,18 @@ public class FormulaToCNF {
 		result = negationsIn(result, process);
 		
 		// INS)EADO
-		// TODO - Standardize Variables
+		result = standardizeVariables(result, process);
+		
 		// INSE)ADO
 		// TODO - Existential Out
+		
 		// INSEA)DO
-		// TODO - Alls Out
+		result = allsOut(result, process);
 		
 		// INSEAD)O
 		result = distribution(result, process);
 		
-		// INSEADO - Operators Out, we don't do
+		// INSEADO) - Operators Out, we don't do
 		// as we want to keep as a conjunction of disjunctions.
 			
 		if (isCNFLiteral(result)) {
@@ -191,6 +199,36 @@ public class FormulaToCNF {
 				new NegationsInRewriter()
 			));
 		Expression result = cnfRewriter.rewrite(formula, process);	
+		return result;
+	}
+	
+	private static Expression standardizeVariables(Expression formula, RewritingProcess process) {
+		Expression input  = formula;
+		Expression result = formula;
+		do {
+			RewriteOnce svRewriter = new RewriteOnce(Arrays.asList((Rewriter)
+					// INS)EADO
+					new StandardizeVariablesRewriter()
+				));
+			input  = result;
+			result = svRewriter.rewrite(input, process);
+		} while (result != input);
+		
+		return result;
+	}
+	
+	private static Expression allsOut(Expression formula, RewritingProcess process) {
+		TotalRewriter aoRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+				// Want to ensure the following normalizations
+				// are applied to ensure the final CNF form is easier
+				// to work with.
+				new NormalizeOrRewriter(),
+				new NormalizeAndRewriter(),
+				new NormalizeEqualitiesRewriter(),
+				// IN)SEADO
+				new AllOutRewriter()
+			));
+		Expression result = aoRewriter.rewrite(formula, process);	
 		return result;
 	}
 	
@@ -471,6 +509,68 @@ public class FormulaToCNF {
 				else if (ThereExists.isThereExists(negated)) {
 					result = ForAll.make(ThereExists.getIndex(negated), Not.make(ThereExists.getBody(negated)));
 				}
+			}
+			
+			return result;
+		}
+	}
+	
+	/**
+	 * Performs the Standardize Variables portion of the formula conversion to CNF, e.g.:
+	 * 
+	 * for all X: (there exists Y: X = Y) or (there exists Y: X != Y)
+	 * ->
+	 * for all X: (there exists Y: X = Y) or (there exists Y': X != Y')
+	 * 
+	 * Basically quantifiers in the formula using the same index name are made unique.
+	 */
+	private static class StandardizeVariablesRewriter extends AbstractRewriter {
+		
+		private Set<Expression> seenIndices = new HashSet<Expression>();
+		
+		@Override
+		public Expression rewriteAfterBookkeeping(Expression expression,
+				RewritingProcess process) {
+			Expression result = expression;
+		
+			Expression index = null;
+			if (ForAll.isForAll(expression)) {
+				index = ForAll.getIndex(expression);
+			}
+			else if (ThereExists.isThereExists(expression)) {
+				index = ThereExists.getIndex(expression);
+			}
+			
+			if (index != null) {
+				if (seenIndices.contains(index)) {
+					RewritingProcess saProcess = GrinderUtil.extendContextualVariables(ExtensionalSet.makeUniSetExpression(new ArrayList<Expression>(seenIndices)), process);
+					
+					result = StandardizedApartFrom.standardizedApartFrom(expression, expression, saProcess);
+				}
+				else {
+					seenIndices.add(index);
+				}
+			}
+			
+			return result;
+		}
+	}
+	
+	/**
+	 * Performs the drop universal quantifiers portion of the formula conversion to CNF:
+	 * 
+	 * for all X: X = Y -> X = Y
+	 * 
+	 */
+	private static class AllOutRewriter extends AbstractRewriter {
+		
+		@Override
+		public Expression rewriteAfterBookkeeping(Expression expression,
+				RewritingProcess process) {
+			Expression result = expression;
+			
+			if (ForAll.isForAll(expression)) {
+				result = ForAll.getBody(expression);
 			}
 			
 			return result;
