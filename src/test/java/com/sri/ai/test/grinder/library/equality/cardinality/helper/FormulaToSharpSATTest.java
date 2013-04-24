@@ -37,10 +37,18 @@
  */
 package com.sri.ai.test.grinder.library.equality.cardinality.helper;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.sri.ai.brewer.api.Grammar;
 import com.sri.ai.brewer.core.CommonGrammar;
+import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
+import com.sri.ai.grinder.library.equality.cardinality.helper.FormulaToSharpSAT;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 
 public class FormulaToSharpSATTest  extends AbstractGrinderTest {
@@ -51,7 +59,48 @@ public class FormulaToSharpSATTest  extends AbstractGrinderTest {
 	}
 	
 	@Test
-	public void testTODO() {
-// TODO
-	}	
+	public void test_BasicConversion() {
+		RewritingProcess process = newProcess();
+
+		SharpSATConversion conversionListener = new SharpSATConversion();
+		
+		FormulaToSharpSAT.converToSharpSAT(parse("and(or(X = a, Y = b, Z = c))"), 3, process, conversionListener);
+		
+		Assert.assertEquals(9, conversionListener.numberVariables);
+		
+		Assert.assertEquals(1, conversionListener.clauses.size());
+	}
+	
+	//
+	// PRIVATE
+	//
+	private class SharpSATConversion implements FormulaToSharpSAT.ConversionListener {
+		public int                 numberVariables = 0;
+		public List<List<Integer>> clauses         = new ArrayList<List<Integer>>();
+		
+		@Override
+		public void start(int numberVariables) {
+			this.numberVariables = numberVariables;
+		}
+		
+		@Override
+		public void clause(int[] clause) {
+			List<Integer> lClause = new ArrayList<Integer>();
+			
+			for (int i = 0; i < clause.length; i++) {
+				lClause.add(clause[i]);
+			}
+			
+			clauses.add(lClause);
+		}
+		
+		@Override
+		public void end() {
+			
+		}
+	}
+	
+	private RewritingProcess newProcess() {
+		return DirectCardinalityComputationFactory.newCardinalityProcess(Expressions.TRUE);
+	}
 }
