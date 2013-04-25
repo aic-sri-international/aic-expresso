@@ -74,6 +74,9 @@ public class FormulaToCNFTest extends AbstractGrinderTest {
 		
 		// or(..., false, ...) -> or(..., ...)
 		Assert.assertEquals(parse("and(or(X = a, Y = b))"), FormulaToCNF.convertToCNF(parse("or(X = a, false, Y = b)"), process));
+		
+		// or(X = Y, X = Y) -> or(X = Y)
+		Assert.assertEquals(parse("and(or(X = Y))"), FormulaToCNF.convertToCNF(parse("or(X = Y, X = Y)"), process));
 
 		// or(X = Y, ..., X != Y) -> true
 		Assert.assertEquals(parse("true"), FormulaToCNF.convertToCNF(parse("or(X = Y, Z = a, X != Y)"), process));
@@ -87,6 +90,9 @@ public class FormulaToCNFTest extends AbstractGrinderTest {
 		
 		// and(..., true, ...) -> and(..., ...)
 		Assert.assertEquals(parse("and(or(X = a), or(Y = b))"), FormulaToCNF.convertToCNF(parse("and(or(X = a), true, or(Y = b))"), process));
+		
+		// and(X = Y, X = Y) -> and(X = Y)
+		Assert.assertEquals(parse("and(or(X = Y))"), FormulaToCNF.convertToCNF(parse("and(X = Y, X = Y)"), process));
 		
 		// and(..., false, ...) -> false
 		Assert.assertEquals(parse("false"), FormulaToCNF.convertToCNF(parse("and(or(X = a), false, or(Y = b))"), process));

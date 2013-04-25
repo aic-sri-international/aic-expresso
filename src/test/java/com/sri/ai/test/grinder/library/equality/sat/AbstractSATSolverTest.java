@@ -23,15 +23,30 @@ public abstract class AbstractSATSolverTest extends AbstractGrinderTest {
 	public abstract SATSolver newSATSolver();
 	
 	@Test
-	public void testBasicSatisfiableCases() {
+	public void testSatisfiableBasic() {
 		testSatisfiable("X = Y or X != Y");
 		testSatisfiable("X = a and Y = a and X = Y");
 	}
 	
 	@Test
-	public void testBasicUnsatisfiableCases() {
+	public void testSatisfiableLargeDNF() {		
+// TODO - expands indefinitely currently
+		//testSatisfiable("X = w7 => not(X0 != Y and X0 != Z and Z != Y and (X0 = w7 and X = Y or X0 = w7 and X = Z))");
+	}
+	
+	@Test
+	public void testUnsatisfiableBasic() {
 		testUnsatisfiable("X = Y and X != Y");
 		testUnsatisfiable("X = a and Y = a and X != Y");
+		testUnsatisfiable("and(X = a, X = Y, Y != a)");
+		testUnsatisfiable("(X = person1) <=> (X != person1)");
+		testUnsatisfiable("(X = person1 or X = person2) <=> (X != person1 and X != person2)");
+		testUnsatisfiable("(X = person1 or X = person2 or X = person3) <=> (X != person1 and X != person2 and X != person3)");
+		
+		// TODO - currently not supported.
+		//testUnsatisfiable("for all X: (X = person1) => (X != person1)");
+		//testUnsatisfiable("for all X: (X = person1 or X = person2) => (X != person1 and X != person2)");
+		//testUnsatisfiable("for all X: (X = person1 or X = person2 or X = person3) => (X != person1 and X != person2 and X != person3)");
 	}
 
 	//
