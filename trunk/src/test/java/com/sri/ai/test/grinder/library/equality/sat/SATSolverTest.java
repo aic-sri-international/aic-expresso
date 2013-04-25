@@ -10,17 +10,20 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
+import com.sri.ai.grinder.library.equality.sat.SAT4JSolver;
 import com.sri.ai.grinder.library.equality.sat.SATSolver;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 
-public abstract class AbstractSATSolverTest extends AbstractGrinderTest {
+public class SATSolverTest extends AbstractGrinderTest {
 	
 	@Override
 	public Grammar makeGrammar() {
 		return new CommonGrammar();
 	}
 	
-	public abstract SATSolver newSATSolver();
+	public SATSolver[] newSATSolvers() {
+		return new SATSolver[] {new SAT4JSolver()};
+	}
 	
 	@Test
 	public void testSatisfiableBasic() {
@@ -63,18 +66,19 @@ public abstract class AbstractSATSolverTest extends AbstractGrinderTest {
 		test(strFormula, false);
 	}
 	
-	private void test(String strFormula, boolean expectedSatisfiable) {
-		RewritingProcess process = newProcess();
-		SATSolver        solver  = newSATSolver();  
+	private void test(String strFormula, boolean expectedSatisfiable) {  
 		Expression       formula = parse(strFormula);
 		
-		System.out.println("Is : "+formula);
-		Stopwatch stopwatch = new Stopwatch().start();
-		boolean satisfiable = solver.isSatisfiable(formula, process);
-		long evaluationTime = stopwatch.elapsedMillis();
-		System.out.println("- Satisfiable? ->");
-		System.out.println(""+satisfiable+", solver time: " + evaluationTime + " ms.");
-		Assert.assertEquals(expectedSatisfiable, satisfiable);
+		for (SATSolver solver : newSATSolvers()) {
+			RewritingProcess process = newProcess();
+			System.out.println(solver.getName() + " to solve : "+formula);
+			Stopwatch stopwatch = new Stopwatch().start();
+			boolean satisfiable = solver.isSatisfiable(formula, process);
+			long evaluationTime = stopwatch.elapsedMillis();
+			System.out.println("- Satisfiable? ->");
+			System.out.println(""+satisfiable+", solver ("+solver.getName()+") time: " + evaluationTime + " ms.");
+			Assert.assertEquals(expectedSatisfiable, satisfiable);
+		}
 	}
 	
 	private RewritingProcess newProcess() {

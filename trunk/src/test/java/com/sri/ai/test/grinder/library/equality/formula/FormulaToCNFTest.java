@@ -102,7 +102,7 @@ public class FormulaToCNFTest extends AbstractGrinderTest {
 	}
 	
 	@Test
-	public void test_convertToCNF_EqualityNormalization() {
+	public void test_convertToCNF_LiteralNormalization() {
 		RewritingProcess process = newProcess();
 		
 		// a = X -> X = a
@@ -210,7 +210,7 @@ public class FormulaToCNFTest extends AbstractGrinderTest {
 	}
 	
 	@Test
-	public void test_convertToCNF_DistributeOr() {
+	public void test_convertToCNF_DistributeOrOverAnd() {
 		RewritingProcess process = newProcess();
 		
 		// F1 or (F1 and F2) -> (F1 or F2) and (F1 or F3)
@@ -223,7 +223,7 @@ public class FormulaToCNFTest extends AbstractGrinderTest {
 	}
 	
 	@Test
-	public void test_convertToCNF_OrFlatten() {
+	public void test_convertToCNF_DistributeOrOverOr() {
 		RewritingProcess process = newProcess();
 		
 		// F0 or (F1 or ... or Fn)  -> (F0 or F1 or ... or Fn)
@@ -234,7 +234,7 @@ public class FormulaToCNFTest extends AbstractGrinderTest {
 	}
 	
 	@Test
-	public void test_convertToCNF_AndFlatten() {
+	public void test_convertToCNF_DistributeAndOverAnd() {
 		RewritingProcess process = newProcess();
 		
 		// F0 and (F1 and ... and Fn) -> (F0 and F1 and ... and Fn)

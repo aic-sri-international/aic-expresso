@@ -53,28 +53,27 @@ import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.equality.formula.helper.DistributeAndOverAnd;
 import com.sri.ai.grinder.library.equality.formula.helper.DistributeOrOverAnd;
 import com.sri.ai.grinder.library.equality.formula.helper.DistributeOrOverOr;
-import com.sri.ai.grinder.library.equality.formula.helper.EquivalenceOut;
-import com.sri.ai.grinder.library.equality.formula.helper.ExistentialOut;
-import com.sri.ai.grinder.library.equality.formula.helper.ImplicationOut;
-import com.sri.ai.grinder.library.equality.formula.helper.NegationIn;
 import com.sri.ai.grinder.library.equality.formula.helper.NormalizeAnd;
 import com.sri.ai.grinder.library.equality.formula.helper.NormalizeLiteral;
 import com.sri.ai.grinder.library.equality.formula.helper.NormalizeOr;
-import com.sri.ai.grinder.library.equality.formula.helper.StandardizeVariables;
-import com.sri.ai.grinder.library.equality.formula.helper.UniversalOut;
 
+/**
+ * Convert a formula into an inferentially equivalent Conjunctive Normal
+ * Form Expression (CNF). A formula is in CNF if it is a conjunction of
+ * disjunction of literals.
+ * 
+ * Transformation rules are based on the INSEADO method outlined in:
+ * 
+ * <a href="http://logic.stanford.edu/classes/cs157/2012/lectures/lecture09.pdf">INSEADO Rules (slide 6 to 9)</a>
+ * 
+ * @author oreilly
+ */
 @Beta
 public class FormulaToCNF {
 
 	/**
 	 * Convert a formula into an inferentially equivalent Conjunctive Normal
-	 * Form Expression. Transformation rules are based on the INSEADO method
-	 * outlined in:
-	 * 
-	 * <a href=
-	 * "http://logic.stanford.edu/classes/cs157/2012/lectures/lecture09.pdf"
-	 * >INSEADO Rules (slide 6 to 9</a>
-	 * 
+	 * Form Expression (CNF).
 	 * 
 	 * @param formula
 	 *            a formula.
@@ -88,32 +87,11 @@ public class FormulaToCNF {
 	public static Expression convertToCNF(Expression formula, RewritingProcess process) {
 		Expression result = formula;
 
-		if (!FormulaUtil.isFormula(formula, process)) {
-			throw new IllegalArgumentException(
-					"Expression to be converted is not a formula: " + formula);
-		}
+		// (INSEA)DO - NNF transformation handles the first part. 
+		result = FormulaToNNF.convertToNNF(formula, process);
 		
-		// Ensure equalities of the form:
-		// X = ... = Z
-		// are normalized up front.
-		result = NormalizeLiteral.normalizeLiterals(formula, process);
-		
-		// I)NSEADO - implications out
-		result = ImplicationOut.implicationsOut(result, process);
-		result = EquivalenceOut.equivalencesOut(result, process);
-		
-		// IN)SEADO - negtaions in
-		result = NegationIn.negationsIn(result, process);
-		
-		// INS)EADO - standardize
-		result = StandardizeVariables.standardize(result, process);
-		
-		// INSE)ADO - existentials out
-		result = ExistentialOut.existentialsOut(result, process);
-		
-		// INSEA)DO - alls out
-		result = UniversalOut.universalsOut(result, process);
-		
+// TODO - implement a more efficient (i.e. linear) version based on Tseitin-Transformation
+// http://en.wikipedia.org/wiki/Tseitin-Transformation
 		// INSEAD)O - dsitribute
 		result = distribution(result, process);
 		
