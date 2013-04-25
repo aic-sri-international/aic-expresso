@@ -42,6 +42,9 @@ public abstract class AbstractSATSolverTest extends AbstractGrinderTest {
 		testUnsatisfiable("(X = person1) <=> (X != person1)");
 		testUnsatisfiable("(X = person1 or X = person2) <=> (X != person1 and X != person2)");
 		testUnsatisfiable("(X = person1 or X = person2 or X = person3) <=> (X != person1 and X != person2 and X != person3)");
+		testUnsatisfiable("(X = person1) and (X != person1)");
+		testUnsatisfiable("(X = person1 or X = person2) and (X != person1 and X != person2)");
+		testUnsatisfiable("(X = person1 or X = person2 or X = person3) and (X != person1 and X != person2 and X != person3)");
 		
 		// TODO - currently not supported.
 		//testUnsatisfiable("for all X: (X = person1) => (X != person1)");

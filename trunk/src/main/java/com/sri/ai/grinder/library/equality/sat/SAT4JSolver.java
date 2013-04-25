@@ -104,14 +104,17 @@ public class SAT4JSolver implements SATSolver {
 		}
 		
 		@Override
-		public void clause(int[] clause) {
+		public boolean processClauseAndContinue(int[] clause) {
+			boolean processMore = true;
 			if (result == null) {
 				try {				
 					sat4jSolver.addClause(new VecInt(clause));
 				} catch (ContradictionException cex) {				
-					result = false;
+					result     = false;
+					processMore = false;
 				}
 			}
+			return processMore;
 		}
 		
 		@Override

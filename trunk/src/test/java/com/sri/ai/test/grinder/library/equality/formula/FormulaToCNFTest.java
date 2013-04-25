@@ -210,7 +210,7 @@ public class FormulaToCNFTest extends AbstractGrinderTest {
 	}
 	
 	@Test
-	public void test_convertToCNF_Distribution() {
+	public void test_convertToCNF_OrDistribution() {
 		RewritingProcess process = newProcess();
 		
 		// F1 or (F1 and F2) -> (F1 or F2) and (F1 or F3)
@@ -226,6 +226,11 @@ public class FormulaToCNFTest extends AbstractGrinderTest {
 		
 		// (F1 or ... or Fn) or F0    -> (F1 or ... or Fn or F0)
 		Assert.assertEquals(parse("and(or(B = C, C = D, A = B))"), FormulaToCNF.convertToCNF(parse("or(or(B = C, C = D), A = B)"), process));
+	}
+	
+	@Test
+	public void test_convertToCNF_AndFlatten() {
+		RewritingProcess process = newProcess();
 		
 		// F0 and (F1 and ... and Fn) -> (F0 and F1 and ... and Fn)
 		Assert.assertEquals(parse("and(or(A = B), or(B = C), or(C = D))"), FormulaToCNF.convertToCNF(parse("and(A = B, and(B = C, C = D))"), process));

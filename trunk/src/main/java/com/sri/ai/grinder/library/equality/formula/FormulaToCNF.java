@@ -215,8 +215,14 @@ public class FormulaToCNF {
 	
 	private static Expression distribution(Expression formula, RewritingProcess process) {
 		TotalRewriter cnfRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+				// Want to ensure the following normalizations
+				// are applied to ensure the final CNF form is easier
+				// to work with.
+				new NormalizeOrRewriter(),
+				new NormalizeAndRewriter(),
 				// INSEAD)O
-				new DistributionRewriter()
+				new OrDistributionRewriter(),
+				new AndFlattenRewriter()
 				
 			));
 		Expression result = cnfRewriter.rewrite(formula, process);	
@@ -592,11 +598,8 @@ public class FormulaToCNF {
 	 * (F1 and F2) or F3          -> (F1 or F3) and (F2 or F3)
 	 * F0 or (F1 or ... or Fn)    -> (F0 or F1 or ... or Fn)
 	 * (F1 or ... or Fn) or F0    -> (F1 or ... or Fn or F0)
-	 * F0 and (F1 and ... and Fn) -> (F0 and F1 and ... and Fn)
-	 * (F1 and ... and Fn) and F0 -> (F1 and ... and Fn and F0) 
-	 * L1 and L2                  -> and(or(L1), or(L2))
 	 */
-	private static class DistributionRewriter extends AbstractRewriter {
+	private static class OrDistributionRewriter extends AbstractRewriter {
 		
 		@Override
 		public Expression rewriteAfterBookkeeping(Expression expression,
@@ -641,7 +644,26 @@ public class FormulaToCNF {
 					}
 				}
 			}
-			else if (And.isConjunction(expression) && expression.numberOfArguments() > 0) {
+			
+			return result;
+		}
+ 	}
+	
+	/**
+	 * Performs the And flattening portion of the formula conversion to CNF:
+	 * 
+	 * F0 and (F1 and ... and Fn) -> (F0 and F1 and ... and Fn)
+	 * (F1 and ... and Fn) and F0 -> (F1 and ... and Fn and F0) 
+	 * L1 and L2                  -> and(or(L1), or(L2))
+	 */
+	private static class AndFlattenRewriter extends AbstractRewriter {
+		
+		@Override
+		public Expression rewriteAfterBookkeeping(Expression expression,
+				RewritingProcess process) {
+			Expression result = expression;
+			
+			if (And.isConjunction(expression) && expression.numberOfArguments() > 0) {
 				// F0 and (F1 and ... and Fn) -> (F0 and F1 and ... and Fn)
 				// (F1 and ... and Fn) and F0 -> (F1 and ... and Fn and F0)
 				// L1 and L2                  -> and(or(L1), or(L2))
