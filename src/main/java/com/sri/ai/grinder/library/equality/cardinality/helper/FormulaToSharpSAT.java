@@ -65,7 +65,7 @@ public class FormulaToSharpSAT {
 	
 	public interface ConversionListener {
 		void start(int numberVariables);
-		void clause(int[] clause);
+		boolean processClauseAndContinue(int[] clause);
 		void end(EndState state);
 	}
 	
@@ -77,7 +77,7 @@ public class FormulaToSharpSAT {
 	}
 	
 	public static void convertToSharpSAT(Expression formula, int domainSize, RewritingProcess process, ConversionListener conversionListener) {
-
+		boolean stopConversion = false;
 		Expression cnfFormula = FormulaToCNF.convertToCNF(formula, process);
 		
 		if (cnfFormula.equals(Expressions.TRUE)) {
@@ -121,29 +121,37 @@ public class FormulaToSharpSAT {
 	
 			//
 			// Describe the domain
-			describeDomain(conversionListener, varIds.size(), domainSize);
+			stopConversion = describeDomain(conversionListener, varIds.size(), domainSize);
 			
-			//
-			// Describe the formula
-			for (Expression fClause : cnfFormula.getArguments()) {
-				
-				Expression propEquivFormula    = expandHardLiterals(fClause, constIds.keySet(), domainSize, process);
-				// Ensure expansion in CNF form so we can just read of the clauses.
-				Expression cnfPropEquivFormula = FormulaToCNF.convertToCNF(propEquivFormula, process);
-				
-				for (Expression pClause : cnfPropEquivFormula.getArguments()) {
-					int[] clause = new int[pClause.numberOfArguments()];
-					int current = 0;
-					for (Expression literal : pClause.getArguments()) {
-						int sign    = Equality.isEquality(literal) ? 1 : -1;
-						int varId   = varIds.get(literal.get(0));
-						int constId = constIds.get(literal.get(1));					
-						
-						clause[current] = getPropVarId(varId, constId, domainSize) * sign;
-	
-						current++;
+			if (!stopConversion) {
+				//
+				// Describe the formula
+				for (Expression fClause : cnfFormula.getArguments()) {
+					
+					Expression propEquivFormula    = expandHardLiterals(fClause, constIds.keySet(), domainSize, process);
+					// Ensure expansion in CNF form so we can just read of the clauses.
+					Expression cnfPropEquivFormula = FormulaToCNF.convertToCNF(propEquivFormula, process);
+					
+					for (Expression pClause : cnfPropEquivFormula.getArguments()) {
+						int[] clause = new int[pClause.numberOfArguments()];
+						int current = 0;
+						for (Expression literal : pClause.getArguments()) {
+							int sign    = Equality.isEquality(literal) ? 1 : -1;
+							int varId   = varIds.get(literal.get(0));
+							int constId = constIds.get(literal.get(1));					
+							
+							clause[current] = getPropVarId(varId, constId, domainSize) * sign;
+		
+							current++;
+						}
+						if (!conversionListener.processClauseAndContinue(clause)) {
+							stopConversion = true;
+							break;
+						}
 					}
-					conversionListener.clause(clause);
+					if (stopConversion) {
+						break;
+					}
 				}
 			}
 			
@@ -180,18 +188,21 @@ public class FormulaToSharpSAT {
 		return varIds;
 	}
 	
-	private static void describeDomain(ConversionListener conversionListener, int numVars, int domainSize) {
+	private static boolean describeDomain(ConversionListener conversionListener, int numVars, int domainSize) {
+		boolean stopConversion = false;
 		// The first series of clauses should determine that 
 		// "X1 equals to a1 or a2 or a3". Similarly, we have to specify that 
 		// "X2 equals to a1 or a2 or a3". The following clauses describe these:
 		// v1 or v2 or v3	
 		// v4 or v5 or v6
-		for (int v = 0; v < numVars; v++) {
+		for (int v = 0; v < numVars && !stopConversion; v++) {
 			int[] clause = new int[domainSize];
 			for (int i = 0; i < domainSize; i++) {
 				clause[i] = (v*domainSize) + i + 1;
 			}
-			conversionListener.clause(clause);
+			if (!conversionListener.processClauseAndContinue(clause)) {
+				stopConversion = true;
+			}
 		}
 		
 		// Then we have to enforce that X1 and X2 can be at most one of a1, a2, a3. 
@@ -203,17 +214,21 @@ public class FormulaToSharpSAT {
 		// -v4 or -v5	
 		// -v4 or -v6	
 		// -v5 or -v6
-		for (int b = 0; b < (numVars*domainSize); b += domainSize) {
-			for (int d = 0; d < domainSize; d++) {
+		for (int b = 0; b < (numVars*domainSize) && !stopConversion; b += domainSize) {
+			for (int d = 0; d < domainSize && !stopConversion; d++) {
 				int svidx = b + d + 1;
-				for (int i = d+1; i < domainSize; i++) {
+				for (int i = d+1; i < domainSize && !stopConversion; i++) {
 					int[] clause = new int[2];
 					clause[0] = 0 - svidx;
 					clause[1] = 0 - svidx - (i-d);
-					conversionListener.clause(clause);
+					if (!conversionListener.processClauseAndContinue(clause)) {
+						stopConversion = true;
+					}
 				}
 			}
 		}
+		
+		return stopConversion;
 	}
 	
 	/**

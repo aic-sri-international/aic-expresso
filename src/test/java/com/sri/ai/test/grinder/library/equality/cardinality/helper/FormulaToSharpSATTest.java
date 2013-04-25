@@ -176,7 +176,7 @@ public class FormulaToSharpSATTest  extends AbstractGrinderTest {
 		}
 		
 		@Override
-		public void clause(int[] clause) {
+		public boolean processClauseAndContinue(int[] clause) {
 			List<Integer> lClause = new ArrayList<Integer>();
 			
 			for (int i = 0; i < clause.length; i++) {
@@ -184,6 +184,8 @@ public class FormulaToSharpSATTest  extends AbstractGrinderTest {
 			}
 			
 			clauses.add(lClause);
+			
+			return true;
 		}
 		
 		@Override
