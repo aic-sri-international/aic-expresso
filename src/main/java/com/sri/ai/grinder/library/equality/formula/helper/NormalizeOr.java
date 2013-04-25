@@ -98,8 +98,8 @@ public class NormalizeOr extends AbstractRewriter {
 						// or(X = Y, ..., X != Y) -> true
 						for (int i = 0; i < literals.size(); i++) {
 							for (int j = i+1; j < literals.size(); j++) {
-								if (FormulaUtil.isLiteral(literals.get(i)) && 
-								    FormulaUtil.isLiteral(literals.get(j)) &&
+								if (FormulaUtil.isLiteral(literals.get(i), process) && 
+								    FormulaUtil.isLiteral(literals.get(j), process) &&
 									!literals.get(i).getFunctor().equals(literals.get(j).getFunctor()) &&
 									literals.get(i).getArguments().equals(literals.get(j).getArguments())) {
 									result = Expressions.TRUE;

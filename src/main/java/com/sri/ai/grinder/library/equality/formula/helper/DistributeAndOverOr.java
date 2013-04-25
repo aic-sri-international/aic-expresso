@@ -48,35 +48,35 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Or;
 
 /**
- * Distributes ors over ands in a formula: 
+ * Distributes and over ors in a formula: 
  *
- * F1 or (F2 and F3)  -> (F1 or F2) and (F1 or F3)
- * (F1 and F2) or F3  -> (F1 or F3) and (F2 or F3)
+ * F1 and (F2 or F2)  -> (F1 and F2) or (F1 and F3)
+ * (F1 or F2) and F3  -> (F1 and F3) or (F2 and F3)
  * 
  */
 @Beta
-public class DistributeOrOverAnd extends AbstractRewriter {
+public class DistributeAndOverOr extends AbstractRewriter {
 	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression,
 			RewritingProcess process) {
 		Expression result = expression;
 		
-		if (Or.isDisjunction(expression) && expression.numberOfArguments() > 0) {
-			// F1 or (F2 and F3) -> (F1 or F2) and (F1 or F3)
-			// (F1 and F2) or F3 -> (F1 or F3) and (F2 or F3)
-			for (Expression disjunct : expression.getArguments()) {
-				if (And.isConjunction(disjunct) && disjunct.numberOfArguments() > 0) {
-					List<Expression> otherDisjuncts = new ArrayList<Expression>(expression.getArguments());
-					otherDisjuncts.remove(disjunct);
+		if (And.isConjunction(expression) && expression.numberOfArguments() > 0) {
+			// F1 and (F2 or F2)  -> (F1 and F2) or (F1 and F3)
+			// (F1 or F2) and F3  -> (F1 and F3) or (F2 and F3)
+			for (Expression conjunct : expression.getArguments()) {
+				if (Or.isDisjunction(conjunct) && conjunct.numberOfArguments() > 0) {
+					List<Expression> otherConjuncts = new ArrayList<Expression>(expression.getArguments());
+					otherConjuncts.remove(conjunct);
 					
-					List<Expression> conjuncts = new ArrayList<Expression>();
-					for (Expression conjunct : disjunct.getArguments()) {
-						ArrayList<Expression> disjuncts = new ArrayList<Expression>(otherDisjuncts);
-						disjuncts.add(conjunct);
-						conjuncts.add(Or.make(disjuncts));
+					List<Expression> disjuncts = new ArrayList<Expression>();
+					for (Expression disjunct : conjunct.getArguments()) {
+						ArrayList<Expression> conjuncts = new ArrayList<Expression>(otherConjuncts);
+						conjuncts.add(disjunct);
+						disjuncts.add(And.make(conjuncts));
 					}
-					result = And.make(conjuncts);
+					result = Or.make(disjuncts);
 					break;
 				}
 			}

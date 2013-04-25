@@ -103,6 +103,10 @@ public class FormulaToNNF {
 		
 		// INSEA)- alls out
 		result = UniversalOut.universalsOut(result, process);
+		
+		if (!FormulaUtil.isNNF(result, process)) {
+			throw new IllegalStateException("Failed to convert to NNF: "+result);
+		}
 
 		return result;
 	}

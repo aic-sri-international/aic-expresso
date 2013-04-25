@@ -188,39 +188,161 @@ public class FormulaUtilTest extends AbstractGrinderTest {
 	}
 	
 	@Test
+	public void test_isQuantifierFreeFormula() {
+		RewritingProcess process = new DefaultRewritingProcess(parse(""), new Basic());
+		//
+		// the Boolean constants False and True are formulas;
+		Assert.assertTrue(FormulaUtil.isQuantifierFreeFormula(DefaultSymbol.createSymbol(false), process));
+		//
+		Assert.assertFalse(FormulaUtil.isQuantifierFreeFormula(DefaultSymbol.createSymbol("a"), process));
+		//
+		// if alpha and beta are variable or constant symbols of finite types,
+		// then alpha = beta is a formula. 
+		Assert.assertTrue(FormulaUtil.isQuantifierFreeFormula(parse("a = X"), process));
+		//
+		Assert.assertTrue(FormulaUtil.isQuantifierFreeFormula(parse("1 = true"), process));
+		//
+		// if phi is a formula, then not(phi) is a formula
+		Assert.assertTrue(FormulaUtil.isQuantifierFreeFormula(parse("not(a = X)"), process));
+		//
+		Assert.assertTrue(FormulaUtil.isQuantifierFreeFormula(parse("not(X = 1)"), process));
+		//
+		// if phi and phi' are formulas, then and(phi, phi'), and or(phi, phi') are formulas
+		Assert.assertTrue(FormulaUtil.isQuantifierFreeFormula(parse("and()"), process));
+		//
+		Assert.assertTrue(FormulaUtil.isQuantifierFreeFormula(parse("and(a = 1)"), process));
+		//
+		// if phi and phi' are formulas then phi => phi' and phi <=> phi' are formulas
+		Assert.assertTrue(FormulaUtil.isQuantifierFreeFormula(parse("(X = a) => (Y = b)"), process));
+		//
+		Assert.assertFalse(FormulaUtil.isQuantifierFreeFormula(parse("a => b"), process));
+		//
+		// if phi is a formula, then 'exists x phi' is a formula
+		Assert.assertFalse(FormulaUtil.isQuantifierFreeFormula(parse("there exists X : X = a"), process));
+		Assert.assertFalse(FormulaUtil.isQuantifierFreeFormula(parse("there exists X : there exists Y : X = a and Y = b"), process));
+		//
+		Assert.assertFalse(FormulaUtil.isQuantifierFreeFormula(parse("there exists X : X = 1"), process));
+		Assert.assertFalse(FormulaUtil.isQuantifierFreeFormula(parse("there exists X : there exists Y : X = 1 and Y = b"), process));
+		//
+		// if phi is a formula, then 'for all x phi' is a formula 
+		Assert.assertFalse(FormulaUtil.isQuantifierFreeFormula(parse("for all X : X = a"), process));
+		Assert.assertFalse(FormulaUtil.isQuantifierFreeFormula(parse("for all X : for all Y : X = a and Y = b"), process));
+		//
+		Assert.assertFalse(FormulaUtil.isQuantifierFreeFormula(parse("for all X : X = 1"), process));
+		Assert.assertFalse(FormulaUtil.isQuantifierFreeFormula(parse("for all X : for all Y : X = 1 and Y = b"), process));
+	}
+	
+	@Test
 	public void test_isLiteral() {
+		RewritingProcess process = new DefaultRewritingProcess(parse(""), new Basic());
 		
-		Assert.assertEquals(true, FormulaUtil.isLiteral(parse("X = a")));
-		Assert.assertEquals(true, FormulaUtil.isLiteral(parse("a = X")));
-		Assert.assertEquals(true, FormulaUtil.isLiteral(parse("X = Y")));
-		Assert.assertEquals(true, FormulaUtil.isLiteral(parse("X = X")));
+		Assert.assertEquals(true, FormulaUtil.isLiteral(parse("X = a"), process));
+		Assert.assertEquals(true, FormulaUtil.isLiteral(parse("a = X"), process));
+		Assert.assertEquals(true, FormulaUtil.isLiteral(parse("X = Y"), process));
+		Assert.assertEquals(true, FormulaUtil.isLiteral(parse("X = X"), process));
 		
-		Assert.assertEquals(true, FormulaUtil.isLiteral(parse("X != a")));
-		Assert.assertEquals(true, FormulaUtil.isLiteral(parse("a != X")));
-		Assert.assertEquals(true, FormulaUtil.isLiteral(parse("X != Y")));
-		Assert.assertEquals(true, FormulaUtil.isLiteral(parse("X != X")));
+		Assert.assertEquals(true, FormulaUtil.isLiteral(parse("X != a"), process));
+		Assert.assertEquals(true, FormulaUtil.isLiteral(parse("a != X"), process));
+		Assert.assertEquals(true, FormulaUtil.isLiteral(parse("X != Y"), process));
+		Assert.assertEquals(true, FormulaUtil.isLiteral(parse("X != X"), process));
 		
-		Assert.assertEquals(false, FormulaUtil.isLiteral(parse("X = Y = a")));
+		Assert.assertEquals(false, FormulaUtil.isLiteral(parse("X = Y = a"), process));
+		Assert.assertEquals(false, FormulaUtil.isLiteral(parse("p(X) = Y"), process));
+		Assert.assertEquals(false, FormulaUtil.isLiteral(parse("X = p(Y)"), process));
 	}
 	
 	@Test
 	public void test_isClause() {
-		Assert.assertEquals(true, FormulaUtil.isClause(parse("or(X = a)")));
-		Assert.assertEquals(true, FormulaUtil.isClause(parse("or(X = a, Y = b)")));
+		RewritingProcess process = new DefaultRewritingProcess(parse(""), new Basic());
 		
-		Assert.assertEquals(false, FormulaUtil.isClause(parse("or()")));
-		Assert.assertEquals(false, FormulaUtil.isClause(parse("or(X = a, or(Y = b, Z = c))")));
+		Assert.assertEquals(true, FormulaUtil.isClause(parse("or(X = a)"), process));
+		Assert.assertEquals(true, FormulaUtil.isClause(parse("or(X = a, Y = b)"), process));
 		
-		Assert.assertEquals(false, FormulaUtil.isClause(parse("and(X = a)")));
-		Assert.assertEquals(false, FormulaUtil.isClause(parse("and(X = a, Y = b)")));				
+		Assert.assertEquals(false, FormulaUtil.isClause(parse("or()"), process));
+		Assert.assertEquals(false, FormulaUtil.isClause(parse("or(X = a, or(Y = b, Z = c))"), process));
+		
+		Assert.assertEquals(false, FormulaUtil.isClause(parse("and(X = a)"), process));
+		Assert.assertEquals(false, FormulaUtil.isClause(parse("and(X = a, Y = b)"), process));				
+	}
+	
+	@Test
+	public void test_isConjunctionOfLiterals() {
+		RewritingProcess process = new DefaultRewritingProcess(parse(""), new Basic());
+		
+		Assert.assertEquals(true, FormulaUtil.isConjunctionOfLiterals(parse("and(X = a)"), process));
+		Assert.assertEquals(true, FormulaUtil.isConjunctionOfLiterals(parse("and(X = a, Y = b, Z = c)"), process));
+		
+		Assert.assertEquals(false, FormulaUtil.isConjunctionOfLiterals(parse("and()"), process));	
+		Assert.assertEquals(false, FormulaUtil.isConjunctionOfLiterals(parse("and(X = a, and(Z = c, W = d))"), process));
+		Assert.assertEquals(false, FormulaUtil.isConjunctionOfLiterals(parse("and(X = a, Y = b, p(Z) = c)"), process));
+	}
+	
+	@Test 
+	public void test_isNNF() {
+		RewritingProcess process = new DefaultRewritingProcess(parse(""), new Basic());
+		//
+		// the Boolean constants False and True are formulas;
+		Assert.assertTrue(FormulaUtil.isNNF(DefaultSymbol.createSymbol(false), process));
+		//
+		Assert.assertFalse(FormulaUtil.isNNF(DefaultSymbol.createSymbol("a"), process));
+		//
+		// if alpha and beta are variable or constant symbols of finite types,
+		// then alpha = beta is a formula. 
+		Assert.assertTrue(FormulaUtil.isNNF(parse("a = X"), process));
+		//
+		Assert.assertTrue(FormulaUtil.isNNF(parse("1 = true"), process));
+		//
+		// if phi is a formula, then not(phi) is a formula
+		Assert.assertFalse(FormulaUtil.isNNF(parse("not(a = X)"), process));
+		//
+		Assert.assertFalse(FormulaUtil.isNNF(parse("not(X = 1)"), process));
+		//
+		// if phi and phi' are formulas, then and(phi, phi'), and or(phi, phi') are formulas
+		Assert.assertTrue(FormulaUtil.isNNF(parse("and()"), process));
+		//
+		Assert.assertTrue(FormulaUtil.isNNF(parse("and(a = 1)"), process));
+		//
+		// if phi and phi' are formulas then phi => phi' and phi <=> phi' are formulas
+		Assert.assertFalse(FormulaUtil.isNNF(parse("(X = a) => (Y = b)"), process));
+		//
+		Assert.assertFalse(FormulaUtil.isNNF(parse("a => b"), process));
+		//
+		// if phi is a formula, then 'exists x phi' is a formula
+		Assert.assertFalse(FormulaUtil.isNNF(parse("there exists X : X = a"), process));
+		Assert.assertFalse(FormulaUtil.isNNF(parse("there exists X : there exists Y : X = a and Y = b"), process));
+		//
+		Assert.assertFalse(FormulaUtil.isNNF(parse("there exists X : X = 1"), process));
+		Assert.assertFalse(FormulaUtil.isNNF(parse("there exists X : there exists Y : X = 1 and Y = b"), process));
+		//
+		// if phi is a formula, then 'for all x phi' is a formula 
+		Assert.assertFalse(FormulaUtil.isNNF(parse("for all X : X = a"), process));
+		Assert.assertFalse(FormulaUtil.isNNF(parse("for all X : for all Y : X = a and Y = b"), process));
+		//
+		Assert.assertFalse(FormulaUtil.isNNF(parse("for all X : X = 1"), process));
+		Assert.assertFalse(FormulaUtil.isNNF(parse("for all X : for all Y : X = 1 and Y = b"), process));
 	}
 	
 	@Test
 	public void test_isCNF() {
-		Assert.assertEquals(true, FormulaUtil.isCNF(parse("or(X = a)")));		
-		Assert.assertEquals(true, FormulaUtil.isCNF(parse("and(or(X = a))")));
-		Assert.assertEquals(true, FormulaUtil.isCNF(parse("and(or(X = a, Y = b), or(Z = c, W = d))")));
+		RewritingProcess process = new DefaultRewritingProcess(parse(""), new Basic());
+			
+		Assert.assertEquals(true, FormulaUtil.isCNF(parse("and(or(X = a))"), process));
+		Assert.assertEquals(true, FormulaUtil.isCNF(parse("and(or(X = a, Y = b), or(Z = c, W = d))"), process));
 		
-		Assert.assertEquals(false, FormulaUtil.isCNF(parse("and(or(X = a, or(Z = c, W = d)))")));
+		Assert.assertEquals(false, FormulaUtil.isCNF(parse("and()"), process));
+		Assert.assertEquals(false, FormulaUtil.isCNF(parse("or(X = a)"), process));	
+		Assert.assertEquals(false, FormulaUtil.isCNF(parse("and(or(X = a, or(Z = c, W = d)))"), process));
+	}
+	
+	@Test
+	public void test_isDNF() {
+		RewritingProcess process = new DefaultRewritingProcess(parse(""), new Basic());
+		
+		Assert.assertEquals(true, FormulaUtil.isDNF(parse("or(and(X = a))"), process));
+		Assert.assertEquals(true, FormulaUtil.isDNF(parse("or(and(X = a, Y = b), and(Z = c, W = d))"), process));
+		
+		Assert.assertEquals(false, FormulaUtil.isDNF(parse("or()"), process));	
+		Assert.assertEquals(false, FormulaUtil.isDNF(parse("or(X = a)"), process));	
+		Assert.assertEquals(false, FormulaUtil.isDNF(parse("or(and(X = a, and(Z = c, W = d)))"), process));
 	}
 }

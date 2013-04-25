@@ -98,7 +98,7 @@ public class FormulaToCNF {
 		// INSEADO) - Operators Out
 		result = operatorsOut(result, process);
 			
-		if (FormulaUtil.isLiteral(result)) {
+		if (FormulaUtil.isLiteral(result, process)) {
 			result = Expressions.make(And.FUNCTOR, Expressions.make(Or.FUNCTOR, result));
 		}
 		else if (Or.isDisjunction(result)) {
@@ -106,7 +106,7 @@ public class FormulaToCNF {
 		}
 		
 		if (!(result.equals(Expressions.TRUE) || result.equals(Expressions.FALSE))) {
-			if (!FormulaUtil.isCNF(result)) {
+			if (!FormulaUtil.isCNF(result, process)) {
 				throw new IllegalStateException("Failed to convert to CNF: "+result);
 			}
 		}
@@ -163,7 +163,7 @@ public class FormulaToCNF {
 				boolean newConjunct = false;
 				List<Expression> conjuncts = new ArrayList<Expression>();
 				for (Expression conjunct : expression.getArguments()) {
-					if (FormulaUtil.isLiteral(conjunct)) {
+					if (FormulaUtil.isLiteral(conjunct, process)) {
 						newConjunct = true;
 						conjuncts.add(Expressions.make(Or.FUNCTOR, conjunct));
 					}
