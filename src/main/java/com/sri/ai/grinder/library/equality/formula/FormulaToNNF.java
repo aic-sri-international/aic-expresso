@@ -38,9 +38,72 @@
 package com.sri.ai.grinder.library.equality.formula;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.equality.formula.helper.EquivalenceOut;
+import com.sri.ai.grinder.library.equality.formula.helper.ExistentialOut;
+import com.sri.ai.grinder.library.equality.formula.helper.ImplicationOut;
+import com.sri.ai.grinder.library.equality.formula.helper.NegationIn;
+import com.sri.ai.grinder.library.equality.formula.helper.NormalizeLiteral;
+import com.sri.ai.grinder.library.equality.formula.helper.StandardizeVariables;
+import com.sri.ai.grinder.library.equality.formula.helper.UniversalOut;
 
+/**
+ * Convert a formula into an inferentially equivalent Negation Normal
+ * Form Expression (NNF). A formula is in NNF if negation is allowed
+ * only over atoms, and conjunction, disjunction, and negation are the
+ * only allowed boolean connectives (note negation is represented by 
+ * 'X != Y' as opposed to 'not(X = Y)' as we only have equality and
+ * want to normalize to a single negated form). 
+ * 
+ * @author oreilly
+ *
+ */
 @Beta
 public class FormulaToNNF {
 
-	// TODO
+	/**
+	 * Convert a formula into an inferentially equivalent Negation Normal
+	 * Form Expression (NNF).
+	 * 
+	 * @param formula
+	 *            a formula.
+	 * @param process
+	 *            the rewriting process
+	 * @return the formula in NNF form.
+	 * @throws IllegalArgumentException
+	 *             if the input formula expression is not actually a formula.
+	 * @see FormulaUtil#isFormula(Expression, RewritingProcess)
+	 */
+	public static Expression convertToNNF(Expression formula, RewritingProcess process) {
+		Expression result = formula;
+
+		if (!FormulaUtil.isFormula(formula, process)) {
+			throw new IllegalArgumentException(
+					"Expression to be converted is not a formula: " + formula);
+		}
+		
+		// Ensure equalities of the form:
+		// X = ... = Z
+		// are normalized up front.
+		result = NormalizeLiteral.normalizeLiterals(formula, process);
+		
+		// I)NSEA - implications out
+		result = ImplicationOut.implicationsOut(result, process);
+		result = EquivalenceOut.equivalencesOut(result, process);
+		
+		// IN)SEA - negtaions in
+		result = NegationIn.negationsIn(result, process);
+		
+		// INS)EA - standardize
+		result = StandardizeVariables.standardize(result, process);
+		
+		// INSE)A- existentials out
+		result = ExistentialOut.existentialsOut(result, process);
+		
+		// INSEA)- alls out
+		result = UniversalOut.universalsOut(result, process);
+
+		return result;
+	}
 }
