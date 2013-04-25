@@ -105,28 +105,32 @@ public class SAT4JSolver implements SATSolver {
 		
 		@Override
 		public void clause(int[] clause) {
-			try {
-				sat4jSolver.addClause(new VecInt(clause));
-			} catch (ContradictionException cex) {
-				Throwables.propagate(cex);
+			if (result == null) {
+				try {				
+					sat4jSolver.addClause(new VecInt(clause));
+				} catch (ContradictionException cex) {				
+					result = false;
+				}
 			}
 		}
 		
 		@Override
 		public void end(FormulaToSharpSAT.EndState state) {
-			if (state == EndState.TRIVIAL_TAUTOLOGY) {
-				result = true;
-			}
-			else  if (state == EndState.TRIVIAL_CONTRADICTION) {
-				result = false;
-			}
-			else {
-				// Needs solving.
-				try {
-					IProblem problem = sat4jSolver;
-					result = problem.isSatisfiable();
-				} catch (TimeoutException toe) {
-					Throwables.propagate(toe);
+			if (result == null) {
+				if (state == EndState.TRIVIAL_TAUTOLOGY) {
+					result = true;
+				}
+				else  if (state == EndState.TRIVIAL_CONTRADICTION) {
+					result = false;
+				}
+				else {
+					// Needs solving.
+					try {
+						IProblem problem = sat4jSolver;
+						result = problem.isSatisfiable();
+					} catch (TimeoutException toe) {
+						Throwables.propagate(toe);
+					}
 				}
 			}
 		}

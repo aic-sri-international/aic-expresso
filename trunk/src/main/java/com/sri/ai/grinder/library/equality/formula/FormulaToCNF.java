@@ -40,6 +40,7 @@ package com.sri.ai.grinder.library.equality.formula;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -228,6 +229,7 @@ public class FormulaToCNF {
 	 * or()                   -> false
 	 * or(..., true, ...)     -> true
 	 * or(..., false, ...)    -> or(..., ...)
+	 * or(X = Y, X = Y)       -> or(X = Y)
 	 * or(X = Y, ..., X != Y) -> true
 	 * 
 	 */
@@ -246,7 +248,8 @@ public class FormulaToCNF {
 				else {
 					// or(..., true, ...)  -> true
 					// or(..., false, ...) -> or(..., ...)
-					List<Expression> literals = new ArrayList<Expression>();
+					// or(X = Y, X = Y)    -> or(X = Y)
+					Set<Expression> literalSet = new LinkedHashSet<Expression>();
 					for (Expression disjunct : expression.getArguments()) {
 						if (disjunct.equals(Expressions.TRUE)) {
 							result = Expressions.TRUE;
@@ -254,11 +257,12 @@ public class FormulaToCNF {
 						}
 						else {
 							if (!disjunct.equals(Expressions.FALSE)) {
-								literals.add(disjunct);
+								literalSet.add(disjunct);
 							}
 						}
 					}
 					if (!result.equals(Expressions.TRUE)) {
+						List<Expression> literals = new ArrayList<Expression>(literalSet);
 						if (literals.size() < expression.numberOfArguments()) {
 							result = Or.make(literals);
 						}
@@ -287,6 +291,7 @@ public class FormulaToCNF {
 	 * Performs the following normalizations on the formula:
 	 * and()                   -> true
 	 * and(..., true, ...)     -> and(..., ...)
+	 * and(X = Y, X = Y)       -> and(X = Y)
 	 * and(..., false, ...)    -> false
 	 * and(X = Y, ..., X != Y) -> false
 	 */
@@ -303,8 +308,9 @@ public class FormulaToCNF {
 				}
 				else {
 					// and(..., true, ...)  -> and(..., ...)
+					// and(X = Y, X = Y)    -> and(X = Y)
 					// and(..., false, ...) -> false
-					List<Expression> literals = new ArrayList<Expression>();
+					Set<Expression> literalSet = new LinkedHashSet<Expression>();
 					for (Expression conjunct : expression.getArguments()) {
 						if (conjunct.equals(Expressions.FALSE)) {
 							result = Expressions.FALSE;
@@ -312,11 +318,12 @@ public class FormulaToCNF {
 						}
 						else {
 							if (!conjunct.equals(Expressions.TRUE)) {
-								literals.add(conjunct);
+								literalSet.add(conjunct);
 							}
 						}
 					}
 					if (!result.equals(Expressions.FALSE)) {
+						List<Expression> literals = new ArrayList<Expression>(literalSet);
 						if (literals.size() < expression.numberOfArguments()) {
 							result = And.make(literals);
 						}
