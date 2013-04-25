@@ -112,8 +112,8 @@ public class FormulaToCNF {
 		// INSEAD)O
 		result = distribution(result, process);
 		
-		// INSEADO) - Operators Out, we don't do
-		// as we want to keep as a conjunction of disjunctions.
+		// INSEADO) - Operators Out
+		result = operatorsOut(result, process);
 			
 		if (FormulaUtil.isLiteral(result)) {
 			result = Expressions.make(And.FUNCTOR, Expressions.make(Or.FUNCTOR, result));
@@ -221,9 +221,21 @@ public class FormulaToCNF {
 				new NormalizeOrRewriter(),
 				new NormalizeAndRewriter(),
 				// INSEAD)O
-				new OrDistributionRewriter(),
+				new DistributeOrRewriter(),
+				new OrFlattenRewriter(),
 				new AndFlattenRewriter()
 				
+			));
+		Expression result = cnfRewriter.rewrite(formula, process);	
+		return result;
+	}
+	
+	private static Expression operatorsOut(Expression formula, RewritingProcess process) {
+		// We don't really do as we want to keep as a conjunction of disjunctions
+		// However, we need to ensure literal conjuncts are represented explicitly
+		// as singleton clauses.
+		TotalRewriter cnfRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+				new ConjunctionSingletonLiteralToClausesRewriter()
 			));
 		Expression result = cnfRewriter.rewrite(formula, process);	
 		return result;
@@ -594,12 +606,11 @@ public class FormulaToCNF {
 	/**
 	 * Performs the Or Distribution portion of the formula conversion to CNF:
 	 *
-	 * F1 or (F1 and F2)          -> (F1 or F2) and (F1 or F3)
-	 * (F1 and F2) or F3          -> (F1 or F3) and (F2 or F3)
-	 * F0 or (F1 or ... or Fn)    -> (F0 or F1 or ... or Fn)
-	 * (F1 or ... or Fn) or F0    -> (F1 or ... or Fn or F0)
+	 * F1 or (F1 and F2)  -> (F1 or F2) and (F1 or F3)
+	 * (F1 and F2) or F3  -> (F1 or F3) and (F2 or F3)
+	 * 
 	 */
-	private static class OrDistributionRewriter extends AbstractRewriter {
+	private static class DistributeOrRewriter extends AbstractRewriter {
 		
 		@Override
 		public Expression rewriteAfterBookkeeping(Expression expression,
@@ -624,24 +635,41 @@ public class FormulaToCNF {
 						break;
 					}
 				}
-				
-				if (result == expression) {
-					// F0 or (F1 or ... or Fn) -> (F0 or F1 or ... or Fn)
-					// (F1 or ... or Fn) or F0 -> (F1 or ... or Fn or F0)
-					boolean nestedDisjuncts = false;
-					List<Expression> disjuncts = new ArrayList<Expression>();
-					for (Expression disjunct : expression.getArguments()) {
-						if (Or.isDisjunction(disjunct)) {
-							nestedDisjuncts = true;
-							disjuncts.addAll(disjunct.getArguments());
-						}
-						else {
-							disjuncts.add(disjunct);
-						}
+			}
+			
+			return result;
+		}
+ 	}
+	
+	/**
+	 * Performs the Or Flattening portion of the formula conversion to CNF:
+	 *
+	 * F0 or (F1 or ... or Fn) -> (F0 or F1 or ... or Fn)
+	 * (F1 or ... or Fn) or F0 -> (F1 or ... or Fn or F0)
+	 */
+	private static class OrFlattenRewriter extends AbstractRewriter {
+		
+		@Override
+		public Expression rewriteAfterBookkeeping(Expression expression,
+				RewritingProcess process) {
+			Expression result = expression;
+			
+			if (Or.isDisjunction(expression) && expression.numberOfArguments() > 0) {
+				// F0 or (F1 or ... or Fn) -> (F0 or F1 or ... or Fn)
+				// (F1 or ... or Fn) or F0 -> (F1 or ... or Fn or F0)
+				boolean nestedDisjuncts = false;
+				List<Expression> disjuncts = new ArrayList<Expression>();
+				for (Expression disjunct : expression.getArguments()) {
+					if (Or.isDisjunction(disjunct)) {
+						nestedDisjuncts = true;
+						disjuncts.addAll(disjunct.getArguments());
 					}
-					if (nestedDisjuncts) {
-						result = Or.make(disjuncts);
+					else {
+						disjuncts.add(disjunct);
 					}
+				}
+				if (nestedDisjuncts) {
+					result = Or.make(disjuncts);
 				}
 			}
 			
@@ -654,7 +682,6 @@ public class FormulaToCNF {
 	 * 
 	 * F0 and (F1 and ... and Fn) -> (F0 and F1 and ... and Fn)
 	 * (F1 and ... and Fn) and F0 -> (F1 and ... and Fn and F0) 
-	 * L1 and L2                  -> and(or(L1), or(L2))
 	 */
 	private static class AndFlattenRewriter extends AbstractRewriter {
 		
@@ -675,13 +702,41 @@ public class FormulaToCNF {
 						conjuncts.addAll(conjunct.getArguments());
 					}
 					else {
-						if (FormulaUtil.isLiteral(conjunct)) {
-							newConjunct = true;
-							conjuncts.add(Expressions.make(Or.FUNCTOR, conjunct));
-						}
-						else {
-							conjuncts.add(conjunct);
-						}
+						conjuncts.add(conjunct);
+					}
+				}
+				if (newConjunct) {
+					result = And.make(conjuncts);
+				}
+			}
+			
+			return result;
+		}
+ 	}
+	
+	/**
+	 * Performs the singleton literal to clause of the formula conversion to CNF:
+	 * 
+	 * L1 and L2 -> and(or(L1), or(L2))
+	 */
+	private static class ConjunctionSingletonLiteralToClausesRewriter extends AbstractRewriter {
+		
+		@Override
+		public Expression rewriteAfterBookkeeping(Expression expression,
+				RewritingProcess process) {
+			Expression result = expression;
+			
+			if (And.isConjunction(expression) && expression.numberOfArguments() > 0) {
+				// L1 and L2 -> and(or(L1), or(L2))
+				boolean newConjunct = false;
+				List<Expression> conjuncts = new ArrayList<Expression>();
+				for (Expression conjunct : expression.getArguments()) {
+					if (FormulaUtil.isLiteral(conjunct)) {
+						newConjunct = true;
+						conjuncts.add(Expressions.make(Or.FUNCTOR, conjunct));
+					}
+					else {
+						conjuncts.add(conjunct);
 					}
 				}
 				if (newConjunct) {
