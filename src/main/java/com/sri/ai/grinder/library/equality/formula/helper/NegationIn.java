@@ -43,6 +43,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -59,6 +60,8 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 /**
  * Moves negations in as far as literals in a formula: 
  * 
+ * not(true)               -> false
+ * not(false)              -> true
  * not(X = Y)              -> X != Y
  * not(X != Y)             -> X = Y
  * not(not(F))             -> F
@@ -85,8 +88,15 @@ public class NegationIn extends AbstractRewriter {
 		
 		if (expression.hasFunctor(FunctorConstants.NOT)) {
 			Expression negated = expression.get(0);
-			// not(X = Y) -> X != Y
-			if (Equality.isEquality(negated) && negated.numberOfArguments() == 2) {
+			
+			// not(true) -> false
+			if (negated.equals(Expressions.TRUE)) {
+				result = Expressions.FALSE;
+			} // not(false) -> true
+			else if (negated.equals(Expressions.FALSE)) {
+				result = Expressions.TRUE;
+			} // not(X = Y) -> X != Y
+			else if (Equality.isEquality(negated) && negated.numberOfArguments() == 2) {
 				result = Disequality.make(negated.get(0), negated.get(1));
 			} // not(X != Y) -> X = Y
 			else if (Disequality.isDisequality(negated)) {

@@ -111,6 +111,12 @@ public class FormulaToNNFTest extends AbstractGrinderTest {
 	public void test_convertToNNF_NegationsIn() {
 		RewritingProcess process = newProcess();
 		
+		// not(true) -> false
+		Assert.assertEquals(parse("false"), FormulaToNNF.convertToNNF(parse("not(true)"), process));
+		
+		// not(false) -> true
+		Assert.assertEquals(parse("true"), FormulaToNNF.convertToNNF(parse("not(false)"), process));
+				
 		// not(X = Y) -> X != Y
 		Assert.assertEquals(parse("X != Y"), FormulaToNNF.convertToNNF(parse("not(X = Y)"), process));
 		
