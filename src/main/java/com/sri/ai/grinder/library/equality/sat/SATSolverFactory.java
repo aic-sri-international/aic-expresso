@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.library.equality.sat;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.grinder.GrinderConfiguration;
 
 @Beta
 public class SATSolverFactory {
@@ -45,7 +46,7 @@ public class SATSolverFactory {
 	public static SATSolver newInstance() {
 		
 		// The default solver for now.
-		SATSolver result = new SAT4JSolver();
+		SATSolver result = GrinderConfiguration.newConfiguredInstance(GrinderConfiguration.getDefaultSATSolverClass());
 		
 		return result;
 	}
