@@ -1,3 +1,40 @@
+/*
+ * Copyright (c) 2013, SRI International
+ * All rights reserved.
+ * Licensed under the The BSD 3-Clause License;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ * 
+ * http://opensource.org/licenses/BSD-3-Clause
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 
+ * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * 
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * 
+ * Neither the name of the aic-expresso nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.sri.ai.test.grinder.library.equality.sat;
 
 import org.junit.Assert;
@@ -10,6 +47,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
+import com.sri.ai.grinder.library.equality.sat.EqualityLogicSATSolver;
 import com.sri.ai.grinder.library.equality.sat.SAT4JSolver;
 import com.sri.ai.grinder.library.equality.sat.SATSolver;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
@@ -22,7 +60,10 @@ public class SATSolverTest extends AbstractGrinderTest {
 	}
 	
 	public SATSolver[] newSATSolvers() {
-		return new SATSolver[] {new SAT4JSolver()};
+		return new SATSolver[] {
+				new SAT4JSolver(), 
+				new EqualityLogicSATSolver(),
+		};
 	}
 	
 	@Test
@@ -34,11 +75,12 @@ public class SATSolverTest extends AbstractGrinderTest {
 	@Test
 	public void testSatisfiableLargeDNF() {		
 // TODO - expands indefinitely currently
-		//testSatisfiable("X = w7 => not(X0 != Y and X0 != Z and Z != Y and (X0 = w7 and X = Y or X0 = w7 and X = Z))");
+//		testSatisfiable("X = w7 => not(X0 != Y and X0 != Z and Z != Y and (X0 = w7 and X = Y or X0 = w7 and X = Z))");
 	}
 	
 	@Test
 	public void testUnsatisfiableBasic() {
+		testUnsatisfiable("X = a and Y = a and X = b");
 		testUnsatisfiable("X = Y and X != Y");
 		testUnsatisfiable("X = a and Y = a and X != Y");
 		testUnsatisfiable("and(X = a, X = Y, Y != a)");

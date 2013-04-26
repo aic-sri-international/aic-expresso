@@ -51,6 +51,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.SubExpressionSelection;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.Or;
@@ -232,6 +233,46 @@ public class FormulaUtil {
 		}
 		
 		return consts;
+	}
+	
+	/**
+	 * Retrieve the postive literals in a formula.
+	 * 
+	 * @param formula
+	 *            a formula.
+	 * @param process
+	 *            the rewriting process in which the expression is being used.
+	 * @return the positive literals in the formula.
+	 */
+	public static Set<Expression> getPositiveLiterals(Expression formula, RewritingProcess process) {
+		Set<Expression> result = SubExpressionSelection.get(formula, new Predicate<Expression>() {
+			@Override
+			public boolean apply(Expression arg) {
+				return Equality.isEquality(arg);
+			}
+		});
+		
+		return result;
+	}
+	
+	/**
+	 * Retrieve the negative literals in a formula.
+	 * 
+	 * @param formula
+	 *            a formula.
+	 * @param process
+	 *            the rewriting process in which the expression is being used.
+	 * @return the negative literals in the formula.
+	 */
+	public static Set<Expression> getNegativeLiterals(Expression formula, RewritingProcess process) {
+		Set<Expression> result = SubExpressionSelection.get(formula, new Predicate<Expression>() {
+			@Override
+			public boolean apply(Expression arg) {
+				return Disequality.isDisequality(arg);
+			}
+		});
+		
+		return result;
 	}
 	
 	/**

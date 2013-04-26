@@ -45,5 +45,4 @@ import com.sri.ai.grinder.api.RewritingProcess;
 public interface SATSolver {
 	String getName();
 	boolean isSatisfiable(Expression formula, RewritingProcess process);
-	boolean isUnsatisfiable(Expression formula, RewritingProcess process);
 }

@@ -76,11 +76,6 @@ public class SAT4JSolver implements SATSolver {
 		
 		return result;
 	}
-	
-	@Override
-	public boolean isUnsatisfiable(Expression formula, RewritingProcess process) {
-		return !isSatisfiable(formula, process);
-	}
 	// END - SATSolver
 	//
 	
