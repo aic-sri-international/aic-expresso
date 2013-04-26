@@ -165,7 +165,7 @@ public class FormulaToDNF {
 					}
 				}
 				if (newDisjunct) {
-					result = And.make(disjuncts);
+					result = Or.make(disjuncts);
 				}
 			}
 			
