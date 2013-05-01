@@ -70,7 +70,7 @@ public class FormulaToSharpSAT {
 	}
 	
 	public static void convertToSharpSAT(Expression formula, RewritingProcess process, ConversionListener conversionListener) {
-		Expression cnfFormula = FormulaToCNF.convertToCNF(formula, process);
+		Expression cnfFormula = FormulaToCNF.convertToExponentialCNF(formula, process);
 		int minimumDomainSize = FormulaUtil.getConstants(cnfFormula, process).size() + Variables.get(cnfFormula, process).size();
 		
 		convertToSharpSAT(cnfFormula, minimumDomainSize, process, conversionListener);
@@ -78,7 +78,7 @@ public class FormulaToSharpSAT {
 	
 	public static void convertToSharpSAT(Expression formula, int domainSize, RewritingProcess process, ConversionListener conversionListener) {
 		boolean stopConversion = false;
-		Expression cnfFormula = FormulaToCNF.convertToCNF(formula, process);
+		Expression cnfFormula = FormulaToCNF.convertToExponentialCNF(formula, process);
 		
 		if (cnfFormula.equals(Expressions.TRUE)) {
 			conversionListener.end(EndState.TRIVIAL_TAUTOLOGY);
@@ -129,8 +129,8 @@ public class FormulaToSharpSAT {
 				for (Expression fClause : cnfFormula.getArguments()) {
 					
 					Expression propEquivFormula    = expandHardLiterals(fClause, constIds.keySet(), domainSize, process);
-					// Ensure expansion in CNF form so we can just read of the clauses.
-					Expression cnfPropEquivFormula = FormulaToCNF.convertToCNF(propEquivFormula, process);
+					// Ensure expansion in CNF form so we can just read off the clauses.
+					Expression cnfPropEquivFormula = FormulaToCNF.convertToExponentialCNF(propEquivFormula, process);
 					
 					for (Expression pClause : cnfPropEquivFormula.getArguments()) {
 						int[] clause = new int[pClause.numberOfArguments()];
