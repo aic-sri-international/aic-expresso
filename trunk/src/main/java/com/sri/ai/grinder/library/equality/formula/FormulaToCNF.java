@@ -73,7 +73,7 @@ public class FormulaToCNF {
 
 	/**
 	 * Convert a formula into an inferentially equivalent Conjunctive Normal
-	 * Form Expression (CNF).
+	 * Form Expression (CNF) - i.e. conversion can be exponential.
 	 * 
 	 * @param formula
 	 *            a formula.
@@ -84,14 +84,12 @@ public class FormulaToCNF {
 	 *             if the input formula expression is not actually a formula.
 	 * @see FormulaUtil#isFormula(Expression, RewritingProcess)
 	 */
-	public static Expression convertToCNF(Expression formula, RewritingProcess process) {
+	public static Expression convertToExponentialCNF(Expression formula, RewritingProcess process) {
 		Expression result = formula;
 
 		// (INSEA)DO - NNF transformation handles the first part. 
 		result = FormulaToNNF.convertToNNF(formula, process);
-		
-// TODO - implement a more efficient (i.e. linear) version based on Tseitin-Transformation
-// http://en.wikipedia.org/wiki/Tseitin-Transformation
+	
 		// INSEAD)O - dsitribute
 		result = distribution(result, process);
 		
@@ -113,6 +111,9 @@ public class FormulaToCNF {
 
 		return result;
 	}
+	
+// TODO - implement a more efficient (i.e. linear) version based on Tseitin-Transformation
+// http://en.wikipedia.org/wiki/Tseitin-Transformation	
 
 	//
 	// PRIVATE
