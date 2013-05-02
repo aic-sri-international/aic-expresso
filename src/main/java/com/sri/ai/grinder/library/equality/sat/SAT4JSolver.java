@@ -55,6 +55,7 @@ import org.sat4j.specs.ISolver;
 import org.sat4j.specs.TimeoutException;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
@@ -122,8 +123,8 @@ public class SAT4JSolver implements SATSolver {
 		// Remove Constants
 		Expression formulaNoConstants = removeConstants(formula, process);
 		// Convert to NNF
-		Expression formulaNNF         = FormulaToNNF.convertToNNF(formulaNoConstants, process);
-		
+		Expression formulaNNF         = FormulaToNNF.convertToNNF(formulaNoConstants, process);	
+
 		if (formulaNNF.equals(Expressions.TRUE)) {
 			result = true;
 		}
@@ -219,14 +220,19 @@ public class SAT4JSolver implements SATSolver {
 		int totNumberVars = numberVars + numberAuxVars;
 		SAT4JCall sat4jCall = new SAT4JCall();
 		sat4jCall.start(totNumberVars);
-			
-		TotalRewriter cnfRewriter = new TotalRewriter(Arrays.asList((Rewriter)
-				new TseitinEncodingRewriter(sat4jCall, numberVars+1)
-			));
 		
-		// Construct propositional skeleton
-		cnfRewriter.rewrite(propositionalFormula, process);
+		sat4jCall.processClauseAndContinue(new int[] {totNumberVars});
 		
+		TseitinEncodingReplacementFunction tseitinEncoding = new TseitinEncodingReplacementFunction(sat4jCall, numberVars+1);
+		
+		Expression before = propositionalFormula;
+		Expression after  = propositionalFormula;	
+System.out.println(before.toString());		
+		do {
+			before = after;
+			after  = before.replaceAllOccurrences(tseitinEncoding, process);
+System.out.println(after.toString());			
+		} while (after != before);
 		
 		sat4jCall.end(PropositionalCNFListener.EndState.NEEDS_SOLVING);
 		
@@ -368,20 +374,20 @@ public class SAT4JSolver implements SATSolver {
 		}
 	} 
 	
-	private class TseitinEncodingRewriter extends AbstractRewriter {
+	private class TseitinEncodingReplacementFunction implements Function<Expression, Expression> {
 		private String GATE_FUNCTOR = "g";
 		
 		private boolean   done         = false;
 		private SAT4JCall sat4jCall;
 		private int       nextAuxVarid;
 		
-		public TseitinEncodingRewriter(SAT4JCall sat4jCall, int auxVarStartId) {
+		public TseitinEncodingReplacementFunction(SAT4JCall sat4jCall, int auxVarStartId) {
 			this.sat4jCall    = sat4jCall;
 			this.nextAuxVarid = auxVarStartId;
 		}
 		
 		@Override
-		public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		public Expression apply(Expression expression) {
 			Expression result = expression;
 			
 			if (!done) {
@@ -400,7 +406,7 @@ public class SAT4JSolver implements SATSolver {
 								clause[1] = ((Symbol)arg).intValue();
 							}
 							
-							if (sat4jCall.processClauseAndContinue(clause)) {
+							if (!sat4jCall.processClauseAndContinue(clause)) {								
 								done = true;
 								break;
 							}
@@ -424,7 +430,7 @@ public class SAT4JSolver implements SATSolver {
 							}
 							cIdx++;
 						}
-						if (sat4jCall.processClauseAndContinue(clause)) {
+						if (!sat4jCall.processClauseAndContinue(clause)) {							
 							done = true;
 						}
 					}
@@ -502,13 +508,15 @@ public class SAT4JSolver implements SATSolver {
 		
 		@Override
 		public boolean processClauseAndContinue(int[] clause) {
-			boolean processMore = true;
+			boolean processMore = false;
 			if (result == null) {
-				try {				
-					sat4jSolver.addClause(new VecInt(clause));
-				} catch (ContradictionException cex) {				
+				try {	
+					VecInt vClause = new VecInt(clause);	
+System.out.println(vClause.toString());					
+					sat4jSolver.addClause(vClause);
+					processMore = true;
+				} catch (ContradictionException cex) {
 					result     = false;
-					processMore = false;
 				}
 			}
 			return processMore;

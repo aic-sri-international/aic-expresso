@@ -37,14 +37,20 @@
  */
 package com.sri.ai.grinder.library.equality.formula;
 
+import java.util.Arrays;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.equality.formula.helper.EquivalenceOut;
 import com.sri.ai.grinder.library.equality.formula.helper.ExistentialOut;
 import com.sri.ai.grinder.library.equality.formula.helper.ImplicationOut;
 import com.sri.ai.grinder.library.equality.formula.helper.NegationIn;
+import com.sri.ai.grinder.library.equality.formula.helper.NormalizeAnd;
 import com.sri.ai.grinder.library.equality.formula.helper.NormalizeLiteral;
+import com.sri.ai.grinder.library.equality.formula.helper.NormalizeOr;
 import com.sri.ai.grinder.library.equality.formula.helper.StandardizeVariables;
 import com.sri.ai.grinder.library.equality.formula.helper.UniversalOut;
 
@@ -103,6 +109,17 @@ public class FormulaToNNF {
 		
 		// INSEA)- alls out
 		result = UniversalOut.universalsOut(result, process);
+		
+		// Normalize the result
+		TotalRewriter normalizeRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+				// Want to ensure the following normalizations
+				// are applied to ensure the final NNF form is easier
+				// to work with.
+				new NormalizeOr(),
+				new NormalizeAnd(),
+				new NormalizeLiteral()
+			));
+		result = normalizeRewriter.rewrite(result, process);
 		
 		if (!FormulaUtil.isNNF(result, process)) {
 			throw new IllegalStateException("Failed to convert to NNF: "+result);
