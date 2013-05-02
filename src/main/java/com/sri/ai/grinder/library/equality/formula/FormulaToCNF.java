@@ -111,9 +111,6 @@ public class FormulaToCNF {
 
 		return result;
 	}
-	
-// TODO - implement a more efficient (i.e. linear) version based on Tseitin-Transformation
-// http://en.wikipedia.org/wiki/Tseitin-Transformation	
 
 	//
 	// PRIVATE
