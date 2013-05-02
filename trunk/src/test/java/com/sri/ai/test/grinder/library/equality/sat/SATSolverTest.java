@@ -70,11 +70,14 @@ public class SATSolverTest extends AbstractGrinderTest {
 	public void testSatisfiableBasic() {
 		testSatisfiable("X = Y or X != Y");
 		testSatisfiable("X = a and Y = a and X = Y");
+		testSatisfiable("not (X != bob and X' != X => X' != bob)");
+		testSatisfiable("not (X != bob and X != mary and X' != X => X' != bob)");
+		testSatisfiable("not (X != bob and X != mary and X != john and X' != X => X' != bob)");
 	}
 	
 	@Test
-	public void testSatisfiableLargeDNF() {		
-// TODO - expands indefinitely currently
+	public void testSatisfiableLargeDNF() {
+// TODO		
 //		testSatisfiable("X = w7 => not(X0 != Y and X0 != Z and Z != Y and (X0 = w7 and X = Y or X0 = w7 and X = Z))");
 	}
 	
