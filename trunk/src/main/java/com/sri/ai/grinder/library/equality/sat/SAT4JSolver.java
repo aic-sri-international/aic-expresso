@@ -38,7 +38,13 @@
 package com.sri.ai.grinder.library.equality.sat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.sat4j.core.VecInt;
@@ -53,14 +59,22 @@ import com.google.common.base.Throwables;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.Disequality;
+import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.Variables;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.equality.cardinality.helper.FormulaToSharpSAT;
 import com.sri.ai.grinder.library.equality.cardinality.helper.FormulaToSharpSAT.EndState;
 import com.sri.ai.grinder.library.equality.formula.FormulaToNNF;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
+import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.base.Triple;
 
 @Beta
 public class SAT4JSolver implements SATSolver {
@@ -113,13 +127,13 @@ public class SAT4JSolver implements SATSolver {
 		else if (formulaNNF.equals(Expressions.FALSE)) {
 			result = false;
 		}
-		else {	
-// TODO			
+		else {			
 			// Equality Logic to Propositional Logic
-//			Expression propositionalFormula = equalityLogicToPropositional(formulaNNF, process);
+			Map<Pair<Expression, Expression>, Integer> atomToPropVar = new LinkedHashMap<Pair<Expression, Expression>, Integer>();
+			Expression   propositionalFormula = equalityLogicToPropositional(formulaNNF, process, atomToPropVar);
 		
 			// Convert to linear CNF and call SAT4J
-//			result                          = convertToLinearCNFAndCallSAT4J(propositionalFormula, process);
+			result                          = convertToLinearCNFAndCallSAT4J(propositionalFormula, atomToPropVar.size(), process);
 		}
 		
 		return result;
@@ -155,15 +169,126 @@ public class SAT4JSolver implements SATSolver {
 		return result;
 	}
 	
-//	private Expression equalityLogicToPropositional(Expression formula, RewritingProcess process) { 
-//		TotalRewriter propositionalRewriter = new TotalRewriter(Arrays.asList((Rewriter)
-//				new BooleanVariableRewriter()
-//			));
-//		Expression result = propositionalRewriter.rewrite(formula, process);	
-//		return result;
-//		
-//		return result;
-//	}
+	private Expression equalityLogicToPropositional(Expression formula, RewritingProcess process, Map<Pair<Expression, Expression>, Integer> atomToPropVar) {		
+		TotalRewriter propositionalSkeletonRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+				new BooleanVariableRewriter(atomToPropVar)
+			));
+		
+		// Construct propositional skeleton
+		Expression propositionalSkeleton = propositionalSkeletonRewriter.rewrite(formula, process);
+		
+		// Construct the non-polar equality graph G
+		NPGraph g = makeNPGraph(formula, process, atomToPropVar);
+		
+		// Make G chordal
+		g = makeChordal(g, atomToPropVar);
+		
+		// For each triangle in G
+		List<Expression> transitivityConstraints = new ArrayList<Expression>();
+		for (Triple<Expression, Expression, Expression> triangle : trianglesInG(g, atomToPropVar)) {
+			transitivityConstraints.add(Or.make(Not.make(triangle.first), Not.make(triangle.second), triangle.third));
+			transitivityConstraints.add(Or.make(Not.make(triangle.first), Not.make(triangle.third),  triangle.second));
+			transitivityConstraints.add(Or.make(Not.make(triangle.third), Not.make(triangle.second), triangle.first));
+		}
+		
+		// Return: propositionalSkeleton and transitivityConstraints
+		List<Expression> conjuncts = new ArrayList<Expression>();
+		conjuncts.add(propositionalSkeleton);
+		conjuncts.addAll(transitivityConstraints);		
+		Expression result = And.make(conjuncts);
+		
+		return result;
+	}
+	
+	private boolean convertToLinearCNFAndCallSAT4J(Expression propositionalFormula, int numberVars, RewritingProcess process) {
+		boolean result = false;
+		
+		// Determine the number of auxillary variables required in the translation
+//		int numberAuxVars = 0;
+// TODO		
+		
+		
+		return result;
+	}
+	
+	private NPGraph makeNPGraph(Expression formula, RewritingProcess process, Map<Pair<Expression, Expression>, Integer> atomToPropVar) {
+		NPGraph result = new NPGraph();
+		
+		for (Expression var : Variables.get(formula, process)) {
+			result.addVertex(var);
+		}
+		
+		for (Pair<Expression, Expression> atom : atomToPropVar.keySet()) {
+			result.addEdge(atom.first, atom.second);
+		}
+		
+		return result;
+	}
+	
+	private NPGraph makeChordal(NPGraph g, Map<Pair<Expression, Expression>, Integer> atomToPropVar) {
+		NPGraph result = new NPGraph();
+		
+		Set<Expression> vertices = g.getVertices();
+		for (Expression v : vertices) {
+			List<Expression> neighbours = new ArrayList<Expression>(g.getNeighbours(v));
+			result.addVertex(v);
+			for (int i = 0; i < neighbours.size(); i++) {
+				Expression ni = neighbours.get(i);
+				result.addEdge(v, ni);
+				for (int j = 0; j < neighbours.size(); i++) {
+					Expression nj = neighbours.get(j);
+					if (!g.getNeighbours(ni).contains(nj)) {
+						if (ni.toString().compareTo(nj.toString()) < 0) {
+							atomToPropVar.put(new Pair<Expression, Expression>(ni, nj), atomToPropVar.size()+1);
+						}
+						else {
+							atomToPropVar.put(new Pair<Expression, Expression>(nj, ni), atomToPropVar.size()+1);
+						}
+					}
+				}
+			}
+			g.removeVertex(v);
+		}
+		
+		return result;
+	}
+	
+	private List<Triple<Expression, Expression, Expression>> trianglesInG(NPGraph g, Map<Pair<Expression, Expression>, Integer> atomToPropVar) {
+		List<Triple<Expression, Expression, Expression>> result = new ArrayList<Triple<Expression, Expression, Expression>>();
+		
+		List<Pair<Expression, Expression>> atoms = new ArrayList<Pair<Expression, Expression>>(atomToPropVar.keySet());
+		
+		Collections.sort(atoms, new Comparator<Pair<Expression, Expression>>() {
+			@Override
+			public int compare(Pair<Expression, Expression> c1, Pair<Expression, Expression> c2) {
+				int result = c1.first.toString().compareTo(c2.first.toString());
+				if (result == 0) {
+					result = c1.second.toString().compareTo(c2.second.toString());
+				}
+				return result;
+			}
+		});
+		for (int i = 0; i < atoms.size(); i++) {
+			Pair<Expression, Expression> atomI = atoms.get(i);
+			for (int j = i+1; j < atoms.size(); j++) {
+				Pair<Expression, Expression> atomJ = atoms.get(j);
+				for (int k = j+1; k < atoms.size(); k++) {
+					Pair<Expression, Expression> atomK = atoms.get(k);
+					if (atomI.first.equals(atomK.first)  &&
+				        atomI.second.equals(atomJ.first)  &&
+					    atomJ.second.equals(atomK.second)   ) {
+						result.add(new Triple<Expression, Expression, Expression>(
+									DefaultSymbol.createSymbol(atomToPropVar.get(atomI)),
+									DefaultSymbol.createSymbol(atomToPropVar.get(atomJ)),
+									DefaultSymbol.createSymbol(atomToPropVar.get(atomK))
+								));
+					}
+				}
+			}
+		}
+		
+		return result;
+	}
 	
 	private Expression newVariable(Set<Expression> existingVariables, int suffixIdx) {
 		
@@ -178,6 +303,68 @@ public class SAT4JSolver implements SATSolver {
 		
 		return result;
 	}
+	
+	private class NPGraph { 
+		private Map<Expression, Set<Expression>> verticesAndNeighbours = new LinkedHashMap<Expression, Set<Expression>>();
+		
+		public NPGraph() {
+			
+		}
+		
+		public Set<Expression> getVertices() {
+			return verticesAndNeighbours.keySet();
+		}
+		
+		public Set<Expression> getNeighbours(Expression vertex) {
+			return verticesAndNeighbours.get(vertex);
+		}
+		
+		public void addVertex(Expression vertex) {
+			verticesAndNeighbours.put(vertex, new LinkedHashSet<Expression>());
+		}
+		
+		public void removeVertex(Expression vertex) {
+			verticesAndNeighbours.remove(vertex);
+			for (Set<Expression> neighbours : verticesAndNeighbours.values()) {
+				neighbours.remove(vertex);
+			}
+		}
+		
+		public void addEdge(Expression v1, Expression v2) {
+			verticesAndNeighbours.get(v1).add(v2);
+		}
+	} 
+	
+	private class BooleanVariableRewriter extends AbstractRewriter {
+		private Map<Pair<Expression, Expression>, Integer> atomToPropVar = new LinkedHashMap<Pair<Expression, Expression>, Integer>();
+		
+		public BooleanVariableRewriter(Map<Pair<Expression, Expression>, Integer> atomToPropVar) {
+			this.atomToPropVar = atomToPropVar;
+		}
+		
+		@Override
+		public Expression rewriteAfterBookkeeping(Expression expression,
+				RewritingProcess process) {
+			Expression result = expression;
+			
+			if (Equality.isEquality(expression) || Disequality.isDisequality(expression)) {
+				Pair<Expression, Expression> key = new Pair<Expression, Expression>(expression.get(0), expression.get(1));
+				Integer propVarId = atomToPropVar.get(key);
+				if (propVarId == null) {
+					propVarId = atomToPropVar.size()+1;
+					atomToPropVar.put(key, propVarId);
+				}
+				if (Equality.isEquality(expression)) {
+					result = DefaultSymbol.createSymbol(propVarId);
+				}
+				else {
+					result = Not.make(DefaultSymbol.createSymbol(propVarId));
+				}
+			}
+			
+			return result;
+		}
+ 	}
 	
 	private class SAT4JCall implements FormulaToSharpSAT.ConversionListener {
 		private Boolean result      = null;
