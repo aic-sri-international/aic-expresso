@@ -50,6 +50,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.equality.cardinality.helper.FormulaToSharpSAT;
+import com.sri.ai.grinder.library.equality.formula.PropositionalCNFListener;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 
 public class FormulaToSharpSATTest  extends AbstractGrinderTest {
@@ -165,7 +166,7 @@ public class FormulaToSharpSATTest  extends AbstractGrinderTest {
 		Assert.assertEquals(Arrays.asList(-5, -6), conversionListener.clauses.get(7));
 	}
 	
-	private class SharpSATConversion implements FormulaToSharpSAT.ConversionListener {
+	private class SharpSATConversion implements PropositionalCNFListener {
 		public int                 numberVariables = 0;
 		public List<List<Integer>> clauses         = new ArrayList<List<Integer>>();
 		
@@ -189,7 +190,7 @@ public class FormulaToSharpSATTest  extends AbstractGrinderTest {
 		}
 		
 		@Override
-		public void end(FormulaToSharpSAT.EndState state) {
+		public void end(PropositionalCNFListener.EndState state) {
 			
 		}
 	}

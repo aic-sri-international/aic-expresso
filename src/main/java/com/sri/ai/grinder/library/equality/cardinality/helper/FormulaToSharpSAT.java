@@ -57,34 +57,27 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.equality.formula.FormulaToCNF;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
+import com.sri.ai.grinder.library.equality.formula.PropositionalCNFListener;
 
 @Beta
 public class FormulaToSharpSAT {
 	
-	public enum EndState {TRIVIAL_TAUTOLOGY, TRIVIAL_CONTRADICTION, NEEDS_SOLVING};
-	
-	public interface ConversionListener {
-		void start(int numberVariables);
-		boolean processClauseAndContinue(int[] clause);
-		void end(EndState state);
-	}
-	
-	public static void convertToSharpSAT(Expression formula, RewritingProcess process, ConversionListener conversionListener) {
+	public static void convertToSharpSAT(Expression formula, RewritingProcess process, PropositionalCNFListener conversionListener) {
 		Expression cnfFormula = FormulaToCNF.convertToExponentialCNF(formula, process);
 		int minimumDomainSize = FormulaUtil.getConstants(cnfFormula, process).size() + Variables.get(cnfFormula, process).size();
 		
 		convertToSharpSAT(cnfFormula, minimumDomainSize, process, conversionListener);
 	}
 	
-	public static void convertToSharpSAT(Expression formula, int domainSize, RewritingProcess process, ConversionListener conversionListener) {
+	public static void convertToSharpSAT(Expression formula, int domainSize, RewritingProcess process, PropositionalCNFListener conversionListener) {
 		boolean stopConversion = false;
 		Expression cnfFormula = FormulaToCNF.convertToExponentialCNF(formula, process);
 		
 		if (cnfFormula.equals(Expressions.TRUE)) {
-			conversionListener.end(EndState.TRIVIAL_TAUTOLOGY);
+			conversionListener.end(PropositionalCNFListener.EndState.TRIVIAL_TAUTOLOGY);
 		}
 		else if (cnfFormula.equals(Expressions.FALSE)) {
-			conversionListener.end(EndState.TRIVIAL_CONTRADICTION);
+			conversionListener.end(PropositionalCNFListener.EndState.TRIVIAL_CONTRADICTION);
 		}
 		else {
 			Map<Expression, Integer> constIds = getConstants(cnfFormula, process);
@@ -155,7 +148,7 @@ public class FormulaToSharpSAT {
 				}
 			}
 			
-			conversionListener.end(EndState.NEEDS_SOLVING);
+			conversionListener.end(PropositionalCNFListener.EndState.NEEDS_SOLVING);
 		}
 	}
 	
@@ -188,7 +181,7 @@ public class FormulaToSharpSAT {
 		return varIds;
 	}
 	
-	private static boolean describeDomain(ConversionListener conversionListener, int numVars, int domainSize) {
+	private static boolean describeDomain(PropositionalCNFListener conversionListener, int numVars, int domainSize) {
 		boolean stopConversion = false;
 		// The first series of clauses should determine that 
 		// "X1 equals to a1 or a2 or a3". Similarly, we have to specify that 

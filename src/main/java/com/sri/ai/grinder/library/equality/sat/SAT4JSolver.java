@@ -59,20 +59,22 @@ import com.google.common.base.Throwables;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.Variables;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.equality.cardinality.helper.FormulaToSharpSAT;
-import com.sri.ai.grinder.library.equality.cardinality.helper.FormulaToSharpSAT.EndState;
 import com.sri.ai.grinder.library.equality.formula.FormulaToNNF;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
+import com.sri.ai.grinder.library.equality.formula.PropositionalCNFListener;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.Triple;
 
@@ -204,9 +206,25 @@ public class SAT4JSolver implements SATSolver {
 		boolean result = false;
 		
 		// Determine the number of auxillary variables required in the translation
-//		int numberAuxVars = 0;
-// TODO		
+		int numberAuxVars = 0;
+		SubExpressionsDepthFirstIterator subEIterator = new SubExpressionsDepthFirstIterator(propositionalFormula);
+		while (subEIterator.hasNext()) {
+			Expression subE = subEIterator.next();
+			if (And.isConjunction(subE) || Or.isDisjunction(subE) || Expressions.hasFunctor(subE, FunctorConstants.NOT)) {
+				numberAuxVars++;
+			}
+		}
 		
+		int totNumberVars = numberVars + numberAuxVars;
+		SAT4JCall sat4jCall = new SAT4JCall();
+		sat4jCall.start(totNumberVars);
+			
+// TODO - CNF transformation
+		
+		
+		sat4jCall.end(PropositionalCNFListener.EndState.NEEDS_SOLVING);
+		
+		result = sat4jCall.getResult();
 		
 		return result;
 	}
@@ -366,7 +384,7 @@ public class SAT4JSolver implements SATSolver {
 		}
  	}
 	
-	private class SAT4JCall implements FormulaToSharpSAT.ConversionListener {
+	private class SAT4JCall implements PropositionalCNFListener {
 		private Boolean result      = null;
 		private ISolver sat4jSolver = null;
 		
@@ -397,7 +415,7 @@ public class SAT4JSolver implements SATSolver {
 		}
 		
 		@Override
-		public void end(FormulaToSharpSAT.EndState state) {
+		public void end(PropositionalCNFListener.EndState state) {
 			if (result == null) {
 				if (state == EndState.TRIVIAL_TAUTOLOGY) {
 					result = true;
