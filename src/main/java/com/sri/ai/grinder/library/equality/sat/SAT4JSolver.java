@@ -57,6 +57,7 @@ import org.sat4j.specs.TimeoutException;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Throwables;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
@@ -210,7 +211,7 @@ public class SAT4JSolver implements SATSolver {
 		SubExpressionsDepthFirstIterator subEIterator = new SubExpressionsDepthFirstIterator(propositionalFormula);
 		while (subEIterator.hasNext()) {
 			Expression subE = subEIterator.next();
-			if (And.isConjunction(subE) || Or.isDisjunction(subE) || Expressions.hasFunctor(subE, FunctorConstants.NOT)) {
+			if (And.isConjunction(subE) || Or.isDisjunction(subE)) {
 				numberAuxVars++;
 			}
 		}
@@ -219,7 +220,12 @@ public class SAT4JSolver implements SATSolver {
 		SAT4JCall sat4jCall = new SAT4JCall();
 		sat4jCall.start(totNumberVars);
 			
-// TODO - CNF transformation
+		TotalRewriter cnfRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+				new TseitinEncodingRewriter(sat4jCall, numberVars+1)
+			));
+		
+		// Construct propositional skeleton
+		cnfRewriter.rewrite(propositionalFormula, process);
 		
 		
 		sat4jCall.end(PropositionalCNFListener.EndState.NEEDS_SOLVING);
@@ -246,16 +252,19 @@ public class SAT4JSolver implements SATSolver {
 	private NPGraph makeChordal(NPGraph g, Map<Pair<Expression, Expression>, Integer> atomToPropVar) {
 		NPGraph result = new NPGraph();
 		
-		Set<Expression> vertices = g.getVertices();
+		Set<Expression> vertices = new LinkedHashSet<Expression>(g.getVertices());
 		for (Expression v : vertices) {
 			List<Expression> neighbours = new ArrayList<Expression>(g.getNeighbours(v));
 			result.addVertex(v);
 			for (int i = 0; i < neighbours.size(); i++) {
 				Expression ni = neighbours.get(i);
+				result.addVertex(ni);
 				result.addEdge(v, ni);
-				for (int j = 0; j < neighbours.size(); i++) {
+				for (int j = i+1; j < neighbours.size(); j++) {
 					Expression nj = neighbours.get(j);
 					if (!g.getNeighbours(ni).contains(nj)) {
+						result.addVertex(nj);
+						result.addEdge(ni, nj);
 						if (ni.toString().compareTo(nj.toString()) < 0) {
 							atomToPropVar.put(new Pair<Expression, Expression>(ni, nj), atomToPropVar.size()+1);
 						}
@@ -290,16 +299,19 @@ public class SAT4JSolver implements SATSolver {
 			Pair<Expression, Expression> atomI = atoms.get(i);
 			for (int j = i+1; j < atoms.size(); j++) {
 				Pair<Expression, Expression> atomJ = atoms.get(j);
-				for (int k = j+1; k < atoms.size(); k++) {
-					Pair<Expression, Expression> atomK = atoms.get(k);
-					if (atomI.first.equals(atomK.first)  &&
-				        atomI.second.equals(atomJ.first)  &&
-					    atomJ.second.equals(atomK.second)   ) {
-						result.add(new Triple<Expression, Expression, Expression>(
-									DefaultSymbol.createSymbol(atomToPropVar.get(atomI)),
-									DefaultSymbol.createSymbol(atomToPropVar.get(atomJ)),
-									DefaultSymbol.createSymbol(atomToPropVar.get(atomK))
-								));
+				if (atomI.second.equals(atomJ.first)) {
+					for (int k = i+1; k < atoms.size(); k++) {
+						if (k != j) {
+							Pair<Expression, Expression> atomK = atoms.get(k);
+							if (atomI.first.equals(atomK.first)  &&
+							    atomJ.second.equals(atomK.second)   ) {
+								result.add(new Triple<Expression, Expression, Expression>(
+											DefaultSymbol.createSymbol(atomToPropVar.get(atomI)),
+											DefaultSymbol.createSymbol(atomToPropVar.get(atomJ)),
+											DefaultSymbol.createSymbol(atomToPropVar.get(atomK))
+										));
+							}
+						}
 					}
 				}
 			}
@@ -338,7 +350,9 @@ public class SAT4JSolver implements SATSolver {
 		}
 		
 		public void addVertex(Expression vertex) {
-			verticesAndNeighbours.put(vertex, new LinkedHashSet<Expression>());
+			if (!verticesAndNeighbours.containsKey(vertex)) {
+				verticesAndNeighbours.put(vertex, new LinkedHashSet<Expression>());
+			}
 		}
 		
 		public void removeVertex(Expression vertex) {
@@ -350,8 +364,94 @@ public class SAT4JSolver implements SATSolver {
 		
 		public void addEdge(Expression v1, Expression v2) {
 			verticesAndNeighbours.get(v1).add(v2);
+			verticesAndNeighbours.get(v2).add(v1);
 		}
 	} 
+	
+	private class TseitinEncodingRewriter extends AbstractRewriter {
+		private String GATE_FUNCTOR = "g";
+		
+		private boolean   done         = false;
+		private SAT4JCall sat4jCall;
+		private int       nextAuxVarid;
+		
+		public TseitinEncodingRewriter(SAT4JCall sat4jCall, int auxVarStartId) {
+			this.sat4jCall    = sat4jCall;
+			this.nextAuxVarid = auxVarStartId;
+		}
+		
+		@Override
+		public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+			Expression result = expression;
+			
+			if (!done) {
+				if (convertToGate(expression)) {
+					if (And.isConjunction(expression)) {
+						for (Expression arg : expression.getArguments()) {
+							int[] clause = new int[2];
+							clause[0] = this.nextAuxVarid*-1;
+							if (Expressions.hasFunctor(arg, GATE_FUNCTOR)) {
+								clause[1] = ((Symbol)arg.get(0)).intValue();
+							}
+							else if (Expressions.hasFunctor(arg, FunctorConstants.NOT)) {
+								clause[1] = ((Symbol)arg.get(0)).intValue() * -1;
+							}
+							else {
+								clause[1] = ((Symbol)arg).intValue();
+							}
+							
+							if (sat4jCall.processClauseAndContinue(clause)) {
+								done = true;
+								break;
+							}
+						}
+					}
+					else {
+						// Or
+						int[] clause = new int[expression.numberOfArguments()+1];
+						clause[0] =  this.nextAuxVarid*-1;
+						int cIdx = 1;
+						for (Expression arg : expression.getArguments()) {
+							clause[0] = this.nextAuxVarid*-1;
+							if (Expressions.hasFunctor(arg, GATE_FUNCTOR)) {
+								clause[cIdx] = ((Symbol)arg.get(0)).intValue();
+							}
+							else if (Expressions.hasFunctor(arg, FunctorConstants.NOT)) {
+								clause[cIdx] = ((Symbol)arg.get(0)).intValue() * -1;
+							}
+							else {
+								clause[cIdx] = ((Symbol)arg).intValue();
+							}
+							cIdx++;
+						}
+						if (sat4jCall.processClauseAndContinue(clause)) {
+							done = true;
+						}
+					}
+					result = Expressions.make(GATE_FUNCTOR, DefaultSymbol.createSymbol(this.nextAuxVarid));
+					this.nextAuxVarid++;
+				}
+			}
+			
+			return result;
+		}
+		
+		private boolean convertToGate(Expression expression) {
+			boolean result = false;
+			
+			if (And.isConjunction(expression) || Or.isDisjunction(expression)) {
+				result = true;
+				for (Expression arg : expression.getArguments()) {
+					if (And.isConjunction(arg) || Or.isDisjunction(arg)) {
+						result = false;
+						break;
+					}
+				}
+			}
+			
+			return result;
+		}
+	}
 	
 	private class BooleanVariableRewriter extends AbstractRewriter {
 		private Map<Pair<Expression, Expression>, Integer> atomToPropVar = new LinkedHashMap<Pair<Expression, Expression>, Integer>();
