@@ -39,6 +39,7 @@ package com.sri.ai.grinder.library.equality.sat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -73,7 +74,6 @@ import com.sri.ai.grinder.library.Variables;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
-import com.sri.ai.grinder.library.equality.cardinality.helper.FormulaToSharpSAT;
 import com.sri.ai.grinder.library.equality.formula.FormulaToNNF;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.equality.formula.PropositionalCNFListener;
@@ -82,8 +82,6 @@ import com.sri.ai.util.base.Triple;
 
 @Beta
 public class SAT4JSolver implements SATSolver {
-
-	private boolean useSharpSAT = true;
 	
 	//
 	// START - SATSolver
@@ -94,20 +92,8 @@ public class SAT4JSolver implements SATSolver {
 	
 	@Override
 	public boolean isSatisfiable(Expression formula, RewritingProcess process) {		
-		boolean result;
 		
-		if (useSharpSAT) {
-// TODO - the SharpSAT conversion is overkill for satisfiablity testing
-// as it generates a propositional grounding intended to be count equivalent
-// as opposed to juse equisatisfiable. Replace with more efficient grounding
-// as detailed in Chapter 4 of Decision Procedures book.
-			SAT4JCall sat4jCall = new SAT4JCall();
-			FormulaToSharpSAT.convertToSharpSAT(formula, process, sat4jCall);
-			result = sat4jCall.getResult();
-		}
-		else {
-			result = equalityLogicToPropositionalLogicCall(formula, process);
-		}
+		boolean result = equalityLogicToPropositionalLogicCall(formula, process);
 		
 		return result;
 	}
@@ -227,11 +213,10 @@ public class SAT4JSolver implements SATSolver {
 		
 		Expression before = propositionalFormula;
 		Expression after  = propositionalFormula;	
-System.out.println(before.toString());		
+	
 		do {
 			before = after;
-			after  = before.replaceAllOccurrences(tseitinEncoding, process);
-System.out.println(after.toString());			
+			after  = before.replaceAllOccurrences(tseitinEncoding, process);		
 		} while (after != before);
 		
 		sat4jCall.end(PropositionalCNFListener.EndState.NEEDS_SOLVING);
@@ -256,26 +241,28 @@ System.out.println(after.toString());
 	}
 	
 	private NPGraph makeChordal(NPGraph g, Map<Pair<Expression, Expression>, Integer> atomToPropVar) {
-		NPGraph result = new NPGraph();
+		NPGraph result = new NPGraph(g);
 		
 		Set<Expression> vertices = new LinkedHashSet<Expression>(g.getVertices());
 		for (Expression v : vertices) {
 			List<Expression> neighbours = new ArrayList<Expression>(g.getNeighbours(v));
-			result.addVertex(v);
 			for (int i = 0; i < neighbours.size(); i++) {
 				Expression ni = neighbours.get(i);
-				result.addVertex(ni);
-				result.addEdge(v, ni);
 				for (int j = i+1; j < neighbours.size(); j++) {
 					Expression nj = neighbours.get(j);
-					if (!g.getNeighbours(ni).contains(nj)) {
-						result.addVertex(nj);
-						result.addEdge(ni, nj);
+					if (!g.getNeighbours(ni).contains(nj)) {						
+						Pair<Expression, Expression> key = null;
 						if (ni.toString().compareTo(nj.toString()) < 0) {
-							atomToPropVar.put(new Pair<Expression, Expression>(ni, nj), atomToPropVar.size()+1);
+							key = new Pair<Expression, Expression>(ni, nj);
 						}
 						else {
-							atomToPropVar.put(new Pair<Expression, Expression>(nj, ni), atomToPropVar.size()+1);
+							key = new Pair<Expression, Expression>(nj, ni);
+						}
+						
+						if (!atomToPropVar.containsKey(key)) {
+							result.addEdge(ni, nj);
+							int propId = atomToPropVar.size()+1;
+							atomToPropVar.put(key, propId);
 						}
 					}
 				}
@@ -289,18 +276,8 @@ System.out.println(after.toString());
 	private List<Triple<Expression, Expression, Expression>> trianglesInG(NPGraph g, Map<Pair<Expression, Expression>, Integer> atomToPropVar) {
 		List<Triple<Expression, Expression, Expression>> result = new ArrayList<Triple<Expression, Expression, Expression>>();
 		
-		List<Pair<Expression, Expression>> atoms = new ArrayList<Pair<Expression, Expression>>(atomToPropVar.keySet());
+		List<Pair<Expression, Expression>> atoms = sortAtoms(atomToPropVar.keySet());
 		
-		Collections.sort(atoms, new Comparator<Pair<Expression, Expression>>() {
-			@Override
-			public int compare(Pair<Expression, Expression> c1, Pair<Expression, Expression> c2) {
-				int result = c1.first.toString().compareTo(c2.first.toString());
-				if (result == 0) {
-					result = c1.second.toString().compareTo(c2.second.toString());
-				}
-				return result;
-			}
-		});
 		for (int i = 0; i < atoms.size(); i++) {
 			Pair<Expression, Expression> atomI = atoms.get(i);
 			for (int j = i+1; j < atoms.size(); j++) {
@@ -326,6 +303,23 @@ System.out.println(after.toString());
 		return result;
 	}
 	
+	private List<Pair<Expression, Expression>> sortAtoms(Collection<Pair<Expression, Expression>> atoms) {
+		List<Pair<Expression, Expression>> sortedAtoms = new ArrayList<Pair<Expression, Expression>>(atoms);
+		
+		Collections.sort(sortedAtoms, new Comparator<Pair<Expression, Expression>>() {
+			@Override
+			public int compare(Pair<Expression, Expression> c1, Pair<Expression, Expression> c2) {
+				int result = c1.first.toString().compareTo(c2.first.toString());
+				if (result == 0) {
+					result = c1.second.toString().compareTo(c2.second.toString());
+				}
+				return result;
+			}
+		});
+		
+		return sortedAtoms;
+	}
+	
 	private Expression newVariable(Set<Expression> existingVariables, int suffixIdx) {
 		
 		Expression result = null;
@@ -345,6 +339,12 @@ System.out.println(after.toString());
 		
 		public NPGraph() {
 			
+		}
+		
+		public NPGraph(NPGraph g) {
+			for (Map.Entry<Expression, Set<Expression>> entry : g.verticesAndNeighbours.entrySet()) {
+				verticesAndNeighbours.put(entry.getKey(), new LinkedHashSet<Expression>(entry.getValue()));
+			}
 		}
 		
 		public Set<Expression> getVertices() {
@@ -511,8 +511,7 @@ System.out.println(after.toString());
 			boolean processMore = false;
 			if (result == null) {
 				try {	
-					VecInt vClause = new VecInt(clause);	
-System.out.println(vClause.toString());					
+					VecInt vClause = new VecInt(clause);				
 					sat4jSolver.addClause(vClause);
 					processMore = true;
 				} catch (ContradictionException cex) {
