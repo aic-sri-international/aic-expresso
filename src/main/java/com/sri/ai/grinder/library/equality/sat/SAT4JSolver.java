@@ -193,12 +193,12 @@ public class SAT4JSolver implements SATSolver {
 	private boolean convertToLinearCNFAndCallSAT4J(Expression propositionalFormula, int numberVars, RewritingProcess process) {
 		boolean result = false;
 		
-		// Determine the number of auxillary variables required in the translation
+		// Determine the number of auxillary variables required in the translation (i.e. the # of logical gates).
 		int numberAuxVars = 0;
 		SubExpressionsDepthFirstIterator subEIterator = new SubExpressionsDepthFirstIterator(propositionalFormula);
 		while (subEIterator.hasNext()) {
 			Expression subE = subEIterator.next();
-			if (And.isConjunction(subE) || Or.isDisjunction(subE)) {
+			if (And.isConjunction(subE) || Or.isDisjunction(subE) || Expressions.hasFunctor(subE, FunctorConstants.NOT)) {
 				numberAuxVars++;
 			}
 		}
@@ -209,7 +209,8 @@ public class SAT4JSolver implements SATSolver {
 		
 		sat4jCall.processClauseAndContinue(new int[] {totNumberVars});
 		
-		TseitinEncodingReplacementFunction tseitinEncoding = new TseitinEncodingReplacementFunction(sat4jCall, numberVars+1);
+		// We are in NNF so can generate implication as opposed to equivalence constraints.
+		OneSidedTseitinEncodingReplacementFunction tseitinEncoding = new OneSidedTseitinEncodingReplacementFunction(sat4jCall, numberVars+1);
 		
 		Expression before = propositionalFormula;
 		Expression after  = propositionalFormula;	
@@ -374,14 +375,14 @@ public class SAT4JSolver implements SATSolver {
 		}
 	} 
 	
-	private class TseitinEncodingReplacementFunction implements Function<Expression, Expression> {
+	private class OneSidedTseitinEncodingReplacementFunction implements Function<Expression, Expression> {
 		private String GATE_FUNCTOR = "g";
 		
 		private boolean   done         = false;
 		private SAT4JCall sat4jCall;
 		private int       nextAuxVarid;
 		
-		public TseitinEncodingReplacementFunction(SAT4JCall sat4jCall, int auxVarStartId) {
+		public OneSidedTseitinEncodingReplacementFunction(SAT4JCall sat4jCall, int auxVarStartId) {
 			this.sat4jCall    = sat4jCall;
 			this.nextAuxVarid = auxVarStartId;
 		}
@@ -399,9 +400,6 @@ public class SAT4JSolver implements SATSolver {
 							if (Expressions.hasFunctor(arg, GATE_FUNCTOR)) {
 								clause[1] = ((Symbol)arg.get(0)).intValue();
 							}
-							else if (Expressions.hasFunctor(arg, FunctorConstants.NOT)) {
-								clause[1] = ((Symbol)arg.get(0)).intValue() * -1;
-							}
 							else {
 								clause[1] = ((Symbol)arg).intValue();
 							}
@@ -412,7 +410,7 @@ public class SAT4JSolver implements SATSolver {
 							}
 						}
 					}
-					else {
+					else if (Or.isDisjunction(expression)) {
 						// Or
 						int[] clause = new int[expression.numberOfArguments()+1];
 						clause[0] =  this.nextAuxVarid*-1;
@@ -422,14 +420,21 @@ public class SAT4JSolver implements SATSolver {
 							if (Expressions.hasFunctor(arg, GATE_FUNCTOR)) {
 								clause[cIdx] = ((Symbol)arg.get(0)).intValue();
 							}
-							else if (Expressions.hasFunctor(arg, FunctorConstants.NOT)) {
-								clause[cIdx] = ((Symbol)arg.get(0)).intValue() * -1;
-							}
 							else {
 								clause[cIdx] = ((Symbol)arg).intValue();
 							}
 							cIdx++;
 						}
+						if (!sat4jCall.processClauseAndContinue(clause)) {							
+							done = true;
+						}
+					}
+					else {
+						// Not
+						int[] clause = new int[2];
+						clause[0] =  this.nextAuxVarid*-1;
+						Expression arg = expression.get(0);
+						clause[1] = ((Symbol)arg).intValue()*-1;
 						if (!sat4jCall.processClauseAndContinue(clause)) {							
 							done = true;
 						}
@@ -445,10 +450,11 @@ public class SAT4JSolver implements SATSolver {
 		private boolean convertToGate(Expression expression) {
 			boolean result = false;
 			
-			if (And.isConjunction(expression) || Or.isDisjunction(expression)) {
+			if (And.isConjunction(expression) || Or.isDisjunction(expression) || Expressions.hasFunctor(expression, FunctorConstants.NOT)) {
 				result = true;
 				for (Expression arg : expression.getArguments()) {
-					if (And.isConjunction(arg) || Or.isDisjunction(arg)) {
+					// Only convert to a gate if all arguments are variables are gates only
+					if (And.isConjunction(arg) || Or.isDisjunction(arg) || Expressions.hasFunctor(arg, FunctorConstants.NOT)) {
 						result = false;
 						break;
 					}
