@@ -635,7 +635,14 @@ public class GrinderUtil {
 		Set<Expression> newContextualVariables = new HashSet<Expression>();
 		newContextualVariables.addAll(process.getContextualVariables());
 		if (newFreeVariables != null) {
-			newContextualVariables.addAll(newFreeVariables);
+			// Note: This is to guarantee only logical variables are maintained
+			// in the contextual variables set. Non-logical variables
+			// can be passed in the case of lambda expressions where
+			// the scoped values are random variable values and not logical
+			// variables.
+			for (Expression fv : newFreeVariables) {
+				newContextualVariables.addAll(Variables.freeVariables(fv, process));
+			}
 		}
 		
 		Expression contextualConstraint      = process.getContextualConstraint();
@@ -654,6 +661,12 @@ public class GrinderUtil {
 		else {
 			// Note: commenting out for now due to the bloat caused in the trace output.
 			// Trace.log("INFO: Not a formula to extend contextual constraint by: {}", additionalConstraints);
+		}
+		
+		for (Expression v : newContextualVariables) {
+			if (!process.isVariable(v)) {
+				throw new IllegalArgumentException("Illegal argument to extend contextual variables with:"+v);
+			}
 		}
 		
 		RewritingProcess subRewritingProcess = process.newSubProcessWithContext(newContextualVariables, contextualConstraintPrime);
