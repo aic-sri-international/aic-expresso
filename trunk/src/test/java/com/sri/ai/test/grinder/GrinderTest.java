@@ -1404,22 +1404,38 @@ public class GrinderTest extends AbstractGrinderTest {
 				new IntensionalSetSubExpressionsAndImposedConditionsProvider(),
 				new IntensionalSet(),
 				new UnionOnExtensionalSets(),
+				new IntensionalSetWithBoundIndex(),
 				new Plus(),
 				new And(),
 				new Or(),
 				new Equality(),
 				new Disequality(),
-				new IntensionalSetWithBoundIndex(),
 				new IfThenElse());
 		
 		evaluator = new ExhaustiveRewriter(library);
 		
 		expressionString = "{(on X in {1,2,3}, Y) p(X) | X = 1 and X != Y and (X != 1 or X != 2)}";
-		expected = parse("{(on Y) p(1) | 1 != Y}");
+		expected   = parse("{(on Y) p(1) | 1 != Y}");
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 		
 		expressionString = "{{(on Z in {1,2}, X in {1,2,3}, Y) p(X) | X = 1 and X != Y and (X != 1 or X != 2)}}";
-		expected = parse("{{(on Z in {1,2}, Y) p(1) | 1 != Y}}");
+		expected   = parse("{{(on Z in {1,2}, Y) p(1) | 1 != Y}}");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+		
+		expressionString = "{ ( on A ) p(A, X) | A = A = X }";
+		expected   = parse("{ ( on ) p(X, X) | true }");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+		
+		expressionString = "{ ( on A ) p(A, X) | X = A = A }";
+		expected   = parse("{ ( on ) p(X, X) | true }");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+		
+		expressionString = "{ ( on A ) p(A, X) | A = X = A }";
+		expected   = parse("{ ( on ) p(X, X) | true }");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+		
+		expressionString = "{ ( on A ) p(A, X) | A != X and X = X and A = A }";
+		expected   = parse("{ ( on A ) p(A, X) | A != X }");
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 	}
 
