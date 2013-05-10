@@ -48,6 +48,7 @@ import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 
 /**
  * Rewriter simplifying one conjunct by using the fact that the others must be true.
@@ -69,13 +70,24 @@ public class ConjunctsHoldTrueForEachOther extends AbstractRewriter {
 			for (int i = 0; i != expression.numberOfArguments(); i++) {
 				Expression iThConjunct = expression.get(i);
 				Expression remainingOfConjunction = Expressions.removeIthArgument(expression, i);
-				RewritingProcess processAssumingRemainingOfConjunction = GrinderUtil.extendContextualConstraint(remainingOfConjunction, process);
-				Expression newIThConjunct = processAssumingRemainingOfConjunction.rewrite(CardinalityRewriter.R_simplify, iThConjunct);
-				if (newIThConjunct != iThConjunct) {
-					List<Expression> newConjuncts = new ArrayList<Expression>(expression.getArguments());
-					newConjuncts.set(i, newIThConjunct);
-					Expression result = And.make(newConjuncts);
-					return result;
+				// Note: Only attempt this if the remaining conjunction can actually be used to
+				// extend the context (i.e. is a formula).
+				if (FormulaUtil.isFormula(remainingOfConjunction, process)) {
+					RewritingProcess processAssumingRemainingOfConjunction = GrinderUtil.extendContextualConstraint(remainingOfConjunction, process);
+					Expression newIThConjunct = processAssumingRemainingOfConjunction.rewrite(CardinalityRewriter.R_simplify, iThConjunct);
+					if (newIThConjunct != iThConjunct) {
+						Expression result;
+						// Short circuit to 'false' straight away.
+						if (newIThConjunct.equals(Expressions.FALSE)) {
+							result = Expressions.FALSE;
+						}
+						else {
+							List<Expression> newConjuncts = new ArrayList<Expression>(expression.getArguments());
+							newConjuncts.set(i, newIThConjunct);
+							result = And.make(newConjuncts);
+						}
+						return result;
+					}
 				}
 			}
 		}
