@@ -248,12 +248,8 @@ public interface CardinalityRewriter {
 	 *     		  R_card(| replace_conjunct_and_top_simplify(not G1 and not G2), i, F) |_X, quantification)
 	 * 
 	 * if Fi is (F1 or F2)
-	 *     return R_card(
-	 *             | R_top_simplify_disjunction(
-	 *                 replace_conjunct_and_top_simplify(F1, i, F)
-	 *                      or
-	 *                 replace_conjunct_and_top_simplify(F2, i, F)) 
-	 *             |_X, quantification )
+	 *     select literal Alpha from Fi
+	 *     return dpllConditioning(F, Alpha, X, quantification)
 	 * 
 	 * if Fi is Q y : G
 	 *     return R_card(
@@ -319,42 +315,17 @@ public interface CardinalityRewriter {
 	 * 		return R_simplify(if F1 then ||X|| else R_card(|F2|_X, quantification))
 	 * 
 	 * otherwise (if all disjuncts of F have some index variable occurring in them):
-	 * F1 <- first disjunct in F
-	 * F2 <- remaining disjuncts in F
-	 * 
-	 * F1 <- R_top_simplify(F1)
-	 * F2 <- R_top_simplify(F2)
 	 * 
 	 * if quantification is "for all"
-	 *     return R_simplify(
-	 *     			if R_card(| R_top_simplify_conjunction(not F1 and not F2)  |_X, "there exists") > 0 then 0 else ||X||)
-	 *     
-	 * (F1, F2) <- sort_pair(F1, F2) 
+	 *     F1 <- first disjunct in F
+	 *     F2 <- remaining disjuncts in F
 	 * 
-	 * N1 <- R_card(| F1 |_X, quantification)
-	 *     
-	 * if N1 = 0
-	 *     return R_card(| F2 |_X, quantification) // | F1 and F2 |_X is 0
-	 * if N1 = ||X||
-	 *     return ||X|| // | F2 |_X = | F1 and F2 |_X and cancel out
-	 * 
-	 * N2 <- R_card(| F2 |_X, quantification)
-	 * 
-	 * if N2 = 0
-	 *     return N1 // | F1 and F2 |_X is 0
-	 * if N2 = ||X||
-	 *     return ||X|| // N1 = | F1 |_X = | F1 and F2 |_X and cancel out
-	 *     
-	 * if quantification is "there exists"
-	 *     // there is no need to compute N3, since it is enough that there is x for either F1 or F2
-	 *     return R_simplify(if N1 > 0 or N2 > 0 then ||X|| else 0)
-	 * 
-	 * // quantification is guaranteed to be "none" because otherwise it will have returned by now
-	 * 
-	 * N3 <- R_card( | R_top_simplify_conjunction(F1 and F2) |_X, "none" )
-	 *    
-	 * return R_simplify(N1 + N2 - N3)
-	 * // possible further optimization since F1 and F2 are already top-simplified
+	 *     F1 <- R_top_simplify(F1)
+	 *     F2 <- R_top_simplify(F2)
+	 *     return R_simplify(if R_card(| R_top_simplify_conjunction(not F1 and not F2)  |_X, \"there exists\") > 0 then 0 else ||X||)
+	 * else:
+	 *     select literal Alpha from F
+	 *     return dpllConditioning(F, Alpha, X, quantification)
 	 * </pre>
 	 */
 	String R_card_disjunction = CARDINALITY_NAMESPACE+"R_card_disjunction";

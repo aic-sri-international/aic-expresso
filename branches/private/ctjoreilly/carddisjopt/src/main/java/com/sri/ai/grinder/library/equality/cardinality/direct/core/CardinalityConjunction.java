@@ -340,10 +340,10 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 			}
 			else if (Or.isDisjunction(fi)) {
 				Trace.log("if Fi is (F1 or F2)");
-				// Select literal Alpha from Fi
+				Trace.log("    select literal Alpha from Fi");
 				Expression alpha = CardinalityUtil.pickCheapestLiteral(fi);
-				// result = conditioning(F, Alpha, X, quantification);
-				result = CardinalityUtil.conditioning(f, alpha, sortPair, quantification, indicesAsArray, process);
+				Trace.log("    return dpllConditioning(F, Alpha, X, quantification)");
+				result = CardinalityUtil.dpllConditioning(f, alpha, indicesAsArray, quantification, sortPair, process);
 			} 
 			else if (ForAll.isForAll(fi) ||
 					   ThereExists.isThereExists(fi)) {

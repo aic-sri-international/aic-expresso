@@ -139,20 +139,20 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 			
 			Expression cardinalityOfTheRest = null;
 			if ( independentProblems.size() == 1 ) {
-				Trace.log("    // F has one sub-disjunction D1 containing all index variables");
-				Trace.log("    R <- R_card(| D_1 |_X, quantification)");
+				Trace.log("    if D_2 is empty:");
+				Trace.log("        R <- R_card(| D_1 |_X, quantification)");
 				cardinalityOfTheRest = computedFirstDisjunctionCard;
 			} 
 			else {
-				Trace.log("    // I_1 and I_2 are two partitions of X, and D_1 and D_2 are two partitions of the disjuncts in F, and the index variables in D_1 and D_2 are I_1 and I_2 respectively.");
+				Trace.log("    else: // D_2 is not empty");
 				Expression firstIndexCard = CardinalityUtil.makeCardinalityOfIndexExpressions(firstProblem.first.toArray(new Expression [0]));
 
 				Pair<Set<Expression>, List<Expression>> secondProblem = independentProblems.get(1);
 				Expression secondIndexCard               = CardinalityUtil.makeCardinalityOfIndexExpressions(secondProblem.first.toArray(new Expression [0]));
 				Expression secondDisjunction             = Or.make(secondProblem.second);	
-				Trace.log("    D_2 = R_top_simplify(D_2)");
+				Trace.log("        D_2 = R_top_simplify(D_2)");
 				secondDisjunction                        = process.rewrite(R_top_simplify, secondDisjunction);
-				Trace.log("    R <- R_simplify(R_card(| D_1 |_I_1, quantification)*||I_2|| + R_card(| D_2 |_I2, quantification)*||I_1|| - R_card(| D_1 |_I_1, quantification)* R_card(| D_2 |_I_2, quantification))");
+				Trace.log("        R <- R_simplify(R_card(| D_1 |_I_1, quantification)*||I_2|| + R_card(| D_2 |_I2, quantification)*||I_1|| - R_card(| D_1 |_I_1, quantification)* R_card(| D_2 |_I_2, quantification))");
 				Expression secondDisjunctionCard         = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(secondDisjunction, secondProblem.first.toArray(new Expression [0]));
 				Expression computedSecondDisjunctionCard = process.rewrite(R_card,
 																CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(secondDisjunctionCard, quantification));
@@ -168,11 +168,13 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 			}
 			
 			if ( indexlessProblem == null ) {
-				Trace.log("    return R");
+				Trace.log("    if D is empty");
+				Trace.log("        return R");
 				result = cardinalityOfTheRest;
 			} 
 			else {
-				Trace.log("    return R_simplify(if D then ||X|| else R)");
+				Trace.log("    else: // D is not empty");
+				Trace.log("        return R_simplify(if D then ||X|| else R)");
 				result = IfThenElse.make(Or.make(indexlessProblem.second), cardIndexX, cardinalityOfTheRest);
 				result = process.rewrite(R_simplify, result);
 			}
@@ -215,19 +217,21 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 		Expression result = null;
 		
 		if (quantification == CardinalityRewriter.Quantification.FOR_ALL) {
+			Trace.log("if quantification is \"for all\"");
+			
 			Expression cardIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indices);
 			
-			Trace.log("F1 <- first disjunct in F");
+			Trace.log("    F1 <- first disjunct in F");
 			Expression f1 = CardinalityUtil.getF1FromDisjunction(f);
-			Trace.log("F2 <- remaining disjuncts in F");
+			Trace.log("    F2 <- remaining disjuncts in F");
 			Expression f2 = CardinalityUtil.getF2FromDisjunction(f);		
 			
-			Trace.log("F1 <- R_top_simplify(F1)");
+			Trace.log("    F1 <- R_top_simplify(F1)");
 			f1 = process.rewrite(R_top_simplify, f1);
-			Trace.log("F2 <- R_top_simplify(F2)");
+			Trace.log("    F2 <- R_top_simplify(F2)");
 			f2 = process.rewrite(R_top_simplify, f2);
 			
-			Trace.log("if quantification is \"for all\"");
+			
 			Trace.log("    return R_simplify(if R_card(| R_top_simplify_conjunction(not F1 and not F2)  |_X, \"there exists\") > 0 then 0 else ||X||)");
 			Expression notF1AndNotF2 = CardinalityUtil.makeAnd(CardinalityUtil.makeNot(f1), CardinalityUtil.makeNot(f2)); 
 			notF1AndNotF2 = process.rewrite(R_top_simplify_conjunction, notF1AndNotF2);
@@ -241,10 +245,12 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 			result = process.rewrite(R_simplify, ifThenElse);
 		} 
 		else {
-			// Select literal Alpha from F
+			Trace.log("else: // quantification is NOT \"for all\"");
+			Trace.log("    select literal Alpha from F");
 			Expression alpha = CardinalityUtil.pickCheapestLiteral(f);
 			// result = conditioning(F, Alpha, X, quantification);
-			result = CardinalityUtil.conditioning(f, alpha, sortPair, quantification, indices, process);
+			Trace.log("    return dpllConditioning(F, Alpha, X, quantification)");
+			result = CardinalityUtil.dpllConditioning(f, alpha, indices, quantification, sortPair, process);
 		}
 				
 		return result;

@@ -898,18 +898,23 @@ public class CardinalityUtil {
 	}
 	
 	/**
+	 * DPLL Style conditioning on the expression in order to calculate the
+	 * cardinality (intended to avoid exponential memory usage).
+	 * 
 	 * <pre>
+	 * dpllConditioning(F, Alpha, X, quantification)
+	 * 
 	 * G1 <- R_simplify(F and Alpha)
      * G2 <- R_simplify(F and not Alpha)
      *
      * (G1, G2) <- sort(G1, G2)
      *
-     * N1 <- R_card(| G1 |X, quantification)
+     * N1 <- R_card(| G1 |_X, quantification)
      *
      * if quantification is "there exists" and every leaf of N1 is a numeric constant > 0 // same as R_simplify(N1 > 0) is "true"
      *     return || X ||
      *
-     * N2 <- R_card(| G2 |X, quantification)
+     * N2 <- R_card(| G2 |_X, quantification)
      *
      * if quantification is "there exists" and every leaf of N2 is a numeric constant > 0 // same as R_simplify(N2 > 0) is "true"
      *    return || X ||
@@ -918,14 +923,20 @@ public class CardinalityUtil {
 	 * </pre>
 	 * 
 	 * @param formulaF
+	 *        the formula F from the original cardinality expression: | F |_X.
 	 * @param literalAlpha
+	 *        a literal.
 	 * @param sortPair
+	 *        an implementation of the SortPair interface, which sorts the cheapest first.
 	 * @param quantification
+	 *        is either "there exists", "for all", or "none".
 	 * @param indicesX
+	 *        the indices from the original cardinality expression: | F |_X.
 	 * @param process
-	 * @return
+	 *        the current rewriting process.
+	 * @return the cardinality of | F and Alpha |_X + | F and not Alpha |_X.
 	 */
-	public static Expression conditioning(Expression formulaF, Expression literalAlpha, SortPair sortPair, Quantification quantification,  Expression[] indicesX, RewritingProcess process) {
+	public static Expression dpllConditioning(Expression formulaF, Expression literalAlpha, Expression[] indicesX, Quantification quantification, SortPair sortPair, RewritingProcess process) {
 		Expression result = null;
 		
 		Trace.log("G1 <- R_simplify(F and Alpha)");
@@ -938,7 +949,7 @@ public class CardinalityUtil {
 		g1 = sortedPair.first;
 		g2 = sortedPair.second;
 		
-		Trace.log("N1 <- R_card(| G1 |X, quantification)");
+		Trace.log("N1 <- R_card(| G1 |_X, quantification)");
 		Expression n1, n2;
 		Expression cardG1 = makeCardinalityOfIndexedFormulaExpression(g1, indicesX);
 		n1 = process.rewrite(CardinalityRewriter.R_card, argForCardinalityWithQuantifierSpecifiedCall(cardG1, quantification));		
@@ -948,7 +959,7 @@ public class CardinalityUtil {
 			result = process.rewrite(CardinalityRewriter.R_simplify, CardinalityUtil.makeCardinalityOfIndexExpressions(indicesX));
 		}
 		else {
-			Trace.log("N2 <- R_card(| G2 |X, quantification)");
+			Trace.log("N2 <- R_card(| G2 |_X, quantification)");
 			Expression cardG2 = makeCardinalityOfIndexedFormulaExpression(g2, indicesX);
 			n2 = process.rewrite(CardinalityRewriter.R_card, argForCardinalityWithQuantifierSpecifiedCall(cardG2, quantification));		
 			if (quantification == Quantification.THERE_EXISTS && everyLeafIsConstantGreaterThanZero(n2)) {
