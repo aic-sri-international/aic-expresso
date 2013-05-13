@@ -732,7 +732,7 @@ public class Expressions {
 				Collection<Expression> remaining = Util.list();
 		
 				Util.collectFirstN(
-						conjunct.getArguments(),
+						Equality.getSymbolsBoundToSomethingElse(conjunct),
 						1,
 						new IntensionalSet.IsIndexIn(indexExpressions),
 						indexOrNothing,

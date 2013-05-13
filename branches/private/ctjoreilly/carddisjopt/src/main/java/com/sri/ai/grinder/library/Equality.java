@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.library;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -206,6 +207,22 @@ public class Equality extends AbstractRewriter {
 
 	public static boolean isEquality(Expression expression) {
 		return expression.hasFunctor(FunctorConstants.EQUAL);
+	}
+	
+	public static Set<Expression> getSymbolsBoundToSomethingElse(Expression equality) {
+		Set<Expression> result = new LinkedHashSet<Expression>();
+		
+		if (isEquality(equality)) {
+			for (Expression term : equality.getArguments()) {
+				result.add(term);
+			}
+			// i.e. A = A, A is not bound to something else. 
+			if (result.size() == 1) {
+				result.clear();
+			}
+		}
+		
+		return result;
 	}
 
 	/**

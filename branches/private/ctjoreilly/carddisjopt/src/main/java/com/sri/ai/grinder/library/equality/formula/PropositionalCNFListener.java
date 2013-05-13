@@ -35,38 +35,16 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.equality.cardinality.direct.core;
+package com.sri.ai.grinder.library.equality.formula;
 
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
-import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
+import com.google.common.annotations.Beta;
 
-/**
- * Note: This wrapper is required as the default implementation throws an
- * assertion exception if the input arguments are not what is expected.
- * 
- * @author oreilly
- */
-public class QuantifierEliminationWrapper extends AbstractRewriter {	
-	public QuantifierEliminationWrapper() {
-	}
+@Beta
+public interface PropositionalCNFListener {
+
+	enum EndState {TRIVIAL_TAUTOLOGY, TRIVIAL_CONTRADICTION, NEEDS_SOLVING};
 	
-	@Override
-	public String getName() {
-		return "Quantifier Elimination";
-	}
-	
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression result = expression;
-		if (FormulaUtil.isFormula(expression, process)) {
-			result = process.rewrite(CardinalityRewriter.R_quantifier_elimination, expression);
-			if (result.equals(expression)) {
-				result = expression;
-			}
-		}
-		return result;
-	}	
+	void start(int numberVariables);
+	boolean processClauseAndContinue(int[] clause);
+	void end(EndState state);
 }

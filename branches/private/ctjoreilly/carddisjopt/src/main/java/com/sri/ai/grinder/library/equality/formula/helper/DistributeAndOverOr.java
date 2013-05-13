@@ -35,66 +35,53 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.equality.cardinality.direct.core;
+package com.sri.ai.grinder.library.equality.formula.helper;
 
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.Variables;
-import com.sri.ai.grinder.library.boole.ForAll;
-import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
-import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
+import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.Or;
 
 /**
- * Default implementation of is_tautology(F).
- * 
- * @author oreilly
+ * Distributes and over ors in a formula: 
  *
+ * F1 and (F2 or F2)  -> (F1 and F2) or (F1 and F3)
+ * (F1 or F2) and F3  -> (F1 and F3) or (F2 and F3)
+ * 
  */
 @Beta
-public class IsTautology {	
+public class DistributeAndOverOr extends AbstractRewriter {
 	
-	/**
-	 * <pre>
-	 * is_tautology(F)
-	 * F is a formula
-	 * Returns whether F is a tautology or not
-	 * 
-	 * let x1, ..., xn be the free variables in F
-	 * return whether R_complete_simplify( for all x1 : ... for all xn : F ) is "True"
-	 * </pre>
-	 * 
-	 * @param expressionF
-	 *            a formula.
-	 * @param process
-	 *            the process in which the rewriting is occurring.
-	 * @return true if expression is a tautology, false otherwise.
-	 */
-	public static boolean isTautology(Expression expressionF, RewritingProcess process) {
-		boolean result = false;
+	@Override
+	public Expression rewriteAfterBookkeeping(Expression expression,
+			RewritingProcess process) {
+		Expression result = expression;
 		
-		// Assert input argument
-		if (!FormulaUtil.isFormula(expressionF, process)) {
-			throw new IllegalArgumentException("F is not a formula:"+expressionF);
-		}
-		
-		Set<Expression> freeVariablesInF = Variables.freeVariables(expressionF, process);
-
-		// let x1, ..., xn be the free variables in F
-		// return whether R_complete_simplify( for all x1 : ... for all xn : F ) is "True"
-		Expression forAllX1ToXn     = ForAll.make(new ArrayList<Expression>(freeVariablesInF), expressionF);
-		Expression simplifiedResult = process.rewrite(CardinalityRewriter.R_complete_simplify, forAllX1ToXn);
-		if (simplifiedResult.equals(Expressions.TRUE)) {
-			result = true;
+		if (And.isConjunction(expression) && expression.numberOfArguments() > 0) {
+			// F1 and (F2 or F2)  -> (F1 and F2) or (F1 and F3)
+			// (F1 or F2) and F3  -> (F1 and F3) or (F2 and F3)
+			for (Expression conjunct : expression.getArguments()) {
+				if (Or.isDisjunction(conjunct) && conjunct.numberOfArguments() > 0) {
+					List<Expression> otherConjuncts = new ArrayList<Expression>(expression.getArguments());
+					otherConjuncts.remove(conjunct);
+					
+					List<Expression> disjuncts = new ArrayList<Expression>();
+					for (Expression disjunct : conjunct.getArguments()) {
+						ArrayList<Expression> conjuncts = new ArrayList<Expression>(otherConjuncts);
+						conjuncts.add(disjunct);
+						disjuncts.add(And.make(conjuncts));
+					}
+					result = Or.make(disjuncts);
+					break;
+				}
+			}
 		}
 		
 		return result;
 	}
-	
-	// END-IsTautology
-	//
 }

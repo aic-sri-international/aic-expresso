@@ -48,7 +48,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.Not;
-import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -70,7 +70,7 @@ public class IncompleteLinearImpliedCertainty extends AbstractRewriter {
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expression result = expression;
 		
-		if (CardinalityUtil.isFormula(expression, process) || process.isVariable(expression)) {
+		if (FormulaUtil.isFormula(expression, process) || process.isVariable(expression)) {
 			// These conditions are tested again later. They are tested here to avoid unnecessary computation of implied facts.
 			
 			// deal with trivial implications from context
@@ -79,7 +79,7 @@ public class IncompleteLinearImpliedCertainty extends AbstractRewriter {
 			for (Expression impliedFactByContext : impliedFactsByContext) {
 				if (!impliedFactByContext.equals(Expressions.FALSE)) {
 					
-					if (CardinalityUtil.isFormula(expression, process)) {
+					if (FormulaUtil.isFormula(expression, process)) {
 						if (IncompleteLinearImplies.implies(impliedFactByContext, expression, process)) {
 							result = Expressions.TRUE;
 							if (result.equals(expression)) {
