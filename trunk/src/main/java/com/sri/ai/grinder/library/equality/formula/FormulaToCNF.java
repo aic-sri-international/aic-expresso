@@ -90,7 +90,7 @@ public class FormulaToCNF {
 		// (INSEA)DO - NNF transformation handles the first part. 
 		result = FormulaToNNF.convertToNNF(formula, process);
 	
-		// INSEAD)O - dsitribute
+		// INSEAD)O - distribute
 		result = distribution(result, process);
 		
 		// INSEADO) - Operators Out
@@ -116,7 +116,8 @@ public class FormulaToCNF {
 	// PRIVATE
 	//	
 	private static Expression distribution(Expression formula, RewritingProcess process) {
-		TotalRewriter cnfRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+		TotalRewriter cnfRewriter = new TotalRewriter(FormulaToCNF.class.getName()+ " distribution Total Rewriter",
+			Arrays.asList((Rewriter)
 				// Want to ensure the following normalizations
 				// are applied to ensure the final CNF form is easier
 				// to work with.
@@ -137,7 +138,8 @@ public class FormulaToCNF {
 		// We don't really do as we want to keep as a conjunction of disjunctions
 		// However, we need to ensure literal conjuncts are represented explicitly
 		// as singleton clauses.
-		TotalRewriter cnfRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+		TotalRewriter cnfRewriter = new TotalRewriter(FormulaToCNF.class.getName()+ " operatorsOut Total Rewriter",
+			Arrays.asList((Rewriter)
 				new ConjunctionSingletonLiteralToClausesRewriter()
 			));
 		Expression result = cnfRewriter.rewrite(formula, process);	

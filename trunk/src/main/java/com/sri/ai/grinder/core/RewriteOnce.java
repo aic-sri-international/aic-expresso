@@ -88,7 +88,12 @@ public class RewriteOnce extends AbstractRewriter {
 	}
 
 	public RewriteOnce(List<Rewriter> rewriters) {
+		this("RewriteOnce", rewriters);
+	}
+	
+	public RewriteOnce(String name, List<Rewriter> rewriters) {
 		super();
+		setName(name);
 		this.rewriters = rewriters;
 		for (Rewriter rewriter : rewriters) {
 			if (rewriter instanceof NoOpRewriter) {
@@ -103,11 +108,6 @@ public class RewriteOnce extends AbstractRewriter {
 
 	//
 	// START-Rewriter
-	@Override
-	public String getName() {
-		return "RewriteOnce";
-	}
-	
 	/**
 	 * Returns an iterator ranging over the base rewriters.
 	 */

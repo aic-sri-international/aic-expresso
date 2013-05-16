@@ -74,7 +74,8 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 public class NegationIn extends AbstractRewriter {
 	
 	public static Expression negationsIn(Expression formula, RewritingProcess process) {
-		TotalRewriter cnfRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+		TotalRewriter cnfRewriter = new TotalRewriter(NegationIn.class.getName()+ " negationsIn Total Rewriter",
+			Arrays.asList((Rewriter)
 				new NegationIn()
 			));
 		Expression result = cnfRewriter.rewrite(formula, process);	

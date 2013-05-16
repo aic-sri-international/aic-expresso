@@ -65,7 +65,8 @@ public class ExistentialOut extends AbstractRewriter {
 		// therefore just need to drop existentials as we want to introduce 
 		// uniquely named free variables as opposed to constants in the 
 		// translation of formulas due to the unique names assumption.
-		TotalRewriter eoRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+		TotalRewriter eoRewriter = new TotalRewriter(ExistentialOut.class.getName()+ " existentialsOut Total Rewriter",
+			Arrays.asList((Rewriter)
 				new ExistentialOut()
 			));
 		result = eoRewriter.rewrite(result, process);

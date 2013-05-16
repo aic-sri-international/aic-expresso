@@ -57,7 +57,8 @@ import com.sri.ai.grinder.library.boole.ForAll;
 public class UniversalOut extends AbstractRewriter {
 	
 	public static Expression universalsOut(Expression formula, RewritingProcess process) {
-		TotalRewriter aoRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+		TotalRewriter aoRewriter = new TotalRewriter(UniversalOut.class.getName()+ " universalsOut Total Rewriter",
+			Arrays.asList((Rewriter)
 				new UniversalOut()
 			));
 		Expression result = aoRewriter.rewrite(formula, process);	

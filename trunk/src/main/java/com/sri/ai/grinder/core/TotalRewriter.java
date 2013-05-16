@@ -95,8 +95,9 @@ public class TotalRewriter extends AbstractRewriter {
 		}
 	};
 	
-	public TotalRewriter(List<Rewriter> rewriters) {
+	public TotalRewriter(String name, List<Rewriter> rewriters) {
 		super();
+		setName(name);
 		this.childRewriters = rewriters;
 		// Filter out the NoOpRewriters up front
 		for (Rewriter rewriter : childRewriters) {
@@ -116,11 +117,7 @@ public class TotalRewriter extends AbstractRewriter {
 	
 	//
 	// START-Rewriter
-	@Override
-	public String getName() {
-		return "TotalRewriter";
-	}
-	
+
 	/**
 	 * Returns an iterator ranging over the base rewriters.
 	 */
