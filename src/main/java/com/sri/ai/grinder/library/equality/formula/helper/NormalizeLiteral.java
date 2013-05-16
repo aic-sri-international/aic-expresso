@@ -69,7 +69,8 @@ import com.sri.ai.grinder.library.boole.And;
 public class NormalizeLiteral extends AbstractRewriter {
 	
 	public static Expression normalizeLiterals(Expression formula, RewritingProcess process) {
-		TotalRewriter cnfRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+		TotalRewriter cnfRewriter = new TotalRewriter(NormalizeLiteral.class.getName()+ " normalizeLiterals Total Rewriter",
+			Arrays.asList((Rewriter)
 				new NormalizeLiteral()
 			));
 		Expression result = cnfRewriter.rewrite(formula, process);	

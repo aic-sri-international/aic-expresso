@@ -59,7 +59,8 @@ import com.sri.ai.grinder.library.boole.Or;
 public class EquivalenceOut extends AbstractRewriter {
 	
 	public static Expression equivalencesOut(Expression formula, RewritingProcess process) {
-		TotalRewriter cnfRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+		TotalRewriter cnfRewriter = new TotalRewriter(EquivalenceOut.class.getName()+ " equivalencesOut Total Rewriter",
+			Arrays.asList((Rewriter)
 				new EquivalenceOut()
 			));
 		Expression result = cnfRewriter.rewrite(formula, process);	

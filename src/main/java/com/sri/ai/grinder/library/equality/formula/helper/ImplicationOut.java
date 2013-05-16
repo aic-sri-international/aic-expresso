@@ -59,7 +59,8 @@ import com.sri.ai.grinder.library.boole.Or;
 public class ImplicationOut extends AbstractRewriter {
 	
 	public static Expression implicationsOut(Expression formula, RewritingProcess process) {
-		TotalRewriter cnfRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+		TotalRewriter cnfRewriter = new TotalRewriter(ImplicationOut.class.getName()+ " implicationsOut Total Rewriter",
+			Arrays.asList((Rewriter)
 				new ImplicationOut()
 			));
 		Expression result = cnfRewriter.rewrite(formula, process);	

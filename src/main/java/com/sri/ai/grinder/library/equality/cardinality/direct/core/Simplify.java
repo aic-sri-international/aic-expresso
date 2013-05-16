@@ -112,7 +112,7 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 		// Lazy initialize so that required supporting classes
 		// can be setup an configured as necessary.
 		if (rRootRewriter == null) {
-			TotalRewriter rootRewriter = new TotalRewriter(getAtomicRewriters());
+			TotalRewriter rootRewriter = new TotalRewriter(getName()+" Total Rewriter", getAtomicRewriters());
 			RewriterLoggingNamedRewriterFilter rewriterFilter = new RewriterLoggingNamedRewriterFilter();
 			if (rewriterFilter.isRewriterFiltered(getName())) {
 				rootRewriter.setOuterTraceEnabled(false);

@@ -220,7 +220,7 @@ public class GrinderTest extends AbstractGrinderTest {
 				new Times(),
 				new Associative("*")
 				);
-		evaluator = new TotalRewriter(library);
+		evaluator = new TotalRewriter(GrinderTest.class.getName()+ " testEquivalencyCache Total Rewriter", library);
 		
 		expressionString = "((1 + 2) * (1 + 2)) + ((1 + 2) * (1 + 2))"; // should reuse equivalency results
 		expected   = DefaultSymbol.createSymbol(18);

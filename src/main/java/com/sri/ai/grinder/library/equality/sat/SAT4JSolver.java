@@ -38,7 +38,6 @@
 package com.sri.ai.grinder.library.equality.sat;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -63,10 +62,7 @@ import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
-import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -121,7 +117,7 @@ public class SAT4JSolver implements SATSolver {
 			// Equality Logic to Propositional Logic
 			Map<Pair<Expression, Expression>, Integer> atomToPropVar = new LinkedHashMap<Pair<Expression, Expression>, Integer>();
 			Expression   propositionalFormula = equalityLogicToPropositional(formulaNNF, process, atomToPropVar);
-		
+			
 			// Convert to linear CNF and call SAT4J
 			result                          = convertToLinearCNFAndCallSAT4J(propositionalFormula, atomToPropVar.size(), process);
 		}
@@ -159,13 +155,9 @@ public class SAT4JSolver implements SATSolver {
 		return result;
 	}
 	
-	private Expression equalityLogicToPropositional(Expression formula, RewritingProcess process, Map<Pair<Expression, Expression>, Integer> atomToPropVar) {		
-		TotalRewriter propositionalSkeletonRewriter = new TotalRewriter(Arrays.asList((Rewriter)
-				new BooleanVariableRewriter(atomToPropVar)
-			));
-		
+	private Expression equalityLogicToPropositional(Expression formula, RewritingProcess process, Map<Pair<Expression, Expression>, Integer> atomToPropVar) {				
 		// Construct propositional skeleton
-		Expression propositionalSkeleton = propositionalSkeletonRewriter.rewrite(formula, process);
+		Expression propositionalSkeleton = formula.replaceAllOccurrences(new BooleanVariableReplacementFunction(atomToPropVar),  process); 
 		
 		// Construct the non-polar equality graph G
 		NPGraph g = makeNPGraph(formula, process, atomToPropVar);
@@ -465,16 +457,15 @@ public class SAT4JSolver implements SATSolver {
 		}
 	}
 	
-	private class BooleanVariableRewriter extends AbstractRewriter {
+	private class BooleanVariableReplacementFunction implements Function<Expression, Expression> {
 		private Map<Pair<Expression, Expression>, Integer> atomToPropVar = new LinkedHashMap<Pair<Expression, Expression>, Integer>();
 		
-		public BooleanVariableRewriter(Map<Pair<Expression, Expression>, Integer> atomToPropVar) {
+		public BooleanVariableReplacementFunction(Map<Pair<Expression, Expression>, Integer> atomToPropVar) {
 			this.atomToPropVar = atomToPropVar;
 		}
 		
 		@Override
-		public Expression rewriteAfterBookkeeping(Expression expression,
-				RewritingProcess process) {
+		public Expression apply(Expression expression) {
 			Expression result = expression;
 			
 			if (Equality.isEquality(expression) || Disequality.isDisequality(expression)) {
