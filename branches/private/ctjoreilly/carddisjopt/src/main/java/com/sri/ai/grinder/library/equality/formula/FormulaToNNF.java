@@ -111,7 +111,8 @@ public class FormulaToNNF {
 		result = UniversalOut.universalsOut(result, process);
 		
 		// Normalize the result
-		TotalRewriter normalizeRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+		TotalRewriter normalizeRewriter = new TotalRewriter(FormulaToNNF.class.getName()+ " Normalize Total Rewriter",
+			Arrays.asList((Rewriter)
 				// Want to ensure the following normalizations
 				// are applied to ensure the final NNF form is easier
 				// to work with.

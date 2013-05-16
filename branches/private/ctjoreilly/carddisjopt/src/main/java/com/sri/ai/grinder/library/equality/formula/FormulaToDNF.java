@@ -112,7 +112,8 @@ public class FormulaToDNF {
 	// PRIVATE
 	//	
 	private static Expression distribution(Expression formula, RewritingProcess process) {
-		TotalRewriter dnfRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+		TotalRewriter dnfRewriter = new TotalRewriter(FormulaToDNF.class.getName()+ " distribution Total Rewriter",
+			Arrays.asList((Rewriter)
 				// Want to ensure the following normalizations
 				// are applied to ensure the final DNF form is easier
 				// to work with.
@@ -132,7 +133,8 @@ public class FormulaToDNF {
 		// We don't really do as we want to keep as a disjuction of conjunctions of literals
 		// However, we need to ensure literal conjuncts are represented explicitly
 		// as singleton clauses.
-		TotalRewriter dnfRewriter = new TotalRewriter(Arrays.asList((Rewriter)
+		TotalRewriter dnfRewriter = new TotalRewriter(FormulaToDNF.class.getName()+ " operatorsOut Total Rewriter",
+			Arrays.asList((Rewriter)
 				new DisjunctionSingletonLiteralToConjunctionOfLiteralsRewriter()
 			));
 		Expression result = dnfRewriter.rewrite(formula, process);	

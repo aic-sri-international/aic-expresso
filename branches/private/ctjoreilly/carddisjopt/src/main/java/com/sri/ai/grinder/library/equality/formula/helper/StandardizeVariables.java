@@ -38,16 +38,13 @@
 package com.sri.ai.grinder.library.equality.formula.helper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.RewriteOnce;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.StandardizedApartFrom;
 import com.sri.ai.grinder.library.boole.ForAll;
@@ -78,23 +75,24 @@ public class StandardizeVariables {
 		Expression input  = formula;
 		Expression result = formula;
 		do {
-			RewriteOnce svRewriter = new RewriteOnce(Arrays.asList((Rewriter)
-					new StandardizeVariablesRewriter()
-				));
 			input  = result;
-			result = svRewriter.rewrite(input, process);
+			result = input.replaceFirstOccurrence(new StandardizeVariablesReplacementFunction(process), process);
 		} while (result != input);
 		
 		return result;
 	}
 
-	private static class StandardizeVariablesRewriter extends AbstractRewriter {
+	private static class StandardizeVariablesReplacementFunction implements Function<Expression, Expression> {
 		
-		private Set<Expression> seenIndices = new HashSet<Expression>();
+		private RewritingProcess process     = null;
+		private Set<Expression>  seenIndices = new HashSet<Expression>();
+		
+		public StandardizeVariablesReplacementFunction(RewritingProcess process) {
+			this.process = process;
+		}
 		
 		@Override
-		public Expression rewriteAfterBookkeeping(Expression expression,
-				RewritingProcess process) {
+		public Expression apply(Expression expression) {
 			Expression result = expression;
 		
 			Expression index = null;

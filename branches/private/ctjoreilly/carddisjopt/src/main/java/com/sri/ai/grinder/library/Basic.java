@@ -108,7 +108,7 @@ public class Basic extends TotalRewriter {
 	}
 
 	public Basic(List<Rewriter> rewriters) {
-		super(rewriters);
+		super("Basic", rewriters);
 	}
 
 	public static List<Rewriter> getDefaultRewriters() {
