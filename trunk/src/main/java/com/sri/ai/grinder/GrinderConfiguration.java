@@ -61,7 +61,7 @@ public class GrinderConfiguration extends Configuration {
 	public static final Boolean DEFAULT_VALUE_ASSUME_DOMAIN_ALWAYS_LARGE                        = Boolean.FALSE;
 	//
 	public static final String  KEY_COMPLETE_SIMPLIFY_USE_SAT_SOLVER_SOLVER                     = "grinder.complete.simplify.use.sat.solver";
-	public static final Boolean DEFAULT_VALUE_COMPLETE_SIMPLIFY_USE_SAT_SOLVER                  = Boolean.FALSE;
+	public static final Boolean DEFAULT_VALUE_COMPLETE_SIMPLIFY_USE_SAT_SOLVER                  = Boolean.TRUE;
 	//
 	public static final String  KEY_DEFAULT_SAT_SOLVER_CLASS                                    = "grinder.default.sat.solver.class";
 	public static final String  DEFAULT_VALUE_SAT_SOLVER_CLASS                                  = SAT4JSolver.class.getName();
