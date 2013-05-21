@@ -43,7 +43,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
+import com.sri.ai.expresso.core.AbstractReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.PruningPredicate;
@@ -138,7 +138,7 @@ public class Substitute {
 		return result;
 	}
 	
-	private static class SubstituteReplacementFunction implements ReplacementFunctionWithContextuallyUpdatedProcess {
+	private static class SubstituteReplacementFunction extends AbstractReplacementFunctionWithContextuallyUpdatedProcess {
 
 		public Expression replaced;
 		public Expression constraintOnReplaced;
@@ -150,11 +150,6 @@ public class Substitute {
 			this.replacement = replacement;
 		}
 		
-		@Override
-		public Expression apply(Expression arg0) {
-			throw new Error(SubstituteReplacementFunction.class + ".apply(Expression) must not be invoked");
-		}
-
 		@Override
 		public Expression apply(Expression expression, RewritingProcess process) {
 			Expression result = expression;

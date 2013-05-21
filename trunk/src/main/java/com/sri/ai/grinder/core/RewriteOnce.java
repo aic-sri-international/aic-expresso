@@ -46,7 +46,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
+import com.sri.ai.expresso.core.AbstractReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.Rewriter;
@@ -317,7 +317,7 @@ public class RewriteOnce extends AbstractRewriter {
 	 * An extension to {@link RewriterWithinProcessFunction} that registers the trace
 	 * of the rewriting happening.
 	 */
-	private static class RewriteOnceWithinProcessFunction implements ReplacementFunctionWithContextuallyUpdatedProcess {
+	private static class RewriteOnceWithinProcessFunction extends AbstractReplacementFunctionWithContextuallyUpdatedProcess {
 		private Rewriter   rewriter           = null;
 		private int        numberOfSelections = 0;
 		private Expression rewroteFrom        = null;
@@ -325,11 +325,6 @@ public class RewriteOnce extends AbstractRewriter {
 		
 		public RewriteOnceWithinProcessFunction(Rewriter rewriter) {
 			this.rewriter = rewriter;
-		}
-
-		@Override
-		public Expression apply(Expression expression) {
-			throw new UnsupportedOperationException("evaluate(Object expression) should not be called.");
 		}
 
 		@Override
