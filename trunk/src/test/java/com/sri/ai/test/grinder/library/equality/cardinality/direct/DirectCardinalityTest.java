@@ -222,7 +222,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 				this.exprG = parse(G);
 				this.exprH = parse(H);
 				
-				return Tuple.make(Arrays.asList(exprG, exprH));
+				return Tuple.make(exprG, exprH);
 			}
 			
 			@Override
@@ -831,7 +831,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 				this.exprF = parse(F);
 				this.exprConjunction = parse(conjunction);
 				
-				return Tuple.make(Arrays.asList(exprF, DefaultSymbol.createSymbol(i), exprConjunction));
+				return Tuple.make(exprF, DefaultSymbol.createSymbol(i), exprConjunction);
 			}
 			
 			@Override
@@ -939,7 +939,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 				this.exprF = parse(F);
 				this.exprConjunction = parse(conjunction);
 				
-				return Tuple.make(Arrays.asList(exprF, exprConjunction));
+				return Tuple.make(exprF, exprConjunction);
 			}
 			
 			@Override
@@ -1020,7 +1020,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 				this.exprF = parse(F);
 				this.exprDisjunction = parse(disjunction);
 				
-				return Tuple.make(Arrays.asList(exprF, DefaultSymbol.createSymbol(i), exprDisjunction));
+				return Tuple.make(exprF, DefaultSymbol.createSymbol(i), exprDisjunction);
 			}
 			
 			@Override
@@ -1121,7 +1121,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 				this.exprF = parse(F);
 				this.exprDisjunction = parse(disjunction);
 				
-				return Tuple.make(Arrays.asList(exprF, exprDisjunction));
+				return Tuple.make(exprF, exprDisjunction);
 			}
 			
 			@Override
@@ -3628,7 +3628,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					// Reset the default.
 					GrinderConfiguration.setProperty(GrinderConfiguration.KEY_ASSUME_DOMAIN_ALWAYS_LARGE, defaultAssumeDomainAlwaysLarge);
 				}
-				return Tuple.make(Arrays.asList(result1, result2));
+				return Tuple.make(result1, result2);
 			}
 		}
 		

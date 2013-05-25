@@ -768,7 +768,7 @@ public class CardinalityUtil {
 	 * @return a tuple argument of the form: (| F |_X, quantification)
 	 */
 	public static Expression argForCardinalityWithQuantifierSpecifiedCall(Expression expression, Quantification quantification) {
-		Expression result = Tuple.make(Arrays.asList(expression, quantification.getQuantificationSymbol()));
+		Expression result = Tuple.make(expression, quantification.getQuantificationSymbol());
 		return result;
 	}
 	
@@ -786,7 +786,7 @@ public class CardinalityUtil {
 	 * @return a tuple argument of the form: (| F |_X, quantification)
 	 */
 	public static Expression argForCardinalityConjunctionCall(Expression expression, Quantification quantification) {
-		Expression result = Tuple.make(Arrays.asList(expression, quantification.getQuantificationSymbol()));
+		Expression result = Tuple.make(expression, quantification.getQuantificationSymbol());
 		return result;
 	}
 	
@@ -804,7 +804,7 @@ public class CardinalityUtil {
 	 * @return a tuple argument of the form: (| F |_X, quantification)
 	 */
 	public static Expression argForCardinalityConjunctionOfDisequalitiesCall(Expression expression, Quantification quantification) {
-		Expression result = Tuple.make(Arrays.asList(expression, quantification.getQuantificationSymbol()));
+		Expression result = Tuple.make(expression, quantification.getQuantificationSymbol());
 		return result;
 	}
 	
@@ -822,7 +822,7 @@ public class CardinalityUtil {
 	 * @return a tuple argument of the form: (| F |_X, quantification)
 	 */
 	public static Expression argForCardinalityDisjunctionCall(Expression expression, Quantification quantification) {
-		Expression result = Tuple.make(Arrays.asList(expression, quantification.getQuantificationSymbol()));
+		Expression result = Tuple.make(expression, quantification.getQuantificationSymbol());
 		return result;
 	}
 	
@@ -840,7 +840,7 @@ public class CardinalityUtil {
 	 * @return a tuple argument of the form: (| F |_X, quantification)
 	 */
 	public static Expression argForCardinalityImplicationCall(Expression expression, Quantification quantification) {
-		Expression result = Tuple.make(Arrays.asList(expression, quantification.getQuantificationSymbol()));
+		Expression result = Tuple.make(expression, quantification.getQuantificationSymbol());
 		return result;
 	}	
 	
@@ -858,7 +858,7 @@ public class CardinalityUtil {
 	 * @return a tuple argument of the form: (| F |_X, quantification)
 	 */
 	public static Expression argForCardinalityEquivalenceCall(Expression expression, Quantification quantification) {
-		Expression result = Tuple.make(Arrays.asList(expression, quantification.getQuantificationSymbol()));
+		Expression result = Tuple.make(expression, quantification.getQuantificationSymbol());
 		return result;
 	}
 	
@@ -877,7 +877,7 @@ public class CardinalityUtil {
 	 * @return a tuple argument of the form: (| x_i = t and Phi |_X, quantification)
 	 */
 	public static Expression argForEqualityInConjunctionCall(Expression expression, Quantification quantification) {
-		Expression result = Tuple.make(Arrays.asList(expression, quantification.getQuantificationSymbol()));
+		Expression result = Tuple.make(expression, quantification.getQuantificationSymbol());
 		return result;
 	}
 	
