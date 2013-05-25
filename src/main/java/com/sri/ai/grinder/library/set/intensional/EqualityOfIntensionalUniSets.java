@@ -56,7 +56,7 @@ import com.sri.ai.util.Util;
 
 /**
  * A rewriter reducing an equality between intensional uni-sets into a formula
- * on equalities between their defininig expressions, correctly handling
+ * on equalities between their defining expressions, correctly handling
  * equalities with multiple arguments, even if some of them are not intensional
  * uni-sets.
  * 
@@ -79,7 +79,7 @@ public class EqualityOfIntensionalUniSets extends AbstractRewriter {
 			Expression set2 = firstTwoIntensionalUniSets.get(1);
 			Expression standardizedApartSet2 = StandardizedApartFrom.standardizedApartFrom(set2, set1, process);
 
-			List<Expression> conjuncts = getConjunctsForEqualityOfTwoIntensionalUniSets(set1, standardizedApartSet2);
+			List<Expression> conjuncts = getConjunctsForEqualityOfTwoIntensionalUniSetsAssumingStandardizationApart(set1, standardizedApartSet2);
 			
 			if ( ! remainingArguments.isEmpty()) {
 				remainingArguments.add(0, set2); // need to keep the equality between the two sets and the rest (by making one of them equal to the rest)
@@ -92,32 +92,51 @@ public class EqualityOfIntensionalUniSets extends AbstractRewriter {
 		return expression;
 	}
 
-	private static List<Expression> getConjunctsForEqualityOfTwoIntensionalUniSets(Expression expression1, Expression expression2) {
+	private static List<Expression> getConjunctsForEqualityOfTwoIntensionalUniSetsAssumingStandardizationApart(Expression expression1, Expression expression2) {
 		ArrayList<Expression> result = new ArrayList<Expression>();
-		getConjunctsForAllElementsInSet1ToBeInSet2(expression1, expression2, result);
-		getConjunctsForAllElementsInSet1ToBeInSet2(expression2, expression1, result);
+		result.add(getBooleanFormulaEquivalentToSet1BeingASubsetOfOrEqualToSet2AssumingStandardizationApart(expression1, expression2));
+		result.add(getBooleanFormulaEquivalentToSet1BeingASubsetOfOrEqualToSet2AssumingStandardizationApart(expression2, expression1));
 		return result;
 	}
 	
-	private static void getConjunctsForAllElementsInSet1ToBeInSet2(Expression expression1, Expression expression2, List<Expression> results) {
+	/**
+	 * Takes two expressions assumed to represent intensional unisets
+	 * (although it will also work if they are multi-sets, but in this case it will interpret them as unisets),
+	 * standardizes them apart (see {@link #getBooleanFormulaEquivalentToSet1BeingASubsetOfOrEqualToSet2AssumingStandardizationApart(Expression, Expression)}
+	 * for a version that does not do that),
+	 * and returns a quantified equality logic boolean formula equivalent to the first set being a subset of, or equal to, the second set.
+	 */
+	public static Expression getBooleanFormulaEquivalentToSet1BeingASubsetOfOrEqualToSet2(Expression set1, Expression set2, RewritingProcess process) {
+		Expression standardizedApartSet2 = StandardizedApartFrom.standardizedApartFrom(set2, set1, process);
+		Expression result = getBooleanFormulaEquivalentToSet1BeingASubsetOfOrEqualToSet2AssumingStandardizationApart(set1, standardizedApartSet2);
+		return result;
+	}
+
+	/**
+	 * Takes two expressions assumed to represent intensional unisets
+	 * (although it will also work if they are multi-sets, but in this case it will interpret them as unisets),
+	 * and assumed to be standardized apart,
+	 * and returns a quantified equality logic boolean formula equivalent to the first set being a subset of, or equal to, the second set.
+	 */
+	public static Expression getBooleanFormulaEquivalentToSet1BeingASubsetOfOrEqualToSet2AssumingStandardizationApart(Expression set1, Expression set2) {
 		// { (on I1) Head1 | C1 } is subset of { (on I2) Head2 | C2 }
 		// is equivalent to
 		// for all I1 : C1 => there exists I2 : C2 and Head1 = Head2
 		
-		List<Expression> indexExpressions1 = IntensionalSet.getIndexExpressions(expression1);
-		Expression head1 = IntensionalSet.getHead(expression1);
-		Expression condition1 = IntensionalSet.getCondition(expression1);
+		List<Expression> indexExpressions1 = IntensionalSet.getIndexExpressions(set1);
+		Expression head1 = IntensionalSet.getHead(set1);
+		Expression condition1 = IntensionalSet.getCondition(set1);
 
-		List<Expression> indexExpressions2 = IntensionalSet.getIndexExpressions(expression2);
-		Expression head2 = IntensionalSet.getHead(expression2);
-		Expression condition2 = IntensionalSet.getCondition(expression2);
+		List<Expression> indexExpressions2 = IntensionalSet.getIndexExpressions(set2);
+		Expression head2 = IntensionalSet.getHead(set2);
+		Expression condition2 = IntensionalSet.getCondition(set2);
 		
 		Expression equality = Equality.make(head1, head2);
 		Expression conjunction = Expressions.apply(FunctorConstants.AND, condition2, equality);
 		Expression existentialQuantification = ThereExists.make(indexExpressions2, conjunction);
 		Expression implication = Expressions.apply(FunctorConstants.IMPLICATION, condition1, existentialQuantification);
 		Expression result = ForAll.make(indexExpressions1, implication);
-		
-		results.add(result);
+
+		return result;
 	}
 }
