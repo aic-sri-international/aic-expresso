@@ -345,72 +345,43 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	}
 
 	public static Expression makeUniSet(Expression scopingExpression, Expression head, Expression condition) {
-		return makeInstance().makeUniSetDynamic(scopingExpression, head, condition);
-	}
-
-	public Expression makeUniSetDynamic(Expression scopingExpression,
-			Expression head, Expression condition) {
-		return make(UNI_SET_LABEL, scopingExpression, head, condition);
+		return IntensionalSet.make(IntensionalSet.UNI_SET_LABEL, scopingExpression, head, condition);
 	}
 
 	public static Expression makeMultiSet(Expression scopingExpression, Expression head, Expression condition) {
-		return makeInstance().makeMultiSetDynamic(scopingExpression, head, condition);
-	}
-
-	public Expression makeMultiSetDynamic(Expression scopingExpression,
-			Expression head, Expression condition) {
-		return make(MULTI_SET_LABEL, scopingExpression, head, condition);
+		return IntensionalSet.make(IntensionalSet.MULTI_SET_LABEL, scopingExpression, head, condition);
 	}
 
 	/** Make either uni or multiset by using provided functor. */
 	public static Expression make(Object label, Expression scopingExpression, Expression head, Expression condition) {
-		return makeInstance().makeDynamic(label, scopingExpression, head, condition);
-	}
-
-	public Expression makeDynamic(Object functor,
-			Expression scopingExpression, Expression head, Expression condition) {
 		AbstractSyntaxTree conditionExpression =
 			(condition == null || condition.equals("true"))?
 					null
-					: new DefaultCompoundSyntaxTree(CONDITION_LABEL, condition);
+					: new DefaultCompoundSyntaxTree(IntensionalSet.CONDITION_LABEL, condition);
 		Expression result = new DefaultCompoundSyntaxTree(
-				Expressions.wrap(functor),
+				Expressions.wrap(label),
 				scopingExpression,
 				head,
 				conditionExpression);
 		return result;
 	}
-	
+
 	public static Expression makeUniSetFromIndexExpressionsList(List<Expression> indexExpressionsList, Expression head, Expression condition) {
-		return makeInstance().makeUniSetFromIndexExpressionsListDynamic(indexExpressionsList,
-				head, condition);
-	}
-
-	public Expression makeUniSetFromIndexExpressionsListDynamic(
-			List<Expression> indexExpressionsList, Expression head,
-			Expression condition) {
-		Expression result = makeUniSet(
-				makeScopingExpression(indexExpressionsList),
+		Expression result = IntensionalSet.makeUniSet(
+				IntensionalSet.makeScopingExpression(indexExpressionsList),
 				head,
 				condition);
 		return result;
 	}
-	
+
 	public static Expression makeMultiSetFromIndexExpressionsList(List<Expression> indexExpressionsList, Expression head, Expression condition) {
-		return makeInstance().makeMultiSetFromIndexExpressionsListDynamic(indexExpressionsList, head, condition);
-	}
-
-	public Expression makeMultiSetFromIndexExpressionsListDynamic(
-			List<Expression> indexExpressionsList, Expression head,
-			Expression condition) {
-		Expression result = makeMultiSet(
-				makeScopingExpression(indexExpressionsList),
+		Expression result = IntensionalSet.makeMultiSet(
+				IntensionalSet.makeScopingExpression(indexExpressionsList),
 				head,
 				condition);
 		return result;
 	}
 
-	
 	/** Makes a scoping expression out of a list of scoping variables. */
 	public static DefaultCompoundSyntaxTree makeScopingExpression(List<Expression> indexExpressionsList) {
 		return new DefaultCompoundSyntaxTree(
@@ -447,12 +418,8 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		return result;
 	}
 
-	public static Expression makeSetFromIndexExpressionsList(Object label, List<Expression> indexExpressionsList, Expression head, Expression condition) {
-		return makeInstance().makeSetFromIndexExpressionsListDynamic(label, indexExpressionsList, head, condition);
-	}
-
-	public Expression makeSetFromIndexExpressionsListDynamic(
-			Object functor, List<Expression> indexExpressionsList,
+	public static Expression makeSetFromIndexExpressionsList(
+			Object label, List<Expression> indexExpressionsList,
 			Expression head, Expression condition) {
 //		if (indexExpressionsList == null || indexExpressionsList.isEmpty()) {
 //			String extensionalSetLabel = Sets.fromIntensionalToExtensionalSetSyntaxTreeLabel(functor);
@@ -462,7 +429,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 // Perhaps it's better to have it as a rewriter somewhere else.
 		
 		Expression result = make(
-				Expressions.wrap(functor),
+				Expressions.wrap(label),
 				makeScopingExpression(indexExpressionsList),
 				head,
 				condition);
