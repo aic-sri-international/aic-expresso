@@ -89,6 +89,7 @@ import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsPr
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithBoundIndex;
+import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNotUsedInHead;
 
 /**
  * Default implementation of  R_simplify(E).
@@ -185,6 +186,8 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 						// there exists X: (X = a) => (X = b) -> true
 						new QuantifierEliminationWrapper(),
 										
+						new IntensionalUniSetWithIndicesNotUsedInHead(),
+						
 						new IfThenElseIrrelevantCondition(),
 						// new DisequalityToEqualityInIfThenElseCondition(),
 						new IfThenElseBranchesAreBooleanConstants(),

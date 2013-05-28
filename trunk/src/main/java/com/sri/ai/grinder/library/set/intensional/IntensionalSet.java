@@ -647,6 +647,25 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 			return new DefaultCompoundSyntaxTree("type", expression);
 		}
 	}
+	
+	/**
+	 * Indicates whether a received index expression's index is in a given collection.
+	 * @author braz
+	 */
+	public static class IndexExpressionHasIndexIn implements Predicate<Expression> {
+		private Collection<Expression> indices;
+
+		public IndexExpressionHasIndexIn(Collection<Expression> indices) {
+			super();
+			this.indices = indices;
+		}
+
+		@Override
+		public boolean apply(Expression expression) {
+			boolean result = indices.contains(getIndex(expression));
+			return result;
+		}
+	}
 
 	// TO ABSTRACT
 	public static Pair<Expression, Expression> getIndexAndDomain(Expression indexExpression) {
