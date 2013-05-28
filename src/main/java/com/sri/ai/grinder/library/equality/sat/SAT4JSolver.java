@@ -73,6 +73,7 @@ import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.equality.formula.FormulaToNNF;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.equality.formula.PropositionalCNFListener;
+import com.sri.ai.grinder.library.equality.formula.helper.NormalizeLiteral;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.Triple;
 
@@ -102,21 +103,22 @@ public class SAT4JSolver implements SATSolver {
 	private boolean equalityLogicToPropositionalLogicCall(Expression formula, RewritingProcess process) {
 		boolean result = false;
 		
-		// Remove Constants
-		Expression formulaNoConstants = removeConstants(formula, process);
 		// Convert to NNF
-		Expression formulaNNF         = FormulaToNNF.convertToNNF(formulaNoConstants, process);	
+		Expression formulaInNNF            = FormulaToNNF.convertToNNF(formula, process);
+		
+		// Remove Constants
+		Expression formulaInNNFNoConstants = removeConstants(formulaInNNF, process);
 
-		if (formulaNNF.equals(Expressions.TRUE)) {
+		if (formulaInNNFNoConstants.equals(Expressions.TRUE)) {
 			result = true;
 		}
-		else if (formulaNNF.equals(Expressions.FALSE)) {
+		else if (formulaInNNFNoConstants.equals(Expressions.FALSE)) {
 			result = false;
 		}
 		else {			
 			// Equality Logic to Propositional Logic
 			Map<Pair<Expression, Expression>, Integer> atomToPropVar = new LinkedHashMap<Pair<Expression, Expression>, Integer>();
-			Expression   propositionalFormula = equalityLogicToPropositional(formulaNNF, process, atomToPropVar);
+			Expression   propositionalFormula = equalityLogicToPropositional(formulaInNNFNoConstants, process, atomToPropVar);
 			
 			// Convert to linear CNF and call SAT4J
 			result                          = convertToLinearCNFAndCallSAT4J(propositionalFormula, atomToPropVar.size(), process);
@@ -151,6 +153,10 @@ public class SAT4JSolver implements SATSolver {
 		}
 		
 		result = And.make(conjuncts);
+		
+		// Ensure the literals are still ordered correctly (i.e. the newly introduced variables
+		// are ordered lexically).
+		result = NormalizeLiteral.normalizeLiterals(result, process);
 		
 		return result;
 	}
