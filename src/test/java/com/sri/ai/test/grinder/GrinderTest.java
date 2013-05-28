@@ -114,6 +114,7 @@ import com.sri.ai.grinder.library.set.intensional.EqualityOfIntensionalUniSets;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithBoundIndex;
+import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNotUsedInHead;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.test.grinder.library.equality.cardinality.CountsDeclaration;
 import com.sri.ai.util.Util;
@@ -1436,6 +1437,43 @@ public class GrinderTest extends AbstractGrinderTest {
 		
 		expressionString = "{ ( on A ) p(A, X) | A != X and X = X and A = A }";
 		expected   = parse("{ ( on A ) p(A, X) | A != X }");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+	}
+
+	@Test
+	public void testIntensionalUniSetWithIndicesNotUsedInHead() {
+		Library library = new DefaultLibrary(
+				new ScopedVariables(),
+				new ExpressionKnowledgeModule(),
+				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
+				new IntensionalSetSubExpressionsAndImposedConditionsProvider(),
+				new IntensionalSet(),
+				new IntensionalUniSetWithIndicesNotUsedInHead());
+		
+		evaluator = new ExhaustiveRewriter(library);
+		
+		expressionString = "{(on X in {1,2,3}, Y) p(X) | X != Y}";
+		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y : X != Y}");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+		
+		expressionString = "{(on X in {1,2,3}, Y in {a,b}) p(X) | X != Y}";
+		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y : X != Y}");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+		
+		expressionString = "{(on Y in {a,b}, X in {1,2,3}) p(X) | X != Y}";
+		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y : X != Y}");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+		
+		expressionString = "{(on Y in {a,b}) p(X) | X != Y}";
+		expected   = parse("{(on ) p(X) | there exists Y : X != Y}");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+		
+		expressionString = "{(on Y in {a,b}, X in {1,2,3}, Z) p(X) | X != Y}";
+		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y : there exists Z : X != Y}");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+		
+		expressionString = "{{(on Y in {a,b}, X in {1,2,3}, Z) p(X) | X != Y}}";
+		expected   = parse("{{(on Y in {a,b}, X in {1,2,3}, Z) p(X) | X != Y}}");
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 	}
 
