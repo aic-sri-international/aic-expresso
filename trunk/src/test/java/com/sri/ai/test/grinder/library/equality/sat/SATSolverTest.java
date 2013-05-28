@@ -98,6 +98,11 @@ public class SATSolverTest extends AbstractGrinderTest {
 		//testUnsatisfiable("for all X: (X = person1 or X = person2) => (X != person1 and X != person2)");
 		//testUnsatisfiable("for all X: (X = person1 or X = person2 or X = person3) => (X != person1 and X != person2 and X != person3)");
 	}
+	
+	@Test
+	public void testFoundFailingCase1() {
+		testSatisfiable("not (X != w7 and X != X3 and X3 != w7 and X1 != X2 and X1 != X3 and X2 != X3 and (X2 != w7 or X1 != X) and not (X2 = w7) and not (X1 != X and X1 != w7) and not false and not (X2 = w7 and X1 = X) => X1 != w7 and false = 0)");
+	}
 
 	//
 	// PRIVATE
