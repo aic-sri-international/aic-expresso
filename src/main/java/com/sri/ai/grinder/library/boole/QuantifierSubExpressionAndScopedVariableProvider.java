@@ -45,6 +45,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
@@ -146,7 +147,9 @@ implements ExpressionKnowledgeModule.Provider, ScopedVariables.Provider
 	@Override
 	public Expression getScopedVariablesAsExpression(Expression expression, RewritingProcess process) {
 		if (knowledgeApplies(expression)) {
-			Expression result = Expressions.apply("list", expression.getSyntaxTree().getSubTree(0));
+			SyntaxTree kleeneListWithQuantifiedVariables = expression.getSyntaxTree().getSubTree(0);
+			List<Expression> quantifiedVariables = Expressions.ensureListFromKleeneList(kleeneListWithQuantifiedVariables);
+			Expression result = Expressions.apply("list", quantifiedVariables);
 			return result;
 		}
 		return null;
