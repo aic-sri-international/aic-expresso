@@ -55,7 +55,6 @@ import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.Substitute;
-import com.sri.ai.grinder.library.Variables;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.BooleanUtil;
 import com.sri.ai.grinder.library.boole.ForAll;
@@ -116,7 +115,7 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 
 	private Expression cardinalityCompute(Expression condition, Set<Expression> indices, RewritingProcess process) {
 		Expression result = null;
-		Set<Expression> freeVariables = Variables.freeVariables(condition, process);
+		Set<Expression> freeVariables = Expressions.freeVariables(condition, process);
 		Set<Expression> intersectionOfFreeAndIndices = new HashSet<Expression>(freeVariables);
 		intersectionOfFreeAndIndices.retainAll(indices); // The intersection of the two sets
 		if ( intersectionOfFreeAndIndices.isEmpty() ) {
@@ -224,7 +223,7 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 		List<Expression> independentConjuncts = new ArrayList<Expression>();
 		List<Expression> dependentConjuncts = new ArrayList<Expression>();
 		for (Expression arg: conjuncts) {
-			Set<Expression> freeVariables = Variables.freeVariables(arg, process);
+			Set<Expression> freeVariables = Expressions.freeVariables(arg, process);
 			Set<Expression> intersectionOfFreeAndIndices = duplicate(indices);
 			intersectionOfFreeAndIndices.retainAll(freeVariables); // The intersection of the two sets	
 			if ( intersectionOfFreeAndIndices.isEmpty() ) {
@@ -357,7 +356,7 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 		List<Expression> dependentDisjuncts = new ArrayList<Expression>();
 		
 		for (Expression disjunct: disjuncts) {
-			Set<Expression> freeVariables = Variables.freeVariables(disjunct, process);
+			Set<Expression> freeVariables = Expressions.freeVariables(disjunct, process);
 			Set<Expression> intersectionOfFreeAndIndices = duplicate(indices);
 			intersectionOfFreeAndIndices.retainAll(freeVariables); // The intersection of the two sets	
 			

@@ -66,7 +66,6 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.Variables;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
@@ -132,7 +131,7 @@ public class SAT4JSolver implements SATSolver {
 		
 		// Replace each constant in formula with a new variable C_i
 		Set<Expression>  consts       = FormulaUtil.getConstants(formula, process);
-		Set<Expression>  vars         = Variables.get(formula, process);
+		Set<Expression>  vars         = Expressions.getVariables(formula, process);
 		List<Expression> newConstVars = new ArrayList<Expression>(); 		
 		for (Expression c : consts) {
 			Expression newConstVar = newVariable(vars, newConstVars.size()+1);
@@ -228,7 +227,7 @@ public class SAT4JSolver implements SATSolver {
 	private NPGraph makeNPGraph(Expression formula, RewritingProcess process, Map<Pair<Expression, Expression>, Integer> atomToPropVar) {
 		NPGraph result = new NPGraph();
 		
-		for (Expression var : Variables.get(formula, process)) {
+		for (Expression var : Expressions.getVariables(formula, process)) {
 			result.addVertex(var);
 		}
 		

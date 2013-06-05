@@ -42,10 +42,10 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.IsFunctionApplication;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.library.Variables;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.util.Util;
@@ -69,7 +69,7 @@ public class IntensionalUniSetWithIndicesNotUsedInHead extends AbstractRewriter 
 	public static Expression staticRewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		if (Sets.isIntensionalUniSet(expression)) {
 			Expression head = IntensionalSet.getHead(expression);
-			Set<Expression> freeSymbolsInHead = Variables.freeVariables(head, process);
+			Set<Expression> freeSymbolsInHead = Expressions.freeVariables(head, process);
 			List<Expression> indicesNotInHead = Util.subtract(IntensionalSet.getIndices(expression), freeSymbolsInHead);
 			List<Expression> iPrimeIndices = Util.removeNonDestructively(indicesNotInHead, new IsFunctionApplication());
 			if ( ! iPrimeIndices.isEmpty()) {

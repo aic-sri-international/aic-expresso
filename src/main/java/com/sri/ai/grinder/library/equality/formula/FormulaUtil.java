@@ -245,7 +245,7 @@ public class FormulaUtil {
 	 * @return the positive literals in the formula.
 	 */
 	public static Set<Expression> getPositiveLiterals(Expression formula, RewritingProcess process) {
-		Set<Expression> result = SubExpressionSelection.get(formula, new Predicate<Expression>() {
+		Set<Expression> result = SubExpressionSelection.getVariables(formula, new Predicate<Expression>() {
 			@Override
 			public boolean apply(Expression arg) {
 				return Equality.isEquality(arg);
@@ -265,7 +265,7 @@ public class FormulaUtil {
 	 * @return the negative literals in the formula.
 	 */
 	public static Set<Expression> getNegativeLiterals(Expression formula, RewritingProcess process) {
-		Set<Expression> result = SubExpressionSelection.get(formula, new Predicate<Expression>() {
+		Set<Expression> result = SubExpressionSelection.getVariables(formula, new Predicate<Expression>() {
 			@Override
 			public boolean apply(Expression arg) {
 				return Disequality.isDisequality(arg);
