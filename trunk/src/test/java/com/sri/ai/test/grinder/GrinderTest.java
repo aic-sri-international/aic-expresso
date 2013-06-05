@@ -78,7 +78,6 @@ import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.StandardizedApartFrom;
 import com.sri.ai.grinder.library.Substitute;
 import com.sri.ai.grinder.library.Unification;
-import com.sri.ai.grinder.library.Variables;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
@@ -1786,7 +1785,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		expected = new HashSet<Expression>();
 		expression = parse(expressionString);
 		process = new DefaultRewritingProcess(expression, evaluator);
-		freeVariables = Variables.freeVariables(expression, process);
+		freeVariables = Expressions.freeVariables(expression, process);
 		System.out.println("Computed free variables of " + expression + ": " + Util.join(freeVariables));
 		process.notifyEndOfRewritingProcess();
 		assertEquals(expected, freeVariables);
@@ -1795,7 +1794,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		expected = Util.set(parse("W"));
 		expression = parse(expressionString);
 		process = new DefaultRewritingProcess(expression, evaluator);
-		freeVariables = Variables.freeVariables(expression, process);
+		freeVariables = Expressions.freeVariables(expression, process);
 		System.out.println("Computed free variables of " + expression + ": " + Util.join(freeVariables));
 		process.notifyEndOfRewritingProcess();
 		assertEquals(expected, freeVariables);
@@ -1804,7 +1803,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		expected = Util.set(parse("X"));
 		expression = parse(expressionString);
 		process = new DefaultRewritingProcess(expression, evaluator);
-		freeVariables = Variables.freeVariables(expression, process);
+		freeVariables = Expressions.freeVariables(expression, process);
 		System.out.println("Computed free variables of " + expression + ": " + Util.join(freeVariables));
 		process.notifyEndOfRewritingProcess();
 		assertEquals(expected, freeVariables);

@@ -41,17 +41,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.Symbol;
@@ -62,7 +65,8 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.Variables;
+import com.sri.ai.grinder.library.IsVariablePredicate;
+import com.sri.ai.grinder.library.SubExpressionSelection;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.util.Util;
@@ -196,7 +200,7 @@ public class Expressions {
 	 * to make it unique in a given expression.
 	 */
 	public static Symbol primedUntilUnique(Symbol symbol, Expression expression, RewritingProcess process) {
-		LinkedHashSet<Expression> variables = Variables.get(expression, process.getIsConstantPredicate());
+		LinkedHashSet<Expression> variables = Expressions.getVariables(expression, process.getIsConstantPredicate());
 		Predicate<Expression> isUnique = new NotContainedBy<Expression>(variables);
 		Symbol result = Expressions.primedUntilUnique(symbol, isUnique);
 		return result;
@@ -759,5 +763,91 @@ public class Expressions {
 		List<Expression> newArguments = Util.removeNonDestructively(expression.getArguments(), i);
 		Expression result = Expressions.make(expression.getFunctor(), newArguments);
 		return result;
+	}
+
+	/**
+	 * A static method returning the variables
+	 * in a given expression, for a certain predicate indicating constants.
+	 */
+	public static LinkedHashSet<Expression> getVariables(Expression argument, Predicate<Expression> isConstantPredicate) {
+		return SubExpressionSelection.getVariables(argument, new IsVariablePredicate(isConstantPredicate));
+	}
+
+	/**
+	 * A static method returning the variables
+	 * in a given expression, in a certain process.
+	 */
+	public static LinkedHashSet<Expression> getVariables(Expression argument, RewritingProcess process) {
+		return getVariables(argument, process.getIsConstantPredicate());
+	}
+
+	/** Returns the set of free variables in an expression, according to a given process. */
+	public static Set<Expression> freeVariables(Expression expression, RewritingProcess process) {
+		Set<Expression> freeVariables       = new HashSet<Expression>(); 
+		Set<Expression> quantifiedVariables = new HashSet<Expression>();
+		
+		Expressions.freeVariables(expression, freeVariables, quantifiedVariables, process);
+		
+		return freeVariables;
+	}
+
+	/**
+	 * Returns the set of free symbols (variables and constants, including function symbols)
+	 * in an expression, according to a given process.
+	 */
+	public static Set<Expression> freeSymbols(Expression expression, RewritingProcess process) {
+		Set<Expression> freeSymbols = new LinkedHashSet<Expression>(); 
+		Iterator<ExpressionAndContext> subExpressionAndContextsIterator = expression.getImmediateSubExpressionsAndContextsIterator(process);
+		while (subExpressionAndContextsIterator.hasNext()) {
+			ExpressionAndContext subExpressionAndContext = subExpressionAndContextsIterator.next();
+			Set<Expression> freeVariablesInSubExpression = freeVariables(subExpressionAndContext.getExpression().getSyntaxTree(), process);
+			freeVariablesInSubExpression = Sets.difference(freeVariablesInSubExpression, subExpressionAndContext.getQuantifiedVariables()); 
+			freeSymbols.addAll(freeVariablesInSubExpression);
+		}
+		if (expression instanceof Symbol) {
+			freeSymbols.add(expression);
+		}
+		return freeSymbols;
+	}
+
+	//
+	// PRIVATE METHODS
+	//
+	private static void freeVariables(Expression expression, Set<Expression> freeVariables, Set<Expression> quantifiedVariables, RewritingProcess process) {
+		if (expression instanceof Symbol) {
+			if (process.isVariable(expression)) {
+				if (!quantifiedVariables.contains(expression)) {
+					freeVariables.add(expression);
+				}
+			}
+		} 
+		else {
+			Iterator<ExpressionAndContext> subExpressionAndContextsIterator = expression.getImmediateSubExpressionsAndContextsIterator(process);
+			Set<Expression> newLocalQuantifiedVariables = null;
+			while (subExpressionAndContextsIterator.hasNext()) {
+				ExpressionAndContext subExpressionAndContext = subExpressionAndContextsIterator.next();
+				
+				// Only add newly quantified variables in this context
+				if (newLocalQuantifiedVariables == null) {
+					// For efficiency, only instantiate once
+					newLocalQuantifiedVariables = new HashSet<Expression>();
+				}
+				else {
+					newLocalQuantifiedVariables.clear();
+				}
+				for (Expression localVariable : subExpressionAndContext.getQuantifiedVariables()) {
+					if (quantifiedVariables.add(localVariable)) {
+						newLocalQuantifiedVariables.add(localVariable);
+					}
+				}
+	
+				freeVariables(subExpressionAndContext.getExpression().getSyntaxTree(), freeVariables, quantifiedVariables, process);
+				
+				// Only remove the newly quantified variables in this context
+				quantifiedVariables.removeAll(newLocalQuantifiedVariables);
+			}
+		}
+	
+		return;
 	}
 }

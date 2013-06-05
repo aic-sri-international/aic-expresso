@@ -45,7 +45,6 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.Variables;
 import com.sri.ai.grinder.library.equality.formula.FormulaToDNF;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.util.collect.DisjointSets;
@@ -71,7 +70,7 @@ public class EqualityLogicSATSolver implements SATSolver {
 		else if (!dnf.equals(Expressions.FALSE)) {
 			for (Expression conjunct : dnf.getArguments()) {
 				Set<Expression> consts = FormulaUtil.getConstants(conjunct, process);
-				Set<Expression> vars   = Variables.get(conjunct, process);
+				Set<Expression> vars   = Expressions.getVariables(conjunct, process);
 				Set<Expression> all    = new HashSet<Expression>();
 				all.addAll(consts);
 				all.addAll(vars);

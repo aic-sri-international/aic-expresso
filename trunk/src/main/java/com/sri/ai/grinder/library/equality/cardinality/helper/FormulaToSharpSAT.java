@@ -52,7 +52,6 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.grinder.library.Variables;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.equality.formula.FormulaToCNF;
@@ -64,7 +63,7 @@ public class FormulaToSharpSAT {
 	
 	public static void convertToSharpSAT(Expression formula, RewritingProcess process, PropositionalCNFListener conversionListener) {
 		Expression cnfFormula = FormulaToCNF.convertToExponentialCNF(formula, process);
-		int minimumDomainSize = FormulaUtil.getConstants(cnfFormula, process).size() + Variables.get(cnfFormula, process).size();
+		int minimumDomainSize = FormulaUtil.getConstants(cnfFormula, process).size() + Expressions.getVariables(cnfFormula, process).size();
 		
 		convertToSharpSAT(cnfFormula, minimumDomainSize, process, conversionListener);
 	}
@@ -170,7 +169,7 @@ public class FormulaToSharpSAT {
 	private static Map<Expression, Integer> getVariables(Expression formula, final RewritingProcess process) {
 		Set<Expression> vars   = new LinkedHashSet<Expression>();
 		
-		vars.addAll(Variables.get(formula, process));
+		vars.addAll(Expressions.getVariables(formula, process));
 		
 		Map<Expression, Integer> varIds = new LinkedHashMap<Expression, Integer>();
 		int id = 0;

@@ -51,7 +51,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.Variables;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.BooleanUtil;
 import com.sri.ai.grinder.library.boole.ForAll;
@@ -493,7 +492,7 @@ public class CardinalityUtil {
 	public static boolean isIndexXNotInF(Expression indexX, Expression f, RewritingProcess process) {
 		boolean result = true;
 		
-		Set<Expression> freeVariables = Variables.freeVariables(f, process);
+		Set<Expression> freeVariables = Expressions.freeVariables(f, process);
 		if (freeVariables.contains(indexX)) {
 			result = false;
 		}
@@ -513,7 +512,7 @@ public class CardinalityUtil {
 	public static boolean areIndicesNotInF(List<Expression> indices, Expression f, RewritingProcess process) {
 		boolean result = true;
 		
-		Set<Expression> freeVariables = Variables.freeVariables(f, process);
+		Set<Expression> freeVariables = Expressions.freeVariables(f, process);
 		for (Expression index: indices) {
 			if (freeVariables.contains(index)) {
 				result = false;
@@ -692,7 +691,7 @@ public class CardinalityUtil {
 			List<Expression> dependentFormulas = new ArrayList<Expression>();
 			for (Expression sub: expression.getArguments()) {
 				boolean independent = true;
-				Set<Expression> freeVariables = Variables.freeVariables(sub, process);
+				Set<Expression> freeVariables = Expressions.freeVariables(sub, process);
 				for (Expression variable: variables) {
 					if ( freeVariables.contains(variable) ) {
 						independent = false;
@@ -728,7 +727,7 @@ public class CardinalityUtil {
 		}
 		else if ( BooleanUtil.isEquality(expression) || BooleanUtil.isNotEquality(expression) ) {
 			boolean independent = true;
-			Set<Expression> freeVariables = Variables.freeVariables(expression, process);
+			Set<Expression> freeVariables = Expressions.freeVariables(expression, process);
 			for (Expression variable: variables) {
 				if ( freeVariables.contains(variable) ) {
 					independent = false;
@@ -903,7 +902,7 @@ public class CardinalityUtil {
 		}
 		
 		for (Expression conjunct : subFormulas) {
-			Set<Expression> variablesInConjunct = Variables.freeVariables(conjunct, process);
+			Set<Expression> variablesInConjunct = Expressions.freeVariables(conjunct, process);
 			conjunctsVariables.put(conjunct, new ArrayList<Expression>(variablesInConjunct));
 			Expression first = null;
 			for (Expression variable : variablesInConjunct) {
