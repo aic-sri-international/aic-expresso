@@ -94,12 +94,12 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 	//
 	private static Cache<Thread, Function<Expression, String>> threadToString = newThreadToStringCache();
 	//
-	private String                    cachedToString                      = null;
-	private int                       cachedHashCode                      = -1;
-	private Object                    cachedSyntacticFormType             = null;
-	private Lock                      lazyInitCachedSyntacticFormTypeLock = new ReentrantLock();
-	private ImmutableList<Expression> cachedArguments                     = null;
-	private Lock                      lazyInitCachedArgumentsLock         = new ReentrantLock();
+	private String                             cachedToString                      = null;
+	private int                                cachedHashCode                      = -1;
+	private volatile Object                    cachedSyntacticFormType             = null;
+	private Lock                               lazyInitCachedSyntacticFormTypeLock = new ReentrantLock();
+	private volatile ImmutableList<Expression> cachedArguments                     = null;
+	private Lock                               lazyInitCachedArgumentsLock         = new ReentrantLock();
 
 	public static Map<SyntaxTree, SyntaxTree> wrapAsMap(Object... pairs) {
 		return Util.map(Expressions.wrap(pairs).toArray());
