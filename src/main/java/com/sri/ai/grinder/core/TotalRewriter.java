@@ -166,8 +166,11 @@ public class TotalRewriter extends AbstractRewriter {
 //				cached = getFinalEquivalent(expression, process);
 				
 				// Exhaustively apply each rewriter in turn.
-				long startTime = 0L;
-				for (Rewriter rewriter : activeRewriters) {
+				long startTime  = 0L;
+				int rewriterIdx = 0;
+				while (rewriterIdx < activeRewriters.size()) {
+					Rewriter rewriter = activeRewriters.get(rewriterIdx);
+					Expression startedWith = result;
 					do {
 						priorResult = result;
 						
@@ -216,6 +219,15 @@ public class TotalRewriter extends AbstractRewriter {
 //							System.out.println("priorResult: " + result);
 //						}
 					} while (result != priorResult);
+					
+					// Note: Ensuring all possible rewrites have occurred
+					// before we exit this method.
+					if (result == startedWith || rewriterIdx == 0) {
+						rewriterIdx++;
+					}
+					else {
+						rewriterIdx = 0;
+					}
 				}
 				
 //				if (cached != null && ! cached.equals(result)) {
