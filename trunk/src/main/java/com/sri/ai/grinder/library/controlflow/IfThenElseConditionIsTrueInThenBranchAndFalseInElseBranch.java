@@ -67,7 +67,7 @@ public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends A
 			Expression elseBranchReplacement =
 				replaceFalseCondition(elseBranch, condition, process);
 
-			if (thenBranchReplacement != thenBranch || elseBranchReplacement != elseBranch) {
+			if (thenBranchReplacement != thenBranch || elseBranchReplacement != elseBranch) {				
 				Expression result = IfThenElse.make(condition, thenBranchReplacement, elseBranchReplacement);			
 				return result;
 			}
@@ -89,7 +89,8 @@ public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends A
 		else if (!(Expressions.isBooleanOperatorApplication(condition) ||
 				   Expressions.isEqualityFormulaOnAtomicSymbols(condition) ||
 				   condition.equals(FunctorConstants.TRUE) ||
-				   condition.equals(FunctorConstants.FALSE))) {
+				   condition.equals(FunctorConstants.FALSE) ||
+				   IfThenElse.isIfThenElse(condition))) {
 			thenBranch = Substitute.replace(thenBranch, condition, Expressions.TRUE, process);
 		}
 
@@ -110,8 +111,9 @@ public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends A
 		else if (!(Expressions.isBooleanOperatorApplication(condition) ||
 				   Expressions.isEqualityFormulaOnAtomicSymbols(condition) ||
 				   condition.equals(FunctorConstants.TRUE) ||
-				   condition.equals(FunctorConstants.FALSE))) {
-			elseBranch = Substitute.replace(elseBranch, condition, Expressions.FALSE, process);
+				   condition.equals(FunctorConstants.FALSE) ||
+				   IfThenElse.isIfThenElse(condition))) {	
+			elseBranch = Substitute.replace(elseBranch, condition, Expressions.FALSE, process);			
 		}
 		
 		return elseBranch;
