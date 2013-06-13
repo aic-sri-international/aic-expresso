@@ -38,7 +38,9 @@
 package com.sri.ai.grinder.library;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.library.boole.ForAll;
@@ -82,13 +84,26 @@ public class FunctorConstants {
 	public final static String NOT = "not";
 	public final static String TRUE  = "true";
 	public final static String FALSE  = "false";
-	public static final Collection<String> BOOLEAN_FUNCTORS;
+	public final static Collection<String> BOOLEAN_FUNCTORS;
 	static {
-		BOOLEAN_FUNCTORS = new LinkedHashSet<String>();
-		BOOLEAN_FUNCTORS.add(AND);
-		BOOLEAN_FUNCTORS.add(OR);
-		BOOLEAN_FUNCTORS.add(IMPLICATION);
-		BOOLEAN_FUNCTORS.add(EQUIVALENCE);
-		BOOLEAN_FUNCTORS.add(NOT);
+		Set<String> booleanFunctors = new LinkedHashSet<String>();
+		booleanFunctors.add(AND);
+		booleanFunctors.add(OR);
+		booleanFunctors.add(IMPLICATION);
+		booleanFunctors.add(EQUIVALENCE);
+		booleanFunctors.add(NOT);
+		
+		BOOLEAN_FUNCTORS = Collections.unmodifiableSet(booleanFunctors);
+	}
+	public final static Collection<String> ARITHMETIC_FUNCTORS;
+	static {
+		Set<String> arithmeticFunctors = new LinkedHashSet<String>();
+		arithmeticFunctors.add(PLUS);
+		arithmeticFunctors.add(MINUS);
+		arithmeticFunctors.add(TIMES);
+		arithmeticFunctors.add(DIVISION);
+		arithmeticFunctors.add(EXPONENTIATION);
+		
+		ARITHMETIC_FUNCTORS = Collections.unmodifiableSet(arithmeticFunctors);
 	}
 }

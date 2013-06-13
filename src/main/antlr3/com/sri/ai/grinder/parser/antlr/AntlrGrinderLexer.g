@@ -27,6 +27,10 @@ public void recover(RecognitionException e) {
     Adding new grammar rules
     ------------------------
     Add any terminal symbols in the new grammar rules to the list below.
+    
+    Note: Ensure you update the corresponding list in AntlrGrinderTerminalSymbols.java
+          with any changes made.
+    
 */
 PREVIOUS                : 'previous' ;
 MESSAGE                 : 'message' ;
