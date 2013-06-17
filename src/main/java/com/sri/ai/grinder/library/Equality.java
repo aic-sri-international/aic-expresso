@@ -70,9 +70,14 @@ public class Equality extends AbstractRewriter {
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (expression.hasFunctor(FUNCTOR) &&
-				expression.numberOfArguments() > 1) {
-			return equalityResultIfItIsKnown(expression, process);
+		if (expression.hasFunctor(FUNCTOR)) {
+			if (expression.numberOfArguments() > 1) {
+				return equalityResultIfItIsKnown(expression, process);
+			}
+			else {
+				// 1 or 0 arguments is equivalent to True
+				return Expressions.TRUE;
+			}
 		}
 		return expression;
 	}
