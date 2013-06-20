@@ -7,11 +7,9 @@ import java.util.List;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.lambda.Lambda;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
-import com.sri.ai.grinder.parser.antlr.AntlrGrinderParser.ExprContext;
 
 public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	
