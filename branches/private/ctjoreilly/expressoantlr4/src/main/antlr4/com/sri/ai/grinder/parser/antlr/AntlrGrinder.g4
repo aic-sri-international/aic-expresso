@@ -6,59 +6,59 @@ expr :
      // e.g.:(1+2)
      '(' expr ')' #parenthesesAroundExpression
      // function application, e.g.: f(X)
-     | expr '(' ( expr (',' expr)* )? ')' # functionApplication
+     | functor=expr '(' ( args+=expr (',' args+=expr)* )? ')' # functionApplication
      // tuple, e.g.: (A, B, C)
      | '(' expr ',' expr (',' expr)* ')' #tuple
        // cardinality, e.g.: | X |
      | '|' expr '|' #cardinality
-       // intensional multiset, e.g.: {{ (on X) f(X) | X != a }}
-     | '{{' ('(' ON ( expr (',' expr)* )? ')')? expr ('|' expr)? '}}' #intensionalMultiset
        // extensional multiset, e.g.: {{ A, B, C, C, D }}
-     | '{{' ( expr (',' expr)* )? '}}' #extensionalUniset
-       // intensional uniset, e.g.: {{ (on X) f(X) | X != a }}
-     | '{' ('{' ON ( expr (',' expr)* )? ')')? expr ('|' expr)? '}' #intensionalUniset
-       // extensional uniset, e.g.: {{ A, B, C, C, D }}
+     | '{{' ( expr (',' expr)* )? '}}' #extensionalMultiset
+       // intensional multiset, e.g.: {{ (on X) f(X) | X != a }}
+     | '{{' ('(' ON ( scopeargs+=expr (',' scopeargs+=expr)* )? ')')? head=expr ('|' condition=expr)? '}}' #intensionalMultiset
+       // extensional uniset, e.g.: { A, B, C, C, D }
      | '{' ( expr (',' expr)* )? '}' #extensionalUniset
+       // intensional uniset, e.g.: { (on X) f(X) | X != a }
+     | '{' ('(' ON ( scopeargs+=expr (',' scopeargs+=expr)* )? ')')? head=expr ('|' condition=expr)? '}' #intensionalUniset
        // bracketed expression, for parfactors and random variables, e.g. [if p(X) then 1 else 2]
      | '[' expr ']' #bracketedExpression
-       // TODO?
+       // value of, e.g.: value of(1 + 2)
      | VALUE OF expr #valueOf
-       // TODO?
-     | expr '_{' expr ':' expr '}' #underscoreCurly
-       // TODO?
-     | expr OCCURS IN expr #occursIn
-       // TODO?
-     | INDEX OF expr IN expr #indexOfIn
-       // TODO?
-     | CASE expr ( expr ':' expr (',' expr ':' expr)* )? #case
+       // underscore set, e.g.: x_{ y + 0.3 : { a, b, c } }
+     | head=expr '_{' left=expr ':' right=expr '}' #underscoreCurly
+       // occurs in, e.g.: x occurs in y
+     | element=expr OCCURS IN collection=expr #occursIn
+       // index of in, e.g.: index of x in y
+     | INDEX OF of=expr IN in=expr #indexOfIn
+       // case statement, e.g.: case x y : z, a : b
+     | CASE arg=expr ( caseconiditions+=expr ':' caseactions+=expr (',' caseconiditions+=expr ':' caseactions+=expr)* )? #caseStatement
        // not, e.g.: not A and B -> (not(A)) and B
      | NOT expr #not
        // negative, e.g.: 2 * -1 -> 2 * (-1)
      | '-' expr #negative
-       // power, e.g. 2^3^4 -> 2^(3^4)
-     | expr '^'<assoc=right> expr #power
-       // e.g.: 2*3/2 -> 2*(3/2)
-     | expr '/' expr #division
-       // e.g.: 1+2*3 -> 1+(2*3)
-     | expr '*' expr #times
-       // e.g.: 1-2+3 -> 1-(2+3)
-     | expr '+' expr #plus
-       // e.g.: 1-2
-     | expr '-' expr #subtract
+       // exponentiation, e.g. 2^3^4 -> 2^(3^4)
+     | base=expr '^'<assoc=right> exponent=expr #Exponentiation
+       // division, e.g.: 2*3/2 -> 2*(3/2)
+     | numerator=expr '/' denominator=expr #division
+       // multiplication, e.g.: 1+2*3 -> 1+(2*3)
+     | leftop=expr '*' rightop=expr #multiplication
+       // addition, e.g.: 1-2+3 -> 1-(2+3)
+     | leftop=expr '+' rightop=expr #addition
+       // subtraction, e.g.: 1-2
+     | minuend=expr '-' subtrahend=expr #subtraction
        // TODO ?
-     | expr INTERSECTION expr #intersection
+     | leftop=expr INTERSECTION rightop=expr #intersection
        // TODO ?
-     | expr UNION expr #union
+     | leftop=expr UNION rightop=expr #union
        // TODO ?
-     | expr IN expr #in
+     | leftop=expr IN rightop=expr #in
        // comparison operators, e.g.: X = Y, 2 < 3
-     | expr COMPARISON_OPERATOR expr #comparison
+     | leftop=expr COMPARISON_OPERATOR rightop=expr #comparison
        // TODO ?
-     | expr IS expr #is
+     | leftop=expr IS rightop=expr #is
        // e.g.: A or B and C -> A or (B and C)
-     | expr AND expr #and
+     | leftconj=expr AND rightconj=expr #and
        // e.g.: A => B or C -> A => (B or C)
-     | expr OR expr #or
+     | leftdisj=expr OR rightdisj=expr #or
        // e.g.: for all X : X != a
      | FOR ALL expr ':' expr #forAll
        // e.g.: there exists X : X = a
@@ -80,7 +80,16 @@ expr :
        // e.g.: neighbors of <<expression>> from <<expression>>
      | NEIGHBORS OF expr FROM expr #neighborsOfFrom
        // a symbol
-     | SYMBOL #symbol
+     | (NOT | AND | OR | FOR | ALL | THERE | EXISTS
+       | LAMBDA | IF | THEN | ELSE
+       | INTERSECTION | UNION | CASE
+       | ON | IN | VALUE | OF | INDEX | OCCURS
+       | IS | MINUS | PREVIOUS | MESSAGE | NEIGHBORS | TO | FROM
+       | IMPLICATION | BICONDITIONAL 
+       | EXPONENTIATION | DIVIDE | TIMES | PLUS | SUBTRACT
+       | LESS_THAN | LESS_THAN_EQUAL | EQUAL | NOT_EQUAL | GREATER_THAN_EQUAL | GREATER_THAN
+       | COLON |SINGLE_ARROW | UNDERSCORE_OPEN_CURLY | VERT_BAR | UNDERSCORE | PERIOD
+       | RATIONAL | SYMBOLIC_NAME) #symbol
      ;
 
 /*
@@ -124,12 +133,11 @@ MESSAGE                 : 'message' ;
 NEIGHBORS               : 'neighbors' ;
 TO                      : 'to' ;
 FROM                    : 'from' ;
-FUNCTOR_TUPLE           : '( . )' ;
 // Logic Operators
 IMPLICATION             : '=>' ;
 BICONDITIONAL           : '<=>' ;
 // Arithmetic
-POWER                   : '^' ;
+EXPONENTIATION          : '^' ;
 DIVIDE                  : '/' ;
 TIMES                   : '*' ;
 PLUS                    : '+' ;
@@ -168,11 +176,6 @@ COMPARISON_OPERATOR
     | GREATER_THAN
     ;
 
-SYMBOL
-    : RATIONAL
-    | SYMBOLIC_NAME
-    ;
-
 RATIONAL
     : ('0' | '1'..'9' '0'..'9'*)
     | ('0'..'9')+ '.' ('0'..'9')* EXPONENT? FLOAT_TYPE_SUFFIX?
@@ -189,7 +192,6 @@ RATIONAL
 
 SYMBOLIC_NAME
     : ([a-zA-Z] | [0-9] | '_') ([a-zA-Z] | [0-9] | '_')* ('\'')*
-    | ('^' '/' '*' '+' '-' '<' '!' '=' '>')+
     | '"'  (ESCAPE_SEQUENCE | ~('\\' | '"' ) )* '"'
     | '\'' (ESCAPE_SEQUENCE | ~('\\' | '\'') )* '\''
     ;
@@ -230,7 +232,7 @@ COMMENT
     ;
 
 LINE_COMMENT
-    : '//' ~[\r\n]* '\r'? '\n' -> channel(HIDDEN)
+    : '//' ~[\r\n]* '\r'? ('\n' | EOF) -> channel(HIDDEN)
     ;
 
 WS  :   [ \t\r\n]+ -> skip 

@@ -651,7 +651,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	}
 
 	@Test
-	public void testSequence () {
+	public void testCardinality () {
 		String string;
 		string = "|foo|";
 		test(string, new DefaultCompoundSyntaxTree("| . |", "foo"));
@@ -1103,7 +1103,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		testFail(string);
 
 		string = "case x";
-		testFail(string);
+//		testFail(string);
 
 	}
 	
@@ -1267,8 +1267,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("-", "x"));
 
 		string = "--x";
-		test(string, new DefaultCompoundSyntaxTree("-", 
-				new DefaultCompoundSyntaxTree("-", "x")));
+		test(string, new DefaultCompoundSyntaxTree("-", new DefaultCompoundSyntaxTree("-", "x")));
 
 		string = "-(x)";
 		test(string, new DefaultCompoundSyntaxTree("-", "x"));
@@ -1324,7 +1323,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	}
 
 	@Test
-	public void testCarat () {
+	public void testExponentiation() {
 		String string;
 		string = "x ^ y";
 		test(string, new DefaultCompoundSyntaxTree("^", "x", "y"));
@@ -1333,10 +1332,9 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("^", "x", "y"));
 
 		string = "w ^ x ^ y ^ z";
-		test(string, new DefaultCompoundSyntaxTree("^", 
-				new DefaultCompoundSyntaxTree("^",  
-						new DefaultCompoundSyntaxTree("^", "w", "x"), 
-						"y"), "z"));
+		test(string, new DefaultCompoundSyntaxTree("^", "w",
+				new DefaultCompoundSyntaxTree("^",  "x",
+						new DefaultCompoundSyntaxTree("^", "y", "z"))));
 
 		string = "x ^ y + z";
 		test(string, new DefaultCompoundSyntaxTree("+", 

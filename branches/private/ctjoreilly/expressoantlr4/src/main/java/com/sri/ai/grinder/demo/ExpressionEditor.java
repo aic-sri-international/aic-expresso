@@ -112,7 +112,7 @@ public class ExpressionEditor extends JPanel {
 	    _terminals.add(AntlrGrinderLexer.SUBTRACT);
 	    _terminals.add(AntlrGrinderLexer.TIMES);
 	    _terminals.add(AntlrGrinderLexer.DIVIDE);
-	    _terminals.add(AntlrGrinderLexer.POWER);
+	    _terminals.add(AntlrGrinderLexer.EXPONENTIATION);
 	    _terminals.add(AntlrGrinderLexer.CLOSE_SQUARE);
 	    _terminals.add(AntlrGrinderLexer.OPEN_SQUARE);
 	    _terminals.add(AntlrGrinderLexer.CLOSE_DOUBLE_CURLY);
@@ -254,7 +254,7 @@ public class ExpressionEditor extends JPanel {
 	
 	protected boolean isSymbol(Token t) {
 		// Note: Underscore is a prolog variable.
-		return t.getType() == AntlrGrinderLexer.SYMBOL;
+		return t.getType() == AntlrGrinderLexer.SYMBOLIC_NAME;
 	}
 	
 	//
