@@ -40,6 +40,7 @@ package com.sri.ai.test.brewer;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -700,7 +701,7 @@ public class ParsingExpressionTest {
 		System.out.println("Parsing " + string);
 		Stopwatch stopwatch = new Stopwatch().start();
 		actual = parsingExpression.parsingResult(process);
-		long time = stopwatch.elapsedMillis();
+		long time = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 		Expression actualParse = DefaultParsingResult.isSuccessful(actual)? actual.getParse() : null;
 		System.out.println(string + " ------> " + actualParse);
 		System.out.println("Time: " + time + " ms");
