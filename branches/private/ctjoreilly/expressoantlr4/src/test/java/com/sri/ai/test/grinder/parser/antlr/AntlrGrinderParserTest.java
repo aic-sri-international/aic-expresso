@@ -796,7 +796,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 	@Test
 	public void testSet () {
-		String string;
+		String string;	
 		
 		string = "{ ( on ) p(X, X) | true }";
 		test(string, new DefaultCompoundSyntaxTree("{ . . . }", IntensionalSet.makeScopingExpression(new ArrayList<Expression>()), 
@@ -1828,6 +1828,10 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	@Test
 	public void testAnd () {
 		String string;
+		
+		string = "x and (y and z)";
+		test(string, new DefaultCompoundSyntaxTree("and", "x", new DefaultCompoundSyntaxTree("and", "y", "z")));
+		
 		string = "x and y";
 		test(string, new DefaultCompoundSyntaxTree("and", "x", "y"));
 
@@ -1877,13 +1881,15 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	@Test
 	public void testOr () {
 		String string;
+		
+		string = "x or (y or z)";
+		test(string, new DefaultCompoundSyntaxTree("or", "x", new DefaultCompoundSyntaxTree("or", "y", "z")));
+		
 		string = "x or y";
 		test(string, new DefaultCompoundSyntaxTree("or", "x", "y"));
 
 		string = "w or x or y or z";
 		test(string, new DefaultCompoundSyntaxTree("or", 
-//				new DefaultCompoundSyntaxTree("or",  
-//						new DefaultCompoundSyntaxTree("or", "w", "x"), "y"), "z"));
 				"w", "x", "y", "z"));
 
 		string = "x or y + z";

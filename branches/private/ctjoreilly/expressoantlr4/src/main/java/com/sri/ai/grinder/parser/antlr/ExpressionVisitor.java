@@ -2,7 +2,9 @@ package com.sri.ai.grinder.parser.antlr;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -24,6 +26,9 @@ import com.sri.ai.grinder.library.set.tuple.Tuple;
 
 public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	
+	// Note track bracketed expressions based on identity to ensure no accidental overal by value.
+	private Map<Expression, Expression> parenthesizedExpressions = new IdentityHashMap<Expression, Expression>(); 
+	
 	@Override
 	public Expression visitSymbol(AntlrGrinderParser.SymbolContext ctx) { 	
 		Expression result = newSymbol(ctx.getText());
@@ -36,6 +41,12 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	public Expression visitParenthesesAroundExpression(
 			AntlrGrinderParser.ParenthesesAroundExpressionContext ctx) {
 		Expression result = visit(ctx.expr());
+		
+		// Keep track of explicitly bracketed expressions
+		// so that the are not flattened as part of the 
+		// possibleFlattenExpression()
+		// call for some expressions, e.g.: 1 + 2 + 3.
+		parenthesizedExpressions.put(result, result);
 		return result;
 	}
 	
@@ -385,7 +396,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 			    functor.equals(FunctorConstants.AND) || functor.equals(FunctorConstants.OR)) {
 				List<Expression> args = new ArrayList<Expression>();
 				for (Expression arg : expression.getArguments()) {
-					if (arg.getFunctor() != null && functor.equals(arg.getFunctor())) {
+					if (arg.getFunctor() != null && functor.equals(arg.getFunctor()) && !parenthesizedExpressions.containsKey(arg)) {
 						args.addAll(arg.getArguments());
 					}
 					else {
@@ -395,6 +406,9 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 				result = Expressions.make(functor, args.toArray());
 			}
 		}
+		
+		// Clear in order manage memory
+		parenthesizedExpressions.clear();
 		
 		return result;
 	}
