@@ -29,12 +29,6 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// Note track bracketed expressions based on identity to ensure no accidental overal by value.
 	private Map<Expression, Expression> parenthesizedExpressions = new IdentityHashMap<Expression, Expression>(); 
 	
-	@Override
-	public Expression visitSymbol(AntlrGrinderParser.SymbolContext ctx) { 	
-		Expression result = newSymbol(ctx.getText());
-		return result;
-	}
-	
 	// parenthesis, e.g.:(1+2)
 	// '(' expr ')' #parenthesesAroundExpression
 	@Override 
@@ -47,6 +41,15 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		// possibleFlattenExpression()
 		// call for some expressions, e.g.: 1 + 2 + 3.
 		parenthesizedExpressions.put(result, result);
+		return result;
+	}
+	
+	// an expression symbol, e.g.:<X + Y>
+	// '<' expr '>' #expressionSymbol
+	public Expression visitExpressionSymbol(
+			AntlrGrinderParser.ExpressionSymbolContext ctx) {
+		Expression expr   = visit(ctx.expr());
+		Expression result = DefaultSymbol.createSymbol(expr);
 		return result;
 	}
 	
@@ -244,7 +247,10 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// IF condition=expr THEN thenbranch=expr ELSE elsebranch=expr #ifThenElse
 	@Override
 	public Expression visitIfThenElse(AntlrGrinderParser.IfThenElseContext ctx) {
-		Expression result = Expressions.make(IfThenElse.FUNCTOR, visit(ctx.condition), visit(ctx.thenbranch), visit(ctx.elsebranch));
+		Expression condition  = visit(ctx.condition);
+		Expression thenBranch = visit(ctx.thenbranch);
+		Expression elseBranch = visit(ctx.elsebranch);
+		Expression result = Expressions.make(IfThenElse.FUNCTOR, condition, thenBranch, elseBranch);
 		return result;
 	}
 	
@@ -313,11 +319,9 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		return result;
 	}
 	
-	// an expression symbol, e.g.:<X + Y>
-	// '<' expr '>' #expressionSymbol
-	public Expression visitExpressionSymbol(
-			AntlrGrinderParser.ExpressionSymbolContext ctx) {
-		Expression result = DefaultSymbol.createSymbol(visit(ctx.expr()));
+	@Override
+	public Expression visitSymbol(AntlrGrinderParser.SymbolContext ctx) { 	
+		Expression result = newSymbol(ctx.getText());
 		return result;
 	}
 

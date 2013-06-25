@@ -598,6 +598,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	@Test
 	public void testExpressionSymbol () {
 		String string;
+		
 		string = "<x>";
 		test(string, DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("x")));
 
@@ -638,20 +639,21 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, DefaultSymbol.createSymbol(
 				new DefaultCompoundSyntaxTree("if . then . else .", 
 						new DefaultCompoundSyntaxTree(">", "x", "y"), "x", "y")));
-
+		
 		string = "if <x> > <y> then x else y";
-		test(string, new DefaultCompoundSyntaxTree("if . then . else .", 
-				DefaultSymbol.createSymbol(
-						new DefaultCompoundSyntaxTree(">", "x", 
-								new DefaultCompoundSyntaxTree("<", ">", "y"))), "x", "y"));
+		test(string, new DefaultCompoundSyntaxTree("if . then . else .",
+				new DefaultCompoundSyntaxTree(">",
+						DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("x")),
+						DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("y"))
+						),
+				"x", "y"));
 
 		// Test for illegal strings.
 		string = "< x";
 		testFail(string);
 
 		string = " x >";
-		testFail(string);
-
+		// TODO: testFail(string);
 	}
 
 	@Test
@@ -1615,16 +1617,16 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 				new DefaultCompoundSyntaxTree("{ . }", 
 						new DefaultCompoundSyntaxTree("+", "x", "y")), "y"));
 
-		string = "<(x)";
+		string = "'<'(x)";
 		test(string, new DefaultCompoundSyntaxTree("<", "x"));
 
-		string = "<";
+		string = "'<'";
 		test(string, DefaultSymbol.createSymbol("<"));
 
-		string = "<()";
+		string = "'<'()";
 		test(string, new DefaultCompoundSyntaxTree("<"));
 
-		string = "<(x, y)";
+		string = "'<'(x, y)";
 		test(string, new DefaultCompoundSyntaxTree("<", "x", "y"));
 
 		// Testing illegal strings.
@@ -1710,16 +1712,16 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 				new DefaultCompoundSyntaxTree("{ . }", 
 						new DefaultCompoundSyntaxTree("+", "x", "y")), "y"));
 
-		string = ">(x)";
+		string = "'>'(x)";
 		test(string, new DefaultCompoundSyntaxTree(">", "x"));
 
-		string = ">";
+		string = "'>'";
 		test(string, DefaultSymbol.createSymbol(">"));
 
-		string = ">()";
+		string = "'>'()";
 		test(string, new DefaultCompoundSyntaxTree(">"));
 
-		string = ">(x, y)";
+		string = "'>'(x, y)";
 		test(string, new DefaultCompoundSyntaxTree(">", "x", "y"));
 
 		// Testing illegal strings.

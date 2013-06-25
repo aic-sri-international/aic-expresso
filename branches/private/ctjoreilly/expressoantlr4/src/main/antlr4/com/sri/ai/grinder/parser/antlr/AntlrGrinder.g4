@@ -84,7 +84,7 @@ expr :
         | PREVIOUS | MESSAGE | NEIGHBORS | VARIABLE | FACTOR | TO | FROM
         | IMPLICATION | BICONDITIONAL // Logic Operators
         | EXPONENTIATION | DIVIDE | TIMES | PLUS | SUBTRACT // Arithmetic
-        | LESS_THAN | LESS_THAN_EQUAL | EQUAL | NOT_EQUAL | GREATER_THAN_EQUAL | GREATER_THAN // Comparison
+        | LESS_THAN_EQUAL | EQUAL | NOT_EQUAL | GREATER_THAN_EQUAL // Comparison, Note: We intentionally exclude '<' and '>' as these can affect parsing of an expression symbol
         | COLON | VERT_BAR | UNDERSCORE | PERIOD // Misc
         | RATIONAL | SYMBOLIC_NAME) #symbol
      ;
