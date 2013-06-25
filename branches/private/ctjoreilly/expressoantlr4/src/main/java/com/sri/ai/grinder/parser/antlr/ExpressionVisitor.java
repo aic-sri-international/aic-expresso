@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
@@ -374,12 +376,14 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// PROTECTED
 	//
 	protected Expression newSymbol(String text) {
+		// Remove quotes from around quoted strings
 		if ((text.startsWith("'") && text.endsWith("'"))
 				|| (text.startsWith("\"") && text.endsWith("\""))) {
 			text = text.substring(1, text.length() - 1);
 		}
 		
-// TODO convert escape sequences		
+		// Ensure escapes are applied.
+		text = StringEscapeUtils.unescapeJava(text);
 
 		text = new String(text);
 
