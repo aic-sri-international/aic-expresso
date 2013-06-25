@@ -37,6 +37,8 @@
  */
 package com.sri.ai.test.grinder.library.equality.sat;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -123,7 +125,7 @@ public class SATSolverTest extends AbstractGrinderTest {
 			System.out.println(solver.getName() + " to solve : "+formula);
 			Stopwatch stopwatch = new Stopwatch().start();
 			boolean satisfiable = solver.isSatisfiable(formula, process);
-			long evaluationTime = stopwatch.elapsedMillis();
+			long evaluationTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 			System.out.println("- Satisfiable? ->");
 			System.out.println(""+satisfiable+", solver ("+solver.getName()+") time: " + evaluationTime + " ms.");
 			Assert.assertEquals(expectedSatisfiable, satisfiable);
