@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Stopwatch;
@@ -117,7 +118,7 @@ public class Cache {
 					process.advanceNTokens(cacheItem.getParsingResult().getTokens().size());
 				}
 				process.popLevel();
-				long time = stopwatch.elapsedMillis();
+				long time = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 				process.conditionalLogln(logCacheUsage, "Using " + cacheItem.getParsingResult());
 				process.conditionalLogln(logCacheUsage, "Took " + time + " ms to find.");
 				return cacheItem;
@@ -127,7 +128,7 @@ public class Cache {
 			}
 		}
 		process.popLevel();
-		long time = stopwatch.elapsedMillis();
+		long time = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 		process.conditionalLogln(logCacheUsage, "No cached parse");
 		process.conditionalLogln(logCacheUsage, "Took " + time + " ms to go over " + cacheItemsAtThisPositionAndParsingExpression.size() + " items.");
 		return null;

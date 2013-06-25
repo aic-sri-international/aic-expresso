@@ -41,6 +41,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Stopwatch;
@@ -151,7 +152,7 @@ public abstract class AbstractParsingExpression extends DefaultCompoundSyntaxTre
 				Stopwatch stopwatch = new Stopwatch().start();
 				int initialPositionOfParse = process.getTokenPosition();
 				parsingResult = parsingResultAfterBookkeeping(process);
-				long time = stopwatch.elapsedMillis();
+				long time = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 				process.popLevel();
 				process.popParsingExpressions();
 

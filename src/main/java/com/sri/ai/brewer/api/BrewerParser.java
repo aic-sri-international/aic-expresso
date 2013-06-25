@@ -46,6 +46,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Stopwatch;
@@ -127,7 +128,7 @@ public class BrewerParser implements Parser {
 			cache.put(expressionString, result);
 		}
 
-		long parsingTime = stopwatch.elapsedMillis();
+		long parsingTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 		if (BrewerConfiguration.isOutputParsingTimeInfo()) {
 			System.out.println("Parsed: " + result);
 			System.out.println("Parsing time: " + parsingTime + " ms");

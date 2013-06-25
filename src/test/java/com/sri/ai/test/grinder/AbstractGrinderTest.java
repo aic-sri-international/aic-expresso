@@ -43,6 +43,7 @@ import static org.junit.Assert.fail;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -181,7 +182,7 @@ abstract public class AbstractGrinderTest {
 		
 		Stopwatch stopwatch = new Stopwatch().start();
 		actual = evaluator.rewrite(expression, process);
-		long evaluationTime = stopwatch.elapsedMillis();
+		long evaluationTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 		System.out.println("Evaluation time: " + evaluationTime + " ms");
 	
 		boolean succeded = areEqual(actual, expected);
