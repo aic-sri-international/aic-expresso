@@ -2155,7 +2155,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	}
 
 	@Test
-	public void testLeg () {
+	public void testBiconditional () {
 		String string;
 		string = "x <=> y";
 		test(string, new DefaultCompoundSyntaxTree("<=>", "x", "y"));
@@ -2202,7 +2202,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	}
 
 	@Test
-	public void testEg () {
+	public void testImplication() {
 		String string;
 		string = "x => y";
 		test(string, new DefaultCompoundSyntaxTree("=>", "x", "y"));

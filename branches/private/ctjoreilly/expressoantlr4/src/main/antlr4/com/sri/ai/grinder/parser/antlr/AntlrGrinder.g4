@@ -3,11 +3,11 @@ grammar AntlrGrinder;
 expression : expr ;
 
 expr : 
-     // e.g.:(1+2)
+       // parenthesis, e.g.:(1+2)
      '(' expr ')' #parenthesesAroundExpression
-     // function application, e.g.: f(X)
+       // function application, e.g.: f(X)
      | functor=expr '(' ( args+=expr (',' args+=expr)* )? ')' # functionApplication
-     // tuple, e.g.: (A, B, C)
+       // tuple, e.g.: (A, B, C)
      | '(' expr ',' expr (',' expr)* ')' #tuple
        // cardinality, e.g.: | X |
      | '|' expr '|' #cardinality
@@ -45,40 +45,46 @@ expr :
      | leftop=expr '+' rightop=expr #addition
        // subtraction, e.g.: 1-2
      | minuend=expr '-' subtrahend=expr #subtraction
-       // TODO ?
+       // set intersection, e.g.: {a, b, c} intersection {b}
      | leftop=expr INTERSECTION rightop=expr #intersection
-       // TODO ?
+       // set union, {a, b, c} union {b, d}
      | leftop=expr UNION rightop=expr #union
-       // TODO ?
+       // set membership, x in {x, y, z}
      | leftop=expr IN rightop=expr #in
        // comparison operators, e.g.: X = Y, 2 < 3
-     | leftop=expr COMPARISON_OPERATOR rightop=expr #comparison
-       // TODO ?
+     | leftop=expr op=('<' | '<=' | '=' | '!=' | '>=' | '>') rightop=expr #comparison
+       // alternative equality token 'is', e.g. x is y
      | leftop=expr IS rightop=expr #is
-       // e.g.: A or B and C -> A or (B and C)
+       // conjunction, e.g.: A or B and C -> A or (B and C)
      | leftconj=expr AND rightconj=expr #and
-       // e.g.: A => B or C -> A => (B or C)
+       // disjunction, e.g.: A => B or C -> A => (B or C)
      | leftdisj=expr OR rightdisj=expr #or
-       // e.g.: for all X : X != a
-     | FOR ALL expr ':' expr #forAll
-       // e.g.: there exists X : X = a
-     | THERE EXISTS expr ':' expr #thereExists
-       // e.g.: A = B => C = D
-     | expr IMPLICATION expr #implication
-       // e.g.: A = B <=> C = D
-     | expr BICONDITIONAL expr #biconditional
-       // e.g.: if X = Y then 1 else 2
-     | IF expr THEN expr ELSE expr #ifThenElse
-       // e.g.: lambda f(X) : 2 + f(X)
-     | LAMBDA ( expr (',' expr)* )? ':' expr #lamda
+     | antecedent=expr IMPLICATION consequent=expr #implication
+       // biconditional, e.g.: A = B <=> C = D
+     | leftop=expr BICONDITIONAL rightop=expr #biconditional
+       // conditional, e.g.: if X = Y then 1 else 2
+     | IF condition=expr THEN thenbranch=expr ELSE elsebranch=expr #ifThenElse
+       // lambda, e.g.: lambda f(X) : 2 + f(X)
+     | LAMBDA ( parameters+=expr (',' parameters+=expr)* )? ':' body=expr #lamda
+       // implication, e.g.: A = B => C = D
        // TODO what is this meant to be?
-     | expr SINGLE_ARROW expr #rightArrow
+     | leftop=expr SINGLE_ARROW rightop=expr #rightArrow
        // e.g.: previous message to <<expression>> from <<expression>>
-     | PREVIOUS MESSAGE TO expr FROM expr #previousMessageToFrom
+     | PREVIOUS MESSAGE TO to=expr FROM from=expr #previousMessageToFrom
        // e.g.: message to <<expression>> from <<expression>>
-     | MESSAGE TO expr FROM expr #messageToFrom
+     | MESSAGE TO to=expr FROM from=expr #messageToFrom
+       // e.g.: neighbors of variable <<expression>>
+     | NEIGHBORS OF VARIABLE variable=expr #neighborsOfVariable
+       // e.g.: neighbors of factor <<expression>>
+     | NEIGHBORS OF FACTOR factor=expr #neighborsOfFactor
        // e.g.: neighbors of <<expression>> from <<expression>>
-     | NEIGHBORS OF expr FROM expr #neighborsOfFrom
+     | NEIGHBORS OF of=expr FROM from=expr #neighborsOfFrom
+       // universal quantification, e.g.: for all X : X != a
+     | FOR ALL index=expr ':' body=expr #forAll
+       // existential quantification, e.g.: there exists X : X = a
+     | THERE EXISTS index=expr ':' body=expr #thereExists
+       // an expression symbol, e.g.:<X + Y>
+     | '<' expr '>' #expressionSymbol
        // a symbol
      | (NOT | AND | OR | FOR | ALL | THERE | EXISTS
        | LAMBDA | IF | THEN | ELSE
@@ -131,6 +137,8 @@ MINUS                   : 'minus' ;
 PREVIOUS                : 'previous' ;
 MESSAGE                 : 'message' ;
 NEIGHBORS               : 'neighbors' ;
+VARIABLE                : 'variable' ;
+FACTOR                  : 'factor' ;
 TO                      : 'to' ;
 FROM                    : 'from' ;
 // Logic Operators
@@ -166,15 +174,6 @@ VERT_BAR                : '|' ;
 COMMA                   : ',' ;
 UNDERSCORE              : '_' ;
 PERIOD                  : '.' ;
-
-COMPARISON_OPERATOR
-    : LESS_THAN 
-    | LESS_THAN_EQUAL 
-    | EQUAL 
-    | NOT_EQUAL 
-    | GREATER_THAN_EQUAL
-    | GREATER_THAN
-    ;
 
 RATIONAL
     : ('0' | '1'..'9' '0'..'9'*)

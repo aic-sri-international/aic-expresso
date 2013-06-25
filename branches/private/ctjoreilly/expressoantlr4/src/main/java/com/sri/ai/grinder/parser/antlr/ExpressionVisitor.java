@@ -8,7 +8,13 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.ForAll;
+import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.library.boole.Or;
+import com.sri.ai.grinder.library.boole.ThereExists;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.lambda.Lambda;
 import com.sri.ai.grinder.library.number.Division;
 import com.sri.ai.grinder.library.number.Minus;
@@ -26,7 +32,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		return result;
 	}
 	
-	// e.g.:(1+2)
+	// parenthesis, e.g.:(1+2)
 	// '(' expr ')' #parenthesesAroundExpression
 	@Override 
 	public Expression visitParenthesesAroundExpression(
@@ -41,7 +47,8 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	public Expression visitFunctionApplication(
 			AntlrGrinderParser.FunctionApplicationContext ctx) {
 		Expression result = Expressions.make(visit(ctx.functor), expressions(ctx.args));
-		result = possiblyFlatten(result);
+// TODO - make this call?		
+//		result = possiblyFlatten(result);
 		
 		return result;
 	}
@@ -79,13 +86,13 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		if (ctx.scopeargs.size() > 0) {
 			scopingExpression = IntensionalSet.makeScopingExpression(expressionsList(ctx.scopeargs));
 		}
-		Expression head              = visit(ctx.head);
-		Expression condition         = Expressions.TRUE;
+		Expression head      = visit(ctx.head);
+		Expression condition = null;
 		if (ctx.condition != null) {
-			condition = visit(ctx.condition);
+			condition = Expressions.make(IntensionalSet.CONDITION_LABEL, visit(ctx.condition));
 		}
 	
-		Expression result = IntensionalSet.makeMultiSet(scopingExpression, head, condition);
+		Expression result = Expressions.make(IntensionalSet.MULTI_SET_LABEL, scopingExpression, head, condition);
 		return result;
 	}
 	
@@ -107,13 +114,13 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		if (ctx.scopeargs.size() > 0) {
 			scopingExpression = IntensionalSet.makeScopingExpression(expressionsList(ctx.scopeargs));
 		}
-		Expression head              = visit(ctx.head);
-		Expression condition         = Expressions.TRUE;
+		Expression head      = visit(ctx.head);
+		Expression condition = null;
 		if (ctx.condition != null) {
-			condition = visit(ctx.condition);
+			condition = Expressions.make(IntensionalSet.CONDITION_LABEL, visit(ctx.condition));
 		}
 	
-		Expression result = IntensionalSet.makeUniSet(scopingExpression, head, condition);
+		Expression result = Expressions.make(IntensionalSet.UNI_SET_LABEL, scopingExpression, head, condition);
 		return result;
 	}
 	
@@ -183,7 +190,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// NOT expr #not
 	@Override
 	public Expression visitNot(AntlrGrinderParser.NotContext ctx) {
-		Expression result = Not.make(visit(ctx.expr()));
+		Expression result = Expressions.make(Not.FUNCTOR, visit(ctx.expr()));
 		return result;
 	}
 	
@@ -237,104 +244,173 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		return result;
 	}
 	
+	// set intersection, e.g.: {a, b, c} intersection {b}
+	// leftop=expr INTERSECTION rightop=expr #intersection
 	@Override
-	public Expression visitIn(AntlrGrinderParser.InContext ctx) {
-		Expression result = Expressions.make("in", visit(ctx.getChild(0)), visit(ctx.getChild(2)));
+	public Expression visitIntersection(
+			AntlrGrinderParser.IntersectionContext ctx) {
+		Expression result = Expressions.make(FunctorConstants.INTERSECTION, visit(ctx.leftop), visit(ctx.rightop));
+		result = possiblyFlatten(result);
 		return result;
 	}
 	
+	// set union, {a, b, c} union {b, d}
+	// leftop=expr UNION rightop=expr #union
+	@Override
+	public Expression visitUnion(AntlrGrinderParser.UnionContext ctx) {
+		Expression result = Expressions.make(FunctorConstants.UNION, visit(ctx.leftop), visit(ctx.rightop));
+		result = possiblyFlatten(result);
+		return result;
+	}	
+	
+	// set membership, x in {x, y, z}
+	// leftop=expr IN rightop=expr #in
+	@Override
+	public Expression visitIn(AntlrGrinderParser.InContext ctx) {
+		Expression result = Expressions.make(FunctorConstants.IN, visit(ctx.leftop), visit(ctx.rightop));
+		return result;
+	}
+	
+	// comparison operators, e.g.: X = Y, 2 < 3
+	// leftop=expr op=('<' | '<=' | '=' | '!=' | '>=' | '>') rightop=expr #comparison
+	@Override
+	public Expression visitComparison(AntlrGrinderParser.ComparisonContext ctx) {
+		Expression result = Expressions.make(ctx.op.getText(), visit(ctx.leftop), visit(ctx.rightop));
+		result = possiblyFlatten(result);
+		return result;
+	}
+	
+	// alternative equality token 'is', e.g. x is y
+	//  leftop=expr IS rightop=expr #is
+	@Override
+	public Expression visitIs(AntlrGrinderParser.IsContext ctx) {
+		Expression result = Expressions.make(FunctorConstants.IS, visit(ctx.leftop), visit(ctx.rightop));
+		return result;
+	}
+	
+	// conjunction, e.g.: A or B and C -> A or (B and C)
+	// leftconj=expr AND rightconj=expr #and
+	@Override
+	public Expression visitAnd(AntlrGrinderParser.AndContext ctx) {
+		Expression result = And.make(visit(ctx.leftconj), visit(ctx.rightconj));
+		result = possiblyFlatten(result);
+		return result;
+	}
+	
+	// disjunction, e.g.: A => B or C -> A => (B or C)
+	// leftdisj=expr OR rightdisj=expr #or
+	@Override
+	public Expression visitOr(AntlrGrinderParser.OrContext ctx) {
+		Expression result = Or.make(visit(ctx.leftdisj), visit(ctx.rightdisj));
+		result = possiblyFlatten(result);
+		return result;
+	}
+	
+	// implication, e.g.: A = B => C = D
+	// antecedent=expr IMPLICATION consequent=expr #implication
+	@Override
+	public Expression visitImplication(AntlrGrinderParser.ImplicationContext ctx) {
+		Expression result = Implication.make(visit(ctx.antecedent), visit(ctx.consequent));
+		return result;
+	}
+	
+	// biconditional, e.g.: A = B <=> C = D
+	// leftop=expr BICONDITIONAL rightop=expr #biconditional
+	@Override
+	public Expression visitBiconditional(
+			AntlrGrinderParser.BiconditionalContext ctx) {
+		Expression result = Expressions.make(FunctorConstants.EQUIVALENCE, visit(ctx.leftop), visit(ctx.rightop));
+		return result;
+	}
+	
+	// conditional, e.g.: if X = Y then 1 else 2
+	// IF condition=expr THEN thenbranch=expr ELSE elsebranch=expr #ifThenElse
+	@Override
+	public Expression visitIfThenElse(AntlrGrinderParser.IfThenElseContext ctx) {
+		Expression result = Expressions.make(IfThenElse.FUNCTOR, visit(ctx.condition), visit(ctx.thenbranch), visit(ctx.elsebranch));
+		return result;
+	}
+	
+	// lambda, e.g.: lambda f(X) : 2 + f(X)
+	// LAMBDA ( parameters+=expr (',' parameters+=expr)* )? ':' body=expr #lamda
 	@Override
 	public Expression visitLamda(
 			AntlrGrinderParser.LamdaContext ctx) {
-// TODO - implement properly		
-		Expression result = Lambda.make(visit(ctx.getChild(1)), visit(ctx.getChild(3)));
+		Expression result = Lambda.make(expressionsList(ctx.parameters), visit(ctx.body));
 		return result;
 	}
 	
-//
-//	@Override
-//	public Expression visitBiconditional(
-//			AntlrGrinderParser.BiconditionalContext ctx) {
-//		return visitChildren(ctx);
-//	}
-//
-//	@Override
-//	public Expression visitThereExists(AntlrGrinderParser.ThereExistsContext ctx) {
-//		return visitChildren(ctx);
-//	}
-//
-//	@Override
-//	public Expression visitUnion(AntlrGrinderParser.UnionContext ctx) {
-//		return visitChildren(ctx);
-//	}
-//
-//	@Override
-//	public Expression visitPreviousMessageToFrom(
-//			AntlrGrinderParser.PreviousMessageToFromContext ctx) {
-//		return visitChildren(ctx);
-//	}
-//
-//	@Override
-//	public Expression visitMessageToFrom(
-//			AntlrGrinderParser.MessageToFromContext ctx) {
-//		return visitChildren(ctx);
-//	}
-//
+	// TODO what is this meant to be?
+	// leftop=expr SINGLE_ARROW rightop=expr #rightArrow
+	@Override
+	public Expression visitRightArrow(AntlrGrinderParser.RightArrowContext ctx) {
+		Expression result = Expressions.make("->", visit(ctx.leftop), visit(ctx.rightop));
+		return result;
+	}
 
-//
-//	@Override
-//	public Expression visitIntersection(
-//			AntlrGrinderParser.IntersectionContext ctx) {
-//		return visitChildren(ctx);
-//	}
-//
+	// e.g.: previous message to <<expression>> from <<expression>>
+	@Override
+	public Expression visitPreviousMessageToFrom(
+			AntlrGrinderParser.PreviousMessageToFromContext ctx) {
+		Expression result = Expressions.make("previous message to . from .", visit(ctx.to), visit(ctx.from));
+		return result;
+	}
 
-//
-//	@Override
-//	public Expression visitIs(AntlrGrinderParser.IsContext ctx) {
-//		return visitChildren(ctx);
-//	}
-//
-//	@Override
-//	public Expression visitImplication(AntlrGrinderParser.ImplicationContext ctx) {
-//		return visitChildren(ctx);
-//	}
-//
-//	@Override
-//	public Expression visitRightArrow(AntlrGrinderParser.RightArrowContext ctx) {
-//		return visitChildren(ctx);
-//	}
-//
-//	@Override
-//	public Expression visitOr(AntlrGrinderParser.OrContext ctx) {
-//		return visitChildren(ctx);
-//	}
-//
-//	@Override
-//	public Expression visitIfThenElse(AntlrGrinderParser.IfThenElseContext ctx) {
-//		return visitChildren(ctx);
-//	}
-//
-//	@Override
-//	public Expression visitNeighborsOfFrom(
-//			AntlrGrinderParser.NeighborsOfFromContext ctx) {
-//		return visitChildren(ctx);
-//	}
-//
-//	@Override
-//	public Expression visitComparison(AntlrGrinderParser.ComparisonContext ctx) {
-//		return visitChildren(ctx);
-//	}
-//
-//	@Override
-//	public Expression visitAnd(AntlrGrinderParser.AndContext ctx) {
-//		return visitChildren(ctx);
-//	}
-//
-//	@Override
-//	public Expression visitForAll(AntlrGrinderParser.ForAllContext ctx) {
-//		return visitChildren(ctx);
-//	}
+	// e.g.: message to <<expression>> from <<expression>>
+	@Override
+	public Expression visitMessageToFrom(
+			AntlrGrinderParser.MessageToFromContext ctx) {
+		Expression result = Expressions.make("message to . from .", visit(ctx.to), visit(ctx.from));
+		return result;
+	}
+	
+	// e.g.: neighbors of variable <<expression>>
+	@Override
+	public Expression visitNeighborsOfVariable(
+			AntlrGrinderParser.NeighborsOfVariableContext ctx) {
+		Expression result = Expressions.make("neighbors of variable", visit(ctx.variable));
+		return result;
+	}
+	
+	// e.g.: neighbors of factor <<expression>>
+	@Override
+	public Expression visitNeighborsOfFactor(
+			AntlrGrinderParser.NeighborsOfFactorContext ctx) {
+		Expression result = Expressions.make("neighbors of factor", visit(ctx.factor));
+		return result;
+	}
+
+	// e.g.: neighbors of <<expression>> from <<expression>>
+	@Override
+	public Expression visitNeighborsOfFrom(
+			AntlrGrinderParser.NeighborsOfFromContext ctx) {
+		Expression result = Expressions.make("neighbors of . from .", visit(ctx.of), visit(ctx.from));
+		return result;
+	}
+	
+	// universal quantification, e.g.: for all X : X != a
+	// FOR ALL index=expr ':' body=expr #forAll
+	@Override
+	public Expression visitForAll(AntlrGrinderParser.ForAllContext ctx) {
+		Expression result = ForAll.make(visit(ctx.index), visit(ctx.body));
+		return result;
+	}
+
+	// existential quantification, e.g.: there exists X : X = a
+	// THERE EXISTS index=expr ':' body=expr #thereExists
+	@Override
+	public Expression visitThereExists(AntlrGrinderParser.ThereExistsContext ctx) {
+		Expression result = ThereExists.make(visit(ctx.index), visit(ctx.body));
+		return result;
+	}
+	
+	// an expression symbol, e.g.:<X + Y>
+	// '<' expr '>' #expressionSymbol
+	public Expression visitExpressionSymbol(
+			AntlrGrinderParser.ExpressionSymbolContext ctx) {
+		Expression result = DefaultSymbol.createSymbol(visit(ctx.expr()));
+		return result;
+	}
 
 	//
 	// PROTECTED
@@ -369,13 +445,6 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		return result;
 	}
 	
-	/**
-    | ^(INTERSECTION ^(INTERSECTION (a+=.)+) b=.)  ->  ^(INTERSECTION ($a)+ $b)
-    | ^(UNION        ^(UNION        (a+=.)+) b=.)  ->  ^(UNION        ($a)+ $b)
-    | ^(EQUAL        ^(EQUAL        (a+=.)+) b=.)  ->  ^(EQUAL        ($a)+ $b)
-    | ^(AND          ^(AND          (a+=.)+) b=.)  ->  ^(AND          ($a)+ $b)
-    | ^(OR           ^(OR           (a+=.)+) b=.)  ->  ^(OR           ($a)+ $b)
-	 */
 	protected Expression possiblyFlatten(Expression expression) {
 		Expression result = expression;
 		
