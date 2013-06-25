@@ -11,14 +11,14 @@ expr :
      | '(' expr ',' expr (',' expr)* ')' #tuple
        // cardinality, e.g.: | X |
      | '|' expr '|' #cardinality
-       // extensional multiset, e.g.: {{ A, B, C, C, D }}
-     | '{{' ( expr (',' expr)* )? '}}' #extensionalMultiset
+       // intensional uniset, e.g.: { (on X) f(X) | X != a }
+     | '{' ('(' ON ( scopeargs+=expr (',' scopeargs+=expr)* )? ')')? head=expr ('|' condition=expr)? '}' #intensionalUniset
        // intensional multiset, e.g.: {{ (on X) f(X) | X != a }}
      | '{{' ('(' ON ( scopeargs+=expr (',' scopeargs+=expr)* )? ')')? head=expr ('|' condition=expr)? '}}' #intensionalMultiset
        // extensional uniset, e.g.: { A, B, C, C, D }
      | '{' ( expr (',' expr)* )? '}' #extensionalUniset
-       // intensional uniset, e.g.: { (on X) f(X) | X != a }
-     | '{' ('(' ON ( scopeargs+=expr (',' scopeargs+=expr)* )? ')')? head=expr ('|' condition=expr)? '}' #intensionalUniset
+       // extensional multiset, e.g.: {{ A, B, C, C, D }}
+     | '{{' ( expr (',' expr)* )? '}}' #extensionalMultiset
        // bracketed expression, for parfactors and random variables, e.g. [if p(X) then 1 else 2]
      | '[' expr ']' #bracketedExpression
        // value of, e.g.: value of(1 + 2)
@@ -34,17 +34,15 @@ expr :
        // not, e.g.: not A and B -> (not(A)) and B
      | NOT expr #not
        // negative, e.g.: 2 * -1 -> 2 * (-1)
-     | '-' expr #negative
+     | '-' expr #negative // We set the unary minus to higher precedence
+       // NOTE:  P)arentheses, E)xponents, ( M)ultiplication, D)ivision ), ( A)ddition, S)ubtraction )
+       // see: http://en.wikipedia.org/wiki/Order_of_operations
        // exponentiation, e.g. 2^3^4 -> 2^(3^4)
      | base=expr '^'<assoc=right> exponent=expr #Exponentiation
-       // division, e.g.: 2*3/2 -> 2*(3/2)
-     | numerator=expr '/' denominator=expr #division
-       // multiplication, e.g.: 1+2*3 -> 1+(2*3)
-     | leftop=expr '*' rightop=expr #multiplication
-       // addition, e.g.: 1-2+3 -> 1-(2+3)
-     | leftop=expr '+' rightop=expr #addition
-       // subtraction, e.g.: 1-2
-     | minuend=expr '-' subtrahend=expr #subtraction
+       // multiplication or division, e.g.: 2*3/2 -> 2*(3/2)
+     | leftop=expr op=('*' | '/') rightop=expr #multiplicationOrDivision
+       // addition or subtraction, e.g.: 1-2+3 -> (1-2)+3
+     | leftop=expr op=('+' | '-') rightop=expr #additionOrSubtraction
        // set intersection, e.g.: {a, b, c} intersection {b}
      | leftop=expr INTERSECTION rightop=expr #intersection
        // set union, {a, b, c} union {b, d}

@@ -699,6 +699,12 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	@Test
 	public void testMultiset () {
 		String string;
+		
+		string = "{{ ( on ) ([ if X then 1 else 0 ]) }}";
+		test(string, new DefaultCompoundSyntaxTree("{{ . }}", 
+					new DefaultCompoundSyntaxTree("[ . ]",
+					new DefaultCompoundSyntaxTree("if . then . else .", "X", "1", "0"))));
+		
 		string = "{{ foo }}";
 		test(string, new DefaultCompoundSyntaxTree("{{ . }}", "foo"));
 

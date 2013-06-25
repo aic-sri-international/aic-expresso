@@ -10,16 +10,11 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ForAll;
-import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.lambda.Lambda;
-import com.sri.ai.grinder.library.number.Division;
-import com.sri.ai.grinder.library.number.Minus;
-import com.sri.ai.grinder.library.number.Plus;
-import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
@@ -69,11 +64,11 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		return result;
 	}
 	
-	// extensional multiset, e.g.: {{ A, B, C, C, D }}
-	// '{{' ( expr (',' expr)* )? '}}' #extensionalMultiset
-	@Override 
-	public Expression visitExtensionalMultiset(AntlrGrinderParser.ExtensionalMultisetContext ctx) { 
-		Expression result = ExtensionalSet.makeMultiSet(expressionsList(ctx.expr()));
+	// intensional uniset, e.g.: { (on X) f(X) | X != a }
+	// '{' ('{' ON ( scopeargs+=expr (',' scopeargs+=expr)* )? ')')? head=expr ('|' condition=expr)? '}' #intensionalUniset
+	@Override
+	public Expression visitIntensionalUniset(AntlrGrinderParser.IntensionalUnisetContext ctx) {
+		Expression result = makeIntensionalSet(IntensionalSet.UNI_SET_LABEL, ctx.scopeargs, ctx.head, ctx.condition);
 		return result;
 	}
 	
@@ -82,23 +77,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override
 	public Expression visitIntensionalMultiset(
 			AntlrGrinderParser.IntensionalMultisetContext ctx) {
-		Expression scopingExpression = null;
-		if (ctx.scopeargs.size() > 0) {
-			scopingExpression = IntensionalSet.makeScopingExpression(expressionsList(ctx.scopeargs));
-		}
-		Expression head      = visit(ctx.head);
-		Expression condition = null;
-		if (ctx.condition != null) {
-			condition = Expressions.make(IntensionalSet.CONDITION_LABEL, visit(ctx.condition));
-		}
-	
-		Expression result = null; 
-		if (scopingExpression == null && condition == null) {
-			result = Expressions.make(ExtensionalSet.MULTI_SET_LABEL, head);
-		}
-		else {
-			result = Expressions.make(IntensionalSet.MULTI_SET_LABEL, scopingExpression, head, condition);
-		}
+		Expression result = makeIntensionalSet(IntensionalSet.MULTI_SET_LABEL, ctx.scopeargs, ctx.head, ctx.condition);
 		return result;
 	}
 	
@@ -111,28 +90,11 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		return result;
 	}
 	
-	// intensional uniset, e.g.: { (on X) f(X) | X != a }
-	// '{' ('{' ON ( scopeargs+=expr (',' scopeargs+=expr)* )? ')')? head=expr ('|' condition=expr)? '}' #intensionalUniset
-	@Override
-	public Expression visitIntensionalUniset(
-			AntlrGrinderParser.IntensionalUnisetContext ctx) {
-		Expression scopingExpression = null;
-		if (ctx.scopeargs.size() > 0) {
-			scopingExpression = IntensionalSet.makeScopingExpression(expressionsList(ctx.scopeargs));
-		}
-		Expression head      = visit(ctx.head);
-		Expression condition = null;
-		if (ctx.condition != null) {
-			condition = Expressions.make(IntensionalSet.CONDITION_LABEL, visit(ctx.condition));
-		}
-	
-		Expression result = null;
-		if (scopingExpression == null && condition == null) {
-			result = Expressions.make(ExtensionalSet.UNI_SET_LABEL, head);
-		}
-		else {
-			result = Expressions.make(IntensionalSet.UNI_SET_LABEL, scopingExpression, head, condition);
-		}
+	// extensional multiset, e.g.: {{ A, B, C, C, D }}
+	// '{{' ( expr (',' expr)* )? '}}' #extensionalMultiset
+	@Override 
+	public Expression visitExtensionalMultiset(AntlrGrinderParser.ExtensionalMultisetContext ctx) { 
+		Expression result = ExtensionalSet.makeMultiSet(expressionsList(ctx.expr()));
 		return result;
 	}
 	
@@ -222,37 +184,21 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		return result;
 	}
 	
-	// division, e.g.: 2*3/2 -> 2*(3/2)
-	// left=expr '/' right=expr #division
+	// multiplication or division, e.g.: 2*3/2 -> 2*(3/2)
+	// numerator=expr op=('*' | '/') denominator=expr #multiplicationOrDivision
 	@Override
-	public Expression visitDivision(AntlrGrinderParser.DivisionContext ctx) {
-		Expression result = Division.make(visit(ctx.numerator), visit(ctx.denominator));
-		return result;
-	}
-	
-	// multiplication, e.g.: 1+2*3 -> 1+(2*3)
-	// leftop=expr '*' rightop=expr #multiplication
-	@Override
-	public Expression visitMultiplication(AntlrGrinderParser.MultiplicationContext ctx) {
-		Expression result = Times.make(Arrays.asList(visit(ctx.leftop), visit(ctx.rightop)));
+	public Expression visitMultiplicationOrDivision(AntlrGrinderParser.MultiplicationOrDivisionContext ctx) {
+		Expression result = Expressions.make(ctx.op.getText(), visit(ctx.leftop), visit(ctx.rightop));
 		result = possiblyFlatten(result);
 		return result;
 	}
 	
-	// addition, e.g.: 1-2+3 -> 1-(2+3)
-	// leftop=expr '+' rightop=expr #addition
+	// addition or subtraction, e.g.: 1-2+3 -> (1-2)+3
+	// leftop=expr op=('+' | '-') rightop=expr #additionOrSubtraction
 	@Override
-	public Expression visitAddition(AntlrGrinderParser.AdditionContext ctx) {
-		Expression result = Plus.make(Arrays.asList(visit(ctx.leftop), visit(ctx.rightop)));
+	public Expression visitAdditionOrSubtraction(AntlrGrinderParser.AdditionOrSubtractionContext ctx) {
+		Expression result = Expressions.make(ctx.op.getText(), visit(ctx.leftop), visit(ctx.rightop));
 		result = possiblyFlatten(result);
-		return result;
-	}
-	
-	// subtraction, e.g.: 1-2
-	// minuend=expr '-' subtrahend=expr #subtraction
-	@Override
-	public Expression visitSubtraction(AntlrGrinderParser.SubtractionContext ctx) {
-		Expression result = Minus.make(visit(ctx.minuend), visit(ctx.subtrahend));
 		return result;
 	}
 	
@@ -304,7 +250,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// leftconj=expr AND rightconj=expr #and
 	@Override
 	public Expression visitAnd(AntlrGrinderParser.AndContext ctx) {
-		Expression result = And.make(visit(ctx.leftconj), visit(ctx.rightconj));
+		Expression result = Expressions.make(And.FUNCTOR, visit(ctx.leftconj), visit(ctx.rightconj));
 		result = possiblyFlatten(result);
 		return result;
 	}
@@ -313,7 +259,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// leftdisj=expr OR rightdisj=expr #or
 	@Override
 	public Expression visitOr(AntlrGrinderParser.OrContext ctx) {
-		Expression result = Or.make(visit(ctx.leftdisj), visit(ctx.rightdisj));
+		Expression result = Expressions.make(Or.FUNCTOR, visit(ctx.leftdisj), visit(ctx.rightdisj));
 		result = possiblyFlatten(result);
 		return result;
 	}
@@ -322,7 +268,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// antecedent=expr IMPLICATION consequent=expr #implication
 	@Override
 	public Expression visitImplication(AntlrGrinderParser.ImplicationContext ctx) {
-		Expression result = Implication.make(visit(ctx.antecedent), visit(ctx.consequent));
+		Expression result = Expressions.make(FunctorConstants.IMPLICATION, visit(ctx.antecedent), visit(ctx.consequent));
 		return result;
 	}
 	
@@ -438,6 +384,35 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		text = new String(text);
 
 		Expression result = DefaultSymbol.createSymbol(text);
+		return result;
+	}
+	
+	protected Expression makeIntensionalSet(Object label, List<AntlrGrinderParser.ExprContext> scopeargs, 
+			AntlrGrinderParser.ExprContext head, AntlrGrinderParser.ExprContext condition) {
+		Expression scopingExpression = null;
+		if (scopeargs.size() > 0) {
+			scopingExpression = IntensionalSet.makeScopingExpression(expressionsList(scopeargs));
+		}
+		Expression headExpression      = visit(head);
+		Expression conditionExpression = null;
+		if (condition != null) {
+			conditionExpression = Expressions.make(IntensionalSet.CONDITION_LABEL, visit(condition));
+		}
+	
+		Expression result = null;
+		if (scopingExpression == null && conditionExpression == null) {
+			// We need to construct an extensional set in this case
+			if (label.equals(IntensionalSet.UNI_SET_LABEL)) {
+				result = ExtensionalSet.makeUniSet(headExpression);
+			}
+			else {
+				result = ExtensionalSet.makeMultiSet(Arrays.asList(headExpression));
+			}
+		}
+		else {
+			result = Expressions.make(label, scopingExpression, headExpression, conditionExpression);
+		}
+		
 		return result;
 	}
 	
