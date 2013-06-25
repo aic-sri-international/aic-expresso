@@ -101,7 +101,6 @@ public class ExpressionEditor extends JPanel {
 		_terminals.add(AntlrGrinderLexer.COLON);
 	    _terminals.add(AntlrGrinderLexer.BICONDITIONAL);
 	    _terminals.add(AntlrGrinderLexer.IMPLICATION);
-	    _terminals.add(AntlrGrinderLexer.SINGLE_ARROW);
 	    _terminals.add(AntlrGrinderLexer.NOT_EQUAL);
 	    _terminals.add(AntlrGrinderLexer.GREATER_THAN_EQUAL);
 	    _terminals.add(AntlrGrinderLexer.GREATER_THAN);
@@ -117,7 +116,6 @@ public class ExpressionEditor extends JPanel {
 	    _terminals.add(AntlrGrinderLexer.OPEN_SQUARE);
 	    _terminals.add(AntlrGrinderLexer.CLOSE_DOUBLE_CURLY);
 	    _terminals.add(AntlrGrinderLexer.OPEN_DOUBLE_CURLY);
-	    _terminals.add(AntlrGrinderLexer.UNDERSCORE_OPEN_CURLY);
 	    _terminals.add(AntlrGrinderLexer.CLOSE_CURLY);
 	    _terminals.add(AntlrGrinderLexer.OPEN_CURLY);
 	    _terminals.add(AntlrGrinderLexer.VERT_BAR);
@@ -138,12 +136,7 @@ public class ExpressionEditor extends JPanel {
 		_keywords.add(AntlrGrinderLexer.FOR);
 		_keywords.add(AntlrGrinderLexer.ALL);
 		_keywords.add(AntlrGrinderLexer.EXISTS);
-		_keywords.add(AntlrGrinderLexer.MINUS);
 		_keywords.add(AntlrGrinderLexer.NOT);
-		_keywords.add(AntlrGrinderLexer.IS);
-		_keywords.add(AntlrGrinderLexer.CASE);
-		_keywords.add(AntlrGrinderLexer.INDEX);
-		_keywords.add(AntlrGrinderLexer.OCCURS);
 		_keywords.add(AntlrGrinderLexer.FROM);
 		_keywords.add(AntlrGrinderLexer.NEIGHBORS);
 		_keywords.add(AntlrGrinderLexer.VALUE);

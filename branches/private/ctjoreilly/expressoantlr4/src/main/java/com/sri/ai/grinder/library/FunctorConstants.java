@@ -65,7 +65,6 @@ public class FunctorConstants {
 	public final static String EQUIVALENCE  = "<=>";
 	public final static String IMPLICATION  = "=>";
 	public final static String EQUAL  = "=";
-	public final static String IS = "is";
 	public final static String INEQUALITY = "!=";
 	public final static String GREATER_THAN = ">";
 	//public final static String SET  = "{ . . . }";

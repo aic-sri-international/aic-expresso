@@ -75,8 +75,8 @@ public class AntlrGrinderParserWrapper implements Parser {
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			AntlrGrinderParser parser = new AntlrGrinderParser(tokens);
 
-			//lexer.removeErrorListeners();
-			//parser.removeErrorListeners();
+			lexer.removeErrorListeners();
+			parser.removeErrorListeners();
 			lexer.addErrorListener(lexerErrorListener);
 			parser.addErrorListener(parseErrorListener);
 			

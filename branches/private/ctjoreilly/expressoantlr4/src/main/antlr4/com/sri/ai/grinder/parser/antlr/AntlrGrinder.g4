@@ -5,6 +5,8 @@ expression : expr ;
 expr : 
        // parenthesis, e.g.:(1+2)
      '(' expr ')' #parenthesesAroundExpression
+       // an expression symbol, e.g.:<X + Y>
+     | '<' expr '>' #expressionSymbol
        // function application, e.g.: f(X)
      | functor=expr '(' ( args+=expr (',' args+=expr)* )? ')' # functionApplication
        // tuple, e.g.: (A, B, C)
@@ -12,9 +14,9 @@ expr :
        // cardinality, e.g.: | X |
      | '|' expr '|' #cardinality
        // intensional uniset, e.g.: { (on X) f(X) | X != a }
-     | '{' ('(' ON ( scopeargs+=expr (',' scopeargs+=expr)* )? ')')? head=expr ('|' condition=expr)? '}' #intensionalUniset
+     | '{' ('(' scope=ON ( scopeargs+=expr (',' scopeargs+=expr)* )? ')')? head=expr ('|' condition=expr)? '}' #intensionalUniset
        // intensional multiset, e.g.: {{ (on X) f(X) | X != a }}
-     | '{{' ('(' ON ( scopeargs+=expr (',' scopeargs+=expr)* )? ')')? head=expr ('|' condition=expr)? '}}' #intensionalMultiset
+     | '{{' ('(' scope=ON ( scopeargs+=expr (',' scopeargs+=expr)* )? ')')? head=expr ('|' condition=expr)? '}}' #intensionalMultiset
        // extensional uniset, e.g.: { A, B, C, C, D }
      | '{' ( expr (',' expr)* )? '}' #extensionalUniset
        // extensional multiset, e.g.: {{ A, B, C, C, D }}
@@ -23,14 +25,6 @@ expr :
      | '[' expr ']' #bracketedExpression
        // value of, e.g.: value of(1 + 2)
      | VALUE OF expr #valueOf
-       // underscore set, e.g.: x_{ y + 0.3 : { a, b, c } }
-     | head=expr '_{' left=expr ':' right=expr '}' #underscoreCurly
-       // occurs in, e.g.: x occurs in y
-     | element=expr OCCURS IN collection=expr #occursIn
-       // index of in, e.g.: index of x in y
-     | INDEX OF of=expr IN in=expr #indexOfIn
-       // case statement, e.g.: case x y : z, a : b
-     | CASE arg=expr ( caseconiditions+=expr ':' caseactions+=expr (',' caseconiditions+=expr ':' caseactions+=expr)* )? #caseStatement
        // not, e.g.: not A and B -> (not(A)) and B
      | NOT expr #not
        // negative, e.g.: 2 * -1 -> 2 * (-1)
@@ -51,22 +45,18 @@ expr :
      | leftop=expr IN rightop=expr #in
        // comparison operators, e.g.: X = Y, 2 < 3
      | leftop=expr op=('<' | '<=' | '=' | '!=' | '>=' | '>') rightop=expr #comparison
-       // alternative equality token 'is', e.g. x is y
-     | leftop=expr IS rightop=expr #is
        // conjunction, e.g.: A or B and C -> A or (B and C)
      | leftconj=expr AND rightconj=expr #and
        // disjunction, e.g.: A => B or C -> A => (B or C)
      | leftdisj=expr OR rightdisj=expr #or
-     | antecedent=expr IMPLICATION consequent=expr #implication
+       // implication, e.g.: A = B => C = D
+     | antecedent=expr IMPLICATION<assoc=right> consequent=expr #implication
        // biconditional, e.g.: A = B <=> C = D
-     | leftop=expr BICONDITIONAL rightop=expr #biconditional
+     | leftop=expr BICONDITIONAL<assoc=right> rightop=expr #biconditional
        // conditional, e.g.: if X = Y then 1 else 2
      | IF condition=expr THEN thenbranch=expr ELSE elsebranch=expr #ifThenElse
        // lambda, e.g.: lambda f(X) : 2 + f(X)
      | LAMBDA ( parameters+=expr (',' parameters+=expr)* )? ':' body=expr #lamda
-       // implication, e.g.: A = B => C = D
-       // TODO what is this meant to be?
-     | leftop=expr SINGLE_ARROW rightop=expr #rightArrow
        // e.g.: previous message to <<expression>> from <<expression>>
      | PREVIOUS MESSAGE TO to=expr FROM from=expr #previousMessageToFrom
        // e.g.: message to <<expression>> from <<expression>>
@@ -81,19 +71,22 @@ expr :
      | FOR ALL index=expr ':' body=expr #forAll
        // existential quantification, e.g.: there exists X : X = a
      | THERE EXISTS index=expr ':' body=expr #thereExists
-       // an expression symbol, e.g.:<X + Y>
-     | '<' expr '>' #expressionSymbol
        // a symbol
-     | (NOT | AND | OR | FOR | ALL | THERE | EXISTS
-       | LAMBDA | IF | THEN | ELSE
-       | INTERSECTION | UNION | CASE
-       | ON | IN | VALUE | OF | INDEX | OCCURS
-       | IS | MINUS | PREVIOUS | MESSAGE | NEIGHBORS | TO | FROM
-       | IMPLICATION | BICONDITIONAL 
-       | EXPONENTIATION | DIVIDE | TIMES | PLUS | SUBTRACT
-       | LESS_THAN | LESS_THAN_EQUAL | EQUAL | NOT_EQUAL | GREATER_THAN_EQUAL | GREATER_THAN
-       | COLON |SINGLE_ARROW | UNDERSCORE_OPEN_CURLY | VERT_BAR | UNDERSCORE | PERIOD
-       | RATIONAL | SYMBOLIC_NAME) #symbol
+       // NOTE: even though the SYMBOLIC_NAME pattern should match these keywords
+       // ANTLR excludes the set of keywords/tokens that are used from matching
+       // this pattern (see chapter5 of reference manual). Therefore, we
+       // need to explicitly list all of the keywords and operators that we
+       // want also to be interpreted as Symbols.
+     | (NOT | AND | OR | FOR | ALL | THERE | EXISTS // Keywords
+        | LAMBDA | IF | THEN | ELSE
+        | INTERSECTION | UNION
+        | ON | IN | VALUE | OF
+        | PREVIOUS | MESSAGE | NEIGHBORS | VARIABLE | FACTOR | TO | FROM
+        | IMPLICATION | BICONDITIONAL // Logic Operators
+        | EXPONENTIATION | DIVIDE | TIMES | PLUS | SUBTRACT // Arithmetic
+        | LESS_THAN | LESS_THAN_EQUAL | EQUAL | NOT_EQUAL | GREATER_THAN_EQUAL | GREATER_THAN // Comparison
+        | COLON | VERT_BAR | UNDERSCORE | PERIOD // Misc
+        | RATIONAL | SYMBOLIC_NAME) #symbol
      ;
 
 /*
@@ -123,15 +116,10 @@ THEN                    : 'then' ;
 ELSE                    : 'else' ;
 INTERSECTION            : 'intersection' ;
 UNION                   : 'union' ;
-CASE                    : 'case' ;
 ON                      : 'on' ;
 IN                      : 'in' ;
 VALUE                   : 'value' ;
 OF                      : 'of' ;
-INDEX                   : 'index' ;
-OCCURS                  : 'occurs' ;
-IS                      : 'is' ;
-MINUS                   : 'minus' ;
 PREVIOUS                : 'previous' ;
 MESSAGE                 : 'message' ;
 NEIGHBORS               : 'neighbors' ;
@@ -166,8 +154,6 @@ OPEN_DOUBLE_CURLY       : '{{' ;
 CLOSE_DOUBLE_CURLY      : '}}' ;
 // Misc
 COLON                   : ':' ;
-SINGLE_ARROW            : '->' ;  // TODO - usage?
-UNDERSCORE_OPEN_CURLY   : '_{' ;  // TODO - usage?
 VERT_BAR                : '|' ;
 COMMA                   : ',' ;
 UNDERSCORE              : '_' ;
@@ -188,7 +174,7 @@ RATIONAL
     ;
 
 SYMBOLIC_NAME
-    : ([a-zA-Z] | [0-9] | '_') ([a-zA-Z] | [0-9] | '_')* ('\'')*
+    : ([a-zA-Z] | [0-9] | '_') ([a-zA-Z] | [0-9])* ('\'')*
     | '"'  (ESCAPE_SEQUENCE | ~('\\' | '"' ) )* '"'
     | '\'' (ESCAPE_SEQUENCE | ~('\\' | '\'') )* '\''
     ;

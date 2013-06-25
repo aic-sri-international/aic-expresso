@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.antlr.v4.runtime.Token;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.sri.ai.expresso.api.Expression;
@@ -44,8 +45,6 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	public Expression visitFunctionApplication(
 			AntlrGrinderParser.FunctionApplicationContext ctx) {
 		Expression result = Expressions.make(visit(ctx.functor), expressions(ctx.args));
-// TODO - make this call?		
-//		result = possiblyFlatten(result);
 		
 		return result;
 	}
@@ -70,7 +69,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// '{' ('{' ON ( scopeargs+=expr (',' scopeargs+=expr)* )? ')')? head=expr ('|' condition=expr)? '}' #intensionalUniset
 	@Override
 	public Expression visitIntensionalUniset(AntlrGrinderParser.IntensionalUnisetContext ctx) {
-		Expression result = makeIntensionalSet(IntensionalSet.UNI_SET_LABEL, ctx.scopeargs, ctx.head, ctx.condition);
+		Expression result = makeIntensionalSet(IntensionalSet.UNI_SET_LABEL, ctx.scope, ctx.scopeargs, ctx.head, ctx.condition);
 		return result;
 	}
 	
@@ -79,7 +78,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override
 	public Expression visitIntensionalMultiset(
 			AntlrGrinderParser.IntensionalMultisetContext ctx) {
-		Expression result = makeIntensionalSet(IntensionalSet.MULTI_SET_LABEL, ctx.scopeargs, ctx.head, ctx.condition);
+		Expression result = makeIntensionalSet(IntensionalSet.MULTI_SET_LABEL, ctx.scope, ctx.scopeargs, ctx.head, ctx.condition);
 		return result;
 	}
 	
@@ -114,51 +113,6 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override
 	public Expression visitValueOf(AntlrGrinderParser.ValueOfContext ctx) {
 		Expression result = Expressions.make(FunctorConstants.VALUE_OF, visit(ctx.expr()));
-		return result;
-	}
-	
-	// underscore set, e.g.: x_{ y + 0.3 : { a, b, c } }
-	// head=expr '_{' left=expr ':' right=expr '}' #underscoreCurly
-	@Override
-	public Expression visitUnderscoreCurly(
-			AntlrGrinderParser.UnderscoreCurlyContext ctx) {
-		Expression result = Expressions.make(". _{ . : . }", visit(ctx.head), visit(ctx.left), visit(ctx.right));
-		return result;
-	}
-	
-	// occurs in, e.g.: x occurs in y
-	// element=expr OCCURS IN collection=expr #occursIn
-	@Override
-	public Expression visitOccursIn(AntlrGrinderParser.OccursInContext ctx) {
-		Expression result = Expressions.make("occurs in", visit(ctx.element), visit(ctx.collection));
-		return result;
-	}
-	
-	// index of in, e.g.: index of x in y
-	// INDEX OF of=expr IN in=expr #indexOfIn
-	@Override
-	public Expression visitIndexOfIn(AntlrGrinderParser.IndexOfInContext ctx) {
-		Expression result = Expressions.make("index of . in .", visit(ctx.of), visit(ctx.in));
-		return result;
-	}
-	
-	// case statement, e.g.: case x y : z, a : b
-	// CASE arg=expr ( caseconiditions+=expr ':' caseactions+=expr (',' caseconiditions+=expr ':' caseactions+=expr)* )? #caseStatement
-	@Override
-	public Expression visitCaseStatement(AntlrGrinderParser.CaseStatementContext ctx) {
-		List<Expression> cases = new ArrayList<Expression>();
-		for (int i = 0; i < ctx.caseconiditions.size(); i++) {
-			cases.add(Expressions.make(":", visit(ctx.caseconiditions.get(i)), visit(ctx.caseactions.get(i))));
-		}
-		Expression casesList = null;
-		if (cases.size() == 1) {
-			casesList = cases.get(0);
-		} 
-		else {
-			casesList = Expressions.make("kleene list", cases.toArray());
-		}
-		
-		Expression result = Expressions.make("case", visit(ctx.arg), casesList);
 		return result;
 	}
 	
@@ -240,14 +194,6 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		return result;
 	}
 	
-	// alternative equality token 'is', e.g. x is y
-	//  leftop=expr IS rightop=expr #is
-	@Override
-	public Expression visitIs(AntlrGrinderParser.IsContext ctx) {
-		Expression result = Expressions.make(FunctorConstants.IS, visit(ctx.leftop), visit(ctx.rightop));
-		return result;
-	}
-	
 	// conjunction, e.g.: A or B and C -> A or (B and C)
 	// leftconj=expr AND rightconj=expr #and
 	@Override
@@ -297,14 +243,6 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	public Expression visitLamda(
 			AntlrGrinderParser.LamdaContext ctx) {
 		Expression result = Lambda.make(expressionsList(ctx.parameters), visit(ctx.body));
-		return result;
-	}
-	
-	// TODO what is this meant to be?
-	// leftop=expr SINGLE_ARROW rightop=expr #rightArrow
-	@Override
-	public Expression visitRightArrow(AntlrGrinderParser.RightArrowContext ctx) {
-		Expression result = Expressions.make("->", visit(ctx.leftop), visit(ctx.rightop));
 		return result;
 	}
 
@@ -391,10 +329,10 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		return result;
 	}
 	
-	protected Expression makeIntensionalSet(Object label, List<AntlrGrinderParser.ExprContext> scopeargs, 
+	protected Expression makeIntensionalSet(Object label, Token scope, List<AntlrGrinderParser.ExprContext> scopeargs, 
 			AntlrGrinderParser.ExprContext head, AntlrGrinderParser.ExprContext condition) {
 		Expression scopingExpression = null;
-		if (scopeargs.size() > 0) {
+		if (scope != null) {
 			scopingExpression = IntensionalSet.makeScopingExpression(expressionsList(scopeargs));
 		}
 		Expression headExpression      = visit(head);
@@ -404,7 +342,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		}
 	
 		Expression result = null;
-		if (scopingExpression == null && conditionExpression == null) {
+		if (scope == null && conditionExpression == null) {
 			// We need to construct an extensional set in this case
 			if (label.equals(IntensionalSet.UNI_SET_LABEL)) {
 				result = ExtensionalSet.makeUniSet(headExpression);
