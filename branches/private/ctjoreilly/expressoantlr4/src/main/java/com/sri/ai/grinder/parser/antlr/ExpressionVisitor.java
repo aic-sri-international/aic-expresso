@@ -92,7 +92,13 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 			condition = Expressions.make(IntensionalSet.CONDITION_LABEL, visit(ctx.condition));
 		}
 	
-		Expression result = Expressions.make(IntensionalSet.MULTI_SET_LABEL, scopingExpression, head, condition);
+		Expression result = null; 
+		if (scopingExpression == null && condition == null) {
+			result = Expressions.make(ExtensionalSet.MULTI_SET_LABEL, head);
+		}
+		else {
+			result = Expressions.make(IntensionalSet.MULTI_SET_LABEL, scopingExpression, head, condition);
+		}
 		return result;
 	}
 	
@@ -120,7 +126,13 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 			condition = Expressions.make(IntensionalSet.CONDITION_LABEL, visit(ctx.condition));
 		}
 	
-		Expression result = Expressions.make(IntensionalSet.UNI_SET_LABEL, scopingExpression, head, condition);
+		Expression result = null;
+		if (scopingExpression == null && condition == null) {
+			result = Expressions.make(ExtensionalSet.UNI_SET_LABEL, head);
+		}
+		else {
+			result = Expressions.make(IntensionalSet.UNI_SET_LABEL, scopingExpression, head, condition);
+		}
 		return result;
 	}
 	
