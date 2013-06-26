@@ -77,7 +77,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		
 		// Keep track of explicitly bracketed expressions
 		// so that the are not flattened as part of the 
-		// possibleFlattenExpression()
+		// possiblyFlatten()
 		// call for some expressions, e.g.: 1 + 2 + 3.
 		parenthesizedExpressions.put(result, result);
 		return result;
