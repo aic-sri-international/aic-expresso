@@ -81,10 +81,19 @@ public class AntlrGrinderParserWrapper implements Parser {
 			parser.addErrorListener(parseErrorListener);
 			
 			ParseTree tree = parser.expression();
-
+			
+			boolean eof = parser.getInputStream().LA(1) == AntlrGrinderParser.EOF;
+			
 			if (!lexerErrorListener.errorsDetected && !parseErrorListener.errorsDetected) {
-				ExpressionVisitor expressionVisitor = new ExpressionVisitor();
-				result = expressionVisitor.visit(tree);
+				if (!eof) {
+					System.err.println("Unable to parse the complete input expression: "+input);
+				}
+				else {
+					lexer.removeErrorListeners();
+					parser.removeErrorListeners();
+					ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+					result = expressionVisitor.visit(tree);
+				}
 			}
 		} catch (RecognitionException re) {
 			re.printStackTrace();
