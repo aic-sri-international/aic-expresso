@@ -72,13 +72,18 @@ public abstract class AbstractParserTest {
 	protected void test (String input, boolean expectSucceed, boolean checkResult, Expression expectedResult) {
 		testCount ++;
 		Expression result = parser.parse(input);
+		System.out.println(input);
+		System.out.println("->");
+		System.out.println(result);
+		System.out.println("");
 		if (expectSucceed) {
 			if (checkResult) {
 				Assert.assertEquals(expectedResult, result);
 			}
 			else {
-				if(result != null)
+				if(result != null) {
 					System.out.println("generated string for \"" + input + "\": " + Brewer.generateBuildString(result) + "\n\n");
+				}
 				Assert.assertNotNull(result);
 			}
 		}

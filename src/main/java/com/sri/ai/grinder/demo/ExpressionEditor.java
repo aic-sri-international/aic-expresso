@@ -65,10 +65,9 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
-import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.CharStream;
-import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.Token;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Token;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Symbol;
@@ -99,65 +98,65 @@ public class ExpressionEditor extends JPanel {
 	//
 	private static final Set<Integer> _terminals = new HashSet<Integer>();
 	{
-		_terminals.add(AntlrGrinderLexer.COLON);
-	    _terminals.add(AntlrGrinderLexer.DOUBLE_ARROW);
-	    _terminals.add(AntlrGrinderLexer.ARROW);
-	    _terminals.add(AntlrGrinderLexer.SINGLE_ARROW);
-	    _terminals.add(AntlrGrinderLexer.NOT_EQUAL);
-	    _terminals.add(AntlrGrinderLexer.GREATER_THAN_EQUAL);
-	    _terminals.add(AntlrGrinderLexer.GREATER_THAN);
+		// Logic Operators
+	    _terminals.add(AntlrGrinderLexer.IMPLICATION);
+	    _terminals.add(AntlrGrinderLexer.BICONDITIONAL);
+		// Arithmetic
+	    _terminals.add(AntlrGrinderLexer.EXPONENTIATION);
+	    _terminals.add(AntlrGrinderLexer.DIVIDE);
+	    _terminals.add(AntlrGrinderLexer.TIMES);
+	    _terminals.add(AntlrGrinderLexer.PLUS);
+	    _terminals.add(AntlrGrinderLexer.SUBTRACT);
+	    // Comparison
 	    _terminals.add(AntlrGrinderLexer.LESS_THAN);
 	    _terminals.add(AntlrGrinderLexer.LESS_THAN_EQUAL);
 	    _terminals.add(AntlrGrinderLexer.EQUAL);
-	    _terminals.add(AntlrGrinderLexer.PLUS);
-	    _terminals.add(AntlrGrinderLexer.DASH);
-	    _terminals.add(AntlrGrinderLexer.TIMES);
-	    _terminals.add(AntlrGrinderLexer.DIVIDE);
-	    _terminals.add(AntlrGrinderLexer.CARAT);
-	    _terminals.add(AntlrGrinderLexer.CLOSE_SQUARE);
-	    _terminals.add(AntlrGrinderLexer.OPEN_SQUARE);
-	    _terminals.add(AntlrGrinderLexer.CLOSE_DOUBLE_CURLY);
-	    _terminals.add(AntlrGrinderLexer.OPEN_DOUBLE_CURLY);
-	    _terminals.add(AntlrGrinderLexer.UNDERSCORE_OPEN_CURLY);
-	    _terminals.add(AntlrGrinderLexer.CLOSE_CURLY);
-	    _terminals.add(AntlrGrinderLexer.OPEN_CURLY);
-	    _terminals.add(AntlrGrinderLexer.VERT_BAR);
+	    _terminals.add(AntlrGrinderLexer.NOT_EQUAL);
+	    _terminals.add(AntlrGrinderLexer.GREATER_THAN_EQUAL);
+	    _terminals.add(AntlrGrinderLexer.GREATER_THAN);
+	    // Brackets
 	    _terminals.add(AntlrGrinderLexer.OPEN_PAREN);
 	    _terminals.add(AntlrGrinderLexer.CLOSE_PAREN);
+	    _terminals.add(AntlrGrinderLexer.OPEN_SQUARE);
+	    _terminals.add(AntlrGrinderLexer.CLOSE_SQUARE);
+	    _terminals.add(AntlrGrinderLexer.OPEN_DOUBLE_CURLY);
+	    _terminals.add(AntlrGrinderLexer.CLOSE_DOUBLE_CURLY);
+	    _terminals.add(AntlrGrinderLexer.OPEN_CURLY);
+	    _terminals.add(AntlrGrinderLexer.CLOSE_CURLY);
+	    // Misc
+		_terminals.add(AntlrGrinderLexer.COLON);
+	    _terminals.add(AntlrGrinderLexer.VERT_BAR);
 	    _terminals.add(AntlrGrinderLexer.COMMA);
+	    _terminals.add(AntlrGrinderLexer.UNDERSCORE);
 	    _terminals.add(AntlrGrinderLexer.PERIOD);
 	}
+	
 	private static final Set<Integer> _keywords = new HashSet<Integer>();
 	{
-		_keywords.add(AntlrGrinderLexer.PREVIOUS);
-		_keywords.add(AntlrGrinderLexer.MESSAGE);
+		_keywords.add(AntlrGrinderLexer.NOT);
+		_keywords.add(AntlrGrinderLexer.AND);
+		_keywords.add(AntlrGrinderLexer.OR);
+		_keywords.add(AntlrGrinderLexer.FOR);
+		_keywords.add(AntlrGrinderLexer.ALL);
+		_keywords.add(AntlrGrinderLexer.THERE);
+		_keywords.add(AntlrGrinderLexer.EXISTS);		
 		_keywords.add(AntlrGrinderLexer.LAMBDA);
 		_keywords.add(AntlrGrinderLexer.IF);
 		_keywords.add(AntlrGrinderLexer.THEN);
 		_keywords.add(AntlrGrinderLexer.ELSE);
-		_keywords.add(AntlrGrinderLexer.THERE);
-		_keywords.add(AntlrGrinderLexer.FOR);
-		_keywords.add(AntlrGrinderLexer.ALL);
-		_keywords.add(AntlrGrinderLexer.EXISTS);
-		_keywords.add(AntlrGrinderLexer.MINUS);
-		_keywords.add(AntlrGrinderLexer.NOT);
-		_keywords.add(AntlrGrinderLexer.IS);
-		_keywords.add(AntlrGrinderLexer.CASE);
-		_keywords.add(AntlrGrinderLexer.INDEX);
-		_keywords.add(AntlrGrinderLexer.OCCURS);
-		_keywords.add(AntlrGrinderLexer.FROM);
-		_keywords.add(AntlrGrinderLexer.VARIABLE);
-		_keywords.add(AntlrGrinderLexer.FACTOR);
-		_keywords.add(AntlrGrinderLexer.NEIGHBORS);
-		_keywords.add(AntlrGrinderLexer.VALUE);
 		_keywords.add(AntlrGrinderLexer.INTERSECTION);
 		_keywords.add(AntlrGrinderLexer.UNION);
-		_keywords.add(AntlrGrinderLexer.OR);
-		_keywords.add(AntlrGrinderLexer.AND);
-		_keywords.add(AntlrGrinderLexer.IN);
-		_keywords.add(AntlrGrinderLexer.OF);
 		_keywords.add(AntlrGrinderLexer.ON);
-		_keywords.add(AntlrGrinderLexer.TO);		
+		_keywords.add(AntlrGrinderLexer.IN);
+		_keywords.add(AntlrGrinderLexer.VALUE);
+		_keywords.add(AntlrGrinderLexer.OF);
+		_keywords.add(AntlrGrinderLexer.PREVIOUS);
+		_keywords.add(AntlrGrinderLexer.MESSAGE);
+		_keywords.add(AntlrGrinderLexer.NEIGHBORS);
+		_keywords.add(AntlrGrinderLexer.VARIABLE);
+		_keywords.add(AntlrGrinderLexer.FACTOR);
+		_keywords.add(AntlrGrinderLexer.TO);	
+		_keywords.add(AntlrGrinderLexer.FROM);
 	}
 	
 	//
@@ -256,12 +255,7 @@ public class ExpressionEditor extends JPanel {
 	}	
 	
 	protected boolean isSymbol(Token t) {
-		// Note: Underscore is a prolog variable.
-		return t.getType() == AntlrGrinderLexer.ID || t.getType() == AntlrGrinderLexer.UNDERSCORE;
-	}
-	
-	protected boolean isString(Token t) {
-		return t.getType() == AntlrGrinderLexer.STRING;
+		return t.getType() == AntlrGrinderLexer.RATIONAL || t.getType() == AntlrGrinderLexer.SYMBOLIC_NAME;
 	}
 	
 	//
@@ -392,8 +386,9 @@ public class ExpressionEditor extends JPanel {
 				} catch (IOException ioe) {
 					ioe.printStackTrace();
 				}
-	    		CharStream cs = new ANTLRStringStream(expressionText);
-	    		AntlrGrinderLexer lexer = new AntlrGrinderLexer(cs);
+
+	    		ANTLRInputStream is = new ANTLRInputStream(expressionText);
+	    		AntlrGrinderLexer lexer = new AntlrGrinderLexer(is);
 	    		CommonTokenStream tokens = new CommonTokenStream(lexer);
 	    		
 	    		Token token = null;
@@ -424,10 +419,6 @@ public class ExpressionEditor extends JPanel {
 	    			// types of symbols.
 	    			else if (isSymbol(token)) {
 	    				style = styledDocument.getStyle(STYLE_SYMBOL);
-	    			}
-	    			else if (isString(token)) {
-	    				style = styledDocument.getStyle(STYLE_STRING);
-	    				length += 2;
 	    			}
 	    			    			
 	    			styledDocument.setCharacterAttributes(offset, length, style, true);
