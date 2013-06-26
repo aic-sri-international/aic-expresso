@@ -553,7 +553,7 @@ public class Expressions {
 		 if (expression instanceof Symbol) {
 			 return false;
 		 }
-		 if (expression.hasFunctor("=") || expression.hasFunctor("!=") || expression.hasFunctor("is")) {
+		 if (expression.hasFunctor("=") || expression.hasFunctor("!=")) {
 			 return true;
 		 }
 		 if (FunctorConstants.BOOLEAN_FUNCTORS.contains(expression.getFunctor().toString())) {

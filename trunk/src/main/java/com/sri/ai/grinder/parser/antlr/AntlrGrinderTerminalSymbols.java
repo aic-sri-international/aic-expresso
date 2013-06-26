@@ -46,64 +46,63 @@ import com.google.common.annotations.Beta;
 @Beta
 public class AntlrGrinderTerminalSymbols {
 	// NOTE: ENSURE THIS LIST IS UPDATED WHENEVER THE SYMBOLS IN
-	// AntlrGrinderLexer.g are updated.
+	// AntlrGrinder.g are updated.
 	private static final Set<String> _terminalSymbols;
 	static {
 		Set<String> terminalSymbols = new HashSet<String>();
-		terminalSymbols.add("previous");
-		terminalSymbols.add("message");
+		// Keywords
+		terminalSymbols.add("not");
+		terminalSymbols.add("and");
+		terminalSymbols.add("or");
+		terminalSymbols.add("for");
+		terminalSymbols.add("all");
+		terminalSymbols.add("there");
+		terminalSymbols.add("exists");
 		terminalSymbols.add("lambda");
 		terminalSymbols.add("if");
 		terminalSymbols.add("then");
 		terminalSymbols.add("else");
-		terminalSymbols.add("there");
-		terminalSymbols.add("for");
-		terminalSymbols.add("all");
-		terminalSymbols.add("exists");
-		terminalSymbols.add(":");
-		terminalSymbols.add("<=>");
+		terminalSymbols.add("intersection");
+		terminalSymbols.add("union");
+		terminalSymbols.add("on");
+		terminalSymbols.add("in");
+		terminalSymbols.add("value");
+		terminalSymbols.add("of");
+		terminalSymbols.add("previous");
+		terminalSymbols.add("message");
+		terminalSymbols.add("neighbors");
+		terminalSymbols.add("variable");
+		terminalSymbols.add("factor");
+		terminalSymbols.add("to");
+		terminalSymbols.add("from");
+		// Logic Operators
 		terminalSymbols.add("=>");
-		terminalSymbols.add("->");
+		terminalSymbols.add("<=>");
+		// Arithmetic
+		terminalSymbols.add("^");
+		terminalSymbols.add("/");
+		terminalSymbols.add("*");
+		terminalSymbols.add("+");
+		terminalSymbols.add("-");
+		// Comparison
+		terminalSymbols.add("<");
+		terminalSymbols.add("<=");
+		terminalSymbols.add("=");
 		terminalSymbols.add("!=");
 		terminalSymbols.add(">=");
 		terminalSymbols.add(">");
-		terminalSymbols.add("<=");
-		terminalSymbols.add("<");
-		terminalSymbols.add("=");
-		terminalSymbols.add("+");
-		terminalSymbols.add("-");
-		terminalSymbols.add("minus");
-		terminalSymbols.add("*");
-		terminalSymbols.add("/");
-		terminalSymbols.add("^");
-		terminalSymbols.add("not");
-		terminalSymbols.add("is");
-		terminalSymbols.add("case");
-		terminalSymbols.add("index");
-		terminalSymbols.add("occurs");
-		terminalSymbols.add("from");
-		terminalSymbols.add("variable");
-		terminalSymbols.add("factor");
-		terminalSymbols.add("neighbors");
-		terminalSymbols.add("value");
-		terminalSymbols.add("intersection");
-		terminalSymbols.add("union");
-		terminalSymbols.add("or");
-		terminalSymbols.add("and");
-		terminalSymbols.add("in");
-		terminalSymbols.add("of");
-		terminalSymbols.add("on");
-		terminalSymbols.add("to");
-		terminalSymbols.add("]");
-		terminalSymbols.add("[");
-		terminalSymbols.add("}}");
-		terminalSymbols.add("{{");
-		terminalSymbols.add("_{");
-		terminalSymbols.add("}");
-		terminalSymbols.add("{");
-		terminalSymbols.add("|");
+		// Brackets
 		terminalSymbols.add("(");
 		terminalSymbols.add(")");
+		terminalSymbols.add("[");
+		terminalSymbols.add("]");
+		terminalSymbols.add("{");
+		terminalSymbols.add("}");
+		terminalSymbols.add("{{");
+		terminalSymbols.add("}}");
+		// Misc
+		terminalSymbols.add(":");
+		terminalSymbols.add("|");
 		terminalSymbols.add(",");
 		terminalSymbols.add("_");
 		terminalSymbols.add(".");

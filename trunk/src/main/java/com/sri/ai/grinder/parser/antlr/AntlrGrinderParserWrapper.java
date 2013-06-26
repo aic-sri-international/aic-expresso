@@ -37,70 +37,95 @@
  */
 package com.sri.ai.grinder.parser.antlr;
 
-
-import org.antlr.runtime.CharStream;
-import org.antlr.runtime.CommonTokenStream;
-import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.ANTLRStringStream;
-import org.antlr.runtime.tree.CommonTree;
-import org.antlr.runtime.tree.CommonTreeNodeStream;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.brewer.api.Parser;
 import com.sri.ai.expresso.api.Expression;
 
 /**
- * An implementation of the {@link Parser} interface that uses Antlr as the underlying implementation.
+ * An implementation of the {@link Parser} interface that uses Antlr as the
+ * underlying implementation.
  * 
  * @author tsai
- *
+ * 
  */
 @Beta
 public class AntlrGrinderParserWrapper implements Parser {
+
+	public AntlrGrinderParserWrapper() {
+
+	}
+
+	@Override
+	public Expression parse(String string) {
+		Expression result = null;
+		try {			
+			ErrorListener lexerErrorListener = new ErrorListener("Lexer Error");
+			ErrorListener parseErrorListener = new ErrorListener("Parse Error");
+			
+			ANTLRInputStream input = new ANTLRInputStream(string);
+			AntlrGrinderLexer lexer = new AntlrGrinderLexer(input);
+			
+			CommonTokenStream tokens = new CommonTokenStream(lexer);
+			AntlrGrinderParser parser = new AntlrGrinderParser(tokens);
+
+			lexer.removeErrorListeners();
+			parser.removeErrorListeners();
+			lexer.addErrorListener(lexerErrorListener);
+			parser.addErrorListener(parseErrorListener);
+			
+			ParseTree tree = parser.expression();
+			
+			boolean eof = parser.getInputStream().LA(1) == AntlrGrinderParser.EOF;
+			
+			if (!lexerErrorListener.errorsDetected && !parseErrorListener.errorsDetected) {
+				if (!eof) {
+					System.err.println("Unable to parse the complete input expression: "+input);
+				}
+				else {
+					lexer.removeErrorListeners();
+					parser.removeErrorListeners();
+					ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+					result = expressionVisitor.visit(tree);
+				}
+			}
+		} catch (RecognitionException re) {
+			re.printStackTrace();
+		} catch (RuntimeException re) {
+			re.printStackTrace();
+		}
+
+		return result;
+	}
+
+	@Override
+	public void close() {
+
+	}
 	
-    public AntlrGrinderParserWrapper () {
-    	
-    }
+	//
+	// PRIVATE
+	//
+	private class ErrorListener extends BaseErrorListener {
+		public boolean errorsDetected = false;
+		private String name;
+		
+		public ErrorListener(String name) {
+			this.name = name;
+		}
 
-    @Override
-    public Expression parse(String string) {
-    	try {
-//    		System.out.println("\nAttempting to parse: " + string);
-    		CharStream cs = new ANTLRStringStream(string);
-    		AntlrGrinderLexer lexer = new AntlrGrinderLexer(cs);
-    		CommonTokenStream tokens = new CommonTokenStream(lexer);
-    		AntlrGrinderParser parser = new AntlrGrinderParser(tokens);
-    		CommonTree t = (CommonTree)parser.start().getTree();
-//    		System.out.println("Original Tree: " + t.toStringTree());
-
-    		CommonTreeNodeStream nodes = new CommonTreeNodeStream(t);//parser.start().getTree());
-
-//    		System.out.println("Attempting to flatten associative operations...");
-    		AntlrGrinderAssociativeNodeWalker assoc = new AntlrGrinderAssociativeNodeWalker(nodes);
-    		t = (CommonTree)assoc.downup(t);//.start().getTree();
-//    		System.out.println("New Tree: " + t.toStringTree());
-    		nodes = new CommonTreeNodeStream(t);
-
-    		AntlrGrinderOutputWalker outputWalker = new AntlrGrinderOutputWalker(nodes);
-    		Expression ret = outputWalker.start();
-//    		System.out.println("Sucessful parse: " + ret);
-
-    		return ret;
-    	}
-    	catch (RecognitionException re) {
-//    		System.out.println("**** Failed to parse: " + string);
-//    		re.printStackTrace();
-    		return null;
-    	}
-    	catch (RuntimeException re) {
-//    		System.out.println("**** Failed to parse: " + string);
-//    		re.printStackTrace();
-    		return null;
-    	}
-    }
-    
-    @Override
-    public void close() {
-	
-    }
+		@Override
+		public void syntaxError(Recognizer<?, ?> recognizer,
+				Object offendingSymbol, int line, int charPositionInLine,
+				String msg, RecognitionException e) {
+			System.err.println(name+": line " + line + ":" + charPositionInLine + " " + msg);
+			errorsDetected = true;
+		}
+	}
 }
