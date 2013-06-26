@@ -229,8 +229,9 @@ abstract public class AbstractGrinderTest {
 		for (int i = begin; i < end; i++) {
 			topExpression = tests[i].getTopExpression();
 			process = new DefaultRewritingProcess(topExpression, new Basic());
+
 			Expression expectedExpressions = parse(tests[i].expected);
-			Assert.assertNotNull(expectedExpressions);
+			Assert.assertNotNull("Unable to parse expected expression: "+tests[i].expected, expectedExpressions);
 			if (tests[i].isIllegalArgumentTest) {
 				try {
 					actual = tests[i].callRewrite(process);

@@ -174,7 +174,7 @@ RATIONAL
     ;
 
 SYMBOLIC_NAME
-    : ([a-zA-Z] | [0-9] | '_') ([a-zA-Z] | [0-9])* ('\'')*
+    : ([a-zA-Z] | [0-9] | '_') ([a-zA-Z] | [0-9] | '_')* ('\'')*
     | '"'  (ESCAPE_SEQUENCE | ~('\\' | '"' ) )* '"'
     | '\'' (ESCAPE_SEQUENCE | ~('\\' | '\'') )* '\''
     ;

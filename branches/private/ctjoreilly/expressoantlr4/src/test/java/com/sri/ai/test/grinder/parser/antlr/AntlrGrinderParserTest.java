@@ -623,6 +623,10 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	@Test
 	public void testCardinality () {
 		String string;
+		
+		string = "|{{(on X, Y) tuple(X, Y) | not (X=Y=Z) }}|";
+		test(string,  new DefaultCompoundSyntaxTree("| . |", "foo"));
+		
 		string = "|foo|";
 		test(string, new DefaultCompoundSyntaxTree("| . |", "foo"));
 
