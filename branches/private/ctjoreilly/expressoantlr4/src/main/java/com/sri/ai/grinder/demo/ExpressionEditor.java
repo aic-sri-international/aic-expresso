@@ -98,56 +98,65 @@ public class ExpressionEditor extends JPanel {
 	//
 	private static final Set<Integer> _terminals = new HashSet<Integer>();
 	{
-		_terminals.add(AntlrGrinderLexer.COLON);
-	    _terminals.add(AntlrGrinderLexer.BICONDITIONAL);
+		// Logic Operators
 	    _terminals.add(AntlrGrinderLexer.IMPLICATION);
-	    _terminals.add(AntlrGrinderLexer.NOT_EQUAL);
-	    _terminals.add(AntlrGrinderLexer.GREATER_THAN_EQUAL);
-	    _terminals.add(AntlrGrinderLexer.GREATER_THAN);
+	    _terminals.add(AntlrGrinderLexer.BICONDITIONAL);
+		// Arithmetic
+	    _terminals.add(AntlrGrinderLexer.EXPONENTIATION);
+	    _terminals.add(AntlrGrinderLexer.DIVIDE);
+	    _terminals.add(AntlrGrinderLexer.TIMES);
+	    _terminals.add(AntlrGrinderLexer.PLUS);
+	    _terminals.add(AntlrGrinderLexer.SUBTRACT);
+	    // Comparison
 	    _terminals.add(AntlrGrinderLexer.LESS_THAN);
 	    _terminals.add(AntlrGrinderLexer.LESS_THAN_EQUAL);
 	    _terminals.add(AntlrGrinderLexer.EQUAL);
-	    _terminals.add(AntlrGrinderLexer.PLUS);
-	    _terminals.add(AntlrGrinderLexer.SUBTRACT);
-	    _terminals.add(AntlrGrinderLexer.TIMES);
-	    _terminals.add(AntlrGrinderLexer.DIVIDE);
-	    _terminals.add(AntlrGrinderLexer.EXPONENTIATION);
-	    _terminals.add(AntlrGrinderLexer.CLOSE_SQUARE);
-	    _terminals.add(AntlrGrinderLexer.OPEN_SQUARE);
-	    _terminals.add(AntlrGrinderLexer.CLOSE_DOUBLE_CURLY);
-	    _terminals.add(AntlrGrinderLexer.OPEN_DOUBLE_CURLY);
-	    _terminals.add(AntlrGrinderLexer.CLOSE_CURLY);
-	    _terminals.add(AntlrGrinderLexer.OPEN_CURLY);
-	    _terminals.add(AntlrGrinderLexer.VERT_BAR);
+	    _terminals.add(AntlrGrinderLexer.NOT_EQUAL);
+	    _terminals.add(AntlrGrinderLexer.GREATER_THAN_EQUAL);
+	    _terminals.add(AntlrGrinderLexer.GREATER_THAN);
+	    // Brackets
 	    _terminals.add(AntlrGrinderLexer.OPEN_PAREN);
 	    _terminals.add(AntlrGrinderLexer.CLOSE_PAREN);
+	    _terminals.add(AntlrGrinderLexer.OPEN_SQUARE);
+	    _terminals.add(AntlrGrinderLexer.CLOSE_SQUARE);
+	    _terminals.add(AntlrGrinderLexer.OPEN_DOUBLE_CURLY);
+	    _terminals.add(AntlrGrinderLexer.CLOSE_DOUBLE_CURLY);
+	    _terminals.add(AntlrGrinderLexer.OPEN_CURLY);
+	    _terminals.add(AntlrGrinderLexer.CLOSE_CURLY);
+	    // Misc
+		_terminals.add(AntlrGrinderLexer.COLON);
+	    _terminals.add(AntlrGrinderLexer.VERT_BAR);
 	    _terminals.add(AntlrGrinderLexer.COMMA);
+	    _terminals.add(AntlrGrinderLexer.UNDERSCORE);
 	    _terminals.add(AntlrGrinderLexer.PERIOD);
 	}
+	
 	private static final Set<Integer> _keywords = new HashSet<Integer>();
 	{
-		_keywords.add(AntlrGrinderLexer.PREVIOUS);
-		_keywords.add(AntlrGrinderLexer.MESSAGE);
+		_keywords.add(AntlrGrinderLexer.NOT);
+		_keywords.add(AntlrGrinderLexer.AND);
+		_keywords.add(AntlrGrinderLexer.OR);
+		_keywords.add(AntlrGrinderLexer.FOR);
+		_keywords.add(AntlrGrinderLexer.ALL);
+		_keywords.add(AntlrGrinderLexer.THERE);
+		_keywords.add(AntlrGrinderLexer.EXISTS);		
 		_keywords.add(AntlrGrinderLexer.LAMBDA);
 		_keywords.add(AntlrGrinderLexer.IF);
 		_keywords.add(AntlrGrinderLexer.THEN);
 		_keywords.add(AntlrGrinderLexer.ELSE);
-		_keywords.add(AntlrGrinderLexer.THERE);
-		_keywords.add(AntlrGrinderLexer.FOR);
-		_keywords.add(AntlrGrinderLexer.ALL);
-		_keywords.add(AntlrGrinderLexer.EXISTS);
-		_keywords.add(AntlrGrinderLexer.NOT);
-		_keywords.add(AntlrGrinderLexer.FROM);
-		_keywords.add(AntlrGrinderLexer.NEIGHBORS);
-		_keywords.add(AntlrGrinderLexer.VALUE);
 		_keywords.add(AntlrGrinderLexer.INTERSECTION);
 		_keywords.add(AntlrGrinderLexer.UNION);
-		_keywords.add(AntlrGrinderLexer.OR);
-		_keywords.add(AntlrGrinderLexer.AND);
-		_keywords.add(AntlrGrinderLexer.IN);
-		_keywords.add(AntlrGrinderLexer.OF);
 		_keywords.add(AntlrGrinderLexer.ON);
-		_keywords.add(AntlrGrinderLexer.TO);		
+		_keywords.add(AntlrGrinderLexer.IN);
+		_keywords.add(AntlrGrinderLexer.VALUE);
+		_keywords.add(AntlrGrinderLexer.OF);
+		_keywords.add(AntlrGrinderLexer.PREVIOUS);
+		_keywords.add(AntlrGrinderLexer.MESSAGE);
+		_keywords.add(AntlrGrinderLexer.NEIGHBORS);
+		_keywords.add(AntlrGrinderLexer.VARIABLE);
+		_keywords.add(AntlrGrinderLexer.FACTOR);
+		_keywords.add(AntlrGrinderLexer.TO);	
+		_keywords.add(AntlrGrinderLexer.FROM);
 	}
 	
 	//
@@ -246,8 +255,7 @@ public class ExpressionEditor extends JPanel {
 	}	
 	
 	protected boolean isSymbol(Token t) {
-		// Note: Underscore is a prolog variable.
-		return t.getType() == AntlrGrinderLexer.SYMBOLIC_NAME;
+		return t.getType() == AntlrGrinderLexer.RATIONAL || t.getType() == AntlrGrinderLexer.SYMBOLIC_NAME;
 	}
 	
 	//
