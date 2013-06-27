@@ -62,10 +62,10 @@ public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends A
 			Expression elseBranch = expression.get(2);
 			
 			Expression thenBranchReplacement =
-				replaceTrueCondition(thenBranch, condition, process);
+				replaceCondition(thenBranch, condition, Expressions.TRUE, process);
 			
 			Expression elseBranchReplacement =
-				replaceFalseCondition(elseBranch, condition, process);
+				replaceCondition(elseBranch, condition, Expressions.FALSE, process);
 
 			if (thenBranchReplacement != thenBranch || elseBranchReplacement != elseBranch) {				
 				Expression result = IfThenElse.make(condition, thenBranchReplacement, elseBranchReplacement);			
@@ -75,12 +75,40 @@ public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends A
 		return expression;
 	}
 
-	public Expression replaceTrueCondition(Expression thenBranch, Expression condition, RewritingProcess process) {
+	public Expression replaceCondition(Expression expression, Expression condition, Expression booleanConstant, RewritingProcess process) {
+		Expression result;
+		result = replaceNonNegatedCondition(expression, condition, booleanConstant, process);
+//		if (condition.hasFunctor(FunctorConstants.NOT)) {
+//			result = replaceCondition(expression, condition.get(0), Expressions.opposite(booleanConstant), process);
+//		}
+//		else {
+//			result = replaceNonNegatedCondition(expression, condition, booleanConstant, process);
+//		}
+		return result;
+	}
+
+	public Expression replaceNonNegatedCondition(Expression expression, Expression condition, Expression booleanConstant, RewritingProcess process) {
+		Expression result = null;
+
+		if (booleanConstant.equals(Expressions.TRUE)){
+			result = replaceTrueCondition(expression, condition, process);
+		}
+		else if (booleanConstant.equals(Expressions.FALSE)){
+			result = replaceFalseCondition(expression, condition, process);
+		}
+		else {
+			throw new Error("replaceNonNegatedCondition should take a boolean constant but got " + booleanConstant);
+		}
+
+		return result;
+	}
+	
+	public Expression replaceTrueCondition(Expression expression, Expression condition, RewritingProcess process) {
 		if (condition.hasFunctor(FunctorConstants.AND)) {
 			for (Expression conjunct : condition.getArguments()) {
-				thenBranch = replaceTrueCondition(thenBranch, conjunct, process);
+				expression = replaceTrueCondition(expression, conjunct, process);
 			}
-			return thenBranch;
+			return expression;
 		}
 		// Note: When this if condition is false, we leave the then branch alone 
 		// because either it does not make sense (in the case of 'true' and 'false'),
@@ -91,18 +119,18 @@ public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends A
 				   condition.equals(FunctorConstants.TRUE) ||
 				   condition.equals(FunctorConstants.FALSE) ||
 				   IfThenElse.isIfThenElse(condition))) {
-			thenBranch = Substitute.replace(thenBranch, condition, Expressions.TRUE, process);
+			expression = Substitute.replace(expression, condition, Expressions.TRUE, process);
 		}
 
-		return thenBranch;
+		return expression;
 	}
 
-	public Expression replaceFalseCondition(Expression elseBranch, Expression condition, RewritingProcess process) {
+	public Expression replaceFalseCondition(Expression expression, Expression condition, RewritingProcess process) {
 		if (condition.hasFunctor(FunctorConstants.OR)) {
 			for (Expression disjunct : condition.getArguments()) {
-				elseBranch = replaceFalseCondition(elseBranch, disjunct, process);
+				expression = replaceFalseCondition(expression, disjunct, process);
 			}
-			return elseBranch;
+			return expression;
 		}
 		// Note: When this if condition is false, we leave the else branch alone 
 		// because either it does not make sense (in the case of 'true' and 'false'),
@@ -113,9 +141,9 @@ public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends A
 				   condition.equals(FunctorConstants.TRUE) ||
 				   condition.equals(FunctorConstants.FALSE) ||
 				   IfThenElse.isIfThenElse(condition))) {	
-			elseBranch = Substitute.replace(elseBranch, condition, Expressions.FALSE, process);			
+			expression = Substitute.replace(expression, condition, Expressions.FALSE, process);			
 		}
 		
-		return elseBranch;
+		return expression;
 	}
 }

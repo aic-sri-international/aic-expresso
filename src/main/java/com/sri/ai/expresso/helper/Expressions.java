@@ -850,4 +850,18 @@ public class Expressions {
 	
 		return;
 	}
+
+	public static Expression opposite(Expression booleanConstant) {
+		Expression result;
+		if (booleanConstant.equals(TRUE)){
+			result = FALSE;
+		}
+		else if (booleanConstant.equals(FALSE)){
+			result = TRUE;
+		}
+		else {
+			throw new Error("Expressions.opposite should take a boolean constant but got " + booleanConstant);
+		}
+		return result;
+	}
 }
