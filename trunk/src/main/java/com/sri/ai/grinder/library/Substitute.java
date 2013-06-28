@@ -156,8 +156,8 @@ public class Substitute {
 			Expression result = expression;
 			if (expression.getFunctorOrSymbol().equals(replaced.getFunctorOrSymbol())) {
 				Expression argumentsAreTheSame = Equality.makePairwiseEquality(expression.getArguments(), replaced.getArguments());
-				Expression argumentsAreTheSameAndReplacedIsConstrained = And.make(constraintOnReplaced, argumentsAreTheSame);
-				Expression conditionForExpressionToMatchReplaced = process.rewrite(CardinalityRewriter.R_complete_simplify, argumentsAreTheSameAndReplacedIsConstrained);
+				Expression argumentsAreTheSameAndConstraintOnReplaced = And.make(constraintOnReplaced, argumentsAreTheSame);
+				Expression conditionForExpressionToMatchReplaced = process.rewrite(CardinalityRewriter.R_complete_simplify, argumentsAreTheSameAndConstraintOnReplaced);
 				
 				// An assertion check.
 				if (!FormulaUtil.isFormula(conditionForExpressionToMatchReplaced, process)) {
@@ -166,8 +166,8 @@ public class Substitute {
 					System.err.println("expression                                 ="+expression);
 					System.err.println("replaced                                   ="+replaced);
 					System.err.println("argumentsAreTheSame                        ="+argumentsAreTheSame);
-					System.err.println("argumentsAreTheSameAndReplacedIsConstrained="+argumentsAreTheSameAndReplacedIsConstrained);
-					throw new IllegalArgumentException("Replaced and expression to be replaced do not form a formula for determing matching: "+conditionForExpressionToMatchReplaced);
+					System.err.println("argumentsAreTheSameAndReplacedIsConstrained="+argumentsAreTheSameAndConstraintOnReplaced);
+					throw new IllegalArgumentException("Unification of expression being search for being replaced (" + replaced + ") and candidate expression (" + expression + ") do not form a formula for determing matching: "+conditionForExpressionToMatchReplaced);
 				}
 				
 				if (!conditionForExpressionToMatchReplaced.equals(Expressions.FALSE)) {
