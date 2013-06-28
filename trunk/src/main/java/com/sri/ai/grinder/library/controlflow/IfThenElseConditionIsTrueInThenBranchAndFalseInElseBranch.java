@@ -77,13 +77,12 @@ public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends A
 
 	public Expression replaceCondition(Expression expression, Expression condition, Expression booleanConstant, RewritingProcess process) {
 		Expression result;
-		result = replaceNonNegatedCondition(expression, condition, booleanConstant, process);
-//		if (condition.hasFunctor(FunctorConstants.NOT)) {
-//			result = replaceCondition(expression, condition.get(0), Expressions.opposite(booleanConstant), process);
-//		}
-//		else {
-//			result = replaceNonNegatedCondition(expression, condition, booleanConstant, process);
-//		}
+		if (condition.hasFunctor(FunctorConstants.NOT)) {
+			result = replaceCondition(expression, condition.get(0), Expressions.opposite(booleanConstant), process);
+		}
+		else {
+			result = replaceNonNegatedCondition(expression, condition, booleanConstant, process);
+		}
 		return result;
 	}
 
