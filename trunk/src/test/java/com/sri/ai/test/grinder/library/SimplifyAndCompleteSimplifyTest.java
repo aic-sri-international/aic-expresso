@@ -444,7 +444,7 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 				// Basic: 
 				new SimplifyTestData(
 					"+((if not query then 1 else 0) * 2, (if query then 1 else 0) * 3)",
-					"if not query then if query then 5 else 2 else (if query then 3 else 0)"),
+					"if not query then 2 else 3"),
 		};
 		
 		perform(tests);
