@@ -139,7 +139,6 @@ public class OutputPanel extends JPanel {
 					
 					firstTime = false;
 
-					StringBuilder sb = new StringBuilder(msg);
 					while (indentLevel < currentIndentLevel) {
 						endTraceLevel();
 						currentIndentLevel--;
@@ -147,16 +146,14 @@ public class OutputPanel extends JPanel {
 					
 					// Suffix the profiler information to the message
 					// if available.
+					String profileString = "";
 					Long profileInfo = LogX.getProfileInfo(eventObject.getLoggerName());
 					if (profileInfo != null) {
-						sb.append(" [");
-						// Convert nanoseconds to milliseconds
-						sb.append(profileInfo / 1000000);
-						sb.append("ms.]");
+						profileString = "[" + profileInfo/1000000 + "ms]";
 					}
 
 					if (msg != null && !msg.equals("") && BaseTreeUtilAppender.outputFormattedMessage(msg, args)) {
-						addTrace(sb.toString());
+						addTrace(profileString + " " + msg);
 					}
 
 					if (args != null) {
