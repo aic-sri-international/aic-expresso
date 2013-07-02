@@ -78,7 +78,6 @@ public class RewriterTraceTreeUtilAppender extends BaseTreeUtilAppender {
 			
 			firstTime = false;
 
-			StringBuilder sb = new StringBuilder(msg);
 			while (indentLevel < currentIndentLevel) {
 				TreeUtil.endTraceLevel();
 				currentIndentLevel--;
@@ -86,16 +85,14 @@ public class RewriterTraceTreeUtilAppender extends BaseTreeUtilAppender {
 			
 			// Suffix the profiler information to the message
 			// if available.
+			String profileString = "";
 			Long profileInfo = LogX.getProfileInfo(eventObject.getLoggerName());
 			if (profileInfo != null) {
-				sb.append(" [");
-				// Convert nanoseconds to milliseconds
-				sb.append(profileInfo / 1000000);
-				sb.append("ms.]");
+				profileString = "[" + profileInfo/1000000 + "ms]";
 			}
 
 			if (msg != null && !msg.equals("") && outputFormattedMessage(msg, args)) {
-				TreeUtil.addTrace(sb.toString());
+				TreeUtil.addTrace(profileString + " " + msg);
 			}
 
 			if (args != null) {
