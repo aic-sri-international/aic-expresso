@@ -149,7 +149,12 @@ public class OutputPanel extends JPanel {
 					String profileString = "";
 					Long profileInfo = LogX.getProfileInfo(eventObject.getLoggerName());
 					if (profileInfo != null) {
-						profileString = "[" + profileInfo/1000000 + "ms]";
+						profileString = "[" + profileInfo/1000000 + "ms";
+						Long rootProfileInfo = LogX.getRootProfileInfo(eventObject.getLoggerName());
+						if (null != rootProfileInfo) {
+							profileString += ", " + (rootProfileInfo / 1000000) + "ms total";
+						}
+						profileString += "]";
 					}
 
 					if (msg != null && !msg.equals("") && BaseTreeUtilAppender.outputFormattedMessage(msg, args)) {
