@@ -37,17 +37,21 @@
  */
 package com.sri.ai.test.grinder.library;
 
+import java.util.Collection;
+
 import org.junit.Test;
 
 import com.sri.ai.brewer.api.Grammar;
 import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 import com.sri.ai.test.grinder.TestData;
+import com.sri.ai.util.Util;
 
 public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 	
@@ -469,6 +473,20 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 	}
 	
 	@Test
+	public void testCompleteSimplifyPerformance() {
+		TestData[] tests = new TestData[] {
+				// This is a contradiction
+				new CompleteSimplifyTestDataWithContext(
+						Util.list(parse("X"), parse("Y")),
+						"Y != X and (X = dave and Y = bob or Y = dave and X = bob)",
+						"Y != X and (X = dave and Y = bob or Y = dave and X = bob) and X = dave and Y = bob", 
+						"X = dave and Y = bob"),
+			};
+			
+			perform(tests);
+	}
+	
+	@Test
 	public void testCompleteSimplifyContradictions() {
 		TestData[] tests = new TestData[] {
 				// This is a contradiction
@@ -560,6 +578,24 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 		@Override
 		protected String getSimplifyName() {
 			return CardinalityRewriter.R_complete_simplify;
+		}
+	};
+
+	class CompleteSimplifyTestDataWithContext extends CompleteSimplifyTestData {
+		
+		private Expression context;
+		private Collection<Expression> contextualVariables;
+
+		public CompleteSimplifyTestDataWithContext(Collection<Expression> contextualVariables, String context, String expressionString, String expected) {
+			super(expressionString, expected);
+			this.contextualVariables = contextualVariables;
+			this.context = parse(context);
+		};
+		
+		@Override
+		public Expression callRewrite(RewritingProcess process) {
+			process = GrinderUtil.extendContextualVariablesAndConstraint(contextualVariables, context, process);
+			return super.callRewrite(process);
 		}
 	};
 }
