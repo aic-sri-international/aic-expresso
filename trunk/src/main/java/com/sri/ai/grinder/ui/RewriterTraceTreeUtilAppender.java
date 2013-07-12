@@ -85,7 +85,18 @@ public class RewriterTraceTreeUtilAppender extends BaseTreeUtilAppender {
 			int indentLevel = LogX.getTraceLevel(eventObject.getLoggerName());
 
 			while (currentIndentLevel < indentLevel) {
-				TreeUtil.addTrace(">>");
+				if (currentIndentLevel == (indentLevel-1)) {
+					if (outputMsg != null) {
+						TreeUtil.addTrace(outputMsg);
+						outputMsg = null; // indicates already output
+					}
+					else {
+						TreeUtil.addTrace(">>");
+					}
+				}
+				else {
+					TreeUtil.addTrace(">>");
+				}
 				TreeUtil.startTraceLevel();
 				currentIndentLevel++;
 			}
