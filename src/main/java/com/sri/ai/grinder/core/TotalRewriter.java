@@ -196,21 +196,17 @@ public class TotalRewriter extends AbstractRewriter {
 								long relativeTime = System.currentTimeMillis() - startTime;
 								
 								boolean isWholeExpressionRewrite = priorResult == currentTopExpression[0];
-								String  indent = "";
 								if (isWholeExpressionRewrite) {
-									Trace.log(indent+"Rewriting whole expression:");
+									Trace.log("Rewriting whole expression:");
+									Trace.log("{}", priorResult);
 								} 
 								else {
-									indent = "    ";
-									Trace.log(indent+"Rewriting sub-expression:");
-									Trace.log(indent+"{}", priorResult);
+									Trace.log("Rewriting sub-expression:");
+									Trace.log("{}", priorResult);
 								}
 								
-								Trace.log(indent+"   ----> ("+rewriter.getName()+",  "+relativeTime+" ms, #"+(++rewritingCount)+", "+numberOfSelections+" rewriter selections ("+totalNumberOfSelections+" since start))");
-	
-								if (!isWholeExpressionRewrite) {
-									Trace.log(indent+"{}", result);
-								}
+								Trace.log("   ----> ("+rewriter.getName()+",  "+relativeTime+" ms, #"+(++rewritingCount)+", "+numberOfSelections+" rewriter selections ("+totalNumberOfSelections+" since start))");
+								Trace.log("{}", result);
 							}
 						
 							if (justificationEnabled) {
@@ -253,11 +249,6 @@ public class TotalRewriter extends AbstractRewriter {
 			previous = current;
 			currentTopExpression[0] = current;
 			current  = previous.replaceAllOccurrences(rewriteFunction, deadEndPruner, deadEndListener, process);
-			if (traceEnabled) {
-				if (current != previous) {
-					Trace.log("{}", current);
-				}
-			}
 		}
 		
 		Expression result = current;
