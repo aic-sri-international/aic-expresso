@@ -167,7 +167,7 @@ public class TotalRewriter extends AbstractRewriter {
 				
 				// Exhaustively apply each rewriter in turn.
 				long startTime  = 0L;
-				int rewriterIdx = 0;
+				int rewriterIdx = 0;				
 				while (rewriterIdx < activeRewriters.size()) {
 					Rewriter rewriter = activeRewriters.get(rewriterIdx);
 					Expression startedWith = result;
@@ -178,7 +178,13 @@ public class TotalRewriter extends AbstractRewriter {
 							startTime = System.currentTimeMillis();
 						}
 						
+						if (traceEnabled) {
+							Trace.setTraceLevel(Trace.getTraceLevel()+1);
+						}
 						result = rewriter.rewrite(priorResult, process);
+						if (traceEnabled) {
+							Trace.setTraceLevel(Trace.getTraceLevel()-1);
+						}
 						
 						// Track Selections
 						numberOfSelections.addAndGet(1);
