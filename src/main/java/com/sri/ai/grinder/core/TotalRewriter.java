@@ -198,7 +198,7 @@ public class TotalRewriter extends AbstractRewriter {
 							if (traceEnabled) {
 								long relativeTime = System.currentTimeMillis() - startTime;
 								
-								boolean isWholeExpressionRewrite = priorResult == currentTopExpression[0];
+								boolean isWholeExpressionRewrite = startedWith == currentTopExpression[0];
 								if (isWholeExpressionRewrite) {
 									Trace.log("Rewriting whole expression:");
 									Trace.log("{}", priorResult);
