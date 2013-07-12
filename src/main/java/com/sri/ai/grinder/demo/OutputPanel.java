@@ -120,30 +120,12 @@ public class OutputPanel extends JPanel {
 			traceAppender = new AppenderBase<ILoggingEvent>() {
 				//
 				private int currentIndentLevel = 0;
-				private boolean firstTime = true;
 				//
 				@Override
 				protected void append(ILoggingEvent eventObject) {
 					String msg = eventObject.getFormattedMessage();
 					Object[] args = eventObject.getArgumentArray();
 
-					int indentLevel = LogX.getTraceLevel(eventObject.getLoggerName());
-
-					while (indentLevel > currentIndentLevel) {
-						if (!firstTime) {
-							addTrace(">>");
-						}
-						startTraceLevel();
-						currentIndentLevel++;
-					}
-					
-					firstTime = false;
-
-					while (indentLevel < currentIndentLevel) {
-						endTraceLevel();
-						currentIndentLevel--;
-					}
-					
 					// Suffix the profiler information to the message
 					// if available.
 					String profileString = "";
@@ -154,11 +136,29 @@ public class OutputPanel extends JPanel {
 						if (null != rootProfileInfo) {
 							profileString += ", " + (rootProfileInfo / 1000000) + "ms total";
 						}
-						profileString += "]";
+						profileString += "] ";
+					}
+					
+					String outputMsg = null;
+					if (msg != null && !msg.equals("") && BaseTreeUtilAppender.outputFormattedMessage(msg, args)) {
+						outputMsg = profileString + msg;
+					}
+					
+					int indentLevel = LogX.getTraceLevel(eventObject.getLoggerName());
+
+					while (indentLevel > currentIndentLevel) {
+						addTrace(">>");
+						startTraceLevel();
+						currentIndentLevel++;
 					}
 
-					if (msg != null && !msg.equals("") && BaseTreeUtilAppender.outputFormattedMessage(msg, args)) {
-						addTrace(profileString + " " + msg);
+					while (indentLevel < currentIndentLevel) {
+						endTraceLevel();
+						currentIndentLevel--;
+					}
+					
+					if (outputMsg != null) {
+						addTrace(outputMsg);
 					}
 
 					if (args != null) {

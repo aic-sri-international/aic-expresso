@@ -50,10 +50,8 @@ import com.sri.ai.util.log.LogX;
 @Beta
 public class RewriterTraceTreeUtilAppender extends BaseTreeUtilAppender {
 	//
-	protected int currentIndentLevel = 0;
-	//
-	private boolean firstTime = true;
-
+	private int currentIndentLevel = 0;
+	
 	public RewriterTraceTreeUtilAppender() {
 		super();
 		currentIndentLevel = 0;
@@ -63,25 +61,8 @@ public class RewriterTraceTreeUtilAppender extends BaseTreeUtilAppender {
 	protected void append(ILoggingEvent eventObject) {
 		if (TreeUtil.isShowing()) {
 
-			String msg = eventObject.getFormattedMessage();
+			String msg    = eventObject.getFormattedMessage();
 			Object[] args = eventObject.getArgumentArray();
-
-			int indentLevel = LogX.getTraceLevel(eventObject.getLoggerName());
-
-			while (indentLevel > currentIndentLevel) {
-				if (!firstTime) {
-					TreeUtil.addTrace(">>");
-				}
-				TreeUtil.startTraceLevel();
-				currentIndentLevel++;
-			}
-			
-			firstTime = false;
-
-			while (indentLevel < currentIndentLevel) {
-				TreeUtil.endTraceLevel();
-				currentIndentLevel--;
-			}
 			
 			// Suffix the profiler information to the message
 			// if available.
@@ -93,13 +74,31 @@ public class RewriterTraceTreeUtilAppender extends BaseTreeUtilAppender {
 				if (null != rootProfileInfo) {
 					profileString += ", " + (rootProfileInfo / 1000000) + "ms total";
 				}
-				profileString += "]";
+				profileString += "] ";
 			}
 
+			String outputMsg = null;
 			if (msg != null && !msg.equals("") && outputFormattedMessage(msg, args)) {
-				TreeUtil.addTrace(profileString + " " + msg);
+				outputMsg = profileString + msg;
 			}
 
+			int indentLevel = LogX.getTraceLevel(eventObject.getLoggerName());
+
+			while (currentIndentLevel < indentLevel) {
+				TreeUtil.addTrace(">>");
+				TreeUtil.startTraceLevel();
+				currentIndentLevel++;
+			}
+			
+			while (currentIndentLevel > indentLevel) {
+				TreeUtil.endTraceLevel();
+				currentIndentLevel--;
+			}
+			
+			if (outputMsg != null) {
+				TreeUtil.addTrace(outputMsg);
+			}
+			
 			if (args != null) {
 				for (Object arg : args) {
 					TreeUtil.addTrace(arg);
