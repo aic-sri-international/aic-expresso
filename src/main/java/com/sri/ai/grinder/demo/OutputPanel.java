@@ -146,13 +146,24 @@ public class OutputPanel extends JPanel {
 					
 					int indentLevel = LogX.getTraceLevel(eventObject.getLoggerName());
 
-					while (indentLevel > currentIndentLevel) {
-						addTrace(">>");
+					while (currentIndentLevel < indentLevel) {
+						if (currentIndentLevel == (indentLevel-1)) {
+							if (outputMsg != null) {
+								addTrace(outputMsg);
+								outputMsg = null; // indicates already output
+							}
+							else {
+								addTrace(">>");
+							}
+						}
+						else {
+							addTrace(">>");
+						}
 						startTraceLevel();
 						currentIndentLevel++;
 					}
-
-					while (indentLevel < currentIndentLevel) {
+					
+					while (currentIndentLevel > indentLevel) {
 						endTraceLevel();
 						currentIndentLevel--;
 					}
