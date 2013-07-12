@@ -51,6 +51,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.AbstractSyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.Justification;
@@ -73,6 +74,7 @@ public abstract class AbstractRewriter implements Rewriter {
 	private static final List<Rewriter> _emptyChildList = Collections.unmodifiableList(new ArrayList<Rewriter>());
 	//
 	private String name = null;
+	private boolean traceInAndOutOfRewriter = GrinderConfiguration.isTraceInAndOutOfAtomicRewriterEnabled();
 
 	/**
 	 * A general rewriting utility which receives an expression, looks for a
@@ -251,7 +253,7 @@ public abstract class AbstractRewriter implements Rewriter {
 	}
 	
 	protected boolean isTraceInAndOutOfRewriter() {
-		return false;
+		return traceInAndOutOfRewriter;
 	}
 	
 	/**

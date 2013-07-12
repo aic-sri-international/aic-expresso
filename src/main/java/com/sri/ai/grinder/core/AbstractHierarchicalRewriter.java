@@ -42,6 +42,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 
 /**
@@ -56,6 +57,7 @@ import com.sri.ai.grinder.api.Rewriter;
 @Beta
 public abstract class AbstractHierarchicalRewriter extends AbstractRewriter {
 	private Set<Rewriter> children = new LinkedHashSet<Rewriter>();
+	private boolean traceInAndOutOfRewriter = GrinderConfiguration.isTraceInAndOutOfHierarchicalRewriterEnabled();
 	
 	//
 	// START-Rewriter
@@ -72,7 +74,7 @@ public abstract class AbstractHierarchicalRewriter extends AbstractRewriter {
 	//
 	@Override
 	protected boolean isTraceInAndOutOfRewriter() {
-		return true;
+		return traceInAndOutOfRewriter;
 	}
 	
 	protected void updateChildRewriter(Rewriter oldChild, Rewriter newChild) {
