@@ -60,8 +60,6 @@ public class Trace extends RewriterLogging {
 	static {
 		_defaultRewriterTrace = LogXFactory.getLogX(
 			getDefaultLoggerName(), Trace.class.getName());
-		
-		_defaultRewriterTrace.setIndentIndentationContent(true);
 	}
 	
 	/**

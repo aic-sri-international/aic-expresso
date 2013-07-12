@@ -73,8 +73,6 @@ public class Justification extends RewriterLogging {
 	static {
 		_defaultRewriterJustification = LogXFactory.getLogX(
 				getDefaultLoggerName(), Justification.class.getName());
-
-		_defaultRewriterJustification.setIndentIndentationContent(false);
 	}
 
 	/**

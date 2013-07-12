@@ -69,7 +69,7 @@ public abstract class BaseTreeUtilAppender extends AppenderBase<ILoggingEvent> {
 			else {
 				argToString = args[0].toString();
 			}
-			if (argToString.equals(msg)) {
+			if (argToString.equals(msg.trim())) {
 				result = false;
 			}
 		}
