@@ -167,7 +167,10 @@ public class TotalRewriter extends AbstractRewriter {
 				
 				// Exhaustively apply each rewriter in turn.
 				long startTime  = 0L;
-				int rewriterIdx = 0;				
+				int rewriterIdx = 0;	
+				if (traceEnabled) {
+					Trace.log("// Total Rewriter calling child rewriters for: {}", result);
+				}
 				while (rewriterIdx < activeRewriters.size()) {
 					Rewriter rewriter = activeRewriters.get(rewriterIdx);
 					Expression startedWith = result;
