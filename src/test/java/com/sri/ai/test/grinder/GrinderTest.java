@@ -147,6 +147,12 @@ public class GrinderTest extends AbstractGrinderTest {
 		s = DefaultSymbol.makeStringValuedSymbolParseSafe("aSymbol");
 		Assert.assertEquals("aSymbol", s);
 		
+		s = DefaultSymbol.makeStringValuedSymbolParseSafe("aSymbol'");
+		Assert.assertEquals("aSymbol'", s);
+		
+		s = DefaultSymbol.makeStringValuedSymbolParseSafe("aSymbol'''");
+		Assert.assertEquals("aSymbol'''", s);
+		
 		// spaces
 		s = DefaultSymbol.makeStringValuedSymbolParseSafe("I have a space");
 		Assert.assertEquals("'I have a space'", s);
