@@ -41,6 +41,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -244,10 +246,11 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	public static String makeStringValuedSymbolParseSafe(String aStringSymbol) {
 		String result = aStringSymbol;
 		boolean containsSpace       = aStringSymbol.contains(" ");
-		boolean containsSingleQuote = aStringSymbol.contains("'");
+		// Note: trailing ''' are allowed for symbol names, e.g. aSymbol'
+		boolean containsSingleQuote = StringUtils.stripEnd(aStringSymbol, "'").contains("'");
 		
 		if (containsSpace || containsSingleQuote) {
-			StringBuilder sb = new StringBuilder();	
+			StringBuilder sb = new StringBuilder();
 			if (!aStringSymbol.startsWith("'")) {
 				sb.insert(0, "'");
 			}
@@ -355,8 +358,8 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	@Override
 	public String defaultToString() {
 		String result = "";
-		if (label instanceof String && ((String) label).contains(" ")) {
-			result = "'" + label + "'";
+		if (label instanceof String) {
+			result = makeStringValuedSymbolParseSafe((String)label);
 		}
 		else if (label instanceof Expression) {
 			result = "<" + label + ">";
