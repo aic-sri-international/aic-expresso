@@ -168,9 +168,6 @@ public class TotalRewriter extends AbstractRewriter {
 				// Exhaustively apply each rewriter in turn.
 				long startTime  = 0L;
 				int rewriterIdx = 0;	
-				if (traceEnabled) {
-					Trace.log("// Total Rewriter calling child rewriters for: {}", result);
-				}
 				while (rewriterIdx < activeRewriters.size()) {
 					Rewriter rewriter = activeRewriters.get(rewriterIdx);
 					Expression startedWith = result;
@@ -198,7 +195,7 @@ public class TotalRewriter extends AbstractRewriter {
 							if (traceEnabled) {
 								long relativeTime = System.currentTimeMillis() - startTime;
 								
-								boolean isWholeExpressionRewrite = startedWith == currentTopExpression[0];
+								boolean isWholeExpressionRewrite = priorResult == currentTopExpression[0];
 								if (isWholeExpressionRewrite) {
 									Trace.log("Rewriting whole expression:");
 									Trace.log("{}", priorResult);
