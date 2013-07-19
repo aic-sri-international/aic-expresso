@@ -63,7 +63,7 @@ public class KindAttribute implements RewriterTestAttribute {
 	public static final Object VALUE_NONE = new Object() {
 		@Override
 		public boolean equals(Object o) {
-			return false; 
+			return this == o; 
 		}
 		
 		@Override
@@ -117,8 +117,7 @@ public class KindAttribute implements RewriterTestAttribute {
 		else {
 			// i.e. indicate the expression does not have a value for this attribute.
 			result = VALUE_NONE;
-		}
-		
+		}		
 		
 		return result;
 	}
