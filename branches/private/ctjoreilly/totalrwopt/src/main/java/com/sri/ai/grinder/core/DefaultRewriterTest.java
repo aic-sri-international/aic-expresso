@@ -79,4 +79,25 @@ public class DefaultRewriterTest implements RewriterTest {
 	}
 	// END-RewiterTest
 	//
+	
+	@Override
+	public String toString() {
+		return "(attribute="+attribute+", value="+value+")";
+	}
+	
+	@Override
+	public int hashCode() {
+		return attribute.hashCode() + value.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		
+		if (o != null && o instanceof RewriterTest) {
+			RewriterTest ort = (RewriterTest) o;
+			return this.attribute == ort.getAttribute() && this.value.equals(ort.getValue());
+		}
+		
+		return false;
+	}
 }

@@ -35,52 +35,31 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.api;
+package com.sri.ai.grinder.core;
+
+import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.Rewriter;
 
 /**
- * Interface representing a reified test (of which there can be many) that a
- * Rewriter applies against a given expression (conjunctively) to determine
- * whether or not the Rewriter should be applied against the given expression.
- * These tests indicate the 'attribute' (i.e. RewriterTestAttribute) and 'value'
- * used in the test of an expression. For example, the exponentiation rewriter
- * tests the attribute 'kind' of the expression for its value 'application of
- * ^'.
+ * A Decision Tree that determines the best best way to call Rewriters based on
+ * their reified tests.
  * 
- * @author braz
  * @author oreilly
  * 
  */
 @Beta
-public interface RewriterTest {
-	/**
-	 * 
-	 * @return the Attribute part of the (attribute, value) pair this test
-	 *         applies to.
-	 */
-	RewriterTestAttribute getAttribute();
+public class CallRewriterDecisionTree {
 
 	/**
+	 * Constructor.
 	 * 
-	 * @return the Value part of the (attribute, value) pair this test applies
-	 *         to.
+	 * @param rewriters
+	 *            a list of rewriters for which a decision tree is to be
+	 *            constructed.
 	 */
-	Object getValue();
-
-	/**
-	 * Determine if the Rewriter that owns this test should be applied to the
-	 * given expression based on the (attribute, value) pair that this test
-	 * represents., i.e. attribute.getValue(expression) = value.
-	 * 
-	 * @param expression
-	 *            an expression to test whether or not the Rewriter this test
-	 *            belongs to should be applied to.
-	 * @param process
-	 *            the process in which rewriting is occurring.
-	 * @return true if this tests (attribute,value) apply to the given
-	 *         expression, otherwise return false.
-	 */
-	boolean apply(Expression expression, RewritingProcess process);
+	public CallRewriterDecisionTree(List<Rewriter> rewriters) {
+// TODO
+	}
 }
