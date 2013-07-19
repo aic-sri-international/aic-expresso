@@ -42,6 +42,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
@@ -103,14 +104,18 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 				PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_LOGICAL_VARIABLE,
 				domainSizeOfLogicalVariable);
 	}
+	
+	public CardinalityTypeOfLogicalVariable() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.CARDINALITY));
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression,
 			RewritingProcess process) {
 		Expression result = expression;
 
-		if (expression.hasFunctor(FunctorConstants.CARDINALITY)
-				&& expression.numberOfArguments() == 1) {
+		// Reified Tests: HasFunctor(FunctorConstants.CARDINALITY) 
+		if (expression.numberOfArguments() == 1) {
 			Expression cardArg = expression.get(0);
 			Expression logicalVariable = null;
 			

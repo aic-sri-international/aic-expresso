@@ -86,7 +86,7 @@ public interface Rewriter {
 	 *         to a given expression to help in determining whether or not it
 	 *         should attempt to actually rewrite a given expression.
 	 */
-	List<RewriterTest> getTests();
+	List<RewriterTest> getReifiedTests();
 
 	/**
 	 * Rewrites an expression within the context of a rewriting process.

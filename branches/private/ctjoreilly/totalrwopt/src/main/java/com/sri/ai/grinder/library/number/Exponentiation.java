@@ -44,6 +44,8 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -72,10 +74,14 @@ public class Exponentiation extends AbstractRewriter {
 		System.out.println("max exp  ="+maxExp);
 		System.out.println("min exp  ="+minExp);
 	}
+	
+	public Exponentiation() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.EXPONENTIATION));
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (expression.hasFunctor("^") && expression.numberOfArguments() == 2) {
+		if (expression.numberOfArguments() == 2) {
 			Expression base = expression.get(0);
 			Expression exponent = expression.get(1);
 

@@ -76,7 +76,7 @@ public class CallRewriterDecisionTree {
 		// a decision tree.
 		List<RewriterWithReifiedTests> rewritersWithReifiedTests = new ArrayList<RewriterWithReifiedTests>();
 		for (Rewriter r : rewriters) {
-			rewritersWithReifiedTests.add(new RewriterWithReifiedTests(r, r.getTests()));
+			rewritersWithReifiedTests.add(new RewriterWithReifiedTests(r, r.getReifiedTests()));
 		}
 		
 		rootNode = makeDecisionTree(rewritersWithReifiedTests);
@@ -239,7 +239,18 @@ public class CallRewriterDecisionTree {
 		
 		@Override
 		public void toString(StringBuilder sb, String indent) {
-// TODO			
+			sb.append(indent);
+			sb.append("+attribute"+a);
+			sb.append("\n");
+			for (Object v : valueToNode.keySet()) {
+				Node childNode = valueToNode.get(v);
+				sb.append(indent);
+				sb.append("    ");
+				sb.append("-value="+v);
+				sb.append("\n");
+				childNode.toString(sb, indent+"        ");				
+			}
+			sb.append("\n");
 		}
 	}
 	
@@ -261,6 +272,7 @@ public class CallRewriterDecisionTree {
 		public void toString(StringBuilder sb, String indent) {
 			for (RewriterWithReifiedTests rwrts : rewritersWithReifiedTests) {
 				sb.append(indent);
+				sb.append("rewriter=");
 				sb.append(rwrts.rewriter.getName());
 				sb.append("\n");
 				for (RewriterTest test : rwrts.tests) {

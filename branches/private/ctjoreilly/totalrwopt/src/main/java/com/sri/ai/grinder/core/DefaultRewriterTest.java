@@ -55,7 +55,7 @@ public class DefaultRewriterTest implements RewriterTest {
 	protected RewriterTestAttribute attribute = null;
 	protected Object                value     = null;
 	
-	protected DefaultRewriterTest(RewriterTestAttribute attribute, Object value) {
+	public DefaultRewriterTest(RewriterTestAttribute attribute, Object value) {
 		this.attribute = attribute;
 		this.value     = value;
 	}

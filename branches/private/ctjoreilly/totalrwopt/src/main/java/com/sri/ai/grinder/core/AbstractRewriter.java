@@ -75,7 +75,7 @@ public abstract class AbstractRewriter implements Rewriter {
 	private static final List<Rewriter> _emptyChildList = Collections.unmodifiableList(new ArrayList<Rewriter>());
 	//
 	private String name = null;
-	private List<RewriterTest> tests = Collections.emptyList(); 
+	private List<RewriterTest> reifiedTests = Collections.emptyList(); 
 	private boolean traceInAndOutOfRewriter = GrinderConfiguration.isTraceInAndOutOfAtomicRewriterEnabled();
 
 	/**
@@ -162,8 +162,8 @@ public abstract class AbstractRewriter implements Rewriter {
 	}
 	
 	@Override
-	public List<RewriterTest> getTests() {
-		return tests;
+	public List<RewriterTest> getReifiedTests() {
+		return reifiedTests;
 	}
 
 	@Override
@@ -193,10 +193,11 @@ public abstract class AbstractRewriter implements Rewriter {
 			result = Rewriter.FALSE_CONTEXTUAL_CONTRAINT_RETURN_VALUE;
 		} 
 		else {
-			if (bypassTests || runTests(expression, process)) {
+			
+			if (bypassTests || runReifiedTests(expression, process)) {
 				result = rewriteAfterBookkeeping(expression, process);
 			}
-
+			
 			if (result != original && original == process.getRootExpression()) {
 				process.setRootExpression(result);
 			}
@@ -267,23 +268,28 @@ public abstract class AbstractRewriter implements Rewriter {
 		this.name = name;
 	}
 	
-	protected void setTests(RewriterTest... rewriterTests) {
-		tests = new ArrayList<RewriterTest>();
+	protected void setReifiedTests(RewriterTest... rewriterTests) {
+		reifiedTests = new ArrayList<RewriterTest>();
 		
 		for (RewriterTest rt : rewriterTests) {
-			tests.add(rt);
+			reifiedTests.add(rt);
 		}
 		
 		// For safety, make immutable
-		tests = Collections.unmodifiableList(tests);
+		reifiedTests = Collections.unmodifiableList(reifiedTests);
 	}
 	
-	protected boolean runTests(final Expression expression, final RewritingProcess process) {
-		return Util.forAll(getTests(), new Predicate<RewriterTest>() {
-			public boolean apply(RewriterTest test) {
-				return test.apply(expression, process);
+	protected boolean runReifiedTests(final Expression expression, final RewritingProcess process) {		
+		// Note: intentionally not using Util.forAll as this is a heavily
+		// used routine I don't won't to have the overhead of creating
+		// iterators.
+		int numTests = reifiedTests.size();
+		for (int i = 0; i < numTests; i++) {
+			if (!reifiedTests.get(i).apply(expression, process)) {
+				return false;
 			}
-		});
+		}
+		return true;
 	}
 	
 	protected boolean isTraceInAndOutOfRewriter() {

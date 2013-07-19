@@ -44,6 +44,8 @@ import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.math.Rational;
 
@@ -55,10 +57,15 @@ import com.sri.ai.util.math.Rational;
  */
 @Beta
 public class Division extends AbstractRewriter {
+	
+	public Division() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.DIVISION));
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (expression.hasFunctor("/") && expression.numberOfArguments() == 2) {
+		// Reified Tests: HasFunctor(FunctorConstants.DIVISION)
+		if (expression.numberOfArguments() == 2) {
 
 			if (expression.get(0).equals(0)) { // if numerator is 0, fraction is 0.
 				return Expressions.ZERO;

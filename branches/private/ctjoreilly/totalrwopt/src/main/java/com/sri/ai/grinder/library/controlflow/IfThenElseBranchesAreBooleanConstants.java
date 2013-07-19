@@ -42,6 +42,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.library.boole.Not;
 
 /**
@@ -58,21 +59,24 @@ import com.sri.ai.grinder.library.boole.Not;
  */
 @Beta
 public class IfThenElseBranchesAreBooleanConstants extends AbstractRewriter {
+	
+	public IfThenElseBranchesAreBooleanConstants() {
+		this.setReifiedTests(new HasFunctor(IfThenElse.FUNCTOR));
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expression result = expression;
-		if (IfThenElse.isIfThenElse(expression)) {
-			Expression condition  = expression.get(0);
-			Expression thenBranch = expression.get(1);
-			Expression elseBranch = expression.get(2);
-			
-			if (Expressions.TRUE.equals(thenBranch) && Expressions.FALSE.equals(elseBranch) ) {
-				result = condition;
-			}
-			else if (Expressions.FALSE.equals(thenBranch) && Expressions.TRUE.equals(elseBranch)) {
-				result = Not.make(condition);
-			}
+		
+		Expression condition  = expression.get(0);
+		Expression thenBranch = expression.get(1);
+		Expression elseBranch = expression.get(2);
+		
+		if (Expressions.TRUE.equals(thenBranch) && Expressions.FALSE.equals(elseBranch) ) {
+			result = condition;
+		}
+		else if (Expressions.FALSE.equals(thenBranch) && Expressions.TRUE.equals(elseBranch)) {
+			result = Not.make(condition);
 		}
 		
 		return result;

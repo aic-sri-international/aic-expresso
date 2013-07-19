@@ -44,6 +44,8 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.DefaultRewriterTest;
+import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.library.Substitute;
 import com.sri.ai.grinder.library.set.Sets;
 
@@ -54,15 +56,19 @@ import com.sri.ai.grinder.library.set.Sets;
  */
 @Beta
 public class IntensionalSetWithBoundIndex extends AbstractRewriter {
+	
+	public IntensionalSetWithBoundIndex() {
+		this.setReifiedTests(new DefaultRewriterTest(KindAttribute.INSTANCE, KindAttribute.VALUE_INTENSIONAL_SET));
+	}
+	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expressions.BoundIndexInformation boundIndexInformation = null;
-		if (IntensionalSet.isIntensionalSet(expression) &&
-				(boundIndexInformation
-						= Expressions.getBoundIndexInformation(
-								IntensionalSet.getCondition(expression), IntensionalSet.getIndexExpressions(expression))
-						)
-						!= null) {
+		if ((boundIndexInformation
+					= Expressions.getBoundIndexInformation(
+							IntensionalSet.getCondition(expression), IntensionalSet.getIndexExpressions(expression))
+					)
+					!= null) {
 
 			Expression index = boundIndexInformation.index;
 			Expression value = boundIndexInformation.value;

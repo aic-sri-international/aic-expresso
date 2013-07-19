@@ -43,6 +43,7 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.math.Rational;
 
@@ -55,11 +56,15 @@ import com.sri.ai.util.math.Rational;
 @Beta
 public class Minus extends AbstractRewriter {
 	public static String FUNCTOR = FunctorConstants.MINUS;
+	
+	public Minus() {
+		this.setReifiedTests(new HasFunctor(FUNCTOR));
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expression result = expression;
-		if (expression.hasFunctor(FUNCTOR) && expression.numberOfArguments() == 2) {
+		if (expression.numberOfArguments() == 2) {
 			Expression first = expression.get(0);
 			Expression second = expression.get(1);
 
