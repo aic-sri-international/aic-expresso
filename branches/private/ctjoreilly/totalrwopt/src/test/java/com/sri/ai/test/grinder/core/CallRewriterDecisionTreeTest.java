@@ -43,6 +43,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.grinder.core.CallRewriterDecisionTree;
 import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
 import com.sri.ai.grinder.library.Disequality;
@@ -138,6 +139,9 @@ public class CallRewriterDecisionTreeTest {
 					new IfThenElseExternalization()
 				);
 		
+		CallRewriterDecisionTree decisionTree = new CallRewriterDecisionTree(rewriters);
 		
+		System.out.println("Total # Rewriters="+rewriters.size());
+		System.out.println(decisionTree.toString());
 	}
 }

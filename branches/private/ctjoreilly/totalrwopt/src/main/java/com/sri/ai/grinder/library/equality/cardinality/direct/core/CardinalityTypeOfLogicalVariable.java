@@ -43,6 +43,7 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
@@ -106,7 +107,8 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 	}
 	
 	public CardinalityTypeOfLogicalVariable() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.CARDINALITY));
+		this.setReifiedTests(new HasFunctor(FunctorConstants.CARDINALITY),
+				             new HasNumberOfArguments(1));
 	}
 
 	@Override
@@ -114,42 +116,39 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 			RewritingProcess process) {
 		Expression result = expression;
 
-		// Reified Tests: HasFunctor(FunctorConstants.CARDINALITY) 
-		if (expression.numberOfArguments() == 1) {
-			Expression cardArg = expression.get(0);
-			Expression logicalVariable = null;
-			
-			if (process.isVariable(cardArg)) {
-				// | DomainNameLogicalVariable | 
-				logicalVariable = cardArg;
-			} 
-			else {
-				// | type(LogicalVariableName) |
-				// Note: type(...) expressions are usually marked as being
-				// SyntacticFunctionsSubExpressionsProvider("type",
-				// "scoped variables"), which means its arguments are not accessible
-				// as rewriting of them is not considered possible.
-				// However, in this case we'd like to do differently.
-				if (cardArg.hasFunctor(FUNCTOR_TYPE)
-						&& cardArg.getSyntaxTree().numberOfImmediateSubTrees() == 1
-						&& process.isVariable(cardArg.getSyntaxTree()
-								.getImmediateSubTrees().get(0))) {
-					
-					logicalVariable = cardArg.getSyntaxTree().getImmediateSubTrees().get(0);
+		Expression cardArg = expression.get(0);
+		Expression logicalVariable = null;
+		
+		if (process.isVariable(cardArg)) {
+			// | DomainNameLogicalVariable | 
+			logicalVariable = cardArg;
+		} 
+		else {
+			// | type(LogicalVariableName) |
+			// Note: type(...) expressions are usually marked as being
+			// SyntacticFunctionsSubExpressionsProvider("type",
+			// "scoped variables"), which means its arguments are not accessible
+			// as rewriting of them is not considered possible.
+			// However, in this case we'd like to do differently.
+			if (cardArg.hasFunctor(FUNCTOR_TYPE)
+					&& cardArg.getSyntaxTree().numberOfImmediateSubTrees() == 1
+					&& process.isVariable(cardArg.getSyntaxTree()
+							.getImmediateSubTrees().get(0))) {
+				
+				logicalVariable = cardArg.getSyntaxTree().getImmediateSubTrees().get(0);
+			}
+		}
+		
+		if (logicalVariable != null) {
+			DomainSizeOfLogicalVariable domainSizeOfLogicalVariable = (DomainSizeOfLogicalVariable) process
+					.getGlobalObject(PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_LOGICAL_VARIABLE);
+			if (domainSizeOfLogicalVariable != null) {
+				Integer size = domainSizeOfLogicalVariable.size(logicalVariable, process);
+				if (size != null) {
+					result = DefaultSymbol.createSymbol(size);
 				}
 			}
-			
-			if (logicalVariable != null) {
-				DomainSizeOfLogicalVariable domainSizeOfLogicalVariable = (DomainSizeOfLogicalVariable) process
-						.getGlobalObject(PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_LOGICAL_VARIABLE);
-				if (domainSizeOfLogicalVariable != null) {
-					Integer size = domainSizeOfLogicalVariable.size(logicalVariable, process);
-					if (size != null) {
-						result = DefaultSymbol.createSymbol(size);
-					}
-				}
-			} 
-		}
+		} 
 
 		return result;
 	}

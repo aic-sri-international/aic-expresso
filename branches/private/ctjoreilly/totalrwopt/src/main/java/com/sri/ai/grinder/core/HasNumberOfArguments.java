@@ -35,35 +35,20 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.number;
+package com.sri.ai.grinder.core;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
-import com.sri.ai.grinder.core.HasNumberOfArguments;
 
-/**
- * Implements the unary MINUS operation.
- * 
- * @author braz
- */
 @Beta
-public class UnaryMinus extends AbstractRewriter {
+public class HasNumberOfArguments extends DefaultRewriterTest {
 
-	private static final Expression MINUS = DefaultSymbol.createSymbol("-");
-	
-	public UnaryMinus() {
-		this.setReifiedTests(new HasFunctor(MINUS),
-				             new HasNumberOfArguments(1));
-	}
-
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (expression.get(0).getValue() instanceof Number) {
-			return DefaultSymbol.createSymbol(expression.get(0).rationalValue().negate());
-		}
-		return expression;
+	/**
+	 * Constructor. Create a RewriterTest with
+	 * (attribute=#args,value=aGivenNumberOfArguments).
+	 * 
+	 * @param numberOfArguments
+	 */
+	public HasNumberOfArguments(int numberOfArguments) {
+		super(NumberOfArgumentsAttribute.INSTANCE, numberOfArguments);
 	}
 }

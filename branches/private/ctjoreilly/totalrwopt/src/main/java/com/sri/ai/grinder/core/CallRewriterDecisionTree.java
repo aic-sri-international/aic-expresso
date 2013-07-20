@@ -100,7 +100,8 @@ public class CallRewriterDecisionTree {
 	private Node makeDecisionTree(List<RewriterWithReifiedTests> rewritersWithReifiedTests) {
 		Node result = null;
 		
-		Map<RewriterTest, List<RewriterWithReifiedTests>> A_V = new LinkedHashMap<RewriterTest, List<RewriterWithReifiedTests>>();
+		Map<RewriterTest, List<RewriterWithReifiedTests>>          A_V = new LinkedHashMap<RewriterTest, List<RewriterWithReifiedTests>>();
+		Map<RewriterTestAttribute, List<RewriterWithReifiedTests>> A_O = new LinkedHashMap<RewriterTestAttribute, List<RewriterWithReifiedTests>>();
 		Map<RewriterTestAttribute, Double> countA = new LinkedHashMap<RewriterTestAttribute, Double>();
 		Map<RewriterTestAttribute, Double> sumA   = new LinkedHashMap<RewriterTestAttribute, Double>();
 		// for each (A,V) in {A_i,j}_i,j x {V_i,j}_i,j // cartesian product of attributes and tested values
@@ -121,37 +122,50 @@ public class CallRewriterDecisionTree {
 			for (RewriterWithReifiedTests rwrts : rewritersWithReifiedTests) {
 				// removing ( ( (A_i,j, V_i,j) )_j, R_i) from ( ( (A_i,j, V_i,j) )_j, R_i)_i 
 				// if A_i,j *is* A and V_i,j is *not* V
-				boolean dropRewriter = false;
+				boolean dropRewriterWithDifferentValuedAttribute = false;
+				boolean rewriterHasAttribute                     = false;
 				for (RewriterTest possibleConflictingTest : rwrts.tests) {
 					if (a_v.getAttribute() == possibleConflictingTest.getAttribute()) {
+						rewriterHasAttribute = true;
 						if (!a_v.getValue().equals(possibleConflictingTest.getValue())) {
-							dropRewriter = true;
+							dropRewriterWithDifferentValuedAttribute = true;
 							break;
 						}
 					}
 				}
 				
-				if (!dropRewriter) {
+				if (!dropRewriterWithDifferentValuedAttribute) {
 					// and
 					// removing (A_i,j, V_i,j) from ( (A_i,j, V_i,j) )_j if A_i,j is A and V_i,j is V
 					Set<RewriterTest> remainingTests = new LinkedHashSet<RewriterTest>(rwrts.tests);
 					remainingTests.remove(a_v);
 					
-					rewriterListA_V.add(new RewriterWithReifiedTests(rwrts.rewriter, remainingTests));
-					Double count = countA.get(a_v.getAttribute());
-					if (count == null) {
-						count = 0.0;
+					RewriterWithReifiedTests crwrts = new RewriterWithReifiedTests(rwrts.rewriter, remainingTests);
+					rewriterListA_V.add(crwrts);
+					updateMetrics(a_v.getAttribute(), countA, sumA, crwrts);
+				}
+				
+				// Handle the otherwise case
+				if (!rewriterHasAttribute) {
+					List<RewriterWithReifiedTests> rewriterListA_O = A_O.get(a_v.getAttribute());					
+					if (rewriterListA_O == null) {
+						rewriterListA_O = new ArrayList<RewriterWithReifiedTests>();
+						A_O.put(a_v.getAttribute(), rewriterListA_O);
 					}
-					count = count+1;
-					countA.put(a_v.getAttribute(), count);
 					
-					Double sum = sumA.get(a_v.getAttribute());
-					if (sum == null) {
-						sum = 0.0;
+					// Only have to add the first time we see the rewriter for this attribute
+					boolean alreadyHasRewriter = false;
+					for (RewriterWithReifiedTests orwrts : rewriterListA_O) {
+						if (orwrts.rewriter == rwrts.rewriter) {
+							alreadyHasRewriter = true;
+							break;
+						}
 					}
-					
-					sum = sum + remainingTests.size();					
-					sumA.put(a_v.getAttribute(), sum);
+					if (!alreadyHasRewriter) {
+						RewriterWithReifiedTests orwrts = new RewriterWithReifiedTests(rwrts.rewriter, rwrts.tests);
+						rewriterListA_O.add(orwrts);
+						updateMetrics(a_v.getAttribute(), countA, sumA, orwrts);
+					}
 				}
 			}
 		}
@@ -189,19 +203,40 @@ public class CallRewriterDecisionTree {
 					valueToRewritersWithReifiedTests.put(a_v.getValue(), A_V.get(a_v));
 				}
 			}
-			if (cost >= length) {
+
+			if (cost >= length) {				
 				// return ( (A_i,j, V_i,j) )_j, R_i)_i // i.e. no splitting 
 				result = new LeafNode(rewritersWithReifiedTests);
 			}
 			else {
 				// return decision_tree with root A with map from each V to make_decision_tree(rewriterList(A,V)) 
-				result = new BranchNode(argminA, valueToRewritersWithReifiedTests);
+				result = new BranchNode(argminA, valueToRewritersWithReifiedTests, A_O.get(argminA));
 			}
 		}
 				
 		return result;
 	}
 	
+	private void updateMetrics(RewriterTestAttribute a, Map<RewriterTestAttribute, Double> countA, 
+			Map<RewriterTestAttribute, Double> sumA, 
+			RewriterWithReifiedTests rewriterWithReifiedTests) {
+	
+		Double count = countA.get(a);
+		if (count == null) {
+			count = 0.0;
+		}
+		count = count+1;
+		countA.put(a, count);
+		
+		Double sum = sumA.get(a);
+		if (sum == null) {
+			sum = 0.0;
+		}
+		
+		sum = sum + rewriterWithReifiedTests.tests.size(); 					
+		sumA.put(a, sum);
+	}
+		
 	private class RewriterWithReifiedTests {
 		public Rewriter          rewriter = null;
 		public Set<RewriterTest> tests    = new LinkedHashSet<RewriterTest>();
@@ -218,16 +253,19 @@ public class CallRewriterDecisionTree {
 	}
 	
 	private class BranchNode extends Node {
-		private RewriterTestAttribute            a                                       = null;
-		private Map<Object, Node>                valueToNode                             = new LinkedHashMap<Object, Node>();
-		private Map<Rewriter, Set<RewriterTest>> noValueMatchesRewritersWithReifiedTests = new LinkedHashMap<Rewriter, Set<RewriterTest>>();
-// TODO - populate noValueMatchesRewritersWithReifiedTests		
-		public BranchNode(RewriterTestAttribute a, Map<Object, List<RewriterWithReifiedTests>> valueToRewritersWithReifiedTests) {
+		private RewriterTestAttribute a            = null;
+		private Map<Object, Node>     valueToNode  = new LinkedHashMap<Object, Node>();
+		private Node                  otherwise    = null;
+	
+		public BranchNode(RewriterTestAttribute a, 
+				          Map<Object, List<RewriterWithReifiedTests>> valueToRewritersWithReifiedTests,
+				          List<RewriterWithReifiedTests> noValueRewritersWithReifiedTests) {
 			this.a = a;
 			for (Object value : valueToRewritersWithReifiedTests.keySet()) {
 				Node childNode = makeDecisionTree(valueToRewritersWithReifiedTests.get(value));
 				this.valueToNode.put(value, childNode);
 			}
+			otherwise = makeDecisionTree(noValueRewritersWithReifiedTests);
 		}
 		
 		@Override
@@ -240,7 +278,10 @@ public class CallRewriterDecisionTree {
 		@Override
 		public void toString(StringBuilder sb, String indent) {
 			sb.append(indent);
-			sb.append("+attribute"+a);
+			sb.append("+Branch: attribute=");
+			sb.append(a);
+			sb.append(", #children=");
+			sb.append(valueToNode.size()+1); // i.e. include otherwise
 			sb.append("\n");
 			for (Object v : valueToNode.keySet()) {
 				Node childNode = valueToNode.get(v);
@@ -250,6 +291,11 @@ public class CallRewriterDecisionTree {
 				sb.append("\n");
 				childNode.toString(sb, indent+"        ");				
 			}
+			sb.append(indent);
+			sb.append("    ");
+			sb.append("-otherwise:");
+			sb.append("\n");
+			otherwise.toString(sb, indent+"        ");
 			sb.append("\n");
 		}
 	}
@@ -270,10 +316,16 @@ public class CallRewriterDecisionTree {
 		
 		@Override
 		public void toString(StringBuilder sb, String indent) {
+			sb.append(indent);
+			sb.append("+Leaf: #rewriters=");
+			sb.append(rewritersWithReifiedTests.size());
+			sb.append("\n");
 			for (RewriterWithReifiedTests rwrts : rewritersWithReifiedTests) {
 				sb.append(indent);
 				sb.append("rewriter=");
 				sb.append(rwrts.rewriter.getName());
+				sb.append(", #tests=");
+				sb.append(rwrts.tests.size());
 				sb.append("\n");
 				for (RewriterTest test : rwrts.tests) {
 					sb.append(indent);

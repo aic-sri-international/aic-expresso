@@ -35,35 +35,47 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.number;
+package com.sri.ai.grinder.core;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.grinder.api.RewriterTestAttribute;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
-import com.sri.ai.grinder.core.HasNumberOfArguments;
 
 /**
- * Implements the unary MINUS operation.
+ * A RewriterTestAttribute used to represent the expected # of arguments of an expression.
  * 
- * @author braz
+ * @author oreilly
+ *
  */
 @Beta
-public class UnaryMinus extends AbstractRewriter {
+public class NumberOfArgumentsAttribute implements RewriterTestAttribute {
 
-	private static final Expression MINUS = DefaultSymbol.createSymbol("-");
+	public static final NumberOfArgumentsAttribute INSTANCE = new NumberOfArgumentsAttribute();
 	
-	public UnaryMinus() {
-		this.setReifiedTests(new HasFunctor(MINUS),
-				             new HasNumberOfArguments(1));
+	//
+	// START-RewriterTestAttribute
+	@Override
+	public Object getValue(Expression expression, RewritingProcess process) {
+		Integer result = expression.numberOfArguments();	
+		
+		return result;
 	}
-
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (expression.get(0).getValue() instanceof Number) {
-			return DefaultSymbol.createSymbol(expression.get(0).rationalValue().negate());
-		}
-		return expression;
+	// END-ReriterTestAttribute
+	//
+	
+	@Override
+	public String toString() {
+		return "#args";
+	}
+	
+	//
+	// PRIVATE
+	//
+	/**
+	 * Private constructor so that only a singleton may be created.
+	 */
+	private NumberOfArgumentsAttribute() {
+		
 	}
 }
