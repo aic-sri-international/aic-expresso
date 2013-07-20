@@ -271,14 +271,20 @@ public class CallRewriterDecisionTree {
 		@Override
 		public Expression rewrite(Expression expression, RewritingProcess process) {
 			Expression result = expression;
-// TODO - rewrite method
+			Node nodeToRewrite = valueToNode.get(a.getValue(expression, process));
+			if (nodeToRewrite == null) {
+				// i.e. none of the values on the expression match this attribute
+				nodeToRewrite = otherwise;
+			}
+			result = nodeToRewrite.rewrite(expression, process);
+			
 			return result;
 		}		
 		
 		@Override
 		public void toString(StringBuilder sb, String indent) {
 			sb.append(indent);
-			sb.append("+Branch: attribute=");
+			sb.append("+Branch: attribute:");
 			sb.append(a);
 			sb.append(", #children=");
 			sb.append(valueToNode.size()+1); // i.e. include otherwise
@@ -287,7 +293,7 @@ public class CallRewriterDecisionTree {
 				Node childNode = valueToNode.get(v);
 				sb.append(indent);
 				sb.append("    ");
-				sb.append("-value="+v);
+				sb.append("-value:"+v);
 				sb.append("\n");
 				childNode.toString(sb, indent+"        ");				
 			}
@@ -310,7 +316,26 @@ public class CallRewriterDecisionTree {
 		@Override
 		public Expression rewrite(Expression expression, RewritingProcess process) {
 			Expression result = expression;
-// TODO - rewrite method
+			
+			for (RewriterWithReifiedTests rwrts : rewritersWithReifiedTests) {
+				// Ensure the rewriter is applicable
+				boolean applicable = true;
+				for (RewriterTest test : rwrts.tests) {
+					if (!test.apply(expression, process)) {
+						applicable = false;
+						break;
+					}
+				}
+				if (applicable) {
+					// Call rewriter, indicating it should bypass its reified tests.
+					result = rwrts.rewriter.rewrite(expression, process, true);
+					if (result != expression) {
+						// We have rewritten
+						break;
+					}
+				}
+			}
+
 			return result;
 		}
 		
