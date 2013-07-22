@@ -55,6 +55,7 @@ import com.sri.ai.grinder.expression.ExpressionCache;
 import com.sri.ai.grinder.helper.Justification;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.util.Util;
+import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.TernaryProcedure;
 import com.sri.ai.util.cache.CacheMap;
 
@@ -156,6 +157,7 @@ public class TotalRewriter extends AbstractRewriter {
 			public Expression apply(Expression expression, RewritingProcess process) {
 				Expression result      = expression;
 				Expression priorResult = expression;
+				Rewriter   rewriter    = null;
 			
 //				Expression cached = getFinalEquivalent(expression, process);
 //				if (cached != null) {
@@ -182,7 +184,9 @@ public class TotalRewriter extends AbstractRewriter {
 					if (traceEnabled) {
 						Trace.setTraceLevel(Trace.getTraceLevel()+1);
 					}
-					result = callRewriterDecisionTree.rewrite(priorResult, process);
+					Pair<Rewriter, Expression> rewriterWrote = callRewriterDecisionTree.rewrite(priorResult, process);
+					rewriter = rewriterWrote.first;
+					result   = rewriterWrote.second;
 					if (traceEnabled) {
 						Trace.setTraceLevel(Trace.getTraceLevel()-1);
 					}
@@ -205,23 +209,16 @@ public class TotalRewriter extends AbstractRewriter {
 								Trace.log("Rewriting sub-expression:");
 								Trace.log("{}", priorResult);
 							}
-// TODO - rewriterName							
-							Trace.log("   ----> ("+"TODO-rewriterName"+",  "+relativeTime+" ms, #"+(++rewritingCount)+", "+numberOfSelections+" rewriter selections ("+totalNumberOfSelections+" since start))");
+							Trace.log("   ----> ("+rewriter.getName()+",  "+relativeTime+" ms, #"+(++rewritingCount)+", "+numberOfSelections+" rewriter selections ("+totalNumberOfSelections+" since start))");
 							Trace.log("{}", result);
 						}
 					
 						if (justificationEnabled) {
 							Justification.log(expression);
-// TODO - rewriterName								
-							Justification.beginEqualityStep("TODO-rewriterName");
+							Justification.beginEqualityStep(rewriter.getName());
 							Justification.endEqualityStep(result);
 						}
 					}
-//						if (result != priorResult) {
-//							System.out.println("result != priorResult !");
-//							System.out.println("result: " + result);
-//							System.out.println("priorResult: " + result);
-//						}
 				} while (result != priorResult);
 					
 				

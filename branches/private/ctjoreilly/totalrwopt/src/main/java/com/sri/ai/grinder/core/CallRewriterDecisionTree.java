@@ -53,6 +53,7 @@ import com.sri.ai.grinder.api.RewriterTest;
 import com.sri.ai.grinder.api.RewriterTestAttribute;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.util.Util;
+import com.sri.ai.util.base.Pair;
 
 /**
  * A Decision Tree that determines the best best way to call Rewriters based on
@@ -82,8 +83,8 @@ public class CallRewriterDecisionTree {
 		rootNode = makeDecisionTree(rewritersWithReifiedTests);
 	}
 	
-	public Expression rewrite(Expression expression, RewritingProcess process) {
-		Expression result = rootNode.rewrite(expression, process);
+	public Pair<Rewriter, Expression> rewrite(Expression expression, RewritingProcess process) {
+		Pair<Rewriter, Expression> result = rootNode.rewrite(expression, process);
 		return result;
 	}
 	
@@ -248,7 +249,7 @@ public class CallRewriterDecisionTree {
 	}
 	
 	private abstract class Node {
-		public abstract Expression rewrite(Expression expression, RewritingProcess process);
+		public abstract Pair<Rewriter, Expression> rewrite(Expression expression, RewritingProcess process);
 		public abstract void toString(StringBuilder sb, String indent);
 	}
 	
@@ -269,14 +270,14 @@ public class CallRewriterDecisionTree {
 		}
 		
 		@Override
-		public Expression rewrite(Expression expression, RewritingProcess process) {
-			Expression result = expression;
+		public Pair<Rewriter, Expression> rewrite(Expression expression, RewritingProcess process) {
 			Node nodeToRewrite = valueToNode.get(a.getValue(expression, process));
 			if (nodeToRewrite == null) {
 				// i.e. none of the values on the expression match this attribute
 				nodeToRewrite = otherwise;
 			}
-			result = nodeToRewrite.rewrite(expression, process);
+			
+			Pair<Rewriter, Expression> result = nodeToRewrite.rewrite(expression, process);
 			
 			return result;
 		}		
@@ -314,8 +315,9 @@ public class CallRewriterDecisionTree {
 		}
 		
 		@Override
-		public Expression rewrite(Expression expression, RewritingProcess process) {
-			Expression result = expression;
+		public Pair<Rewriter, Expression> rewrite(Expression expression, RewritingProcess process) {
+			Rewriter   resultRW   = null;
+			Expression resultExpr = expression;
 			
 			for (RewriterWithReifiedTests rwrts : rewritersWithReifiedTests) {
 				// Ensure the rewriter is applicable
@@ -328,13 +330,15 @@ public class CallRewriterDecisionTree {
 				}
 				if (applicable) {
 					// Call rewriter, indicating it should bypass its reified tests.
-					result = rwrts.rewriter.rewrite(expression, process, true);
-					if (result != expression) {
-						// We have rewritten
+					resultExpr = rwrts.rewriter.rewrite(expression, process, true);
+					if (resultExpr != expression) {
+						resultRW = rwrts.rewriter;
 						break;
 					}
 				}
 			}
+			
+			Pair<Rewriter, Expression> result = new Pair<Rewriter, Expression>(resultRW, resultExpr);
 
 			return result;
 		}
