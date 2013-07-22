@@ -35,55 +35,25 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.equality.cardinality.direct.core;
+package com.sri.ai.grinder.core;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
-import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.library.boole.Not;
-import com.sri.ai.grinder.library.boole.Or;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
+import com.sri.ai.expresso.core.DefaultSymbol;
 
-/**
- * A rewriter rewriting conditional formulas of the type
- * "if C then Phi1 else Phi2" as "C and Phi1 or not C and Phi2". This is useful
- * for ensuring formulas to be normalized as boolean formulas, as expected by
- * most constraint processing.
- * 
- * @author braz
- * 
- */
 @Beta
-public class FromConditionalFormulaToFormula extends AbstractRewriter {
-	
-	public FromConditionalFormulaToFormula() {
-		this.setReifiedTests(new HasFunctor(IfThenElse.FUNCTOR));
-	}
+public class HasFunctor extends DefaultRewriterTest {
 
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		
-		if (FormulaUtil.isFormula(IfThenElse.getThenBranch(expression), process) &&
-			FormulaUtil.isFormula(IfThenElse.getElseBranch(expression), process)) {
-
-			Expression result =
-					Or.make(
-							And.make(
-									IfThenElse.getCondition(expression),
-									IfThenElse.getThenBranch(expression)
-							),
-							And.make(
-									Not.make(IfThenElse.getCondition(expression)),
-									IfThenElse.getElseBranch(expression)
-									)
-							);
-			return result;
-			
-		}
-		return expression;
+	/**
+	 * Constructor. Create a RewriterTest with
+	 * (attribute=kind,value=aGivenFunctor).
+	 * 
+	 * @param functorValue
+	 */
+	public HasFunctor(Object functorValue) {
+		// Note: for safety ensure we always compare expressions.
+		super(KindAttribute.INSTANCE,
+				functorValue instanceof Expression ? functorValue
+						: DefaultSymbol.createSymbol(functorValue));
 	}
 }

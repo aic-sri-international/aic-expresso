@@ -35,52 +35,52 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.set.intensional;
-
-import java.util.List;
+package com.sri.ai.grinder.api;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.DefaultRewriterTest;
-import com.sri.ai.grinder.core.KindAttribute;
-import com.sri.ai.grinder.library.Substitute;
-import com.sri.ai.grinder.library.set.Sets;
 
 /**
- * Rewriter of intensional sets with a condition that bounds one of its indices
- * to a version of the set after the removal of that index and its replacement by the valeu it's bound to.
+ * Interface representing a reified test (of which there can be many) that a
+ * Rewriter applies against a given expression (conjunctively) to determine
+ * whether or not the Rewriter should be applied against the given expression.
+ * These tests indicate the 'attribute' (i.e. RewriterTestAttribute) and 'value'
+ * used in the test of an expression. For example, the exponentiation rewriter
+ * tests the attribute 'kind' of the expression for its value 'application of
+ * ^'.
+ * 
  * @author braz
+ * @author oreilly
+ * 
  */
 @Beta
-public class IntensionalSetWithBoundIndex extends AbstractRewriter {
-	
-	public IntensionalSetWithBoundIndex() {
-		this.setReifiedTests(new DefaultRewriterTest(KindAttribute.INSTANCE, KindAttribute.VALUE_INTENSIONAL_SET));
-	}
-	
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expressions.BoundIndexInformation boundIndexInformation = null;
-		if ((boundIndexInformation
-					= Expressions.getBoundIndexInformation(
-							IntensionalSet.getCondition(expression), IntensionalSet.getIndexExpressions(expression))
-					)
-					!= null) {
+public interface RewriterTest {
+	/**
+	 * 
+	 * @return the Attribute part of the (attribute, value) pair this test
+	 *         applies to.
+	 */
+	RewriterTestAttribute getAttribute();
 
-			Expression index = boundIndexInformation.index;
-			Expression value = boundIndexInformation.value;
-			Expression head = IntensionalSet.getHead(expression);
-			Expression condition = IntensionalSet.getCondition(expression);
-	
-			List<Expression> newIndexExpressions = boundIndexInformation.indexExpressionsWithoutBoundIndex;
-			Expression       newHead             = Substitute.replace(head,      index, value, process);
-			Expression       newCondition        = Substitute.replace(condition, index, value, process);
-			Expression       result              = IntensionalSet.makeSetFromIndexExpressionsList(Sets.getLabel(expression), newIndexExpressions, newHead, newCondition);
-			return result;
-		}
-		return expression;
-	}
+	/**
+	 * 
+	 * @return the Value part of the (attribute, value) pair this test applies
+	 *         to.
+	 */
+	Object getValue();
+
+	/**
+	 * Determine if the Rewriter that owns this test should be applied to the
+	 * given expression based on the (attribute, value) pair that this test
+	 * represents., i.e. attribute.getValue(expression) = value.
+	 * 
+	 * @param expression
+	 *            an expression to test whether or not the Rewriter this test
+	 *            belongs to should be applied to.
+	 * @param process
+	 *            the process in which rewriting is occurring.
+	 * @return true if this tests (attribute,value) apply to the given
+	 *         expression, otherwise return false.
+	 */
+	boolean apply(Expression expression, RewritingProcess process);
 }

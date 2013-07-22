@@ -46,6 +46,8 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
@@ -62,20 +64,24 @@ public class Disequality extends AbstractRewriter {
 	//
 	private static final Expression FUNCTOR_EXPRESSION = DefaultSymbol.createSymbol(FunctorConstants.INEQUALITY);
 
+	public Disequality() {
+		this.setReifiedTests(new HasFunctor(FUNCTOR),
+				             new HasNumberOfArguments(2));
+	}
+	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression,
 			RewritingProcess process) {
-		if (expression.hasFunctor(getFunctor())
-				&& expression.numberOfArguments() == 2) {
-			Expression equals = Equality.equalityResultIfItIsKnown(expression,
-					process);
-			if (equals != expression) {
-				Symbol equalsResult = (Symbol) equals.getSyntaxTree();
-				Boolean booleanObject = (Boolean) equalsResult.getValue();
-				boolean booleanValue = booleanObject.booleanValue();
-				return DefaultSymbol.createSymbol(!booleanValue);
-			}
+	
+		Expression equals = Equality.equalityResultIfItIsKnown(expression,
+				process);
+		if (equals != expression) {
+			Symbol equalsResult = (Symbol) equals.getSyntaxTree();
+			Boolean booleanObject = (Boolean) equalsResult.getValue();
+			boolean booleanValue = booleanObject.booleanValue();
+			return DefaultSymbol.createSymbol(!booleanValue);
 		}
+		
 		return expression;
 	}
 

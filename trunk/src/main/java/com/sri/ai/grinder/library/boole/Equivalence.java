@@ -45,6 +45,9 @@ import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasNumberOfArguments;
+import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
  * An atomic rewriter of Boolean equivalence expressions.
@@ -55,29 +58,29 @@ import com.sri.ai.grinder.core.AbstractRewriter;
 @Beta
 public class Equivalence extends AbstractRewriter {
 
-	public final static Symbol FUNCTOR = DefaultSymbol.createSymbol("<=>");
+	public final static Symbol FUNCTOR = DefaultSymbol.createSymbol(FunctorConstants.EQUIVALENCE);
+	
+	public Equivalence() {
+		this.setReifiedTests(new HasFunctor(FUNCTOR),
+				             new HasNumberOfArguments(2));
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		return rewriteAfterBookeeping(expression);
-	}
 
-	public static Expression rewriteAfterBookeeping(Expression expression) {
-		if (expression.hasFunctor(FUNCTOR) && expression.numberOfArguments() == 2) {
-			AbstractSyntaxTree syntaxTree = new DefaultCompoundSyntaxTree(
-							"or",
-							new DefaultCompoundSyntaxTree(
-									"and",
-									expression.get(0).getSyntaxTree(),
-									expression.get(1).getSyntaxTree()
-							),
-							new DefaultCompoundSyntaxTree(
-									"and",
-									new DefaultCompoundSyntaxTree("not", expression.get(0).getSyntaxTree()),
-									new DefaultCompoundSyntaxTree("not", expression.get(1).getSyntaxTree())));
-			return syntaxTree;
-		}
-		return expression;
+		AbstractSyntaxTree syntaxTree = new DefaultCompoundSyntaxTree(
+						"or",
+						new DefaultCompoundSyntaxTree(
+								"and",
+								expression.get(0).getSyntaxTree(),
+								expression.get(1).getSyntaxTree()
+						),
+						new DefaultCompoundSyntaxTree(
+								"and",
+								new DefaultCompoundSyntaxTree("not", expression.get(0).getSyntaxTree()),
+								new DefaultCompoundSyntaxTree("not", expression.get(1).getSyntaxTree())));
+		
+		return syntaxTree;
 	}
 
 	public Expression getFunctor() {

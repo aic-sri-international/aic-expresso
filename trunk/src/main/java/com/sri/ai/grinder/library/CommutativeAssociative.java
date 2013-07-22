@@ -50,6 +50,7 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
 
@@ -69,6 +70,10 @@ import com.sri.ai.util.base.Equals;
  */
 @Beta
 public abstract class CommutativeAssociative extends AbstractRewriter {
+	
+	public CommutativeAssociative() {
+		this.setReifiedTests(new HasFunctor(getFunctor()));
+	}
 
 	protected abstract Object getFunctor();
 	protected abstract Expression getNeutralElementSyntaxTree();

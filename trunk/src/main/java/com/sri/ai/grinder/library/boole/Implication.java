@@ -43,6 +43,9 @@ import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasNumberOfArguments;
+import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
  * An atomic rewriter of Boolean implication expressions. Includes related helper methods.
@@ -53,22 +56,21 @@ import com.sri.ai.grinder.core.AbstractRewriter;
 @Beta
 public class Implication extends AbstractRewriter {
 
-	public static final Expression FUNCTOR = DefaultSymbol.createSymbol("=>");
+	public static final Expression FUNCTOR = DefaultSymbol.createSymbol(FunctorConstants.IMPLICATION);
+	
+	public Implication() {
+		this.setReifiedTests(new HasFunctor(FUNCTOR),
+				             new HasNumberOfArguments(2));
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		return rewriteAfterBookkeeping(expression);
-	}
-
-	public static Expression rewriteAfterBookkeeping(Expression expression) {
-		if (expression.hasFunctor(FUNCTOR) && expression.numberOfArguments() == 2) {
-			Expression result = new DefaultCompoundSyntaxTree(
-					"or",
-					new DefaultCompoundSyntaxTree("not", expression.get(0)),
-					expression.get(1));
-			return result;
-		}
-		return expression;
+		
+		Expression result = new DefaultCompoundSyntaxTree(
+				"or",
+				new DefaultCompoundSyntaxTree("not", expression.get(0)),
+				expression.get(1));
+		return result;
 	}
 
 	public Expression getFunctor() {

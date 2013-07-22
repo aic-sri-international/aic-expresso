@@ -42,6 +42,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.Substitute;
 
@@ -54,24 +55,28 @@ import com.sri.ai.grinder.library.Substitute;
 @Beta
 public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends AbstractRewriter {
 	
+	public IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch() {
+		this.setReifiedTests(new HasFunctor(IfThenElse.FUNCTOR));
+	}
+	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (IfThenElse.isIfThenElse(expression)) {
-			Expression condition  = expression.get(0);
-			Expression thenBranch = expression.get(1);
-			Expression elseBranch = expression.get(2);
-			
-			Expression thenBranchReplacement =
-				replaceCondition(thenBranch, condition, Expressions.TRUE, process);
-			
-			Expression elseBranchReplacement =
-				replaceCondition(elseBranch, condition, Expressions.FALSE, process);
+		
+		Expression condition  = expression.get(0);
+		Expression thenBranch = expression.get(1);
+		Expression elseBranch = expression.get(2);
+		
+		Expression thenBranchReplacement =
+			replaceCondition(thenBranch, condition, Expressions.TRUE, process);
+		
+		Expression elseBranchReplacement =
+			replaceCondition(elseBranch, condition, Expressions.FALSE, process);
 
-			if (thenBranchReplacement != thenBranch || elseBranchReplacement != elseBranch) {				
-				Expression result = IfThenElse.make(condition, thenBranchReplacement, elseBranchReplacement);			
-				return result;
-			}
+		if (thenBranchReplacement != thenBranch || elseBranchReplacement != elseBranch) {				
+			Expression result = IfThenElse.make(condition, thenBranchReplacement, elseBranchReplacement);			
+			return result;
 		}
+
 		return expression;
 	}
 

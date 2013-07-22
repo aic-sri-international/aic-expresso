@@ -53,6 +53,7 @@ import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.grinder.api.RewriterTest;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.Justification;
 import com.sri.ai.grinder.helper.RewriterLogging;
@@ -74,6 +75,7 @@ public abstract class AbstractRewriter implements Rewriter {
 	private static final List<Rewriter> _emptyChildList = Collections.unmodifiableList(new ArrayList<Rewriter>());
 	//
 	private String name = null;
+	private List<RewriterTest> reifiedTests = Collections.emptyList(); 
 	private boolean traceInAndOutOfRewriter = GrinderConfiguration.isTraceInAndOutOfAtomicRewriterEnabled();
 
 	/**
@@ -158,9 +160,14 @@ public abstract class AbstractRewriter implements Rewriter {
 		}
 		return name;
 	}
+	
+	@Override
+	public List<RewriterTest> getReifiedTests() {
+		return reifiedTests;
+	}
 
 	@Override
-	public Expression rewrite(Expression expression, RewritingProcess process) {
+	public Expression rewrite(Expression expression, RewritingProcess process, boolean bypassTests){
 		Expression result   = expression;
 		Expression original = expression;
 		
@@ -186,8 +193,11 @@ public abstract class AbstractRewriter implements Rewriter {
 			result = Rewriter.FALSE_CONTEXTUAL_CONTRAINT_RETURN_VALUE;
 		} 
 		else {
-			result = rewriteAfterBookkeeping(expression, process);
-
+			
+			if (bypassTests || runReifiedTests(expression, process)) {
+				result = rewriteAfterBookkeeping(expression, process);
+			}
+			
 			if (result != original && original == process.getRootExpression()) {
 				process.setRootExpression(result);
 			}
@@ -205,6 +215,12 @@ public abstract class AbstractRewriter implements Rewriter {
 		}
 		
 		return result;
+	}
+	
+	@Override
+	public Expression rewrite(Expression expression, RewritingProcess process) {
+		// Don't bypass tests by default.
+		return rewrite(expression, process, false);
 	}
 	
 	@Override
@@ -250,6 +266,30 @@ public abstract class AbstractRewriter implements Rewriter {
 	//	
 	protected void setName(String name) {
 		this.name = name;
+	}
+	
+	protected void setReifiedTests(RewriterTest... rewriterTests) {
+		reifiedTests = new ArrayList<RewriterTest>();
+		
+		for (RewriterTest rt : rewriterTests) {
+			reifiedTests.add(rt);
+		}
+		
+		// For safety, make immutable
+		reifiedTests = Collections.unmodifiableList(reifiedTests);
+	}
+	
+	protected boolean runReifiedTests(final Expression expression, final RewritingProcess process) {		
+		// Note: intentionally not using Util.forAll as this is a heavily
+		// used routine I don't won't to have the overhead of creating
+		// iterators.
+		int numTests = reifiedTests.size();
+		for (int i = 0; i < numTests; i++) {
+			if (!reifiedTests.get(i).apply(expression, process)) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	protected boolean isTraceInAndOutOfRewriter() {

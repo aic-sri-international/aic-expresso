@@ -35,52 +35,69 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.set.intensional;
-
-import java.util.List;
+package com.sri.ai.grinder.core;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.RewriterTest;
+import com.sri.ai.grinder.api.RewriterTestAttribute;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.DefaultRewriterTest;
-import com.sri.ai.grinder.core.KindAttribute;
-import com.sri.ai.grinder.library.Substitute;
-import com.sri.ai.grinder.library.set.Sets;
 
 /**
- * Rewriter of intensional sets with a condition that bounds one of its indices
- * to a version of the set after the removal of that index and its replacement by the valeu it's bound to.
+ * Default implementation of the RewriterTest interface.
+ * 
  * @author braz
+ * @author oreilly
+ *
  */
 @Beta
-public class IntensionalSetWithBoundIndex extends AbstractRewriter {
+public class DefaultRewriterTest implements RewriterTest {
+	protected RewriterTestAttribute attribute = null;
+	protected Object                value     = null;
 	
-	public IntensionalSetWithBoundIndex() {
-		this.setReifiedTests(new DefaultRewriterTest(KindAttribute.INSTANCE, KindAttribute.VALUE_INTENSIONAL_SET));
+	public DefaultRewriterTest(RewriterTestAttribute attribute, Object value) {
+		this.attribute = attribute;
+		this.value     = value;
+	}
+	
+	//
+	// START-RewriterTest
+	@Override
+	public RewriterTestAttribute getAttribute() {
+		return attribute;
 	}
 	
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expressions.BoundIndexInformation boundIndexInformation = null;
-		if ((boundIndexInformation
-					= Expressions.getBoundIndexInformation(
-							IntensionalSet.getCondition(expression), IntensionalSet.getIndexExpressions(expression))
-					)
-					!= null) {
-
-			Expression index = boundIndexInformation.index;
-			Expression value = boundIndexInformation.value;
-			Expression head = IntensionalSet.getHead(expression);
-			Expression condition = IntensionalSet.getCondition(expression);
+	public Object getValue() {
+		return value;
+	}
 	
-			List<Expression> newIndexExpressions = boundIndexInformation.indexExpressionsWithoutBoundIndex;
-			Expression       newHead             = Substitute.replace(head,      index, value, process);
-			Expression       newCondition        = Substitute.replace(condition, index, value, process);
-			Expression       result              = IntensionalSet.makeSetFromIndexExpressionsList(Sets.getLabel(expression), newIndexExpressions, newHead, newCondition);
-			return result;
+	@Override
+	public boolean apply(Expression expression, RewritingProcess process) {
+		boolean result = getAttribute().getValue(expression, process).equals(getValue());
+		return result;
+	}
+	// END-RewiterTest
+	//
+	
+	@Override
+	public String toString() {
+		return "(attribute="+attribute+", value="+value+")";
+	}
+	
+	@Override
+	public int hashCode() {
+		return attribute.hashCode() + value.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		
+		if (o != null && o instanceof RewriterTest) {
+			RewriterTest ort = (RewriterTest) o;
+			return this.attribute == ort.getAttribute() && this.value.equals(ort.getValue());
 		}
-		return expression;
+		
+		return false;
 	}
 }

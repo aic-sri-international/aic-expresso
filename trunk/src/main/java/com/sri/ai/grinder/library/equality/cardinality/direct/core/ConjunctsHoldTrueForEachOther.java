@@ -45,7 +45,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
@@ -64,9 +66,13 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 @Beta
 public class ConjunctsHoldTrueForEachOther extends AbstractRewriter {
 	
+	public ConjunctsHoldTrueForEachOther() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.AND));
+	}
+	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (And.isConjunction(expression) && expression.numberOfArguments() > 1) {
+		if (expression.numberOfArguments() > 1) {
 			for (int i = 0; i != expression.numberOfArguments(); i++) {
 				Expression iThConjunct = expression.get(i);
 				Expression remainingOfConjunction = Expressions.removeIthArgument(expression, i);

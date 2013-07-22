@@ -42,6 +42,8 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.function.MutuallyExclusiveCoDomainsModule;
 
 /**
@@ -52,19 +54,24 @@ import com.sri.ai.grinder.library.function.MutuallyExclusiveCoDomainsModule;
 @Beta
 public abstract class AbstractOperationOnMutuallyExclusiveCoDomainExpressions
 		extends AbstractRewriter {
+	
+	public AbstractOperationOnMutuallyExclusiveCoDomainExpressions() {
+		this.setReifiedTests(new HasFunctor(getFunctor()),
+				             new HasNumberOfArguments(2));
+	}
 
 	protected abstract String getFunctor();
 	protected abstract Symbol getResult();
 	protected abstract Expression getResultExpression();
 
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (expression.hasFunctor(getFunctor()) && expression.numberOfArguments() == 2) {
-			Expression expression1 = expression.get(0);
-			Expression expression2 = expression.get(1);
-			if (haveMutuallyExclusiveCoDomains(expression1, expression2, process)) {
-				return getResultExpression();
-			}
+
+		Expression expression1 = expression.get(0);
+		Expression expression2 = expression.get(1);
+		if (haveMutuallyExclusiveCoDomains(expression1, expression2, process)) {
+			return getResultExpression();
 		}
+			
 		return expression;
 	}
 
