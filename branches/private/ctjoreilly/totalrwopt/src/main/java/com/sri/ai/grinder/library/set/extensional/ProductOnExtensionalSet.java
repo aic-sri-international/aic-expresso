@@ -42,6 +42,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasNumberOfArguments;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.set.Sets;
 
 /**
@@ -51,11 +54,15 @@ import com.sri.ai.grinder.library.set.Sets;
  */
 @Beta
 public class ProductOnExtensionalSet extends AbstractRewriter {
+	
+	public ProductOnExtensionalSet() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.PRODUCT),
+				             new HasNumberOfArguments(1));
+	}
+	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (expression.hasFunctor("product") &&
-				expression.numberOfArguments() == 1 &&
-				Sets.isExtensionalSet(expression.get(0))) {
+		if (Sets.isExtensionalSet(expression.get(0))) {
 			return DefaultCompoundSyntaxTree.make("*", ExtensionalSet.getElements(expression.get(0)));
 		}
 		return expression;
