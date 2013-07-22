@@ -53,6 +53,7 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
@@ -67,19 +68,20 @@ import com.sri.ai.util.base.Pair;
 public class Equality extends AbstractRewriter {
 
 	public static final Expression FUNCTOR = DefaultSymbol.createSymbol("=");
+	
+	public Equality() {
+		this.setReifiedTests(new HasFunctor(FUNCTOR));
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (expression.hasFunctor(FUNCTOR)) {
-			if (expression.numberOfArguments() > 1) {
-				return equalityResultIfItIsKnown(expression, process);
-			}
-			else {
-				// 1 or 0 arguments is equivalent to True
-				return Expressions.TRUE;
-			}
+		if (expression.numberOfArguments() > 1) {
+			return equalityResultIfItIsKnown(expression, process);
 		}
-		return expression;
+		else {
+			// 1 or 0 arguments is equivalent to True
+			return Expressions.TRUE;
+		}
 	}
 
 	public static Expression equalityResultIfItIsKnown(Expression expression, RewritingProcess process) {

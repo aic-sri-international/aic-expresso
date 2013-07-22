@@ -35,52 +35,47 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.set.intensional;
-
-import java.util.List;
+package com.sri.ai.grinder.core;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.RewriterTestAttribute;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.DefaultRewriterTest;
-import com.sri.ai.grinder.core.KindAttribute;
-import com.sri.ai.grinder.library.Substitute;
-import com.sri.ai.grinder.library.set.Sets;
 
 /**
- * Rewriter of intensional sets with a condition that bounds one of its indices
- * to a version of the set after the removal of that index and its replacement by the valeu it's bound to.
- * @author braz
+ * A RewriterTestAttribute used to represent the expected # of arguments of an expression.
+ * 
+ * @author oreilly
+ *
  */
 @Beta
-public class IntensionalSetWithBoundIndex extends AbstractRewriter {
+public class NumberOfArgumentsAttribute implements RewriterTestAttribute {
+
+	public static final NumberOfArgumentsAttribute INSTANCE = new NumberOfArgumentsAttribute();
 	
-	public IntensionalSetWithBoundIndex() {
-		this.setReifiedTests(new DefaultRewriterTest(KindAttribute.INSTANCE, KindAttribute.VALUE_INTENSIONAL_SET));
+	//
+	// START-RewriterTestAttribute
+	@Override
+	public Object getValue(Expression expression, RewritingProcess process) {
+		Integer result = expression.numberOfArguments();	
+		
+		return result;
 	}
+	// END-ReriterTestAttribute
+	//
 	
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expressions.BoundIndexInformation boundIndexInformation = null;
-		if ((boundIndexInformation
-					= Expressions.getBoundIndexInformation(
-							IntensionalSet.getCondition(expression), IntensionalSet.getIndexExpressions(expression))
-					)
-					!= null) {
-
-			Expression index = boundIndexInformation.index;
-			Expression value = boundIndexInformation.value;
-			Expression head = IntensionalSet.getHead(expression);
-			Expression condition = IntensionalSet.getCondition(expression);
+	public String toString() {
+		return "#args";
+	}
 	
-			List<Expression> newIndexExpressions = boundIndexInformation.indexExpressionsWithoutBoundIndex;
-			Expression       newHead             = Substitute.replace(head,      index, value, process);
-			Expression       newCondition        = Substitute.replace(condition, index, value, process);
-			Expression       result              = IntensionalSet.makeSetFromIndexExpressionsList(Sets.getLabel(expression), newIndexExpressions, newHead, newCondition);
-			return result;
-		}
-		return expression;
+	//
+	// PRIVATE
+	//
+	/**
+	 * Private constructor so that only a singleton may be created.
+	 */
+	private NumberOfArgumentsAttribute() {
+		
 	}
 }

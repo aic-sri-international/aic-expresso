@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.api;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
@@ -78,11 +79,42 @@ public interface Rewriter {
 	 * @return the unique human readable name for identifying the rewriter.
 	 */
 	String getName();
+	
+	/**
+	 * 
+	 * @return the (optional) list of conjunctive tests that a rewriter applies
+	 *         to a given expression to help in determining whether or not it
+	 *         should attempt to actually rewrite a given expression.
+	 */
+	List<RewriterTest> getReifiedTests();
 
 	/**
-	 * Rewrites a expression within the context of a rewriting process.
+	 * Rewrites an expression within the context of a rewriting process.
+	 * 
+	 * @param expression
+	 *            the expression to be rewritten.
+	 * @param process
+	 *            the process in which the rewriting is occurring.
+	 * @return the original input expression if no rewriting occurred, otherwise
+	 *         a new rewritten expression.
 	 */
 	Expression rewrite(Expression expression, RewritingProcess process);
+	
+	/**
+	 * Rewrites an expression within the context of a rewriting process.
+	 * 
+	 * @param expression
+	 *            the expression to be rewritten.
+	 * @param process
+	 *            the process in which the rewriting is occurring.
+	 * @param bypassTests
+	 *            set to true if the RewriterTest ojbects returned by getTests()
+	 *            should not be tested (assumes the caller has already done so),
+	 *            false otherwise.
+	 * @return the original input expression if no rewriting occurred, otherwise
+	 *         a new rewritten expression.
+	 */
+	Expression rewrite(Expression expression, RewritingProcess process, boolean bypassTests);
 
 	/**
 	 * Same as {@link #rewrite(Expression, RewritingProcess)}, with a default

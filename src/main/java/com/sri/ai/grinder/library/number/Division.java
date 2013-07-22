@@ -44,6 +44,9 @@ import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasNumberOfArguments;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.math.Rational;
 
@@ -55,31 +58,34 @@ import com.sri.ai.util.math.Rational;
  */
 @Beta
 public class Division extends AbstractRewriter {
+	
+	public Division() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.DIVISION),
+						     new HasNumberOfArguments(2));
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (expression.hasFunctor("/") && expression.numberOfArguments() == 2) {
+		if (expression.get(0).equals(0)) { // if numerator is 0, fraction is 0.
+			return Expressions.ZERO;
+		}
 
-			if (expression.get(0).equals(0)) { // if numerator is 0, fraction is 0.
-				return Expressions.ZERO;
-			}
+		if (expression.get(1).equals(1)) { // if denominator is 1, fraction is numerator.
+			return expression.get(0);
+		}
 
-			if (expression.get(1).equals(1)) { // if denominator is 1, fraction is numerator.
-				return expression.get(0);
-			}
+		if (ExpressionIsSymbolOfType.apply(expression.get(0), Number.class) &&
+				ExpressionIsSymbolOfType.apply(expression.get(1), Number.class)) {
 
-			if (ExpressionIsSymbolOfType.apply(expression.get(0), Number.class) &&
-					ExpressionIsSymbolOfType.apply(expression.get(1), Number.class)) {
+			Rational numerator   = expression.get(0).rationalValue();
+			Rational denominator = expression.get(1).rationalValue();
 
-				Rational numerator   = expression.get(0).rationalValue();
-				Rational denominator = expression.get(1).rationalValue();
-
-				Rational quotient = Util.divisionWithArbitraryPrecisionIfPossible(numerator, denominator);
-				if (quotient != null) {
-					return DefaultSymbol.createSymbol(quotient);
-				}
+			Rational quotient = Util.divisionWithArbitraryPrecisionIfPossible(numerator, denominator);
+			if (quotient != null) {
+				return DefaultSymbol.createSymbol(quotient);
 			}
 		}
+
 		return expression;
 	}
 		
