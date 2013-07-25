@@ -42,28 +42,27 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.ForAll;
-import com.sri.ai.grinder.library.boole.ThereExists;
 
 /**
- * A simplifier for trivial quantified formulas of the type (Q X : True) and (Q X : False).
+ * A simplifier for trivial quantified formulas of the type (for all X : True) and (for all X : False).
  * 
  * @author braz
  *
  */
 @Beta
-public class TrivialQuantifiedCases extends AbstractRewriter {
+public class TrivialForAllCases extends AbstractRewriter {
+	
+	public TrivialForAllCases() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.FOR_ALL));
+	}
 	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-
-		if (ThereExists.isThereExists(expression) &&
-				(ThereExists.getBody(expression).equals(Expressions.TRUE) || ThereExists.getBody(expression).equals(Expressions.FALSE))) {
-			return ThereExists.getBody(expression);
-		}
 		
-		if (ForAll.isForAll(expression) &&
-				(ForAll.getBody(expression).equals(Expressions.TRUE) || ForAll.getBody(expression).equals(Expressions.FALSE))) {
+		if (ForAll.getBody(expression).equals(Expressions.TRUE) || ForAll.getBody(expression).equals(Expressions.FALSE)) {
 			return ForAll.getBody(expression);
 		}
 		
