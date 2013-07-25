@@ -55,6 +55,7 @@ import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.PlainSubstitution;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.SyntacticFunctionsSubExpressionsProvider;
@@ -193,7 +194,13 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 						// e.g.:
 						// there exists X : a = X             -> true
 						// there exists X: (X = a) => (X = b) -> true
-						new QuantifierEliminationWrapper(),
+						new QuantifierEliminationWrapper(FunctorConstants.FOR_ALL),
+						new QuantifierEliminationWrapper(FunctorConstants.THERE_EXISTS),
+						new QuantifierEliminationWrapper(FunctorConstants.NOT),
+						new QuantifierEliminationWrapper(FunctorConstants.IMPLICATION),
+						new QuantifierEliminationWrapper(FunctorConstants.EQUIVALENCE),
+						new QuantifierEliminationWrapper(FunctorConstants.AND),
+						new QuantifierEliminationWrapper(FunctorConstants.OR),
 										
 						new IntensionalUniSetWithIndicesNotUsedInHead(),
 						
