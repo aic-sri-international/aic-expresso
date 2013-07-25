@@ -72,7 +72,8 @@ import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
 import com.sri.ai.grinder.library.controlflow.IfThenElseIrrelevantCondition;
 import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
-import com.sri.ai.grinder.library.controlflow.NormalizeEqualitiesAndDisequalities;
+import com.sri.ai.grinder.library.controlflow.NormalizeDisequalities;
+import com.sri.ai.grinder.library.controlflow.NormalizeEqualities;
 import com.sri.ai.grinder.library.equality.CheapDisequalityModule;
 import com.sri.ai.grinder.library.equality.NotOnDisequality;
 import com.sri.ai.grinder.library.equality.NotOnEquality;
@@ -155,7 +156,8 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 
 						new Equality(),
 						new Disequality(),
-						new NormalizeEqualitiesAndDisequalities(),
+						new NormalizeEqualities(),
+						new NormalizeDisequalities(),
 						new NotOnEquality(),
 						new NotOnDisequality(), 
 						new GreaterThan(), 
