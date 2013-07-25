@@ -49,6 +49,7 @@ import com.sri.ai.grinder.demo.model.LeafEnableItem;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.ContradictoryConjuncts;
 import com.sri.ai.grinder.library.boole.Equivalence;
 import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
@@ -118,6 +119,7 @@ public class AllRewritePanel extends AbstractRewritePanel {
 		allRewriters.add(new LeafEnableItem<Rewriter>("Not",  new Not()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Implication",  new Implication()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Equivalence",  new Equivalence()));
+		allRewriters.add(new LeafEnableItem<Rewriter>("Contradictory Conjuncts", new ContradictoryConjuncts()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Conditional Formula",  new FromConditionalFormulaToFormula()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Incomplete Linear Implied Certainty", new IncompleteLinearImpliedCertainty()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Trivial Quantified Cases",  new TrivialQuantifiedCases()));

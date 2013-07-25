@@ -47,6 +47,7 @@ import com.sri.ai.grinder.demo.model.ExampleRewrite;
 import com.sri.ai.grinder.demo.model.GroupEnableItem;
 import com.sri.ai.grinder.demo.model.LeafEnableItem;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.ContradictoryConjuncts;
 import com.sri.ai.grinder.library.boole.Equivalence;
 import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
@@ -94,6 +95,7 @@ public class LogicRewritePanel extends AbstractRewritePanel {
 		basicRewriters.add(new LeafEnableItem<Rewriter>("Not",  new Not()));
 		basicRewriters.add(new LeafEnableItem<Rewriter>("Implication",  new Implication()));
 		basicRewriters.add(new LeafEnableItem<Rewriter>("Equivalence",  new Equivalence()));
+		basicRewriters.add(new LeafEnableItem<Rewriter>("Contradictory Conjuncts", new ContradictoryConjuncts()));
 		GroupEnableItem<Rewriter> basicGroup = new GroupEnableItem<Rewriter>("Basic", basicRewriters);
 		
 		List<EnableItem<Rewriter>> advancedRewriters = new ArrayList<EnableItem<Rewriter>>();

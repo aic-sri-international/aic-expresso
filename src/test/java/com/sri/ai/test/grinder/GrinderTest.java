@@ -79,6 +79,7 @@ import com.sri.ai.grinder.library.StandardizedApartFrom;
 import com.sri.ai.grinder.library.Substitute;
 import com.sri.ai.grinder.library.Unification;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.ContradictoryConjuncts;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
@@ -797,13 +798,20 @@ public class GrinderTest extends AbstractGrinderTest {
 		expressionString = "not x";
 		expected = parse(expressionString);
 		evaluationTest();
-		
-		expressionString = "not x and y and x";
-		expected = Expressions.FALSE;
-		evaluationTest();
-		
+
 		expressionString = "not not x";
 		expected = parse("x");
+		evaluationTest();
+	}
+	
+	@Test
+	public void testContradictoryConjuncts() {
+		Library library = new DefaultLibrary(
+				new ContradictoryConjuncts());
+		evaluator = new ExhaustiveRewriter(library);
+				
+		expressionString = "not x and y and x";
+		expected = Expressions.FALSE;
 		evaluationTest();
 	}
 

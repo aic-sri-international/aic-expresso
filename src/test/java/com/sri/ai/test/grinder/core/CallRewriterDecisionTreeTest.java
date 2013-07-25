@@ -50,6 +50,7 @@ import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.PlainSubstitution;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.ContradictoryConjuncts;
 import com.sri.ai.grinder.library.boole.Equivalence;
 import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
@@ -107,8 +108,9 @@ public class CallRewriterDecisionTreeTest {
 					new GreaterThan(), 
 	
 					new And(),
-					new Or(),      
-					new Not(),         
+					new Or(),
+					new Not(),  
+					new ContradictoryConjuncts(),
 					new Implication(), 
 					new Equivalence(), 
 					new AbsorbingElement(
