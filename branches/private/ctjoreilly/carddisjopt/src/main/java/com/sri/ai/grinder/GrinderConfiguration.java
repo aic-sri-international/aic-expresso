@@ -57,6 +57,12 @@ public class GrinderConfiguration extends Configuration {
 	public static final String  KEY_WAIT_UNTIL_UI_CLOSED_ENABLED                                = "grinder.wait.until.ui.closed.enabled";
 	public static final Boolean DEFAULT_VALUE_WAIT_UNTIL_UI_CLOSED_ENABLED                      = Boolean.FALSE;
 	//
+	public static final String  KEY_TRACE_IN_AND_OUT_OF_ATOMIC_REWRITER_ENABLED                 = "grinder.trace.in.and.out.of.atomic.rewriter.enabled";
+	public static final Boolean DEFAULT_VALUE_TRACE_IN_AND_OUT_OF_ATOMIC_REWRITER_ENABLED       = Boolean.FALSE;
+	//
+	public static final String  KEY_TRACE_IN_AND_OUT_OF_HIERARCHICAL_REWRITER_ENABLED           = "grinder.trace.in.and.out.of.hierarchical.rewriter.enabled";
+	public static final Boolean DEFAULT_VALUE_TRACE_IN_AND_OUT_OF_HIERARCHICAL_REWRITER_ENABLED = Boolean.TRUE;
+	//
 	public static final String  KEY_ASSUME_DOMAIN_ALWAYS_LARGE                                  = "grinder.cardinalilty.assume.domains.always.large";
 	public static final Boolean DEFAULT_VALUE_ASSUME_DOMAIN_ALWAYS_LARGE                        = Boolean.FALSE;
 	//
@@ -127,6 +133,18 @@ public class GrinderConfiguration extends Configuration {
 	
 	public static boolean isWaitUntilUIClosedEnabled() {
 		boolean result = getBoolean(KEY_WAIT_UNTIL_UI_CLOSED_ENABLED, DEFAULT_VALUE_WAIT_UNTIL_UI_CLOSED_ENABLED);
+		
+		return result;
+	}
+	
+	public static boolean isTraceInAndOutOfAtomicRewriterEnabled() {
+		boolean result = getBoolean(KEY_TRACE_IN_AND_OUT_OF_ATOMIC_REWRITER_ENABLED, DEFAULT_VALUE_TRACE_IN_AND_OUT_OF_ATOMIC_REWRITER_ENABLED);
+		
+		return result;
+	}
+	
+	public static boolean isTraceInAndOutOfHierarchicalRewriterEnabled() {
+		boolean result = getBoolean(KEY_TRACE_IN_AND_OUT_OF_HIERARCHICAL_REWRITER_ENABLED, DEFAULT_VALUE_TRACE_IN_AND_OUT_OF_HIERARCHICAL_REWRITER_ENABLED);
 		
 		return result;
 	}

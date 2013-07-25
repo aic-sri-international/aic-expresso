@@ -42,7 +42,9 @@ import java.util.HashSet;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.library.BinaryOperator;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.Util;
 
 /**
@@ -55,10 +57,12 @@ public class GreaterThan extends BinaryOperator {
 
 	public GreaterThan() {
 		this.functors = new HashSet<Expression>(); 
-		this.functors.add(DefaultSymbol.createSymbol(">"));
+		this.functors.add(DefaultSymbol.createSymbol(FunctorConstants.GREATER_THAN));
 		//
 		this.firstType  = Number.class;
 		this.secondType = Number.class;
+		
+		this.setReifiedTests(new HasFunctor(FunctorConstants.GREATER_THAN));
 	}
 	
 	@Override

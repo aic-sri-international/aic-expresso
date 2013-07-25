@@ -78,8 +78,8 @@ import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.StandardizedApartFrom;
 import com.sri.ai.grinder.library.Substitute;
 import com.sri.ai.grinder.library.Unification;
-import com.sri.ai.grinder.library.Variables;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.ContradictoryConjuncts;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
@@ -114,6 +114,7 @@ import com.sri.ai.grinder.library.set.intensional.EqualityOfIntensionalUniSets;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithBoundIndex;
+import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNotUsedInHead;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.test.grinder.library.equality.cardinality.CountsDeclaration;
 import com.sri.ai.util.Util;
@@ -146,6 +147,12 @@ public class GrinderTest extends AbstractGrinderTest {
 		// No change
 		s = DefaultSymbol.makeStringValuedSymbolParseSafe("aSymbol");
 		Assert.assertEquals("aSymbol", s);
+		
+		s = DefaultSymbol.makeStringValuedSymbolParseSafe("aSymbol'");
+		Assert.assertEquals("aSymbol'", s);
+		
+		s = DefaultSymbol.makeStringValuedSymbolParseSafe("aSymbol'''");
+		Assert.assertEquals("aSymbol'''", s);
 		
 		// spaces
 		s = DefaultSymbol.makeStringValuedSymbolParseSafe("I have a space");
@@ -791,13 +798,20 @@ public class GrinderTest extends AbstractGrinderTest {
 		expressionString = "not x";
 		expected = parse(expressionString);
 		evaluationTest();
-		
-		expressionString = "not x and y and x";
-		expected = Expressions.FALSE;
-		evaluationTest();
-		
+
 		expressionString = "not not x";
 		expected = parse("x");
+		evaluationTest();
+	}
+	
+	@Test
+	public void testContradictoryConjuncts() {
+		Library library = new DefaultLibrary(
+				new ContradictoryConjuncts());
+		evaluator = new ExhaustiveRewriter(library);
+				
+		expressionString = "not x and y and x";
+		expected = Expressions.FALSE;
 		evaluationTest();
 	}
 
@@ -1204,6 +1218,10 @@ public class GrinderTest extends AbstractGrinderTest {
 		expected = parse("if even(X) then f(true) else g(false)");
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 
+//		expressionString = "if not even(X) then f(even(X)) else g(even(X))";
+//		expected = parse("if not even(X) then f(false) else g(true)");
+//		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+
 		expressionString = "if even(X) then f(even(Y)) else g(even(X))";
 		expected = parse("if even(X) then f(if Y = X then true else even(Y)) else g(false)");
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
@@ -1414,16 +1432,16 @@ public class GrinderTest extends AbstractGrinderTest {
 		
 		evaluator = new ExhaustiveRewriter(library);
 		
+		expressionString = "{ ( on A ) p(A, X) | A = A = X }";
+		expected   = parse("{ ( on ) p(X, X) | true }");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+		
 		expressionString = "{(on X in {1,2,3}, Y) p(X) | X = 1 and X != Y and (X != 1 or X != 2)}";
 		expected   = parse("{(on Y) p(1) | 1 != Y}");
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 		
 		expressionString = "{{(on Z in {1,2}, X in {1,2,3}, Y) p(X) | X = 1 and X != Y and (X != 1 or X != 2)}}";
 		expected   = parse("{{(on Z in {1,2}, Y) p(1) | 1 != Y}}");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-		
-		expressionString = "{ ( on A ) p(A, X) | A = A = X }";
-		expected   = parse("{ ( on ) p(X, X) | true }");
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 		
 		expressionString = "{ ( on A ) p(A, X) | X = A = A }";
@@ -1436,6 +1454,43 @@ public class GrinderTest extends AbstractGrinderTest {
 		
 		expressionString = "{ ( on A ) p(A, X) | A != X and X = X and A = A }";
 		expected   = parse("{ ( on A ) p(A, X) | A != X }");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+	}
+
+	@Test
+	public void testIntensionalUniSetWithIndicesNotUsedInHead() {
+		Library library = new DefaultLibrary(
+				new ScopedVariables(),
+				new ExpressionKnowledgeModule(),
+				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
+				new IntensionalSetSubExpressionsAndImposedConditionsProvider(),
+				new IntensionalSet(),
+				new IntensionalUniSetWithIndicesNotUsedInHead());
+		
+		evaluator = new ExhaustiveRewriter(library);
+		
+		expressionString = "{(on X in {1,2,3}, Y) p(X) | X != Y}";
+		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y : X != Y}");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+		
+		expressionString = "{(on X in {1,2,3}, Y in {a,b}) p(X) | X != Y}";
+		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y : X != Y}");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+		
+		expressionString = "{(on Y in {a,b}, X in {1,2,3}) p(X) | X != Y}";
+		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y : X != Y}");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+		
+		expressionString = "{(on Y in {a,b}) p(X) | X != Y}";
+		expected   = parse("{(on ) p(X) | there exists Y : X != Y}");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+		
+		expressionString = "{(on Y in {a,b}, X in {1,2,3}, Z) p(X) | X != Y}";
+		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y : there exists Z : X != Y}");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+		
+		expressionString = "{{(on Y in {a,b}, X in {1,2,3}, Z) p(X) | X != Y}}";
+		expected   = parse("{{(on Y in {a,b}, X in {1,2,3}, Z) p(X) | X != Y}}");
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 	}
 
@@ -1748,7 +1803,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		expected = new HashSet<Expression>();
 		expression = parse(expressionString);
 		process = new DefaultRewritingProcess(expression, evaluator);
-		freeVariables = Variables.freeVariables(expression, process);
+		freeVariables = Expressions.freeVariables(expression, process);
 		System.out.println("Computed free variables of " + expression + ": " + Util.join(freeVariables));
 		process.notifyEndOfRewritingProcess();
 		assertEquals(expected, freeVariables);
@@ -1757,7 +1812,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		expected = Util.set(parse("W"));
 		expression = parse(expressionString);
 		process = new DefaultRewritingProcess(expression, evaluator);
-		freeVariables = Variables.freeVariables(expression, process);
+		freeVariables = Expressions.freeVariables(expression, process);
 		System.out.println("Computed free variables of " + expression + ": " + Util.join(freeVariables));
 		process.notifyEndOfRewritingProcess();
 		assertEquals(expected, freeVariables);
@@ -1766,7 +1821,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		expected = Util.set(parse("X"));
 		expression = parse(expressionString);
 		process = new DefaultRewritingProcess(expression, evaluator);
-		freeVariables = Variables.freeVariables(expression, process);
+		freeVariables = Expressions.freeVariables(expression, process);
 		System.out.println("Computed free variables of " + expression + ": " + Util.join(freeVariables));
 		process.notifyEndOfRewritingProcess();
 		assertEquals(expected, freeVariables);

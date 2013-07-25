@@ -55,6 +55,7 @@ import com.sri.ai.grinder.expression.ExpressionCache;
 import com.sri.ai.grinder.helper.Justification;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.util.Util;
+import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.TernaryProcedure;
 import com.sri.ai.util.cache.CacheMap;
 
@@ -72,7 +73,8 @@ public class TotalRewriter extends AbstractRewriter {
 	private int             totalNumberOfSelections = 0;
 	private int             rewritingCount          = 0; 
 	private boolean         outerTraceEnabled       = true;
-	private ExpressionCache deadEndsCache           = new ExpressionCache(
+	//
+	private ExpressionCache deadEndsCache = new ExpressionCache(
 			GrinderConfiguration.getRewriteDeadEndsCacheMaximumSize(),
 			null,
 			CacheMap.NO_GARBAGE_COLLECTION);
@@ -94,6 +96,8 @@ public class TotalRewriter extends AbstractRewriter {
 //			registerEquivalency(o1, o2, process);
 		}
 	};
+	//
+	private CallRewriterDecisionTree callRewriterDecisionTree = null;
 	
 	public TotalRewriter(String name, List<Rewriter> rewriters) {
 		super();
@@ -105,6 +109,8 @@ public class TotalRewriter extends AbstractRewriter {
 				activeRewriters.add(rewriter);
 			}
 		}
+		
+		callRewriterDecisionTree = new CallRewriterDecisionTree(activeRewriters);
 	}
 	
 	public boolean isOuterTraceEnabled() {
@@ -151,6 +157,7 @@ public class TotalRewriter extends AbstractRewriter {
 			public Expression apply(Expression expression, RewritingProcess process) {
 				Expression result      = expression;
 				Expression priorResult = expression;
+				Rewriter   rewriter    = null;
 			
 //				Expression cached = getFinalEquivalent(expression, process);
 //				if (cached != null) {
@@ -166,57 +173,67 @@ public class TotalRewriter extends AbstractRewriter {
 //				cached = getFinalEquivalent(expression, process);
 				
 				// Exhaustively apply each rewriter in turn.
-				long startTime = 0L;
-				for (Rewriter rewriter : activeRewriters) {
-					do {
-						priorResult = result;
-						
+				long startTime  = 0L;
+				do {
+					priorResult = result;
+					
+					if (traceEnabled) {
+						startTime = System.currentTimeMillis();
+					}
+					
+					if (traceEnabled) {
+						Trace.setTraceLevel(Trace.getTraceLevel()+1);
+					}
+					Pair<Rewriter, Expression> rewriterWrote = callRewriterDecisionTree.rewrite(priorResult, process);
+					rewriter = rewriterWrote.first;
+					result   = rewriterWrote.second;
+					
+// TODO - this is a HACK! to re-simulate old behavior
+// which was to recall a rewriter that rewrote until
+// it no longer simplified the expression.
+					if (result != priorResult) {
+						Expression hackPriorResult = result;
+						do {
+							hackPriorResult = result;
+							result = rewriter.rewrite(hackPriorResult, process);
+						} while (result != hackPriorResult);
+					}
+// TODO - End HACK!!!
+					
+					if (traceEnabled) {
+						Trace.setTraceLevel(Trace.getTraceLevel()-1);
+					}
+					
+					// Track Selections
+					numberOfSelections.addAndGet(1);
+					totalNumberOfSelections += 1;
+					
+					// Output trace and justification information if a change occurred
+					if (result != priorResult) {
 						if (traceEnabled) {
-							startTime = System.currentTimeMillis();
-						}
-						
-						result = rewriter.rewrite(priorResult, process);
-						
-						// Track Selections
-						numberOfSelections.addAndGet(1);
-						totalNumberOfSelections += 1;
-						
-						// Output trace and justification information if a change occurred
-						if (result != priorResult) {
-							if (traceEnabled) {
-								long relativeTime = System.currentTimeMillis() - startTime;
-								
-								boolean isWholeExpressionRewrite = priorResult == currentTopExpression[0];
-								String  indent = "";
-								if (isWholeExpressionRewrite) {
-									Trace.log(indent+"Rewriting whole expression:");
-								} 
-								else {
-									indent = "    ";
-									Trace.log(indent+"Rewriting sub-expression:");
-									Trace.log(indent+"{}", priorResult);
-								}
-								
-								Trace.log(indent+"   ----> ("+rewriter.getName()+",  "+relativeTime+" ms, #"+(++rewritingCount)+", "+numberOfSelections+" rewriter selections ("+totalNumberOfSelections+" since start))");
-	
-								if (!isWholeExpressionRewrite) {
-									Trace.log(indent+"{}", result);
-								}
+							long relativeTime = System.currentTimeMillis() - startTime;
+							
+							boolean isWholeExpressionRewrite = priorResult == currentTopExpression[0];
+							if (isWholeExpressionRewrite) {
+								Trace.log("Rewriting whole expression:");
+								Trace.log("{}", priorResult);
+							} 
+							else {
+								Trace.log("Rewriting sub-expression:");
+								Trace.log("{}", priorResult);
 							}
-						
-							if (justificationEnabled) {
-								Justification.log(expression);
-								Justification.beginEqualityStep(rewriter.getName());
-								Justification.endEqualityStep(result);
-							}
+							Trace.log("   ----> ("+rewriter.getName()+",  "+relativeTime+" ms, #"+(++rewritingCount)+", "+numberOfSelections+" rewriter selections ("+totalNumberOfSelections+" since start))");
+							Trace.log("{}", result);
 						}
-//						if (result != priorResult) {
-//							System.out.println("result != priorResult !");
-//							System.out.println("result: " + result);
-//							System.out.println("priorResult: " + result);
-//						}
-					} while (result != priorResult);
-				}
+					
+						if (justificationEnabled) {
+							Justification.log(expression);
+							Justification.beginEqualityStep(rewriter.getName());
+							Justification.endEqualityStep(result);
+						}
+					}
+				} while (result != priorResult);
+					
 				
 //				if (cached != null && ! cached.equals(result)) {
 //					System.out.println("Equivalency cache used in non-trivial way.");
@@ -235,11 +252,6 @@ public class TotalRewriter extends AbstractRewriter {
 			previous = current;
 			currentTopExpression[0] = current;
 			current  = previous.replaceAllOccurrences(rewriteFunction, deadEndPruner, deadEndListener, process);
-			if (traceEnabled) {
-				if (current != previous) {
-					Trace.log("{}", current);
-				}
-			}
 		}
 		
 		Expression result = current;

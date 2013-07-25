@@ -43,6 +43,7 @@ import static org.junit.Assert.fail;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -181,7 +182,7 @@ abstract public class AbstractGrinderTest {
 		
 		Stopwatch stopwatch = new Stopwatch().start();
 		actual = evaluator.rewrite(expression, process);
-		long evaluationTime = stopwatch.elapsedMillis();
+		long evaluationTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 		System.out.println("Evaluation time: " + evaluationTime + " ms");
 	
 		boolean succeded = areEqual(actual, expected);
@@ -228,8 +229,9 @@ abstract public class AbstractGrinderTest {
 		for (int i = begin; i < end; i++) {
 			topExpression = tests[i].getTopExpression();
 			process = new DefaultRewritingProcess(topExpression, new Basic());
+
 			Expression expectedExpressions = parse(tests[i].expected);
-			Assert.assertNotNull(expectedExpressions);
+			Assert.assertNotNull("Unable to parse expected expression: "+tests[i].expected, expectedExpressions);
 			if (tests[i].isIllegalArgumentTest) {
 				try {
 					actual = tests[i].callRewrite(process);

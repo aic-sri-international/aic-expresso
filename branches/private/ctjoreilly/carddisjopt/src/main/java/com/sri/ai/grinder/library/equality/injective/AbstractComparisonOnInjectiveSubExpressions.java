@@ -41,6 +41,8 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.function.InjectiveModule;
 import com.sri.ai.util.Util;
 
@@ -52,24 +54,29 @@ import com.sri.ai.util.Util;
 @Beta
 public abstract class AbstractComparisonOnInjectiveSubExpressions extends
 AbstractRewriter {
+	
+	public AbstractComparisonOnInjectiveSubExpressions() {
+		this.setReifiedTests(new HasFunctor(getFunctor()),
+	             			 new HasNumberOfArguments(2));
+	}
 
 	protected abstract String getFunctor();
 
 	abstract protected Expression conditionForComparisonOfSubExpressions(Expression syntaxTree1, Expression syntaxTree2);
 
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (expression.hasFunctor(getFunctor()) && expression.numberOfArguments() == 2) {
-			Expression expression1 = expression.get(0);
-			Expression expression2 = expression.get(1);
-			Object injectiveFunctionToken1 = getInjectiveFunctionToken(expression1, process);
-			Object injectiveFunctionToken2 = getInjectiveFunctionToken(expression2, process);
-			if (
-					Util.notNullAndEquals(injectiveFunctionToken1, injectiveFunctionToken2) &&
-					expression1.getSubExpressions().size() == expression2.getSubExpressions().size()) {
-				Expression result = conditionForComparisonOfSubExpressions(expression1, expression2);
-				return result;
-			}
+
+		Expression expression1 = expression.get(0);
+		Expression expression2 = expression.get(1);
+		Object injectiveFunctionToken1 = getInjectiveFunctionToken(expression1, process);
+		Object injectiveFunctionToken2 = getInjectiveFunctionToken(expression2, process);
+		if (
+				Util.notNullAndEquals(injectiveFunctionToken1, injectiveFunctionToken2) &&
+				expression1.getSubExpressions().size() == expression2.getSubExpressions().size()) {
+			Expression result = conditionForComparisonOfSubExpressions(expression1, expression2);
+			return result;
 		}
+
 		return expression;
 	}
 

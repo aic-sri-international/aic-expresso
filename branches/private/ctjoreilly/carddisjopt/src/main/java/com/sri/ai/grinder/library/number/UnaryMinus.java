@@ -42,6 +42,8 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasNumberOfArguments;
 
 /**
  * Implements the unary MINUS operation.
@@ -52,11 +54,14 @@ import com.sri.ai.grinder.core.AbstractRewriter;
 public class UnaryMinus extends AbstractRewriter {
 
 	private static final Expression MINUS = DefaultSymbol.createSymbol("-");
+	
+	public UnaryMinus() {
+		this.setReifiedTests(new HasFunctor(MINUS),
+				             new HasNumberOfArguments(1));
+	}
 
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (expression.hasFunctor(MINUS) &&
-				expression.numberOfArguments() == 1 &&
-				expression.get(0).getValue() instanceof Number) {
+		if (expression.get(0).getValue() instanceof Number) {
 			return DefaultSymbol.createSymbol(expression.get(0).rationalValue().negate());
 		}
 		return expression;

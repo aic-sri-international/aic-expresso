@@ -50,6 +50,8 @@ import com.sri.ai.expresso.helper.IsApplicationOf;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.DefaultRewriterTest;
+import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.util.Util;
 
 /**
@@ -61,6 +63,10 @@ import com.sri.ai.util.Util;
 public class ScopedVariables extends AbstractRewriter {
 
 	private HashSet<Provider> providers = new HashSet<Provider>();
+	
+	public ScopedVariables() {
+		this.setReifiedTests(new DefaultRewriterTest(KindAttribute.INSTANCE, KindAttribute.VALUE_SCOPED_VARIABLES));
+	}
 	
 	/**
 	 * An interface for objects that know how to determine the set of variables scoped
@@ -94,7 +100,7 @@ public class ScopedVariables extends AbstractRewriter {
 		return expression;
 	}
 
-	private boolean isScopedVariables(Expression expression) {
+	public static boolean isScopedVariables(Expression expression) {
 		return
 		expression.getSyntaxTree().getLabel().equals("scoped variables") &&
 		expression.getSyntaxTree().numberOfImmediateSubTrees() == 1; // does need to be sub-tree because 'scoped variables' is a syntactic form.

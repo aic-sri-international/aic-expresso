@@ -43,6 +43,8 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.math.Rational;
 
@@ -55,29 +57,33 @@ import com.sri.ai.util.math.Rational;
 @Beta
 public class Minus extends AbstractRewriter {
 	public static String FUNCTOR = FunctorConstants.MINUS;
+	
+	public Minus() {
+		this.setReifiedTests(new HasFunctor(FUNCTOR),
+				             new HasNumberOfArguments(2));
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expression result = expression;
-		if (expression.hasFunctor(FUNCTOR) && expression.numberOfArguments() == 2) {
-			Expression first = expression.get(0);
-			Expression second = expression.get(1);
-
-			if (Expressions.isNumber(first)) {
-				Rational firstValue = first.rationalValue();
-				if (Expressions.isNumber(second)) {
-					Rational secondValue = second.rationalValue();
-					result = DefaultSymbol.createSymbol(firstValue.subtract(secondValue));
-				} 
-				else if (firstValue.isZero()) {
-					result = Expressions.apply("-", second);
-				}
-			} 
-			else if (Expressions.isNumber(second) && second.rationalValue().isZero()) {
-				result = first;
-			}
-		}
 		
+		Expression first = expression.get(0);
+		Expression second = expression.get(1);
+
+		if (Expressions.isNumber(first)) {
+			Rational firstValue = first.rationalValue();
+			if (Expressions.isNumber(second)) {
+				Rational secondValue = second.rationalValue();
+				result = DefaultSymbol.createSymbol(firstValue.subtract(secondValue));
+			} 
+			else if (firstValue.isZero()) {
+				result = Expressions.apply("-", second);
+			}
+		} 
+		else if (Expressions.isNumber(second) && second.rationalValue().isZero()) {
+			result = first;
+		}
+			
 		return result;
 	}
 	

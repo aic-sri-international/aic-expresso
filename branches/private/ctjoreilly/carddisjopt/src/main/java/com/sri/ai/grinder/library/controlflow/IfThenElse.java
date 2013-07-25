@@ -47,6 +47,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.FunctionApplicationProvider;
+import com.sri.ai.grinder.core.HasFunctor;
 
 /**
  * An atomic rewriter for conditional expressions. Returns the then or else
@@ -65,16 +66,20 @@ public class IfThenElse extends AbstractRewriter {
 	private static final List<Integer> _pathToThen      = Collections.unmodifiableList(Arrays.asList(1));
 	private static final List<Integer> _pathToElse      = Collections.unmodifiableList(Arrays.asList(2));
 
+	public IfThenElse() {
+		this.setReifiedTests(new HasFunctor(FUNCTOR));
+	}
+	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (isIfThenElse(expression)) {
-			if (expression.get(0).equals(true)) {
-				return expression.get(1);
-			}
-			if (expression.get(0).equals(false)) {
-				return expression.get(2);
-			}
+		
+		if (expression.get(0).equals(true)) {
+			return expression.get(1);
 		}
+		if (expression.get(0).equals(false)) {
+			return expression.get(2);
+		}
+		
 		return expression;
 	}
 	

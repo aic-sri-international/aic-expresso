@@ -46,7 +46,9 @@ import com.sri.ai.grinder.demo.model.EnableItem;
 import com.sri.ai.grinder.demo.model.ExampleRewrite;
 import com.sri.ai.grinder.demo.model.GroupEnableItem;
 import com.sri.ai.grinder.demo.model.LeafEnableItem;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.ContradictoryConjuncts;
 import com.sri.ai.grinder.library.boole.Equivalence;
 import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
@@ -57,7 +59,8 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.IncompleteLin
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.QuantifierEliminationWrapper;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopImpliedCertainty;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopSimplifyWrapper;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.TrivialQuantifiedCases;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.TrivialForAllCases;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.TrivialThereExistsCases;
 
 @Beta
 public class LogicRewritePanel extends AbstractRewritePanel {
@@ -94,15 +97,23 @@ public class LogicRewritePanel extends AbstractRewritePanel {
 		basicRewriters.add(new LeafEnableItem<Rewriter>("Not",  new Not()));
 		basicRewriters.add(new LeafEnableItem<Rewriter>("Implication",  new Implication()));
 		basicRewriters.add(new LeafEnableItem<Rewriter>("Equivalence",  new Equivalence()));
+		basicRewriters.add(new LeafEnableItem<Rewriter>("Contradictory Conjuncts", new ContradictoryConjuncts()));
 		GroupEnableItem<Rewriter> basicGroup = new GroupEnableItem<Rewriter>("Basic", basicRewriters);
 		
 		List<EnableItem<Rewriter>> advancedRewriters = new ArrayList<EnableItem<Rewriter>>();
 		advancedRewriters.add(new LeafEnableItem<Rewriter>("Not on Equality",  new NotOnEquality()));
 		advancedRewriters.add(new LeafEnableItem<Rewriter>("Not on Disequality",  new NotOnDisequality()));
 		advancedRewriters.add(new LeafEnableItem<Rewriter>("Incomplete Linear Implied Certainty", new IncompleteLinearImpliedCertainty()));
-		advancedRewriters.add(new LeafEnableItem<Rewriter>("Trivial Quantified Cases",  new TrivialQuantifiedCases()));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Trivial For All Cases",  new TrivialForAllCases()));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Trivial There Exists Cases",  new TrivialThereExistsCases()));
 		advancedRewriters.add(new LeafEnableItem<Rewriter>("Top Simplify",  new TopSimplifyWrapper()));
-		advancedRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination",  new QuantifierEliminationWrapper()));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.FOR_ALL,  new QuantifierEliminationWrapper(FunctorConstants.FOR_ALL)));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.THERE_EXISTS,  new QuantifierEliminationWrapper(FunctorConstants.THERE_EXISTS)));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.NOT,  new QuantifierEliminationWrapper(FunctorConstants.NOT)));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.IMPLICATION,  new QuantifierEliminationWrapper(FunctorConstants.IMPLICATION)));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.EQUIVALENCE,  new QuantifierEliminationWrapper(FunctorConstants.EQUIVALENCE)));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.AND,  new QuantifierEliminationWrapper(FunctorConstants.AND)));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.OR,  new QuantifierEliminationWrapper(FunctorConstants.OR)));
 		advancedRewriters.add(new LeafEnableItem<Rewriter>("Top Implied Certainty",  new TopImpliedCertainty()));
 		GroupEnableItem<Rewriter> advancedGroup = new GroupEnableItem<Rewriter>("Advanced", advancedRewriters);
 		

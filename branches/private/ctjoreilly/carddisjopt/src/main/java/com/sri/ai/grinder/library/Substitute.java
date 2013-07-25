@@ -43,7 +43,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
+import com.sri.ai.expresso.core.AbstractReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.PruningPredicate;
@@ -53,6 +53,7 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 
 /**
  * A class providing a static method for substituting symbols or function applications in an expression
@@ -138,7 +139,7 @@ public class Substitute {
 		return result;
 	}
 	
-	private static class SubstituteReplacementFunction implements ReplacementFunctionWithContextuallyUpdatedProcess {
+	private static class SubstituteReplacementFunction extends AbstractReplacementFunctionWithContextuallyUpdatedProcess {
 
 		public Expression replaced;
 		public Expression constraintOnReplaced;
@@ -151,23 +152,32 @@ public class Substitute {
 		}
 		
 		@Override
-		public Expression apply(Expression arg0) {
-			throw new Error(SubstituteReplacementFunction.class + ".apply(Expression) must not be invoked");
-		}
-
-		@Override
 		public Expression apply(Expression expression, RewritingProcess process) {
 			Expression result = expression;
 			if (expression.getFunctorOrSymbol().equals(replaced.getFunctorOrSymbol())) {
 				Expression argumentsAreTheSame = Equality.makePairwiseEquality(expression.getArguments(), replaced.getArguments());
-				Expression argumentsAreTheSameAndReplacedIsConstrained = And.make(constraintOnReplaced, argumentsAreTheSame);
-				Expression conditionForExpressionToMatchReplaced = process.rewrite(CardinalityRewriter.R_complete_simplify, argumentsAreTheSameAndReplacedIsConstrained);
-				RewritingProcess newProcess = GrinderUtil.extendContextualConstraint(conditionForExpressionToMatchReplaced, process);
-				Expression replacementIfConditionHolds = replacement;
-				if (!replacement.equals(replaced)) {
-					replacementIfConditionHolds = substitute(replacement, replaced, constraintOnReplaced, replacement, newProcess);
+				Expression argumentsAreTheSameAndConstraintOnReplaced = And.make(constraintOnReplaced, argumentsAreTheSame);
+				Expression conditionForExpressionToMatchReplaced = process.rewrite(CardinalityRewriter.R_complete_simplify, argumentsAreTheSameAndConstraintOnReplaced);
+				
+				// An assertion check.
+				if (!FormulaUtil.isFormula(conditionForExpressionToMatchReplaced, process)) {
+					System.err.println("IllegalArgumentException: replaced and expression to be replaced do not form a formula for determing matching: "+conditionForExpressionToMatchReplaced);
+					System.err.println("non formula condition:"+conditionForExpressionToMatchReplaced);
+					System.err.println("expression                                 ="+expression);
+					System.err.println("replaced                                   ="+replaced);
+					System.err.println("argumentsAreTheSame                        ="+argumentsAreTheSame);
+					System.err.println("argumentsAreTheSameAndReplacedIsConstrained="+argumentsAreTheSameAndConstraintOnReplaced);
+					throw new IllegalArgumentException("Unification of expression being search for being replaced (" + replaced + ") and candidate expression (" + expression + ") do not form a formula for determing matching: "+conditionForExpressionToMatchReplaced);
 				}
-				result = IfThenElse.make(conditionForExpressionToMatchReplaced, replacementIfConditionHolds, expression);
+				
+				if (!conditionForExpressionToMatchReplaced.equals(Expressions.FALSE)) {
+						RewritingProcess newProcess = GrinderUtil.extendContextualConstraint(conditionForExpressionToMatchReplaced, process);
+						Expression replacementIfConditionHolds = replacement;
+						if (!replacement.equals(replaced)) {
+							replacementIfConditionHolds = substitute(replacement, replaced, constraintOnReplaced, replacement, newProcess);
+						}
+						result = IfThenElse.make(conditionForExpressionToMatchReplaced, replacementIfConditionHolds, expression);
+				}
 			}
 			return result;
 		}

@@ -37,9 +37,16 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewriterTest;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasNumberOfArguments;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 
@@ -50,12 +57,21 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
  * @author oreilly
  */
 public class QuantifierEliminationWrapper extends AbstractRewriter {	
-	public QuantifierEliminationWrapper() {
-	}
-	
-	@Override
-	public String getName() {
-		return "Quantifier Elimination";
+	public QuantifierEliminationWrapper(String forFunctor) {
+		// Set the name based on the quantifier this is specific to.
+		this.setName("Quantifier Elimination "+forFunctor);
+		
+		// Set up the relevant reified tests
+		List<RewriterTest> reifiedTests = new ArrayList<RewriterTest>();
+		reifiedTests.add(new HasFunctor(forFunctor));
+		if (forFunctor.equals(FunctorConstants.NOT)) {
+			reifiedTests.add(new HasNumberOfArguments(1));
+		}
+		else if (forFunctor.equals(FunctorConstants.IMPLICATION) ||
+				 forFunctor.equals(FunctorConstants.EQUIVALENCE)) {
+			reifiedTests.add(new HasNumberOfArguments(2));
+		}
+		this.setReifiedTests(reifiedTests.toArray(new RewriterTest[reifiedTests.size()]));
 	}
 	
 	@Override

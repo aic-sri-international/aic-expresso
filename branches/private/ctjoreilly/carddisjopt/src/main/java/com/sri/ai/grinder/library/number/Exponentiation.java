@@ -44,6 +44,9 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasNumberOfArguments;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -72,71 +75,76 @@ public class Exponentiation extends AbstractRewriter {
 		System.out.println("max exp  ="+maxExp);
 		System.out.println("min exp  ="+minExp);
 	}
+	
+	public Exponentiation() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.EXPONENTIATION),
+				             new HasNumberOfArguments(2));
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (expression.hasFunctor("^") && expression.numberOfArguments() == 2) {
-			Expression base = expression.get(0);
-			Expression exponent = expression.get(1);
 
-			if (Expressions.isNumber(exponent)) {
-				Rational exponentValue = exponent.rationalValue();
-				if (exponentValue.isZero()) {
-					return Expressions.ONE;
-				}
-				if (exponentValue.isOne()) {
-					return base;
-				}
+		Expression base = expression.get(0);
+		Expression exponent = expression.get(1);
+
+		if (Expressions.isNumber(exponent)) {
+			Rational exponentValue = exponent.rationalValue();
+			if (exponentValue.isZero()) {
+				return Expressions.ONE;
 			}
-			
-			if (Expressions.isNumber(base)) {
-				Rational baseValue = base.rationalValue();
-				if (baseValue.isOne()) {
-					return Expressions.ONE;
-				}
-				// we refrain from simplifying 0^x to 0, because x could be 0 itself.
-				
-				if (Expressions.isNumber(exponent)) {
-					Expression result = null;
-					boolean  losePrecision = false;
-					try {
-						int exponentIntValue = exponent.intValueExact();
-						if (Math.abs(exponentIntValue) <= maxAbsExponentSizeBeforeLoosePrecision) {
-							Rational ratValue = baseValue.pow(exponentIntValue);
-							result = boundPrecision(ratValue);
-						}
-						else {
-							// The value is going to be too large/small to be processed efficiently
-							// therefore lose some of the precision now.
-							losePrecision = true;
-						}
-					}
-					catch (ArithmeticException e) {
-						// Rational.pow does not work for non-int exponents, so we have no choice but lose precision here.
-						losePrecision = true;						
-					}
-					if (losePrecision) {
-						double exponentDoubleValue = exponent.doubleValue();
-						double baseDoubleValue     = base.doubleValue();
-						double newValue            = Math.pow(baseDoubleValue, exponentDoubleValue);
-						
-						if (newValue == 0 && !baseValue.isZero()) {
-							result = nonZeroMinPosSymbol;
-						}
-						else if (newValue == Double.POSITIVE_INFINITY) {
-							result = DefaultSymbol.createSymbol(Double.MAX_VALUE);
-						}
-						else if (newValue == Double.NEGATIVE_INFINITY) {
-							result = DefaultSymbol.createSymbol(Double.MAX_VALUE * -1);
-						}
-						else {
-							result = boundPrecision(new Rational(newValue));
-						}
-					}
-					return result;
-				}
+			if (exponentValue.isOne()) {
+				return base;
 			}
 		}
+		
+		if (Expressions.isNumber(base)) {
+			Rational baseValue = base.rationalValue();
+			if (baseValue.isOne()) {
+				return Expressions.ONE;
+			}
+			// we refrain from simplifying 0^x to 0, because x could be 0 itself.
+			
+			if (Expressions.isNumber(exponent)) {
+				Expression result = null;
+				boolean  losePrecision = false;
+				try {
+					int exponentIntValue = exponent.intValueExact();
+					if (Math.abs(exponentIntValue) <= maxAbsExponentSizeBeforeLoosePrecision) {
+						Rational ratValue = baseValue.pow(exponentIntValue);
+						result = boundPrecision(ratValue);
+					}
+					else {
+						// The value is going to be too large/small to be processed efficiently
+						// therefore lose some of the precision now.
+						losePrecision = true;
+					}
+				}
+				catch (ArithmeticException e) {
+					// Rational.pow does not work for non-int exponents, so we have no choice but lose precision here.
+					losePrecision = true;						
+				}
+				if (losePrecision) {
+					double exponentDoubleValue = exponent.doubleValue();
+					double baseDoubleValue     = base.doubleValue();
+					double newValue            = Math.pow(baseDoubleValue, exponentDoubleValue);
+					
+					if (newValue == 0 && !baseValue.isZero()) {
+						result = nonZeroMinPosSymbol;
+					}
+					else if (newValue == Double.POSITIVE_INFINITY) {
+						result = DefaultSymbol.createSymbol(Double.MAX_VALUE);
+					}
+					else if (newValue == Double.NEGATIVE_INFINITY) {
+						result = DefaultSymbol.createSymbol(Double.MAX_VALUE * -1);
+					}
+					else {
+						result = boundPrecision(new Rational(newValue));
+					}
+				}
+				return result;
+			}
+		}
+
 		return expression;
 	}
 	

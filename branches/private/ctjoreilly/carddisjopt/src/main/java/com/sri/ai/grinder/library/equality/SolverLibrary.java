@@ -49,6 +49,7 @@ import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.SyntacticFunctionsSubExpressionsProvider;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.ContradictoryConjuncts;
 import com.sri.ai.grinder.library.boole.Equivalence;
 import com.sri.ai.grinder.library.boole.ForAllSubExpressionsAndScopedVariablesProvider;
 import com.sri.ai.grinder.library.boole.Implication;
@@ -82,6 +83,7 @@ public class SolverLibrary extends DefaultLibrary {
 				new And(),
 				new Or(),
 				new Not(),
+				new ContradictoryConjuncts(),
 				new Implication(),
 				new Equivalence(),
 				new AbsorbingElement(

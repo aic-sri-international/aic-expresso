@@ -50,10 +50,8 @@ import com.sri.ai.util.log.LogX;
 @Beta
 public class RewriterTraceTreeUtilAppender extends BaseTreeUtilAppender {
 	//
-	protected int currentIndentLevel = 0;
-	//
-	private boolean firstTime = true;
-
+	private int currentIndentLevel = 0;
+	
 	public RewriterTraceTreeUtilAppender() {
 		super();
 		currentIndentLevel = 0;
@@ -63,41 +61,55 @@ public class RewriterTraceTreeUtilAppender extends BaseTreeUtilAppender {
 	protected void append(ILoggingEvent eventObject) {
 		if (TreeUtil.isShowing()) {
 
-			String msg = eventObject.getFormattedMessage();
+			String msg    = eventObject.getFormattedMessage();
 			Object[] args = eventObject.getArgumentArray();
+			
+			// Suffix the profiler information to the message
+			// if available.
+			String profileString = "";
+			Long profileInfo = LogX.getProfileInfo(eventObject.getLoggerName());
+			if (profileInfo != null) {
+				profileString = "[" + profileInfo/1000000 + "ms";
+				Long rootProfileInfo = LogX.getRootProfileInfo(eventObject.getLoggerName());
+				if (null != rootProfileInfo) {
+					profileString += ", " + (rootProfileInfo / 1000000) + "ms total";
+				}
+				profileString += "] ";
+			}
+
+			String outputMsg = null;
+			if (msg != null && !msg.equals("") && outputFormattedMessage(msg, args)) {
+				outputMsg = profileString + msg;
+			}
 
 			int indentLevel = LogX.getTraceLevel(eventObject.getLoggerName());
 
-			while (indentLevel > currentIndentLevel) {
-				if (!firstTime) {
+			while (currentIndentLevel < indentLevel) {
+				if (currentIndentLevel == (indentLevel-1)) {
+					if (outputMsg != null) {
+						TreeUtil.addTrace(outputMsg);
+						outputMsg = null; // indicates already output
+					}
+					else {
+						TreeUtil.addTrace(">>");
+					}
+				}
+				else {
 					TreeUtil.addTrace(">>");
 				}
 				TreeUtil.startTraceLevel();
 				currentIndentLevel++;
 			}
 			
-			firstTime = false;
-
-			StringBuilder sb = new StringBuilder(msg);
-			while (indentLevel < currentIndentLevel) {
+			while (currentIndentLevel > indentLevel) {
 				TreeUtil.endTraceLevel();
 				currentIndentLevel--;
 			}
 			
-			// Suffix the profiler information to the message
-			// if available.
-			Long profileInfo = LogX.getProfileInfo(eventObject.getLoggerName());
-			if (profileInfo != null) {
-				sb.append(" [");
-				// Convert nanoseconds to milliseconds
-				sb.append(profileInfo / 1000000);
-				sb.append("ms.]");
+			if (outputMsg != null) {
+				TreeUtil.addTrace(outputMsg);
 			}
-
-			if (msg != null && !msg.equals("") && outputFormattedMessage(msg, args)) {
-				TreeUtil.addTrace(sb.toString());
-			}
-
+			
 			if (args != null) {
 				for (Object arg : args) {
 					TreeUtil.addTrace(arg);

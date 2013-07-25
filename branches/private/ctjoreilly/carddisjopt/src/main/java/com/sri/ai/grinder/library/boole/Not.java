@@ -38,19 +38,15 @@
 package com.sri.ai.grinder.library.boole;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.helper.IsApplicationOf;
-
-import com.sri.ai.util.Util;
-import com.sri.ai.util.Util.SelectPairResult;
-import com.sri.ai.util.base.BinaryPredicate;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasNumberOfArguments;
+import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
  * An atomic rewriter of Boolean "not" expressions. Includes related helper methods.
@@ -61,37 +57,26 @@ import com.sri.ai.util.base.BinaryPredicate;
 @Beta
 public class Not extends AbstractRewriter {
 
-	public static final Expression FUNCTOR = DefaultSymbol.createSymbol("not");
+	public static final Expression FUNCTOR = DefaultSymbol.createSymbol(FunctorConstants.NOT);
+	
+	public Not() {
+		this.setReifiedTests(new HasFunctor(FUNCTOR), 
+				             new HasNumberOfArguments(1));
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (expression.hasFunctor(FUNCTOR)) {
-			if (expression.get(0).equals(Expressions.TRUE)) {
-				return Expressions.FALSE;
-			}
-			else if (expression.get(0).equals(Expressions.FALSE)) {
-				return Expressions.TRUE;
-			}
-			else if (expression.get(0).hasFunctor(FUNCTOR) && expression.get(0).numberOfArguments() == 1) {
-				return expression.get(0).get(0);
-			}
+		
+		if (expression.get(0).equals(Expressions.TRUE)) {
+			return Expressions.FALSE;
 		}
-		else if (expression.hasFunctor("and")) {
-			Predicate<Expression> isApplicationOfNot      = new IsApplicationOf("not");
-			Predicate<Expression> isNotAnApplicationOfNot = Predicates.not(isApplicationOfNot);
-			SelectPairResult<Expression> pair =
-				Util.selectPairInEitherOrder(
-						expression.getArguments(),
-						isApplicationOfNot,  isNotAnApplicationOfNot,
-						new BinaryPredicate<Expression,Expression>() {
-							@Override
-							public boolean apply(Expression o1, Expression o2) {
-								return o1.get(0).equals(o2); // o1 is negation of o2
-							}});
-			if (pair != null) {
-				return Expressions.FALSE;
-			}
+		else if (expression.get(0).equals(Expressions.FALSE)) {
+			return Expressions.TRUE;
 		}
+		else if (expression.get(0).hasFunctor(FUNCTOR) && expression.get(0).numberOfArguments() == 1) {
+			return expression.get(0).get(0);
+		}
+		
 		return expression;
 	}
 

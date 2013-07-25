@@ -55,10 +55,12 @@ import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.PlainSubstitution;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.SyntacticFunctionsSubExpressionsProvider;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.ContradictoryConjuncts;
 import com.sri.ai.grinder.library.boole.Equivalence;
 import com.sri.ai.grinder.library.boole.ForAllSubExpressionsAndScopedVariablesProvider;
 import com.sri.ai.grinder.library.boole.Implication;
@@ -72,7 +74,8 @@ import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
 import com.sri.ai.grinder.library.controlflow.IfThenElseIrrelevantCondition;
 import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
-import com.sri.ai.grinder.library.controlflow.NormalizeEqualitiesAndDisequalities;
+import com.sri.ai.grinder.library.controlflow.NormalizeDisequalities;
+import com.sri.ai.grinder.library.controlflow.NormalizeEqualities;
 import com.sri.ai.grinder.library.equality.CheapDisequalityModule;
 import com.sri.ai.grinder.library.equality.NotOnDisequality;
 import com.sri.ai.grinder.library.equality.NotOnEquality;
@@ -89,6 +92,7 @@ import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsPr
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithBoundIndex;
+import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNotUsedInHead;
 
 /**
  * Default implementation of  R_simplify(E).
@@ -154,26 +158,33 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 
 						new Equality(),
 						new Disequality(),
-						new NormalizeEqualitiesAndDisequalities(),
+						new NormalizeEqualities(),
+						new NormalizeDisequalities(),
 						new NotOnEquality(),
 						new NotOnDisequality(), 
 						new GreaterThan(), 
 
 						new And(),
 						new Or(),      
-						new Not(),         
+						new Not(), 
+						new ContradictoryConjuncts(),
 						new Implication(), 
 						new Equivalence(), 
 						new AbsorbingElement(
-								"and", "false",
-								"or", "true",
+								"and", "false"),
+						new AbsorbingElement(
+								"or", "true"),
+						new AbsorbingElement(
 								"*", "0"),
-						new Associative("+", "*", "and"),
+						new Associative("+"),
+						new Associative("*"),
+						new Associative("and"),
 						
 						new FromConditionalFormulaToFormula(),
 						// new, cheap simplifiers to be used instead of full ImpliedCertainty
 						new IncompleteLinearImpliedCertainty(),
-						new TrivialQuantifiedCases(),
+						new TrivialForAllCases(),
+						new TrivialThereExistsCases(),
 						new TopSimplifyWrapper(),
 						new IntensionalSetWithBoundIndex(),
 						new ConjunctsHoldTrueForEachOther(),
@@ -183,8 +194,16 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 						// e.g.:
 						// there exists X : a = X             -> true
 						// there exists X: (X = a) => (X = b) -> true
-						new QuantifierEliminationWrapper(),
+						new QuantifierEliminationWrapper(FunctorConstants.FOR_ALL),
+						new QuantifierEliminationWrapper(FunctorConstants.THERE_EXISTS),
+						new QuantifierEliminationWrapper(FunctorConstants.NOT),
+						new QuantifierEliminationWrapper(FunctorConstants.IMPLICATION),
+						new QuantifierEliminationWrapper(FunctorConstants.EQUIVALENCE),
+						new QuantifierEliminationWrapper(FunctorConstants.AND),
+						new QuantifierEliminationWrapper(FunctorConstants.OR),
 										
+						new IntensionalUniSetWithIndicesNotUsedInHead(),
+						
 						new IfThenElseIrrelevantCondition(),
 						// new DisequalityToEqualityInIfThenElseCondition(),
 						new IfThenElseBranchesAreBooleanConstants(),

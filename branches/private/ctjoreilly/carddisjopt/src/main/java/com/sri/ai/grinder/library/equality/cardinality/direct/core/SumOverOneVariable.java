@@ -50,7 +50,6 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.helper.concurrent.BranchRewriteTask;
 import com.sri.ai.grinder.helper.concurrent.RewriteOnBranch;
-import com.sri.ai.grinder.library.Variables;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
@@ -149,7 +148,7 @@ public class SumOverOneVariable extends AbstractHierarchicalRewriter implements 
 			result = assertEpressionEasilySummable(thenBranch, var, process) && assertEpressionEasilySummable(elseBranch, var, process);
 		} 
 		else {
-			Set<Expression> freeVariables = Variables.freeVariables(expression, process);
+			Set<Expression> freeVariables = Expressions.freeVariables(expression, process);
 			
 			result = !freeVariables.contains(var);
 		}

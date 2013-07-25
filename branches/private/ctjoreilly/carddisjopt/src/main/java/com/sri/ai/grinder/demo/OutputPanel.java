@@ -120,43 +120,56 @@ public class OutputPanel extends JPanel {
 			traceAppender = new AppenderBase<ILoggingEvent>() {
 				//
 				private int currentIndentLevel = 0;
-				private boolean firstTime = true;
 				//
 				@Override
 				protected void append(ILoggingEvent eventObject) {
 					String msg = eventObject.getFormattedMessage();
 					Object[] args = eventObject.getArgumentArray();
 
+					// Suffix the profiler information to the message
+					// if available.
+					String profileString = "";
+					Long profileInfo = LogX.getProfileInfo(eventObject.getLoggerName());
+					if (profileInfo != null) {
+						profileString = "[" + profileInfo/1000000 + "ms";
+						Long rootProfileInfo = LogX.getRootProfileInfo(eventObject.getLoggerName());
+						if (null != rootProfileInfo) {
+							profileString += ", " + (rootProfileInfo / 1000000) + "ms total";
+						}
+						profileString += "] ";
+					}
+					
+					String outputMsg = null;
+					if (msg != null && !msg.equals("") && BaseTreeUtilAppender.outputFormattedMessage(msg, args)) {
+						outputMsg = profileString + msg;
+					}
+					
 					int indentLevel = LogX.getTraceLevel(eventObject.getLoggerName());
 
-					while (indentLevel > currentIndentLevel) {
-						if (!firstTime) {
+					while (currentIndentLevel < indentLevel) {
+						if (currentIndentLevel == (indentLevel-1)) {
+							if (outputMsg != null) {
+								addTrace(outputMsg);
+								outputMsg = null; // indicates already output
+							}
+							else {
+								addTrace(">>");
+							}
+						}
+						else {
 							addTrace(">>");
 						}
 						startTraceLevel();
 						currentIndentLevel++;
 					}
 					
-					firstTime = false;
-
-					StringBuilder sb = new StringBuilder(msg);
-					while (indentLevel < currentIndentLevel) {
+					while (currentIndentLevel > indentLevel) {
 						endTraceLevel();
 						currentIndentLevel--;
 					}
 					
-					// Suffix the profiler information to the message
-					// if available.
-					Long profileInfo = LogX.getProfileInfo(eventObject.getLoggerName());
-					if (profileInfo != null) {
-						sb.append(" [");
-						// Convert nanoseconds to milliseconds
-						sb.append(profileInfo / 1000000);
-						sb.append("ms.]");
-					}
-
-					if (msg != null && !msg.equals("") && BaseTreeUtilAppender.outputFormattedMessage(msg, args)) {
-						addTrace(sb.toString());
+					if (outputMsg != null) {
+						addTrace(outputMsg);
 					}
 
 					if (args != null) {

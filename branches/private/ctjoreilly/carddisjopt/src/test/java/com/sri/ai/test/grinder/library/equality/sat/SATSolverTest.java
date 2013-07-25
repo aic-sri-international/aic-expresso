@@ -37,6 +37,8 @@
  */
 package com.sri.ai.test.grinder.library.equality.sat;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -98,6 +100,11 @@ public class SATSolverTest extends AbstractGrinderTest {
 		//testUnsatisfiable("for all X: (X = person1 or X = person2) => (X != person1 and X != person2)");
 		//testUnsatisfiable("for all X: (X = person1 or X = person2 or X = person3) => (X != person1 and X != person2 and X != person3)");
 	}
+	
+	@Test
+	public void testFoundFailingCase1() {
+		testSatisfiable("not (X != w7 and X != X3 and X3 != w7 and X1 != X2 and X1 != X3 and X2 != X3 and (X2 != w7 or X1 != X) and not (X2 = w7) and not (X1 != X and X1 != w7) and not false and not (X2 = w7 and X1 = X) => X1 != w7 and false = 0)");
+	}
 
 	//
 	// PRIVATE
@@ -118,7 +125,7 @@ public class SATSolverTest extends AbstractGrinderTest {
 			System.out.println(solver.getName() + " to solve : "+formula);
 			Stopwatch stopwatch = new Stopwatch().start();
 			boolean satisfiable = solver.isSatisfiable(formula, process);
-			long evaluationTime = stopwatch.elapsedMillis();
+			long evaluationTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 			System.out.println("- Satisfiable? ->");
 			System.out.println(""+satisfiable+", solver ("+solver.getName()+") time: " + evaluationTime + " ms.");
 			Assert.assertEquals(expectedSatisfiable, satisfiable);

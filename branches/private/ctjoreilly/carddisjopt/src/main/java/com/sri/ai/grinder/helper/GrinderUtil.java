@@ -55,7 +55,6 @@ import com.sri.ai.grinder.helper.concurrent.CallableRewriteOnBranch;
 import com.sri.ai.grinder.helper.concurrent.CallableRewriteOnConditionedBranch;
 import com.sri.ai.grinder.helper.concurrent.RewriteOnBranch;
 import com.sri.ai.grinder.helper.concurrent.ShortCircuitOnValue;
-import com.sri.ai.grinder.library.Variables;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
@@ -501,7 +500,7 @@ public class GrinderUtil {
 		Set<Expression> newContextualVariables = new HashSet<Expression>();
 		newContextualVariables.addAll(process.getContextualVariables());
 		if (expressionWithPossibleFreeVariables != null) {
-			newContextualVariables.addAll(Variables.freeVariables(expressionWithPossibleFreeVariables, process));
+			newContextualVariables.addAll(Expressions.freeVariables(expressionWithPossibleFreeVariables, process));
 		}
 		
 		RewritingProcess result = process.newSubProcessWithContext(newContextualVariables, process.getContextualConstraint());
@@ -595,7 +594,7 @@ public class GrinderUtil {
 		
 		Set<Expression> newFreeVariables = null;
 		if (expressionWithPossibleFreeVariables != null) {
-			newFreeVariables = Variables.freeVariables(expressionWithPossibleFreeVariables, process);
+			newFreeVariables = Expressions.freeVariables(expressionWithPossibleFreeVariables, process);
 		}
 		else {
 			newFreeVariables = new HashSet<Expression>();
@@ -641,7 +640,7 @@ public class GrinderUtil {
 			// the scoped values are random variable values and not logical
 			// variables.
 			for (Expression fv : newFreeVariables) {
-				newContextualVariables.addAll(Variables.freeVariables(fv, process));
+				newContextualVariables.addAll(Expressions.freeVariables(fv, process));
 			}
 		}
 		
@@ -652,7 +651,7 @@ public class GrinderUtil {
 		if (!additionalConstraints.equals(Expressions.TRUE) && FormulaUtil.isFormula(additionalConstraints, process)) {
 			// Ensure any variables mentioned in the additional constraint are added
 			// to the contextual variables set.
-			newContextualVariables.addAll(Variables.freeVariables(additionalConstraints, process));
+			newContextualVariables.addAll(Expressions.freeVariables(additionalConstraints, process));
 			
 			// Construct a conjunct of contextual constraints extended by the
 			// additional context

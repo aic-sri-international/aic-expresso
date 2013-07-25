@@ -38,11 +38,15 @@
 package com.sri.ai.test.grinder.parser.antlr;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.junit.Test;
 
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 import com.sri.ai.test.grinder.AbstractParserTest;
 
@@ -51,46 +55,286 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	public AntlrGrinderParserTest () {
 		parser = new AntlrGrinderParserWrapper();
 	}
-
+	
 	@Test
-	public void testSpeed() throws IOException {
+	public void testSymbol () {
 		String string;
-		string = "1 + 2";
-		test(string);
+		string = "";
+		test(string, null);
 
-		string = "if A = Z then 9 + (| type(X) | - 1) * 8 else 16 + (| type(X) | - 2) * 7";
-		test(string);
+		string = "e";
+		test(string, DefaultSymbol.createSymbol("e"));
 
-		string = "sum({{(on X) if X=Z then if X=A then 9 else 8 else if X=A then 8 else if Z=A then 8 else 7}})";
-		test(string);
-	}
+		string = "3";
+		test(string, DefaultSymbol.createSymbol(3));
 
-	@Test
-	public void testSpeedOfSingletonSet() throws IOException {
-		String string;
-		string = "{ f(X) }";
-		test(string);
+		string = "3e7";
+		test(string, DefaultSymbol.createSymbol(30000000));
+
+		string = "3e-1";
+		test(string, DefaultSymbol.createSymbol("0.30"));
+
+		string = ".3e7";
+		test(string, DefaultSymbol.createSymbol(3000000));
+
+		string = ".3e-1";
+		test(string, DefaultSymbol.createSymbol("0.030"));
+
+		string = "1.3e7";
+		test(string, DefaultSymbol.createSymbol(13000000));
+
+		string = "1.3e-1";
+		test(string, DefaultSymbol.createSymbol("0.130"));
+
+		string = "false";
+		test(string, DefaultSymbol.createSymbol(false));
+
+		string = "keyword";
+		test(string, DefaultSymbol.createSymbol("keyword"));
+
+		string = "Keyword";
+		test(string, DefaultSymbol.createSymbol("Keyword"));
+
+		string = "foo";
+		test(string, DefaultSymbol.createSymbol("foo"));
+
+		string = "foo1";
+		test(string, DefaultSymbol.createSymbol("foo1"));
+
+		string = "foo10bar";
+		test(string, DefaultSymbol.createSymbol("foo10bar"));
+
+		string = "1foo";
+		test(string, DefaultSymbol.createSymbol("1foo"));
+
+		string = "'foo1'";
+		test(string, DefaultSymbol.createSymbol("foo1"));
+
+		string = "foo1'";
+		test(string, DefaultSymbol.createSymbol("foo1'"));
+
+		string = "foo1'''";
+		test(string, DefaultSymbol.createSymbol("foo1'''"));
+
+		string = "'This is a test.'";
+		test(string, DefaultSymbol.createSymbol("This is a test."));
+
+		string = "\"This is a test.\"";
+		test(string, DefaultSymbol.createSymbol("This is a test."));
+
+		// Testing illegal symbol names.
+		string = "foo1'bar";
+		testFail(string);
+
+		string = "foo1 bar";
+		testFail(string);
+
+		string = "foo1@";
+		testFail(string);
 	}
 	
 	@Test
-	public void testSpeedOfSetDefinition() throws IOException {
+	public void testEscapeSequences() {
 		String string;
-		string = "{{ ( on X ) X | X != bob }}";
-		test(string);
+		
+		string = "'Test \\u0061'";
+		test(string, DefaultSymbol.createSymbol("Test a"));
+		
+		string = "\"Test \\u0061\"";
+		test(string, DefaultSymbol.createSymbol("Test a"));
+
+		string = "'Testing the  preservation \\t of	whitespace\\ncharacters.'";
+		test(string, DefaultSymbol.createSymbol("Testing the  preservation 	 of	whitespace\ncharacters."));
+
+		string = "\"Testing the  preservation \\t of	whitespace\\ncharacters.\"";
+		test(string, DefaultSymbol.createSymbol("Testing the  preservation 	 of	whitespace\ncharacters."));
+
+		string = "'This is a test *()#@$%!-_=+<>,./?:;\\'\"\\\"\\\\'";
+		test(string, DefaultSymbol.createSymbol("This is a test *()#@$%!-_=+<>,./?:;'\"\"\\"));
+
+		string = "\"This is a test *()#@$%!-_=+<>,./?:;\\''\\\"\\\"\\\\\"";
+		test(string, DefaultSymbol.createSymbol("This is a test *()#@$%!-_=+<>,./?:;''\"\"\\"));
+		
+		string = "foo(bar1', 'bar2\\'', bar3''')";
+		test(string, new DefaultCompoundSyntaxTree("foo", "bar1'", "bar2'", "bar3'''"));
+	}
+	
+	@Test 
+	public void testComment () {
+		String string;
+		string = "3";
+		test(string, DefaultSymbol.createSymbol(3));
+
+		string = "3 // This is a test.\n";
+		test(string, DefaultSymbol.createSymbol(3));
+
+		string = "// This is a test.\n 3";
+		test(string, DefaultSymbol.createSymbol(3));
+
+		string = "3 // This is a test.";
+		test(string, DefaultSymbol.createSymbol(3));
+
+		string = "3 // This is a test.\n + 4";
+		test(string, new DefaultCompoundSyntaxTree("+", 3, 4));
+
+		string = "// Test\n 3 // This is a test.\n + 4 // Test";
+		test(string, new DefaultCompoundSyntaxTree("+", 3, 4));
+
+		string = "3 /* This is a test. */";
+		test(string, DefaultSymbol.createSymbol(3));
+
+		string = "/* This is a test. */ 3";
+		test(string, DefaultSymbol.createSymbol(3));
+
+		string = "3 /* This is a test. */ + 4";
+		test(string, new DefaultCompoundSyntaxTree("+", 3, 4));
 	}
 
 	@Test
-	public void testSpeedOfSetDefinition2() throws IOException {
+	public void testParen () {
 		String string;
-		string = "{{ ( on X ) X }}";
-		test(string);
-	}
+		string = "(foo)";
+		test(string, DefaultSymbol.createSymbol("foo"));
 
+		string = "(foo1)";
+		test(string, DefaultSymbol.createSymbol("foo1"));
+
+		string = "(foo10bar)";
+		test(string, DefaultSymbol.createSymbol("foo10bar"));
+
+		string = "(1foo)";
+		test(string, DefaultSymbol.createSymbol("1foo"));
+
+		string = "('foo1')";
+		test(string, DefaultSymbol.createSymbol("foo1"));
+
+		string = "(foo1')";
+		test(string, DefaultSymbol.createSymbol("foo1'"));
+
+		string = "(foo1''')";
+		test(string, DefaultSymbol.createSymbol("foo1'''"));
+
+		// Testing illegal strings.
+		string = "(foo1'bar)";
+		testFail(string);
+
+		string = "(foo1 bar)";
+		testFail(string);
+
+		string = "(foo1@)";
+		testFail(string);
+
+		string = "(fo)aao";
+		testFail(string);
+
+		string = "(foo";
+		testFail(string);
+
+		string = "(foo)a1";
+		testFail(string);
+	}
+	
 	@Test
-	public void testSpeedOfSetDefinition3() throws IOException {
+	public void testFunction () {
 		String string;
-		string = "{{ X, Y, f(X, Y, Z), g() }}";
-		test(string);
+		string = "foo()";
+		test(string, new DefaultCompoundSyntaxTree("foo"));
+
+		string = "foo(1)";
+		test(string, new DefaultCompoundSyntaxTree("foo", 1));
+
+		string = "foo(1, 2, 3)";
+		test(string, new DefaultCompoundSyntaxTree("foo", 1, 2, 3));
+
+		string = "foo(bar)";
+		test(string, new DefaultCompoundSyntaxTree("foo", "bar"));
+
+		string = "foo(bar1, bar2, bar3)";
+		test(string, new DefaultCompoundSyntaxTree("foo", "bar1", "bar2", "bar3"));
+
+		string = "foo(1+2, bar in hello)";
+		test(string, new DefaultCompoundSyntaxTree("foo", 
+				new DefaultCompoundSyntaxTree("+", 1, 2),
+				new DefaultCompoundSyntaxTree("in", "bar", "hello")));
+
+		string = "foo(1+2, (bar in hello))";
+		test(string, new DefaultCompoundSyntaxTree("foo", 
+				new DefaultCompoundSyntaxTree("+", 1, 2),
+				new DefaultCompoundSyntaxTree("in", "bar", "hello")));
+
+		string = "'foo bar'()";
+		test(string, new DefaultCompoundSyntaxTree("foo bar"));
+
+		string = "'foo bar'(a)";
+		test(string, new DefaultCompoundSyntaxTree("foo bar", "a"));
+
+		string = "'foo bar'(a, b, c)";
+		test(string, new DefaultCompoundSyntaxTree("foo bar", "a", "b", "c"));
+		
+		string = "foo(bar(X))";
+		test(string, new DefaultCompoundSyntaxTree("foo", 
+				new DefaultCompoundSyntaxTree("bar", "X")));
+		
+		string = "foo(bar(X), baz(Y))";
+		test(string, new DefaultCompoundSyntaxTree("foo", 
+				new DefaultCompoundSyntaxTree("bar", "X"), 
+						new DefaultCompoundSyntaxTree("baz", "Y")));
+		
+		string = "foo(W, bar(X), Y)";
+		test(string, new DefaultCompoundSyntaxTree("foo", "W", 
+				new DefaultCompoundSyntaxTree("bar", "X"), "Y"));
+
+		string = "(lambda x : y)(a, b, c)";
+		test(string, new DefaultCompoundSyntaxTree(
+				new DefaultCompoundSyntaxTree("lambda . : .", "x", "y"), "a", "b", "c"));
+
+		// Testing illegal strings.
+		string = "foo(1,)";
+		testFail(string);
+
+		string = "foo(1)a";
+		testFail(string);
+
+		string = "foo(,)";
+		testFail(string);
+
+		string = "foo(";
+		testFail(string);
+	}
+	
+	@Test
+	public void testTuple () {
+		String string;
+		string = "(foo, bar)";
+		test(string, new DefaultCompoundSyntaxTree("( . )", 
+				new DefaultCompoundSyntaxTree("kleene list", "foo", "bar")));
+
+		string = "(x, y, z)";
+		test(string, new DefaultCompoundSyntaxTree("( . )", 
+				new DefaultCompoundSyntaxTree("kleene list", "x", "y", "z")));
+
+		string = "(a in b, x + y + z, i, j, k)";
+		test(string, new DefaultCompoundSyntaxTree("( . )", 
+				new DefaultCompoundSyntaxTree("kleene list", 
+						new DefaultCompoundSyntaxTree("in", "a", "b"), 
+						new DefaultCompoundSyntaxTree("+", "x", "y", "z"), 
+						"i", "j", "k")));
+
+		string = "'( . )'()";
+		test(string, new DefaultCompoundSyntaxTree("( . )"));
+
+		string = "'( . )'(a)";
+		test(string, new DefaultCompoundSyntaxTree("( . )", "a"));
+
+		string = "'( . )'(a, b, c)";
+		test(string, new DefaultCompoundSyntaxTree("( . )", "a", "b", "c"));
+
+		// Testing illegal strings.
+		string = "( 1, 2, )";
+		testFail(string);
+
+		string = "( 1, 2 ) 3";
+		testFail(string);
 	}
 
 	@Test
@@ -111,13 +355,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "1 + 2 + 3 + 4 + 5 + 6";
 		test(string, new DefaultCompoundSyntaxTree("+", "1", "2", "3", "4", "5", "6"));
 
-		//string = "6 + 3 + (40 - (1 + 7 + 6)) + 5";
-
 		string = "1 + 2 + 3 + 4 + 5 + 6 + 7";
 		test(string, new DefaultCompoundSyntaxTree("+", "1", "2", "3", "4", "5", "6", "7"));
-
-		//string = "6 + 3 + (40 - (1 + 7 + 6)) + 5";
-
 	}
 
 	@Test
@@ -138,13 +377,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "1 * 2 * 3 * 4 * 5 * 6";
 		test(string, new DefaultCompoundSyntaxTree("*", "1", "2", "3", "4", "5", "6"));
 
-		//string = "6 * 3 * (40 - (1 * 7 * 6)) * 5";
-
 		string = "1 * 2 * 3 * 4 * 5 * 6 * 7";
 		test(string, new DefaultCompoundSyntaxTree("*", "1", "2", "3", "4", "5", "6", "7"));
-
-		//string = "6 * 3 * (40 - (1 * 7 * 6)) * 5";
-
 	}	
 
 	@Test
@@ -165,13 +399,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "1 union 2 union 3 union 4 union 5 union 6";
 		test(string, new DefaultCompoundSyntaxTree("union", "1", "2", "3", "4", "5", "6"));
 
-		//string = "6 union 3 union (40 - (1 union 7 union 6)) union 5";
-
 		string = "1 union 2 union 3 union 4 union 5 union 6 union 7";
 		test(string, new DefaultCompoundSyntaxTree("union", "1", "2", "3", "4", "5", "6", "7"));
-
-		//string = "6 union 3 union (40 - (1 union 7 union 6)) union 5";
-
 	}	
 
 	@Test
@@ -192,13 +421,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "1 = 2 = 3 = 4 = 5 = 6";
 		test(string, new DefaultCompoundSyntaxTree("=", "1", "2", "3", "4", "5", "6"));
 
-		//string = "6 = 3 = (40 - (1 = 7 = 6)) = 5";
-
 		string = "1 = 2 = 3 = 4 = 5 = 6 = 7";
 		test(string, new DefaultCompoundSyntaxTree("=", "1", "2", "3", "4", "5", "6", "7"));
-
-		//string = "6 = 3 = (40 - (1 = 7 = 6)) = 5";
-
 	}	
 
 	@Test
@@ -219,13 +443,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "1 and 2 and 3 and 4 and 5 and 6";
 		test(string, new DefaultCompoundSyntaxTree("and", "1", "2", "3", "4", "5", "6"));
 
-		//string = "6 and 3 and (40 - (1 and 7 and 6)) and 5";
-
 		string = "1 and 2 and 3 and 4 and 5 and 6 and 7";
 		test(string, new DefaultCompoundSyntaxTree("and", "1", "2", "3", "4", "5", "6", "7"));
-
-		//string = "6 and 3 and (40 - (1 and 7 and 6)) and 5";
-
 	}	
 
 	@Test
@@ -246,13 +465,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "1 or 2 or 3 or 4 or 5 or 6";
 		test(string, new DefaultCompoundSyntaxTree("or", "1", "2", "3", "4", "5", "6"));
 
-		//string = "6 or 3 or (40 - (1 or 7 or 6)) or 5";
-
 		string = "1 or 2 or 3 or 4 or 5 or 6 or 7";
 		test(string, new DefaultCompoundSyntaxTree("or", "1", "2", "3", "4", "5", "6", "7"));
-
-		//string = "6 or 3 or (40 - (1 or 7 or 6)) or 5";
-
 	}
 	
 	@Test
@@ -344,206 +558,11 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 						new DefaultCompoundSyntaxTree("{ . }", "E"), 
 						new DefaultCompoundSyntaxTree("{ . }", "f"))));
 	}
-	
-	@Test 
-	public void testComment () {
-		String string;
-		string = "3";
-		test(string, DefaultSymbol.createSymbol(3));
-
-		string = "3 // This is a test.\n";
-		test(string, DefaultSymbol.createSymbol(3));
-
-		string = "// This is a test.\n 3";
-		test(string, DefaultSymbol.createSymbol(3));
-
-		string = "3 // This is a test.";
-		test(string, DefaultSymbol.createSymbol(3));
-
-		string = "3 // This is a test.\n + 4";
-		test(string, new DefaultCompoundSyntaxTree("+", 3, 4));
-
-		string = "// Test\n 3 // This is a test.\n + 4 // Test";
-		test(string, new DefaultCompoundSyntaxTree("+", 3, 4));
-
-		string = "3 /* This is a test. */";
-		test(string, DefaultSymbol.createSymbol(3));
-
-		string = "/* This is a test. */ 3";
-		test(string, DefaultSymbol.createSymbol(3));
-
-		string = "3 /* This is a test. */ + 4";
-		test(string, new DefaultCompoundSyntaxTree("+", 3, 4));
-
-
-	}
-
-	@Test
-	public void testSymbol () {
-		String string;
-		string = "";
-		test(string, null);
-
-		string = "e";
-		test(string, DefaultSymbol.createSymbol("e"));
-
-		string = "3";
-		test(string, DefaultSymbol.createSymbol(3));
-
-		string = "-3";
-		test(string, new DefaultCompoundSyntaxTree("-", "3"));
-
-		string = "3e7";
-		test(string, DefaultSymbol.createSymbol(30000000));
-
-		string = "3e-1";
-		test(string, DefaultSymbol.createSymbol("0.30"));
-
-		string = ".3e7";
-		test(string, DefaultSymbol.createSymbol(3000000));
-
-		string = ".3e-1";
-		test(string, DefaultSymbol.createSymbol("0.030"));
-
-		string = "1.3e7";
-		test(string, DefaultSymbol.createSymbol(13000000));
-
-		string = "1.3e-1";
-		test(string, DefaultSymbol.createSymbol("0.130"));
-
-		string = "-3e7";
-		test(string, new DefaultCompoundSyntaxTree("-", 30000000));
-
-		string = "-3e-1";
-		test(string, new DefaultCompoundSyntaxTree("-", "0.30"));
-
-		string = "-.3e7";
-		test(string, new DefaultCompoundSyntaxTree("-", 3000000));
-
-		string = "-.3e-1";
-		test(string, new DefaultCompoundSyntaxTree("-", "0.030"));
-
-		string = "-1.3e7";
-		test(string, new DefaultCompoundSyntaxTree("-", 13000000));
-
-		string = "-1.3e-1";
-		test(string, new DefaultCompoundSyntaxTree("-", "0.130"));
-
-		string = "false";
-		test(string, DefaultSymbol.createSymbol(false));
-
-		string = "keyword";
-		test(string, DefaultSymbol.createSymbol("keyword"));
-
-		string = "Keyword";
-		test(string, DefaultSymbol.createSymbol("Keyword"));
-
-		string = "foo";
-		test(string, DefaultSymbol.createSymbol("foo"));
-
-		string = "foo1";
-		test(string, DefaultSymbol.createSymbol("foo1"));
-
-		string = "foo10bar";
-		test(string, DefaultSymbol.createSymbol("foo10bar"));
-
-		string = "1foo";
-		test(string, DefaultSymbol.createSymbol("1foo"));
-
-		string = "'foo1'";
-		test(string, DefaultSymbol.createSymbol("foo1"));
-
-		string = "foo1'";
-		test(string, DefaultSymbol.createSymbol("foo1'"));
-
-		string = "foo1'''";
-		test(string, DefaultSymbol.createSymbol("foo1'''"));
-
-		string = "'This is a test.'";
-		test(string, DefaultSymbol.createSymbol("This is a test."));
-
-		string = "\"This is a test.\"";
-		test(string, DefaultSymbol.createSymbol("This is a test."));
-
-		string = "'Test \\u0061'";
-		test(string, DefaultSymbol.createSymbol("Test a"));
-
-		string = "\"Test \\u0061\"";
-		test(string, DefaultSymbol.createSymbol("Test a"));
-
-		string = "'Testing the  preservation \\t of	whitespace\\ncharacters.'";
-		test(string, DefaultSymbol.createSymbol("Testing the  preservation 	 of	whitespace\ncharacters."));
-
-		string = "\"Testing the  preservation \\t of	whitespace\\ncharacters.\"";
-		test(string, DefaultSymbol.createSymbol("Testing the  preservation 	 of	whitespace\ncharacters."));
-
-		string = "'This is a test *()#@$%!-_=+<>,./?:;\\'\"\\\"\\\\'";
-		test(string, DefaultSymbol.createSymbol("This is a test *()#@$%!-_=+<>,./?:;'\"\"\\"));
-
-		string = "\"This is a test *()#@$%!-_=+<>,./?:;\\''\\\"\\\"\\\\\"";
-		test(string, DefaultSymbol.createSymbol("This is a test *()#@$%!-_=+<>,./?:;''\"\"\\"));
-
-		// Testing illegal symbol names.
-		string = "foo1'bar";
-		testFail(string);
-
-		string = "foo1 bar";
-		testFail(string);
-
-		string = "foo1@";
-		testFail(string);
-
-
-	}
-
-
-	@Test
-	public void testParen () {
-		String string;
-		string = "(foo)";
-		test(string, DefaultSymbol.createSymbol("foo"));
-
-		string = "(foo1)";
-		test(string, DefaultSymbol.createSymbol("foo1"));
-
-		string = "(foo10bar)";
-		test(string, DefaultSymbol.createSymbol("foo10bar"));
-
-		string = "(1foo)";
-		test(string, DefaultSymbol.createSymbol("1foo"));
-
-		string = "('foo1')";
-		test(string, DefaultSymbol.createSymbol("foo1"));
-
-		string = "(foo1')";
-		test(string, DefaultSymbol.createSymbol("foo1'"));
-
-		string = "(foo1''')";
-		test(string, DefaultSymbol.createSymbol("foo1'''"));
-
-		// Testing illegal strings.
-		string = "(foo1'bar)";
-		testFail(string);
-
-		string = "(foo1 bar)";
-		testFail(string);
-
-		string = "(foo1@)";
-		testFail(string);
-
-		string = "(fo)aao";
-		testFail(string);
-
-		string = "(foo";
-		testFail(string);
-
-		string = "(foo)a1";
-		testFail(string);
-	}
 
 	@Test
 	public void testExpressionSymbol () {
 		String string;
+		
 		string = "<x>";
 		test(string, DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("x")));
 
@@ -584,12 +603,14 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, DefaultSymbol.createSymbol(
 				new DefaultCompoundSyntaxTree("if . then . else .", 
 						new DefaultCompoundSyntaxTree(">", "x", "y"), "x", "y")));
-
+		
 		string = "if <x> > <y> then x else y";
-		test(string, new DefaultCompoundSyntaxTree("if . then . else .", 
-				DefaultSymbol.createSymbol(
-						new DefaultCompoundSyntaxTree(">", "x", 
-								new DefaultCompoundSyntaxTree("<", ">", "y"))), "x", "y"));
+		test(string, new DefaultCompoundSyntaxTree("if . then . else .",
+				new DefaultCompoundSyntaxTree(">",
+						DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("x")),
+						DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("y"))
+						),
+				"x", "y"));
 
 		// Test for illegal strings.
 		string = "< x";
@@ -597,125 +618,12 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 		string = " x >";
 		testFail(string);
-
-}
-
-	@Test
-	public void testFunction () {
-		String string;
-		string = "foo()";
-		test(string, new DefaultCompoundSyntaxTree("foo"));
-
-		string = "foo(1)";
-		test(string, new DefaultCompoundSyntaxTree("foo", 1));
-
-		string = "foo(1, 2, 3)";
-		test(string, new DefaultCompoundSyntaxTree("foo", 1, 2, 3));
-
-		string = "foo(bar)";
-		test(string, new DefaultCompoundSyntaxTree("foo", "bar"));
-
-		string = "foo(bar1, bar2, bar3)";
-		test(string, new DefaultCompoundSyntaxTree("foo", "bar1", "bar2", "bar3"));
-
-		string = "foo(bar1', 'bar2\\'', bar3''')";
-		test(string, new DefaultCompoundSyntaxTree("foo", "bar1'", "bar2'", "bar3'''"));
-
-		string = "foo(1+2, bar in hello)";
-		test(string, new DefaultCompoundSyntaxTree("foo", 
-				new DefaultCompoundSyntaxTree("+", 1, 2),
-				new DefaultCompoundSyntaxTree("in", "bar", "hello")));
-
-		string = "foo(1+2, (bar in hello))";
-		test(string, new DefaultCompoundSyntaxTree("foo", 
-				new DefaultCompoundSyntaxTree("+", 1, 2),
-				new DefaultCompoundSyntaxTree("in", "bar", "hello")));
-
-		string = "'foo bar'()";
-		test(string, new DefaultCompoundSyntaxTree("foo bar"));
-
-		string = "'foo bar'(a)";
-		test(string, new DefaultCompoundSyntaxTree("foo bar", "a"));
-
-		string = "'foo bar'(a, b, c)";
-		test(string, new DefaultCompoundSyntaxTree("foo bar", "a", "b", "c"));
-		
-		string = "foo(bar(X))";
-		test(string, new DefaultCompoundSyntaxTree("foo", 
-				new DefaultCompoundSyntaxTree("bar", "X")));
-		
-		string = "foo(bar(X), baz(Y))";
-		test(string, new DefaultCompoundSyntaxTree("foo", 
-				new DefaultCompoundSyntaxTree("bar", "X"), 
-						new DefaultCompoundSyntaxTree("baz", "Y")));
-		
-		string = "foo(W, bar(X), Y)";
-		test(string, new DefaultCompoundSyntaxTree("foo", "W", 
-				new DefaultCompoundSyntaxTree("bar", "X"), "Y"));
-
-		string = "(lambda x : y)(a, b, c)";
-		test(string, new DefaultCompoundSyntaxTree(
-				new DefaultCompoundSyntaxTree("lambda . : .", "x", "y"), "a", "b", "c"));
-
-		// Testing illegal strings.
-		string = "foo(1,)";
-		testFail(string);
-
-		string = "foo(1)a";
-		testFail(string);
-
-		string = "foo(,)";
-		testFail(string);
-
-		string = "foo(";
-		testFail(string);
-
 	}
 
 	@Test
-	public void testTuple () {
+	public void testCardinality () {
 		String string;
-		string = "(foo, bar)";
-		test(string, new DefaultCompoundSyntaxTree("( . )", 
-				new DefaultCompoundSyntaxTree("kleene list", "foo", "bar")));
-
-		string = "(x, y, z)";
-		test(string, new DefaultCompoundSyntaxTree("( . )", 
-				new DefaultCompoundSyntaxTree("kleene list", "x", "y", "z")));
-
-		string = "(a in b, x + y + z, i, j, k)";
-		test(string, new DefaultCompoundSyntaxTree("( . )", 
-				new DefaultCompoundSyntaxTree("kleene list", 
-						new DefaultCompoundSyntaxTree("in", "a", "b"), 
-						new DefaultCompoundSyntaxTree("+", "x", "y", "z"), 
-						"i", "j", "k")));
-
-		string = "'( . )'()";
-		test(string, new DefaultCompoundSyntaxTree("( . )"));
-
-		string = "'( . )'(a)";
-		test(string, new DefaultCompoundSyntaxTree("( . )", "a"));
-
-		string = "'( . )'(a, b, c)";
-		test(string, new DefaultCompoundSyntaxTree("( . )", "a", "b", "c"));
-
-		// Testing illegal strings.
-//		string = "( x )";
-//		testFail(string);
-
-//		string = "( 1 + 2 )";
-//		testFail(string);
-
-		string = "( 1, 2, )";
-		testFail(string);
-
-		string = "( 1, 2 ) 3";
-		testFail(string);
-	}
-
-	@Test
-	public void testSequence () {
-		String string;
+		
 		string = "|foo|";
 		test(string, new DefaultCompoundSyntaxTree("| . |", "foo"));
 
@@ -762,6 +670,12 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	@Test
 	public void testMultiset () {
 		String string;
+		
+		string = "{{ ( on ) ([ if X then 1 else 0 ]) }}";
+		test(string, new DefaultCompoundSyntaxTree("{{ . . . }}", IntensionalSet.makeScopingExpression(new ArrayList<Expression>()), 
+				new DefaultCompoundSyntaxTree("[ . ]",
+						new DefaultCompoundSyntaxTree("if . then . else .", "X", "1", "0")), null));
+		
 		string = "{{ foo }}";
 		test(string, new DefaultCompoundSyntaxTree("{{ . }}", "foo"));
 
@@ -849,7 +763,19 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 	@Test
 	public void testSet () {
-		String string;
+		String string;	
+		
+		string = "{ ( on ) p(X, X) | true }";
+		test(string, new DefaultCompoundSyntaxTree("{ . . . }", IntensionalSet.makeScopingExpression(new ArrayList<Expression>()), 
+				new DefaultCompoundSyntaxTree("p", "X", "X"), Expressions.make(IntensionalSet.CONDITION_LABEL, "true")));
+
+		string = "{ ( on ) X | true }";
+		test(string, new DefaultCompoundSyntaxTree("{ . . . }", IntensionalSet.makeScopingExpression(new ArrayList<Expression>()),  
+				"X", Expressions.make(IntensionalSet.CONDITION_LABEL, "true")));
+				
+		string = "{ a | true}";
+		test(string, new DefaultCompoundSyntaxTree("{ . . . }", null, "a", Expressions.make(IntensionalSet.CONDITION_LABEL, "true")));
+		
 		string = "{ foo }";
 		test(string, new DefaultCompoundSyntaxTree("{ . }", "foo"));
 
@@ -929,7 +855,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 		string = "{ foo, }";
 		testFail(string);
-
 	}
 	
 	@Test
@@ -968,7 +893,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 		string = "[ x, y ]";
 		testFail(string);
-
 	}
 
 	@Test
@@ -997,178 +921,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("value of", 
 				new DefaultCompoundSyntaxTree("value of", "x")));
 	}
-
-	@Test
-	public void testUnderscore () {
-		String string;
-		string = "x _ y";
-		test(string, new DefaultCompoundSyntaxTree("_", "x", "y"));
-
-		string = "x_y";
-		test(string, new DefaultCompoundSyntaxTree("_", "x", "y"));
-
-		string = "x _ { y , z }";
-		test(string, new DefaultCompoundSyntaxTree("_", "x", 
-				new DefaultCompoundSyntaxTree("{ . }", 
-						new DefaultCompoundSyntaxTree("kleene list", "y", "z"))));
-
-		string = "x _ y _ z";
-		test(string, new DefaultCompoundSyntaxTree("_", 
-				new DefaultCompoundSyntaxTree("_", "x", "y"), "z"));
-
-		string = "x_y_z";
-		test(string, new DefaultCompoundSyntaxTree("_", 
-				new DefaultCompoundSyntaxTree("_", "x", "y"), "z"));
-
-		string = "1_2";
-		test(string, new DefaultCompoundSyntaxTree("_", "1", "2"));
-
-		string = "w _ x _ y _ z";
-		test(string, new DefaultCompoundSyntaxTree("_",  
-				new DefaultCompoundSyntaxTree("_",  
-						new DefaultCompoundSyntaxTree("_", "w", "x"), "y"), "z"));
-
-		string = "{x} _ y";
-		test(string, new DefaultCompoundSyntaxTree("_", 
-				new DefaultCompoundSyntaxTree("{ . }", "x"), "y"));
-
-		string = "{x _ y} _ y";
-		test(string, new DefaultCompoundSyntaxTree("_", 
-				new DefaultCompoundSyntaxTree("{ . }", 
-						new DefaultCompoundSyntaxTree("_", "x", "y")), "y"));
-
-		string = "_(x)";
-		test(string, new DefaultCompoundSyntaxTree("_", "x"));
-
-		string = "_";
-		test(string, DefaultSymbol.createSymbol("_"));
-		
-//		string = "_ * 8";
-//		test(string, new DefaultCompoundSyntaxTree("*", 
-//				new DefaultCompoundSyntaxTree("_"), "8"));
-
-		string = "_()";
-		test(string, new DefaultCompoundSyntaxTree("_"));
-
-		string = "_(x, y)";
-		test(string, new DefaultCompoundSyntaxTree("_", "x", "y"));
-
-		// Testing illegal strings.
-//		string = "x _";
-//		testFail(string);
-
-		string = "_ x";
-		testFail(string);
-	}
-	
-	@Test
-	public void testUnderscoreSet () {
-		String string;
-		string = "x _{ y : z }";
-		test(string, new DefaultCompoundSyntaxTree(". _{ . : . }", "x", "y", "z"));
-
-		string = "x_{ y : z }";
-		test(string, new DefaultCompoundSyntaxTree(". _{ . : . }", "x", "y", "z"));
-
-		string = "value of x_{ y : z }";
-		test(string, new DefaultCompoundSyntaxTree(". _{ . : . }", 
-				new DefaultCompoundSyntaxTree("value of", "x"), "y", "z"));
-
-		string = "x_{ y + 0.3 : { a, b, c } }";
-		test(string, new DefaultCompoundSyntaxTree(". _{ . : . }", "x", 
-				new DefaultCompoundSyntaxTree("+", "y", "0.30"), 
-				new DefaultCompoundSyntaxTree("{ . }", 
-						new DefaultCompoundSyntaxTree("kleene list", "a", "b", "c"))));
-
-		//Testing illegal strings
-		string = "x _ { y : z }";
-		testFail(string);
-
-	}
-
-	@Test
-	public void testOccursIn () {
-		String string;
-		string = "x occurs in y";
-		test(string, new DefaultCompoundSyntaxTree("occurs in", "x", "y"));
-
-		string = "x occurs in y occurs in z";
-		test(string, new DefaultCompoundSyntaxTree("occurs in", 
-				new DefaultCompoundSyntaxTree("occurs in", "x", "y"), "z"));
-
-		string = "w occurs in x occurs in y occurs in z";
-		test(string, new DefaultCompoundSyntaxTree("occurs in",  
-				new DefaultCompoundSyntaxTree("occurs in", 
-						new DefaultCompoundSyntaxTree("occurs in", "w", "x"), "y"), "z"));
-
-		string = "{x} occurs in y";
-		test(string, new DefaultCompoundSyntaxTree("occurs in", 
-				new DefaultCompoundSyntaxTree("{ . }", "x"), "y"));
-
-		string = "{x occurs in y} occurs in y";
-		test(string, new DefaultCompoundSyntaxTree("occurs in", 
-				new DefaultCompoundSyntaxTree("{ . }", 
-						new DefaultCompoundSyntaxTree("occurs in", "x", "y")), "y"));
-
-		// Testing illegal strings.
-//		string = "x occurs in";
-//		testFail(string);
-
-		string = "occurs in x";
-		testFail(string);
-		}
-
-	@Test
-	public void testIndexOf () {
-		String string;
-		string = "index of x in y";
-		test(string, new DefaultCompoundSyntaxTree("index of . in .", "x", "y"));
-
-		string = "index of x in index of y in z";
-		test(string, new DefaultCompoundSyntaxTree("index of . in .", "x", 
-				new DefaultCompoundSyntaxTree("index of . in .", "y", "z")));
-
-		// Testing illegal strings.
-		string = "index of x in ";
-		testFail(string);
-
-	}
-
-	@Test
-	public void testCase () {
-		String string;
-		string = "case x y:z";
-		test(string, new DefaultCompoundSyntaxTree("case", "x", 
-				new DefaultCompoundSyntaxTree(":", "y", "z")));
-
-		string = "case x y:1";
-		test(string, new DefaultCompoundSyntaxTree("case", "x", 
-				new DefaultCompoundSyntaxTree(":", "y", "1")));
-
-		string = "case x y : z, a : b";
-		test(string, new DefaultCompoundSyntaxTree("case", "x", 
-				new DefaultCompoundSyntaxTree("kleene list", 
-						new DefaultCompoundSyntaxTree(":", "y", "z"), 
-						new DefaultCompoundSyntaxTree(":", "a", "b"))));
-
-		string = "case case x y:z, default:8 a:b, c:d";
-		test(string, new DefaultCompoundSyntaxTree("case", 
-				new DefaultCompoundSyntaxTree("case", "x", 
-						new DefaultCompoundSyntaxTree("kleene list", 
-								new DefaultCompoundSyntaxTree(":", "y", "z"), 
-								new DefaultCompoundSyntaxTree(":", "default", "8"))), 
-				new DefaultCompoundSyntaxTree("kleene list", 
-						new DefaultCompoundSyntaxTree(":", "a", "b"), 
-						new DefaultCompoundSyntaxTree(":", "c", "d"))));
-
-		// Testing illegal strings
-		string = "case x y : z a : b";
-		testFail(string);
-
-		string = "case x";
-		testFail(string);
-
-	}
 	
 	@Test
 	public void testNeighborFactor () {
@@ -1194,7 +946,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "neighbors of factor neighbors of factor x";
 		test(string, new DefaultCompoundSyntaxTree("neighbors of factor", 
 				new DefaultCompoundSyntaxTree("neighbors of factor", "x")));
-
 	}
 	
 	@Test
@@ -1295,12 +1046,33 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "not x + y";
 		test(string, new DefaultCompoundSyntaxTree("+", 
 				new DefaultCompoundSyntaxTree("not", "x"), "y"));
-
 	}
 
 	@Test
 	public void testNegative () {
 		String string;
+		
+		string = "-3";
+		test(string, new DefaultCompoundSyntaxTree("-", "3"));
+		
+		string = "-3e7";
+		test(string, new DefaultCompoundSyntaxTree("-", 30000000));
+
+		string = "-3e-1";
+		test(string, new DefaultCompoundSyntaxTree("-", "0.30"));
+
+		string = "-.3e7";
+		test(string, new DefaultCompoundSyntaxTree("-", 3000000));
+
+		string = "-.3e-1";
+		test(string, new DefaultCompoundSyntaxTree("-", "0.030"));
+
+		string = "-1.3e7";
+		test(string, new DefaultCompoundSyntaxTree("-", 13000000));
+
+		string = "-1.3e-1";
+		test(string, new DefaultCompoundSyntaxTree("-", "0.130"));
+		
 		string = "-x";
 		test(string, new DefaultCompoundSyntaxTree("-", "x"));
 
@@ -1308,8 +1080,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("-", "x"));
 
 		string = "--x";
-		test(string, new DefaultCompoundSyntaxTree("-", 
-				new DefaultCompoundSyntaxTree("-", "x")));
+		test(string, new DefaultCompoundSyntaxTree("-", new DefaultCompoundSyntaxTree("-", "x")));
 
 		string = "-(x)";
 		test(string, new DefaultCompoundSyntaxTree("-", "x"));
@@ -1333,13 +1104,9 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("-", "x", 
 				new DefaultCompoundSyntaxTree("-", "y")));
 
-//		string = "x - -";
-//		test(string, new DefaultCompoundSyntaxTree("-", "x", 
-//				new DefaultCompoundSyntaxTree("-")));
-
-//		string = "--x";
-//		test(string, new DefaultCompoundSyntaxTree("-", 
-//						new DefaultCompoundSyntaxTree("-"), "x"));
+		string = "--x";
+		test(string, new DefaultCompoundSyntaxTree("-", 
+						new DefaultCompoundSyntaxTree("-", "x")));
 
 		string = "-(-x)";
 		test(string, new DefaultCompoundSyntaxTree("-", 
@@ -1361,11 +1128,10 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "(- x) + y";
 		test(string, new DefaultCompoundSyntaxTree("+", 
 				new DefaultCompoundSyntaxTree("-", "x"), "y"));
-
 	}
 
 	@Test
-	public void testCarat () {
+	public void testExponentiation() {
 		String string;
 		string = "x ^ y";
 		test(string, new DefaultCompoundSyntaxTree("^", "x", "y"));
@@ -1374,10 +1140,9 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("^", "x", "y"));
 
 		string = "w ^ x ^ y ^ z";
-		test(string, new DefaultCompoundSyntaxTree("^", 
-				new DefaultCompoundSyntaxTree("^",  
-						new DefaultCompoundSyntaxTree("^", "w", "x"), 
-						"y"), "z"));
+		test(string, new DefaultCompoundSyntaxTree("^", "w",
+				new DefaultCompoundSyntaxTree("^",  "x",
+						new DefaultCompoundSyntaxTree("^", "y", "z"))));
 
 		string = "x ^ y + z";
 		test(string, new DefaultCompoundSyntaxTree("+", 
@@ -1405,8 +1170,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("^", "x", "y"));
 
 		// Testing illegal strings.
-//		string = "x ^";
-//		testFail(string);
+		string = "x ^";
+		testFail(string);
 
 		string = "^ x";
 		testFail(string);
@@ -1453,8 +1218,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("/", "x", "y"));
 
 		// Testing illegal strings.
-//		string = "x /";
-//		testFail(string);
+		string = "x /";
+		testFail(string);
 
 		string = "/ x";
 		testFail(string);
@@ -1471,8 +1236,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 		string = "w * x * y * z";
 		test(string, new DefaultCompoundSyntaxTree("*", 
-//				new DefaultCompoundSyntaxTree("*",  
-//						new DefaultCompoundSyntaxTree("*", "w", "x"), "y"), "z"));
 				"w", "x", "y", "z"));
 
 		string = "x * y + z";
@@ -1501,8 +1264,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("*", "x", "y"));
 
 		// Testing illegal strings.
-//		string = "x *";
-//		testFail(string);
+		string = "x *";
+		testFail(string);
 
 		string = "* x";
 		testFail(string);
@@ -1551,43 +1314,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("-", 
 				new DefaultCompoundSyntaxTree("( . )", 
 						new DefaultCompoundSyntaxTree("kleene list", "x", "y"))));
-
-		string = "x minus y";
-		test(string, new DefaultCompoundSyntaxTree("minus", "x", "y"));
-		
-		string = "w minus x minus y minus z";
-		test(string, new DefaultCompoundSyntaxTree("minus", 
-				new DefaultCompoundSyntaxTree("minus",  
-						new DefaultCompoundSyntaxTree("minus", "w", "x"), "y"), "z"));
-
-		string = "x minus y + z";
-		test(string, new DefaultCompoundSyntaxTree("+", 
-				new DefaultCompoundSyntaxTree("minus", "x", "y"), "z"));
-
-		string = "{x} minus y";
-		test(string, new DefaultCompoundSyntaxTree("minus", 
-				new DefaultCompoundSyntaxTree("{ . }", "x"), "y"));
-
-		string = "{x + y} minus y";
-		test(string, new DefaultCompoundSyntaxTree("minus", 
-				new DefaultCompoundSyntaxTree("{ . }", 
-						new DefaultCompoundSyntaxTree("+", "x", "y")), "y"));
-
-		string = "minus(x)";
-		test(string, new DefaultCompoundSyntaxTree("minus", "x"));
-
-		string = "minus";
-		test(string, DefaultSymbol.createSymbol("minus"));
-
-		string = "minus()";
-		test(string, new DefaultCompoundSyntaxTree("minus"));
-
-		string = "minus(x, y)";
-		test(string, new DefaultCompoundSyntaxTree("minus", "x", "y"));
-
-		// Testing illegal strings.
-//		string = "x -";
-//		testFail(string);
 	}
 
 	@Test
@@ -1624,10 +1350,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 		string = "+";
 		test(string, DefaultSymbol.createSymbol("+"));
-		
-//		string = "+ * 8";
-//		test(string, new DefaultCompoundSyntaxTree("*", 
-//				new DefaultCompoundSyntaxTree("+"), "8"));
 
 		string = "+()";
 		test(string, new DefaultCompoundSyntaxTree("+"));
@@ -1636,8 +1358,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("+", "x", "y"));
 
 		// Testing illegal strings.
-//		string = "x +";
-//		testFail(string);
+		string = "x +";
+		testFail(string);
 
 		string = "+ x";
 		testFail(string);
@@ -1667,9 +1389,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "intersection";
 		test(string, DefaultSymbol.createSymbol("intersection"));
 		
-//		string = "intersection * 8";
-//		test(string, new DefaultCompoundSyntaxTree("*", 
-//				new DefaultCompoundSyntaxTree("intersection"), "8"));
+		string = "intersection * 8";
+		test(string, new DefaultCompoundSyntaxTree("*", "intersection", "8"));
 
 		string = "intersection()";
 		test(string, new DefaultCompoundSyntaxTree("intersection"));
@@ -1678,8 +1399,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("intersection", "x", "y"));
 
 		// Testing illegal strings.
-//		string = "x intersection";
-//		testFail(string);
+		string = "x intersection";
+		testFail(string);
 
 		string = "intersection x";
 		testFail(string);
@@ -1720,8 +1441,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("union", "x", "y"));
 
 		// Testing illegal strings.
-//		string = "x union";
-//		testFail(string);
+		string = "x union";
+		testFail(string);
 
 		string = "union x";
 		testFail(string);
@@ -1764,8 +1485,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("in", "x", "y"));
 
 		// Testing illegal strings.
-//		string = "x in";
-//		testFail(string);
+		string = "x in";
+		testFail(string);
 
 		string = "in x";
 		testFail(string);
@@ -1811,8 +1532,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("<=", "x", "y"));
 
 		// Testing illegal strings.
-//		string = "x <=";
-//		testFail(string);
+		string = "x <=";
+		testFail(string);
 
 		string = "<= x";
 		testFail(string);
@@ -1845,21 +1566,21 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 				new DefaultCompoundSyntaxTree("{ . }", 
 						new DefaultCompoundSyntaxTree("+", "x", "y")), "y"));
 
-		string = "<(x)";
+		string = "'<'(x)";
 		test(string, new DefaultCompoundSyntaxTree("<", "x"));
 
-		string = "<";
+		string = "'<'";
 		test(string, DefaultSymbol.createSymbol("<"));
 
-		string = "<()";
+		string = "'<'()";
 		test(string, new DefaultCompoundSyntaxTree("<"));
 
-		string = "<(x, y)";
+		string = "'<'(x, y)";
 		test(string, new DefaultCompoundSyntaxTree("<", "x", "y"));
 
 		// Testing illegal strings.
-//		string = "x <";
-//		testFail(string);
+		string = "x <";
+		testFail(string);
 
 		string = "< x";
 		testFail(string);
@@ -1906,8 +1627,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree(">=", "x", "y"));
 
 		// Testing illegal strings.
-//		string = "x >=";
-//		testFail(string);
+		string = "x >=";
+		testFail(string);
 
 		string = ">= x";
 		testFail(string);
@@ -1940,21 +1661,21 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 				new DefaultCompoundSyntaxTree("{ . }", 
 						new DefaultCompoundSyntaxTree("+", "x", "y")), "y"));
 
-		string = ">(x)";
+		string = "'>'(x)";
 		test(string, new DefaultCompoundSyntaxTree(">", "x"));
 
-		string = ">";
+		string = "'>'";
 		test(string, DefaultSymbol.createSymbol(">"));
 
-		string = ">()";
+		string = "'>'()";
 		test(string, new DefaultCompoundSyntaxTree(">"));
 
-		string = ">(x, y)";
+		string = "'>'(x, y)";
 		test(string, new DefaultCompoundSyntaxTree(">", "x", "y"));
 
 		// Testing illegal strings.
-//		string = "x >";
-//		testFail(string);
+		string = "x >";
+		testFail(string);
 
 		string = "> x";
 		testFail(string);
@@ -2000,8 +1721,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("!=", "x", "y"));
 
 		// Testing illegal strings.
-//		string = "x !=";
-//		testFail(string);
+		string = "x !=";
+		testFail(string);
 
 		string = "!= x";
 		testFail(string);
@@ -2018,8 +1739,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 		string = "w = x = y = z";
 		test(string, new DefaultCompoundSyntaxTree("=", 
-//				new DefaultCompoundSyntaxTree("=",  
-//						new DefaultCompoundSyntaxTree("=", "w", "x"), "y"), "z"));
 				"w", "x", "y", "z"));
 
 		string = "x = y + z";
@@ -2048,67 +1767,25 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("=", "x", "y"));
 
 		// Testing illegal strings.
-//		string = "x =";
-//		testFail(string);
+		string = "x =";
+		testFail(string);
 
 		string = "= x";
 		testFail(string);
 	}
 
 	@Test
-	public void testIs () {
-		String string;
-		string = "x is y";
-		test(string, new DefaultCompoundSyntaxTree("is", "x", "y"));
-		
-		string = "w is x is y is z";
-		test(string, new DefaultCompoundSyntaxTree("is", 
-				new DefaultCompoundSyntaxTree("is",  
-						new DefaultCompoundSyntaxTree("is", "w", "x"), "y"), "z"));
-
-		string = "x is y + z";
-		test(string, new DefaultCompoundSyntaxTree("is", "x", 
-				new DefaultCompoundSyntaxTree("+", "y", "z")));
-
-		string = "{x} is y";
-		test(string, new DefaultCompoundSyntaxTree("is", 
-				new DefaultCompoundSyntaxTree("{ . }", "x"), "y"));
-
-		string = "{x + y} is y";
-		test(string, new DefaultCompoundSyntaxTree("is", 
-				new DefaultCompoundSyntaxTree("{ . }", 
-						new DefaultCompoundSyntaxTree("+", "x", "y")), "y"));
-
-		string = "is(x)";
-		test(string, new DefaultCompoundSyntaxTree("is", "x"));
-
-		string = "is";
-		test(string, DefaultSymbol.createSymbol("is"));
-
-		string = "is()";
-		test(string, new DefaultCompoundSyntaxTree("is"));
-
-		string = "is(x, y)";
-		test(string, new DefaultCompoundSyntaxTree("is", "x", "y"));
-
-		// Testing illegal strings.
-//		string = "x is";
-//		testFail(string);
-
-		string = "is x";
-		testFail(string);
-	}
-
-	@Test
 	public void testAnd () {
 		String string;
+		
+		string = "x and (y and z)";
+		test(string, new DefaultCompoundSyntaxTree("and", "x", new DefaultCompoundSyntaxTree("and", "y", "z")));
+		
 		string = "x and y";
 		test(string, new DefaultCompoundSyntaxTree("and", "x", "y"));
 
 		string = "w and x and y and z";
 		test(string, new DefaultCompoundSyntaxTree("and", 
-//				new DefaultCompoundSyntaxTree("and",  
-//						new DefaultCompoundSyntaxTree("and", "w", "x"), "y"), "z"));
 				"w", "x", "y", "z"));
 
 		string = "x and y + z";
@@ -2141,8 +1818,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("and", "x", "y"));
 
 		// Testing illegal strings.
-//		string = "x and";
-//		testFail(string);
+		string = "x and";
+		testFail(string);
 
 		string = "and x";
 		testFail(string);
@@ -2151,13 +1828,15 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	@Test
 	public void testOr () {
 		String string;
+		
+		string = "x or (y or z)";
+		test(string, new DefaultCompoundSyntaxTree("or", "x", new DefaultCompoundSyntaxTree("or", "y", "z")));
+		
 		string = "x or y";
 		test(string, new DefaultCompoundSyntaxTree("or", "x", "y"));
 
 		string = "w or x or y or z";
 		test(string, new DefaultCompoundSyntaxTree("or", 
-//				new DefaultCompoundSyntaxTree("or",  
-//						new DefaultCompoundSyntaxTree("or", "w", "x"), "y"), "z"));
 				"w", "x", "y", "z"));
 
 		string = "x or y + z";
@@ -2190,15 +1869,15 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("or", "x", "y"));
 
 		// Testing illegal strings.
-//		string = "x or";
-//		testFail(string);
+		string = "x or";
+		testFail(string);
 
 		string = "or x";
 		testFail(string);
 	}
 
 	@Test
-	public void testLeg () {
+	public void testBiconditional () {
 		String string;
 		string = "x <=> y";
 		test(string, new DefaultCompoundSyntaxTree("<=>", "x", "y"));
@@ -2237,15 +1916,15 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("<=>", "x", "y"));
 
 		// Testing illegal strings.
-//		string = "x <=>";
-//		testFail(string);
+		string = "x <=>";
+		testFail(string);
 
 		string = "<=> x";
 		testFail(string);
 	}
 
 	@Test
-	public void testEg () {
+	public void testImplication() {
 		String string;
 		string = "x => y";
 		test(string, new DefaultCompoundSyntaxTree("=>", "x", "y"));
@@ -2285,8 +1964,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, new DefaultCompoundSyntaxTree("=>", "x", "y"));
 
 		// Testing illegal strings.
-//		string = "x =>";
-//		testFail(string);
+		string = "x =>";
+		testFail(string);
 
 		string = "=> x";
 		testFail(string);
@@ -2317,8 +1996,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 		string = "there exists : b";
 		testFail(string);
-
-
 	}
 	
 	@Test
@@ -2412,8 +2089,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 		string = "if a then b ele c";
 		testFail(string);
-
-
 	}
 	
 	@Test
@@ -2433,27 +2108,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 		// Testing illegal strings
 		string = "lambda a :";
-		testFail(string);
-	}
-
-	@Test
-	public void testSingleArrow () {
-		String string;
-		string = "x -> y";
-		test(string, new DefaultCompoundSyntaxTree("->", "x", "y"));
-
-		string = "x -> y -> z";
-		test(string, new DefaultCompoundSyntaxTree("->", 
-				new DefaultCompoundSyntaxTree("->", "x", "y"), "z"));
-
-		string = "->(x)";
-		test(string);
-		
-		string = "->";
-		test(string);
-
-		// Testing illegal strings
-		string = "x ->";
 		testFail(string);
 	}
 
@@ -2481,8 +2135,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 		string = "message from to ";
 		testFail(string);
-
-
 	}
 
 	@Test
@@ -2509,12 +2161,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 		string = "previous message from to ";
 		testFail(string);
-
-
 	}
-
-
-
 
 	@Test
 	public void testPrecedence() {
@@ -2888,10 +2535,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			test(expression, new DefaultCompoundSyntaxTree("index of . in .", "b", 
 					new DefaultCompoundSyntaxTree("f", "a", "b")));
 
-			expression = "index of b in f(a,b)"; // parsing was messed up by 'in' operator, need to fix that.
-			test(expression, new DefaultCompoundSyntaxTree("index of . in .", "b", 
-					new DefaultCompoundSyntaxTree("f", "a", "b")));
-
 			expression = "'index of . in .'(c, f(a,b))";
 			test(expression, new DefaultCompoundSyntaxTree("index of . in .", "c", 
 					new DefaultCompoundSyntaxTree("f", "a", "b")));
@@ -2978,8 +2621,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					new DefaultCompoundSyntaxTree("*", "y", "x"),
 					new DefaultCompoundSyntaxTree("*", "y", 3)));
 
-//			// Testing case where one one of the operator applications is empty.
-//			// We use an evaluator with the distributive law alone so +() does not get evaluated to 0.
+			// Testing case where one one of the operator applications is empty.
+			// We use an evaluator with the distributive law alone so +() does not get evaluated to 0.
 			expression = "+()*(x + 3)";
 			test(expression, new DefaultCompoundSyntaxTree("*",
 					new DefaultCompoundSyntaxTree("+"),
@@ -3033,109 +2676,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					new DefaultCompoundSyntaxTree("or",
 							new DefaultCompoundSyntaxTree("not", "z"),
 							new DefaultCompoundSyntaxTree("not", "w"))));
-
-			expression = "case x x:2, y:3, default:12";
-			test(expression, new DefaultCompoundSyntaxTree("case", "x", 
-					new DefaultCompoundSyntaxTree("kleene list", 
-							new DefaultCompoundSyntaxTree(":", "x", "2"), 
-							new DefaultCompoundSyntaxTree(":", "y", "3"), 
-							new DefaultCompoundSyntaxTree(":", "default", "12"))));
-
-			expression = "case y x:2, y:3, default:24";
-			test(expression, new DefaultCompoundSyntaxTree("case", "y", 
-					new DefaultCompoundSyntaxTree("kleene list", 
-							new DefaultCompoundSyntaxTree(":", "x", "2"), 
-							new DefaultCompoundSyntaxTree(":", "y", "3"), 
-							new DefaultCompoundSyntaxTree(":", "default", "24"))));
-
-			expression = "case z x:2, y:3, default:36";
-			test(expression, new DefaultCompoundSyntaxTree("case", "z", 
-					new DefaultCompoundSyntaxTree("kleene list", 
-							new DefaultCompoundSyntaxTree(":", "x", "2"), 
-							new DefaultCompoundSyntaxTree(":", "y", "3"), 
-							new DefaultCompoundSyntaxTree(":", "default", "36"))));
-
-			expression = "case f(x,y) x:2, y:3, f(x,y):10, default:48";
-			test(expression, new DefaultCompoundSyntaxTree("case", 
-					new DefaultCompoundSyntaxTree("f", "x", "y"), 
-					new DefaultCompoundSyntaxTree("kleene list", 
-							new DefaultCompoundSyntaxTree(":", "x", "2"), 
-							new DefaultCompoundSyntaxTree(":", "y", "3"), 
-							new DefaultCompoundSyntaxTree(":", 
-									new DefaultCompoundSyntaxTree("f", "x", "y"), "10"), 
-							new DefaultCompoundSyntaxTree(":", "default", "48"))));
-
-			expression = "case f(x,y) default:60";
-			test(expression, new DefaultCompoundSyntaxTree("case", 
-					new DefaultCompoundSyntaxTree("f", "x", "y"), 
-					new DefaultCompoundSyntaxTree(":", "default", "60")));
-
-			expression = "case x a:b, b:c, c:d, d:e, e:f, f:g, x:2, y:3, default:12";
-			test(expression, new DefaultCompoundSyntaxTree("case", "x", 
-					new DefaultCompoundSyntaxTree("kleene list", 
-							new DefaultCompoundSyntaxTree(":", "a", "b"), 
-							new DefaultCompoundSyntaxTree(":", "b", "c"), 
-							new DefaultCompoundSyntaxTree(":", "c", "d"), 
-							new DefaultCompoundSyntaxTree(":", "d", "e"), 
-							new DefaultCompoundSyntaxTree(":", "e", "f"), 
-							new DefaultCompoundSyntaxTree(":", "f", "g"), 
-							new DefaultCompoundSyntaxTree(":", "x", "2"), 
-							new DefaultCompoundSyntaxTree(":", "y", "3"), 
-							new DefaultCompoundSyntaxTree(":", "default", "12"))));
-
-			expression = "case y a:b, b:c, c:d, d:e, e:f, f:g, x:2, y:3, default:24";
-			test(expression, new DefaultCompoundSyntaxTree("case", "y", 
-					new DefaultCompoundSyntaxTree("kleene list", 
-							new DefaultCompoundSyntaxTree(":", "a", "b"), 
-							new DefaultCompoundSyntaxTree(":", "b", "c"), 
-							new DefaultCompoundSyntaxTree(":", "c", "d"), 
-							new DefaultCompoundSyntaxTree(":", "d", "e"), 
-							new DefaultCompoundSyntaxTree(":", "e", "f"), 
-							new DefaultCompoundSyntaxTree(":", "f", "g"), 
-							new DefaultCompoundSyntaxTree(":", "x", "2"), 
-							new DefaultCompoundSyntaxTree(":", "y", "3"), 
-							new DefaultCompoundSyntaxTree(":", "default", "24"))));
-
-			expression = "case z a:b, b:c, c:d, d:e, e:f, f:g, x:2, y:3, default:36";
-			test(expression, new DefaultCompoundSyntaxTree("case", "z", 
-					new DefaultCompoundSyntaxTree("kleene list", 
-							new DefaultCompoundSyntaxTree(":", "a", "b"), 
-							new DefaultCompoundSyntaxTree(":", "b", "c"), 
-							new DefaultCompoundSyntaxTree(":", "c", "d"), 
-							new DefaultCompoundSyntaxTree(":", "d", "e"), 
-							new DefaultCompoundSyntaxTree(":", "e", "f"), 
-							new DefaultCompoundSyntaxTree(":", "f", "g"), 
-							new DefaultCompoundSyntaxTree(":", "x", "2"), 
-							new DefaultCompoundSyntaxTree(":", "y", "3"), 
-							new DefaultCompoundSyntaxTree(":", "default", "36"))));
-
-			expression = "case f(x,y) a:b, b:c, c:d, d:e, e:f, f:g, x:2, y:3, f(x,y):10, default:48";
-			test(expression, new DefaultCompoundSyntaxTree("case", 
-					new DefaultCompoundSyntaxTree("f", "x", "y"), 
-					new DefaultCompoundSyntaxTree("kleene list", 
-							new DefaultCompoundSyntaxTree(":", "a", "b"), 
-							new DefaultCompoundSyntaxTree(":", "b", "c"), 
-							new DefaultCompoundSyntaxTree(":", "c", "d"), 
-							new DefaultCompoundSyntaxTree(":", "d", "e"), 
-							new DefaultCompoundSyntaxTree(":", "e", "f"), 
-							new DefaultCompoundSyntaxTree(":", "f", "g"), 
-							new DefaultCompoundSyntaxTree(":", "x", "2"), 
-							new DefaultCompoundSyntaxTree(":", "y", "3"), 
-							new DefaultCompoundSyntaxTree(":", 
-									new DefaultCompoundSyntaxTree("f", "x", "y"), "10"), 
-							new DefaultCompoundSyntaxTree(":", "default", "48"))));
-
-			expression = "case f(x,y) a:b, b:c, c:d, d:e, e:f, f:g, default:60";
-			test(expression, new DefaultCompoundSyntaxTree("case", 
-					new DefaultCompoundSyntaxTree("f", "x", "y"), 
-					new DefaultCompoundSyntaxTree("kleene list", 
-							new DefaultCompoundSyntaxTree(":", "a", "b"), 
-							new DefaultCompoundSyntaxTree(":", "b", "c"), 
-							new DefaultCompoundSyntaxTree(":", "c", "d"), 
-							new DefaultCompoundSyntaxTree(":", "d", "e"), 
-							new DefaultCompoundSyntaxTree(":", "e", "f"), 
-							new DefaultCompoundSyntaxTree(":", "f", "g"), 
-							new DefaultCompoundSyntaxTree(":", "default", "60"))));
 
 			expression = "'scoped variables'({(on X) p(X) | X != a})";
 			test(expression, new DefaultCompoundSyntaxTree("scoped variables",
@@ -4040,20 +3580,20 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 									new DefaultCompoundSyntaxTree("p", "X"), 
 									new DefaultCompoundSyntaxTree("q", "X", "Y")), "E1", "E2")));
 
-			expression = "sum({(on Person in World) if Person is rich then 2000 else 50 | Person is american})";
+			expression = "sum({(on Person in World) if Person = rich then 2000 else 50 | Person = american})";
 			test(expression, new DefaultCompoundSyntaxTree("sum", 
 					new DefaultCompoundSyntaxTree("{ . . . }", 
 							new DefaultCompoundSyntaxTree("( on . )", 
 									new DefaultCompoundSyntaxTree("in", "Person", "World")), 
 							new DefaultCompoundSyntaxTree("if . then . else .", 
-									new DefaultCompoundSyntaxTree("is", "Person", "rich"), "2000", "50"), 
+									new DefaultCompoundSyntaxTree("=", "Person", "rich"), "2000", "50"), 
 							new DefaultCompoundSyntaxTree("|", 
-									new DefaultCompoundSyntaxTree("is", "Person", "american")))));
+									new DefaultCompoundSyntaxTree("=", "Person", "american")))));
 
 			expression = 
-					"sum({(on Person in World) 2000 | Person is american and Person is rich})" +
+					"sum({(on Person in World) 2000 | Person = american and Person = rich})" +
 					"+" + 
-					"sum({(on Person in World) 50 | Person is american and not (Person is rich)})";
+					"sum({(on Person in World) 50 | Person = american and not (Person = rich)})";
 			test(expression, new DefaultCompoundSyntaxTree("+", 
 					new DefaultCompoundSyntaxTree("sum", 
 							new DefaultCompoundSyntaxTree("{ . . . }", 
@@ -4061,66 +3601,18 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 											new DefaultCompoundSyntaxTree("in", "Person", "World")), "2000", 
 									new DefaultCompoundSyntaxTree("|", 
 											new DefaultCompoundSyntaxTree("and", 
-													new DefaultCompoundSyntaxTree("is", "Person", "american"), 
-													new DefaultCompoundSyntaxTree("is", "Person", "rich"))))), 
+													new DefaultCompoundSyntaxTree("=", "Person", "american"), 
+													new DefaultCompoundSyntaxTree("=", "Person", "rich"))))), 
 					new DefaultCompoundSyntaxTree("sum", 
 							new DefaultCompoundSyntaxTree("{ . . . }", 
 									new DefaultCompoundSyntaxTree("( on . )", 
 											new DefaultCompoundSyntaxTree("in", "Person", "World")), "50", 
 									new DefaultCompoundSyntaxTree("|", 
 											new DefaultCompoundSyntaxTree("and", 
-													new DefaultCompoundSyntaxTree("is", "Person", "american"), 
+													new DefaultCompoundSyntaxTree("=", "Person", "american"), 
 													new DefaultCompoundSyntaxTree("not", 
-															new DefaultCompoundSyntaxTree("is", "Person", "rich"))))))));
-
-			expression = "first(person_{1:100})";
-			test(expression, new DefaultCompoundSyntaxTree("first", 
-					new DefaultCompoundSyntaxTree(". _{ . : . }", "person", "1", "100")));
-
-			expression = "person_1";
-			test(expression, new DefaultCompoundSyntaxTree("_", "person", "1"));
-
-			expression = "first(person_{25:100})";
-			test(expression, new DefaultCompoundSyntaxTree("first", 
-					new DefaultCompoundSyntaxTree(". _{ . : . }", "person", "25", "100")));
-
-			expression = "person_25";
-			test(expression, new DefaultCompoundSyntaxTree("_", "person", "25"));
-
-			expression = "first(person_{100:100})";
-			test(expression, new DefaultCompoundSyntaxTree("first", 
-					new DefaultCompoundSyntaxTree(". _{ . : . }", "person", "100", "100")));
-
-			expression = "person_100";
-			test(expression, new DefaultCompoundSyntaxTree("_", "person", "100"));
-
-			expression = "rest(person_{1:100})";
-			test(expression, new DefaultCompoundSyntaxTree("rest", 
-					new DefaultCompoundSyntaxTree(". _{ . : . }", "person", "1", "100")));
-
-			expression = "person_{2:100}";
-			test(expression, new DefaultCompoundSyntaxTree(". _{ . : . }", "person", "2", "100"));
-
-			expression = "rest(person_{100:100})";
-			test(expression, new DefaultCompoundSyntaxTree("rest", 
-					new DefaultCompoundSyntaxTree(". _{ . : . }", "person", "100", "100")));
-
-			expression = "rest(person_{101:100})";
-			test(expression, new DefaultCompoundSyntaxTree("rest", 
-					new DefaultCompoundSyntaxTree(". _{ . : . }", "person", "101", "100")));
-
-			expression = "size(person_{1:100})";
-			test(expression, new DefaultCompoundSyntaxTree("size", 
-					new DefaultCompoundSyntaxTree(". _{ . : . }", "person", "1", "100")));
-
-			expression = "size(person_{100:100})";
-			test(expression, new DefaultCompoundSyntaxTree("size", 
-					new DefaultCompoundSyntaxTree(". _{ . : . }", "person", "100", "100")));
-
-			expression = "size(person_{101:100})";
-			test(expression, new DefaultCompoundSyntaxTree("size", 
-					new DefaultCompoundSyntaxTree(". _{ . : . }", "person", "101", "100")));
-
+															new DefaultCompoundSyntaxTree("=", "Person", "rich"))))))));
+			
 			expression = "f(X)";
 			test(expression, new DefaultCompoundSyntaxTree("f", "X"));
 
@@ -4915,21 +4407,21 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							new DefaultCompoundSyntaxTree("!=", "X", "a"))));
 
 
-			expression = "sum({(on Person in World) if Person is rich then 2000 else 50 | Person is american})";
+			expression = "sum({(on Person in World) if Person = rich then 2000 else 50 | Person = american})";
 			test(expression, new DefaultCompoundSyntaxTree("sum", 
 					new DefaultCompoundSyntaxTree("{ . . . }", 
 							new DefaultCompoundSyntaxTree("( on . )", 
 									new DefaultCompoundSyntaxTree("in", "Person", "World")), 
 							new DefaultCompoundSyntaxTree("if . then . else .", 
-									new DefaultCompoundSyntaxTree("is", "Person", "rich"), "2000", "50"), 
+									new DefaultCompoundSyntaxTree("=", "Person", "rich"), "2000", "50"), 
 							new DefaultCompoundSyntaxTree("|", 
-									new DefaultCompoundSyntaxTree("is", "Person", "american")))));
+									new DefaultCompoundSyntaxTree("=", "Person", "american")))));
 
 			expression = 
 					"sum(" +
 					"partition(" + 
-					"{(on Person in World) 2000 | Person is american and Person is rich}," + 
-					"{(on Person in World) 50 | Person is american and not (Person is rich)}))";
+					"{(on Person in World) 2000 | Person = american and Person = rich}," + 
+					"{(on Person in World) 50 | Person = american and not (Person = rich)}))";
 			test(expression, new DefaultCompoundSyntaxTree("sum", 
 					new DefaultCompoundSyntaxTree("partition", 
 							new DefaultCompoundSyntaxTree("{ . . . }", 
@@ -4937,16 +4429,16 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 											new DefaultCompoundSyntaxTree("in", "Person", "World")), "2000", 
 									new DefaultCompoundSyntaxTree("|", 
 											new DefaultCompoundSyntaxTree("and", 
-													new DefaultCompoundSyntaxTree("is", "Person", "american"), 
-													new DefaultCompoundSyntaxTree("is", "Person", "rich")))), 
+													new DefaultCompoundSyntaxTree("=", "Person", "american"), 
+													new DefaultCompoundSyntaxTree("=", "Person", "rich")))), 
 							new DefaultCompoundSyntaxTree("{ . . . }", 
 									new DefaultCompoundSyntaxTree("( on . )", 
 											new DefaultCompoundSyntaxTree("in", "Person", "World")), "50", 
 									new DefaultCompoundSyntaxTree("|", 
 											new DefaultCompoundSyntaxTree("and", 
-													new DefaultCompoundSyntaxTree("is", "Person", "american"), 
+													new DefaultCompoundSyntaxTree("=", "Person", "american"), 
 													new DefaultCompoundSyntaxTree("not", 
-															new DefaultCompoundSyntaxTree("is", "Person", "rich"))))))));
+															new DefaultCompoundSyntaxTree("=", "Person", "rich"))))))));
 		
 			expression = "{(on X) if X = 2 and something then p(X) else q(X) | X != a}";
 			test(expression, new DefaultCompoundSyntaxTree("{ . . . }", 
@@ -5943,6 +5435,44 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	}
 
 
+	@Test
+	public void testSpeed() throws IOException {
+		String string;
+		string = "1 + 2";
+		test(string);
 
+		string = "if A = Z then 9 + (| type(X) | - 1) * 8 else 16 + (| type(X) | - 2) * 7";
+		test(string);
+
+		string = "sum({{(on X) if X=Z then if X=A then 9 else 8 else if X=A then 8 else if Z=A then 8 else 7}})";
+		test(string);
+	}
+
+	@Test
+	public void testSpeedOfSingletonSet() throws IOException {
+		String string;
+		string = "{ f(X) }";
+		test(string);
+	}
 	
+	@Test
+	public void testSpeedOfSetDefinition() throws IOException {
+		String string;
+		string = "{{ ( on X ) X | X != bob }}";
+		test(string);
+	}
+
+	@Test
+	public void testSpeedOfSetDefinition2() throws IOException {
+		String string;
+		string = "{{ ( on X ) X }}";
+		test(string);
+	}
+
+	@Test
+	public void testSpeedOfSetDefinition3() throws IOException {
+		String string;
+		string = "{{ X, Y, f(X, Y, Z), g() }}";
+		test(string);
+	}
 }

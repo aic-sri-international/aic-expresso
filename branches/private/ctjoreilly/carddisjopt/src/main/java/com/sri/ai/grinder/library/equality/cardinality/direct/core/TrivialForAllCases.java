@@ -35,32 +35,37 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.controlflow;
+package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.library.Disequality;
-import com.sri.ai.grinder.library.Equality;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.boole.ForAll;
 
 /**
- * An atomic rewriter for rewriting expressions of the type 'c = X' to 'X = c' (same for !=).
+ * A simplifier for trivial quantified formulas of the type (for all X : True) and (for all X : False).
  * 
  * @author braz
  *
  */
 @Beta
-public class NormalizeEqualitiesAndDisequalities extends AbstractRewriter {
-
+public class TrivialForAllCases extends AbstractRewriter {
+	
+	public TrivialForAllCases() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.FOR_ALL));
+	}
+	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (Equality.isEquality(expression) || Disequality.isDisequality(expression)) {
-			Expression normalized = Equality.normalize(expression, process);
-			if (normalized != expression) {
-				return normalized;
-			}
+		
+		if (ForAll.getBody(expression).equals(Expressions.TRUE) || ForAll.getBody(expression).equals(Expressions.FALSE)) {
+			return ForAll.getBody(expression);
 		}
+		
 		return expression;
 	}
 }

@@ -41,6 +41,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
@@ -58,13 +59,16 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
  */
 @Beta
 public class FromConditionalFormulaToFormula extends AbstractRewriter {
+	
+	public FromConditionalFormulaToFormula() {
+		this.setReifiedTests(new HasFunctor(IfThenElse.FUNCTOR));
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		
-		if (IfThenElse.isIfThenElse(expression) &&
-				FormulaUtil.isFormula(IfThenElse.getThenBranch(expression), process) &&
-				FormulaUtil.isFormula(IfThenElse.getElseBranch(expression), process)) {
+		if (FormulaUtil.isFormula(IfThenElse.getThenBranch(expression), process) &&
+			FormulaUtil.isFormula(IfThenElse.getElseBranch(expression), process)) {
 
 			Expression result =
 					Or.make(

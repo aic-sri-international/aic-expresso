@@ -57,7 +57,7 @@ public class SubExpressionSelection {
 	 * A static method returning selected sub-expressions
 	 * in a given expressions, according to a given predicate.
 	 */
-	public static LinkedHashSet<Expression> get(Expression expression, Predicate<Expression> predicate) {
+	public static LinkedHashSet<Expression> getVariables(Expression expression, Predicate<Expression> predicate) {
 		LinkedHashSet<Expression> results = new LinkedHashSet<Expression>();
 		Util.collect(new SubExpressionsDepthFirstIterator(expression), results, predicate);
 		return results;

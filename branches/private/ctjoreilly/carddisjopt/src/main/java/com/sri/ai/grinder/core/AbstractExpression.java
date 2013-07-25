@@ -75,8 +75,8 @@ public abstract class AbstractExpression implements Expression {
 	
 	protected static final IsInstanceOf IS_EXPRESSION_MODULE = new IsInstanceOf<Object>(ExpressionKnowledgeModule.class);
 	//
-	private transient ImmutableList<ExpressionAndContext> cachedImmediateSubExpressionsAndContexts = null;
-	private Lock      lazyInitCachedImmediateSubExpressionsAndContextsLock = new ReentrantLock();
+	private volatile transient ImmutableList<ExpressionAndContext> cachedImmediateSubExpressionsAndContexts;
+	private Lock               lazyInitCachedImmediateSubExpressionsAndContextsLock = new ReentrantLock();
 	
 	public static RewritingProcess getProcess() {
 		return DefaultRewritingProcess.getGlobalRewritingProcessForKnowledgeBasedExpressions();

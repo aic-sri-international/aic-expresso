@@ -35,38 +35,25 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.equality.cardinality.direct.core;
+package com.sri.ai.grinder.core;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.library.boole.ForAll;
-import com.sri.ai.grinder.library.boole.ThereExists;
+import com.sri.ai.expresso.core.DefaultSymbol;
 
-/**
- * A simplifier for trivial quantified formulas of the type (Q X : True) and (Q X : False).
- * 
- * @author braz
- *
- */
 @Beta
-public class TrivialQuantifiedCases extends AbstractRewriter {
-	
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+public class HasFunctor extends DefaultRewriterTest {
 
-		if (ThereExists.isThereExists(expression) &&
-				(ThereExists.getBody(expression).equals(Expressions.TRUE) || ThereExists.getBody(expression).equals(Expressions.FALSE))) {
-			return ThereExists.getBody(expression);
-		}
-		
-		if (ForAll.isForAll(expression) &&
-				(ForAll.getBody(expression).equals(Expressions.TRUE) || ForAll.getBody(expression).equals(Expressions.FALSE))) {
-			return ForAll.getBody(expression);
-		}
-		
-		return expression;
+	/**
+	 * Constructor. Create a RewriterTest with
+	 * (attribute=kind,value=aGivenFunctor).
+	 * 
+	 * @param functorValue
+	 */
+	public HasFunctor(Object functorValue) {
+		// Note: for safety ensure we always compare expressions.
+		super(KindAttribute.INSTANCE,
+				functorValue instanceof Expression ? functorValue
+						: DefaultSymbol.createSymbol(functorValue));
 	}
 }
