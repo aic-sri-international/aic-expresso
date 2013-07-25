@@ -46,6 +46,7 @@ import com.sri.ai.grinder.demo.model.EnableItem;
 import com.sri.ai.grinder.demo.model.ExampleRewrite;
 import com.sri.ai.grinder.demo.model.GroupEnableItem;
 import com.sri.ai.grinder.demo.model.LeafEnableItem;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ContradictoryConjuncts;
 import com.sri.ai.grinder.library.boole.Equivalence;
@@ -106,7 +107,13 @@ public class LogicRewritePanel extends AbstractRewritePanel {
 		advancedRewriters.add(new LeafEnableItem<Rewriter>("Trivial For All Cases",  new TrivialForAllCases()));
 		advancedRewriters.add(new LeafEnableItem<Rewriter>("Trivial There Exists Cases",  new TrivialThereExistsCases()));
 		advancedRewriters.add(new LeafEnableItem<Rewriter>("Top Simplify",  new TopSimplifyWrapper()));
-		advancedRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination",  new QuantifierEliminationWrapper()));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.FOR_ALL,  new QuantifierEliminationWrapper(FunctorConstants.FOR_ALL)));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.THERE_EXISTS,  new QuantifierEliminationWrapper(FunctorConstants.THERE_EXISTS)));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.NOT,  new QuantifierEliminationWrapper(FunctorConstants.NOT)));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.IMPLICATION,  new QuantifierEliminationWrapper(FunctorConstants.IMPLICATION)));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.EQUIVALENCE,  new QuantifierEliminationWrapper(FunctorConstants.EQUIVALENCE)));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.AND,  new QuantifierEliminationWrapper(FunctorConstants.AND)));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.OR,  new QuantifierEliminationWrapper(FunctorConstants.OR)));
 		advancedRewriters.add(new LeafEnableItem<Rewriter>("Top Implied Certainty",  new TopImpliedCertainty()));
 		GroupEnableItem<Rewriter> advancedGroup = new GroupEnableItem<Rewriter>("Advanced", advancedRewriters);
 		
