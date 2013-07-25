@@ -45,6 +45,7 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.AbstractSyntaxTree;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
 
@@ -63,6 +64,12 @@ public class AbsorbingElement extends AbstractRewriter {
 	public AbsorbingElement(Object... operatorPairs) {
 		super();
 		this.absorbingElementByOperator = AbstractSyntaxTree.wrapAsMap(operatorPairs);
+		// If a single operator and corresponding absorbing element
+		// then I can add a reified test for the operator/functor
+		if (this.absorbingElementByOperator.size() == 1) {
+			this.setReifiedTests(new HasFunctor(operatorPairs[0]));
+			this.setName(""+operatorPairs[0]+" "+Util.camelCaseToSpacedString(getClass().getSimpleName()));
+		}
 	}
 
 	@Override

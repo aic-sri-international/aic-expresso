@@ -110,10 +110,14 @@ public class CallRewriterDecisionTreeTest {
 					new Implication(), 
 					new Equivalence(), 
 					new AbsorbingElement(
-							"and", "false",
-							"or", "true",
+							"and", "false"),
+					new AbsorbingElement(
+							"or", "true"),
+					new AbsorbingElement(
 							"*", "0"),
-					new Associative("+", "*", "and"),
+					new Associative("+"),
+					new Associative("*"),
+					new Associative("and"),
 					
 					new FromConditionalFormulaToFormula(),
 					// new, cheap simplifiers to be used instead of full ImpliedCertainty

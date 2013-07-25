@@ -48,6 +48,8 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.util.Util;
 
 /**
  * A rewriter collapsing nested applications of a given iterator into a single
@@ -64,6 +66,12 @@ public class Associative extends AbstractRewriter {
 	public Associative(Object... operators) {
 		super();
 		this.operators.addAll(Expressions.wrap(operators));
+		// If a single operator and corresponding absorbing element
+		// then I can add a reified test for the operator/functor
+		if (this.operators.size() == 1) {
+			this.setReifiedTests(new HasFunctor(operators[0]));
+			this.setName(""+operators[0]+" "+Util.camelCaseToSpacedString(getClass().getSimpleName()));
+		}
 	}
 
 	@Override
