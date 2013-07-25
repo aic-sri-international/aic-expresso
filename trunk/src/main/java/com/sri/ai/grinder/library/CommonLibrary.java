@@ -47,6 +47,7 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.core.DefaultLibrary;
 import com.sri.ai.grinder.core.OpenInterpretationModule;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.ContradictoryConjuncts;
 import com.sri.ai.grinder.library.boole.Equivalence;
 import com.sri.ai.grinder.library.boole.ForAllSubExpressionsAndScopedVariablesProvider;
 import com.sri.ai.grinder.library.boole.Implication;
@@ -108,6 +109,7 @@ public class CommonLibrary extends DefaultLibrary {
 				new And(),
 				new Or(),
 				new Not(),
+				new ContradictoryConjuncts(),
 				new Implication(),
 				new Equivalence(),
 				new AbsorbingElement(
