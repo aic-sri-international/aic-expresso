@@ -46,6 +46,8 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.IsFunctionApplication;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.DefaultRewriterTest;
+import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.util.Util;
@@ -61,6 +63,14 @@ import com.sri.ai.util.Util;
  */
 @Beta
 public class IntensionalUniSetWithIndicesNotUsedInHead extends AbstractRewriter {
+	
+	public IntensionalUniSetWithIndicesNotUsedInHead() {
+		// Note: While this rewriter works specifically with uni-intensional sets, it is ok
+		// to setup a reified test on the more general intensional set kind (i.e. multi-sets as well)
+		// as the inner uni-intensional set is still performed inside of this implementation's rewrite logic.
+		this.setReifiedTests(new DefaultRewriterTest(KindAttribute.INSTANCE, KindAttribute.VALUE_INTENSIONAL_SET));
+	}
+	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		return staticRewriteAfterBookkeeping(expression, process);

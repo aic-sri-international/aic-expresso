@@ -42,6 +42,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewriterTestAttribute;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.set.Sets;
 
 /**
@@ -97,6 +98,19 @@ public class KindAttribute implements RewriterTestAttribute {
 			return "intensional set";
 		}
 	};
+	//
+	public static final Predicate<Expression> VALUE_SCOPED_VARIABLES = new Predicate<Expression>() {
+		@Override
+		public boolean apply(Expression e) {
+			boolean result = ScopedVariables.isScopedVariables(e);
+			return result;
+		}
+		
+		@Override
+		public String toString() {
+			return "scoped variables";
+		}
+	};
 	
 	//
 	// START-RewriterTestAttribute
@@ -110,6 +124,9 @@ public class KindAttribute implements RewriterTestAttribute {
 		}
 		else if (VALUE_INTENSIONAL_SET.apply(expression)) {
 			result = VALUE_INTENSIONAL_SET;
+		}
+		else if (VALUE_SCOPED_VARIABLES.apply(expression)) {
+			result = VALUE_SCOPED_VARIABLES;
 		}
 		else if ((result = expression.getFunctor()) != null) {
 			// We have a functor.
