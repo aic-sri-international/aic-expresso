@@ -49,6 +49,7 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.library.ScopedVariables;
@@ -71,7 +72,7 @@ import com.sri.ai.util.collect.NestedIterator;
 @Beta
 public abstract class QuantifierSubExpressionAndScopedVariableProvider
 extends AbstractRewriter
-implements ExpressionKnowledgeModule.Provider, ScopedVariables.Provider
+implements ExpressionKnowledgeModule.Provider, ScopedVariables.Provider, NoOpRewriter
 {
 	private static final List<Integer> _pathZero = Collections.unmodifiableList(Arrays.asList(new Integer(0)));
 	private static final List<Integer> _pathOne  = Collections.unmodifiableList(Arrays.asList(new Integer(1)));
@@ -141,6 +142,7 @@ implements ExpressionKnowledgeModule.Provider, ScopedVariables.Provider
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		// Note: Is a NoOpRewriter
 		return expression; // will be removed eventually, not a real rewriter, just a module.
 	}
 

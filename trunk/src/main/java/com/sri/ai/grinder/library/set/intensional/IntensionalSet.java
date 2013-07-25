@@ -58,6 +58,8 @@ import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultRewriterTest;
+import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.Substitute;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
@@ -121,6 +123,10 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	private static final List<Integer> _pathToConditionDynamic = Collections.unmodifiableList(Arrays.asList(new Integer(2), new Integer(0)));
 	private static final List<Integer> _pathZero               = Collections.unmodifiableList(Arrays.asList(new Integer(0)));
 	private static final List<Integer> _pathZeroZero           = Collections.unmodifiableList(Arrays.asList(new Integer(0), new Integer(0)));
+	
+	public IntensionalSet() {
+		this.setReifiedTests(new DefaultRewriterTest(KindAttribute.INSTANCE, KindAttribute.VALUE_INTENSIONAL_SET));
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {

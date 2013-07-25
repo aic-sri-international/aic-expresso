@@ -83,7 +83,7 @@ import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNo
 public class CallRewriterDecisionTreeTest {
 
 	@Test
-	public void testTODO() {
+	public void testToString() {
 		// These are the list from R_simplify
 		List<Rewriter> rewriters = Arrays.asList((Rewriter) 
 					new PlainSubstitution(),
