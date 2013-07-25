@@ -41,26 +41,33 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.library.Disequality;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.Equality;
+import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
- * An atomic rewriter for rewriting expressions of the type 'c = X' to 'X = c' (same for !=).
+ * An atomic rewriter for rewriting expressions of the type 'c = X' to 'X = c'.
  * 
  * @author braz
  *
  */
 @Beta
-public class NormalizeEqualitiesAndDisequalities extends AbstractRewriter {
+public class NormalizeEqualities extends AbstractRewriter {
+	
+	public NormalizeEqualities() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.EQUAL),
+				             new HasNumberOfArguments(2));
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (Equality.isEquality(expression) || Disequality.isDisequality(expression)) {
-			Expression normalized = Equality.normalize(expression, process);
-			if (normalized != expression) {
-				return normalized;
-			}
+		
+		Expression normalized = Equality.normalize(expression, process);
+		if (normalized != expression) {
+			return normalized;
 		}
+		
 		return expression;
 	}
 }

@@ -59,7 +59,8 @@ import com.sri.ai.grinder.library.controlflow.IfThenElseBranchesAreBooleanConsta
 import com.sri.ai.grinder.library.controlflow.IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch;
 import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
 import com.sri.ai.grinder.library.controlflow.IfThenElseIrrelevantCondition;
-import com.sri.ai.grinder.library.controlflow.NormalizeEqualitiesAndDisequalities;
+import com.sri.ai.grinder.library.controlflow.NormalizeDisequalities;
+import com.sri.ai.grinder.library.controlflow.NormalizeEqualities;
 import com.sri.ai.grinder.library.equality.NotOnDisequality;
 import com.sri.ai.grinder.library.equality.NotOnEquality;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
@@ -99,7 +100,8 @@ public class CallRewriterDecisionTreeTest {
 	
 					new Equality(),
 					new Disequality(),
-					new NormalizeEqualitiesAndDisequalities(),
+					new NormalizeEqualities(),
+					new NormalizeDisequalities(),
 					new NotOnEquality(),
 					new NotOnDisequality(), 
 					new GreaterThan(), 
