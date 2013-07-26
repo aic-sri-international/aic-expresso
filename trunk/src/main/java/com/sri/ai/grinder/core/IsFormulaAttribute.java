@@ -35,56 +35,83 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.equality.cardinality.direct.core;
+package com.sri.ai.grinder.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewriterTest;
+import com.sri.ai.grinder.api.RewriterTestAttribute;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFormula;
-import com.sri.ai.grinder.core.HasFunctor;
-import com.sri.ai.grinder.core.HasNumberOfArguments;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 
 /**
- * Note: This wrapper is required as the default implementation throws an
- * assertion exception if the input arguments are not what is expected.
+ * A RewriterTestAttribute used to represent an expression is a formula.
+ * Note: This is distinct from KindAttribute as different 'kind' attribute
+ * functors can also end up being formulas but not necessarily. This ensures,
+ * the attributes and values remain mutually exclusive.
  * 
  * @author oreilly
+ *
  */
-public class QuantifierEliminationWrapper extends AbstractRewriter {	
-	public QuantifierEliminationWrapper(String forFunctor) {
-		// Set the name based on the quantifier this is specific to.
-		this.setName("Quantifier Elimination "+forFunctor);
-		
-		// Set up the relevant reified tests
-		List<RewriterTest> reifiedTests = new ArrayList<RewriterTest>();
-		reifiedTests.add(new HasFunctor(forFunctor));
-		if (forFunctor.equals(FunctorConstants.NOT)) {
-			reifiedTests.add(new HasNumberOfArguments(1));
+@Beta
+public class IsFormulaAttribute implements RewriterTestAttribute {
+
+	public static final IsFormulaAttribute INSTANCE = new IsFormulaAttribute();
+	
+	//
+	// ALLOWED KNOWN KIND VALUES IN ADVANCE (i.e. functors are determined at runtime).
+	
+	// i.e. used when the given expression is not a formula
+	public static final Object VALUE_IS_NOT_FORMULA = new Object() {
+		@Override
+		public boolean equals(Object o) {
+			return this == o; 
 		}
-		else if (forFunctor.equals(FunctorConstants.IMPLICATION) ||
-				 forFunctor.equals(FunctorConstants.EQUIVALENCE)) {
-			reifiedTests.add(new HasNumberOfArguments(2));
-		}
-		reifiedTests.add(new HasFormula());
 		
-		this.setReifiedTests(reifiedTests.toArray(new RewriterTest[reifiedTests.size()]));
+		@Override
+		public String toString() {
+			return "not a formula";
+		}
+	};
+	
+	public static final Object VALUE_IS_FORMULA = new Object() {
+		@Override
+		public boolean equals(Object o) {
+			return this == o; 
+		}
+		
+		@Override
+		public String toString() {
+			return "is formula";
+		}
+	};
+	
+	//
+	// START-RewriterTestAttribute
+	@Override
+	public Object getValue(Expression expression, RewritingProcess process) {
+		Object result = VALUE_IS_NOT_FORMULA;
+		
+		if (FormulaUtil.isFormula(expression, process)) {
+			result = VALUE_IS_FORMULA;
+		}		
+		
+		return result;
 	}
+	// END-ReriterTestAttribute
+	//
 	
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression result = expression;
-
-		result = process.rewrite(CardinalityRewriter.R_quantifier_elimination, expression);
-		if (result.equals(expression)) {
-			result = expression;
-		}
-
-		return result;
-	}	
+	public String toString() {
+		return "formula";
+	}
+	
+	//
+	// PRIVATE
+	//
+	/**
+	 * Private constructor so that only a singleton may be created.
+	 */
+	private IsFormulaAttribute() {
+		
+	}
 }
