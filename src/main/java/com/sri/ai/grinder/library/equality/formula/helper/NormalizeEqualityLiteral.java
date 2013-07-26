@@ -37,37 +37,75 @@
  */
 package com.sri.ai.grinder.library.equality.formula.helper;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.TotalRewriter;
+import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.library.Equality;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.boole.And;
 
 /**
  * Performs the following normalizations on formulas:
  * 
  * X = Y = Z = -> X = Y and Y = Z
  * a = X       -> X = a
- * a != X      -> X != a
  * B = A       -> A = B
- * B != A      -> A != B
  * X = X       -> true
- * X != X      -> false
  * a = b       -> false
- * a != b      -> true
  */
 @Beta
-public class NormalizeLiteral {
+public class NormalizeEqualityLiteral extends AbstractRewriter {
 	
-	public static Expression normalizeLiterals(Expression formula, RewritingProcess process) {
-		TotalRewriter totalRewriter = new TotalRewriter(NormalizeLiteral.class.getName()+ " normalizeLiterals Total Rewriter",
-			Arrays.asList((Rewriter)
-				new NormalizeEqualityLiteral(),
-				new NormalizeDisequalityLiteral()
-			));
-		Expression result = totalRewriter.rewrite(formula, process);	
+	public NormalizeEqualityLiteral() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.EQUAL));
+	}
+	
+	
+	@Override
+	public Expression rewriteAfterBookkeeping(Expression expression,
+			RewritingProcess process) {
+		Expression result = expression;			
+
+		// X = Y = Z -> X = Y and Y = Z
+		if (expression.numberOfArguments() > 2) {
+			List<Expression> conjuncts = new ArrayList<Expression>();
+			for (int i = 0; i < expression.numberOfArguments()-1; i++) {
+				conjuncts.add(Equality.make(expression.get(i), expression.get(i+1)));
+			}
+			result = And.make(conjuncts);
+		}
+		else {
+			// a = X  -> X = a
+			Expression normalized = Equality.normalize(expression, process);
+			if (normalized != expression) {
+				result = normalized;
+			}
+			else {
+				// B = A  -> A = B
+				String e0 = expression.get(0).toString();
+				String e1 = expression.get(1).toString();
+			    if (e0.compareTo(e1) > 0 && process.isVariable(expression.get(0)) && process.isVariable(expression.get(1))) {
+			    	result = Expressions.make(expression.getFunctor(), expression.get(1), expression.get(0));
+			    }
+				// X = X  -> true
+			    else if (expression.get(0).equals(expression.get(1))) {
+					result = Expressions.TRUE;		
+				}
+				else {
+					// a = b  -> false
+					if (process.isConstant(expression.get(0)) && process.isConstant(expression.get(1))) {
+						result = Expressions.FALSE;
+					}
+				}
+			}
+		}
+
 		return result;
 	}
 }
