@@ -44,6 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
@@ -57,6 +58,10 @@ import com.sri.ai.grinder.library.boole.Or;
  */
 @Beta
 public class EquivalenceOut extends AbstractRewriter {
+	
+	public EquivalenceOut() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.EQUIVALENCE));
+	}
 	
 	public static Expression equivalencesOut(Expression formula, RewritingProcess process) {
 		TotalRewriter cnfRewriter = new TotalRewriter(EquivalenceOut.class.getName()+ " equivalencesOut Total Rewriter",
@@ -72,11 +77,9 @@ public class EquivalenceOut extends AbstractRewriter {
 			RewritingProcess process) {
 		Expression result = expression;
 		
-		if (expression.hasFunctor(FunctorConstants.EQUIVALENCE)) {
-			// F1 <=> F2 -> (not(F1) or F2) and (F1 or not(F2))
-			result = And.make(Or.make(Not.make(expression.get(0)), expression.get(1)),
-					          Or.make(expression.get(0), Not.make(expression.get(1))));
-		}
+		// F1 <=> F2 -> (not(F1) or F2) and (F1 or not(F2))
+		result = And.make(Or.make(Not.make(expression.get(0)), expression.get(1)),
+				          Or.make(expression.get(0), Not.make(expression.get(1))));
 		
 		return result;
 	}

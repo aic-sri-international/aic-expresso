@@ -49,6 +49,8 @@ import com.sri.ai.grinder.library.equality.formula.helper.ExistentialOut;
 import com.sri.ai.grinder.library.equality.formula.helper.ImplicationOut;
 import com.sri.ai.grinder.library.equality.formula.helper.NegationIn;
 import com.sri.ai.grinder.library.equality.formula.helper.NormalizeAnd;
+import com.sri.ai.grinder.library.equality.formula.helper.NormalizeDisequalityLiteral;
+import com.sri.ai.grinder.library.equality.formula.helper.NormalizeEqualityLiteral;
 import com.sri.ai.grinder.library.equality.formula.helper.NormalizeLiteral;
 import com.sri.ai.grinder.library.equality.formula.helper.NormalizeOr;
 import com.sri.ai.grinder.library.equality.formula.helper.StandardizeVariables;
@@ -118,7 +120,8 @@ public class FormulaToNNF {
 				// to work with.
 				new NormalizeOr(),
 				new NormalizeAnd(),
-				new NormalizeLiteral()
+				new NormalizeEqualityLiteral(),
+				new NormalizeDisequalityLiteral()
 			));
 		result = normalizeRewriter.rewrite(result, process);
 		

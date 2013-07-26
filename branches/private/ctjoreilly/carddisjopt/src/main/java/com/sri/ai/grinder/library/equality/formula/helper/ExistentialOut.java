@@ -44,7 +44,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.core.TotalRewriter;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.ThereExists;
 
 /**
@@ -56,6 +58,9 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 @Beta
 public class ExistentialOut extends AbstractRewriter {
 	
+	public ExistentialOut() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.THERE_EXISTS));
+	}
 	
 	public static Expression existentialsOut(Expression formula, RewritingProcess process) {
 		Expression result = formula;
@@ -81,9 +86,7 @@ public class ExistentialOut extends AbstractRewriter {
 			RewritingProcess process) {
 		Expression result = expression;
 		
-		if (ThereExists.isThereExists(expression)) {
-			result = ThereExists.getBody(expression);
-		}
+		result = ThereExists.getBody(expression);
 		
 		return result;
 	}

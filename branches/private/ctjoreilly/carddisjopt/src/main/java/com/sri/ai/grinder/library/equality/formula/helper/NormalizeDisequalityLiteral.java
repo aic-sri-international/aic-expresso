@@ -37,57 +37,59 @@
  */
 package com.sri.ai.grinder.library.equality.formula.helper;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.library.boole.Or;
 
 /**
- * Distributes and over ors in a formula: 
- *
- * F1 and (F2 or F2)  -> (F1 and F2) or (F1 and F3)
- * (F1 or F2) and F3  -> (F1 and F3) or (F2 and F3)
+ * Performs the following normalizations on formulas:
  * 
+ * a != X      -> X != a
+ * B != A      -> A != B
+ * X != X      -> false
+ * a != b      -> true
  */
 @Beta
-public class DistributeAndOverOr extends AbstractRewriter {
+public class NormalizeDisequalityLiteral extends AbstractRewriter {
 	
-	public DistributeAndOverOr() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.AND));
+	public NormalizeDisequalityLiteral() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.INEQUALITY));
 	}
 	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression,
 			RewritingProcess process) {
-		Expression result = expression;
-		
-		if (expression.numberOfArguments() > 0) {
-			// F1 and (F2 or F2)  -> (F1 and F2) or (F1 and F3)
-			// (F1 or F2) and F3  -> (F1 and F3) or (F2 and F3)
-			for (Expression conjunct : expression.getArguments()) {
-				if (Or.isDisjunction(conjunct) && conjunct.numberOfArguments() > 0) {
-					List<Expression> otherConjuncts = new ArrayList<Expression>(expression.getArguments());
-					otherConjuncts.remove(conjunct);
-					
-					List<Expression> disjuncts = new ArrayList<Expression>();
-					for (Expression disjunct : conjunct.getArguments()) {
-						ArrayList<Expression> conjuncts = new ArrayList<Expression>(otherConjuncts);
-						conjuncts.add(disjunct);
-						disjuncts.add(And.make(conjuncts));
-					}
-					result = Or.make(disjuncts);
-					break;
+		Expression result = expression;			
+
+		// a != X -> X != a
+		Expression normalized = Equality.normalize(expression, process);
+		if (normalized != expression) {
+			result = normalized;
+		}
+		else {
+			// B != A -> A != B
+			String e0 = expression.get(0).toString();
+			String e1 = expression.get(1).toString();
+		    if (e0.compareTo(e1) > 0 && process.isVariable(expression.get(0)) && process.isVariable(expression.get(1))) {
+		    	result = Expressions.make(expression.getFunctor(), expression.get(1), expression.get(0));
+		    }
+			// X != X -> false
+		    else if (expression.get(0).equals(expression.get(1))) {
+				result = Expressions.FALSE;
+			}
+			else {
+				// a != b -> true
+				if (process.isConstant(expression.get(0)) && process.isConstant(expression.get(1))) {
+					result = Expressions.TRUE;
 				}
 			}
 		}
-		
+
 		return result;
 	}
 }

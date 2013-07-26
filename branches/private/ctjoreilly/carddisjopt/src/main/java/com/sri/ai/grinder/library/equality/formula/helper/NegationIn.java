@@ -47,6 +47,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
@@ -73,6 +74,10 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 @Beta
 public class NegationIn extends AbstractRewriter {
 	
+	public NegationIn() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.NOT));
+	}
+	
 	public static Expression negationsIn(Expression formula, RewritingProcess process) {
 		TotalRewriter cnfRewriter = new TotalRewriter(NegationIn.class.getName()+ " negationsIn Total Rewriter",
 			Arrays.asList((Rewriter)
@@ -87,45 +92,43 @@ public class NegationIn extends AbstractRewriter {
 			RewritingProcess process) {
 		Expression result = expression;
 		
-		if (expression.hasFunctor(FunctorConstants.NOT)) {
-			Expression negated = expression.get(0);
-			
-			// not(true) -> false
-			if (negated.equals(Expressions.TRUE)) {
-				result = Expressions.FALSE;
-			} // not(false) -> true
-			else if (negated.equals(Expressions.FALSE)) {
-				result = Expressions.TRUE;
-			} // not(X = Y) -> X != Y
-			else if (Equality.isEquality(negated) && negated.numberOfArguments() == 2) {
-				result = Disequality.make(negated.get(0), negated.get(1));
-			} // not(X != Y) -> X = Y
-			else if (Disequality.isDisequality(negated)) {
-				result = Equality.make(negated.get(0), negated.get(1));
-			} // not(not(F)) -> F
-			else if (negated.hasFunctor(FunctorConstants.NOT)) {
-				result = negated.get(0);
-			} // not(F1 and F2) -> not(F1) or not(F2)
-			else if (And.isConjunction(negated) && negated.numberOfArguments() > 0) {
-				List<Expression> negatedConjuncts = new ArrayList<Expression>();
-				for (Expression conjunct : negated.getArguments()) {
-					negatedConjuncts.add(Not.make(conjunct));
-				}
-				result = Or.make(negatedConjuncts);
-			} // not(F1 or F2) -> not(F1) and not(F2)
-			else if (Or.isDisjunction(negated) && negated.numberOfArguments() > 0) {
-				List<Expression> negatedDisjuncts = new ArrayList<Expression>();
-				for (Expression disjunct : negated.getArguments()) {
-					negatedDisjuncts.add(Not.make(disjunct));
-				}
-				result = And.make(negatedDisjuncts);
-			} // not(for all X : F) -> there exists X : not(F)
-			else if (ForAll.isForAll(negated)) {
-				result = ThereExists.make(ForAll.getIndex(negated), Not.make(ForAll.getBody(negated)));
-			} // not(there exists X : F) -> for all X : not(F)
-			else if (ThereExists.isThereExists(negated)) {
-				result = ForAll.make(ThereExists.getIndex(negated), Not.make(ThereExists.getBody(negated)));
+		Expression negated = expression.get(0);
+		
+		// not(true) -> false
+		if (negated.equals(Expressions.TRUE)) {
+			result = Expressions.FALSE;
+		} // not(false) -> true
+		else if (negated.equals(Expressions.FALSE)) {
+			result = Expressions.TRUE;
+		} // not(X = Y) -> X != Y
+		else if (Equality.isEquality(negated) && negated.numberOfArguments() == 2) {
+			result = Disequality.make(negated.get(0), negated.get(1));
+		} // not(X != Y) -> X = Y
+		else if (Disequality.isDisequality(negated)) {
+			result = Equality.make(negated.get(0), negated.get(1));
+		} // not(not(F)) -> F
+		else if (negated.hasFunctor(FunctorConstants.NOT)) {
+			result = negated.get(0);
+		} // not(F1 and F2) -> not(F1) or not(F2)
+		else if (And.isConjunction(negated) && negated.numberOfArguments() > 0) {
+			List<Expression> negatedConjuncts = new ArrayList<Expression>();
+			for (Expression conjunct : negated.getArguments()) {
+				negatedConjuncts.add(Not.make(conjunct));
 			}
+			result = Or.make(negatedConjuncts);
+		} // not(F1 or F2) -> not(F1) and not(F2)
+		else if (Or.isDisjunction(negated) && negated.numberOfArguments() > 0) {
+			List<Expression> negatedDisjuncts = new ArrayList<Expression>();
+			for (Expression disjunct : negated.getArguments()) {
+				negatedDisjuncts.add(Not.make(disjunct));
+			}
+			result = And.make(negatedDisjuncts);
+		} // not(for all X : F) -> there exists X : not(F)
+		else if (ForAll.isForAll(negated)) {
+			result = ThereExists.make(ForAll.getIndex(negated), Not.make(ForAll.getBody(negated)));
+		} // not(there exists X : F) -> for all X : not(F)
+		else if (ThereExists.isThereExists(negated)) {
+			result = ForAll.make(ThereExists.getIndex(negated), Not.make(ThereExists.getBody(negated)));
 		}
 		
 		return result;

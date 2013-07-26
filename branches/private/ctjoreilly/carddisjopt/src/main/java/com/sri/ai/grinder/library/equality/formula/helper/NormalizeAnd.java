@@ -47,6 +47,8 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 
@@ -61,47 +63,49 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 @Beta
 public class NormalizeAnd extends AbstractRewriter {
 	
+	public NormalizeAnd() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.AND));
+	}
+	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression,
 			RewritingProcess process) {
 		Expression result = expression;
 		
-		if (And.isConjunction(expression)) {
-			// and() -> true
-			if (expression.numberOfArguments() == 0) {
-				result = Expressions.TRUE;
-			}
-			else {
-				// and(..., true, ...)  -> and(..., ...)
-				// and(X = Y, X = Y)    -> and(X = Y)
-				// and(..., false, ...) -> false
-				Set<Expression> literalSet = new LinkedHashSet<Expression>();
-				for (Expression conjunct : expression.getArguments()) {
-					if (conjunct.equals(Expressions.FALSE)) {
-						result = Expressions.FALSE;
-						break;
-					}
-					else {
-						if (!conjunct.equals(Expressions.TRUE)) {
-							literalSet.add(conjunct);
-						}
+		// and() -> true
+		if (expression.numberOfArguments() == 0) {
+			result = Expressions.TRUE;
+		}
+		else {
+			// and(..., true, ...)  -> and(..., ...)
+			// and(X = Y, X = Y)    -> and(X = Y)
+			// and(..., false, ...) -> false
+			Set<Expression> literalSet = new LinkedHashSet<Expression>();
+			for (Expression conjunct : expression.getArguments()) {
+				if (conjunct.equals(Expressions.FALSE)) {
+					result = Expressions.FALSE;
+					break;
+				}
+				else {
+					if (!conjunct.equals(Expressions.TRUE)) {
+						literalSet.add(conjunct);
 					}
 				}
-				if (!result.equals(Expressions.FALSE)) {
-					List<Expression> literals = new ArrayList<Expression>(literalSet);
-					if (literals.size() < expression.numberOfArguments()) {
-						result = And.make(literals);
-					}
-					else {
-						// and(X = Y, ..., X != Y) -> false
-						for (int i = 0; i < literals.size(); i++) {
-							for (int j = i+1; j < literals.size(); j++) {
-								if (FormulaUtil.isLiteral(literals.get(i), process) && 
-									FormulaUtil.isLiteral(literals.get(j), process) &&
-									!literals.get(i).getFunctor().equals(literals.get(j).getFunctor()) &&
-									literals.get(i).getArguments().equals(literals.get(j).getArguments())) {
-									result = Expressions.FALSE;
-								}
+			}
+			if (!result.equals(Expressions.FALSE)) {
+				List<Expression> literals = new ArrayList<Expression>(literalSet);
+				if (literals.size() < expression.numberOfArguments()) {
+					result = And.make(literals);
+				}
+				else {
+					// and(X = Y, ..., X != Y) -> false
+					for (int i = 0; i < literals.size(); i++) {
+						for (int j = i+1; j < literals.size(); j++) {
+							if (FormulaUtil.isLiteral(literals.get(i), process) && 
+								FormulaUtil.isLiteral(literals.get(j), process) &&
+								!literals.get(i).getFunctor().equals(literals.get(j).getFunctor()) &&
+								literals.get(i).getArguments().equals(literals.get(j).getArguments())) {
+								result = Expressions.FALSE;
 							}
 						}
 					}

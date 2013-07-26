@@ -44,6 +44,8 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Or;
 
@@ -57,12 +59,16 @@ import com.sri.ai.grinder.library.boole.Or;
 @Beta
 public class DistributeOrOverAnd extends AbstractRewriter {
 	
+	public DistributeOrOverAnd() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.OR));
+	}
+	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression,
 			RewritingProcess process) {
 		Expression result = expression;
 		
-		if (Or.isDisjunction(expression) && expression.numberOfArguments() > 0) {
+		if (expression.numberOfArguments() > 0) {
 			// F1 or (F2 and F3) -> (F1 or F2) and (F1 or F3)
 			// (F1 and F2) or F3 -> (F1 or F3) and (F2 or F3)
 			for (Expression disjunct : expression.getArguments()) {
