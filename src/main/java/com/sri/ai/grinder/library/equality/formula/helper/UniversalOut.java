@@ -44,7 +44,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.core.TotalRewriter;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.ForAll;
 
 /**
@@ -55,6 +57,10 @@ import com.sri.ai.grinder.library.boole.ForAll;
  */
 @Beta
 public class UniversalOut extends AbstractRewriter {
+	
+	public UniversalOut() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.FOR_ALL));
+	}
 	
 	public static Expression universalsOut(Expression formula, RewritingProcess process) {
 		TotalRewriter aoRewriter = new TotalRewriter(UniversalOut.class.getName()+ " universalsOut Total Rewriter",
@@ -70,9 +76,7 @@ public class UniversalOut extends AbstractRewriter {
 			RewritingProcess process) {
 		Expression result = expression;
 		
-		if (ForAll.isForAll(expression)) {
-			result = ForAll.getBody(expression);
-		}
+		result = ForAll.getBody(expression);
 		
 		return result;
 	}

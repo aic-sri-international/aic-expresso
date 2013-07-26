@@ -241,6 +241,12 @@ public class CallRewriterDecisionTree {
 		}
 		// Second: Walk thru all A_V pairs adding relevant and writers to each pair.
 		for (RewriterTest a_v : A_V.keySet()) {
+			List<RewriterWithReifiedTests> rewriterListA_O = A_O.get(a_v.getAttribute());					
+			if (rewriterListA_O == null) {
+				rewriterListA_O = new ArrayList<RewriterWithReifiedTests>();
+				A_O.put(a_v.getAttribute(), rewriterListA_O);
+			}
+			
 			List<RewriterWithReifiedTests> rewriterListA_V = A_V.get(a_v);
 			for (RewriterWithReifiedTests rwrts : rewritersWithReifiedTests) {
 				// removing ( ( (A_i,j, V_i,j) )_j, R_i) from ( ( (A_i,j, V_i,j) )_j, R_i)_i 
@@ -271,12 +277,6 @@ public class CallRewriterDecisionTree {
 				// Handle the otherwise case (i.e. for rewriters that do not have the attribute
 				// in their list of reified tests).
 				if (!rewriterHasAttribute) {
-					List<RewriterWithReifiedTests> rewriterListA_O = A_O.get(a_v.getAttribute());					
-					if (rewriterListA_O == null) {
-						rewriterListA_O = new ArrayList<RewriterWithReifiedTests>();
-						A_O.put(a_v.getAttribute(), rewriterListA_O);
-					}
-					
 					// Only have to add the first time we see the rewriter for this attribute
 					boolean alreadyHasRewriter = false;
 					for (RewriterWithReifiedTests orwrts : rewriterListA_O) {
