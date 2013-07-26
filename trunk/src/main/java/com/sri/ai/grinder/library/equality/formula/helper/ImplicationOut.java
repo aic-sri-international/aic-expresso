@@ -44,6 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.Not;
@@ -57,6 +58,10 @@ import com.sri.ai.grinder.library.boole.Or;
  */
 @Beta
 public class ImplicationOut extends AbstractRewriter {
+	
+	public ImplicationOut() {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.IMPLICATION));
+	}
 	
 	public static Expression implicationsOut(Expression formula, RewritingProcess process) {
 		TotalRewriter cnfRewriter = new TotalRewriter(ImplicationOut.class.getName()+ " implicationsOut Total Rewriter",
@@ -72,10 +77,8 @@ public class ImplicationOut extends AbstractRewriter {
 			RewritingProcess process) {
 		Expression result = expression;
 		
-		if (expression.hasFunctor(FunctorConstants.IMPLICATION)) {
-			// F1 => F2  -> not(F1) or F2
-			result = Or.make(Not.make(expression.get(0)), expression.get(1));
-		}
+		// F1 => F2  -> not(F1) or F2
+		result = Or.make(Not.make(expression.get(0)), expression.get(1));
 		
 		return result;
 	}
