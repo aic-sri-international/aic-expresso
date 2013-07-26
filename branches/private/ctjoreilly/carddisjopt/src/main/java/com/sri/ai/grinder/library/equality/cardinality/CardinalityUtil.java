@@ -1019,7 +1019,7 @@ public class CardinalityUtil {
 //			}
 //		}
 //		
-//		Map<Expression, Integer> literalCounts = new HashMap<Expression, Integer>();
+//		Map<Expression, Integer> literalCounts = new LinkedHashMap<Expression, Integer>();
 //		SubExpressionsDepthFirstIterator subei = new SubExpressionsDepthFirstIterator(formula);
 //		while (subei.hasNext()) {
 //			Expression e = subei.next();
