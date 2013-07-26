@@ -68,9 +68,10 @@ public class IncompleteLinearImpliedCertainty extends AbstractRewriter {
 	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression result = expression;
-		
-		if (FormulaUtil.isFormula(expression, process) || process.isVariable(expression)) {
+		Expression result  = expression;
+		boolean isFormula  = FormulaUtil.isFormula(expression, process);
+		boolean isVariable = process.isVariable(expression); 
+		if (isFormula || isVariable) {
 			// These conditions are tested again later. They are tested here to avoid unnecessary computation of implied facts.
 			
 			// deal with trivial implications from context
@@ -79,7 +80,7 @@ public class IncompleteLinearImpliedCertainty extends AbstractRewriter {
 			for (Expression impliedFactByContext : impliedFactsByContext) {
 				if (!impliedFactByContext.equals(Expressions.FALSE)) {
 					
-					if (FormulaUtil.isFormula(expression, process)) {
+					if (isFormula) {
 						if (IncompleteLinearImplies.implies(impliedFactByContext, expression, process)) {
 							result = Expressions.TRUE;
 							if (result.equals(expression)) {
@@ -99,7 +100,7 @@ public class IncompleteLinearImpliedCertainty extends AbstractRewriter {
 					}
 
 					if (replaceVariableByConstantItIsBoundTo) {
-						if (process.isVariable(expression) && Equality.isEquality(impliedFactByContext) && impliedFactByContext.getArguments().contains(expression)) {
+						if (isVariable && Equality.isEquality(impliedFactByContext) && impliedFactByContext.getArguments().contains(expression)) {
 							Pair<List<Expression>, Expression> variablesListAndConstant = Equality.getVariablesListAndConstantOrNullIfNoConstant(impliedFactByContext, process);
 							if (variablesListAndConstant != null && variablesListAndConstant.first.contains(expression)) {
 								result = variablesListAndConstant.second;

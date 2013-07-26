@@ -45,12 +45,12 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasFormula;
 import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
-import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 
 /**
  * Rewriter simplifying one conjunct by using the fact that the others must be true.
@@ -67,7 +67,7 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 public class ConjunctsHoldTrueForEachOther extends AbstractRewriter {
 	
 	public ConjunctsHoldTrueForEachOther() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.AND));
+		this.setReifiedTests(new HasFunctor(FunctorConstants.AND), new HasFormula());
 	}
 	
 	@Override
@@ -76,24 +76,21 @@ public class ConjunctsHoldTrueForEachOther extends AbstractRewriter {
 			for (int i = 0; i != expression.numberOfArguments(); i++) {
 				Expression iThConjunct = expression.get(i);
 				Expression remainingOfConjunction = Expressions.removeIthArgument(expression, i);
-				// Note: Only attempt this if the remaining conjunction can actually be used to
-				// extend the context (i.e. is a formula).
-				if (FormulaUtil.isFormula(remainingOfConjunction, process)) {
-					RewritingProcess processAssumingRemainingOfConjunction = GrinderUtil.extendContextualConstraint(remainingOfConjunction, process);
-					Expression newIThConjunct = processAssumingRemainingOfConjunction.rewrite(CardinalityRewriter.R_simplify, iThConjunct);
-					if (newIThConjunct != iThConjunct) {
-						Expression result;
-						// Short circuit to 'false' straight away.
-						if (newIThConjunct.equals(Expressions.FALSE)) {
-							result = Expressions.FALSE;
-						}
-						else {
-							List<Expression> newConjuncts = new ArrayList<Expression>(expression.getArguments());
-							newConjuncts.set(i, newIThConjunct);
-							result = And.make(newConjuncts);
-						}
-						return result;
+
+				RewritingProcess processAssumingRemainingOfConjunction = GrinderUtil.extendContextualConstraint(remainingOfConjunction, process);
+				Expression newIThConjunct = processAssumingRemainingOfConjunction.rewrite(CardinalityRewriter.R_simplify, iThConjunct);
+				if (newIThConjunct != iThConjunct) {
+					Expression result;
+					// Short circuit to 'false' straight away.
+					if (newIThConjunct.equals(Expressions.FALSE)) {
+						result = Expressions.FALSE;
 					}
+					else {
+						List<Expression> newConjuncts = new ArrayList<Expression>(expression.getArguments());
+						newConjuncts.set(i, newIThConjunct);
+						result = And.make(newConjuncts);
+					}
+					return result;
 				}
 			}
 		}
