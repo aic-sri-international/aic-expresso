@@ -54,7 +54,8 @@ import com.sri.ai.grinder.library.equality.formula.helper.DistributeAndOverAnd;
 import com.sri.ai.grinder.library.equality.formula.helper.DistributeAndOverOr;
 import com.sri.ai.grinder.library.equality.formula.helper.DistributeOrOverOr;
 import com.sri.ai.grinder.library.equality.formula.helper.NormalizeAnd;
-import com.sri.ai.grinder.library.equality.formula.helper.NormalizeLiteral;
+import com.sri.ai.grinder.library.equality.formula.helper.NormalizeDisequalityLiteral;
+import com.sri.ai.grinder.library.equality.formula.helper.NormalizeEqualityLiteral;
 import com.sri.ai.grinder.library.equality.formula.helper.NormalizeOr;
 
 /**
@@ -119,7 +120,8 @@ public class FormulaToDNF {
 				// to work with.
 				new NormalizeOr(),
 				new NormalizeAnd(),
-				new NormalizeLiteral(),
+				new NormalizeEqualityLiteral(),
+				new NormalizeDisequalityLiteral(),
 				// INSEAD)O
 				new DistributeAndOverOr(),
 				new DistributeAndOverAnd(),
