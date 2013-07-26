@@ -66,8 +66,8 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewrite
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter.Quantification;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.SortPair;
-import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
+import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
@@ -997,6 +997,7 @@ public class CardinalityUtil {
 	}
 	
 	public static Expression pickCheapestLiteral(Expression formula) {
+// TODO - remove: Original Trivial Implementation.		
 		Expression result = null;
 		
 		if (Equality.isEquality(formula) ||  Disequality.isDisequality(formula)) {
@@ -1005,6 +1006,55 @@ public class CardinalityUtil {
 		else {
 			result = pickCheapestLiteral(formula.get(0));
 		}
+	
+// Experimental Version:
+//		Expression result = null;
+//		
+//		Set<Expression> excludeLiterals = new HashSet<Expression>();
+//		if (And.isConjunction(formula)) {
+//			for (Expression conjunct: And.getConjuncts(formula)) {
+//				if (Equality.isEquality(conjunct) ||  Disequality.isDisequality(conjunct)) {
+//					excludeLiterals.add(conjunct);
+//				}
+//			}
+//		}
+//		
+//		Map<Expression, Integer> literalCounts = new HashMap<Expression, Integer>();
+//		SubExpressionsDepthFirstIterator subei = new SubExpressionsDepthFirstIterator(formula);
+//		while (subei.hasNext()) {
+//			Expression e = subei.next();
+//			if (Equality.isEquality(e) || Disequality.isDisequality(e)) {
+//				Integer count = literalCounts.get(e);
+//				if (count == null) {
+//					count = 0;
+//				}
+//				count = count+1;
+//				literalCounts.put(e, count);
+//			}
+//		}
+//		
+//		Map.Entry<Expression, Integer> cheapestCount = null;
+//		for (Map.Entry<Expression, Integer> entry : literalCounts.entrySet()) {
+//			if (excludeLiterals.contains(entry.getKey())) {
+//				continue;
+//			}
+//			if (cheapestCount == null) {
+//				cheapestCount = entry;
+//			}
+//			else {
+//				if (entry.getValue() < cheapestCount.getValue()) {
+//					cheapestCount = entry;
+//				}
+//			}
+//		}
+//		
+//		if (cheapestCount != null) {
+//			result = cheapestCount.getKey();
+//		}
+//		else {
+//			// i.e. already in the top level conjunct.
+//			result = Expressions.TRUE;
+//		}
 		
 		return result;
 	}
