@@ -53,6 +53,7 @@ import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.ExhaustiveRewriter;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
@@ -4207,6 +4208,56 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X1, Y1, X2, Y2, Y3) tuple(X1, Y1, X2, Y2, Y3) | for all X1 : for all X2 : for all Y1 : for all Y2 : for all Y3 : X1 != a1 or Y1 != b1 or X2 != a2 or Y2 != b2 or Y3 != b3} |",
 					new CountsDeclaration(10),
 					"0"),
+		};
+		
+		perform(tests);
+	}
+	
+	@Test
+	public void testCardinalityPerformance() {
+		class CardinalityPerformanceData extends TestData {
+			private String C;
+			private String E;
+			private Expression exprC;
+			private Expression exprE;
+			private CountsDeclaration countsDeclaration = null;
+			
+			public CardinalityPerformanceData(String C, String E, CountsDeclaration countsDeclaration, String expected) {
+				super(false, expected);
+				this.C = C;
+				this.E = E;
+				this.countsDeclaration = countsDeclaration;
+				this.countsDeclaration.setParser(parser);
+			}
+			
+			@Override
+			public Expression getTopExpression() {
+				this.exprC = parse(C);
+				this.exprE = parse(E);
+				
+				return exprE;
+			}
+			
+			@Override
+			public Expression callRewrite(RewritingProcess process) {
+
+				countsDeclaration.setup(process);
+				
+				RewritingProcess cardProcess    = DirectCardinalityComputationFactory.newCardinalityProcess(exprE, process);
+				RewritingProcess extCardProcess = GrinderUtil.extendContextualConstraint(exprC, cardProcess);
+				
+				 Expression result = extCardProcess.rewrite(CardinalityRewriter.R_card, exprE);
+				
+				return result;
+			}
+			
+		}
+		
+		TestData[] tests = new TestData[] {
+			new CardinalityPerformanceData("Y != ann and Y != bob and Y' != Y and not (Y' = bob)",
+					"| { ( on Y'', X ) ( Y'', X ) | (((((Y'' != X and (Y' = X or Y' = Y'') and (X != Y or Y'' != Y')) and not (Y' != ann and (X != ann or Y'' != Y'))) and not (X = ann and Y' = Y'' and Y' != ann)) and ((X != bob or Y'' != Y') and (Y' = ann or X = ann and Y'' = Y') and (Y' = ann or X != ann or Y'' != Y'))) and X = Y') and Y'' = bob } |",
+					new CountsDeclaration(10),
+					"if Y' != ann then 0 else 1")	
 		};
 		
 		perform(tests);
