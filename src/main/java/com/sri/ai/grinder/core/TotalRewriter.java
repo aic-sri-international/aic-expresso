@@ -188,18 +188,6 @@ public class TotalRewriter extends AbstractRewriter {
 					rewriter = rewriterWrote.first;
 					result   = rewriterWrote.second;
 					
-// TODO - this is a HACK! to re-simulate old behavior
-// which was to recall a rewriter that rewrote until
-// it no longer simplified the expression.
-					if (result != priorResult) {
-						Expression hackPriorResult = result;
-						do {
-							hackPriorResult = result;
-							result = rewriter.rewrite(hackPriorResult, process);
-						} while (result != hackPriorResult);
-					}
-// TODO - End HACK!!!
-					
 					if (traceEnabled) {
 						Trace.setTraceLevel(Trace.getTraceLevel()-1);
 					}
