@@ -78,7 +78,7 @@ public class GrinderUtil {
 	 * Takes an expression and, if it is an if then else, rearranges it so that
 	 * conditions on logical variables are separated from other tests and on top
 	 * if then else's. This assumes that only logical variables are arguments to
-	 * equalities and disequalities, an assumption that will have to be reviews
+	 * equalities and disequalities, an assumption that will have to be reviewed
 	 * later.
 	 * 
 	 * @param expressions
@@ -88,6 +88,12 @@ public class GrinderUtil {
 	 * @return a rewritten expression if expression was a conditional on logical
 	 *         variables that needed to be separated out, otherwise expression
 	 *         unchanged is returned.
+	 *         More specifically, if the input expression is of the form
+	 *         if LV and Rest then Alpha else Beta,
+	 *         where "LV and Rest" is a possible decomposition of the condition into
+	 *         a logical variable equalities formula and a remainder,
+	 *         it returns
+	 *         if LV then if Rest then Alpha else Beta else Beta  
 	 */
 	public static Expression makeSureConditionsOnLogicalVariablesAreSeparatedAndOnTop(
 			Expression expression, RewritingProcess process) {
@@ -95,7 +101,7 @@ public class GrinderUtil {
 			Expression condition = IfThenElse.getCondition(expression);
 			Pair<Expression, Expression> constraintsAndRest = Expressions
 					.separateEqualityFormulasOnAtomicSymbolsFromRest(condition, process);
-			// If either of these are true then I don't need to make a change.
+			// If either of these are the expression "true" then I don't need to make a change.
 			if (!Expressions.TRUE.equals(constraintsAndRest.first)
 					&& !Expressions.TRUE.equals(constraintsAndRest.second)) {
 				Expression thenBranch = makeSureConditionsOnLogicalVariablesAreSeparatedAndOnTop(

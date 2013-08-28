@@ -47,6 +47,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
+import com.sri.ai.expresso.helper.ReplaceByIfEqualToAndUnderSameContext;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.Rewriter;
@@ -144,13 +145,19 @@ public class TotalRewriter extends AbstractRewriter {
 		final Expression[] currentTopExpression = new Expression[1];
 		// Note: make the rewriter function local so that it can be multi-threaded correctly with respect 
 		// to tracking the topExpression for trace output. This is where the guts of the logic occurs.
+		final Expression[] currentTopExpressionForDebugging = new Expression[1];
+		final RewritingProcess initialProcess = process;
 		final boolean       traceEnabled         = Trace.isEnabled() && isOuterTraceEnabled();
 		final boolean       justificationEnabled = Justification.isEnabled();
+		if (traceEnabled) {
+			Trace.log("Top of TotalRewriter on : {}", topExpression);
+			Trace.log("Top of TotalRewriter's context constraint at top of TotalRewriter: {}", process.getContextualConstraint());
+		}
 		final AtomicInteger numberOfSelections   = new AtomicInteger(0);
 		ReplacementFunctionWithContextuallyUpdatedProcess rewriteFunction = new ReplacementFunctionWithContextuallyUpdatedProcess() {
 			@Override
 			public Expression apply(Expression expression) {
-				throw new UnsupportedOperationException("apply(Expression expression) should not be called.");
+				throw new UnsupportedOperationException("TotalRewriter.anonymous ReplacementFunctionWithContextuallyUpdatedProcess.apply(Expression expression) should not be called.");
 			}
 			
 			@Override
@@ -159,6 +166,10 @@ public class TotalRewriter extends AbstractRewriter {
 				Expression priorResult = expression;
 				Rewriter   rewriter    = null;
 			
+				if (traceEnabled) {
+					Trace.in("Replacement function on {}", expression);
+				}
+
 //				Expression cached = getFinalEquivalent(expression, process);
 //				if (cached != null) {
 //					return cached;
@@ -205,6 +216,8 @@ public class TotalRewriter extends AbstractRewriter {
 							if (isWholeExpressionRewrite) {
 								Trace.log("Rewriting whole expression:");
 								Trace.log("{}", priorResult);
+								currentTopExpression[0] = result;
+								currentTopExpressionForDebugging[0] = result;
 							} 
 							else {
 								Trace.log("Rewriting sub-expression:");
@@ -212,6 +225,19 @@ public class TotalRewriter extends AbstractRewriter {
 							}
 							Trace.log("   ----> ("+rewriter.getName()+",  "+relativeTime+" ms, #"+(++rewritingCount)+", "+numberOfSelections+" rewriter selections ("+totalNumberOfSelections+" since start))");
 							Trace.log("{}", result);
+//							if ( ! isWholeExpressionRewrite) {
+//								Expression previousTopExpressionForDebugging = currentTopExpressionForDebugging[0];
+//								currentTopExpressionForDebugging[0] = 
+//										currentTopExpressionForDebugging[0].replace(new ReplaceByIfEqualToAndUnderSameContext(result, priorResult, process), null, null, null, true, true, null, initialProcess);
+//								if (currentTopExpressionForDebugging[0] == previousTopExpressionForDebugging) {
+//									Trace.log("ALERT!!! Rewritten expression not found on currentTopExpressionForDebugging");
+//									Trace.log("Expression : {}", priorResult);
+//									Trace.log("Replacement: {}", result);
+//									Trace.log("Contextual constraint: {}", process.getContextualConstraint());
+//								}
+//								Trace.log("Making whole expression:");
+//								Trace.log("{}", currentTopExpressionForDebugging[0]);
+//							}
 						}
 					
 						if (justificationEnabled) {
@@ -231,6 +257,15 @@ public class TotalRewriter extends AbstractRewriter {
 //					System.out.println("context     : " + process.getContextualConstraint());
 //				}
 				
+				if (traceEnabled) {
+					if (result != expression) {
+						Trace.out("Finishing replacement function on {} with result {}", expression, result);
+					}
+					else {
+						Trace.out("Finishing replacement function on {}", expression);
+					}
+				}
+
 				return result;
 			}
 		};
@@ -239,6 +274,7 @@ public class TotalRewriter extends AbstractRewriter {
 		while (current != previous) {
 			previous = current;
 			currentTopExpression[0] = current;
+			currentTopExpressionForDebugging[0] = current;
 			current  = previous.replaceAllOccurrences(rewriteFunction, deadEndPruner, deadEndListener, process);
 		}
 		
