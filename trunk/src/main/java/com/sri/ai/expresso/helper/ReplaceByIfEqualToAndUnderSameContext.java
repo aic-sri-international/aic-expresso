@@ -18,7 +18,7 @@
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
  * 
- * Neither the name of the aic-expresso nor the names of its
+ * Neither the name of the aic-util nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
  * 
@@ -35,68 +35,48 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.number;
+package com.sri.ai.expresso.helper;
+
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
-import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
-import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
-import com.sri.ai.grinder.core.HasNumberOfArguments;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.util.Util;
-import com.sri.ai.util.math.Rational;
 
 /**
- * Implements a rewriter for the division operation.
+ * A {@link ReplacementFunctionWithContextuallyUpdatedProcess}
+ * that replaces only expressions equal to 'replaced' one occurring under
+ * the exact same contextual constraints and variables.
  * 
  * @author braz
- *
  */
 @Beta
-public class Division extends AbstractRewriter {
+public class ReplaceByIfEqualToAndUnderSameContext implements ReplacementFunctionWithContextuallyUpdatedProcess {
+
+	private Expression replaced;
+	private Expression replacement;
+	private Expression contextualConstraint;
+	private Set<Expression> contextualVariables;
 	
-	public Division() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.DIVISION),
-						     new HasNumberOfArguments(2));
+	public ReplaceByIfEqualToAndUnderSameContext(Expression replacement, Expression replaced, RewritingProcess process) {
+		this.replaced    = replaced;
+		this.replacement = replacement;
+		this.contextualConstraint = process.getContextualConstraint();
+		this.contextualVariables = process.getContextualVariables();
+	}
+
+	public Expression apply(Expression obj) {
+		throw new UnsupportedOperationException("ReplaceByIfIdenticalAndUnderSameContext.apply(Expression expression) should not be invoked.");
 	}
 
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (expression.get(0).equals(expression.get(1))) { // if numerator and denominator are equal, result is 1.
-			return Expressions.ONE;
+	public Expression apply(Expression expression, RewritingProcess process) {
+		if (expression.equals(replaced) &&
+				contextualConstraint.equals(process.getContextualConstraint()) && 
+				contextualVariables.equals(process.getContextualVariables())) {
+			return replacement;
 		}
-
-		if (expression.get(0).equals(0)) { // if numerator is 0, fraction is 0.
-			return Expressions.ZERO;
-		}
-
-		if (expression.get(1).equals(1)) { // if denominator is 1, fraction is numerator.
-			return expression.get(0);
-		}
-
-		if (ExpressionIsSymbolOfType.apply(expression.get(0), Number.class) &&
-				ExpressionIsSymbolOfType.apply(expression.get(1), Number.class)) {
-
-			Rational numerator   = expression.get(0).rationalValue();
-			Rational denominator = expression.get(1).rationalValue();
-
-			Rational quotient = Util.divisionWithArbitraryPrecisionIfPossible(numerator, denominator);
-			if (quotient != null) {
-				return DefaultSymbol.createSymbol(quotient);
-			}
-		}
-
 		return expression;
-	}
-		
-	public static Expression make(Expression numerator, Expression denominator) {
-		if (numerator.equals(denominator)) {
-			return Expressions.ONE;
-		}
-		return Expressions.apply("/", numerator, denominator);
 	}
 }
