@@ -127,7 +127,7 @@ public interface RewritingProcess {
 	 *         expression if no rewriting occurred.
 	 */
 	Expression rewrite(String rewriterName, Expression expression, ChildRewriterCallIntercepter childCallIntercepter);
-
+	
 	/**
 	 * @return the set of logical variables that should be considered free in
 	 *         this specific context.

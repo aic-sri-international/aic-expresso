@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
-import com.sri.ai.expresso.helper.ReplaceByIfEqualToAndUnderSameContext;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.Rewriter;
@@ -112,6 +112,14 @@ public class TotalRewriter extends AbstractRewriter {
 		}
 		
 		callRewriterDecisionTree = new CallRewriterDecisionTree(activeRewriters);
+	}
+	
+	public TotalRewriter(String name, Rewriter... rewriters) {
+		this(name, Arrays.asList(rewriters));
+	}
+	
+	public TotalRewriter(Rewriter... rewriters) {
+		this("Nameless TotalRewriter", Arrays.asList(rewriters));
 	}
 	
 	public boolean isOuterTraceEnabled() {

@@ -177,14 +177,17 @@ public class FormulaUtilTest extends AbstractGrinderTest {
 		Assert.assertTrue(FormulaUtil.isFormula(parse("for all X : X = 1"), process));
 		Assert.assertTrue(FormulaUtil.isFormula(parse("for all X : for all Y : X = 1 and Y = b"), process));
 		//
-		// conditional expressions irrespective of their sub-expressions are not formulas.
-		Assert.assertFalse(FormulaUtil.isFormula(parse("if X = a then false else true"), process));
-		Assert.assertFalse(FormulaUtil.isFormula(parse("if X = a then Y = b else Z = c"), process));
+		// conditional expressions used to not be formulas, irrespective of their sub-expressions, but are now supported.
+		Assert.assertTrue(FormulaUtil.isFormula(parse("if X = a then false else true"), process));
+		Assert.assertTrue(FormulaUtil.isFormula(parse("if X = a then Y = b else Z = c"), process));
 		//
-		Assert.assertFalse(FormulaUtil.isFormula(parse("if X = 1 then false else true"), process));
-		Assert.assertFalse(FormulaUtil.isFormula(parse("if X = 1 then Y = b else Z = c"), process));
+		Assert.assertTrue(FormulaUtil.isFormula(parse("if X = 1 then false else true"), process));
+		Assert.assertTrue(FormulaUtil.isFormula(parse("if X = 1 then Y = b else Z = c"), process));
+		Assert.assertTrue(FormulaUtil.isFormula(parse("if X = a then Y = b else Z = 1"), process));
+		//
+		// conditional expressions with leaves that are not formulas are not formulas themselves
 		Assert.assertFalse(FormulaUtil.isFormula(parse("if X = a then 1 else true"), process));
-		Assert.assertFalse(FormulaUtil.isFormula(parse("if X = a then Y = b else Z = 1"), process));
+		Assert.assertFalse(FormulaUtil.isFormula(parse("if X = a then 1 else 2"), process));
 	}
 	
 	@Test

@@ -44,6 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.TotalRewriter;
+import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.formula.helper.EquivalenceOut;
 import com.sri.ai.grinder.library.equality.formula.helper.ExistentialOut;
 import com.sri.ai.grinder.library.equality.formula.helper.ImplicationOut;
@@ -91,10 +92,13 @@ public class FormulaToNNF {
 					"Expression to be converted is not a formula: " + formula);
 		}
 		
+		// Transform 'if C then F1 else F2' expressions into 'C and F1 or not C and F2' 
+		result = CardinalityUtil.removeIfThenElsesFromFormula(formula, process);
+		
 		// Ensure equalities of the form:
 		// X = ... = Z
 		// are normalized up front.
-		result = NormalizeLiteral.normalizeLiterals(formula, process);
+		result = NormalizeLiteral.normalizeLiterals(result, process);
 		
 		// I)NSEA - implications out
 		result = ImplicationOut.implicationsOut(result, process);

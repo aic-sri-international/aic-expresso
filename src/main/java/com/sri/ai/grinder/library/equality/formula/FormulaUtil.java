@@ -56,6 +56,7 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.Util;
 
 /**
@@ -127,6 +128,14 @@ public class FormulaUtil {
 		// if phi is a formula, then 'for all x phi' is a formula
 		else if (expression.hasFunctor(FunctorConstants.FOR_ALL)) {
 			result = isFormula(ForAll.getBody(expression), process);
+		}
+		// if phi1, phi2 and phi3 are formulas, then 'if ph1 then ph2 else ph3' is a formula
+		else if (IfThenElse.isIfThenElse(expression)) {
+			result = isFormula(IfThenElse.getCondition(expression), process)
+					&&
+					isFormula(IfThenElse.getThenBranch(expression), process)
+					&&
+					isFormula(IfThenElse.getElseBranch(expression), process);
 		}
 		
 		return result;

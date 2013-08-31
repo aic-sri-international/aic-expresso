@@ -1395,11 +1395,11 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					new CountsDeclaration(10),
 					"X = 0"),
 			//
-			// Illegal Arguments Test
-			new QEData(true,
+			// Formerly Illegal Arguments Test, now valid with support of if then else in formulas
+			new QEData(false,
 					"if X = a then true else false",
 					new CountsDeclaration(10),
-					"N/A"),					
+					"X = a"),					
 		};
 		
 		perform(tests);
@@ -1630,23 +1630,23 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					new CountsDeclaration(10),
 					"true"),
 			//
-			// Illegal Argument Tests
-			new TautologyData(true,
+			// Formerly Illegal Arguments Test, now valid with support of if then else in formulas
+			new TautologyData(false,
 					"if a = a then true else false",
 					new CountsDeclaration(10),
-					"N/A"),
-			new TautologyData(true,
+					"true"),
+			new TautologyData(false,
 					"if a != a then true else false",
 					new CountsDeclaration(10),
-					"N/A"),
-			new TautologyData(true,
+					"false"),
+			new TautologyData(false,
 					"if X = X then true else false",
 					new CountsDeclaration(10),
-					"N/A"),	
-			new TautologyData(true,
+					"true"),	
+			new TautologyData(false,
 					"if X != X then true else false",
 					new CountsDeclaration(10),
-					"N/A"),
+					"false"),
 		};
 		
 		perform(tests);
@@ -1687,7 +1687,11 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 		
 		TestData[] tests = new TestData[] {
 			//
-			// Basic: if F has no free variables, is a contradiction
+			// Basic: cases in which F has no free variables and is false, and therefore is a contradiction
+			new ContradictionData(false,
+					"false",
+					new CountsDeclaration(10),
+					"true"),
 			new ContradictionData(false,
 					"false",
 					new CountsDeclaration(10),
@@ -1733,7 +1737,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					new CountsDeclaration("X", "10"),
 					"true"),	
 			//
-			// Basic: if F has no free variables, is not a contradiction
+			// Basic: cases in which F has no free variables and is true, and therefore is *not* a contradiction
 			new ContradictionData(false,
 					"true",
 					new CountsDeclaration(10),
@@ -1877,23 +1881,23 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					new CountsDeclaration(10),
 					"false"),
 			//
-			// Illegal Argument Tests
-			new ContradictionData(true,
+			// Formerly Illegal Arguments Test, now valid with support of if then else in formulas
+			new ContradictionData(false,
 					"if a != a then true else false",
 					new CountsDeclaration(10),
-					"N/A"),
-			new ContradictionData(true,
+					"true"), // result is negated because we are testing whether it is a contradiction
+			new ContradictionData(false,
 					"if a = a then true else false",
 					new CountsDeclaration(10),
-					"N/A"),
-			new ContradictionData(true,
+					"false"), // result is negated because we are testing whether it is a contradiction
+			new ContradictionData(false,
 					"if X != X then true else false",
 					new CountsDeclaration(10),
-					"N/A"),
-			new ContradictionData(true,
+					"true"), // result is negated because we are testing whether it is a contradiction
+			new ContradictionData(false,
 					"if X = X then true else false",
 					new CountsDeclaration(10),
-					"N/A"),
+					"false"), // result is negated because we are testing whether it is a contradiction
 		};
 		
 		perform(tests);

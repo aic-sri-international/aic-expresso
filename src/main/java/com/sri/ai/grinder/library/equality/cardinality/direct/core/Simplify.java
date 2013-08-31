@@ -95,7 +95,7 @@ import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithBoundIndex;
 import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNotUsedInHead;
 
 /**
- * Default implementation of  R_simplify(E).
+ * Default implementation of R_simplify(E).
  * 
  * @author oreilly
  *
@@ -180,7 +180,8 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 						new Associative("*"),
 						new Associative("and"),
 						
-						new FromConditionalFormulaToFormula(),
+						//new FromConditionalFormulaToFormula(), // commented out because it potentially expands expression
+						new FromConditionalFormulaWithConstantBooleanBranchToFormula(),
 						// new, cheap simplifiers to be used instead of full ImpliedCertainty
 						new IncompleteLinearImpliedCertainty(),
 						new TrivialForAllCases(),
@@ -194,6 +195,7 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 						// e.g.:
 						// there exists X : a = X             -> true
 						// there exists X: (X = a) => (X = b) -> true
+						// there exists X: X != a and X = Y   -> Y != a
 						new QuantifierEliminationWrapper(FunctorConstants.FOR_ALL),
 						new QuantifierEliminationWrapper(FunctorConstants.THERE_EXISTS),
 						new QuantifierEliminationWrapper(FunctorConstants.NOT),

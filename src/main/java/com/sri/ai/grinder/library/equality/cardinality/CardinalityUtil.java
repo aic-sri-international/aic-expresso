@@ -49,7 +49,9 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.BooleanUtil;
@@ -59,6 +61,7 @@ import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter.Quantification;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.FromConditionalFormulaToFormula;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.library.set.Sets;
@@ -985,5 +988,20 @@ public class CardinalityUtil {
 		}
 			
 		return result;
+	}
+
+	private static Rewriter ifThenElseRemover;
+	/**
+	 * Removes if then elses from a formula.
+	 * @param expression a formula
+	 * @param process
+	 * @return an equivalent formula without if then elses.
+	 */
+	public static Expression removeIfThenElsesFromFormula(Expression expression, RewritingProcess process) {
+		if (CardinalityUtil.ifThenElseRemover == null) {
+			CardinalityUtil.ifThenElseRemover = new TotalRewriter(new FromConditionalFormulaToFormula());
+		}
+		expression = CardinalityUtil.ifThenElseRemover.rewrite(expression, process);
+		return expression;
 	}
 } 
