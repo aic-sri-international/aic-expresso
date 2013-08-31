@@ -85,10 +85,13 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 			Expression cardinalityOfIndexedFormulaExpression  = Tuple.get(expression, 0);
 			Expression quantificationSymbol                   = Tuple.get(expression, 1);
 			CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
+			cardinalityOfIndexedFormulaExpression = CardinalityUtil.removeIfThenElsesFromFormula(cardinalityOfIndexedFormulaExpression, process);
 			result = rewrite(cardinalityOfIndexedFormulaExpression, quantification, process);
 		} 
 		else {
 		
+			expression = CardinalityUtil.removeIfThenElsesFromFormula(expression, process);
+
 			// Assert input arguments, | F |_x
 			// 
 			CardinalityUtil.assertIsCardinalityOfIndexedFormulaExpression(expression);
@@ -138,7 +141,7 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 		}
 		return result;
 	}
-	
+
 	protected boolean negationHasLessNumberOfDisjuncts(Expression formula) {
 		boolean result = false;
 		int fWorstCaseNumberOfDisjuncts, notFWorstCaseNumberOfDisjuncts;
@@ -234,6 +237,21 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 						CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(
 								cardQuantifierEliminatedIndexedByX, quantification));
 		}
+// Including if then else in case lists is the cleaner approach, but will take some work;
+// Right now we are taking the easier approach to convert them all upfront to disjunctions.
+//		else if (IfThenElse.isIfThenElse(f)) {
+//			Trace.log("if F is 'if C then F1 else F2'");
+//			Trace.log("    return R_card( | C and F1 or not C and F2 |_X, quantification)");
+//			Expression c  = IfThenElse.getCondition(f);
+//			Expression f1 = IfThenElse.getThenBranch(f);
+//			Expression f2 = IfThenElse.getElseBranch(f);
+//			Expression formulaWithoutIfThenElse = Or.make(And.make(c, f1), And.make(Not.make(c), f2));
+//			Expression cardOfFormulaWithoutIfThenElseIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(formulaWithoutIfThenElse, indicesAsArray);
+//			
+//			result = process.rewrite(R_card,
+//						CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(
+//								cardOfFormulaWithoutIfThenElseIndexedByX, quantification));
+//		}
 		else {
 			throw new IllegalArgumentException("F is unhandled:"+f);
 		}

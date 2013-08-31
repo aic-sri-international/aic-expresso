@@ -82,6 +82,8 @@ public class QuantifierElimination extends AbstractHierarchicalRewriter implemen
 			throw new IllegalArgumentException("F is not a formula:"+expressionF);
 		}
 				
+		expressionF = CardinalityUtil.removeIfThenElsesFromFormula(expressionF, process);
+
 		if (expressionF.hasFunctor(FunctorConstants.FOR_ALL)) {
 			Trace.log("if F is \"for all x: Y\"");
 			Trace.log("    return R_simplify(R_card(|R_top_simplify(Y)|_x, \"for all\") = |type(x)| )");
@@ -119,7 +121,7 @@ public class QuantifierElimination extends AbstractHierarchicalRewriter implemen
 			Trace.log("    return R_quantifier_elimination(R_move_not_in(not G))");
 			
 			Expression movedNotIn = process.rewrite(R_move_not_in, expressionF);
-			
+
 			result = process.rewrite(R_quantifier_elimination, movedNotIn);
 		} 
 		else if (expressionF.hasFunctor(FunctorConstants.IMPLICATION) &&
