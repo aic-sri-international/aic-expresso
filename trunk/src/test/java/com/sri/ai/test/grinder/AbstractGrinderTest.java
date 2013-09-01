@@ -249,28 +249,19 @@ abstract public class AbstractGrinderTest {
 				long rewroteIn = System.currentTimeMillis()-startTime;
 				totalRewriteTime += rewroteIn;
 				System.out.println("tests["+ i +" rewrote in "+(rewroteIn)+"ms]:"+topExpression + "\n--->\n" + actual);
-				boolean succeded = areEqual(actual, expectedExpressions);
+				boolean succeded = tests[i].expected.equals(IGNORE_EXPECTED) || areEqual(actual, expectedExpressions);
 				
-				if (GrinderConfiguration.isWaitUntilUIClosedEnabled()) {					
-					if ( !succeded ) {
-						assertFailed = "ERROR tests[i]=" + i + ", " + topExpression 
-								+ "\nexpected=" + tests[i].expected
-								+ "\n but was=" + actual;
+				if ( !succeded ) {
+					assertFailed = "ERROR tests[i]=" + i + ", " + topExpression 
+							+ "\nexpected=" + tests[i].expected
+							+ "\n but was=" + actual;
+					if (GrinderConfiguration.isWaitUntilUIClosedEnabled()) {					
 						System.err.println(assertFailed);
-						break;
 					}
-					
-				}
-				else {
-					if (!tests[i].expected.equals(IGNORE_EXPECTED)) {
-						if ( !succeded ) {
-							assertFailed = "tests[i]=" + i + ", " + topExpression
-									+ "expected:<" + tests[i].expected
-									+ "> but was:<" + actual + ">";
-							Assert.fail(assertFailed);
-							break;
-						}
+					else {
+						Assert.fail(assertFailed);
 					}
+					break;
 				}
 			}
 			run++;
