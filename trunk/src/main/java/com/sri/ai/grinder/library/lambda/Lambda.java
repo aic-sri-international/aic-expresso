@@ -46,7 +46,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.Substitute;
+import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.grinder.library.boole.QuantifierSubExpressionAndScopedVariableProvider;
 
 /**
@@ -112,7 +112,7 @@ public class Lambda extends QuantifierSubExpressionAndScopedVariableProvider {
 				Expression parameter2 = parameter2Iterator.next();
 				if ( ! parameter1.equals(parameter2)) {
 					if (parameter1 instanceof Symbol && parameter2 instanceof Symbol) {
-						body2 = Substitute.replace(body2, parameter2, parameter1, process);
+						body2 = SemanticSubstitute.replace(body2, parameter2, parameter1, process);
 //						body2 = Substitute.replaceWithoutTryingToUnify(body2, parameter2, parameter1, process);
 					}
 					else {

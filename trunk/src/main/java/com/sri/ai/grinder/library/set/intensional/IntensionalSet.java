@@ -61,7 +61,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewriterTest;
 import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.library.ScopedVariables;
-import com.sri.ai.grinder.library.Substitute;
+import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
@@ -194,9 +194,9 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 			RewritingProcess process) {
 		Expression indexValueExpression = getIndexValueExpressionFromIndex(index);
 		Expression newHead =
-			Substitute.replace(getHead(intensionalSet), indexValueExpression, value, process);
+			SemanticSubstitute.replace(getHead(intensionalSet), indexValueExpression, value, process);
 		Expression conditionToUseAfterSubstitution =
-			Substitute.replace(conditionToUseBeforeSubstitution, indexValueExpression, value, process);
+			SemanticSubstitute.replace(conditionToUseBeforeSubstitution, indexValueExpression, value, process);
 		List<Expression> indexExpressions = getIndexExpressions(intensionalSet);
 		indexExpressions = Util.listCopyWithoutSatisfyingElementOrNull(indexExpressions, new IndexExpressionHasIndex(indexValueExpression));
 		// at some point we should look for occurrences of the index in the domain of the other indices.

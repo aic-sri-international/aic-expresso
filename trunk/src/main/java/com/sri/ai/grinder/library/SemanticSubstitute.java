@@ -57,7 +57,7 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 
 /**
  * A class providing a static method for substituting symbols or function applications in an expression
- * by another expression (not subject itself to the same substitution).
+ * by another expression (which is also subject itself to the same substitution, so be careful as this may lead to infinite recursion).
  * 
  * Replacing a symbol works as one would expect:
  * 
@@ -107,11 +107,13 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
  *      p(X,Y)                 2                          {(on p(Y,X)) p(Y,X)}                                                {(on p(Y,X)) p(Y,X)}
  *      p(X,Y)                 2  if W != X and Z != Y then p(W,Z) else p(a,Y)   if W != X and Z != Y then p(W,Z) else if X = a then 2 else p(a,Y)
  * </pre>
+ * 
+ * @see SyntacticSubstitute
  * @author braz
  *
  */
 @Beta
-public class Substitute {
+public class SemanticSubstitute {
 
 	public static Expression replaceAll(Expression expression,
 			Map<? extends Expression, ? extends Expression> replacements,

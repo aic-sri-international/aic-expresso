@@ -54,7 +54,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.Symbol;
@@ -66,6 +65,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.IsVariablePredicate;
+import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.SubExpressionSelection;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
@@ -796,18 +796,18 @@ public class Expressions {
 	 * in an expression, according to a given process.
 	 */
 	public static Set<Expression> freeSymbols(Expression expression, RewritingProcess process) {
-		Set<Expression> freeSymbols = new LinkedHashSet<Expression>(); 
-		Iterator<ExpressionAndContext> subExpressionAndContextsIterator = expression.getImmediateSubExpressionsAndContextsIterator(process);
-		while (subExpressionAndContextsIterator.hasNext()) {
-			ExpressionAndContext subExpressionAndContext = subExpressionAndContextsIterator.next();
-			Set<Expression> freeVariablesInSubExpression = freeVariables(subExpressionAndContext.getExpression().getSyntaxTree(), process);
-			freeVariablesInSubExpression = Sets.difference(freeVariablesInSubExpression, subExpressionAndContext.getQuantifiedVariables()); 
-			freeSymbols.addAll(freeVariablesInSubExpression);
+		Set<Expression> result = new LinkedHashSet<Expression>(); 
+		Set<Expression> quantifiedSymbols = new LinkedHashSet<Expression>(); 
+		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(expression);
+		while (subExpressionIterator.hasNext()) {
+			Expression subExpression = subExpressionIterator.next();
+			if (subExpression instanceof Symbol) {
+				result.add(subExpression);
+			}
+			quantifiedSymbols.addAll(ScopedVariables.getLocallyScopedSymbols(subExpression, process));
 		}
-		if (expression instanceof Symbol) {
-			freeSymbols.add(expression);
-		}
-		return freeSymbols;
+		result.removeAll(quantifiedSymbols);
+		return result;
 	}
 
 	//
