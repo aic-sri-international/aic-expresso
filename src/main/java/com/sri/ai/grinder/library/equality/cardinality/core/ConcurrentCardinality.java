@@ -54,7 +54,7 @@ import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.Substitute;
+import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.BooleanUtil;
 import com.sri.ai.grinder.library.boole.ForAll;
@@ -294,7 +294,7 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 			}
 			conjuncts.remove(firstGoodEquality);
 			Expression newConjunction = And.make(conjuncts);
-			Expression newCondition = Substitute.replace(newConjunction, replaceVar, replacedBy, process);
+			Expression newCondition = SemanticSubstitute.replace(newConjunction, replaceVar, replacedBy, process);
 			indices.remove(replaceVar);
 			result = cardinalityCompute(newCondition, indices, process);
 		} 

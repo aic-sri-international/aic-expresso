@@ -35,63 +35,21 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.lambda;
-
-import java.util.Iterator;
-import java.util.List;
+package com.sri.ai.expresso.helper;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.library.SemanticSubstitute;
 
 /**
- * 
+ * A {@link Function} mapping an expression to the same value returned by {@link Expression#getFunctorOrSymbol()}.
  * @author braz
  *
  */
 @Beta
-public class LambdaApplication extends AbstractRewriter {
-	public interface PerformApplication {
-		boolean isApplicationToBePerformed(Expression lambdaExpression, RewritingProcess process);
-	}
-	
-	private PerformApplication performApplication = null;
-	
-	public LambdaApplication() {
-		this(new PerformApplication() {
-			@Override
-			public boolean isApplicationToBePerformed(Expression lambdaExpression, RewritingProcess process) {
-				// By default always perform
-				return true;
-			}
-		});
-	}
-	
-	public LambdaApplication(PerformApplication performApplication) {
-		this.performApplication = performApplication;
-	}
-
+public class GetFunctorOrSymbol implements Function<Expression, Expression> {
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression functor = expression.getFunctor();
-		if (Lambda.isLambdaExpression(functor) &&
-			performApplication.isApplicationToBePerformed(functor, process)) {
-			List<Expression> parameters = Lambda.getParameters(functor);
-			if (parameters.size() != expression.numberOfArguments()) {
-				throw new Error("Lambda application number of parameters and arguments does not match: " + expression);
-			}
-			Expression result = Lambda.getBody(functor);
-			Iterator<Expression> parameterIterator = parameters.iterator();
-			Iterator<Expression> argumentIterator = expression.getArguments().iterator();
-			while (parameterIterator.hasNext()) {
-				Expression parameter = parameterIterator.next();
-				Expression argument = argumentIterator.next();
-				result = SemanticSubstitute.replace(result, parameter, argument, process);
-			}
-			return result;
-		}
-		return expression;
+	public Expression apply(Expression input) {
+		return input.getFunctorOrSymbol();
 	}
 }

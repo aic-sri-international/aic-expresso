@@ -280,7 +280,7 @@ abstract public class AbstractGrinderTest {
 	}
 	
 	/**
-	 * returns true if e1 is equal to e2. e2 can have sub-expressions defined by anyof().
+	 * Returns true if e1 is equal to e2. e2 can have sub-expressions defined by anyof().
 	 * For instance, if e2 is 'anyof(1, 3 + anyof(X, Y))', then e1 can be any of '1', '3+X', or '3+Y'.
 	 * 
 	 * @param e1

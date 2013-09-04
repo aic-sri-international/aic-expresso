@@ -46,6 +46,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.GetFunctorOrSymbol;
 import com.sri.ai.expresso.helper.IsApplicationOf;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -129,6 +130,18 @@ public class ScopedVariables extends AbstractRewriter {
 		List<Expression> result =
 			scopedVariables.getScopedVariables(
 					expression, process).getArguments();
+		return result;
+	}
+	
+	/**
+	 * Returns a list of symbols locally scoped by this expression.
+	 * This is different from the scoped variables in that the arguments of scoped function applications are
+	 * not locally scoped. For example, <code>for all p(X) : ...</code>
+	 * has scoped variable <code>p(X)</code> but only <code>p</code> is a locally scoped symbol.
+	 */
+	public static List<Expression> getLocallyScopedSymbols(Expression expression, RewritingProcess process) {
+		List<Expression> scopedVariables = get(expression, process);
+		List<Expression> result = Util.mapIntoList(scopedVariables, new GetFunctorOrSymbol());
 		return result;
 	}
 	

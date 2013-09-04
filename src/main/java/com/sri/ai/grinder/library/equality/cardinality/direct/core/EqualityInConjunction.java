@@ -50,7 +50,7 @@ import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.Substitute;
+import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
@@ -119,7 +119,7 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 				// i.e {x \ xi}
 				equalityOnIndexInformation.indices.remove(equalityOnIndexInformation.index);
 				Trace.log("return R_card(| R_simplify(Phi[x_i / t]) |_X\\{xi}, quantification) // Phi={}, x_i={}, t={}", equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t);
-				Expression phiXiReplacedWithT           = Substitute.replace(equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t, process);
+				Expression phiXiReplacedWithT           = SemanticSubstitute.replace(equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t, process);
 				Expression simplifiedPhiXiReplacedWithT = process.rewrite(R_simplify, phiXiReplacedWithT);
 				
 				Expression cardPhiXiReplacedWithTIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(simplifiedPhiXiReplacedWithT, equalityOnIndexInformation.indices.toArray(new Expression[equalityOnIndexInformation.indices.size()]));
