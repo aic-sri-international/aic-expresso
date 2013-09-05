@@ -44,6 +44,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.grinder.library.SyntacticSubstitute;
 
 /**
@@ -123,6 +124,7 @@ public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends A
 				   condition.equals(FunctorConstants.TRUE) ||
 				   condition.equals(FunctorConstants.FALSE) ||
 				   IfThenElse.isIfThenElse(condition))) {
+//			expression = SemanticSubstitute.replace(expression, condition, Expressions.TRUE, process);
 			expression = SyntacticSubstitute.replace(expression, condition, Expressions.TRUE, process);
 		}
 
@@ -145,6 +147,7 @@ public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends A
 				   condition.equals(FunctorConstants.TRUE) ||
 				   condition.equals(FunctorConstants.FALSE) ||
 				   IfThenElse.isIfThenElse(condition))) {	
+//			expression = SemanticSubstitute.replace(expression, condition, Expressions.FALSE, process);
 			expression = SyntacticSubstitute.replace(expression, condition, Expressions.FALSE, process);			
 		}
 		

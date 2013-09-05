@@ -136,7 +136,7 @@ public abstract class AbstractExpression implements Expression {
 		return replace(
 				replacementFunction, makeSpecificSubExpressionAndContextReplacementFunction,
 				prunePredicate, makeSpecificSubExpressionAndContextPrunePredicate,
-				true, false, null, process);
+				true, false, false, null, process);
 	}
 
 	@Override
@@ -144,7 +144,7 @@ public abstract class AbstractExpression implements Expression {
 		return replace(
 				replacementFunction, makeSpecificSubExpressionAndContextReplacementFunction,
 				prunePredicate, makeSpecificSubExpressionAndContextPrunePredicate,
-				false, false, null, process);
+				false, false, false, null, process);
 	}
 
 	@Override
@@ -179,21 +179,20 @@ public abstract class AbstractExpression implements Expression {
 
 	@Override
 	public Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process) {
-		return replace(replacementFunction, true /* only the first one */, prunePredicate, listener, process, false);
+		return replace(replacementFunction, true /* only the first one */, prunePredicate, false, listener, process);
 	}
 
 	@Override
 	public Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process) {
-		return replace(replacementFunction, false /* not only the first one */, prunePredicate, listener, process, false);
+		return replace(replacementFunction, false /* not only the first one */, prunePredicate, false, listener, process);
 	}
 
 	@Override
 	public Expression replace(
 			Function<Expression, Expression> replacementFunction, boolean onlyTheFirstOne,
-			PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process, boolean ignoreTopExpression) {
+			PruningPredicate prunePredicate, boolean ignoreTopExpression, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process) {
 
-		return replace(replacementFunction, null, prunePredicate,
-				null, onlyTheFirstOne, ignoreTopExpression, listener, process);
+		return replace(replacementFunction, null, prunePredicate, null, onlyTheFirstOne, ignoreTopExpression, false, listener, process);
 	}
 	
 	@Override
@@ -204,84 +203,77 @@ public abstract class AbstractExpression implements Expression {
 			PruningPredicateMaker makeSpecificSubExpressionAndContextPrunePredicate,
 			boolean onlyTheFirstOne, 
 			boolean ignoreTopExpression, 
-			TernaryProcedure<Expression, Expression, RewritingProcess> listener, 
-			RewritingProcess process) {
+			boolean replaceOnChildrenBeforeTopExpression, 
+			TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process) {
 		
 		if (prunePredicate != null && prunePredicate.apply(this, replacementFunction, process)) {
 			return this;
 		}
 		
-		if ( ! ignoreTopExpression) {
-			Expression topReplacement;
-			if (replacementFunction instanceof ReplacementFunctionWithContextuallyUpdatedProcess) {
-				topReplacement = 
-						((ReplacementFunctionWithContextuallyUpdatedProcess) replacementFunction)
-						.apply(this, process);
-			}
-			else {
-				topReplacement = replacementFunction.apply(this);
-			}
-			if (topReplacement != this && topReplacement != null) {
-				if (listener != null) {
-					listener.apply(this, topReplacement, process);
-				}
-				return topReplacement;
-			}
+		Expression result = this;
+		
+		if ( ! ignoreTopExpression && ! replaceOnChildrenBeforeTopExpression) { // if replaceOnChildrenBeforeTopExpression, this is done later in the function
+			result = applyReplacementFunction(replacementFunction, result, process);
 		}
 
-		LinkedList<ExpressionAndContext> subExpressionReplacementsAndContexts = new LinkedList<ExpressionAndContext>();
-		Iterator<ExpressionAndContext> subExpressionsAndContextsIterator = getImmediateSubExpressionsAndContextsIterator(process);
-		while (subExpressionsAndContextsIterator.hasNext()) {
-			ExpressionAndContext subExpressionAndContext = subExpressionsAndContextsIterator.next();
-			Expression           originalSubExpression   = subExpressionAndContext.getExpression();
-			
-			if (originalSubExpression == null) {
-				// no replacement of null
-				continue;
-			}
+		if (result == this) { // if no change in top expression, or need to change children first:
+			LinkedList<ExpressionAndContext> subExpressionReplacementsAndContexts = new LinkedList<ExpressionAndContext>();
+			Iterator<ExpressionAndContext> subExpressionsAndContextsIterator = getImmediateSubExpressionsAndContextsIterator(process);
+			while (subExpressionsAndContextsIterator.hasNext()) {
+				ExpressionAndContext subExpressionAndContext = subExpressionsAndContextsIterator.next();
+				Expression           originalSubExpression   = subExpressionAndContext.getExpression();
 
-			PruningPredicate prunePredicateForThisSubExpressionAndContext = prunePredicate;
-			if (makeSpecificSubExpressionAndContextPrunePredicate != null) {
-				prunePredicateForThisSubExpressionAndContext =
-					makeSpecificSubExpressionAndContextPrunePredicate.apply(
-							this, prunePredicate, subExpressionAndContext);
-				if (prunePredicateForThisSubExpressionAndContext == TRUE_PRUNING_PREDICATE) {
+				if (originalSubExpression == null) {
+					// no replacement of null
 					continue;
 				}
-			}
 
-			Function<Expression, Expression> replacementFunctionForThisSubExpressionAndContext = replacementFunction;
-			if (makeSpecificSubExpressionAndContextReplacementFunction != null) {
-				replacementFunctionForThisSubExpressionAndContext =
-					makeSpecificSubExpressionAndContextReplacementFunction
-					.apply(this, replacementFunction, subExpressionAndContext, process);
-			}
+				PruningPredicate prunePredicateForThisSubExpressionAndContext = prunePredicate;
+				if (makeSpecificSubExpressionAndContextPrunePredicate != null) {
+					prunePredicateForThisSubExpressionAndContext =
+							makeSpecificSubExpressionAndContextPrunePredicate.apply(
+									this, prunePredicate, subExpressionAndContext);
+					if (prunePredicateForThisSubExpressionAndContext == TRUE_PRUNING_PREDICATE) {
+						continue;
+					}
+				}
 
-			RewritingProcess subProcess = GrinderUtil.extendContextualVariablesAndConstraint(subExpressionAndContext, process);
-			
-			Expression replacementSubExpression =
-				originalSubExpression.replace(
-						replacementFunctionForThisSubExpressionAndContext,
-						makeSpecificSubExpressionAndContextReplacementFunction,
-						prunePredicateForThisSubExpressionAndContext,
-						makeSpecificSubExpressionAndContextPrunePredicate,
-						onlyTheFirstOne,
-						false /* do not ignore top expression */, listener, subProcess);
+				Function<Expression, Expression> replacementFunctionForThisSubExpressionAndContext = replacementFunction;
+				if (makeSpecificSubExpressionAndContextReplacementFunction != null) {
+					replacementFunctionForThisSubExpressionAndContext =
+							makeSpecificSubExpressionAndContextReplacementFunction
+							.apply(this, replacementFunction, subExpressionAndContext, process);
+				}
 
-			if (replacementSubExpression != originalSubExpression) {
-				ExpressionAndContext newSubExpressionAndContext =
-						subExpressionAndContext.setExpression(replacementSubExpression);
-				
-				subExpressionReplacementsAndContexts.add(newSubExpressionAndContext);
-				if (onlyTheFirstOne) {
-					break;
+				RewritingProcess subProcess = GrinderUtil.extendContextualVariablesAndConstraint(subExpressionAndContext, process);
+
+				Expression replacementSubExpression =
+						originalSubExpression.replace(
+								replacementFunctionForThisSubExpressionAndContext,
+								makeSpecificSubExpressionAndContextReplacementFunction,
+								prunePredicateForThisSubExpressionAndContext,
+								makeSpecificSubExpressionAndContextPrunePredicate,
+								onlyTheFirstOne,
+								false /* do not ignore top expression */, replaceOnChildrenBeforeTopExpression, listener, subProcess);
+
+				if (replacementSubExpression != originalSubExpression) {
+					ExpressionAndContext newSubExpressionAndContext =
+							subExpressionAndContext.setExpression(replacementSubExpression);
+
+					subExpressionReplacementsAndContexts.add(newSubExpressionAndContext);
+					if (onlyTheFirstOne) {
+						break;
+					}
 				}
 			}
-		}
 
-		Expression result = this;
-		for (ExpressionAndContext replacement : subExpressionReplacementsAndContexts) {
-			result = result.replace(replacement);
+			for (ExpressionAndContext replacement : subExpressionReplacementsAndContexts) {
+				result = result.replace(replacement);
+			}
+			
+			if (! ignoreTopExpression && replaceOnChildrenBeforeTopExpression) {
+				result = applyReplacementFunction(replacementFunction, result, process);
+			}
 		}
 
 		if (listener != null) {
@@ -289,6 +281,15 @@ public abstract class AbstractExpression implements Expression {
 		}
 		
 		return result;
+	}
+
+	private static Expression applyReplacementFunction(Function<Expression, Expression> replacementFunction, Expression expression, RewritingProcess process) {
+		if (replacementFunction instanceof ReplacementFunctionWithContextuallyUpdatedProcess) {
+			return ((ReplacementFunctionWithContextuallyUpdatedProcess) replacementFunction).apply(expression, process);
+		}
+		else {
+			return replacementFunction.apply(expression);
+		}
 	}
 	
 	@Override

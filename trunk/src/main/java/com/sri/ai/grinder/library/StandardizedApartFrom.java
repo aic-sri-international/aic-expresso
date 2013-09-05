@@ -97,7 +97,7 @@ public class StandardizedApartFrom {
 			// SA'ing sub-expressions after SA'ing the top expression may lead to errors because we have no way of checking new variables in the sub-expressions
 			// against those in the top expression.
 			// However, when SA'ing the top expression, it does check against variables in the sub-expressions, so we guarantee that no conflicts arise.
-			Expression result = expression.replace(this, false /* not just the first one */, null, null, process, true /* ignore top expression - already done right here! */);
+			Expression result = expression.replace(this, false /* not just the first one */, null, true /* ignore top expression - already done right here! */, null, process);
 			result = standardizeTopExpressionScopedVariablesApartFrom(result, variablesThatCannotBeScopingInExpression, process);
 			return result;
 		}
