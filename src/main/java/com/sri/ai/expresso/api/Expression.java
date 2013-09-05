@@ -87,7 +87,7 @@ public interface Expression extends Cloneable, Serializable {
 	Expression replaceAllOccurrences(Expression replaced, Expression replacement, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
 	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
 	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
-	Expression replace(Function<Expression, Expression> replacementFunction, boolean onlyTheFirstOne, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process, boolean ignoreTopExpression);
+	Expression replace(Function<Expression, Expression> replacementFunction, boolean onlyTheFirstOne, PruningPredicate prunePredicate, boolean ignoreTopExpression, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
 	/**
 	 * Returns the result of replacing one or all sub-expressions of this expression
 	 * according to a replacement function.
@@ -121,8 +121,9 @@ public interface Expression extends Cloneable, Serializable {
 	 * The argument onlyTheFirstOne allows us to choose to replace only the first sub-expression for which the replacement function returns a distinct object, or to continue examining all sub-expressions. 
 	 * 
 	 * We can provide a listener procedure that gets notified of every replacement.
-	 * 
 	 * @param makeSpecificSubExpressionAndContextPrunePredicate Takes the current expression, the current replacement function and the sub-expression and its context about to be processed (the top one inclusive), and returns the pruning predicate to be used for that specific sub-expression.
+	 * @param replaceOnChildrenBeforeTopExpression TODO
+	 * 
 	 * @param replacementFunction: takes a expression and returns a new expression, or itself in case no replacement is warranted.
 	 * @param makeSpecificSubExpressionAndContextReplacementFunction: Takes the current expression, the current replacement function and the sub-expression and its context about to be processed (the top one inclusive), and returns the replacement function to be used for that specific sub-expression.
 	 * @param prunePredicate: a predicate evaluating as true for sub-expressions that should be pruned (ignored).
@@ -138,8 +139,8 @@ public interface Expression extends Cloneable, Serializable {
 			           PruningPredicateMaker makeSpecificSubExpressionAndContextPrunePredicate, 
 			           boolean onlyTheFirstOne, 
 			           boolean ignoreTopExpression, 
-			           TernaryProcedure<Expression, Expression, RewritingProcess> listener, 
-			           RewritingProcess process);
+			           boolean replaceOnChildrenBeforeTopExpression, 
+			           TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
 
 	/**
 	 * Indicates what syntactic form the expression is.
