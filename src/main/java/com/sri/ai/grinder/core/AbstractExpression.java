@@ -273,6 +273,7 @@ public abstract class AbstractExpression implements Expression {
 			
 			if (! ignoreTopExpression && replaceOnChildrenBeforeTopExpression) {
 				result = applyReplacementFunction(replacementFunction, result, process);
+				
 			}
 		}
 
@@ -284,12 +285,15 @@ public abstract class AbstractExpression implements Expression {
 	}
 
 	private static Expression applyReplacementFunction(Function<Expression, Expression> replacementFunction, Expression expression, RewritingProcess process) {
+		Expression result;
 		if (replacementFunction instanceof ReplacementFunctionWithContextuallyUpdatedProcess) {
-			return ((ReplacementFunctionWithContextuallyUpdatedProcess) replacementFunction).apply(expression, process);
+			result = ((ReplacementFunctionWithContextuallyUpdatedProcess) replacementFunction).apply(expression, process);
 		}
 		else {
-			return replacementFunction.apply(expression);
+			result = replacementFunction.apply(expression);
 		}
+		// System.out.println("Replacement function on " + expression + " ----> " + result);
+		return result;
 	}
 	
 	@Override
