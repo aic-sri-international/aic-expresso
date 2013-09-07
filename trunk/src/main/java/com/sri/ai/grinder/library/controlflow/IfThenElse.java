@@ -116,6 +116,26 @@ public class IfThenElse extends AbstractRewriter {
 		return result;
 	}
 
+	/**
+	 * Makes an if then else expression by receiving the branches but, instead of relying on the argument order to decide which branch is the then branch and which one is the else branch,
+	 * receives their respective indices (they must be 1 and 2, or 2 and 1 -- index 0 is the index of the condition itself).
+	 */
+	public static Expression make(Expression condition, int indexOfFirstBranch, Expression firstBranch, int indexOfSecondBranch, Expression secondBranch) {
+		if (indexOfFirstBranch == 1) {
+			return IfThenElse.make(condition, firstBranch, secondBranch);
+		}
+		return IfThenElse.make(condition, secondBranch, firstBranch);
+	}
+
+	/**
+	 * Given an index of one of the branches of an if then else expression,
+	 * returns the index of the other branch.
+	 * @see #make(Expression, int, Expression, int, Expression)
+	 */
+	public static int oppositeBranchIndex(int branchIndex) {
+		return branchIndex == 1 ? 2 : 1;
+	}
+
 	public static boolean isIfThenElse(Expression expression) {
 		boolean result = expression.hasFunctor(FUNCTOR);
 		return result;
