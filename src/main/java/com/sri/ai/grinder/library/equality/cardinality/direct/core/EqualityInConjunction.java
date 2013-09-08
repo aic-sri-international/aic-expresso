@@ -118,9 +118,9 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 				Expression t = equalityOnIndexInformation.valuesEquatedToIndex.iterator().next();
 				// i.e {x \ xi}
 				equalityOnIndexInformation.indices.remove(equalityOnIndexInformation.index);
-				Trace.log("return R_card(| R_simplify(Phi[x_i / t]) |_X\\{xi}, quantification) // Phi={}, x_i={}, t={}", equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t);
+				Trace.log("return R_card(| R_normalize(Phi[x_i / t]) |_X\\{xi}, quantification) // Phi={}, x_i={}, t={}", equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t);
 				Expression phiXiReplacedWithT           = SemanticSubstitute.replace(equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t, process);
-				Expression simplifiedPhiXiReplacedWithT = process.rewrite(R_simplify, phiXiReplacedWithT);
+				Expression simplifiedPhiXiReplacedWithT = process.rewrite(R_normalize, phiXiReplacedWithT);
 				
 				Expression cardPhiXiReplacedWithTIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(simplifiedPhiXiReplacedWithT, equalityOnIndexInformation.indices.toArray(new Expression[equalityOnIndexInformation.indices.size()]));
 				result = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardPhiXiReplacedWithTIndexedByX, quantification));

@@ -121,13 +121,13 @@ public class CardinalityExtensionalSet extends AbstractHierarchicalRewriter impl
 				Expression       cardinalityT2ToTk    = Expressions.make(FunctorConstants.CARDINALITY, t2ToTkExtensionalSet);
 				Expression       n                    = process.rewrite(R_cardExtensionalSet, cardinalityT2ToTk);
 				
-				Trace.log("Irrelevant <- R_simplify(t1 = t2 or ... or t1 = tn)");
+				Trace.log("Irrelevant <- R_normalize(t1 = t2 or ... or t1 = tn)");
 				boolean          shortCircuited = false;
 				Expression       t1EqualTn      = null;
 				List<Expression> t1Equalities   = new ArrayList<Expression>();
 				for (Expression tn : t2ToTk) {
 					t1EqualTn = Equality.make(t1, tn);
-					t1EqualTn = process.rewrite(R_simplify, t1EqualTn);
+					t1EqualTn = process.rewrite(R_normalize, t1EqualTn);
 					if (t1EqualTn.equals(Expressions.TRUE)) {
 						shortCircuited = true;
 						break;

@@ -135,7 +135,7 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 			Expression dependentDisjunction   = pair.second;
 			if ( !Expressions.FALSE.equals(independentDisjunction) ) {
 				Trace.log("if F1 contains all the disjuncts independent of X (not empty)");
-				Trace.log("    return R_simplify(if F1 then ||X|| else R_card(|F2|_X, quantification))");
+				Trace.log("    return R_normalize(if F1 then ||X|| else R_card(|F2|_X, quantification))");
 				Expression cardDependentDisjunction = null;
 				if ( Expressions.FALSE.equals(dependentDisjunction) ) {
 					cardDependentDisjunction = Expressions.ZERO;
@@ -146,7 +146,7 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 													CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(dependentDisjunctionCard, quantification));
 				}
 				result = IfThenElse.make(independentDisjunction, cardIndexX, cardDependentDisjunction);
-				result = process.rewrite(R_simplify, result);
+				result = process.rewrite(R_normalize, result);
 			} 
 			else {
 				Trace.log("if all disjuncts of F have some index variable occurring in them");
@@ -184,7 +184,7 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 				Expression secondDisjunction             = Or.make(secondProblem.second);	
 				Trace.log("    D_2 = R_top_simplify(D_2)");
 				secondDisjunction                        = process.rewrite(R_top_simplify, secondDisjunction);
-				Trace.log("    R <- R_simplify(R_card(| D_1 |_I_1, quantification)*||I_2|| + R_card(| D_2 |_I2, quantification)*||I_1|| - R_card(| D_1 |_I_1, quantification)* R_card(| D_2 |_I_2, quantification))");
+				Trace.log("    R <- R_normalize(R_card(| D_1 |_I_1, quantification)*||I_2|| + R_card(| D_2 |_I2, quantification)*||I_1|| - R_card(| D_1 |_I_1, quantification)* R_card(| D_2 |_I_2, quantification))");
 				Expression secondDisjunctionCard         = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(secondDisjunction, secondProblem.first.toArray(new Expression [0]));
 				Expression computedSecondDisjunctionCard = process.rewrite(R_card,
 																CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(secondDisjunctionCard, quantification));
@@ -196,7 +196,7 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 				Expression term4 = Plus.make(Arrays.asList(term1, term2));
 				
 				cardinalityOfTheRest = Minus.make(term4, term3);
-				cardinalityOfTheRest = process.rewrite(R_simplify, cardinalityOfTheRest);
+				cardinalityOfTheRest = process.rewrite(R_normalize, cardinalityOfTheRest);
 			}
 			
 			if ( indexlessProblem == null ) {
@@ -204,9 +204,9 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 				result = cardinalityOfTheRest;
 			} 
 			else {
-				Trace.log("    return R_simplify(if D then ||X|| else R)");
+				Trace.log("    return R_normalize(if D then ||X|| else R)");
 				result = IfThenElse.make(Or.make(indexlessProblem.second), cardIndexX, cardinalityOfTheRest);
-				result = process.rewrite(R_simplify, result);
+				result = process.rewrite(R_normalize, result);
 			}
 		}
 		
@@ -229,7 +229,7 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 		
 		if (quantification == CardinalityRewriter.Quantification.FOR_ALL) {
 			Trace.log("if quantification is \"for all\"");
-			Trace.log("    return R_simplify(if R_card(| R_top_simplify_conjunction(not F1 and not F2)  |_X, \"there exists\") > 0 then 0 else ||X||)");
+			Trace.log("    return R_normalize(if R_card(| R_top_simplify_conjunction(not F1 and not F2)  |_X, \"there exists\") > 0 then 0 else ||X||)");
 			Expression notF1AndNotF2 = CardinalityUtil.makeAnd(CardinalityUtil.makeNot(f1), CardinalityUtil.makeNot(f2)); 
 			notF1AndNotF2 = process.rewrite(R_top_simplify_conjunction, notF1AndNotF2);
 			
@@ -239,7 +239,7 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 			Expression resultCard1NotEqual0 = Expressions.make(FunctorConstants.GREATER_THAN, resultCard1, Expressions.ZERO); 
 			Expression ifThenElse           = IfThenElse.make(resultCard1NotEqual0, Expressions.ZERO, cardIndices);
 			
-			result = process.rewrite(R_simplify, ifThenElse);
+			result = process.rewrite(R_normalize, ifThenElse);
 		} 
 		else {			
 			Trace.log("(F1, F2) <- sort_pair({}, {})", f1, f2);
@@ -251,7 +251,7 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 			Expression cardF1x = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(f1, indices);
 			Expression cardF2x = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(f2, indices);
 			// Need to do this to get | type(X) | converted to its known value, e.g.: 10
-			cardIndices = process.rewrite(R_simplify, cardIndices);
+			cardIndices = process.rewrite(R_normalize, cardIndices);
 			
 			Trace.log("N1 <- R_card(| F1 |_X, quantification)");
 			Expression n1 = process.rewrite(R_card,
@@ -289,13 +289,13 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 			if (result == null && quantification == CardinalityRewriter.Quantification.THERE_EXISTS) {
 				Trace.log("if quantification is \"there exists\"");
 				// there is no need to compute N3, since it is enough that there is x for either F1 or F2
-				Trace.log("    return R_simplify(if N1 > 0 or N2 > 0 then ||X|| else 0)");
+				Trace.log("    return R_normalize(if N1 > 0 or N2 > 0 then ||X|| else 0)");
 				Expression n1NotEqual0     = Expressions.make(FunctorConstants.GREATER_THAN, n1, Expressions.ZERO);
 				Expression n2NotEqual0     = Expressions.make(FunctorConstants.GREATER_THAN, n2, Expressions.ZERO);
 				Expression n1orn2NotEqual0 = CardinalityUtil.makeOr(n1NotEqual0, n2NotEqual0);
 				Expression ifThenElse      = IfThenElse.make(n1orn2NotEqual0, cardIndices, Expressions.ZERO);
 				
-				result = process.rewrite(R_simplify, ifThenElse);
+				result = process.rewrite(R_normalize, ifThenElse);
 			}
 			
 			if (result == null) {
@@ -313,11 +313,11 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 				n3 = process.rewrite(R_card,
 						CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardTopSimplifiedF1AndF2IndexX, quantification));
 				
-				Trace.log("return R_simplify(N1 + N2 - N3)");
+				Trace.log("return R_normalize(N1 + N2 - N3)");
 				Expression n1PlusN2 = Plus.make(Arrays.asList(n1, n2));
 				Expression n1PlusN2MinusN3 = Expressions.apply(FunctorConstants.MINUS, n1PlusN2, n3);
 				
-				result = process.rewrite(R_simplify, n1PlusN2MinusN3);
+				result = process.rewrite(R_normalize, n1PlusN2MinusN3);
 			}
 		}
 		

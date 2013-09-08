@@ -78,7 +78,7 @@ public class ConjunctsHoldTrueForEachOther extends AbstractRewriter {
 				Expression remainingOfConjunction = Expressions.removeIthArgument(expression, i);
 
 				RewritingProcess processAssumingRemainingOfConjunction = GrinderUtil.extendContextualConstraint(remainingOfConjunction, process);
-				Expression newIThConjunct = processAssumingRemainingOfConjunction.rewrite(CardinalityRewriter.R_simplify, iThConjunct);
+				Expression newIThConjunct = processAssumingRemainingOfConjunction.rewrite(CardinalityRewriter.R_normalize, iThConjunct);
 				if (newIThConjunct != iThConjunct) {
 					Expression result;
 					// Short circuit to 'false' straight away.

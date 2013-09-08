@@ -103,7 +103,7 @@ public class SumOverOneVariable extends AbstractHierarchicalRewriter implements 
 			Expression f  = IfThenElse.getCondition(s);
 			Expression s1 = IfThenElse.getThenBranch(s);
 			Expression s2 = IfThenElse.getElseBranch(s);
-			Trace.log("    return R_simplify(R_sum_over_one_variable(sum_{x:Cx and F} S1) + R_sum_over_one_variable(sum_{x:Cx and not F} S2)))");
+			Trace.log("    return R_normalize(R_sum_over_one_variable(sum_{x:Cx and F} S1) + R_sum_over_one_variable(sum_{x:Cx and not F} S2)))");
 			Expression sumS1 = CardinalityUtil.makeSummationExpression(x, CardinalityUtil.makeAnd(cX, f), s1);
 			Expression sumS2 = CardinalityUtil.makeSummationExpression(x, CardinalityUtil.makeAnd(cX, CardinalityUtil.makeNot(f)), s2);
 			
@@ -115,7 +115,7 @@ public class SumOverOneVariable extends AbstractHierarchicalRewriter implements 
 			List<Expression> plusTerms    = GrinderUtil.branchAndMergeTasks(taskRewriters, process);			
 			Expression       plusSum1And2 = Plus.make(plusTerms);
 			
-			result = process.rewrite(R_simplify, plusSum1And2);
+			result = process.rewrite(R_normalize, plusSum1And2);
 		} 
 		else  {
 			Trace.log("S is a numeric constant expression.");
@@ -126,12 +126,12 @@ public class SumOverOneVariable extends AbstractHierarchicalRewriter implements 
 				result = Expressions.ZERO;
 			} 
 			else {
-				Trace.log("    return R_simplify(R_card(|Cx|_{x}) * S)");
+				Trace.log("    return R_normalize(R_card(|Cx|_{x}) * S)");
 				Expression cardCxIndexedByX       = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(cX, x);
 				Expression resultCardCxIndexedByX = process.rewrite(R_card, cardCxIndexedByX);
 				Expression timesS                 = Times.make(Arrays.asList(resultCardCxIndexedByX, s));
 				
-				result = process.rewrite(R_simplify, timesS);
+				result = process.rewrite(R_normalize, timesS);
 			}
 		}
 		

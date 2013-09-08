@@ -140,10 +140,10 @@ public interface CardinalityRewriter {
 	 * F <- R_top_simplify(F) // this is the only function that does not assume its input is top-simplified
 	 * 
 	 * if n = 0
-	 *     return R_simplify(if F then 1 else 0)
+	 *     return R_normalize(if F then 1 else 0)
 	 * if n > 0
 	 * 	  if negationHasLessNumberOfDisjuncts(F):
-	 *	 	 return R_simplify(||X|| - R_card( | not F |_X, "none" ) ) 
+	 *	 	 return R_normalize(||X|| - R_card( | not F |_X, "none" ) ) 
 	 *	  else
 	 *       return R_card( | F |_X, "none")
 	 * </pre>
@@ -158,13 +158,13 @@ public interface CardinalityRewriter {
 	 * If quantification is "there exists", returns a counting-solution, the leaves of which may differ from the exact one in the following way: when the exact one is not 0, it may be any value but 0.
 	 * 
 	 * if F is True
-	 * 		return R_simplify(||X||)
+	 * 		return R_normalize(||X||)
 	 * 
 	 * if F is False
 	 * 		return 0
 	 * 
 	 * if x does not occur in F for any x in X
-	 *     return R_simplify(if F then ||X|| else 0)
+	 *     return R_normalize(if F then ||X|| else 0)
 	 * 
 	 * if F is a conjunction // including F being a literal or a multi-equality
 	 *     return R_card_conjunction(|F|_X, quantification)
@@ -202,9 +202,9 @@ public interface CardinalityRewriter {
 	 * 	// i.e. there is a partition {I_1, ..., I_k} of indices such that there is a partition 
 	 *  { C_1, ..., C_k } of the conjuncts of F where indices in I_j occur in C_j only, for every j:
 	 *  	if I_1 is empty:
-	 *  		return if C_1 then R_simplify( R_card(|R_top_simplify(C_2)|_I_2, quantification)  * ... *  R_card(|R_top_simplify(C_k)|_I_k, quantification) ) else 0
+	 *  		return if C_1 then R_normalize( R_card(|R_top_simplify(C_2)|_I_2, quantification)  * ... *  R_card(|R_top_simplify(C_k)|_I_k, quantification) ) else 0
 	 *  	else:
-	 *     		return R_simplify( R_card(|R_top_simplify(C_1)|_I_1, quantification)  * ... *  R_card(|R_top_simplify(C_k)|_I_k, quantification) )
+	 *     		return R_normalize( R_card(|R_top_simplify(C_1)|_I_1, quantification)  * ... *  R_card(|R_top_simplify(C_k)|_I_k, quantification) )
 	 * 
 	 * if F is True or empty conjunction
 	 *     return ||X||
@@ -215,7 +215,7 @@ public interface CardinalityRewriter {
 	 * if F is F1 and F2 where F1 is a formula independent of all x's in X
 	 *    // note that F1 is the conjunction of all conjuncts of F that are independent of X, or F itself if it is X-free
 	 *    F2 = R_top_simplify_conjunction(F2)
-	 *    return R_simplify( if F1 then R_card_conjunction(| F2 |_X, quantification) else 0 )
+	 *    return R_normalize( if F1 then R_card_conjunction(| F2 |_X, quantification) else 0 )
 	 * 
 	 * if F is a conjunction of the form 'x = t and Phi', where x is one of the index variables in X
 	 *     return R_equality_in_conjunction(| F |_X)
@@ -276,9 +276,9 @@ public interface CardinalityRewriter {
 	 *     	if quantification is "for all" and (ASSUME_DOMAIN_ALWAYS_LARGE or |type(x)| > 0)
 	 *      	return 0
 	 *     	if quantification is "there exists" and (ASSUME_DOMAIN_ALWAYS_LARGE or |type(x)| > k)
-	 *         	return R_simplify(|type(x)|)
+	 *         	return R_normalize(|type(x)|)
 	 *     	if quantification is "none"
-	 *     		return R_simplify(|type(x)| - R_cardExtensionalSet(|{t1,...,tk}|))
+	 *     		return R_normalize(|type(x)| - R_cardExtensionalSet(|{t1,...,tk}|))
 	 * if X = {x1, ..., xn}
 	 *     	return R_sum_over_one_variable(sum_{x1:True} R_card( | F |_{x2, ..., xn} ))
 	 * 
@@ -304,11 +304,11 @@ public interface CardinalityRewriter {
 	 * 		R <- R_card(| D_1 |_X, quantification)
 	 *   else:
 	 *      D_2 = R_top_simplify(D_2)
-	 *      R <- R_simplify(R_card(| D_1 |_I_1, quantification)*||I_2|| + R_card(| D_2 |_I2, quantification)*||I_1|| - R_card(| D_1 |_I_1, quantification)* R_card(| D_2 |_I_2, quantification))
+	 *      R <- R_normalize(R_card(| D_1 |_I_1, quantification)*||I_2|| + R_card(| D_2 |_I2, quantification)*||I_1|| - R_card(| D_1 |_I_1, quantification)* R_card(| D_2 |_I_2, quantification))
 	 *   if D is empty:
 	 *      return R
 	 *   else:
-	 *      return R_simplify(if D then ||X|| else R)
+	 *      return R_normalize(if D then ||X|| else R)
 	 * 
 	 * // Assume F is of the form F1 or F2
 	 * // | F1 or F2 |_x = | F1 |_x + | F2 |_x - | F1 and F2 |_x
@@ -316,7 +316,7 @@ public interface CardinalityRewriter {
 	 * 
 	 * (F1, F2) <- split_disjuncts_on_X(F) as follows:
 	 * if F1 contains all the disjuncts independent of X (not empty)
-	 * 		return R_simplify(if F1 then ||X|| else R_card(|F2|_X, quantification))
+	 * 		return R_normalize(if F1 then ||X|| else R_card(|F2|_X, quantification))
 	 * 
 	 * otherwise (if all disjuncts of F have some index variable occurring in them):
 	 * F1 <- first disjunct in F
@@ -326,7 +326,7 @@ public interface CardinalityRewriter {
 	 * F2 <- R_top_simplify(F2)
 	 * 
 	 * if quantification is "for all"
-	 *     return R_simplify(
+	 *     return R_normalize(
 	 *     			if R_card(| R_top_simplify_conjunction(not F1 and not F2)  |_X, "there exists") > 0 then 0 else ||X||)
 	 *     
 	 * (F1, F2) <- sort_pair(F1, F2) 
@@ -347,13 +347,13 @@ public interface CardinalityRewriter {
 	 *     
 	 * if quantification is "there exists"
 	 *     // there is no need to compute N3, since it is enough that there is x for either F1 or F2
-	 *     return R_simplify(if N1 > 0 or N2 > 0 then ||X|| else 0)
+	 *     return R_normalize(if N1 > 0 or N2 > 0 then ||X|| else 0)
 	 * 
 	 * // quantification is guaranteed to be "none" because otherwise it will have returned by now
 	 * 
 	 * N3 <- R_card( | R_top_simplify_conjunction(F1 and F2) |_X, "none" )
 	 *    
-	 * return R_simplify(N1 + N2 - N3)
+	 * return R_normalize(N1 + N2 - N3)
 	 * // possible further optimization since F1 and F2 are already top-simplified
 	 * </pre>
 	 */
@@ -387,7 +387,7 @@ public interface CardinalityRewriter {
 	 *     return 0
 	 * // cardinality of the set expression without the first element expression
 	 * N <- R_cardExtensionalSet( | {t2,...,tk} | ) 
-	 * Irrelevant <- R_simplify(t1 = t2 or ... or t1 = tn)
+	 * Irrelevant <- R_normalize(t1 = t2 or ... or t1 = tn)
 	 * return if Irrelevant then N else plusOne(N)
 	 * </pre>
 	 */
@@ -415,15 +415,15 @@ public interface CardinalityRewriter {
 	 * A rewriter to be used to check if a branch is reachable when calling
 	 * branch and merge logic.
 	 */
-	String R_check_branch_reachable = CARDINALITY_NAMESPACE+"R_complete_simplify";
+	String R_check_branch_reachable = CARDINALITY_NAMESPACE+"R_complete_normalize";
 
 	/**
-	 * R_complete_simplify(E).<br>
-	 * Interface for R_complete_simplify(E) that extends the R_simplify
+	 * R_complete_normalize(E).<br>
+	 * Interface for R_complete_normalize(E) that extends the R_normalize
 	 * functionality used by the direct cardinality computation routines, which
 	 * will use full satisfiability testing as part of its simplification logic.
 	 */
-	String R_complete_simplify = CARDINALITY_NAMESPACE+"R_complete_simplify";
+	String R_complete_normalize = CARDINALITY_NAMESPACE+"R_complete_normalize";
 
 	/**
 	 * <pre>
@@ -437,7 +437,7 @@ public interface CardinalityRewriter {
 	 *
 	 * if t is the same expression as x_i
 	 *    return R_card(| Phi |_X, quantification)
-	 * else return R_card(| R_simplify(Phi[x_i / t]) |_X\{xi}, quantification)
+	 * else return R_card(| R_normalize(Phi[x_i / t]) |_X\{xi}, quantification)
 	 * </pre>
 	 */
 	String R_equality_in_conjunction = CARDINALITY_NAMESPACE+"R_equality_in_conjunction";
@@ -487,9 +487,9 @@ public interface CardinalityRewriter {
 	 * Returns a quantifier-free formula equivalent to F
 	 * 
 	 * if F is "for all x: Y"
-	 *     return R_simplify(R_card(|R_top_simplify(Y)|_X, "for all") = |type(x)| )
+	 *     return R_normalize(R_card(|R_top_simplify(Y)|_X, "for all") = |type(x)| )
 	 * if F is "there exists x: Y"
-	 *     return R_simplify(R_card(|R_top_simplify(Y)|_X, "there exists") > 0)
+	 *     return R_normalize(R_card(|R_top_simplify(Y)|_X, "there exists") > 0)
 	 * if F is "not G"
 	 *     return R_quantifier_elimination(R_move_not_in(not G))
 	 * if F is G => H
@@ -519,12 +519,12 @@ public interface CardinalityRewriter {
 	String R_quantifier_elimination = CARDINALITY_NAMESPACE+"R_quantifier_elimination";
 
 	/**
-	 * R_simplify(E).<br>
-	 * Interface for R_simplify(E) functionality used by the direct cardinality
+	 * R_normalize(E).<br>
+	 * Interface for R_normalize(E) functionality used by the direct cardinality
 	 * computation routines, that will not necessarily use full satisfiability
 	 * testing as part of its simplification logic.
 	 */
-	String R_simplify = CARDINALITY_NAMESPACE+"R_simplify";
+	String R_normalize = CARDINALITY_NAMESPACE+"R_normalize";
 
 	/**
 	 * <pre>
@@ -536,12 +536,12 @@ public interface CardinalityRewriter {
 	 * Returns a counting solution
 	 * Cases for input:
 	 * S is "if F then S1 else S2".
-	 *     return R_simplify(R_sum_over_one_variable(sum_{x:Cx and F} S1) + R_sum_over_one_variable(sum_{x:Cx and not F} S2)))
+	 *     return R_normalize(R_sum_over_one_variable(sum_{x:Cx and F} S1) + R_sum_over_one_variable(sum_{x:Cx and not F} S2)))
 	 * S is a numeric constant expression.
 	 *     if S is 0
 	 *         return 0
 	 *     else
-	 *         return R_simplify(R_card(|Cx|_{x}) * S)
+	 *         return R_normalize(R_card(|Cx|_{x}) * S)
 	 * </pre>
 	 */
 	String R_sum_over_one_variable = CARDINALITY_NAMESPACE+"R_sum_over_one_variable";
@@ -570,9 +570,9 @@ public interface CardinalityRewriter {
 	 * 
 	 * F <- R_top_simplify(F)
 	 * if Q is "for all"
-	 *    return R_simplify( R_card(|F|_X, Q) = |type(x)| )
+	 *    return R_normalize( R_card(|F|_X, Q) = |type(x)| )
 	 * if Q is "there exists"
-	 *    return R_simplify( R_card(|F|_X, Q) > 0 )
+	 *    return R_normalize( R_card(|F|_X, Q) > 0 )
 	 * </pre>
 	 */
 	String R_top_quantifier_elimination = CARDINALITY_NAMESPACE+"R_top_quantifier_elimination";

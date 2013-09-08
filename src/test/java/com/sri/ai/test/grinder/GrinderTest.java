@@ -89,7 +89,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElseConditionIsTrueInThenBra
 import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
 import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CompleteSimplify;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CompleteNormalize;
 import com.sri.ai.grinder.library.equality.injective.DisequalityOnInjectiveSubExpressions;
 import com.sri.ai.grinder.library.equality.injective.DisequalityOnMutuallyExclusiveCoDomainExpressions;
 import com.sri.ai.grinder.library.equality.injective.EqualityOnInjectiveSubExpressions;
@@ -825,7 +825,7 @@ public class GrinderTest extends AbstractGrinderTest {
 				new ExpressionKnowledgeModule(),
 				new ImposedConditionsModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new CompleteSimplify(),
+				new CompleteNormalize(),
 				new IntensionalSetSubExpressionsAndImposedConditionsProvider());
 		evaluator = new ExhaustiveRewriter(library);
 

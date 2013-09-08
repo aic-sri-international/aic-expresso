@@ -86,7 +86,7 @@ public class QuantifierElimination extends AbstractHierarchicalRewriter implemen
 
 		if (expressionF.hasFunctor(FunctorConstants.FOR_ALL)) {
 			Trace.log("if F is \"for all x: Y\"");
-			Trace.log("    return R_simplify(R_card(|R_top_simplify(Y)|_x, \"for all\") = |type(x)| )");
+			Trace.log("    return R_normalize(R_card(|R_top_simplify(Y)|_x, \"for all\") = |type(x)| )");
 			
 			Expression y = ForAll.getBody(expressionF);
 			Expression x = CardinalityUtil.getForAllIndex(expressionF);
@@ -98,11 +98,11 @@ public class QuantifierElimination extends AbstractHierarchicalRewriter implemen
 			Expression cardIndexX                    = CardinalityUtil.makeCardinalityOfIndexExpressions(x);
 			Expression resultCard1EqualCardX         = Equality.make(resultCard1, cardIndexX);
 			
-			result = process.rewrite(R_simplify, resultCard1EqualCardX);
+			result = process.rewrite(R_normalize, resultCard1EqualCardX);
 		} 
 		else if (expressionF.hasFunctor(FunctorConstants.THERE_EXISTS)) {
 			Trace.log("if F is \"there exists x: Y\"");
-			Trace.log("    return R_simplify(R_card(|R_top_simplify(Y)|_x, \"there exists\") > 0)");
+			Trace.log("    return R_normalize(R_card(|R_top_simplify(Y)|_x, \"there exists\") > 0)");
 			
 			Expression y = ThereExists.getBody(expressionF);
 			Expression x = CardinalityUtil.getThereExistsIndex(expressionF);
@@ -113,7 +113,7 @@ public class QuantifierElimination extends AbstractHierarchicalRewriter implemen
 			Expression resultCard1                   = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardinalityOfIndexedFormaulaY, CardinalityRewriter.Quantification.THERE_EXISTS));
 			Expression resultCard1NotEqual0          = Expressions.make(FunctorConstants.GREATER_THAN, resultCard1, Expressions.ZERO);
 			
-			result = process.rewrite(R_simplify, resultCard1NotEqual0);
+			result = process.rewrite(R_normalize, resultCard1NotEqual0);
 		} 
 		else if (expressionF.hasFunctor(FunctorConstants.NOT) &&
 				   expressionF.numberOfArguments() == 1) {

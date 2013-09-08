@@ -162,13 +162,13 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 			result = Times.make(problemsCards);
 			if ( independent != null ) {
 				Trace.log("    if I_1 is empty:");				
-				Trace.log("        return if C_1 then R_simplify( R_card(|R_top_simplify(C_2)|_I_2, quantification)  * ... *  R_card(|R_top_simplify(C_k)|_I_k, quantification) ) else 0");				
+				Trace.log("        return if C_1 then R_normalize( R_card(|R_top_simplify(C_2)|_I_2, quantification)  * ... *  R_card(|R_top_simplify(C_k)|_I_k, quantification) ) else 0");				
 				result = IfThenElse.make(independent, result, Expressions.ZERO);
 			} 
 			else {
-				Trace.log("    return R_simplify( R_card(|R_top_simplify(C_1)|_I_1, quantification)  * ... *  R_card(|R_top_simplify(C_k)|_I_k, quantification) )");				
+				Trace.log("    return R_normalize( R_card(|R_top_simplify(C_1)|_I_1, quantification)  * ... *  R_card(|R_top_simplify(C_k)|_I_k, quantification) )");				
 			}
-			result = process.rewrite(R_simplify, result);
+			result = process.rewrite(R_normalize, result);
 		}
 		
 		return result;
@@ -183,7 +183,7 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 		Expression[] indicesAsArray = indices.toArray(new Expression[indices.size()]);
 		Expression cardIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indicesAsArray);
 		// Need to do this to get | type(X) | converted to its known value, e.g.: 10
-		cardIndices = process.rewrite(R_simplify, cardIndices);
+		cardIndices = process.rewrite(R_normalize, cardIndices);
 		Pair<Expression, Expression> independentAndDependentConjuncts = CardinalityUtil.separateIndependentAndDependent(f, indices, Expressions.TRUE, process);
 		//
 		Expression independentConjunction = independentAndDependentConjuncts.first;
@@ -208,12 +208,12 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 			// so they are not independent sub-problems.
 			Trace.log("   F2 = R_top_simplify_conjunction(F2)");
 			dependentConjunction = process.rewrite(R_top_simplify_conjunction, dependentConjunction);
-			Trace.log("   return R_simplify( if F1 then R_card_conjunction(| F2 |_X, quantification) else 0 )");
+			Trace.log("   return R_normalize( if F1 then R_card_conjunction(| F2 |_X, quantification) else 0 )");
 			Expression dependentCardinalityProblem = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(dependentConjunction, indicesAsArray);
 			Expression dependentCardinalityResult  = process.rewrite(R_card,
 														CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(dependentCardinalityProblem, quantification));
 			Expression ifThenElse = IfThenElse.make(independentConjunction, dependentCardinalityResult, Expressions.ZERO);
-			result = process.rewrite(R_simplify, ifThenElse);
+			result = process.rewrite(R_normalize, ifThenElse);
 		} 
 		else if (EqualityInConjunction.isOptimizable(cardinalityOfIndexedFormulaExpression, process)) {
 			Trace.log("if F is a conjunction of the form 'x = t and Phi', where x is one of the index variables in X");
@@ -332,7 +332,7 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 				temp.add(part1CardComputed);
 				temp.add(part2CardComputed);
 				result = Plus.make(temp);
-				result = process.rewrite(R_simplify, result);
+				result = process.rewrite(R_normalize, result);
 				
 			}
 			else if (Or.isDisjunction(fi)) {

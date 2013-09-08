@@ -123,24 +123,24 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractHierarchical
 				Expression cardIndexXGreaterThanZero = Expressions.make(FunctorConstants.GREATER_THAN, cardIndex, Expressions.ZERO);
 				Expression cardIndexXGreaterThanK    = Expressions.make(FunctorConstants.GREATER_THAN, cardIndex, DefaultSymbol.createSymbol(t1ToTk.size()));
 				if (quantification == CardinalityRewriter.Quantification.FOR_ALL &&
-					(GrinderConfiguration.isAssumeDomainsAlwaysLarge() || process.rewrite(R_simplify, cardIndexXGreaterThanZero).equals(Expressions.TRUE))) {
+					(GrinderConfiguration.isAssumeDomainsAlwaysLarge() || process.rewrite(R_normalize, cardIndexXGreaterThanZero).equals(Expressions.TRUE))) {
 					Trace.log("    if quantification is \"for all\" and (ASSUME_DOMAIN_ALWAYS_LARGE or |type(x)| > 0)");
 					Trace.log("        return 0");
 					result = Expressions.ZERO;
 				} 
 				else if (quantification == CardinalityRewriter.Quantification.THERE_EXISTS &&
-						(GrinderConfiguration.isAssumeDomainsAlwaysLarge() || process.rewrite(R_simplify, cardIndexXGreaterThanK).equals(Expressions.TRUE))) {
+						(GrinderConfiguration.isAssumeDomainsAlwaysLarge() || process.rewrite(R_normalize, cardIndexXGreaterThanK).equals(Expressions.TRUE))) {
 					Trace.log("    if quantification is \"there exists\" and (ASSUME_DOMAIN_ALWAYS_LARGE or |type(x)| > k)");
-					Trace.log("        return R_simplify(|type(x)|)");
-					result = process.rewrite(R_simplify, cardIndex);
+					Trace.log("        return R_normalize(|type(x)|)");
+					result = process.rewrite(R_normalize, cardIndex);
 				} 
 				else {
-					Trace.log("    return R_simplify(|type(x)| - R_cardExtensionalSet(|{t1,...,tk}|)");
+					Trace.log("    return R_normalize(|type(x)| - R_cardExtensionalSet(|{t1,...,tk}|)");
 					Expression extensionalSet                  = ExtensionalSet.makeUniSet(new ArrayList<Expression>(t1ToTk));
 					Expression cardExtensionalSet              = Expressions.make(FunctorConstants.CARDINALITY, extensionalSet);
 					Expression resultRewriteCardExtensionalSet = process.rewrite(R_cardExtensionalSet, cardExtensionalSet);
 					Expression cardIndexXMinusRewriteResult    = Expressions.make(FunctorConstants.MINUS, cardIndex, resultRewriteCardExtensionalSet);
-					result = process.rewrite(R_simplify, cardIndexXMinusRewriteResult);
+					result = process.rewrite(R_normalize, cardIndexXMinusRewriteResult);
 				}
 			}
 		} 
@@ -169,7 +169,7 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractHierarchical
 
 		for (Expression conjunct : conjuncts) {
 			int tiIndex = -1;
-			Expression simplified = process.rewrite(R_simplify, conjunct);
+			Expression simplified = process.rewrite(R_normalize, conjunct);
 			if (Expressions.TRUE.equals(simplified)) {
 				continue;
 			} 
@@ -231,7 +231,7 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractHierarchical
 													CardinalityUtil.argForCardinalityConjunctionCall(allAndNotFirstCard, quantification));
 		
 		result = Minus.make(allButFirstCardComputed, allAndNotFirstCardComputed);
-		result = process.rewrite(R_simplify, result);
+		result = process.rewrite(R_normalize, result);
 		return result;
 	}
 	

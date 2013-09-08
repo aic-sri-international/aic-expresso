@@ -98,11 +98,11 @@ public class TopQuantifierElimination extends AbstractHierarchicalRewriter imple
 		
 		if (quantification == CardinalityRewriter.Quantification.FOR_ALL) {
 			Trace.log("if Q is \"for all\"");
-			Trace.log("    return R_simplify( R_card(|F|_x, Q) = |type(x)| )");
+			Trace.log("    return R_normalize( R_card(|F|_x, Q) = |type(x)| )");
 		} 
 		else {
 			Trace.log("if Q is \"there exists\"");
-			Trace.log("    return R_simplify( R_card(|F|_x, Q) > 0)");
+			Trace.log("    return R_normalize( R_card(|F|_x, Q) > 0)");
 		}
 		
 		Expression cardinalityOfIndexedFormaulaF = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(f, indexX);
@@ -112,12 +112,12 @@ public class TopQuantifierElimination extends AbstractHierarchicalRewriter imple
 			Expression cardIndexX            = CardinalityUtil.makeCardinalityOfIndexExpressions(indexX);
 			Expression resultCard1EqualCardX = Equality.make(resultCard1, cardIndexX);
 			
-			result = process.rewrite(R_simplify, resultCard1EqualCardX);
+			result = process.rewrite(R_normalize, resultCard1EqualCardX);
 		} 
 		else {
 			Expression resultCard1NotEqual0 = Expressions.make(FunctorConstants.GREATER_THAN, resultCard1, Expressions.ZERO);
 			
-			result = process.rewrite(R_simplify, resultCard1NotEqual0);
+			result = process.rewrite(R_normalize, resultCard1NotEqual0);
 		}
 		
 		return result;

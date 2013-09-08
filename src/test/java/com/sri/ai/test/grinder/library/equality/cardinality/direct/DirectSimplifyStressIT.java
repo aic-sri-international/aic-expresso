@@ -305,7 +305,7 @@ public class DirectSimplifyStressIT extends AbstractGrinderTest {
 			
 			countsDeclaration.setup(process);
 			
-			Expression result = DirectCardinalityComputationFactory.newCardinalityProcess(exprE, process).rewrite(CardinalityRewriter.R_simplify, exprE);
+			Expression result = DirectCardinalityComputationFactory.newCardinalityProcess(exprE, process).rewrite(CardinalityRewriter.R_normalize, exprE);
 			
 			return result;
 		}
