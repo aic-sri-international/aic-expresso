@@ -110,16 +110,16 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 			
 				if (indexExpressions.size() == 0) {
 					Trace.log("if n = 0");
-					Trace.log("    return R_simplify(if F then 1 else 0)");
+					Trace.log("    return R_normalize(if F then 1 else 0)");
 					Expression ifThenElse = IfThenElse.make(f, Expressions.ONE, Expressions.ZERO);
-					result = process.rewrite(CardinalityRewriter.R_simplify, ifThenElse);
+					result = process.rewrite(CardinalityRewriter.R_normalize, ifThenElse);
 				} 
 				else {
 					Trace.log("if n > 0");
 					// Note: the input f may have been simplified.
 					if ( negationHasLessNumberOfDisjuncts(f) ) {
 						Trace.log("    if negationHasLessNumberOfDisjuncts(F):");
-						Trace.log("        return R_simplify(||X|| - R_card( | not F |_X, \"none\" ) ) ");
+						Trace.log("        return R_normalize(||X|| - R_card( | not F |_X, \"none\" ) ) ");
 						Expression[] indicesAsArray    = indexExpressions.toArray(new Expression[indexExpressions.size()]);
 						Expression cardIndexX          = CardinalityUtil.makeCardinalityOfIndexExpressions(indicesAsArray);
 						Expression negationCardinality = process.rewrite(R_card,
@@ -127,7 +127,7 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 										CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(Not.make(f), indicesAsArray), 
 										CardinalityRewriter.Quantification.NONE));
 						Expression subtraction = Expressions.make(FunctorConstants.MINUS, cardIndexX, negationCardinality);
-						result = process.rewrite(CardinalityRewriter.R_simplify, subtraction);
+						result = process.rewrite(CardinalityRewriter.R_normalize, subtraction);
 					}
 					else {
 						Trace.log("    if not negationHasLessNumberOfDisjuncts(F):");
@@ -173,9 +173,9 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 		
 		if (f.equals(Expressions.TRUE)) {
 			Trace.log("if F is True");
-			Trace.log("    return R_simplify(||X||)");
+			Trace.log("    return R_normalize(||X||)");
 			Expression cardIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indicesAsArray);
-			result = process.rewrite(CardinalityRewriter.R_simplify, cardIndices);
+			result = process.rewrite(CardinalityRewriter.R_normalize, cardIndices);
 		}
 		else if (f.equals(Expressions.FALSE)) {
 			Trace.log("if F is False");
@@ -184,10 +184,10 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 		}
 		else if (CardinalityUtil.areIndicesNotInF(indices, f, process)) {
 			Trace.log("if x does not occur in F for any x in X");
-			Trace.log("    return R_simplify(if F then ||X|| else 0)");
+			Trace.log("    return R_normalize(if F then ||X|| else 0)");
 			Expression cardIndexX = CardinalityUtil.makeCardinalityOfIndexExpressions(indicesAsArray);
 			Expression ifThenElse = IfThenElse.make(f, cardIndexX, Expressions.ZERO);
-			result = process.rewrite(CardinalityRewriter.R_simplify, ifThenElse);
+			result = process.rewrite(CardinalityRewriter.R_normalize, ifThenElse);
 		}
 		else if (CardinalityUtil.isConjunctionOrImpliedConjunction(f, process)) {
 			Trace.log("if F is a conjunction // including F being a literal or a multi-equality");

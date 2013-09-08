@@ -137,7 +137,7 @@ public class CardinalityEquivalence extends AbstractHierarchicalRewriter impleme
 			List<Expression> plusTerms  = GrinderUtil.branchAndMergeTasks(taskRewriters, process);
 			
 			result = Plus.make(plusTerms);
-			result = process.rewrite(R_simplify, result);
+			result = process.rewrite(R_normalize, result);
 		} 
 		else {
 			throw new IllegalArgumentException("The input should be of the form G <=> H");

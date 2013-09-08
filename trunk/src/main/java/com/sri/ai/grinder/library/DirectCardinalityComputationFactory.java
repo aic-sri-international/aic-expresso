@@ -57,14 +57,14 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityDi
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityEquivalence;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityExtensionalSet;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityImplication;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CompleteSimplify;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CompleteNormalize;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.DefaultCardinalityConfiguration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.EqualityInConjunction;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.IncompleteLinearImpliedCertainty;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.MoveNotIn;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.PickCheapest;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.QuantifierElimination;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.Normalize;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.SortPair;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.SumOverOneVariable;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopImpliedCertainty;
@@ -84,11 +84,11 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopSimplifyDi
 public class DirectCardinalityComputationFactory {
 	
 	public static Rewriter getRootRewriter() {
-		return ((Simplify)newSimplify()).getRootRewriter();
+		return ((Normalize)newSimplify()).getRootRewriter();
 	}
 	
 	public static Rewriter newSimplify() {
-		Simplify simplify = new Simplify();
+		Normalize simplify = new Normalize();
 		
 		return simplify;
 	}
@@ -161,11 +161,11 @@ public class DirectCardinalityComputationFactory {
 	    cardRewriters.put(CardinalityRewriter.R_card_equivalence,           new CardinalityEquivalence());
 	    cardRewriters.put(CardinalityRewriter.R_cardExtensionalSet,         new CardinalityExtensionalSet());
 	    cardRewriters.put(CardinalityRewriter.R_card_implication,           new CardinalityImplication());
-	    cardRewriters.put(CardinalityRewriter.R_complete_simplify,          new CompleteSimplify());
+	    cardRewriters.put(CardinalityRewriter.R_complete_normalize,          new CompleteNormalize());
 	    cardRewriters.put(CardinalityRewriter.R_equality_in_conjunction,    new EqualityInConjunction());
 	    cardRewriters.put(CardinalityRewriter.R_move_not_in,                new MoveNotIn());
 	    cardRewriters.put(CardinalityRewriter.R_quantifier_elimination,     new QuantifierElimination());
-	    cardRewriters.put(CardinalityRewriter.R_simplify,                   new Simplify());
+	    cardRewriters.put(CardinalityRewriter.R_normalize,                   new Normalize());
 	    cardRewriters.put(CardinalityRewriter.R_sum_over_one_variable,      new SumOverOneVariable());
 	    cardRewriters.put(CardinalityRewriter.R_top_implied_certainty,      new TopImpliedCertainty()); 
 	    cardRewriters.put(CardinalityRewriter.R_top_quantifier_elimination, new TopQuantifierElimination());

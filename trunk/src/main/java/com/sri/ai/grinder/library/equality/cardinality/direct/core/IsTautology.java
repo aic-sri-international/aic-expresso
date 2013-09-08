@@ -64,7 +64,7 @@ public class IsTautology {
 	 * Returns whether F is a tautology or not
 	 * 
 	 * let x1, ..., xn be the free variables in F
-	 * return whether R_complete_simplify( for all x1 : ... for all xn : F ) is "True"
+	 * return whether R_complete_normalize( for all x1 : ... for all xn : F ) is "True"
 	 * </pre>
 	 * 
 	 * @param expressionF
@@ -84,9 +84,9 @@ public class IsTautology {
 		Set<Expression> freeVariablesInF = Expressions.freeVariables(expressionF, process);
 
 		// let x1, ..., xn be the free variables in F
-		// return whether R_complete_simplify( for all x1 : ... for all xn : F ) is "True"
+		// return whether R_complete_normalize( for all x1 : ... for all xn : F ) is "True"
 		Expression forAllX1ToXn     = ForAll.make(new ArrayList<Expression>(freeVariablesInF), expressionF);
-		Expression simplifiedResult = process.rewrite(CardinalityRewriter.R_complete_simplify, forAllX1ToXn);
+		Expression simplifiedResult = process.rewrite(CardinalityRewriter.R_complete_normalize, forAllX1ToXn);
 		if (simplifiedResult.equals(Expressions.TRUE)) {
 			result = true;
 		}

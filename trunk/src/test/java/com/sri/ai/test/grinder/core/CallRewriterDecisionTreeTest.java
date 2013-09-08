@@ -88,7 +88,7 @@ public class CallRewriterDecisionTreeTest {
 
 	@Test
 	public void testToString() {
-		// These are the list from R_simplify
+		// These are the list from R_normalize
 		List<Rewriter> rewriters = Arrays.asList((Rewriter) 
 					new PlainSubstitution(),
 					new CardinalityTypeOfLogicalVariable(),

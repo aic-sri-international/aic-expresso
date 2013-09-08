@@ -95,21 +95,21 @@ import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithBoundIndex;
 import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNotUsedInHead;
 
 /**
- * Default implementation of R_simplify(E).
+ * Default implementation of R_normalize(E).
  * 
  * @author oreilly
  *
  */
 @Beta
-public class Simplify extends AbstractHierarchicalRewriter implements CardinalityRewriter {
+public class Normalize extends AbstractHierarchicalRewriter implements CardinalityRewriter {
 	private Rewriter rRootRewriter = null;
 	
-	public Simplify() {
+	public Normalize() {
 	}
 	
 	@Override
 	public String getName() {
-		return R_simplify;
+		return R_normalize;
 	}
 	
 	public Rewriter getRootRewriter() {

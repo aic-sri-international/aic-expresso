@@ -159,7 +159,7 @@ public class SemanticSubstitute {
 			if (expression.getFunctorOrSymbol().equals(replaced.getFunctorOrSymbol())) {
 				Expression argumentsAreTheSame = Equality.makePairwiseEquality(expression.getArguments(), replaced.getArguments());
 				Expression argumentsAreTheSameAndConstraintOnReplaced = And.make(constraintOnReplaced, argumentsAreTheSame);
-				Expression conditionForExpressionToMatchReplaced = process.rewrite(CardinalityRewriter.R_complete_simplify, argumentsAreTheSameAndConstraintOnReplaced);
+				Expression conditionForExpressionToMatchReplaced = process.rewrite(CardinalityRewriter.R_complete_normalize, argumentsAreTheSameAndConstraintOnReplaced);
 				
 				// An assertion check.
 				if (!FormulaUtil.isFormula(conditionForExpressionToMatchReplaced, process)) {
@@ -203,7 +203,7 @@ public class SemanticSubstitute {
 				if (quantifiedVariable.getFunctorOrSymbol().equals(replacementFunction.replaced.getFunctorOrSymbol())) {
 					Expression argumentsAreDistinct = Not.make(Equality.makePairwiseEquality(quantifiedVariable.getArguments(), replacementFunction.replaced.getArguments()));
 					Expression argumentsAreDistinctAndReplacedIsConstrained = And.make(constraintOnReplaced, argumentsAreDistinct);
-					constraintOnReplaced = process.rewrite(CardinalityRewriter.R_complete_simplify, argumentsAreDistinctAndReplacedIsConstrained);
+					constraintOnReplaced = process.rewrite(CardinalityRewriter.R_complete_normalize, argumentsAreDistinctAndReplacedIsConstrained);
 				}
 			}
 			SubstituteReplacementFunction result = new SubstituteReplacementFunction(replacementFunction.replaced, constraintOnReplaced, replacementFunction.replacement);

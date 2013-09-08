@@ -64,7 +64,7 @@ public class IsContradiction {
 	 * Returns whether F is a contradiction or not
 	 * 
 	 * let x1, ..., xn be the free variables in F
-	 * return whether R_complete_simplify( there exists x1 : ... there exists xn : F ) is "False"
+	 * return whether R_complete_normalize( there exists x1 : ... there exists xn : F ) is "False"
 	 * </pre>
 	 * 
 	 * @param expressionF
@@ -84,9 +84,9 @@ public class IsContradiction {
 		Set<Expression> freeVariablesInF = Expressions.freeVariables(expressionF, process);
 		
 		// let x1, ..., xn be the free variables in F
-		// return whether R_complete_simplify( there exists x1 : ... there exists xn : F ) is "False"
+		// return whether R_complete_normalize( there exists x1 : ... there exists xn : F ) is "False"
 		Expression thereExistsX1ToXn = ThereExists.make(new ArrayList<Expression>(freeVariablesInF), expressionF);
-		Expression simplifiedResult  = process.rewrite(CardinalityRewriter.R_complete_simplify, thereExistsX1ToXn);
+		Expression simplifiedResult  = process.rewrite(CardinalityRewriter.R_complete_normalize, thereExistsX1ToXn);
 		if (simplifiedResult.equals(Expressions.FALSE)) {
 			result = true;
 		} 

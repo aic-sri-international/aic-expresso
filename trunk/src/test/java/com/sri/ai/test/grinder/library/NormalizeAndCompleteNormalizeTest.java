@@ -53,7 +53,7 @@ import com.sri.ai.test.grinder.AbstractGrinderTest;
 import com.sri.ai.test.grinder.TestData;
 import com.sri.ai.util.Util;
 
-public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
+public class NormalizeAndCompleteNormalizeTest extends AbstractGrinderTest {
 	
 	@Override
 	public Grammar makeGrammar() {
@@ -61,106 +61,106 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 	}
 
 	@Test
-	public void testSimplifyPassesBasicTests() {
+	public void testNormalizePassesBasicTests() {
 
 		TestData[] tests = new TestData[] {
 				//
 				// Replaces 0*E' by 0 
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"0*2",
 						"0"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"0*p(a)",
 						"0"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"2*0",
 						"0"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"p(a)*0",
 						"0"),
 				//
 				// Replaces 1*E' by E' 
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"1*2",
 						"2"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"1*p(a)",
 						"p(a)"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"2*1",
 						"2"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"p(a)*1",
 						"p(a)"),
 				//
 				// Replaces 0+E' by E' 
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"0+2",
 						"2"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"0+p(a)",
 						"p(a)"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"2+0",
 						"2"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"p(a)+0",
 						"p(a)"),
 				//
 				// Replaces 0^E' by 0
-				new SimplifyTestData(
+				new NormalizeTestData(
 							"0^2",
 							"0"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 							"0^p(a)",
 							"0^p(a)"),
 			    //
 				// Replace 0^0 by 1
 				// see: http://en.wikipedia.org/wiki/Exponentiation#Zero_to_the_zero_power
 				// for discussion.
-				new SimplifyTestData(
+				new NormalizeTestData(
 							"0^0",
 							"1"),
 				//
 				// Replaces E'^0 by 1 
-				new SimplifyTestData(
+				new NormalizeTestData(
 							"2^0",
 							"1"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 							"p(a)^0",
 							"1"),
 				//
 				// Replaces E'^1 by E'
-				new SimplifyTestData(
+				new NormalizeTestData(
 							"2^1",
 							"2"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 							"p(a)^1",
 							"p(a)"),
 				//
 				// Replaces E'/1 by E' 
-			    new SimplifyTestData(
+			    new NormalizeTestData(
 							"2/1",
 							"2"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 							"p(a)/1",
 							"p(a)"),
 				//
 				// Replaces --E' by E' 
 				// Test for resolved issue: JIRA ALBP-69
-				new SimplifyTestData(
+				new NormalizeTestData(
 							"--2",
 							"2"),
 // TODO - need fix for ALBP-68, currently returns --p(a)
-//				new SimplifyTestData(
+//				new NormalizeTestData(
 //							"--p(a)",
 //							"p(a)"),	
 				//
 				// Replaces E'-0 by E' 
-				new SimplifyTestData(
+				new NormalizeTestData(
 							"2-0",
 							"2"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 							"p(a)-0",
 							"p(a)"),
 				//
@@ -172,82 +172,82 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 				// -(2), which is correct but does not compare
 				// correctly, so using (-2) gets around this.
 				// Test for resolved issue: JIRA ALBP-69
-				new SimplifyTestData(
+				new NormalizeTestData(
 							"0-(-2)",
 							"2"),
 				// Test for resolved issue: JIRA ALBP-69
-				new SimplifyTestData(
+				new NormalizeTestData(
 							"0-p(a)",
 							"-p(a)"),
 				//
 				// Replaces false and E' by false 
-				new SimplifyTestData(
+				new NormalizeTestData(
 							"false and p(a)",
 							"false"),
 				//
 				// Replaces true and E' by E'
-				new SimplifyTestData(
+				new NormalizeTestData(
 							"true and p(a)",
 							"p(a)"),
 				//
 				// Replaces false or E' by E' 
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"false or p(a)",
 						"p(a)"),
 				//
 				// Replaces true or E' by true 
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"true or p(a)",
 						"true"),
 				//
 				// Replaces not not E' by E' 
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"not not p(a)",
 						"p(a)"),
 				//
 				// Replaces not true by false
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"not true",
 						"false"),
 				//
 				// Replaces not false by true.
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"not false",
 						"true"),
 				//
 				// Replaces if true then E' else E'' by E'
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"if true then p(a) else p(b)",
 						"p(a)"),
 				//
 				// Replaces if false then E' else E'' by E''
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"if false then p(a) else p(b)",
 						"p(b)"),
 				//
 				// Replaces if C then E' else E' by E'
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"if p(b) then p(a) else p(a)",
 						"p(a)"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"if X = Y then p(a) else p(a)",
 						"p(a)"),
 				//
 				// Replaces function applications of numeric operations on 
 				// actual numbers by its result
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"4+2",
 						"6"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"4-2",
 						"2"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"4*2",
 						"8"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"4/2",
 						"2"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"4^2",
 						"16"),
 				//
@@ -258,18 +258,18 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 				// Externalizes Conditionals
 				// TODO - add tests
 				// Tests for resolved issue: JIRA ALBP-31
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"{ B, (if A = B then C else D) }",
 						"if A = B then { B, C } else { B, D }"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"{ if A = B then C else D }",
 						"if A = B then { C } else { D }"),
 				// Tests for resolved issue: JIRA ALBP-51
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"if A = B then if B = A then 1 else 2 else 3",
 						"if A = B then 1 else 3"),
 				// Tests for resolved issue: JIRA ALBP-51
-				new SimplifyTestData(
+				new NormalizeTestData(
 						"if B = A then {C} else if A = B then {D} else {E}",
 						"if B = A then {C} else {E}"),
 				// TODO - test injective functions.
@@ -280,7 +280,7 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 	}
 	
 	@Test
-	public void testSimplifyAsDescribedInPapers() {
+	public void testNormalizeAsDescribedInPapers() {
 		//
 		// Tests based on how simplification should work, as described in:
 		// /aic-smf/doc/papers/CP 2012/CP 2012 submitted version with revisions
@@ -288,7 +288,7 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 		TestData[] tests = new TestData[] {
 			//
 			// Basic: 1. if-then-elses are externalized.
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"and(A = a, (if B = b then C = c else C = d), E = e)",
 				//"B = b and A = a and C = c and E = e or B != b and A = a and C = d and E = e"),
 				"A = a and (B = b and C = c or B != b and C = d) and E = e"),
@@ -297,106 +297,106 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 				// if B = b then and(A = a, C = c, E = e) else and(A = a, C = d, E = e)
 			//
 			// Basic: 2. Operations on constants are performed.
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"2 + 2",
 				"4"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"not(0 = 1)",
 				"true"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"0 = 1",
 				"false"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"a = a",
 				"true"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"a = b",
 				"false"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"not(false)",
 				"true"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"not(true)",
 				"false"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"and(false, true)",
 				"false"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"or(false, true)",
 				"true"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"if true then 1 else 2",
 				"1"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"if false then 1 else 2",
 				"2"),
 			//
 			// Basic: 3. Operations whose results can be defined
 			// by a subset of their arguments equal to certain constants.
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"and(false, X = Y)",
 				"false"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"0 + 5",
 				"5"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"5 - 0",
 				"5"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"0 * 5",
 				"0"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"0 * | X != a |",
 				"0"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"1 * 5",
 				"5"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"if true then | X = a | else 2",
 				"| X = a |"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"if X != a then true else true",
 				"true"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"if X != a then false else false",
 				"false"),
 			//
 			// Basic: 4 equalities and disequalities on formulas
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"X = X",
 				"true"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"X != X",
 				"false"),
 			// Note: as we support normalization (i.e. an ordering)
 		    // on equalities and disequalities the following
 			// will simplify.
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"(X != x) = (x != X)",
 				"true"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"(X != x) != (x != X)",
 				"false"),
 			//
 			// Basic: 5 conjuncts with equality on different constants
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"and(X = a, X = b)",
 				"false"),
-				new SimplifyTestData(
+				new NormalizeTestData(
 				"and(X = a, b = X)",
 				"false"),
 			//
 			// Basic: 6 conjuncts with equality and inequality on the same term
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"and(X = a, X != a)",
 				"false"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"and(X = a, a != X)",
 				"false"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"and(X = Y, X != Y)",
 				"false"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"and(X = Y, Y != X)",
 				"false"),
 			//
@@ -410,31 +410,31 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 			// has been decided not to be needed as R_implied_certainty
 			// will pick out if its a contradiction anyway. So the
 			// following case will not simplify.
-			new SimplifyTestData(
+			new NormalizeTestData(
 				"and(X != a, X = Y, Y != b)",
 				"and(X != a, X = Y, Y != b)"),			
 			//
 			// Basic: 8. False if not satisfiable
-			new SimplifyTestData(
+			new NormalizeTestData(
 					"true => false",
 					"false"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 					"X = X => X != X",
 					"false"),
 			//
 			// Basic: 9. True if not falsifiable
-			new SimplifyTestData(
+			new NormalizeTestData(
 					"true => true",
 					"true"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 					"X = X => X = X",
 					"true"),
 			//
 			// Basic: 10. if-then-else, true false sub-formula replacement
-			new SimplifyTestData(
+			new NormalizeTestData(
 					"if X = a then if X = b then 1 else 2 else 3",
 					"if X = a then 2 else 3"),
-			new SimplifyTestData(
+			new NormalizeTestData(
 					"if X = a then if X != b then 1 else 2 else 3",
 					"if X = a then 1 else 3"),
 		};
@@ -443,11 +443,11 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 	}
 	
 	@Test
-	public void testSimplifyNonFormulaConditionalTests() {
+	public void testNormalizeNonFormulaConditionalTests() {
 		TestData[] tests = new TestData[] {
 				//
 				// Basic: 
-				new SimplifyTestData(
+				new NormalizeTestData(
 					"+((if not query then 1 else 0) * 2, (if query then 1 else 0) * 3)",
 					"if not query then 2 else 3"),
 		};
@@ -456,16 +456,16 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 	}
 	
 	@Test
-	public void testCompleteSimplifyRequired() {
+	public void testCompleteNormalizeRequired() {
 		TestData[] tests = new TestData[] {
 			// Tests for resolved issue: JIRA ALBP-53
-			new CompleteSimplifyTestData(
+			new CompleteNormalizeTestData(
 				"if A = C then {Z1} else if B = C then if A = B then {Z2} else {Z3} else {Z4}", 
 				"if A = C then {Z1} else if B = C then {Z3} else {Z4}"),
 			//
 			// Basic: 7 transitive equalities results in a contradiction 
 			// Note: requires complete simplification.
-			new CompleteSimplifyTestData(
+			new CompleteNormalizeTestData(
 					"and(X = a, X = Y, Y != a)",
 					"false"),
 		};
@@ -474,10 +474,10 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 	}
 	
 	@Test
-	public void testCompleteSimplifyPerformance() {
+	public void testCompleteNormalizePerformance() {
 		TestData[] tests = new TestData[] {
 				// This is a contradiction
-				new CompleteSimplifyTestDataWithContext(
+				new CompleteNormalizeTestDataWithContext(
 						Util.list(parse("X"), parse("Y")),
 						"Y != X and (X = dave and Y = bob or Y = dave and X = bob)",
 						"Y != X and (X = dave and Y = bob or Y = dave and X = bob) and X = dave and Y = bob", 
@@ -488,20 +488,20 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 	}
 	
 	@Test
-	public void testCompleteSimplifyContradictions() {
+	public void testCompleteNormalizeContradictions() {
 		TestData[] tests = new TestData[] {
 				// This is a contradiction
-				new CompleteSimplifyTestData(
+				new CompleteNormalizeTestData(
 				"X = w7 => not(X0 != Y and X0 != Z and Z != Y and (X0 = w7 and X = Y or X0 = w7 and X = Z))", 
 				"true"),
 				// This is the same contradiction just formulated slightly differently
-				new CompleteSimplifyTestData(
+				new CompleteNormalizeTestData(
 				"not(X != w7) => not(X0 != Y and X0 != Z and Z != Y and (X0 = w7 and X = Y or X0 = w7 and X = Z))", 
 				"true"),				
-				new CompleteSimplifyTestData(
+				new CompleteNormalizeTestData(
 						"X = w7 and X0 != Y and X0 != Z and Z != Y and (X0 = w7 and X = Y or X0 = w7 and X = Z)", 
 						"false"),
-				new CompleteSimplifyTestData(
+				new CompleteNormalizeTestData(
 						"not(X != w7) and X0 != Y and X0 != Z and Z != Y and (X0 = w7 and X = Y or X0 = w7 and X = Z)", 
 						"false"),
 
@@ -511,12 +511,12 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 	}
 	
 	@Test
-	public void testCompleteSimplifyUnreachableBranch() {
+	public void testCompleteNormalizeUnreachableBranch() {
 		TestData[] tests = new TestData[] {
-				new CompleteSimplifyTestData(
+				new CompleteNormalizeTestData(
 					"if X = person1 or X = person2 or X = person3 then (if X != person1 and X != person2 and X != person3 then 1 else 2) else 3", 
 					"if X = person1 or X = person2 or X = person3 then 2 else 3"),
-				new CompleteSimplifyTestData(
+				new CompleteNormalizeTestData(
 						"if X != w7 then 1 else (if (X0 != Y and X0 != Z and Z != Y and (X0 = w7 and X = Y or X0 = w7 and X = Z)) then 2 else 3)", 
 						"if X != w7 then 1 else 3"),
 			};
@@ -527,11 +527,11 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 	//
 	// PRIVATE METHODS
 	//
-	class SimplifyTestData extends TestData implements CardinalityTypeOfLogicalVariable.DomainSizeOfLogicalVariable {
+	class NormalizeTestData extends TestData implements CardinalityTypeOfLogicalVariable.DomainSizeOfLogicalVariable {
 		private String expressionString; 
 		private Expression expression;
 		
-		public SimplifyTestData(String expressionString, String expected) {
+		public NormalizeTestData(String expressionString, String expected) {
 			super(false, expected);
 			this.expressionString = expressionString;
 		};
@@ -557,7 +557,7 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 			// Ensure explicit counts added for all variable domains.
 			CardinalityTypeOfLogicalVariable.registerDomainSizeOfLogicalVariableWithProcess(this, process);
 				
-			Expression result = DirectCardinalityComputationFactory.newCardinalityProcess(expression, process).rewrite(getSimplifyName(), expression);
+			Expression result = DirectCardinalityComputationFactory.newCardinalityProcess(expression, process).rewrite(getNormalizeName(), expression);
 			
 			return result;
 		}
@@ -565,29 +565,29 @@ public class SimplifyAndCompleteSimplifyTest extends AbstractGrinderTest {
 		//
 		// PROTECTED
 		//
-		protected String getSimplifyName() {
-			return CardinalityRewriter.R_simplify;
+		protected String getNormalizeName() {
+			return CardinalityRewriter.R_normalize;
 		}
 	};
 	
-	class CompleteSimplifyTestData extends SimplifyTestData {
+	class CompleteNormalizeTestData extends NormalizeTestData {
 		
-		public CompleteSimplifyTestData(String expressionString, String expected) {
+		public CompleteNormalizeTestData(String expressionString, String expected) {
 			super(expressionString, expected);
 		};
 		
 		@Override
-		protected String getSimplifyName() {
-			return CardinalityRewriter.R_complete_simplify;
+		protected String getNormalizeName() {
+			return CardinalityRewriter.R_complete_normalize;
 		}
 	};
 
-	class CompleteSimplifyTestDataWithContext extends CompleteSimplifyTestData {
+	class CompleteNormalizeTestDataWithContext extends CompleteNormalizeTestData {
 		
 		private Expression context;
 		private Collection<Expression> contextualVariables;
 
-		public CompleteSimplifyTestDataWithContext(Collection<Expression> contextualVariables, String context, String expressionString, String expected) {
+		public CompleteNormalizeTestDataWithContext(Collection<Expression> contextualVariables, String context, String expressionString, String expected) {
 			super(expressionString, expected);
 			this.contextualVariables = contextualVariables;
 			this.context = parse(context);

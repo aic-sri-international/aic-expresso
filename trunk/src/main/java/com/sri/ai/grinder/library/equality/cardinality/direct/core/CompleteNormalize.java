@@ -46,21 +46,21 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewrite
 import com.sri.ai.util.base.Pair;
 
 /**
- * Complete implementation of R_complete_simplify(E), including complete checking of implied certainties.
+ * Complete implementation of R_complete_normalize(E), including complete checking of implied certainties.
  * 
  * @author oreilly
  *
  */
 @Beta
-public class CompleteSimplify extends Simplify implements CardinalityRewriter {
+public class CompleteNormalize extends Normalize implements CardinalityRewriter {
 	
-	public CompleteSimplify() {
+	public CompleteNormalize() {
 		super();
 	}
 	
 	@Override
 	public String getName() {
-		return R_complete_simplify;
+		return R_complete_normalize;
 	}
 	
 	//

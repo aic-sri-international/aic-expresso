@@ -2285,7 +2285,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"if Y = a then 2 else (if Z = a then 2 else 0)"),
 			//
 			// Basic: N3 <- R_card_conjunction( | R_top_simplify_conjunction(F1 and F2) |_x, "none" )
-			// return R_simplify(N1 + N2 - N3)
+			// return R_normalize(N1 + N2 - N3)
 			new Cardinality1DisjunctionData(false,
 					"| {(on X) tuple(X) | or(X = a, X = b)} |",
 					CardinalityRewriter.Quantification.NONE,
