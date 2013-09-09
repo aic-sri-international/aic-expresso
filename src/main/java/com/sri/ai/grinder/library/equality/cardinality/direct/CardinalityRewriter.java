@@ -527,6 +527,13 @@ public interface CardinalityRewriter {
 	String R_normalize = CARDINALITY_NAMESPACE+"R_normalize";
 
 	/**
+	 * R_simplify(E).<br>
+	 * Interface for R_simplify(E) functionality used by R_normalize.
+	 * It performs simplifications of expressions based on full or partial evaluation of known functions.
+	 */
+	String R_simplify = CARDINALITY_NAMESPACE+"R_simplify";
+
+	/**
 	 * <pre>
 	 * R_sum_over_one_variable(sum_{x: Cx} S)
 	 * Cx is a formula in boolean logic, constraining the values of the summation index x

@@ -49,9 +49,8 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.core.OpenInterpretationModule;
 import com.sri.ai.grinder.core.TotalRewriter;
-import com.sri.ai.grinder.helper.RewriterLoggingNamedRewriterFilter;
 import com.sri.ai.grinder.helper.Justification;
-import com.sri.ai.grinder.helper.Trace;
+import com.sri.ai.grinder.helper.RewriterLoggingNamedRewriterFilter;
 import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
 import com.sri.ai.grinder.library.Disequality;
@@ -71,8 +70,6 @@ import com.sri.ai.grinder.library.boole.ThereExistsSubExpressionsAndScopedVariab
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.controlflow.IfThenElseBranchesAreBooleanConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch;
-import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
-import com.sri.ai.grinder.library.controlflow.IfThenElseExternalizationHierarchical;
 import com.sri.ai.grinder.library.controlflow.IfThenElseIrrelevantCondition;
 import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
@@ -97,26 +94,22 @@ import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithBoundIndex;
 import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNotUsedInHead;
 
 /**
- * Default implementation of R_normalize(E).
+ * Successively and exhaustively applies simplifications to a basic expression,
+ * that is, one formed of basic operators plus products with no conditional expressions inside.
  * 
- * @author oreilly
+ * @author braz
  *
  */
 @Beta
-public class Normalize extends AbstractHierarchicalRewriter implements CardinalityRewriter {
+public class Simplify extends AbstractHierarchicalRewriter implements CardinalityRewriter {
 	private Rewriter rRootRewriter = null;
-	private boolean oldVersion = false;
-
-	public Normalize() {
-	}
 	
-	public Normalize(boolean oldVersion) {
-		this.oldVersion = oldVersion;
+	public Simplify() {
 	}
 	
 	@Override
 	public String getName() {
-		return R_normalize;
+		return R_simplify;
 	}
 	
 	public Rewriter getRootRewriter() {
@@ -138,31 +131,14 @@ public class Normalize extends AbstractHierarchicalRewriter implements Cardinali
 		return rRootRewriter;
 	}
 	
-	private Rewriter ifThenElseExternalizationHierarchical = new IfThenElseExternalizationHierarchical();
-	private Rewriter simplify = new Simplify();
-	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		//oldVersion = true;
-		if (oldVersion) {
-			Justification.beginEqualityStep("basic simplifications");
-			Expression result = getRootRewriter().rewrite(expression, process);
-			Justification.endEqualityStep(result);
-			return result;
-		}
-		else {
-			Justification.beginEqualityStep("Incomplete normalization");
-			Trace.in("Normalizing {}", expression);
-			Expression result = expression;
-			result = simplify.rewrite(result, process);
-			result = ifThenElseExternalizationHierarchical.rewrite(result, process);
-			result = simplify.rewrite(result, process);
-			Trace.out("Normalized {} to {}", expression, result);
-			Justification.endEqualityStep(result);
-			return result;
-		}
+		Justification.beginEqualityStep("basic simplifications");
+		Expression result = getRootRewriter().rewrite(expression, process);
+		Justification.endEqualityStep(result);
+		return result;
 	}
-
+	
 	//
 	// PROTECTED METHODS
 	//
@@ -234,7 +210,6 @@ public class Normalize extends AbstractHierarchicalRewriter implements Cardinali
 						// new DisequalityToEqualityInIfThenElseCondition(),
 						new IfThenElseBranchesAreBooleanConstants(),
 						new IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch(),
-						new IfThenElseExternalization(),
 						
 						// only modules from here on: they don't actually
 						// rewrite anything, so why test them sooner than
@@ -250,7 +225,6 @@ public class Normalize extends AbstractHierarchicalRewriter implements Cardinali
 						new ThereExistsSubExpressionsAndScopedVariablesProvider(),
 						new IntensionalSet(), // Note: This is just a provider for scoped variables and not a rewriter.
 						new SyntacticFunctionsSubExpressionsProvider("type", "scoped variables"),
-						new OpenInterpretationModule()
-				}));
+						new OpenInterpretationModule() }));
 	}
 }

@@ -35,50 +35,29 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.equality.cardinality.direct.core;
-
-import java.util.List;
+package com.sri.ai.grinder.helper;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.library.ScopedVariables;
-import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
-import com.sri.ai.util.base.Pair;
+import com.sri.ai.grinder.api.RewritingProcess;
 
 /**
- * Complete implementation of R_complete_normalize(E), including complete checking of implied certainties.
- * 
- * @author oreilly
- *
+ * A function mapping an expression to its form rewritten by a given rewriter within a given rewriting process. 
  */
 @Beta
-public class CompleteNormalize extends Normalize implements CardinalityRewriter {
-	
-	public CompleteNormalize() {
-		super(true);
+public class RewriterFunction implements Function<Expression, Expression> {
+	private Rewriter rewriter;
+	private RewritingProcess process;
+
+	public RewriterFunction(Rewriter rewriter, RewritingProcess process) {
+		super();
+		this.rewriter = rewriter;
+		this.process = process;
 	}
-	
-	@Override
-	public String getName() {
-		return R_complete_normalize;
-	}
-	
-	//
-	// PROTECTED METHODS
-	//
-	@SuppressWarnings("unchecked")
-	@Override
-	protected List<Rewriter> getAtomicRewriters() {
-		List<Rewriter> atomicRewriters = super.getAtomicRewriters();
-		
-		atomicRewriters = addRewritersBefore(atomicRewriters,
-				//
-				// Support for: full satisfiability testing
-				new Pair<Class<?>, Rewriter>(
-						ScopedVariables.class,
-						new TopImpliedCertainty())
-				);
-		
-		return atomicRewriters;
+
+	public Expression apply(Expression expression) {
+		return rewriter.rewrite(expression, process);
 	}
 }

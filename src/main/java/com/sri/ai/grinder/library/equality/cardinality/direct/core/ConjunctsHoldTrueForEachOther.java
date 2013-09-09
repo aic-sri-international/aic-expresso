@@ -61,6 +61,12 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewrite
  * (p => (q <=> q'))  =>  (p and q) <=> (p and q')
  * </pre>
  * 
+ * Note that this rewriter uses R_normalize on each conjunct with a context extended by another.
+ * R_normalize could in principle expand that sub-expression, in which case this rewriter would be an expanding one,
+ * unfit to be used in situations in which we need to guarantee shrinking expressions.
+ * If however the given expression is in certain normal forms that do not get expanded by R_normalize, then
+ * the shrinking guarantee remains valid. 
+ * 
  * @author braz
  */
 @Beta

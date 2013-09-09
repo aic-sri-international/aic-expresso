@@ -84,13 +84,12 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopSimplifyDi
 public class DirectCardinalityComputationFactory {
 	
 	public static Rewriter getRootRewriter() {
-		return ((Normalize)newSimplify()).getRootRewriter();
+		return ((Normalize)newNormalize()).getRootRewriter();
 	}
 	
-	public static Rewriter newSimplify() {
-		Normalize simplify = new Normalize();
-		
-		return simplify;
+	public static Rewriter newNormalize() {
+		Normalize normalize = new Normalize();
+		return normalize;
 	}
 	
 	public static CardinalityConfiguration newCardinalityConfiguration() {
