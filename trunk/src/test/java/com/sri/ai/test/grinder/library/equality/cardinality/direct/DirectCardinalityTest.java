@@ -2302,7 +2302,8 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | or(and(X != a, X != Y), and(X != a, X != Z))} |",
 					CardinalityRewriter.Quantification.NONE,
 					new CountsDeclaration(2),
-					"if Y = Z or Y = a then if Y = a then 1 else 0 else 1"),
+//					"if Y = Z or Y = a then if Y = a then 1 else 0 else 1"),
+				"if Y = a then 1 else (if Z = a then 1 else (if Y = Z then 0 else 1))"),
 			//
 			// Illegal Argument Tests
 			new Cardinality1DisjunctionData(true,
@@ -3490,54 +3491,6 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X, Y) tuple(Z, Y) | X != a and Y != b} |",
 					new CountsDeclaration(10),
 					"N/A"),	
-		};
-		
-		perform(tests);
-	}
-	
-	@Test
-	public void testCardinality1DisjunctionQuick() {
-		class Cardinality1DisjunctionData extends TestData {
-			private String                      E;
-			private Expression                  exprE;
-			private CardinalityRewriter.Quantification quantification    = null;
-			private CountsDeclaration           countsDeclaration = null;
-			
-			public Cardinality1DisjunctionData(boolean isIllegalArgumentTest, String E, CardinalityRewriter.Quantification quantification, CountsDeclaration countsDeclaration, String expected) {
-				super(isIllegalArgumentTest, expected);
-				this.E = E;
-				this.quantification = quantification;
-				this.countsDeclaration = countsDeclaration;
-				this.countsDeclaration.setParser(parser);
-			}
-			
-			@Override
-			public Expression getTopExpression() {
-				this.exprE = parse(E);
-				
-				return exprE;
-			}
-			
-			@Override
-			public Expression callRewrite(RewritingProcess process) {
-				
-				countsDeclaration.setup(process);
-				
-				Expression result = DirectCardinalityComputationFactory.newCardinalityProcess(exprE, process) 
-							.rewrite(CardinalityRewriter.R_card_disjunction, CardinalityUtil.argForCardinalityDisjunctionCall(exprE, quantification));
-				
-				return result;
-			}
-		}
-		
-		TestData[] tests = new TestData[] {
-		    //
-			// Basic: introduce free variables
-			new Cardinality1DisjunctionData(false,
-					"| {(on X) tuple(X) | or(and(X != a, X != Y), and(X != a, X != Z))} |",
-					CardinalityRewriter.Quantification.NONE,
-					new CountsDeclaration(2),
-					"if Y = Z or Y = a then if Y = a then 1 else 0 else 1"),
 		};
 		
 		perform(tests);

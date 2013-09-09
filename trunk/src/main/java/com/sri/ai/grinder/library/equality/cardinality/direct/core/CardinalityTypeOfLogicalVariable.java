@@ -116,12 +116,12 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 			RewritingProcess process) {
 		Expression result = expression;
 
-		Expression cardArg = expression.get(0);
+		Expression cardinalityArgument = expression.get(0);
 		Expression logicalVariable = null;
 		
-		if (process.isVariable(cardArg)) {
+		if (process.isVariable(cardinalityArgument)) {
 			// | DomainNameLogicalVariable | 
-			logicalVariable = cardArg;
+			logicalVariable = cardinalityArgument;
 		} 
 		else {
 			// | type(LogicalVariableName) |
@@ -130,12 +130,12 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 			// "scoped variables"), which means its arguments are not accessible
 			// as rewriting of them is not considered possible.
 			// However, in this case we'd like to do differently.
-			if (cardArg.hasFunctor(FUNCTOR_TYPE)
-					&& cardArg.getSyntaxTree().numberOfImmediateSubTrees() == 1
-					&& process.isVariable(cardArg.getSyntaxTree()
+			if (cardinalityArgument.hasFunctor(FUNCTOR_TYPE)
+					&& cardinalityArgument.getSyntaxTree().numberOfImmediateSubTrees() == 1
+					&& process.isVariable(cardinalityArgument.getSyntaxTree()
 							.getImmediateSubTrees().get(0))) {
 				
-				logicalVariable = cardArg.getSyntaxTree().getImmediateSubTrees().get(0);
+				logicalVariable = cardinalityArgument.getSyntaxTree().getImmediateSubTrees().get(0);
 			}
 		}
 		
