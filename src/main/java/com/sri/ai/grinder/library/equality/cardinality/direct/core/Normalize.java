@@ -138,7 +138,7 @@ public class Normalize extends AbstractHierarchicalRewriter implements Cardinali
 		return rRootRewriter;
 	}
 	
-	private Rewriter ifThenElseExternalizationHierarchical = new IfThenElseExternalizationHierarchical();
+	protected Rewriter ifThenElseExternalizationHierarchical = new IfThenElseExternalizationHierarchical();
 	private Rewriter simplify = new Simplify();
 	
 	@Override

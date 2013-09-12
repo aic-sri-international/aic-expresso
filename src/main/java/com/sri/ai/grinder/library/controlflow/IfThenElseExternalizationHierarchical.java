@@ -46,11 +46,13 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.helper.RewriterFunction;
+import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.util.Util;
 
 /**
- * Receives a basic expression (basic operators plus products without if then elses in the head)
- * and returns an equivalent expression in which all conditional expressions are on the top of the expression.
+ * Receives a basic expression (basic operators plus products of intensional sets with basic expressions in the head)
+ * and returns an equivalent expression in which all conditional expressions are on the top of the expression,
+ * but for the ones constrained to be inside sets because they use their indices.
  */
 @Beta
 public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalRewriter {
@@ -67,8 +69,6 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 			expression = expression.replace(new RewriterFunction(this, process), false /* all occurrences */, null, true /* ignore top expression, expression */, null, process);
 		}
 
-		Expression result = expression;
-
 		ExpressionAndContext conditionalSubExpressionAndContext = findConditionalSubExpressionAndContext(expression, process);
 		if (conditionalSubExpressionAndContext != null) {
 			if (IfThenElse.isIfThenElse(expression) && conditionalSubExpressionAndContext.getExpression() != IfThenElse.getCondition(expression)) {
@@ -77,29 +77,32 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 			}
 			else { // expression is not a conditional expression itself
 				Expression conditionalSubExpression = conditionalSubExpressionAndContext.getExpression();
-				Expression condition  = IfThenElse.getCondition(conditionalSubExpression);
-				Expression thenBranch = IfThenElse.getThenBranch(conditionalSubExpression);
-				Expression elseBranch = IfThenElse.getElseBranch(conditionalSubExpression);
+				boolean noScopingRestrictions = decideWhetherThereAreNoScopingRestrictions(expression, conditionalSubExpression, process);
+				if (noScopingRestrictions) {
+					Expression condition  = IfThenElse.getCondition(conditionalSubExpression);
+					Expression thenBranch = IfThenElse.getThenBranch(conditionalSubExpression);
+					Expression elseBranch = IfThenElse.getElseBranch(conditionalSubExpression);
 
-				// Create two expressions, one in which the "then branch" replaces the conditional sub-expression, and another in which the "else branch" does that.
-				Expression newThenBranch = Expressions.replaceAtPath(expression, conditionalSubExpressionAndContext.getPath(), thenBranch);
-				Expression newElseBranch = Expressions.replaceAtPath(expression, conditionalSubExpressionAndContext.getPath(), elseBranch);
+					// Create two expressions, one in which the "then branch" replaces the conditional sub-expression, and another in which the "else branch" does that.
+					Expression newThenBranch = Expressions.replaceAtPath(expression, conditionalSubExpressionAndContext.getPath(), thenBranch);
+					Expression newElseBranch = Expressions.replaceAtPath(expression, conditionalSubExpressionAndContext.getPath(), elseBranch);
 
-				// Make sure the *new* subexpressions are normalized themselves, even though the original ones already were.
-				// If they are not normalized, the unnormalized part must be on their top expression only,
-				// since their sub-expressions were the original expression's sub-expressions, which we know to be normalized.
-				// For example, suppose expression was f(if C1 then A1 else B1, if C2 then A2 else B2).
-				// At this point, we have if C1 then f(A1, if C2 then A2 else B2) else f(B1, if C2 then A2 else B2)
-				// f(A1, if C2 then A2 else B2) and f(B1, if C2 then A2 else B2) are not normalized, but their sub-expressions are (they are some of expression's sub-expressions).
-				// So we make a recursive call on these new then and else branches, with the information that their own sub-expressions are normalized. 
-				newThenBranch = normalize(newThenBranch, true, process);
-				newElseBranch = normalize(newElseBranch, true, process);
-				result = normalize(IfThenElse.make(condition, newThenBranch, newElseBranch), true, process);
+					// Make sure the *new* subexpressions are normalized themselves, even though the original ones already were.
+					// If they are not normalized, the unnormalized part must be on their top expression only,
+					// since their sub-expressions were the original expression's sub-expressions, which we know to be normalized.
+					// For example, suppose expression was f(if C1 then A1 else B1, if C2 then A2 else B2).
+					// At this point, we have if C1 then f(A1, if C2 then A2 else B2) else f(B1, if C2 then A2 else B2)
+					// f(A1, if C2 then A2 else B2) and f(B1, if C2 then A2 else B2) are not normalized, but their sub-expressions are (they are some of expression's sub-expressions).
+					// So we make a recursive call on these new then and else branches, with the information that their own sub-expressions are normalized. 
+					newThenBranch = normalize(newThenBranch, true, process);
+					newElseBranch = normalize(newElseBranch, true, process);
+					expression = normalize(IfThenElse.make(condition, newThenBranch, newElseBranch), true, process);
+				}
 			}
 		}
-		return result;
+		return expression;
 	}
-	
+
 	private static ExpressionAndContext findConditionalSubExpressionAndContext(Expression expression, RewritingProcess process) {
 		ExpressionAndContext result = 
 		Util.getFirstSatisfyingPredicateOrNull(
@@ -116,75 +119,12 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 		}
 	}
 
-//	private Expression normalize(Expression expression, boolean subExpressionsAreNormalized, RewritingProcess process) {
-//
-//		// Make sure sub-expressions are normalized (externalized) first.
-//		if ( ! subExpressionsAreNormalized) {
-//			expression = expression.replace(new RewriterFunction(this, process), false /* all occurrences */, null, true /* ignore top expression, expression */, null, process);
-//		}
-//
-//		Expression result = expression;
-//
-//		ExpressionAndContext conditionalSubExpressionAndContext = findConditionalSubExpressionAndContext(expression, process);
-//		if (conditionalSubExpressionAndContext != null) {
-//			if (IfThenElse.isIfThenElse(expression)) { // expression is a conditional expression itself
-//				
-//				// if the expression is conditional expression itself, the only conditional argument that needs to be externalized is its condition, if it is conditional itself.
-//				// Otherwise, the fact that the then and else branches are normalized implies expression is normalized itself.
-//				Expression condition = IfThenElse.getCondition(expression);
-//				if (conditionalSubExpressionAndContext.getExpression() != condition) {
-//					// the conditional sub-expression is not the condition of expression
-//					// therefore expression is already normalized; this is the recursion base case.
-//				}
-//				else {
-//					// expression's condition is conditional.
-//					// The standard externalization would perform the following:
-//					// if if C then C1 else C2 then A else B
-//					// ---->
-//					// if C then if C1 then A else B else if C1 then A else B
-//					// 
-//					// but the following creates a shorter expression
-//					// if if C then C1 else C2 then A else B
-//					// ---->
-//					// if C and C1 or not C and C2 then A else B
-//					Expression conditionCondition  = IfThenElse.getCondition(condition);
-//					Expression conditionThenBranch = IfThenElse.getThenBranch(condition);
-//					Expression conditionElseBranch = IfThenElse.getElseBranch(condition);
-//					// When we make new expressions, we need to make sure they are normalized too;
-//					// We also want to make sure to use the information that the sub-expressions they use are already normalized.
-//					Expression firstConjunction  = normalize(And.make(         conditionCondition , conditionThenBranch), true, process);
-//					Expression secondConjunction = normalize(And.make(Not.make(conditionCondition), conditionElseBranch), true, process);
-//					Expression newCondition      = normalize(Or.make(firstConjunction, secondConjunction), true, process);
-//					Expression unnormalizedResult = IfThenElse.make(newCondition, IfThenElse.getThenBranch(expression), IfThenElse.getElseBranch(expression));
-//					System.out.println("\nNormalizing : " + expression);
-//					System.out.println(  "newCondition: " + newCondition);
-//					System.out.println(  "Recursing on: " + unnormalizedResult);
-//					result = normalize(unnormalizedResult, true, process);
-//				}
-//			}
-//			else { // expression is not a conditional expression itself
-//				Expression conditionalSubExpression = conditionalSubExpressionAndContext.getExpression();
-//				Expression condition  = IfThenElse.getCondition(conditionalSubExpression);
-//				Expression thenBranch = IfThenElse.getThenBranch(conditionalSubExpression);
-//				Expression elseBranch = IfThenElse.getElseBranch(conditionalSubExpression);
-//
-//				// Create two expressions, one in which the "then branch" replaces the conditional sub-expression, and another in which the "else branch" does that.
-//				Expression newThenBranch = Expressions.replaceAtPath(expression, conditionalSubExpressionAndContext.getPath(), thenBranch);
-//				Expression newElseBranch = Expressions.replaceAtPath(expression, conditionalSubExpressionAndContext.getPath(), elseBranch);
-//
-//				// Make sure the *new* subexpressions are normalized themselves, even though the original ones already were.
-//				// If they are not normalized, the unnormalized part must be on their top expression only,
-//				// since their sub-expressions were the original expression's sub-expressions, which we know to be normalized.
-//				// For example, suppose expression was f(if C1 then A1 else B1, if C2 then A2 else B2).
-//				// At this point, we have if C1 then f(A1, if C2 then A2 else B2) else f(B1, if C2 then A2 else B2)
-//				// f(A1, if C2 then A2 else B2) and f(B1, if C2 then A2 else B2) are not normalized, but their sub-expressions are (they are some of expression's sub-expressions).
-//				// So we make a recursive call on these new then and else branches, with the information that their own sub-expressions are normalized. 
-//				newThenBranch = normalize(newThenBranch, true, process);
-//				newElseBranch = normalize(newElseBranch, true, process);
-//				result = normalize(IfThenElse.make(condition, newThenBranch, newElseBranch), true, process);
-//			}
-//		}
-//		return result;
-//	}
-//	
+	private boolean decideWhetherThereAreNoScopingRestrictions(Expression expression, Expression conditionalSubExpression, RewritingProcess process) {
+		Expression condition  = IfThenElse.getCondition(conditionalSubExpression);
+		boolean conditionIsSurelyIndependentOnScopedVariables =
+				ScopedVariables.scopingVariablesAreDefined(expression, process)
+				&&
+				(ScopedVariables.isKnownToBeIndependentOfScopeIn(condition, expression, process));
+		return conditionIsSurelyIndependentOnScopedVariables;
+	}
 }
