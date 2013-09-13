@@ -68,7 +68,7 @@ import com.sri.ai.grinder.library.equality.NotOnEquality;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.ConjunctsHoldTrueForEachOther;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.FromConditionalFormulaToFormula;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.IncompleteLinearImpliedCertainty;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.IncompleteTopImpliedCertainty;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.QuantifierEliminationWrapper;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopSimplifyWrapper;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.TrivialForAllCases;
@@ -127,7 +127,7 @@ public class CallRewriterDecisionTreeTest {
 					
 					new FromConditionalFormulaToFormula(),
 					// new, cheap simplifiers to be used instead of full ImpliedCertainty
-					new IncompleteLinearImpliedCertainty(),
+					new IncompleteTopImpliedCertainty(),
 					new TrivialForAllCases(),
 					new TrivialThereExistsCases(),
 					new TopSimplifyWrapper(),

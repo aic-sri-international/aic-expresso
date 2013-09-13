@@ -55,7 +55,7 @@ import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.equality.NotOnDisequality;
 import com.sri.ai.grinder.library.equality.NotOnEquality;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.IncompleteLinearImpliedCertainty;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.IncompleteTopImpliedCertainty;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.QuantifierEliminationWrapper;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopImpliedCertainty;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopSimplifyWrapper;
@@ -103,7 +103,7 @@ public class LogicRewritePanel extends AbstractRewritePanel {
 		List<EnableItem<Rewriter>> advancedRewriters = new ArrayList<EnableItem<Rewriter>>();
 		advancedRewriters.add(new LeafEnableItem<Rewriter>("Not on Equality",  new NotOnEquality()));
 		advancedRewriters.add(new LeafEnableItem<Rewriter>("Not on Disequality",  new NotOnDisequality()));
-		advancedRewriters.add(new LeafEnableItem<Rewriter>("Incomplete Linear Implied Certainty", new IncompleteLinearImpliedCertainty()));
+		advancedRewriters.add(new LeafEnableItem<Rewriter>("Incomplete Linear Implied Certainty", new IncompleteTopImpliedCertainty()));
 		advancedRewriters.add(new LeafEnableItem<Rewriter>("Trivial For All Cases",  new TrivialForAllCases()));
 		advancedRewriters.add(new LeafEnableItem<Rewriter>("Trivial There Exists Cases",  new TrivialThereExistsCases()));
 		advancedRewriters.add(new LeafEnableItem<Rewriter>("Top Simplify",  new TopSimplifyWrapper()));
