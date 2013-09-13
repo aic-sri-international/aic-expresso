@@ -207,7 +207,7 @@ public class Normalize extends AbstractHierarchicalRewriter implements Cardinali
 						//new FromConditionalFormulaToFormula(), // commented out because it potentially expands expression
 						new FromConditionalFormulaWithConstantBooleanBranchToFormula(),
 						// new, cheap simplifiers to be used instead of full ImpliedCertainty
-						new IncompleteLinearImpliedCertainty(),
+						new IncompleteTopImpliedCertainty(),
 						new TrivialForAllCases(),
 						new TrivialThereExistsCases(),
 						new TopSimplifyWrapper(),

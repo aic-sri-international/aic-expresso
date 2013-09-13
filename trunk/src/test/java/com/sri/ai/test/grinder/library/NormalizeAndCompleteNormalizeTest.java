@@ -407,7 +407,7 @@ public class NormalizeAndCompleteNormalizeTest extends AbstractGrinderTest {
 			//
 			// and(X != a, X = Y, Y != b) -> and(X != a, X = Y, X != b)
 			//
-			// has been decided not to be needed as R_implied_certainty
+			// has been decided not to be needed as R_top_implied_certainty
 			// will pick out if its a contradiction anyway. So the
 			// following case will not simplify.
 			new NormalizeTestData(

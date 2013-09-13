@@ -52,18 +52,18 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.util.base.Pair;
 
 /**
- * A version of R_implied_certainty that is incomplete and linear time for use by R_normalize.
+ * A version of R_top_implied_certainty that is incomplete and linear time for use by R_normalize.
  * It additionally replaces variables bound to a constant by that constant.
  * 
  * @author braz
  *
  */
 @Beta
-public class IncompleteLinearImpliedCertainty extends AbstractRewriter {
+public class IncompleteTopImpliedCertainty extends AbstractRewriter {
 
 	private static final boolean replaceVariableByConstantItIsBoundTo = GrinderConfiguration.isReplaceVariableWithConstantItIsBoundTo();
 
-	public IncompleteLinearImpliedCertainty() {
+	public IncompleteTopImpliedCertainty() {
 	}
 	
 	@Override
@@ -84,7 +84,7 @@ public class IncompleteLinearImpliedCertainty extends AbstractRewriter {
 						if (IncompleteLinearImplies.implies(impliedFactByContext, expression, process)) {
 							result = Expressions.TRUE;
 							if (result.equals(expression)) {
-								// Ensure behaves correctly
+								// Ensure that it returns the same object if expression hasn't changed (according to the Rewriter contract).
 								result = expression;
 							}
 							break;
@@ -92,7 +92,7 @@ public class IncompleteLinearImpliedCertainty extends AbstractRewriter {
 						else if (IncompleteLinearImplies.implies(impliedFactByContext, Not.make(expression), process)) {
 							result = Expressions.FALSE;
 							if (result.equals(expression)) {
-								// Ensure behaves correctly
+								// Ensure that it returns the same object if expression hasn't changed (according to the Rewriter contract).
 								result = expression;
 							}
 							break;
