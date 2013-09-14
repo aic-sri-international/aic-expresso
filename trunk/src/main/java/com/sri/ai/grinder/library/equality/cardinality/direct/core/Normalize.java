@@ -105,20 +105,29 @@ import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNo
 @Beta
 public class Normalize extends AbstractHierarchicalRewriter implements CardinalityRewriter {
 	private Rewriter rRootRewriter = null;
-	private boolean oldVersion = false;
-
-	public Normalize() {
-	}
-	
-	public Normalize(boolean oldVersion) {
-		this.oldVersion = oldVersion;
-	}
 	
 	@Override
 	public String getName() {
 		return R_normalize;
 	}
 	
+	protected Rewriter ifThenElseExternalizationHierarchical = new IfThenElseExternalizationHierarchical();
+	protected Rewriter simplify = new Simplify();
+	
+	@Override
+	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		Justification.beginEqualityStep("Incomplete normalization");
+		Trace.in("Normalizing {}", expression);
+		Expression result = expression;
+		result = simplify.rewrite(result, process);
+		result = ifThenElseExternalizationHierarchical.rewrite(result, process);
+		result = simplify.rewrite(result, process);
+		Trace.out("Normalized {} to {}", expression, result);
+		Justification.endEqualityStep(result);
+		return result;
+	}
+
+	// still used -- to be removed eventually
 	public Rewriter getRootRewriter() {
 		// Lazy initialize so that required supporting classes
 		// can be setup an configured as necessary.
@@ -138,31 +147,6 @@ public class Normalize extends AbstractHierarchicalRewriter implements Cardinali
 		return rRootRewriter;
 	}
 	
-	protected Rewriter ifThenElseExternalizationHierarchical = new IfThenElseExternalizationHierarchical();
-	protected Rewriter simplify = new Simplify();
-	
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		//oldVersion = true;
-		if (oldVersion) {
-			Justification.beginEqualityStep("basic simplifications");
-			Expression result = getRootRewriter().rewrite(expression, process);
-			Justification.endEqualityStep(result);
-			return result;
-		}
-		else {
-			Justification.beginEqualityStep("Incomplete normalization");
-			Trace.in("Normalizing {}", expression);
-			Expression result = expression;
-			result = simplify.rewrite(result, process);
-			result = ifThenElseExternalizationHierarchical.rewrite(result, process);
-			result = simplify.rewrite(result, process);
-			Trace.out("Normalized {} to {}", expression, result);
-			Justification.endEqualityStep(result);
-			return result;
-		}
-	}
-
 	//
 	// PROTECTED METHODS
 	//
