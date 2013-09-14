@@ -49,9 +49,8 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.core.OpenInterpretationModule;
 import com.sri.ai.grinder.core.TotalRewriter;
-import com.sri.ai.grinder.helper.RewriterLoggingNamedRewriterFilter;
 import com.sri.ai.grinder.helper.Justification;
-import com.sri.ai.grinder.helper.Trace;
+import com.sri.ai.grinder.helper.RewriterLoggingNamedRewriterFilter;
 import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
 import com.sri.ai.grinder.library.Disequality;
@@ -72,7 +71,6 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.controlflow.IfThenElseBranchesAreBooleanConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch;
 import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
-import com.sri.ai.grinder.library.controlflow.IfThenElseExternalizationHierarchical;
 import com.sri.ai.grinder.library.controlflow.IfThenElseIrrelevantCondition;
 import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
@@ -103,16 +101,8 @@ import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNo
  *
  */
 @Beta
-public class Normalize extends AbstractHierarchicalRewriter implements CardinalityRewriter {
+public class OldNormalize extends AbstractHierarchicalRewriter implements CardinalityRewriter {
 	private Rewriter rRootRewriter = null;
-	private boolean oldVersion = false;
-
-	public Normalize() {
-	}
-	
-	public Normalize(boolean oldVersion) {
-		this.oldVersion = oldVersion;
-	}
 	
 	@Override
 	public String getName() {
@@ -138,29 +128,12 @@ public class Normalize extends AbstractHierarchicalRewriter implements Cardinali
 		return rRootRewriter;
 	}
 	
-	protected Rewriter ifThenElseExternalizationHierarchical = new IfThenElseExternalizationHierarchical();
-	protected Rewriter simplify = new Simplify();
-	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		//oldVersion = true;
-		if (oldVersion) {
-			Justification.beginEqualityStep("basic simplifications");
-			Expression result = getRootRewriter().rewrite(expression, process);
-			Justification.endEqualityStep(result);
-			return result;
-		}
-		else {
-			Justification.beginEqualityStep("Incomplete normalization");
-			Trace.in("Normalizing {}", expression);
-			Expression result = expression;
-			result = simplify.rewrite(result, process);
-			result = ifThenElseExternalizationHierarchical.rewrite(result, process);
-			result = simplify.rewrite(result, process);
-			Trace.out("Normalized {} to {}", expression, result);
-			Justification.endEqualityStep(result);
-			return result;
-		}
+		Justification.beginEqualityStep("basic simplifications");
+		Expression result = getRootRewriter().rewrite(expression, process);
+		Justification.endEqualityStep(result);
+		return result;
 	}
 
 	//
