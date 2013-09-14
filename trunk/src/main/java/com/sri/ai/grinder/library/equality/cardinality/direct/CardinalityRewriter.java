@@ -418,14 +418,6 @@ public interface CardinalityRewriter {
 	String R_check_branch_reachable = CARDINALITY_NAMESPACE+"R_complete_normalize";
 
 	/**
-	 * R_complete_normalize(E).<br>
-	 * Interface for R_complete_normalize(E) that extends the R_normalize
-	 * functionality used by the direct cardinality computation routines, which
-	 * will use full satisfiability testing as part of its simplification logic.
-	 */
-	String R_complete_normalize = CARDINALITY_NAMESPACE+"R_complete_normalize";
-
-	/**
 	 * <pre>
 	 * R_equality_in_conjunction(| x_i = t and Phi |_X, quantification)
 	 * Phi is a formula, x_i is one of the index variables in X, t is a variable or a constant.
@@ -527,11 +519,26 @@ public interface CardinalityRewriter {
 	String R_normalize = CARDINALITY_NAMESPACE+"R_normalize";
 
 	/**
+	 * R_complete_normalize(E).<br>
+	 * Interface for R_complete_normalize(E) that extends the R_normalize
+	 * functionality used by the direct cardinality computation routines, which
+	 * will use full satisfiability testing as part of its simplification logic.
+	 */
+	String R_complete_normalize = CARDINALITY_NAMESPACE+"R_complete_normalize";
+
+	/**
 	 * R_simplify(E).<br>
 	 * Interface for R_simplify(E) functionality used by R_normalize.
 	 * It performs simplifications of expressions based on full or partial evaluation of known functions.
 	 */
 	String R_simplify = CARDINALITY_NAMESPACE+"R_simplify";
+
+	/**
+	 * R_complete_simplify(E).<br>
+	 * Complete version of R_simplify(E), that is,
+	 * guaranteeing that tautologies and contradictions are replaced by true and false respectively.
+	 */
+	String R_complete_simplify = CARDINALITY_NAMESPACE+"R_complete_simplify";
 
 	/**
 	 * <pre>
