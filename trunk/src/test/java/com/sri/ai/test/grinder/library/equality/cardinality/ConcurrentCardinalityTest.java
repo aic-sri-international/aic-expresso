@@ -222,8 +222,8 @@ public class ConcurrentCardinalityTest extends AbstractGrinderTest {
 					new CountsDeclaration(n)),
 				new CardinalityData(
 					"|{{(on Y) 5 | X!=Y and Y!=Z and Y!=A}}|",
-					//"if Z = A then if X = Z or X = A then 9 else 8 else (if X = Z or X = A then 8 else 7)",
-					"if X = Z or X = A then if Z = A then 9 else 8 else if Z = A then 8 else 7",
+					"if Z = A then if X = Z or X = A then 9 else 8 else (if X = Z or X = A then 8 else 7)",
+					//"if X = Z or X = A then if Z = A then 9 else 8 else if Z = A then 8 else 7",
 					new CountsDeclaration(n)),				
 				new CardinalityData(
 					"|{{(on X, Y) 5 | not (X=Y=Z)}}|",
