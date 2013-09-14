@@ -55,7 +55,6 @@ import com.sri.ai.util.base.Pair;
 public class CompleteNormalize extends Normalize implements CardinalityRewriter {
 	
 	public CompleteNormalize() {
-		super(false);
 		simplify = new CompleteSimplify();
 	}
 	
