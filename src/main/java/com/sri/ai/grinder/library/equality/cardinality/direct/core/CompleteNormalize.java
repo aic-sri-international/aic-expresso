@@ -37,48 +37,25 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 
-import java.util.List;
-
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
-import com.sri.ai.util.base.Pair;
 
 /**
  * Complete implementation of R_complete_normalize(E), including complete checking of implied certainties.
  * 
- * @author oreilly
+ * @author braz
  *
  */
 @Beta
 public class CompleteNormalize extends Normalize implements CardinalityRewriter {
 	
 	public CompleteNormalize() {
+		super();
 		simplify = new CompleteSimplify();
 	}
 	
 	@Override
 	public String getName() {
 		return R_complete_normalize;
-	}
-	
-	//
-	// PROTECTED METHODS
-	//
-	@SuppressWarnings("unchecked")
-	@Override
-	protected List<Rewriter> getAtomicRewriters() {
-		List<Rewriter> atomicRewriters = super.getAtomicRewriters();
-		
-		atomicRewriters = addRewritersBefore(atomicRewriters,
-				//
-				// Support for: full satisfiability testing
-				new Pair<Class<?>, Rewriter>(
-						ScopedVariables.class,
-						new TopImpliedCertainty())
-				);
-		
-		return atomicRewriters;
 	}
 }

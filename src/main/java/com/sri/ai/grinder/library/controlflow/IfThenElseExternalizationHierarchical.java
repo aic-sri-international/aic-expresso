@@ -43,10 +43,14 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.RewriterFunction;
 import com.sri.ai.grinder.library.ScopedVariables;
+import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.FormulaSimplify;
 import com.sri.ai.util.Util;
 
 /**
@@ -57,12 +61,16 @@ import com.sri.ai.util.Util;
 @Beta
 public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalRewriter {
 
+	private Rewriter formulaSimplify = new FormulaSimplify();
+	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		return normalize(expression, false, process);
 	}
 
 	private Expression normalize(Expression expression, boolean subExpressionsAreNormalized, RewritingProcess process) {
+
+		expression = formulaSimplify.rewrite(expression, process);
 
 		// Make sure sub-expressions are normalized (externalized) first.
 		if ( ! subExpressionsAreNormalized) {
@@ -93,10 +101,15 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 					// For example, suppose expression was f(if C1 then A1 else B1, if C2 then A2 else B2).
 					// At this point, we have if C1 then f(A1, if C2 then A2 else B2) else f(B1, if C2 then A2 else B2)
 					// f(A1, if C2 then A2 else B2) and f(B1, if C2 then A2 else B2) are not normalized, but their sub-expressions are (they are some of expression's sub-expressions).
-					// So we make a recursive call on these new then and else branches, with the information that their own sub-expressions are normalized. 
-					newThenBranch = normalize(newThenBranch, true, process);
-					newElseBranch = normalize(newElseBranch, true, process);
-					expression = normalize(IfThenElse.make(condition, newThenBranch, newElseBranch), true, process);
+					// So we make a recursive call on these new then and else branches, with the information that their own sub-expressions are normalized.
+					RewritingProcess thenProcess = GrinderUtil.extendContextualVariablesAndConstraint(condition, condition, process);
+					newThenBranch = normalize(newThenBranch, true, thenProcess);
+					
+					RewritingProcess elseProcess = GrinderUtil.extendContextualVariablesAndConstraint(Not.make(condition), Not.make(condition), process);
+					newElseBranch = normalize(newElseBranch, true, elseProcess);
+					
+					expression = IfThenElse.make(condition, newThenBranch, newElseBranch);
+					expression = normalize(expression, true, process);
 				}
 			}
 		}

@@ -541,6 +541,11 @@ public interface CardinalityRewriter {
 	String R_complete_simplify = CARDINALITY_NAMESPACE+"R_complete_simplify";
 
 	/**
+	 * Same as R_simplify(E), but assumes input is formula.
+	 */
+	String R_formula_simplify = CARDINALITY_NAMESPACE+"R_formula_simplify";
+
+	/**
 	 * <pre>
 	 * R_sum_over_one_variable(sum_{x: Cx} S)
 	 * Cx is a formula in boolean logic, constraining the values of the summation index x

@@ -65,6 +65,7 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.MoveNotIn;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.PickCheapest;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.QuantifierElimination;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Normalize;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.SortPair;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.SumOverOneVariable;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopImpliedCertainty;
@@ -84,7 +85,7 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopSimplifyDi
 public class DirectCardinalityComputationFactory {
 	
 	public static Rewriter getRootRewriter() {
-		return ((Normalize)newNormalize()).getRootRewriter();
+		return (new Simplify()).getRootRewriter();
 	}
 	
 	public static Rewriter newNormalize() {
