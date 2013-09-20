@@ -70,7 +70,6 @@ import com.sri.ai.grinder.library.boole.ThereExistsSubExpressionsAndScopedVariab
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.controlflow.IfThenElseBranchesAreBooleanConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch;
-import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
 import com.sri.ai.grinder.library.controlflow.IfThenElseIrrelevantCondition;
 import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
@@ -80,33 +79,28 @@ import com.sri.ai.grinder.library.equality.CheapDisequalityModule;
 import com.sri.ai.grinder.library.equality.NotOnDisequality;
 import com.sri.ai.grinder.library.equality.NotOnEquality;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
-import com.sri.ai.grinder.library.number.Division;
-import com.sri.ai.grinder.library.number.Exponentiation;
 import com.sri.ai.grinder.library.number.GreaterThan;
-import com.sri.ai.grinder.library.number.Minus;
-import com.sri.ai.grinder.library.number.NestedArithmeticOperation;
-import com.sri.ai.grinder.library.number.Plus;
-import com.sri.ai.grinder.library.number.Times;
-import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsProvider;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithBoundIndex;
-import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNotUsedInHead;
 
 /**
- * Default implementation of R_normalize(E).
+ * Successively and exhaustively applies simplifications to a basic expression,
+ * that is, one formed of basic operators plus products with no conditional expressions inside.
  * 
- * @author oreilly
+ * @author braz
  *
  */
 @Beta
-public class OldNormalize extends AbstractHierarchicalRewriter implements CardinalityRewriter {
+public class FormulaSimplify extends AbstractHierarchicalRewriter implements CardinalityRewriter {
 	private Rewriter rRootRewriter = null;
+	
+	public FormulaSimplify() {
+	}
 	
 	@Override
 	public String getName() {
-		return R_normalize;
+		return CardinalityRewriter.R_formula_simplify;
 	}
 	
 	public Rewriter getRootRewriter() {
@@ -135,7 +129,7 @@ public class OldNormalize extends AbstractHierarchicalRewriter implements Cardin
 		Justification.endEqualityStep(result);
 		return result;
 	}
-
+	
 	//
 	// PROTECTED METHODS
 	//
@@ -144,14 +138,7 @@ public class OldNormalize extends AbstractHierarchicalRewriter implements Cardin
 				Arrays.asList(new Rewriter[] {
 						new PlainSubstitution(),
 						new CardinalityTypeOfLogicalVariable(),
-						new Plus(),
-						new Division(),
-						new Minus(),
-						new UnaryMinus(),
-						new NestedArithmeticOperation(),
-						new Times(),
 						new IfThenElse(),
-						new Exponentiation(),
 
 						new Equality(),
 						new Disequality(),
@@ -171,10 +158,6 @@ public class OldNormalize extends AbstractHierarchicalRewriter implements Cardin
 								"and", "false"),
 						new AbsorbingElement(
 								"or", "true"),
-						new AbsorbingElement(
-								"*", "0"),
-						new Associative("+"),
-						new Associative("*"),
 						new Associative("and"),
 						
 						//new FromConditionalFormulaToFormula(), // commented out because it potentially expands expression
@@ -183,8 +166,6 @@ public class OldNormalize extends AbstractHierarchicalRewriter implements Cardin
 						new IncompleteTopImpliedCertainty(),
 						new TrivialForAllCases(),
 						new TrivialThereExistsCases(),
-						new TopSimplifyWrapper(),
-						new IntensionalSetWithBoundIndex(),
 						new ConjunctsHoldTrueForEachOther(),
 						
 						//
@@ -201,13 +182,10 @@ public class OldNormalize extends AbstractHierarchicalRewriter implements Cardin
 						new QuantifierEliminationWrapper(FunctorConstants.AND),
 						new QuantifierEliminationWrapper(FunctorConstants.OR),
 										
-						new IntensionalUniSetWithIndicesNotUsedInHead(),
-						
 						new IfThenElseIrrelevantCondition(),
 						// new DisequalityToEqualityInIfThenElseCondition(),
 						new IfThenElseBranchesAreBooleanConstants(),
 						new IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch(),
-						new IfThenElseExternalization(),
 						
 						// only modules from here on: they don't actually
 						// rewrite anything, so why test them sooner than
@@ -223,7 +201,6 @@ public class OldNormalize extends AbstractHierarchicalRewriter implements Cardin
 						new ThereExistsSubExpressionsAndScopedVariablesProvider(),
 						new IntensionalSet(), // Note: This is just a provider for scoped variables and not a rewriter.
 						new SyntacticFunctionsSubExpressionsProvider("type", "scoped variables"),
-						new OpenInterpretationModule()
-				}));
+						new OpenInterpretationModule() }));
 	}
 }
