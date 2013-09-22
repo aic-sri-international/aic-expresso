@@ -158,20 +158,20 @@ public class DirectCardinalityComputationFactory {
 	    rCardinalityDisjunction.setSortPair(sortPair);
 	    cardRewriters.put(CardinalityRewriter.R_card_disjunction, rCardinalityDisjunction);
 	    
-	    cardRewriters.put(CardinalityRewriter.R_card_equivalence,           new CardinalityEquivalence());
-	    cardRewriters.put(CardinalityRewriter.R_cardExtensionalSet,         new CardinalityExtensionalSet());
-	    cardRewriters.put(CardinalityRewriter.R_card_implication,           new CardinalityImplication());
-	    cardRewriters.put(CardinalityRewriter.R_complete_normalize,          new CompleteNormalize());
-	    cardRewriters.put(CardinalityRewriter.R_equality_in_conjunction,    new EqualityInConjunction());
-	    cardRewriters.put(CardinalityRewriter.R_move_not_in,                new MoveNotIn());
-	    cardRewriters.put(CardinalityRewriter.R_quantifier_elimination,     new QuantifierElimination());
-	    cardRewriters.put(CardinalityRewriter.R_normalize,                   new Normalize());
-	    cardRewriters.put(CardinalityRewriter.R_sum_over_one_variable,      new SumOverOneVariable());
-	    cardRewriters.put(CardinalityRewriter.R_top_implied_certainty,      new TopImpliedCertainty()); 
-	    cardRewriters.put(CardinalityRewriter.R_top_quantifier_elimination, new TopQuantifierElimination());
-	    cardRewriters.put(CardinalityRewriter.R_top_simplify,               new TopSimplify());
-	    cardRewriters.put(CardinalityRewriter.R_top_simplify_conjunction,   new TopSimplifyConjunction());
-	    cardRewriters.put(CardinalityRewriter.R_top_simplify_disjunction,   new TopSimplifyDisjunction());
+	    cardRewriters.put(CardinalityRewriter.R_card_equivalence,             new CardinalityEquivalence());
+	    cardRewriters.put(CardinalityRewriter.R_cardExtensionalSet,           new CardinalityExtensionalSet());
+	    cardRewriters.put(CardinalityRewriter.R_card_implication,             new CardinalityImplication());
+	    cardRewriters.put(CardinalityRewriter.R_normalize,                    new Normalize());
+	    cardRewriters.put(CardinalityRewriter.R_complete_normalize,           new CompleteNormalize());
+	    cardRewriters.put(CardinalityRewriter.R_equality_in_conjunction,      new EqualityInConjunction());
+	    cardRewriters.put(CardinalityRewriter.R_move_not_in,                  new MoveNotIn());
+	    cardRewriters.put(CardinalityRewriter.R_quantifier_elimination,       new QuantifierElimination());
+	    cardRewriters.put(CardinalityRewriter.R_sum_over_one_variable,        new SumOverOneVariable());
+	    cardRewriters.put(CardinalityRewriter.R_top_implied_certainty,        new TopImpliedCertainty()); 
+	    cardRewriters.put(CardinalityRewriter.R_top_quantifier_elimination,   new TopQuantifierElimination());
+	    cardRewriters.put(CardinalityRewriter.R_top_simplify,                 new TopSimplify());
+	    cardRewriters.put(CardinalityRewriter.R_top_simplify_conjunction,     new TopSimplifyConjunction());
+	    cardRewriters.put(CardinalityRewriter.R_top_simplify_disjunction,     new TopSimplifyDisjunction());
 	    cardRewriters.put(CardinalityRewriter.R_incomplete_implied_certainty, new IncompleteTopImpliedCertainty());
 		
 		return cardRewriters;

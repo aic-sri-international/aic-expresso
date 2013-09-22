@@ -42,8 +42,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
-import com.sri.ai.grinder.helper.Justification;
-import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.controlflow.IfThenElseExternalizationHierarchical;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 
@@ -66,14 +64,10 @@ public class Normalize extends AbstractHierarchicalRewriter implements Cardinali
 	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Justification.beginEqualityStep("Incomplete normalization");
-		Trace.in("Normalizing {}", expression);
 		Expression result = expression;
 		result = simplify.rewrite(result, process);
 		result = ifThenElseExternalizationHierarchical.rewrite(result, process);
 		result = simplify.rewrite(result, process);
-		Trace.out("Normalized {} to {}", expression, result);
-		Justification.endEqualityStep(result);
 		return result;
 	}
 }
