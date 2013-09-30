@@ -41,6 +41,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.util.base.Pair;
@@ -67,13 +68,21 @@ public class CompleteSimplify extends Simplify implements CardinalityRewriter {
 	protected List<Rewriter> getAtomicRewriters() {
 		List<Rewriter> atomicRewriters = super.getAtomicRewriters();
 		
-		atomicRewriters = addRewritersBefore(atomicRewriters,
+		atomicRewriters = GrinderUtil.addRewritersBefore(atomicRewriters,
 				//
 				// Support for: full satisfiability testing
 				new Pair<Class<?>, Rewriter>(
 						ScopedVariables.class,
 						new TopImpliedCertainty())
 				);
+		
+		// One might think that TopImpliedCertainty should replace IncompleteTopImpliedCertainty instead of being
+		// added to the list of rewriters, but IncompleteTopImpliedCertainty is still useful for being faster in many cases.
+		// Also, IncompleteTopImpliedCertainty does purely syntactic simplifications such as
+		// if pretty(X) then if not pretty(X) then 1 else 2 else 3
+		// ---->
+		// if pretty(X) then 2 else 3
+		// which TopImpliedCertainty does not do.
 		
 		return atomicRewriters;
 	}

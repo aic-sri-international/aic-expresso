@@ -699,4 +699,32 @@ public class GrinderUtil {
 		
 		return result;
 	}
+
+	public static List<Rewriter> addRewritersBefore(List<Rewriter> rewriters,
+			Pair<Class<?>, Rewriter>... rwsBefore) {
+		for (int i = 0; i < rwsBefore.length; i++) {
+			addRewriterBefore(rewriters, rwsBefore[i].first, rwsBefore[i].second);
+		}
+		return rewriters;
+	}
+
+	public static List<Rewriter> addRewriterBefore(List<Rewriter> rewriters,
+			Class<?> clazzBefore, Rewriter addR) {
+		boolean found = false;
+		for (int i = 0; i < rewriters.size(); i++) {
+			if (clazzBefore == rewriters.get(i).getClass()) {
+				rewriters.add(i, addR);
+				found = true;
+				break;
+			}
+		}
+	
+		if (!found) {
+			throw new IllegalArgumentException(
+					"Cannot find rewriter to add new rewriter before:"
+							+ clazzBefore.getName());
+		}
+	
+		return rewriters;
+	}
 }
