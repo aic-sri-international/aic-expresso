@@ -107,13 +107,11 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 	}
 	
 	public CardinalityTypeOfLogicalVariable() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.CARDINALITY),
-				             new HasNumberOfArguments(1));
+		this.setReifiedTests(new HasFunctor(FunctorConstants.CARDINALITY), new HasNumberOfArguments(1));
 	}
 
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression,
-			RewritingProcess process) {
+	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expression result = expression;
 
 		Expression cardinalityArgument = expression.get(0);
@@ -125,11 +123,11 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 		} 
 		else {
 			// | type(LogicalVariableName) |
-			// Note: type(...) expressions are usually marked as being
-			// SyntacticFunctionsSubExpressionsProvider("type",
-			// "scoped variables"), which means its arguments are not accessible
-			// as rewriting of them is not considered possible.
-			// However, in this case we'd like to do differently.
+			// Note: type(...) expressions are marked as being syntactic functions
+			// and their arguments are not sub-expressions
+			// (if they were, we would be able to rewrite type(X) to type(10) when X = 10,
+			// and this would be incorrect.
+			// In order to access their "argument", we must use their syntax tree.
 			if (cardinalityArgument.hasFunctor(FUNCTOR_TYPE)
 					&& cardinalityArgument.getSyntaxTree().numberOfImmediateSubTrees() == 1
 					&& process.isVariable(cardinalityArgument.getSyntaxTree()
