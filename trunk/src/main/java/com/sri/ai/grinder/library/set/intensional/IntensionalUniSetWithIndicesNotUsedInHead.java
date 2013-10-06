@@ -49,6 +49,7 @@ import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.DefaultRewriterTest;
 import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.library.boole.ThereExists;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.util.Util;
 
@@ -84,7 +85,7 @@ public class IntensionalUniSetWithIndicesNotUsedInHead extends AbstractRewriter 
 			List<Expression> iPrimeIndices = Util.removeNonDestructively(indicesNotInHead, new IsFunctionApplication());
 			if ( ! iPrimeIndices.isEmpty()) {
 				List<Expression> indexExpressions    = IntensionalSet.getIndexExpressions(expression);
-				List<Expression> indexExpressionsOfI = Util.removeNonDestructively(indexExpressions, new IntensionalSet.IndexExpressionHasIndexIn(iPrimeIndices));
+				List<Expression> indexExpressionsOfI = Util.removeNonDestructively(indexExpressions, new IndexExpressions.IndexExpressionHasIndexIn(iPrimeIndices));
 				Expression newCondition = ThereExists.make(iPrimeIndices, IntensionalSet.getCondition(expression));
 				Expression result = IntensionalSet.makeUniSetFromIndexExpressionsList(indexExpressionsOfI, head, newCondition);
 				return result;

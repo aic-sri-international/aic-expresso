@@ -41,6 +41,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.util.Util;
@@ -213,7 +214,7 @@ public class Sets {
 			if (indexExpression.hasFunctor("value of")) {
 				return true;
 			}
-			Expression index = IntensionalSet.getIndex(indexExpression);
+			Expression index = IndexExpressions.getIndex(indexExpression);
 			if (Expressions.isSymbolOrFunctionApplication(index)) {
 				return true;
 			}

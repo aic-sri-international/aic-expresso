@@ -49,14 +49,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.AbstractSyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewriterTest;
@@ -64,6 +61,7 @@ import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 import com.sri.ai.util.Util;
@@ -111,6 +109,10 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		this.setReifiedTests(new DefaultRewriterTest(KindAttribute.INSTANCE, KindAttribute.VALUE_INTENSIONAL_SET));
 	}
 
+	public static boolean isIntensionalSet(Expression expression) {
+		return Sets.isIntensionalSet(expression);
+	}
+
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		if (Sets.isIntensionalSet(expression)) {
@@ -142,7 +144,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 				Expression conditionToUseAfterSubstitution =
 					SemanticSubstitute.replace(IntensionalSet.getCondition(intensionalSet), indexValueExpression, value, process);
 				List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
-				indexExpressions = Util.listCopyWithoutSatisfyingElementOrNull(indexExpressions, new IndexExpressionHasIndex(indexValueExpression));
+				indexExpressions = Util.listCopyWithoutSatisfyingElementOrNull(indexExpressions, new IndexExpressions.IndexExpressionHasIndex(indexValueExpression));
 				// at some point we should look for occurrences of the index in the domain of the other indices.
 				Expression result1 =
 					IntensionalSet.makeSetFromIndexExpressionsList(Sets.getLabel(intensionalSet), indexExpressions, newHead, conditionToUseAfterSubstitution);
@@ -165,7 +167,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		Expression conditionToUseAfterSubstitution =
 			SemanticSubstitute.replace(conditionToUseBeforeSubstitution, indexValueExpression, value, process);
 		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
-		indexExpressions = Util.listCopyWithoutSatisfyingElementOrNull(indexExpressions, new IndexExpressionHasIndex(indexValueExpression));
+		indexExpressions = Util.listCopyWithoutSatisfyingElementOrNull(indexExpressions, new IndexExpressions.IndexExpressionHasIndex(indexValueExpression));
 		// at some point we should look for occurrences of the index in the domain of the other indices.
 		Expression result =
 			IntensionalSet.makeSetFromIndexExpressionsList(Sets.getLabel(intensionalSet), indexExpressions, newHead, conditionToUseAfterSubstitution);
@@ -213,38 +215,6 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 			return result;
 		}
 		return null;
-	}
-
-	public static class IsIndexIn implements Predicate<Expression> {
-		private List<Expression> indexExpressions;
-		
-		public IsIndexIn(List<Expression> indexExpressions) {
-			super();
-			this.indexExpressions = indexExpressions;
-		}
-
-		@Override
-		public boolean apply(Expression possibleIndex) {
-			boolean result = Util.thereExists(indexExpressions, new IntensionalSet.IsIndexExpressionOnIndex(possibleIndex));
-			return result;
-		}
-	}
-
-	public static class IsIndexExpressionOnIndex implements Predicate<Expression> {
-
-		private Expression index;
-
-		public IsIndexExpressionOnIndex(Expression index) {
-			super();
-			this.index = index;
-		}
-
-		@Override
-		public boolean apply(Expression indexExpression) {
-			boolean result = IntensionalSet.getIndex(indexExpression).equals(index);
-			return result;
-		}
-
 	}
 
 	public static Expression getHead(Expression expression) {
@@ -390,29 +360,16 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	}
 
 	public static LinkedHashMap<Expression, Expression> getIndexToDomainMap(Expression intensionalSetExpression) {
-		LinkedHashMap<Expression, Expression> result =
-			Expressions.getRelationalMap(
-					IntensionalSet.getIndexExpressions(intensionalSetExpression),
-					DefaultSymbol.createSymbol("in"),
-					new TypeOfIndexInIndexExpression());
-		return result;
+		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSetExpression);
+		return IndexExpressions.getIndexToDomainMap(indexExpressions);
 	}
 
 	/**
 	 * Returns the "whole index expression", which is the argument of "on", possibly including "value of" prefixes.
 	 */
 	public static Expression getWholeIndexExpression(Expression intensionalSetExpression) {
-		return IntensionalSet.getScopingExpression(intensionalSetExpression).getSyntaxTree().getSubTree(0); // does need to be sub tree
-	}
-
-	/**
-	 * Indicates whether the index expression of the intensional set needs to be evaluated,
-	 * that is, it is prefixed by "value of".
-	 */
-	public static boolean wholeIndexExpressionNeedsToBeEvaluated(Expression expression) {
-		boolean result = expression.getSyntaxTree().getSubTree(0).getSubTree(0).hasFunctor("value of");
-		// does need to be sub tree
-		return result;
+		Expression scopingExpression = IntensionalSet.getScopingExpression(intensionalSetExpression);
+		return getWholeIndexExpressionFromScopingExpression(scopingExpression);
 	}
 
 	/**
@@ -420,121 +377,17 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	 */
 	public static List<Expression> getIndexExpressions(Expression intensionalSetExpression) {
 		Expression scopingExpression = IntensionalSet.getScopingExpression(intensionalSetExpression);
-		if (scopingExpression != null) {
-			List<Expression> indexExpressions = Expressions.ensureListFromKleeneList(scopingExpression.getSyntaxTree().getSubTree(0));
-			// does need to be sub tree
-			return indexExpressions;
-		}
-		return new LinkedList<Expression>();
-	}
-
-	public static Expression copyIndexExpressionWithNewIndex(Expression indexExpression, Expression newIndex) {
-		if (newIndex != IntensionalSet.getIndex(indexExpression)) {
-			Expression result;
-			if (indexExpression.hasFunctor("in")) {
-				result = Expressions.apply("in", newIndex, indexExpression.get(1));
-			}
-			else {
-				result = newIndex;
-			}
-			return result;
-		}
-		return indexExpression;
+		return getIndexExpressionsFromScopingExpression(scopingExpression);
 	}
 
 	public static Iterator<Expression> getIndexExpressionsIterator(Expression intensionalSetExpression) {
 		Expression scopingExpression = IntensionalSet.getScopingExpression(intensionalSetExpression);
-		if (scopingExpression != null) {
-			return Expressions.ensureListFromKleeneList(scopingExpression.getSyntaxTree().getSubTree(0)).iterator();
-			// does need to be sub tree
-		}
-		return new LinkedList<Expression>().iterator();
+		return getIndexExpressionIteratorFromScopingExpression(scopingExpression);
 	}
 
 	public static List<Expression> getIndexExpressionsWithType(Expression expression) {
 		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(expression);
-		List<Expression> result = Util.replaceElementsNonDestructively(indexExpressions, IntensionalSet.getMakeIndexExpressionWithType());
-		return result;
-	}
-
-	public static Function<Expression, Expression> getMakeIndexExpressionWithType() {
-		return new Function<Expression, Expression>() {
-			@Override
-			public Expression apply(Expression indexExpression) {
-				if (indexExpression.hasFunctor("in")) {
-					return indexExpression;
-				}
-				return new DefaultCompoundSyntaxTree(
-						"in",
-						indexExpression,
-						new DefaultCompoundSyntaxTree("type", indexExpression));
-			}
-		};
-	}
-
-	public static Expression makeIndexExpression(Expression index, Expression domain) {
-		return Expressions.apply("in", index, domain);
-	}
-
-	private static class TypeOfIndexInIndexExpression implements Function<Expression, Expression> {
-		@Override
-		public Expression apply(Expression expression) {
-			return new DefaultCompoundSyntaxTree("type", expression);
-		}
-	}
-	
-	/**
-	 * Indicates whether a received index expression's index is in a given collection.
-	 * @author braz
-	 */
-	public static class IndexExpressionHasIndexIn implements Predicate<Expression> {
-		private Collection<Expression> indices;
-
-		public IndexExpressionHasIndexIn(Collection<Expression> indices) {
-			super();
-			this.indices = indices;
-		}
-
-		@Override
-		public boolean apply(Expression expression) {
-			boolean result = indices.contains(getIndex(expression));
-			return result;
-		}
-	}
-
-	public static Pair<Expression, Expression> getIndexAndDomain(Expression indexExpression) {
-		boolean bothIndexAndDomain = indexExpression.hasFunctor("in") && indexExpression.numberOfArguments() == 2;
-		Expression index;
-		Expression indexDomain;
-		if (bothIndexAndDomain) {
-			index = indexExpression.get(0);
-			indexDomain = indexExpression.get(1);
-		}
-		else {
-			index = indexExpression;
-			indexDomain = IntensionalSet.type(index);
-		}
-		return new Pair<Expression, Expression>(index, indexDomain);
-	}
-
-	private static Expression type(Expression expression) {
-		return new DefaultCompoundSyntaxTree("type", expression);
-	}
-
-	public static Expression getIndex(Expression indexExpression) {
-		if (indexExpression.hasFunctor("in")) {
-			return indexExpression.get(0);
-		}
-		return indexExpression;
-	}
-
-	public static Expression getDomain(Expression indexExpression) {
-		Pair<Expression, Expression> indexAndDomain = IntensionalSet.getIndexAndDomain(indexExpression);
-		return indexAndDomain.second;
-	}
-
-	public static boolean isIntensionalSet(Expression expression) {
-		return Sets.isIntensionalSet(expression);
+		return IndexExpressions.getIndexExpressionsWithType(indexExpressions);
 	}
 
 	/**
@@ -544,6 +397,31 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	 */
 	public static Iterator<Pair<Expression, List<Integer>>> getSubExpressionsAndPathsFromIndexExpressionsIterator(Expression intensionalSet) {
 		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
+		return getSubExpressionsAndPathsFromIndexExpressionsIterator(indexExpressions);
+	}
+
+	public static List<Expression> getIndexExpressionsFromScopingExpression(Expression scopingExpression) {
+		if (scopingExpression != null) {
+			List<Expression> indexExpressions = Expressions.ensureListFromKleeneList(scopingExpression.getSyntaxTree().getSubTree(0));
+			// does need to be sub tree
+			return indexExpressions;
+		}
+		return new LinkedList<Expression>();
+	}
+
+	public static Iterator<Expression> getIndexExpressionIteratorFromScopingExpression(Expression scopingExpression) {
+		if (scopingExpression != null) {
+			return Expressions.ensureListFromKleeneList(scopingExpression.getSyntaxTree().getSubTree(0)).iterator();
+			// does need to be sub tree
+		}
+		return new LinkedList<Expression>().iterator();
+	}
+
+	public static Expression getWholeIndexExpressionFromScopingExpression(Expression scopingExpression) {
+		return scopingExpression.getSyntaxTree().getSubTree(0); // does need to be sub tree
+	}
+
+	public static Iterator<Pair<Expression, List<Integer>>> getSubExpressionsAndPathsFromIndexExpressionsIterator(List<Expression> indexExpressions) {
 		List<Integer> basePath;
 		if (indexExpressions.size() == 1) { // no kleene list operator, so base path is the one taking us to the 'on' operator.
 			basePath = IntensionalSet._pathZero;
@@ -579,55 +457,22 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 			
 			// Add index to sub-expressions, if it is to be evaluated
 			if (index.hasFunctor("value of")) {
-				IntensionalSet.addSubTreeWithIndexAndBasePathPlusArgumentIndex(index, 0, pathToIndex, subExpressionsAndPaths);
+				IndexExpressions.addSubTreeWithIndexAndBasePathPlusArgumentIndex(index, 0, pathToIndex, subExpressionsAndPaths);
 			}
 			else {
 				// else, at least the index arguments (if it is a function application index like f(x)) need to be evaluated
 				for (int i = 0; i != index.numberOfArguments(); i++) {
-					IntensionalSet.addSubTreeWithIndexAndBasePathPlusArgumentIndex(index, i, pathToIndex, subExpressionsAndPaths);
+					IndexExpressions.addSubTreeWithIndexAndBasePathPlusArgumentIndex(index, i, pathToIndex, subExpressionsAndPaths);
 				}
 			}
 			
 			// Add the type, if present.
 			if (indexExpression.hasFunctor("in")) {
-				IntensionalSet.addSubTreeWithIndexAndBasePathPlusArgumentIndex(indexExpression, 1, basePathPlusIndexExpressionIndex, subExpressionsAndPaths);
+				IndexExpressions.addSubTreeWithIndexAndBasePathPlusArgumentIndex(indexExpression, 1, basePathPlusIndexExpressionIndex, subExpressionsAndPaths);
 			}
 			
 			indexExpressionIndex++;
 		}
 		return subExpressionsAndPaths.iterator();
-	}
-
-	private static void addSubTreeWithIndexAndBasePathPlusArgumentIndex(
-			Expression syntaxTree, int subTreeIndex, List<Integer> basePath,
-			List<Pair<Expression, List<Integer>>> result) {
-		Expression subExpression = syntaxTree.getSyntaxTree().getSubTree(subTreeIndex); // does need to be sub tree
-		List<Integer> subExpressionPath = new LinkedList<Integer>(basePath);
-		subExpressionPath.add(subTreeIndex);
-		result.add(new Pair<Expression, List<Integer>>(subExpression, subExpressionPath));
-	}
-	
-	public static class GetIndex implements Function<Expression, Expression> {
-		@Override
-		public Expression apply(Expression indexExpression) {
-			return getIndex(indexExpression);
-		}
-	}
-
-	public static class IndexExpressionHasIndex implements Predicate<Expression> {
-	
-		private Expression index;
-	
-		public IndexExpressionHasIndex(Expression index) {
-			this.index = index;
-		}
-	
-		@Override
-		public boolean apply(Expression indexExpression) {
-			if (getIndex(indexExpression).equals(index)) {
-				return true;
-			}
-			return false;
-		}
 	}
 }

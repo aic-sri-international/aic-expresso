@@ -68,7 +68,7 @@ import com.sri.ai.grinder.library.IsVariablePredicate;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.SubExpressionSelection;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
 import com.sri.ai.util.base.GetFirstOfPair;
@@ -738,7 +738,7 @@ public class Expressions {
 				Util.collectFirstN(
 						Equality.getSymbolsBoundToSomethingElse(conjunct),
 						1,
-						new IntensionalSet.IsIndexIn(indexExpressions),
+						new IndexExpressions.IsIndexIn(indexExpressions),
 						indexOrNothing,
 						remaining);
 				
@@ -748,7 +748,7 @@ public class Expressions {
 					result.value = Util.getFirst(remaining);
 					result.indexExpressionsWithoutBoundIndex =
 							Util.removeNonDestructively(
-									indexExpressions, new IntensionalSet.IsIndexExpressionOnIndex(result.index));
+									indexExpressions, new IndexExpressions.IsIndexExpressionOnIndex(result.index));
 					break;
 				}
 			}
