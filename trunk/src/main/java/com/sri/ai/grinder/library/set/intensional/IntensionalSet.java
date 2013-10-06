@@ -122,10 +122,6 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		return expression;
 	}
 
-	public static IntensionalSet makeInstance() {
-		return new IntensionalSet();
-	}
-
 	@Override
 	public Expression getScopedVariablesAsExpression(Expression expression, RewritingProcess process) {
 		if (Sets.isIntensionalSet(expression)) {
@@ -140,8 +136,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	public static Expression makeIntensionalSetWithIndexSubstitution(Expression index,
 			Expression value, Expression intensionalSet,
 			RewritingProcess process) {
-		IntensionalSet r = makeInstance();
-		Expression indexValueExpression = r.getIndexValueExpressionFromIndex(index);
+		Expression indexValueExpression = index;
 				Expression newHead =
 					SemanticSubstitute.replace(IntensionalSet.getHead(intensionalSet), indexValueExpression, value, process);
 				Expression conditionToUseAfterSubstitution =
@@ -164,8 +159,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 			Expression value, Expression intensionalSet,
 			Expression conditionToUseBeforeSubstitution,
 			RewritingProcess process) {
-		IntensionalSet r = makeInstance();
-		Expression indexValueExpression = r.getIndexValueExpressionFromIndex(index);
+		Expression indexValueExpression = index;
 		Expression newHead =
 			SemanticSubstitute.replace(IntensionalSet.getHead(intensionalSet), indexValueExpression, value, process);
 		Expression conditionToUseAfterSubstitution =
@@ -176,18 +170,6 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		Expression result =
 			IntensionalSet.makeSetFromIndexExpressionsList(Sets.getLabel(intensionalSet), indexExpressions, newHead, conditionToUseAfterSubstitution);
 		return result;
-	}
-
-	/**
-	 * A method specifying how the expression representing the value of an index is derived from the index itself.
-	 * For regular intensional set, this is just the identity function: the value of index <code>f(X)</code>, for example, is represented by itself.
-	 * However, other types of intensional sets may differ on this.
-	 * One such case (in the application that originally motivated the create of this library)
-	 * is intensional sets with random variable indices, where the value of the index is not represented by the random variable itself,
-	 * but by its value expression.
-	 */
-	public Expression getIndexValueExpressionFromIndex(Expression index) {
-		return index;
 	}
 
 	public static Expression simplificationOfIntensionalSetWithoutIndices(Expression head, Expression condition) {
@@ -205,7 +187,6 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		// does need to be sub tree
 	}
 
-	// TO ABSTRACT
 	/** Returns the scoping expression, which is an application of "on" on a list of index expressions. */
 	public static Collection<Expression> getScopedVariables(Expression expression) {
 		if (Sets.isIntensionalSet(expression)) {
@@ -216,7 +197,6 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		return null;
 	}
 
-	// TO ABSTRACT
 	public static Collection<Expression> getIndexDomains(Expression expression) {
 		if (Sets.isIntensionalSet(expression)) {
 			Collection<Expression> result =
@@ -226,7 +206,6 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		return null;
 	}
 
-	// TO ABSTRACT
 	public static Collection<Expression> getIndices(Expression intensionalSet) {
 		if (Sets.isIntensionalSet(intensionalSet)) {
 			Collection<Expression> result =
@@ -405,13 +384,11 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		return result;
 	}
 
-	// TO ABSTRACT
 	public static boolean isScopeIndependent(Expression expression, Expression setExpression, RewritingProcess process) {
 		boolean result = ScopedVariables.isKnownToBeIndependentOfIndices(expression, IntensionalSet.getScopedVariables(setExpression), process);
 		return result;
 	}
 
-	// TO ABSTRACT
 	public static LinkedHashMap<Expression, Expression> getIndexToDomainMap(Expression intensionalSetExpression) {
 		LinkedHashMap<Expression, Expression> result =
 			Expressions.getRelationalMap(
@@ -425,42 +402,23 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	 * Returns the "whole index expression", which is the argument of "on", possibly including "value of" prefixes.
 	 */
 	public static Expression getWholeIndexExpression(Expression intensionalSetExpression) {
-		return makeInstance().getWholeIndexExpressionDynamic(intensionalSetExpression);
+		return IntensionalSet.getScopingExpression(intensionalSetExpression).getSyntaxTree().getSubTree(0); // does need to be sub tree
 	}
 
-	public Expression getWholeIndexExpressionDynamic(
-			Expression intensionalSetExpression) {
-		return getScopingExpression(intensionalSetExpression).getSyntaxTree().getSubTree(0); // does need to be sub tree
-	}
-	
 	/**
 	 * Indicates whether the index expression of the intensional set needs to be evaluated,
 	 * that is, it is prefixed by "value of".
 	 */
 	public static boolean wholeIndexExpressionNeedsToBeEvaluated(Expression expression) {
-		return makeInstance().wholeIndexExpressionNeedsToBeEvaluatedDynamic(expression);
-	}
-
-	public boolean wholeIndexExpressionNeedsToBeEvaluatedDynamic(Expression expression) {
 		boolean result = expression.getSyntaxTree().getSubTree(0).getSubTree(0).hasFunctor("value of");
 		// does need to be sub tree
 		return result;
 	}
 
-	// TO ABSTRACT
 	/**
 	 * Returns list of index expressions or <null> if unresolved.
 	 */
 	public static List<Expression> getIndexExpressions(Expression intensionalSetExpression) {
-		return makeInstance().getIndexExpressionsDynamic(intensionalSetExpression);
-	}
-
-	// TO ABSTRACT
-	/**
-	 * Returns list of index expressions or <null> if unresolved.
-	 */
-	public List<Expression> getIndexExpressionsDynamic(
-			Expression intensionalSetExpression) {
 		Expression scopingExpression = IntensionalSet.getScopingExpression(intensionalSetExpression);
 		if (scopingExpression != null) {
 			List<Expression> indexExpressions = Expressions.ensureListFromKleeneList(scopingExpression.getSyntaxTree().getSubTree(0));
@@ -471,11 +429,6 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	}
 
 	public static Expression copyIndexExpressionWithNewIndex(Expression indexExpression, Expression newIndex) {
-		return makeInstance().copyIndexExpressionWithNewIndexDynamic(indexExpression, newIndex);
-	}
-
-	public Expression copyIndexExpressionWithNewIndexDynamic(
-			Expression indexExpression, Expression newIndex) {
 		if (newIndex != IntensionalSet.getIndex(indexExpression)) {
 			Expression result;
 			if (indexExpression.hasFunctor("in")) {
@@ -488,14 +441,8 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		}
 		return indexExpression;
 	}
-	
-	// TO ABSTRACT
-	public static Iterator<Expression> getIndexExpressionsIterator(Expression intensionalSetExpression) {
-		return makeInstance().getIndexExpressionsIteratorDynamic(intensionalSetExpression);
-	}
 
-	public Iterator<Expression> getIndexExpressionsIteratorDynamic(
-			Expression intensionalSetExpression) {
+	public static Iterator<Expression> getIndexExpressionsIterator(Expression intensionalSetExpression) {
 		Expression scopingExpression = IntensionalSet.getScopingExpression(intensionalSetExpression);
 		if (scopingExpression != null) {
 			return Expressions.ensureListFromKleeneList(scopingExpression.getSyntaxTree().getSubTree(0)).iterator();
@@ -504,24 +451,13 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		return new LinkedList<Expression>().iterator();
 	}
 
-	// TO ABSTRACT
 	public static List<Expression> getIndexExpressionsWithType(Expression expression) {
-		return makeInstance().getIndexExpressionsWithTypeDynamic(expression);
-	}
-
-	public List<Expression> getIndexExpressionsWithTypeDynamic(
-			Expression expression) {
-		List<Expression> indexExpressions = getIndexExpressions(expression);
-		List<Expression> result = Util.replaceElementsNonDestructively(indexExpressions, getMakeIndexExpressionWithType());
+		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(expression);
+		List<Expression> result = Util.replaceElementsNonDestructively(indexExpressions, IntensionalSet.getMakeIndexExpressionWithType());
 		return result;
 	}
 
-	// TO ABSTRACT
 	public static Function<Expression, Expression> getMakeIndexExpressionWithType() {
-		return makeInstance().getMakeIndexExpressionWithTypeDynamic();
-	}
-
-	public Function<Expression, Expression> getMakeIndexExpressionWithTypeDynamic() {
 		return new Function<Expression, Expression>() {
 			@Override
 			public Expression apply(Expression indexExpression) {
@@ -537,14 +473,9 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	}
 
 	public static Expression makeIndexExpression(Expression index, Expression domain) {
-		return makeInstance().makeIndexExpressionDynamic(index, domain);
-	}
-
-	public Expression makeIndexExpressionDynamic(Expression index, Expression domain) {
 		return Expressions.apply("in", index, domain);
 	}
 
-	// TO ABSTRACT
 	private static class TypeOfIndexInIndexExpression implements Function<Expression, Expression> {
 		@Override
 		public Expression apply(Expression expression) {
@@ -571,12 +502,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		}
 	}
 
-	// TO ABSTRACT
 	public static Pair<Expression, Expression> getIndexAndDomain(Expression indexExpression) {
-		return makeInstance().getIndexAndDomainDynamic(indexExpression);
-	}
-
-	public Pair<Expression, Expression> getIndexAndDomainDynamic(Expression indexExpression) {
 		boolean bothIndexAndDomain = indexExpression.hasFunctor("in") && indexExpression.numberOfArguments() == 2;
 		Expression index;
 		Expression indexDomain;
@@ -586,21 +512,16 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		}
 		else {
 			index = indexExpression;
-			indexDomain = type(index);
+			indexDomain = IntensionalSet.type(index);
 		}
 		return new Pair<Expression, Expression>(index, indexDomain);
 	}
-	
+
 	private static Expression type(Expression expression) {
 		return new DefaultCompoundSyntaxTree("type", expression);
 	}
 
-	// TO ABSTRACT
 	public static Expression getIndex(Expression indexExpression) {
-		return makeInstance().getIndexDynamic(indexExpression);
-	}
-
-	public Expression getIndexDynamic(Expression indexExpression) {
 		if (indexExpression.hasFunctor("in")) {
 			return indexExpression.get(0);
 		}
@@ -608,59 +529,33 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	}
 
 	public static Expression getDomain(Expression indexExpression) {
-		return makeInstance().getDomainDynamic(indexExpression);
-	}
-
-	public Expression getDomainDynamic(Expression indexExpression) {
-		Pair<Expression, Expression> indexAndDomain = getIndexAndDomain(indexExpression);
+		Pair<Expression, Expression> indexAndDomain = IntensionalSet.getIndexAndDomain(indexExpression);
 		return indexAndDomain.second;
-	}
-	
-	public static boolean hasDefaultDomain(Expression indexExpression) {
-		return makeInstance().hasDefaultDomainDynamic(indexExpression);
-	}
-
-	public boolean hasDefaultDomainDynamic(Expression indexExpression) {
-		return ! indexExpression.hasFunctor("in");
 	}
 
 	public static boolean isIntensionalSet(Expression expression) {
-		return makeInstance().isIntensionalSetDynamic(expression);
-	}
-
-	public boolean isIntensionalSetDynamic(Expression expression) {
 		return Sets.isIntensionalSet(expression);
 	}
-	
+
 	/**
 	 * Provides an iterator for the pairs of to-be-evaluated sub-expressions and respective paths in the index expressions of the set definition.
 	 * This includes the arguments of indices (for example, the X +1 in f(X+1)), the types of indices, if present,
 	 * as well as indices themselves if they are of the form <code>value of</code>.
 	 */
 	public static Iterator<Pair<Expression, List<Integer>>> getSubExpressionsAndPathsFromIndexExpressionsIterator(Expression intensionalSet) {
-		return makeInstance().getSubExpressionsAndPathsFromIndexExpressionsIteratorDynamic(intensionalSet);
-	}
-
-	public Iterator<Pair<Expression, List<Integer>>> getSubExpressionsAndPathsFromIndexExpressionsIteratorDynamic(
-			Expression intensionalSet) {
-		List<Expression> indexExpressions = getIndexExpressions(intensionalSet);
+		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
 		List<Integer> basePath;
 		if (indexExpressions.size() == 1) { // no kleene list operator, so base path is the one taking us to the 'on' operator.
-			basePath = _pathZero;
+			basePath = IntensionalSet._pathZero;
 		}
 		else {
 			// there is a kleene list operator, so base path is the one taking us to the 'on' operator and then to the kleene list operator.
-			basePath = _pathZeroZero;
+			basePath = IntensionalSet._pathZeroZero;
 		}
-		return getSubExpressionsAndPathsFromIndexExpressionsFromBasePathIterator(indexExpressions, basePath);
+		return IntensionalSet.getSubExpressionsAndPathsFromIndexExpressionsFromBasePathIterator(indexExpressions, basePath);
 	}
 
 	private static Iterator<Pair<Expression, List<Integer>>> getSubExpressionsAndPathsFromIndexExpressionsFromBasePathIterator(
-			List<Expression> indexExpressions, List<Integer> basePath) {
-		return makeInstance().getSubExpressionsAndPathsFromIndexExpressionsFromBasePathIteratorDynamic(indexExpressions, basePath);
-	}
-
-	public Iterator<Pair<Expression, List<Integer>>> getSubExpressionsAndPathsFromIndexExpressionsFromBasePathIteratorDynamic(
 			List<Expression> indexExpressions, List<Integer> basePath) {
 		List<Pair<Expression, List<Integer>>> subExpressionsAndPaths = new LinkedList<Pair<Expression, List<Integer>>>();
 		int indexExpressionIndex = 0;
@@ -684,25 +579,25 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 			
 			// Add index to sub-expressions, if it is to be evaluated
 			if (index.hasFunctor("value of")) {
-				addSubTreeWithIndexAndBasePathPlusArgumentIndex(index, 0, pathToIndex, subExpressionsAndPaths);
+				IntensionalSet.addSubTreeWithIndexAndBasePathPlusArgumentIndex(index, 0, pathToIndex, subExpressionsAndPaths);
 			}
 			else {
 				// else, at least the index arguments (if it is a function application index like f(x)) need to be evaluated
 				for (int i = 0; i != index.numberOfArguments(); i++) {
-					addSubTreeWithIndexAndBasePathPlusArgumentIndex(index, i, pathToIndex, subExpressionsAndPaths);
+					IntensionalSet.addSubTreeWithIndexAndBasePathPlusArgumentIndex(index, i, pathToIndex, subExpressionsAndPaths);
 				}
 			}
 			
 			// Add the type, if present.
 			if (indexExpression.hasFunctor("in")) {
-				addSubTreeWithIndexAndBasePathPlusArgumentIndex(indexExpression, 1, basePathPlusIndexExpressionIndex, subExpressionsAndPaths);
+				IntensionalSet.addSubTreeWithIndexAndBasePathPlusArgumentIndex(indexExpression, 1, basePathPlusIndexExpressionIndex, subExpressionsAndPaths);
 			}
 			
 			indexExpressionIndex++;
 		}
 		return subExpressionsAndPaths.iterator();
 	}
-	
+
 	private static void addSubTreeWithIndexAndBasePathPlusArgumentIndex(
 			Expression syntaxTree, int subTreeIndex, List<Integer> basePath,
 			List<Pair<Expression, List<Integer>>> result) {
