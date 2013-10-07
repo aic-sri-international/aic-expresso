@@ -42,6 +42,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 
 /**
  * A collection of helper methods for handling first order logic 'for all . : .' expressions.
@@ -75,6 +76,12 @@ public class ForAll {
 	}
 	
 	public static Expression getIndex(Expression expression) {
+		Expression indexExpression = getIndexExpression(expression);
+		Expression result = IndexExpressions.getIndex(indexExpression);
+		return result;
+	}
+	
+	public static Expression getIndexExpression(Expression expression) {
 		Expression result = expression.getSyntaxTree().getSubTree(0);
 		return result;
 	}

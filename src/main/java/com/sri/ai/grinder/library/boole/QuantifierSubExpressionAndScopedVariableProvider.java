@@ -40,12 +40,12 @@ package com.sri.ai.grinder.library.boole;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
@@ -53,6 +53,7 @@ import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.library.ScopedVariables;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.NestedIterator;
 
@@ -146,11 +147,15 @@ implements ExpressionKnowledgeModule.Provider, ScopedVariables.Provider, NoOpRew
 		return expression; // will be removed eventually, not a real rewriter, just a module.
 	}
 
+	public static List<Expression> getIndexExpressions(Expression expression) {
+		return Expressions.ensureListFromKleeneList(expression.getSyntaxTree().getSubTree(0)); // does need to be sub tree
+	}
+
 	@Override
 	public Expression getScopedVariablesAsExpression(Expression expression, RewritingProcess process) {
 		if (knowledgeApplies(expression)) {
-			SyntaxTree kleeneListWithQuantifiedVariables = expression.getSyntaxTree().getSubTree(0);
-			List<Expression> quantifiedVariables = Expressions.ensureListFromKleeneList(kleeneListWithQuantifiedVariables);
+			List<Expression> indexExpressions = getIndexExpressions(expression);
+			List<Expression> quantifiedVariables = new LinkedList<Expression>(IndexExpressions.getIndexToDomainMap(indexExpressions).keySet());
 			Expression result = Expressions.apply("list", quantifiedVariables);
 			return result;
 		}

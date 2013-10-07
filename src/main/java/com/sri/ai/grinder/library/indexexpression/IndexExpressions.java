@@ -14,6 +14,24 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
+/**
+ * Provides multiple utility methods for manipulating <i>index expressions</i>.
+ * An index is either a symbol or a function application of a function other than "in".
+ * An index expression is either an index, or a function application of "in" to an index and a set (known as "domain" of the index expression).
+ * An index expression is meant to be used as an index declaration in expressions like
+ * intensional sets, lambda expressions, and quantified expressions.
+ * Examples are
+ * <ul>
+ * <li> The <code>X</code> in the expression <code>there exists X : p(X)</code>
+ * <li> The <code>X in Domain</code> in the expression <code>there exists X in Domain : p(X)</code>
+ * <li> The <code>q(X)</code> in the expression <code>there exists q(X) : p(q(X))</code>
+ * <li> The <code>q(X) in {1,2,3}</code> in the expression <code>there exists q(X) in {1,2,3} : p(q(X))</code>
+ * <li> The <code>q(X) in {1,2,3}</code> in the expression <code>{ (on q(X) in {1,2,3}) q(X) + 2 | q(X) != 2 }</code>
+ * </ul>
+ * 
+ * @author braz
+ *
+ */
 public class IndexExpressions {
 
 	public static LinkedHashMap<Expression, Expression> getIndexToDomainMap(List<Expression> indexExpressions) {
