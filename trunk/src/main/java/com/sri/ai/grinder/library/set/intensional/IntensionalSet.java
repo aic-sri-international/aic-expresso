@@ -369,7 +369,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	 */
 	public static Expression getWholeIndexExpression(Expression intensionalSetExpression) {
 		Expression scopingExpression = IntensionalSet.getScopingExpression(intensionalSetExpression);
-		return getWholeIndexExpressionFromScopingExpression(scopingExpression);
+		return scopingExpression.getSyntaxTree().getSubTree(0); // does need to be sub tree
 	}
 
 	/**
@@ -377,12 +377,20 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	 */
 	public static List<Expression> getIndexExpressions(Expression intensionalSetExpression) {
 		Expression scopingExpression = IntensionalSet.getScopingExpression(intensionalSetExpression);
-		return getIndexExpressionsFromScopingExpression(scopingExpression);
+		if (scopingExpression != null) {
+			List<Expression> indexExpressions = Expressions.ensureListFromKleeneList(scopingExpression.getSyntaxTree().getSubTree(0)); // does need to be sub tree
+			return indexExpressions;
+		}
+		return new LinkedList<Expression>();
 	}
 
 	public static Iterator<Expression> getIndexExpressionsIterator(Expression intensionalSetExpression) {
 		Expression scopingExpression = IntensionalSet.getScopingExpression(intensionalSetExpression);
-		return getIndexExpressionIteratorFromScopingExpression(scopingExpression);
+		if (scopingExpression != null) {
+			return Expressions.ensureListFromKleeneList(scopingExpression.getSyntaxTree().getSubTree(0)).iterator();
+			// does need to be sub tree
+		}
+		return new LinkedList<Expression>().iterator();
 	}
 
 	public static List<Expression> getIndexExpressionsWithType(Expression expression) {
@@ -398,27 +406,6 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	public static Iterator<Pair<Expression, List<Integer>>> getSubExpressionsAndPathsFromIndexExpressionsIterator(Expression intensionalSet) {
 		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
 		return getSubExpressionsAndPathsFromIndexExpressionsIterator(indexExpressions);
-	}
-
-	public static List<Expression> getIndexExpressionsFromScopingExpression(Expression scopingExpression) {
-		if (scopingExpression != null) {
-			List<Expression> indexExpressions = Expressions.ensureListFromKleeneList(scopingExpression.getSyntaxTree().getSubTree(0));
-			// does need to be sub tree
-			return indexExpressions;
-		}
-		return new LinkedList<Expression>();
-	}
-
-	public static Iterator<Expression> getIndexExpressionIteratorFromScopingExpression(Expression scopingExpression) {
-		if (scopingExpression != null) {
-			return Expressions.ensureListFromKleeneList(scopingExpression.getSyntaxTree().getSubTree(0)).iterator();
-			// does need to be sub tree
-		}
-		return new LinkedList<Expression>().iterator();
-	}
-
-	public static Expression getWholeIndexExpressionFromScopingExpression(Expression scopingExpression) {
-		return scopingExpression.getSyntaxTree().getSubTree(0); // does need to be sub tree
 	}
 
 	public static Iterator<Pair<Expression, List<Integer>>> getSubExpressionsAndPathsFromIndexExpressionsIterator(List<Expression> indexExpressions) {

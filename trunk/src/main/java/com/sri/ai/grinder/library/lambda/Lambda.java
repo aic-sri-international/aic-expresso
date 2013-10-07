@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.library.lambda;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
@@ -48,6 +49,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.grinder.library.boole.QuantifierSubExpressionAndScopedVariableProvider;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 
 /**
  * A class providing basic methods for the manipulation of lambda expressions.
@@ -72,6 +74,12 @@ public class Lambda extends QuantifierSubExpressionAndScopedVariableProvider {
 	}
 
 	public static List<Expression> getParameters(Expression expression) {
+		List<Expression> indexExpressions = getIndexExpressions(expression);
+		List<Expression> result = new LinkedList<Expression>(IndexExpressions.getIndexToDomainMap(indexExpressions).keySet());
+		return result;
+	}
+
+	public static List<Expression> getIndexExpressions(Expression expression) {
 		return Expressions.ensureListFromKleeneList(expression.getSyntaxTree().getSubTree(0)); // does need to be sub tree
 	}
 
@@ -82,8 +90,8 @@ public class Lambda extends QuantifierSubExpressionAndScopedVariableProvider {
 	/**
 	 * Makes a lambda expression from a given set of parameters and a body.
 	 */
-	public static Expression make(List<Expression> parameters, Expression body) {
-		Expression parameterList = Expressions.makeKleeneListIfNeeded(parameters);
+	public static Expression make(List<Expression> indexExpressions, Expression body) {
+		Expression parameterList = Expressions.makeKleeneListIfNeeded(indexExpressions);
 		Expression result = Expressions.apply(ROOT, parameterList, body);
 		return result;
 	}
