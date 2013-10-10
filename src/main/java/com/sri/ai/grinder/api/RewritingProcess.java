@@ -135,6 +135,11 @@ public interface RewritingProcess {
 	Set<Expression> getContextualVariables();
 	
 	/**
+	 * @return the domains of a contextual variable.
+	 */
+	Expression getContextualVariableDomain(Expression variable);
+	
+	/**
 	 * 
 	 * @return the process's current contextual constraint. This is a constraint
 	 *         on the values of the free variables for expressions being passed

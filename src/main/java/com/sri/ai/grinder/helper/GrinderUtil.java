@@ -62,6 +62,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.concurrent.BranchAndMerge;
 import com.sri.ai.util.concurrent.CancelOutstandingOnFailure;
@@ -490,32 +491,6 @@ public class GrinderUtil {
 	}
 
 	/**
-	 * 
-	 * @param expressionWithPossibleFreeVariables
-	 *            an expression that possibly contains free variables that
-	 *            should be added to the a new sub-process of the process passed
-	 *            in.
-	 * @param process
-	 *            the process to be extended by a new sub-process that will
-	 *            contain the extended set of contextual variables.
-	 * @return a new-subprocess based on the passed in process with its
-	 *         contextual variables extended by the free variables in the
-	 *         expression passed in.
-	 */
-	public static RewritingProcess extendContextualVariables(Expression expressionWithPossibleFreeVariables, RewritingProcess process) {
-		Set<Expression> newContextualVariables = new HashSet<Expression>();
-		newContextualVariables.addAll(process.getContextualVariables());
-		if (expressionWithPossibleFreeVariables != null) {
-			newContextualVariables.addAll(Expressions.freeVariables(expressionWithPossibleFreeVariables, process));
-		}
-		
-		RewritingProcess result = process.newSubProcessWithContext(newContextualVariables, process.getContextualConstraint());
-		
-		return result;
-	}
-
-	
-	/**
 	 * Extend the rewriting processes's contextual constraint by an additional
 	 * context. This essentially creates a new expression which is a conjunction
 	 * of both constraints and then performs R_formula_simplification on the
@@ -532,7 +507,7 @@ public class GrinderUtil {
 	public static RewritingProcess extendContextualConstraint(Expression additionalConstraints, RewritingProcess process) {
 		
 		return extendContextualVariablesAndConstraint(
-				Expressions.TRUE,
+				Util.<Expression>list(),
 				additionalConstraints,
 				process);
 	}
@@ -577,6 +552,30 @@ public class GrinderUtil {
 		return result;
 	}
 	
+	/**
+	 * 
+	 * @param expressionWithPossibleFreeVariables
+	 *            an expression that possibly contains free variables that
+	 *            should be added to the a new sub-process of the process passed
+	 *            in.
+	 * @param process
+	 *            the process to be extended by a new sub-process that will
+	 *            contain the extended set of contextual variables.
+	 * @return a new-subprocess based on the passed in process with its
+	 *         contextual variables extended by the free variables in the
+	 *         expression passed in.
+	 */
+	public static RewritingProcess extendContextualVariables(Expression expressionWithPossibleFreeVariables, RewritingProcess process) {
+		RewritingProcess result;
+		if (expressionWithPossibleFreeVariables != null) {
+			result = extendContextualVariablesAndConstraint(Expressions.freeVariables(expressionWithPossibleFreeVariables, process), Expressions.TRUE, process);
+		}
+		else {
+			result = process;
+		}
+		return result;
+	}
+
 	/**
 	 * Extend the rewriting processes's contextual variables and constraints.
 	 * 
@@ -645,8 +644,8 @@ public class GrinderUtil {
 			// can be passed in the case of lambda expressions where
 			// the scoped values are random variable values and not logical
 			// variables.
-			for (Expression fv : newFreeVariables) {
-				newContextualVariables.addAll(Expressions.freeVariables(fv, process));
+			for (Expression freeVariable : newFreeVariables) {
+				newContextualVariables.addAll(Expressions.freeVariables(freeVariable, process));
 			}
 		}
 		
@@ -678,7 +677,7 @@ public class GrinderUtil {
 		
 		return subRewritingProcess;	
 	}
-		
+
 	public static Expression currentContextBranchReachable(String rewriterNameToCheckBranchReachable, RewritingProcess parentProcess, RewritingProcess childProcess) {
 		Expression result = Expressions.TRUE;
 		

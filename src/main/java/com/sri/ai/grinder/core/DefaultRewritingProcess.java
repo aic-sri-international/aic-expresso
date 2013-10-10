@@ -153,6 +153,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	private RewriterLookup               rewriterLookup                                                        = null;
 	private ChildRewriterCallIntercepter childCallIntercepter                                                  = null;
 	private ImmutableSet<Expression>     contextualVariables                                                   = null;
+	private Map<Expression, Expression>  contextualVariablesDomains                                            = new HashMap<Expression, Expression>();
 	private Expression                   contextualConstraint                                                  = Expressions.TRUE;
 	private Predicate<Expression>        isConstantPredicate                                                   = null;
 	private boolean                      isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess = true;
@@ -405,6 +406,11 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	@Override
 	public Set<Expression> getContextualVariables() {
 		return contextualVariables;
+	}
+
+	@Override
+	public Expression getContextualVariableDomain(Expression variable) {
+		return contextualVariablesDomains.get(variable);
 	}
 
 	@Override
