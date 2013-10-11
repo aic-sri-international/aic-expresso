@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
@@ -55,6 +56,7 @@ import com.sri.ai.grinder.helper.concurrent.CallableRewriteOnBranch;
 import com.sri.ai.grinder.helper.concurrent.CallableRewriteOnConditionedBranch;
 import com.sri.ai.grinder.helper.concurrent.RewriteOnBranch;
 import com.sri.ai.grinder.helper.concurrent.ShortCircuitOnValue;
+import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
@@ -64,6 +66,7 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.collect.StackedHashMap;
 import com.sri.ai.util.concurrent.BranchAndMerge;
 import com.sri.ai.util.concurrent.CancelOutstandingOnFailure;
 import com.sri.ai.util.concurrent.CancelOutstandingOnSuccess;
@@ -628,39 +631,41 @@ public class GrinderUtil {
 	 */
 	public static RewritingProcess extendContextualVariablesAndConstraint(
 			Collection<Expression> newFreeVariables,
+			//Map<Expression, Expression> newFreeVariablesDomains,
 			Expression additionalConstraints, 
 			RewritingProcess process) {
 		
-		if (newFreeVariables.isEmpty() && additionalConstraints.equals(Expressions.TRUE)) {
-			// nothing to do
+		if (newFreeVariables.isEmpty() && additionalConstraints.equals(Expressions.TRUE)) { // nothing to do
 			return process;
 		}
 		
 		Set<Expression> newContextualVariables = new HashSet<Expression>();
 		newContextualVariables.addAll(process.getContextualVariables());
+		Map<Expression, Expression> newContextualVariablesDomains = new StackedHashMap<Expression, Expression>(process.getContextualVariablesDomains());
 		if (newFreeVariables != null) {
-			// Note: This is to guarantee only logical variables are maintained
-			// in the contextual variables set. Non-logical variables
-			// can be passed in the case of lambda expressions where
-			// the scoped values are random variable values and not logical
-			// variables.
-			for (Expression freeVariable : newFreeVariables) {
-				newContextualVariables.addAll(Expressions.freeVariables(freeVariable, process));
+			// we take only the logical variables; this is a current limitation of the system and should eventually be removed.
+			Collection<Expression> newFreeVariablesWhichAreLogicalVariables = Util.filter(newFreeVariables, new IsVariable(process));
+			for (Expression newLogicalFreeVariable : newFreeVariablesWhichAreLogicalVariables) {
+				newContextualVariables.add(newLogicalFreeVariable);
+				newContextualVariablesDomains.put(newLogicalFreeVariable, newContextualVariablesDomains.get(newLogicalFreeVariable));
 			}
 		}
 		
-		Expression contextualConstraint      = process.getContextualConstraint();
-		Expression contextualConstraintPrime = contextualConstraint;
+		Expression contextualConstraintPrime = process.getContextualConstraint();
 		
 		// Only extend the contextual constraint with formulas
 		if (!additionalConstraints.equals(Expressions.TRUE) && FormulaUtil.isFormula(additionalConstraints, process)) {
-			// Ensure any variables mentioned in the additional constraint are added
-			// to the contextual variables set.
-			newContextualVariables.addAll(Expressions.freeVariables(additionalConstraints, process));
+			// Ensure any variables mentioned in the additional constraint are added to the contextual variables set.
+			Set<Expression> freeVariablesInAdditionalConstraints = Expressions.freeVariables(additionalConstraints, process);
+//			if ( ! newContextualVariables.containsAll(freeVariablesInAdditionalConstraints)) {
+//				System.out.println("Free variables in constraint");
+//				System.out.println("newContextualVariables: " + newContextualVariables);
+//				System.out.println("freeVariablesInAdditionalConstraints: " + freeVariablesInAdditionalConstraints);
+//			}
+			newContextualVariables.addAll(freeVariablesInAdditionalConstraints);
 			
-			// Construct a conjunct of contextual constraints extended by the
-			// additional context
-			contextualConstraintPrime = CardinalityUtil.makeAnd(contextualConstraint, additionalConstraints);
+			// Construct a conjunct of contextual constraints extended by the additional context
+			contextualConstraintPrime = CardinalityUtil.makeAnd(process.getContextualConstraint(), additionalConstraints);
 		} 
 		else {
 			// Note: commenting out for now due to the bloat caused in the trace output.
@@ -673,7 +678,7 @@ public class GrinderUtil {
 			}
 		}
 		
-		RewritingProcess subRewritingProcess = process.newSubProcessWithContext(newContextualVariables, contextualConstraintPrime);
+		RewritingProcess subRewritingProcess = process.newSubProcessWithContext(newContextualVariables, newContextualVariablesDomains, contextualConstraintPrime);
 		
 		return subRewritingProcess;	
 	}

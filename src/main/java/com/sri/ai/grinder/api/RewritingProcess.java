@@ -135,6 +135,11 @@ public interface RewritingProcess {
 	Set<Expression> getContextualVariables();
 	
 	/**
+	 * @return the domains of all contextual variables.
+	 */
+	Map<Expression, Expression> getContextualVariablesDomains();
+	
+	/**
 	 * @return the domains of a contextual variable.
 	 */
 	Expression getContextualVariableDomain(Expression variable);
@@ -152,7 +157,9 @@ public interface RewritingProcess {
 	/**
 	 * Create a new sub-rewriting process with it own context.
 	 */
-	RewritingProcess newSubProcessWithContext(Set<Expression> contextualVariables,
+	RewritingProcess newSubProcessWithContext(
+			Set<Expression> contextualVariables,
+			Map<Expression, Expression> subProcessContextualVariablesDomains,
 			Expression contextualConstraint);
 
 	/**

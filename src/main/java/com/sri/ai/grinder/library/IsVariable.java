@@ -41,6 +41,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.grinder.api.RewritingProcess;
 
 /**
  * A {@link Predicate} that determines if a given Expression represents a Variable.
@@ -49,12 +50,16 @@ import com.sri.ai.expresso.api.Symbol;
  *
  */
 @Beta
-public class IsVariablePredicate implements Predicate<Expression> {
+public class IsVariable implements Predicate<Expression> {
 	
 	private Predicate<Expression> isConstantPredicate;
 	
-	public IsVariablePredicate(Predicate<Expression> isConstantPredicate) {
+	public IsVariable(Predicate<Expression> isConstantPredicate) {
 		this.isConstantPredicate = isConstantPredicate;
+	}
+
+	public IsVariable(RewritingProcess process) {
+		this(process.getIsConstantPredicate());
 	}
 
 	@Override
