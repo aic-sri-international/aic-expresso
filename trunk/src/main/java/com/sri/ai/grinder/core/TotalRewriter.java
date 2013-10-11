@@ -247,7 +247,7 @@ public class TotalRewriter extends AbstractRewriter {
 			previous = current;
 			currentTopExpression[0] = current;
 			currentTopExpressionForDebugging[0] = current;
-			current  = previous.replaceAllOccurrences(rewriteFunction, deadEndPruner, deadEndListener, process);
+			current = previous.replaceAllOccurrences(rewriteFunction, deadEndPruner, deadEndListener, process);
 		}
 		
 		Expression result = current;

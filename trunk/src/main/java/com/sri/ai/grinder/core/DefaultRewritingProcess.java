@@ -61,7 +61,7 @@ import com.sri.ai.grinder.api.ChildRewriterCallIntercepter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.expression.ExpressionCacheKey;
 import com.sri.ai.grinder.expression.ExpressionCache;
-import com.sri.ai.grinder.library.IsVariablePredicate;
+import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.IdentityWrapper;
@@ -220,6 +220,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				rewriterLookup,
 				null,
 				ImmutableSet.<Expression>builder().build(),
+				Util.<Expression, Expression>map(),
 				Expressions.TRUE, 
 				isConstantPredicate, 
 				new ConcurrentHashMap<Object, Object>(globalObjects),
@@ -280,7 +281,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	
 	@Override
 	public boolean isVariable(Expression expression) {
-		boolean result = IsVariablePredicate.isVariable(expression,
+		boolean result = IsVariable.isVariable(expression,
 				isConstantPredicate);
 		return result;
 	}
@@ -377,7 +378,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		
 			// Create a child process for this intercept call so that the correct child call intercepter (if a chain exists) is passed to or
 			// no intercepter if there is no chain.
-			DefaultRewritingProcess childCallProcess = new DefaultRewritingProcess(this, outerChildCallIntercepter, this.contextualVariables, this.contextualConstraint);
+			DefaultRewritingProcess childCallProcess = new DefaultRewritingProcess(this, outerChildCallIntercepter, this.contextualVariables, this.contextualVariablesDomains, this.contextualConstraint);
 			// Call the intercepter and return its result.
 			result = childCallIntercepter.intercept(rewriterName, expression, childCallProcess);
 		}
@@ -396,7 +397,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		
 		Rewriter                rewriter         = rewriterLookup.getRewriterFor(rewriterName);
 		// Create a sub-process with the specified child intercepter.
-		DefaultRewritingProcess childCallProcess = new DefaultRewritingProcess(this, childCallIntercepter, this.contextualVariables, this.contextualConstraint);
+		DefaultRewritingProcess childCallProcess = new DefaultRewritingProcess(this, childCallIntercepter, this.contextualVariables, this.contextualVariablesDomains, this.contextualConstraint);
 		// Call rewrite on the specified rewriter with this child process
 		Expression result = rewriter.rewrite(expression, childCallProcess);
 		
@@ -406,6 +407,11 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	@Override
 	public Set<Expression> getContextualVariables() {
 		return contextualVariables;
+	}
+
+	@Override
+	public Map<Expression, Expression> getContextualVariablesDomains() {
+		return contextualVariablesDomains;
 	}
 
 	@Override
@@ -420,16 +426,17 @@ public class DefaultRewritingProcess implements RewritingProcess {
 
 	@Override
 	public RewritingProcess newSubProcessWithContext(
-			Set<Expression> subProcessContextualVariables, Expression subProcessContextualConstraint) {
+			Set<Expression> subProcessContextualVariables, Map<Expression, Expression> subProcessContextualVariablesDomains, Expression subProcessContextualConstraint) {
 
 		ImmutableSet.Builder<Expression> setBuilder = ImmutableSet.builder();
 		setBuilder.addAll(subProcessContextualVariables);
 		
-		ImmutableSet<Expression> newSubProcessContextualVariables = setBuilder.build();
+		ImmutableSet<Expression> immutableSubProcessContextualVariables = setBuilder.build();
 
 		DefaultRewritingProcess result = new DefaultRewritingProcess(this, 
 				this.childCallIntercepter,
-				newSubProcessContextualVariables, 
+				immutableSubProcessContextualVariables,
+				subProcessContextualVariablesDomains,
 				subProcessContextualConstraint);
 		
 		return result;
@@ -577,15 +584,17 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	// Note: private constructors for sub-processes			                        
 	private DefaultRewritingProcess(DefaultRewritingProcess parentProcess,
 			ChildRewriterCallIntercepter childCallIntercepter,
-			ImmutableSet<Expression> newContextualVariables,
-			Expression newContextualConstraint) {
+			ImmutableSet<Expression> contextualVariables,
+			Map<Expression, Expression> contextualVariablesDomains,
+			Expression contextualConstraint) {
 		initialize(parentProcess,
 				parentProcess.rootExpression,
 				parentProcess.rootRewriter,
 				parentProcess.rewriterLookup,
 				childCallIntercepter,
-				newContextualVariables,
-				newContextualConstraint, 
+				contextualVariables,
+				contextualVariablesDomains,
+				contextualConstraint, 
 				parentProcess.isConstantPredicate,
 				parentProcess.globalObjects,
 				parentProcess.rewriterCaches,
@@ -602,6 +611,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			RewriterLookup rewriterLookup,
 			ChildRewriterCallIntercepter childCallIntercepter,
 			ImmutableSet<Expression> contextualVariables,
+			Map<Expression, Expression> contextualVariablesDomains,
 			Expression contextualConstraint,
 			Predicate<Expression> isConstantPredicate,
 			ConcurrentHashMap<Object, Object> globalObjects,
@@ -616,9 +626,10 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		this.rewriterLookup       = rewriterLookup;
 		this.childCallIntercepter = childCallIntercepter;
 		//
-		this.contextualVariables  = contextualVariables;
-		this.contextualConstraint = contextualConstraint;
-		this.isConstantPredicate  = isConstantPredicate;
+		this.contextualVariables        = contextualVariables;
+		this.contextualVariablesDomains = contextualVariablesDomains;
+		this.contextualConstraint       = contextualConstraint;
+		this.isConstantPredicate        = isConstantPredicate;
 		//
 		this.globalObjects        = globalObjects;
 		this.rewriterCaches       = rewriterCaches;

@@ -64,7 +64,7 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.IsVariablePredicate;
+import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.SubExpressionSelection;
 import com.sri.ai.grinder.library.boole.And;
@@ -770,7 +770,7 @@ public class Expressions {
 	 * in a given expression, for a certain predicate indicating constants.
 	 */
 	public static LinkedHashSet<Expression> getVariables(Expression argument, Predicate<Expression> isConstantPredicate) {
-		return SubExpressionSelection.getVariables(argument, new IsVariablePredicate(isConstantPredicate));
+		return SubExpressionSelection.getVariables(argument, new IsVariable(isConstantPredicate));
 	}
 
 	/**
