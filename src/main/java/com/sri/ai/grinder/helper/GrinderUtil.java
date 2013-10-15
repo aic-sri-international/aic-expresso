@@ -39,7 +39,6 @@ package com.sri.ai.grinder.helper;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +63,6 @@ import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.collect.StackedHashMap;
@@ -518,25 +516,6 @@ public class GrinderUtil {
 	}
 	
 	/**
-	 * Extend the rewriting processes's contextual variables and constraints
-	 * with the indices and condition from an intensionally defined set.
-	 * 
-	 * @param intensionalSet
-	 * @param process
-	 *            the process in which the rewriting is occurring and whose
-	 *            contextual constraint is to be updated.
-	 * @return a sub-rewriting process with its contextual variables and
-	 *         constraints extended by the indices and condition of the intensionally defined set passed in.
-	 */
-	public static RewritingProcess extendContextualVariablesAndConstraintWithIntensionalSet(Expression intensionalSet, RewritingProcess process) {
-		Collection<Expression> quantifiedVariables  = IntensionalSet.getIndices(intensionalSet);
-		Expression             conditionOnExpansion = IntensionalSet.getCondition(intensionalSet);
-		//Map<Expression, Expression> sortsOfQuantifiedVariables = getSortsOfIndices(intensionalSet, process);
-		RewritingProcess result = extendContextualVariablesAndConstraint(quantifiedVariables, conditionOnExpansion, process);
-		return result;
-	}
-
-	/**
 	 * Extend the rewriting processes's contextual variables and constraints.
 	 * 
 	 * @param expressionAndContext
@@ -650,7 +629,7 @@ public class GrinderUtil {
 			Collection<Expression> newFreeVariablesWhichAreLogicalVariables = Util.filter(newFreeVariables, new IsVariable(process));
 			for (Expression newLogicalFreeVariable : newFreeVariablesWhichAreLogicalVariables) {
 				newContextualVariables.add(newLogicalFreeVariable);
-				newContextualVariablesDomains.put(newLogicalFreeVariable, null);//newFreeVariablesDomains.get(newLogicalFreeVariable));
+				//newContextualVariablesDomains.put(newLogicalFreeVariable, newFreeVariablesDomains.get(newLogicalFreeVariable));
 			}
 		}
 		
