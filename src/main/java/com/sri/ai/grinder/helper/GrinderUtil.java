@@ -39,6 +39,7 @@ package com.sri.ai.grinder.helper;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -511,6 +512,7 @@ public class GrinderUtil {
 		
 		return extendContextualVariablesAndConstraint(
 				Util.<Expression>list(),
+				//new HashMap<Expression, Expression>(),
 				additionalConstraints,
 				process);
 	}
@@ -529,6 +531,7 @@ public class GrinderUtil {
 	public static RewritingProcess extendContextualVariablesAndConstraintWithIntensionalSet(Expression intensionalSet, RewritingProcess process) {
 		Collection<Expression> quantifiedVariables  = IntensionalSet.getIndices(intensionalSet);
 		Expression             conditionOnExpansion = IntensionalSet.getCondition(intensionalSet);
+		//Map<Expression, Expression> sortsOfQuantifiedVariables = getSortsOfIndices(intensionalSet, process);
 		RewritingProcess result = extendContextualVariablesAndConstraint(quantifiedVariables, conditionOnExpansion, process);
 		return result;
 	}
@@ -647,7 +650,7 @@ public class GrinderUtil {
 			Collection<Expression> newFreeVariablesWhichAreLogicalVariables = Util.filter(newFreeVariables, new IsVariable(process));
 			for (Expression newLogicalFreeVariable : newFreeVariablesWhichAreLogicalVariables) {
 				newContextualVariables.add(newLogicalFreeVariable);
-				newContextualVariablesDomains.put(newLogicalFreeVariable, newContextualVariablesDomains.get(newLogicalFreeVariable));
+				newContextualVariablesDomains.put(newLogicalFreeVariable, null);//newFreeVariablesDomains.get(newLogicalFreeVariable));
 			}
 		}
 		
