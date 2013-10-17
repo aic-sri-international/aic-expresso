@@ -575,7 +575,7 @@ public class GrinderUtil {
 	 *            the process in which the rewriting is occurring and whose
 	 *            contextual constraint is to be updated.
 	 * @return a sub-rewriting process with its contextual variables and
-	 *         constraints extended by the argumets passed in.
+	 *         constraints extended by the arguments passed in.
 	 */
 	public static RewritingProcess extendContextualVariablesAndConstraint(
 			Expression expressionWithPossibleFreeVariables,
