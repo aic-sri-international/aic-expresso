@@ -52,7 +52,7 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 
 /**
- * Standardizes Variables in a formula:
+ * Standardizes Variables apart in a formula:
  * 
  * for all X: (there exists Y: X = Y) or (there exists Y: X != Y)
  * ->
@@ -61,7 +61,7 @@ import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
  * Basically quantifiers in the formula using the same index name are made unique.
  */
 @Beta
-public class StandardizeVariables {
+public class StandardizeVariablesApart {
 
 	/**
 	 * Standardize the variables in a formula.
@@ -71,23 +71,23 @@ public class StandardizeVariables {
 	 * @param process
 	 * @return a formula with standardized variable names (i.e. unique) across quantifiers in the formula.
 	 */
-	public static Expression standardize(Expression formula, RewritingProcess process) {
+	public static Expression standardizeApart(Expression formula, RewritingProcess process) {
 		Expression input  = formula;
 		Expression result = formula;
 		do {
 			input  = result;
-			result = input.replaceFirstOccurrence(new StandardizeVariablesReplacementFunction(process), process);
+			result = input.replaceFirstOccurrence(new StandardizeVariablesApartReplacementFunction(process), process);
 		} while (result != input);
 		
 		return result;
 	}
 
-	private static class StandardizeVariablesReplacementFunction implements Function<Expression, Expression> {
+	private static class StandardizeVariablesApartReplacementFunction implements Function<Expression, Expression> {
 		
 		private RewritingProcess process     = null;
 		private Set<Expression>  seenIndices = new HashSet<Expression>();
 		
-		public StandardizeVariablesReplacementFunction(RewritingProcess process) {
+		public StandardizeVariablesApartReplacementFunction(RewritingProcess process) {
 			this.process = process;
 		}
 		
