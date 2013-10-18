@@ -37,18 +37,17 @@
  */
 package com.sri.ai.expresso.core;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.PairIterator;
@@ -62,23 +61,25 @@ import com.sri.ai.util.collect.PairIterator;
 public class DefaultExpressionAndContext implements ExpressionAndContext {
 	private static final long serialVersionUID = 1L;
 	
-	private Expression               expression;
-	private List<Integer>            path;
-	private ImmutableSet<Expression> quantifiedVariables;
-	private Expression               constrainingCondition;
+	private Expression                expression;
+	private List<Integer>             path;
+	private ImmutableList<Expression> indexExpressions;
+	private ImmutableList<Expression> quantifiedVariables;
+	private Expression                constrainingCondition;
 	
 	public DefaultExpressionAndContext(Expression expression, List<Integer> path) {
 		this(expression, path, new LinkedList<Expression>(), Expressions.TRUE);
 	}
 	
-	public DefaultExpressionAndContext(Expression expression, List<Integer> path, Collection<Expression> quantifiedVariables) {
-		this(expression, path, quantifiedVariables, Expressions.TRUE);
+	public DefaultExpressionAndContext(Expression expression, List<Integer> path, List<Expression> indexExpressions) {
+		this(expression, path, indexExpressions, Expressions.TRUE);
 	}
 	
-	public DefaultExpressionAndContext(Expression expression, List<Integer> path, Collection<Expression> quantifiedVariables, Expression constrainingCondition) {
+	public DefaultExpressionAndContext(Expression expression, List<Integer> path, List<Expression> indexExpressions, Expression constrainingCondition) {
 		this.expression            = expression;
 		this.path                  = path;
-		this.quantifiedVariables   = ImmutableSet.<Expression>builder().addAll(quantifiedVariables).build();
+		this.indexExpressions      = ImmutableList.<Expression>builder().addAll(indexExpressions).build();
+		this.quantifiedVariables   = null;
 		this.constrainingCondition = constrainingCondition;
 	}
 	
@@ -92,7 +93,7 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	
 	@Override
 	public ExpressionAndContext setExpression(Expression expression) {
-		DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, getPath(), getQuantifiedVariables());
+		DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, getPath(), getIndexExpressions());
 		return result;
 	}
 
@@ -102,7 +103,15 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	}
 	
 	@Override
-	public Set<Expression> getQuantifiedVariables() {
+	public List<Expression> getIndexExpressions() {
+		return indexExpressions;
+	}
+	
+	@Override
+	public List<Expression> getQuantifiedVariables() {
+		if (quantifiedVariables == null) {
+			quantifiedVariables = ImmutableList.<Expression>builder().addAll(IndexExpressions.getIndices(indexExpressions)).build();
+		}
 		return quantifiedVariables;
 	}
 	
@@ -133,10 +142,10 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	 * to the corresponding knowledge-based sub-expression.
 	 */
 	public static class MakerFromExpressionAndPathList implements Function<List<Object>, ExpressionAndContext> {
-		private Collection<Expression> quantifiedVariables;
+		private List<Expression>       indexExpressions;
 		
-		public MakerFromExpressionAndPathList(Collection<Expression> quantifiedVariables) {
-			this.quantifiedVariables = quantifiedVariables;
+		public MakerFromExpressionAndPathList(List<Expression> indexExpressions) {
+			this.indexExpressions    = indexExpressions;
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -144,7 +153,7 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 		public ExpressionAndContext apply(List<Object> expressionAndPath) {
 			Expression expression = (Expression) expressionAndPath.get(0);
 			List<Integer> path    = (List<Integer>) expressionAndPath.get(1);
-			DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, path, quantifiedVariables);
+			DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, path, indexExpressions);
 			return result;
 		}
 	}
@@ -154,17 +163,17 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	 * to the corresponding knowledge-based sub-expression.
 	 */
 	public static class MakerFromExpressionAndPathPair implements Function<Pair<Expression, List<Integer>>, ExpressionAndContext> {
-		private Collection<Expression> quantifiedVariables;
+		private List<Expression>       indexExpressions;
 		
-		public MakerFromExpressionAndPathPair(Collection<Expression> quantifiedVariables) {
-			this.quantifiedVariables = quantifiedVariables;
+		public MakerFromExpressionAndPathPair(List<Expression> indexExpressions) {
+			this.indexExpressions    = indexExpressions;
 		}
 		
 		@Override
 		public ExpressionAndContext apply(Pair<Expression, List<Integer>> expressionAndPath) {
 			Expression    expression = expressionAndPath.first;
 			List<Integer> path       = expressionAndPath.second;
-			DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, path, quantifiedVariables);
+			DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, path, indexExpressions);
 			return result;
 		}
 	}
