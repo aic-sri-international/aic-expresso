@@ -76,16 +76,15 @@ ImposedConditionsModule.Provider
 		if (knowledgeApplies(expression)) {
 			// sub-expressions are indices (when preceded by "value of"), types of indices, head, and condition.
 			
-			Collection<Expression> quantifiedVariables = IntensionalSet.getScopedVariables(expression);
 			Collection<ExpressionAndContext> subExpressionsAndContexts = new LinkedList<ExpressionAndContext>();
 
 			Expression condition = IntensionalSet.getCondition(expression);
-			ExpressionAndContext headAndContext = new DefaultExpressionAndContext(IntensionalSet.getHead(expression), IntensionalSet.getPathToHead(), quantifiedVariables, condition);
+			ExpressionAndContext headAndContext = new DefaultExpressionAndContext(IntensionalSet.getHead(expression), IntensionalSet.getPathToHead(), IntensionalSet.getIndexExpressions(expression), condition);
 			subExpressionsAndContexts.add(headAndContext);
 			
 			if ( ! condition.equals(true)) {
 				ExpressionAndContext conditionAndContext =
-					new DefaultExpressionAndContext(condition, IntensionalSet.getPathToCondition(), quantifiedVariables);
+					new DefaultExpressionAndContext(condition, IntensionalSet.getPathToCondition(), IntensionalSet.getIndexExpressions(expression));
 				subExpressionsAndContexts.add(conditionAndContext);
 			}
 

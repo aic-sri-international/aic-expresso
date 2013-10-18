@@ -621,7 +621,7 @@ public class Expressions {
 		
 		List<Expression> emptyList = Collections.emptyList();
 		Iterator<ExpressionAndContext> result = Expressions.makeIteratorOfSubExpressionsAndContextsFromIteratorsOnSubTreesAndPathsWithGivenQuantifiedVariables(
-				subTreesIterator, pathsIterator, emptyList /* no quantified variables */, process);
+				subTreesIterator, pathsIterator, emptyList /* no index expressions */, emptyList /* no quantified variables */, process);
 	
 		return result;
 	}
@@ -640,7 +640,7 @@ public class Expressions {
 		
 		List<Expression> emptyList = Collections.emptyList();
 		Iterator<ExpressionAndContext> result = Expressions.makeIteratorOfSubExpressionsAndContextsFromIteratorsOnSubTreesAndPathsWithGivenQuantifiedVariables(
-				subTreesIterator, pathsIterator, emptyList /* no quantified variables */, process);
+				subTreesIterator, pathsIterator, emptyList /* no index expressions */, emptyList /* no quantified variables */, process);
 	
 		return result;
 	}
@@ -653,14 +653,15 @@ public class Expressions {
 	public
 	static Iterator<ExpressionAndContext> makeIteratorOfSubExpressionsAndContextsFromIteratorsOnSubTreesAndPathsWithGivenQuantifiedVariables(
 			Iterator<? extends Expression> expressionsIterator, 
-			FunctionIterator<Integer, List<Integer>> pathsIterator, 
+			FunctionIterator<Integer, List<Integer>> pathsIterator,
+			List<Expression> indexExpressions,
 			Collection<Expression> quantifiedVariables, 
 			RewritingProcess process) {
 		
 		Iterator<ExpressionAndContext> result =
 			new FunctionIterator<List<Object>, ExpressionAndContext>(
 					new ZipIterator(expressionsIterator, pathsIterator),
-					new DefaultExpressionAndContext.MakerFromExpressionAndPathList(quantifiedVariables));
+					new DefaultExpressionAndContext.MakerFromExpressionAndPathList(indexExpressions));
 	
 		return result;
 	}

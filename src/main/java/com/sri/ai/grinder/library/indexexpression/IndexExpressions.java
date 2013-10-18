@@ -202,5 +202,10 @@ public class IndexExpressions {
 		subExpressionPath.add(subTreeIndex);
 		result.add(new Pair<Expression, List<Integer>>(subExpression, subExpressionPath));
 	}
+
+	public static List<Expression> getIndices(List<Expression> indexExpressions) {
+		List<Expression> result = Util.mapIntoList(indexExpressions, new GetIndex());
+		return result;
+	}
 	
 }

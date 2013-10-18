@@ -39,7 +39,6 @@ package com.sri.ai.expresso.api;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
@@ -58,7 +57,8 @@ import com.google.common.base.Function;
  * (to create, say, <code>{ (on X) anotherExpression(X) : X != a }</code>).
  * This information is the path over the syntax tree of the parent expression needed
  * to reach the sub-expression
- * (in the future, this will be replaced by more encapsulated and high-level sorts of information).
+ * (in the future, syntax trees will be more hidden and
+ * this will be replaced by more encapsulated and high-level sorts of information).
  * 
  * @author braz
  */
@@ -87,7 +87,7 @@ public interface ExpressionAndContext extends Serializable {
 	 *            the expression to replace the current expression when creating
 	 *            a new ExpressionAndContext.
 	 * @return a new ExpressionAndContext based on this but with its internal
-	 *         expression by the one passed in.
+	 *         expression replaced by the one passed in.
 	 */
 	ExpressionAndContext setExpression(Expression expression);
 
@@ -99,10 +99,17 @@ public interface ExpressionAndContext extends Serializable {
 
 	/**
 	 * 
-	 * @return a set of quantified variables that the parent expression may
+	 * @return a list of index expressions ({@link IndexExpressions}) that the parent expression may
 	 *         declare that the sub-expression in this context is bound to.
 	 */
-	Set<Expression> getQuantifiedVariables();
+	List<Expression> getIndexExpressions();
+
+	/**
+	 * 
+	 * @return a list of quantified variables that the parent expression may
+	 *         declare that the sub-expression in this context is bound to.
+	 */
+	List<Expression> getQuantifiedVariables();
 
 	/**
 	 * The constraining condition that a parent expression imposes on its

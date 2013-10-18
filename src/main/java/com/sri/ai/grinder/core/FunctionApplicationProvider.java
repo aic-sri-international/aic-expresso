@@ -77,7 +77,7 @@ ExpressionKnowledgeModule.Provider
 			List<Expression> emptyList = Collections.emptyList();
 			Iterator<ExpressionAndContext> result =
 				Expressions.makeIteratorOfSubExpressionsAndContextsFromIteratorsOnSubTreesAndPathsWithGivenQuantifiedVariables(
-						subTreesAndRootTreeIterator, pathsIterator, emptyList, process); // by default, no quantified variables
+						subTreesAndRootTreeIterator, pathsIterator, emptyList /* no index expressions */, emptyList, process); // by default, no quantified variables
 		
 			return result;
 		}
