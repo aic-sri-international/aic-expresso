@@ -45,27 +45,26 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 
 /**
- * An <b>ExpressionAndContext</b> is a pair of an expression and the context
- * information indicating where it fits in another, parent expression it is a
- * sub-expression of. As such, it contains information allowing its rewritings
- * to substitute for it in the expression it is a sub-expression of. For
- * example, a sub-expression may encapsulate an expression that will be
- * rewritten. This rewriting needs to be re-inserted in whatever expression is
- * its parent. The sub-expression, which was provided by this parent expression,
- * contains the information regarding the sub-expression's location in the
- * parent expression. For expressions, this will typically be the path of the
- * symbol subtree. For example, 1 will have path (0) with respect to f(1,2).
- * However, expressions based on more complex syntax trees can provide
- * sub-expressions based on sub-sub-syntax trees as their sub-expressions, as
- * for example D in { f(X) }_(X in D), since '_' and 'in' are the functors of
- * sub-syntax trees of this expression that are not provided as sub-expressions;
- * D is provided directly as such, and its path will be (1,1). Paths to functors
- * use the number -1.
+ * An <b>ExpressionAndContext</b> encapsulates information about a sub-expression
+ * and the context in which it appears.
+ * This includes quantified variables introduced at its scope by its parent expression,
+ * new conditions imposed by the parent expression on the sub-expression's scope,
+ * as well as information that can be used to replace it by a different sub-expression in the parent expression.
+ * 
+ * For example, in the expression <code>{ (on X) p(X) : X != a }</code>,
+ * the ExpressionAndContext object related to <code>p(X)</code> informs that
+ * there is a newly scoped variable <code>X</code> for it, as well as a new condition <code>X != a</code>.
+ * It also contains information (the path) that allows its replacement in the parent expression
+ * (to create, say, <code>{ (on X) anotherExpression(X) : X != a }</code>).
+ * This information is the path over the syntax tree of the parent expression needed
+ * to reach the sub-expression
+ * (in the future, this will be replaced by more encapsulated and high-level sorts of information).
  * 
  * @author braz
  */
 @Beta
 public interface ExpressionAndContext extends Serializable {
+	
 	public static final Function<ExpressionAndContext, Expression> GET_EXPRESSION = new Function<ExpressionAndContext, Expression>() {
 		@Override
 		public Expression apply(ExpressionAndContext expressionAndContext) {
@@ -79,6 +78,18 @@ public interface ExpressionAndContext extends Serializable {
 	 *         that determines it current context.
 	 */
 	Expression getExpression();
+
+	/**
+	 * Create a new ExpressionAndContext instance based on this but with its
+	 * internal expression replaced by the one passed in.
+	 * 
+	 * @param expression
+	 *            the expression to replace the current expression when creating
+	 *            a new ExpressionAndContext.
+	 * @return a new ExpressionAndContext based on this but with its internal
+	 *         expression by the one passed in.
+	 */
+	ExpressionAndContext setExpression(Expression expression);
 
 	/**
 	 * 
@@ -109,16 +120,4 @@ public interface ExpressionAndContext extends Serializable {
 	 *         parent expression imposes on the sub-expression in this context.
 	 */
 	Expression getConstrainingCondition();
-
-	/**
-	 * Create a new ExpressionAndContext instance based on this but with its
-	 * internal expression replaced by the one passed in.
-	 * 
-	 * @param expression
-	 *            the expression to replace the current expression when creating
-	 *            a new ExpressionAndContext.
-	 * @return a new ExpressionAndContext based on this but with its internal
-	 *         expression by the one passed in.
-	 */
-	ExpressionAndContext setExpression(Expression expression);
 }

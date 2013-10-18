@@ -91,6 +91,12 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	}
 	
 	@Override
+	public ExpressionAndContext setExpression(Expression expression) {
+		DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, getPath(), getQuantifiedVariables());
+		return result;
+	}
+
+	@Override
 	public List<Integer> getPath() {
 		return path;
 	}
@@ -105,11 +111,7 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 		return constrainingCondition;
 	}
 
-	@Override
-	public ExpressionAndContext setExpression(Expression expression) {
-		DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, getPath(), getQuantifiedVariables());
-		return result;
-	}
+	
 	
 	// END-ExpressionAndContext
 	//
