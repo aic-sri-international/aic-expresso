@@ -104,16 +104,16 @@ public class FormulaToNNF {
 		result = ImplicationOut.implicationsOut(result, process);
 		result = EquivalenceOut.equivalencesOut(result, process);
 		
-		// IN)SEA - negtaions in
+		// IN)SEA - negations in
 		result = NegationIn.negationsIn(result, process);
 		
-		// INS)EA - standardize
+		// INS)EA - standardize apart
 		result = StandardizeVariablesApart.standardizeApart(result, process);
 		
 		// INSE)A- existentials out
 		result = ExistentialOut.existentialsOut(result, process);
 		
-		// INSEA)- alls out
+		// INSEA)- universals out
 		result = UniversalOut.universalsOut(result, process);
 		
 		// Normalize the result

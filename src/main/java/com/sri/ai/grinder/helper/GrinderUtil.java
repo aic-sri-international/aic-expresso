@@ -39,6 +39,7 @@ package com.sri.ai.grinder.helper;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,7 @@ import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.collect.StackedHashMap;
@@ -509,8 +511,8 @@ public class GrinderUtil {
 	public static RewritingProcess extendContextualConstraint(Expression additionalConstraints, RewritingProcess process) {
 		
 		return extendContextualVariablesAndConstraint(
-				Util.<Expression>list(),
-				//new HashMap<Expression, Expression>(),
+				//Util.<Expression>list(),
+				new HashMap<Expression, Expression>(),
 				additionalConstraints,
 				process);
 	}
@@ -531,9 +533,10 @@ public class GrinderUtil {
 	public static RewritingProcess extendContextualVariablesAndConstraint(
 			ExpressionAndContext expressionAndContext, 
 			RewritingProcess process) {
-		Collection<Expression> quantifiedVariablesOnExpression = expressionAndContext.getQuantifiedVariables();
+		//Collection<Expression> quantifiedVariablesOnExpression = expressionAndContext.getQuantifiedVariables();
+		Map<Expression, Expression> quantifiedVariablesDomains = IndexExpressions.getIndexToDomainMap(expressionAndContext.getIndexExpressions());
 		Expression             conditionOnExpression           = expressionAndContext.getConstrainingCondition();
-		RewritingProcess result = extendContextualVariablesAndConstraint(quantifiedVariablesOnExpression, conditionOnExpression, process);
+		RewritingProcess result = extendContextualVariablesAndConstraint(/* quantifiedVariablesOnExpression,*/ quantifiedVariablesDomains, conditionOnExpression, process);
 		return result;
 	}
 	
@@ -553,7 +556,12 @@ public class GrinderUtil {
 	public static RewritingProcess extendContextualVariables(Expression expressionWithPossibleFreeVariables, RewritingProcess process) {
 		RewritingProcess result;
 		if (expressionWithPossibleFreeVariables != null) {
-			result = extendContextualVariablesAndConstraint(Expressions.freeVariables(expressionWithPossibleFreeVariables, process), Expressions.TRUE, process);
+			Set<Expression> freeVariables = Expressions.freeVariables(expressionWithPossibleFreeVariables, process);
+			Map<Expression, Expression> freeVariablesAndDomains = new HashMap<Expression, Expression>();
+			for (Expression freeVariable : freeVariables) {
+				freeVariablesAndDomains.put(freeVariable, null);
+			}
+			result = extendContextualVariablesAndConstraint(freeVariablesAndDomains, Expressions.TRUE, process);
 		}
 		else {
 			result = process;
@@ -589,10 +597,23 @@ public class GrinderUtil {
 		else {
 			newFreeVariables = new HashSet<Expression>();
 		}
-		RewritingProcess result = extendContextualVariablesAndConstraint(newFreeVariables, additionalConstraints, process);
+		Map<Expression, Expression> newFreeVariablesAndDomains = new HashMap<Expression, Expression>();
+		for (Expression freeVariable : newFreeVariables) {
+			newFreeVariablesAndDomains.put(freeVariable, null);
+		}
+		RewritingProcess result = extendContextualVariablesAndConstraint(newFreeVariablesAndDomains, additionalConstraints, process);
 		return result;
 	}
 	
+	/**
+	 * Same as {@link #extendContextualVariablesAndConstraint(Map<Expression, Expression>, Expression, RewritingProcess)},
+	 * assuming a true constraint.
+	 */
+	public static RewritingProcess extendContextualVariables(Map<Expression, Expression> freeVariablesAndDomains, RewritingProcess process) {
+		RewritingProcess result = extendContextualVariablesAndConstraint(freeVariablesAndDomains, Expressions.TRUE, process);
+		return result;
+	}
+
 	/**
 	 * Extend the rewriting processes's contextual variables and constraints.
 	 * Returns the same process instance if there are no changes.
@@ -612,21 +633,20 @@ public class GrinderUtil {
 	 *         possibly the same as input process if no changes are made.
 	 */
 	public static RewritingProcess extendContextualVariablesAndConstraint(
-			Collection<Expression> newFreeVariables,
-			//Map<Expression, Expression> newFreeVariablesDomains,
+			Map<Expression, Expression> newFreeVariablesAndDomains,
 			Expression additionalConstraints, 
 			RewritingProcess process) {
 		
-		if (newFreeVariables.isEmpty() && additionalConstraints.equals(Expressions.TRUE)) { // nothing to do
+		if (newFreeVariablesAndDomains.isEmpty() && additionalConstraints.equals(Expressions.TRUE)) { // nothing to do
 			return process;
 		}
 		
 		Set<Expression> newContextualVariables = new HashSet<Expression>();
 		newContextualVariables.addAll(process.getContextualVariables());
 		Map<Expression, Expression> newContextualVariablesDomains = new StackedHashMap<Expression, Expression>(process.getContextualVariablesDomains());
-		if (newFreeVariables != null) {
+		if (newFreeVariablesAndDomains != null) {
 			// we take only the logical variables; this is a current limitation of the system and should eventually be removed.
-			Collection<Expression> newFreeVariablesWhichAreLogicalVariables = Util.filter(newFreeVariables, new IsVariable(process));
+			Collection<Expression> newFreeVariablesWhichAreLogicalVariables = Util.filter(newFreeVariablesAndDomains.keySet(), new IsVariable(process));
 			for (Expression newLogicalFreeVariable : newFreeVariablesWhichAreLogicalVariables) {
 				newContextualVariables.add(newLogicalFreeVariable);
 				//newContextualVariablesDomains.put(newLogicalFreeVariable, newFreeVariablesDomains.get(newLogicalFreeVariable));
