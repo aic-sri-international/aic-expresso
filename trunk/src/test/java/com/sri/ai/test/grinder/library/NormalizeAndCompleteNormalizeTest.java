@@ -38,6 +38,7 @@
 package com.sri.ai.test.grinder.library;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -478,7 +479,7 @@ public class NormalizeAndCompleteNormalizeTest extends AbstractGrinderTest {
 		TestData[] tests = new TestData[] {
 				// This is a contradiction
 				new CompleteNormalizeTestDataWithContext(
-						Util.list(parse("X"), parse("Y")),
+						Util.<Expression, Expression>map(parse("X"), parse("People"), parse("Y"), parse("People")),
 						"Y != X and (X = dave and Y = bob or Y = dave and X = bob)",
 						"Y != X and (X = dave and Y = bob or Y = dave and X = bob) and X = dave and Y = bob", 
 						"X = dave and Y = bob"),
@@ -585,17 +586,17 @@ public class NormalizeAndCompleteNormalizeTest extends AbstractGrinderTest {
 	class CompleteNormalizeTestDataWithContext extends CompleteNormalizeTestData {
 		
 		private Expression context;
-		private Collection<Expression> contextualVariables;
+		private Map<Expression, Expression> contextualVariablesAndDomains;
 
-		public CompleteNormalizeTestDataWithContext(Collection<Expression> contextualVariables, String context, String expressionString, String expected) {
+		public CompleteNormalizeTestDataWithContext(Map<Expression, Expression> contextualVariablesAndDomains, String context, String expressionString, String expected) {
 			super(expressionString, expected);
-			this.contextualVariables = contextualVariables;
+			this.contextualVariablesAndDomains = contextualVariablesAndDomains;
 			this.context = parse(context);
 		};
 		
 		@Override
 		public Expression callRewrite(RewritingProcess process) {
-			process = GrinderUtil.extendContextualVariablesAndConstraint(contextualVariables, context, process);
+			process = GrinderUtil.extendContextualVariablesAndConstraint(contextualVariablesAndDomains, context, process);
 			return super.callRewrite(process);
 		}
 	};

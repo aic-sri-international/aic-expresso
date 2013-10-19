@@ -37,9 +37,8 @@
  */
 package com.sri.ai.grinder.library.equality.formula.helper;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
@@ -49,7 +48,6 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.StandardizedApartFrom;
 import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.ThereExists;
-import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 
 /**
  * Standardizes Variables apart in a formula:
@@ -85,7 +83,7 @@ public class StandardizeVariablesApart {
 	private static class StandardizeVariablesApartReplacementFunction implements Function<Expression, Expression> {
 		
 		private RewritingProcess process     = null;
-		private Set<Expression>  seenIndices = new HashSet<Expression>();
+		private Map<Expression, Expression>  seenIndices = new HashMap<Expression, Expression>();
 		
 		public StandardizeVariablesApartReplacementFunction(RewritingProcess process) {
 			this.process = process;
@@ -104,13 +102,12 @@ public class StandardizeVariablesApart {
 			}
 			
 			if (index != null) {
-				if (seenIndices.contains(index)) {
-					RewritingProcess saProcess = GrinderUtil.extendContextualVariables(ExtensionalSet.makeUniSetExpression(new ArrayList<Expression>(seenIndices)), process);
-					
+				if (seenIndices.containsKey(index)) {
+					RewritingProcess saProcess = GrinderUtil.extendContextualVariables(seenIndices, process);
 					result = StandardizedApartFrom.standardizedApartFrom(expression, expression, saProcess);
 				}
 				else {
-					seenIndices.add(index);
+					seenIndices.put(index, null); // we do not need the domains for standardization apart purposes
 				}
 			}
 			
