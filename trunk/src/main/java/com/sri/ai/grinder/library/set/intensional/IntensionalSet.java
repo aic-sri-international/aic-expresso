@@ -193,7 +193,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	public static Collection<Expression> getScopedVariables(Expression expression) {
 		if (Sets.isIntensionalSet(expression)) {
 			Collection<Expression> result =
-				IntensionalSet.getIndexToDomainMap(expression).keySet();
+				IntensionalSet.getIndexToDomainMapWithDefaultTypeOfIndex(expression).keySet();
 			return result;
 		}
 		return null;
@@ -202,7 +202,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	public static Collection<Expression> getIndexDomains(Expression expression) {
 		if (Sets.isIntensionalSet(expression)) {
 			Collection<Expression> result =
-				IntensionalSet.getIndexToDomainMap(expression).values();
+				IntensionalSet.getIndexToDomainMapWithDefaultTypeOfIndex(expression).values();
 			return result;
 		}
 		return null;
@@ -211,7 +211,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	public static Collection<Expression> getIndices(Expression intensionalSet) {
 		if (Sets.isIntensionalSet(intensionalSet)) {
 			Collection<Expression> result =
-				IntensionalSet.getIndexToDomainMap(intensionalSet).keySet();
+				IntensionalSet.getIndexToDomainMapWithDefaultTypeOfIndex(intensionalSet).keySet();
 			return result;
 		}
 		return null;
@@ -359,9 +359,14 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		return result;
 	}
 
-	public static LinkedHashMap<Expression, Expression> getIndexToDomainMap(Expression intensionalSetExpression) {
+	public static LinkedHashMap<Expression, Expression> getIndexToDomainMapWithDefaultNull(Expression intensionalSetExpression) {
 		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSetExpression);
-		return IndexExpressions.getIndexToDomainMap(indexExpressions);
+		return IndexExpressions.getIndexToDomainMapWithDefaultNull(indexExpressions);
+	}
+
+	public static LinkedHashMap<Expression, Expression> getIndexToDomainMapWithDefaultTypeOfIndex(Expression intensionalSetExpression) {
+		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSetExpression);
+		return IndexExpressions.getIndexToDomainMapWithDefaultTypeOfIndex(indexExpressions);
 	}
 
 	/**
