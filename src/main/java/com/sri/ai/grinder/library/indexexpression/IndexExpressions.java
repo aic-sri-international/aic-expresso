@@ -12,6 +12,7 @@ import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.Util;
+import com.sri.ai.util.base.Null;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -34,7 +35,16 @@ import com.sri.ai.util.base.Pair;
  */
 public class IndexExpressions {
 
-	public static LinkedHashMap<Expression, Expression> getIndexToDomainMap(List<Expression> indexExpressions) {
+	public static LinkedHashMap<Expression, Expression> getIndexToDomainMapWithDefaultNull(List<Expression> indexExpressions) {
+		LinkedHashMap<Expression, Expression> result =
+			Expressions.getRelationalMap(
+					indexExpressions,
+					DefaultSymbol.createSymbol("in"),
+					new Null<Expression, Expression>());
+		return result;
+	}
+
+	public static LinkedHashMap<Expression, Expression> getIndexToDomainMapWithDefaultTypeOfIndex(List<Expression> indexExpressions) {
 		LinkedHashMap<Expression, Expression> result =
 			Expressions.getRelationalMap(
 					indexExpressions,

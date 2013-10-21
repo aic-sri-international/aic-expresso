@@ -155,7 +155,7 @@ implements ExpressionKnowledgeModule.Provider, ScopedVariables.Provider, NoOpRew
 	public Expression getScopedVariablesAsExpression(Expression expression, RewritingProcess process) {
 		if (knowledgeApplies(expression)) {
 			List<Expression> indexExpressions = getIndexExpressions(expression);
-			List<Expression> quantifiedVariables = new LinkedList<Expression>(IndexExpressions.getIndexToDomainMap(indexExpressions).keySet());
+			List<Expression> quantifiedVariables = new LinkedList<Expression>(IndexExpressions.getIndexToDomainMapWithDefaultTypeOfIndex(indexExpressions).keySet());
 			Expression result = Expressions.apply("list", quantifiedVariables);
 			return result;
 		}

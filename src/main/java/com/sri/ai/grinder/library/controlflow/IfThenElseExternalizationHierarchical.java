@@ -102,10 +102,10 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 					// At this point, we have if C1 then f(A1, if C2 then A2 else B2) else f(B1, if C2 then A2 else B2)
 					// f(A1, if C2 then A2 else B2) and f(B1, if C2 then A2 else B2) are not normalized, but their sub-expressions are (they are some of expression's sub-expressions).
 					// So we make a recursive call on these new then and else branches, with the information that their own sub-expressions are normalized.
-					RewritingProcess thenProcess = GrinderUtil.extendContextualVariablesAndConstraint(condition, condition, process);
+					RewritingProcess thenProcess = GrinderUtil.extendContextualConstraint(condition, process);
 					newThenBranch = normalize(newThenBranch, true, thenProcess);
 					
-					RewritingProcess elseProcess = GrinderUtil.extendContextualVariablesAndConstraint(Not.make(condition), Not.make(condition), process);
+					RewritingProcess elseProcess = GrinderUtil.extendContextualConstraint(Not.make(condition), process);
 					newElseBranch = normalize(newElseBranch, true, elseProcess);
 					
 					expression = IfThenElse.make(condition, newThenBranch, newElseBranch);

@@ -511,7 +511,6 @@ public class GrinderUtil {
 	public static RewritingProcess extendContextualConstraint(Expression additionalConstraints, RewritingProcess process) {
 		
 		return extendContextualVariablesAndConstraint(
-				//Util.<Expression>list(),
 				new HashMap<Expression, Expression>(),
 				additionalConstraints,
 				process);
@@ -533,75 +532,9 @@ public class GrinderUtil {
 	public static RewritingProcess extendContextualVariablesAndConstraint(
 			ExpressionAndContext expressionAndContext, 
 			RewritingProcess process) {
-		//Collection<Expression> quantifiedVariablesOnExpression = expressionAndContext.getQuantifiedVariables();
-		Map<Expression, Expression> quantifiedVariablesDomains = IndexExpressions.getIndexToDomainMap(expressionAndContext.getIndexExpressions());
-		Expression             conditionOnExpression           = expressionAndContext.getConstrainingCondition();
-		RewritingProcess result = extendContextualVariablesAndConstraint(/* quantifiedVariablesOnExpression,*/ quantifiedVariablesDomains, conditionOnExpression, process);
-		return result;
-	}
-	
-	/**
-	 * 
-	 * @param expressionWithPossibleFreeVariables
-	 *            an expression that possibly contains free variables that
-	 *            should be added to the a new sub-process of the process passed
-	 *            in.
-	 * @param process
-	 *            the process to be extended by a new sub-process that will
-	 *            contain the extended set of contextual variables.
-	 * @return a new-subprocess based on the passed in process with its
-	 *         contextual variables extended by the free variables in the
-	 *         expression passed in.
-	 */
-	public static RewritingProcess extendContextualVariables(Expression expressionWithPossibleFreeVariables, RewritingProcess process) {
-		RewritingProcess result;
-		if (expressionWithPossibleFreeVariables != null) {
-			Set<Expression> freeVariables = Expressions.freeVariables(expressionWithPossibleFreeVariables, process);
-			Map<Expression, Expression> freeVariablesAndDomains = new HashMap<Expression, Expression>();
-			for (Expression freeVariable : freeVariables) {
-				freeVariablesAndDomains.put(freeVariable, null);
-			}
-			result = extendContextualVariablesAndConstraint(freeVariablesAndDomains, Expressions.TRUE, process);
-		}
-		else {
-			result = process;
-		}
-		return result;
-	}
-
-	/**
-	 * Extend the rewriting processes's contextual variables and constraints.
-	 * 
-	 * @param expressionWithPossibleFreeVariables
-	 *            an expression that possibly contains free variables that
-	 *            should be added to the a new sub-process of the process passed
-	 *            in.
-	 * @param additionalConstraints
-	 *            additional context (i.e. a formula) to extend the contextual 
-	 *            constraint by.
-	 * @param process
-	 *            the process in which the rewriting is occurring and whose
-	 *            contextual constraint is to be updated.
-	 * @return a sub-rewriting process with its contextual variables and
-	 *         constraints extended by the arguments passed in.
-	 */
-	public static RewritingProcess extendContextualVariablesAndConstraint(
-			Expression expressionWithPossibleFreeVariables,
-			Expression additionalConstraints, 
-			RewritingProcess process) {
-		
-		Set<Expression> newFreeVariables = null;
-		if (expressionWithPossibleFreeVariables != null) {
-			newFreeVariables = Expressions.freeVariables(expressionWithPossibleFreeVariables, process);
-		}
-		else {
-			newFreeVariables = new HashSet<Expression>();
-		}
-		Map<Expression, Expression> newFreeVariablesAndDomains = new HashMap<Expression, Expression>();
-		for (Expression freeVariable : newFreeVariables) {
-			newFreeVariablesAndDomains.put(freeVariable, null);
-		}
-		RewritingProcess result = extendContextualVariablesAndConstraint(newFreeVariablesAndDomains, additionalConstraints, process);
+		Map<Expression, Expression> quantifiedVariablesDomains = IndexExpressions.getIndexToDomainMapWithDefaultTypeOfIndex(expressionAndContext.getIndexExpressions());
+		Expression                  conditionOnExpression      = expressionAndContext.getConstrainingCondition();
+		RewritingProcess result = extendContextualVariablesAndConstraint(quantifiedVariablesDomains, conditionOnExpression, process);
 		return result;
 	}
 	
@@ -618,8 +551,8 @@ public class GrinderUtil {
 	 * Extend the rewriting processes's contextual variables and constraints.
 	 * Returns the same process instance if there are no changes.
 	 * 
-	 * @param newFreeVariables
-	 *            a set of free variables that
+	 * @param newFreeVariablesAndDomains
+	 *            a map from free variables to their domains that
 	 *            should be added to the a new sub-process of the process passed
 	 *            in.
 	 * @param additionalConstraints
@@ -649,7 +582,7 @@ public class GrinderUtil {
 			Collection<Expression> newFreeVariablesWhichAreLogicalVariables = Util.filter(newFreeVariablesAndDomains.keySet(), new IsVariable(process));
 			for (Expression newLogicalFreeVariable : newFreeVariablesWhichAreLogicalVariables) {
 				newContextualVariables.add(newLogicalFreeVariable);
-				//newContextualVariablesDomains.put(newLogicalFreeVariable, newFreeVariablesDomains.get(newLogicalFreeVariable));
+				newContextualVariablesDomains.put(newLogicalFreeVariable, newFreeVariablesAndDomains.get(newLogicalFreeVariable));
 			}
 		}
 		

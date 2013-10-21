@@ -75,7 +75,7 @@ public class Lambda extends QuantifierSubExpressionAndScopedVariableProvider {
 
 	public static List<Expression> getParameters(Expression expression) {
 		List<Expression> indexExpressions = getIndexExpressions(expression);
-		List<Expression> result = new LinkedList<Expression>(IndexExpressions.getIndexToDomainMap(indexExpressions).keySet());
+		List<Expression> result = new LinkedList<Expression>(IndexExpressions.getIndexToDomainMapWithDefaultTypeOfIndex(indexExpressions).keySet());
 		return result;
 	}
 
