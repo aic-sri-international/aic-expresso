@@ -209,6 +209,9 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	}
 
 	public static Collection<Expression> getIndices(Expression intensionalSet) {
+		if (Sets.isEmptySet(intensionalSet)) {
+			return new LinkedList<Expression>();
+		}
 		if (Sets.isIntensionalSet(intensionalSet)) {
 			Collection<Expression> result =
 				IntensionalSet.getIndexToDomainMapWithDefaultTypeOfIndex(intensionalSet).keySet();

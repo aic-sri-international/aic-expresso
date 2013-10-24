@@ -592,12 +592,12 @@ public class GrinderUtil {
 		if (!additionalConstraints.equals(Expressions.TRUE) && FormulaUtil.isFormula(additionalConstraints, process)) {
 			// Ensure any variables mentioned in the additional constraint are added to the contextual variables set.
 			Set<Expression> freeVariablesInAdditionalConstraints = Expressions.freeVariables(additionalConstraints, process);
-//			if ( ! newContextualVariables.containsAll(freeVariablesInAdditionalConstraints)) {
-//				System.out.println("Free variables in constraint");
-//				System.out.println("newContextualVariables: " + newContextualVariables);
-//				System.out.println("freeVariablesInAdditionalConstraints: " + freeVariablesInAdditionalConstraints);
-//			}
+			Set<Expression> original = new HashSet<Expression>(newContextualVariables);
 			newContextualVariables.addAll(freeVariablesInAdditionalConstraints);
+//			if ( ! newContextualVariables.equals(original)) {
+//				System.out.println("newContextualVariables: " + newContextualVariables);	
+//				System.out.println("original              : " + original);	
+//			}
 			
 			// Construct a conjunct of contextual constraints extended by the additional context
 			contextualConstraintPrime = CardinalityUtil.makeAnd(process.getContextualConstraint(), additionalConstraints);
