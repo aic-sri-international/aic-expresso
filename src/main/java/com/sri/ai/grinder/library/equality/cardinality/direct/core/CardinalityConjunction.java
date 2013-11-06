@@ -179,12 +179,13 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 		Expression       intensionalSet = cardinalityOfIndexedFormulaExpression.get(0);
 		Expression       f              = IntensionalSet.getCondition(intensionalSet);
 		List<Expression> indices        = IntensionalSet.getIndexExpressions(intensionalSet);
+		RewritingProcess subProcess     = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(intensionalSet, process);
 		
 		Expression[] indicesAsArray = indices.toArray(new Expression[indices.size()]);
 		Expression cardIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indicesAsArray);
 		// Need to do this to get | type(X) | converted to its known value, e.g.: 10
 		cardIndices = process.rewrite(R_normalize, cardIndices);
-		Pair<Expression, Expression> independentAndDependentConjuncts = CardinalityUtil.separateIndependentAndDependent(f, indices, Expressions.TRUE, process);
+		Pair<Expression, Expression> independentAndDependentConjuncts = CardinalityUtil.separateIndependentAndDependent(f, indices, Expressions.TRUE, subProcess);
 		//
 		Expression independentConjunction = independentAndDependentConjuncts.first;
 		Expression dependentConjunction   = independentAndDependentConjuncts.second;
@@ -202,30 +203,27 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 		} 
 		else if ( !Expressions.TRUE.equals(independentConjunction) ) {
 			Trace.log("if F is F1 and F2 where F1 is a formula independent of all x's in X");
-			// Note: The logic for indepenent sub-problems does not encompass this as you can have something like this:
+			// Note: The logic for independent sub-problems does not encompass this as you can have something like this:
 			// | { ( on Z ) ( Z ) | Y != a and Z != Y and Z != b } |
 			// Y != a is independent of the indices but the conjuncts are transitively linked via Z != Y,
 			// so they are not independent sub-problems.
 			Trace.log("   F2 = R_top_simplify_conjunction(F2)");
-			dependentConjunction = process.rewrite(R_top_simplify_conjunction, dependentConjunction);
+			dependentConjunction = subProcess.rewrite(R_top_simplify_conjunction, dependentConjunction);
 			Trace.log("   return R_normalize( if F1 then R_card_conjunction(| F2 |_X, quantification) else 0 )");
 			Expression dependentCardinalityProblem = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(dependentConjunction, indicesAsArray);
-			Expression dependentCardinalityResult  = process.rewrite(R_card,
-														CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(dependentCardinalityProblem, quantification));
+			Expression dependentCardinalityResult  = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(dependentCardinalityProblem, quantification));
 			Expression ifThenElse = IfThenElse.make(independentConjunction, dependentCardinalityResult, Expressions.ZERO);
 			result = process.rewrite(R_normalize, ifThenElse);
 		} 
 		else if (EqualityInConjunction.isOptimizable(cardinalityOfIndexedFormulaExpression, process)) {
 			Trace.log("if F is a conjunction of the form 'x = t and Phi', where x is one of the index variables in X");
 			Trace.log("    return R_equality_in_conjunction(| F |_X, quantification)");
-			result = process.rewrite(R_equality_in_conjunction,
-						CardinalityUtil.argForEqualityInConjunctionCall(cardinalityOfIndexedFormulaExpression, quantification));
+			result = process.rewrite(R_equality_in_conjunction, CardinalityUtil.argForEqualityInConjunctionCall(cardinalityOfIndexedFormulaExpression, quantification));
 		}
 		else if ( isConjunctionOfDisequalities(f, process) ) {
 			Trace.log("if F is x1 != t1 and ... xn != tk // F is a conjunction of disequalities");
 			Trace.log("    return R_card_conjunction_of_disequalities(| F |_X, quantification)");
-			result = process.rewrite(R_card_conjunction_of_disequalities,
-						CardinalityUtil.argForCardinalityConjunctionOfDisequalitiesCall(cardinalityOfIndexedFormulaExpression, quantification));
+			result = process.rewrite(R_card_conjunction_of_disequalities, CardinalityUtil.argForCardinalityConjunctionOfDisequalitiesCall(cardinalityOfIndexedFormulaExpression, quantification));
 		}
 		else if ( And.isConjunction(f) ) {
 			Trace.log("Candidates <- { (Fi, i) : Fi satisfies one of the cases below }");
@@ -269,12 +267,11 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 			if (fi.hasFunctor(FunctorConstants.NOT)) {
 				Trace.log("if Fi is \"not G\"");
 				Trace.log("    return R_card(|replace_conjunct_and_top_simplify(R_move_not_in(Fi), i, F)|_X, quantification)");
-				Expression movedNotIn                     = process.rewrite(R_move_not_in, fi);
-				Expression replacedConjunct               = ReplaceConjunctAndTopSimplify.replaceConjunctAndTopSimplify(movedNotIn, indexI, f, process); 
+				Expression movedNotIn                     = subProcess.rewrite(R_move_not_in, fi);
+				Expression replacedConjunct               = ReplaceConjunctAndTopSimplify.replaceConjunctAndTopSimplify(movedNotIn, indexI, f, subProcess); 
 				Expression cardReplacedConjunctIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(replacedConjunct, indicesAsArray);
 				
-				result = process.rewrite(R_card,
-							CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardReplacedConjunctIndexedByX, quantification));
+				result = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardReplacedConjunctIndexedByX, quantification));
 			}
 			else if (And.isConjunction(fi)) {
 				Trace.log("if Fi is (nested) conjunction (G1 and ... and Gk)");
@@ -286,11 +283,10 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 				newConjuncts.addAll(fConjuncts.subList(indexI + 1, fConjuncts.size()));
 				
 				Expression fAndGConjunction         = And.make(newConjuncts);
-				Expression simplifiedConjunction    = process.rewrite(R_top_simplify_conjunction, fAndGConjunction);
+				Expression simplifiedConjunction    = subProcess.rewrite(R_top_simplify_conjunction, fAndGConjunction);
 				Expression cardSimplifedConjunction = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(simplifiedConjunction, indicesAsArray);
 				
-				result = process.rewrite(R_card,
-							CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardSimplifedConjunction, quantification));
+				result = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardSimplifedConjunction, quantification));
 			}
 			else if (fi.hasFunctor(FunctorConstants.IMPLICATION)) {
 				Trace.log("if Fi is G1 => G2");
@@ -299,15 +295,14 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 				Expression g2    = fi.get(1);
 				Expression notG1 = CardinalityUtil.makeNot(g1);
 				
-				Expression replacedNotG1  = ReplaceConjunctAndTopSimplify.replaceConjunctAndTopSimplify(notG1, indexI, f, process);
-				Expression replacedG2     = ReplaceConjunctAndTopSimplify.replaceConjunctAndTopSimplify(g2, indexI, f, process);
+				Expression replacedNotG1  = ReplaceConjunctAndTopSimplify.replaceConjunctAndTopSimplify(notG1, indexI, f, subProcess);
+				Expression replacedG2     = ReplaceConjunctAndTopSimplify.replaceConjunctAndTopSimplify(   g2, indexI, f, subProcess);
 				
 				Expression orReplacements     = CardinalityUtil.makeOr(replacedNotG1, replacedG2);
-				orReplacements                = process.rewrite(R_top_simplify_disjunction, orReplacements);
+				orReplacements                = subProcess.rewrite(R_top_simplify_disjunction, orReplacements);
 				Expression cardOrReplacements = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(orReplacements, indicesAsArray);
 				
-				result = process.rewrite(R_card,
-							CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardOrReplacements, quantification));
+				result = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardOrReplacements, quantification));
 			}
 			else if (fi.hasFunctor(FunctorConstants.EQUIVALENCE)) {
 				Trace.log("if Fi is G1 <=> G2");
@@ -319,21 +314,19 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 				Expression g1AndG2           = CardinalityUtil.makeAnd(g1, g2);
 				Expression notG1AndNotG2     = CardinalityUtil.makeAnd(notG1, notG2);
 				
-				Expression part1             = ReplaceConjunctAndTopSimplify.replaceConjunctAndTopSimplify(g1AndG2, indexI, f, process);
+				Expression part1             = ReplaceConjunctAndTopSimplify.replaceConjunctAndTopSimplify(g1AndG2, indexI, f, subProcess);
 				Expression part1Card         = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(part1, indicesAsArray);
-				Expression part1CardComputed = process.rewrite(R_card,
-													CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(part1Card, quantification));
+				Expression part1CardComputed = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(part1Card, quantification));
 				
-				Expression part2             = ReplaceConjunctAndTopSimplify.replaceConjunctAndTopSimplify(notG1AndNotG2, indexI, f, process);
+				Expression part2             = ReplaceConjunctAndTopSimplify.replaceConjunctAndTopSimplify(notG1AndNotG2, indexI, f, subProcess);
 				Expression part2Card         = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(part2, indicesAsArray);
-				Expression part2CardComputed = process.rewrite(R_card,
-													CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(part2Card, quantification));
-				ArrayList<Expression> temp   = new ArrayList<Expression>();
-				temp.add(part1CardComputed);
-				temp.add(part2CardComputed);
-				result = Plus.make(temp);
-				result = process.rewrite(R_normalize, result);
+				Expression part2CardComputed = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(part2Card, quantification));
 				
+				ArrayList<Expression> additionArguments   = new ArrayList<Expression>();
+				additionArguments.add(part1CardComputed);
+				additionArguments.add(part2CardComputed);
+				result = Plus.make(additionArguments);
+				result = process.rewrite(R_normalize, result);
 			}
 			else if (Or.isDisjunction(fi)) {
 				Trace.log("if Fi is (F1 or F2)");
@@ -341,28 +334,25 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 				Expression f1 = CardinalityUtil.getF1FromDisjunction(fi);
 				Expression f2 = CardinalityUtil.getF2FromDisjunction(fi);
 				
-				Expression replacedF1 = ReplaceConjunctAndTopSimplify.replaceConjunctAndTopSimplify(f1, indexI, f, process);
-				Expression replacedF2 = ReplaceConjunctAndTopSimplify.replaceConjunctAndTopSimplify(f2, indexI, f, process);
+				Expression replacedF1 = ReplaceConjunctAndTopSimplify.replaceConjunctAndTopSimplify(f1, indexI, f, subProcess);
+				Expression replacedF2 = ReplaceConjunctAndTopSimplify.replaceConjunctAndTopSimplify(f2, indexI, f, subProcess);
 				
 				Expression orReplacements     = CardinalityUtil.makeOr(replacedF1, replacedF2);
-				orReplacements                = process.rewrite(R_top_simplify_disjunction, orReplacements);
+				orReplacements                = subProcess.rewrite(R_top_simplify_disjunction, orReplacements);
 				Expression cardOrReplacements = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(orReplacements, indicesAsArray);
 				
-				result = process.rewrite(R_card,
-							CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardOrReplacements, quantification));
+				result = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardOrReplacements, quantification));
 			} 
-			else if (ForAll.isForAll(fi) ||
-					   ThereExists.isThereExists(fi)) {
+			else if (ForAll.isForAll(fi) || ThereExists.isThereExists(fi)) {
 				Trace.log("if Fi is Q y : G");
 				Trace.log("    return R_card(| replace_conjunct_and_top_simplify(R_top_quantifier_elimination(Q y : G), i, F) |_X, quantification)");
 				
-				Expression quantifierEliminated = process.rewrite(R_top_quantifier_elimination, fi);
-				Expression replacement          = ReplaceConjunctAndTopSimplify.replaceConjunctAndTopSimplify(quantifierEliminated, indexI, f, process);
+				Expression quantifierEliminated = subProcess.rewrite(R_top_quantifier_elimination, fi);
+				Expression replacement          = ReplaceConjunctAndTopSimplify.replaceConjunctAndTopSimplify(quantifierEliminated, indexI, f, subProcess);
 				
 				Expression cardReplacements     = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(replacement, indicesAsArray);
 				
-				result = process.rewrite(R_card,
-							CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardReplacements, quantification));	
+				result = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardReplacements, quantification));	
 			} 
 			else {
 				throw new IllegalStateException("Unhandled Fi case:"+fi);

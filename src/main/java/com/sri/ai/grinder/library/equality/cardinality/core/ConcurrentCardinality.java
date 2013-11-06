@@ -51,6 +51,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -69,6 +70,7 @@ import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
+import com.sri.ai.util.Util;
 
 /**
  * An experimental class for performing cardinality computations.
@@ -93,11 +95,12 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 			if ( Sets.isIntensionalSet(theSet) ) {
 				Expression             condition = IntensionalSet.getCondition(theSet);
 				Collection<Expression> indices   = IntensionalSet.getIndices(theSet);
+				RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(theSet, process);
 				HashSet<Expression> indicesSet = new HashSet<Expression>();
 				for (Expression index: indices) indicesSet.add(index);
 				//condition = basic.rewrite(condition, process);
-				result = cardinalityCompute(condition, indicesSet, process);
-				result = process.rewrite(CardinalityRewriter.R_complete_normalize, result);
+				result = cardinalityCompute(condition, indicesSet, subProcess);
+				result = subProcess.rewrite(CardinalityRewriter.R_complete_normalize, result);
 			} 
 			else if ( Sets.isExtensionalSet(theSet) ) {
 				result = rCardinalityExtensionalSet.rewrite(theSet, process);
@@ -180,7 +183,8 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 				Expression body     = ForAll.getBody(condition);
 				HashSet<Expression> newIndex = new HashSet<Expression>();
 				newIndex.add(variable);
-				Expression allCard = cardinalityCompute(body, newIndex, process);
+				RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIndexExpressions(Util.list(ForAll.getIndexExpression(condition)), process);
+				Expression allCard = cardinalityCompute(body, newIndex, subProcess);
 				Expression newCondition = process.rewrite(CardinalityRewriter.R_complete_normalize, Equality.make(allCard, sizeof(variable, process)));
 				result = cardinalityCompute(newCondition, indices, process);				
 			} 
@@ -189,7 +193,8 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 				Expression body     = ThereExists.getBody(condition);
 				HashSet<Expression> newIndex = new HashSet<Expression>();
 				newIndex.add(variable);
-				Expression existCard = cardinalityCompute(body, newIndex, process);
+				RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIndexExpressions(Util.list(ForAll.getIndexExpression(condition)), process);
+				Expression existCard = cardinalityCompute(body, newIndex, subProcess);
 				Expression newCondition = process.rewrite(CardinalityRewriter.R_complete_normalize, Disequality.make(existCard, Expressions.ZERO));
 				result = cardinalityCompute(newCondition, indices, process);
 			} 

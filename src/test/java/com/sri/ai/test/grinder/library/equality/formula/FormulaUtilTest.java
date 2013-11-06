@@ -42,10 +42,12 @@ import org.junit.Test;
 
 import com.sri.ai.brewer.api.Grammar;
 import com.sri.ai.brewer.core.CommonGrammar;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.Basic;
+import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 
@@ -56,6 +58,11 @@ public class FormulaUtilTest extends AbstractGrinderTest {
 		return new CommonGrammar();
 	}
 	
+	@Override
+	public RewritingProcess makeRewritingProcess(Expression topExpression) {
+		return DirectCardinalityComputationFactory.newCardinalityProcess(topExpression);
+	}
+
 	@Test
 	public void testILegalFormulaConstant() {
 		RewritingProcess process = new DefaultRewritingProcess(parse(""), new Basic());

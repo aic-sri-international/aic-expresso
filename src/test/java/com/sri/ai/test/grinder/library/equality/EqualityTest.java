@@ -43,11 +43,15 @@ import org.junit.Test;
 
 import com.sri.ai.brewer.api.Grammar;
 import com.sri.ai.brewer.core.CommonGrammar;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.grinder.api.Library;
 import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultLibrary;
+import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.ExhaustiveRewriter;
+import com.sri.ai.grinder.library.Basic;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.boole.ThereExistsSubExpressionsAndScopedVariablesProvider;
@@ -59,6 +63,11 @@ public class EqualityTest extends AbstractGrinderTest {
 	@Override
 	public Grammar makeGrammar() {
 		return new CommonGrammar();
+	}
+
+	@Override
+	public RewritingProcess makeRewritingProcess(Expression topExpression) {
+		return new DefaultRewritingProcess(topExpression, new Basic());
 	}
 
 	/**

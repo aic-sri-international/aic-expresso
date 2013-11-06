@@ -354,7 +354,7 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 					}
 		
 					Iterator<ExpressionAndContext> immediateSubExpressionsAndContextsIterator = getImmediateSubExpressionsAndContextsIterator();
-		
+
 					Iterator<Expression> resultIterator =
 						new FunctionIterator<ExpressionAndContext, Expression>(
 								immediateSubExpressionsAndContextsIterator,
@@ -362,9 +362,7 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 		
 					// eventually we want this condition to be moved out right below the Symbol test
 					if (getSyntacticFormType().equals("Function application")) {
-						resultIterator =
-							 Util.removeFirst(resultIterator); // functor does not count as an argument for function applications
-					
+						resultIterator = Util.removeFirst(resultIterator); // functor does not count as an argument for function applications
 					}
 					
 					// Ensure they cannot be mutated by accident.

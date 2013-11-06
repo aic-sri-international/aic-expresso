@@ -70,6 +70,11 @@ public class RandomCardinalityStressIT extends AbstractCardinalityRewriterStress
 	//
 	private static boolean GENERATE_FORMULAS_WITH_FREE_VARIABLES              = false;
 	
+	@Override
+	public RewritingProcess makeRewritingProcess(Expression topExpression) {
+		return DirectCardinalityComputationFactory.newCardinalityProcess(topExpression);
+	}
+
 	public List<CardinalityRewriter> makeCardinalityRewriters() {
 		List<CardinalityRewriter> result = super.makeCardinalityRewriters();
 		

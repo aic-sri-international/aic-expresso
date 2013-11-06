@@ -57,6 +57,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.DefaultRewriterLookup;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.library.Basic;
 import com.sri.ai.grinder.sequence.RewriterFunctionalSequence;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 import com.sri.ai.util.Util;
@@ -66,6 +67,11 @@ public class RewriterFunctionalSequenceTest extends AbstractGrinderTest {
 	@Override
 	public Grammar makeGrammar() {
 		return new CommonGrammar();
+	}
+
+	@Override
+	public RewritingProcess makeRewritingProcess(Expression topExpression) {
+		return new DefaultRewritingProcess(topExpression, new Basic());
 	}
 
 	@Before

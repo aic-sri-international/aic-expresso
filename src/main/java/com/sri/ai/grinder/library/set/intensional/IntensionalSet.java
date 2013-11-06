@@ -193,7 +193,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	public static Collection<Expression> getScopedVariables(Expression expression) {
 		if (Sets.isIntensionalSet(expression)) {
 			Collection<Expression> result =
-				IntensionalSet.getIndexToDomainMapWithDefaultTypeOfIndex(expression).keySet();
+				IntensionalSet.getIndexToDomainMapWithDefaultNull(expression).keySet();
 			return result;
 		}
 		return null;
@@ -214,7 +214,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		}
 		if (Sets.isIntensionalSet(intensionalSet)) {
 			Collection<Expression> result =
-				IntensionalSet.getIndexToDomainMapWithDefaultTypeOfIndex(intensionalSet).keySet();
+				IntensionalSet.getIndexToDomainMapWithDefaultNull(intensionalSet).keySet();
 			return result;
 		}
 		return null;

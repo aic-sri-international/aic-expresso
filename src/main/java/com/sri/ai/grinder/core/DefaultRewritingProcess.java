@@ -153,7 +153,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	private RewriterLookup               rewriterLookup                                                        = null;
 	private ChildRewriterCallIntercepter childCallIntercepter                                                  = null;
 	private ImmutableSet<Expression>     contextualVariables                                                   = null;
-	private Map<Expression, Expression>  contextualVariablesDomains                                            = new HashMap<Expression, Expression>();
+	private Map<Expression, Expression>  contextualVariablesDomains                                            = null;
 	private Expression                   contextualConstraint                                                  = Expressions.TRUE;
 	private Predicate<Expression>        isConstantPredicate                                                   = null;
 	private boolean                      isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess = true;
@@ -187,30 +187,31 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	// START - Constructors
 
 	public DefaultRewritingProcess(Rewriter rootRewriter) {
-		this(null, rootRewriter, null, new PrologConstantPredicate(), new HashMap<Object, Object>());
+		this(null, rootRewriter, null, Util.<Expression, Expression>map(), new PrologConstantPredicate(), new HashMap<Object, Object>());
 	}
 	
 	public DefaultRewritingProcess(Rewriter rootRewriter, RewriterLookup rewriterLookup) {
-		this(null, rootRewriter, rewriterLookup, new PrologConstantPredicate(), new HashMap<Object, Object>());
+		this(null, rootRewriter, rewriterLookup, Util.<Expression, Expression>map(), new PrologConstantPredicate(), new HashMap<Object, Object>());
 	}
 	
 	public DefaultRewritingProcess(Expression rootExpression, Rewriter rootRewriter) {
-		this(rootExpression, rootRewriter, null, new PrologConstantPredicate(), new HashMap<Object, Object>());
+		this(rootExpression, rootRewriter, null, Util.<Expression, Expression>map(), new PrologConstantPredicate(), new HashMap<Object, Object>());
 	}
 
 	public DefaultRewritingProcess(Expression rootExpression,
 			Rewriter rootRewriter, Map<Object, Object> globalObjects) {
-		this(rootExpression, rootRewriter, null, new PrologConstantPredicate(), globalObjects);
+		this(rootExpression, rootRewriter, null, Util.<Expression, Expression>map(), new PrologConstantPredicate(), globalObjects);
 	}
 
 	public DefaultRewritingProcess(Expression rootExpression,
-			Rewriter rootRewriter, Predicate<Expression> isConstantPredicate,
+			Rewriter rootRewriter, Map<Expression, Expression> contextualVariablesDomains, Predicate<Expression> isConstantPredicate,
 			Map<Object, Object> globalObjects) {
-		this(rootExpression, rootRewriter, null, isConstantPredicate, globalObjects);
+		this(rootExpression, rootRewriter, null, contextualVariablesDomains, isConstantPredicate, globalObjects);
 	}
 	
 	public DefaultRewritingProcess(Expression rootExpression,
-			Rewriter rootRewriter, RewriterLookup rewriterLookup, 
+			Rewriter rootRewriter, RewriterLookup rewriterLookup,
+			Map<Expression, Expression> contextualVariablesAndDomains,
 			Predicate<Expression> isConstantPredicate,
 			Map<Object, Object> globalObjects) {
 		
@@ -219,8 +220,8 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				rootRewriter,
 				rewriterLookup,
 				null,
-				ImmutableSet.<Expression>builder().build(),
-				Util.<Expression, Expression>map(),
+				ImmutableSet.<Expression>builder().addAll(contextualVariablesAndDomains.keySet().iterator()).build(),
+				contextualVariablesAndDomains,
 				Expressions.TRUE, 
 				isConstantPredicate, 
 				new ConcurrentHashMap<Object, Object>(globalObjects),
@@ -672,5 +673,9 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		if (interrupt) {
 			throw new RuntimeException("Rewriting Process Interrupted.");
 		}
+	}
+	
+	public String toString() {
+		return "Rewriting process with context " + getContextualVariablesDomains() + ", " + getContextualConstraint();
 	}
 }

@@ -42,10 +42,10 @@ import java.util.HashSet;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -69,9 +69,9 @@ public class StandardizedApartFrom {
 		variablesThatCannotBeScopingInExpression.addAll(process.getContextualVariables());
 		variablesThatCannotBeScopingInExpression.addAll(Expressions.getVariables(expression2, process));
 		
-		Function<Expression, Expression> topExpressionStandardizer = new TopExpressionStandardizer(variablesThatCannotBeScopingInExpression, process);
+		ReplacementFunctionWithContextuallyUpdatedProcess standardizer = new Standardizer(variablesThatCannotBeScopingInExpression);
 		
-		Expression result = expression1.replaceAllOccurrences(topExpressionStandardizer, process);
+		Expression result = standardizer.apply(expression1, process);
 		
 		return result;
 	}
@@ -81,23 +81,24 @@ public class StandardizedApartFrom {
 	 * replaced so as not to collide with any variables in a given collection of forbidden variables,
 	 * adding any newly created variables to it.
 	 */
-	private static class TopExpressionStandardizer implements Function<Expression, Expression> {
+	private static class Standardizer implements ReplacementFunctionWithContextuallyUpdatedProcess {
 		private Collection<Expression> variablesThatCannotBeScopingInExpression;
-		private RewritingProcess process;
 
-		public TopExpressionStandardizer(Collection<Expression> variablesThatCannotBeScopingInExpression, RewritingProcess process) {
+		public Standardizer(Collection<Expression> variablesThatCannotBeScopingInExpression) {
 			super();
 			this.variablesThatCannotBeScopingInExpression = variablesThatCannotBeScopingInExpression;
-			this.process = process;
 		}
 
 		@Override
 		public Expression apply(Expression expression) {
-			// first, we SA sub-expressions, and then the top expression.
-			// SA'ing sub-expressions after SA'ing the top expression may lead to errors because we have no way of checking new variables in the sub-expressions
-			// against those in the top expression.
-			// However, when SA'ing the top expression, it does check against variables in the sub-expressions, so we guarantee that no conflicts arise.
-			Expression result = expression.replace(this, false /* not just the first one */, null, true /* ignore top expression - already done right here! */, null, process);
+			throw new Error("Should not invoke TopExpressionStandardizer.apply(Expression)");
+		}
+
+		@Override
+		public Expression apply(Expression expression, RewritingProcess process) {
+			// Replace sub-expressions first because if top expressions is replaced, then sub-expressions are not checked by Expression.replace
+			// (it would make sense to add an option that does that to Expression.replace).
+			Expression result = expression.replace(this, false /* not just the first one */, null, true /* ignore top expression - this will be done in the next line! */, null, process);
 			result = standardizeTopExpressionScopedVariablesApartFrom(result, variablesThatCannotBeScopingInExpression, process);
 			return result;
 		}

@@ -112,23 +112,29 @@ public class DirectCardinalityComputationFactory {
 	public static RewritingProcess newCardinalityProcess(Expression rootExpression, CardinalityConfiguration configuration, RewritingProcess parentProcess) {
 		DefaultRewriterLookup cardinalityRewriterLookup = new DefaultRewriterLookup(getCardinalityRewritersMap(configuration));
 		
-		Predicate<Expression> isConstantPredicate = null;
-		Map<Object, Object>   globalObjects       = null;
+		Map<Expression, Expression> contextualVariablesDomains = null;
+		Predicate<Expression> isConstantPredicate              = null;
+		Map<Object, Object>   globalObjects                    = null;
+		
 		if (parentProcess != null) {
-			isConstantPredicate = parentProcess.getIsConstantPredicate();
-			globalObjects       = parentProcess.getGlobalObjects();
+			contextualVariablesDomains = parentProcess.getContextualVariablesDomains();
+			isConstantPredicate        = parentProcess.getIsConstantPredicate();
+			globalObjects              = parentProcess.getGlobalObjects();
 		}
 		else {
-			isConstantPredicate = new PrologConstantPredicate();
-			globalObjects       = new HashMap<Object, Object>();
+			contextualVariablesDomains = new HashMap<Expression, Expression>();
+			isConstantPredicate        = new PrologConstantPredicate();
+			globalObjects              = new HashMap<Object, Object>();
 		}
 		
-		DefaultRewritingProcess cardinalityProcess = new DefaultRewritingProcess(rootExpression,
-															getRootRewriter(),
-															cardinalityRewriterLookup,
-															isConstantPredicate,
-															globalObjects);
-		
+		DefaultRewritingProcess cardinalityProcess = new DefaultRewritingProcess(
+				rootExpression,
+				getRootRewriter(),
+				cardinalityRewriterLookup,
+				contextualVariablesDomains,
+				isConstantPredicate,
+				globalObjects);
+
 		return cardinalityProcess;
 	}
 
