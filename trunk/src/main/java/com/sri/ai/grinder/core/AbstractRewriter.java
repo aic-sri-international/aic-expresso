@@ -291,6 +291,6 @@ public abstract class AbstractRewriter implements Rewriter {
 	 */
 	protected DefaultRewritingProcess makeRewritingProcess(
 			Expression expression, Predicate<Expression> isConstantPredicate) {
-		return new DefaultRewritingProcess(expression, this, isConstantPredicate, new HashMap<Object, Object>());
+		return new DefaultRewritingProcess(expression, this, Util.<Expression, Expression>map(), isConstantPredicate, new HashMap<Object, Object>());
 	}
 }

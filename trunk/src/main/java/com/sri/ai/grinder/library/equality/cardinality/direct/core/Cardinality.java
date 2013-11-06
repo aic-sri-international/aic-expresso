@@ -44,6 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.ForAll;
@@ -166,6 +167,7 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 		List<Expression> indices        = IntensionalSet.getIndexExpressions(intensionalSet);
 		Expression[] indicesAsArray     = indices.toArray(new Expression[indices.size()]);
 
+		process = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(intensionalSet, process);
 		
 		if (quantification == null) {
 			throw new IllegalArgumentException("Invalid quantification symbol: " + quantification);

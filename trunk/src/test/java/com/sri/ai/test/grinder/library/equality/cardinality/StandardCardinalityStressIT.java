@@ -45,6 +45,11 @@ import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 
 public class StandardCardinalityStressIT extends AbstractCardinalityRewriterStressTests {
 
+	@Override
+	public RewritingProcess makeRewritingProcess(Expression topExpression) {
+		return DirectCardinalityComputationFactory.newCardinalityProcess(topExpression);
+	}
+
 	public List<CardinalityRewriter> makeCardinalityRewriters() {
 		List<CardinalityRewriter> result = super.makeCardinalityRewriters();
 		

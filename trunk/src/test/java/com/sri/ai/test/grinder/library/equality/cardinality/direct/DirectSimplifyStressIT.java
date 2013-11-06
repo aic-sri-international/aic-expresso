@@ -51,6 +51,8 @@ import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.library.Basic;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
@@ -101,7 +103,12 @@ public class DirectSimplifyStressIT extends AbstractGrinderTest {
 		return new CommonGrammar();
 	}
 	
-	@Test
+	@Override
+	public RewritingProcess makeRewritingProcess(Expression topExpression) {
+		return new DefaultRewritingProcess(topExpression, new Basic());
+	}
+
+	@Test	
 	public void stressTestSimplifyDNFForEqualities() {	
 		List<Long> rewriteTimes = new ArrayList<Long>();
 		for (int t = simpTermsStart; t <= simpTermsMax; t += simpTermsIncrement) {

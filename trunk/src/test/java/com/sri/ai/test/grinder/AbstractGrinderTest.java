@@ -65,6 +65,7 @@ import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Basic;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 import com.sri.ai.grinder.ui.TreeUtil;
@@ -140,6 +141,23 @@ abstract public class AbstractGrinderTest {
 	 * should be parsed by the parser as E again.
 	 */
 	abstract public Grammar makeGrammar();
+	
+	/**
+	 * A method providing a rewriting process to be used during the test.
+	 * Rewriting processes created for specific tests will extend this one.
+	 * This process used to be hard coded in this class and used to be of a simple kind using {@link Basic}
+	 * as a root rewriter.
+	 * However, this caused problems because Basic does not include some module providers
+	 * (the one that specifically created awareness of this problem was {@link Tuple}).
+	 * Even though later rewriting processes created for specific tests were of the right kind and included the necessary providers,
+	 * it would not suffice because the first rewriting process was kept as the global rewriting processes for all
+	 * expressions in this thread (see {@link DefaultRewritingProcess#getGlobalRewritingProcessForKnowledgeBasedExpressions()}),
+	 * and its modules were the ones used.
+	 * By introducing this abstract method, we give specific tests a chance to create a first rewriting process of the right kind.
+	 * Using a global rewriting process is a temporary hack, and when this is corrected this abstract method
+	 * will probably become unnecessary.
+	 */
+	abstract public RewritingProcess makeRewritingProcess(Expression topExpression);
 
 	public Grammar getGrammar() {
 		if (grammar == null) {
@@ -179,6 +197,8 @@ abstract public class AbstractGrinderTest {
 		System.out.println();
 
 		process.getGlobalObjects().putAll(globalObjects);
+		
+		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(expression, process);
 		
 		Stopwatch stopwatch = new Stopwatch().start();
 		actual = evaluator.rewrite(expression, process);
@@ -228,7 +248,9 @@ abstract public class AbstractGrinderTest {
 		int run = 0;
 		for (int i = begin; i < end; i++) {
 			topExpression = tests[i].getTopExpression();
-			process = new DefaultRewritingProcess(topExpression, new Basic());
+			process = makeRewritingProcess(topExpression);
+
+			process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(topExpression, process);
 
 			Expression expectedExpressions = parse(tests[i].expected);
 			Assert.assertNotNull("Unable to parse expected expression: "+tests[i].expected, expectedExpressions);

@@ -65,6 +65,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.collect.StackedHashMap;
@@ -495,6 +496,45 @@ public class GrinderUtil {
 	}
 
 	/**
+	 * Same as {@link #extendContextualVariablesAndConstraintWithIntensionalSetInferringDomainsFromUsageInRandomVariables(Expression, RewritingProcess)},
+	 * but only for the indices (that is, it does not extend the contextual constraint with the intensional set's condition).
+	 */
+	public static RewritingProcess extendContextualVariablesWithIntensionalSetIndices(Expression intensionalSet, RewritingProcess process) {
+		Map<Expression, Expression> quantifiedVariablesAndDomains = IntensionalSet.getIndexToDomainMapWithDefaultNull(intensionalSet);
+		RewritingProcess result = GrinderUtil.extendContextualVariablesAndConstraint(quantifiedVariablesAndDomains, Expressions.TRUE, process);
+		return result;
+	}
+
+	/**
+	 * Same as {@link #extendContextualVariablesAndConstraintWithIntensionalSetInferringDomainsFromUsageInRandomVariables(Expression, RewritingProcess)},
+	 * but given the index expressions only.
+	 */
+	public static RewritingProcess extendContextualVariablesWithIndexExpressions(Collection<Expression> indexExpressions, RewritingProcess process) {
+		Map<Expression, Expression> quantifiedVariablesAndDomains = IndexExpressions.getIndexToDomainMapWithDefaultNull(indexExpressions);
+		RewritingProcess result = GrinderUtil.extendContextualVariablesAndConstraint(quantifiedVariablesAndDomains, Expressions.TRUE, process);
+		return result;
+	}
+
+	/**
+	 * Extend the rewriting processes's contextual variables and constraints
+	 * with the indices and condition from an intensionally defined set.
+	 * 
+	 * @param intensionalSet
+	 * @param process
+	 *            the process in which the rewriting is occurring and whose
+	 *            contextual constraint is to be updated.
+	 * @return a sub-rewriting process with its contextual variables and
+	 *         constraints extended by the indices and condition of the intensionally defined set passed in.
+	 */
+	public static RewritingProcess extendContextualVariablesAndConstraintWithIntensionalSet(
+			Expression intensionalSet, RewritingProcess process) {
+		Map<Expression, Expression> quantifiedVariablesAndDomains = IntensionalSet.getIndexToDomainMapWithDefaultNull(intensionalSet);
+		Expression conditionOnExpansion = IntensionalSet.getCondition(intensionalSet);
+		RewritingProcess result = GrinderUtil.extendContextualVariablesAndConstraint(quantifiedVariablesAndDomains, conditionOnExpansion, process);
+		return result;
+	}
+
+	/**
 	 * Extend the rewriting processes's contextual constraint by an additional
 	 * context. This essentially creates a new expression which is a conjunction
 	 * of both constraints and then performs R_formula_simplification on the
@@ -532,7 +572,7 @@ public class GrinderUtil {
 	public static RewritingProcess extendContextualVariablesAndConstraint(
 			ExpressionAndContext expressionAndContext, 
 			RewritingProcess process) {
-		Map<Expression, Expression> quantifiedVariablesDomains = IndexExpressions.getIndexToDomainMapWithDefaultTypeOfIndex(expressionAndContext.getIndexExpressions());
+		Map<Expression, Expression> quantifiedVariablesDomains = IndexExpressions.getIndexToDomainMapWithDefaultNull(expressionAndContext.getIndexExpressions());
 		Expression                  conditionOnExpression      = expressionAndContext.getConstrainingCondition();
 		RewritingProcess result = extendContextualVariablesAndConstraint(quantifiedVariablesDomains, conditionOnExpression, process);
 		return result;
@@ -574,15 +614,21 @@ public class GrinderUtil {
 			return process;
 		}
 		
+		for (Map.Entry entry : newFreeVariablesAndDomains.entrySet()) {
+			if (entry.getValue() != null && ((Expression)entry.getValue()).hasFunctor("type")) {
+				throw new Error("'type' occurring in domains extending context: " + entry);
+			}
+		}
+		
 		Set<Expression> newContextualVariables = new HashSet<Expression>();
 		newContextualVariables.addAll(process.getContextualVariables());
-		Map<Expression, Expression> newContextualVariablesDomains = new StackedHashMap<Expression, Expression>(process.getContextualVariablesDomains());
+		Map<Expression, Expression> newContextualVariablesAndDomains = new StackedHashMap<Expression, Expression>(process.getContextualVariablesDomains());
 		if (newFreeVariablesAndDomains != null) {
 			// we take only the logical variables; this is a current limitation of the system and should eventually be removed.
 			Collection<Expression> newFreeVariablesWhichAreLogicalVariables = Util.filter(newFreeVariablesAndDomains.keySet(), new IsVariable(process));
 			for (Expression newLogicalFreeVariable : newFreeVariablesWhichAreLogicalVariables) {
 				newContextualVariables.add(newLogicalFreeVariable);
-				newContextualVariablesDomains.put(newLogicalFreeVariable, newFreeVariablesAndDomains.get(newLogicalFreeVariable));
+				newContextualVariablesAndDomains.put(newLogicalFreeVariable, newFreeVariablesAndDomains.get(newLogicalFreeVariable));
 			}
 		}
 		
@@ -590,14 +636,19 @@ public class GrinderUtil {
 		
 		// Only extend the contextual constraint with formulas
 		if (!additionalConstraints.equals(Expressions.TRUE) && FormulaUtil.isFormula(additionalConstraints, process)) {
-			// Ensure any variables mentioned in the additional constraint are added to the contextual variables set.
+			// Ensure any variables mentioned in the additional constraint are already present in the contextual variables set.
 			Set<Expression> freeVariablesInAdditionalConstraints = Expressions.freeVariables(additionalConstraints, process);
-			Set<Expression> original = new HashSet<Expression>(newContextualVariables);
-			newContextualVariables.addAll(freeVariablesInAdditionalConstraints);
-//			if ( ! newContextualVariables.equals(original)) {
-//				System.out.println("newContextualVariables: " + newContextualVariables);	
-//				System.out.println("original              : " + original);	
-//			}
+			if ( ! newContextualVariables.containsAll(freeVariablesInAdditionalConstraints)) {
+				throw new Error(
+						"Extending contextual constraint " + additionalConstraints +
+						" containing unknown variables {" + Util.join(Util.subtract(freeVariablesInAdditionalConstraints, newContextualVariables)) + 
+						"} (current contextual variables are {" + Util.join(newContextualVariables) + "})");
+			}
+			// The check above ensures that the additional constraints only use variables that are already known.
+			// When this fails, the cause is a failure in the code somewhere to extend the process with scoping variables.
+			// The easiest way to debug this is to place a breakpoint at the line above and, when it is reached, inspect the stack,
+			// looking for the point in which the expression being process involves variables not in the process contextual variables.
+			// This point will be the spot where the process should have been extended.
 			
 			// Construct a conjunct of contextual constraints extended by the additional context
 			contextualConstraintPrime = CardinalityUtil.makeAnd(process.getContextualConstraint(), additionalConstraints);
@@ -613,7 +664,14 @@ public class GrinderUtil {
 			}
 		}
 		
-		RewritingProcess subRewritingProcess = process.newSubProcessWithContext(newContextualVariables, newContextualVariablesDomains, contextualConstraintPrime);
+		if ( ! newContextualVariables.equals(newContextualVariablesAndDomains.keySet())) {
+			String message = "Extension of context is ending up with inconsistent contextualVariables and contextualVariablesAndDomains\n"
+					+ "contextual variables: " + newContextualVariables + "\n"
+					+ "contextual variables and domains: " + newContextualVariablesAndDomains;
+			throw new Error(message);
+		}
+		
+		RewritingProcess subRewritingProcess = process.newSubProcessWithContext(newContextualVariables, newContextualVariablesAndDomains, contextualConstraintPrime);
 		
 		return subRewritingProcess;	
 	}
@@ -665,5 +723,23 @@ public class GrinderUtil {
 		}
 	
 		return rewriters;
+	}
+
+	public static RewritingProcess extendContextualVariablesWithUnknownDomain(Set<Expression> variables, RewritingProcess process) {
+		Map<Expression, Expression> fromVariableToDomain = new HashMap<Expression, Expression>();
+		for (Expression variable : variables) {
+			fromVariableToDomain.put(variable, null);
+		}
+		RewritingProcess result = extendContextualVariables(fromVariableToDomain, process);
+		return result;
+	}
+
+	/**
+	 * Extends a process's contextual variables with free variables found in a given expression and returns the new resulting process.
+	 */
+	public static RewritingProcess extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(Expression expression, RewritingProcess process) {
+		Set<Expression> freeVariables = Expressions.freeVariables(expression, process);
+		process = extendContextualVariablesWithUnknownDomain(freeVariables, process);
+		return process;
 	}
 }

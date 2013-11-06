@@ -49,6 +49,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
@@ -98,12 +99,13 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractHierarchical
 		Expression       intensionalSet   = cardinalityOfIndexedFormulaExpression.get(0);
 		Expression       f                = IntensionalSet.getCondition(intensionalSet);
 		List<Expression> indices          = IntensionalSet.getIndexExpressions(intensionalSet);
+		RewritingProcess subProcess       = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(intensionalSet, process);
 		
 		CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
 		if (quantification == null) {
 			throw new IllegalArgumentException("Invalid quantification symbol:"+quantificationSymbol);
 		}
-		result = rewriteCardinalityOfDisequalities(f, indices, quantification, process);
+		result = rewriteCardinalityOfDisequalities(f, indices, quantification, subProcess);
 		return result;
 	}
 	

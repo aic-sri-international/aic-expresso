@@ -61,6 +61,11 @@ public class NormalizeAndCompleteNormalizeTest extends AbstractGrinderTest {
 		return new CommonGrammar();
 	}
 
+	@Override
+	public RewritingProcess makeRewritingProcess(Expression topExpression) {
+		return DirectCardinalityComputationFactory.newCardinalityProcess(topExpression);
+	}
+
 	@Test
 	public void testNormalizePassesBasicTests() {
 

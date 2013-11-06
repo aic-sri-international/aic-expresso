@@ -57,7 +57,11 @@ public class ConcurrentCardinalityTest extends AbstractGrinderTest {
 		return new CommonGrammar();
 	}
 
-	
+	@Override
+	public RewritingProcess makeRewritingProcess(Expression topExpression) {
+		return DirectCardinalityComputationFactory.newCardinalityProcess(topExpression);
+	}
+
 	@Test
 	public void testCardinality() {
 		class CardinalityData extends TestData {

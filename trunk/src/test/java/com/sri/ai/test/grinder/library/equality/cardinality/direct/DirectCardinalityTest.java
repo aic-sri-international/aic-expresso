@@ -82,6 +82,11 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 		return new CommonGrammar();
 	}
 
+	@Override
+	public RewritingProcess makeRewritingProcess(Expression topExpression) {
+		return DirectCardinalityComputationFactory.newCardinalityProcess(topExpression);
+	}
+
 	@Test
 	public void testCardinalityExtensionalSet() {
 		class CardinalityExtensionalSetData extends TestData {
@@ -3409,7 +3414,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			}
 		}
 		
-		TestData[] tests = new TestData[] {		
+		TestData[] tests = new TestData[] {
 			//
 			// Basic: trivial cases
 			new EqualityInConjunctionData(false,

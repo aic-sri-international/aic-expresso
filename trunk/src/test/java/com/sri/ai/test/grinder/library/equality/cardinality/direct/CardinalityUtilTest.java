@@ -52,6 +52,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.Basic;
+import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
@@ -65,6 +66,11 @@ public class CardinalityUtilTest extends AbstractGrinderTest {
 		return new CommonGrammar();
 	}
 	
+	@Override
+	public RewritingProcess makeRewritingProcess(Expression topExpression) {
+		return DirectCardinalityComputationFactory.newCardinalityProcess(topExpression);
+	}
+
 	@Test
 	public void testFindIndependentProblems() {
 		RewritingProcess process = new DefaultRewritingProcess(parse(""), new Basic());

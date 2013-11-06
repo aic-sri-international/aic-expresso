@@ -61,6 +61,11 @@ public class SATSolverTest extends AbstractGrinderTest {
 		return new CommonGrammar();
 	}
 	
+	@Override
+	public RewritingProcess makeRewritingProcess(Expression topExpression) {
+		return DirectCardinalityComputationFactory.newCardinalityProcess(topExpression);
+	}
+
 	public SATSolver[] newSATSolvers() {
 		return new SATSolver[] {
 				new SAT4JSolver(), 

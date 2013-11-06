@@ -48,6 +48,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.RewriterFunction;
+import com.sri.ai.grinder.helper.RewriterReplacementFunction;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.FormulaSimplify;
@@ -74,7 +75,7 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 
 		// Make sure sub-expressions are normalized (externalized) first.
 		if ( ! subExpressionsAreNormalized) {
-			expression = expression.replace(new RewriterFunction(this, process), false /* all occurrences */, null, true /* ignore top expression, expression */, null, process);
+			expression = expression.replace(new RewriterReplacementFunction(this), false /* all occurrences */, null, true /* ignore top expression, expression */, null, process);
 		}
 
 		ExpressionAndContext conditionalSubExpressionAndContext = findConditionalSubExpressionAndContext(expression, process);

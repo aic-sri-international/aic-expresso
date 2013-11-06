@@ -66,8 +66,10 @@ import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.ExhaustiveRewriter;
 import com.sri.ai.grinder.core.OpenInterpretationModule;
 import com.sri.ai.grinder.core.TotalRewriter;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
+import com.sri.ai.grinder.library.Basic;
 import com.sri.ai.grinder.library.CommonLibrary;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.Disequality;
@@ -75,8 +77,8 @@ import com.sri.ai.grinder.library.Distributive;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.ScopedVariables;
-import com.sri.ai.grinder.library.StandardizedApartFrom;
 import com.sri.ai.grinder.library.SemanticSubstitute;
+import com.sri.ai.grinder.library.StandardizedApartFrom;
 import com.sri.ai.grinder.library.SyntacticSubstitute;
 import com.sri.ai.grinder.library.Unification;
 import com.sri.ai.grinder.library.boole.And;
@@ -84,6 +86,7 @@ import com.sri.ai.grinder.library.boole.ContradictoryConjuncts;
 import com.sri.ai.grinder.library.boole.ForAllSubExpressionsAndScopedVariablesProvider;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
+import com.sri.ai.grinder.library.boole.ThereExistsSubExpressionsAndScopedVariablesProvider;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.controlflow.IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch;
 import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
@@ -130,6 +133,11 @@ public class GrinderTest extends AbstractGrinderTest {
 		return new CommonGrammar();
 	}
 	
+	@Override
+	public RewritingProcess makeRewritingProcess(Expression topExpression) {
+		return new DefaultRewritingProcess(topExpression, new Basic());
+	}
+
 	@Test
 	public void testRounding() {
 		Expression expression;
@@ -837,145 +845,143 @@ public class GrinderTest extends AbstractGrinderTest {
 		//
 		// IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch failure condition (i.e. keeps expanding else branch in the manner below), 
 		// when calling NewSubstitute.
+		expression   = parse("if false then false else 10 = | type(X) |");
 		replacements = Util.map(parse("W = 10"), parse("false"));
-		result = SemanticSubstitute.replaceAll(
-				parse("if false then false else 10 = | type(X) |"),
-				replacements, process);
-		assertEquals(parse("if false then false else (if W = 10 then false else 10 = | type(X) |)"), result);
+		expected     = parse("if false then false else (if W = 10 then false else 10 = | type(X) |)");
+		testSemanticSubstitute(replacements, process);
 
 		// Test stack overflow condition.
+		expression   = parse("sick(john)");
 		replacements = Util.map(parse("sick(john)"), parse("sick(john)"));
-		result = SemanticSubstitute.replaceAll(
-				parse("sick(john)"),
-				replacements, process);
-		assertEquals(parse("sick(john)"), result);
+		expected     = parse("sick(john)");
+		testSemanticSubstitute(replacements, process);
 		
 		//
+		expression   = parse("x + 2");
 		replacements = Util.map(parse("y"), parse("1"));
-		result = SemanticSubstitute.replaceAll(
-				parse("x + 2"),
-				replacements, process);
-		assertEquals(parse("x + 2"), result);
+		expected     = parse("x + 2");
+		testSemanticSubstitute(replacements, process);
 		
+		expression   = parse("x + 2");
 		replacements = Util.map(parse("x"), parse("1"));
-		result = SemanticSubstitute.replaceAll(
-				parse("x + 2"),
-				replacements, process);
-		assertEquals(parse("1 + 2"), result);
+		expected     = parse("1 + 2");
+		testSemanticSubstitute(replacements, process);
 		
+		expression   = parse("x + 2");
 		replacements = Util.map();
-		result = SemanticSubstitute.replaceAll(
-				parse("x + 2"),
-				replacements, process);
-		assertEquals(parse("x + 2"), result);
+		expected     = parse("x + 2");
+		testSemanticSubstitute(replacements, process);
 		
+		expression   = parse("x + 2");
 		replacements = Util.map(
 				parse("x"), parse("2"),
 				parse("2"), parse("10"));
-		result = SemanticSubstitute.replaceAll(
-				parse("x + 2"),
-				replacements, process);
-		assertEquals(parse("2 + 10"), result);
+		expected     = parse("2 + 10");
+		testSemanticSubstitute(replacements, process);
 		
+		expression   = parse("f(g(h(x)))");
 		replacements = Util.map(parse("x"), parse("2"));
-		result = SemanticSubstitute.replaceAll(
-				parse("f(g(h(x)))"),
-				replacements, process);
-		assertEquals(parse("f(g(h(2)))"), result);
+		expected     = parse("f(g(h(2)))");
+		testSemanticSubstitute(replacements, process);
 		
+		expression   = parse("{(on X) X}");
 		replacements = Util.map(parse("X"), parse("2"));
-		result = SemanticSubstitute.replaceAll(
-				parse("{(on X) X}"),
-				replacements, process);
-		assertEquals(parse("{(on X) X}"), result); // should respect scoped symbols
+		expected     = parse("{(on X) X}");
+		testSemanticSubstitute(replacements, process);
 		
+		// should respect scoped symbols
+		expression   = parse("x + {(on x) f(x)}");
 		replacements = Util.map(parse("x"), parse("2"));
-		result = SemanticSubstitute.replaceAll(
-				parse("x + {(on x) f(x)}"),
-				replacements, process);
-		assertEquals(parse("2 + {(on x) f(x)}"), result); // should respect scoped symbols
+		expected     = parse("2 + {(on x) f(x)}");
+		testSemanticSubstitute(replacements, process);
 		
+		expression   = parse("x + {(on x in group(x)) f(x)}");
 		replacements = Util.map(parse("x"), parse("2"));
-		result = SemanticSubstitute.replaceAll(
-				parse("x + {(on x in group(x)) f(x)}"),
-				replacements, process);
-		assertEquals(parse("2 + {(on x in group(2)) f(x)}"), result); //  should respect scoped symbols; group(x) is not scoped by inner x
+		expected     = parse("2 + {(on x in group(2)) f(x)}");
+		testSemanticSubstitute(replacements, process);
 		
+		expression   = parse("x + {(on y) f(x)}");
 		replacements = Util.map(parse("x"), parse("2"));
-		result = SemanticSubstitute.replaceAll(
-				parse("x + {(on y) f(x)}"),
-				replacements, process);
-		assertEquals(parse("2 + {(on y) f(2)}"), result); // x is not scoped here
+		expected     = parse("2 + {(on y) f(2)}");
+		testSemanticSubstitute(replacements, process);
 		
+		expression   = parse("{(on q(a)) p(a)}");
 		replacements = Util.map(parse("p(a)"), parse("2"));
-		result = SemanticSubstitute.replaceAll(
-				parse("{(on q(a)) p(a)}"),
-				replacements, process);
-		assertEquals(parse("{(on q(a)) 2}"), result);
+		expected     = parse("{(on q(a)) 2}");
+		testSemanticSubstitute(replacements, process);
 		
+		expression   = parse("{(on p(a)) p(a)}");
 		replacements = Util.map(parse("p(a)"), parse("2"));
-		result = SemanticSubstitute.replaceAll(
-				parse("{(on p(a)) p(a)}"),
-				replacements, process);
-		assertEquals(parse("{(on p(a)) p(a)}"), result);
+		expected     = parse("{(on p(a)) p(a)}");
+		result = SemanticSubstitute.replaceAll(expression, replacements, process);
+		assertEquals(expected, result);
 		
+		expression   = parse("{(on p(X)) p(a)}");
 		replacements = Util.map(parse("p(a)"), parse("2"));
-		result = SemanticSubstitute.replaceAll(
-				parse("{(on p(X)) p(a)}"),
-				replacements, process);
-		assertEquals(parse("{(on p(X)) if X != a then 2 else p(a)}"), result);
+		expected     = parse("{(on p(X)) if X != a then 2 else p(a)}");
+		testSemanticSubstitute(replacements, process);
 		
+		expression   = parse("{(on p(a)) p(X)}");
 		replacements = Util.map(parse("p(X)"), parse("2"));
-		result = SemanticSubstitute.replaceAll(
-				parse("{(on p(a)) p(X)}"),
-				replacements, process);
-		assertEquals(parse("{(on p(a)) if X != a then 2 else p(X)}"), result);
+		expected     = parse("{(on p(a)) if X != a then 2 else p(X)}");
+		testSemanticSubstitute(replacements, process);
 		
+		expression   = parse("p(X)");
 		replacements = Util.map(parse("p(Y)"), parse("2"));
-		result = SemanticSubstitute.replaceAll(
-				parse("p(X)"),
-				replacements, process);
-		assertEquals(parse("if X = Y then 2 else p(X)"), result);
+		expected     = parse("if X = Y then 2 else p(X)");
+		testSemanticSubstitute(replacements, process);
 		
+		expression   = parse("{(on p(a), p(b), p(c)) p(X)}");
 		replacements = Util.map(parse("p(X)"), parse("2"));
-		result = SemanticSubstitute.replaceAll(
-				parse("{(on p(a), p(b), p(c)) p(X)}"),
-				replacements, process);
-		assertEquals(parse("{(on p(a), p(b), p(c)) if X != a and X != b and X != c then 2 else p(X)}"), result);
+		expected     = parse("{(on p(a), p(b), p(c)) if X != a and X != b and X != c then 2 else p(X)}");
+		testSemanticSubstitute(replacements, process);
 		
+		expression   = parse("{(on p(Y,X)) p(X,Y)}");
 		replacements = Util.map(parse("p(X,Y)"), parse("2"));
-		result = SemanticSubstitute.replaceAll(
-				parse("{(on p(Y,X)) p(X,Y)}"),
-				replacements, process);
-		assertEquals(parse("{(on p(Y,X)) if X != Y then 2 else p(X,Y)}"), result);
+		expected     = parse("{(on p(Y,X)) if X != Y then 2 else p(X,Y)}");
+		testSemanticSubstitute(replacements, process);
 		
+		expression   = parse("{(on p(W,Z)) p(Y,X)}");
 		replacements = Util.map(parse("p(X,Y)"), parse("2"));
-		result = SemanticSubstitute.replaceAll(
-				parse("{(on p(W,Z)) p(Y,X)}"),
-				replacements, process);
-		assertEquals(parse("{(on p(W,Z)) if (W != X or Z != Y) and X = Y then 2 else p(Y,X)}"), result);
+		expected     = parse("{(on p(W,Z)) if (W != X or Z != Y) and X = Y then 2 else p(Y,X)}");
+		testSemanticSubstitute(replacements, process);
 		
+		expression   = parse("{(on p(Y,X)) p(Y,X)}");
 		replacements = Util.map(parse("p(X,Y)"), parse("2"));
-		result = SemanticSubstitute.replaceAll(
-				parse("{(on p(Y,X)) p(Y,X)}"),
-				replacements, process);
-		assertEquals(parse("{(on p(Y,X)) p(Y,X)}"), result);
+		expected     = parse("{(on p(Y,X)) p(Y,X)}");
+		testSemanticSubstitute(replacements, process);
 
+		expression   = parse("if W != X and Z != Y then p(W,Z) else p(a,Y)");
 		replacements = Util.map(parse("p(X,Y)"), parse("2"));
-		result = SemanticSubstitute.replaceAll(
-				parse("if W != X and Z != Y then p(W,Z) else p(a,Y)"),
-				replacements, process);
-		assertEquals(parse("if W != X and Z != Y then p(W,Z) else if X = a then 2 else p(a,Y)"), result);
+		expected     = parse("if W != X and Z != Y then p(W,Z) else if X = a then 2 else p(a,Y)");
+		testSemanticSubstitute(replacements, process);
 
+		expression   = parse("{{ (on p(a,Y)) {{ (on p(c,Y)) p(X,Y) }} or p(X,Y) | X != b }}");
 		replacements = Util.map(parse("p(X,Y)"), parse("2"));
-		result = SemanticSubstitute.replaceAll(
-				parse("{{ (on p(a,Y)) {{ (on p(c,Y)) p(X,Y) }} or p(X,Y) | X != b }}"),
-				replacements, process);
-		assertEquals(parse("{{ (on p(a,Y))" +
+		expected     = parse("{{ (on p(a,Y))" +
 				               "{{ (on p(c,Y)) if X != a and X != c then 2 else p(X,Y) }} or (if X != a then 2 else p(X,Y))" +
-				               "| X != b }}"), result);
+				               "| X != b }}");
+		testSemanticSubstitute(replacements, process);
+	}
+
+	private void testSemanticSubstitute(Map<Expression, Expression> replacements, RewritingProcess process) {
+		Expression result;
+		RewritingProcess subProcess;
+		subProcess   = extendContext(expression, replacements, expected, process);
+		result = SemanticSubstitute.replaceAll(expression, replacements, subProcess);
+		assertEquals(expected, result);
 	}
 	
+	private RewritingProcess extendContext(Expression expression, Map<Expression, Expression> replacements, Expression expected, RewritingProcess process) {
+		RewritingProcess result = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(expression, process);
+		for (Map.Entry<Expression, Expression> entry : replacements.entrySet()) {
+			result = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(entry.getKey(),   result);
+			result = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(entry.getValue(), result);
+		}
+		result = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(expected, result);
+		return result;
+	}
+
 	@Test
 	public void testSyntacticSubstitute() {
 		Library library = new DefaultLibrary(
@@ -1434,7 +1440,10 @@ public class GrinderTest extends AbstractGrinderTest {
 
 	private void testStandardizationApartWithoutAssumingImplicitQuantificationOfAllVariables(Expression expression1, Expression expression2) {
 		Expression result;
-		result = StandardizedApartFrom.standardizedApartFrom(expression1, expression2, new DefaultRewritingProcess(expression1, evaluator));
+		RewritingProcess process = new DefaultRewritingProcess(expression1, evaluator);
+		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(expression1, process);
+		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(expression2, process);
+		result = StandardizedApartFrom.standardizedApartFrom(expression1, expression2, process);
 		System.out.println("Standardization apart of " + expression1 + "  wrt " + expression2 + " (not assuming implicit quantification):\n                         " + result + "\n               Expected: " + expected);
 		assertEquals(result, expected);
 	}
@@ -1536,6 +1545,7 @@ public class GrinderTest extends AbstractGrinderTest {
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
 				new IntensionalSetSubExpressionsAndImposedConditionsProvider(),
 				new IntensionalSet(),
+				new ThereExistsSubExpressionsAndScopedVariablesProvider(),
 				new IntensionalUniSetWithIndicesNotUsedInHead());
 		
 		evaluator = new ExhaustiveRewriter(library);

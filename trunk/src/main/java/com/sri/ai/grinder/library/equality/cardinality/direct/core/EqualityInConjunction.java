@@ -47,6 +47,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -77,7 +78,7 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 
 	public static boolean isOptimizable(Expression expression, RewritingProcess process) {
 		boolean result = false;
-		if (getFirstEqualityOnIndexInformation(expression, process) != null) {
+		if (getFirstEqualityOnIndexInformation(expression) != null) {
 			result = true;
 		}
 		
@@ -102,17 +103,16 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 		Expression quantificationSymbol                   = Tuple.get(expression, 1);
 		CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
 		
-		EqualityOnIndexInformation equalityOnIndexInformation = getFirstEqualityOnIndexInformation(cardinalityOfIndexedFormulaExpression, process);
+		EqualityOnIndexInformation equalityOnIndexInformation = getFirstEqualityOnIndexInformation(cardinalityOfIndexedFormulaExpression);
 		if (equalityOnIndexInformation == null) {
 			throw new IllegalArgumentException("Invalid input argument expression, cannot be optimized:"+cardinalityOfIndexedFormulaExpression);
 		} 
-		else {			
+		else {
 			if (equalityOnIndexInformation.valuesEquatedToIndex.size() == 0) {
 				Trace.log("if t is the same expression as x_i");
 				Trace.log("    return R_card(| Phi |_X, quantification)");
-				Expression phiIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(equalityOnIndexInformation.phi, equalityOnIndexInformation.indices.toArray(new Expression[equalityOnIndexInformation.indices.size()]));
-				
-				result = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(phiIndexedByX, quantification));
+				Expression cardinalityWithPhiIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(equalityOnIndexInformation.phi, equalityOnIndexInformation.indices.toArray(new Expression[equalityOnIndexInformation.indices.size()]));
+				result = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardinalityWithPhiIndexedByX, quantification));
 			} 
 			else {
 				Expression t = equalityOnIndexInformation.valuesEquatedToIndex.iterator().next();
@@ -120,7 +120,9 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 				equalityOnIndexInformation.indices.remove(equalityOnIndexInformation.index);
 				Trace.log("return R_card(| R_normalize(Phi[x_i / t]) |_X\\{xi}, quantification) // Phi={}, x_i={}, t={}", equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t);
 				Expression phiXiReplacedWithT           = SemanticSubstitute.replace(equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t, process);
-				Expression simplifiedPhiXiReplacedWithT = process.rewrite(R_normalize, phiXiReplacedWithT);
+
+				RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIndexExpressions(equalityOnIndexInformation.indices, process);
+				Expression simplifiedPhiXiReplacedWithT = subProcess.rewrite(R_normalize, phiXiReplacedWithT);
 				
 				Expression cardPhiXiReplacedWithTIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(simplifiedPhiXiReplacedWithT, equalityOnIndexInformation.indices.toArray(new Expression[equalityOnIndexInformation.indices.size()]));
 				result = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardPhiXiReplacedWithTIndexedByX, quantification));
@@ -140,7 +142,7 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 		public Set<Expression> indices;
 	}
 	
-	private static EqualityOnIndexInformation getFirstEqualityOnIndexInformation(Expression expression, RewritingProcess process) {
+	private static EqualityOnIndexInformation getFirstEqualityOnIndexInformation(Expression expression) {
 		EqualityOnIndexInformation result = null;
 		
 		if (CardinalityUtil.isCardinalityOfIndexedFormulaExpression(expression)) {
@@ -154,7 +156,7 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 				for (Expression conjunct : constraint.getArguments()) {
 					// x_i = t and Phi
 					if (conjunct.hasFunctor(FunctorConstants.EQUAL)) {
-						result = getEqualityOnIndexInformation(constraint, conjunct, indexExpressions, index, process);
+						result = getEqualityOnIndexInformation(constraint, conjunct, indexExpressions, index);
 						if (result != null) {
 							break;
 						}
@@ -164,14 +166,14 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 			} 
 			else if (constraint.hasFunctor(FunctorConstants.EQUAL)) {
 				// Note: want to use a set for efficiency but keep the order by using a linked hash set.
-				result = getEqualityOnIndexInformation(constraint, constraint, indexExpressions, 0, process);
+				result = getEqualityOnIndexInformation(constraint, constraint, indexExpressions, 0);
 			}
 		}
 		
 		return result;
 	}
 	
-	private static EqualityOnIndexInformation getEqualityOnIndexInformation(Expression formula, Expression equality, Set<Expression> indexExpressions, int indexIndex, RewritingProcess process) {
+	private static EqualityOnIndexInformation getEqualityOnIndexInformation(Expression formula, Expression equality, Set<Expression> indexExpressions, int indexIndex) {
 		EqualityOnIndexInformation result = null;
 		for (Expression equalityArgument : equality.getArguments()) {
 			if (indexExpressions.contains(equalityArgument)) {

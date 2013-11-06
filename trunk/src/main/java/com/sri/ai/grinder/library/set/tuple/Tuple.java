@@ -111,6 +111,10 @@ MutuallyExclusiveCoDomainsModule.Provider {
 		List<Expression> elements;
 		if (expression.hasFunctor("tuple")) {
 			elements = expression.getArguments();
+			// this is incorrect because it is treating tuples as function applications, but they are not;
+			// their syntactic form type is "Tuple", not "Function application".
+			// So it is working based on chance implementation details.
+			// It is part of what needs to be cleaned up regarding the whole representation of expressions.
 		}
 		else {
 			elements = Expressions.ensureListFromKleeneList(expression.getSyntaxTree().getSubTree(0));

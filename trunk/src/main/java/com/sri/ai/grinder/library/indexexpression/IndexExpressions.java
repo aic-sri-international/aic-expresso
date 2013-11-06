@@ -35,7 +35,7 @@ import com.sri.ai.util.base.Pair;
  */
 public class IndexExpressions {
 
-	public static LinkedHashMap<Expression, Expression> getIndexToDomainMapWithDefaultNull(List<Expression> indexExpressions) {
+	public static LinkedHashMap<Expression, Expression> getIndexToDomainMapWithDefaultNull(Collection<Expression> indexExpressions) {
 		LinkedHashMap<Expression, Expression> result =
 			Expressions.getRelationalMap(
 					indexExpressions,
