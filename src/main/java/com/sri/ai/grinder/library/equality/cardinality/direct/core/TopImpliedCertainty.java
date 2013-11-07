@@ -122,7 +122,7 @@ public class TopImpliedCertainty extends AbstractHierarchicalRewriter implements
 				}
 				else {
 					// Need to perform the is_tautology tests with an empty context.
-					tautologyProcess = process.newSubProcessWithContext(new HashSet<Expression>(), new HashMap<Expression, Expression>(), Expressions.TRUE);
+					tautologyProcess = process.newSubProcessWithContext(new HashMap<Expression, Expression>(), Expressions.TRUE);
 					if (IsTautology.isTautology(cImpliesF, tautologyProcess)) {
 						Trace.log("        return true");
 						result = Expressions.TRUE;
