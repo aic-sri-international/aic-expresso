@@ -149,14 +149,14 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 			// | {(on x1,..., xn) (x1, ..., xn) | F} |
 			Expression intensionalSet = expression.get(0);
 			Expression constraint     = IntensionalSet.getCondition(intensionalSet);
-			Set<Expression> indexExpressions = new LinkedHashSet<Expression>(IntensionalSet.getIndexExpressions(intensionalSet));
+			Set<Expression> indices = new LinkedHashSet<Expression>(IntensionalSet.getIndices(intensionalSet));
 			if (And.isConjunction(constraint)) {
 				// Note: want to use a set for efficiency but keep the order by using a linked hash set.
 				int index = 0;
 				for (Expression conjunct : constraint.getArguments()) {
 					// x_i = t and Phi
 					if (conjunct.hasFunctor(FunctorConstants.EQUAL)) {
-						result = getEqualityOnIndexInformation(constraint, conjunct, indexExpressions, index);
+						result = getEqualityOnIndexInformation(constraint, conjunct, indices, index);
 						if (result != null) {
 							break;
 						}
@@ -166,17 +166,17 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 			} 
 			else if (constraint.hasFunctor(FunctorConstants.EQUAL)) {
 				// Note: want to use a set for efficiency but keep the order by using a linked hash set.
-				result = getEqualityOnIndexInformation(constraint, constraint, indexExpressions, 0);
+				result = getEqualityOnIndexInformation(constraint, constraint, indices, 0);
 			}
 		}
 		
 		return result;
 	}
 	
-	private static EqualityOnIndexInformation getEqualityOnIndexInformation(Expression formula, Expression equality, Set<Expression> indexExpressions, int indexIndex) {
+	private static EqualityOnIndexInformation getEqualityOnIndexInformation(Expression formula, Expression equality, Set<Expression> indices, int indexIndex) {
 		EqualityOnIndexInformation result = null;
 		for (Expression equalityArgument : equality.getArguments()) {
-			if (indexExpressions.contains(equalityArgument)) {
+			if (indices.contains(equalityArgument)) {
 				result = new EqualityOnIndexInformation();
 				result.index = equalityArgument;
 				result.valuesEquatedToIndex.addAll(equality.getArguments());
@@ -199,7 +199,7 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 				}
 				
 				result.phi = And.make(phiConjuncts);
-				result.indices = indexExpressions;
+				result.indices = indices;
 				break;
 			}
 		}
