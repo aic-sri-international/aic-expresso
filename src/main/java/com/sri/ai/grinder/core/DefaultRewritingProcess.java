@@ -515,6 +515,16 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	public Object putGlobalObject(Object key, Object value) {
 		return globalObjects.put(key, value);
 	}
+
+	@Override
+	public Object removeGlobalObject(Object key) {
+		return globalObjects.remove(key);
+	}
+	
+	@Override
+	public boolean containsGlobalObjectKey(Object key) {
+		return globalObjects.containsKey(key);
+	}
 	
 	@Override
 	public Object getGlobalObject(Object key) {
