@@ -211,6 +211,16 @@ public interface RewritingProcess {
 	Object putGlobalObject(Object key, Object value);
 	
 	/**
+	 * Removes value in a map of global objects under key.
+	 */
+	Object removeGlobalObject(Object key);
+	
+	/**
+	 * Indicates whether map of global objects contains key.
+	 */
+	boolean containsGlobalObjectKey(Object key);
+	
+	/**
 	 * Gets a value from a map of global objects under key.
 	 */
 	Object getGlobalObject(Object key);

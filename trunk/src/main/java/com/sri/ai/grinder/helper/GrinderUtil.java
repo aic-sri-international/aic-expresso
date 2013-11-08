@@ -79,6 +79,14 @@ import com.sri.ai.util.concurrent.CancelOutstandingOnSuccess;
  */
 @Beta
 public class GrinderUtil {
+
+	/**
+	 * The key of a global object of rewriting processes that prevents the check again free variables in additional constraints
+	 * (that is, that are not in the contextual variables).
+	 * This is used for when global free variables are being determined. It should not be used in normal circumstances.
+	 */
+	public static final String DO_NOT_REQUIRE_ADDED_CONTEXTUAL_CONSTRAINT_FREE_VARIABLES_TO_BE_IN_CONTEXTUAL_VARIABLES = "Do not require added contextual constraint free variables to be in contextual variables";
+
 	/**
 	 * Takes an expression and, if it is an if then else, rearranges it so that
 	 * conditions on logical variables are separated from other tests and on top
@@ -578,6 +586,24 @@ public class GrinderUtil {
 	}
 	
 	/**
+	 * Extends a process's contextual variables with free variables found in a given expression and returns the new resulting process.
+	 */
+	public static RewritingProcess extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(Expression expression, RewritingProcess process) {
+		Set<Expression> freeVariables = Expressions.freeVariables(expression, process);
+		process = extendContextualVariablesWithUnknownDomain(freeVariables, process);
+		return process;
+	}
+
+	public static RewritingProcess extendContextualVariablesWithUnknownDomain(Set<Expression> variables, RewritingProcess process) {
+		Map<Expression, Expression> fromVariableToDomain = new HashMap<Expression, Expression>();
+		for (Expression variable : variables) {
+			fromVariableToDomain.put(variable, null);
+		}
+		RewritingProcess result = extendContextualVariables(fromVariableToDomain, process);
+		return result;
+	}
+
+	/**
 	 * Same as {@link #extendContextualVariablesAndConstraint(Map<Expression, Expression>, Expression, RewritingProcess)},
 	 * assuming a true constraint.
 	 */
@@ -634,7 +660,8 @@ public class GrinderUtil {
 		if (!additionalConstraints.equals(Expressions.TRUE) && FormulaUtil.isFormula(additionalConstraints, process)) {
 			// Ensure any variables mentioned in the additional constraint are already present in the contextual variables set.
 			Set<Expression> freeVariablesInAdditionalConstraints = Expressions.freeVariables(additionalConstraints, process);
-			if ( ! newContextualVariablesAndDomains.keySet().containsAll(freeVariablesInAdditionalConstraints)) {
+			if ( ! newContextualVariablesAndDomains.keySet().containsAll(freeVariablesInAdditionalConstraints) &&
+					! process.containsGlobalObjectKey("Do not require added contextual constraint free variables to be in contextual variables")) {
 				String message =
 						"Extending contextual constraint " + additionalConstraints +
 						" containing unknown variables {" + Util.join(Util.subtract(freeVariablesInAdditionalConstraints, newContextualVariablesAndDomains.keySet())) + 
@@ -713,23 +740,5 @@ public class GrinderUtil {
 		}
 	
 		return rewriters;
-	}
-
-	public static RewritingProcess extendContextualVariablesWithUnknownDomain(Set<Expression> variables, RewritingProcess process) {
-		Map<Expression, Expression> fromVariableToDomain = new HashMap<Expression, Expression>();
-		for (Expression variable : variables) {
-			fromVariableToDomain.put(variable, null);
-		}
-		RewritingProcess result = extendContextualVariables(fromVariableToDomain, process);
-		return result;
-	}
-
-	/**
-	 * Extends a process's contextual variables with free variables found in a given expression and returns the new resulting process.
-	 */
-	public static RewritingProcess extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(Expression expression, RewritingProcess process) {
-		Set<Expression> freeVariables = Expressions.freeVariables(expression, process);
-		process = extendContextualVariablesWithUnknownDomain(freeVariables, process);
-		return process;
 	}
 }
