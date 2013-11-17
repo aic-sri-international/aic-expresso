@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -11,6 +12,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Null;
 import com.sri.ai.util.base.Pair;
@@ -215,6 +217,19 @@ public class IndexExpressions {
 
 	public static List<Expression> getIndices(List<Expression> indexExpressions) {
 		List<Expression> result = Util.mapIntoList(indexExpressions, new GetIndex());
+		return result;
+	}
+
+	public static List<Expression> getIndexExpressionsFromVariablesAndDomains(Map<Expression, Expression> variablesAndDomains) {
+		List<Expression> result = new LinkedList<Expression>();
+		for (Map.Entry<Expression, Expression> entry : variablesAndDomains.entrySet()) {
+			if (entry.getValue() == null) {
+				result.add(entry.getKey());
+			}
+			else {
+				result.add(Expressions.apply(FunctorConstants.IN, entry.getKey(), entry.getValue()));
+			}
+		}
 		return result;
 	}
 	

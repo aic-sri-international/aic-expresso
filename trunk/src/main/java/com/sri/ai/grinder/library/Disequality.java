@@ -73,8 +73,7 @@ public class Disequality extends AbstractRewriter {
 	public Expression rewriteAfterBookkeeping(Expression expression,
 			RewritingProcess process) {
 	
-		Expression equals = Equality.equalityResultIfItIsKnown(expression,
-				process);
+		Expression equals = Equality.equalityResultIfItIsKnown(expression, process);
 		if (equals != expression) {
 			Symbol equalsResult = (Symbol) equals.getSyntaxTree();
 			Boolean booleanObject = (Boolean) equalsResult.getValue();
