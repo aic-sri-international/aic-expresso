@@ -865,4 +865,20 @@ public class Expressions {
 		}
 		return result;
 	}
+
+	/**
+	 * Determine if all expressions given occur as free variables in another given expression.
+	 */
+	public static boolean expressionsDoNotOccurInAnotherExpressionAsFreeVariables(List<Expression> expressions, Expression anotherExpression, RewritingProcess process) {
+		boolean result = true;
+		
+		Set<Expression> freeVariables = freeVariables(anotherExpression, process);
+		for (Expression index: expressions) {
+			if (freeVariables.contains(index)) {
+				result = false;
+				break;
+			}
+		}
+		return result;
+	}
 }

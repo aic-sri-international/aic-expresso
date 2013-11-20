@@ -121,16 +121,16 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 		Expression quantificationSymbol                  = Tuple.get(expression, 1);
 		// 
 		CardinalityUtil.assertIsCardinalityOfIndexedFormulaExpression(cardinalityOfIndexedFormulaExpression);
-		// | {(on x1,..., xn)(x1, ..., xn) | F} |
+		// | {(on I1,..., In)(x1, ..., xn) | F} |, with Ii = xi, or Ii = xi in Di
 		Expression       intensionalSet   = cardinalityOfIndexedFormulaExpression.get(0);
 		Expression       f                = IntensionalSet.getCondition(intensionalSet);
-		List<Expression> indices          = IntensionalSet.getIndexExpressions(intensionalSet);
+		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
 		
 		CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
 		if (quantification == null) {
 			throw new IllegalArgumentException("Invalid quantification symbol:"+quantificationSymbol);
 		}
-		List<Pair<Set<Expression>, List<Expression>>> problems = CardinalityUtil.findIndependentProblemsInConjunction(f, indices, process);
+		List<Pair<Set<Expression>, List<Expression>>> problems = CardinalityUtil.findIndependentProblemsInConjunction(f, indexExpressions, process);
 		
 		if ( problems.isEmpty() ) {
 			result = rewriteUnseparableConjunction(cardinalityOfIndexedFormulaExpression, quantification, process);

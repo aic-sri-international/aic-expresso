@@ -162,10 +162,11 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 		// 
 		CardinalityUtil.assertIsCardinalityOfIndexedFormulaExpression(cardinalityOfIndexedFormulaExpression);
 		// | {(on x1,..., xn) (x1, ..., xn) | F} |
-		Expression       intensionalSet = cardinalityOfIndexedFormulaExpression.get(0);
-		Expression       f              = IntensionalSet.getCondition(intensionalSet);
-		List<Expression> indices        = IntensionalSet.getIndexExpressions(intensionalSet);
-		Expression[] indicesAsArray     = indices.toArray(new Expression[indices.size()]);
+		Expression       intensionalSet   = cardinalityOfIndexedFormulaExpression.get(0);
+		Expression       f                = IntensionalSet.getCondition(intensionalSet);
+		List<Expression> indices          = IntensionalSet.getIndices(intensionalSet);
+		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
+		Expression[]     indexExpressionsAsArray = indexExpressions.toArray(new Expression[indexExpressions.size()]);
 
 		process = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(intensionalSet, process);
 		
@@ -176,7 +177,7 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 		if (f.equals(Expressions.TRUE)) {
 			Trace.log("if F is True");
 			Trace.log("    return R_normalize(||X||)");
-			Expression cardIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indicesAsArray);
+			Expression cardIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressionsAsArray);
 			result = process.rewrite(CardinalityRewriter.R_normalize, cardIndices);
 		}
 		else if (f.equals(Expressions.FALSE)) {
@@ -184,10 +185,10 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 			Trace.log("    return 0");
 			result = Expressions.ZERO;
 		}
-		else if (CardinalityUtil.areIndicesNotInF(indices, f, process)) {
+		else if (Expressions.expressionsDoNotOccurInAnotherExpressionAsFreeVariables(indices, f, process)) {
 			Trace.log("if x does not occur in F for any x in X");
 			Trace.log("    return R_normalize(if F then ||X|| else 0)");
-			Expression cardIndexX = CardinalityUtil.makeCardinalityOfIndexExpressions(indicesAsArray);
+			Expression cardIndexX = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressionsAsArray);
 			Expression ifThenElse = IfThenElse.make(f, cardIndexX, Expressions.ZERO);
 			result = process.rewrite(CardinalityRewriter.R_normalize, ifThenElse);
 		}
@@ -210,7 +211,7 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 			Trace.log("    F' <- R_top_simplify(R_move_not_in(F))");
 			Expression fPrime = process.rewrite(CardinalityRewriter.R_top_simplify, process.rewrite(CardinalityRewriter.R_move_not_in, f));
 			Trace.log("    return R_card(|F'|_X, quantification)");
-			Expression cardFPrimeIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(fPrime, indicesAsArray);
+			Expression cardFPrimeIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(fPrime, indexExpressionsAsArray);
 			result = process.rewrite(R_card,
 						CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(
 								cardFPrimeIndexedByX, quantification));
@@ -233,7 +234,7 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 			Trace.log("if F is Q y : G");
 			Trace.log("    return R_card( | R_top_quantifier_elimination(Q y : G) |_X, quantification)");
 			Expression quantifierEliminated               = process.rewrite(CardinalityRewriter.R_top_quantifier_elimination, f);
-			Expression cardQuantifierEliminatedIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(quantifierEliminated, indicesAsArray);
+			Expression cardQuantifierEliminatedIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(quantifierEliminated, indexExpressionsAsArray);
 			
 			result = process.rewrite(R_card,
 						CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(
