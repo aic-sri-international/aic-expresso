@@ -42,6 +42,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -52,6 +53,7 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 
 /**
  * Default implementation of R_quantifier_elimination(F).
@@ -88,32 +90,40 @@ public class QuantifierElimination extends AbstractHierarchicalRewriter implemen
 			Trace.log("if F is \"for all x: Y\"");
 			Trace.log("    return R_normalize(R_card(|R_top_simplify(Y)|_x, \"for all\") = |type(x)| )");
 			
-			Expression y = ForAll.getBody(expressionF);
-			Expression x = CardinalityUtil.getForAllIndex(expressionF);
+			Expression indexExpression = ForAll.getIndexExpression(expressionF);
+			Expression body = ForAll.getBody(expressionF);
 			
-			y = process.rewrite(R_top_simplify, y);
+			RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIndexExpression(indexExpression, process);
+			body = subProcess.rewrite(R_top_simplify, body);
 			
-			Expression cardinalityOfIndexedFormaulaY = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(y, x);
-			Expression resultCard1                   = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardinalityOfIndexedFormaulaY, CardinalityRewriter.Quantification.FOR_ALL));
-			Expression cardIndexX                    = CardinalityUtil.makeCardinalityOfIndexExpressions(x);
-			Expression resultCard1EqualCardX         = Equality.make(resultCard1, cardIndexX);
+//			Expression index = indexExpression; // IndexExpressions.getIndex(indexExpression);
+			Expression index = IndexExpressions.getIndex(indexExpression);
 			
-			result = process.rewrite(R_normalize, resultCard1EqualCardX);
+			Expression numberOfSolutionsOfBodyInIndexProblem     = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(body, index);
+			Expression numberOfSolutionsOfBodyInIndexSolution    = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(numberOfSolutionsOfBodyInIndexProblem, CardinalityRewriter.Quantification.FOR_ALL));
+			Expression indexDomainSize                           = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpression);
+			Expression numberOfSolutionsAndDomainSizeMustBeEqual = Equality.make(numberOfSolutionsOfBodyInIndexSolution, indexDomainSize);
+			
+			result = process.rewrite(R_normalize, numberOfSolutionsAndDomainSizeMustBeEqual);
 		} 
 		else if (expressionF.hasFunctor(FunctorConstants.THERE_EXISTS)) {
 			Trace.log("if F is \"there exists x: Y\"");
 			Trace.log("    return R_normalize(R_card(|R_top_simplify(Y)|_x, \"there exists\") > 0)");
 			
-			Expression y = ThereExists.getBody(expressionF);
-			Expression x = CardinalityUtil.getThereExistsIndex(expressionF);
+			Expression indexExpression = ThereExists.getIndexExpression(expressionF);
+			Expression body = ThereExists.getBody(expressionF);
 			
-			y = process.rewrite(R_top_simplify, y);
+			RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIndexExpression(indexExpression, process);
+			body = subProcess.rewrite(R_top_simplify, body);
 			
-			Expression cardinalityOfIndexedFormaulaY = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(y, x);
-			Expression resultCard1                   = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardinalityOfIndexedFormaulaY, CardinalityRewriter.Quantification.THERE_EXISTS));
-			Expression resultCard1NotEqual0          = Expressions.make(FunctorConstants.GREATER_THAN, resultCard1, Expressions.ZERO);
+//			Expression index = indexExpression; // IndexExpressions.getIndex(indexExpression);
+			Expression index = IndexExpressions.getIndex(indexExpression);
 			
-			result = process.rewrite(R_normalize, resultCard1NotEqual0);
+			Expression numberOfSolutionsOfBodyInIndexProblem  = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(body, index);
+			Expression numberOfSolutionsOfBodyInIndexSolution = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(numberOfSolutionsOfBodyInIndexProblem, CardinalityRewriter.Quantification.THERE_EXISTS));
+			Expression numberOfSolutionsMustBeGreaterThanZero = Expressions.make(FunctorConstants.GREATER_THAN, numberOfSolutionsOfBodyInIndexSolution, Expressions.ZERO);
+			
+			result = process.rewrite(R_normalize, numberOfSolutionsMustBeGreaterThanZero);
 		} 
 		else if (expressionF.hasFunctor(FunctorConstants.NOT) &&
 				   expressionF.numberOfArguments() == 1) {
@@ -124,8 +134,7 @@ public class QuantifierElimination extends AbstractHierarchicalRewriter implemen
 
 			result = process.rewrite(R_quantifier_elimination, movedNotIn);
 		} 
-		else if (expressionF.hasFunctor(FunctorConstants.IMPLICATION) &&
-				   expressionF.numberOfArguments() == 2) {
+		else if (expressionF.hasFunctor(FunctorConstants.IMPLICATION) && expressionF.numberOfArguments() == 2) {
 			Trace.log("if F is G => H");
 			Trace.log("    return R_quantifier_elimination(R_top_simplify_disjunction(not G or H))");
 			Expression g                        = expressionF.get(0);

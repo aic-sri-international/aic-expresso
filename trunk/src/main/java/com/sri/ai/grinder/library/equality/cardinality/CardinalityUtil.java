@@ -63,6 +63,7 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewrite
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.FromConditionalFormulaToFormula;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
@@ -165,22 +166,25 @@ public class CardinalityUtil {
 	}
 
 	/**
-	 * Let F be a quantifier formula in L. Let |F|_{x1, ..., xn} denote the
-	 * cardinality of the set {(on x1,..., xn) (x1, ..., xn) | F}.
+	 * Let F be a quantifier formula in L. Let |F|_{I1, ..., In} denote the
+	 * cardinality of the set {(on I1,..., In) (x1, ..., xn) | F},
+	 * where xi is the index in I_i. 
 	 * 
 	 * @param formulaF
 	 *            a quantifier formula.
-	 * @param indexes
-	 *            the indexes x1 to xn.
-	 * @return an expression of the form | { (on x1,..., xn) (x1, ..., xn) | F} |
+	 * @param indexExpressions
+	 *            the index expressions I1 to In.
+	 * @return an expression of the form | { (on I1,..., In) (x1, ..., xn) | F} |
 	 */
-	public static Expression makeCardinalityOfIndexedFormulaExpression(Expression formulaF, Expression... indexes) {
+	public static Expression makeCardinalityOfIndexedFormulaExpression(Expression formulaF, Expression... indexExpressions) {
 		Expression result = null;
 		
-		List<Expression> indexesList  = Arrays.asList(indexes);
-		Expression       indexesTuple = Tuple.make(indexesList);
+		List<Expression> indexExpressionsList  = Arrays.asList(indexExpressions);
 		
-		result = Expressions.make(FunctorConstants.CARDINALITY, IntensionalSet.makeUniSetFromIndexExpressionsList(Arrays.asList(indexes), indexesTuple, formulaF));
+		List<Expression> indicesList = IndexExpressions.getIndices(indexExpressionsList);
+		Expression       indicesTuple = Tuple.make(indicesList);
+		
+		result = Expressions.make(FunctorConstants.CARDINALITY, IntensionalSet.makeUniSetFromIndexExpressionsList(indexExpressionsList, indicesTuple, formulaF));
 		
 		return result;
 	}
@@ -215,10 +219,10 @@ public class CardinalityUtil {
 				result = true;
 			}
 			else if (Sets.isIntensionalUniSet(intensionalSet)) {
-				// For unisets, only | {(x1, ..., xn) | F}{x1,..., xn} |
-				// is legal as | {E | F}{x1,..., xn} | 
+				// For unisets, only | {(I1, ..., In) | F}{x1,..., xn} |
+				// is legal as | {E | F}{I1, ..., In} | 
 				// requires an analysis of E to see which instantiations 
-				// turn out to be the same, and  we don't have code to do 
+				// turn out to be equal, and  we don't have code to do 
 				// that at this time
 				Expression intensionalSetHead = IntensionalSet.getHead(intensionalSet);
 			    if (Tuple.isTuple(intensionalSetHead)) {	    	
@@ -254,11 +258,9 @@ public class CardinalityUtil {
 	}
 		
 	/**
-	 * Make an expression of the form | type(X1) | * ... * | type(Xn) |.
-	 * 
-	 * @param indexExpressions
-	 *            the indexExpressions X1, ..., Xn.
-	 * @return an expression of the form | type(X1) | * ... * | type(Xn) |.
+	 * Receives index expressions X1 [in D1], ..., Xn [in Dn] and
+	 * makes expression of the form | D1 | * ... * | Dn |,
+	 * assuming Di to be "type(Xi)" if the index expression is Xi alone.
 	 */
 	public static Expression makeCardinalityOfIndexExpressions(Expression... indexExpressions) {
 		// TODO: When ALBP-119 is resolved, we will be able to take the domain of the variable from the quantified expression.
@@ -266,11 +268,17 @@ public class CardinalityUtil {
 		if ( indexExpressions.length > 0 ) {
 			ArrayList<Expression> cardinalities = new ArrayList<Expression>();
 			for (Expression indexExpression: indexExpressions) {
-				Expression card = Expressions.make(FunctorConstants.CARDINALITY, Expressions.make(CardinalityTypeOfLogicalVariable.FUNCTOR_TYPE, indexExpression));
-				cardinalities.add(card);
+				Expression set;
+				if (indexExpression.hasFunctor(FunctorConstants.IN)){
+					set = indexExpression.get(1);
+				}
+				else {
+					set = Expressions.make(CardinalityTypeOfLogicalVariable.FUNCTOR_TYPE, indexExpression);
+				}
+				Expression cardinality = Expressions.make(FunctorConstants.CARDINALITY, set);
+				cardinalities.add(cardinality);
 			}
 			result = Times.make(cardinalities);
-			
 		}
 		return result;
 	}
@@ -504,28 +512,6 @@ public class CardinalityUtil {
 	}
 	
 	/**
-	 * Determine if the index variables x1, ..., xn are in the formula F.
-	 * 
-	 * @param indices
-	 *            the index variablea x1, ..., xn.
-	 * @param f
-	 *            the formula F.
-	 * @return true if none of the index variables are in the formula F, false otherwise.
-	 */
-	public static boolean areIndicesNotInF(List<Expression> indices, Expression f, RewritingProcess process) {
-		boolean result = true;
-		
-		Set<Expression> freeVariables = Expressions.freeVariables(f, process);
-		for (Expression index: indices) {
-			if (freeVariables.contains(index)) {
-				result = false;
-				break;
-			}
-		}
-		return result;
-	}
-	
-	/**
 	 * Based on the idea that independent problems linked by conjunction have a
 	 * number of solutions equal to the result of the solutions of independent problems.
 	 * For example:<br>
@@ -550,8 +536,8 @@ public class CardinalityUtil {
 	 * @param f
 	 *            the expression F to be tested for whether or not it is a
 	 *            conjunction that is partitioned on indices.
-	 * @param indices
-	 *            the indices to partition F on.
+	 * @param indexExpressions
+	 *            the index expressions, the indices of which we must partition F on.
 	 * @param process
 	 *            the process in which the rewriting is occurring.
 	 * @return a list of independent problems of the form Pair<Set<Expression>,
@@ -560,22 +546,14 @@ public class CardinalityUtil {
 	 *         from F that are partitioned by these indices. Note: if there
 	 *         are no independent problems an empty list will be returned.
 	 */
-	public static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblemsInConjunction(Expression f, List<Expression> indices, RewritingProcess process) {
+	public static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblemsInConjunction(Expression f, List<Expression> indexExpressions, RewritingProcess process) {
 		List<Pair<Set<Expression>, List<Expression>>> result = null;
 		if ( isConjunctionOrImpliedConjunction(f, process) ) {
-			List<Expression> subFormulas = new ArrayList<Expression>();
-			if (And.isConjunction(f)) {
-				subFormulas.addAll(f.getArguments());
-			}
-			else {
-				// is an implied conjunct
-				// Note: This handles situations like - {(on X, Y) tuple(X, Y) | true }
-				subFormulas.add(f);
-			}
-			result = findIndependentProblems(subFormulas, indices, process);
+			List<Expression> conjuncts = And.getConjuncts(f);
+			result = findIndependentProblems(conjuncts, indexExpressions, process);
 		}
 		else {
-			result = new ArrayList<Pair<Set<Expression>, List<Expression>>>();
+			result = new ArrayList<Pair<Set<Expression>, List<Expression>>>(); // FIXME: wouldn't it more efficient just to return null? Why construct a list?
 		}
 		return result;
 	}
@@ -886,55 +864,34 @@ public class CardinalityUtil {
 	//
 	// PRIVATE
 	//
-	protected  static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblems(List<Expression> subFormulas, List<Expression> indices, RewritingProcess process) {
+	protected  static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblems(List<Expression> conjuncts, List<Expression> indexExpressions, RewritingProcess process) {
 		// indices and corresponding conjuncts
 		List<Pair<Set<Expression>, List<Expression>>> result = new ArrayList<Pair<Set<Expression>, List<Expression>>>();
 		
+		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 			
-		// For efficiency work with a set of the index expressions
-		Set<Expression>                   indexExpressionsSet         = new HashSet<Expression>(indices);
+		// For efficiency work with a set of the indices
+		Set<Expression>                   indicesSet                  = new HashSet<Expression>(indices);
 		// Track conjuncts and their corresponding variables in the index
-		Map<Expression, List<Expression>> conjunctsVariables          = new LinkedHashMap<Expression, List<Expression>>();
+		Map<Expression, List<Expression>> fromConjunctToItsVariables  = new LinkedHashMap<Expression, List<Expression>>();
 		// Track disjoint variable sets.
 		DisjointSets<Expression>          disjointVariableSets        = new DisjointSets<Expression>();
 		// Initialize the disjoint sets with the known indexes up front and track the set
 		// of known variables seen so far (i.e. in the indices and free).
-		Set<Expression>                   knownVariables              = new HashSet<Expression>(indices); 
+		Set<Expression>                   knownVariables              = new HashSet<Expression>(indices);
+		
 		for (Expression index : indices) {
 			disjointVariableSets.makeSet(index);
 		}
 		
-		for (Expression conjunct : subFormulas) {
-			Set<Expression> variablesInConjunct = Expressions.freeVariables(conjunct, process);
-			conjunctsVariables.put(conjunct, new ArrayList<Expression>(variablesInConjunct));
-			Expression first = null;
-			for (Expression variable : variablesInConjunct) {
-				// Also set up disjoint sets for variables
-				// not in the indices (i.e. free).
-				if (!knownVariables.contains(variable)) {
-					disjointVariableSets.makeSet(variable);
-					knownVariables.add(variable);
-				}
-				
-				// Now handle the unioning of variables that
-				// occur in the same conjunct.
-				if (first == null) {
-					first = variable;
-				}
-				else {
-					// Union the first variable with all of the
-					// other variables (DisjointSets handles
-					// transitive closure).
-					disjointVariableSets.union(first, variable);
-				}
-			}
-		}
+		collectConjunctToItsVariablesMapAndDisjointSetsOfVariables(
+				conjuncts, fromConjunctToItsVariables, knownVariables, disjointVariableSets, process);
 		
 		if (disjointVariableSets.numberDisjointSets() > 1) {
 			Map<Expression, Set<Expression>>       indexToDisjointSetMap = disjointVariableSets.getElementToDisjointSet();
 			// Determine which conjuncts belong to which disjoint set of variables.
-			Map<Set<Expression>, List<Expression>> indexesToConjunctsMap = new LinkedHashMap<Set<Expression>, List<Expression>>();
-			for (Map.Entry<Expression, List<Expression>> conjunctVariables : conjunctsVariables.entrySet()) {
+			Map<Set<Expression>, List<Expression>> indexSetsToConjunctsMap = new LinkedHashMap<Set<Expression>, List<Expression>>();
+			for (Map.Entry<Expression, List<Expression>> conjunctVariables : fromConjunctToItsVariables.entrySet()) {
 				
 				Set<Expression> disjointIndexSet;
 				if (conjunctVariables.getValue().size() == 0) {
@@ -946,17 +903,17 @@ public class CardinalityUtil {
 					// The conjunct has variables.
 					disjointIndexSet = indexToDisjointSetMap.get(conjunctVariables.getValue().get(0));
 				}
-				List<Expression> conjuncts = indexesToConjunctsMap.get(disjointIndexSet);
-				if (conjuncts == null) {
-					conjuncts = new ArrayList<Expression>();
-					indexesToConjunctsMap.put(disjointIndexSet, conjuncts);
+				List<Expression> conjunctsForThisDisjointSet = indexSetsToConjunctsMap.get(disjointIndexSet);
+				if (conjunctsForThisDisjointSet == null) {
+					conjunctsForThisDisjointSet = new ArrayList<Expression>();
+					indexSetsToConjunctsMap.put(disjointIndexSet, conjunctsForThisDisjointSet);
 				}
-				conjuncts.add(conjunctVariables.getKey());
+				conjunctsForThisDisjointSet.add(conjunctVariables.getKey());
 			}
 			
 			List<Expression> conjunctsWithNoLinksToIndices = new ArrayList<Expression>();
 			// Add the conjuncts with variables
-			for (Map.Entry<Set<Expression>, List<Expression>> indexesToConjuncts : indexesToConjunctsMap.entrySet()) {
+			for (Map.Entry<Set<Expression>, List<Expression>> indexesToConjuncts : indexSetsToConjunctsMap.entrySet()) {
 				// indices and corresponding conjuncts
 				Set<Expression> indexes = new HashSet<Expression>(indexesToConjuncts.getKey());
 				// Remove indexes explicitly associated with conjuncts from the available
@@ -965,7 +922,7 @@ public class CardinalityUtil {
 					indexToDisjointSetMap.remove(index);
 				}
 				// Only retain variables that were in the original indices
-				indexes.retainAll(indexExpressionsSet);		
+				indexes.retainAll(indicesSet);		
 				
 				if (indexes.size() == 0) {
 					conjunctsWithNoLinksToIndices.addAll(indexesToConjuncts.getValue());	
@@ -988,6 +945,34 @@ public class CardinalityUtil {
 		}
 			
 		return result;
+	}
+
+	private static void collectConjunctToItsVariablesMapAndDisjointSetsOfVariables(List<Expression> conjuncts, Map<Expression, List<Expression>> fromConjunctToItsVariables, Set<Expression> knownVariables, DisjointSets<Expression> disjointVariableSets, RewritingProcess process) {
+		for (Expression conjunct : conjuncts) {
+			Set<Expression> variablesInConjunct = Expressions.freeVariables(conjunct, process);
+			fromConjunctToItsVariables.put(conjunct, new ArrayList<Expression>(variablesInConjunct));
+			Expression first = null;
+			for (Expression variable : variablesInConjunct) {
+				// Also set up disjoint sets for variables
+				// not in the indices (i.e. free).
+				if (!knownVariables.contains(variable)) {
+					disjointVariableSets.makeSet(variable);
+					knownVariables.add(variable);
+				}
+				
+				// Now handle the unioning of variables that
+				// occur in the same conjunct.
+				if (first == null) {
+					first = variable;
+				}
+				else {
+					// Union the first variable with all of the
+					// other variables (DisjointSets handles
+					// transitive closure).
+					disjointVariableSets.union(first, variable);
+				}
+			}
+		}
 	}
 
 	private static Rewriter ifThenElseRemover;

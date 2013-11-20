@@ -215,6 +215,7 @@ public class IndexExpressions {
 		result.add(new Pair<Expression, List<Integer>>(subExpression, subExpressionPath));
 	}
 
+	/** Return a list of indexes from a list of index expressions. */
 	public static List<Expression> getIndices(List<Expression> indexExpressions) {
 		List<Expression> result = Util.mapIntoList(indexExpressions, new GetIndex());
 		return result;

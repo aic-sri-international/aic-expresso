@@ -523,6 +523,14 @@ public class GrinderUtil {
 	}
 
 	/**
+	 * Same as {@link #extendContextualVariablesWithIndexExpressions(Collection<Expression>, RewritingProcess)},
+	 * but given a single index expression only.
+	 */
+	public static RewritingProcess extendContextualVariablesWithIndexExpression(Expression indexExpression, RewritingProcess process) {
+		return extendContextualVariablesWithIndexExpressions(Util.list(indexExpression), process);
+	}
+
+	/**
 	 * Extend the rewriting processes's contextual variables and constraints
 	 * with the indices and condition from an intensionally defined set.
 	 * 
