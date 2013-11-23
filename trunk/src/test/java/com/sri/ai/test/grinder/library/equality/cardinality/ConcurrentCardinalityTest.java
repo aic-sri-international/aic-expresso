@@ -104,6 +104,21 @@ public class ConcurrentCardinalityTest extends AbstractGrinderTest {
 		int n = 10;
 		
 		TestData[] tests = new TestData[] {
+				// Tests with domain types
+				new CardinalityData(
+						"|{{(on X in People) tuple(X) | for all Y : Y != a => X=a}}|",
+						"1",
+						new CountsDeclaration(n)),
+				new CardinalityData(
+						"|{{(on X in People, Y in People, Z in People) 5 | X!=Y or X!=Z or Y!=Z}}|",
+						str(n*n*n - n),
+						new CountsDeclaration(n)),
+					new CardinalityData(
+						"|{{(on X in People) 1 | X != X}}|",
+						str(0),
+						new CountsDeclaration(n)),
+						
+				// Tests without domain types
 				new CardinalityData(
 					"|{{(on X) tuple(X) | for all Y : Y != a => X=a}}|",
 					"1",
