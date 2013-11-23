@@ -43,6 +43,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
@@ -83,10 +84,11 @@ public class CardinalityImplication extends AbstractHierarchicalRewriter impleme
 		// 
 		CardinalityUtil.assertIsCardinalityOfIndexedFormulaExpression(cardinalityOfIndexedFormulaExpression);
 		// | {(on x1,..., xn)(x1, ..., xn) | F} |
-		Expression       intensionalSet = cardinalityOfIndexedFormulaExpression.get(0);
-		Expression       f              = IntensionalSet.getCondition(intensionalSet);
-		List<Expression> indices        = IntensionalSet.getIndexExpressions(intensionalSet);
-		Expression[]     indicesAsArray = indices.toArray(new Expression[indices.size()]);
+		Expression       intensionalSet          = cardinalityOfIndexedFormulaExpression.get(0);
+		Expression       f                       = IntensionalSet.getCondition(intensionalSet);
+		List<Expression> indexExpressions        = IntensionalSet.getIndexExpressions(intensionalSet);
+		Expression[]     indexExpressionsAsArray = indexExpressions.toArray(new Expression[indexExpressions.size()]);
+		RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(intensionalSet, process);
 		
 		CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
 		if (quantification == null) {
@@ -99,15 +101,15 @@ public class CardinalityImplication extends AbstractHierarchicalRewriter impleme
 			Expression h = f.get(1);
 			
 			Trace.log("    G <- R_top_simplify(G)");
-			g = process.rewrite(R_top_simplify, g);
+			g = subProcess.rewrite(R_top_simplify, g);
 			Trace.log("    H <- R_top_simplify(H)");
-			h = process.rewrite(R_top_simplify, h);
+			h = subProcess.rewrite(R_top_simplify, h);
 			
 			Trace.log("    return R_card( | R_top_simplify_disjunction(not G or H) |_X, quantification)");
 			Expression notGOrH           = CardinalityUtil.makeOr(CardinalityUtil.makeNot(g), h);
-			Expression simplifiedNotGOrH = process.rewrite(R_top_simplify_disjunction, notGOrH);
+			Expression simplifiedNotGOrH = subProcess.rewrite(R_top_simplify_disjunction, notGOrH);
 			
-			Expression cardNotGOrHIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(simplifiedNotGOrH, indicesAsArray);
+			Expression cardNotGOrHIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(simplifiedNotGOrH, indexExpressionsAsArray);
 			result = process.rewrite(R_card,
 						CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardNotGOrHIndexedByX, quantification));
 		} 

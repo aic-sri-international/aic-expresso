@@ -55,10 +55,8 @@ import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.BooleanUtil;
-import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
-import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter.Quantification;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.FromConditionalFormulaToFormula;
@@ -135,36 +133,6 @@ public class CardinalityUtil {
 		return result;
 	}
 	
-	public static Expression getForAllIndex(Expression expression) {
-		Expression result = null;
-		
-		if (ForAll.isForAll(expression)) {
-			result = ForAll.getIndex(expression);
-			// TODO - remove when direct cardinality logic can handle
-			// 'X in Domain' expressions
-			if (result.hasFunctor("in") && result.numberOfArguments() == 2) {
-				result = result.get(0);
-			}
-		}
-		
-		return result;
-	}
-	
-	public static Expression getThereExistsIndex(Expression expression) {
-		Expression result = null;
-		
-		if (ThereExists.isThereExists(expression)) {
-			result = ThereExists.getIndex(expression);
-			// TODO - remove when direct cardinality logic can handle
-			// 'X in Domain' expressions
-			if (result.hasFunctor("in") && result.numberOfArguments() == 2) {
-				result = result.get(0);
-			}
-		}
-		
-		return result;
-	}
-
 	/**
 	 * Let F be a quantifier formula in L. Let |F|_{I1, ..., In} denote the
 	 * cardinality of the set {(on I1,..., In) (x1, ..., xn) | F},
@@ -580,8 +548,8 @@ public class CardinalityUtil {
 	 * @param f
 	 *            the expression F to be tested for whether or not it is a
 	 *            disjunction that is partitioned on indices.
-	 * @param indices
-	 *            the indices to partition F on.
+	 * @param indexExpressions
+	 *            the index expressions, on which indices to partition F on.
 	 * @param process
 	 *            the process in which the rewriting is occurring.
 	 * @return a list of independent problems of the form Pair<Set<Expression>,
@@ -593,12 +561,12 @@ public class CardinalityUtil {
 	 *         the first partition may be one with no indices. If the first partition
 	 *         has no indices, then there will be at most 2 other partitions with indices.
 	 */
-	public static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblemsInDisjunction(Expression f, List<Expression> indices, RewritingProcess process) {
+	public static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblemsInDisjunction(Expression f, List<Expression> indexExpressions, RewritingProcess process) {
 		List<Pair<Set<Expression>, List<Expression>>> result = null;
 		if ( Or.isDisjunction(f) ) {
 			List<Expression> subFormulas = new ArrayList<Expression>();
 			subFormulas.addAll(f.getArguments());
-			result = findIndependentProblems(subFormulas, indices, process);		
+			result = findIndependentProblems(subFormulas, indexExpressions, process);		
 			// For a disjunction, we can have at most three partitions: one partition with no indices, and at most two disjoint partitions:
 			if ( result.size() > 1 ) {
 				Integer emptyIndex = -1, maxIndex = -1, maxElements = -1;

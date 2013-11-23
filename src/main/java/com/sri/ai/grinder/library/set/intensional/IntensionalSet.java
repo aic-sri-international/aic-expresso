@@ -144,7 +144,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 				Expression conditionToUseAfterSubstitution =
 					SemanticSubstitute.replace(IntensionalSet.getCondition(intensionalSet), indexValueExpression, value, process);
 				List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
-				indexExpressions = Util.listCopyWithoutSatisfyingElementOrNull(indexExpressions, new IndexExpressions.IndexExpressionHasIndex(indexValueExpression));
+				indexExpressions = Util.listCopyWithoutSatisfyingElementOrNull(indexExpressions, new IndexExpressions.HasIndex(indexValueExpression));
 				// at some point we should look for occurrences of the index in the domain of the other indices.
 				Expression result1 =
 					IntensionalSet.makeSetFromIndexExpressionsList(Sets.getLabel(intensionalSet), indexExpressions, newHead, conditionToUseAfterSubstitution);
@@ -167,7 +167,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		Expression conditionToUseAfterSubstitution =
 			SemanticSubstitute.replace(conditionToUseBeforeSubstitution, indexValueExpression, value, process);
 		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
-		indexExpressions = Util.listCopyWithoutSatisfyingElementOrNull(indexExpressions, new IndexExpressions.IndexExpressionHasIndex(indexValueExpression));
+		indexExpressions = Util.listCopyWithoutSatisfyingElementOrNull(indexExpressions, new IndexExpressions.HasIndex(indexValueExpression));
 		// at some point we should look for occurrences of the index in the domain of the other indices.
 		Expression result =
 			IntensionalSet.makeSetFromIndexExpressionsList(Sets.getLabel(intensionalSet), indexExpressions, newHead, conditionToUseAfterSubstitution);

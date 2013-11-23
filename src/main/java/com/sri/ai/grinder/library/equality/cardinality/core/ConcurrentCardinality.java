@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -65,6 +66,7 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
@@ -94,13 +96,11 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 			Expression theSet = expression.get(0);
 			if ( Sets.isIntensionalSet(theSet) ) {
 				Expression             condition = IntensionalSet.getCondition(theSet);
-				Collection<Expression> indices   = IntensionalSet.getIndices(theSet);
+				Collection<Expression> indexExpressions   = IntensionalSet.getIndexExpressions(theSet);
 				RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(theSet, process);
-				HashSet<Expression> indicesSet = new HashSet<Expression>();
-				for (Expression index: indices) indicesSet.add(index);
-				//condition = basic.rewrite(condition, process);
-				result = cardinalityCompute(condition, indicesSet, subProcess);
-				result = subProcess.rewrite(CardinalityRewriter.R_complete_normalize, result);
+				HashSet<Expression> indexExpressionsSet = new HashSet<Expression>(indexExpressions);
+				result = cardinalityCompute(condition, indexExpressionsSet, subProcess);
+				result = process.rewrite(CardinalityRewriter.R_complete_normalize, result);
 			} 
 			else if ( Sets.isExtensionalSet(theSet) ) {
 				result = rCardinalityExtensionalSet.rewrite(theSet, process);
@@ -116,23 +116,23 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 
 	}
 
-	private Expression cardinalityCompute(Expression condition, Set<Expression> indices, RewritingProcess process) {
+	private Expression cardinalityCompute(Expression condition, Set<Expression> indexExpressions, RewritingProcess process) {
 		Expression result = null;
 		Set<Expression> freeVariables = Expressions.freeVariables(condition, process);
 		Set<Expression> intersectionOfFreeAndIndices = new HashSet<Expression>(freeVariables);
-		intersectionOfFreeAndIndices.retainAll(indices); // The intersection of the two sets
+		intersectionOfFreeAndIndices.retainAll(IndexExpressions.getIndices(new LinkedList<Expression>(indexExpressions))); // The intersection of the two sets
 		if ( intersectionOfFreeAndIndices.isEmpty() ) {
-			result = cardinalityIndependentCondition( condition, indices, process);
+			result = cardinalityIndependentCondition( condition, indexExpressions, process);
 		} 
 		else {
 			if ( BooleanUtil.isEquality(condition) ) {
-				if ( indices.size() == 0 ) {
-					result = cardinalityIndependentCondition( Expressions.TRUE, indices, process);
+				if ( indexExpressions.size() == 0 ) {
+					result = cardinalityIndependentCondition( Expressions.TRUE, indexExpressions, process);
 				} 
-				else if ( indices.size() == 1 ) {
+				else if ( indexExpressions.size() == 1 ) {
 					Expression simplified = process.rewrite(CardinalityRewriter.R_complete_normalize, condition);
 					if ( Expressions.TRUE.equals(simplified) ) {
-						result = cardinalityIndependentCondition(Expressions.TRUE, indices, process);
+						result = cardinalityIndependentCondition(Expressions.TRUE, indexExpressions, process);
 					} 
 					else {
 						result = Expressions.ONE;
@@ -141,8 +141,8 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 				else {
 					Iterator<Expression> it = intersectionOfFreeAndIndices.iterator();
 					Expression term1 = it.next();
-					indices.remove(term1);
-					result = cardinalityIndependentCondition(Expressions.TRUE, indices, process);
+					Util.removeElementsSatisfying(indexExpressions, new IndexExpressions.HasIndex(term1));
+					result = cardinalityIndependentCondition(Expressions.TRUE, indexExpressions, process);
 				}
 			} 
 			else if ( BooleanUtil.isNotEquality(condition) ) {
@@ -151,52 +151,52 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 					result = Expressions.ZERO;
 				} 
 				else {
-					Expression max = cardinalityIndependentCondition( Expressions.TRUE, indices, process);
+					Expression max = cardinalityIndependentCondition( Expressions.TRUE, indexExpressions, process);
 					Iterator<Expression> it = intersectionOfFreeAndIndices.iterator();
 					Expression term1 = it.next();
-					indices.remove(term1);
-					Expression remainder = cardinalityIndependentCondition( Expressions.TRUE, indices, process);
+					Util.removeElementsSatisfying(indexExpressions, new IndexExpressions.HasIndex(term1));
+					Expression remainder = cardinalityIndependentCondition( Expressions.TRUE, indexExpressions, process);
 					result = Minus.make(max, remainder);
 				}
 			} 
 			else if ( BooleanUtil.isMultiEquality(condition) ) {
 				condition = BooleanUtil.expandMultiEquality(condition, condition.get(0));
-				result = cardinalityOfConjunction(condition, indices, process);
+				result = cardinalityOfConjunction(condition, indexExpressions, process);
 			} 
 			else if ( BooleanUtil.isConjunction(condition) ) {
-				result = cardinalityOfConjunction(condition, indices, process);
+				result = cardinalityOfConjunction(condition, indexExpressions, process);
 			} 
 			else if ( BooleanUtil.isDisjunction(condition) ) {
-				result = cardinalityOfDisjunction(condition, indices, process);
+				result = cardinalityOfDisjunction(condition, indexExpressions, process);
 			} 
 			else if ( BooleanUtil.isImplication(condition) ) {
-				result = cardinalityOfImplication(condition, indices, process);
+				result = cardinalityOfImplication(condition, indexExpressions, process);
 			} 
 			else if ( BooleanUtil.isEquivalence(condition) ) {
-				result = cardinalityOfEquivalence(condition, indices, process);
+				result = cardinalityOfEquivalence(condition, indexExpressions, process);
 			} 
 			else if ( BooleanUtil.isNegation(condition) ) {
-				result = cardinalityOfNegation(condition, indices, process);
+				result = cardinalityOfNegation(condition, indexExpressions, process);
 			} 
 			else if ( ForAll.isForAll(condition) ) {
-				Expression variable = ForAll.getIndex(condition);
-				Expression body     = ForAll.getBody(condition);
-				HashSet<Expression> newIndex = new HashSet<Expression>();
-				newIndex.add(variable);
+				Expression indexExpression = ForAll.getIndexExpression(condition);
+				Expression body            = ForAll.getBody(condition);
+				HashSet<Expression> newIndexExpression = new HashSet<Expression>();
+				newIndexExpression.add(indexExpression);
 				RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIndexExpressions(Util.list(ForAll.getIndexExpression(condition)), process);
-				Expression allCard = cardinalityCompute(body, newIndex, subProcess);
-				Expression newCondition = process.rewrite(CardinalityRewriter.R_complete_normalize, Equality.make(allCard, sizeof(variable, process)));
-				result = cardinalityCompute(newCondition, indices, process);				
+				Expression allCard = cardinalityCompute(body, newIndexExpression, subProcess);
+				Expression newCondition = process.rewrite(CardinalityRewriter.R_complete_normalize, Equality.make(allCard, sizeof(indexExpression, process)));
+				result = cardinalityCompute(newCondition, indexExpressions, process);				
 			} 
 			else if ( ThereExists.isThereExists(condition) ) {
-				Expression variable = ThereExists.getIndex(condition);
-				Expression body     = ThereExists.getBody(condition);
-				HashSet<Expression> newIndex = new HashSet<Expression>();
-				newIndex.add(variable);
+				Expression indexExpression = ThereExists.getIndexExpression(condition);
+				Expression body            = ThereExists.getBody(condition);
+				HashSet<Expression> newIndexExpression = new HashSet<Expression>();
+				newIndexExpression.add(indexExpression);
 				RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIndexExpressions(Util.list(ForAll.getIndexExpression(condition)), process);
-				Expression existCard = cardinalityCompute(body, newIndex, subProcess);
+				Expression existCard = cardinalityCompute(body, newIndexExpression, subProcess);
 				Expression newCondition = process.rewrite(CardinalityRewriter.R_complete_normalize, Disequality.make(existCard, Expressions.ZERO));
-				result = cardinalityCompute(newCondition, indices, process);
+				result = cardinalityCompute(newCondition, indexExpressions, process);
 			} 
 			else if ( IfThenElse.isIfThenElse(condition) ) {
 				Expression conditionCondition = IfThenElse.getCondition(condition);
@@ -204,32 +204,30 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 				Expression elseCondition = IfThenElse.getElseBranch(condition);
 				Expression conditionAndThen = And.make(conditionCondition, thenCondition);
 				Expression conditionAndElse = And.make(Not.make(conditionCondition), elseCondition);
-				Expression thenCard = cardinalityCompute(conditionAndThen, duplicate(indices), process);
-				Expression elseCard = cardinalityCompute(conditionAndElse, duplicate(indices), process);
+				Expression thenCard = cardinalityCompute(conditionAndThen, duplicate(indexExpressions), process);
+				Expression elseCard = cardinalityCompute(conditionAndElse, duplicate(indexExpressions), process);
 				ArrayList<Expression> plusArguments = new ArrayList<Expression>();
 				plusArguments.add(thenCard);
 				plusArguments.add(elseCard);
 				result = Plus.make(plusArguments);
 			}
 		}
-		//System.out.println("For " + condition + " and " + indices + " I computed this:");
-		//System.out.println("\t" + result);
 		return result;
 	}
 	
-	private Expression cardinalityOfConjunction(Expression condition, Set<Expression> indices, RewritingProcess process) {
+	private Expression cardinalityOfConjunction(Expression condition, Set<Expression> indexExpressions, RewritingProcess process) {
 		Expression result = null;
 
 		List<Expression> conjuncts = condition.getArguments();
 		if ( conjuncts.isEmpty() ) {
-			return cardinalityIndependentCondition( Expressions.TRUE, indices, process);
+			return cardinalityIndependentCondition( Expressions.TRUE, indexExpressions, process);
 		}
 		
 		List<Expression> independentConjuncts = new ArrayList<Expression>();
 		List<Expression> dependentConjuncts = new ArrayList<Expression>();
 		for (Expression arg: conjuncts) {
 			Set<Expression> freeVariables = Expressions.freeVariables(arg, process);
-			Set<Expression> intersectionOfFreeAndIndices = duplicate(indices);
+			Set<Expression> intersectionOfFreeAndIndices = duplicate(IndexExpressions.getIndices(indexExpressions));
 			intersectionOfFreeAndIndices.retainAll(freeVariables); // The intersection of the two sets	
 			if ( intersectionOfFreeAndIndices.isEmpty() ) {
 				if ( !independentConjuncts.contains(arg) ) {
@@ -245,13 +243,13 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 		
 		Expression dependentCardinality = null;
 		if ( dependentConjuncts.isEmpty() ) {
-			dependentCardinality = cardinalityCompute(Expressions.TRUE, duplicate(indices), process);
+			dependentCardinality = cardinalityCompute(Expressions.TRUE, duplicate(indexExpressions), process);
 		} 
 		else if ( dependentConjuncts.size() == 1 ) {
-			dependentCardinality = cardinalityCompute(dependentConjuncts.get(0), duplicate(indices), process);
+			dependentCardinality = cardinalityCompute(dependentConjuncts.get(0), duplicate(indexExpressions), process);
 		} 
 		else {
-			dependentCardinality = cardinalityOfConjunctionVariableInAllConjuncts(And.make(dependentConjuncts), duplicate(indices), process);
+			dependentCardinality = cardinalityOfConjunctionVariableInAllConjuncts(And.make(dependentConjuncts), duplicate(indexExpressions), process);
 		}
 		
 		if ( independentConjuncts.isEmpty() ) {
@@ -264,7 +262,7 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 		return result;
 	}
 	
-	private Expression cardinalityOfConjunctionVariableInAllConjuncts(Expression condition, Set<Expression> indices, RewritingProcess process) {
+	private Expression cardinalityOfConjunctionVariableInAllConjuncts(Expression condition, Set<Expression> indexExpressions, RewritingProcess process) {
 		Expression result = null;
 		List<Expression> conjuncts = new ArrayList<Expression>(condition.getArguments());
 		int counter = 0, firstGoodEquality = -1, lastDisjunction = -1;
@@ -289,7 +287,7 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 			}
 			List<Expression> terms = equality.getArguments();
 			Expression replaceVar, replacedBy;
-			if ( indices.contains(terms.get(0)) ) {
+			if ( IndexExpressions.indexExpressionsContainIndex(indexExpressions, terms.get(0)) ) {
 				replaceVar = terms.get(0);
 				replacedBy = terms.get(1);
 			} 
@@ -300,13 +298,13 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 			conjuncts.remove(firstGoodEquality);
 			Expression newConjunction = And.make(conjuncts);
 			Expression newCondition = SemanticSubstitute.replace(newConjunction, replaceVar, replacedBy, process);
-			indices.remove(replaceVar);
-			result = cardinalityCompute(newCondition, indices, process);
+			Util.removeElementsSatisfying(indexExpressions, new IndexExpressions.HasIndex(replaceVar));
+			result = cardinalityCompute(newCondition, indexExpressions, process);
 		} 
 		else if ( lastDisjunction > -1 ) {
 			
 			ArrayList<Expression> otherConjuncts = new ArrayList<Expression>();
-			for (int index = 0; index<conjuncts.size(); index++) {
+			for (int index = 0; index < conjuncts.size(); index++) {
 				if ( index != lastDisjunction ) {
 					otherConjuncts.add(conjuncts.get(index));
 				}
@@ -321,14 +319,14 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 			}
 			Expression newDisjunct = DefaultCompoundSyntaxTree.make(Or.FUNCTOR, newDisjunctsArgs);
 			
-			result = cardinalityCompute(newDisjunct, indices, process);
+			result = cardinalityCompute(newDisjunct, indexExpressions, process);
 		} 
-		else { // All diseqialities
+		else { // All disequalities
 			boolean negateThemAll = true;
 			if ( negateThemAll ) {
 				Expression negation = process.rewrite(CardinalityRewriter.R_move_not_in, Not.make(condition));
-				Expression negationCard = cardinalityCompute(negation, duplicate(indices), process);
-				Expression max = cardinalityIndependentCondition( Expressions.TRUE, indices, process);
+				Expression negationCard = cardinalityCompute(negation, duplicate(indexExpressions), process);
+				Expression max = cardinalityIndependentCondition( Expressions.TRUE, indexExpressions, process);
 				result = Minus.make(max, negationCard);
 			} 
 			else { // negate the first one, and attach to the second one.
@@ -338,14 +336,14 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 				Expression c1 = And.make(rest);
 				Expression c1Card = null;
 				if ( BooleanUtil.isLiteral(c1) ) {
-					c1Card = cardinalityCompute(c1, duplicate(indices), process);
+					c1Card = cardinalityCompute(c1, duplicate(indexExpressions), process);
 				} 
 				else {
-					c1Card = cardinalityOfConjunctionVariableInAllConjuncts(c1, duplicate(indices), process);
+					c1Card = cardinalityOfConjunctionVariableInAllConjuncts(c1, duplicate(indexExpressions), process);
 				}
 				rest.add(0, nFirst);
 				Expression c2 = And.make(rest);
-				Expression c2Card = cardinalityOfConjunctionVariableInAllConjuncts(c2, duplicate(indices), process);
+				Expression c2Card = cardinalityOfConjunctionVariableInAllConjuncts(c2, duplicate(indexExpressions), process);
 				result = Minus.make(c1Card, c2Card);
 			}
 		}
@@ -354,7 +352,7 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 		return result;
 	}
 	
-	private Expression cardinalityOfDisjunction(Expression condition, Set<Expression> indices, RewritingProcess process) { 
+	private Expression cardinalityOfDisjunction(Expression condition, Set<Expression> indexExpressions, RewritingProcess process) { 
 		Expression result = null;
 		List<Expression> disjuncts = condition.getArguments();
 		List<Expression> independentDisjuncts = new ArrayList<Expression>();
@@ -362,7 +360,7 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 		
 		for (Expression disjunct: disjuncts) {
 			Set<Expression> freeVariables = Expressions.freeVariables(disjunct, process);
-			Set<Expression> intersectionOfFreeAndIndices = duplicate(indices);
+			Set<Expression> intersectionOfFreeAndIndices = duplicate(IndexExpressions.getIndices(indexExpressions));
 			intersectionOfFreeAndIndices.retainAll(freeVariables); // The intersection of the two sets	
 			
 			if ( intersectionOfFreeAndIndices.isEmpty() ) {
@@ -377,23 +375,23 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 			dependentCardinality = Expressions.ZERO;
 		} 
 		else if ( dependentDisjuncts.size()==1 ) {
-			dependentCardinality = cardinalityCompute(dependentDisjuncts.get(0), indices, process);
+			dependentCardinality = cardinalityCompute(dependentDisjuncts.get(0), indexExpressions, process);
 		} 
 		else {
-			dependentCardinality = cardinalityOfDisjunctionVariableInAllDisjuncts(Or.make(dependentDisjuncts), indices, process);
+			dependentCardinality = cardinalityOfDisjunctionVariableInAllDisjuncts(Or.make(dependentDisjuncts), indexExpressions, process);
 		}
 		if ( independentDisjuncts.isEmpty() ) {
 			result = dependentCardinality;
 		} 
 		else {
-			Expression whenTrueCardinality = cardinalityIndependentCondition( Expressions.TRUE, indices, process);
+			Expression whenTrueCardinality = cardinalityIndependentCondition( Expressions.TRUE, indexExpressions, process);
 			result = IfThenElse.make(Or.make(independentDisjuncts), whenTrueCardinality, dependentCardinality);
 		}		
 		return result;
 	}
 
 	
-	private Expression cardinalityOfDisjunctionVariableInAllDisjuncts(Expression condition, Set<Expression> indices, RewritingProcess process) {
+	private Expression cardinalityOfDisjunctionVariableInAllDisjuncts(Expression condition, Set<Expression> indexExpressions, RewritingProcess process) {
 		Expression result = null;
 		List<Expression> disjuncts = condition.getArguments();
 		boolean useNegation = false;
@@ -405,8 +403,8 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 		}
 		if ( useNegation ) {
 			Expression negation = process.rewrite(CardinalityRewriter.R_move_not_in, Not.make(condition));
-			Expression trueCardinality = cardinalityIndependentCondition(Expressions.TRUE, indices, process);
-			Expression negationCard = cardinalityOfConjunctionVariableInAllConjuncts(negation, indices, process);
+			Expression trueCardinality = cardinalityIndependentCondition(Expressions.TRUE, indexExpressions, process);
+			Expression negationCard = cardinalityOfConjunctionVariableInAllConjuncts(negation, indexExpressions, process);
 			result = Minus.make(trueCardinality, negationCard);
 		} 
 		else {
@@ -422,9 +420,9 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 			}
 			newAnd = simplifyTop(newAnd, process);
 			//System.out.println("newAnd is " + newAnd);
-			Expression card1 = cardinalityCompute(first, duplicate(indices), process); 
-			Expression card2 = cardinalityCompute(newOr, duplicate(indices), process); 
-			Expression card3 = cardinalityCompute(newAnd, duplicate(indices), process); 
+			Expression card1 = cardinalityCompute(first, duplicate(indexExpressions), process); 
+			Expression card2 = cardinalityCompute(newOr, duplicate(indexExpressions), process); 
+			Expression card3 = cardinalityCompute(newAnd, duplicate(indexExpressions), process); 
 			Expression c1c2 = Expressions.make("+", card1, card2);
 			result = Minus.make(c1c2, card3);
 		}
@@ -432,25 +430,25 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 		return result;
 	}
 	
-	private Expression cardinalityOfNegation(Expression condition, Set<Expression> indices, RewritingProcess process) {
+	private Expression cardinalityOfNegation(Expression condition, Set<Expression> indexExpressions, RewritingProcess process) {
 		Expression result = null;
 		Expression innerFormula = condition.get(0);
-		Expression max = cardinalityIndependentCondition(Expressions.TRUE, indices, process);
-		Expression innerCard = cardinalityCompute(innerFormula, indices, process);
+		Expression max = cardinalityIndependentCondition(Expressions.TRUE, indexExpressions, process);
+		Expression innerCard = cardinalityCompute(innerFormula, indexExpressions, process);
 		result = process.rewrite(CardinalityRewriter.R_complete_normalize, Minus.make(max, innerCard));
 		return result;
 	}
 	
-	private Expression cardinalityOfImplication(Expression condition, Set<Expression> indices, RewritingProcess process) {
+	private Expression cardinalityOfImplication(Expression condition, Set<Expression> indexExpressions, RewritingProcess process) {
 		Expression first  = Not.make(condition.get(0));
 		Expression second = condition.get(1);
 		Expression newOr = Or.make(first, second);
 		
-		Expression result = cardinalityOfDisjunction(newOr, indices, process);
+		Expression result = cardinalityOfDisjunction(newOr, indexExpressions, process);
 		return result;
 	}
 
-	private Expression cardinalityOfEquivalence(Expression condition, Set<Expression> indices, RewritingProcess process) {
+	private Expression cardinalityOfEquivalence(Expression condition, Set<Expression> indexExpressions, RewritingProcess process) {
 		Expression left  = condition.get(0);
 		Expression right = condition.get(1);
 		Expression first = And.make(left, right);
@@ -458,37 +456,37 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 		//Expression second = And.make(Not.make(left), Not.make(right));
 		Expression second = Not.make(Or.make(left, right));
 		
-		Expression firstCard  = cardinalityOfConjunction(first, duplicate(indices), process);
-		Expression secondCard = cardinalityOfNegation(second, duplicate(indices), process);
+		Expression firstCard  = cardinalityOfConjunction(first, duplicate(indexExpressions), process);
+		Expression secondCard = cardinalityOfNegation(second, duplicate(indexExpressions), process);
 		
 		
 		Expression result = process.rewrite(CardinalityRewriter.R_complete_normalize, Expressions.apply("+", firstCard, secondCard));
 		return result;
 	}
 	
-	private Expression cardinalityIndependentCondition(Expression condition, Set<Expression> indices, RewritingProcess process) {
+	private Expression cardinalityIndependentCondition(Expression condition, Set<Expression> indexExpressions, RewritingProcess process) {
 		Expression result = null;
-		int size = indices.size();
+		int size = indexExpressions.size();
 		if ( size == 0 ) {
 			result = Expressions.ONE;
 		} 
 		else if ( size == 1 ) {
-			Expression var = indices.iterator().next();
-			result = sizeof(var, process);
+			Expression indexExpression = indexExpressions.iterator().next();
+			result = sizeof(indexExpression, process);
 		} 
 		else {
 			ArrayList<Expression> elements = new ArrayList<Expression>();
-			for (Expression var: indices) {
-				elements.add(sizeof(var, process));
+			for (Expression indexExpression: indexExpressions) {
+				elements.add(sizeof(indexExpression, process));
 			}
 			result = Times.make(elements);
 		}
 		
 		//
-		if ( Expressions.TRUE.equals(condition) ) {
+		if ( condition.equals(Expressions.TRUE) ) {
 			// TODO ?
 		} 
-		else if ( Expressions.FALSE.equals(condition) ) {
+		else if ( condition.equals(Expressions.FALSE) ) {
 			result = Expressions.ZERO;
 		} 
 		else {
@@ -498,8 +496,15 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 		return result;
 	}
 	
-	public Expression sizeof(Expression var, RewritingProcess process) {
-		Expression card = Expressions.apply(FunctorConstants.CARDINALITY, var);
+	public Expression sizeof(Expression indexExpression, RewritingProcess process) {
+		Expression domain;
+		if (indexExpression.hasFunctor(FunctorConstants.IN)) {
+			domain = indexExpression.get(1);
+		}
+		else {
+			domain = Expressions.apply("type", indexExpression);
+		}
+		Expression card = Expressions.apply(FunctorConstants.CARDINALITY, domain);
 		Expression result = cardLogical.rewrite(card, process);
 		return result;
 	}
@@ -508,8 +513,8 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 		return "R_card_concurrent";
 	}
 	
-	private Set<Expression> duplicate(Set<Expression> indices) {
-		return new HashSet<Expression>(indices);
+	private Set<Expression> duplicate(Set<Expression> indexExpressions) {
+		return new HashSet<Expression>(indexExpressions);
 	}
 	
 	private Expression simplifyTop(Expression expression, RewritingProcess process) {
