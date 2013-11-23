@@ -46,12 +46,14 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
@@ -104,10 +106,12 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 		// 
 		CardinalityUtil.assertIsCardinalityOfIndexedFormulaExpression(cardinalityOfIndexedFormulaExpression);
 		// | {(on x1,..., xn)(x1, ..., xn) | F} |
-		Expression       intensionalSet = cardinalityOfIndexedFormulaExpression.get(0);
-		Expression       f              = IntensionalSet.getCondition(intensionalSet);
-		List<Expression> indices        = IntensionalSet.getIndexExpressions(intensionalSet);
-		Expression[]     indicesAsArray = indices.toArray(new Expression[indices.size()]);
+		Expression       intensionalSet   = cardinalityOfIndexedFormulaExpression.get(0);
+		Expression       f                = IntensionalSet.getCondition(intensionalSet);
+		List<Expression> indices          = IntensionalSet.getIndexExpressions(intensionalSet);
+		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
+		Expression[]     indexExpressionsAsArray   = indices.toArray(new Expression[indices.size()]);
+		RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(intensionalSet, process);
 		
 		CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
 		if (quantification == null) {
@@ -118,8 +122,8 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 			throw new IllegalArgumentException("Input argument assumption F is of the form F1 or F2 does not hold:"+f);
 		}
 		
-		Expression cardIndexX = CardinalityUtil.makeCardinalityOfIndexExpressions(indicesAsArray);
-		List<Pair<Set<Expression>, List<Expression>>> independentProblems = CardinalityUtil.findIndependentProblemsInDisjunction(f, indices, process);
+		Expression cardIndexX = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressionsAsArray);
+		List<Pair<Set<Expression>, List<Expression>>> independentProblems = CardinalityUtil.findIndependentProblemsInDisjunction(f, indexExpressions, subProcess);
 		
 		if ( independentProblems.isEmpty() ) {
 			//
@@ -128,9 +132,9 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 			// | F1 or F2 |_x = | F1 |_x + | F2 |_x - | F1 and F2 |_x
 			// but we do not compute it like that, see below for optimized version.
 			
-			// Separate the disjucts that are independent of the index and factor them out
+			// Separate the disjuncts that are independent of the index and factor them out
 			Trace.log("(F1, F2) <- split_disjuncts_on_x(F)");
-			Pair<Expression, Expression> pair = CardinalityUtil.separateIndependentAndDependent(f, indices, Expressions.FALSE, process);
+			Pair<Expression, Expression> pair = CardinalityUtil.separateIndependentAndDependent(f, IndexExpressions.getIndices(indexExpressions), Expressions.FALSE, subProcess);
 			Expression independentDisjunction = pair.first;
 			Expression dependentDisjunction   = pair.second;
 			if ( !Expressions.FALSE.equals(independentDisjunction) ) {
@@ -141,7 +145,7 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 					cardDependentDisjunction = Expressions.ZERO;
 				} 
 				else {
-					Expression dependentDisjunctionCard = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(dependentDisjunction, indicesAsArray);
+					Expression dependentDisjunctionCard = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(dependentDisjunction, indexExpressionsAsArray);
 					cardDependentDisjunction = process.rewrite(R_card,
 													CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(dependentDisjunctionCard, quantification));
 				}
@@ -150,7 +154,7 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 			} 
 			else {
 				Trace.log("if all disjuncts of F have some index variable occurring in them");
-				result = rewriteDisjunctionIndexInAllDisjuncts(f, quantification, indicesAsArray, process);
+				result = rewriteDisjunctionIndexInAllDisjuncts(f, indexExpressionsAsArray, quantification, process);
 			}
 		}
 		else {
@@ -213,9 +217,9 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 		return result;
 	}
 	
-	private Expression rewriteDisjunctionIndexInAllDisjuncts(Expression f, CardinalityRewriter.Quantification quantification, Expression[] indices, RewritingProcess process) {
+	private Expression rewriteDisjunctionIndexInAllDisjuncts(Expression f, Expression[] indexExpressions, CardinalityRewriter.Quantification quantification, RewritingProcess process) {
 		Expression result = null;
-		Expression cardIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indices);
+		Expression cardIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressions);
 		
 		Trace.log("F1 <- first disjunct in F");
 		Expression f1 = CardinalityUtil.getF1FromDisjunction(f);
@@ -233,7 +237,7 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 			Expression notF1AndNotF2 = CardinalityUtil.makeAnd(CardinalityUtil.makeNot(f1), CardinalityUtil.makeNot(f2)); 
 			notF1AndNotF2 = process.rewrite(R_top_simplify_conjunction, notF1AndNotF2);
 			
-			Expression cardNotF1AndNotF2    = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(notF1AndNotF2, indices);
+			Expression cardNotF1AndNotF2    = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(notF1AndNotF2, indexExpressions);
 			Expression resultCard1          = process.rewrite(R_card,
 													CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardNotF1AndNotF2, CardinalityRewriter.Quantification.THERE_EXISTS));
 			Expression resultCard1NotEqual0 = Expressions.make(FunctorConstants.GREATER_THAN, resultCard1, Expressions.ZERO); 
@@ -248,8 +252,8 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 			f2 = sortedPair.second;
 			Trace.log("// f1 = {}, f2 = {}", f1, f2);
 			
-			Expression cardF1x = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(f1, indices);
-			Expression cardF2x = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(f2, indices);
+			Expression cardF1x = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(f1, indexExpressions);
+			Expression cardF2x = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(f2, indexExpressions);
 			// Need to do this to get | type(X) | converted to its known value, e.g.: 10
 			cardIndices = process.rewrite(R_normalize, cardIndices);
 			
@@ -308,7 +312,7 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 				Expression n3 = null;
 				Expression f1Andf2                        = CardinalityUtil.makeAnd(f1, f2);
 				Expression topSimplifiedF1AndF2           = process.rewrite(R_top_simplify_conjunction, f1Andf2);
-				Expression cardTopSimplifiedF1AndF2IndexX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(topSimplifiedF1AndF2, indices);
+				Expression cardTopSimplifiedF1AndF2IndexX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(topSimplifiedF1AndF2, indexExpressions);
 			
 				n3 = process.rewrite(R_card,
 						CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardTopSimplifiedF1AndF2IndexX, quantification));

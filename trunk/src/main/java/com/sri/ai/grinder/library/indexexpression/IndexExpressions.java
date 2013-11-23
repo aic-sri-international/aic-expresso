@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -69,6 +70,11 @@ public class IndexExpressions {
 		return indexExpression;
 	}
 
+	public static boolean indexExpressionsContainIndex(Collection<Expression> indexExpressions, Expression index) {
+		boolean result = Util.findFirst(indexExpressions, new HasIndex(index)) != null;
+		return result;
+	}
+	
 	public static List<Expression> getIndexExpressionsWithType(List<Expression> indexExpressions) {
 		List<Expression> result = Util.replaceElementsNonDestructively(indexExpressions, IndexExpressions.getMakeIndexExpressionWithType());
 		return result;
@@ -132,33 +138,16 @@ public class IndexExpressions {
 	
 		@Override
 		public boolean apply(Expression possibleIndex) {
-			boolean result = Util.thereExists(indexExpressions, new IsIndexExpressionOnIndex(possibleIndex));
+			boolean result = Util.thereExists(indexExpressions, new HasIndex(possibleIndex));
 			return result;
 		}
 	}
 
-	public static class IsIndexExpressionOnIndex implements Predicate<Expression> {
+	public static class HasIndex implements Predicate<Expression> {
 	
 		private Expression index;
 	
-		public IsIndexExpressionOnIndex(Expression index) {
-			super();
-			this.index = index;
-		}
-	
-		@Override
-		public boolean apply(Expression indexExpression) {
-			boolean result = getIndex(indexExpression).equals(index);
-			return result;
-		}
-	
-	}
-
-	public static class IndexExpressionHasIndex implements Predicate<Expression> {
-	
-		private Expression index;
-	
-		public IndexExpressionHasIndex(Expression index) {
+		public HasIndex(Expression index) {
 			this.index = index;
 		}
 	
@@ -218,6 +207,12 @@ public class IndexExpressions {
 	/** Return a list of indexes from a list of index expressions. */
 	public static List<Expression> getIndices(List<Expression> indexExpressions) {
 		List<Expression> result = Util.mapIntoList(indexExpressions, new GetIndex());
+		return result;
+	}
+
+	/** Return a set of indexes from a set of index expressions. */
+	public static Set<Expression> getIndices(Set<Expression> indexExpressions) {
+		Set<Expression> result = Util.mapIntoSet(indexExpressions, new GetIndex());
 		return result;
 	}
 

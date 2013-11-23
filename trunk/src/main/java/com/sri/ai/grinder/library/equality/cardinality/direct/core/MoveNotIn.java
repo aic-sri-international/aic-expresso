@@ -190,20 +190,20 @@ public class MoveNotIn extends AbstractHierarchicalRewriter implements Cardinali
 		else if (ThereExists.isThereExists(notF)) {
 			Trace.log("F is \"not (there exists x G)\"");
 			Trace.log("    return for all x not G");
-			Expression indexX = CardinalityUtil.getThereExistsIndex(notF);
-			Expression g      = ThereExists.getBody(notF);
-			Expression notG   = CardinalityUtil.makeNot(g);
+			Expression indexExpression = ThereExists.getIndexExpression(notF);
+			Expression g               = ThereExists.getBody(notF);
+			Expression notG            = CardinalityUtil.makeNot(g);
 			
-			result = ForAll.make(Arrays.asList(indexX), notG);
+			result = ForAll.make(Arrays.asList(indexExpression), notG);
 		} 
 		else if (ForAll.isForAll(notF)) {
 			Trace.log("F is \"not (for all x G)\"");
 			Trace.log("    return there exists x not G");
-			Expression indexX = CardinalityUtil.getForAllIndex(notF);
-			Expression g      = ForAll.getBody(notF);
-			Expression notG   = CardinalityUtil.makeNot(g);
+			Expression indexExpression = ForAll.getIndexExpression(notF);
+			Expression g               = ForAll.getBody(notF);
+			Expression notG            = CardinalityUtil.makeNot(g);
 			
-			result = ThereExists.make(indexX, notG);
+			result = ThereExists.make(indexExpression, notG);
 		}
 		
 		return result;

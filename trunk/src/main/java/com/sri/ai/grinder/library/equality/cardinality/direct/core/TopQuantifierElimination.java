@@ -76,18 +76,18 @@ public class TopQuantifierElimination extends AbstractHierarchicalRewriter imple
 		Expression result = null;
 		
 		// Assert input arguments, Qx F
-		CardinalityRewriter.Quantification quantification = null;
-		Expression                         indexX         = null;
-		Expression                         f              = null;
+		CardinalityRewriter.Quantification quantification  = null;
+		Expression                         indexExpression = null;
+		Expression                         f               = null;
 		if (ForAll.isForAll(expression)) {
-			quantification = CardinalityRewriter.Quantification.FOR_ALL;
-			indexX         = CardinalityUtil.getForAllIndex(expression);
-			f              = ForAll.getBody(expression);
+			quantification  = CardinalityRewriter.Quantification.FOR_ALL;
+			indexExpression = ForAll.getIndexExpression(expression);
+			f               = ForAll.getBody(expression);
 		} 
 		else if (ThereExists.isThereExists(expression)) {
-			quantification = CardinalityRewriter.Quantification.THERE_EXISTS;
-			indexX         = CardinalityUtil.getThereExistsIndex(expression);
-			f              = ThereExists.getBody(expression);
+			quantification  = CardinalityRewriter.Quantification.THERE_EXISTS;
+			indexExpression = ThereExists.getIndexExpression(expression);
+			f               = ThereExists.getBody(expression);
 		} 
 		else {
 			throw new IllegalArgumentException("Invalid input argument expression, Qx F expected, where Q is a quantifier over x:"+expression);
@@ -105,11 +105,11 @@ public class TopQuantifierElimination extends AbstractHierarchicalRewriter imple
 			Trace.log("    return R_normalize( R_card(|F|_x, Q) > 0)");
 		}
 		
-		Expression cardinalityOfIndexedFormaulaF = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(f, indexX);
+		Expression cardinalityOfIndexedFormaulaF = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(f, indexExpression);
 		Expression resultCard1                   = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardinalityOfIndexedFormaulaF, quantification));
 		
 		if (quantification == CardinalityRewriter.Quantification.FOR_ALL) {
-			Expression cardIndexX            = CardinalityUtil.makeCardinalityOfIndexExpressions(indexX);
+			Expression cardIndexX            = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpression);
 			Expression resultCard1EqualCardX = Equality.make(resultCard1, cardIndexX);
 			
 			result = process.rewrite(R_normalize, resultCard1EqualCardX);

@@ -749,7 +749,7 @@ public class Expressions {
 					result.value = Util.getFirst(remaining);
 					result.indexExpressionsWithoutBoundIndex =
 							Util.removeNonDestructively(
-									indexExpressions, new IndexExpressions.IsIndexExpressionOnIndex(result.index));
+									indexExpressions, new IndexExpressions.HasIndex(result.index));
 					break;
 				}
 			}
