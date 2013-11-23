@@ -53,7 +53,6 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
-import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 
 /**
  * Default implementation of R_quantifier_elimination(F).
@@ -96,10 +95,7 @@ public class QuantifierElimination extends AbstractHierarchicalRewriter implemen
 			RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIndexExpression(indexExpression, process);
 			body = subProcess.rewrite(R_top_simplify, body);
 			
-//			Expression index = indexExpression; // IndexExpressions.getIndex(indexExpression);
-			Expression index = IndexExpressions.getIndex(indexExpression);
-			
-			Expression numberOfSolutionsOfBodyInIndexProblem     = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(body, index);
+			Expression numberOfSolutionsOfBodyInIndexProblem     = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(body, indexExpression);
 			Expression numberOfSolutionsOfBodyInIndexSolution    = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(numberOfSolutionsOfBodyInIndexProblem, CardinalityRewriter.Quantification.FOR_ALL));
 			Expression indexDomainSize                           = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpression);
 			Expression numberOfSolutionsAndDomainSizeMustBeEqual = Equality.make(numberOfSolutionsOfBodyInIndexSolution, indexDomainSize);
@@ -116,17 +112,13 @@ public class QuantifierElimination extends AbstractHierarchicalRewriter implemen
 			RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIndexExpression(indexExpression, process);
 			body = subProcess.rewrite(R_top_simplify, body);
 			
-//			Expression index = indexExpression; // IndexExpressions.getIndex(indexExpression);
-			Expression index = IndexExpressions.getIndex(indexExpression);
-			
-			Expression numberOfSolutionsOfBodyInIndexProblem  = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(body, index);
+			Expression numberOfSolutionsOfBodyInIndexProblem  = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(body, indexExpression);
 			Expression numberOfSolutionsOfBodyInIndexSolution = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(numberOfSolutionsOfBodyInIndexProblem, CardinalityRewriter.Quantification.THERE_EXISTS));
 			Expression numberOfSolutionsMustBeGreaterThanZero = Expressions.make(FunctorConstants.GREATER_THAN, numberOfSolutionsOfBodyInIndexSolution, Expressions.ZERO);
 			
 			result = process.rewrite(R_normalize, numberOfSolutionsMustBeGreaterThanZero);
 		} 
-		else if (expressionF.hasFunctor(FunctorConstants.NOT) &&
-				   expressionF.numberOfArguments() == 1) {
+		else if (expressionF.hasFunctor(FunctorConstants.NOT) && expressionF.numberOfArguments() == 1) {
 			Trace.log("if F is \"not G\"");
 			Trace.log("    return R_quantifier_elimination(R_move_not_in(not G))");
 			
@@ -144,8 +136,7 @@ public class QuantifierElimination extends AbstractHierarchicalRewriter implemen
 			
 			result = process.rewrite(R_quantifier_elimination, topSimplifiedDisjunction);
 		} 
-		else if (expressionF.hasFunctor(FunctorConstants.EQUIVALENCE) &&
-				   expressionF.numberOfArguments() == 2) {
+		else if (expressionF.hasFunctor(FunctorConstants.EQUIVALENCE) && expressionF.numberOfArguments() == 2) {
 			Trace.log("if F is G <=> H");
 			Trace.log("    return R_quantifier_elimination(R_top_simplify_conjunction((not G or H) and (G or not H)))");
 			Expression g                        = expressionF.get(0);
