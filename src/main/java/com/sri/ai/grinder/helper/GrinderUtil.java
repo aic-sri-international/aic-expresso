@@ -756,9 +756,18 @@ public class GrinderUtil {
 	 */
 	public static List<Expression> getIndexExpressionsOfFreeVariablesIn(Expression expression, RewritingProcess process) {
 		Set<Expression> freeVariables = Expressions.freeVariables(expression, process);
+		List<Expression> result = makeIndexExpressionsForIndicesInListAndDomainsInContext(freeVariables, process);
+		return result;
+	}
+
+	/**
+	 * Returns a list of index expressions corresponding to the given indices and their domains per the context, if any.
+	 */
+	public static List<Expression> makeIndexExpressionsForIndicesInListAndDomainsInContext(Collection<Expression> indices, RewritingProcess process) {
 		List<Expression> result = new LinkedList<Expression>();
-		for (Expression freeVariable : freeVariables) {
-			Expression indexExpression = IndexExpressions.makeIndexExpression(freeVariable, process.getContextualVariableDomain(freeVariable));
+		for (Expression index : indices) {
+			Expression domain = process.getContextualVariableDomain(index);
+			Expression indexExpression = IndexExpressions.makeIndexExpression(index, domain);
 			result.add(indexExpression);
 		}
 		return result;

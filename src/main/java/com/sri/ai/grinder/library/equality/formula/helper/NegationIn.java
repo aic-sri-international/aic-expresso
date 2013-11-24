@@ -128,7 +128,7 @@ public class NegationIn extends AbstractRewriter {
 			result = ThereExists.make(ForAll.getIndexExpression(negated), Not.make(ForAll.getBody(negated)));
 		} // not(there exists X : F) -> for all X : not(F)
 		else if (ThereExists.isThereExists(negated)) {
-			result = ForAll.make(ThereExists.getIndex(negated), Not.make(ThereExists.getBody(negated)));
+			result = ForAll.make(ThereExists.getIndexExpression(negated), Not.make(ThereExists.getBody(negated)));
 		}
 		
 		return result;
