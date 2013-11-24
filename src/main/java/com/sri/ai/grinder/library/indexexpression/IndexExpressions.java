@@ -161,7 +161,8 @@ public class IndexExpressions {
 	}
 
 	public static Expression makeIndexExpression(Expression index, Expression domain) {
-		return Expressions.apply("in", index, domain);
+		Expression result = domain == null? index : Expressions.apply("in", index, domain);
+		return result;
 	}
 
 	public static Pair<Expression, Expression> getIndexAndDomain(Expression indexExpression) {

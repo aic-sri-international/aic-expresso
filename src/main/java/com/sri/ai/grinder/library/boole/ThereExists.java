@@ -52,6 +52,8 @@ import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
  */
 @Beta
 public class ThereExists {
+	
+	/* Note: changes in this class's representation must be reflected in {@link QuantifierSubExpressionAndScopedVariableProvider}. */
 
 	public static final String LABEL = "there exists . : .";
 

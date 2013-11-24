@@ -1555,19 +1555,19 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 		
 		expressionString = "{(on X in {1,2,3}, Y in {a,b}) p(X) | X != Y}";
-		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y : X != Y}");
+		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y in {a,b} : X != Y}");
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 		
 		expressionString = "{(on Y in {a,b}, X in {1,2,3}) p(X) | X != Y}";
-		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y : X != Y}");
+		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y in {a,b} : X != Y}");
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 		
 		expressionString = "{(on Y in {a,b}) p(X) | X != Y}";
-		expected   = parse("{(on ) p(X) | there exists Y : X != Y}");
+		expected   = parse("{(on ) p(X) | there exists Y in {a,b} : X != Y}");
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 		
 		expressionString = "{(on Y in {a,b}, X in {1,2,3}, Z) p(X) | X != Y}";
-		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y : there exists Z : X != Y}");
+		expected   = parse("{(on X in {1,2,3}) p(X) | there exists Y in {a,b} : there exists Z : X != Y}");
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 		
 		expressionString = "{{(on Y in {a,b}, X in {1,2,3}, Z) p(X) | X != Y}}";
