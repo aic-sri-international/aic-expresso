@@ -46,12 +46,14 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.collect.FunctionIterator;
@@ -96,9 +98,11 @@ implements ExpressionKnowledgeModule.Provider, ScopedVariables.Provider, NoOpRew
 			
 			// get arguments of index, for example the X and Y in there exists p(X,Y) : ...
 			List<Integer> indexBasePath = _pathZero; // path to get to index; this is the base for paths to arguments of the index, which are also sub-expressions.
+			SyntaxTree indexExpression = expression.getSyntaxTree().getSubTree(0); // remember that the index expression is not a sub-expression, only a sub-syntax tree
+			Expression index = indexExpression.hasFunctor(FunctorConstants.IN)? indexExpression.get(0) : indexExpression;
 			Iterator<ExpressionAndContext> indexArgumentsAndContextsIterator =
 				new FunctionIterator<Expression, ExpressionAndContext>(
-						expression.getSyntaxTree().getSubTree(0).getArguments(),
+						index.getArguments(),
 						new DefaultExpressionAndContext.
 						MakerFromExpressionAndSuccessivePathsFormedFromABasePath(indexBasePath));
 			

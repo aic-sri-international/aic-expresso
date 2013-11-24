@@ -782,16 +782,6 @@ public class Expressions {
 		return getVariables(argument, process.getIsConstantPredicate());
 	}
 
-	/** Returns the set of free variables in an expression, according to a given process. */
-	public static Set<Expression> freeVariables(Expression expression, RewritingProcess process) {
-		Set<Expression> freeVariables       = new HashSet<Expression>(); 
-		Set<Expression> quantifiedVariables = new HashSet<Expression>();
-		
-		Expressions.freeVariables(expression, freeVariables, quantifiedVariables, process);
-		
-		return freeVariables;
-	}
-
 	/**
 	 * Returns the set of free symbols (variables and constants, including function symbols)
 	 * in an expression, according to a given process.
@@ -811,10 +801,22 @@ public class Expressions {
 		return result;
 	}
 
+	/** Returns the set of free variables in an expression, according to a given process. */
+	public static Set<Expression> freeVariables(Expression expression, RewritingProcess process) {
+		Set<Expression> freeVariables       = new HashSet<Expression>(); 
+		Set<Expression> quantifiedVariables = new HashSet<Expression>();
+		
+		Expressions.freeVariables(expression, freeVariables, quantifiedVariables, process);
+		
+		return freeVariables;
+	}
+
 	//
 	// PRIVATE METHODS
 	//
 	private static void freeVariables(Expression expression, Set<Expression> freeVariables, Set<Expression> quantifiedVariables, RewritingProcess process) {
+		// Note: this is duplicating Expression.replace a bit, although it is probably more efficient.
+		
 		if (expression instanceof Symbol) {
 			if (process.isVariable(expression)) {
 				if (!quantifiedVariables.contains(expression)) {
@@ -824,11 +826,12 @@ public class Expressions {
 		} 
 		else {
 			Iterator<ExpressionAndContext> subExpressionAndContextsIterator = expression.getImmediateSubExpressionsAndContextsIterator(process);
+			
 			Set<Expression> newLocalQuantifiedVariables = null;
 			while (subExpressionAndContextsIterator.hasNext()) {
 				ExpressionAndContext subExpressionAndContext = subExpressionAndContextsIterator.next();
 				
-				// Only add newly quantified variables in this context
+				// initialize newLocalQuantifiedVariables with an empty collection
 				if (newLocalQuantifiedVariables == null) {
 					// For efficiency, only instantiate once
 					newLocalQuantifiedVariables = new HashSet<Expression>();
@@ -836,15 +839,16 @@ public class Expressions {
 				else {
 					newLocalQuantifiedVariables.clear();
 				}
+				
 				for (Expression localVariable : subExpressionAndContext.getQuantifiedVariables()) {
 					if (quantifiedVariables.add(localVariable)) {
 						newLocalQuantifiedVariables.add(localVariable);
 					}
 				}
 	
-				freeVariables(subExpressionAndContext.getExpression().getSyntaxTree(), freeVariables, quantifiedVariables, process);
+				freeVariables(subExpressionAndContext.getExpression(), freeVariables, quantifiedVariables, process);
 				
-				// Only remove the newly quantified variables in this context
+				// Backtrack to what quantifiedVariables was at the beginning of this call; perhaps it would be more efficient to keep this on a stack?
 				quantifiedVariables.removeAll(newLocalQuantifiedVariables);
 			}
 		}

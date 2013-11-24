@@ -40,6 +40,7 @@ package com.sri.ai.grinder.helper;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -748,5 +749,18 @@ public class GrinderUtil {
 		}
 	
 		return rewriters;
+	}
+	
+	/**
+	 * Returns a list of index expressions corresponding to the free variables in an expressions and their domains per the context, if any.
+	 */
+	public static List<Expression> getIndexExpressionsOfFreeVariablesIn(Expression expression, RewritingProcess process) {
+		Set<Expression> freeVariables = Expressions.freeVariables(expression, process);
+		List<Expression> result = new LinkedList<Expression>();
+		for (Expression freeVariable : freeVariables) {
+			Expression indexExpression = IndexExpressions.makeIndexExpression(freeVariable, process.getContextualVariableDomain(freeVariable));
+			result.add(indexExpression);
+		}
+		return result;
 	}
 }

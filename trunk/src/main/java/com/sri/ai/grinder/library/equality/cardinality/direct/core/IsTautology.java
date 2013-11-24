@@ -37,13 +37,13 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 
-import java.util.ArrayList;
-import java.util.Set;
+import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
@@ -81,11 +81,12 @@ public class IsTautology {
 			throw new IllegalArgumentException("F is not a formula:"+expressionF);
 		}
 		
-		Set<Expression> freeVariablesInF = Expressions.freeVariables(expressionF, process);
+		List<Expression> indexExpressionsOfFreeVariablesInF =
+				GrinderUtil.getIndexExpressionsOfFreeVariablesIn(expressionF, process);
 
 		// let x1, ..., xn be the free variables in F
 		// return whether R_complete_normalize( for all x1 : ... for all xn : F ) is "True"
-		Expression forAllX1ToXn     = ForAll.make(new ArrayList<Expression>(freeVariablesInF), expressionF);
+		Expression forAllX1ToXn     = ForAll.make(indexExpressionsOfFreeVariablesInF, expressionF);
 		Expression simplifiedResult = process.rewrite(CardinalityRewriter.R_complete_normalize, forAllX1ToXn);
 		if (simplifiedResult.equals(Expressions.TRUE)) {
 			result = true;

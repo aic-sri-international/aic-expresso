@@ -38,7 +38,6 @@
 package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
@@ -194,7 +193,7 @@ public class MoveNotIn extends AbstractHierarchicalRewriter implements Cardinali
 			Expression g               = ThereExists.getBody(notF);
 			Expression notG            = CardinalityUtil.makeNot(g);
 			
-			result = ForAll.make(Arrays.asList(indexExpression), notG);
+			result = ForAll.make(indexExpression, notG);
 		} 
 		else if (ForAll.isForAll(notF)) {
 			Trace.log("F is \"not (for all x G)\"");

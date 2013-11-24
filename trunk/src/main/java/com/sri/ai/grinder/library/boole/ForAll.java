@@ -53,6 +53,8 @@ import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 @Beta
 public class ForAll {
 
+	/* Note: changes in this class's representation must be reflected in {@link QuantifierSubExpressionAndScopedVariableProvider}. */
+
 	public static final String LABEL = "for all . : .";
 
 	public static Expression make(List<Expression> indexExpressions, Expression body) {
