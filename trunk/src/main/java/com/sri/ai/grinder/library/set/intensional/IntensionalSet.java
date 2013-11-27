@@ -153,7 +153,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	}
 
 	/** Returns the scoping expression, which is an application of "on" on a list of index expressions. */
-	public static Expression getScopingExpression(Expression expression) {
+	private static Expression getScopingExpression(Expression expression) {
 		return expression.getSyntaxTree().getSubTree(0);
 		// does need to be sub tree
 	}
@@ -219,7 +219,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	}
 
 	/** Make either uni or multiset by using provided functor. */
-	public static Expression make(Object label, Expression scopingExpression, Expression head, Expression condition) {
+	private static Expression make(Object label, Expression scopingExpression, Expression head, Expression condition) {
 		AbstractSyntaxTree conditionExpression =
 			(condition == null || condition.equals("true"))?
 					null
@@ -331,14 +331,6 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	public static LinkedHashMap<Expression, Expression> getIndexToDomainMapWithDefaultTypeOfIndex(Expression intensionalSetExpression) {
 		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSetExpression);
 		return IndexExpressions.getIndexToDomainMapWithDefaultTypeOfIndex(indexExpressions);
-	}
-
-	/**
-	 * Returns the "whole index expression", which is the argument of "on", possibly including "value of" prefixes.
-	 */
-	public static Expression getWholeIndexExpression(Expression intensionalSetExpression) {
-		Expression scopingExpression = IntensionalSet.getScopingExpression(intensionalSetExpression);
-		return scopingExpression.getSyntaxTree().getSubTree(0); // does need to be sub tree
 	}
 
 	/**
