@@ -49,7 +49,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.AbstractSyntaxTree;
@@ -60,7 +59,6 @@ import com.sri.ai.grinder.core.DefaultRewriterTest;
 import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.SemanticSubstitute;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
@@ -135,51 +133,22 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	/**
 	 * Makes new intensional set expression reducing one of the indices to a value.
 	 */
-	public static Expression makeIntensionalSetWithIndexSubstitution(Expression index,
-			Expression value, Expression intensionalSet,
-			RewritingProcess process) {
-		Expression indexValueExpression = index;
-				Expression newHead =
-					SemanticSubstitute.replace(IntensionalSet.getHead(intensionalSet), indexValueExpression, value, process);
-				Expression conditionToUseAfterSubstitution =
-					SemanticSubstitute.replace(IntensionalSet.getCondition(intensionalSet), indexValueExpression, value, process);
-				List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
-				indexExpressions = Util.listCopyWithoutSatisfyingElementOrNull(indexExpressions, new IndexExpressions.HasIndex(indexValueExpression));
-				// at some point we should look for occurrences of the index in the domain of the other indices.
-				Expression result1 =
-					IntensionalSet.makeSetFromIndexExpressionsList(Sets.getLabel(intensionalSet), indexExpressions, newHead, conditionToUseAfterSubstitution);
-		Expression result = result1;
-		return result;
-	}
-
-	/**
-	 * Makes new intensional set expression reducing one of the indices to a value.
-	 * This version takes the condition to be used, even though the condition is already
-	 * present, in case the user wants to use an alternative condition.
-	 */
-	public static Expression makeIntensionalSetWithIndexSubstitution(Expression index,
-			Expression value, Expression intensionalSet,
-			Expression conditionToUseBeforeSubstitution,
+	public static Expression makeIntensionalSetWithIndexSubstitution(
+			Expression index,
+			Expression value,
+			Expression intensionalSet,
 			RewritingProcess process) {
 		Expression indexValueExpression = index;
 		Expression newHead =
-			SemanticSubstitute.replace(IntensionalSet.getHead(intensionalSet), indexValueExpression, value, process);
+				SemanticSubstitute.replace(IntensionalSet.getHead(intensionalSet), indexValueExpression, value, process);
 		Expression conditionToUseAfterSubstitution =
-			SemanticSubstitute.replace(conditionToUseBeforeSubstitution, indexValueExpression, value, process);
+				SemanticSubstitute.replace(IntensionalSet.getCondition(intensionalSet), indexValueExpression, value, process);
 		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
 		indexExpressions = Util.listCopyWithoutSatisfyingElementOrNull(indexExpressions, new IndexExpressions.HasIndex(indexValueExpression));
 		// at some point we should look for occurrences of the index in the domain of the other indices.
-		Expression result =
-			IntensionalSet.makeSetFromIndexExpressionsList(Sets.getLabel(intensionalSet), indexExpressions, newHead, conditionToUseAfterSubstitution);
-		return result;
-	}
-
-	public static Expression simplificationOfIntensionalSetWithoutIndices(Expression head, Expression condition) {
-		// no indices, so we get a singleton with the head if condition is true, or the empty set otherwise
-		Expression result = IfThenElse.make(
-				condition,
-				ExtensionalSet.makeUniSet(Lists.newArrayList(head)),
-				ExtensionalSet.makeEmptySet());
+		Expression result1 =
+				IntensionalSet.makeSetFromIndexExpressionsList(Sets.getLabel(intensionalSet), indexExpressions, newHead, conditionToUseAfterSubstitution);
+		Expression result = result1;
 		return result;
 	}
 
@@ -201,8 +170,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 
 	public static Collection<Expression> getIndexDomains(Expression expression) {
 		if (Sets.isIntensionalSet(expression)) {
-			Collection<Expression> result =
-				IntensionalSet.getIndexToDomainMapWithDefaultTypeOfIndex(expression).values();
+			Collection<Expression> result = IntensionalSet.getIndexToDomainMapWithDefaultTypeOfIndex(expression).values();
 			return result;
 		}
 		return null;
@@ -242,11 +210,11 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		return IntensionalSet._pathToCondition;
 	}
 
-	public static Expression makeUniSet(Expression scopingExpression, Expression head, Expression condition) {
+	private static Expression makeUniSet(Expression scopingExpression, Expression head, Expression condition) {
 		return IntensionalSet.make(IntensionalSet.UNI_SET_LABEL, scopingExpression, head, condition);
 	}
 
-	public static Expression makeMultiSet(Expression scopingExpression, Expression head, Expression condition) {
+	private static Expression makeMultiSet(Expression scopingExpression, Expression head, Expression condition) {
 		return IntensionalSet.make(IntensionalSet.MULTI_SET_LABEL, scopingExpression, head, condition);
 	}
 
@@ -265,10 +233,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	}
 
 	public static Expression makeUniSetFromIndexExpressionsList(List<Expression> indexExpressionsList, Expression head, Expression condition) {
-		Expression result = IntensionalSet.makeUniSet(
-				IntensionalSet.makeScopingExpression(indexExpressionsList),
-				head,
-				condition);
+		Expression result = IntensionalSet.makeUniSet(makeScopingExpression(indexExpressionsList), head, condition);
 		return result;
 	}
 
@@ -331,12 +296,8 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		return result;
 	}
 
-	public static Expression makeUniSetWithASingleIndexExpression(
-			Expression indexExpression, Expression head, Expression condition) {
-		Expression result = IntensionalSet.makeUniSet(
-				new DefaultCompoundSyntaxTree(IntensionalSet.SCOPED_VARIABLES_LABEL, indexExpression),
-				head,
-				condition);
+	public static Expression makeUniSetWithASingleIndexExpression(Expression indexExpression, Expression head, Expression condition) {
+		Expression result = IntensionalSet.makeUniSetWithASingleIndexExpression(indexExpression, head, condition);
 		return result;
 	}
 
