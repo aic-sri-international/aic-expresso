@@ -54,6 +54,7 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
@@ -164,8 +165,8 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 		// | {(on x1,..., xn) (x1, ..., xn) | F} |
 		Expression       intensionalSet   = cardinalityOfIndexedFormulaExpression.get(0);
 		Expression       f                = IntensionalSet.getCondition(intensionalSet);
-		List<Expression> indices          = IntensionalSet.getIndices(intensionalSet);
 		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
+		List<Expression> indices          = IndexExpressions.getIndices(indexExpressions);
 		Expression[]     indexExpressionsAsArray = indexExpressions.toArray(new Expression[indexExpressions.size()]);
 
 		process = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(intensionalSet, process);

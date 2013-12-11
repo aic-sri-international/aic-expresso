@@ -149,7 +149,7 @@ public class CardinalityUtil {
 		
 		List<Expression> indexExpressionsList  = Arrays.asList(indexExpressions);
 		
-		List<Expression> indicesList = IndexExpressions.getIndices(indexExpressionsList);
+		List<Expression> indicesList  = IndexExpressions.getIndices(indexExpressionsList);
 		Expression       indicesTuple = Tuple.make(indicesList);
 		
 		result = Expressions.make(FunctorConstants.CARDINALITY, IntensionalSet.makeUniSetFromIndexExpressionsList(indexExpressionsList, indicesTuple, formulaF));
@@ -194,7 +194,7 @@ public class CardinalityUtil {
 				// that at this time
 				Expression intensionalSetHead = IntensionalSet.getHead(intensionalSet);
 			    if (Tuple.isTuple(intensionalSetHead)) {	    	
-			    	Set<Expression> intensionalSetIndices = new HashSet<Expression>(IntensionalSet.getIndices(intensionalSet));
+			    	Set<Expression> intensionalSetIndices = new HashSet<Expression>(IndexExpressions.getIndices(IntensionalSet.getIndexExpressions(intensionalSet)));
 			    	Set<Expression> tupleIndices          = new HashSet<Expression>(Tuple.getElements(intensionalSetHead));
 			    	// The tuple and the indices on the uni-intensional set need to match
 			    	if (intensionalSetIndices.equals(tupleIndices)) {

@@ -39,7 +39,6 @@ package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -55,8 +54,10 @@ import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
+import com.sri.ai.util.Util;
 
 /**
  * Default implementation of R_equality_in_conjunction(| x_i = t and Phi |_{x1, ..., xn}).
@@ -111,20 +112,20 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 			if (equalityOnIndexInformation.valuesEquatedToIndex.size() == 0) {
 				Trace.log("if t is the same expression as x_i");
 				Trace.log("    return R_card(| Phi |_X, quantification)");
-				Expression cardinalityWithPhiIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(equalityOnIndexInformation.phi, equalityOnIndexInformation.indices.toArray(new Expression[equalityOnIndexInformation.indices.size()]));
+				Expression cardinalityWithPhiIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(equalityOnIndexInformation.phi, equalityOnIndexInformation.indexExpressions.toArray(new Expression[equalityOnIndexInformation.indexExpressions.size()]));
 				result = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardinalityWithPhiIndexedByX, quantification));
 			} 
 			else {
 				Expression t = equalityOnIndexInformation.valuesEquatedToIndex.iterator().next();
 				// i.e {x \ xi}
-				equalityOnIndexInformation.indices.remove(equalityOnIndexInformation.index);
+				List<Expression> newIndexExpressions = Util.removeNonDestructively(equalityOnIndexInformation.indexExpressions, new IndexExpressions.HasIndex(equalityOnIndexInformation.index));
 				Trace.log("return R_card(| R_normalize(Phi[x_i / t]) |_X\\{xi}, quantification) // Phi={}, x_i={}, t={}", equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t);
 				Expression phiXiReplacedWithT           = SemanticSubstitute.replace(equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t, process);
 
-				RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIndexExpressions(equalityOnIndexInformation.indices, process);
+				RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIndexExpressions(newIndexExpressions, process);
 				Expression simplifiedPhiXiReplacedWithT = subProcess.rewrite(R_normalize, phiXiReplacedWithT);
 				
-				Expression cardPhiXiReplacedWithTIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(simplifiedPhiXiReplacedWithT, equalityOnIndexInformation.indices.toArray(new Expression[equalityOnIndexInformation.indices.size()]));
+				Expression cardPhiXiReplacedWithTIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(simplifiedPhiXiReplacedWithT, newIndexExpressions.toArray(new Expression[newIndexExpressions.size()]));
 				result = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardPhiXiReplacedWithTIndexedByX, quantification));
 			}
 		}
@@ -139,24 +140,24 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 		public Expression index;
 		public Set<Expression> valuesEquatedToIndex = new HashSet<Expression>();
 		public Expression phi;
-		public Set<Expression> indices;
+		public List<Expression> indexExpressions;
 	}
 	
 	private static EqualityOnIndexInformation getFirstEqualityOnIndexInformation(Expression expression) {
 		EqualityOnIndexInformation result = null;
 		
 		if (CardinalityUtil.isCardinalityOfIndexedFormulaExpression(expression)) {
-			// | {(on x1,..., xn) (x1, ..., xn) | F} |
+			// | {(on I1,..., In) (x1, ..., xn) | F} |
 			Expression intensionalSet = expression.get(0);
 			Expression constraint     = IntensionalSet.getCondition(intensionalSet);
-			Set<Expression> indices = new LinkedHashSet<Expression>(IntensionalSet.getIndices(intensionalSet));
+			List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
 			if (And.isConjunction(constraint)) {
 				// Note: want to use a set for efficiency but keep the order by using a linked hash set.
 				int index = 0;
 				for (Expression conjunct : constraint.getArguments()) {
 					// x_i = t and Phi
 					if (conjunct.hasFunctor(FunctorConstants.EQUAL)) {
-						result = getEqualityOnIndexInformation(constraint, conjunct, indices, index);
+						result = getEqualityOnIndexInformation(constraint, conjunct, indexExpressions, index);
 						if (result != null) {
 							break;
 						}
@@ -166,17 +167,17 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 			} 
 			else if (constraint.hasFunctor(FunctorConstants.EQUAL)) {
 				// Note: want to use a set for efficiency but keep the order by using a linked hash set.
-				result = getEqualityOnIndexInformation(constraint, constraint, indices, 0);
+				result = getEqualityOnIndexInformation(constraint, constraint, indexExpressions, 0);
 			}
 		}
 		
 		return result;
 	}
 	
-	private static EqualityOnIndexInformation getEqualityOnIndexInformation(Expression formula, Expression equality, Set<Expression> indices, int indexIndex) {
+	private static EqualityOnIndexInformation getEqualityOnIndexInformation(Expression formula, Expression equality, List<Expression> indexExpressions, int indexIndex) {
 		EqualityOnIndexInformation result = null;
 		for (Expression equalityArgument : equality.getArguments()) {
-			if (indices.contains(equalityArgument)) {
+			if (Util.findFirst(indexExpressions, new IndexExpressions.HasIndex(equalityArgument)) != null) {
 				result = new EqualityOnIndexInformation();
 				result.index = equalityArgument;
 				result.valuesEquatedToIndex.addAll(equality.getArguments());
@@ -199,7 +200,7 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 				}
 				
 				result.phi = And.make(phiConjuncts);
-				result.indices = indices;
+				result.indexExpressions = indexExpressions;
 				break;
 			}
 		}
