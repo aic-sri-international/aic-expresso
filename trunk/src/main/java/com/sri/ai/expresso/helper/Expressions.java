@@ -66,7 +66,6 @@ import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.ScopedVariables;
-import com.sri.ai.grinder.library.SubExpressionSelection;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
@@ -646,6 +645,16 @@ public class Expressions {
 	}
 
 	/**
+	 * A static method returning selected sub-expressions
+	 * in a given expressions, according to a given predicate.
+	 */
+	public static LinkedHashSet<Expression> getSubExpressionsSatisfying(Expression expression, Predicate<Expression> predicate) {
+		LinkedHashSet<Expression> results = new LinkedHashSet<Expression>();
+		Util.collect(new SubExpressionsDepthFirstIterator(expression), results, predicate);
+		return results;
+	}
+
+	/**
 	 * Makes an iterator of sub-expressions and their contexts built from two iterators,
 	 * one on the expression and another on their paths.
 	 * The quantified variables of the sub expressions will be the one provided as argument.
@@ -771,7 +780,7 @@ public class Expressions {
 	 * in a given expression, for a certain predicate indicating constants.
 	 */
 	public static LinkedHashSet<Expression> getVariables(Expression argument, Predicate<Expression> isConstantPredicate) {
-		return SubExpressionSelection.getVariables(argument, new IsVariable(isConstantPredicate));
+		return Expressions.getSubExpressionsSatisfying(argument, new IsVariable(isConstantPredicate));
 	}
 
 	/**
