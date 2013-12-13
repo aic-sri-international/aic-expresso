@@ -54,6 +54,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
@@ -85,20 +86,19 @@ public class Equality extends AbstractRewriter {
 	}
 
 	public static Expression equalityResultIfItIsKnown(Expression expression, RewritingProcess process) {
-		Boolean equalityResult =
-			equalityResultIfItIsKnownOrNull(expression, process.getIsConstantPredicate());
+		Boolean equalityResult = equalityResultIfItIsKnownOrNull(expression, process.getIsConstantPredicate(), process);
 		if (equalityResult != null) {
 			return DefaultSymbol.createSymbol(equalityResult);
 		}
 		return expression;
 	}
 
-	private static Boolean equalityResultIfItIsKnownOrNull(Expression expression, Predicate<Expression> isConstantPredicate) {
+	private static Boolean equalityResultIfItIsKnownOrNull(Expression expression, Predicate<Expression> isConstantPredicate, RewritingProcess process) {
 		int maxIndex = expression.numberOfArguments() - 1;
 		for (int i = 0; i != maxIndex; i++) {
 			Boolean equalityOfPair =
 				equalityOfPairIfItIsKnownOrNull(
-						expression.get(i), expression.get(i+1), isConstantPredicate);
+						expression.get(i), expression.get(i+1), isConstantPredicate, process);
 			if (equalityOfPair == null) {
 				return null;
 			}
@@ -110,20 +110,24 @@ public class Equality extends AbstractRewriter {
 	}
 
 	private static Boolean equalityOfPairIfItIsKnownOrNull(
-			Expression expression1, Expression expression2, Predicate<Expression> isConstantPredicate) {
+			Expression expression1, Expression expression2, Predicate<Expression> isConstantPredicate, RewritingProcess process) {
 		if (isConstantPredicate.apply(expression1)) {
 			if (isConstantPredicate.apply(expression2)) {
 				return expression1.equals(expression2); // two constants; true if they are equal, false if they are distinct
 			}
 			else {
-				return null;  // variable and constant; we don't know
+				return null;  // non-constant and constant; we don't know
 			}
 		}
 		else if (isConstantPredicate.apply(expression2)) {
-			return null; // variable and constant; we don't know
+			return null; // non-constant and constant; we don't know
 		}
 		else if (expression1.equals(expression2)) {
-			return true; // both are the same variable
+			return true; // both are the same expression
+		}
+		else if ( process.isVariable(expression1) && process.isVariable(expression2) &&
+				Util.notNullAndDistinct(GrinderUtil.getType(expression1, process), GrinderUtil.getType(expression2, process))){
+			return false; // distinct variables with different types, so not equal under current assumption that types do not overlap (which will probably be removed in the future).
 		}
 		else {
 			return null; // distinct variables; we don't know
