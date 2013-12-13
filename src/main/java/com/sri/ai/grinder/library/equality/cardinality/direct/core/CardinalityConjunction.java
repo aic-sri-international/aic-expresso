@@ -184,9 +184,6 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 		RewritingProcess subProcess       = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(intensionalSet, process);
 		
 		Expression[] indexExpressionsAsArray = indexExpressions.toArray(new Expression[indexExpressions.size()]);
-		Expression cardIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressionsAsArray);
-		// Need to do this to get | type(X) | converted to its known value, e.g.: 10
-		cardIndices = process.rewrite(R_normalize, cardIndices);
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 		Pair<Expression, Expression> independentAndDependentConjuncts = CardinalityUtil.separateIndependentAndDependent(f, indices, Expressions.TRUE, subProcess);
 		//
@@ -197,14 +194,17 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 			(And.isConjunction(f) && f.numberOfArguments() == 0)) {
 			Trace.log("if F is True or empty conjunction");
 			Trace.log("    return ||X||");
-			result = cardIndices;
+			Expression cardinalityValueOfIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressionsAsArray);
+			// Need to do this to get | type(X) | converted to its known value, e.g.: 10
+			cardinalityValueOfIndices = process.rewrite(R_normalize, cardinalityValueOfIndices);
+			result = cardinalityValueOfIndices;
 		}
 		else if (f.equals(Expressions.FALSE)) {
 			Trace.log("if F is False");
 			Trace.log("    return 0");
 			result = Expressions.ZERO;
 		} 
-		else if ( !Expressions.TRUE.equals(independentConjunction) ) {
+		else if ( ! independentConjunction.equals(Expressions.TRUE) ) {
 			Trace.log("if F is F1 and F2 where F1 is a formula independent of all x's in X");
 			// Note: The logic for independent sub-problems does not encompass this as you can have something like this:
 			// | { ( on Z ) ( Z ) | Y != a and Z != Y and Z != b } |

@@ -56,6 +56,7 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
@@ -98,25 +99,26 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractHierarchical
 		// | {(on x1,..., xn)(x1, ..., xn) | F} |
 		Expression       intensionalSet   = cardinalityOfIndexedFormulaExpression.get(0);
 		Expression       f                = IntensionalSet.getCondition(intensionalSet);
-		List<Expression> indices          = IntensionalSet.getIndexExpressions(intensionalSet);
+		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
 		RewritingProcess subProcess       = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(intensionalSet, process);
 		
 		CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
 		if (quantification == null) {
 			throw new IllegalArgumentException("Invalid quantification symbol:"+quantificationSymbol);
 		}
-		result = rewriteCardinalityOfDisequalities(f, indices, quantification, subProcess);
+		result = rewriteCardinalityOfDisequalities(f, indexExpressions, quantification, subProcess);
 		return result;
 	}
 	
 	
 	// This is based on the new idea: We delay using SumOverOneVariable up to this point.
-	protected Expression rewriteCardinalityOfDisequalities(Expression conjunction, List<Expression> indices, CardinalityRewriter.Quantification quantification, RewritingProcess process) {
+	protected Expression rewriteCardinalityOfDisequalities(Expression conjunction, List<Expression> indexExpressions, CardinalityRewriter.Quantification quantification, RewritingProcess process) {
 		Expression result = null;
-		if ( indices.size() == 1 ) {
+		if ( indexExpressions.size() == 1 ) {
 			Trace.log("if X = {x}");
-			Expression indexX      = indices.get(0);
-			Expression cardIndex   = CardinalityUtil.makeCardinalityOfIndexExpressions(indexX);
+			Expression indexExpressionX = indexExpressions.get(0);
+			Expression indexX      = IndexExpressions.getIndex(indexExpressionX);
+			Expression cardIndex   = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressionX);
 			Set<Expression> t1ToTk = extractT1ToTk(conjunction, indexX, process);
 			if ( t1ToTk.contains(indexX) ) { // There has been a conjunct of the form X!=X 
 				result = Expressions.ZERO;
@@ -158,7 +160,7 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractHierarchical
 //				Trace.log("    // Z is the set containing any new index variable Y'");
 //				result = eliminateIndex(conjunction, indices, pair.first, pair.second, quantification, process);
 			Trace.log("if X = {x1, ..., xn}");
-			result = rewriteUsingSumOverOneVariable(conjunction, indices, quantification, process);
+			result = rewriteUsingSumOverOneVariable(conjunction, indexExpressions, quantification, process);
 			//result = rewriteByConvertingOneDisequalityToEquality(conjunction, indices, quantification, process);
 		}
 		return result;
