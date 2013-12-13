@@ -49,6 +49,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Throwables;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -770,6 +771,21 @@ public class GrinderUtil {
 			Expression indexExpression = IndexExpressions.makeIndexExpression(index, domain);
 			result.add(indexExpression);
 		}
+		return result;
+	}
+
+	/**
+	 * Returns type of a variable in the context.
+	 * So far, it does not work for non-symbols, or constants, throwing exceptions in these cases, but it will be extended in the direction in the future.
+	 */
+	public static Object getType(Expression expression, RewritingProcess process) {
+		if ( ! (expression instanceof Symbol)) {
+			throw new Error("GrinderUtil.getType() not implemented for non-symbol expressions at this point, but invoked with " + expression);
+		}
+		if (process.isConstant(expression)) {
+			throw new Error("GrinderUtil.getType() not implemented for constants at this point, but invoked with " + expression);
+		}
+		Expression result = process.getContextualVariableDomain(expression);
 		return result;
 	}
 }
