@@ -176,18 +176,6 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		return null;
 	}
 
-	public static List<Expression> getIndices(Expression intensionalSet) {
-		if (Sets.isEmptySet(intensionalSet)) {
-			return new LinkedList<Expression>();
-		}
-		if (Sets.isIntensionalSet(intensionalSet)) {
-			List<Expression> result =
-				new LinkedList<Expression>(IntensionalSet.getIndexToDomainMapWithDefaultNull(intensionalSet).keySet());
-			return result;
-		}
-		return null;
-	}
-
 	public static Expression getHead(Expression expression) {
 		return expression.getSyntaxTree().getSubTree(1);
 		 // does need to be sub tree

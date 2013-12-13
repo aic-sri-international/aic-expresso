@@ -191,8 +191,7 @@ public class Basic extends TotalRewriter {
 						new ForAllSubExpressionsAndScopedVariablesProvider(),
 						new ThereExistsSubExpressionsAndScopedVariablesProvider(),
 						new Tuple(),
-						new SyntacticFunctionsSubExpressionsProvider("type",
-								"scoped variables"),
+						new SyntacticFunctionsSubExpressionsProvider("type", "scoped variables"),
 						new OpenInterpretationModule() }));
 	}
 }

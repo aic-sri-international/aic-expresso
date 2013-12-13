@@ -122,11 +122,11 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 					if ( negationHasLessNumberOfDisjuncts(f) ) {
 						Trace.log("    if negationHasLessNumberOfDisjuncts(F):");
 						Trace.log("        return R_normalize(||X|| - R_card( | not F |_X, \"none\" ) ) ");
-						Expression[] indicesAsArray    = indexExpressions.toArray(new Expression[indexExpressions.size()]);
-						Expression cardIndexX          = CardinalityUtil.makeCardinalityOfIndexExpressions(indicesAsArray);
+						Expression[] indexExpressionsAsArray = indexExpressions.toArray(new Expression[indexExpressions.size()]);
+						Expression cardIndexX          = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressionsAsArray);
 						Expression negationCardinality = process.rewrite(R_card,
 									CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(
-										CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(Not.make(f), indicesAsArray), 
+										CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(Not.make(f), indexExpressionsAsArray), 
 										CardinalityRewriter.Quantification.NONE));
 						Expression subtraction = Expressions.make(FunctorConstants.MINUS, cardIndexX, negationCardinality);
 						result = process.rewrite(CardinalityRewriter.R_normalize, subtraction);
