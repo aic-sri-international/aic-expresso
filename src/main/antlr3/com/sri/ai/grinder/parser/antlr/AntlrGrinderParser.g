@@ -363,12 +363,6 @@ underscore
     : value (UNDERSCORE^ value)*
     ;
 
-value
-    // Using "value" instead of expected "squarebracket" so that we can support cases like "value of value of x".
-    : VALUE OF value -> ^(VALUEOF value)
-    | squarebracket
-    ;
-
 squarebracket
     : OPEN_SQUARE expr CLOSE_SQUARE -> ^(SQUAREBRACKET expr)
     | set
