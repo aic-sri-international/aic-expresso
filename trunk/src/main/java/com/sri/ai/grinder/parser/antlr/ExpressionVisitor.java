@@ -161,14 +161,6 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		return result;
 	}
 	
-	// value of, e.g.: 'value of'(1 + 2)
-	// VALUE OF expr #valueOf
-	@Override
-	public Expression visitValueOf(AntlrGrinderParser.ValueOfContext ctx) {
-		Expression result = Expressions.make(FunctorConstants.VALUE_OF, visit(ctx.expr()));
-		return result;
-	}
-	
 	// not, e.g.: not A and B -> (not(A)) and B
 	// NOT expr #not
 	@Override

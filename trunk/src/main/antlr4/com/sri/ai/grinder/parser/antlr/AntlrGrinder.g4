@@ -23,8 +23,6 @@ expr :
      | '{{' ( expr (',' expr)* )? '}}' #extensionalMultiset
        // bracketed expression, for parfactors and random variables, e.g. [if p(X) then 1 else 2]
      | '[' expr ']' #bracketedExpression
-       // value of, e.g.: value of(1 + 2)
-     | VALUE OF expr #valueOf
        // not, e.g.: not A and B -> (not(A)) and B
      | NOT expr #not
        // negative, e.g.: 2 * -1 -> 2 * (-1)

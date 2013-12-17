@@ -1464,10 +1464,6 @@ public class GrinderTest extends AbstractGrinderTest {
 		
 		evaluator = new ExhaustiveRewriter(library);
 
-		expressionString = "{(on value of <X>) p(X,Y) + 1 + 1}";
-		expected = parse("{(on value of <X>) p(X,Y) + 2}");
-		evaluationTest();
-		
 		expressionString = "{(on X in {1,2,3}) p(X) | false}";
 		expected = parse("{ }");
 		evaluationTest();
@@ -1478,18 +1474,6 @@ public class GrinderTest extends AbstractGrinderTest {
 
 		expressionString = "{(on X in {1,2,3} - {1}, Y) p(X,Y) + 1 + 1}";
 		expected = parse("{(on X in ({1,2,3} - {1}), Y) p(X,Y) + 2}");
-		evaluationTest();
-
-		expressionString = "{(on value of {<X>,<Y>}) p(X,Y) + 1 + 1}";
-		expected = parse("{(on value of {<X>,<Y>}) p(X,Y) + 2}");
-		evaluationTest();
-
-		expressionString = "if V = (<X>) then {(on value of V) p(X,Y) + 1 + 1} else 0";
-		expected = parse("if V = (<X>) then {(on value of V) p(X,Y) + 2} else 0");
-		evaluationTest();
-		
-		expressionString = "{(on value of <X>, Y in {1,2} union {3}) p(X,Y) + 1 + 1}";
-		expected = parse("{ ( on value of <X>, Y in { 1, 2, 3 } ) (p(X, Y) + 2) }");
 		evaluationTest();
 	}
 	

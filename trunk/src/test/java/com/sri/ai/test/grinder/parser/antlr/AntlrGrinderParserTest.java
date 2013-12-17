@@ -896,33 +896,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	}
 
 	@Test
-	public void testValueOf () {
-		String string;
-		string = "value of x";
-		test(string, new DefaultCompoundSyntaxTree("value of", "x"));
-
-		string = "value of (x + y)";
-		test(string, new DefaultCompoundSyntaxTree("value of", 
-				new DefaultCompoundSyntaxTree("+", "x", "y")));
-
-		string = "'value of'(a)";
-		test(string, new DefaultCompoundSyntaxTree("value of", "a"));
-
-		string = "'value of'()";
-		test(string, new DefaultCompoundSyntaxTree("value of"));
-
-		string = "'value of'(a)";
-		test(string, new DefaultCompoundSyntaxTree("value of", "a"));
-
-		string = "'value of'(a, b, c)";
-		test(string, new DefaultCompoundSyntaxTree("value of", "a", "b", "c"));
-
-		string = "value of value of x";
-		test(string, new DefaultCompoundSyntaxTree("value of", 
-				new DefaultCompoundSyntaxTree("value of", "x")));
-	}
-	
-	@Test
 	public void testNeighborFactor () {
 		String string;
 		string = "neighbors of factor x";

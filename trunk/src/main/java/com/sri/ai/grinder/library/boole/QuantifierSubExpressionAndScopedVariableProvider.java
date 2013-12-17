@@ -65,10 +65,8 @@ import com.sri.ai.util.collect.NestedIterator;
  * abstract methods, {@link #getRootTreeString()} and
  * {@link #getSyntacticFormType()}, to provide the details for a particular
  * quantifier. It does assume the index is the first subtree of the expression's
- * SyntaxTree. This is a lot less throughout than IntensionalSet indices (for
- * example, the expression can take only one index and there is no way to define
- * a domain, or 'value of'. Eventually, we should just use the IntensionalSet
- * functionality.
+ * SyntaxTree. There can be only one index per quantifier expression.
+ * Eventually, we should just make it uniform with IntensionalSet functionality.
  * 
  * @author braz
  */

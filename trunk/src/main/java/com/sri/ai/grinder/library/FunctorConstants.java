@@ -76,7 +76,6 @@ public class FunctorConstants {
 	public final static String INTERSECTION = "intersection";
 	public final static String CARDINALITY = "| . |";
 	public final static String ON  = "( on . )";
-	public final static String VALUE_OF  = "value of";
 	public final static String LEFT_DOT_RIGHT  = "[ . ]";
 	public final static String KLEENE_LIST  = "kleene list";
 

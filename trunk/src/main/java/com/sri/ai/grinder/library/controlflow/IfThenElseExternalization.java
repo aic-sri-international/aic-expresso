@@ -37,15 +37,12 @@
  */
 package com.sri.ai.grinder.library.controlflow;
 
-import java.util.List;
-
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.expresso.helper.FunctorAndIthArgumentEqual;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.library.ScopedVariables;
@@ -78,10 +75,6 @@ public class IfThenElseExternalization extends AbstractRewriter {
 		Expression ifThenElse = ifThenElseSubExpressionAndContext.getExpression();
 		Expression condition = ifThenElse.get(0);
 		boolean conditionIsSurelyIndependentOnScopedVariables =
-			hasScopingVariableBeingValueOf(expression, ifThenElse, process)
-			// in this case, the if then else sub-expression is being used (via 'value of') to compute what the indices of 'expression' are,
-			// therefore its condition is not scoped by the indices.
-			||
 			(
 					ScopedVariables.scopingVariablesAreDefined(expression, process)
 					&&
@@ -103,16 +96,6 @@ public class IfThenElseExternalization extends AbstractRewriter {
 		return result;
 	}
 	
-	/**
-	 * Tests whether some scoping variable in a given expression is equal to
-	 * <code>'value of'(anotherExpression)</code>.
-	 */
-	private static boolean hasScopingVariableBeingValueOf(Expression scopingExpression, Expression anotherExpression, RewritingProcess process) {
-		List<Expression> variablesScopedByExpression = ScopedVariables.get(scopingExpression.getSyntaxTree(), process);
-		boolean result = Util.thereExists(variablesScopedByExpression, new FunctorAndIthArgumentEqual("value of", 0, anotherExpression.getSyntaxTree()));
-		return result;
-	}
-
 	private static ExpressionAndContext findIfThenElseSubExpressionAndContext(Expression expression, RewritingProcess process) {
 		ExpressionAndContext result = 
 		Util.getFirstSatisfyingPredicateOrNull(
