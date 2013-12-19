@@ -194,7 +194,7 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 			(And.isConjunction(f) && f.numberOfArguments() == 0)) {
 			Trace.log("if F is True or empty conjunction");
 			Trace.log("    return ||X||");
-			Expression cardinalityValueOfIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressionsAsArray);
+			Expression cardinalityValueOfIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressions);
 			// Need to do this to get | type(X) | converted to its known value, e.g.: 10
 			cardinalityValueOfIndices = process.rewrite(R_normalize, cardinalityValueOfIndices);
 			result = cardinalityValueOfIndices;

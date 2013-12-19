@@ -599,15 +599,10 @@ public class GrinderUtil {
 	 * Extends a process's contextual variables with free variables found in a given expression and returns the new resulting process.
 	 * This method should be used only as a setup method; during ordinary processing, all free variables should already be in the context.
 	 */
-	public static RewritingProcess extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(Expression expression, RewritingProcess process) {
+	public static RewritingProcess extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(Expression expression, RewritingProcess process) {
 		Set<Expression> freeVariables = Expressions.freeVariables(expression, process);
-		process = extendContextualVariablesWithUnknownDomain(freeVariables, process);
-		return process;
-	}
-
-	public static RewritingProcess extendContextualVariablesWithUnknownDomain(Set<Expression> variables, RewritingProcess process) {
 		Map<Expression, Expression> fromVariableToDomain = new HashMap<Expression, Expression>();
-		for (Expression variable : variables) {
+		for (Expression variable : freeVariables) {
 			fromVariableToDomain.put(variable, null);
 		}
 		RewritingProcess result = extendContextualVariables(fromVariableToDomain, process);

@@ -973,12 +973,12 @@ public class GrinderTest extends AbstractGrinderTest {
 	}
 	
 	private RewritingProcess extendContext(Expression expression, Map<Expression, Expression> replacements, Expression expected, RewritingProcess process) {
-		RewritingProcess result = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(expression, process);
+		RewritingProcess result = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(expression, process);
 		for (Map.Entry<Expression, Expression> entry : replacements.entrySet()) {
-			result = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(entry.getKey(),   result);
-			result = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(entry.getValue(), result);
+			result = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(entry.getKey(),   result);
+			result = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(entry.getValue(), result);
 		}
-		result = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(expected, result);
+		result = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(expected, result);
 		return result;
 	}
 
@@ -1365,84 +1365,84 @@ public class GrinderTest extends AbstractGrinderTest {
 		expression1 = parse("f(X)");
 		expression2 = parse("f(X)");
 		expected    = expression1;
-		testStandardizationApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
+		performTestOfStandardizednApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
 		
 		expression1 = parse("g(X',X',X) and h(Y)");
 		expression2 = parse("f(X',X'',Y)");
 		expected    = expression1;
-		testStandardizationApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
+		performTestOfStandardizednApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
 		
 		expression1 = parse("{(on X) X | X != a }");
 		expression2 = parse("{(on X) X | X != b }");
 		expected    = parse("{(on X') X' | X' != a }");
-		testStandardizationApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
+		performTestOfStandardizednApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
 
 		expression1 = parse("{(on X, Y) f(X,Y) | X != a }");
 		expression2 = parse("{(on X) X | X != b }");
 		expected    = parse("{(on X', Y) f(X',Y) | X' != a }");
-		testStandardizationApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
+		performTestOfStandardizednApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
 
 		expression1 = parse("{(on X, Y) f(X,Y) | X != a }");
 		expression2 = parse("f(X)");
 		expected    = parse("{(on X', Y) f(X',Y) | X' != a }"); // Y does not collide with a free variable in expression2
-		testStandardizationApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
+		performTestOfStandardizednApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
 
 		expression1 = parse("{(on X) f(X,Y) | X != a }");
 		expression2 = parse("{(on X) f(X)}");
 		expected    = parse("{(on X') f(X',Y) | X' != a }");
-		testStandardizationApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
+		performTestOfStandardizednApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
 
 		expression1 = parse("{(on X) f(X,Y) | X != a }");
 		expression2 = parse("f(X, Y)");
 		expected    = parse("{(on X') f(X',Y) | X' != a }"); // Y is a free variable
-		testStandardizationApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
+		performTestOfStandardizednApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
 
 		expression1 = parse("{(on X, Y) f(X,Y) | X != a }");
 		expression2 = parse("f(X, Y)");
 		expected    = parse("{(on X', Y') f(X',Y') | X' != a }"); // Y is scoping variable and collides with free variable
-		testStandardizationApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
+		performTestOfStandardizednApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
 
 		expression1 = parse("{(on X, Y) f(X,Y) | X != a }");
 		expression2 = parse("{(on Y) f(X, Y) }"); // Y is not free variable
 		expected    = parse("{(on X', Y') f(X',Y') | X' != a }");
-		testStandardizationApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
+		performTestOfStandardizednApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
 
 		expression1 = parse("{(on X, X') f(X,X') | X != a }");
 		expression2 = parse("f(X)");
 		expected    = parse("{(on X'', X') f(X'',X') | X'' != a }"); // first standardized apart variable collides with already existing one.
-		testStandardizationApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
+		performTestOfStandardizednApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
 
 		expression1 = parse("{(on X, X') f(X,X') | X != a }");
 		expression2 = parse("f(X, X')");
 		expected    = parse("{(on X'', X''') f(X'',X''') | X'' != a }"); // first standardized apart variable collides with already existing one that is also being replaced.
-		testStandardizationApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
+		performTestOfStandardizednApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
 
 		expression1 = parse("{(on Z) {(on X, Y) f(X,Y,Z) | X != a } | Z != c}");
 		expression2 = parse("{(on Y) f(X, Y, Z) }");
 		expected    = parse("{(on Z') {(on X', Y') f(X',Y',Z') | X' != a } | Z' != c}"); // testing standardization apart of sub-expressions
-		testStandardizationApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
+		performTestOfStandardizednApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
 
 		expression1 = parse("{(on Z) {(on Z', Y) f(X,Y,Z') | X != a } | Z != c}");
 		expression2 = parse("{(on Y) f(X, Y, Z, Z') }");
 		expected    = parse("{(on Z''') {(on Z'', Y') f(X,Y',Z'') | X != a } | Z''' != c}"); // testing standardization apart of sub-expressions when a new variable collides with a nested one.
-		testStandardizationApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
+		performTestOfStandardizednApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
 
 		expression1 = parse("{(on X, p(Z)) f(X,Y) | X != a }");
 		expression2 = parse("{(on X) f(X)}");
 		expected    = null; // no SA for function application indices
 		try {
-			testStandardizationApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
+			performTestOfStandardizednApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
 			fail("Should have thrown a StandardizedApartFrom.StandardizingApartOnFunctionApplicationsNotSupported");
 		} catch (StandardizedApartFrom.StandardizingApartOnScopingFunctionApplicationsNotSupported error) {
 			
 		}
 	}
 
-	private void testStandardizationApartWithoutAssumingImplicitQuantificationOfAllVariables(Expression expression1, Expression expression2) {
+	private void performTestOfStandardizednApartWithoutAssumingImplicitQuantificationOfAllVariables(Expression expression1, Expression expression2) {
 		Expression result;
 		RewritingProcess process = new DefaultRewritingProcess(expression1, evaluator);
-		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(expression1, process);
-		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(expression2, process);
+		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(expression1, process);
+		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(expression2, process);
 		result = StandardizedApartFrom.standardizedApartFrom(expression1, expression2, process);
 		System.out.println("Standardization apart of " + expression1 + "  wrt " + expression2 + " (not assuming implicit quantification):\n                         " + result + "\n               Expected: " + expected);
 		assertEquals(result, expected);

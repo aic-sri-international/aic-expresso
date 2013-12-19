@@ -123,7 +123,7 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 						Trace.log("    if negationHasLessNumberOfDisjuncts(F):");
 						Trace.log("        return R_normalize(||X|| - R_card( | not F |_X, \"none\" ) ) ");
 						Expression[] indexExpressionsAsArray = indexExpressions.toArray(new Expression[indexExpressions.size()]);
-						Expression cardIndexX          = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressionsAsArray);
+						Expression cardIndexX          = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressions);
 						Expression negationCardinality = process.rewrite(R_card,
 									CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(
 										CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(Not.make(f), indexExpressionsAsArray), 
@@ -178,7 +178,7 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 		if (f.equals(Expressions.TRUE)) {
 			Trace.log("if F is True");
 			Trace.log("    return R_normalize(||X||)");
-			Expression cardIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressionsAsArray);
+			Expression cardIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressions);
 			result = process.rewrite(CardinalityRewriter.R_normalize, cardIndices);
 		}
 		else if (f.equals(Expressions.FALSE)) {
@@ -189,7 +189,7 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 		else if (Expressions.expressionsDoNotOccurInAnotherExpressionAsFreeVariables(indices, f, process)) {
 			Trace.log("if x does not occur in F for any x in X");
 			Trace.log("    return R_normalize(if F then ||X|| else 0)");
-			Expression cardIndexX = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressionsAsArray);
+			Expression cardIndexX = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressions);
 			Expression ifThenElse = IfThenElse.make(f, cardIndexX, Expressions.ZERO);
 			result = process.rewrite(CardinalityRewriter.R_normalize, ifThenElse);
 		}
