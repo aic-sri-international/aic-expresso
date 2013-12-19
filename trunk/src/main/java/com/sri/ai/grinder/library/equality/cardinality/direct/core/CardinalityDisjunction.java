@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -122,7 +123,7 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 			throw new IllegalArgumentException("Input argument assumption F is of the form F1 or F2 does not hold:"+f);
 		}
 		
-		Expression cardIndexX = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressionsAsArray);
+		Expression cardIndexX = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressions);
 		List<Pair<Set<Expression>, List<Expression>>> independentProblems = CardinalityUtil.findIndependentProblemsInDisjunction(f, indexExpressions, subProcess);
 		
 		if ( independentProblems.isEmpty() ) {
@@ -181,10 +182,10 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 			} 
 			else {
 				Trace.log("    // I_1 and I_2 are two partitions of X, and D_1 and D_2 are two partitions of the disjuncts in F, and the index variables in D_1 and D_2 are I_1 and I_2 respectively.");
-				Expression firstIndexCard = CardinalityUtil.makeCardinalityOfIndexExpressions(firstProblem.first.toArray(new Expression [0]));
+				Expression firstIndexCard = CardinalityUtil.makeCardinalityOfIndexExpressions(new LinkedList<Expression>(firstProblem.first));
 
 				Pair<Set<Expression>, List<Expression>> secondProblem = independentProblems.get(1);
-				Expression secondIndexCard               = CardinalityUtil.makeCardinalityOfIndexExpressions(secondProblem.first.toArray(new Expression [0]));
+				Expression secondIndexCard               = CardinalityUtil.makeCardinalityOfIndexExpressions(new LinkedList<Expression>(secondProblem.first));
 				Expression secondDisjunction             = Or.make(secondProblem.second);	
 				Trace.log("    D_2 = R_top_simplify(D_2)");
 				secondDisjunction                        = process.rewrite(R_top_simplify, secondDisjunction);
@@ -219,7 +220,7 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 	
 	private Expression rewriteDisjunctionIndexInAllDisjuncts(Expression f, Expression[] indexExpressions, CardinalityRewriter.Quantification quantification, RewritingProcess process) {
 		Expression result = null;
-		Expression cardIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressions);
+		Expression cardinalityOfIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(Arrays.asList(indexExpressions));
 		
 		Trace.log("F1 <- first disjunct in F");
 		Expression f1 = CardinalityUtil.getF1FromDisjunction(f);
@@ -241,7 +242,7 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 			Expression resultCard1          = process.rewrite(R_card,
 													CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardNotF1AndNotF2, CardinalityRewriter.Quantification.THERE_EXISTS));
 			Expression resultCard1NotEqual0 = Expressions.make(FunctorConstants.GREATER_THAN, resultCard1, Expressions.ZERO); 
-			Expression ifThenElse           = IfThenElse.make(resultCard1NotEqual0, Expressions.ZERO, cardIndices);
+			Expression ifThenElse           = IfThenElse.make(resultCard1NotEqual0, Expressions.ZERO, cardinalityOfIndices);
 			
 			result = process.rewrite(R_normalize, ifThenElse);
 		} 
@@ -255,7 +256,7 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 			Expression cardF1x = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(f1, indexExpressions);
 			Expression cardF2x = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(f2, indexExpressions);
 			// Need to do this to get | type(X) | converted to its known value, e.g.: 10
-			cardIndices = process.rewrite(R_normalize, cardIndices);
+			cardinalityOfIndices = process.rewrite(R_normalize, cardinalityOfIndices);
 			
 			Trace.log("N1 <- R_card(| F1 |_X, quantification)");
 			Expression n1 = process.rewrite(R_card,
@@ -267,10 +268,10 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 				result = process.rewrite(R_card,
 							CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardF2x, quantification));
 			}
-			else if (n1.equals(cardIndices)) {
+			else if (n1.equals(cardinalityOfIndices)) {
 				Trace.log("if N1 = ||X||");
 				Trace.log("    return ||X|| // | F2 |_X = | F1 and F2 |_X and cancel out");
-				result = cardIndices;
+				result = cardinalityOfIndices;
 			}
 			
 			Expression n2 = null;
@@ -283,10 +284,10 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 					Trace.log("    return N1 // | F1 and F2 |_X is 0");
 					result = n1;
 				}
-				else if (n2.equals(cardIndices)) {
+				else if (n2.equals(cardinalityOfIndices)) {
 					Trace.log("if N2 = ||X||");
 					Trace.log("    return ||X|| // N1 = | F1 |_X = | F1 and F2 |_X and cancel out");
-					result = cardIndices;
+					result = cardinalityOfIndices;
 				}
 			}
 			
@@ -297,7 +298,7 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 				Expression n1NotEqual0     = Expressions.make(FunctorConstants.GREATER_THAN, n1, Expressions.ZERO);
 				Expression n2NotEqual0     = Expressions.make(FunctorConstants.GREATER_THAN, n2, Expressions.ZERO);
 				Expression n1orn2NotEqual0 = CardinalityUtil.makeOr(n1NotEqual0, n2NotEqual0);
-				Expression ifThenElse      = IfThenElse.make(n1orn2NotEqual0, cardIndices, Expressions.ZERO);
+				Expression ifThenElse      = IfThenElse.make(n1orn2NotEqual0, cardinalityOfIndices, Expressions.ZERO);
 				
 				result = process.rewrite(R_normalize, ifThenElse);
 			}

@@ -198,7 +198,7 @@ abstract public class AbstractGrinderTest {
 
 		process.getGlobalObjects().putAll(globalObjects);
 		
-		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(expression, process);
+		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(expression, process);
 		
 		Stopwatch stopwatch = new Stopwatch().start();
 		actual = evaluator.rewrite(expression, process);
@@ -250,7 +250,7 @@ abstract public class AbstractGrinderTest {
 			topExpression = tests[i].getTopExpression();
 			process = makeRewritingProcess(topExpression);
 
-			process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(topExpression, process);
+			process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(topExpression, process);
 
 			Expression expectedExpressions = parse(tests[i].expected);
 			Assert.assertNotNull("Unable to parse expected expression: "+tests[i].expected, expectedExpressions);

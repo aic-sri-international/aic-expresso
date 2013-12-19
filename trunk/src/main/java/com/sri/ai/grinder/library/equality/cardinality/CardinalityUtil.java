@@ -230,10 +230,10 @@ public class CardinalityUtil {
 	 * makes expression of the form | D1 | * ... * | Dn |,
 	 * assuming Di to be "type(Xi)" if the index expression is Xi alone.
 	 */
-	public static Expression makeCardinalityOfIndexExpressions(Expression... indexExpressions) {
+	public static Expression makeCardinalityOfIndexExpressions(List<Expression> indexExpressions) {
 		// TODO: When ALBP-119 is resolved, we will be able to take the domain of the variable from the quantified expression.
 		Expression result = Expressions.ONE;
-		if ( indexExpressions.length > 0 ) {
+		if ( indexExpressions.size() > 0 ) {
 			ArrayList<Expression> cardinalities = new ArrayList<Expression>();
 			for (Expression indexExpression: indexExpressions) {
 				Expression set;
@@ -250,7 +250,6 @@ public class CardinalityUtil {
 		}
 		return result;
 	}
-	
 	
 	/**
 	 * Make an expression of the form: sum_{x: Cx} S.

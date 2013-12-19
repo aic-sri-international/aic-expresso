@@ -49,6 +49,7 @@ import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.sri.ai.util.Util;
 
 /**
  * Default implementation of R_top_quantifier_elimination(Qx F).
@@ -109,7 +110,7 @@ public class TopQuantifierElimination extends AbstractHierarchicalRewriter imple
 		Expression resultCard1                   = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardinalityOfIndexedFormaulaF, quantification));
 		
 		if (quantification == CardinalityRewriter.Quantification.FOR_ALL) {
-			Expression cardIndexX            = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpression);
+			Expression cardIndexX            = CardinalityUtil.makeCardinalityOfIndexExpressions(Util.list(indexExpression));
 			Expression resultCard1EqualCardX = Equality.make(resultCard1, cardIndexX);
 			
 			result = process.rewrite(R_normalize, resultCard1EqualCardX);

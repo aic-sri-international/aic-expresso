@@ -53,6 +53,7 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
+import com.sri.ai.util.Util;
 
 /**
  * Default implementation of R_quantifier_elimination(F).
@@ -97,7 +98,7 @@ public class QuantifierElimination extends AbstractHierarchicalRewriter implemen
 			
 			Expression numberOfSolutionsOfBodyInIndexProblem     = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(body, indexExpression);
 			Expression numberOfSolutionsOfBodyInIndexSolution    = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(numberOfSolutionsOfBodyInIndexProblem, CardinalityRewriter.Quantification.FOR_ALL));
-			Expression indexDomainSize                           = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpression);
+			Expression indexDomainSize                           = CardinalityUtil.makeCardinalityOfIndexExpressions(Util.list(indexExpression));
 			Expression numberOfSolutionsAndDomainSizeMustBeEqual = Equality.make(numberOfSolutionsOfBodyInIndexSolution, indexDomainSize);
 			
 			result = process.rewrite(R_normalize, numberOfSolutionsAndDomainSizeMustBeEqual);

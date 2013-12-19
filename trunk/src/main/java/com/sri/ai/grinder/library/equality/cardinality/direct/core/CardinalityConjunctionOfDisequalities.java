@@ -61,6 +61,7 @@ import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
+import com.sri.ai.util.Util;
 
 /**
  * Default implementation of R_card_conjunction_of_disequalities(| F |_X, quantification).
@@ -118,7 +119,7 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractHierarchical
 			Trace.log("if X = {x}");
 			Expression indexExpressionX = indexExpressions.get(0);
 			Expression indexX      = IndexExpressions.getIndex(indexExpressionX);
-			Expression cardIndex   = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressionX);
+			Expression cardIndex   = CardinalityUtil.makeCardinalityOfIndexExpressions(Util.list(indexExpressionX));
 			Set<Expression> t1ToTk = extractT1ToTk(conjunction, indexX, process);
 			if ( t1ToTk.contains(indexX) ) { // There has been a conjunct of the form X!=X 
 				result = Expressions.ZERO;
