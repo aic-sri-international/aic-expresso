@@ -597,6 +597,7 @@ public class GrinderUtil {
 	
 	/**
 	 * Extends a process's contextual variables with free variables found in a given expression and returns the new resulting process.
+	 * This method should be used only as a setup method; during ordinary processing, all free variables should already be in the context.
 	 */
 	public static RewritingProcess extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomain(Expression expression, RewritingProcess process) {
 		Set<Expression> freeVariables = Expressions.freeVariables(expression, process);
@@ -649,58 +650,68 @@ public class GrinderUtil {
 			return process;
 		}
 		
+		doNotAcceptDomainsContainingTypeOfVariable(extendingContextualVariablesAndDomains);
+		
+		StackedHashMap<Expression, Expression> newMapOfContextualVariablesAndDomains = createNewMapOfContextualVariablesAndDomains(extendingContextualVariablesAndDomains, process);
+		// Note: StackedHashMap shares original entries with the original process's map
+		
+		Expression newContextualConstraint = checkAndAddNewConstraints(additionalConstraints, newMapOfContextualVariablesAndDomains, process);
+		
+		RewritingProcess subRewritingProcess = process.newSubProcessWithContext(newMapOfContextualVariablesAndDomains, newContextualConstraint);
+		
+		return subRewritingProcess;
+	}
+
+	private static void doNotAcceptDomainsContainingTypeOfVariable(Map<Expression, Expression> extendingContextualVariablesAndDomains) throws Error {
 		for (Map.Entry entry : extendingContextualVariablesAndDomains.entrySet()) {
 			if (entry.getValue() != null && ((Expression)entry.getValue()).hasFunctor("type")) {
 				throw new Error("'type' occurring in domains extending context: " + entry);
 			}
 		}
-		
-		Map<Expression, Expression> newContextualVariablesAndDomains = new StackedHashMap<Expression, Expression>(process.getContextualVariablesAndDomains());
+	}
+
+	private static StackedHashMap<Expression, Expression> createNewMapOfContextualVariablesAndDomains(Map<Expression, Expression> extendingContextualVariablesAndDomains, RewritingProcess process) {
+		StackedHashMap<Expression, Expression> newMapOfContextualVariablesAndDomains = new StackedHashMap<Expression, Expression>(process.getContextualVariablesAndDomains());
 		if (extendingContextualVariablesAndDomains != null) {
 			// we take only the logical variables; this is a current limitation of the system and should eventually be removed.
 			Collection<Expression> newFreeVariablesWhichAreLogicalVariables = Util.filter(extendingContextualVariablesAndDomains.keySet(), new IsVariable(process));
 			for (Expression newLogicalFreeVariable : newFreeVariablesWhichAreLogicalVariables) {
-				newContextualVariablesAndDomains.put(newLogicalFreeVariable, extendingContextualVariablesAndDomains.get(newLogicalFreeVariable));
+				newMapOfContextualVariablesAndDomains.put(newLogicalFreeVariable, extendingContextualVariablesAndDomains.get(newLogicalFreeVariable));
 			}
 		}
-		
-		Expression contextualConstraintPrime = process.getContextualConstraint();
-		
+		return newMapOfContextualVariablesAndDomains;
+	}
+
+	private static Expression checkAndAddNewConstraints(Expression additionalConstraints, StackedHashMap<Expression, Expression> newMapOfContextualVariablesAndDomains, RewritingProcess process) throws Error {
+		Expression newContextualConstraint = process.getContextualConstraint();
 		// Only extend the contextual constraint with formulas
 		if (!additionalConstraints.equals(Expressions.TRUE) && FormulaUtil.isFormula(additionalConstraints, process)) {
-			// Ensure any variables mentioned in the additional constraint are already present in the contextual variables set.
-			Set<Expression> freeVariablesInAdditionalConstraints = Expressions.freeVariables(additionalConstraints, process);
-			if ( ! newContextualVariablesAndDomains.keySet().containsAll(freeVariablesInAdditionalConstraints) &&
-					! process.containsGlobalObjectKey("Do not require added contextual constraint free variables to be in contextual variables")) {
-				String message =
-						"Extending contextual constraint " + additionalConstraints +
-						" containing unknown variables {" + Util.join(Util.subtract(freeVariablesInAdditionalConstraints, newContextualVariablesAndDomains.keySet())) + 
-						"} (current contextual variables are {" + Util.join(newContextualVariablesAndDomains.keySet()) + "})";
-				throw new Error(message);
-			}
-			// The check above ensures that the additional constraints only use variables that are already known.
-			// When this fails, the cause is a failure in the code somewhere to extend the process with scoping variables.
-			// The easiest way to debug this is to place a breakpoint at the line above and, when it is reached, inspect the stack,
-			// looking for the point in which the expression being process involves variables not in the process contextual variables.
-			// This point will be the spot where the process should have been extended.
-			
+			checkThatAllFreeVariablesInAdditionalConstraintsAreInContext(additionalConstraints, newMapOfContextualVariablesAndDomains, process);
 			// Construct a conjunct of contextual constraints extended by the additional context
-			contextualConstraintPrime = CardinalityUtil.makeAnd(process.getContextualConstraint(), additionalConstraints);
+			newContextualConstraint = CardinalityUtil.makeAnd(newContextualConstraint, additionalConstraints);
 		} 
 		else {
 			// Note: commenting out for now due to the bloat caused in the trace output.
 			// Trace.log("INFO: Not a formula to extend contextual constraint by: {}", additionalConstraints);
 		}
-		
-		for (Expression v : newContextualVariablesAndDomains.keySet()) {
-			if (!process.isVariable(v)) {
-				throw new IllegalArgumentException("Illegal argument to extend contextual variables with:"+v);
-			}
+		return newContextualConstraint;
+	}
+
+	private static void checkThatAllFreeVariablesInAdditionalConstraintsAreInContext(Expression additionalConstraints, Map<Expression, Expression> newMapOfContextualVariablesAndDomains, RewritingProcess process) throws Error {
+		Set<Expression> freeVariablesInAdditionalConstraints = Expressions.freeVariables(additionalConstraints, process);
+		if ( ! newMapOfContextualVariablesAndDomains.keySet().containsAll(freeVariablesInAdditionalConstraints) &&
+				! process.containsGlobalObjectKey("Do not require added contextual constraint free variables to be in contextual variables")) {
+			String message =
+					"Extending contextual constraint " + additionalConstraints +
+					" containing unknown variables {" + Util.join(Util.subtract(freeVariablesInAdditionalConstraints, newMapOfContextualVariablesAndDomains.keySet())) + 
+					"} (current contextual variables are {" + Util.join(newMapOfContextualVariablesAndDomains.keySet()) + "})";
+			throw new Error(message);
 		}
-		
-		RewritingProcess subRewritingProcess = process.newSubProcessWithContext(newContextualVariablesAndDomains, contextualConstraintPrime);
-		
-		return subRewritingProcess;	
+		// The check above ensures that the additional constraints only use variables that are already known.
+		// When this fails, the cause is a failure in the code somewhere to extend the process with scoping variables.
+		// The easiest way to debug this is to place a breakpoint at the line above and, when it is reached, inspect the stack,
+		// looking for the point in which the expression being process involves variables not in the process contextual variables.
+		// This point will be the spot where the process should have been extended.
 	}
 
 	public static Expression currentContextBranchReachable(String rewriterNameToCheckBranchReachable, RewritingProcess parentProcess, RewritingProcess childProcess) {

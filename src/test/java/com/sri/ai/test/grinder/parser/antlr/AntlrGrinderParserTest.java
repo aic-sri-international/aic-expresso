@@ -593,12 +593,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, DefaultSymbol.createSymbol(
 				new DefaultCompoundSyntaxTree(">", "x", "y")));
 
-		string = "{(on value of <x>) x}";
-		test(string, new DefaultCompoundSyntaxTree("{ . . . }", 
-				new DefaultCompoundSyntaxTree("( on . )", 
-						new DefaultCompoundSyntaxTree("value of", 
-								DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("x")))), "x", null));
-
 		string = "< if x > y then x else y >";
 		test(string, DefaultSymbol.createSymbol(
 				new DefaultCompoundSyntaxTree("if . then . else .", 
@@ -3818,14 +3812,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					new DefaultCompoundSyntaxTree("( on . )", "X"), 
 					new DefaultCompoundSyntaxTree("f", "X"), null));
 
-			expression = "{(on value of <X>) p(X,Y) + 1 + 1}";
-			test(expression, new DefaultCompoundSyntaxTree("{ . . . }", 
-					new DefaultCompoundSyntaxTree("( on . )", 
-							new DefaultCompoundSyntaxTree("value of", 
-									DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("X")))), 
-					new DefaultCompoundSyntaxTree("+", 
-							new DefaultCompoundSyntaxTree("p", "X", "Y"), "1", "1"), null));
-
 			expression = "{(on X) p(X,Y) + 2}";
 			test(expression, new DefaultCompoundSyntaxTree("{ . . . }", 
 					new DefaultCompoundSyntaxTree("( on . )", "X"), 
@@ -3900,33 +3886,12 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					new DefaultCompoundSyntaxTree("+", 
 							new DefaultCompoundSyntaxTree("p", "X", "Y"), "2"), null));
 
-			expression = "{(on value of {<X>,<Y>}) p(X,Y) + 1 + 1}";
-			test(expression, new DefaultCompoundSyntaxTree("{ . . . }", 
-					new DefaultCompoundSyntaxTree("( on . )", 
-							new DefaultCompoundSyntaxTree("value of", 
-									new DefaultCompoundSyntaxTree("{ . }", 
-											new DefaultCompoundSyntaxTree("kleene list", 
-													DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("X")), 
-													DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("Y")))))), 
-					new DefaultCompoundSyntaxTree("+", 
-							new DefaultCompoundSyntaxTree("p", "X", "Y"), "1", "1"), null));
-
 			expression = "{(on X,Y) p(X,Y) + 2}";
 			test(expression, new DefaultCompoundSyntaxTree("{ . . . }", 
 					new DefaultCompoundSyntaxTree("( on . )", 
 							new DefaultCompoundSyntaxTree("kleene list", "X", "Y")), 
 					new DefaultCompoundSyntaxTree("+", 
 							new DefaultCompoundSyntaxTree("p", "X", "Y"), "2"), null));
-
-			expression = "if V = (<X>) then {(on value of V) p(X,Y) + 1 + 1} else 0";
-			test(expression, new DefaultCompoundSyntaxTree("if . then . else .", 
-					new DefaultCompoundSyntaxTree("=", "V", 
-							DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("X"))), 
-					new DefaultCompoundSyntaxTree("{ . . . }", 
-							new DefaultCompoundSyntaxTree("( on . )", 
-									new DefaultCompoundSyntaxTree("value of", "V")), 
-							new DefaultCompoundSyntaxTree("+", 
-									new DefaultCompoundSyntaxTree("p", "X", "Y"), "1", "1"), null), "0"));
 
 			expression = "if V = (<X>) then {(on X) p(X,Y) + 2} else 0";
 			test(expression, new DefaultCompoundSyntaxTree("if . then . else .", 
@@ -3937,20 +3902,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							new DefaultCompoundSyntaxTree("+", 
 									new DefaultCompoundSyntaxTree("p", "X", "Y"), "2"), null), "0"));
 
-			expression = "{(on value of <X>, Y in {1,2} union {3}) p(X,Y) + 1 + 1}";
-			test(expression, new DefaultCompoundSyntaxTree("{ . . . }", 
-					new DefaultCompoundSyntaxTree("( on . )", 
-							new DefaultCompoundSyntaxTree("kleene list", 
-									new DefaultCompoundSyntaxTree("value of", 
-											DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("X"))), 
-									new DefaultCompoundSyntaxTree("in", "Y", 
-											new DefaultCompoundSyntaxTree("union", 
-													new DefaultCompoundSyntaxTree("{ . }", 
-															new DefaultCompoundSyntaxTree("kleene list", "1", "2")), 
-													new DefaultCompoundSyntaxTree("{ . }", "3"))))), 
-					new DefaultCompoundSyntaxTree("+", 
-							new DefaultCompoundSyntaxTree("p", "X", "Y"), "1", "1"), null));
-
 			expression = "{(on X, Y in {1,2,3}) p(X,Y) + 2}";
 			test(expression, new DefaultCompoundSyntaxTree("{ . . . }", 
 					new DefaultCompoundSyntaxTree("( on . )", 
@@ -3961,22 +3912,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					new DefaultCompoundSyntaxTree("+", 
 							new DefaultCompoundSyntaxTree("p", "X", "Y"), "2"), null));
 
-			expression = "{(on value of <X>, (value of <Y>) in {1,2} union {3}) p(X,Y) + 1 + 1}";
-			test(expression, new DefaultCompoundSyntaxTree("{ . . . }", 
-					new DefaultCompoundSyntaxTree("( on . )", 
-							new DefaultCompoundSyntaxTree("kleene list", 
-									new DefaultCompoundSyntaxTree("value of", 
-											DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("X"))), 
-									new DefaultCompoundSyntaxTree("in", 
-											new DefaultCompoundSyntaxTree("value of", 
-													DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("Y"))), 
-											new DefaultCompoundSyntaxTree("union", 
-													new DefaultCompoundSyntaxTree("{ . }", 
-															new DefaultCompoundSyntaxTree("kleene list", "1", "2")), 
-													new DefaultCompoundSyntaxTree("{ . }", "3"))))), 
-					new DefaultCompoundSyntaxTree("+", 
-							new DefaultCompoundSyntaxTree("p", "X", "Y"), "1", "1"), null));
-
 			expression = "{(on X, Y in {1,2,3}) p(X,Y) + 2}";
 			test(expression, new DefaultCompoundSyntaxTree("{ . . . }", 
 					new DefaultCompoundSyntaxTree("( on . )", 
@@ -3986,25 +3921,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 													new DefaultCompoundSyntaxTree("kleene list", "1", "2", "3"))))), 
 					new DefaultCompoundSyntaxTree("+", 
 							new DefaultCompoundSyntaxTree("p", "X", "Y"), "2"), null));
-
-			expression = "{(on value of {<X>,<Z>}, (value of <Y>) in {1,2} union {3}) p(X,Y) + 1 + 1}";
-			test(expression, new DefaultCompoundSyntaxTree("{ . . . }", 
-					new DefaultCompoundSyntaxTree("( on . )", 
-							new DefaultCompoundSyntaxTree("kleene list", 
-									new DefaultCompoundSyntaxTree("value of", 
-											new DefaultCompoundSyntaxTree("{ . }", 
-													new DefaultCompoundSyntaxTree("kleene list", 
-															DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("X")), 
-															DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("Z"))))), 
-									new DefaultCompoundSyntaxTree("in", 
-											new DefaultCompoundSyntaxTree("value of", 
-													DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("Y"))), 
-											new DefaultCompoundSyntaxTree("union", 
-													new DefaultCompoundSyntaxTree("{ . }", 
-															new DefaultCompoundSyntaxTree("kleene list", "1", "2")), 
-													new DefaultCompoundSyntaxTree("{ . }", "3"))))), 
-					new DefaultCompoundSyntaxTree("+", 
-							new DefaultCompoundSyntaxTree("p", "X", "Y"), "1", "1"), null));
 
 			expression = "{(on X, Z, Y in {1,2,3}) p(X,Y) + 2}";
 			test(expression, new DefaultCompoundSyntaxTree("{ . . . }", 
@@ -4015,28 +3931,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 													new DefaultCompoundSyntaxTree("kleene list", "1", "2", "3"))))), 
 					new DefaultCompoundSyntaxTree("+", 
 							new DefaultCompoundSyntaxTree("p", "X", "Y"), "2"), null));
-
-			expression = "{(on (value of {<X>,<Z>}) in {set1, set2}, (value of <Y>) in {1,2} union {3}) p(X,Y) + 1 + 1}";
-			test(expression, new DefaultCompoundSyntaxTree("{ . . . }", 
-					new DefaultCompoundSyntaxTree("( on . )", 
-							new DefaultCompoundSyntaxTree("kleene list", 
-									new DefaultCompoundSyntaxTree("in", 
-											new DefaultCompoundSyntaxTree("value of", 
-													new DefaultCompoundSyntaxTree("{ . }", 
-															new DefaultCompoundSyntaxTree("kleene list", 
-																	DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("X")), 
-																	DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("Z"))))), 
-											new DefaultCompoundSyntaxTree("{ . }", 
-													new DefaultCompoundSyntaxTree("kleene list", "set1", "set2"))), 
-									new DefaultCompoundSyntaxTree("in", 
-											new DefaultCompoundSyntaxTree("value of", 
-													DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("Y"))), 
-											new DefaultCompoundSyntaxTree("union", 
-													new DefaultCompoundSyntaxTree("{ . }", 
-															new DefaultCompoundSyntaxTree("kleene list", "1", "2")), 
-													new DefaultCompoundSyntaxTree("{ . }", "3"))))), 
-					new DefaultCompoundSyntaxTree("+", 
-							new DefaultCompoundSyntaxTree("p", "X", "Y"), "1", "1"), null));
 
 			expression = "{(on X in set1, Z in set2, Y in {1,2,3}) p(X,Y) + 2}";
 			test(expression, new DefaultCompoundSyntaxTree("{ . . . }", 
@@ -4049,22 +3943,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 													new DefaultCompoundSyntaxTree("kleene list", "1", "2", "3"))))), 
 					new DefaultCompoundSyntaxTree("+", 
 							new DefaultCompoundSyntaxTree("p", "X", "Y"), "2"), null));
-
-			expression = "if V = (<X>) then {(on value of V, Y in {1,2} union {3}) p(X,Y) + 1 + 1} else 0";
-			test(expression, new DefaultCompoundSyntaxTree("if . then . else .", 
-					new DefaultCompoundSyntaxTree("=", "V", 
-							DefaultSymbol.createSymbol(DefaultSymbol.createSymbol("X"))), 
-					new DefaultCompoundSyntaxTree("{ . . . }", 
-							new DefaultCompoundSyntaxTree("( on . )", 
-									new DefaultCompoundSyntaxTree("kleene list", 
-											new DefaultCompoundSyntaxTree("value of", "V"), 
-											new DefaultCompoundSyntaxTree("in", "Y", 
-													new DefaultCompoundSyntaxTree("union", 
-															new DefaultCompoundSyntaxTree("{ . }", 
-																	new DefaultCompoundSyntaxTree("kleene list", "1", "2")), 
-															new DefaultCompoundSyntaxTree("{ . }", "3"))))), 
-							new DefaultCompoundSyntaxTree("+", 
-									new DefaultCompoundSyntaxTree("p", "X", "Y"), "1", "1"), null), "0"));
 
 			expression = "if V = (<X>) then {(on X, Y in {1,2,3}) p(X,Y) + 2} else 0";
 			test(expression, new DefaultCompoundSyntaxTree("if . then . else .", 
