@@ -44,7 +44,6 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.grinder.library.SyntacticSubstitute;
 
 /**
@@ -57,7 +56,7 @@ import com.sri.ai.grinder.library.SyntacticSubstitute;
 public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends AbstractRewriter {
 	
 	public IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch() {
-		this.setReifiedTests(new HasFunctor(IfThenElse.FUNCTOR));
+		this.setReifiedTests(new HasFunctor(FunctorConstants.IF_THEN_ELSE));
 	}
 	
 	@Override

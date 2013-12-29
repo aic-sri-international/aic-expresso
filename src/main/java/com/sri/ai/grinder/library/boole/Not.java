@@ -80,6 +80,10 @@ public class Not extends AbstractRewriter {
 		return expression;
 	}
 
+	public static boolean isNot(Expression expression) {
+		return expression.hasFunctor(FunctorConstants.NOT);
+	}
+
 	/** Make a "not" application on given expression. */
 	public static Expression make(Expression expression) {
 		if (expression.equals(Expressions.TRUE)){

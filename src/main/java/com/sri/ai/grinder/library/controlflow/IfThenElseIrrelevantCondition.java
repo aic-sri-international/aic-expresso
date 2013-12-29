@@ -42,6 +42,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
  * An atomic rewriter for conditional expressions.
@@ -53,7 +54,7 @@ import com.sri.ai.grinder.core.HasFunctor;
 public class IfThenElseIrrelevantCondition extends AbstractRewriter {
 
 	public IfThenElseIrrelevantCondition() {
-		this.setReifiedTests(new HasFunctor(IfThenElse.FUNCTOR));
+		this.setReifiedTests(new HasFunctor(FunctorConstants.IF_THEN_ELSE));
 	}
 	
 	@Override

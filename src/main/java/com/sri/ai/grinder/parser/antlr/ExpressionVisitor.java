@@ -56,7 +56,6 @@ import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.lambda.Lambda;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
@@ -281,7 +280,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		Expression condition  = visit(ctx.condition);
 		Expression thenBranch = visit(ctx.thenbranch);
 		Expression elseBranch = visit(ctx.elsebranch);
-		Expression result = Expressions.make(IfThenElse.FUNCTOR, condition, thenBranch, elseBranch);
+		Expression result = Expressions.make(FunctorConstants.IF_THEN_ELSE, condition, thenBranch, elseBranch);
 		return result;
 	}
 	

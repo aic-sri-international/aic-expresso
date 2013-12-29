@@ -55,6 +55,7 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 public class FunctorConstants {
 	public final static String PRODUCT = "product";
 	public final static String SUM = "sum";
+	public static final String IF_THEN_ELSE = "if . then . else .";
 	public final static String THERE_EXISTS  = ThereExists.LABEL;
 	public final static String FOR_ALL  = ForAll.LABEL;
 	public final static String PLUS  = "+";
