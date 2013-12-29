@@ -894,4 +894,15 @@ public class Expressions {
 		}
 		return result;
 	}
+
+	/** Given an expression, returns the number of top applications of a given (unary) functor and the underlying argument. */
+	public static Pair<Integer, Expression> getNumberOfConsecutiveApplicationsOfUnaryFunctorAndUnderlyingArgument(Expression expression, Expression unaryFunctor) {
+		int i = 0;
+		while (expression.hasFunctor(unaryFunctor)) {
+			i++;
+			expression = expression.get(0);
+		}
+		Pair<Integer, Expression> result = Pair.make(i, expression);
+		return result;
+	}
 }

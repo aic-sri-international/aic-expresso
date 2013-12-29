@@ -43,11 +43,15 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.FunctionApplicationProvider;
 import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.util.base.Pair;
 
 /**
  * An atomic rewriter for conditional expressions. Returns the then or else
@@ -59,7 +63,7 @@ import com.sri.ai.grinder.core.HasFunctor;
 @Beta
 public class IfThenElse extends AbstractRewriter {
 
-	public static final String FUNCTOR = "if . then . else .";
+	private static final Symbol NOT_FUNCTOR = DefaultSymbol.createSymbol(FunctorConstants.NOT);
 	//
 	private static final List<Integer> _pathToFunctor   = Collections.unmodifiableList(Arrays.asList(FunctionApplicationProvider.INDEX_OF_FUNCTOR_IN_FUNCTION_APPLICATIONS));
 	private static final List<Integer> _pathToCondition = Collections.unmodifiableList(Arrays.asList(0));
@@ -67,7 +71,7 @@ public class IfThenElse extends AbstractRewriter {
 	private static final List<Integer> _pathToElse      = Collections.unmodifiableList(Arrays.asList(2));
 
 	public IfThenElse() {
-		this.setReifiedTests(new HasFunctor(FUNCTOR));
+		this.setReifiedTests(new HasFunctor(FunctorConstants.IF_THEN_ELSE));
 	}
 	
 	@Override
@@ -112,7 +116,7 @@ public class IfThenElse extends AbstractRewriter {
 		if (thenBranch.equals(true) && elseBranch.equals(false)) {
 			return condition;
 		}
-		Expression result = Expressions.make(FUNCTOR, condition, thenBranch, elseBranch);
+		Expression result = Expressions.make(FunctorConstants.IF_THEN_ELSE, condition, thenBranch, elseBranch);
 		return result;
 	}
 
@@ -127,17 +131,8 @@ public class IfThenElse extends AbstractRewriter {
 		return IfThenElse.make(condition, secondBranch, firstBranch);
 	}
 
-	/**
-	 * Given an index of one of the branches of an if then else expression,
-	 * returns the index of the other branch.
-	 * @see #make(Expression, int, Expression, int, Expression)
-	 */
-	public static int oppositeBranchIndex(int branchIndex) {
-		return branchIndex == 1 ? 2 : 1;
-	}
-
 	public static boolean isIfThenElse(Expression expression) {
-		boolean result = expression.hasFunctor(FUNCTOR);
+		boolean result = expression.hasFunctor(FunctorConstants.IF_THEN_ELSE);
 		return result;
 	}
 	
@@ -172,5 +167,42 @@ public class IfThenElse extends AbstractRewriter {
 		}
 		Expression result = IfThenElse.make(newCondition, getThenBranch(ifThenElse), getElseBranch(ifThenElse));
 		return result;
+	}
+
+	/**
+	 * Given an index of one of the branches of an if then else expression,
+	 * returns the index of the other branch.
+	 * @see #make(Expression, int, Expression, int, Expression)
+	 */
+	public static int oppositeBranchIndex(int branchIndex) {
+		return branchIndex == 1 ? 2 : 1;
+	}
+
+	public static Expression flipIfThenElseWithNegatedCondition(Expression ifThenElseWithNegatedCondition) {
+		Expression result =
+				make(
+						getCondition(ifThenElseWithNegatedCondition).get(0),
+						getElseBranch(ifThenElseWithNegatedCondition),
+						getThenBranch(ifThenElseWithNegatedCondition));
+		return result;
+	}
+	
+	/** 
+	 * Receives an expression and, if it is an if then else, returns an equivalent one without top {@link Not} applications in the condition.
+	 */
+	public static Expression equivalentWithNonNegatedCondition(Expression expression) {
+		if (isIfThenElse(expression)) {
+			Pair<Integer, Expression> numberOfNotApplicationsAndArgument =
+					Expressions.getNumberOfConsecutiveApplicationsOfUnaryFunctorAndUnderlyingArgument(getCondition(expression), NOT_FUNCTOR);
+			if (numberOfNotApplicationsAndArgument.first != 0) {
+				if (numberOfNotApplicationsAndArgument.first % 2 == 0) {
+					expression = make(numberOfNotApplicationsAndArgument.second, getThenBranch(expression), getElseBranch(expression));
+				}
+				else {
+					expression = make(numberOfNotApplicationsAndArgument.second, getElseBranch(expression), getThenBranch(expression));
+				}
+			}
+		}
+		return expression;
 	}
 }

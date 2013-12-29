@@ -43,6 +43,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
@@ -68,7 +69,7 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 public class FromConditionalFormulaWithConstantBooleanBranchToFormula extends AbstractRewriter {
 	
 	public FromConditionalFormulaWithConstantBooleanBranchToFormula() {
-		this.setReifiedTests(new HasFunctor(IfThenElse.FUNCTOR));
+		this.setReifiedTests(new HasFunctor(FunctorConstants.IF_THEN_ELSE));
 	}
 
 	@Override
