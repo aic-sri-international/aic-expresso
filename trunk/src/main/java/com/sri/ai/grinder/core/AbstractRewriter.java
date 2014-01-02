@@ -178,7 +178,12 @@ public abstract class AbstractRewriter implements Rewriter {
 		
 		if (isTraceInAndOutOfRewriter()) {
 			if (Trace.isEnabled()) {
-				Trace.out(RewriterLogging.REWRITER_PROFILE_INFO, "-"+getName()+"={}", result);
+				if (result != expression) {
+					Trace.out(RewriterLogging.REWRITER_PROFILE_INFO, "-"+getName()+"={}", result);
+				}
+				else {
+					Trace.out(RewriterLogging.REWRITER_PROFILE_INFO, "-"+getName()+" did not apply");
+				}
 			}
 		}
 		
