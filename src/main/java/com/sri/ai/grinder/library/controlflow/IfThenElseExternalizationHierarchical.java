@@ -47,7 +47,6 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.helper.RewriterFunction;
 import com.sri.ai.grinder.helper.RewriterReplacementFunction;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.boole.Not;
