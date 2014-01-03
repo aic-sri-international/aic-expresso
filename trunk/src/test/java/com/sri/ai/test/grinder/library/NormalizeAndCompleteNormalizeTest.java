@@ -37,7 +37,6 @@
  */
 package com.sri.ai.test.grinder.library;
 
-import java.util.Collection;
 import java.util.Map;
 
 import org.junit.Test;
