@@ -14,8 +14,8 @@
 {{{
 mvn -P sonatype-oss-release deploy -DskipTests=true
 }}}
-    // *Note:* the -!DskipTests is used to bypass running the integration/stress tests.
-    // *Note:* if you would also like to skip the unit tests (not recommended) add the flag -!DskipUnitTest as well, e.g.:
+    // *Note:* the -!DskipTests is used to bypass running the integration/stress tests.<br>
+    // *Note:* if you would also like to skip the unit tests (not recommended) add the flag -!DskipUnitTests as well, e.g.:
 {{{
 mvn -P sonatype-oss-release deploy -DskipTests=true -DskipUnitTests=true
 }}}
