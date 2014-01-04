@@ -15,6 +15,10 @@
 mvn -P sonatype-oss-release deploy -DskipTests=true
 }}}
     // *Note:* the -!DskipTests is used to bypass running the integration/stress tests.
+    // *Note:* if you would also like to skip the unit tests (not recommended) add the flag -!DskipUnitTest as well, e.g.:
+{{{
+mvn -P sonatype-oss-release deploy -DskipTests=true -DskipUnitTests=true
+}}}
   # Close the Staged artifacts and then Release them to the Maven Central Repository, by following steps 8 onwards from [https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide the guide for deploying via Nexus] from the [https://oss.sonatype.org/ Nexus Server]
   # Upload the classes,javadoc, and source files to the Downloads page.
   # Tag the release under Subversion.
