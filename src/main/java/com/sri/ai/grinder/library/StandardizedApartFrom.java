@@ -47,6 +47,7 @@ import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.core.AbstractReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.util.Util;
@@ -81,17 +82,12 @@ public class StandardizedApartFrom {
 	 * replaced so as not to collide with any variables in a given collection of forbidden variables,
 	 * adding any newly created variables to it.
 	 */
-	private static class Standardizer implements ReplacementFunctionWithContextuallyUpdatedProcess {
+	private static class Standardizer extends AbstractReplacementFunctionWithContextuallyUpdatedProcess {
 		private Collection<Expression> variablesThatCannotBeScopingInExpression;
 
 		public Standardizer(Collection<Expression> variablesThatCannotBeScopingInExpression) {
 			super();
 			this.variablesThatCannotBeScopingInExpression = variablesThatCannotBeScopingInExpression;
-		}
-
-		@Override
-		public Expression apply(Expression expression) {
-			throw new Error("Should not invoke TopExpressionStandardizer.apply(Expression)");
 		}
 
 		@Override
