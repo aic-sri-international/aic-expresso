@@ -39,7 +39,7 @@ package com.sri.ai.grinder.helper;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
+import com.sri.ai.expresso.core.AbstractReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 
@@ -47,7 +47,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
  * A function mapping an expression to its form rewritten by a given rewriter within a given rewriting process. 
  */
 @Beta
-public class RewriterReplacementFunction implements ReplacementFunctionWithContextuallyUpdatedProcess {
+public class RewriterReplacementFunction extends AbstractReplacementFunctionWithContextuallyUpdatedProcess {
 	private Rewriter rewriter;
 
 	public RewriterReplacementFunction(Rewriter rewriter) {
@@ -59,10 +59,5 @@ public class RewriterReplacementFunction implements ReplacementFunctionWithConte
 	public Expression apply(Expression expression, RewritingProcess process) {
 		Expression result = rewriter.rewrite(expression, process);
 		return result;
-	}
-
-	@Override
-	public Expression apply(Expression expression) {
-		throw new UnsupportedOperationException("RewriterReplacementFunction.apply(Expression expression) should not be called.");
 	}
 }

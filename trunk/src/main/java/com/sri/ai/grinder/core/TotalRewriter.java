@@ -48,6 +48,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
+import com.sri.ai.expresso.core.AbstractReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.Rewriter;
@@ -158,12 +159,7 @@ public class TotalRewriter extends AbstractRewriter {
 		final boolean       justificationEnabled = Justification.isEnabled();
 
 		final AtomicInteger numberOfSelections   = new AtomicInteger(0);
-		ReplacementFunctionWithContextuallyUpdatedProcess rewriteFunction = new ReplacementFunctionWithContextuallyUpdatedProcess() {
-			@Override
-			public Expression apply(Expression expression) {
-				throw new UnsupportedOperationException("TotalRewriter.anonymous ReplacementFunctionWithContextuallyUpdatedProcess.apply(Expression expression) should not be called.");
-			}
-			
+		ReplacementFunctionWithContextuallyUpdatedProcess rewriteFunction = new AbstractReplacementFunctionWithContextuallyUpdatedProcess() {
 			@Override
 			public Expression apply(Expression expression, RewritingProcess process) {
 				Expression result      = expression;
@@ -228,7 +224,6 @@ public class TotalRewriter extends AbstractRewriter {
 						}
 					}
 				} while (result != priorResult);
-					
 				
 //				if (cached != null && ! cached.equals(result)) {
 //					System.out.println("Equivalency cache used in non-trivial way.");
