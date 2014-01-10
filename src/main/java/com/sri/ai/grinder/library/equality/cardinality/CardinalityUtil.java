@@ -951,7 +951,7 @@ public class CardinalityUtil {
 	 */
 	public static Expression removeIfThenElsesFromFormula(Expression expression, RewritingProcess process) {
 		if (CardinalityUtil.ifThenElseRemover == null) {
-			CardinalityUtil.ifThenElseRemover = new TotalRewriter(new FromConditionalFormulaToFormula());
+			CardinalityUtil.ifThenElseRemover = new TotalRewriter(FromConditionalFormulaToFormula.class.getName() + " Total Rewriter", new FromConditionalFormulaToFormula());
 		}
 		expression = CardinalityUtil.ifThenElseRemover.rewrite(expression, process);
 		return expression;

@@ -101,6 +101,17 @@ public class TotalRewriter extends AbstractRewriter {
 	//
 	private CallRewriterDecisionTree callRewriterDecisionTree = null;
 	
+	
+	/**
+	 * Constructor
+	 * @param name
+	 *        Must be a name that uniquely identifies the list of rewriters
+	 *        passed to the constructor. Works in conjunction with the
+	 *        Rewriting Processes rewrite cache mechanism.
+	 * @param rewriters
+	 *        The list of rewriters to be exhaustively called until no 
+	 *        more rewriting can occur.
+	 */
 	public TotalRewriter(String name, List<Rewriter> rewriters) {
 		super();
 		setName(name);
@@ -115,12 +126,18 @@ public class TotalRewriter extends AbstractRewriter {
 		callRewriterDecisionTree = new CallRewriterDecisionTree(activeRewriters);
 	}
 	
+	/**
+	 * Constructor
+	 * @param name
+	 *        Must be a name that uniquely identifies the list of rewriters
+	 *        passed to the constructor. Works in conjunction with the
+	 *        Rewriting Processes rewrite cache mechanism.
+	 * @param rewriters
+	 *        The list of rewriters to be exhaustively called until no 
+	 *        more rewriting can occur.
+	 */
 	public TotalRewriter(String name, Rewriter... rewriters) {
 		this(name, Arrays.asList(rewriters));
-	}
-	
-	public TotalRewriter(Rewriter... rewriters) {
-		this("Nameless TotalRewriter", Arrays.asList(rewriters));
 	}
 	
 	public boolean isOuterTraceEnabled() {
