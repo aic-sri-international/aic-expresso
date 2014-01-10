@@ -65,7 +65,11 @@ public class ExpressionNodeRenderer extends DefaultTreeCellRenderer {
 	}
 	  
 	public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-		Component component = super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+		Object valueToDisplay = value;
+		if (expanded && !leaf) {
+			valueToDisplay = " ";
+		}	
+		Component component = super.getTreeCellRendererComponent(tree, valueToDisplay, selected, expanded, leaf, row, hasFocus);
 		if ( component instanceof JLabel ) {
 			ExpressionNode node = (ExpressionNode) value;
 			JLabel label = ((JLabel)component);
