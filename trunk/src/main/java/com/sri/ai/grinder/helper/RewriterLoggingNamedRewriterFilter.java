@@ -62,8 +62,10 @@ public class RewriterLoggingNamedRewriterFilter extends Filter<ILoggingEvent> {
 		String rewriterNames = GrinderConfiguration
 				.getFilterOutLoggingByRewritersNamed();
 		String[] namesToFilter = rewriterNames.split(":");
-		for (String rewriterName : namesToFilter) {		
-			rewritersToFilter.add(rewriterName);
+		for (String rewriterName : namesToFilter) {	
+			if (!rewriterName.trim().equals("")) {
+				rewritersToFilter.add(rewriterName.trim());
+			}
 		}
 	}
 	
