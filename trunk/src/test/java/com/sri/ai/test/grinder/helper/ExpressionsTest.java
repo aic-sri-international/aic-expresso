@@ -38,7 +38,6 @@
 package com.sri.ai.test.grinder.helper;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sri.ai.brewer.api.Grammar;
@@ -63,7 +62,6 @@ public class ExpressionsTest extends AbstractGrinderTest {
 		return new DefaultRewritingProcess(topExpression, new Basic());
 	}
 	
-	@Ignore("NEED TO RESOLVE Issue 35: Defect in Expressions.freeSymbols logic")
 	@Test
 	public void testFreeSymbols() {
 		RewritingProcess process = makeRewritingProcess(parse("true"));

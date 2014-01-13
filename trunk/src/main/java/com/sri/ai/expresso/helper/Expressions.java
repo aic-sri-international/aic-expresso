@@ -791,25 +791,6 @@ public class Expressions {
 		return getVariables(argument, process.getIsConstantPredicate());
 	}
 
-	/**
-	 * Returns the set of free symbols (variables and constants, including function symbols)
-	 * in an expression, according to a given process.
-	 */
-	public static Set<Expression> freeSymbols(Expression expression, RewritingProcess process) {
-		Set<Expression> result = new LinkedHashSet<Expression>(); 
-		Set<Expression> quantifiedSymbols = new LinkedHashSet<Expression>(); 
-		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(expression);
-		while (subExpressionIterator.hasNext()) {
-			Expression subExpression = subExpressionIterator.next();
-			if (subExpression instanceof Symbol) {
-				result.add(subExpression);
-			}
-			quantifiedSymbols.addAll(ScopedVariables.getLocallyScopedSymbols(subExpression, process));
-		}
-		result.removeAll(quantifiedSymbols);
-		return result;
-	}
-
 	/** Returns the set of free variables in an expression, according to a given process. */
 	public static Set<Expression> freeVariables(Expression expression, RewritingProcess process) {
 		Set<Expression> freeVariables       = new HashSet<Expression>(); 
@@ -820,11 +801,25 @@ public class Expressions {
 		return freeVariables;
 	}
 
+	/** Returns the set of free symbols in an expression, according to a given process. */
+	public static Set<Expression> freeSymbols(Expression expression, RewritingProcess process) {
+		Set<Expression> freeSymbols       = new HashSet<Expression>(); 
+		Set<Expression> quantifiedSymbols = new HashSet<Expression>();
+		
+		Expressions.freeSymbols(expression, freeSymbols, quantifiedSymbols, process);
+		
+		return freeSymbols;
+	}
+
 	//
 	// PRIVATE METHODS
 	//
 	private static void freeVariables(Expression expression, Set<Expression> freeVariables, Set<Expression> quantifiedVariables, RewritingProcess process) {
-		// Note: this is duplicating Expression.replace a bit, although it is probably more efficient.
+		// Note: this used to be duplicating Expression.replace a bit, although in a lighter-weight, more efficient manner.
+		// However, since the changes that include a check against unregistered variables during contextual expansion
+		// (that is, constraints expanding the contextual expansion cannot contains variables that are not already in the contextual variables),
+		// this method became more fundamentally distinct since Expression.replace uses contextual expansion and therefore these checks,
+		// while this method here does not perform such checks.
 		
 		if (expression instanceof Symbol) {
 			if (process.isVariable(expression)) {
@@ -859,6 +854,46 @@ public class Expressions {
 				
 				// Backtrack to what quantifiedVariables was at the beginning of this call; perhaps it would be more efficient to keep this on a stack?
 				quantifiedVariables.removeAll(newLocalQuantifiedVariables);
+			}
+		}
+	
+		return;
+	}
+
+	private static void freeSymbols(Expression expression, Set<Expression> freeSymbols, Set<Expression> quantifiedSymbols, RewritingProcess process) {
+		// Note: this is a slight modification of freeVariables. I am adding (*) near the modified bits.
+		
+		if (expression instanceof Symbol) { // (*) no check for being a variable
+			if (!quantifiedSymbols.contains(expression)) {
+				freeSymbols.add(expression);
+			}
+		} 
+		else {
+			Iterator<ExpressionAndContext> subExpressionAndContextsIterator = expression.getImmediateSubExpressionsAndContextsIterator(process);
+			
+			Set<Expression> newLocalQuantifiedSymbols = null;
+			while (subExpressionAndContextsIterator.hasNext()) {
+				ExpressionAndContext subExpressionAndContext = subExpressionAndContextsIterator.next();
+				
+				// initialize newLocalQuantifiedSymbols with an empty collection
+				if (newLocalQuantifiedSymbols == null) {
+					// For efficiency, only instantiate once
+					newLocalQuantifiedSymbols = new HashSet<Expression>();
+				}
+				else {
+					newLocalQuantifiedSymbols.clear();
+				}
+				
+				for (Expression localSymbol : ScopedVariables.getLocallyScopedSymbols(subExpressionAndContext.getExpression(), process)) { // (*)
+					if (quantifiedSymbols.add(localSymbol)) {
+						newLocalQuantifiedSymbols.add(localSymbol);
+					}
+				}
+	
+				freeSymbols(subExpressionAndContext.getExpression(), freeSymbols, quantifiedSymbols, process);
+				
+				// Backtrack to what quantifiedVariables was at the beginning of this call; perhaps it would be more efficient to keep this on a stack?
+				quantifiedSymbols.removeAll(newLocalQuantifiedSymbols);
 			}
 		}
 	

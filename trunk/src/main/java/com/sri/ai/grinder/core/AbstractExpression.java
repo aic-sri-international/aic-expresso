@@ -257,8 +257,7 @@ public abstract class AbstractExpression implements Expression {
 								false /* do not ignore top expression */, replaceOnChildrenBeforeTopExpression, listener, subProcess);
 
 				if (replacementSubExpression != originalSubExpression) {
-					ExpressionAndContext newSubExpressionAndContext =
-							subExpressionAndContext.setExpression(replacementSubExpression);
+					ExpressionAndContext newSubExpressionAndContext = subExpressionAndContext.setExpression(replacementSubExpression);
 
 					subExpressionReplacementsAndContexts.add(newSubExpressionAndContext);
 					if (onlyTheFirstOne) {
