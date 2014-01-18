@@ -467,7 +467,21 @@ public class AbstractRewritePanel extends JPanel {
 		}
 		if (inputContext  != null && input != null) {
 			List<Rewriter> rewriters = getRewritersAndModules();
-			RewritingProcess process = new DefaultRewritingProcess(input, new RewriteOnce(rewriters));
+			RewritingProcess process = new DefaultRewritingProcess(Expressions.TRUE, new RewriteOnce(rewriters));
+			
+			String outputPrefix = "";
+			if (!Expressions.TRUE.equals(inputContext)) {
+				if (FormulaUtil.isFormula(inputContext, process)) {
+					process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(inputContext, process);
+					process = GrinderUtil.extendContextualConstraint(inputContext, process);
+				}
+				else {
+					outputPrefix = "// WARNING: Input Context is not a Formula (defaulting to true).\n";
+				}
+			}
+			
+			process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(input, process);
+			
 			if (isCardinalityRewriterLookupNeeded(rewriters)) {
 				((DefaultRewritingProcess)process).setRewriterLookup(new DefaultRewriterLookup(DirectCardinalityComputationFactory.getCardinalityRewritersMap()));
 			}
@@ -482,16 +496,6 @@ public class AbstractRewritePanel extends JPanel {
 					return result;
 				}
 			}, process);
-			
-			String outputPrefix = "";
-			if (!Expressions.TRUE.equals(inputContext)) {
-				if (FormulaUtil.isFormula(inputContext, process)) {
-					process = GrinderUtil.extendContextualConstraint(inputContext, process);
-				}
-				else {
-					outputPrefix = "// WARNING: Input Context is not a Formula (defaulting to true).\n";
-				}
-			}
 			
 			Rewriter rewriter = new RewriteOnce(getRewritersAndModules());
 			
