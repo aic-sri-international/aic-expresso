@@ -123,7 +123,7 @@ public class AllRewritePanel extends AbstractRewritePanel {
 		allRewriters.add(new LeafEnableItem<Rewriter>("Equivalence",  new Equivalence()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Contradictory Conjuncts", new ContradictoryConjuncts()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Conditional Formula",  new FromConditionalFormulaToFormula()));
-		allRewriters.add(new LeafEnableItem<Rewriter>("Incomplete Linear Implied Certainty", new IncompleteTopImpliedCertainty()));
+		allRewriters.add(new LeafEnableItem<Rewriter>("Incomplete Top Implied Certainty", new IncompleteTopImpliedCertainty()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Trivial For All Cases",  new TrivialForAllCases()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Trivial There Exists Cases",  new TrivialThereExistsCases()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Top Simplify",  new TopSimplifyWrapper()));
