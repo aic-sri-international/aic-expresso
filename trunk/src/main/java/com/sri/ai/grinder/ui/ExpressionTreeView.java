@@ -179,6 +179,10 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 		goLast.setAction(new GoLastAction());
 		popupMenu.add(goLast);
 		
+		JMenuItem goLastLineOfBranch = new JMenuItem("Go to last line of branch");
+		goLastLineOfBranch.setAction(new GoLastLineOfBranchAction());
+		popupMenu.add(goLastLineOfBranch);
+		
 		JMenuItem find = new JMenuItem("Find");
 		find.setAction(new FindAction());
 		popupMenu.add(find);
@@ -200,20 +204,23 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 	}
 	
 	private TreePath getLastLeaf() {
-		TreeModel      model = getModel();
-		Object         last  = model.getRoot();
-		List<TreeNode> path  = new ArrayList<TreeNode>();
-		if (last != null) {
-			path.add((TreeNode)last);
-			int childCount = model.getChildCount(last);
+		return getLastLeafFrom((TreeNode)getRoot().getLastPathComponent());
+	}
+	
+	private TreePath getLastLeafFrom(TreeNode node) {
+		TreePath treePath = getRoot();
+		if (node != null) {
+			treePath = makePath(node);
+			
+			TreeModel model = getModel();
+			int childCount = model.getChildCount(node);
 			while (childCount > 0) {
-				last = model.getChild(last, childCount-1);
-				path.add((TreeNode)last);
-				childCount = model.getChildCount(last);
+				node = (TreeNode) model.getChild(node, childCount-1);
+				treePath = treePath.pathByAddingChild(node);
+				childCount = model.getChildCount(node);
 			}
 		}
-		
-		TreePath treePath = new TreePath(path.toArray(new TreeNode[path.size()]));
+
 		return treePath;
 	}
 	
@@ -384,6 +391,26 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 		@Override
 		public void actionPerformed(ActionEvent ae) {
 			gotoNode(getLastLeaf());
+		}
+	}
+	
+	class GoLastLineOfBranchAction extends AbstractAction {
+		private static final long serialVersionUID = 1L;
+		
+		public GoLastLineOfBranchAction() {
+			putValue(Action.NAME, "Go to last line of branch");
+			putValue(Action.SHORT_DESCRIPTION, "Go to last line of branch, expanding all parent nodes in the process");
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent ae) {
+			TreePath startFrom = getLeadSelectionPath();
+			if (startFrom == null) {
+				gotoNode(getLastLeaf());
+			}
+			else {
+				gotoNode(getLastLeafFrom((TreeNode)startFrom.getLastPathComponent()));
+			}
 		}
 	}
 	
