@@ -695,7 +695,7 @@ public class GrinderUtil {
 	private static void checkThatAllFreeVariablesInAdditionalConstraintsAreInContext(Expression additionalConstraints, Map<Expression, Expression> newMapOfContextualVariablesAndDomains, RewritingProcess process) throws Error {
 		Set<Expression> freeVariablesInAdditionalConstraints = Expressions.freeVariables(additionalConstraints, process);
 		if ( ! newMapOfContextualVariablesAndDomains.keySet().containsAll(freeVariablesInAdditionalConstraints) &&
-				! process.containsGlobalObjectKey("Do not require added contextual constraint free variables to be in contextual variables")) {
+				! process.containsGlobalObjectKey(DO_NOT_REQUIRE_ADDED_CONTEXTUAL_CONSTRAINT_FREE_VARIABLES_TO_BE_IN_CONTEXTUAL_VARIABLES)) {
 			String message =
 					"Extending contextual constraint " + additionalConstraints +
 					" containing unknown variables {" + Util.join(Util.subtract(freeVariablesInAdditionalConstraints, newMapOfContextualVariablesAndDomains.keySet())) + 
