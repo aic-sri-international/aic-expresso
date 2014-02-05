@@ -67,6 +67,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Basic;
+import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 import com.sri.ai.grinder.ui.TreeUtil;
 import com.sri.ai.util.Configuration;
@@ -250,7 +251,11 @@ abstract public class AbstractGrinderTest {
 			topExpression = tests[i].getTopExpression();
 			process = makeRewritingProcess(topExpression);
 
-			process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(topExpression, process);
+			process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(
+					Tuple.make(topExpression, tests[i].contextualConstraint),
+					process);
+			
+			process = GrinderUtil.extendContextualConstraint(tests[i].contextualConstraint, process);
 
 			Expression expectedExpressions = parse(tests[i].expected);
 			Assert.assertNotNull("Unable to parse expected expression: "+tests[i].expected, expectedExpressions);

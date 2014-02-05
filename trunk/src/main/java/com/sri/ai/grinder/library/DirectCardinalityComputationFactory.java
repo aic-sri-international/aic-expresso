@@ -43,6 +43,7 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewriterLookup;
@@ -113,16 +114,19 @@ public class DirectCardinalityComputationFactory {
 		DefaultRewriterLookup cardinalityRewriterLookup = new DefaultRewriterLookup(getCardinalityRewritersMap(configuration));
 		
 		Map<Expression, Expression> contextualVariablesAndDomains = null;
+		Expression contextualConstraint                           = null;
 		Predicate<Expression> isConstantPredicate                 = null;
 		Map<Object, Object>   globalObjects                       = null;
 		
 		if (parentProcess != null) {
 			contextualVariablesAndDomains = parentProcess.getContextualVariablesAndDomains();
+			contextualConstraint          = parentProcess.getContextualConstraint();
 			isConstantPredicate           = parentProcess.getIsConstantPredicate();
 			globalObjects                 = parentProcess.getGlobalObjects();
 		}
 		else {
 			contextualVariablesAndDomains = new HashMap<Expression, Expression>();
+			contextualConstraint          = Expressions.TRUE;
 			isConstantPredicate           = new PrologConstantPredicate();
 			globalObjects                 = new HashMap<Object, Object>();
 		}
@@ -132,6 +136,7 @@ public class DirectCardinalityComputationFactory {
 				getRootRewriter(),
 				cardinalityRewriterLookup,
 				contextualVariablesAndDomains,
+				contextualConstraint,
 				isConstantPredicate,
 				globalObjects);
 

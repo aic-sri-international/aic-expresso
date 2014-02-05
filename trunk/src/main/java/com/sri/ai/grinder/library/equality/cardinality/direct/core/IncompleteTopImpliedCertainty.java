@@ -78,7 +78,7 @@ public class IncompleteTopImpliedCertainty extends AbstractRewriter {
 			Expression context = process.getContextualConstraint();
 			List<Expression> impliedFactsByContext = IncompleteLinearImpliedFormulasExtractor.get(context);
 			for (Expression impliedFactByContext : impliedFactsByContext) {
-				if (!impliedFactByContext.equals(Expressions.FALSE)) {
+				if ( ! impliedFactByContext.equals(Expressions.FALSE)) {
 					
 					if (isFormula) {
 						if (IncompleteLinearImplies.implies(impliedFactByContext, expression, process)) {

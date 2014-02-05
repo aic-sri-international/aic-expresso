@@ -195,6 +195,18 @@ public class Expressions {
 	
 	/**
 	 * Given a symbol assumed to be an identifier,
+	 * returns a symbol with a minimum 0 or more instances of a given prefix 
+	 * to make it unique, according to a given predicate indicating uniqueness.
+	 */
+	public static Symbol prefixedUntilUnique(Symbol symbol, String prefix, Predicate<Expression> isUnique) {
+		while (! isUnique.apply(symbol)) {
+			symbol = DefaultSymbol.createSymbol(prefix + symbol);
+		}
+		return symbol;
+	}
+	
+	/**
+	 * Given a symbol assumed to be an identifier,
 	 * returns a symbol with a minimum 0 or more prime ("'") characters appended to it
 	 * to make it unique in a given expression.
 	 */
