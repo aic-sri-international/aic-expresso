@@ -112,6 +112,7 @@ import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsProvider;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
+import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 
 @Beta
@@ -470,17 +471,12 @@ public class AbstractRewritePanel extends JPanel {
 			RewritingProcess process = new DefaultRewritingProcess(Expressions.TRUE, new RewriteOnce(rewriters));
 			
 			String outputPrefix = "";
-			if (!Expressions.TRUE.equals(inputContext)) {
-				if (FormulaUtil.isFormula(inputContext, process)) {
-					process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(inputContext, process);
-					process = GrinderUtil.extendContextualConstraint(inputContext, process);
-				}
-				else {
+			if ( ! inputContext.equals(Expressions.TRUE) && ! FormulaUtil.isFormula(inputContext, process)) {
 					outputPrefix = "// WARNING: Input Context is not a Formula (defaulting to true).\n";
-				}
 			}
 			
-			process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(input, process);
+			process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(Tuple.make(input, inputContext), process);
+			process = GrinderUtil.extendContextualConstraint(inputContext, process);
 			
 			if (isCardinalityRewriterLookupNeeded(rewriters)) {
 				((DefaultRewritingProcess)process).setRewriterLookup(new DefaultRewriterLookup(DirectCardinalityComputationFactory.getCardinalityRewritersMap()));

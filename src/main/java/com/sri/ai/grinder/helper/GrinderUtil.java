@@ -50,6 +50,7 @@ import com.google.common.base.Throwables;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -68,6 +69,7 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.util.Util;
+import com.sri.ai.util.base.NotContainedBy;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.collect.StackedHashMap;
 import com.sri.ai.util.concurrent.BranchAndMerge;
@@ -553,7 +555,7 @@ public class GrinderUtil {
 
 	/**
 	 * Extend the rewriting processes's contextual constraint by an additional
-	 * context. This essentially creates a new expression which is a conjunction
+	 * context. This creates a new expression which is a conjunction
 	 * of both constraints and then performs R_formula_simplification on the
 	 * conjunction before setting it as the processes new contextual constraint.
 	 * 
@@ -563,7 +565,7 @@ public class GrinderUtil {
 	 *            the process in which the rewriting is occurring and whose
 	 *            contextual constraint is to be updated.
 	 * @return a sub-rewriting process constrained by
-	 *         'process.getContexualConstraint() and additionalContext'.
+	 *         'process.getContexualConstraint() and additionalConstraints'.
 	 */
 	public static RewritingProcess extendContextualConstraint(Expression additionalConstraints, RewritingProcess process) {
 		
@@ -647,6 +649,8 @@ public class GrinderUtil {
 		
 		doNotAcceptDomainsContainingTypeOfVariable(extendingContextualVariablesAndDomains);
 		
+		process = renameExistingContextualVariablesIfThereAreCollisions(extendingContextualVariablesAndDomains, process);
+		
 		StackedHashMap<Expression, Expression> newMapOfContextualVariablesAndDomains = createNewMapOfContextualVariablesAndDomains(extendingContextualVariablesAndDomains, process);
 		// Note: StackedHashMap shares original entries with the original process's map
 		
@@ -655,6 +659,53 @@ public class GrinderUtil {
 		RewritingProcess subRewritingProcess = process.newSubProcessWithContext(newMapOfContextualVariablesAndDomains, newContextualConstraint);
 		
 		return subRewritingProcess;
+	}
+
+	private static RewritingProcess renameExistingContextualVariablesIfThereAreCollisions(Map<Expression, Expression> extendingContextualVariablesAndDomains, RewritingProcess process) {
+		for (Map.Entry<Expression, Expression> extendingContextualVariableAndDomain : extendingContextualVariablesAndDomains.entrySet()) {
+			Expression extendingContextualVariable = extendingContextualVariableAndDomain.getKey();
+			if (process.getContextualVariables().contains(extendingContextualVariable)) {
+				process = shadowContextualVariable((Symbol) extendingContextualVariable, process);
+			}
+		}
+		return process;
+	}
+
+	/** Replaces all occurrences of contextualVariable in process' contextual variables and constraint. */
+	private static RewritingProcess shadowContextualVariable(Symbol contextualVariable, RewritingProcess process) {
+		// determines new unique name for contextualVariable -- important: needs to start with capital letter to keep being recognized as a variable, not a constant!
+		Expression newContextualVariable = Expressions.prefixedUntilUnique(contextualVariable, "Shadowed ", new NotContainedBy<Expression>(process.getContextualVariables()));
+		
+		// makes new contextual variables and domains map
+		Map<Expression, Expression> newContextualVariablesAndDomains = new HashMap<Expression, Expression>(process.getContextualVariablesAndDomains());
+
+		// replaces occurrences of contextualVariable in domains;
+		// variables do not occur in domains at this point (Jan/2014) but will when system is more general
+		// needs to be on syntax tree because otherwise process will be extended during Expression.replace and we may be in infinite loop.
+		for (Map.Entry<Expression, Expression> someContextualVariableAndDomain : process.getContextualVariablesAndDomains().entrySet()) {
+			Expression domain = someContextualVariableAndDomain.getValue();
+			if (domain != null) {
+				Expression someContextualVariable = someContextualVariableAndDomain.getKey();
+				Expression newDomain = domain.getSyntaxTree().replaceSubTreesAllOccurrences((SyntaxTree) contextualVariable, newContextualVariable.getSyntaxTree());
+				if (newDomain != domain) {
+					newContextualVariablesAndDomains.put(someContextualVariable, newDomain);
+				}
+			}
+		}
+		
+		// replaces key in contextualVariable's entry by its new symbol
+		newContextualVariablesAndDomains.put(newContextualVariable, newContextualVariablesAndDomains.get(contextualVariable));
+		newContextualVariablesAndDomains.remove(contextualVariable);
+		
+		// replaces contextualVariable in the constraint
+		Expression newContextualConstraint =
+				process.getContextualConstraint().getSyntaxTree().replaceSubTreesAllOccurrences(
+						(SyntaxTree) contextualVariable, newContextualVariable.getSyntaxTree());
+		
+		// assembles new process
+		RewritingProcess newProcess = process.newSubProcessWithContext(newContextualVariablesAndDomains, newContextualConstraint);
+		
+		return newProcess;
 	}
 
 	private static void doNotAcceptDomainsContainingTypeOfVariable(Map<Expression, Expression> extendingContextualVariablesAndDomains) throws Error {

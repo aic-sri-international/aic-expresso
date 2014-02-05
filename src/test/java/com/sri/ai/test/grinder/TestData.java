@@ -38,14 +38,21 @@
 package com.sri.ai.test.grinder;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 
 public abstract class TestData {
 	public boolean isIllegalArgumentTest;
+	public Expression contextualConstraint;
 	public String expected;
 	
 	public TestData(boolean isIllegalArgumentTest, String expected) {
+		this(isIllegalArgumentTest, Expressions.TRUE, expected);
+	}
+
+	public TestData(boolean isIllegalArgumentTest, Expression contextualConstraint, String expected) {
 		this.isIllegalArgumentTest = isIllegalArgumentTest;
+		this.contextualConstraint = contextualConstraint;
 		this.expected = expected;
 	}
 

@@ -228,6 +228,28 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				true);
 	}
 
+	public DefaultRewritingProcess(Expression rootExpression,
+			Rewriter rootRewriter, RewriterLookup rewriterLookup,
+			Map<Expression, Expression> contextualVariablesAndDomains,
+			Expression contextualConstraint,
+			Predicate<Expression> isConstantPredicate,
+			Map<Object, Object> globalObjects) {
+		
+		initialize(null,
+				rootExpression, 
+				rootRewriter,
+				rewriterLookup,
+				null,
+				contextualVariablesAndDomains,
+				contextualConstraint,
+				isConstantPredicate, 
+				new ConcurrentHashMap<Object, Object>(globalObjects), 
+				new ConcurrentHashMap<String, ExpressionCache>(),
+				new ConcurrentHashMap<Class<?>, Rewriter>(),
+				false, 
+				true);
+	}
+
 	// END-Constructors
 	//
 	

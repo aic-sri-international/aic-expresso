@@ -49,6 +49,7 @@ import com.sri.ai.brewer.api.Grammar;
 import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -3549,11 +3550,15 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			private Expression exprE;
 			private CountsDeclaration countsDeclaration = null;
 			
-			public CardinalityData(boolean isIllegalArgumentTest, String E, CountsDeclaration countsDeclaration, String expected) {
-				super(isIllegalArgumentTest, expected);
+			public CardinalityData(Expression contextualConstraint, boolean isIllegalArgumentTest, String E, CountsDeclaration countsDeclaration, String expected) {
+				super(isIllegalArgumentTest, contextualConstraint, expected);
 				this.E = E;
 				this.countsDeclaration = countsDeclaration;
 				this.countsDeclaration.setParser(parser);
+			}
+			
+			public CardinalityData(boolean isIllegalArgumentTest, String E, CountsDeclaration countsDeclaration, String expected) {
+				this(Expressions.TRUE, isIllegalArgumentTest, E, countsDeclaration, expected);
 			}
 			
 			@Override
@@ -3574,14 +3579,14 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 				try {
 					// Result 1 with ASSUME_DOMAIN_ALWAYS_LARGE set to true and no counts declarations made
 					GrinderConfiguration.setProperty(GrinderConfiguration.KEY_ASSUME_DOMAIN_ALWAYS_LARGE, "true");	
-					result1 = DirectCardinalityComputationFactory.newCardinalityProcess(exprE, process) 
-							 		.rewrite(CardinalityRewriter.R_card, exprE);
+					RewritingProcess cardinalityProcess = DirectCardinalityComputationFactory.newCardinalityProcess(exprE, process);
+					result1 = cardinalityProcess.rewrite(CardinalityRewriter.R_card, exprE);
 					
 					// Result 2 with ASSUME_DOMAIN_ALWAYS_LARGE set to false and counts declarations made
 					countsDeclaration.setup(process);
 					GrinderConfiguration.setProperty(GrinderConfiguration.KEY_ASSUME_DOMAIN_ALWAYS_LARGE, "false");	
-					result2 = DirectCardinalityComputationFactory.newCardinalityProcess(exprE, process) 
-									.rewrite(CardinalityRewriter.R_card, exprE);
+					cardinalityProcess = DirectCardinalityComputationFactory.newCardinalityProcess(exprE, process);
+					result2 = cardinalityProcess.rewrite(CardinalityRewriter.R_card, exprE);
 				} catch (IllegalArgumentException iae) {
 					throw iae;
 				} finally {
@@ -3593,6 +3598,38 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 		}
 		
 		TestData[] tests = new TestData[] {
+				//
+				// Scope shadowing tests 
+				new CardinalityData(
+						parse("X != a"),
+						false,
+						"| {(on X) tuple(X) | X = a } |",
+						new CountsDeclaration(10),
+						"(1, 1)"),
+				new CardinalityData(
+						parse("X != a"),
+						false,
+						"| {(on Z) tuple(Z) | X = a } |",
+						new CountsDeclaration(10),
+						"(0, 0)"),
+				new CardinalityData(
+						parse("Z != a"),
+						false,
+						"| {(on X) tuple(X) | X != a or Z = a } |",
+						new CountsDeclaration(10),
+						"( (| type(X) | - 1), 9 )"),
+				new CardinalityData(
+						parse("Z = a"),
+						false,
+						"| {(on X) tuple(X) | X != a or Z = a } |",
+						new CountsDeclaration(10),
+						"( (| type(X) |), 10 )"),
+				new CardinalityData(
+						parse("X = a"),
+						false,
+						"| {(on X) tuple(X) | X != a } |",
+						new CountsDeclaration(10),
+						"(|type(X)|-1, 9)"),
 			//
 			// Test for aic-praise Issue 27:
 		    // https://code.google.com/p/aic-praise/issues/detail?id=27
