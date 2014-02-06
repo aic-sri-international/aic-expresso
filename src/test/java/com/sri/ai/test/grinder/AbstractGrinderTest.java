@@ -177,18 +177,22 @@ abstract public class AbstractGrinderTest {
 		return new AntlrGrinderParserWrapper();
 	}
 	
+	// Runs test on current expression, actual, expected fields, assuming contextual constraint "true".
 	protected void evaluationTest() {
 		evaluationTest(evaluator);
 	}
 
+	// Runs test on current expression, actual, expected fields, assuming contextual constraint "true".
 	protected void evaluationTest(Rewriter evaluator) {
 		evaluationTest(evaluator, globalObjects, new DefaultRewritingProcess(evaluator));
 	}
 	
+	// Runs test on current expression, actual, expected fields, assuming contextual constraint "true".
 	protected void evaluationTest(RewritingProcess process) {
 		evaluationTest(evaluator, globalObjects, process);
 	}
 	
+	// Runs test on current expression, actual, expected fields, assuming contextual constraint "true".
 	protected void evaluationTest(Rewriter evaluator, Map<Object, Object> globalObjects, RewritingProcess process) {
 		System.out.println("Solving " + expressionString);
 
@@ -200,6 +204,7 @@ abstract public class AbstractGrinderTest {
 		process.getGlobalObjects().putAll(globalObjects);
 		
 		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(expression, process);
+		// the above would have to include the contextual constraint (say, in a Tuple with expression), if it were not known to be "true".
 		
 		Stopwatch stopwatch = new Stopwatch().start();
 		actual = evaluator.rewrite(expression, process);

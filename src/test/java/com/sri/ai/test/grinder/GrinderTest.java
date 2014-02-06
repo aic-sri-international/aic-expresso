@@ -41,6 +41,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -973,12 +974,15 @@ public class GrinderTest extends AbstractGrinderTest {
 	}
 	
 	private RewritingProcess extendContext(Expression expression, Map<Expression, Expression> replacements, Expression expected, RewritingProcess process) {
-		RewritingProcess result = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(expression, process);
+		List<Expression> topExpressions = new LinkedList<Expression>();
+		topExpressions.add(expression);
 		for (Map.Entry<Expression, Expression> entry : replacements.entrySet()) {
-			result = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(entry.getKey(),   result);
-			result = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(entry.getValue(), result);
+			topExpressions.add(entry.getKey());
+			topExpressions.add(entry.getValue());
 		}
-		result = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(expected, result);
+		topExpressions.add(expected);
+		Expression topExpressionsTuple = Tuple.make(topExpressions);
+		RewritingProcess result = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(topExpressionsTuple, process);
 		return result;
 	}
 
@@ -1441,8 +1445,8 @@ public class GrinderTest extends AbstractGrinderTest {
 	private void performTestOfStandardizednApartWithoutAssumingImplicitQuantificationOfAllVariables(Expression expression1, Expression expression2) {
 		Expression result;
 		RewritingProcess process = new DefaultRewritingProcess(expression1, evaluator);
-		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(expression1, process);
-		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(expression2, process);
+		Expression topExpressions = Tuple.make(expression1, expression2);
+		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(topExpressions, process);
 		result = StandardizedApartFrom.standardizedApartFrom(expression1, expression2, process);
 		System.out.println("Standardization apart of " + expression1 + "  wrt " + expression2 + " (not assuming implicit quantification):\n                         " + result + "\n               Expected: " + expected);
 		assertEquals(result, expected);
