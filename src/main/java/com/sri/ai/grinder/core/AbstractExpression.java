@@ -38,7 +38,6 @@
 package com.sri.ai.grinder.core;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -217,7 +216,6 @@ public abstract class AbstractExpression implements Expression {
 		}
 
 		if (result == this) { // if no change in top expression, or need to change children first:
-			LinkedList<ExpressionAndContext> subExpressionReplacementsAndContexts = new LinkedList<ExpressionAndContext>();
 			Iterator<ExpressionAndContext> subExpressionsAndContextsIterator = getImmediateSubExpressionsAndContextsIterator(process);
 			while (subExpressionsAndContextsIterator.hasNext()) {
 				ExpressionAndContext subExpressionAndContext = subExpressionsAndContextsIterator.next();
@@ -257,17 +255,11 @@ public abstract class AbstractExpression implements Expression {
 								false /* do not ignore top expression */, replaceOnChildrenBeforeTopExpression, listener, subProcess);
 
 				if (replacementSubExpression != originalSubExpression) {
-					ExpressionAndContext newSubExpressionAndContext = subExpressionAndContext.setExpression(replacementSubExpression);
-
-					subExpressionReplacementsAndContexts.add(newSubExpressionAndContext);
+					result = result.replace(subExpressionAndContext.setExpression(replacementSubExpression));
 					if (onlyTheFirstOne) {
 						break;
 					}
 				}
-			}
-
-			for (ExpressionAndContext replacement : subExpressionReplacementsAndContexts) {
-				result = result.replace(replacement);
 			}
 			
 			if (! ignoreTopExpression && replaceOnChildrenBeforeTopExpression) {
