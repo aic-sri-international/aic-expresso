@@ -5,9 +5,9 @@ inputs: F is any formula.
 return: a quantifier-free formula equivalent to F
 </pre>
 | `if F is "for all x: Y"`<br>
-|.... `return `[RewriterSimplify R_simplify]`(`[RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(Y)|`,,X,,`, "for all") = |type(x)| )`<br>
+|.... `return `[RewriterSimplify R_normalize]`(`[RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(Y)|`,,X,,`, "for all") = |type(x)| )`<br>
 | `if F is "there exists x: Y"`<br>
-|.... `return `[RewriterSimplify R_simplify]`(`[RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(Y)|`,,X,,`, "there exists") > 0)`<br>
+|.... `return `[RewriterSimplify R_normalize]`(`[RewriterCardWithQuantification R_card]`(|`[RewriterTopSimplify R_top_simplify]`(Y)|`,,X,,`, "there exists") > 0)`<br>
 | `if F is "not G"`<br>
 |.... `return `[RewriterQuantifierElimination R_quantifier_elimination]`(`[RewriterMoveNotIn R_move_not_in]`(not G))`<br>
 | `if F is G => H`<br>

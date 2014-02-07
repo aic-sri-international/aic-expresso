@@ -46,7 +46,7 @@ For a set of index variables `X`, `||X||` denotes the project of the cardinaliti
   * [RewriterTopQuantifierElimination R_top_quantifier_elimination(Qx F)]
   * [RewriterQuantifierElimination R_quantifier_elimination(F)]
   * [RewriterCardExtensionalSet R_cardExtensionalSet( | {t1,...,tn} | )]
-  * [RewriterSimplify R_simplify(F)]
+  * [RewriterSimplify R_normalize(F)]
 
 ===List of Cardinality Support Functions===
   * [FunctionNegationHasLessNumberOfDisjuncts negationHasLessNumberOfDisjuncts(F)]

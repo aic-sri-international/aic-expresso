@@ -14,4 +14,4 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
 | `if t is the same expression as x`,,i,,<br>
 |.... `return `[RewriterCardWithQuantification R_card]`(| Phi |`,,X,,`, quantification)`<br>
 | else<br>
-|.... `return `[RewriterCardWithQuantification R_card]`(| `[RewriterSimplify R_simplify]`(Phi[x`,,i,,` / t]) |`,,X\{xi},,`, quantification)`<br>
+|.... `return `[RewriterCardWithQuantification R_card]`(| `[RewriterSimplify R_normalize]`(Phi[x`,,i,,` / t]) |`,,X\{xi},,`, quantification)`<br>

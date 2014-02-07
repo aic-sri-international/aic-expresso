@@ -1,5 +1,5 @@
-#summary R_complete_simplify(F)
-R_complete_simplify(F) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/CompleteSimplify.java implementation])
+#summary R_complete_normalize(F)
+R_complete_normalize(F) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/CompleteSimplify.java implementation])
 <pre>
 inputs: F is an expression.
 return: a simplification of F if possible, and determines if satisfiable or not.
