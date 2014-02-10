@@ -85,8 +85,8 @@ import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
 
 /**
- * Successively and exhaustively applies simplifications to a basic expression,
- * that is, one formed of basic operators plus products with no conditional expressions inside.
+ * Successively and exhaustively applies simplifications to a formula expression,
+ * that is, one formed of boolean formula operators plus if-then-else.
  * 
  * @author braz
  *
