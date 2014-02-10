@@ -66,7 +66,7 @@ import com.sri.ai.util.collect.FunctionIterator;
 
 /**
  * A Rewriter based on a set of Rewriters (with a default detailed below) that
- * applies it to an expression until it is rewritten at most once once.
+ * applies it to an expression until it is rewritten at most once.
  * 
  * The default is a set of all rewrite rules defined so far.
  * 

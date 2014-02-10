@@ -126,10 +126,11 @@ public interface Expression extends Cloneable, Serializable {
 	 * 
 	 * @param replacementFunction: takes a expression and returns a new expression, or itself in case no replacement is warranted.
 	 * @param makeSpecificSubExpressionAndContextReplacementFunction: Takes the current expression, the current replacement function and the sub-expression and its context about to be processed (the top one inclusive), and returns the replacement function to be used for that specific sub-expression.
-	 * @param prunePredicate: a predicate evaluating as true for sub-expressions that should be pruned (ignored).
+	 * @param prunePredicate: a predicate evaluating as true for sub-expressions that should be pruned (that is, ignored).
 	 * @param makeSpecificSubExpressionAndContextPrunePredicate: Takes the current prune predicate and the sub-expression and its context about to be processed (the top one inclusive), and returns the prune predicate to be used for that specific sub-expression.
 	 * @param onlyTheFirstOne: if true, replaces at most one sub-expression.
 	 * @param ignoreTopExpression: does not try to replace this expression as a whole; examines sub-expressions only.
+	 * @param replaceOnChildrenBeforeTopExpression: recurse replacement function on sub-expressions before using it on top expression.
 	 * @param listener: binary procedure receiving original and replacement expression every time such a replacement occurs. If a sub-expression is replaced, it is invoked for that sub-expression as well as for all its "super-expressions", since they are all being replaced by a new expression.
 	 * @param process: the rewriting process, used here for defining what is a sub-expression of what.
 	 */
