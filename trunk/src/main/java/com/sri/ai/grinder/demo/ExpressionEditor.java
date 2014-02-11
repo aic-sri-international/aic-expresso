@@ -47,7 +47,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -96,7 +96,7 @@ public class ExpressionEditor extends JPanel {
 	private static final Color COLOR_SYMBOL   = COLOR_REGULAR;
 	private static final Color COLOR_STRING   = new Color(42,    0, 255);
 	//
-	private static final Set<Integer> _terminals = new HashSet<Integer>();
+	private static final Set<Integer> _terminals = new LinkedHashSet<Integer>();
 	{
 		// Logic Operators
 	    _terminals.add(AntlrGrinderLexer.IMPLICATION);
@@ -131,7 +131,7 @@ public class ExpressionEditor extends JPanel {
 	    _terminals.add(AntlrGrinderLexer.PERIOD);
 	}
 	
-	private static final Set<Integer> _keywords = new HashSet<Integer>();
+	private static final Set<Integer> _keywords = new LinkedHashSet<Integer>();
 	{
 		_keywords.add(AntlrGrinderLexer.NOT);
 		_keywords.add(AntlrGrinderLexer.AND);

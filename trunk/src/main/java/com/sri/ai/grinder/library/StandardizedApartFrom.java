@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.library;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
@@ -66,7 +66,7 @@ public class StandardizedApartFrom {
 	 * Standardizes apart the scoped variables of expression1 so that they do not collide with any variables in expression2.
 	 */
 	public static Expression standardizedApartFrom(Expression expression1, Expression expression2, RewritingProcess process) {		
-		Collection<Expression> variablesThatCannotBeScopingInExpression = new HashSet<Expression>();
+		Collection<Expression> variablesThatCannotBeScopingInExpression = new LinkedHashSet<Expression>();
 		variablesThatCannotBeScopingInExpression.addAll(process.getContextualVariables());
 		variablesThatCannotBeScopingInExpression.addAll(Expressions.getVariables(expression2, process));
 		
@@ -112,7 +112,7 @@ public class StandardizedApartFrom {
 		}
 		Collection<Expression> variablesToBeRenamed  = Util.intersection(scopedVariables1, variablesThatCannotBeScopingInExpression);
 		Collection<Expression> variablesInExpression = Expressions.getVariables(expression, process);
-		Collection<Expression> forbiddenVariables    = new HashSet<Expression>();
+		Collection<Expression> forbiddenVariables    = new LinkedHashSet<Expression>();
 		forbiddenVariables.addAll(variablesInExpression);
 		forbiddenVariables.addAll(variablesThatCannotBeScopingInExpression);
 		Predicate<Expression>  isNovel               = new NotContainedBy<Expression>(forbiddenVariables);

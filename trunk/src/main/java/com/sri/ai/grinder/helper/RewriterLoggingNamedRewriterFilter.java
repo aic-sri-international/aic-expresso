@@ -37,15 +37,15 @@
  */
 package com.sri.ai.grinder.helper;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
-
-import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.GrinderConfiguration;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
+
+import com.google.common.annotations.Beta;
+import com.sri.ai.grinder.GrinderConfiguration;
 
 /**
  * A logback filter for removing named Rewriter output.
@@ -56,7 +56,7 @@ import ch.qos.logback.core.spi.FilterReply;
 @Beta
 public class RewriterLoggingNamedRewriterFilter extends Filter<ILoggingEvent> {
 
-	private Set<String> rewritersToFilter = new HashSet<String>();
+	private Set<String> rewritersToFilter = new LinkedHashSet<String>();
 
 	public RewriterLoggingNamedRewriterFilter() {
 		String rewriterNames = GrinderConfiguration

@@ -37,7 +37,7 @@
  */
 package com.sri.ai.grinder.library.equality.sat;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -71,7 +71,7 @@ public class EqualityLogicSATSolver implements SATSolver {
 			for (Expression conjunct : dnf.getArguments()) {
 				Set<Expression> consts = FormulaUtil.getConstants(conjunct, process);
 				Set<Expression> vars   = Expressions.getVariables(conjunct, process);
-				Set<Expression> all    = new HashSet<Expression>();
+				Set<Expression> all    = new LinkedHashSet<Expression>();
 				all.addAll(consts);
 				all.addAll(vars);
 				

@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.library;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -160,7 +159,7 @@ public class Equality extends AbstractRewriter {
 	 */
 	public static Expression make(Object... arguments) {
 		List<SyntaxTree> expressions = Expressions.wrap(arguments);
-		Set<Expression> uniqueExpressions = new HashSet<Expression>(expressions);
+		Set<Expression> uniqueExpressions = new LinkedHashSet<Expression>(expressions);
 		if (uniqueExpressions.size() < 2) {
 			return Expressions.TRUE;
 		}

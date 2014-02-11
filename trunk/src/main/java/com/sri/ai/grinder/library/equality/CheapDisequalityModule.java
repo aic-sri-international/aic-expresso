@@ -1,6 +1,7 @@
 package com.sri.ai.grinder.library.equality;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -19,7 +20,7 @@ import com.sri.ai.grinder.core.AbstractRewriter;
 @Beta
 public class CheapDisequalityModule extends AbstractRewriter implements NoOpRewriter {
 
-	private HashSet<Provider> providers = new HashSet<Provider>();
+	private HashSet<Provider> providers = new LinkedHashSet<Provider>();
 	
 	public static interface Provider {
 		

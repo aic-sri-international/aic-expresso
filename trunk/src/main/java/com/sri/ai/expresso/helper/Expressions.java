@@ -41,7 +41,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -805,8 +804,8 @@ public class Expressions {
 
 	/** Returns the set of free variables in an expression, according to a given process. */
 	public static Set<Expression> freeVariables(Expression expression, RewritingProcess process) {
-		Set<Expression> freeVariables       = new HashSet<Expression>(); 
-		Set<Expression> quantifiedVariables = new HashSet<Expression>();
+		Set<Expression> freeVariables       = new LinkedHashSet<Expression>(); 
+		Set<Expression> quantifiedVariables = new LinkedHashSet<Expression>();
 		
 		Expressions.freeVariables(expression, freeVariables, quantifiedVariables, process);
 		
@@ -815,8 +814,8 @@ public class Expressions {
 
 	/** Returns the set of free symbols in an expression, according to a given process. */
 	public static Set<Expression> freeSymbols(Expression expression, RewritingProcess process) {
-		Set<Expression> freeSymbols       = new HashSet<Expression>(); 
-		Set<Expression> quantifiedSymbols = new HashSet<Expression>();
+		Set<Expression> freeSymbols       = new LinkedHashSet<Expression>(); 
+		Set<Expression> quantifiedSymbols = new LinkedHashSet<Expression>();
 		
 		Expressions.freeSymbols(expression, freeSymbols, quantifiedSymbols, process);
 		
@@ -850,7 +849,7 @@ public class Expressions {
 				// initialize newLocalQuantifiedVariables with an empty collection
 				if (newLocalQuantifiedVariables == null) {
 					// For efficiency, only instantiate once
-					newLocalQuantifiedVariables = new HashSet<Expression>();
+					newLocalQuantifiedVariables = new LinkedHashSet<Expression>();
 				}
 				else {
 					newLocalQuantifiedVariables.clear();
@@ -890,7 +889,7 @@ public class Expressions {
 				// initialize newLocalQuantifiedSymbols with an empty collection
 				if (newLocalQuantifiedSymbols == null) {
 					// For efficiency, only instantiate once
-					newLocalQuantifiedSymbols = new HashSet<Expression>();
+					newLocalQuantifiedSymbols = new LinkedHashSet<Expression>();
 				}
 				else {
 					newLocalQuantifiedSymbols.clear();

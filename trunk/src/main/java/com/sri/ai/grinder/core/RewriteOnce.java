@@ -311,7 +311,7 @@ public class RewriteOnce extends AbstractRewriter {
 		}
 	}
 
-//	private Set<ExpressionWithAnnotationsWrapper> memory = new HashSet<ExpressionWithAnnotationsWrapper>();
+//	private Set<ExpressionWithAnnotationsWrapper> memory = new LinkedHashSet<ExpressionWithAnnotationsWrapper>();
 	
 	/**
 	 * An extension to {@link RewriterWithinProcessFunction} that registers the trace

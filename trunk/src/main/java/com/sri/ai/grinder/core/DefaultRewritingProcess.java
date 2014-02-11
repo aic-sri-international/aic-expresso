@@ -38,9 +38,9 @@
 package com.sri.ai.grinder.core;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -105,7 +105,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		// Note: Rewriters may be connected to each other via their children
 		// (i.e. a graph of rewriters as opposed to a tree).
 		// This ensures we only visit each child rewriter once.
-		private Set<Rewriter> seenAlready = new HashSet<Rewriter>();
+		private Set<Rewriter> seenAlready = new LinkedHashSet<Rewriter>();
 
 		// The super class needs this to be public so the constructor is
 		// accessible through reflection,

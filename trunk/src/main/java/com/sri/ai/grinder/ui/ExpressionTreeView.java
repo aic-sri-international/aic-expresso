@@ -43,7 +43,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -163,7 +163,7 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 	// PRIVATE 	
 	//
 	private void init(boolean keepExpandedNodesOpen) {
-		expandedPaths = Collections.synchronizedSet(new HashSet<TreePath>());
+		expandedPaths = Collections.synchronizedSet(new LinkedHashSet<TreePath>());
 		setCellRenderer(new ExpressionNodeRenderer());
 		getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		if (keepExpandedNodesOpen) {

@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -106,7 +106,7 @@ public class TopSimplifyConjunction extends AbstractHierarchicalRewriter impleme
 				Trace.log("T' <- empty tuple");
 				Trace.log("irrelevant <- empty set");
 				List<Expression> tPrime     = new ArrayList<Expression>();
-				Set<Expression>  irrelevant = new HashSet<Expression>();
+				Set<Expression>  irrelevant = new LinkedHashSet<Expression>();
 				
 				Trace.log("for all i in 1,..., |T|");
 				Expression ti, tj, notTi, notTj;

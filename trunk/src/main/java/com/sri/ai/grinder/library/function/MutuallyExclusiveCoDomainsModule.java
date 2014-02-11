@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.library.function;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -53,7 +54,7 @@ import com.sri.ai.grinder.core.AbstractRewriter;
 @Beta
 public class MutuallyExclusiveCoDomainsModule extends AbstractRewriter implements NoOpRewriter {
 
-	private HashSet<Provider> providers = new HashSet<Provider>();
+	private HashSet<Provider> providers = new LinkedHashSet<Provider>();
 	
 	/**
 	 * An interface for objects that know how to determine whether the possible

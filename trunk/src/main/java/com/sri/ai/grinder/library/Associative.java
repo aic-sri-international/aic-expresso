@@ -37,7 +37,7 @@
  */
 package com.sri.ai.grinder.library;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
@@ -61,7 +61,7 @@ import com.sri.ai.util.Util;
 @Beta
 public class Associative extends AbstractRewriter {
 
-	private Set<SyntaxTree> operators = new HashSet<SyntaxTree>();
+	private Set<SyntaxTree> operators = new LinkedHashSet<SyntaxTree>();
 
 	public Associative(Object... operators) {
 		super();

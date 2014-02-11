@@ -39,6 +39,7 @@ package com.sri.ai.grinder.core;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
@@ -66,7 +67,7 @@ import com.sri.ai.util.Util;
 @Beta
 public class OpenInterpretationModule extends AbstractRewriter implements NoOpRewriter {
 
-	private HashSet<Provider> providers = new HashSet<Provider>();
+	private HashSet<Provider> providers = new LinkedHashSet<Provider>();
 	
 	public static interface Provider {
 		/**

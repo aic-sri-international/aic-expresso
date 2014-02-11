@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -230,7 +230,7 @@ public class CardinalityConjunction extends AbstractHierarchicalRewriter impleme
 		}
 		else if ( And.isConjunction(f) ) {
 			Trace.log("Candidates <- { (Fi, i) : Fi satisfies one of the cases below }");
-			Set<Expression> candidateSet = new HashSet<Expression>();
+			Set<Expression> candidateSet = new LinkedHashSet<Expression>();
 			for (Expression fi : f.getArguments()) {
 				if ((fi.hasFunctor(FunctorConstants.NOT) && fi.numberOfArguments() == 1)  ||
 				    And.isConjunction(fi)                                                 ||
