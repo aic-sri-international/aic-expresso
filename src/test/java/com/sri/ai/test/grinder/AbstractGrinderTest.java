@@ -40,7 +40,7 @@ package com.sri.ai.test.grinder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -114,7 +114,7 @@ abstract public class AbstractGrinderTest {
 		writer = DefaultWriter.newDefaultConfiguredWriter();
 		
 		//System.out.println("Creating global objects...");
-		globalObjects = new HashMap<Object, Object>();
+		globalObjects = new LinkedHashMap<Object, Object>();
 	}
 	
 	@After

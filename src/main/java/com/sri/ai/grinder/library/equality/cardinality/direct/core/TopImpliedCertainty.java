@@ -37,8 +37,8 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
@@ -122,7 +122,7 @@ public class TopImpliedCertainty extends AbstractHierarchicalRewriter implements
 				}
 				else {
 					// Need to perform the is_tautology tests with an empty context.
-					tautologyProcess = process.newSubProcessWithContext(new HashMap<Expression, Expression>(), Expressions.TRUE);
+					tautologyProcess = process.newSubProcessWithContext(new LinkedHashMap<Expression, Expression>(), Expressions.TRUE);
 					if (IsTautology.isTautology(cImpliesF, tautologyProcess)) {
 						Trace.log("        return true");
 						result = Expressions.TRUE;

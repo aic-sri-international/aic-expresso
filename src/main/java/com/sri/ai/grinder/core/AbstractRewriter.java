@@ -39,8 +39,8 @@ package com.sri.ai.grinder.core;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -296,6 +296,6 @@ public abstract class AbstractRewriter implements Rewriter {
 	 */
 	protected DefaultRewritingProcess makeRewritingProcess(
 			Expression expression, Predicate<Expression> isConstantPredicate) {
-		return new DefaultRewritingProcess(expression, this, Util.<Expression, Expression>map(), isConstantPredicate, new HashMap<Object, Object>());
+		return new DefaultRewritingProcess(expression, this, Util.<Expression, Expression>map(), isConstantPredicate, new LinkedHashMap<Object, Object>());
 	}
 }

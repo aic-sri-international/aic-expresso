@@ -38,9 +38,9 @@
 package com.sri.ai.grinder.core;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -185,20 +185,20 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	// START - Constructors
 
 	public DefaultRewritingProcess(Rewriter rootRewriter) {
-		this(null, rootRewriter, null, Util.<Expression, Expression>map(), new PrologConstantPredicate(), new HashMap<Object, Object>());
+		this(null, rootRewriter, null, new LinkedHashMap<Expression, Expression>(), new PrologConstantPredicate(), new LinkedHashMap<Object, Object>());
 	}
 	
 	public DefaultRewritingProcess(Rewriter rootRewriter, RewriterLookup rewriterLookup) {
-		this(null, rootRewriter, rewriterLookup, Util.<Expression, Expression>map(), new PrologConstantPredicate(), new HashMap<Object, Object>());
+		this(null, rootRewriter, rewriterLookup, new LinkedHashMap<Expression, Expression>(), new PrologConstantPredicate(), new LinkedHashMap<Object, Object>());
 	}
 	
 	public DefaultRewritingProcess(Expression rootExpression, Rewriter rootRewriter) {
-		this(rootExpression, rootRewriter, null, Util.<Expression, Expression>map(), new PrologConstantPredicate(), new HashMap<Object, Object>());
+		this(rootExpression, rootRewriter, null, new LinkedHashMap<Expression, Expression>(), new PrologConstantPredicate(), new LinkedHashMap<Object, Object>());
 	}
 
 	public DefaultRewritingProcess(Expression rootExpression,
 			Rewriter rootRewriter, Map<Object, Object> globalObjects) {
-		this(rootExpression, rootRewriter, null, Util.<Expression, Expression>map(), new PrologConstantPredicate(), globalObjects);
+		this(rootExpression, rootRewriter, null, new LinkedHashMap<Expression, Expression>(), new PrologConstantPredicate(), globalObjects);
 	}
 
 	public DefaultRewritingProcess(Expression rootExpression,
@@ -648,8 +648,8 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		this.childCallIntercepter = childCallIntercepter;
 		//
 		this.contextualVariablesAndDomains = contextualVariablesAndDomains;
-		this.contextualConstraint       = contextualConstraint;
-		this.isConstantPredicate        = isConstantPredicate;
+		this.contextualConstraint          = contextualConstraint;
+		this.isConstantPredicate           = isConstantPredicate;
 		//
 		this.globalObjects        = globalObjects;
 		this.rewriterCaches       = rewriterCaches;

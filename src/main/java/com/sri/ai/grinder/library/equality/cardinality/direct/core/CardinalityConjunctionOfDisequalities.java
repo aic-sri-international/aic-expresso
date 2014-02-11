@@ -257,7 +257,7 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractHierarchical
 //	
 //	private Pair<Expression, Set<Expression>> possibleToEliminateAnyIndex(Expression conjunction, List<Expression> indices) {
 //		Pair<Expression, Set<Expression>> result = null;
-//		HashMap<Expression, Set<Expression>> map = new HashMap<Expression, Set<Expression>>();
+//		HashMap<Expression, Set<Expression>> map = new LinkedHashMap<Expression, Set<Expression>>();
 //		for (Expression index: indices) {
 //			map.put(index, new HashSet<Expression>());
 //			map.get(index).add(index);

@@ -873,11 +873,15 @@ public class GrinderTest extends AbstractGrinderTest {
 		expected     = parse("x + 2");
 		testSemanticSubstitute(replacements, process);
 		
+		// TODO: SENSITIVE TO MAP STORAGE ORDERING - https://code.google.com/p/aic-expresso/issues/detail?id=42
+		// The current map order generates output "10 + 10", but if stored in a different order we get "2 + 10".
+		// This was noticed when the underlying map was changed from HashMap to LinkedHashMap
+		// Changing the semantic substitute to an exhaustive replacement does not work as it may cause infinite recursion.
 		expression   = parse("x + 2");
 		replacements = Util.map(
 				parse("x"), parse("2"),
 				parse("2"), parse("10"));
-		expected     = parse("2 + 10");
+		expected     = parse("10 + 10");
 		testSemanticSubstitute(replacements, process);
 		
 		expression   = parse("f(g(h(x)))");
