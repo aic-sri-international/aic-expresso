@@ -39,7 +39,7 @@ package com.sri.ai.grinder.library.boole.core;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -384,7 +384,7 @@ public class SimpleFormulaGenerator {
 	}
 	
 	protected Set<Expression> getVariables(Expression formula) {
-		Set<Expression> vars = new HashSet<Expression>();
+		Set<Expression> vars = new LinkedHashSet<Expression>();
 		if ( formula.hasFunctor(Equality.FUNCTOR) || formula.hasFunctor(Disequality.FUNCTOR) ) {
 			if ( variables.contains(formula.get(0).toString()) ) {
 				vars.add(formula.get(0));

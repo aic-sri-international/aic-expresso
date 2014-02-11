@@ -40,6 +40,7 @@ package com.sri.ai.grinder.library;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
@@ -63,7 +64,7 @@ import com.sri.ai.util.Util;
 @Beta
 public class ScopedVariables extends AbstractRewriter {
 
-	private HashSet<Provider> providers = new HashSet<Provider>();
+	private HashSet<Provider> providers = new LinkedHashSet<Provider>();
 	
 	public ScopedVariables() {
 		this.setReifiedTests(new DefaultRewriterTest(KindAttribute.INSTANCE, KindAttribute.VALUE_SCOPED_VARIABLES));

@@ -38,14 +38,14 @@
 package com.sri.ai.grinder.library.boole;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
-import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -261,7 +261,7 @@ public class BooleanUtil {
 	}
 	
 	public static Set<Expression> getTerms(Expression expression) {
-		Set<Expression> set = new HashSet<Expression>();
+		Set<Expression> set = new LinkedHashSet<Expression>();
 		if ( expression.hasFunctor(Equality.FUNCTOR) || expression.hasFunctor(Disequality.FUNCTOR) ) {
 			set.add(expression.get(0));
 			set.add(expression.get(1));

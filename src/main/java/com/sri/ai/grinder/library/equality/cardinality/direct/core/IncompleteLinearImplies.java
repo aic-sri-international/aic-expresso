@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -134,10 +134,10 @@ public class IncompleteLinearImplies {
 	 */
 	private static Set<Expression> argumentsOfEquality(Expression expression) {
 		if (expression.hasFunctor(FunctorConstants.EQUAL)) {
-			return new HashSet<Expression>(expression.getArguments());
+			return new LinkedHashSet<Expression>(expression.getArguments());
 		}
 		if (expression.hasFunctor(FunctorConstants.NOT) && expression.get(0).hasFunctor(FunctorConstants.INEQUALITY)) {
-			return new HashSet<Expression>(expression.get(0).getArguments());
+			return new LinkedHashSet<Expression>(expression.get(0).getArguments());
 		}
 		return null;
 	}
@@ -148,8 +148,8 @@ public class IncompleteLinearImplies {
 		// and H is "not t1 = c2" or H is "not c2 = t1" or H is "t1 != c2" or H is "c2 != t1"
 		// with c2 a constant distinct from c1
 		if (g.hasFunctor(FunctorConstants.EQUAL)) {
-			Set<Expression> gConstants = new HashSet<Expression>();
-			Set<Expression> gVariables = new HashSet<Expression>();
+			Set<Expression> gConstants = new LinkedHashSet<Expression>();
+			Set<Expression> gVariables = new LinkedHashSet<Expression>();
 			for (Expression gArg : g.getArguments()) {
 				if (process.isConstant(gArg)) {
 					gConstants.add(gArg);
@@ -161,8 +161,8 @@ public class IncompleteLinearImplies {
 			
 			if (gConstants.size() == 1) {
 				List<Expression> hArgs      = new ArrayList<Expression>();
-				Set<Expression>  hConstants = new HashSet<Expression>();
-				Set<Expression>  hVariables = new HashSet<Expression>();
+				Set<Expression>  hConstants = new LinkedHashSet<Expression>();
+				Set<Expression>  hVariables = new LinkedHashSet<Expression>();
 				if (h.hasFunctor(FunctorConstants.NOT) &&
 					h.numberOfArguments() == 1 &&
 					h.get(0).hasFunctor(FunctorConstants.EQUAL)) {
@@ -196,7 +196,7 @@ public class IncompleteLinearImplies {
 	private static boolean isSameNotEqualsButDifferentOrdering(Expression g, Expression h) {
 		boolean result = false;
 		//  G is t1 != t2 or "not (t1 = t2)" and H is "t2 != t1" or "not (t2 = t1)"
-		Set<Expression> gArgs = new HashSet<Expression>();
+		Set<Expression> gArgs = new LinkedHashSet<Expression>();
 		if (g.hasFunctor(FunctorConstants.INEQUALITY)) {
 			gArgs.addAll(g.getArguments());
 		} 
@@ -207,7 +207,7 @@ public class IncompleteLinearImplies {
 		}
 		
 		if (gArgs.size() > 0) {
-			Set<Expression> hArgs = new HashSet<Expression>();
+			Set<Expression> hArgs = new LinkedHashSet<Expression>();
 			if (h.hasFunctor(FunctorConstants.INEQUALITY)) {
 				hArgs.addAll(h.getArguments());
 			} 

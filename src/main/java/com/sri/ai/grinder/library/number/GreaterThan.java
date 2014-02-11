@@ -37,7 +37,7 @@
  */
 package com.sri.ai.grinder.library.number;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -56,7 +56,7 @@ import com.sri.ai.util.Util;
 public class GreaterThan extends BinaryOperator {
 
 	public GreaterThan() {
-		this.functors = new HashSet<Expression>(); 
+		this.functors = new LinkedHashSet<Expression>(); 
 		this.functors.add(DefaultSymbol.createSymbol(FunctorConstants.GREATER_THAN));
 		//
 		this.firstType  = Number.class;

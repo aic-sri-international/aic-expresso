@@ -40,7 +40,7 @@ package com.sri.ai.test.grinder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -1873,7 +1873,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		Set<Expression> freeVariables;
 		
 		expressionString = "product({{(on X, Y) f(X, Y) | X != a and X = Y }}) * product({{(on Z) g(Z) | Z != a}})";
-		expected = new HashSet<Expression>();
+		expected = new LinkedHashSet<Expression>();
 		expression = parse(expressionString);
 		process = new DefaultRewritingProcess(expression, evaluator);
 		freeVariables = Expressions.freeVariables(expression, process);

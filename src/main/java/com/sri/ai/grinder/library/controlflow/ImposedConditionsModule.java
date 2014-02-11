@@ -37,8 +37,9 @@
  */
 package com.sri.ai.grinder.library.controlflow;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -64,7 +65,7 @@ import com.sri.ai.util.base.Pair;
  */
 @Beta
 public class ImposedConditionsModule extends AbstractRewriter implements NoOpRewriter {
-	private HashSet<Provider> providers = new HashSet<Provider>();
+	private Set<Provider> providers = new LinkedHashSet<Provider>();
 
 	/**
 	 * An interface for objects that know how to determine the conditions that

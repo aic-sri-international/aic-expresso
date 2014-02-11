@@ -40,8 +40,8 @@ package com.sri.ai.grinder.library.equality.cardinality;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -194,8 +194,8 @@ public class CardinalityUtil {
 				// that at this time
 				Expression intensionalSetHead = IntensionalSet.getHead(intensionalSet);
 			    if (Tuple.isTuple(intensionalSetHead)) {	    	
-			    	Set<Expression> intensionalSetIndices = new HashSet<Expression>(IndexExpressions.getIndices(IntensionalSet.getIndexExpressions(intensionalSet)));
-			    	Set<Expression> tupleIndices          = new HashSet<Expression>(Tuple.getElements(intensionalSetHead));
+			    	Set<Expression> intensionalSetIndices = new LinkedHashSet<Expression>(IndexExpressions.getIndices(IntensionalSet.getIndexExpressions(intensionalSet)));
+			    	Set<Expression> tupleIndices          = new LinkedHashSet<Expression>(Tuple.getElements(intensionalSetHead));
 			    	// The tuple and the indices on the uni-intensional set need to match
 			    	if (intensionalSetIndices.equals(tupleIndices)) {
 			    		result = true;
@@ -432,7 +432,7 @@ public class CardinalityUtil {
 	public static boolean isEqualityOnSameTerms(Expression expression) {
 		boolean result = false;
 		if (expression.hasFunctor(FunctorConstants.EQUAL)) {
-			Set<Expression> terms = new HashSet<Expression>(expression.getArguments());
+			Set<Expression> terms = new LinkedHashSet<Expression>(expression.getArguments());
 			if (terms.size() == 1) {
 				result = true;
 			}
@@ -838,14 +838,14 @@ public class CardinalityUtil {
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 			
 		// For efficiency work with a set of the indices
-		Set<Expression>                   indicesSet                  = new HashSet<Expression>(indices);
+		Set<Expression>                   indicesSet                  = new LinkedHashSet<Expression>(indices);
 		// Track conjuncts and their corresponding variables in the index
 		Map<Expression, List<Expression>> fromConjunctToItsVariables  = new LinkedHashMap<Expression, List<Expression>>();
 		// Track disjoint variable sets.
 		DisjointSets<Expression>          disjointVariableSets        = new DisjointSets<Expression>();
 		// Initialize the disjoint sets with the known indexes up front and track the set
 		// of known variables seen so far (i.e. in the indices and free).
-		Set<Expression>                   knownVariables              = new HashSet<Expression>(indices);
+		Set<Expression>                   knownVariables              = new LinkedHashSet<Expression>(indices);
 		
 		for (Expression index : indices) {
 			disjointVariableSets.makeSet(index);
@@ -882,7 +882,7 @@ public class CardinalityUtil {
 			// Add the conjuncts with variables
 			for (Map.Entry<Set<Expression>, List<Expression>> indexesToConjuncts : indexSetsToConjunctsMap.entrySet()) {
 				// indices and corresponding conjuncts
-				Set<Expression> indexes = new HashSet<Expression>(indexesToConjuncts.getKey());
+				Set<Expression> indexes = new LinkedHashSet<Expression>(indexesToConjuncts.getKey());
 				// Remove indexes explicitly associated with conjuncts from the available
 				// set of disjoint indexes.
 				for (Expression index : indexes) {
@@ -905,7 +905,7 @@ public class CardinalityUtil {
 			
 			// Ensure any remaining disjoint sets are treated as independent on true, i.e. the index is
 			// not referred to by any of the conjuncts so should be treated as | True |_X
-			Set<Set<Expression>> remainingDisjointSets = new HashSet<Set<Expression>>(indexToDisjointSetMap.values());
+			Set<Set<Expression>> remainingDisjointSets = new LinkedHashSet<Set<Expression>>(indexToDisjointSetMap.values());
 			for (Set<Expression> disjointVariables : remainingDisjointSets) {
 				result.add(new Pair<Set<Expression>, List<Expression>>(disjointVariables, new ArrayList<Expression>()));
 			}

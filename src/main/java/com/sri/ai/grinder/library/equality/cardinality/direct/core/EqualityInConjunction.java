@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -138,7 +138,7 @@ public class EqualityInConjunction extends AbstractHierarchicalRewriter implemen
 	//
 	private static class EqualityOnIndexInformation {
 		public Expression index;
-		public Set<Expression> valuesEquatedToIndex = new HashSet<Expression>();
+		public Set<Expression> valuesEquatedToIndex = new LinkedHashSet<Expression>();
 		public Expression phi;
 		public List<Expression> indexExpressions;
 	}

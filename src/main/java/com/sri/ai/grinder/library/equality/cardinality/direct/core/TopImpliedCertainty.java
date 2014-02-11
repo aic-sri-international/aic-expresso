@@ -37,8 +37,8 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
@@ -69,7 +69,7 @@ import com.sri.ai.grinder.library.equality.sat.SATSolverFactory;
 @Beta
 public class TopImpliedCertainty extends AbstractHierarchicalRewriter implements CardinalityRewriter {
 	
-	private Set<ExpressionCacheKey> testing      = new HashSet<ExpressionCacheKey>();
+	private Set<ExpressionCacheKey> testing      = new LinkedHashSet<ExpressionCacheKey>();
 	private boolean                 useSATSolver = GrinderConfiguration.isCompleteSimplifyUseSATSolver();
 	private SATSolver               satSolver    = SATSolverFactory.newInstance();
 	

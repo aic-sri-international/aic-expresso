@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -98,7 +99,7 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 				Expression             condition = IntensionalSet.getCondition(theSet);
 				Collection<Expression> indexExpressions   = IntensionalSet.getIndexExpressions(theSet);
 				RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(theSet, process);
-				HashSet<Expression> indexExpressionsSet = new HashSet<Expression>(indexExpressions);
+				HashSet<Expression> indexExpressionsSet = new LinkedHashSet<Expression>(indexExpressions);
 				result = cardinalityCompute(condition, indexExpressionsSet, subProcess);
 				result = process.rewrite(CardinalityRewriter.R_complete_normalize, result);
 			} 
@@ -119,7 +120,7 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 	private Expression cardinalityCompute(Expression condition, Set<Expression> indexExpressions, RewritingProcess process) {
 		Expression result = null;
 		Set<Expression> freeVariables = Expressions.freeVariables(condition, process);
-		Set<Expression> intersectionOfFreeAndIndices = new HashSet<Expression>(freeVariables);
+		Set<Expression> intersectionOfFreeAndIndices = new LinkedHashSet<Expression>(freeVariables);
 		intersectionOfFreeAndIndices.retainAll(IndexExpressions.getIndices(new LinkedList<Expression>(indexExpressions))); // The intersection of the two sets
 		if ( intersectionOfFreeAndIndices.isEmpty() ) {
 			result = cardinalityIndependentCondition( condition, indexExpressions, process);
@@ -181,7 +182,7 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 			else if ( ForAll.isForAll(condition) ) {
 				Expression indexExpression = ForAll.getIndexExpression(condition);
 				Expression body            = ForAll.getBody(condition);
-				HashSet<Expression> newIndexExpression = new HashSet<Expression>();
+				HashSet<Expression> newIndexExpression = new LinkedHashSet<Expression>();
 				newIndexExpression.add(indexExpression);
 				RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIndexExpressions(Util.list(ForAll.getIndexExpression(condition)), process);
 				Expression allCard = cardinalityCompute(body, newIndexExpression, subProcess);
@@ -191,7 +192,7 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 			else if ( ThereExists.isThereExists(condition) ) {
 				Expression indexExpression = ThereExists.getIndexExpression(condition);
 				Expression body            = ThereExists.getBody(condition);
-				HashSet<Expression> newIndexExpression = new HashSet<Expression>();
+				HashSet<Expression> newIndexExpression = new LinkedHashSet<Expression>();
 				newIndexExpression.add(indexExpression);
 				RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIndexExpressions(Util.list(ForAll.getIndexExpression(condition)), process);
 				Expression existCard = cardinalityCompute(body, newIndexExpression, subProcess);
@@ -514,14 +515,14 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 	}
 	
 	private Set<Expression> duplicate(Set<Expression> indexExpressions) {
-		return new HashSet<Expression>(indexExpressions);
+		return new LinkedHashSet<Expression>(indexExpressions);
 	}
 	
 	private Expression simplifyTop(Expression expression, RewritingProcess process) {
 		Expression result = expression;
 		if ( result.hasFunctor(And.FUNCTOR) || result.hasFunctor(Or.FUNCTOR) ) {
 			Expression functor = result.getFunctor();
-			Set<Expression> arguments = new HashSet<Expression>();
+			Set<Expression> arguments = new LinkedHashSet<Expression>();
 			for (Expression arg: expression.getArguments()) {
 				Expression simplified = simplifyTop(arg, process);
 				if ( simplified.hasFunctor(functor) ) {
