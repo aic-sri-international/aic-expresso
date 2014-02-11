@@ -79,23 +79,6 @@ import com.sri.ai.util.base.Pair;
 public class DefaultRewritingProcess implements RewritingProcess {
 	
 	/**
-	 * An interface to be implemented by classes that can provide rewriters
-	 * based on name to the RewritingProcess for use by its rewrite() methods.
-	 * 
-	 * @author oreilly
-	 * 
-	 */
-	public interface RewriterLookup {
-		/**
-		 * 
-		 * @param rewriterName
-		 *            the name of the rewriter to be looked up.
-		 * @return the rewriter corresponding to the rewriterName provided.
-		 */
-		Rewriter getRewriterFor(String rewriterName);
-	}
-	
-	/**
 	 * An iterator over the rewriters of this process. The reason this is public
 	 * is mostly technical.
 	 */
@@ -523,7 +506,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 	
 	@Override
-	public Map<Object, Object> getGlobalObjects() {
+	public ConcurrentHashMap<Object, Object> getGlobalObjects() {
 		return globalObjects;
 	}
 
@@ -577,6 +560,21 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 	
 	@Override
+	public ChildRewriterCallIntercepter getChildCallIntercepter() {
+		return childCallIntercepter;
+	}
+
+	@Override
+	public boolean getInterrupted() {
+		return interrupted;
+	}
+
+	@Override
+	public boolean getIsResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess() {
+		return isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess;
+	}
+
+	@Override
 	public void interrupt() {
 		interrupted = true;
 	}
@@ -625,6 +623,29 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				false /* isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess */				
 				);
 		
+	}
+
+	public static RewritingProcess copyRewritingProcessWithCleanContextAndCaches(RewritingProcess process) {
+		RewritingProcess result = new DefaultRewritingProcess(process);
+		return result;
+	}
+	
+	/** A copy constructor with clean context and clean caches. */
+	private DefaultRewritingProcess(RewritingProcess process) {
+		initialize(
+				null, // parentProcess,
+				process.getRootExpression(),
+				process.getRootRewriter(),
+				process.getRewriterLookup(),
+				process.getChildCallIntercepter(),
+				new LinkedHashMap<Expression, Expression>(),
+				Expressions.TRUE,
+				process.getIsConstantPredicate(),
+				process.getGlobalObjects(),
+				new ConcurrentHashMap<String, ExpressionCache>(),
+				new ConcurrentHashMap<Class<?>, Rewriter>(),
+				process.getInterrupted(),
+				process.getIsResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess());
 	}
 	
 	private void initialize(DefaultRewritingProcess parentProcess,

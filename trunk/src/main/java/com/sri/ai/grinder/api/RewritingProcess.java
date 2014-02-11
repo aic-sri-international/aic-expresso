@@ -39,10 +39,12 @@ package com.sri.ai.grinder.api;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.core.RewriterLookup;
 import com.sri.ai.util.base.IdentityWrapper;
 import com.sri.ai.util.base.Pair;
 
@@ -98,6 +100,14 @@ public interface RewritingProcess {
 	
 	Rewriter setRootRewriter(Rewriter newRootRewriter);
 	
+	RewriterLookup getRewriterLookup();
+
+	ChildRewriterCallIntercepter getChildCallIntercepter();
+
+	boolean getInterrupted();
+
+	boolean getIsResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess();
+
 	/**
 	 * Rewrites an expression within the context of this rewriting process.
 	 * 
@@ -198,7 +208,7 @@ public interface RewritingProcess {
 	/**
 	 * Gets map of global objects.
 	 */
-	Map<Object, Object> getGlobalObjects();
+	ConcurrentHashMap<Object, Object> getGlobalObjects();
 	
 	/**
 	 * Sets map of global objects to a new given one.

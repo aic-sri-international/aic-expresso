@@ -44,12 +44,12 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.api.Rewriter;
 
 /**
- * A default implementation of {@link DefaultRewritingProcess.RewriterLookup}.
+ * A default implementation of {@link RewriterLookup}.
  * 
  * @author oreilly
  */
 @Beta
-public class DefaultRewriterLookup implements DefaultRewritingProcess.RewriterLookup {
+public class DefaultRewriterLookup implements RewriterLookup {
 
 	private ConcurrentHashMap<String, Rewriter> rewriterLookupMap = new ConcurrentHashMap<String, Rewriter>();
 	
