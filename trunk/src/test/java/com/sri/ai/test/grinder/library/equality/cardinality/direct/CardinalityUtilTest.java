@@ -37,8 +37,8 @@
  */
 package com.sri.ai.test.grinder.library.equality.cardinality.direct;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -182,7 +182,7 @@ public class CardinalityUtilTest extends AbstractGrinderTest {
 		int expectedSize = expectedPairs.length / 2;
 		Assert.assertEquals(expectedSize, indProblems.size());
 		
- 		Map<Set<Expression>, Expression> expectedIndProblems = new HashMap<Set<Expression>, Expression>();
+ 		Map<Set<Expression>, Expression> expectedIndProblems = new LinkedHashMap<Set<Expression>, Expression>();
  		for (int i = 0; i < expectedPairs.length; i += 2) {
  			Set<Expression> vars = new HashSet<Expression>(Tuple.getElements(parse(expectedPairs[i])));
  			expectedIndProblems.put(vars, And.make(Tuple.getElements(parse(expectedPairs[i+1]))));

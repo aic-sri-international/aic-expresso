@@ -37,7 +37,7 @@
  */
 package com.sri.ai.grinder.library;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
@@ -63,9 +63,9 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.DefaultCardin
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.EqualityInConjunction;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.IncompleteTopImpliedCertainty;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.MoveNotIn;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.Normalize;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.PickCheapest;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.QuantifierElimination;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.Normalize;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.SortPair;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.SumOverOneVariable;
@@ -125,10 +125,10 @@ public class DirectCardinalityComputationFactory {
 			globalObjects                 = parentProcess.getGlobalObjects();
 		}
 		else {
-			contextualVariablesAndDomains = new HashMap<Expression, Expression>();
+			contextualVariablesAndDomains = new LinkedHashMap<Expression, Expression>();
 			contextualConstraint          = Expressions.TRUE;
 			isConstantPredicate           = new PrologConstantPredicate();
-			globalObjects                 = new HashMap<Object, Object>();
+			globalObjects                 = new LinkedHashMap<Object, Object>();
 		}
 		
 		DefaultRewritingProcess cardinalityProcess = new DefaultRewritingProcess(
@@ -148,7 +148,7 @@ public class DirectCardinalityComputationFactory {
 	}
 	
 	public static Map<String, Rewriter> getCardinalityRewritersMap(CardinalityConfiguration configuration) {
-		Map<String, Rewriter> cardRewriters = new HashMap<String, Rewriter>();
+		Map<String, Rewriter> cardRewriters = new LinkedHashMap<String, Rewriter>();
 		
 		// Supporting Classes
 		PickCheapest pickCheapest = new PickCheapest();

@@ -40,7 +40,7 @@ package com.sri.ai.grinder.demo.common;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.swing.JCheckBox;
@@ -53,7 +53,7 @@ import com.sri.ai.grinder.demo.model.EnableItem;
 
 public class RewriterEnableTreeRenderer extends DefaultTreeCellRenderer {
 	private static final long serialVersionUID = 1L;
-	private Map<EnableItem<Rewriter>, JCheckBox> checkBoxes = new HashMap<EnableItem<Rewriter>, JCheckBox>();
+	private Map<EnableItem<Rewriter>, JCheckBox> checkBoxes = new LinkedHashMap<EnableItem<Rewriter>, JCheckBox>();
 
 	public RewriterEnableTreeRenderer() {
 	}

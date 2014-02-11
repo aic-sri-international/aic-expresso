@@ -37,7 +37,7 @@
  */
 package com.sri.ai.test.grinder.library.equality.cardinality;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.sri.ai.brewer.api.Parser;
@@ -48,7 +48,7 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTy
 public class CountsDeclaration implements CardinalityTypeOfLogicalVariable.DomainSizeOfLogicalVariable {
 	private Integer  allCounts          = null;
 	private String[] variableCountPairs = null;
-	private Map<Expression, Integer> varibleDomainSizes = new HashMap<Expression, Integer>();
+	private Map<Expression, Integer> varibleDomainSizes = new LinkedHashMap<Expression, Integer>();
 	private Parser parser;
 	
 	public CountsDeclaration(int allCounts) {

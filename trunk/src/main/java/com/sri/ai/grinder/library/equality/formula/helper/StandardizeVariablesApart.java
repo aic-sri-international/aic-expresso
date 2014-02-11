@@ -37,7 +37,7 @@
  */
 package com.sri.ai.grinder.library.equality.formula.helper;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
@@ -83,7 +83,7 @@ public class StandardizeVariablesApart {
 	private static class StandardizeVariablesApartReplacementFunction implements Function<Expression, Expression> {
 		
 		private RewritingProcess process     = null;
-		private Map<Expression, Expression>  seenIndices = new HashMap<Expression, Expression>();
+		private Map<Expression, Expression>  seenIndices = new LinkedHashMap<Expression, Expression>();
 		
 		public StandardizeVariablesApartReplacementFunction(RewritingProcess process) {
 			this.process = process;

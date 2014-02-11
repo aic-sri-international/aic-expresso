@@ -39,7 +39,7 @@ package com.sri.ai.grinder.helper;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -570,7 +570,7 @@ public class GrinderUtil {
 	public static RewritingProcess extendContextualConstraint(Expression additionalConstraints, RewritingProcess process) {
 		
 		return extendContextualVariablesAndConstraint(
-				new HashMap<Expression, Expression>(),
+				new LinkedHashMap<Expression, Expression>(),
 				additionalConstraints,
 				process);
 	}
@@ -609,7 +609,7 @@ public class GrinderUtil {
 	 */
 	public static RewritingProcess extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(Expression expression, RewritingProcess process) {
 		Set<Expression> freeVariables = Expressions.freeVariables(expression, process);
-		Map<Expression, Expression> fromVariableToDomain = new HashMap<Expression, Expression>();
+		Map<Expression, Expression> fromVariableToDomain = new LinkedHashMap<Expression, Expression>();
 		for (Expression variable : freeVariables) {
 			fromVariableToDomain.put(variable, null);
 		}
@@ -683,7 +683,7 @@ public class GrinderUtil {
 		Expression newContextualVariable = Expressions.prefixedUntilUnique(contextualVariable, "Shadowed ", new NotContainedBy<Expression>(process.getContextualVariables()));
 		
 		// makes new contextual variables and domains map
-		Map<Expression, Expression> newContextualVariablesAndDomains = new HashMap<Expression, Expression>(process.getContextualVariablesAndDomains());
+		Map<Expression, Expression> newContextualVariablesAndDomains = new LinkedHashMap<Expression, Expression>(process.getContextualVariablesAndDomains());
 
 		// replaces occurrences of contextualVariable in domains;
 		// variables do not occur in domains at this point (Jan/2014) but will when system is more general
