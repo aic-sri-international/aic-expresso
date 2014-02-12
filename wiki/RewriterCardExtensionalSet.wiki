@@ -8,5 +8,5 @@ return: a basic expression equivalent to | {t1,...,tn} |.
 |.... `return 0`<br>
 | // cardinality of the set expression without the first element expression<br>
 | `N <- `[RewriterCardExtensionalSet R_cardExtensionalSet]`( | {t`,,2,,`,...,t`,,k,,`} | )`<br>
-| `Irrelevant <- `[RewriterSimplify R_normalize]`(t`,,1,,` = t`,,2,,` or ... or t`,,1,,` = t`,,n,,`)`<br>
+| `Irrelevant <- `[RewriterNormalize R_normalize]`(t`,,1,,` = t`,,2,,` or ... or t`,,1,,` = t`,,n,,`)`<br>
 | `return if Irrelevant then N else `[FunctionPlusOne plusOne]`(N)`<br>

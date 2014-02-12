@@ -20,13 +20,13 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
 |........ `R <- `[RewriterCardWithQuantification R_card]`(| D`,,1,,` |`,,X,,`, quantification)`<br>
 |.... `else`<br>
 |........ `D`,,2,,` = `[RewriterTopSimplify R_top_simplify]`(D`,,2,,`)`<br>
-|........ `R <- `[RewriterSimplify R_normalize]`(`[RewriterCardWithQuantification R_card]`(|D`,,1,,`|`,,I1,,`, quantification)*||I`,,2,,`|| +`<br>
+|........ `R <- `[RewriterNormalize R_normalize]`(`[RewriterCardWithQuantification R_card]`(|D`,,1,,`|`,,I1,,`, quantification)*||I`,,2,,`|| +`<br>
 |............ [RewriterCardWithQuantification R_card]`(|D`,,2,,`|`,,I2,,`, quantification)*||I`,,1,,`|| -`<br>
 |............ [RewriterCardWithQuantification R_card]`(|D`,,1,,`|`,,I1,,`, quantification)* `[RewriterCardWithQuantification R_card]`(|D`,,2,,`|`,,I2,,`, quantification))`<br>
 |.... `if D is empty:`<br>
 |........ `return R`<br>
 |.... `else`<br>
-|........ `return `[RewriterSimplify R_normalize]`(if D then ||X|| else R)`<br>
+|........ `return `[RewriterNormalize R_normalize]`(if D then ||X|| else R)`<br>
 |<br>
 | // Assume F is of the form F1 or F2<br>
 | // | F1 or F2 |,,X,, = | F1 |,,X,, + | F2 |,,X,, - | F1 and F2 |,,X,,<br>
@@ -34,7 +34,7 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
 |<br>
 | `(F1, F2) <- split_disjuncts_on_X(F) as follows:`<br>
 | `if F1 contains all the disjuncts independent of X (not empty)`<br>
-|.... `return `[RewriterSimplify R_normalize]`(if F1 then ||X|| else R_card(|F2|`,,X,,`, quantification))`<br>
+|.... `return `[RewriterNormalize R_normalize]`(if F1 then ||X|| else R_card(|F2|`,,X,,`, quantification))`<br>
 |<br>
 | `otherwise (if all disjuncts of F have some index variable occurring in them):`<br>
 | `F1 <- first disjunct in F`<br>
@@ -44,7 +44,7 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
 | `F2 <- `[RewriterTopSimplify R_top_simplify]`(F2)`<br>
 |<br>
 | `if quantification is "for all"`<br>
-|.... `return `[RewriterSimplify R_normalize]`(`<br>
+|.... `return `[RewriterNormalize R_normalize]`(`<br>
 |........ `if `[RewriterCardWithQuantification R_card]`(| `[RewriterTopSimplifyConjunction R_top_simplify_conjunction]`(not F1 and not F2) |`,,X,,`, "there exists") > 0`<br>
 |........ `then 0 else ||X||)`<br>
 |<br>
@@ -64,9 +64,9 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
 |<br>
 | `if quantification is "there exists"`<br>
 |.... // there is no need to compute N3, since it is enough that there is x in for either F1 or F2<br>
-|.... `return `[RewriterSimplify R_normalize]`(if N1 > 0 or N2 > 0 then ||X|| else 0)`<br>
+|.... `return `[RewriterNormalize R_normalize]`(if N1 > 0 or N2 > 0 then ||X|| else 0)`<br>
 |<br>
 | // quantification is guaranteed to be "none" because otherwise it would have returned by now<br>
 | `N3 <- `[RewriterCardWithQuantification R_card]`( | `[RewriterTopSimplifyConjunction R_top_simplify_conjunction]`(F1 and F2) |`,,X,,`, "none" )`<br>
-| `return `[RewriterSimplify R_normalize]`(N1 + N2 - N3)`<br>
+| `return `[RewriterNormalize R_normalize]`(N1 + N2 - N3)`<br>
 | // possible further optimization since F1 and F2 are already top-simplified<br>

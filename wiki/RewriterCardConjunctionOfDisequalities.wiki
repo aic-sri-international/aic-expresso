@@ -15,8 +15,8 @@ return: a basic expression equivalent to | F |_X, if quantification is "none".
 |.... `if quantification is "for all" and ( ASSUME_DOMAIN_ALWAYS_LARGE or |type(x)| > 0 )`<br>
 |........ `return 0`<br>
 |.... `if quantification is "there exists" and ( ASSUME_DOMAIN_ALWAYS_LARGE or |type(x)| > k )`<br>
-|........ `return `[RewriterSimplify R_normalize]`( |type(x)| )`<br>
+|........ `return `[RewriterNormalize R_normalize]`( |type(x)| )`<br>
 |.... `if quantification is "none"`<br>
-|........ `return `[RewriterSimplify R_normalize]`( |type(x)| - `[RewriterCardExtensionalSet R_cardExtensionalSet]`(|{t`,,1,,`,...,t`,,k,,`}|) )`<br>
+|........ `return `[RewriterNormalize R_normalize]`( |type(x)| - `[RewriterCardExtensionalSet R_cardExtensionalSet]`(|{t`,,1,,`,...,t`,,k,,`}|) )`<br>
 | `if X = {x`,,1,,`, ..., `x,,n,,`}:`<br>
 |.... `return `[RewriterSumOverOneVariable R_sum_over_one_variable]`(sum_{x1:True} `[RewriterCardWithQuantification R_card]`( | F |`,,{x2, ..., xn},,`, quantification))`<br>

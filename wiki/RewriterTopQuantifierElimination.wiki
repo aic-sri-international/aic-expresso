@@ -6,6 +6,6 @@ return: an equivalent formula to Qx F by eliminating the quantification Qx.
 </pre>
 | `F <- `[RewriterTopSimplify R_top_simplify]`(F)`<br>
 | `if Q is "for all"`<br>
-|.... `return `[RewriterSimplify R_normalize]`(`[RewriterCard R_card]`(|F|`,,x,,`, Q) = |type(x)| )`<br>
+|.... `return `[RewriterNormalize R_normalize]`(`[RewriterCard R_card]`(|F|`,,x,,`, Q) = |type(x)| )`<br>
 | `if Q is "there exists"`<br>
-|.... `return `[RewriterSimplify R_normalize]`(`[RewriterCard R_card]`(|F|`,,x,,`, Q) > 0)`<br>
+|.... `return `[RewriterNormalize R_normalize]`(`[RewriterCard R_card]`(|F|`,,x,,`, Q) > 0)`<br>
