@@ -28,7 +28,7 @@
         * [RewriterNormalize R_normalize(F)]
         * [RewriterSimplify R_simplify(F)]
         * [RewriterCompleteNormalize R_complete_normalize(F)]
-        * [RewriterCompletesimplify R_complete_simplify(F)]
+        * [RewriterCompleteSimplify R_complete_simplify(F)]
       * Supporting Functions
         * [FunctionNegationHasLessNumberOfDisjuncts negationHasLessNumberOfDisjuncts(F)]
         * [FunctionPickCheapest pick_cheapest( Candidates )]
