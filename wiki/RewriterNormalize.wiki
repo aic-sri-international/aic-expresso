@@ -1,8 +1,7 @@
 #summary R_normalize(F)
-R_normalize(F) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/Simplify.java implementation])
+R_normalize(F) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/Normalize.java implementation])
 <pre>
 inputs: F is an expression.
-return: a simplification of F if possible, otherwise F if already in simplest form.
+return: a normalization of E, that is, an equivalent expression with all if-then-elses externalized.
+        The expression is also simplified per R_simplify.
 </pre>
-| // Exhaustively simplifies the given expression until no further simplification is possible.<br>
-| // Note: It will not necessarily use full satisfiability testing as part of its simplification logic.<br>

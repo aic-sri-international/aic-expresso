@@ -1,7 +1,8 @@
-#summary R_complete_normalize(F)
-R_complete_normalize(F) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/CompleteSimplify.java implementation])
+#summary R_complete_simplify(E)
+R`_`complete`_`simplify(E) - ([http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/grinder/library/equality/cardinality/direct/core/CompleteSimplify.java implementation])
 <pre>
-inputs: F is an expression.
-return: a simplification of F if possible, and determines if satisfiable or not.
+inputs: E is an expression.
+return: a simplification of E if possible, otherwise E if already in simplest form.
 </pre>
 | // Exhaustively simplifies the given expression until no further simplification is possible.<br>
+| // Note: Uses full satisfiability testing (unlike [RewriterNormalize R_normalize]) as part of its simplification logic.<br>

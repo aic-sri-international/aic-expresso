@@ -5,4 +5,4 @@ inputs: F is a formula.
 return: whether F is a tautology(F)or not.
 </pre>
 | `let x`,,1,,`, ..., x`,,n,,` be the free variables in F`<br>
-| `return whether `[RewriterCompleteSimplify R_complete_normalize]`( for all x`,,1,,` : ... for all x`,,n,,` : F )) is "True"`<br>
+| `return whether `[RewriterCompleteNormalize R_complete_normalize]`( for all x`,,1,,` : ... for all x`,,n,,` : F )) is "True"`<br>
