@@ -46,7 +46,7 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 /**
  * A RewriterTestAttribute used to represent an expression is a formula.
  * Note: This is distinct from KindAttribute as different 'kind' attribute
- * functors can also end up being formulas but not necessarily. This ensures,
+ * functors can also end up being formulas but not necessarily. This ensures that
  * the attributes and values remain mutually exclusive.
  * 
  * @author oreilly
