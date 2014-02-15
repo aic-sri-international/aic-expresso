@@ -377,14 +377,14 @@ public class CallRewriterDecisionTree {
 	}
 	
 	private class BranchNode extends Node {
-		private RewriterTestAttribute a            = null;
+		private RewriterTestAttribute attribute    = null;
 		private Map<Object, Node>     valueToNode  = new LinkedHashMap<Object, Node>();
 		private Node                  otherwise    = null;
 	
 		public BranchNode(RewriterTestAttribute a, 
 				          Map<Object, List<RewriterWithReifiedTests>> valueToRewritersWithReifiedTests,
 				          List<RewriterWithReifiedTests> noValueRewritersWithReifiedTests) {
-			this.a = a;
+			this.attribute = a;
 			for (Object value : valueToRewritersWithReifiedTests.keySet()) {
 				Node childNode = makeDecisionTree(valueToRewritersWithReifiedTests.get(value));
 				this.valueToNode.put(value, childNode);
@@ -394,7 +394,8 @@ public class CallRewriterDecisionTree {
 		
 		@Override
 		public Pair<Rewriter, Expression> rewrite(Expression expression, RewritingProcess process) {
-			Node nodeToRewrite = valueToNode.get(a.getValue(expression, process));
+			Object attributeValueForExpression = attribute.getValue(expression, process);
+			Node nodeToRewrite = valueToNode.get(attributeValueForExpression);
 			if (nodeToRewrite == null) {
 				// i.e. none of the values on the expression match this attribute
 				nodeToRewrite = otherwise;
@@ -406,27 +407,27 @@ public class CallRewriterDecisionTree {
 		}		
 		
 		@Override
-		public void toString(StringBuilder sb, String indent) {
-			sb.append(indent);
-			sb.append("+Branch: attribute:");
-			sb.append(a);
-			sb.append(", #children=");
-			sb.append(valueToNode.size()+1); // i.e. include otherwise
-			sb.append("\n");
+		public void toString(StringBuilder stringBuilder, String indent) {
+			stringBuilder.append(indent);
+			stringBuilder.append("+Branch: attribute:");
+			stringBuilder.append(attribute);
+			stringBuilder.append(", #children=");
+			stringBuilder.append(valueToNode.size()+1); // i.e. include otherwise
+			stringBuilder.append("\n");
 			for (Object v : valueToNode.keySet()) {
 				Node childNode = valueToNode.get(v);
-				sb.append(indent);
-				sb.append("    ");
-				sb.append("-value:"+v);
-				sb.append("\n");
-				childNode.toString(sb, indent+"        ");				
+				stringBuilder.append(indent);
+				stringBuilder.append("    ");
+				stringBuilder.append("-value:"+v);
+				stringBuilder.append("\n");
+				childNode.toString(stringBuilder, indent+"        ");				
 			}
-			sb.append(indent);
-			sb.append("    ");
-			sb.append("-otherwise:");
-			sb.append("\n");
-			otherwise.toString(sb, indent+"        ");
-			sb.append("\n");
+			stringBuilder.append(indent);
+			stringBuilder.append("    ");
+			stringBuilder.append("-otherwise:");
+			stringBuilder.append("\n");
+			otherwise.toString(stringBuilder, indent+"        ");
+			stringBuilder.append("\n");
 		}
 	}
 	
