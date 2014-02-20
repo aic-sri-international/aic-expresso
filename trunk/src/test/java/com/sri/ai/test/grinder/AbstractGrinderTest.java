@@ -303,7 +303,7 @@ abstract public class AbstractGrinderTest {
 			assertEquals("Ensure you run all the tests", end-begin, run);
 		}
 		
-		doTreeUtilWaitUnilClosed();
+		GrinderUtil.doTreeUtilWaitUntilClosed();
 		
 		if (assertFailed != null) {
 			Assert.fail(assertFailed);
@@ -364,9 +364,10 @@ abstract public class AbstractGrinderTest {
 		return parser.parse(expressionString);
 	}
 
-	protected void doTreeUtilWaitUnilClosed() {
-		if (GrinderConfiguration.isWaitUntilUIClosedEnabled()) {
-			TreeUtil.waitUntilUIClosed();
-		}
+	/**
+	 * @deprecated Use {@link GrinderUtil#doTreeUtilWaitUntilClosed()} instead
+	 */
+	public static void doTreeUtilWaitUnilClosed() {
+		GrinderUtil.doTreeUtilWaitUntilClosed();
 	}
 }

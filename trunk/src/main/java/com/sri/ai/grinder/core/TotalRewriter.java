@@ -140,6 +140,18 @@ public class TotalRewriter extends AbstractRewriter {
 		this(name, Arrays.asList(rewriters));
 	}
 	
+	/**
+	 * Constructor that makes up a random name for the TotalRewriter.
+	 * The idea is the have a nameless TotalRewriter, but because using a standard fixed name
+	 * could lead the system to confuse two distinct TotalRewriters, this constructor generates a random name for it.
+	 * @param rewriters
+	 *        The list of rewriters to be exhaustively called until no 
+	 *        more rewriting can occur.
+	 */
+	public TotalRewriter(Rewriter... rewriters) {
+		this("TotalRewriter with random name " + Math.random(), Arrays.asList(rewriters));
+	}
+	
 	public boolean isOuterTraceEnabled() {
 		return outerTraceEnabled;
 	}
