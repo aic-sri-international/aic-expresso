@@ -54,8 +54,10 @@ import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.ExhaustiveRewriter;
+import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter.Quantification;
@@ -65,6 +67,7 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.IncompleteLin
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.IsContradiction;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.IsTautology;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.PickCheapest;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.QuantifierEliminationWrapper;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.ReplaceConjunctAndTopSimplify;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.ReplaceDisjunctAndTopSimplify;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.SortPair;
@@ -1411,6 +1414,67 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 		perform(tests);
 	}
 	
+	@Test
+	public void testQuantifierEliminationWrapper() {
+		class QuantifierEliminationWrapperData extends TestData {
+			private String                      E;
+			private Expression                  exprE;
+			private CountsDeclaration           countsDeclaration = null;
+			
+			public QuantifierEliminationWrapperData(boolean isIllegalArgumentTest, String E, CountsDeclaration countsDeclaration, String expected) {
+				super(isIllegalArgumentTest, expected);
+				this.E = E;
+				this.countsDeclaration = countsDeclaration;
+				this.countsDeclaration.setParser(parser);
+			}
+			
+			public QuantifierEliminationWrapperData(boolean isIllegalArgumentTest, Expression contextualConstraint, String E, CountsDeclaration countsDeclaration, String expected) {
+				super(isIllegalArgumentTest, contextualConstraint, expected);
+				this.E = E;
+				this.countsDeclaration = countsDeclaration;
+				this.countsDeclaration.setParser(parser);
+			}
+			
+			@Override
+			public Expression getTopExpression() {
+				this.exprE = parse(E);
+				
+				return exprE;
+			}
+			
+			@Override
+			public Expression callRewrite(RewritingProcess process) {
+				
+				countsDeclaration.setup(process);
+				
+				TotalRewriter quantifierEliminationWrappers =
+						new TotalRewriter(
+								new QuantifierEliminationWrapper(FunctorConstants.THERE_EXISTS),
+								new QuantifierEliminationWrapper(FunctorConstants.FOR_ALL),
+								new QuantifierEliminationWrapper(FunctorConstants.AND),
+								new QuantifierEliminationWrapper(FunctorConstants.OR),
+								new QuantifierEliminationWrapper(FunctorConstants.NOT),
+								new QuantifierEliminationWrapper(FunctorConstants.IMPLICATION),
+								new QuantifierEliminationWrapper(FunctorConstants.EQUIVALENCE));
+
+				RewritingProcess directCardinalityProcess = DirectCardinalityComputationFactory.newCardinalityProcess(exprE, process);
+				Expression result = quantifierEliminationWrappers.rewrite(exprE, directCardinalityProcess);
+	
+				return result;
+			}
+		}
+		
+		TestData[] tests = new TestData[] {
+			//
+			new QuantifierEliminationWrapperData(false,
+					"there exists People : (there exists X in People : X' != Y and (X' != dave and Y = dave or Y = dave and X' != dave) and not (X' = bob) and X'' != Y' and (X' = X'' and Y = Y' or X' = Y' and Y = X'') and (X'' != X' or Y' != Y))",
+					new CountsDeclaration("X", "10"),
+					"if X' != Y and (X' != dave and Y = dave or Y = dave and X' != dave) and X' != bob and X'' != Y' and (X' = X'' and Y = Y' or X' = Y' and Y = X'') and (X'' != X' or Y' != Y) then if | People | > 0 then | type(People) | > 0 else false else false"),
+		};
+		
+		perform(tests);
+	}
+
 	@Test
 	public void testIsTautology() {
 		class TautologyData extends TestData {

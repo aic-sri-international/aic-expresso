@@ -52,6 +52,7 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.concurrent.BranchRewriteTask;
@@ -68,6 +69,7 @@ import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
+import com.sri.ai.grinder.ui.TreeUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.NotContainedBy;
 import com.sri.ai.util.base.Pair;
@@ -850,5 +852,11 @@ public class GrinderUtil {
 		}
 		Expression result = process.getContextualVariableDomain(expression);
 		return result;
+	}
+
+	public static void doTreeUtilWaitUntilClosed() {
+		if (GrinderConfiguration.isWaitUntilUIClosedEnabled()) {
+			TreeUtil.waitUntilUIClosed();
+		}
 	}
 }

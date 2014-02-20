@@ -59,7 +59,7 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewrite
 public class QuantifierEliminationWrapper extends AbstractRewriter {	
 	public QuantifierEliminationWrapper(String forFunctor) {
 		// Set the name based on the quantifier this is specific to.
-		this.setName("Quantifier Elimination "+forFunctor);
+		this.setName("Quantifier Elimination Wrapper for " + forFunctor + " expressions");
 		
 		// Set up the relevant reified tests
 		List<RewriterTest> reifiedTests = new ArrayList<RewriterTest>();
