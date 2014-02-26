@@ -169,6 +169,10 @@ public class QuantifierElimination extends AbstractHierarchicalRewriter implemen
 			}
 			
 			Trace.log("    return F'");
+			// Ensure we don't return an equivalent expression in place of the input
+			if (fPrime.equals(expressionF)) {
+				fPrime = expressionF;
+			}
 			result = fPrime;
 		} 
 		else if (Or.isDisjunction(expressionF)) {
@@ -192,6 +196,10 @@ public class QuantifierElimination extends AbstractHierarchicalRewriter implemen
 				i++;
 			}
 			Trace.log("    return F'");
+			// Ensure we don't return an equivalent expression in place of the input
+			if (fPrime.equals(expressionF)) {
+				fPrime = expressionF;
+			}
 			result = fPrime;
 		} 
 		else {
