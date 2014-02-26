@@ -72,7 +72,7 @@ public class Or extends BooleanCommutativeAssociative {
 	}
 	
 	@Override
-	protected Symbol getNeutralElementSyntaxTree() {
+	protected Symbol getNeutralElement() {
 		return neutralElement;
 	}
 	

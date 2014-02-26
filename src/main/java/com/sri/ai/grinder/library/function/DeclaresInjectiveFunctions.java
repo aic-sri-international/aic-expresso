@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.equality.injective;
+package com.sri.ai.grinder.library.function;
 
 import java.util.Collection;
 
@@ -45,7 +45,6 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.library.function.InjectiveModule;
 
 /**
  * An {@link InjectiveModule.Provider} provider for declaring injective functors.

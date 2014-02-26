@@ -44,10 +44,10 @@ import com.sri.ai.expresso.core.AbstractSyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.function.AbstractRewriterDefiningSymmetricFunction;
 
 /**
  * An atomic rewriter of Boolean equivalence expressions.
@@ -56,7 +56,7 @@ import com.sri.ai.grinder.library.FunctorConstants;
  *
  */
 @Beta
-public class Equivalence extends AbstractRewriter {
+public class Equivalence extends AbstractRewriterDefiningSymmetricFunction {
 
 	public final static Symbol FUNCTOR = DefaultSymbol.createSymbol(FunctorConstants.EQUIVALENCE);
 	

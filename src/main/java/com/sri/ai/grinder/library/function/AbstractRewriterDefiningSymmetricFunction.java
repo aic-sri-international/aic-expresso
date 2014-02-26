@@ -35,61 +35,35 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.number;
-
-import java.util.List;
+package com.sri.ai.grinder.library.function;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.core.DefaultSymbol;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.expresso.helper.SyntaxTreeIsSymbolOfType;
-import com.sri.ai.grinder.library.CommutativeAssociativeWithOperationOnConstantsOnly;
-import com.sri.ai.util.Util;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.AbstractRewriter;
 
 /**
- * Implements a rewriter for the plus operation.
+ * An {@link SymmetricModule.Provider} provider for declaring symmetric functors.
  * 
  * @author braz
  *
  */
 @Beta
-public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly {
+abstract public class AbstractRewriterDefiningSymmetricFunction extends AbstractRewriter implements SymmetricModule.Provider {
 
-	private final static Symbol                neutralElement              = DefaultSymbol.createSymbol(0);
-	private final static Predicate<Expression> isOperableArgumentPredicate = new SyntaxTreeIsSymbolOfType(Number.class);
-
-	protected Object getFunctor() {
-		return "+";
-	}
+	protected abstract Object getFunctor();
 	
 	@Override
-	protected Symbol getNeutralElement() {
-		return neutralElement;
-	}
-	
-	@Override
-	protected Symbol getAbsorbingElement() {
-		return null; // no absorbing element
-	}
-	
-	protected Predicate<Expression> getIsOperableArgumentSyntaxTreePredicate() {
-		return isOperableArgumentPredicate;
+	public void rewritingProcessInitiated(RewritingProcess process) {
+		SymmetricModule commutativeAssociativeModule = (SymmetricModule) process.findModule(SymmetricModule.class);
+		if (commutativeAssociativeModule != null) {
+			commutativeAssociativeModule.register(this);
+		}
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	protected Object operationOnOperableValues(List listOfConstants) {
-		return Util.sumArbitraryPrecision((List<Number>)listOfConstants);
+	public boolean isSymmetric(Expression function, RewritingProcess process) {
+		boolean result = function.equals(getFunctor());
+		return result;
 	}
-
-	/**
-	 * Makes an addition, automatically accounting for neutral element occurrences.
-	 */
-	public static Expression make(List<Expression> arguments) {
-		return CommutativeAssociativeWithOperationOnConstantsOnly.make("+", arguments, Expressions.ZERO);
-	}
-
 }

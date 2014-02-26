@@ -72,7 +72,7 @@ public class And extends BooleanCommutativeAssociative {
 	}
 	
 	@Override
-	protected Symbol getNeutralElementSyntaxTree() {
+	protected Symbol getNeutralElement() {
 		return neutralElement;
 	}
 	

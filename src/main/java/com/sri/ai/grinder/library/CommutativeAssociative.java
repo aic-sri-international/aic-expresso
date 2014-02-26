@@ -49,8 +49,8 @@ import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.library.function.AbstractRewriterDefiningSymmetricFunction;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
 
@@ -69,21 +69,21 @@ import com.sri.ai.util.base.Equals;
  * @author braz
  */
 @Beta
-public abstract class CommutativeAssociative extends AbstractRewriter {
+public abstract class CommutativeAssociative extends AbstractRewriterDefiningSymmetricFunction {
 	
 	public CommutativeAssociative() {
 		this.setReifiedTests(new HasFunctor(getFunctor()));
 	}
 
 	protected abstract Object getFunctor();
-	protected abstract Expression getNeutralElementSyntaxTree();
+	protected abstract Expression getNeutralElement();
 	protected abstract Expression getAbsorbingElement();
 	protected abstract Predicate<Expression> getIsOperableArgumentSyntaxTreePredicate();
 	protected abstract Expression operationOnOperables(LinkedList<Expression> operableArguments);
 	protected abstract Expression operationOnExpressionOperables(LinkedList<Expression> operableArguments);
 
 	public Expression getNeutralElementExpression() {
-		return getNeutralElementSyntaxTree();
+		return getNeutralElement();
 	}
 
 	public Predicate<Expression> getIsOperableArgumentExpressionPredicate() {
@@ -154,7 +154,7 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 
 		// if there are non-operable arguments, put them together with operables's result, unless this is the neutral element.
 		LinkedList<Expression> argumentsOfResultingExpression = nonOperableArguments; // changing semantics, and therefore, for clarity, the name. It's ok to modify it since it's been created locally.
-		if ( ! resultOnOperableArgumentsExpression.equals(getNeutralElementSyntaxTree())) {
+		if ( ! resultOnOperableArgumentsExpression.equals(getNeutralElement())) {
 			argumentsOfResultingExpression.add(indexOfFirstOperable, resultOnOperableArgumentsExpression);
 		}
 
@@ -168,7 +168,7 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 	 * that uses the current object for obtaining the functor and neutral element.
 	 */
 	public Expression makeWithSameFunctorAsThis(List<Expression> arguments) {
-		return make(DefaultSymbol.createSymbol(getFunctor()), arguments, getNeutralElementSyntaxTree());
+		return make(DefaultSymbol.createSymbol(getFunctor()), arguments, getNeutralElement());
 	}
 	
 	/**
@@ -176,7 +176,7 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 	 * that uses the current object for obtaining the functor and neutral element.
 	 */
 	public Expression makeExpressionWithSameFunctorAsThis(List<Expression> arguments) {
-		return makeExpression(DefaultSymbol.createSymbol(getFunctor()), arguments, getNeutralElementSyntaxTree());
+		return makeExpression(DefaultSymbol.createSymbol(getFunctor()), arguments, getNeutralElement());
 	}
 	
 	/**

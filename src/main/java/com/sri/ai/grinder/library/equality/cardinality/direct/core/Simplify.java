@@ -79,6 +79,7 @@ import com.sri.ai.grinder.library.equality.CheapDisequalityModule;
 import com.sri.ai.grinder.library.equality.NotOnDisequality;
 import com.sri.ai.grinder.library.equality.NotOnEquality;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.sri.ai.grinder.library.function.SymmetricModule;
 import com.sri.ai.grinder.library.number.Division;
 import com.sri.ai.grinder.library.number.Exponentiation;
 import com.sri.ai.grinder.library.number.GreaterThan;
@@ -145,6 +146,7 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 	protected List<Rewriter> getAtomicRewriters() {
 		return new ArrayList<Rewriter>(
 				Arrays.asList(new Rewriter[] {
+						//new OrderNormalize(),
 						new PlainSubstitution(),
 						new CardinalityTypeOfLogicalVariable(),
 						new Plus(),
@@ -221,6 +223,7 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 						new IntensionalSetSubExpressionsAndImposedConditionsProvider(),
 						new ExtensionalSetSubExpressionsProvider(),
 						new ScopedVariables(),
+						new SymmetricModule(),
 						new ForAllSubExpressionsAndScopedVariablesProvider(),
 						new ThereExistsSubExpressionsAndScopedVariablesProvider(),
 						new IntensionalSet(), // Note: This is just a provider for scoped variables and not a rewriter.
