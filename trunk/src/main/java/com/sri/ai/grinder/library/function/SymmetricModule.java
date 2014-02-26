@@ -35,61 +35,64 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.number;
+package com.sri.ai.grinder.library.function;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.core.DefaultSymbol;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.expresso.helper.SyntaxTreeIsSymbolOfType;
-import com.sri.ai.grinder.library.CommutativeAssociativeWithOperationOnConstantsOnly;
-import com.sri.ai.util.Util;
+import com.sri.ai.grinder.api.NoOpRewriter;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.AbstractRewriter;
+
 
 /**
- * Implements a rewriter for the plus operation.
+ * This module concentrates the functionality for registering and using pieces
+ * of knowledge that can tell whether a function is symmetric
+ * (meaning that all its arguments are symmetric, that is, their order does not matter).
  * 
  * @author braz
- *
  */
 @Beta
-public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly {
+public class SymmetricModule extends AbstractRewriter implements NoOpRewriter {
 
-	private final static Symbol                neutralElement              = DefaultSymbol.createSymbol(0);
-	private final static Predicate<Expression> isOperableArgumentPredicate = new SyntaxTreeIsSymbolOfType(Number.class);
-
-	protected Object getFunctor() {
-		return "+";
-	}
+	private HashSet<Provider> providers = new LinkedHashSet<Provider>();
 	
-	@Override
-	protected Symbol getNeutralElement() {
-		return neutralElement;
-	}
-	
-	@Override
-	protected Symbol getAbsorbingElement() {
-		return null; // no absorbing element
-	}
-	
-	protected Predicate<Expression> getIsOperableArgumentSyntaxTreePredicate() {
-		return isOperableArgumentPredicate;
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	protected Object operationOnOperableValues(List listOfConstants) {
-		return Util.sumArbitraryPrecision((List<Number>)listOfConstants);
-	}
-
 	/**
-	 * Makes an addition, automatically accounting for neutral element occurrences.
+	 * An interface for objects that know how to determine
+	 * whether the a function is symmetric.
+	 * Providers must notify {@link SymmetricModule} of their existence
+	 * with the method {@link SymmetricModule#register(Provider)} so it can invoke them.
+	 * as necessary.
 	 */
-	public static Expression make(List<Expression> arguments) {
-		return CommutativeAssociativeWithOperationOnConstantsOnly.make("+", arguments, Expressions.ZERO);
+	public static interface Provider {
+		boolean isSymmetric(Expression function, RewritingProcess process);
 	}
 
+	public void register(Provider provider) {
+		providers.add(provider);
+	}
+
+	@Override
+	/* This will eventually be removed when we introduce mechanism to deal with modules. */
+	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		// Note: is a NoOpRewriter
+		return expression;
+	}
+
+	@Override
+	public void rewritingProcessFinalized(RewritingProcess process) {
+		providers.clear();
+	}
+
+	public boolean isSymmetric(Expression function, RewritingProcess process) {
+		for (Provider provider : providers) {
+			boolean result = provider.isSymmetric(function, process);
+			if (result) {
+				return result;
+			}
+		}
+		return false;
+	}
 }

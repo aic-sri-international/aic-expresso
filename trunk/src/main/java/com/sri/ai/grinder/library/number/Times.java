@@ -70,7 +70,7 @@ public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly {
 	}
 	
 	@Override
-	protected Symbol getNeutralElementSyntaxTree() {
+	protected Symbol getNeutralElement() {
 		return neutralElement;
 	}
 	

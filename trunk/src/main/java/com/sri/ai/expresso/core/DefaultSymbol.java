@@ -324,6 +324,14 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	}
 
 	@Override
+	public int compareTo(Object anotherObject) {
+		String anotherString = anotherObject.toString();
+		String thisString = toString();
+		int result = thisString.compareTo(anotherString);
+		return result;
+	}
+
+	@Override
 	public int hashCode() {
 		if (hashCode == -1) {
 			hashCode = getValue().hashCode();

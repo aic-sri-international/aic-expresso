@@ -247,27 +247,6 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 	}
 
 	@Override
-	public int hashCode() {
-		if (cachedHashCode == -1) {
-			cachedHashCode = getSyntaxTree().hashCode();
-		}
-		return cachedHashCode;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		boolean result = false;
-		if (obj instanceof Expression) {
-			Expression another = (Expression) obj;
-			result = getSyntaxTree().equals(another.getSyntaxTree());
-		}
-		else {
-			return getSyntaxTree().equals(obj);
-		}
-		return result;	
-	}
-
-	@Override
 	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator() {
 		return getImmediateSubExpressionsAndContextsIterator(getProcess());
 	}

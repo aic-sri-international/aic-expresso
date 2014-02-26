@@ -45,10 +45,10 @@ import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.boole.Or;
+import com.sri.ai.grinder.library.function.AbstractRewriterDefiningSymmetricFunction;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 
@@ -58,20 +58,17 @@ import com.sri.ai.util.base.BinaryFunction;
  * @author braz
  */
 @Beta
-public class Disequality extends AbstractRewriter {
+public class Disequality extends AbstractRewriterDefiningSymmetricFunction {
 
-	public  static final Expression FUNCTOR            = DefaultSymbol.createSymbol(FunctorConstants.INEQUALITY);
+	public  static final Expression FUNCTOR = DefaultSymbol.createSymbol(FunctorConstants.INEQUALITY);
 	//
-	private static final Expression FUNCTOR_EXPRESSION = DefaultSymbol.createSymbol(FunctorConstants.INEQUALITY);
-
 	public Disequality() {
 		this.setReifiedTests(new HasFunctor(FUNCTOR),
 				             new HasNumberOfArguments(2));
 	}
 	
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression,
-			RewritingProcess process) {
+	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 	
 		Expression equals = Equality.equalityResultIfItIsKnown(expression, process);
 		if (equals != expression) {
@@ -86,10 +83,6 @@ public class Disequality extends AbstractRewriter {
 
 	public Expression getFunctor() {
 		return FUNCTOR;
-	}
-
-	public Expression getFunctorExpression() {
-		return FUNCTOR_EXPRESSION;
 	}
 
 	public static Expression conditionForSubExpressionsDisequality(

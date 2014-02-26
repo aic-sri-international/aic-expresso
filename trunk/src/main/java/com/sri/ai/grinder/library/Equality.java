@@ -51,10 +51,10 @@ import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.function.AbstractRewriterDefiningSymmetricFunction;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.Pair;
@@ -65,7 +65,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  */
 @Beta
-public class Equality extends AbstractRewriter {
+public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 
 	public static final Expression FUNCTOR = DefaultSymbol.createSymbol("=");
 	
@@ -133,7 +133,7 @@ public class Equality extends AbstractRewriter {
 		}
 	}
 
-	public static Expression getFunctor() {
+	public Expression getFunctor() {
 		return FUNCTOR;
 	}
 	

@@ -62,7 +62,7 @@ public class UnionOnExtensionalSets extends CommutativeAssociative {
 	}
 	
 	@Override
-	protected Expression getNeutralElementSyntaxTree() {
+	protected Expression getNeutralElement() {
 		return neutralElement;
 	}
 	

@@ -80,6 +80,9 @@ public class FunctorConstants {
 	public final static String LEFT_DOT_RIGHT  = "[ . ]";
 	public final static String KLEENE_LIST  = "kleene list";
 
+	public final static String EQUALITY     = "=";
+	public final static String DISEQUALITY  = "!=";
+
 	public final static String AND  = "and";
 	public final static String OR  = "or";
 	public final static String NOT = "not";
