@@ -95,7 +95,6 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 	private static Cache<Thread, Function<Expression, String>> threadToString = newThreadToStringCache();
 	//
 	private String                             cachedToString                      = null;
-	private int                                cachedHashCode                      = -1;
 	private volatile Object                    cachedSyntacticFormType             = null;
 	private Lock                               lazyInitCachedSyntacticFormTypeLock = new ReentrantLock();
 	private volatile ImmutableList<Expression> cachedArguments                     = null;
