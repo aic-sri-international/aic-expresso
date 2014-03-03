@@ -136,15 +136,23 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	}
 
 	private DefaultCompoundSyntaxTree orderNormalized = null;
+	private static final boolean useOrderNormalization = false;
+	
 	
 	@Override
 	public int compareTo(Object anotherObject) {
 		DefaultCompoundSyntaxTree normalizedThis = this;
 		Object normalizedAnother = anotherObject;
-		
-//		DefaultCompoundSyntaxTree normalizedThis = getOrderNormalized();
-//		Object normalizedAnother = getOrderNormalizedOrSameIfNotCompoundSyntaxTree(anotherObject);
 
+		if ( ! useOrderNormalization) {
+			normalizedThis = this;
+			normalizedAnother = anotherObject;
+		}
+		else {
+			normalizedThis = getOrderNormalized();
+			normalizedAnother = getOrderNormalizedOrSameIfNotCompoundSyntaxTree(anotherObject);
+		}
+		
 		return staticCompareTo(normalizedThis, normalizedAnother);
 	}
 
@@ -156,8 +164,15 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	}
 
 	public int hashCode() {
-		DefaultCompoundSyntaxTree orderNormalized = this;
-//		DefaultCompoundSyntaxTree orderNormalized = this.getOrderNormalized();
+		DefaultCompoundSyntaxTree orderNormalized;
+
+		if ( ! useOrderNormalization) {
+			orderNormalized = this;
+		}
+		else {
+			orderNormalized = this.getOrderNormalized();
+		}
+		
 		return staticHashCode(orderNormalized);
 	}
 
@@ -173,12 +188,18 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	}
 
 	public boolean equals(Object anotherObject) {
-		DefaultCompoundSyntaxTree normalizedThis = this;
-		Object normalizedAnother = anotherObject;
-		
-//		DefaultCompoundSyntaxTree normalizedThis = getOrderNormalized();
-//		Object normalizedAnother = getOrderNormalizedOrSameIfNotCompoundSyntaxTree(anotherObject);
+		DefaultCompoundSyntaxTree normalizedThis;
+		Object normalizedAnother;
 
+		if ( ! useOrderNormalization) {
+			normalizedThis = this;
+			normalizedAnother = anotherObject;
+		}
+		else {
+			normalizedThis = getOrderNormalized();
+			normalizedAnother = getOrderNormalizedOrSameIfNotCompoundSyntaxTree(anotherObject);
+		}
+		
 		boolean result = staticEquals(normalizedThis, normalizedAnother);
 		
 		return result;

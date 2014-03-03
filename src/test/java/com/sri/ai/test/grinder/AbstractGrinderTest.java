@@ -160,18 +160,6 @@ abstract public class AbstractGrinderTest {
 	 */
 	abstract public RewritingProcess makeRewritingProcess(Expression topExpression);
 
-	public Grammar getGrammar() {
-		if (grammar == null) {
-			grammar = makeGrammar();
-		}
-		return grammar;
-	}
-	
-	/**
-	 * A method returning the parser to be used for tests,
-	 * which by default uses {@link #getGrammar()} to obtain a grammar to be
-	 * used in the construction of a {@link BrewerParser}.
-	 */
 	public Parser makeParser() {
 //		return new BrewerParser(grammar);
 		return new AntlrGrinderParserWrapper();
