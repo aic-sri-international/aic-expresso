@@ -64,6 +64,8 @@ import com.sri.ai.util.Util;
 @Beta
 public class ScopedVariables extends AbstractRewriter {
 
+	private static final Expression _emptyScope = new DefaultCompoundSyntaxTree("list");
+	//
 	private HashSet<Provider> providers = new LinkedHashSet<Provider>();
 	
 	public ScopedVariables() {
@@ -116,7 +118,7 @@ public class ScopedVariables extends AbstractRewriter {
 				return scopedVariablesAccordingToThisProvider;
 			}
 		}
-		return new DefaultCompoundSyntaxTree("list");
+		return _emptyScope;
 	}
 
 	/**
