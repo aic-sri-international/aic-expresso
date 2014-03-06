@@ -135,36 +135,12 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		return result;
 	}
 
-	private DefaultCompoundSyntaxTree orderNormalized = null;
-	private static final boolean useOrderNormalization = false;
-	
+	public DefaultCompoundSyntaxTree orderNormalized = null;
+	public static final boolean useOrderNormalization = true;
 	
 	@Override
-	public int compareTo(Object anotherObject) {
-		DefaultCompoundSyntaxTree normalizedThis = this;
-		Object normalizedAnother = anotherObject;
-
-		if ( ! useOrderNormalization) {
-			normalizedThis = this;
-			normalizedAnother = anotherObject;
-		}
-		else {
-			normalizedThis = getOrderNormalized();
-			normalizedAnother = getOrderNormalizedOrSameIfNotCompoundSyntaxTree(anotherObject);
-		}
-		
-		return staticCompareTo(normalizedThis, normalizedAnother);
-	}
-
-	protected static int staticCompareTo(DefaultCompoundSyntaxTree normalizedThis, Object normalizedAnother) {
-		String anotherString = normalizedAnother.toString();
-		String thisString = normalizedThis.toString();
-		int result = thisString.compareTo(anotherString);
-		return result;
-	}
-
-	public int hashCode() {
-		DefaultCompoundSyntaxTree orderNormalized;
+	public String getStringForComparisonPurposes() {
+		Expression orderNormalized;
 
 		if ( ! useOrderNormalization) {
 			orderNormalized = this;
@@ -173,39 +149,78 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 			orderNormalized = this.getOrderNormalized();
 		}
 		
-		return staticHashCode(orderNormalized);
-	}
-
-	protected static int staticHashCode(DefaultCompoundSyntaxTree defaultCompoundSyntaxTree) {
-		if (defaultCompoundSyntaxTree.hashCode == -1) {
-			SyntaxTree rootTree = defaultCompoundSyntaxTree.getRootTree();
-			int rootHashCode = rootTree.hashCode();
-			List<SyntaxTree> immediateSubTrees = defaultCompoundSyntaxTree.getImmediateSubTrees();
-			int subTreesHashCode = immediateSubTrees.hashCode();
-			defaultCompoundSyntaxTree.hashCode = rootHashCode + subTreesHashCode;
-		}
-		return defaultCompoundSyntaxTree.hashCode;
-	}
-
-	public boolean equals(Object anotherObject) {
-		DefaultCompoundSyntaxTree normalizedThis;
-		Object normalizedAnother;
-
-		if ( ! useOrderNormalization) {
-			normalizedThis = this;
-			normalizedAnother = anotherObject;
-		}
-		else {
-			normalizedThis = getOrderNormalized();
-			normalizedAnother = getOrderNormalizedOrSameIfNotCompoundSyntaxTree(anotherObject);
-		}
-		
-		boolean result = staticEquals(normalizedThis, normalizedAnother);
+		String result = orderNormalized.toString();
 		
 		return result;
 	}
 
-	protected static boolean staticEquals(DefaultCompoundSyntaxTree normalizedThis, Object normalizedAnother) {
+	public int hashCode() {
+		Expression orderNormalized;
+
+		if ( ! useOrderNormalization) {
+			orderNormalized = this;
+		}
+		else {
+			orderNormalized = this.getOrderNormalized();
+		}
+		
+		if (orderNormalized != this) {
+			return orderNormalized.hashCode();
+		}
+		
+		if (hashCode == -1) {
+			SyntaxTree rootTree = getRootTree();
+			int rootHashCode = rootTree.hashCode();
+			List<SyntaxTree> immediateSubTrees = getImmediateSubTrees();
+			int subTreesHashCode = immediateSubTrees.hashCode();
+			hashCode = rootHashCode + subTreesHashCode;
+		}
+		
+		return hashCode;
+	}
+
+	private boolean mayBeEqualAsFarAsFunctorIsConcerned(Expression anotherExpression) {
+		boolean result = false;
+		try {
+			DefaultCompoundSyntaxTree anotherDefaultCompoundSyntaxTree = (DefaultCompoundSyntaxTree) anotherExpression;
+			if (anotherDefaultCompoundSyntaxTree.getFunctor().equals(getFunctor())) {
+				result = true;
+			}
+		}
+		catch (ClassCastException e) {
+			// result remains false;
+		}
+		return result;
+	}
+
+	public boolean equals(Object anotherObject) {
+		boolean result;
+		if ( ! useOrderNormalization) {
+			result = basicEquals(this, anotherObject);
+		}
+		else {
+			Expression anotherExpression;
+			try {
+				anotherExpression = (Expression) anotherObject;
+			}
+			catch (ClassCastException e) {
+				return false; // it could be a string, but in that case it must be interpreted as a symbol, so comparison is false.
+			}
+			
+			if (mayBeEqualAsFarAsFunctorIsConcerned(anotherExpression)) { // no need to order-normalize if functors are different.
+				SyntaxTree normalizedThis = getOrderNormalized();
+				Object normalizedAnother = getOrderNormalizedOrSameIfNotCompoundSyntaxTree(anotherObject);
+				result = basicEquals(normalizedThis, normalizedAnother);
+			}
+			else {
+				result =false;
+			}
+		}
+		
+		return result;
+	}
+
+	protected static boolean basicEquals(SyntaxTree normalizedThis, Object normalizedAnother) {
 		boolean result;
 
 		if (normalizedAnother instanceof CompoundSyntaxTree) {
@@ -232,10 +247,10 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		return normalizedAnother;
 	}
 
-	protected DefaultCompoundSyntaxTree getOrderNormalized() {
+	protected SyntaxTree getOrderNormalized() {
 		if (orderNormalized == null) {
-			RewritingProcess process = getProcess();
-			DefaultCompoundSyntaxTree value = (DefaultCompoundSyntaxTree) OrderNormalize.orderNormalize(this, process);
+			//RewritingProcess process = getProcess(); // OrderNormalize does not currently use the process.
+			DefaultCompoundSyntaxTree value = (DefaultCompoundSyntaxTree) OrderNormalize.orderNormalize(this, null /*process*/);
 			setOrderNormalized(value);
 			orderNormalized.setOrderNormalized(orderNormalized); // no need to re-normalize what we know to be normalized.
 		}

@@ -325,10 +325,12 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	 * Returns list of index expressions or <null> if unresolved.
 	 */
 	public static List<Expression> getIndexExpressions(Expression intensionalSetExpression) {
-		Expression scopingExpression = IntensionalSet.getScopingExpression(intensionalSetExpression);
-		if (scopingExpression != null) {
-			List<Expression> indexExpressions = Expressions.ensureListFromKleeneList(scopingExpression.getSyntaxTree().getSubTree(0)); // does need to be sub tree
-			return indexExpressions;
+		if ( ! Sets.isEmptySet(intensionalSetExpression)) {
+			Expression scopingExpression = IntensionalSet.getScopingExpression(intensionalSetExpression);
+			if (scopingExpression != null) {
+				List<Expression> indexExpressions = Expressions.ensureListFromKleeneList(scopingExpression.getSyntaxTree().getSubTree(0)); // does need to be sub tree
+				return indexExpressions;
+			}
 		}
 		return new LinkedList<Expression>();
 	}
