@@ -324,11 +324,8 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	}
 
 	@Override
-	public int compareTo(Object anotherObject) {
-		String anotherString = anotherObject.toString();
-		String thisString = toString();
-		int result = thisString.compareTo(anotherString);
-		return result;
+	public String getStringForComparisonPurposes() {
+		return toString();
 	}
 
 	@Override

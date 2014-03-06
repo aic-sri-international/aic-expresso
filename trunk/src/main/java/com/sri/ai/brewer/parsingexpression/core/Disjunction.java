@@ -68,7 +68,7 @@ public class Disjunction extends AbstractParsingExpression {
 	private static final long serialVersionUID = 1L;
 
 	public Disjunction(Object... args) {
-		super("or", args);
+		super("disjunction", args);
 	}
 
 	@Override

@@ -48,6 +48,7 @@ import com.sri.ai.brewer.parsingexpression.core.Terminal;
 import com.sri.ai.brewer.parsingexpression.helper.AssociativeSequence;
 import com.sri.ai.brewer.parsingexpression.helper.ParenthesizedNonTerminal;
 import com.sri.ai.brewer.parsingexpression.helper.ParsingExpressionForFunctionApplications;
+import com.sri.ai.grinder.core.DefaultRewritingProcess;
 
 /**
  * A {@link DefaultGrammar} containing parsing expressions for typical
@@ -61,6 +62,14 @@ public class CommonGrammar extends DefaultGrammar {
 	private static final long serialVersionUID = 1L;
 
 	public CommonGrammar() {
+		DefaultRewritingProcess previousProcess = (DefaultRewritingProcess) DefaultRewritingProcess.getGlobalRewritingProcessForKnowledgeBasedExpressions();
+		DefaultRewritingProcess.setGlobalRewritingProcessForKnowledgeBasedExpressions(new DefaultRewritingProcess(null));
+		// We create a default rewriting process here so that the expressions about to be constructed are
+		// associated with it for order normalization and sub-expressions.
+		// This is a way of assigning these expressions a given "language" specified by the process's rewriters and modules (in this case, none).
+		// In the future, we will probably want to explicitly specify an expression's language at construction time.
+		// The previous process is restored at the end of grammar creation.
+		
 		setInitialNonTerminal("Expression");
 		put("Expression", new Disjunction(
 				//new Kleene(new NonTerminal("Expression"), /* separator: */ new Disjunction(new Terminal(","), new Terminal(";"))),
@@ -108,5 +117,9 @@ public class CommonGrammar extends DefaultGrammar {
 				new ParenthesizedNonTerminal("Expression"),
 				new Symbol("Expression")
 		));
+
+		if (previousProcess != null) {
+			DefaultRewritingProcess.setGlobalRewritingProcessForKnowledgeBasedExpressions(previousProcess);
+		}
 	}
 }
