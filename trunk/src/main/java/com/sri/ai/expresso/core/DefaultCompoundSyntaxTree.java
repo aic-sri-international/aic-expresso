@@ -50,7 +50,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.OrderNormalize;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryProcedure;
