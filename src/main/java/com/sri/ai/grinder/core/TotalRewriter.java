@@ -47,6 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.expresso.core.AbstractReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.grinder.GrinderConfiguration;
@@ -56,6 +57,8 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.expression.ExpressionCache;
 import com.sri.ai.grinder.helper.Justification;
 import com.sri.ai.grinder.helper.Trace;
+import com.sri.ai.grinder.library.boole.ForAll;
+import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.TernaryProcedure;
@@ -70,6 +73,11 @@ import com.sri.ai.util.cache.CacheMap;
  */
 @Beta
 public class TotalRewriter extends AbstractRewriter {
+	// NOTE: This is a temporary option (so will not use ExpressoConfiguration) directly, see:
+	// https://code.google.com/p/aic-expresso/issues/detail?id=40
+	// for more details on the optimization this refers to.
+	private static boolean _useExperimentalOptimization = Boolean.getBoolean("expresso.use.totalrewriter.experimental.optimization");
+	//
 	private List<Rewriter>  childRewriters          = null;
 	private List<Rewriter>  activeRewriters         = new ArrayList<Rewriter>();
 	private int             totalNumberOfSelections = 0;
@@ -188,13 +196,14 @@ public class TotalRewriter extends AbstractRewriter {
 		final boolean       justificationEnabled = Justification.isEnabled();
 
 		final AtomicInteger numberOfSelections   = new AtomicInteger(0);
-		ReplacementFunctionWithContextuallyUpdatedProcess rewriteFunction = new AbstractReplacementFunctionWithContextuallyUpdatedProcess() {
+		ReplacementFunctionWithContextuallyUpdatedProcess rewriteCurrentExpressionExhaustivelyFunction = new AbstractReplacementFunctionWithContextuallyUpdatedProcess() {
 			@Override
-			public Expression apply(Expression expression, RewritingProcess process) {
+			public Expression apply(Expression expression,
+					RewritingProcess process) {
 				Expression result      = expression;
 				Expression priorResult = expression;
 				Rewriter   rewriter    = null;
-			
+		
 //				Expression cached = getFinalEquivalent(expression, process);
 //				if (cached != null) {
 //					return cached;
@@ -203,49 +212,55 @@ public class TotalRewriter extends AbstractRewriter {
 //				cached = getFinalEquivalent(expression, process);
 				
 				// Exhaustively apply each rewriter in turn.
-				long startTime  = 0L;
+				long startTime = 0L;
 				do {
 					priorResult = result;
-					
+
 					if (traceEnabled) {
 						startTime = System.currentTimeMillis();
 					}
-					
+
 					if (traceEnabled) {
-						Trace.setTraceLevel(Trace.getTraceLevel()+1);
+						Trace.setTraceLevel(Trace.getTraceLevel() + 1);
 					}
+					
 					Pair<Rewriter, Expression> rewriterWrote = callRewriterDecisionTree.rewrite(priorResult, process);
 					rewriter = rewriterWrote.first;
 					result   = rewriterWrote.second;
-					
+
 					if (traceEnabled) {
-						Trace.setTraceLevel(Trace.getTraceLevel()-1);
+						Trace.setTraceLevel(Trace.getTraceLevel() - 1);
 					}
-					
+
 					// Track Selections
 					numberOfSelections.addAndGet(1);
 					totalNumberOfSelections += 1;
-					
+
 					// Output trace and justification information if a change occurred
 					if (result != priorResult) {
 						if (traceEnabled) {
 							long relativeTime = System.currentTimeMillis() - startTime;
-							
+
 							boolean isWholeExpressionRewrite = priorResult == currentTopExpression[0];
 							if (isWholeExpressionRewrite) {
 								Trace.log("Rewriting whole expression:");
 								Trace.log("{}", priorResult);
-								currentTopExpression[0] = result;
+								currentTopExpression[0]             = result;
 								currentTopExpressionForDebugging[0] = result;
-							} 
-							else {
+							} else {
 								Trace.log("Rewriting sub-expression:");
 								Trace.log("{}", priorResult);
 							}
-							Trace.log("   ----> ("+rewriter.getName()+",  "+relativeTime+" ms, #"+(++rewritingCount)+", "+numberOfSelections+" rewriter selections ("+totalNumberOfSelections+" since start))");
+							Trace.log("   ----> (" + rewriter.getName() + ",  "
+									+ relativeTime + " ms, #"
+									+ (++rewritingCount) + ", "
+									+ numberOfSelections
+									+ " rewriter selections ("
+									+ totalNumberOfSelections
+									+ " since start))");
 							Trace.log("{}", result);
 						}
-					
+
 						if (justificationEnabled) {
 							Justification.log(expression);
 							Justification.beginEqualityStep(rewriter.getName());
@@ -253,29 +268,131 @@ public class TotalRewriter extends AbstractRewriter {
 						}
 					}
 				} while (result != priorResult);
-				
+
 //				if (cached != null && ! cached.equals(result)) {
 //					System.out.println("Equivalency cache used in non-trivial way.");
-//					System.out.println("expression  : " + expression);
-//					System.out.println("rewritten to: " + result);
-//					System.out.println("cached      : " + cached);
+//			 		System.out.println("expression  : " + expression);
+//			    	System.out.println("rewritten to: " + result);
+//				    System.out.println("cached      : " + cached);
 //					System.out.println("context     : " + process.getContextualConstraint());
-//				}
+//			    }
 				
 				return result;
 			}
 		};
 		
 		// Keep rewriting until no changes occur.
-		while (current != previous) {
-			previous = current;
-			currentTopExpression[0] = current;
-			currentTopExpressionForDebugging[0] = current;
-			current = previous.replaceAllOccurrences(rewriteFunction, deadEndPruner, deadEndListener, process);
+		if (_useExperimentalOptimization) {
+			while (current != previous) {
+				previous                            = current;
+				currentTopExpression[0]             = current;
+				currentTopExpressionForDebugging[0] = current;
+				
+				current = rewriteCurrentExpressionExhaustivelyFunction.apply(current, process);
+				
+				RecurseImmediateSubExpressionsFunction f = new RecurseImmediateSubExpressionsFunction(
+						current, rewriteCurrentExpressionExhaustivelyFunction,
+						isExhaustiveRewriteWanted(current, process),
+						process);
+				
+				current = current.replace(f, // replacementFunction
+						null, // ReplacementFunctionMaker
+						deadEndPruner, // prunePredicate
+						f, // PruningPredicateMaker
+						false, // onlyTheFirstOne
+						true, // ignoreTopExpression,
+						false, // replaceOnChildrenBeforeTopExpression,
+						deadEndListener, process);
+			}
+		}
+		else {
+			// Keep rewriting until no changes occur.
+			while (current != previous) {
+				previous = current;
+				currentTopExpression[0] = current;
+				currentTopExpressionForDebugging[0] = current;
+				current = previous.replaceAllOccurrences(rewriteCurrentExpressionExhaustivelyFunction, deadEndPruner, deadEndListener, process);
+			}
 		}
 		
 		Expression result = current;
 		return result;
+	}
+	
+	// NOTE: always returning true causes the experimental logic to rewrite expressions differently
+	// due to calls to R_quantifier_elimination occurring differently, see:
+	// https://code.google.com/p/aic-expresso/issues/detail?id=40
+	// for a discussion.
+	private boolean isExhaustiveRewriteWanted(Expression expression, RewritingProcess process) {
+		// For R_quantifier_elimination we want to go top down (i.e. not exhaustive at a level) 
+		// as opposed to bottom up (exhaustively at each level).
+		boolean result = !(ForAll.isForAll(expression) || ThereExists.isThereExists(expression));
+		
+		return result;
+	}
+
+	class RecurseImmediateSubExpressionsFunction extends
+			AbstractReplacementFunctionWithContextuallyUpdatedProcess implements
+			PruningPredicateMaker {
+		private ReplacementFunctionWithContextuallyUpdatedProcess rewriteFunction       = null;
+		private boolean                                           exhaustive            = true;
+		private ChildPruningPredicate                             childPruningPredicate = new ChildPruningPredicate();
+
+		public RecurseImmediateSubExpressionsFunction(
+				Expression topExpression,
+				ReplacementFunctionWithContextuallyUpdatedProcess rewriteFunction,
+				boolean exhaustive,
+				RewritingProcess process) {
+			this.rewriteFunction = rewriteFunction;
+			this.exhaustive      = exhaustive;
+		}
+
+		@Override
+		public Expression apply(Expression expression, RewritingProcess process) {
+			Expression result   = expression;
+			Expression previous = null;
+			while (previous != result) {
+				previous = result;
+				result   = rewriteFunction.apply(result, process);
+				
+				if (!exhaustive && previous != result) {
+					return result;
+				}
+
+				RecurseImmediateSubExpressionsFunction f = new RecurseImmediateSubExpressionsFunction(result, rewriteFunction, isExhaustiveRewriteWanted(result, process), process);
+				
+				result = result.replace(f, // replacementFunction
+						null, // ReplacementFunctionMaker
+						deadEndPruner, // prunePredicate
+						f, // PruningPredicateMaker
+						false, // onlyTheFirstOne
+						true, // ignoreTopExpression,
+						false, // replaceOnChildrenBeforeTopExpression,
+						deadEndListener, process);
+				
+				if (!exhaustive && previous != result) {
+					return result;
+				}
+			}
+
+			return result;
+		}
+
+		public PruningPredicate apply(Expression expression,
+				PruningPredicate pruningPredicate,
+				ExpressionAndContext subExpressionAndContext) {
+			if (pruningPredicate == childPruningPredicate) {
+				return AbstractExpression.TRUE_PRUNING_PREDICATE;
+			}
+
+			return childPruningPredicate;
+		}
+	}
+	
+	class ChildPruningPredicate implements PruningPredicate {		
+		public boolean apply(Expression expression, Function<Expression, Expression> replacementFunction, RewritingProcess process) {
+			return deadEndPruner.apply(expression, replacementFunction, process);
+		}		
 	}
 	
 	// BEGIN -- EQUIVALENCY CACHE
