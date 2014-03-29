@@ -149,7 +149,7 @@ public abstract class AbstractParsingExpression extends DefaultCompoundSyntaxTre
 			}
 			
 			if (cacheItem == null) {
-				Stopwatch stopwatch = new Stopwatch().start();
+				Stopwatch stopwatch = Stopwatch.createStarted();
 				int initialPositionOfParse = process.getTokenPosition();
 				parsingResult = parsingResultAfterBookkeeping(process);
 				long time = stopwatch.elapsed(TimeUnit.MILLISECONDS);

@@ -128,7 +128,7 @@ public class SATSolverTest extends AbstractGrinderTest {
 		for (SATSolver solver : newSATSolvers()) {
 			RewritingProcess process = newProcess();
 			System.out.println(solver.getName() + " to solve : "+formula);
-			Stopwatch stopwatch = new Stopwatch().start();
+			Stopwatch stopwatch = Stopwatch.createStarted();
 			boolean satisfiable = solver.isSatisfiable(formula, process);
 			long evaluationTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 			System.out.println("- Satisfiable? ->");

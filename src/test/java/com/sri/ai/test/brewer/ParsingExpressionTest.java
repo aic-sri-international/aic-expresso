@@ -699,7 +699,7 @@ public class ParsingExpressionTest {
 		ParsingProcess process = new DefaultParsingProcess(string, grammar);
 
 		System.out.println("Parsing " + string);
-		Stopwatch stopwatch = new Stopwatch().start();
+		Stopwatch stopwatch = Stopwatch.createStarted();
 		actual = parsingExpression.parsingResult(process);
 		long time = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 		Expression actualParse = DefaultParsingResult.isSuccessful(actual)? actual.getParse() : null;
