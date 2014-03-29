@@ -110,7 +110,7 @@ public class BrewerParser implements Parser {
 		if (BrewerConfiguration.isOutputParsingTimeInfo()) {
 			System.out.println("Parsing: " + expressionString);
 		}
-		Stopwatch stopwatch = new Stopwatch().start();
+		Stopwatch stopwatch = Stopwatch.createStarted();
 
 		Expression result;
 		

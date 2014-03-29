@@ -94,7 +94,7 @@ public class Cache {
 	public CacheItem tryToUseCache(ParsingExpression parsingExpression, ParsingProcess process) {
 		process.conditionalLogln(logCacheUsage, "Checking for cached parse for " + parsingExpression);
 		process.pushLevel();
-		Stopwatch stopwatch = new Stopwatch().start();
+		Stopwatch stopwatch = Stopwatch.createStarted();
 		Collection<CacheItem> cacheItemsAtThisPositionAndParsingExpression = getCacheItems(process.getTokenPosition(), parsingExpression);
 		process.conditionalLogln(
 				logCacheUsage,
