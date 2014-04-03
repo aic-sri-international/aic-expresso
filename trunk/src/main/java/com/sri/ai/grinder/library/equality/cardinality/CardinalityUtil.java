@@ -48,20 +48,28 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.TotalRewriter;
+import com.sri.ai.grinder.helper.Trace;
+import com.sri.ai.grinder.library.Disequality;
+import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.BooleanUtil;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter.Quantification;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.FromConditionalFormulaToFormula;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.SortPair;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
@@ -825,6 +833,169 @@ public class CardinalityUtil {
 	 */
 	public static Expression argForEqualityInConjunctionCall(Expression expression, Quantification quantification) {
 		Expression result = Tuple.make(expression, quantification.getQuantificationSymbol());
+		return result;
+	}
+	
+	/**
+	 * DPLL Style conditioning on the expression in order to calculate the
+	 * cardinality (intended to avoid exponential memory usage).
+	 * 
+	 * <pre>
+	 * dpllConditioning(F, Alpha, X, quantification)
+	 * 
+	 * G1 <- R_normalize(F and Alpha)
+     * G2 <- R_normalize(F and not Alpha)
+     *
+     * (G1, G2) <- sort(G1, G2)
+     *
+     * N1 <- R_card(| G1 |_X, quantification)
+     *
+     * if quantification is "there exists" and every leaf of N1 is a numeric constant > 0 // same as R_normalize(N1 > 0) is "true"
+     *     return || X ||
+     *
+     * N2 <- R_card(| G2 |_X, quantification)
+     *
+     * if quantification is "there exists" and every leaf of N2 is a numeric constant > 0 // same as R_normalize(N2 > 0) is "true"
+     *    return || X ||
+     *
+     * return R_normalize(N1 + N2)
+	 * </pre>
+	 * 
+	 * @param formulaF
+	 *        the formula F from the original cardinality expression: | F |_X.
+	 * @param literalAlpha
+	 *        a literal.
+	 * @param sortPair
+	 *        an implementation of the SortPair interface, which sorts the cheapest first.
+	 * @param quantification
+	 *        is either "there exists", "for all", or "none".
+	 * @param indicesX
+	 *        the indices from the original cardinality expression: | F |_X.
+	 * @param process
+	 *        the current rewriting process.
+	 * @return the cardinality of | F and Alpha |_X + | F and not Alpha |_X.
+	 */
+	public static Expression dpllConditioning(Expression formulaF, Expression literalAlpha, Expression[] indicesX, Quantification quantification, SortPair sortPair, RewritingProcess process) {
+		Expression result = null;
+		
+		Trace.log("G1 <- R_normalize(F and Alpha)");
+		Expression g1 = process.rewrite(CardinalityRewriter.R_normalize, makeAnd(formulaF, literalAlpha));
+		Trace.log("G2 <- R_normalize(F and not Alpha)");
+		Expression g2 = process.rewrite(CardinalityRewriter.R_normalize, makeAnd(formulaF, makeNot(literalAlpha)));
+		
+		Trace.log("(G1, G2) <- sort(G1, G2)");
+		Pair<Expression, Expression> sortedPair = sortPair.sort(g1, g2);
+		g1 = sortedPair.first;
+		g2 = sortedPair.second;
+		
+		Trace.log("N1 <- R_card(| G1 |_X, quantification)");
+		Expression n1, n2;
+		Expression cardG1 = makeCardinalityOfIndexedFormulaExpression(g1, indicesX);
+		n1 = process.rewrite(CardinalityRewriter.R_card, argForCardinalityWithQuantifierSpecifiedCall(cardG1, quantification));		
+		if (quantification == Quantification.THERE_EXISTS && everyLeafIsConstantGreaterThanZero(n1)) {
+			Trace.log("if quantification is \"there exists\" and every leaf of N1 is a numeric constant > 0 // same as R_normalize(N1 > 0) is \"true\"");
+			Trace.log("    return || X ||");
+			result = process.rewrite(CardinalityRewriter.R_normalize, CardinalityUtil.makeCardinalityOfIndexExpressions(Arrays.asList(indicesX)));
+		}
+		else {
+			Trace.log("N2 <- R_card(| G2 |_X, quantification)");
+			Expression cardG2 = makeCardinalityOfIndexedFormulaExpression(g2, indicesX);
+			n2 = process.rewrite(CardinalityRewriter.R_card, argForCardinalityWithQuantifierSpecifiedCall(cardG2, quantification));		
+			if (quantification == Quantification.THERE_EXISTS && everyLeafIsConstantGreaterThanZero(n2)) {
+				Trace.log("if quantification is \"there exists\" and every leaf of N2 is a numeric constant > 0 // same as R_normalize(N2 > 0) is \"true\"");
+				Trace.log("    return || X ||");
+				result = process.rewrite(CardinalityRewriter.R_normalize, CardinalityUtil.makeCardinalityOfIndexExpressions(Arrays.asList(indicesX)));
+			}
+			else {
+				Trace.log("return R_normalize(N1 + N2)");
+				List<Expression> arguments = new ArrayList<Expression>();
+				arguments.add(n1);
+				arguments.add(n2);
+				result = process.rewrite(CardinalityRewriter.R_normalize, Plus.make(arguments));
+			}
+		}
+		
+		return result;
+	}
+	
+	public static boolean everyLeafIsConstantGreaterThanZero(Expression expression) {
+		boolean result = false;
+		
+		if (IfThenElse.isIfThenElse(expression)) {
+			result = everyLeafIsConstantGreaterThanZero(IfThenElse.getThenBranch(expression)) && everyLeafIsConstantGreaterThanZero(IfThenElse.getElseBranch(expression));
+		}
+		else if (expression instanceof Symbol) {
+			Symbol s = (Symbol) expression;
+			if (s.getValue() instanceof Number) {
+				if (s.rationalValue().isPositive()) {
+					result = true;
+				}
+			}
+		}
+		
+		return result;
+	}
+	
+	public static Expression pickCheapestLiteral(Expression formula) {
+// TODO - remove: Original Trivial Implementation.		
+		Expression result = null;
+		
+		if (Equality.isEquality(formula) ||  Disequality.isDisequality(formula)) {
+			result = formula;
+		}
+		else {
+			result = pickCheapestLiteral(formula.get(0));
+		}
+	
+// Experimental Version:
+//		Expression result = null;
+//		
+//		Set<Expression> excludeLiterals = new HashSet<Expression>();
+//		if (And.isConjunction(formula)) {
+//			for (Expression conjunct: And.getConjuncts(formula)) {
+//				if (Equality.isEquality(conjunct) ||  Disequality.isDisequality(conjunct)) {
+//					excludeLiterals.add(conjunct);
+//				}
+//			}
+//		}
+//		
+//		Map<Expression, Integer> literalCounts = new LinkedHashMap<Expression, Integer>();
+//		SubExpressionsDepthFirstIterator subei = new SubExpressionsDepthFirstIterator(formula);
+//		while (subei.hasNext()) {
+//			Expression e = subei.next();
+//			if (Equality.isEquality(e) || Disequality.isDisequality(e)) {
+//				Integer count = literalCounts.get(e);
+//				if (count == null) {
+//					count = 0;
+//				}
+//				count = count+1;
+//				literalCounts.put(e, count);
+//			}
+//		}
+//		
+//		Map.Entry<Expression, Integer> cheapestCount = null;
+//		for (Map.Entry<Expression, Integer> entry : literalCounts.entrySet()) {
+//			if (excludeLiterals.contains(entry.getKey())) {
+//				continue;
+//			}
+//			if (cheapestCount == null) {
+//				cheapestCount = entry;
+//			}
+//			else {
+//				if (entry.getValue() < cheapestCount.getValue()) {
+//					cheapestCount = entry;
+//				}
+//			}
+//		}
+//		
+//		if (cheapestCount != null) {
+//			result = cheapestCount.getKey();
+//		}
+//		else {
+//			// i.e. already in the top level conjunct.
+//			result = Expressions.TRUE;
+//		}
+		
 		return result;
 	}
 	

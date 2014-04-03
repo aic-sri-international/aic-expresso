@@ -54,6 +54,8 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewrite
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Cardinality;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityConjunction;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityConjunctionOfDisequalities;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityDPLLConjunction;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityDPLLDisjunction;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityDisjunction;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityEquivalence;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityExtensionalSet;
@@ -84,6 +86,10 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopSimplifyDi
  */
 @Beta
 public class DirectCardinalityComputationFactory {
+	
+	// TODO - remove once Issue 22 is resolved:
+	// https://code.google.com/p/aic-expresso/issues/detail?id=22
+	private static boolean _useExperimentalDPLLLogic = Boolean.getBoolean("expresso.cardinality.use.experimental.dpll.logic");
 	
 	public static Rewriter getRootRewriter() {
 		return (new Simplify()).getRootRewriter();
@@ -159,15 +165,29 @@ public class DirectCardinalityComputationFactory {
 		
 		cardRewriters.put(CardinalityRewriter.R_card,  new Cardinality());
 		
-	    CardinalityConjunction rCardinalityConjunction = new CardinalityConjunction();
-	    rCardinalityConjunction.setPickCheapest(pickCheapest);
-	    cardRewriters.put(CardinalityRewriter.R_card_conjunction, rCardinalityConjunction);
+		if (_useExperimentalDPLLLogic) {
+			CardinalityDPLLConjunction rCardinalityConjunction = new CardinalityDPLLConjunction();
+			rCardinalityConjunction.setPickCheapest(pickCheapest);
+		    cardRewriters.put(CardinalityRewriter.R_card_conjunction, rCardinalityConjunction);
+		}
+		else {
+		    CardinalityConjunction rCardinalityConjunction = new CardinalityConjunction();
+		    rCardinalityConjunction.setPickCheapest(pickCheapest);
+		    cardRewriters.put(CardinalityRewriter.R_card_conjunction, rCardinalityConjunction);
+		}
 	    
 	    cardRewriters.put(CardinalityRewriter.R_card_conjunction_of_disequalities, new CardinalityConjunctionOfDisequalities());
 	    
-	    CardinalityDisjunction rCardinalityDisjunction = new CardinalityDisjunction();
-	    rCardinalityDisjunction.setSortPair(sortPair);
-	    cardRewriters.put(CardinalityRewriter.R_card_disjunction, rCardinalityDisjunction);
+	    if (_useExperimentalDPLLLogic) {
+		    CardinalityDPLLDisjunction rCardinalityDisjunction = new CardinalityDPLLDisjunction();
+		    rCardinalityDisjunction.setSortPair(sortPair);
+		    cardRewriters.put(CardinalityRewriter.R_card_disjunction, rCardinalityDisjunction);
+	    }
+	    else {
+	    	CardinalityDisjunction rCardinalityDisjunction = new CardinalityDisjunction();
+		    rCardinalityDisjunction.setSortPair(sortPair);
+		    cardRewriters.put(CardinalityRewriter.R_card_disjunction, rCardinalityDisjunction);
+	    }
 	    
 	    cardRewriters.put(CardinalityRewriter.R_card_equivalence,             new CardinalityEquivalence());
 	    cardRewriters.put(CardinalityRewriter.R_cardExtensionalSet,           new CardinalityExtensionalSet());
