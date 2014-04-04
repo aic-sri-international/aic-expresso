@@ -524,6 +524,9 @@ public class NormalizeAndCompleteNormalizeTest extends AbstractGrinderTest {
 				new CompleteNormalizeTestData(
 						"if X != w7 then 1 else (if (X0 != Y and X0 != Z and Z != Y and (X0 = w7 and X = Y or X0 = w7 and X = Z)) then 2 else 3)", 
 						"if X != w7 then 1 else 3"),
+				new CompleteNormalizeTestData(
+						"if Y != Word then if Y = w7 and Word != constituency then if Word = w7 then -1 else 0 else (if Y != w7 and Y != constituency or Y != constituency then if Y = constituency then if Word = constituency then -1 else 0 else (if Word = constituency then 0 else 1) else 8) else (if Y = w7 and Word != constituency then if Word = w7 then 0 else 1 else (if Y != w7 and Y != constituency or Y != constituency then if Word = constituency then 0 else 1 else 9))", 
+						"if Y != Word then if Y = w7 and Word != constituency then 0 else (if Y != w7 and Y != constituency or Y != constituency then if Word = constituency then 0 else 1 else 8) else (if Y = w7 and Word != constituency then 0 else (if Y != constituency then 1 else 9))"),
 			};
 			
 			perform(tests);

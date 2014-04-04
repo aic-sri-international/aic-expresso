@@ -3665,6 +3665,17 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 		
 		TestData[] tests = new TestData[] {
 			//
+			// Test for aic-praise Issue 27:
+		    // https://code.google.com/p/aic-praise/issues/detail?id=27
+			new CardinalityData(false,
+					"| { ( on AnotherWord ) tuple( AnotherWord ) | ((Y != AnotherWord and Word != AnotherWord) and not (AnotherWord != constituency and Y != w7 and Y != constituency)) and (Y != w7 and (Y = constituency or AnotherWord = constituency)) } |",
+					new CountsDeclaration(10),
+					"("+
+					"(if Y = w7 then | type(AnotherWord) | - | type(AnotherWord) | else (if Y != constituency then if Word != constituency then 1 else | type(AnotherWord) | - | type(AnotherWord) | else (if Word = Y then | type(AnotherWord) | - 1 else | type(AnotherWord) | - 2)))" +
+					", "+ 
+					"(if Y = w7 then 0 else (if Y != constituency then if Word != constituency then 1 else 0 else (if Word = Y then 9 else 8)))"+
+					")"),
+			//
 			// Scope shadowing tests 
 			new CardinalityData(
 					parse("X != a"),
@@ -3695,18 +3706,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					false,
 					"| {(on X) tuple(X) | X != a } |",
 					new CountsDeclaration(10),
-					"(|type(X)|-1, 9)"),
-			//
-			// Test for aic-praise Issue 27:
-		    // https://code.google.com/p/aic-praise/issues/detail?id=27
-			new CardinalityData(false,
-					"| { ( on AnotherWord ) tuple( AnotherWord ) | ((Y != AnotherWord and Word != AnotherWord) and not (AnotherWord != constituency and Y != w7 and Y != constituency)) and (Y != w7 and (Y = constituency or AnotherWord = constituency)) } |",
-					new CountsDeclaration(10),
-					"("+
-					"(if Y = w7 then | type(AnotherWord) | - | type(AnotherWord) | else (if Y != constituency then if Word != constituency then 1 else | type(AnotherWord) | - | type(AnotherWord) | else (if Word = Y then | type(AnotherWord) | - 1 else | type(AnotherWord) | - 2)))" +
-					", "+ 
-					"(if Y = w7 then 0 else (if Y != constituency then if Word != constituency then 1 else 0 else (if Word = Y then 9 else 8)))"+
-					")"),	
+					"(|type(X)|-1, 9)"),	
 			//
 			// Basic: Examples from paper: 
 		    // 'Lifted Arbitrary Constraint Solving for Lifted Probabilistic Inference'.
