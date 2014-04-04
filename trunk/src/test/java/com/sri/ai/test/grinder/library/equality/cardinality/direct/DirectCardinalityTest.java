@@ -2302,7 +2302,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | or(X = a, and(and(X != a), and(X = a)))} |",
 					CardinalityRewriter.Quantification.THERE_EXISTS,
 					new CountsDeclaration(10),
-					"1"),
+					"anyof(1, 10)"),
 			new Cardinality1DisjunctionData(false,
 					"| {(on X) tuple(X) | or(X = a, and(and(X != a), and(X = a)))} |",
 					CardinalityRewriter.Quantification.FOR_ALL,
@@ -2347,7 +2347,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | or(and(X != a, X != Y), and(X != a, X != Z))} |",
 					CardinalityRewriter.Quantification.THERE_EXISTS,
 					new CountsDeclaration(2),
-					"if Y = a or Z = a then 2 else 0"
+					"anyof((if Y = a or Z = a then 2 else 0), (if Y = a then 1 else (if Y != Z then 1 else 0)))"
 					//"if Y = a then 2 else (if Z = a then 2 else 0)"
 					),
 			//
@@ -2370,7 +2370,9 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					CardinalityRewriter.Quantification.NONE,
 					new CountsDeclaration(2),
 //					"if Y = Z or Y = a then if Y = a then 1 else 0 else 1"),
-				"if Y = a then 1 else (if Z = a then 1 else (if Y = Z then 0 else 1))"),
+			    "anyof("+
+				"(if Y = a then 1 else (if Z = a then 1 else (if Y = Z then 0 else 1))),"+
+			    "(if Y = a then 1 else (if Y != Z then 1 else 0)))"),
 			//
 			// Illegal Argument Tests
 			new Cardinality1DisjunctionData(true,
@@ -3662,38 +3664,38 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 		}
 		
 		TestData[] tests = new TestData[] {
-				//
-				// Scope shadowing tests 
-				new CardinalityData(
-						parse("X != a"),
-						false,
-						"| {(on X) tuple(X) | X = a } |",
-						new CountsDeclaration(10),
-						"(1, 1)"),
-				new CardinalityData(
-						parse("X != a"),
-						false,
-						"| {(on Z) tuple(Z) | X = a } |",
-						new CountsDeclaration(10),
-						"(0, 0)"),
-				new CardinalityData(
-						parse("Z != a"),
-						false,
-						"| {(on X) tuple(X) | X != a or Z = a } |",
-						new CountsDeclaration(10),
-						"( (| type(X) | - 1), 9 )"),
-				new CardinalityData(
-						parse("Z = a"),
-						false,
-						"| {(on X) tuple(X) | X != a or Z = a } |",
-						new CountsDeclaration(10),
-						"( (| type(X) |), 10 )"),
-				new CardinalityData(
-						parse("X = a"),
-						false,
-						"| {(on X) tuple(X) | X != a } |",
-						new CountsDeclaration(10),
-						"(|type(X)|-1, 9)"),
+			//
+			// Scope shadowing tests 
+			new CardinalityData(
+					parse("X != a"),
+					false,
+					"| {(on X) tuple(X) | X = a } |",
+					new CountsDeclaration(10),
+					"(1, 1)"),
+			new CardinalityData(
+					parse("X != a"),
+					false,
+					"| {(on Z) tuple(Z) | X = a } |",
+					new CountsDeclaration(10),
+					"(0, 0)"),
+			new CardinalityData(
+					parse("Z != a"),
+					false,
+					"| {(on X) tuple(X) | X != a or Z = a } |",
+					new CountsDeclaration(10),
+					"( (| type(X) | - 1), 9 )"),
+			new CardinalityData(
+					parse("Z = a"),
+					false,
+					"| {(on X) tuple(X) | X != a or Z = a } |",
+					new CountsDeclaration(10),
+					"( (| type(X) |), 10 )"),
+			new CardinalityData(
+					parse("X = a"),
+					false,
+					"| {(on X) tuple(X) | X != a } |",
+					new CountsDeclaration(10),
+					"(|type(X)|-1, 9)"),
 			//
 			// Test for aic-praise Issue 27:
 		    // https://code.google.com/p/aic-praise/issues/detail?id=27
@@ -3881,6 +3883,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X, Y) tuple(X, Y) | not (X=Y=Z) } |",
 					new CountsDeclaration("X", "11", "Y", "11"),
 					"( anyof(((| type(X) | * (| type(Y) | - 1) + (| type(Y) | - 1) * | type(X) |) - (| type(Y) | - 1 + (| type(X) | - 1) * (| type(Y) | - 2))), " +
+					"((| type(X) | * (| type(Y) | - 1) + | type(Y) |) - 1), " +
 					"((| type(X) | * (| type(Y) | - 1) + | type(X) | * (| type(Y) | - 1)) - (| type(Y) | - 1 + (| type(X) | - 1) * (| type(Y) | - 2))), " +
 					"((| type(Y) | * (| type(X) | - 1) + (| type(Y) | - 1) * | type(X) |) - (| type(Y) | - 1) * (| type(X) | - 1)), " +
 					"((| type(X) | * (| type(Y) | - 1) + (| type(Y) | - 1) * | type(X) | + 1) - (| type(Y) | + (| type(X) | - 1) * (| type(Y) | - 2))), " + 
