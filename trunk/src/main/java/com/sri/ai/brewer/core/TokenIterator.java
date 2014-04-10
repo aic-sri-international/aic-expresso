@@ -339,10 +339,6 @@ public class TokenIterator extends EZIterator<String> {
 //		System.out.println("Position: " + getPosition());
 		if (putBackTokens.isEmpty()) {
 			token = super.next();
-			// TODO: remove the following, for debugging purposes only.
-//			boolean hasNext = super.hasNext();
-//			System.out.println("has just read token " + token);
-//			System.out.println("Iterator has next: " + hasNext);
 		}
 		else {
 			token = putBackTokens.pop();

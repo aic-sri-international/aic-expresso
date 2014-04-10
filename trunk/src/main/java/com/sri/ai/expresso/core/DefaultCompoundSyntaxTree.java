@@ -135,7 +135,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	}
 
 	public DefaultCompoundSyntaxTree orderNormalized = null;
-	public static final boolean useOrderNormalization = true;
+	public static final boolean useOrderNormalization = false;
 	
 	@Override
 	public String getStringForComparisonPurposes() {
