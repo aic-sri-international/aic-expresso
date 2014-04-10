@@ -369,6 +369,11 @@ public class CallRewriterDecisionTree {
 			this.rewriter = rewriter;
 			this.tests.addAll(tests);
 		}
+		
+		public String toString() {
+			String result = "RewriterWithReifiedTests on " + rewriter;
+			return result;
+		}
 	}
 	
 	private abstract class Node {
@@ -440,13 +445,13 @@ public class CallRewriterDecisionTree {
 		
 		@Override
 		public Pair<Rewriter, Expression> rewrite(Expression expression, RewritingProcess process) {
-			Rewriter   resultRW   = null;
-			Expression resultExpr = expression;
+			Rewriter   rewriterProducingTheResult   = null;
+			Expression resultExpression = expression;
 			
-			for (RewriterWithReifiedTests rwrts : rewritersWithReifiedTests) {
+			for (RewriterWithReifiedTests rewriterWithReifiedTests : rewritersWithReifiedTests) {
 				// Ensure the rewriter is applicable
 				boolean applicable = true;
-				for (RewriterTest test : rwrts.tests) {
+				for (RewriterTest test : rewriterWithReifiedTests.tests) {
 					if (!test.apply(expression, process)) {
 						applicable = false;
 						break;
@@ -454,15 +459,15 @@ public class CallRewriterDecisionTree {
 				}
 				if (applicable) {
 					// Call rewriter, indicating it should bypass its reified tests.
-					resultExpr = rwrts.rewriter.rewrite(expression, process, true);
-					if (resultExpr != expression) {
-						resultRW = rwrts.rewriter;
+					resultExpression = rewriterWithReifiedTests.rewriter.rewrite(expression, process, true);
+					if (resultExpression != expression) {
+						rewriterProducingTheResult = rewriterWithReifiedTests.rewriter;
 						break;
 					}
 				}
 			}
 			
-			Pair<Rewriter, Expression> result = new Pair<Rewriter, Expression>(resultRW, resultExpr);
+			Pair<Rewriter, Expression> result = new Pair<Rewriter, Expression>(rewriterProducingTheResult, resultExpression);
 
 			return result;
 		}

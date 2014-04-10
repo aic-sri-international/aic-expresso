@@ -72,6 +72,13 @@ import com.sri.ai.util.base.Pair;
 @Beta
 public abstract class AbstractRewriter implements Rewriter {
 	
+//	// FOR DEBUGGING
+//	// This is a way of setting a breakpoint condition in AbstractRewriter with classes from projects
+//	// using aic-expresso using their own classes, which would not be recognized here.
+//	// I was using it right before AbstractRewriter invoked rewriteAfterBookkeeping
+//	// in order to intercept a particular rewriting action by a rewriter in aic-praise. @author braz
+//	public static TernaryPredicate<Rewriter, Expression, Expression> conditionForBreakpoint;
+	
 	private static final List<Rewriter> _emptyChildList = Collections.unmodifiableList(new ArrayList<Rewriter>());
 	//
 	private String name = null;
