@@ -81,7 +81,7 @@ implements NoOpRewriter, ExpressionKnowledgeModule.Provider
 	@Override
 	public Object getSyntacticFormType(Expression expression, RewritingProcess process) {
 		if (knowledgeApplies(expression)) {
-			return "Scoped variables";
+			return "Syntactic function";
 		}
 		return null;
 	}
@@ -106,10 +106,6 @@ implements NoOpRewriter, ExpressionKnowledgeModule.Provider
 
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		ExpressionKnowledgeModule knowledgeBasedExpressionModule =
-			(ExpressionKnowledgeModule) process.findModule(ExpressionKnowledgeModule.class);
-		if (knowledgeBasedExpressionModule != null) {
-			knowledgeBasedExpressionModule.register(this);
-		}
+		ExpressionKnowledgeModule.register(this, process);
 	}
 }

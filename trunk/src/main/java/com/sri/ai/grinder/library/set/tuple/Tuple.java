@@ -182,26 +182,25 @@ MutuallyExclusiveCoDomainsModule.Provider {
 
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		ExpressionKnowledgeModule knowledgeBasedExpressionModule =
-				(ExpressionKnowledgeModule) process.findModule(ExpressionKnowledgeModule.class);
-		if (knowledgeBasedExpressionModule != null) {
-			knowledgeBasedExpressionModule.register(this);
-		}
+		ExpressionKnowledgeModule.register(this, process);
 		
-		CheapDisequalityModule cheapDisequalityModule = (CheapDisequalityModule) process.findModule(CheapDisequalityModule.class);
-		if (cheapDisequalityModule != null) {
-			cheapDisequalityModule.register(this);
-		}
+		CheapDisequalityModule.register(this, process);
+//		CheapDisequalityModule cheapDisequalityModule = (CheapDisequalityModule) process.findModule(CheapDisequalityModule.class);
+//		if (cheapDisequalityModule != null) {
+//			cheapDisequalityModule.register(this);
+//		}
 
-		InjectiveModule injectiveModuleModule = (InjectiveModule) process.findModule(InjectiveModule.class);
-		if (injectiveModuleModule != null) {
-			injectiveModuleModule.register(this);
-		}
+		InjectiveModule.register(this, process);
+//		InjectiveModule injectiveModuleModule = (InjectiveModule) process.findModule(InjectiveModule.class);
+//		if (injectiveModuleModule != null) {
+//			injectiveModuleModule.register(this);
+//		}
 
-		MutuallyExclusiveCoDomainsModule mutuallyExclusiveCoDomainsModule = (MutuallyExclusiveCoDomainsModule) process.findModule(MutuallyExclusiveCoDomainsModule.class);
-		if (mutuallyExclusiveCoDomainsModule != null) {
-			mutuallyExclusiveCoDomainsModule.register(this);
-		}
+		MutuallyExclusiveCoDomainsModule.register(this, process);
+//		MutuallyExclusiveCoDomainsModule mutuallyExclusiveCoDomainsModule = (MutuallyExclusiveCoDomainsModule) process.findModule(MutuallyExclusiveCoDomainsModule.class);
+//		if (mutuallyExclusiveCoDomainsModule != null) {
+//			mutuallyExclusiveCoDomainsModule.register(this);
+//		}
 	}
 
 	@Override

@@ -130,17 +130,8 @@ implements ExpressionKnowledgeModule.Provider, ScopedVariables.Provider, NoOpRew
 	
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		ExpressionKnowledgeModule knowledgeBasedExpressionModule =
-			(ExpressionKnowledgeModule) process.findModule(ExpressionKnowledgeModule.class);
-		if (knowledgeBasedExpressionModule != null) {
-			knowledgeBasedExpressionModule.register(this);
-		}
-		
-		ScopedVariables scopedVariables =
-			(ScopedVariables) process.findModule(ScopedVariables.class);
-		if (scopedVariables != null) {
-			scopedVariables.register(this);
-		}
+		ExpressionKnowledgeModule.register(this, process);
+		ScopedVariables.register(this, process);
 	}
 
 	@Override

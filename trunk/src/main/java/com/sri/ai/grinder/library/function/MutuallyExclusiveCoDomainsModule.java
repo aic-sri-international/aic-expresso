@@ -37,14 +37,11 @@
  */
 package com.sri.ai.grinder.library.function;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.NoOpRewriter;
+import com.sri.ai.expresso.core.AbstractModuleNoOpRewriter;
+import com.sri.ai.grinder.api.Module;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
 
 /**
  * 
@@ -52,10 +49,8 @@ import com.sri.ai.grinder.core.AbstractRewriter;
  *
  */
 @Beta
-public class MutuallyExclusiveCoDomainsModule extends AbstractRewriter implements NoOpRewriter {
+public class MutuallyExclusiveCoDomainsModule extends AbstractModuleNoOpRewriter {
 
-	private HashSet<Provider> providers = new LinkedHashSet<Provider>();
-	
 	/**
 	 * An interface for objects that know how to determine whether the possible
 	 * interpretations of two expressions are never going to be the same due to
@@ -63,9 +58,18 @@ public class MutuallyExclusiveCoDomainsModule extends AbstractRewriter implement
 	 * {@link MutuallyExclusiveCoDomainsModule} of their existence with the
 	 * method {@link MutuallyExclusiveCoDomainsModule#register(Provider)} so it
 	 * can invoke them. as necessary.
+	 * {@link MutuallyExclusiveCoDomainsModule#register(Provider, RewritingProcess)} is provided as a convenience for finding the module in the rewriting process.
 	 */
-	public static interface Provider {
+	public static interface Provider extends Module.Provider {
 		boolean haveMutuallyExclusiveCoDomains(Expression expression1, Expression expression2, RewritingProcess process);
+	}
+
+	/**
+	 * Registers a {@link Provider} in the {@link MutuallyExclusiveCoDomainsModule} module of the given process,
+	 * or throw an error if there is not one.
+	 */
+	public static void register(Provider provider, RewritingProcess process) throws Error {
+		register(MutuallyExclusiveCoDomainsModule.class, provider, process);
 	}
 
 	/**
@@ -81,31 +85,16 @@ public class MutuallyExclusiveCoDomainsModule extends AbstractRewriter implement
 			return haveMutuallyExclusiveCoDomains(expression1, expression2, process);
 		}
 	}
-	
-	public void register(Provider provider) {
-		providers.add(provider);
-	}
 
 	public boolean haveMutuallyExclusiveCoDomains(Expression expression1, Expression expression2, RewritingProcess process) {
 		boolean result;
-		for (Provider provider : providers) {
+		for (Module.Provider moduleProvider : providers.keySet()) {
+			Provider provider = (Provider) moduleProvider;
 			result = provider.haveMutuallyExclusiveCoDomains(expression1, expression2, process);
 			if (result) {
 				return result;
 			}
 		}
 		return false;
-	}
-
-	@Override
-	/* This will eventually be removed when we introduce mechanism to deal with modules. */
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		// Note: is a NoOpRewriter
-		return expression;
-	}
-
-	@Override
-	public void rewritingProcessFinalized(RewritingProcess process) {
-		providers.clear();
 	}
 }

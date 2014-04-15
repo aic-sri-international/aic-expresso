@@ -1,13 +1,10 @@
 package com.sri.ai.grinder.library.equality;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.NoOpRewriter;
+import com.sri.ai.expresso.core.AbstractModuleNoOpRewriter;
+import com.sri.ai.grinder.api.Module;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
 
 /**
  * This module concentrates the functionality for registering and using pieces
@@ -18,11 +15,9 @@ import com.sri.ai.grinder.core.AbstractRewriter;
  *
  */
 @Beta
-public class CheapDisequalityModule extends AbstractRewriter implements NoOpRewriter {
+public class CheapDisequalityModule extends AbstractModuleNoOpRewriter {
 
-	private HashSet<Provider> providers = new LinkedHashSet<Provider>();
-	
-	public static interface Provider {
+	public static interface Provider extends Module.Provider {
 		
 		/**
 		 * A providers determination if whether or not two expressions are
@@ -41,22 +36,14 @@ public class CheapDisequalityModule extends AbstractRewriter implements NoOpRewr
 		boolean isCheapDisequality(Expression e1, Expression e2, RewritingProcess process);
 	}
 	
-	public void register(Provider provider) {
-		providers.add(provider);
+	/**
+	 * Registers a {@link Provider} in the {@link CheapDisequalityModule} module of the given process,
+	 * or throw an error if there is not one.
+	 */
+	public static void register(Provider provider, RewritingProcess process) throws Error {
+		register(CheapDisequalityModule.class, provider, process);
 	}
-	
-	@Override
-	/* This will eventually be removed when we introduce mechanism to deal with modules. */
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		// Note: is a NoOpRewriter
-		return expression;
-	}
-	
-	@Override
-	public void rewritingProcessFinalized(RewritingProcess process) {
-		providers.clear();
-	}
-	
+
 	/**
 	 * Determine (cheaply) if two expressions are guaranteed to not be equal to
 	 * each other (i.e. e1 != e2).
@@ -72,7 +59,8 @@ public class CheapDisequalityModule extends AbstractRewriter implements NoOpRewr
 	 */
 	public boolean isCheapDisequality(Expression e1, Expression e2, RewritingProcess process) {
 		boolean result = false;
-		for (Provider provider : providers) {
+		for (Module.Provider moduleProvider : providers.keySet()) {
+			Provider provider = (Provider) moduleProvider;
 			result = provider.isCheapDisequality(e1, e2, process);
 			if (result) {
 				// The provider guarantees: e1 != e2

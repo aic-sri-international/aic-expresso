@@ -131,16 +131,8 @@ ImposedConditionsModule.Provider
 
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		ExpressionKnowledgeModule knowledgeBasedExpressionModule =
-			(ExpressionKnowledgeModule) process.findModule(ExpressionKnowledgeModule.class);
-		if (knowledgeBasedExpressionModule != null) {
-			knowledgeBasedExpressionModule.register(this);
-		}
-		ImposedConditionsModule conditionsThatExpressionImposesModule =
-				(ImposedConditionsModule) process.findModule(ImposedConditionsModule.class);
-		if (conditionsThatExpressionImposesModule != null) {
-			conditionsThatExpressionImposesModule.register(this);
-		}
+		ExpressionKnowledgeModule.register(this, process);
+		ImposedConditionsModule.register(this, process);
 	}
 
 	@Override

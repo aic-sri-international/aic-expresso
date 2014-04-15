@@ -66,10 +66,7 @@ implements NoOpRewriter, MutuallyExclusiveCoDomainsModule.Provider {
 
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		MutuallyExclusiveCoDomainsModule mutuallyExclusiveCoDomainsModule = (MutuallyExclusiveCoDomainsModule) process.findModule(MutuallyExclusiveCoDomainsModule.class);
-		if (mutuallyExclusiveCoDomainsModule != null) {
-			mutuallyExclusiveCoDomainsModule.register(this);
-		}
+		MutuallyExclusiveCoDomainsModule.register(this, process);
 	}
 
 	@Override

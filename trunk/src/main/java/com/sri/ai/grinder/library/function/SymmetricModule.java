@@ -37,14 +37,11 @@
  */
 package com.sri.ai.grinder.library.function;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.NoOpRewriter;
+import com.sri.ai.expresso.core.AbstractModuleNoOpRewriter;
+import com.sri.ai.grinder.api.Module;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
 
 
 /**
@@ -55,39 +52,31 @@ import com.sri.ai.grinder.core.AbstractRewriter;
  * @author braz
  */
 @Beta
-public class SymmetricModule extends AbstractRewriter implements NoOpRewriter {
+public class SymmetricModule extends AbstractModuleNoOpRewriter {
 
-	private HashSet<Provider> providers = new LinkedHashSet<Provider>();
-	
 	/**
 	 * An interface for objects that know how to determine
 	 * whether the a function is symmetric.
 	 * Providers must notify {@link SymmetricModule} of their existence
 	 * with the method {@link SymmetricModule#register(Provider)} so it can invoke them.
 	 * as necessary.
+	 * {@link SymmetricModule#register(Provider, RewritingProcess)} is provided as a convenience for finding the module in the rewriting process.
 	 */
-	public static interface Provider {
+	public static interface Provider extends Module.Provider {
 		boolean isSymmetric(Expression function, RewritingProcess process);
 	}
 
-	public void register(Provider provider) {
-		providers.add(provider);
-	}
-
-	@Override
-	/* This will eventually be removed when we introduce mechanism to deal with modules. */
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		// Note: is a NoOpRewriter
-		return expression;
-	}
-
-	@Override
-	public void rewritingProcessFinalized(RewritingProcess process) {
-		providers.clear();
+	/**
+	 * Registers a {@link Provider} in the {@link SymmetricModule} module of the given process,
+	 * or throw an error if there is not one.
+	 */
+	public static void register(Provider provider, RewritingProcess process) throws Error {
+		register(SymmetricModule.class, provider, process);
 	}
 
 	public boolean isSymmetric(Expression function, RewritingProcess process) {
-		for (Provider provider : providers) {
+		for (Module.Provider moduleProvider : providers.keySet()) {
+			Provider provider = (Provider) moduleProvider;
 			boolean result = provider.isSymmetric(function, process);
 			if (result) {
 				return result;

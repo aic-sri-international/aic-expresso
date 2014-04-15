@@ -80,6 +80,7 @@ import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.grinder.library.StandardizedApartFrom;
+import com.sri.ai.grinder.library.SyntacticFunctionsSubExpressionsProvider;
 import com.sri.ai.grinder.library.SyntacticSubstitute;
 import com.sri.ai.grinder.library.Unification;
 import com.sri.ai.grinder.library.boole.And;
@@ -827,6 +828,28 @@ public class GrinderTest extends AbstractGrinderTest {
 	}
 
 	@Test
+	public void testSyntacticFunctionSyntacticForm() {
+		Library library = new DefaultLibrary(
+				new ScopedVariables(),
+				new ExpressionKnowledgeModule(),
+				new SyntacticFunctionsSubExpressionsProvider("type", "scoped variables")
+				);
+		evaluator = new ExhaustiveRewriter(library);
+
+		@SuppressWarnings("unused") // it is needed for keeping module and registering provider.
+		RewritingProcess process = newRewritingProcessWithCardinalityAndCounts(evaluator);
+		
+		expression   = parse("'scoped variables'({{ (on X) X }})");
+		assertEquals("Syntactic function", expression.getSyntacticFormType());
+		
+		expression   = parse("f(x)");
+		assertEquals("Function application", expression.getSyntacticFormType());
+		
+		expression   = parse("type(X)");
+		assertEquals("Syntactic function", expression.getSyntacticFormType());
+	}
+	
+	@Test
 	public void testSubstitute() {
 		Library library = new DefaultLibrary(
 				new ScopedVariables(),
@@ -1139,6 +1162,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		Library library = new DefaultLibrary(
 				new ImposedConditionsModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
+				new ExpressionKnowledgeModule(),
 				new IntensionalSetSubExpressionsAndImposedConditionsProvider());
 		
 		evaluator = new ExhaustiveRewriter(library);
@@ -1973,7 +1997,7 @@ public class GrinderTest extends AbstractGrinderTest {
 	
 	private static class GDependsOnHOpenInterpretationModuleProvider
 	extends AbstractRewriter
-	implements OpenInterpretationModule.Provider {
+	implements OpenInterpretationModule.OpenInterpretationModuleProvider {
 
 		@Override
 		public boolean isOpenInterpretationExpressionWithRespectTo(
@@ -2001,7 +2025,7 @@ public class GrinderTest extends AbstractGrinderTest {
 	
 	private static class AlwaysFalseOpenInterpretationModuleProvider
 	extends AbstractRewriter
-	implements OpenInterpretationModule.Provider {
+	implements OpenInterpretationModule.OpenInterpretationModuleProvider {
 
 		@Override
 		public boolean isOpenInterpretationExpressionWithRespectTo(
@@ -2016,11 +2040,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		}
 		@Override
 		public void rewritingProcessInitiated(RewritingProcess process) {
-			OpenInterpretationModule openInterpretationModule =
-				(OpenInterpretationModule) process.findModule(OpenInterpretationModule.class);
-			if (openInterpretationModule != null) {
-				openInterpretationModule.register(this);
-			}
+			OpenInterpretationModule.register(this, process);
 		}
 	}
 

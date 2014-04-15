@@ -55,10 +55,7 @@ abstract public class AbstractRewriterDefiningSymmetricFunction extends Abstract
 	
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		SymmetricModule commutativeAssociativeModule = (SymmetricModule) process.findModule(SymmetricModule.class);
-		if (commutativeAssociativeModule != null) {
-			commutativeAssociativeModule.register(this);
-		}
+		SymmetricModule.register(this, process);
 	}
 
 	@Override
