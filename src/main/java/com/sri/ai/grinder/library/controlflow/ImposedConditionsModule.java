@@ -37,15 +37,13 @@
  */
 package com.sri.ai.grinder.library.controlflow;
 
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.NoOpRewriter;
+import com.sri.ai.expresso.core.AbstractModuleNoOpRewriter;
+import com.sri.ai.grinder.api.Module;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -64,9 +62,7 @@ import com.sri.ai.util.base.Pair;
  * 
  */
 @Beta
-public class ImposedConditionsModule extends AbstractRewriter implements NoOpRewriter {
-	private Set<Provider> providers = new LinkedHashSet<Provider>();
-
+public class ImposedConditionsModule extends AbstractModuleNoOpRewriter {
 	/**
 	 * An interface for objects that know how to determine the conditions that
 	 * an expression imposes on its sub-expressions.
@@ -74,7 +70,7 @@ public class ImposedConditionsModule extends AbstractRewriter implements NoOpRew
 	 * @author oreilly
 	 * 
 	 */
-	public static interface Provider {
+	public static interface Provider extends Module.Provider {
 		/**
 		 * Get a list of the conditions an expression imposes on its
 		 * sub-expressions, which can be a sub-set of the sub-expressions if not
@@ -99,20 +95,18 @@ public class ImposedConditionsModule extends AbstractRewriter implements NoOpRew
 	}
 
 	/**
+	 * Registers a {@link Provider} in the {@link ImposedConditionsModule} module of the given process,
+	 * or throw an error if there is not one.
+	 */
+	public static void register(Provider provider, RewritingProcess process) throws Error {
+		register(ImposedConditionsModule.class, provider, process);
+	}
+
+	/**
 	 * Default Constructor.
 	 */
 	public ImposedConditionsModule() {
 
-	}
-
-	/**
-	 * Register a provider with this module.
-	 * 
-	 * @param provider
-	 *            a provider to be registered.
-	 */
-	public void register(Provider provider) {
-		providers.add(provider);
 	}
 
 	/**
@@ -123,9 +117,9 @@ public class ImposedConditionsModule extends AbstractRewriter implements NoOpRew
 			Expression expression, RewritingProcess process) {
 		List<Pair<Expression, List<Integer>>> result = null;
 
-		for (Provider provider : providers) {
-			result = provider.getConditionsExpressionImposesOnSubExpressions(
-					expression, process);
+		for (Module.Provider moduleProvider : providers.keySet()) {
+			Provider provider = (Provider) moduleProvider;
+			result = provider.getConditionsExpressionImposesOnSubExpressions(expression, process);
 			if (result != null) {
 				break;
 			}
@@ -145,8 +139,7 @@ public class ImposedConditionsModule extends AbstractRewriter implements NoOpRew
 		ImposedConditionsModule module = (ImposedConditionsModule) process
 				.findModule(ImposedConditionsModule.class);
 		if (module == null) {
-			throw new Error(
-					"ImposedConditionsModule module not found");
+			throw new Error("ImposedConditionsModule module not found");
 		}
 
 		List<Pair<Expression, List<Integer>>> result = module
@@ -154,26 +147,5 @@ public class ImposedConditionsModule extends AbstractRewriter implements NoOpRew
 						process);
 
 		return result;
-	}
-
-	//
-	// START-Rewriter
-	@Override
-	public void rewritingProcessFinalized(RewritingProcess process) {
-		providers.clear();
-	}
-
-	// END-Rewriter
-	//
-
-	@Override
-	/*
-	 * This will eventually be removed when we introduce mechanism to deal with
-	 * modules.
-	 */
-	public Expression rewriteAfterBookkeeping(Expression expression,
-			RewritingProcess process) {
-		// Note: is a NoOpRewriter
-		return expression;
 	}
 }

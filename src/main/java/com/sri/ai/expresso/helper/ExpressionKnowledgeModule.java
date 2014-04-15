@@ -40,16 +40,15 @@ package com.sri.ai.expresso.helper;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.api.CompoundSyntaxTree;
-import com.sri.ai.grinder.api.NoOpRewriter;
+import com.sri.ai.expresso.core.AbstractModuleNoOpRewriter;
+import com.sri.ai.grinder.api.Module;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractExpression;
-import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.FunctionApplicationProvider;
 
 /**
@@ -59,18 +58,17 @@ import com.sri.ai.grinder.core.FunctionApplicationProvider;
  * @author braz
  */
 @Beta
-public class ExpressionKnowledgeModule extends AbstractRewriter implements NoOpRewriter {
+public class ExpressionKnowledgeModule extends AbstractModuleNoOpRewriter {
 
-	private ConcurrentHashMap<Provider, Provider> providers = new ConcurrentHashMap<Provider, Provider>();
-	
 	/**
 	 * An interface for objects that know how to determine the sub-expressions
 	 * of certain types of expressions.
 	 * Providers must notify {@link ExpressionKnowledgeModule} of their existence
 	 * with the method {@link ExpressionKnowledgeModule#register(Provider)} so it can invoke them.
 	 * as necessary.
+	 * {@link ExpressionKnowledgeModule#register(Provider, RewritingProcess)} is provided as a convenience for finding the module in the rewriting process.
 	 */
-	public static interface Provider {
+	public static interface Provider extends Module.Provider {
 		/**
 		 * Provides a value for {@link KnowledgeBasedExpression.getSyntacticFormType(RewritingProcess).
 		 */
@@ -83,16 +81,19 @@ public class ExpressionKnowledgeModule extends AbstractRewriter implements NoOpR
 		Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(Expression expression, RewritingProcess process);
 	}
 
-	public void register(Provider provider) {
-		if ( ! providers.contains(provider)) {
-			providers.put(provider, provider);
-		}
+	/**
+	 * Registers a {@link Provider} in the {@link ExpressionKnowledgeModule} module of the given process,
+	 * or throw an error if there is not one.
+	 */
+	public static void register(Provider provider, RewritingProcess process) throws Error {
+		register(ExpressionKnowledgeModule.class, provider, process);
 	}
 
 	public Object getSyntacticFormType(Expression expression, RewritingProcess process) {
 		Object result;
-		for (Provider provider : providers.keySet()) {
-			result = provider.getSyntacticFormType(expression, process);
+		for (Module.Provider provider : providers.keySet()) {
+			Provider expressionKnowledgeModuleProvider = (Provider) provider;
+			result = expressionKnowledgeModuleProvider.getSyntacticFormType(expression, process);
 			if (result != null) {
 				return result;
 			}
@@ -106,25 +107,14 @@ public class ExpressionKnowledgeModule extends AbstractRewriter implements NoOpR
 
 	public Iterator<ExpressionAndContext> getImmediateSubExpressionsIterator(Expression expression, RewritingProcess process) {
 		Iterator<ExpressionAndContext> result;
-		for (Provider provider : providers.keySet()) {
-			result = provider.getImmediateSubExpressionsAndContextsIterator(expression, process);
+		for (Module.Provider provider : providers.keySet()) {
+			Provider expressionKnowledgeModuleProvider = (Provider) provider;
+			result = expressionKnowledgeModuleProvider.getImmediateSubExpressionsAndContextsIterator(expression, process);
 			if (result != null) {
 				return result;
 			}
 		}
 		return null;
-	}
-
-	@Override
-	public void rewritingProcessFinalized(RewritingProcess process) {
-		providers.clear();
-	}
-
-	@Override
-	/* This will eventually be removed when we introduce mechanism to deal with modules. */
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		// Note: is a NoOpRewriter
-		return expression;
 	}
 
 	/**

@@ -52,10 +52,6 @@ public abstract class AbstractScopedVariablesProviderAndRewriter extends Abstrac
 
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		ScopedVariables scopedVariables =
-			(ScopedVariables) process.findModule(ScopedVariables.class);
-		if (scopedVariables != null) {
-			scopedVariables.register(this);
-		}
+		ScopedVariables.register(this, process);
 	}
 }

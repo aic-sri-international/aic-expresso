@@ -69,10 +69,7 @@ implements NoOpRewriter, InjectiveModule.Provider {
 
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		InjectiveModule injectiveModuleModule = (InjectiveModule) process.findModule(InjectiveModule.class);
-		if (injectiveModuleModule != null) {
-			injectiveModuleModule.register(this);
-		}
+		InjectiveModule.register(this, process);
 	}
 
 	@Override

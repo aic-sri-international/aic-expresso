@@ -37,14 +37,11 @@
  */
 package com.sri.ai.grinder.library.function;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.NoOpRewriter;
+import com.sri.ai.expresso.core.AbstractModuleNoOpRewriter;
+import com.sri.ai.grinder.api.Module;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
 
 
 /**
@@ -55,10 +52,8 @@ import com.sri.ai.grinder.core.AbstractRewriter;
  * @author rodrigo
  */
 @Beta
-public class InjectiveModule extends AbstractRewriter implements NoOpRewriter {
+public class InjectiveModule extends AbstractModuleNoOpRewriter {
 
-	private HashSet<Provider> providers = new LinkedHashSet<Provider>();
-	
 	/**
 	 * An interface for objects that know how to determine
 	 * whether the function from interpretation of sub-expressions to interpretation of expression
@@ -66,8 +61,9 @@ public class InjectiveModule extends AbstractRewriter implements NoOpRewriter {
 	 * Providers must notify {@link InjectiveModule} of their existence
 	 * with the method {@link InjectiveModule#register(Provider)} so it can invoke them.
 	 * as necessary.
+	 * {@link InjectiveModule#register(Provider, RewritingProcess)} is provided as a convenience for finding the module in the rewriting process.
 	 */
-	public static interface Provider {
+	public static interface Provider extends Module.Provider {
 		/**
 		 * Returns a representation of the injective function, if any (<code>null</code> otherwise)
 		 * between the subexpression interpretations and the expression representation.
@@ -81,24 +77,17 @@ public class InjectiveModule extends AbstractRewriter implements NoOpRewriter {
 		Object getInjectiveFunctionToken(Expression expression, RewritingProcess process);
 	}
 
-	public void register(Provider provider) {
-		providers.add(provider);
-	}
-
-	@Override
-	/* This will eventually be removed when we introduce mechanism to deal with modules. */
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		// Note: is a NoOpRewriter
-		return expression;
-	}
-
-	@Override
-	public void rewritingProcessFinalized(RewritingProcess process) {
-		providers.clear();
+	/**
+	 * Registers a {@link Provider} in the {@link InjectiveModule} module of the given process,
+	 * or throw an error if there is not one.
+	 */
+	public static void register(Provider provider, RewritingProcess process) throws Error {
+		register(InjectiveModule.class, provider, process);
 	}
 
 	public Object getInjectiveFunctionToken(Expression expression, RewritingProcess process) {
-		for (Provider provider : providers) {
+		for (Module.Provider moduleProvider : providers.keySet()) {
+			Provider provider = (Provider) moduleProvider;
 			Object result = provider.getInjectiveFunctionToken(expression, process);
 			if (result != null) {
 				return result;

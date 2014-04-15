@@ -114,11 +114,7 @@ ExpressionKnowledgeModule.Provider
 
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		ExpressionKnowledgeModule knowledgeBasedExpressionModule =
-			(ExpressionKnowledgeModule) process.findModule(ExpressionKnowledgeModule.class);
-		if (knowledgeBasedExpressionModule != null) {
-			knowledgeBasedExpressionModule.register(this);
-		}
+		ExpressionKnowledgeModule.register(this, process);
 	}
 
 	@Override

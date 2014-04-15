@@ -38,20 +38,19 @@
 package com.sri.ai.grinder.library;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.core.AbstractModuleAndPossibleActiveRewriter;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.GetFunctorOrSymbol;
 import com.sri.ai.expresso.helper.IsApplicationOf;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
+import com.sri.ai.grinder.api.Module;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.DefaultRewriterTest;
 import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.util.Util;
@@ -62,12 +61,10 @@ import com.sri.ai.util.Util;
  *
  */
 @Beta
-public class ScopedVariables extends AbstractRewriter {
+public class ScopedVariables extends AbstractModuleAndPossibleActiveRewriter {
 
 	private static final Expression _emptyScope = new DefaultCompoundSyntaxTree("list");
 	//
-	private HashSet<Provider> providers = new LinkedHashSet<Provider>();
-	
 	public ScopedVariables() {
 		this.setReifiedTests(new DefaultRewriterTest(KindAttribute.INSTANCE, KindAttribute.VALUE_SCOPED_VARIABLES));
 	}
@@ -81,7 +78,7 @@ public class ScopedVariables extends AbstractRewriter {
 	 * Providers must notify {@link ScopedVariables} of their existence so it can invoke them
 	 * as necessary.
 	 */
-	public static interface Provider {
+	public static interface Provider extends Module.Provider {
 		/**
 		 * Returns an expression representing a collection of variables being scoped by
 		 * given expression, according to this provider's knowledge of that type of expression,
@@ -90,10 +87,14 @@ public class ScopedVariables extends AbstractRewriter {
 		Expression getScopedVariablesAsExpression(Expression expression, RewritingProcess process);
 	}
 
-	public void register(Provider provider) {
-		providers.add(provider);
+	/**
+	 * Registers a {@link Provider} in the {@link ScopedVariables} module of the given process,
+	 * or throw an error if there is not one.
+	 */
+	public static void register(Provider provider, RewritingProcess process) throws Error {
+		register(ScopedVariables.class, provider, process);
 	}
-	
+
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		if (isScopedVariables(expression)) {
@@ -111,7 +112,8 @@ public class ScopedVariables extends AbstractRewriter {
 	}
 
 	public Expression getScopedVariables(Expression expression, RewritingProcess process) {
-		for (Provider provider : providers) {
+		for (Module.Provider moduleProvider : providers.keySet()) {
+			Provider provider = (Provider) moduleProvider;
 			Expression scopedVariablesAccordingToThisProvider =
 				provider.getScopedVariablesAsExpression(expression.getSyntaxTree(), process);
 			if (scopedVariablesAccordingToThisProvider != null) {
@@ -130,9 +132,8 @@ public class ScopedVariables extends AbstractRewriter {
 		if (scopedVariables == null) {
 			throw new Error("ScopedVariables module not found");
 		}
-		List<Expression> result =
-			scopedVariables.getScopedVariables(
-					expression, process).getArguments();
+		Expression scopedVariablesExpression = scopedVariables.getScopedVariables(expression, process);
+		List<Expression> result = scopedVariablesExpression.getArguments();
 		return result;
 	}
 	
@@ -227,10 +228,5 @@ public class ScopedVariables extends AbstractRewriter {
 		Expression condition = Unification.unificationCondition(expression, index, process);
 		boolean result = condition.equals(Expressions.FALSE);
 		return result;
-	}
-	
-	@Override
-	public void rewritingProcessFinalized(RewritingProcess process) {
-		providers.clear();
 	}
 }
