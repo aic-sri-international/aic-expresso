@@ -46,6 +46,4 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 public interface CompoundSyntaxTree extends SyntaxTree {
-	@Override
-	SyntaxTree getRootTree();
 }

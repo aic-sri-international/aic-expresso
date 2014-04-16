@@ -82,7 +82,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	 */
 	@SuppressWarnings("unchecked")
 	public DefaultCompoundSyntaxTree(Object functor, Object ... args) {
-		this.label = Expressions.wrap(functor);
+		this.valueOrRootSyntaxTree = Expressions.wrap(functor);
 		if (args.length == 1 && args[0] instanceof List) {
 			// Note: We can have nulls, therefore cannot use ImmutableList directly.
 			this.subTrees = Collections.unmodifiableList((List<SyntaxTree>) args[0]); // makes a copy since this constructor does not assume ownership.
@@ -93,6 +93,20 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		}
 	}
 
+	public Object getValue() {
+		return null;
+	}
+
+	@Override
+	public SyntaxTree getRootTree() {
+		return (SyntaxTree) valueOrRootSyntaxTree;
+	}
+
+	@Override
+	public Object getLabel() {
+		return valueOrRootSyntaxTree;
+	}
+
 	/**
 	 * Constructs a function application with given functor and arguments, keeping the arguments ownership.
 	 * This is a more efficient constructor than {@link #DefaultCompoundSyntaxTree(Object, Object...)}
@@ -101,7 +115,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	@SuppressWarnings("unchecked")
 	public static DefaultCompoundSyntaxTree make(Object functor, List<? extends Expression> subTrees) {
 		DefaultCompoundSyntaxTree result = new DefaultCompoundSyntaxTree();
-		result.label    = Expressions.wrap(functor);
+		result.valueOrRootSyntaxTree    = Expressions.wrap(functor);
 		// Note: We can have nulls, therefore cannot use ImmutableList directly.
 		result.subTrees = Collections.unmodifiableList((List) Util.mapIntoList(subTrees, Expression.GET_SYNTAX_TREE));
 		return result;
@@ -388,15 +402,6 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		// it is best to use the field 'arguments' instead of method 'getArguments'
 		// because we can share argument lists among function applications, since they are never modified.
 		// The method 'getArguments' would unnecessarily create an unmodifiable list object.
-	}
-
-	public Object getValue() {
-		return null;
-	}
-
-	@Override
-	public SyntaxTree getRootTree() {
-		return (SyntaxTree) label;
 	}
 
 	@Override

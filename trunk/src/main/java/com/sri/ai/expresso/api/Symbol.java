@@ -46,5 +46,4 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 public interface Symbol extends SyntaxTree {
-	public Object getValue();
 }

@@ -46,7 +46,20 @@ import com.google.common.base.Predicate;
 import com.sri.ai.util.base.BinaryProcedure;
 
 /**
- * A Syntax tree.
+ * A Syntax tree (also known as syntactic tree).
+ * 
+ * A syntax tree is either a {@link Symbol}, or a {@link CompoundSyntaxTree}.
+ * It has the following properties:
+ * <ul>
+ * <li>value: a non-null Object in the case of Symbols and null in the case of CompoundSyntaxTree.
+ * <li>root syntax tree: another syntax tree in the case of CompoundSyntaxTree, and null for Symbols.
+ * <li>label: the root syntax tree in the case of CompoundSyntaxTree, and the value in the case of a Symbol.
+ * <li>immediate sub-trees: an empty list for Symbol, and a list of syntax trees for CompoundSyntaxTree. 
+ * </ul>
+ * <p>
+ * The interface provides methods for accessing these properties and for setting them.
+ * SyntaxTree objects must be immutable, so setting a property
+ * returns a distinct syntax tree resulting from the modification.
  * 
  * @author braz
  *
@@ -54,30 +67,28 @@ import com.sri.ai.util.base.BinaryProcedure;
 @Beta
 public interface SyntaxTree extends Expression {
 
-	/**
-	 * Returns the subtree corresponding to a given key (so far, only integers are supported),
-	 * with -1 representing the functor.
-	 */
-	SyntaxTree getSubTree(Object fieldKey);
+	Object getValue();
 	
-	Object getLabel();
-
-	/** Return root tree if it has one. */
 	SyntaxTree getRootTree();
 	
-	/** Returns a value associated with a left syntax tree, or <code>null</code> in case it is not a leaf. */
-	public Object getValue();
-	
-	/**
-	 * Returns the number of subtrees in this tree.
-	 */
-	int numberOfImmediateSubTrees();
+	Object getLabel();
 
 	/** 
 	 * Returns the list of subtrees.
 	 */
 	List<SyntaxTree> getImmediateSubTrees();
 
+	/**
+	 * Returns the number of subtrees in this tree.
+	 */
+	int numberOfImmediateSubTrees();
+
+	/**
+	 * Returns the subtree corresponding to a given key (so far, only integers are supported),
+	 * with -1 representing the functor.
+	 */
+	SyntaxTree getSubTree(Object fieldKey);
+	
 	/** 
 	 * An iterator-based (and therefore possibly lazy) version of {@link #getImmediateSubTrees()}.
 	 */

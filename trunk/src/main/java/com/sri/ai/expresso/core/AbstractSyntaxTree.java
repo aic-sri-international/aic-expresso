@@ -88,7 +88,7 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 	 * How it is used is up to users; a typical use is representing the name or value of a symbol, in the case of leaf nodes,
 	 * and a type of expression in the case of non-leaf nodes.
 	 */
-	protected Object           label;
+	protected Object valueOrRootSyntaxTree;
 	// Note: Should only be assigned immutable lists.
 	protected List<SyntaxTree> subTrees = Collections.emptyList();
 	//
@@ -263,6 +263,7 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 		return subTrees.size();
 	}
 
+	@Override
 	public SyntaxTree getSubTree(Object fieldKey) {
 		if (fieldKey.equals("functor")) {
 			return getRootTree();
@@ -270,7 +271,7 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 		else if (fieldKey instanceof Number) {
 			int index = ((Number)fieldKey).intValue();
 			if (index == -1) {
-				return (SyntaxTree) label;
+				return (SyntaxTree) valueOrRootSyntaxTree;
 			}
 			if (index < subTrees.size()) {
 				return subTrees.get(index);
@@ -290,11 +291,6 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 	@Override
 	public Iterator<SyntaxTree> getImmediateSubTreesIterator() {
 		return getImmediateSubTrees().iterator();
-	}
-
-	@Override
-	public Object getLabel() {
-		return label;
 	}
 
 	///////////////////////// FUNCTION APPLICATION METHODS //////////////////////
