@@ -63,7 +63,7 @@ public class AssociativeSequence extends Sequence {
 	
 	public AssociativeSequence(Object... args) {
 		super(args);
-		label = DefaultSymbol.createSymbol("associative sequence");
+		valueOrRootSyntaxTree = DefaultSymbol.createSymbol("associative sequence");
 	}
 
 	@Override

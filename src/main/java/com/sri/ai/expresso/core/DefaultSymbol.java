@@ -111,6 +111,20 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
 	
+	public Object getValue() {
+		return valueOrRootSyntaxTree;
+	}
+
+	@Override
+	public SyntaxTree getRootTree() {
+		return null;
+	}
+
+	@Override
+	public Object getLabel() {
+		return valueOrRootSyntaxTree;
+	}
+
 	/**
 	 * Set the numeric display precision for numeric valued symbols.
 	 * 
@@ -363,14 +377,14 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	@Override
 	public String defaultToString() {
 		String result = "";
-		if (label instanceof String) {
-			result = makeStringValuedSymbolParseSafe((String)label);
+		if (valueOrRootSyntaxTree instanceof String) {
+			result = makeStringValuedSymbolParseSafe((String)valueOrRootSyntaxTree);
 		}
-		else if (label instanceof Expression) {
-			result = "<" + label + ">";
+		else if (valueOrRootSyntaxTree instanceof Expression) {
+			result = "<" + valueOrRootSyntaxTree + ">";
 		}
-		else if (label instanceof Number && _displayNumericPrecision != 0) {
-			Rational rLabel = ((Rational) label);
+		else if (valueOrRootSyntaxTree instanceof Number && _displayNumericPrecision != 0) {
+			Rational rLabel = ((Rational) valueOrRootSyntaxTree);
 			if (rLabel.isInteger()) {
 				result = rLabel.toString();
 			} 
@@ -397,45 +411,41 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 			}
 		}
 		else {
-			result = label.toString();
+			result = valueOrRootSyntaxTree.toString();
 		}
 		
 		return result;
 	}
 
 	@Override
-	public SyntaxTree replaceSubTrees(Function replacementFunction) {
+	public SyntaxTree replaceSubTrees(Function<SyntaxTree, SyntaxTree> replacementFunction) {
 		return this;
 	}
-	
+
 	public Expression clone() {
 		return createSymbol(getValue());
 	}
 
-	public Object getValue() {
-		return label;
-	}
-	
 	@Override
 	public int intValue() {
-		if (label instanceof Number) {
-			return ((Number) label).intValue();
+		if (valueOrRootSyntaxTree instanceof Number) {
+			return ((Number) valueOrRootSyntaxTree).intValue();
 		}
 		throw new Error("DefaultSymbol.intValue() invoked on " + this + ", which is not a number.");
 	}
 
 	@Override
 	public int intValueExact() throws ArithmeticException {
-		if (label instanceof Rational) {
-			return ((Rational) label).intValueExact();
+		if (valueOrRootSyntaxTree instanceof Rational) {
+			return ((Rational) valueOrRootSyntaxTree).intValueExact();
 		}
 		throw new Error("DefaultSymbol.intValueExact() invoked on " + this + ", which is not a number.");
 	}
 
 	@Override
 	public double doubleValue() {
-		if (label instanceof Number) {
-			return ((Number) label).doubleValue();
+		if (valueOrRootSyntaxTree instanceof Number) {
+			return ((Number) valueOrRootSyntaxTree).doubleValue();
 		}
 		throw new Error("DefaultSymbol.doubleValue() invoked on " + this + ", which is not a number.");
 	}
@@ -443,15 +453,10 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 
 	@Override
 	public Rational rationalValue() {
-		if (label instanceof Number) {
-			return (Rational) label;
+		if (valueOrRootSyntaxTree instanceof Number) {
+			return (Rational) valueOrRootSyntaxTree;
 		}
 		throw new Error("DefaultSymbol.rationalValue() invoked on " + this + ", which is not a number.");
-	}
-	
-	@Override
-	public SyntaxTree getRootTree() {
-		return null;
 	}
 	
 	//
@@ -478,7 +483,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 			}
 		}
 
-		this.label = value;
+		this.valueOrRootSyntaxTree = value;
 	}
 	
 	private static String removeTrailingZerosToRight(String number) {
