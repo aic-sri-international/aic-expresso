@@ -50,7 +50,6 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.AbstractSyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
@@ -189,7 +188,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	 * Gets the condition of the intensional set.
 	 */
 	public static Expression getCondition(Expression expression) {
-		SyntaxTree result = expression.getSyntaxTree().getSubTree(2) != null? expression.getSyntaxTree().getSubTree(2).getSubTree(0) : Expressions.TRUE;
+		Expression result = expression.getSyntaxTree().getSubTree(2) != null? expression.getSyntaxTree().getSubTree(2).getSubTree(0) : Expressions.TRUE;
 		return result;
 		 // does need to be sub tree
 	}

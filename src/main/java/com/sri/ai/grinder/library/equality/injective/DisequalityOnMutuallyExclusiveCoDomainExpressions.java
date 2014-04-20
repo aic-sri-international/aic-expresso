@@ -39,7 +39,6 @@ package com.sri.ai.grinder.library.equality.injective;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 
 /**
@@ -56,7 +55,7 @@ public class DisequalityOnMutuallyExclusiveCoDomainExpressions extends AbstractO
 	}
 
 	@Override
-	protected Symbol getResult() {
+	protected Expression getResult() {
 		return Expressions.TRUE;
 	}
 

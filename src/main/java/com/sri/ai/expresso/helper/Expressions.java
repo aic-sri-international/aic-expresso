@@ -46,6 +46,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
@@ -87,8 +88,8 @@ import com.sri.ai.util.math.Rational;
 @Beta
 public class Expressions {
 	public static final Expression EMPTY_LIST      = new DefaultCompoundSyntaxTree("list");
-	public static final Symbol     TRUE            = DefaultSymbol.createSymbol("true");
-	public static final Symbol     FALSE           = DefaultSymbol.createSymbol("false");
+	public static final Expression TRUE            = DefaultSymbol.createSymbol("true");
+	public static final Expression FALSE           = DefaultSymbol.createSymbol("false");
 	public static final Expression ZERO            = DefaultSymbol.createSymbol(0);
 	public static final Expression ZERO_POINT_FIVE = DefaultSymbol.createSymbol(0.5);
 	public static final Expression ONE             = DefaultSymbol.createSymbol(1);
@@ -324,6 +325,10 @@ public class Expressions {
 		}
 	};
 	
+	public static Map<Expression, Expression> wrapAsMap(Object... pairs) {
+		return Util.map(Expressions.wrap(pairs).toArray());
+	}
+
 	/**
 	 * Given an expression, a path, and a sub-expression,
 	 * returns the expression with its path-sub-expression replaced by the given sub-expression.

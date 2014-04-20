@@ -39,7 +39,6 @@ package com.sri.ai.grinder.library.equality.injective;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasFunctor;
@@ -61,7 +60,7 @@ public abstract class AbstractOperationOnMutuallyExclusiveCoDomainExpressions
 	}
 
 	protected abstract String getFunctor();
-	protected abstract Symbol getResult();
+	protected abstract Expression getResult();
 	protected abstract Expression getResultExpression();
 
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
