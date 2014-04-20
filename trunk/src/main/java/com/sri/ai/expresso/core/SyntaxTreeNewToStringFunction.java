@@ -35,52 +35,28 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library;
-
-import java.util.Map;
+package com.sri.ai.expresso.core;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
-import com.sri.ai.util.Util;
-import com.sri.ai.util.base.Equals;
+import com.google.common.base.Function;
+import com.sri.ai.expresso.api.SyntaxTreeNew;
 
 /**
- * Implements transformations of applications of given operators into their
- * absorbing elements, if such element is one of the arguments. (for example,
- * multiplications including 0 as an argument being rewritten as 0 itself).
+ * Convert a Syntax Tree to its default string representation.
  * 
  * @author braz
+ *
  */
 @Beta
-public class AbsorbingElement extends AbstractRewriter {
+public class SyntaxTreeNewToStringFunction implements Function<SyntaxTreeNew, String> {
 
-	private Map<Expression, Expression> absorbingElementByOperator;
-	
-	public AbsorbingElement(Object... operatorPairs) {
-		super();
-		this.absorbingElementByOperator = Expressions.wrapAsMap(operatorPairs);
-		// If a single operator and corresponding absorbing element
-		// then I can add a reified test for the operator/functor
-		if (this.absorbingElementByOperator.size() == 1) {
-			this.setReifiedTests(new HasFunctor(operatorPairs[0]));
-			this.setName(""+operatorPairs[0]+" "+Util.camelCaseToSpacedString(getClass().getSimpleName()));
-		}
+	public SyntaxTreeNewToStringFunction() {
+		
 	}
-
+	
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression functor = expression.getFunctor();
-		Expression absorbingElement = functor == null? null : absorbingElementByOperator.get(functor);
-		if (
-				absorbingElementByOperator.containsKey(functor)
-				&&
-				Util.thereExists(expression.getArguments(), new Equals<Expression>(absorbingElement))) {
-			return absorbingElement;
-		}
-		return expression;
+	public String apply(SyntaxTreeNew syntaxTree) {
+		String result = syntaxTree.defaultToString();
+		return result;
 	}
 }
