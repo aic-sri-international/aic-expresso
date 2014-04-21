@@ -46,7 +46,6 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.NoOpRewriter;
@@ -66,10 +65,10 @@ import com.sri.ai.grinder.core.AbstractRewriter;
 public class SyntacticFunctionsSubExpressionsProvider extends AbstractRewriter
 implements NoOpRewriter, ExpressionKnowledgeModule.Provider
 {
-	private Set<SyntaxTree> functionNameSymbols;
+	private Set<Expression> functionNameSymbols;
 
 	public SyntacticFunctionsSubExpressionsProvider(String... names) {
-		functionNameSymbols = new LinkedHashSet<SyntaxTree>(Expressions.wrap(names));
+		functionNameSymbols = new LinkedHashSet<Expression>(Expressions.wrap(names));
 	}
 	
 	@Override

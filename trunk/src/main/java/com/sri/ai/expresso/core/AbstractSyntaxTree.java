@@ -59,6 +59,7 @@ import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractExpression;
 import com.sri.ai.grinder.core.FunctionApplicationProvider;
@@ -79,7 +80,7 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 	public static final Function<Object, SyntaxTree> wrapper = new Function<Object, SyntaxTree>() {
 		@Override
 		public SyntaxTree apply(Object object) {
-			return Expressions.wrap(object);
+			return SyntaxTrees.wrap(object);
 		}
 	};
 

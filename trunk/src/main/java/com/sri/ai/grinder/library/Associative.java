@@ -44,7 +44,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -61,7 +60,7 @@ import com.sri.ai.util.Util;
 @Beta
 public class Associative extends AbstractRewriter {
 
-	private Set<SyntaxTree> operators = new LinkedHashSet<SyntaxTree>();
+	private Set<Expression> operators = new LinkedHashSet<Expression>();
 
 	public Associative(Object... operators) {
 		super();

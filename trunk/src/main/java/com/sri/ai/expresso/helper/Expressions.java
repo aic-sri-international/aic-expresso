@@ -97,7 +97,16 @@ public class Expressions {
 	public static final Expression THREEE          = DefaultSymbol.createSymbol(3);
 	//
 	private static final SingletonListMaker<Integer> INTEGER_SINGLETON_LIST_MAKER = new SingletonListMaker<Integer>();
+	
+	/** Returns an expression represented by a given syntax tree. */
+	public static Expression make(SyntaxTree syntaxTree) {
+		return syntaxTree;
+	}
 
+	public static Expression makeSymbolExpression(Object object) {
+		return make(DefaultSymbol.createSymbol(object));
+	}
+	
 	/**
 	 * If argument is a "kleene list" application, returns a {@link List} of its arguments;
 	 * otherwise, returns a {@link List} containing this argument.
@@ -294,33 +303,33 @@ public class Expressions {
 	}
 
 	/** Gets an object and returns it if it is an expression, or a {@link DefaultSymbol} containing it as value. */
-	public static SyntaxTree wrap(Object object) {
-		if (object == null || object instanceof SyntaxTree) {
-			return (SyntaxTree) object;
+	public static Expression wrap(Object object) {
+		if (object == null || object instanceof Expression) {
+			return (Expression) object;
 		}
-		return DefaultSymbol.createSymbol(object);
+		return make(DefaultSymbol.createSymbol(object));
 	}
 
 	/** The array version of {@link #wrap(Object)}. */
-	public static List<SyntaxTree> wrap(Object[] array) {
-		LinkedList<SyntaxTree> result = new LinkedList<SyntaxTree>();
+	public static List<Expression> wrap(Object[] array) {
+		LinkedList<Expression> result = new LinkedList<Expression>();
 		for (int i = 0; i!= array.length; i++) {
-			SyntaxTree wrap = wrap(array[i]);
+			Expression wrap = wrap(array[i]);
 			result.add(wrap);
 		}
 		return result;
 	}
 	
 	/** A version of {@link #wrap(Object)} getting an iterator and returning a list. */
-	public static List<SyntaxTree> wrap(Iterator<Object> iterator) {
-		List<SyntaxTree> result = Util.listFrom(new FunctionIterator<Object, SyntaxTree>(iterator, WRAPPER));
+	public static List<Expression> wrap(Iterator<Object> iterator) {
+		List<Expression> result = Util.listFrom(new FunctionIterator<Object, Expression>(iterator, WRAPPER));
 		return result;
 	}
 
 	/** A {@link Function} version of {@link #wrap(Object)}. */
-	public static final Function<Object, SyntaxTree> WRAPPER = new Function<Object, SyntaxTree>() {
+	public static final Function<Object, Expression> WRAPPER = new Function<Object, Expression>() {
 		@Override
-		public SyntaxTree apply(Object object) {
+		public Expression apply(Object object) {
 			return wrap(object);
 		}
 	};

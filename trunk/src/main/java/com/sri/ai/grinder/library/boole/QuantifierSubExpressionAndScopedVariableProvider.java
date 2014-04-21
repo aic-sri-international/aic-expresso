@@ -90,14 +90,14 @@ implements ExpressionKnowledgeModule.Provider, ScopedVariables.Provider, NoOpRew
 			// get the body of the expression
 			ExpressionAndContext bodyExpressionAndContext =
 				new DefaultExpressionAndContext(
-						expression.getSyntaxTree().getSubTree(1),
+						Expressions.make(expression.getSyntaxTree().getSubTree(1)),
 						_pathOne,
 						getIndexExpressions(expression));
 			
 			// get arguments of index, for example the X and Y in there exists p(X,Y) : ...
 			List<Integer> indexBasePath = _pathZero; // path to get to index; this is the base for paths to arguments of the index, which are also sub-expressions.
 			SyntaxTree indexExpression = expression.getSyntaxTree().getSubTree(0); // remember that the index expression is not a sub-expression, only a sub-syntax tree
-			Expression index = indexExpression.hasFunctor(FunctorConstants.IN)? indexExpression.get(0) : indexExpression;
+			Expression index = Expressions.make(indexExpression.getLabel().equals(FunctorConstants.IN)? indexExpression.getSubTree(0) : indexExpression);
 			Iterator<ExpressionAndContext> indexArgumentsAndContextsIterator =
 				new FunctionIterator<Expression, ExpressionAndContext>(
 						index.getArguments(),
@@ -141,7 +141,7 @@ implements ExpressionKnowledgeModule.Provider, ScopedVariables.Provider, NoOpRew
 	}
 
 	public static List<Expression> getIndexExpressions(Expression expression) {
-		return Expressions.ensureListFromKleeneList(expression.getSyntaxTree().getSubTree(0)); // does need to be sub tree
+		return Expressions.ensureListFromKleeneList(Expressions.make(expression.getSyntaxTree().getSubTree(0))); // does need to be sub tree
 	}
 
 	@Override
