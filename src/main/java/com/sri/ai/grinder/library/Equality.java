@@ -46,7 +46,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
@@ -158,7 +157,7 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 	 * Makes an equality of some expressions, returning Expressions. Returns TRUE if the expressions are identical.
 	 */
 	public static Expression make(Object... arguments) {
-		List<SyntaxTree> expressions = Expressions.wrap(arguments);
+		List<Expression> expressions = Expressions.wrap(arguments);
 		Set<Expression> uniqueExpressions = new LinkedHashSet<Expression>(expressions);
 		if (uniqueExpressions.size() < 2) {
 			return Expressions.TRUE;

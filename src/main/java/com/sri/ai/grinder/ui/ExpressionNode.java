@@ -49,11 +49,12 @@ import com.sri.ai.brewer.api.ParsingExpression;
 import com.sri.ai.brewer.api.Writer;
 import com.sri.ai.brewer.parsingexpression.core.Sequence;
 import com.sri.ai.brewer.parsingexpression.helper.AssociativeSequence;
-import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 
 /**
  * 
@@ -62,7 +63,7 @@ import com.sri.ai.expresso.helper.Expressions;
  */
 @Beta
 public class ExpressionNode implements TreeNode {
-	public static enum NodeType {TERMINAL, ARGUMENT, FUNCTOR, SYMBOL, INARGUMENT, INFUNCTOR, STRING};
+	public static enum NodeType {TERMINAL, ARGUMENT, ROOT_TREE, SYMBOL, INSUBTREE, INROOT_TREE, STRING};
 	
 	protected Object userObject;
 	protected Vector<ExpressionNode> children;
@@ -72,36 +73,36 @@ public class ExpressionNode implements TreeNode {
 	protected ExpressionNode parent;
 	protected Writer writer;
 	
-	public ExpressionNode(Expression exp, NodeType t, ExpressionNode par) {
-		this(exp);
-		parent = par;
-		if ( exp instanceof Symbol ) {
-			if ( t == NodeType.INFUNCTOR ) {
-				type = NodeType.TERMINAL;
+	public ExpressionNode(SyntaxTree syntaxTree, NodeType type, ExpressionNode parent) {
+		this(syntaxTree);
+		this.parent = parent;
+		if ( syntaxTree instanceof Symbol ) {
+			if ( type == NodeType.INROOT_TREE ) {
+				this.type = NodeType.TERMINAL;
 			} 
 			else {
-				type = NodeType.SYMBOL;
+				this.type = NodeType.SYMBOL;
 			}
 		} 
 		else {
-			type = t;
+			this.type = type;
 		}
 	}
 	
-	public ExpressionNode(Expression exp) {
+	public ExpressionNode(SyntaxTree syntaxTree) {
 		writer = TreeUtil.getWriter();
-		toolTipText = exp == null ? "": writer.toString(exp);
-		userObject = exp;
+		toolTipText = syntaxTree == null ? "": writer.toString(Expressions.make(syntaxTree));
+		userObject = syntaxTree;
 		type = null;
 		parent = null;
 	}
 	
-	public ExpressionNode(Object obj, ExpressionNode par) {
+	public ExpressionNode(Object object, ExpressionNode parent) {
 		writer = TreeUtil.getWriter();
-		type = (obj instanceof String)? NodeType.STRING: null;
-		userObject = obj;
-		parent = par;
-		toolTipText = obj == null? "" : obj.toString();
+		type = (object instanceof String)? NodeType.STRING: null;
+		userObject = object;
+		this.parent = parent;
+		toolTipText = object == null? "" : object.toString();
 	}	
 	
 	public Object getUserObject() {
@@ -218,14 +219,14 @@ public class ExpressionNode implements TreeNode {
 		return result;
 	}
 	
-	protected Vector<ExpressionNode> functionApplicationToTree(SyntaxTree expression) {
-		if (expression == null) {
+	protected Vector<ExpressionNode> functionApplicationToTree(SyntaxTree syntaxTree) {
+		if (syntaxTree == null) {
 			return null;
 		}
 		Vector<ExpressionNode> result = new Vector<ExpressionNode>();
-		SyntaxTree functor = expression.getRootTree();
-		result.add(new ExpressionNode(functor, NodeType.FUNCTOR, this));		
-		for (SyntaxTree subTree: expression.getSyntaxTree().getImmediateSubTrees()) { // does need to be sub tree
+		SyntaxTree rootTree = syntaxTree.getRootTree();
+		result.add(new ExpressionNode(rootTree, NodeType.ROOT_TREE, this));		
+		for (SyntaxTree subTree: syntaxTree.getImmediateSubTrees()) { // does need to be sub tree
 			result.add(new ExpressionNode(subTree, NodeType.ARGUMENT, this));
 		}
 		return result;
@@ -236,18 +237,18 @@ public class ExpressionNode implements TreeNode {
 		Vector<ExpressionNode> result = new Vector<ExpressionNode>();
 		int argumentIndex = 0;
 		try {
-		for (SyntaxTree subParsingExpressionAsExpression : parsingExpression.getImmediateSubTrees()) {
-			ParsingExpression subParsingExpression = (ParsingExpression) subParsingExpressionAsExpression;
+		for (SyntaxTree parsingExpressionSubTree : parsingExpression.getImmediateSubTrees()) {
+			ParsingExpression subParsingExpression = (ParsingExpression) parsingExpressionSubTree;
 
 			if (subParsingExpression.hasFunctor("terminal")) {
-				result.add(new ExpressionNode(subParsingExpression.get(0), NodeType.TERMINAL, this));
+				result.add(new ExpressionNode(parsingExpressionSubTree.getSubTree(0), NodeType.TERMINAL, this));
 			}
 			else if (subParsingExpression.hasFunctor("kleene")) {
 				SyntaxTree kleeneList = expression.getImmediateSubTrees().get(argumentIndex);
 				
-				List<Expression> aaa = Expressions.ensureListFromKleeneList(kleeneList);
-				for (Expression a: aaa) {
-					result.add(new ExpressionNode(a, NodeType.ARGUMENT, this));
+				List<SyntaxTree> listOfSubExpressions = SyntaxTrees.ensureListFromKleeneList(kleeneList);
+				for (SyntaxTree subTree: listOfSubExpressions) {
+					result.add(new ExpressionNode(subTree, NodeType.ARGUMENT, this));
 				}
 			}
 			else if (!(subParsingExpression.hasFunctor("optional") 
@@ -270,18 +271,18 @@ public class ExpressionNode implements TreeNode {
 		return result;
 	}
 	
-	protected Vector<ExpressionNode> associateSequenceToTree(AssociativeSequence parsingExpression, final SyntaxTree expression) {
+	protected Vector<ExpressionNode> associateSequenceToTree(AssociativeSequence parsingExpression, final SyntaxTree syntaTree) {
 		Vector<ExpressionNode> result = new Vector<ExpressionNode>();
-		SyntaxTree functor = expression.getRootTree();
-		List<SyntaxTree> arguments = expression.getSyntaxTree().getImmediateSubTrees(); // does need to be sub tree
+		SyntaxTree rootTree = syntaTree.getRootTree();
+		List<SyntaxTree> subTree = syntaTree.getImmediateSubTrees(); // does need to be sub tree
 		
-		if ( !arguments.isEmpty() ) {
-			result.add(new ExpressionNode(arguments.get(0), NodeType.INARGUMENT, this));
+		if ( !subTree.isEmpty() ) {
+			result.add(new ExpressionNode(subTree.get(0), NodeType.INSUBTREE, this));
 		}
 		
-		for (int i=1; i<arguments.size(); i++) {
-			result.add(new ExpressionNode(functor, NodeType.INFUNCTOR, this));
-			result.add(new ExpressionNode(arguments.get(i), NodeType.INARGUMENT, this));			
+		for (int i=1; i<subTree.size(); i++) {
+			result.add(new ExpressionNode(rootTree, NodeType.INROOT_TREE, this));
+			result.add(new ExpressionNode(subTree.get(i), NodeType.INSUBTREE, this));			
 		}
 
 		return result;

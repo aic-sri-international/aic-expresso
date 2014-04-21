@@ -50,6 +50,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.core.OrderNormalize;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryProcedure;
@@ -89,7 +90,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		}
 		else {
 			// Note: We can have nulls, therefore cannot use ImmutableList directly.
-			this.subTrees = Collections.unmodifiableList(Expressions.wrap(args));
+			this.subTrees = Collections.unmodifiableList(SyntaxTrees.wrap(args));
 		}
 	}
 
@@ -132,14 +133,15 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	}
 
 	@Override
-	public SyntaxTree setImmediateSubTree(int i, Object newIthSubTree) {
+	public SyntaxTree setImmediateSubTree(int i, Object newIthSubTreeObject) {
 		SyntaxTree newRootTree = getRootTree();
+		SyntaxTree newIthSubTree = SyntaxTrees.wrap(newIthSubTreeObject);
 		List<SyntaxTree> newSubTrees = subTrees;
 		// it is important to use field {@link #subTrees} above instead of method {@link #getSubTrees()}
 		// because we want to be able to reuse {@link #subTrees} in case the root tree is being set.
 		// If we use {@link #getSubTrees()}, we get an unmodifiable list object instead of the original arguments list.
 		if (i == -1) {
-			newRootTree = Expressions.wrap(newIthSubTree);
+			newRootTree = newIthSubTree;
 		}
 		else {
 			newSubTrees = storeSubTreeReplacement(newSubTrees, i, getSubTree(i), newIthSubTree);
@@ -376,12 +378,12 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 
 	private List<SyntaxTree> storeSubTreeReplacement(
 			List<SyntaxTree> subTreesReplacement, int i, SyntaxTree subTree,
-			Object subTreeReplacement) {
+			SyntaxTree subTreeReplacement) {
 		if (subTreeReplacement != null && subTreeReplacement != subTree)	{
 			if (subTreesReplacement == subTrees) {
 				subTreesReplacement = new LinkedList<SyntaxTree>(subTrees);
 			}
-			subTreesReplacement.set(i, Expressions.wrap(subTreeReplacement));
+			subTreesReplacement.set(i, subTreeReplacement);
 		}
 		return subTreesReplacement;
 	}
