@@ -58,7 +58,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
@@ -287,9 +286,9 @@ public class SAT4JSolver implements SATSolver {
 							if (atomI.first.equals(atomK.first)  &&
 							    atomJ.second.equals(atomK.second)   ) {
 								result.add(new Triple<Expression, Expression, Expression>(
-											DefaultSymbol.createSymbol(atomToPropVar.get(atomI)),
-											DefaultSymbol.createSymbol(atomToPropVar.get(atomJ)),
-											DefaultSymbol.createSymbol(atomToPropVar.get(atomK))
+										Expressions.createSymbol(atomToPropVar.get(atomI)),
+										Expressions.createSymbol(atomToPropVar.get(atomJ)),
+										Expressions.createSymbol(atomToPropVar.get(atomK))
 										));
 							}
 						}
@@ -323,7 +322,7 @@ public class SAT4JSolver implements SATSolver {
 		Expression result = null;
 		
 		do {
-			result = DefaultSymbol.createSymbol("C"+suffixIdx);
+			result = Expressions.createSymbol("C"+suffixIdx);
 			suffixIdx++;
 		} while (existingVariables.contains(result));
 		
@@ -391,14 +390,14 @@ public class SAT4JSolver implements SATSolver {
 			if (!done) {
 				if (convertToGate(expression)) {
 					if (And.isConjunction(expression)) {
-						for (Expression arg : expression.getArguments()) {
+						for (Expression argument : expression.getArguments()) {
 							int[] clause = new int[2];
-							clause[0] = this.nextAuxVarid*-1;
-							if (Expressions.hasFunctor(arg, GATE_FUNCTOR)) {
-								clause[1] = ((Symbol)arg.get(0)).intValue();
+							clause[0] = this.nextAuxVarid * -1;
+							if (Expressions.hasFunctor(argument, GATE_FUNCTOR)) {
+								clause[1] = argument.get(0).intValue();
 							}
 							else {
-								clause[1] = ((Symbol)arg).intValue();
+								clause[1] = argument.intValue();
 							}
 							
 							if (!sat4jCall.processClauseAndContinue(clause)) {								
@@ -410,15 +409,15 @@ public class SAT4JSolver implements SATSolver {
 					else if (Or.isDisjunction(expression)) {
 						// Or
 						int[] clause = new int[expression.numberOfArguments()+1];
-						clause[0] =  this.nextAuxVarid*-1;
+						clause[0] =  this.nextAuxVarid * -1;
 						int cIdx = 1;
-						for (Expression arg : expression.getArguments()) {
-							clause[0] = this.nextAuxVarid*-1;
-							if (Expressions.hasFunctor(arg, GATE_FUNCTOR)) {
-								clause[cIdx] = ((Symbol)arg.get(0)).intValue();
+						for (Expression argument : expression.getArguments()) {
+							clause[0] = this.nextAuxVarid * -1;
+							if (Expressions.hasFunctor(argument, GATE_FUNCTOR)) {
+								clause[cIdx] = argument.get(0).intValue();
 							}
 							else {
-								clause[cIdx] = ((Symbol)arg).intValue();
+								clause[cIdx] = argument.intValue();
 							}
 							cIdx++;
 						}
@@ -430,8 +429,8 @@ public class SAT4JSolver implements SATSolver {
 						// Not
 						int[] clause = new int[2];
 						clause[0] =  this.nextAuxVarid*-1;
-						Expression arg = expression.get(0);
-						clause[1] = ((Symbol)arg).intValue()*-1;
+						Expression argument = expression.get(0);
+						clause[1] = argument.intValue() * -1;
 						if (!sat4jCall.processClauseAndContinue(clause)) {							
 							done = true;
 						}
@@ -481,10 +480,10 @@ public class SAT4JSolver implements SATSolver {
 					atomToPropVar.put(key, propVarId);
 				}
 				if (Equality.isEquality(expression)) {
-					result = DefaultSymbol.createSymbol(propVarId);
+					result = Expressions.createSymbol(propVarId);
 				}
 				else {
-					result = Not.make(DefaultSymbol.createSymbol(propVarId));
+					result = Not.make(Expressions.createSymbol(propVarId));
 				}
 			}
 			

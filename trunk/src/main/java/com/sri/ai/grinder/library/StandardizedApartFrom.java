@@ -118,8 +118,8 @@ public class StandardizedApartFrom {
 		Predicate<Expression>  isNovel               = new NotContainedBy<Expression>(forbiddenVariables);
 		Expression result = expression;
 		for (Expression variableToBeRenamed : variablesToBeRenamed) {
-			Symbol replacement = Expressions.primedUntilUnique((Symbol) variableToBeRenamed, isNovel);
-			result = (Expression) result.getSyntaxTree().replaceSubTreesAllOccurrences(variableToBeRenamed.getSyntaxTree(), replacement);
+			Expression replacement = Expressions.primedUntilUnique((Symbol) variableToBeRenamed, isNovel);
+			result = Expressions.make(result.getSyntaxTree().replaceSubTreesAllOccurrences(variableToBeRenamed.getSyntaxTree(), replacement.getSyntaxTree()));
 			// needs to be syntax tree because the symbol needs to be replaced even where it is not a part of a sub-expression, as in index expressions.
 			// note that scoping does not matter. The semantics is not changed from "for X : for X : f(X)" to "for X' : for X' : f(X)".
 			forbiddenVariables.add(replacement); // note that this affects the isNovel predicate!
