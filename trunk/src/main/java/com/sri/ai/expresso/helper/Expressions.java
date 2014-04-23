@@ -88,13 +88,13 @@ import com.sri.ai.util.math.Rational;
 @Beta
 public class Expressions {
 	public static final Expression EMPTY_LIST      = new DefaultCompoundSyntaxTree("list");
-	public static final Expression TRUE            = DefaultSymbol.createSymbol("true");
-	public static final Expression FALSE           = DefaultSymbol.createSymbol("false");
-	public static final Expression ZERO            = DefaultSymbol.createSymbol(0);
-	public static final Expression ZERO_POINT_FIVE = DefaultSymbol.createSymbol(0.5);
-	public static final Expression ONE             = DefaultSymbol.createSymbol(1);
-	public static final Expression TWO             = DefaultSymbol.createSymbol(2);
-	public static final Expression THREEE          = DefaultSymbol.createSymbol(3);
+	public static final Expression TRUE            = Expressions.createSymbol("true");
+	public static final Expression FALSE           = Expressions.createSymbol("false");
+	public static final Expression ZERO            = Expressions.createSymbol(0);
+	public static final Expression ZERO_POINT_FIVE = Expressions.createSymbol(0.5);
+	public static final Expression ONE             = Expressions.createSymbol(1);
+	public static final Expression TWO             = Expressions.createSymbol(2);
+	public static final Expression THREE           = Expressions.createSymbol(3);
 	//
 	private static final SingletonListMaker<Integer> INTEGER_SINGLETON_LIST_MAKER = new SingletonListMaker<Integer>();
 	
@@ -210,9 +210,9 @@ public class Expressions {
 	 * returns a symbol with a minimum 0 or more instances of a given prefix 
 	 * to make it unique, according to a given predicate indicating uniqueness.
 	 */
-	public static Symbol prefixedUntilUnique(Symbol symbol, String prefix, Predicate<Expression> isUnique) {
+	public static Expression prefixedUntilUnique(Expression symbol, String prefix, Predicate<Expression> isUnique) {
 		while (! isUnique.apply(symbol)) {
-			symbol = DefaultSymbol.createSymbol(prefix + symbol);
+			symbol = Expressions.createSymbol(prefix + symbol);
 		}
 		return symbol;
 	}
@@ -341,15 +341,20 @@ public class Expressions {
 		return Util.map(Expressions.wrap(pairs).toArray());
 	}
 
+	public static Expression replaceAtPath(Expression expression, List<Integer> path, Expression subExpressions) {
+		Expression result = Expressions.make(replaceAtPath(expression.getSyntaxTree(), path, subExpressions.getSyntaxTree()));
+		return result;
+	}
+
 	/**
-	 * Given an expression, a path, and a sub-expression,
-	 * returns the expression with its path-sub-expression replaced by the given sub-expression.
-	 * The path is a list of indices indicating a path in the expression tree.
-	 * If there are no indices to be followed (path is empty), the sub-expression itself is returned.
-	 * The method assumes the path describes an existing path-sub-expression.
+	 * Given a syntax tree, a path, and a sub-syntax tree,
+	 * returns the expression with its path-sub-syntax tree replaced by the given sub-syntax tree.
+	 * The path is a list of indices indicating a path in the syntax tree.
+	 * If there are no indices to be followed (path is empty), the sub-syntax tree itself is returned.
+	 * The method assumes the path describes an existing path-sub-syntax tree.
 	 */
-	public static Expression replaceAtPath(Expression expression, List<Integer> path, Expression subExpression) {
-		return replaceAtPath(expression, path, 0, subExpression);
+	public static SyntaxTree replaceAtPath(SyntaxTree syntaxTree, List<Integer> path, SyntaxTree subTree) {
+		return replaceAtPath(syntaxTree, path, 0, subTree);
 	}
 
 	/**
@@ -360,15 +365,15 @@ public class Expressions {
 	 * If there are no indices to be followed (i is equal to the path's length), the sub-expression is returned.
 	 * The method assumes the path describes an existing path-i-sub-expression.
 	 */
-	private static Expression replaceAtPath(Expression expression, List<Integer> path, int i, Expression subExpression) {
+	private static SyntaxTree replaceAtPath(SyntaxTree syntaxTree, List<Integer> path, int i, SyntaxTree subTree) {
 		if (i != path.size()) {
 			int index = path.get(i);
-			Expression subExpressionAtI = replaceAtPath(expression.getSyntaxTree().getSubTree(index), path, i + 1, subExpression);
+			SyntaxTree subTreeAtI = replaceAtPath(syntaxTree.getSubTree(index), path, i + 1, subTree);
 			 // does need to be sub tree
-			Expression result = expression.getSyntaxTree().setImmediateSubTree(index, subExpressionAtI);
+			SyntaxTree result = syntaxTree.setImmediateSubTree(index, subTreeAtI);
 			return result;
 		}
-		return subExpression;
+		return subTree;
 	}
 
 	public static boolean isSubExpressionOf(Expression searched, Expression expression) {
@@ -613,7 +618,7 @@ public class Expressions {
 			}
 		};
 		
-		Expression result = ((SyntaxTree) expression).replaceSubTreesAllOccurrences(rounder);
+		Expression result = Expressions.make(expression.getSyntaxTree().replaceSubTreesAllOccurrences(rounder));
 		return result;
 	}
 
@@ -626,8 +631,9 @@ public class Expressions {
 	 */
 	@Deprecated
 	public  static SyntaxTree round(SyntaxTree syntaxTree, int precision) {
-		if (syntaxTree instanceof Symbol && Expressions.isNumber(syntaxTree)) {
-			Rational value = syntaxTree.rationalValue();
+		Expression expression = Expressions.make(syntaxTree);
+		if (syntaxTree instanceof Symbol && Expressions.isNumber(expression)) {
+			Rational value = expression.rationalValue();
 			String rounded = "";
 			if (value.isInteger()) {
 				rounded = value.toString();
@@ -685,7 +691,7 @@ public class Expressions {
 			return emptyList.iterator();
 		}
 	
-		Iterator<? extends Expression> subTreesIterator = expression.getSyntaxTree().getImmediateSubTreesIterator();
+		Iterator<? extends SyntaxTree> subTreesIterator = expression.getSyntaxTree().getImmediateSubTreesIterator();
 		// does need to be sub tree
 		FunctionIterator<Integer, List<Integer>> pathsIterator = Expressions.makeSingleIndexPathsIteratorFromTo(0, expression.getSyntaxTree().numberOfImmediateSubTrees());
 		
@@ -704,7 +710,7 @@ public class Expressions {
 			return emptyList.iterator();
 		}
 	
-		Iterator<? extends Expression> subTreesIterator = expression.getSyntaxTree().getImmediateSubTreesIncludingRootOneIterator();
+		Iterator<? extends SyntaxTree> subTreesIterator = expression.getSyntaxTree().getImmediateSubTreesIncludingRootOneIterator();
 		// does need to be sub tree
 		FunctionIterator<Integer, List<Integer>> pathsIterator = Expressions.makeSingleIndexPathsIterator(expression);
 		
@@ -727,12 +733,12 @@ public class Expressions {
 
 	/**
 	 * Makes an iterator of sub-expressions and their contexts built from two iterators,
-	 * one on the expression and another on their paths.
+	 * one on the sub-trees and another on their paths.
 	 * The quantified variables of the sub expressions will be the one provided as argument.
 	 */
 	public
 	static Iterator<ExpressionAndContext> makeIteratorOfSubExpressionsAndContextsFromIteratorsOnSubTreesAndPathsWithGivenQuantifiedVariables(
-			Iterator<? extends Expression> expressionsIterator, 
+			Iterator<? extends SyntaxTree> subTreesIterator, 
 			FunctionIterator<Integer, List<Integer>> pathsIterator,
 			List<Expression> indexExpressions,
 			Collection<Expression> quantifiedVariables, 
@@ -740,7 +746,7 @@ public class Expressions {
 		
 		Iterator<ExpressionAndContext> result =
 			new FunctionIterator<List<Object>, ExpressionAndContext>(
-					new ZipIterator(expressionsIterator, pathsIterator),
+					new ZipIterator(subTreesIterator, pathsIterator),
 					new DefaultExpressionAndContext.MakerFromExpressionAndPathList(indexExpressions));
 	
 		return result;
