@@ -137,7 +137,9 @@ public class GrinderTest extends AbstractGrinderTest {
 	
 	@Override
 	public RewritingProcess makeRewritingProcess(Expression topExpression) {
-		return new DefaultRewritingProcess(topExpression, new Basic());
+		RewritingProcess process = new DefaultRewritingProcess(topExpression, new Basic());
+		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(topExpression, process);
+		return process;
 	}
 
 	@Test
@@ -147,7 +149,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		Expression expected;
 
 		expression = parse("if X = 1 then 0.0003 + 0.000000000001 else 0.150004 + 0.1 + 0.776699029126213691398561");
-		rounded    = Expressions.roundToAGivenPrecision(expression, 2);
+		rounded    = Expressions.roundToAGivenPrecision(expression, 2, makeRewritingProcess(expression));
 		expected   = parse("if X = 1 then 0.0003 + 0.000000000001 else 0.15 + 0.1 + 0.78");
 		assertEquals(expected, rounded);
 	}

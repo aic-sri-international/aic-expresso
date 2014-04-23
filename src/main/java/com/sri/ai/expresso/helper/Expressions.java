@@ -103,7 +103,10 @@ public class Expressions {
 		return syntaxTree;
 	}
 
-	public static Expression makeSymbolExpression(Object object) {
+	/**
+	 * Creates an atomic expression. TODO: Name should change once cleanup of SyntaxTree/Expression is completed.
+	 */
+	public static Expression createSymbol(Object object) {
 		return make(DefaultSymbol.createSymbol(object));
 	}
 	
@@ -195,9 +198,9 @@ public class Expressions {
 	 * returns a symbol with a minimum 0 or more prime ("'") characters appended to it
 	 * to make it unique, according to a given predicate indicating uniqueness.
 	 */
-	public static Symbol primedUntilUnique(Symbol symbol, Predicate<Expression> isUnique) {
+	public static Expression primedUntilUnique(Expression symbol, Predicate<Expression> isUnique) {
 		while (! isUnique.apply(symbol)) {
-			symbol = DefaultSymbol.createSymbol(symbol + "'");
+			symbol = Expressions.createSymbol(symbol + "'");
 		}
 		return symbol;
 	}
@@ -219,10 +222,10 @@ public class Expressions {
 	 * returns a symbol with a minimum 0 or more prime ("'") characters appended to it
 	 * to make it unique in a given expression.
 	 */
-	public static Symbol primedUntilUnique(Symbol symbol, Expression expression, RewritingProcess process) {
+	public static Expression primedUntilUnique(Expression symbol, Expression expression, RewritingProcess process) {
 		LinkedHashSet<Expression> variables = Expressions.getVariables(expression, process.getIsConstantPredicate());
 		Predicate<Expression> isUnique = new NotContainedBy<Expression>(variables);
-		Symbol result = Expressions.primedUntilUnique(symbol, isUnique);
+		Expression result = Expressions.primedUntilUnique(symbol, isUnique);
 		return result;
 	}
 
@@ -240,7 +243,7 @@ public class Expressions {
 	 * @return a uniquely named variable in the context of the passed in
 	 *         expression.
 	 */
-	public static Symbol makeUniqueVariable(String variableName,
+	public static Expression makeUniqueVariable(String variableName,
 			Expression expression, RewritingProcess process) {
 		// Variables have a leading captial
 		if (variableName.length() > 0) {
@@ -254,8 +257,8 @@ public class Expressions {
 			variableName = "V";
 		}
 
-		return primedUntilUnique(DefaultSymbol.createSymbol(variableName), expression,
-				process);
+		Expression result = primedUntilUnique(Expressions.createSymbol(variableName), expression, process);
+		return result;
 	}
 	
 	/**
@@ -596,7 +599,10 @@ public class Expressions {
 	
 	/**
 	 * Replaces all numeric symbols in expressions by  a rounded value according to a precision (a number of significant digits to be kept). 
+	 * <p>
+	 * Left here as a remnant of syntax tree-based rounding for debugging purposes.
 	 */
+	@Deprecated
 	public static Expression roundToAGivenPrecision(Expression expression, final int precision) {
 		Function<SyntaxTree, SyntaxTree> rounder = new Function<SyntaxTree, SyntaxTree>() {
 			
@@ -615,7 +621,10 @@ public class Expressions {
 	 * Takes a syntax tree and, if it is numeric symbol,
 	 * replaces all numeric symbols in expressions by  a rounded value according to a precision (a number of significant digits to be kept); 
 	 * otherwise, return the symbol itself.
+	 * <p>
+	 * Left here as a remnant of syntax tree-based rounding for debugging purposes.
 	 */
+	@Deprecated
 	public  static SyntaxTree round(SyntaxTree syntaxTree, int precision) {
 		if (syntaxTree instanceof Symbol && Expressions.isNumber(syntaxTree)) {
 			Rational value = syntaxTree.rationalValue();
@@ -629,6 +638,43 @@ public class Expressions {
 			return DefaultSymbol.createSymbol(rounded);
 		}
 		return syntaxTree;
+	}
+
+	/**
+	 * Replaces all numeric symbols in expressions by  a rounded value according to a precision (a number of significant digits to be kept). 
+	 */
+	public static Expression roundToAGivenPrecision(Expression expression, final int precision, RewritingProcess process) {
+		Function<Expression, Expression> rounder = new Function<Expression, Expression>() {
+			
+			@Override
+			public Expression apply(Expression expression) {
+				Expression result = round(expression, precision);
+				return result;
+			}
+		};
+		
+		Expression result = expression.replaceAllOccurrences(rounder, process);
+		return result;
+	}
+
+	/**
+	 * Takes an expression and, if it is numeric symbol,
+	 * replaces it by a rounded value according to a precision (a number of significant digits to be kept); 
+	 * otherwise, return the expression itself.
+	 */
+	public  static Expression round(Expression expression, int precision) {
+		if (isNumber(expression)) {
+			Rational value = expression.rationalValue();
+			String rounded = "";
+			if (value.isInteger()) {
+				rounded = value.toString();
+			} 
+			else {
+				rounded = value.toStringDotRelative(precision);
+			}
+			return Expressions.createSymbol(rounded);
+		}
+		return expression;
 	}
 
 	public
