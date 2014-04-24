@@ -40,7 +40,7 @@ package com.sri.ai.grinder.library.boole;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
-import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasFunctor;
@@ -56,7 +56,7 @@ import com.sri.ai.grinder.library.FunctorConstants;
 @Beta
 public class Implication extends AbstractRewriter {
 
-	public static final Expression FUNCTOR = DefaultSymbol.createSymbol(FunctorConstants.IMPLICATION);
+	public static final Expression FUNCTOR = Expressions.createSymbol(FunctorConstants.IMPLICATION);
 	
 	public Implication() {
 		this.setReifiedTests(new HasFunctor(FUNCTOR),

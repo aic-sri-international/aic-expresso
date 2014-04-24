@@ -84,12 +84,12 @@ public class ThereExists {
 	}
 	
 	public static Expression getIndexExpression(Expression expression) {
-		Expression result = expression.getSyntaxTree().getSubTree(0);
+		Expression result = Expressions.make(expression.getSyntaxTree().getSubTree(0));
 		return result;
 	}
 	
 	public static Expression getBody(Expression expression) {
-		Expression result = expression.getSyntaxTree().getSubTree(1);
+		Expression result = Expressions.make(expression.getSyntaxTree().getSubTree(1));
 		return result;
 	}
 }
