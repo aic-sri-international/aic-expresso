@@ -48,6 +48,7 @@ import com.sri.ai.brewer.api.ParsingProcess;
 import com.sri.ai.brewer.core.DefaultParsingResult;
 import com.sri.ai.brewer.core.ParsingResult;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.Util;
 
 /**
@@ -85,7 +86,7 @@ public class Symbol extends AbstractParsingExpression {
 
 			if (DefaultParsingResult.isSuccessful(result)) { // if this is a quoted term
 				// return Symbol named by that term
-				return new DefaultParsingResult(this, result.getTokens(), DefaultSymbol.createSymbol(result.getParse().getSyntaxTree().getSubTree(0)), result.tokenPositionLimitInfluencedResult());
+				return new DefaultParsingResult(this, result.getTokens(), Expressions.createSymbol(result.getParse().getSyntaxTree().getSubTree(0)), result.tokenPositionLimitInfluencedResult());
 			}
 		}
 
@@ -94,7 +95,7 @@ public class Symbol extends AbstractParsingExpression {
 		}
 		String token = process.nextTokenAccordingToCurrentConditions();
 		if ( ! exceptions.contains(token)) {
-			return new DefaultParsingResult(this, Lists.newArrayList(token), DefaultSymbol.createSymbol(token), false);
+			return new DefaultParsingResult(this, Lists.newArrayList(token), Expressions.createSymbol(token), false);
 		}
 		process.putBack(token);
 		return DefaultParsingResult.makeFailedParsingResult(false /* limit did not influence result */);

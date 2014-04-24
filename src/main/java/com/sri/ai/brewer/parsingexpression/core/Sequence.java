@@ -364,12 +364,12 @@ public class Sequence extends AbstractParsingExpression implements BasicParsingE
 		
 		String rootTreeName = getRootTreeName();
 		
-		SyntaxTree parse;
+		Expression parse;
 		if (subTrees.size() != 0) {
 			parse = new DefaultCompoundSyntaxTree(rootTreeName, subTrees.toArray());
 		}
 		else {
-			parse = DefaultSymbol.createSymbol(rootTreeName);
+			parse = Expressions.createSymbol(rootTreeName);
 		}
 		
 		return new DefaultParsingResult(this, tokens(results), parse, tokenPositionLimitInfluencedResult);
@@ -471,7 +471,7 @@ public class Sequence extends AbstractParsingExpression implements BasicParsingE
 			else {
 				SyntaxTree syntaxTree = expression.getSyntaxTree();
 				if (subParsingExpression.hasFunctor("kleene")) {
-					Expression kleeneList = syntaxTree.getSubTree(subTreeIndex);
+					Expression kleeneList = Expressions.make(syntaxTree.getSubTree(subTreeIndex));
 					Iterator<String> listElementsRepresentationIterator =
 						new FunctionIterator(
 								Expressions.ensureListFromKleeneList(kleeneList),

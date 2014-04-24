@@ -117,7 +117,7 @@ MutuallyExclusiveCoDomainsModule.Provider {
 			// It is part of what needs to be cleaned up regarding the whole representation of expressions.
 		}
 		else {
-			elements = Expressions.ensureListFromKleeneList(expression.getSyntaxTree().getSubTree(0));
+			elements = Expressions.ensureListFromKleeneList(Expressions.make(expression.getSyntaxTree().getSubTree(0)));
 		}
 		return elements;
 	}
@@ -176,7 +176,7 @@ MutuallyExclusiveCoDomainsModule.Provider {
 		if ( ! isTuple(expression)) {
 			return null;
 		}
-		Expression token = DefaultSymbol.createSymbol("tuple/" + size(expression));
+		Expression token = Expressions.createSymbol("tuple/" + size(expression));
 		return token;
 	}
 
