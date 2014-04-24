@@ -114,8 +114,7 @@ public class SubSyntaxTreeAndPathDepthFirstIterator extends DepthFirstIterator<P
 		}
 	}
 	
-	private static FunctionIterator<Integer, List<Integer>> makeSingleIndexPathsIterator(Expression expression) {
-		SyntaxTree syntaxTree = expression.getSyntaxTree();
+	private static FunctionIterator<Integer, List<Integer>> makeSingleIndexPathsIterator(SyntaxTree syntaxTree) {
 		return new FunctionIterator<Integer, List<Integer>>(
 				new IntegerIterator(
 						FunctionApplicationProvider.INDEX_OF_FUNCTOR_IN_FUNCTION_APPLICATIONS,

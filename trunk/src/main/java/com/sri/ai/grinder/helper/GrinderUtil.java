@@ -50,7 +50,6 @@ import com.google.common.base.Throwables;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
@@ -673,14 +672,14 @@ public class GrinderUtil {
 		for (Map.Entry<Expression, Expression> extendingContextualVariableAndDomain : extendingContextualVariablesAndDomains.entrySet()) {
 			Expression extendingContextualVariable = extendingContextualVariableAndDomain.getKey();
 			if (process.getContextualVariables().contains(extendingContextualVariable)) {
-				process = shadowContextualVariable((Symbol) extendingContextualVariable, process);
+				process = shadowContextualVariable(extendingContextualVariable, process);
 			}
 		}
 		return process;
 	}
 
 	/** Replaces all occurrences of contextualVariable in process' contextual variables and constraint. */
-	private static RewritingProcess shadowContextualVariable(Symbol contextualVariable, RewritingProcess process) {
+	private static RewritingProcess shadowContextualVariable(Expression contextualVariable, RewritingProcess process) {
 		// determines new unique name for contextualVariable -- important: needs to start with capital letter to keep being recognized as a variable, not a constant!
 		Expression newContextualVariable = Expressions.prefixedUntilUnique(contextualVariable, "Shadowed ", new NotContainedBy<Expression>(process.getContextualVariables()));
 		
@@ -694,7 +693,9 @@ public class GrinderUtil {
 			Expression domain = someContextualVariableAndDomain.getValue();
 			if (domain != null) {
 				Expression someContextualVariable = someContextualVariableAndDomain.getKey();
-				Expression newDomain = domain.getSyntaxTree().replaceSubTreesAllOccurrences((SyntaxTree) contextualVariable, newContextualVariable.getSyntaxTree());
+				Expression newDomain =
+						Expressions.make(
+								domain.getSyntaxTree().replaceSubTreesAllOccurrences(contextualVariable.getSyntaxTree(),newContextualVariable.getSyntaxTree()));
 				if (newDomain != domain) {
 					newContextualVariablesAndDomains.put(someContextualVariable, newDomain);
 				}
@@ -707,8 +708,9 @@ public class GrinderUtil {
 		
 		// replaces contextualVariable in the constraint
 		Expression newContextualConstraint =
-				process.getContextualConstraint().getSyntaxTree().replaceSubTreesAllOccurrences(
-						(SyntaxTree) contextualVariable, newContextualVariable.getSyntaxTree());
+				Expressions.make(
+						process.getContextualConstraint().getSyntaxTree().replaceSubTreesAllOccurrences(
+								contextualVariable.getSyntaxTree(), newContextualVariable.getSyntaxTree()));
 		
 		// assembles new process
 		RewritingProcess newProcess = process.newSubProcessWithContext(newContextualVariablesAndDomains, newContextualConstraint);

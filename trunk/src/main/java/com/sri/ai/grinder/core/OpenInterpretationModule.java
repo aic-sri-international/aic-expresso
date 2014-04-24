@@ -42,9 +42,8 @@ import java.util.Iterator;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.AbstractModuleNoOpRewriter;
-import com.sri.ai.expresso.helper.SubSyntaxTreesOfSubExpressionsDepthFirstIterator;
+import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.Module;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.util.Util;
@@ -108,12 +107,12 @@ public class OpenInterpretationModule extends AbstractModuleNoOpRewriter {
 	}
 
 	public boolean hasSubExpressionWithOpenInterpretationWithRespectTo(Expression expression, Expression anotherExpression, RewritingProcess process) {
-		Iterator<SyntaxTree> iterator = new SubSyntaxTreesOfSubExpressionsDepthFirstIterator(expression);
+		Iterator<Expression> iterator = new SubExpressionsDepthFirstIterator(expression);
 		boolean result = Util.thereExists(iterator, new IsOpenInterpretationExpression(anotherExpression, process));
 		return result;
 	}
 
-	public class IsOpenInterpretationExpression implements Predicate<SyntaxTree> {
+	public class IsOpenInterpretationExpression implements Predicate<Expression> {
 
 		private Expression variable;
 		private RewritingProcess process;
@@ -124,7 +123,7 @@ public class OpenInterpretationModule extends AbstractModuleNoOpRewriter {
 		}
 
 		@Override
-		public boolean apply(SyntaxTree expression) {
+		public boolean apply(Expression expression) {
 			boolean result = isOpenInterpretationExpressionWithRespectTo(expression, variable, process);
 			return result;
 		}

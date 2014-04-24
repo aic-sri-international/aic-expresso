@@ -39,7 +39,7 @@ package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasFunctor;
@@ -130,10 +130,9 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 			// In order to access their "argument", we must use their syntax tree.
 			if (cardinalityArgument.hasFunctor(FUNCTOR_TYPE)
 					&& cardinalityArgument.getSyntaxTree().numberOfImmediateSubTrees() == 1
-					&& process.isVariable(cardinalityArgument.getSyntaxTree()
-							.getImmediateSubTrees().get(0))) {
+					&& process.isVariable(Expressions.make(cardinalityArgument.getSyntaxTree().getImmediateSubTrees().get(0)))) {
 				
-				logicalVariable = cardinalityArgument.getSyntaxTree().getImmediateSubTrees().get(0);
+				logicalVariable = Expressions.make(cardinalityArgument.getSyntaxTree().getImmediateSubTrees().get(0));
 			}
 		}
 		
@@ -143,7 +142,7 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 			if (domainSizeOfLogicalVariable != null) {
 				Integer size = domainSizeOfLogicalVariable.size(logicalVariable, process);
 				if (size != null) {
-					result = DefaultSymbol.createSymbol(size);
+					result = Expressions.createSymbol(size);
 				}
 			}
 		} 
