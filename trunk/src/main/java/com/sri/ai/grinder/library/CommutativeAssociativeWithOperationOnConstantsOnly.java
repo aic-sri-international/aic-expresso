@@ -42,8 +42,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.GetValue;
 import com.sri.ai.util.Util;
 
@@ -60,14 +59,14 @@ public abstract class CommutativeAssociativeWithOperationOnConstantsOnly extends
 	public Expression operationOnOperables(LinkedList<Expression> operableArguments) {
 		List<Object> operableArgumentValues = Util.mapIntoList(operableArguments.iterator(), GetValue.INSTANCE);
 		Object resultOnOperableArguments = operationOnOperableValues(operableArgumentValues);
-		Symbol resultOnOperableArgumentsExpression = DefaultSymbol.createSymbol(resultOnOperableArguments);
+		Expression resultOnOperableArgumentsExpression = Expressions.createSymbol(resultOnOperableArguments);
 		return resultOnOperableArgumentsExpression;
 	}
 
 	public Expression operationOnExpressionOperables(LinkedList<Expression> operableArguments) {
 		List<Object> operableArgumentValues = Util.mapIntoList(operableArguments.iterator(), GetValue.INSTANCE);
 		Object resultOnOperableArguments = operationOnOperableValues(operableArgumentValues);
-		Symbol result = DefaultSymbol.createSymbol(resultOnOperableArguments);
+		Expression result = Expressions.createSymbol(resultOnOperableArguments);
 		return result;
 	}
 }

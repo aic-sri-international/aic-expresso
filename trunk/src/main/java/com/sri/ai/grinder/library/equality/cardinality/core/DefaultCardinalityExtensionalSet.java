@@ -42,7 +42,6 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
@@ -101,7 +100,7 @@ public class DefaultCardinalityExtensionalSet extends AbstractHierarchicalRewrit
 	private Expression rewriteInternalGeneral(Expression expression, RewritingProcess process) {
 		Expression result = null;
 		if (Sets.isExtensionalMultiSet(expression) ) {
-			result = DefaultSymbol.createSymbol(ExtensionalSet.getElements(expression).size());
+			result = Expressions.createSymbol(ExtensionalSet.getElements(expression).size());
 		} 
 		else if ( Sets.isExtensionalUniSet(expression) ) {
 			List<Expression> elements = new ArrayList<Expression>();
@@ -116,7 +115,7 @@ public class DefaultCardinalityExtensionalSet extends AbstractHierarchicalRewrit
 				}
 			}
 			if ( elements.size() < 2 ) {
-				return DefaultSymbol.createSymbol(elements.size());
+				return Expressions.createSymbol(elements.size());
 			} 
 			else {
 				Expression first = elements.get(0);

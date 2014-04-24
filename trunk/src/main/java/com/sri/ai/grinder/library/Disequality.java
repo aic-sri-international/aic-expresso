@@ -42,7 +42,6 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.HasFunctor;
@@ -60,7 +59,7 @@ import com.sri.ai.util.base.BinaryFunction;
 @Beta
 public class Disequality extends AbstractRewriterDefiningSymmetricFunction {
 
-	public  static final Expression FUNCTOR = DefaultSymbol.createSymbol(FunctorConstants.INEQUALITY);
+	public  static final Expression FUNCTOR = Expressions.createSymbol(FunctorConstants.INEQUALITY);
 	//
 	public Disequality() {
 		this.setReifiedTests(new HasFunctor(FUNCTOR),
@@ -75,7 +74,7 @@ public class Disequality extends AbstractRewriterDefiningSymmetricFunction {
 			Symbol equalsResult = (Symbol) equals.getSyntaxTree();
 			Boolean booleanObject = (Boolean) equalsResult.getValue();
 			boolean booleanValue = booleanObject.booleanValue();
-			return DefaultSymbol.createSymbol(!booleanValue);
+			return Expressions.createSymbol(!booleanValue);
 		}
 		
 		return expression;

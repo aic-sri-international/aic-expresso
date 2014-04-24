@@ -47,7 +47,6 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.HasFunctor;
@@ -66,7 +65,7 @@ import com.sri.ai.util.base.Pair;
 @Beta
 public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 
-	public static final Expression FUNCTOR = DefaultSymbol.createSymbol("=");
+	public static final Expression FUNCTOR = Expressions.createSymbol("=");
 	
 	public Equality() {
 		this.setReifiedTests(new HasFunctor(FUNCTOR));
@@ -86,7 +85,7 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 	public static Expression equalityResultIfItIsKnown(Expression expression, RewritingProcess process) {
 		Boolean equalityResult = equalityResultIfItIsKnownOrNull(expression, process.getIsConstantPredicate(), process);
 		if (equalityResult != null) {
-			return DefaultSymbol.createSymbol(equalityResult);
+			return Expressions.createSymbol(equalityResult);
 		}
 		return expression;
 	}

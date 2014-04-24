@@ -39,7 +39,6 @@ package com.sri.ai.grinder.library.number;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -86,7 +85,7 @@ public class Division extends AbstractRewriter {
 
 			Rational quotient = Util.divisionWithArbitraryPrecisionIfPossible(numerator, denominator);
 			if (quotient != null) {
-				return DefaultSymbol.createSymbol(quotient);
+				return Expressions.createSymbol(quotient);
 			}
 		}
 
