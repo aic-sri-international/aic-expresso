@@ -46,7 +46,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
@@ -95,7 +94,7 @@ public class BooleanUtil {
 					return newArguments.get(0);
 				} 
 				else {
-					return DefaultCompoundSyntaxTree.make(functor, newArguments);
+					return Expressions.make(functor, newArguments);
 				}
 			} 
 			else if ( functor.equals(Not.FUNCTOR) ) {

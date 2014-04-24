@@ -37,6 +37,7 @@
  */
 package com.sri.ai.expresso.core;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -113,12 +114,11 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	 * This is a more efficient constructor than {@link #DefaultCompoundSyntaxTree(Object, Object...)}
 	 * and offers the possibility of using an already existing list.
 	 */
-	@SuppressWarnings("unchecked")
-	public static DefaultCompoundSyntaxTree make(Object functor, List<? extends Expression> subTrees) {
+	public static DefaultCompoundSyntaxTree make(Object functor, List<? extends SyntaxTree> subTrees) {
 		DefaultCompoundSyntaxTree result = new DefaultCompoundSyntaxTree();
 		result.valueOrRootSyntaxTree    = Expressions.wrap(functor);
 		// Note: We can have nulls, therefore cannot use ImmutableList directly.
-		result.subTrees = Collections.unmodifiableList((List) Util.mapIntoList(subTrees, Expression.GET_SYNTAX_TREE));
+		result.subTrees = Collections.unmodifiableList(new ArrayList<SyntaxTree>(subTrees));
 		return result;
 	}
 
@@ -155,7 +155,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	
 	@Override
 	public String getStringForComparisonPurposes() {
-		Expression orderNormalized;
+		SyntaxTree orderNormalized;
 
 		if ( ! useOrderNormalization) {
 			orderNormalized = this;
@@ -170,7 +170,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	}
 
 	public int hashCode() {
-		Expression orderNormalized;
+		SyntaxTree orderNormalized;
 
 		if ( ! useOrderNormalization) {
 			orderNormalized = this;
@@ -292,7 +292,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 			if (syntaxTree == null) {
 				return "null";
 			}
-			return syntaxTree.getSyntaxTree().defaultToString();
+			return syntaxTree.defaultToString();
 		}
 	}
 
@@ -389,12 +389,12 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	}
 
 	/**
-	 * The following needs to be private because it relies on whether the given argumentsReplacement
-	 * is the same object as arguments, which is private (getArguments() provides an unmodifiable version of it.
+	 * The following needs to be private because it relies on whether the given subTreesReplacement
+	 * is the same object as subTrees, which is private (getImmediateSubTrees() provides an unmodifiable version of it).
 	 */
 	private SyntaxTree makeReplacementIfAny(Object rootTreeReplacement, List<SyntaxTree> subTreesReplacement) {
 		if (rootTreeReplacement != getRootTree() || subTreesReplacement != subTrees) {
-			return make(Expressions.wrap(rootTreeReplacement), subTreesReplacement);
+			return make(SyntaxTrees.wrap(rootTreeReplacement), subTreesReplacement);
 		}
 		return this;
 	}

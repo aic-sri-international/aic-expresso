@@ -148,7 +148,7 @@ public class Expressions {
 		if (list.size() == 1) {
 			return list.get(0);
 		}
-		return DefaultCompoundSyntaxTree.make("kleene list", list);
+		return Expressions.make("kleene list", list);
 	}
 
 	/**
@@ -189,7 +189,7 @@ public class Expressions {
 		}
 		
 		if (change) {
-			return DefaultCompoundSyntaxTree.make(functor, resultArguments);
+			return Expressions.make(functor, resultArguments);
 		}
 		
 		return expression;
@@ -401,7 +401,7 @@ public class Expressions {
 	public static Expression addExpressionToArgumentsOfFunctionApplication(Expression expression, Object newArgument) {
 		ArrayList<Expression> newArguments = new ArrayList<Expression>(expression.getArguments());
 		newArguments.add(wrap(newArgument));
-		return DefaultCompoundSyntaxTree.make(expression.getFunctor(), newArguments);
+		return Expressions.make(expression.getFunctor(), newArguments);
 	}
 
 	public static Expression make(Object functor, Object... arguments) {
@@ -414,15 +414,15 @@ public class Expressions {
 			}
 		}
 	
-		List<Expression> argumentExpressions = new LinkedList<Expression>();
+		List<SyntaxTree> subTrees = new LinkedList<SyntaxTree>();
 		Iterator<Object> argumentIterator = Arrays.asList(arguments).iterator();
 		while (argumentIterator.hasNext()) {
 			Object object = argumentIterator.next();
-			Expression argument = wrap(object);
-			argumentExpressions.add(argument);
+			SyntaxTree subTree = SyntaxTrees.wrap(object);
+			subTrees.add(subTree);
 		}
-		Expression functorExpression = wrap(functor);
-		Expression result = DefaultCompoundSyntaxTree.make(functorExpression, argumentExpressions);
+		SyntaxTree rootTree = SyntaxTrees.wrap(functor);
+		Expression result = Expressions.make(DefaultCompoundSyntaxTree.make(rootTree, subTrees));
 		return result;
 	}
 

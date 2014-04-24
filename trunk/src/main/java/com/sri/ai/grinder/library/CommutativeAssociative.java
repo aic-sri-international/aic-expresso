@@ -195,7 +195,7 @@ public abstract class CommutativeAssociative extends AbstractRewriterDefiningSym
 		if (arguments.size() == 1) {
 			return arguments.get(0);
 		}
-		return DefaultCompoundSyntaxTree.make(Expressions.wrap(functor), arguments);
+		return Expressions.make(Expressions.wrap(functor), arguments);
 	}
 
 	/**
