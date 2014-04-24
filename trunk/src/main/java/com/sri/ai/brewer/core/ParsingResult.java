@@ -42,7 +42,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.brewer.api.ParsingExpression;
 import com.sri.ai.brewer.api.ParsingProcess;
-import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.api.Expression;
 
 /**
  * A Parsing result.
@@ -60,9 +60,9 @@ public interface ParsingResult {
 	
 	public ParsingExpression getParsingExpression();
 
-	public SyntaxTree getParse();
+	public Expression getParse();
 
-	public void setParse(SyntaxTree newParse);
+	public void setParse(Expression expression);
 
 	public List<String> getTokens();
 

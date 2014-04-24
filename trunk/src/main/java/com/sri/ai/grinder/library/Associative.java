@@ -81,7 +81,7 @@ public class Associative extends AbstractRewriter {
 			Predicate<Expression> alwaysTrue = Predicates.alwaysTrue();
 			Expression result = Expressions
 					.associateWhenSureOperatorIsAssociative(
-							expression.getSyntaxTree(), alwaysTrue);
+							expression, alwaysTrue);
 			return result;
 		}
 		return expression;

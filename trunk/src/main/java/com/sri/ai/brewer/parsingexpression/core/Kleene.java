@@ -152,7 +152,7 @@ public class Kleene extends AbstractParsingExpression {
 		LinkedList<SyntaxTree> subTrees = new LinkedList<SyntaxTree>();
 		for (ParsingResult result : results) {
 			if (result.getParsingExpression() != get(1)) {
-				subTrees.add(result.getParse());
+				subTrees.add(result.getParse() == null? null : result.getParse().getSyntaxTree());
 			}
 		}
 		if (minimumNumberOfElements != -1 && subTrees.size() < minimumNumberOfElements) {
@@ -166,7 +166,7 @@ public class Kleene extends AbstractParsingExpression {
 	}
 
 	private boolean firstResultIsKleeneListItself(List<ParsingResult> results) {
-		return results.get(0).getParse() != null && Util.equals(results.get(0).getParse().getRootTree(), "kleene list");
+		return results.get(0).getParse() != null && Util.equals(results.get(0).getParse().getSyntaxTree().getRootTree(), "kleene list");
 	}
 
 	@Override

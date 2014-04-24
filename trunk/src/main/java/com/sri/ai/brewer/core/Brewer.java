@@ -43,7 +43,6 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.brewer.api.Grammar;
 import com.sri.ai.brewer.api.ParsingProcess;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultSymbol;
 
@@ -62,7 +61,7 @@ public class Brewer {
 	
 	public static Expression parse(String string, Grammar grammar, String initialNonTerminal) {
 		ParsingResult parsingResult = parsingResult(string, grammar, initialNonTerminal);
-		SyntaxTree result = DefaultParsingResult.isSuccessful(parsingResult)? parsingResult.getParse() : null;
+		Expression result = DefaultParsingResult.isSuccessful(parsingResult)? parsingResult.getParse() : null;
 		return result;
 	}
 	
@@ -73,7 +72,7 @@ public class Brewer {
 
 	public static Expression parseWholeStream(String string, Grammar grammar, String initialNonTerminal) {
 		ParsingResult parsingResult = parsingResultWholeStream(string, grammar, initialNonTerminal);
-		SyntaxTree result = DefaultParsingResult.isSuccessful(parsingResult)? parsingResult.getParse() : null;
+		Expression result = DefaultParsingResult.isSuccessful(parsingResult)? parsingResult.getParse() : null;
 		return result;
 	}
 	

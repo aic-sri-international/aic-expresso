@@ -85,7 +85,7 @@ public class Symbol extends AbstractParsingExpression {
 
 			if (DefaultParsingResult.isSuccessful(result)) { // if this is a quoted term
 				// return Symbol named by that term
-				return new DefaultParsingResult(this, result.getTokens(), DefaultSymbol.createSymbol(result.getParse().getSubTree(0)), result.tokenPositionLimitInfluencedResult());
+				return new DefaultParsingResult(this, result.getTokens(), DefaultSymbol.createSymbol(result.getParse().getSyntaxTree().getSubTree(0)), result.tokenPositionLimitInfluencedResult());
 			}
 		}
 

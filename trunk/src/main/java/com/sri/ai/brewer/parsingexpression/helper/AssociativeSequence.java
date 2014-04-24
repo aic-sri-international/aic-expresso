@@ -67,9 +67,9 @@ public class AssociativeSequence extends Sequence {
 	}
 
 	@Override
-	protected SyntaxTree postProcessParse(SyntaxTree parse) {
+	protected Expression postProcessParse(Expression parse) {
 		if (parse.numberOfArguments() > 0) {
-			return Expressions.associateWhenSureOperatorIsAssociative(parse).getSyntaxTree();
+			return Expressions.associateWhenSureOperatorIsAssociative(parse);
 		}
 		return parse;
 	}
@@ -89,7 +89,7 @@ public class AssociativeSequence extends Sequence {
 		String separator = " ";
 		final SyntaxTree syntaxTree = DefaultWriter.getSyntaxTreeOrNullIfNull(expression);
 		SyntaxTree rootTree = syntaxTree.getRootTree();
-		String rootTreeString = writer.toString(rootTree);
+		String rootTreeString = writer.toString(Expressions.make(rootTree));
 		
 		if (rootTree.numberOfImmediateSubTrees() > 0) {
 			rootTreeString = "(" + rootTreeString + ")";

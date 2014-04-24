@@ -72,7 +72,7 @@ public class ParenthesizedNonTerminal extends AbstractParsingExpression {
 		ParsingResult result = intermediate.parsingResult(process);
 		
 		if (DefaultParsingResult.isSuccessful(result)) {
-			return new DefaultParsingResult(this, result.getTokens(), result.getParse().getSubTree(0), result.tokenPositionLimitInfluencedResult());
+			return new DefaultParsingResult(this, result.getTokens(), result.getParse().getSyntaxTree().getSubTree(0), result.tokenPositionLimitInfluencedResult());
 		}
 		
 		return DefaultParsingResult.makeFailedParsingResult(result.tokenPositionLimitInfluencedResult());

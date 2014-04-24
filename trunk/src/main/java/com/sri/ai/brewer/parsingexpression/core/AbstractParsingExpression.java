@@ -53,7 +53,6 @@ import com.sri.ai.brewer.core.DefaultParsingResult;
 import com.sri.ai.brewer.core.ParserFlags;
 import com.sri.ai.brewer.core.ParsingResult;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.util.Util;
 
@@ -199,7 +198,7 @@ public abstract class AbstractParsingExpression extends DefaultCompoundSyntaxTre
 	 * A method for post-processing parsing result's parse.
 	 * The default behavior is to do nothing.
 	 */
-	protected SyntaxTree postProcessParse(SyntaxTree parse) {
+	protected Expression postProcessParse(Expression parse) {
 		return parse;
 	}
 

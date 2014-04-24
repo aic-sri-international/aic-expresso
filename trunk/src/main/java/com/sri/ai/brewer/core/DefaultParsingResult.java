@@ -44,7 +44,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.brewer.api.ParsingExpression;
 import com.sri.ai.brewer.api.ParsingProcess;
-import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.api.Expression;
 
 /**
  * The result of parsing, containing the corresponding parsing expression, the
@@ -55,7 +55,7 @@ import com.sri.ai.expresso.api.SyntaxTree;
 @Beta
 public class DefaultParsingResult implements ParsingResult {
 	private ParsingExpression parsingExpression;
-	private SyntaxTree parse;
+	private Expression parse;
 	private List<String> tokens;
 	private boolean isSuccessful;
 	
@@ -63,10 +63,10 @@ public class DefaultParsingResult implements ParsingResult {
 	private boolean tokenPositionLimitInfluencedResult;
 
 	/** Constructs a successful parsing result. */
-	public DefaultParsingResult(ParsingExpression parsingExpression, Collection<String> tokens, SyntaxTree parse, boolean tokenPositionLimitInfluencedResult) {
+	public DefaultParsingResult(ParsingExpression parsingExpression, Collection<String> tokens, Expression expression, boolean tokenPositionLimitInfluencedResult) {
 		this.parsingExpression = parsingExpression;
 		this.tokens = new ArrayList<String>(tokens);
-		this.parse = parse;
+		this.parse = expression;
 		this.isSuccessful = true;
 		this.tokenPositionLimitInfluencedResult = tokenPositionLimitInfluencedResult;
 	}
@@ -81,12 +81,12 @@ public class DefaultParsingResult implements ParsingResult {
 		return parsingExpression;
 	}
 
-	public SyntaxTree getParse() {
+	public Expression getParse() {
 		return parse;
 	}
 
 	@Override
-	public void setParse(SyntaxTree newParse) {
+	public void setParse(Expression newParse) {
 		parse = newParse;
 	}
 
