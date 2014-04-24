@@ -45,7 +45,6 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
@@ -107,7 +106,7 @@ public class CardinalityExtensionalSet extends AbstractHierarchicalRewriter impl
 				// Is a set of constants just return their size
 				Trace.log("if all constant elements");
 				Trace.log("    return number of constants");
-				result = DefaultSymbol.createSymbol(constantElements.size());
+				result = Expressions.createSymbol(constantElements.size());
 			} 
 			else {
 				Trace.log("N <- R_cardExtensionalSet( | {t2,...,tk} | ) ");
@@ -169,7 +168,7 @@ public class CardinalityExtensionalSet extends AbstractHierarchicalRewriter impl
 
 		if (countingSolution instanceof Symbol) {
 			Number value = (Number) ((Symbol) countingSolution).getValue();
-			result = DefaultSymbol.createSymbol(value.intValue() + 1);
+			result = Expressions.createSymbol(value.intValue() + 1);
 		}
 		else { // counting solution is an if then else
 			Expression condition = IfThenElse.getCondition(countingSolution);

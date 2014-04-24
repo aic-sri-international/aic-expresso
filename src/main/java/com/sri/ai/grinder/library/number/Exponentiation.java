@@ -39,8 +39,6 @@ package com.sri.ai.grinder.library.number;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -60,8 +58,8 @@ public class Exponentiation extends AbstractRewriter {
 	
 	private int      maxAbsExponentSizeBeforeLoosePrecision = Math.min(Math.abs(Double.MAX_EXPONENT), Math.abs(Double.MIN_EXPONENT));
 	private Rational nonZeroMinAbsValue                     = new Rational(1).divide(new Rational(10).pow(324)); // Note: 324 is based on # digits in numerator of Double.MIN_VALUE
-	private Symbol   nonZeroMinPosSymbol                    = DefaultSymbol.createSymbol(nonZeroMinAbsValue);
-	private Symbol   nonZeroMinNegSymbol                    = DefaultSymbol.createSymbol(nonZeroMinAbsValue.negate());
+	private Expression   nonZeroMinPosSymbol                = Expressions.createSymbol(nonZeroMinAbsValue);
+	private Expression   nonZeroMinNegSymbol                = Expressions.createSymbol(nonZeroMinAbsValue.negate());
 	
 	// Note: Experimental Code for determining precision bounds.
 	public static void main(String[] args) {
@@ -132,10 +130,10 @@ public class Exponentiation extends AbstractRewriter {
 						result = nonZeroMinPosSymbol;
 					}
 					else if (newValue == Double.POSITIVE_INFINITY) {
-						result = DefaultSymbol.createSymbol(Double.MAX_VALUE);
+						result = Expressions.createSymbol(Double.MAX_VALUE);
 					}
 					else if (newValue == Double.NEGATIVE_INFINITY) {
-						result = DefaultSymbol.createSymbol(Double.MAX_VALUE * -1);
+						result = Expressions.createSymbol(Double.MAX_VALUE * -1);
 					}
 					else {
 						result = boundPrecision(new Rational(newValue));
@@ -155,7 +153,7 @@ public class Exponentiation extends AbstractRewriter {
 		if (ratValue.isZero()) {
 			result = Expressions.ZERO;
 		} else if (ratValueAbs.max(nonZeroMinAbsValue) == ratValueAbs) {
-			result = DefaultSymbol.createSymbol(ratValue);
+			result = Expressions.createSymbol(ratValue);
 		}
 		else {
 			if (ratValue.isPositive()) {

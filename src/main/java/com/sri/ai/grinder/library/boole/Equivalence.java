@@ -38,11 +38,11 @@
 package com.sri.ai.grinder.library.boole;
 
 import com.google.common.annotations.Beta;
+
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.AbstractSyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
-import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
@@ -58,7 +58,7 @@ import com.sri.ai.grinder.library.function.AbstractRewriterDefiningSymmetricFunc
 @Beta
 public class Equivalence extends AbstractRewriterDefiningSymmetricFunction {
 
-	public final static Symbol FUNCTOR = DefaultSymbol.createSymbol(FunctorConstants.EQUIVALENCE);
+	public final static Expression FUNCTOR = Expressions.createSymbol(FunctorConstants.EQUIVALENCE);
 	
 	public Equivalence() {
 		this.setReifiedTests(new HasFunctor(FUNCTOR),

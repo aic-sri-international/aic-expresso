@@ -48,7 +48,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
@@ -87,7 +86,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	public Expression visitExpressionSymbol(
 			AntlrGrinderParser.ExpressionSymbolContext ctx) {
 		Expression expr   = visit(ctx.expr());
-		Expression result = DefaultSymbol.createSymbol(expr);
+		Expression result = Expressions.createSymbol(expr);
 		return result;
 	}
 	
@@ -370,7 +369,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 
 		text = new String(text);
 
-		Expression result = DefaultSymbol.createSymbol(text);
+		Expression result = Expressions.createSymbol(text);
 		return result;
 	}
 	
