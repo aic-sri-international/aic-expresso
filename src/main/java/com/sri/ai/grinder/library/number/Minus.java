@@ -39,7 +39,6 @@ package com.sri.ai.grinder.library.number;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -74,7 +73,7 @@ public class Minus extends AbstractRewriter {
 			Rational firstValue = first.rationalValue();
 			if (Expressions.isNumber(second)) {
 				Rational secondValue = second.rationalValue();
-				result = DefaultSymbol.createSymbol(firstValue.subtract(secondValue));
+				result = Expressions.createSymbol(firstValue.subtract(secondValue));
 			} 
 			else if (firstValue.isZero()) {
 				result = Expressions.apply("-", second);

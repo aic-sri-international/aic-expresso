@@ -66,6 +66,7 @@ import com.sri.ai.util.base.BinaryProcedure;
  */
 @Beta
 public interface SyntaxTree extends Expression {
+//	public interface SyntaxTree {
 
 	Object getValue();
 	

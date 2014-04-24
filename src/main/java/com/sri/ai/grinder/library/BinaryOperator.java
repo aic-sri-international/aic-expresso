@@ -41,8 +41,8 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 
@@ -68,7 +68,7 @@ public abstract class BinaryOperator extends AbstractRewriter {
 		if (functors.contains(functor) &&
 				ExpressionIsSymbolOfType.apply(expression.get(0), firstType) &&
 				ExpressionIsSymbolOfType.apply(expression.get(1), secondType)) {
-			return DefaultSymbol.createSymbol(operation(expression.get(0), expression.get(1)));
+			return Expressions.wrap(operation(expression.get(0), expression.get(1)));
 		}
 		return expression;
 	}

@@ -39,8 +39,7 @@ package com.sri.ai.grinder.library.equality.cardinality.direct;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.Expressions;
 
 /**
  * <b>Rewriters for Computing the cardinality of a set</b><br>
@@ -74,13 +73,12 @@ public interface CardinalityRewriter {
 	//
 	// START - Parameters
 	enum Quantification {
-		FOR_ALL(DefaultSymbol.createSymbol("for all")), THERE_EXISTS(
-				DefaultSymbol.createSymbol("there exists")), NONE(DefaultSymbol
-				.createSymbol("none"));
+		FOR_ALL(Expressions.createSymbol("for all")), THERE_EXISTS(
+				Expressions.createSymbol("there exists")), NONE(Expressions.createSymbol("none"));
 
-		private Symbol quantificationSymbol = null;
+		private Expression quantificationSymbol = null;
 
-		public Symbol getQuantificationSymbol() {
+		public Expression getQuantificationSymbol() {
 			return quantificationSymbol;
 		}
 
@@ -116,7 +114,7 @@ public interface CardinalityRewriter {
 			return result;
 		}
 
-		private Quantification(Symbol quantificationSymbol) {
+		private Quantification(Expression quantificationSymbol) {
 			this.quantificationSymbol = quantificationSymbol;
 		}
 
