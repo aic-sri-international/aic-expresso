@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.library.set.intensional;
 
+
 import static com.sri.ai.expresso.helper.Expressions.apply;
 
 import java.util.ArrayList;
@@ -49,7 +50,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.AbstractSyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
@@ -63,6 +66,7 @@ import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.collect.FunctionIterator;
 
 /**
  * A intensional set is a set formed by the instantiations of a parametric
@@ -372,7 +376,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 
 	private static Iterator<Pair<Expression, List<Integer>>> getSubExpressionsAndPathsFromIndexExpressionsFromBasePathIterator(
 			List<Expression> indexExpressions, List<Integer> basePath) {
-		List<Pair<Expression, List<Integer>>> subExpressionsAndPaths = new LinkedList<Pair<Expression, List<Integer>>>();
+		List<Pair<SyntaxTree, List<Integer>>> subTreesAndPaths = new LinkedList<Pair<SyntaxTree, List<Integer>>>();
 		int indexExpressionIndex = 0;
 		for (Expression indexExpression : indexExpressions) {
 			// Determine path to index expression
@@ -394,22 +398,41 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 			
 			// Add index to sub-expressions, if it is to be evaluated
 			if (index.hasFunctor("value of")) {
-				IndexExpressions.addSubTreeWithIndexAndBasePathPlusArgumentIndex(index, 0, pathToIndex, subExpressionsAndPaths);
+				IndexExpressions.addSubTreeWithIndexAndBasePathPlusArgumentIndex(index, 0, pathToIndex, subTreesAndPaths);
 			}
 			else {
 				// else, at least the index arguments (if it is a function application index like f(x)) need to be evaluated
 				for (int i = 0; i != index.numberOfArguments(); i++) {
-					IndexExpressions.addSubTreeWithIndexAndBasePathPlusArgumentIndex(index, i, pathToIndex, subExpressionsAndPaths);
+					IndexExpressions.addSubTreeWithIndexAndBasePathPlusArgumentIndex(index, i, pathToIndex, subTreesAndPaths);
 				}
 			}
 			
 			// Add the type, if present.
 			if (indexExpression.hasFunctor("in")) {
-				IndexExpressions.addSubTreeWithIndexAndBasePathPlusArgumentIndex(indexExpression, 1, basePathPlusIndexExpressionIndex, subExpressionsAndPaths);
+				IndexExpressions.addSubTreeWithIndexAndBasePathPlusArgumentIndex(indexExpression, 1, basePathPlusIndexExpressionIndex, subTreesAndPaths);
 			}
 			
 			indexExpressionIndex++;
 		}
-		return subExpressionsAndPaths.iterator();
+		
+		Iterator<Pair<Expression, List<Integer>>> result =
+				new FunctionIterator<
+				        Pair<SyntaxTree, List<Integer>>,
+                        Pair<Expression, List<Integer>>>(
+                        		subTreesAndPaths.iterator(),
+                        		FROM_SYNTAX_TREE_AND_PATH_TO_EXPRESSION_AND_PATH);
+		
+		return result;
 	}
+
+	private static final Function<Pair<SyntaxTree, List<Integer>>, Pair<Expression, List<Integer>>>
+	FROM_SYNTAX_TREE_AND_PATH_TO_EXPRESSION_AND_PATH = new Function<Pair<SyntaxTree, List<Integer>>, Pair<Expression, List<Integer>>>() {
+
+		@Override
+		public Pair<Expression, List<Integer>> apply(Pair<SyntaxTree, List<Integer>> input) {
+			Pair<Expression, List<Integer>> result = Pair.make(Expressions.make(input.first), input.second);
+			return result;
+		}
+		
+	};
 }

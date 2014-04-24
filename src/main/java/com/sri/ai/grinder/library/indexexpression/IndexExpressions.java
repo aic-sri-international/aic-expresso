@@ -1,5 +1,6 @@
 package com.sri.ai.grinder.library.indexexpression;
 
+
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -10,8 +11,8 @@ import java.util.Set;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.Util;
@@ -42,7 +43,7 @@ public class IndexExpressions {
 		LinkedHashMap<Expression, Expression> result =
 			Expressions.getRelationalMap(
 					indexExpressions,
-					DefaultSymbol.createSymbol("in"),
+					Expressions.createSymbol("in"),
 					new Null<Expression, Expression>());
 		return result;
 	}
@@ -51,7 +52,7 @@ public class IndexExpressions {
 		LinkedHashMap<Expression, Expression> result =
 			Expressions.getRelationalMap(
 					indexExpressions,
-					DefaultSymbol.createSymbol("in"),
+					Expressions.createSymbol("in"),
 					new TypeOfIndexInIndexExpression());
 		return result;
 	}
@@ -198,11 +199,11 @@ public class IndexExpressions {
 
 	public static void addSubTreeWithIndexAndBasePathPlusArgumentIndex(
 			Expression syntaxTree, int subTreeIndex, List<Integer> basePath,
-			List<Pair<Expression, List<Integer>>> result) {
-		Expression subExpression = syntaxTree.getSyntaxTree().getSubTree(subTreeIndex); // does need to be sub tree
+			List<Pair<SyntaxTree, List<Integer>>> result) {
+		SyntaxTree subTree = syntaxTree.getSyntaxTree().getSubTree(subTreeIndex); // does need to be sub tree
 		List<Integer> subExpressionPath = new LinkedList<Integer>(basePath);
 		subExpressionPath.add(subTreeIndex);
-		result.add(new Pair<Expression, List<Integer>>(subExpression, subExpressionPath));
+		result.add(new Pair<SyntaxTree, List<Integer>>(subTree, subExpressionPath));
 	}
 
 	/** Return a list of indexes from a list of index expressions. */

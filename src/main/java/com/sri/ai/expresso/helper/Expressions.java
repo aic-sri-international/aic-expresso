@@ -103,6 +103,15 @@ public class Expressions {
 		return syntaxTree;
 	}
 
+	
+	public static final Function<SyntaxTree, Expression> MAKER = new Function<SyntaxTree, Expression>() {
+		@Override
+		public Expression apply(SyntaxTree input) {
+			Expression result = make(input);
+			return result;
+		}
+	};
+	
 	/**
 	 * Creates an atomic expression. TODO: Name should change once cleanup of SyntaxTree/Expression is completed.
 	 */
