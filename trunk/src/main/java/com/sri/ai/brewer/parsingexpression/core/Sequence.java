@@ -457,7 +457,7 @@ public class Sequence extends AbstractParsingExpression implements BasicParsingE
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public String toString(Expression expression, Writer writer) {
+	public String toString(SyntaxTree syntaxTree, Writer writer) {
 		StringBuffer result = new StringBuffer();
 		int subParsingExpressionIndex = 0;
 		int subTreeIndex = 0;
@@ -469,7 +469,6 @@ public class Sequence extends AbstractParsingExpression implements BasicParsingE
 				toBeAppended = subParsingExpression.get(0).toString();
 			} 
 			else {
-				SyntaxTree syntaxTree = expression.getSyntaxTree();
 				if (subParsingExpression.hasFunctor("kleene")) {
 					Expression kleeneList = Expressions.make(syntaxTree.getSubTree(subTreeIndex));
 					Iterator<String> listElementsRepresentationIterator =
@@ -486,7 +485,7 @@ public class Sequence extends AbstractParsingExpression implements BasicParsingE
 				else {
 					toBeAppended =
 						DefaultWriter.subTreeRepresentation(
-								DefaultWriter.getSyntaxTreeOrNullIfNull(expression),
+								syntaxTree,
 								syntaxTree.getSubTree(subTreeIndex), // does need to be sub tree
 								writer,
 								neighborsAreTerminals(subParsingExpressionIndex)); // no need for parentheses if surrounded by terminals

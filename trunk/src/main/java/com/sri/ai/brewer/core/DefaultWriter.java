@@ -99,7 +99,11 @@ public class DefaultWriter implements Writer {
 	
 	@Override
 	public String toString(Expression expression) {
-		SyntaxTree syntaxTree = DefaultWriter.getSyntaxTreeOrNullIfNull(expression);
+		return toString(expression.getSyntaxTree());
+	}
+	
+	@Override
+	public String toString(SyntaxTree syntaxTree) {
 		BasicParsingExpression parsingExpression =
 			getGrammar().getBasicParsingExpressionFor(syntaxTree);
 
@@ -107,7 +111,7 @@ public class DefaultWriter implements Writer {
 			return writeSyntaxTreeThatIsNotFromBasicParsingExpression(syntaxTree);
 		}
 		
-		String string = parsingExpression.toString(expression, this);
+		String string = parsingExpression.toString(syntaxTree, this);
 		return string;
 	}
 

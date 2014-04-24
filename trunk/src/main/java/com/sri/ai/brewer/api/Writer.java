@@ -51,6 +51,8 @@ import com.sri.ai.expresso.api.SyntaxTree;
 public interface Writer {
 	String toString(Expression expression);
 
+	String toString(SyntaxTree syntaxTree);
+
 	boolean precedenceLessThan(SyntaxTree expression1, SyntaxTree expression2);
 
 	boolean precedenceLessThanOrEqualTo(SyntaxTree expression1, SyntaxTree expression2);

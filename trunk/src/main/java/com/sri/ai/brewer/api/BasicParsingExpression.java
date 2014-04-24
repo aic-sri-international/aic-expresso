@@ -38,7 +38,7 @@
 package com.sri.ai.brewer.api;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.SyntaxTree;
 
 /**
  * Basic parsing expressions are the ones directly corresponding to syntactic
@@ -62,5 +62,5 @@ public interface BasicParsingExpression extends ParsingExpression {
 	 */
 	int getArity();
 
-	String toString(Expression expression, Writer writer);
+	String toString(SyntaxTree syntaxTree, Writer writer);
 }
