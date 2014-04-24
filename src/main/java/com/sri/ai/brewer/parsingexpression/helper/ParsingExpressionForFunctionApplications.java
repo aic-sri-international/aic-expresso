@@ -78,7 +78,7 @@ public class ParsingExpressionForFunctionApplications extends AbstractParsingExp
 		ParsingResult equivalentParsingResult = equivalent.parsingResult(process);
 		
 		if (DefaultParsingResult.isSuccessful(equivalentParsingResult)) {
-			SyntaxTree arguments = equivalentParsingResult.getParse().getSubTree(1); // result is an application of ". (.)" to the actual functor and the argument list, so arguments are get(1)
+			SyntaxTree arguments = equivalentParsingResult.getParse().getSyntaxTree().getSubTree(1); // result is an application of ". (.)" to the actual functor and the argument list, so arguments are get(1)
 			Object[] argumentsArray;
 			if (arguments != null && arguments.hasFunctor("kleene list")) {
 				argumentsArray = arguments.getImmediateSubTrees().toArray();
@@ -89,7 +89,7 @@ public class ParsingExpressionForFunctionApplications extends AbstractParsingExp
 			DefaultParsingResult result = new DefaultParsingResult(
 					this,
 					equivalentParsingResult.getTokens(),
-					new DefaultCompoundSyntaxTree(equivalentParsingResult.getParse().getSubTree(0), argumentsArray), equivalentParsingResult.tokenPositionLimitInfluencedResult());
+					new DefaultCompoundSyntaxTree(equivalentParsingResult.getParse().getSyntaxTree().getSubTree(0), argumentsArray), equivalentParsingResult.tokenPositionLimitInfluencedResult());
 			return result;
 		}
 		
