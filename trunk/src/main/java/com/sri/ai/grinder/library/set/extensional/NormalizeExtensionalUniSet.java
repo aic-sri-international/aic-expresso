@@ -41,7 +41,6 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -100,8 +99,7 @@ public class NormalizeExtensionalUniSet extends AbstractRewriter {
 		// rewriters,
 		// but this can save a lot of time when sets contain lots of constants.
 		if (process.isConstant(firstMember) && process.isConstant(secondMember)) {
-			condition = DefaultSymbol.createSymbol(firstMember
-					.equals(secondMember));
+			condition = Expressions.createSymbol(firstMember.equals(secondMember));
 		} 
 		else {
 			condition = Equality.make(firstMember, secondMember);

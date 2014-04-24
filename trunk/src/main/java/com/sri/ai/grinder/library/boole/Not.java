@@ -40,7 +40,6 @@ package com.sri.ai.grinder.library.boole;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -57,7 +56,7 @@ import com.sri.ai.grinder.library.FunctorConstants;
 @Beta
 public class Not extends AbstractRewriter {
 
-	public static final Expression FUNCTOR = DefaultSymbol.createSymbol(FunctorConstants.NOT);
+	public static final Expression FUNCTOR = Expressions.createSymbol(FunctorConstants.NOT);
 	
 	public Not() {
 		this.setReifiedTests(new HasFunctor(FUNCTOR), 
