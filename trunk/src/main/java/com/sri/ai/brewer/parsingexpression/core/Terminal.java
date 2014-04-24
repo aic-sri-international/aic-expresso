@@ -46,6 +46,7 @@ import com.sri.ai.brewer.api.ParsingProcess;
 import com.sri.ai.brewer.core.DefaultParsingResult;
 import com.sri.ai.brewer.core.ParsingResult;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.Expressions;
 
 /**
  * A parsing expression representing a fixed grammar terminal, producing a parse
@@ -73,7 +74,7 @@ public class Terminal extends AbstractParsingExpression {
 		process.logln("Terminal: Read " + token);
 		process.logln("Terminal: Position of tokenizer " + process.getTokenPosition());
 		if (token.equals(get(0).toString())) {
-			return new DefaultParsingResult(this, Lists.newArrayList(token), DefaultSymbol.createSymbol(token), false);
+			return new DefaultParsingResult(this, Lists.newArrayList(token), Expressions.createSymbol(token), false);
 		}
 		else {
 			process.putBack(token);

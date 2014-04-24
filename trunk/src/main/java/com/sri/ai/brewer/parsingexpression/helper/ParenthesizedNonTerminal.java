@@ -50,6 +50,7 @@ import com.sri.ai.brewer.parsingexpression.core.AbstractParsingExpression;
 import com.sri.ai.brewer.parsingexpression.core.NonTerminal;
 import com.sri.ai.brewer.parsingexpression.core.Sequence;
 import com.sri.ai.brewer.parsingexpression.core.Terminal;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.Util;
 
 /**
@@ -72,7 +73,7 @@ public class ParenthesizedNonTerminal extends AbstractParsingExpression {
 		ParsingResult result = intermediate.parsingResult(process);
 		
 		if (DefaultParsingResult.isSuccessful(result)) {
-			return new DefaultParsingResult(this, result.getTokens(), result.getParse().getSyntaxTree().getSubTree(0), result.tokenPositionLimitInfluencedResult());
+			return new DefaultParsingResult(this, result.getTokens(), Expressions.make(result.getParse().getSyntaxTree().getSubTree(0)), result.tokenPositionLimitInfluencedResult());
 		}
 		
 		return DefaultParsingResult.makeFailedParsingResult(result.tokenPositionLimitInfluencedResult());
