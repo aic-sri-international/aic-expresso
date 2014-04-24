@@ -80,7 +80,7 @@ public class ParsingExpressionForFunctionApplications extends AbstractParsingExp
 		if (DefaultParsingResult.isSuccessful(equivalentParsingResult)) {
 			SyntaxTree arguments = equivalentParsingResult.getParse().getSyntaxTree().getSubTree(1); // result is an application of ". (.)" to the actual functor and the argument list, so arguments are get(1)
 			Object[] argumentsArray;
-			if (arguments != null && arguments.hasFunctor("kleene list")) {
+			if (arguments != null && arguments.getLabel().equals("kleene list")) {
 				argumentsArray = arguments.getImmediateSubTrees().toArray();
 			}
 			else {

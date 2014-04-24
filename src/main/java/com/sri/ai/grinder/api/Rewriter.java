@@ -44,8 +44,7 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.Expressions;
 
 /**
  * A rewriter rewrites a expression into another, for example by simplifying it,
@@ -70,7 +69,7 @@ public interface Rewriter {
 	 * Return value returned if the rewriter is called within a
 	 * rewriting process whose contextual constraint evaluates to false.
 	 */
-	Symbol FALSE_CONTEXTUAL_CONTRAINT_RETURN_VALUE = DefaultSymbol.createSymbol("whatever");
+	Expression FALSE_CONTEXTUAL_CONTRAINT_RETURN_VALUE = Expressions.createSymbol("whatever");
 
 	/**
 	 * An unique identifying name for the rewriter (intended to correspond to
