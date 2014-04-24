@@ -46,7 +46,6 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.core.AbstractReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -118,7 +117,7 @@ public class StandardizedApartFrom {
 		Predicate<Expression>  isNovel               = new NotContainedBy<Expression>(forbiddenVariables);
 		Expression result = expression;
 		for (Expression variableToBeRenamed : variablesToBeRenamed) {
-			Expression replacement = Expressions.primedUntilUnique((Symbol) variableToBeRenamed, isNovel);
+			Expression replacement = Expressions.primedUntilUnique(variableToBeRenamed, isNovel);
 			result = Expressions.make(result.getSyntaxTree().replaceSubTreesAllOccurrences(variableToBeRenamed.getSyntaxTree(), replacement.getSyntaxTree()));
 			// needs to be syntax tree because the symbol needs to be replaced even where it is not a part of a sub-expression, as in index expressions.
 			// note that scoping does not matter. The semantics is not changed from "for X : for X : f(X)" to "for X' : for X' : f(X)".
