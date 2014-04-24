@@ -237,11 +237,11 @@ public class ParsingExpressionTest {
 		
 		parsingExpression = new NonTerminal("Expression");
 		string = "3";
-		test(parsingExpression, string, DefaultSymbol.createSymbol(3));
+		test(parsingExpression, string, Expressions.createSymbol(3));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "false";
-		test(parsingExpression, string, DefaultSymbol.createSymbol(false));
+		test(parsingExpression, string, Expressions.createSymbol(false));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "add x to y";
@@ -277,11 +277,11 @@ public class ParsingExpressionTest {
 
 		parsingExpression = new Terminal("keyword");
 		string = "keyword";
-		test(parsingExpression, string, DefaultSymbol.createSymbol("keyword"));
+		test(parsingExpression, string, Expressions.createSymbol("keyword"));
 
 		parsingExpression = new Terminal("Keyword");
 		string = "Keyword";
-		test(parsingExpression, string, DefaultSymbol.createSymbol("Keyword"));
+		test(parsingExpression, string, Expressions.createSymbol("Keyword"));
 
 		parsingExpression = new Terminal("keyword");
 		string = "keyword2";
@@ -289,11 +289,11 @@ public class ParsingExpressionTest {
 
 		parsingExpression = new Disjunction(new Terminal("keyword"), new Terminal("keyword2"));
 		string = "keyword2";
-		test(parsingExpression, string, DefaultSymbol.createSymbol("keyword2"));
+		test(parsingExpression, string, Expressions.createSymbol("keyword2"));
 
 		parsingExpression = new Sequence(new Terminal("keyword1"), new Terminal("keyword2"));
 		string = "keyword1 keyword2";
-		test(parsingExpression, string, DefaultSymbol.createSymbol("keyword1 keyword2"));
+		test(parsingExpression, string, Expressions.createSymbol("keyword1 keyword2"));
 
 		parsingExpression = new Sequence(new Terminal("keyword1"), new Terminal(" "), new Terminal("keyword2"));
 		string = "keyword1 somethingElse";
@@ -305,7 +305,7 @@ public class ParsingExpressionTest {
 
 		parsingExpression = new Optional(new Terminal("k1"));
 		string = "k1";
-		test(parsingExpression, string, DefaultSymbol.createSymbol("k1"));
+		test(parsingExpression, string, Expressions.createSymbol("k1"));
 
 		parsingExpression = new Sequence(new Terminal("k1"), new Optional(new Sequence(new Terminal("k2"))), new Terminal("k3"));
 		string = "k1 k3";
@@ -346,7 +346,7 @@ public class ParsingExpressionTest {
 				new Sequence(new Terminal("keyword1"), new Terminal("keyword2")),
 				new Sequence(new Terminal("keyword1"), new Terminal("keyword3")));
 		string = "keyword1 keyword3";
-		test(parsingExpression, string,  DefaultSymbol.createSymbol("keyword1 keyword3"));
+		test(parsingExpression, string,  Expressions.createSymbol("keyword1 keyword3"));
 
 		parsingExpression = new Disjunction(new Terminal("keyword105"), new Sequence());
 		string = "";
@@ -367,11 +367,11 @@ public class ParsingExpressionTest {
 
 		parsingExpression = new Kleene(new Terminal("keyword"), new Optional(new Terminal(",")));
 		string = "keyword";
-		test(parsingExpression, string, DefaultSymbol.createSymbol("keyword"));
+		test(parsingExpression, string, Expressions.createSymbol("keyword"));
 
 		parsingExpression = new Kleene(new Terminal("keyword"), new Optional(new Terminal(",")));
 		string = "keyword";
-		test(parsingExpression, string, DefaultSymbol.createSymbol("keyword"));
+		test(parsingExpression, string, Expressions.createSymbol("keyword"));
 
 		parsingExpression = new Kleene(new Terminal("keyword"), new Optional(new Terminal(",")));
 		string = "keyword keyword keyword";
@@ -404,7 +404,7 @@ public class ParsingExpressionTest {
 		// testing Kleene with a minimum number of elements -- failure followed by alternative successful parsing in disjunction is a success
 		parsingExpression = new Disjunction(new Kleene(new Terminal("keyword"), new Optional(new Terminal(",")), 3), new Sequence(new Terminal("keyword"), new Terminal(","), new Terminal("keyword"), new Terminal(","), new Terminal("anotherkeyword")));
 		string = "keyword, keyword, anotherkeyword";
-		test(parsingExpression, string, DefaultSymbol.createSymbol("keyword , keyword , anotherkeyword"));
+		test(parsingExpression, string, Expressions.createSymbol("keyword , keyword , anotherkeyword"));
 	}
 
 	@Test
@@ -465,7 +465,7 @@ public class ParsingExpressionTest {
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "a^log a-a";
-		test(parsingExpression, string, DefaultSymbol.createSymbol("a")); // this one is a bit tricky. The ^ on log does not parse because log is supposed to be of smaller precedence than ^, so it cannot be its argument. The non-intuitiveness of the example comes from log being typically of higher precedence.
+		test(parsingExpression, string, Expressions.createSymbol("a")); // this one is a bit tricky. The ^ on log does not parse because log is supposed to be of smaller precedence than ^, so it cannot be its argument. The non-intuitiveness of the example comes from log being typically of higher precedence.
 
 		string = "a*a+a";
 		test(parsingExpression, string, new DefaultCompoundSyntaxTree("+",
@@ -680,7 +680,7 @@ public class ParsingExpressionTest {
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "<x>1>"; // tricky, huh? Of course, we could have written <x > 1> or <(x > 1)> for clarity.
-		test(parsingExpression, string, DefaultSymbol.createSymbol(Expressions.apply(">", "x", 1)));
+		test(parsingExpression, string, Expressions.createSymbol(Expressions.apply(">", "x", 1)));
 
 //		parsingExpression = new NonTerminal("Expression");
 //		string = "(<x>) < (<y>)";

@@ -925,9 +925,8 @@ public class CardinalityUtil {
 			result = everyLeafIsConstantGreaterThanZero(IfThenElse.getThenBranch(expression)) && everyLeafIsConstantGreaterThanZero(IfThenElse.getElseBranch(expression));
 		}
 		else if (expression instanceof Symbol) {
-			Symbol s = (Symbol) expression;
-			if (s.getValue() instanceof Number) {
-				if (s.rationalValue().isPositive()) {
+			if (expression.getValue() instanceof Number) {
+				if (expression.rationalValue().isPositive()) {
 					result = true;
 				}
 			}
