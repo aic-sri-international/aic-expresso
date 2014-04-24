@@ -51,7 +51,6 @@ import com.sri.ai.brewer.api.Writer;
 import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.brewer.core.DefaultWriter;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
@@ -89,22 +88,22 @@ public class SimpleFormulaGenerator {
 		Writer writer = DefaultWriter.newDefaultConfiguredWriter();
 		
 		SimpleFormulaGenerator gn = new SimpleFormulaGenerator(20, 20);
-		for (int i = 30; i<90; i+=3) {
+		for (int i = 30; i < 90; i += 3) {
 			Expression formula = gn.generateRandomFormulas(i);
-			Expression ex = gn.generateRandomCardinality(formula, false);
-			System.out.println("\"" + writer.toString(ex) + "\",");
+			Expression cardinalityExpression = gn.generateRandomCardinality(formula, false);
+			System.out.println("\"" + writer.toString(cardinalityExpression.getSyntaxTree()) + "\",");
 		}
 		System.out.println("\n");
 		for (int i = 20; i<60; i+= 3) {
 			Expression formula = gn.generateConjunctionOfDisequalities(i);
-			Expression ex = gn.generateRandomCardinality(formula, false);
-			System.out.println("\"" + writer.toString(ex) + "\",");
+			Expression cardinalityExpression = gn.generateRandomCardinality(formula, false);
+			System.out.println("\"" + writer.toString(cardinalityExpression.getSyntaxTree()) + "\",");
 		}	
 		
 		for (int i = 30; i<60; i+= 3) {
 			Expression formula = gn.generateCNF(i, i);
-			Expression ex = gn.generateRandomCardinality(formula, false);
-			System.out.println("\"" + writer.toString(ex) + "\",");
+			Expression cardinalityExpression = gn.generateRandomCardinality(formula, false);
+			System.out.println("\"" + writer.toString(cardinalityExpression.getSyntaxTree()) + "\",");
 		}	
 	}
 	
@@ -143,7 +142,7 @@ public class SimpleFormulaGenerator {
 		if ( possibleFreeVariables ) {
 			for (String v: variables) {
 				if ( rand.nextInt(3) != 0 ) {
-					indices.add(DefaultSymbol.createSymbol(v));
+					indices.add(Expressions.createSymbol(v));
 				}
 			}
 		}

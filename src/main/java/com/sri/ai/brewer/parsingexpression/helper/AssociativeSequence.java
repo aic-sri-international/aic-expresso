@@ -84,10 +84,9 @@ public class AssociativeSequence extends Sequence {
 	}
 	
 	@Override
-	public String toString(final Expression expression, final Writer writer) {
+	public String toString(final SyntaxTree syntaxTree, final Writer writer) {
 		StringBuffer result = new StringBuffer();
 		String separator = " ";
-		final SyntaxTree syntaxTree = DefaultWriter.getSyntaxTreeOrNullIfNull(expression);
 		SyntaxTree rootTree = syntaxTree.getRootTree();
 		String rootTreeString = writer.toString(Expressions.make(rootTree));
 		
