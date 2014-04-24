@@ -222,13 +222,13 @@ public class RewriterFunctionalSequenceTest extends AbstractGrinderTest {
 			double     level = doubleValue(expression.get(0));
 			Expression id    = expression.get(1);
 			if (level > 0) {
-				Expression levelMinusOne = DefaultSymbol.createSymbol(level - 1);
+				Expression levelMinusOne = Expressions.createSymbol(level - 1);
 				Expression child1Id    = makeChildCallId(id, Expressions.ZERO);
 				Expression child2Id    = makeChildCallId(id, Expressions.ONE);
 				Expression child1Input = process.rewrite(getName(), Expressions.apply("args", levelMinusOne, child1Id));
 				Expression child2Input = process.rewrite(getName(), Expressions.apply("args", levelMinusOne, child2Id));
 				double halfTheAverage =	(doubleValue(child1Input) + doubleValue(child2Input)) / 2 / 2;
-				result = DefaultSymbol.createSymbol(halfTheAverage);
+				result = Expressions.createSymbol(halfTheAverage);
 				System.out.println("Half the average at level " + level + ", id " + expression.get(1) + ", of " + child1Input + " and " + child2Input + " is " + result);
 			}
 			else {

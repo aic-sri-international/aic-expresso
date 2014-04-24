@@ -48,6 +48,7 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -76,10 +77,10 @@ ImposedConditionsModule.Provider
 		Iterator<ExpressionAndContext> result = null;
 		if (knowledgeApplies(expression)) {
 			Iterator<SyntaxTree> syntaxTreeIterator = expression.getSyntaxTree().getImmediateSubTreesIncludingRootOneIterator();
-			Expression functor    = syntaxTreeIterator.next();
-			Expression condition  = syntaxTreeIterator.next();
-			Expression thenBranch = syntaxTreeIterator.next();
-			Expression elseBranch = syntaxTreeIterator.next();
+			Expression functor    = Expressions.make(syntaxTreeIterator.next());
+			Expression condition  = Expressions.make(syntaxTreeIterator.next());
+			Expression thenBranch = Expressions.make(syntaxTreeIterator.next());
+			Expression elseBranch = Expressions.make(syntaxTreeIterator.next());
 			List<ExpressionAndContext> expressionAndContexts = new ArrayList<ExpressionAndContext>();
 			Expression thenCondition = condition;
 			Expression elseCondition = Not.make(thenCondition);

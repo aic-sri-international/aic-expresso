@@ -364,7 +364,7 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 			if (newIthArgument == oldArgument) {
 				return this;
 			}
-			Expression result = getSyntaxTree().setImmediateSubTree(index, newIthArgument);
+			Expression result = Expressions.make(getSyntaxTree().setImmediateSubTree(index, newIthArgument));
 			return result;
 		}
 		Util.fatalError("set can only be invoked for Expressions of function application syntactic form, but was invoked for " + this);
