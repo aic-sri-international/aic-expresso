@@ -48,7 +48,6 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -314,11 +313,11 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 			ArrayList<Expression> newDisjunctsArgs = new ArrayList<Expression>();
 			for (Expression disjunct: disjuncts) {
 				otherConjuncts.add(0, disjunct);
-				Expression newConjunct = DefaultCompoundSyntaxTree.make(And.FUNCTOR, otherConjuncts);
+				Expression newConjunct = Expressions.make(And.FUNCTOR, otherConjuncts);
 				newDisjunctsArgs.add(newConjunct);
 				otherConjuncts.remove(0);
 			}
-			Expression newDisjunct = DefaultCompoundSyntaxTree.make(Or.FUNCTOR, newDisjunctsArgs);
+			Expression newDisjunct = Expressions.make(Or.FUNCTOR, newDisjunctsArgs);
 			
 			result = cardinalityCompute(newDisjunct, indexExpressions, process);
 		} 

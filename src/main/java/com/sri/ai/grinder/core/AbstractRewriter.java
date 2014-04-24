@@ -48,8 +48,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.AbstractSyntaxTree;
-import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
@@ -120,7 +118,7 @@ public abstract class AbstractRewriter implements Rewriter {
 				return arguments.get(0);
 			}
 
-			AbstractSyntaxTree result = DefaultCompoundSyntaxTree.make(expression.getFunctor(), arguments);
+			Expression result = Expressions.make(expression.getFunctor(), arguments);
 			return result;
 		}
 		return expression;

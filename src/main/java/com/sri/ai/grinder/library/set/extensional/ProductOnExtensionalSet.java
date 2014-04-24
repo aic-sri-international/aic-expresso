@@ -39,7 +39,7 @@ package com.sri.ai.grinder.library.set.extensional;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasFunctor;
@@ -63,7 +63,7 @@ public class ProductOnExtensionalSet extends AbstractRewriter {
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		if (Sets.isExtensionalSet(expression.get(0))) {
-			return DefaultCompoundSyntaxTree.make("*", ExtensionalSet.getElements(expression.get(0)));
+			return Expressions.make("*", ExtensionalSet.getElements(expression.get(0)));
 		}
 		return expression;
 	}
