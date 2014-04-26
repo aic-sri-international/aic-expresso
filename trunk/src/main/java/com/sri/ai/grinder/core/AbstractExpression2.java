@@ -47,7 +47,6 @@ import com.google.common.collect.ImmutableList;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
-import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -61,9 +60,7 @@ import com.sri.ai.util.base.TernaryProcedure;
  * @author braz
  */
 @Beta
-public abstract class AbstractExpression implements Expression {
-	
-	protected SyntaxTree syntaxTree;
+public abstract class AbstractExpression2 implements Expression {
 	
 	//
 	public static final PruningPredicate TRUE_PRUNING_PREDICATE = new PruningPredicate() {

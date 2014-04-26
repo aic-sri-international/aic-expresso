@@ -357,7 +357,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 			return true;
 		}
 		
-		Symbol anotherSymbol = null;
+		Expression anotherSymbol = null;
 		if (another instanceof Symbol) {
 			anotherSymbol = (Symbol) another;
 		} 
@@ -378,13 +378,13 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	@Override
 	public String defaultToString() {
 		String result = "";
-		if (valueOrRootSyntaxTree instanceof String) {
+		if (getSyntaxTree().getLabel() instanceof String) {
 			result = makeStringValuedSymbolParseSafe((String)valueOrRootSyntaxTree);
 		}
-		else if (valueOrRootSyntaxTree instanceof Expression) {
+		else if (getSyntaxTree().getLabel() instanceof Expression) {
 			result = "<" + valueOrRootSyntaxTree + ">";
 		}
-		else if (valueOrRootSyntaxTree instanceof Number && _displayNumericPrecision != 0) {
+		else if (getSyntaxTree().getLabel() instanceof Number && _displayNumericPrecision != 0) {
 			Rational rLabel = ((Rational) valueOrRootSyntaxTree);
 			if (rLabel.isInteger()) {
 				result = rLabel.toString();
@@ -429,24 +429,24 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 
 	@Override
 	public int intValue() {
-		if (valueOrRootSyntaxTree instanceof Number) {
-			return ((Number) valueOrRootSyntaxTree).intValue();
+		if (getSyntaxTree().getLabel() instanceof Number) {
+			return ((Number) getSyntaxTree().getLabel()).intValue();
 		}
 		throw new Error("DefaultSymbol.intValue() invoked on " + this + ", which is not a number.");
 	}
 
 	@Override
 	public int intValueExact() throws ArithmeticException {
-		if (valueOrRootSyntaxTree instanceof Rational) {
-			return ((Rational) valueOrRootSyntaxTree).intValueExact();
+		if (getSyntaxTree().getLabel() instanceof Rational) {
+			return ((Rational) getSyntaxTree().getLabel()).intValueExact();
 		}
 		throw new Error("DefaultSymbol.intValueExact() invoked on " + this + ", which is not a number.");
 	}
 
 	@Override
 	public double doubleValue() {
-		if (valueOrRootSyntaxTree instanceof Number) {
-			return ((Number) valueOrRootSyntaxTree).doubleValue();
+		if (getSyntaxTree().getLabel() instanceof Number) {
+			return ((Number) getSyntaxTree().getLabel()).doubleValue();
 		}
 		throw new Error("DefaultSymbol.doubleValue() invoked on " + this + ", which is not a number.");
 	}
@@ -454,8 +454,8 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 
 	@Override
 	public Rational rationalValue() {
-		if (valueOrRootSyntaxTree instanceof Number) {
-			return (Rational) valueOrRootSyntaxTree;
+		if (getSyntaxTree().getLabel() instanceof Number) {
+			return (Rational) getSyntaxTree().getLabel();
 		}
 		throw new Error("DefaultSymbol.rationalValue() invoked on " + this + ", which is not a number.");
 	}
@@ -485,6 +485,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		}
 
 		this.valueOrRootSyntaxTree = value;
+		syntaxTree = this;
 	}
 	
 	private static String removeTrailingZerosToRight(String number) {
@@ -512,28 +513,28 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		return result;
 	}
 	
-	private static int[] getIntegerAndFractionalPartSizes(String absValue) {
+	private static int[] getIntegerAndFractionalPartSizes(String absoluteValue) {
 		int[] result = new int[] {0, 0};
 		
-		int dot = absValue.indexOf('.');
+		int dot = absoluteValue.indexOf('.');
 		// No Fractional part
 		if (dot == -1) {
-			result[0] = absValue.length();
+			result[0] = absoluteValue.length();
 		}
 		else {
 			result[0] = dot;
-			result[1] = absValue.length() - dot - 1; // exclude the dot as well
+			result[1] = absoluteValue.length() - dot - 1; // exclude the dot as well
 		}
 		
 		return result;
 	}
 	
-	private static boolean escapedAlready(StringBuilder sb, int pos) {
+	private static boolean escapedAlready(StringBuilder stringBuilder, int pos) {
 		boolean escaped = false;
 		
 		int numberEscapes = 0;
 		for (int i = pos-1; i >= 0; i--) {
-			if ("\\".equals(sb.substring(i, i+1))) {
+			if ("\\".equals(stringBuilder.substring(i, i + 1))) {
 				numberEscapes++;
 			} 
 			else {

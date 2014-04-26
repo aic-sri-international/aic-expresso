@@ -50,8 +50,9 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.SymbolNew;
-import com.sri.ai.expresso.api.SyntaxTreeNew;
+import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.base.BinaryProcedure;
 import com.sri.ai.util.math.Rational;
@@ -76,12 +77,12 @@ import com.sri.ai.util.math.Rational;
  * {@link #doubleValue()} are available but may decrease precision, so they
  * should not be used in contexts in which arbitrary precision is expected,
  * which is probably true if the results are going to be stored again in a
- * SymbolNew.
+ * Symbol.
  * 
  * @author braz
  */
 @Beta
-public class DefaultSymbolNew extends AbstractSyntaxTreeNew implements SymbolNew  {
+public class DefaultSymbol2 extends AbstractSyntaxTree implements Symbol  {
 	private static final long serialVersionUID = 1L;
 	
 	private static int _displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
@@ -89,22 +90,22 @@ public class DefaultSymbolNew extends AbstractSyntaxTreeNew implements SymbolNew
 	private static int _displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
 	//
 	// Well known static Symbols
-	private static final DefaultSymbolNew SYMBOL_TRUE  = new DefaultSymbolNew(true);
-	private static final DefaultSymbolNew SYMBOL_FALSE = new DefaultSymbolNew(false);
-	private static final DefaultSymbolNew SYMBOL_0     = new DefaultSymbolNew(new Rational(0));
-	private static final DefaultSymbolNew SYMBOL_1     = new DefaultSymbolNew(new Rational(1));
-	private static final DefaultSymbolNew SYMBOL_2     = new DefaultSymbolNew(new Rational(2));
-	private static final DefaultSymbolNew SYMBOL_3     = new DefaultSymbolNew(new Rational(3));
-	private static final DefaultSymbolNew SYMBOL_4     = new DefaultSymbolNew(new Rational(4));
-	private static final DefaultSymbolNew SYMBOL_5     = new DefaultSymbolNew(new Rational(5));
-	private static final DefaultSymbolNew SYMBOL_6     = new DefaultSymbolNew(new Rational(6));
-	private static final DefaultSymbolNew SYMBOL_7     = new DefaultSymbolNew(new Rational(7));
-	private static final DefaultSymbolNew SYMBOL_8     = new DefaultSymbolNew(new Rational(8));
-	private static final DefaultSymbolNew SYMBOL_9     = new DefaultSymbolNew(new Rational(9));
+	private static final DefaultSymbol2 SYMBOL_TRUE  = new DefaultSymbol2(true);
+	private static final DefaultSymbol2 SYMBOL_FALSE = new DefaultSymbol2(false);
+	private static final DefaultSymbol2 SYMBOL_0     = new DefaultSymbol2(new Rational(0));
+	private static final DefaultSymbol2 SYMBOL_1     = new DefaultSymbol2(new Rational(1));
+	private static final DefaultSymbol2 SYMBOL_2     = new DefaultSymbol2(new Rational(2));
+	private static final DefaultSymbol2 SYMBOL_3     = new DefaultSymbol2(new Rational(3));
+	private static final DefaultSymbol2 SYMBOL_4     = new DefaultSymbol2(new Rational(4));
+	private static final DefaultSymbol2 SYMBOL_5     = new DefaultSymbol2(new Rational(5));
+	private static final DefaultSymbol2 SYMBOL_6     = new DefaultSymbol2(new Rational(6));
+	private static final DefaultSymbol2 SYMBOL_7     = new DefaultSymbol2(new Rational(7));
+	private static final DefaultSymbol2 SYMBOL_8     = new DefaultSymbol2(new Rational(8));
+	private static final DefaultSymbol2 SYMBOL_9     = new DefaultSymbol2(new Rational(9));
 	//
 	private static boolean                      _useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
 	private static boolean                      _cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
-	private static Cache<Object, DefaultSymbolNew> _globalSymbolTable    = newSymbolTable();
+	private static Cache<Object, DefaultSymbol2> _globalSymbolTable    = newSymbolTable();
 	static {
 		flushGlobalSymbolTable();
 	}
@@ -116,7 +117,7 @@ public class DefaultSymbolNew extends AbstractSyntaxTreeNew implements SymbolNew
 	}
 
 	@Override
-	public SyntaxTreeNew getRootTree() {
+	public SyntaxTree getRootTree() {
 		return null;
 	}
 
@@ -173,7 +174,7 @@ public class DefaultSymbolNew extends AbstractSyntaxTreeNew implements SymbolNew
 	
 	public static void flushGlobalSymbolTable() {
 		if (AICUtilConfiguration.isRecordCacheStatistics()) {
-			System.out.println("Global SymbolNew Table Cache Stats="+_globalSymbolTable.stats());
+			System.out.println("Global Symbol Table Cache Stats="+_globalSymbolTable.stats());
 		}
 		// Causes relevant flags to be reset.
 		_useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
@@ -222,8 +223,8 @@ public class DefaultSymbolNew extends AbstractSyntaxTreeNew implements SymbolNew
 		_globalSymbolTable.put(new Rational(9), SYMBOL_9);
 	}
 	
-	public static SymbolNew createSymbol(Object value) {
-		DefaultSymbolNew result = null;
+	public static Symbol createSymbol(Object value) {
+		DefaultSymbol2 result = null;
 		// If global symbol table to be used and the symbol's value is not
 		// an expression - i.e. quoted expressions of the form:
 		// <X>
@@ -234,14 +235,14 @@ public class DefaultSymbolNew extends AbstractSyntaxTreeNew implements SymbolNew
 			
 			result = _globalSymbolTable.getIfPresent(value);
 			if (result == null) {
-				result = new DefaultSymbolNew(value);
+				result = new DefaultSymbol2(value);
 				if (!(!_cacheNumericSymbols && result.getValue() instanceof Number)) {
 					_globalSymbolTable.put(value, result);
 				}
 			}
 		} 
 		else {
-			result = new DefaultSymbolNew(value);
+			result = new DefaultSymbol2(value);
 		}
 		
 		return result;
@@ -292,8 +293,8 @@ public class DefaultSymbolNew extends AbstractSyntaxTreeNew implements SymbolNew
 	}
 
 	@Override
-	public Iterator<SyntaxTreeNew> getImmediateSubTreesIncludingRootOneIterator() {
-		List<SyntaxTreeNew> emptyList = Collections.emptyList();
+	public Iterator<SyntaxTree> getImmediateSubTreesIncludingRootOneIterator() {
+		List<SyntaxTree> emptyList = Collections.emptyList();
 		return emptyList.iterator();
 	}
 
@@ -303,21 +304,21 @@ public class DefaultSymbolNew extends AbstractSyntaxTreeNew implements SymbolNew
 	}
 
 	@Override
-	public SyntaxTreeNew setImmediateSubTree(int i, Object newIthArgument) {
-		throw new Error("Attempt at changing " + i + "-th sub-syntax tree of SymbolNew: " + this + " with " + newIthArgument + ", but Symbols have no sub-trees");
+	public SyntaxTree setImmediateSubTree(int i, Object newIthArgument) {
+		throw new Error("Attempt at changing " + i + "-th sub-syntax tree of Symbol: " + this + " with " + newIthArgument + ", but Symbols have no sub-trees");
 	}
 
 	@Override
-	public SyntaxTreeNew replaceSubTreesAllOccurrences(Function<SyntaxTreeNew, SyntaxTreeNew> replacementFunction, Predicate<SyntaxTreeNew> prunePredicate, BinaryProcedure<SyntaxTreeNew, SyntaxTreeNew> listener) {
+	public SyntaxTree replaceSubTreesAllOccurrences(Function<SyntaxTree, SyntaxTree> replacementFunction, Predicate<SyntaxTree> prunePredicate, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
 		return replaceSubTreesFirstOccurrence(replacementFunction, prunePredicate, listener);
 	}
 
 	@Override
-	public SyntaxTreeNew replaceSubTreesFirstOccurrence(Function<SyntaxTreeNew, SyntaxTreeNew> replacementFunction, Predicate<SyntaxTreeNew> prunePredicate, BinaryProcedure<SyntaxTreeNew, SyntaxTreeNew> listener) {
+	public SyntaxTree replaceSubTreesFirstOccurrence(Function<SyntaxTree, SyntaxTree> replacementFunction, Predicate<SyntaxTree> prunePredicate, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
 		if (prunePredicate != null && prunePredicate.apply(this)) {
 			return this;
 		}
-		SyntaxTreeNew replacement = replacementFunction.apply(this);
+		SyntaxTree replacement = replacementFunction.apply(this);
 		if (replacement == null) {
 			replacement = this;
 		}
@@ -328,13 +329,18 @@ public class DefaultSymbolNew extends AbstractSyntaxTreeNew implements SymbolNew
 	}
 	
 	@Override
-	public SyntaxTreeNew replaceSubTrees(Function<SyntaxTreeNew, SyntaxTreeNew> replacementFunction,
-			boolean onlyTheFirstOne, Predicate<SyntaxTreeNew> prunePredicate,
-			BinaryProcedure<SyntaxTreeNew, SyntaxTreeNew> listener, boolean ignoreTopExpression) {
+	public SyntaxTree replaceSubTrees(Function<SyntaxTree, SyntaxTree> replacementFunction,
+			boolean onlyTheFirstOne, Predicate<SyntaxTree> prunePredicate,
+			BinaryProcedure<SyntaxTree, SyntaxTree> listener, boolean ignoreTopExpression) {
 		if (ignoreTopExpression) {
 			return this;
 		}
 		return replaceSubTreesFirstOccurrence(replacementFunction, prunePredicate, listener);
+	}
+
+	@Override
+	public String getStringForComparisonPurposes() {
+		return toString();
 	}
 
 	@Override
@@ -351,9 +357,9 @@ public class DefaultSymbolNew extends AbstractSyntaxTreeNew implements SymbolNew
 			return true;
 		}
 		
-		SymbolNew anotherSymbol = null;
-		if (another instanceof SymbolNew) {
-			anotherSymbol = (SymbolNew) another;
+		Symbol anotherSymbol = null;
+		if (another instanceof Symbol) {
+			anotherSymbol = (Symbol) another;
 		} 
 		else {
 			anotherSymbol = createSymbol(another);
@@ -413,18 +419,52 @@ public class DefaultSymbolNew extends AbstractSyntaxTreeNew implements SymbolNew
 	}
 
 	@Override
-	public SyntaxTreeNew replaceSubTrees(Function<SyntaxTreeNew, SyntaxTreeNew> replacementFunction) {
+	public SyntaxTree replaceSubTrees(Function<SyntaxTree, SyntaxTree> replacementFunction) {
 		return this;
 	}
 
-	public SyntaxTreeNew clone() {
-		return createSymbol(getValue());
+	public Expression clone() {
+		return Expressions.createSymbol(getValue());
 	}
+
+	@Override
+	public int intValue() {
+		if (valueOrRootSyntaxTree instanceof Number) {
+			return ((Number) valueOrRootSyntaxTree).intValue();
+		}
+		throw new Error("DefaultSymbol.intValue() invoked on " + this + ", which is not a number.");
+	}
+
+	@Override
+	public int intValueExact() throws ArithmeticException {
+		if (valueOrRootSyntaxTree instanceof Rational) {
+			return ((Rational) valueOrRootSyntaxTree).intValueExact();
+		}
+		throw new Error("DefaultSymbol.intValueExact() invoked on " + this + ", which is not a number.");
+	}
+
+	@Override
+	public double doubleValue() {
+		if (valueOrRootSyntaxTree instanceof Number) {
+			return ((Number) valueOrRootSyntaxTree).doubleValue();
+		}
+		throw new Error("DefaultSymbol.doubleValue() invoked on " + this + ", which is not a number.");
+	}
+
+
+	@Override
+	public Rational rationalValue() {
+		if (valueOrRootSyntaxTree instanceof Number) {
+			return (Rational) valueOrRootSyntaxTree;
+		}
+		throw new Error("DefaultSymbol.rationalValue() invoked on " + this + ", which is not a number.");
+	}
+	
 	//
 	// PRIVATE METHODS
 	//
 	// Note: Can only instantiate Symbols via the factory method.
-	private DefaultSymbolNew(Object value) {
+	private DefaultSymbol2(Object value) {
 		
 		if (value instanceof Number && !(value instanceof Rational)) {
 			value = new Rational(((Number)value).doubleValue());
@@ -509,7 +549,7 @@ public class DefaultSymbolNew extends AbstractSyntaxTreeNew implements SymbolNew
 		return escaped;
 	}
 	
-	private static Cache<Object, DefaultSymbolNew> newSymbolTable() {
+	private static Cache<Object, DefaultSymbol2> newSymbolTable() {
 		CacheBuilder<Object, Object> cb = CacheBuilder.newBuilder();
 		
 		long maximumSize = ExpressoConfiguration.getGlobalSymbolTableMaximumSize();
@@ -524,7 +564,7 @@ public class DefaultSymbolNew extends AbstractSyntaxTreeNew implements SymbolNew
 			cb.recordStats();
 		}
 		
-		Cache<Object, DefaultSymbolNew> result = cb.build();
+		Cache<Object, DefaultSymbol2> result = cb.build();
 		
 		return result;
 	}
