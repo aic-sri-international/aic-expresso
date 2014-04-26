@@ -66,13 +66,12 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements CompoundSyntaxTree, Expression {
+public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements CompoundSyntaxTree, Expression {
 	private static final long serialVersionUID = 1L;
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
 	
-	private DefaultCompoundSyntaxTree() {
-		syntaxTree = this;
+	private DefaultCompoundSyntaxTree2() {
 	}
 
 	/**
@@ -84,7 +83,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	 * (doing pretty much the same thing as {@link #make(Object, List)}, but in a slightly slower manner).
 	 */
 	@SuppressWarnings("unchecked")
-	public DefaultCompoundSyntaxTree(Object functor, Object ... args) {
+	public DefaultCompoundSyntaxTree2(Object functor, Object ... args) {
 		this.valueOrRootSyntaxTree = Expressions.wrap(functor);
 		if (args.length == 1 && args[0] instanceof List) {
 			// Note: We can have nulls, therefore cannot use ImmutableList directly.
@@ -94,10 +93,8 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 			// Note: We can have nulls, therefore cannot use ImmutableList directly.
 			this.subTrees = Collections.unmodifiableList(SyntaxTrees.wrap(args));
 		}
-		syntaxTree = this;
 	}
 
-	@Override
 	public Object getValue() {
 		return null;
 	}
@@ -117,8 +114,8 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	 * This is a more efficient constructor than {@link #DefaultCompoundSyntaxTree(Object, Object...)}
 	 * and offers the possibility of using an already existing list.
 	 */
-	public static DefaultCompoundSyntaxTree make(Object functor, List<? extends SyntaxTree> subTrees) {
-		DefaultCompoundSyntaxTree result = new DefaultCompoundSyntaxTree();
+	public static DefaultCompoundSyntaxTree2 make(Object functor, List<? extends SyntaxTree> subTrees) {
+		DefaultCompoundSyntaxTree2 result = new DefaultCompoundSyntaxTree2();
 		result.valueOrRootSyntaxTree    = Expressions.wrap(functor);
 		// Note: We can have nulls, therefore cannot use ImmutableList directly.
 		result.subTrees = Collections.unmodifiableList(new ArrayList<SyntaxTree>(subTrees));
@@ -153,12 +150,12 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		return result;
 	}
 
-	public DefaultCompoundSyntaxTree orderNormalized = null;
+	public DefaultCompoundSyntaxTree2 orderNormalized = null;
 	public static final boolean useOrderNormalization = false;
 	
 	@Override
 	public String getStringForComparisonPurposes() {
-		Expression orderNormalized;
+		SyntaxTree orderNormalized;
 
 		if ( ! useOrderNormalization) {
 			orderNormalized = this;
@@ -173,7 +170,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	}
 
 	public int hashCode() {
-		Expression orderNormalized;
+		SyntaxTree orderNormalized;
 
 		if ( ! useOrderNormalization) {
 			orderNormalized = this;
@@ -187,9 +184,9 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		}
 		
 		if (hashCode == -1) {
-			SyntaxTree rootTree = getSyntaxTree().getRootTree();
+			SyntaxTree rootTree = getRootTree();
 			int rootHashCode = rootTree.hashCode();
-			List<SyntaxTree> immediateSubTrees = getSyntaxTree().getImmediateSubTrees();
+			List<SyntaxTree> immediateSubTrees = getImmediateSubTrees();
 			int subTreesHashCode = immediateSubTrees.hashCode();
 			hashCode = rootHashCode + subTreesHashCode;
 		}
@@ -200,7 +197,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	private boolean mayBeEqualAsFarAsFunctorIsConcerned(Expression anotherExpression) {
 		boolean result = false;
 		try {
-			DefaultCompoundSyntaxTree anotherDefaultCompoundSyntaxTree = (DefaultCompoundSyntaxTree) anotherExpression;
+			DefaultCompoundSyntaxTree2 anotherDefaultCompoundSyntaxTree = (DefaultCompoundSyntaxTree2) anotherExpression;
 			if (anotherDefaultCompoundSyntaxTree.getFunctor().equals(getFunctor())) {
 				result = true;
 			}
@@ -226,7 +223,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 			}
 			
 			if (mayBeEqualAsFarAsFunctorIsConcerned(anotherExpression)) { // no need to order-normalize if functors are different.
-				Expression normalizedThis = getOrderNormalized();
+				SyntaxTree normalizedThis = getOrderNormalized();
 				Object normalizedAnother = getOrderNormalizedOrSameIfNotCompoundSyntaxTree(anotherObject);
 				result = basicEquals(normalizedThis, normalizedAnother);
 			}
@@ -238,14 +235,14 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		return result;
 	}
 
-	protected static boolean basicEquals(Expression normalizedThis, Object normalizedAnother) {
+	protected static boolean basicEquals(SyntaxTree normalizedThis, Object normalizedAnother) {
 		boolean result;
 
 		if (normalizedAnother instanceof CompoundSyntaxTree) {
-			Expression normalizedAnotherCompoundSyntaxTree = (CompoundSyntaxTree) normalizedAnother;
+			CompoundSyntaxTree normalizedAnotherCompoundSyntaxTree = (CompoundSyntaxTree) normalizedAnother;
 			if (normalizedThis.hashCode() == normalizedAnotherCompoundSyntaxTree.hashCode()) {
-				List<SyntaxTree> anotherSubTrees = normalizedAnotherCompoundSyntaxTree.getSyntaxTree().getImmediateSubTrees();
-				result = normalizedThis.getSyntaxTree().getRootTree().equals(normalizedAnotherCompoundSyntaxTree.getSyntaxTree().getRootTree()) && normalizedThis.getSyntaxTree().getImmediateSubTrees().equals(anotherSubTrees);
+				List<SyntaxTree> anotherSubTrees = normalizedAnotherCompoundSyntaxTree.getImmediateSubTrees();
+				result = normalizedThis.getRootTree().equals(normalizedAnotherCompoundSyntaxTree.getRootTree()) && normalizedThis.getImmediateSubTrees().equals(anotherSubTrees);
 			}
 			else {
 				result = false;
@@ -259,33 +256,33 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	}
 
 	protected Object getOrderNormalizedOrSameIfNotCompoundSyntaxTree(Object anotherObject) {
-		boolean isDefaultCompountSyntaxTree = anotherObject instanceof DefaultCompoundSyntaxTree;
-		Object normalizedAnother = isDefaultCompountSyntaxTree? ((DefaultCompoundSyntaxTree)anotherObject).getOrderNormalized()
+		boolean isDefaultCompountSyntaxTree = anotherObject instanceof DefaultCompoundSyntaxTree2;
+		Object normalizedAnother = isDefaultCompountSyntaxTree? ((DefaultCompoundSyntaxTree2)anotherObject).getOrderNormalized()
 				: anotherObject;
 		return normalizedAnother;
 	}
 
-	protected Expression getOrderNormalized() {
+	protected SyntaxTree getOrderNormalized() {
 		if (orderNormalized == null) {
 			//RewritingProcess process = getProcess(); // OrderNormalize does not currently use the process.
-			DefaultCompoundSyntaxTree value = (DefaultCompoundSyntaxTree) OrderNormalize.orderNormalize(this, null /*process*/);
+			DefaultCompoundSyntaxTree2 value = (DefaultCompoundSyntaxTree2) OrderNormalize.orderNormalize(this, null /*process*/);
 			setOrderNormalized(value);
 			orderNormalized.setOrderNormalized(orderNormalized); // no need to re-normalize what we know to be normalized.
 		}
 		return orderNormalized;
 	}
 	
-	protected void setOrderNormalized(DefaultCompoundSyntaxTree value) {
+	protected void setOrderNormalized(DefaultCompoundSyntaxTree2 value) {
 		orderNormalized = value;
 	}
 	
 	public String defaultToString() {
-		String rootTreeString = getSyntaxTree().getRootTree().defaultToString();
-		if ( ! (getSyntaxTree().getRootTree() instanceof Symbol)) {
+		String rootTreeString = getRootTree().defaultToString();
+		if ( ! (getRootTree() instanceof Symbol)) {
 			rootTreeString = "(" + rootTreeString + ")";
 		}
 		Iterator defaultToStringOfSubTrees =
-			new FunctionIterator<SyntaxTree, String>(new DefaultToString(), getSyntaxTree().getImmediateSubTrees());
+			new FunctionIterator<SyntaxTree, String>(new DefaultToString(), getImmediateSubTrees());
 		return rootTreeString + "(" + Util.join(", ", defaultToStringOfSubTrees) + ")";
 	}
 	
@@ -403,7 +400,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	}
 	
 	public Expression clone() {
-		return DefaultCompoundSyntaxTree.make(getSyntaxTree().getRootTree(), getSyntaxTree().getImmediateSubTrees());
+		return DefaultCompoundSyntaxTree2.make(getRootTree(), subTrees);
 		// it is best to use the field 'arguments' instead of method 'getArguments'
 		// because we can share argument lists among function applications, since they are never modified.
 		// The method 'getArguments' would unnecessarily create an unmodifiable list object.

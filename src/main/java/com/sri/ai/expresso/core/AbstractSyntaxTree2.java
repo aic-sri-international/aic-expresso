@@ -52,9 +52,9 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.sri.ai.expresso.ExpressoConfiguration;
-import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
@@ -74,7 +74,7 @@ import com.sri.ai.util.collect.FunctionIterator;
  * @author braz
  */
 @Beta
-public abstract class AbstractSyntaxTree extends AbstractExpression implements SyntaxTree {
+public abstract class AbstractSyntaxTree2 extends AbstractExpression implements SyntaxTree {
 	private static final long serialVersionUID = 1L;
 	
 	public static final Function<Object, SyntaxTree> wrapper = new Function<Object, SyntaxTree>() {
@@ -230,7 +230,7 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 
 	@Override
 	public SyntaxTree getSyntaxTree() {
-		return syntaxTree;
+		return this;
 	}
 
 	@Override

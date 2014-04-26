@@ -245,4 +245,8 @@ public interface Expression extends Cloneable, Serializable, Comparable<Expressi
 	 * (for example the string representation of a normal form of the expression).
 	 */
 	public String getStringForComparisonPurposes();
+	
+
+	/** A default <code>toString()</code> method not using any user-defined writing object. */
+	String defaultToString();
 }
