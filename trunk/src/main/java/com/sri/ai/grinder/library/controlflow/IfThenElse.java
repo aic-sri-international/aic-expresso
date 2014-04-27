@@ -43,14 +43,13 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.FunctionApplicationProvider;
 import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -63,7 +62,7 @@ import com.sri.ai.util.base.Pair;
 @Beta
 public class IfThenElse extends AbstractRewriter {
 
-	private static final Symbol NOT_FUNCTOR = DefaultSymbol.createSymbol(FunctorConstants.NOT);
+	private static final Expression NOT_FUNCTOR = Expressions.createSymbol(FunctorConstants.NOT);
 	//
 	private static final List<Integer> _pathToFunctor   = Collections.unmodifiableList(Arrays.asList(FunctionApplicationProvider.INDEX_OF_FUNCTOR_IN_FUNCTION_APPLICATIONS));
 	private static final List<Integer> _pathToCondition = Collections.unmodifiableList(Arrays.asList(0));

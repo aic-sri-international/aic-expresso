@@ -210,8 +210,7 @@ public class ExpressionNode implements TreeNode {
 		if (expression == null) {
 			return null;
 		}
-		if (expression instanceof CompoundSyntaxTree ) {
-//			if (expression instanceof CompoundSyntaxTree) {
+		if (expression.getSyntaxTree() instanceof CompoundSyntaxTree ) {
 			return functionApplicationToTree(expression);
 		}
 		// SyntaxTree is just a symbol:

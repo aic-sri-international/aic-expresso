@@ -68,7 +68,7 @@ public class BooleanUtil {
 	 * @return removes any duplicates from expression
 	 */
 	public static Expression removeUnnecessary(Expression expression) {
-		if ( expression instanceof CompoundSyntaxTree ) {
+		if (expression.getSyntacticFormType().equals("Function application")) {
 			Expression functor = expression.getFunctor();
 			if ( And.isConjunction(expression) || Or.isDisjunction(expression) ) {
 				boolean isConjunction = And.isConjunction(expression);

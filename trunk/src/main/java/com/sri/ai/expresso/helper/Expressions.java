@@ -306,12 +306,14 @@ public class Expressions {
 
 	/** Indicates whether an expression is a Symbol representing a numeric constant. */
 	public static boolean isNumber(Expression expression) {
-		return expression instanceof Symbol && ((Symbol)expression).getValue() instanceof Number;
+		boolean result = expression.getSyntaxTree() instanceof Symbol &&
+				((Symbol)expression.getSyntaxTree()).getValue() instanceof Number;
+		return result;
 	}
 	
 	/** Assumes the expression is a Symbol and returns its value as Number. */
 	public static Number asNumber(Expression expression) {
-		return (Number) ((Symbol) expression).getValue();
+		return (Number) ((Symbol) expression.getSyntaxTree()).getValue();
 	}
 
 	/** Gets an object and returns it if it is an expression, or a {@link DefaultSymbol} containing it as value. */
@@ -591,7 +593,7 @@ public class Expressions {
 	}
 
 	public static boolean isEqualityFormulaOnAtomicSymbols(Expression expression) {
-		 if (expression instanceof Symbol) {
+		 if ( ! expression.getSyntacticFormType().equals("Function application")) {
 			 return false;
 		 }
 		 if (expression.hasFunctor("=") || expression.hasFunctor("!=")) {
@@ -609,6 +611,14 @@ public class Expressions {
 		public boolean apply(Expression expression) {
 			return isEqualityFormulaOnAtomicSymbols(expression);
 		}
+	};
+	
+	public static Function<Expression, SyntaxTree> GET_SYNTAX_TREE =
+			new Function<Expression, SyntaxTree>() {
+				@Override
+				public SyntaxTree apply(Expression expression) {
+					return expression.getSyntaxTree();
+				}
 	};
 	
 	/**
@@ -907,7 +917,7 @@ public class Expressions {
 		// this method became more fundamentally distinct since Expression.replace uses contextual expansion and therefore these checks,
 		// while this method here does not perform such checks.
 		
-		if (expression instanceof Symbol) {
+		if (expression.getSyntaxTree() instanceof Symbol) {
 			if (process.isVariable(expression)) {
 				if (!quantifiedVariables.contains(expression)) {
 					freeVariables.add(expression);
@@ -949,7 +959,7 @@ public class Expressions {
 	private static void freeSymbols(Expression expression, Set<Expression> freeSymbols, Set<Expression> quantifiedSymbols, RewritingProcess process) {
 		// Note: this is a slight modification of freeVariables. I am adding (*) near the modified bits.
 		
-		if (expression instanceof Symbol) { // (*) no check for being a variable
+		if (expression.getSyntaxTree() instanceof Symbol) { // (*) no check for being a variable
 			if (!quantifiedSymbols.contains(expression)) {
 				freeSymbols.add(expression);
 			}

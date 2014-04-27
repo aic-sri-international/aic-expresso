@@ -45,8 +45,6 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTreeIsSymbolOfType;
 import com.sri.ai.grinder.library.CommutativeAssociative;
@@ -63,8 +61,8 @@ public class Or extends BooleanCommutativeAssociative {
 
 	public static final Object FUNCTOR = "or";
 	//
-	private final static Symbol                neutralElement              = DefaultSymbol.createSymbol(false);
-	private final static Symbol                absorbingElement            = DefaultSymbol.createSymbol(true);
+	private final static Expression            neutralElement              = Expressions.createSymbol(false);
+	private final static Expression            absorbingElement            = Expressions.createSymbol(true);
 	private final static Predicate<Expression> isOperableArgumentPredicate = new SyntaxTreeIsSymbolOfType(Boolean.class);
 
 	protected Object getFunctor() {
@@ -72,12 +70,12 @@ public class Or extends BooleanCommutativeAssociative {
 	}
 	
 	@Override
-	protected Symbol getNeutralElement() {
+	protected Expression getNeutralElement() {
 		return neutralElement;
 	}
 	
 	@Override
-	protected Symbol getAbsorbingElement() {
+	protected Expression getAbsorbingElement() {
 		return absorbingElement;
 	}
 	

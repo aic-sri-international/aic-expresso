@@ -92,7 +92,7 @@ ExpressionKnowledgeModule.Provider
 	}
 
 	public static Expression getFunctorOrSymbol(Expression expression) {
-		if (expression instanceof CompoundSyntaxTree) {
+		if (expression.getSyntaxTree() instanceof CompoundSyntaxTree) {
 			return expression.getFunctor();
 		}
 		else {

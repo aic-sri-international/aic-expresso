@@ -69,6 +69,6 @@ public class IsVariable implements Predicate<Expression> {
 	}
 
 	public static boolean isVariable(Expression expression, Predicate<Expression> isConstantPredicate) {
-		return expression instanceof Symbol && !isConstantPredicate.apply(expression);
+		return expression.getSyntaxTree() instanceof Symbol && !isConstantPredicate.apply(expression);
 	}
 }

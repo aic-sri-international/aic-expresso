@@ -43,8 +43,8 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 
 /**
- * A unary function returning the value of a {@link Symbol}. Returns
- * <code>null</code> if provided object is not a Symbol.
+ * A unary function returning the value of an atomic expression. Returns
+ * <code>null</code> if provided object is not an atomic expression.
  * 
  * @author braz
  */
@@ -55,9 +55,9 @@ public class GetValue implements Function<Expression, Object> {
 	
 	@Override
 	public Object apply(Expression expression) {
-		if ( ! (expression instanceof Symbol)) {
+		if ( ! (expression.getSyntaxTree() instanceof Symbol)) {
 			return null;
 		}
-		return ((Symbol) expression).getValue();
+		return ((Symbol) expression.getSyntaxTree()).getValue();
 	}
 }

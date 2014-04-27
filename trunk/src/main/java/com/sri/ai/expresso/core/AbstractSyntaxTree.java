@@ -212,10 +212,10 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 					}
 		
 					if (cachedSyntacticFormType == null) { // no one knows about this expression, we use the default.
-						if (this instanceof CompoundSyntaxTree) {
+						if (getSyntaxTree() instanceof CompoundSyntaxTree) {
 							cachedSyntacticFormType = "Function application";
 						}
-						else if (this instanceof Symbol) {
+						else if (getSyntaxTree() instanceof Symbol) {
 							cachedSyntacticFormType = "Symbol";
 						}
 					}

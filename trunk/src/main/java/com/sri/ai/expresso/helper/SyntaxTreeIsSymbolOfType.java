@@ -68,7 +68,8 @@ public class SyntaxTreeIsSymbolOfType implements Predicate<Expression> {
 
 	public static boolean isSymbolOfType(Expression expression, Class clazz) {
 		return
-		(expression instanceof Symbol && clazz.isInstance(((Symbol)expression).getValue()))
+		(expression.getSyntaxTree() instanceof Symbol &&
+				clazz.isInstance(((Symbol)expression.getSyntaxTree()).getValue()))
 		||
 		clazz.isInstance(expression);
 	}
