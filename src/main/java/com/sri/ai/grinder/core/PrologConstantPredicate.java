@@ -52,7 +52,8 @@ public class PrologConstantPredicate implements Predicate<Expression> {
 	
 	@Override
 	public boolean apply(Expression expression) {
-		boolean result = expression instanceof Symbol && !isPrologVariable((Symbol)expression);
+		boolean result = expression.getSyntaxTree() instanceof Symbol &&
+				!isPrologVariable((Symbol)expression.getSyntaxTree());
 		return result;
 	}
 

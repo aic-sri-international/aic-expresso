@@ -46,6 +46,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
+import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.AbstractReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -106,7 +107,8 @@ public class StandardizedApartFrom {
 	private static Expression standardizeTopExpressionScopedVariablesApartFrom(
 			Expression expression, Collection<Expression> variablesThatCannotBeScopingInExpression, RewritingProcess process) {
 		List<Expression> scopedVariables1 = ScopedVariables.get(expression, process);
-		if (Util.thereExists(scopedVariables1, new IsInstanceOf<Expression>(CompoundSyntaxTree.class))) {
+		List<SyntaxTree> scopedVariables1SyntaxTrees = Util.mapIntoArrayList(scopedVariables1, Expressions.GET_SYNTAX_TREE);
+		if (Util.thereExists(scopedVariables1SyntaxTrees, new IsInstanceOf<SyntaxTree>(CompoundSyntaxTree.class))) {
 			throw new StandardizingApartOnScopingFunctionApplicationsNotSupported(expression);
 		}
 		Collection<Expression> variablesToBeRenamed  = Util.intersection(scopedVariables1, variablesThatCannotBeScopingInExpression);

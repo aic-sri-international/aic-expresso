@@ -846,7 +846,7 @@ public class GrinderUtil {
 	 * So far, it does not work for non-symbols, or constants, throwing exceptions in these cases, but it will be extended in the direction in the future.
 	 */
 	public static Object getType(Expression expression, RewritingProcess process) {
-		if ( ! (expression instanceof Symbol)) {
+		if ( ! (expression.getSyntaxTree() instanceof Symbol)) {
 			throw new Error("GrinderUtil.getType() not implemented for non-symbol expressions at this point, but invoked with " + expression);
 		}
 		if (process.isConstant(expression)) {

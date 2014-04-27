@@ -357,20 +357,20 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 			return true;
 		}
 		
-		Expression anotherSymbol = null;
-		if (another instanceof Symbol) {
-			anotherSymbol = (Symbol) another;
+		Symbol anotherSymbol = null;
+		if (another instanceof Expression && ((Expression) another).getSyntaxTree() instanceof Symbol) {
+			anotherSymbol = (Symbol) ((Expression) another).getSyntaxTree();
 		} 
 		else {
 			anotherSymbol = createSymbol(another);
 			// Test again, as may have had self returned from the symbol table.
-			if (this == anotherSymbol) {
+			if (this.getSyntaxTree() == anotherSymbol) {
 				return true;
 			}
 		}
 		
-		if (hashCode() == anotherSymbol.hashCode()) {
-			return getValue().equals(anotherSymbol.getValue());
+		if (getSyntaxTree().hashCode() == anotherSymbol.hashCode()) {
+			return getSyntaxTree().getValue().equals(anotherSymbol.getValue());
 		}
 		return false;
 	}

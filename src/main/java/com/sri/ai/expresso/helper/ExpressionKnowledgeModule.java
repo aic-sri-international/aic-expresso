@@ -99,7 +99,7 @@ public class ExpressionKnowledgeModule extends AbstractModuleNoOpRewriter {
 			}
 		}
 		// default syntactic form type
-		if (expression instanceof CompoundSyntaxTree) {
+		if (expression.getSyntaxTree() instanceof CompoundSyntaxTree) {
 			return "Function application";
 		}
 		return "Symbol";
@@ -132,7 +132,7 @@ public class ExpressionKnowledgeModule extends AbstractModuleNoOpRewriter {
 		}
 	
 		if (result == null) { // because no provider knows about this expression, we use the default method:
-			if (expression instanceof CompoundSyntaxTree) {
+			if (expression.getSyntaxTree() instanceof CompoundSyntaxTree) {
 				result = FunctionApplicationProvider.getImmediateSubExpressionsAndContextsIteratorFromFunctionApplication(
 						expression, process);
 			}

@@ -43,6 +43,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 
 /**
@@ -64,8 +65,8 @@ public class VariablesAndThenConstantsComparator implements Comparator<Symbol> {
 	@Override
 	public int compare(Symbol o1, Symbol o2) {
 		Predicate<Expression> isConstantPredicate = process.getIsConstantPredicate();
-		int c1 = isConstantPredicate.apply(o1)? 1 : 0;
-		int c2 = isConstantPredicate.apply(o2)? 1 : 0;
+		int c1 = isConstantPredicate.apply(Expressions.make(o1))? 1 : 0;
+		int c2 = isConstantPredicate.apply(Expressions.make(o2))? 1 : 0;
 		return c1 - c2;
 	}
 }

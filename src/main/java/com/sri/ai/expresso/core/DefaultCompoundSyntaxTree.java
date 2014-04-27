@@ -241,8 +241,9 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	protected static boolean basicEquals(Expression normalizedThis, Object normalizedAnother) {
 		boolean result;
 
-		if (normalizedAnother instanceof CompoundSyntaxTree) {
-			Expression normalizedAnotherCompoundSyntaxTree = (CompoundSyntaxTree) normalizedAnother;
+		if (normalizedAnother instanceof Expression &&
+				((Expression) normalizedAnother).getSyntaxTree() instanceof CompoundSyntaxTree) {
+			Expression normalizedAnotherCompoundSyntaxTree = (Expression) normalizedAnother;
 			if (normalizedThis.hashCode() == normalizedAnotherCompoundSyntaxTree.hashCode()) {
 				List<SyntaxTree> anotherSubTrees = normalizedAnotherCompoundSyntaxTree.getSyntaxTree().getImmediateSubTrees();
 				result = normalizedThis.getSyntaxTree().getRootTree().equals(normalizedAnotherCompoundSyntaxTree.getSyntaxTree().getRootTree()) && normalizedThis.getSyntaxTree().getImmediateSubTrees().equals(anotherSubTrees);

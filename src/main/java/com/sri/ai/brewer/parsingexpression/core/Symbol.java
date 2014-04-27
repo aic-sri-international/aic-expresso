@@ -105,7 +105,7 @@ public class Symbol extends AbstractParsingExpression {
 		if (numberOfArguments() == 0) {
 			return null;
 		}
-		com.sri.ai.expresso.api.Symbol argument = (com.sri.ai.expresso.api.Symbol) get(0);
+		com.sri.ai.expresso.api.Symbol argument = (com.sri.ai.expresso.api.Symbol) get(0).getSyntaxTree();
 		Object value = argument.getValue();
 		return value.toString();
 		// we get value first instead of using toString on the symbol straight because the latter includes quotes when there are spaces.

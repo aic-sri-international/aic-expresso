@@ -166,8 +166,8 @@ public class CardinalityExtensionalSet extends AbstractHierarchicalRewriter impl
 	private static Expression plusOne(Expression countingSolution) {
 		Expression result = null;
 
-		if (countingSolution instanceof Symbol) {
-			Number value = (Number) ((Symbol) countingSolution).getValue();
+		if (countingSolution.getSyntaxTree() instanceof Symbol) {
+			Number value = (Number) ((Symbol) countingSolution.getSyntaxTree()).getValue();
 			result = Expressions.createSymbol(value.intValue() + 1);
 		}
 		else { // counting solution is an if then else
