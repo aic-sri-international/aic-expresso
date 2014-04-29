@@ -241,7 +241,7 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 			Expression cardNotF1AndNotF2    = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(notF1AndNotF2, indexExpressions);
 			Expression resultCard1          = process.rewrite(R_card,
 													CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardNotF1AndNotF2, CardinalityRewriter.Quantification.THERE_EXISTS));
-			Expression resultCard1NotEqual0 = Expressions.make(FunctorConstants.GREATER_THAN, resultCard1, Expressions.ZERO); 
+			Expression resultCard1NotEqual0 = Expressions.makeFunctionApplication(FunctorConstants.GREATER_THAN, resultCard1, Expressions.ZERO); 
 			Expression ifThenElse           = IfThenElse.make(resultCard1NotEqual0, Expressions.ZERO, cardinalityOfIndices);
 			
 			result = process.rewrite(R_normalize, ifThenElse);
@@ -295,8 +295,8 @@ public class CardinalityDisjunction extends AbstractHierarchicalRewriter impleme
 				Trace.log("if quantification is \"there exists\"");
 				// there is no need to compute N3, since it is enough that there is x for either F1 or F2
 				Trace.log("    return R_normalize(if N1 > 0 or N2 > 0 then ||X|| else 0)");
-				Expression n1NotEqual0     = Expressions.make(FunctorConstants.GREATER_THAN, n1, Expressions.ZERO);
-				Expression n2NotEqual0     = Expressions.make(FunctorConstants.GREATER_THAN, n2, Expressions.ZERO);
+				Expression n1NotEqual0     = Expressions.makeFunctionApplication(FunctorConstants.GREATER_THAN, n1, Expressions.ZERO);
+				Expression n2NotEqual0     = Expressions.makeFunctionApplication(FunctorConstants.GREATER_THAN, n2, Expressions.ZERO);
 				Expression n1orn2NotEqual0 = CardinalityUtil.makeOr(n1NotEqual0, n2NotEqual0);
 				Expression ifThenElse      = IfThenElse.make(n1orn2NotEqual0, cardinalityOfIndices, Expressions.ZERO);
 				

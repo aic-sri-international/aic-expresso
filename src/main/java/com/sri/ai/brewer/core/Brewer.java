@@ -42,9 +42,9 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.brewer.api.Grammar;
 import com.sri.ai.brewer.api.ParsingProcess;
+import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
-import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.api.Symbol;
 
 /**
  * Utility interface for parsing.
@@ -120,7 +120,7 @@ public class Brewer {
 	 * 
 	 * @param sb
 	 *            The string buffer to append to.
-	 * @param expr
+	 * @param expression
 	 *            The expression object to generate.
 	 * @param tabLevel
 	 *            The number of tabs to indent.
@@ -128,15 +128,15 @@ public class Brewer {
 	 *            Whether to print "DefaultSymbol.createSymbol()" for symbols or
 	 *            just the string.
 	 */
-	public static void generateFunctionApplicationString(StringBuffer sb, Expression expr, int tabLevel, boolean forceSymbolPrint) {
-		if (expr instanceof DefaultCompoundSyntaxTree) {
+	public static void generateFunctionApplicationString(StringBuffer sb, Expression expression, int tabLevel, boolean forceSymbolPrint) {
+		if (expression instanceof CompoundSyntaxTree) {
 			sb.append("\n");
 			for (int i = 0; i < tabLevel; i++)
 				sb.append("\t");
 			sb.append("new DefaultCompoundSyntaxTree(");
 
 			boolean firstChild = true;
-			List<Expression> children = expr.getSubExpressions();
+			List<Expression> children = expression.getSubExpressions();
 			for (Expression child : children) {
 				if (firstChild)
 					firstChild = false;
@@ -147,8 +147,8 @@ public class Brewer {
 			}
 			sb.append(")");
 		}
-		else if (expr instanceof DefaultSymbol) {
-			DefaultSymbol symbol = (DefaultSymbol)expr;
+		else if (expression instanceof Symbol) {
+			Symbol symbol = (Symbol) expression;
 			Object label = symbol.getValue();
 			if (label instanceof Expression) {
 				sb.append("\n");
@@ -163,7 +163,7 @@ public class Brewer {
 					sb.append("DefaultSymbol.createSymbol(");
 				}
 				sb.append("\"");
-				String string = expr.toString();
+				String string = expression.toString();
 				if (string.startsWith("'"))
 					string = string.substring(1, string.length()-1);
 				sb.append(string);
@@ -173,7 +173,7 @@ public class Brewer {
 				}
 			}
 		}
-		else if (expr == null) {
+		else if (expression == null) {
 			sb.append("null");
 		}
 

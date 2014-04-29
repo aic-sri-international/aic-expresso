@@ -50,6 +50,8 @@ import com.sri.ai.brewer.parsingexpression.core.AbstractParsingExpression;
 import com.sri.ai.brewer.parsingexpression.core.NonTerminal;
 import com.sri.ai.brewer.parsingexpression.core.Sequence;
 import com.sri.ai.brewer.parsingexpression.core.Terminal;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.Util;
 
@@ -73,14 +75,16 @@ public class ParenthesizedNonTerminal extends AbstractParsingExpression {
 		ParsingResult result = intermediate.parsingResult(process);
 		
 		if (DefaultParsingResult.isSuccessful(result)) {
-			return new DefaultParsingResult(this, result.getTokens(), Expressions.make(result.getParse().getSyntaxTree().getSubTree(0)), result.tokenPositionLimitInfluencedResult());
+			return new DefaultParsingResult(this, result.getTokens(), Expressions.makeFromSyntaxTree(result.getParse().getSyntaxTree().getSubTree(0)), result.tokenPositionLimitInfluencedResult());
 		}
 		
 		return DefaultParsingResult.makeFailedParsingResult(result.tokenPositionLimitInfluencedResult());
 	}
 
 	private String getName() {
-		com.sri.ai.expresso.api.Symbol argument = (com.sri.ai.expresso.api.Symbol) get(0).getSyntaxTree();
+		Expression argumentExpression = get(0);
+		SyntaxTree argumentSyntaxTree = argumentExpression.getSyntaxTree();
+		com.sri.ai.expresso.api.Symbol argument = (com.sri.ai.expresso.api.Symbol) argumentSyntaxTree;
 		Object value = argument.getValue();
 		return value.toString();
 		// we get value first instead of using toString on the symbol straight because the latter includes quotes when there are spaces.

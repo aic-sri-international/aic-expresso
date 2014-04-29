@@ -77,10 +77,10 @@ ImposedConditionsModule.Provider
 		Iterator<ExpressionAndContext> result = null;
 		if (knowledgeApplies(expression)) {
 			Iterator<SyntaxTree> syntaxTreeIterator = expression.getSyntaxTree().getImmediateSubTreesIncludingRootOneIterator();
-			Expression functor    = Expressions.make(syntaxTreeIterator.next());
-			Expression condition  = Expressions.make(syntaxTreeIterator.next());
-			Expression thenBranch = Expressions.make(syntaxTreeIterator.next());
-			Expression elseBranch = Expressions.make(syntaxTreeIterator.next());
+			Expression functor    = Expressions.makeFromSyntaxTree(syntaxTreeIterator.next());
+			Expression condition  = Expressions.makeFromSyntaxTree(syntaxTreeIterator.next());
+			Expression thenBranch = Expressions.makeFromSyntaxTree(syntaxTreeIterator.next());
+			Expression elseBranch = Expressions.makeFromSyntaxTree(syntaxTreeIterator.next());
 			List<ExpressionAndContext> expressionAndContexts = new ArrayList<ExpressionAndContext>();
 			Expression thenCondition = condition;
 			Expression elseCondition = Not.make(thenCondition);

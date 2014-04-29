@@ -84,7 +84,7 @@ public class ExtensionalSet {
 	}
 	
 	public static Expression makeUniSetExpression(List<Expression> elements) {
-		return Expressions.make(UNI_SET_LABEL, Expressions.makeKleeneListIfNeeded(elements));
+		return Expressions.makeFunctionApplication(UNI_SET_LABEL, Expressions.makeKleeneListIfNeeded(elements));
 	}
 	
 	public static AbstractSyntaxTree makeUniSet(Expression... elements) {
@@ -105,7 +105,7 @@ public class ExtensionalSet {
 	}
 	
 	public static List<Expression> getElements(Expression setExpression) {
-		return Expressions.ensureListFromKleeneList(Expressions.make(setExpression.getSyntaxTree().getSubTree(0))); // does need to be sub tree
+		return Expressions.ensureListFromKleeneList(Expressions.makeFromSyntaxTree(setExpression.getSyntaxTree().getSubTree(0))); // does need to be sub tree
 	}
 
 	public static int cardinality(Expression expression) {

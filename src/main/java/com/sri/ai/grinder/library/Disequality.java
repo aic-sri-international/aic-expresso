@@ -133,7 +133,7 @@ public class Disequality extends AbstractRewriterDefiningSymmetricFunction {
 	public static Expression normalize(Expression expression, RewritingProcess process) {
 		if (process.isConstant(expression.get(0))) {
 			if ( ! process.isConstant(expression.get(1))) {
-				Expression result = Expressions.make(expression.getFunctor(), expression.get(1), expression.get(0));
+				Expression result = Expressions.makeFunctionApplication(expression.getFunctor(), expression.get(1), expression.get(0));
 				return result;
 			}
 		}

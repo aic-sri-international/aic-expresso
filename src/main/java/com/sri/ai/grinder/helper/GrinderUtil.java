@@ -694,7 +694,7 @@ public class GrinderUtil {
 			if (domain != null) {
 				Expression someContextualVariable = someContextualVariableAndDomain.getKey();
 				Expression newDomain =
-						Expressions.make(
+						Expressions.makeFromSyntaxTree(
 								domain.getSyntaxTree().replaceSubTreesAllOccurrences(contextualVariable.getSyntaxTree(),newContextualVariable.getSyntaxTree()));
 				if (newDomain != domain) {
 					newContextualVariablesAndDomains.put(someContextualVariable, newDomain);
@@ -708,7 +708,7 @@ public class GrinderUtil {
 		
 		// replaces contextualVariable in the constraint
 		Expression newContextualConstraint =
-				Expressions.make(
+				Expressions.makeFromSyntaxTree(
 						process.getContextualConstraint().getSyntaxTree().replaceSubTreesAllOccurrences(
 								contextualVariable.getSyntaxTree(), newContextualVariable.getSyntaxTree()));
 		

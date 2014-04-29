@@ -115,7 +115,7 @@ public class QuantifierElimination extends AbstractHierarchicalRewriter implemen
 			
 			Expression numberOfSolutionsOfBodyInIndexProblem  = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(body, indexExpression);
 			Expression numberOfSolutionsOfBodyInIndexSolution = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(numberOfSolutionsOfBodyInIndexProblem, CardinalityRewriter.Quantification.THERE_EXISTS));
-			Expression numberOfSolutionsMustBeGreaterThanZero = Expressions.make(FunctorConstants.GREATER_THAN, numberOfSolutionsOfBodyInIndexSolution, Expressions.ZERO);
+			Expression numberOfSolutionsMustBeGreaterThanZero = Expressions.makeFunctionApplication(FunctorConstants.GREATER_THAN, numberOfSolutionsOfBodyInIndexSolution, Expressions.ZERO);
 			
 			result = process.rewrite(R_normalize, numberOfSolutionsMustBeGreaterThanZero);
 		} 

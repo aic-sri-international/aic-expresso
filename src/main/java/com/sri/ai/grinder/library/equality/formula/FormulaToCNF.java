@@ -98,10 +98,10 @@ public class FormulaToCNF {
 		result = operatorsOut(result, process);
 			
 		if (FormulaUtil.isLiteral(result, process)) {
-			result = Expressions.make(And.FUNCTOR, Expressions.make(Or.FUNCTOR, result));
+			result = Expressions.makeFunctionApplication(And.FUNCTOR, Expressions.makeFunctionApplication(Or.FUNCTOR, result));
 		}
 		else if (Or.isDisjunction(result)) {
-			result = Expressions.make(And.FUNCTOR, result);
+			result = Expressions.makeFunctionApplication(And.FUNCTOR, result);
 		}
 		
 		if (!(result.equals(Expressions.TRUE) || result.equals(Expressions.FALSE))) {
@@ -167,7 +167,7 @@ public class FormulaToCNF {
 				for (Expression conjunct : expression.getArguments()) {
 					if (FormulaUtil.isLiteral(conjunct, process)) {
 						newConjunct = true;
-						conjuncts.add(Expressions.make(Or.FUNCTOR, conjunct));
+						conjuncts.add(Expressions.makeFunctionApplication(Or.FUNCTOR, conjunct));
 					}
 					else {
 						conjuncts.add(conjunct);

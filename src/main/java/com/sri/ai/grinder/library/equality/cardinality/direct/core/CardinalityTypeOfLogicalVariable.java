@@ -130,9 +130,9 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 			// In order to access their "argument", we must use their syntax tree.
 			if (cardinalityArgument.hasFunctor(FUNCTOR_TYPE)
 					&& cardinalityArgument.getSyntaxTree().numberOfImmediateSubTrees() == 1
-					&& process.isVariable(Expressions.make(cardinalityArgument.getSyntaxTree().getImmediateSubTrees().get(0)))) {
+					&& process.isVariable(Expressions.makeFromSyntaxTree(cardinalityArgument.getSyntaxTree().getImmediateSubTrees().get(0)))) {
 				
-				logicalVariable = Expressions.make(cardinalityArgument.getSyntaxTree().getImmediateSubTrees().get(0));
+				logicalVariable = Expressions.makeFromSyntaxTree(cardinalityArgument.getSyntaxTree().getImmediateSubTrees().get(0));
 			}
 		}
 		

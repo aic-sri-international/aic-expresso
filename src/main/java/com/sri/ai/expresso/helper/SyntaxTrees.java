@@ -46,6 +46,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.core.DefaultSymbol2;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.FunctionIterator;
 
@@ -71,7 +72,7 @@ public class SyntaxTrees {
 		if (object == null || object instanceof SyntaxTree) {
 			return (SyntaxTree) object;
 		}
-		return DefaultSymbol.createSymbol(object);
+		return DefaultSymbol2.createSymbol(object);
 	}
 
 	/** The array version of {@link #wrap(Object)}. */

@@ -157,7 +157,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 
 	/** Returns the scoping expression, which is an application of "on" on a list of index expressions. */
 	private static Expression getScopingExpression(Expression expression) {
-		return Expressions.make(expression.getSyntaxTree().getSubTree(0));
+		return Expressions.makeFromSyntaxTree(expression.getSyntaxTree().getSubTree(0));
 		// does need to be sub tree
 	}
 
@@ -180,7 +180,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	}
 
 	public static Expression getHead(Expression expression) {
-		return Expressions.make(expression.getSyntaxTree().getSubTree(1));
+		return Expressions.makeFromSyntaxTree(expression.getSyntaxTree().getSubTree(1));
 		 // does need to be sub tree
 	}
 
@@ -192,7 +192,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	 * Gets the condition of the intensional set.
 	 */
 	public static Expression getCondition(Expression expression) {
-		Expression result = expression.getSyntaxTree().getSubTree(2) != null? Expressions.make(expression.getSyntaxTree().getSubTree(2).getSubTree(0)) : Expressions.TRUE;
+		Expression result = expression.getSyntaxTree().getSubTree(2) != null? Expressions.makeFromSyntaxTree(expression.getSyntaxTree().getSubTree(2).getSubTree(0)) : Expressions.TRUE;
 		return result;
 		 // does need to be sub tree
 	}
@@ -331,7 +331,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		if ( ! Sets.isEmptySet(intensionalSetExpression)) {
 			Expression scopingExpression = IntensionalSet.getScopingExpression(intensionalSetExpression);
 			if (scopingExpression != null) {
-				List<Expression> indexExpressions = Expressions.ensureListFromKleeneList(Expressions.make(scopingExpression.getSyntaxTree().getSubTree(0))); // does need to be sub tree
+				List<Expression> indexExpressions = Expressions.ensureListFromKleeneList(Expressions.makeFromSyntaxTree(scopingExpression.getSyntaxTree().getSubTree(0))); // does need to be sub tree
 				return indexExpressions;
 			}
 		}
@@ -341,7 +341,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	public static Iterator<Expression> getIndexExpressionsIterator(Expression intensionalSetExpression) {
 		Expression scopingExpression = IntensionalSet.getScopingExpression(intensionalSetExpression);
 		if (scopingExpression != null) {
-			return Expressions.ensureListFromKleeneList(Expressions.make(scopingExpression.getSyntaxTree().getSubTree(0))).iterator();
+			return Expressions.ensureListFromKleeneList(Expressions.makeFromSyntaxTree(scopingExpression.getSyntaxTree().getSubTree(0))).iterator();
 			// does need to be sub tree
 		}
 		return new LinkedList<Expression>().iterator();
@@ -430,7 +430,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 
 		@Override
 		public Pair<Expression, List<Integer>> apply(Pair<SyntaxTree, List<Integer>> input) {
-			Pair<Expression, List<Integer>> result = Pair.make(Expressions.make(input.first), input.second);
+			Pair<Expression, List<Integer>> result = Pair.make(Expressions.makeFromSyntaxTree(input.first), input.second);
 			return result;
 		}
 		

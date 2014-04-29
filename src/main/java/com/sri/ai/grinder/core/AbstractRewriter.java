@@ -118,7 +118,7 @@ public abstract class AbstractRewriter implements Rewriter {
 				return arguments.get(0);
 			}
 
-			Expression result = Expressions.make(expression.getFunctor(), arguments);
+			Expression result = Expressions.makeFunctionApplication(expression.getFunctor(), arguments);
 			return result;
 		}
 		return expression;

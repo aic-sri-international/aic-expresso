@@ -94,10 +94,10 @@ public class FormulaToDNF {
 		result = operatorsOut(result, process);
 			
 		if (FormulaUtil.isLiteral(result, process)) {
-			result = Expressions.make(Or.FUNCTOR, Expressions.make(And.FUNCTOR, result));
+			result = Expressions.makeFunctionApplication(Or.FUNCTOR, Expressions.makeFunctionApplication(And.FUNCTOR, result));
 		}
 		else if (And.isConjunction(result)) {
-			result = Expressions.make(Or.FUNCTOR, result);
+			result = Expressions.makeFunctionApplication(Or.FUNCTOR, result);
 		}
 		
 		if (!(result.equals(Expressions.TRUE) || result.equals(Expressions.FALSE))) {
@@ -162,7 +162,7 @@ public class FormulaToDNF {
 				for (Expression disjunct : expression.getArguments()) {
 					if (FormulaUtil.isLiteral(disjunct, process)) {
 						newDisjunct = true;
-						disjuncts.add(Expressions.make(And.FUNCTOR, disjunct));
+						disjuncts.add(Expressions.makeFunctionApplication(And.FUNCTOR, disjunct));
 					}
 					else {
 						disjuncts.add(disjunct);

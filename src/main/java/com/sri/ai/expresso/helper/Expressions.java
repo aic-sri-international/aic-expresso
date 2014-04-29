@@ -61,6 +61,7 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.core.DefaultSymbol2;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -99,7 +100,7 @@ public class Expressions {
 	private static final SingletonListMaker<Integer> INTEGER_SINGLETON_LIST_MAKER = new SingletonListMaker<Integer>();
 	
 	/** Returns an expression represented by a given syntax tree. */
-	public static Expression make(SyntaxTree syntaxTree) {
+	public static Expression makeFromSyntaxTree(SyntaxTree syntaxTree) {
 		return syntaxTree;
 	}
 
@@ -107,7 +108,7 @@ public class Expressions {
 	public static final Function<SyntaxTree, Expression> MAKER = new Function<SyntaxTree, Expression>() {
 		@Override
 		public Expression apply(SyntaxTree input) {
-			Expression result = make(input);
+			Expression result = makeFromSyntaxTree(input);
 			return result;
 		}
 	};
@@ -116,7 +117,7 @@ public class Expressions {
 	 * Creates an atomic expression. TODO: Name should change once cleanup of SyntaxTree/Expression is completed.
 	 */
 	public static Expression createSymbol(Object object) {
-		return make(DefaultSymbol.createSymbol(object));
+		return DefaultSymbol.createSymbol(object);
 	}
 	
 	/**
@@ -148,7 +149,7 @@ public class Expressions {
 		if (list.size() == 1) {
 			return list.get(0);
 		}
-		return Expressions.make("kleene list", list);
+		return Expressions.makeFunctionApplication("kleene list", list);
 	}
 
 	/**
@@ -189,7 +190,7 @@ public class Expressions {
 		}
 		
 		if (change) {
-			return Expressions.make(functor, resultArguments);
+			return Expressions.makeFunctionApplication(functor, resultArguments);
 		}
 		
 		return expression;
@@ -321,7 +322,7 @@ public class Expressions {
 		if (object == null || object instanceof Expression) {
 			return (Expression) object;
 		}
-		return make(DefaultSymbol.createSymbol(object));
+		return DefaultSymbol.createSymbol(object);
 	}
 
 	/** The array version of {@link #wrap(Object)}. */
@@ -353,7 +354,7 @@ public class Expressions {
 	}
 
 	public static Expression replaceAtPath(Expression expression, List<Integer> path, Expression subExpressions) {
-		Expression result = Expressions.make(replaceAtPath(expression.getSyntaxTree(), path, subExpressions.getSyntaxTree()));
+		Expression result = Expressions.makeFromSyntaxTree(replaceAtPath(expression.getSyntaxTree(), path, subExpressions.getSyntaxTree()));
 		return result;
 	}
 
@@ -403,16 +404,16 @@ public class Expressions {
 	public static Expression addExpressionToArgumentsOfFunctionApplication(Expression expression, Object newArgument) {
 		ArrayList<Expression> newArguments = new ArrayList<Expression>(expression.getArguments());
 		newArguments.add(wrap(newArgument));
-		return Expressions.make(expression.getFunctor(), newArguments);
+		return Expressions.makeFunctionApplication(expression.getFunctor(), newArguments);
 	}
 
-	public static Expression make(Object functor, Object... arguments) {
+	public static Expression makeFunctionApplication(Object functor, Object... arguments) {
 		if (arguments.length != 0) {
 			if (arguments[0] instanceof Expression[]) {
-				return make(functor, (Object[]) arguments[0]); // the cast avoids arguments[0] being wrapper in a new 1-element array
+				return makeFunctionApplication(functor, (Object[]) arguments[0]); // the cast avoids arguments[0] being wrapper in a new 1-element array
 			}
 			if (arguments[0] instanceof Collection) {
-				return make(functor, ((Collection)arguments[0]).toArray());
+				return makeFunctionApplication(functor, ((Collection)arguments[0]).toArray());
 			}
 		}
 	
@@ -424,12 +425,12 @@ public class Expressions {
 			subTrees.add(subTree);
 		}
 		SyntaxTree rootTree = SyntaxTrees.wrap(functor);
-		Expression result = Expressions.make(DefaultCompoundSyntaxTree.make(rootTree, subTrees));
+		Expression result = DefaultCompoundSyntaxTree.make(rootTree, subTrees);
 		return result;
 	}
 
 	public static Expression apply(Object functor, Object... arguments) {
-		return make(functor, arguments);
+		return makeFunctionApplication(functor, arguments);
 	}
 
 	public static List<Expression> getSyntaxTreesOfSubExpressions(Expression syntaxTree) {
@@ -637,7 +638,7 @@ public class Expressions {
 			}
 		};
 		
-		Expression result = Expressions.make(expression.getSyntaxTree().replaceSubTreesAllOccurrences(rounder));
+		Expression result = Expressions.makeFromSyntaxTree(expression.getSyntaxTree().replaceSubTreesAllOccurrences(rounder));
 		return result;
 	}
 
@@ -650,7 +651,7 @@ public class Expressions {
 	 */
 	@Deprecated
 	public  static SyntaxTree round(SyntaxTree syntaxTree, int precision) {
-		Expression expression = Expressions.make(syntaxTree);
+		Expression expression = Expressions.makeFromSyntaxTree(syntaxTree);
 		if (syntaxTree instanceof Symbol && Expressions.isNumber(expression)) {
 			Rational value = expression.rationalValue();
 			String rounded = "";
@@ -660,7 +661,7 @@ public class Expressions {
 			else {
 				rounded = value.toStringDotRelative(precision);
 			}
-			return DefaultSymbol.createSymbol(rounded);
+			return DefaultSymbol2.createSymbol(rounded);
 		}
 		return syntaxTree;
 	}
@@ -810,7 +811,7 @@ public class Expressions {
 		}
 		List<Expression> result = new LinkedList<Expression>();
 		for (int i = 0; i != list1.size(); i++) {
-			result.add(Expressions.make(functor, list1.get(i), list2.get(i)));
+			result.add(Expressions.makeFunctionApplication(functor, list1.get(i), list2.get(i)));
 		}
 		return result;
 	}
@@ -867,7 +868,7 @@ public class Expressions {
 	 */
 	public static Expression removeIthArgument(Expression expression, int i) {
 		List<Expression> newArguments = Util.removeNonDestructively(expression.getArguments(), i);
-		Expression result = Expressions.make(expression.getFunctor(), newArguments);
+		Expression result = Expressions.makeFunctionApplication(expression.getFunctor(), newArguments);
 		return result;
 	}
 

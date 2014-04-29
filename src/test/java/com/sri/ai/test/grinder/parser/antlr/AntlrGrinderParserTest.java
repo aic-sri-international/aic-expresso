@@ -761,14 +761,14 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		
 		string = "{ ( on ) p(X, X) | true }";
 		test(string, new DefaultCompoundSyntaxTree("{ . . . }", IntensionalSet.makeScopingExpression(new ArrayList<Expression>()), 
-				new DefaultCompoundSyntaxTree("p", "X", "X"), Expressions.make(IntensionalSet.CONDITION_LABEL, "true")));
+				new DefaultCompoundSyntaxTree("p", "X", "X"), Expressions.makeFunctionApplication(IntensionalSet.CONDITION_LABEL, "true")));
 
 		string = "{ ( on ) X | true }";
 		test(string, new DefaultCompoundSyntaxTree("{ . . . }", IntensionalSet.makeScopingExpression(new ArrayList<Expression>()),  
-				"X", Expressions.make(IntensionalSet.CONDITION_LABEL, "true")));
+				"X", Expressions.makeFunctionApplication(IntensionalSet.CONDITION_LABEL, "true")));
 				
 		string = "{ a | true}";
-		test(string, new DefaultCompoundSyntaxTree("{ . . . }", null, "a", Expressions.make(IntensionalSet.CONDITION_LABEL, "true")));
+		test(string, new DefaultCompoundSyntaxTree("{ . . . }", null, "a", Expressions.makeFunctionApplication(IntensionalSet.CONDITION_LABEL, "true")));
 		
 		string = "{ foo }";
 		test(string, new DefaultCompoundSyntaxTree("{ . }", "foo"));

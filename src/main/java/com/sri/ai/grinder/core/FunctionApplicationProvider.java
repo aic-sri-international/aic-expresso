@@ -86,7 +86,7 @@ ExpressionKnowledgeModule.Provider
 	
 	public static Expression getFunctor(Expression expression) {
 		if (knowledgeApplies(expression)) {
-			return Expressions.make(expression.getSyntaxTree().getRootTree());
+			return Expressions.makeFromSyntaxTree(expression.getSyntaxTree().getRootTree());
 		}		
 		return null;
 	}
