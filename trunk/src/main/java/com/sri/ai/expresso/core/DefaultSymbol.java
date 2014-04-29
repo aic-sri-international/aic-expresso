@@ -116,16 +116,6 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		return valueOrRootSyntaxTree;
 	}
 
-	@Override
-	public SyntaxTree getRootTree() {
-		return null;
-	}
-
-	@Override
-	public Object getLabel() {
-		return valueOrRootSyntaxTree;
-	}
-
 	/**
 	 * Set the numeric display precision for numeric valued symbols.
 	 * 
@@ -223,7 +213,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		_globalSymbolTable.put(new Rational(9), SYMBOL_9);
 	}
 	
-	public static Symbol createSymbol(Object value) {
+	public static Expression createSymbol(Object value) {
 		DefaultSymbol result = null;
 		// If global symbol table to be used and the symbol's value is not
 		// an expression - i.e. quoted expressions of the form:
@@ -293,52 +283,6 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	}
 
 	@Override
-	public Iterator<SyntaxTree> getImmediateSubTreesIncludingRootOneIterator() {
-		List<SyntaxTree> emptyList = Collections.emptyList();
-		return emptyList.iterator();
-	}
-
-	@Override
-	public int numberOfImmediateSubTreesIncludingRootOneIterator() {
-		return 0;
-	}
-
-	@Override
-	public SyntaxTree setImmediateSubTree(int i, Object newIthArgument) {
-		throw new Error("Attempt at changing " + i + "-th sub-syntax tree of Symbol: " + this + " with " + newIthArgument + ", but Symbols have no sub-trees");
-	}
-
-	@Override
-	public SyntaxTree replaceSubTreesAllOccurrences(Function<SyntaxTree, SyntaxTree> replacementFunction, Predicate<SyntaxTree> prunePredicate, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
-		return replaceSubTreesFirstOccurrence(replacementFunction, prunePredicate, listener);
-	}
-
-	@Override
-	public SyntaxTree replaceSubTreesFirstOccurrence(Function<SyntaxTree, SyntaxTree> replacementFunction, Predicate<SyntaxTree> prunePredicate, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
-		if (prunePredicate != null && prunePredicate.apply(this)) {
-			return this;
-		}
-		SyntaxTree replacement = replacementFunction.apply(this);
-		if (replacement == null) {
-			replacement = this;
-		}
-		if (listener != null) {
-			listener.apply(this, replacement);
-		}
-		return replacement;
-	}
-	
-	@Override
-	public SyntaxTree replaceSubTrees(Function<SyntaxTree, SyntaxTree> replacementFunction,
-			boolean onlyTheFirstOne, Predicate<SyntaxTree> prunePredicate,
-			BinaryProcedure<SyntaxTree, SyntaxTree> listener, boolean ignoreTopExpression) {
-		if (ignoreTopExpression) {
-			return this;
-		}
-		return replaceSubTreesFirstOccurrence(replacementFunction, prunePredicate, listener);
-	}
-
-	@Override
 	public String getStringForComparisonPurposes() {
 		return toString();
 	}
@@ -362,7 +306,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 			anotherSymbol = (Symbol) ((Expression) another).getSyntaxTree();
 		} 
 		else {
-			anotherSymbol = createSymbol(another);
+			anotherSymbol = DefaultSymbol2.createSymbol(another);
 			// Test again, as may have had self returned from the symbol table.
 			if (this.getSyntaxTree() == anotherSymbol) {
 				return true;
@@ -416,11 +360,6 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		}
 		
 		return result;
-	}
-
-	@Override
-	public SyntaxTree replaceSubTrees(Function<SyntaxTree, SyntaxTree> replacementFunction) {
-		return this;
 	}
 
 	public Expression clone() {
@@ -569,4 +508,67 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		
 		return result;
 	}
+//}/*
+	@Override
+	public SyntaxTree getRootTree() {
+		return null;
+	}
+
+	@Override
+	public Object getLabel() {
+		return valueOrRootSyntaxTree;
+	}
+
+	@Override
+	public Iterator<SyntaxTree> getImmediateSubTreesIncludingRootOneIterator() {
+		List<SyntaxTree> emptyList = Collections.emptyList();
+		return emptyList.iterator();
+	}
+
+	@Override
+	public int numberOfImmediateSubTreesIncludingRootOneIterator() {
+		return 0;
+	}
+
+	@Override
+	public SyntaxTree setImmediateSubTree(int i, Object newIthArgument) {
+		throw new Error("Attempt at changing " + i + "-th sub-syntax tree of Symbol: " + this + " with " + newIthArgument + ", but Symbols have no sub-trees");
+	}
+
+	@Override
+	public SyntaxTree replaceSubTreesAllOccurrences(Function<SyntaxTree, SyntaxTree> replacementFunction, Predicate<SyntaxTree> prunePredicate, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
+		return replaceSubTreesFirstOccurrence(replacementFunction, prunePredicate, listener);
+	}
+
+	@Override
+	public SyntaxTree replaceSubTreesFirstOccurrence(Function<SyntaxTree, SyntaxTree> replacementFunction, Predicate<SyntaxTree> prunePredicate, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
+		if (prunePredicate != null && prunePredicate.apply(this)) {
+			return this;
+		}
+		SyntaxTree replacement = replacementFunction.apply(this);
+		if (replacement == null) {
+			replacement = this;
+		}
+		if (listener != null) {
+			listener.apply(this, replacement);
+		}
+		return replacement;
+	}
+	
+	@Override
+	public SyntaxTree replaceSubTrees(Function<SyntaxTree, SyntaxTree> replacementFunction,
+			boolean onlyTheFirstOne, Predicate<SyntaxTree> prunePredicate,
+			BinaryProcedure<SyntaxTree, SyntaxTree> listener, boolean ignoreTopExpression) {
+		if (ignoreTopExpression) {
+			return this;
+		}
+		return replaceSubTreesFirstOccurrence(replacementFunction, prunePredicate, listener);
+	}
+
+	@Override
+	public SyntaxTree replaceSubTrees(Function<SyntaxTree, SyntaxTree> replacementFunction) {
+		return this;
+	}
+
 }
+//*/

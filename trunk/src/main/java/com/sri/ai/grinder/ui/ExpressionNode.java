@@ -91,7 +91,7 @@ public class ExpressionNode implements TreeNode {
 	
 	public ExpressionNode(SyntaxTree syntaxTree) {
 		writer = TreeUtil.getWriter();
-		toolTipText = syntaxTree == null ? "": writer.toString(Expressions.make(syntaxTree));
+		toolTipText = syntaxTree == null ? "": writer.toString(Expressions.makeFromSyntaxTree(syntaxTree));
 		userObject = syntaxTree;
 		type = null;
 		parent = null;

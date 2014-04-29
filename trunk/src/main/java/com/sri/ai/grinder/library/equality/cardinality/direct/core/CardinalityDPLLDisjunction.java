@@ -293,7 +293,7 @@ public class CardinalityDPLLDisjunction extends AbstractHierarchicalRewriter imp
 			Expression cardNotF1AndNotF2    = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(notF1AndNotF2, indexExpressions);
 			Expression resultCard1          = process.rewrite(R_card,
 													CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardNotF1AndNotF2, CardinalityRewriter.Quantification.THERE_EXISTS));
-			Expression resultCard1NotEqual0 = Expressions.make(FunctorConstants.GREATER_THAN, resultCard1, Expressions.ZERO); 
+			Expression resultCard1NotEqual0 = Expressions.makeFunctionApplication(FunctorConstants.GREATER_THAN, resultCard1, Expressions.ZERO); 
 			Expression ifThenElse           = IfThenElse.make(resultCard1NotEqual0, Expressions.ZERO, cardIndices);
 			
 			result = process.rewrite(R_normalize, ifThenElse);

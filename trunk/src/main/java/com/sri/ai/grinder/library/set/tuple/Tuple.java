@@ -116,7 +116,7 @@ MutuallyExclusiveCoDomainsModule.Provider {
 			// It is part of what needs to be cleaned up regarding the whole representation of expressions.
 		}
 		else {
-			elements = Expressions.ensureListFromKleeneList(Expressions.make(expression.getSyntaxTree().getSubTree(0)));
+			elements = Expressions.ensureListFromKleeneList(Expressions.makeFromSyntaxTree(expression.getSyntaxTree().getSubTree(0)));
 		}
 		return elements;
 	}

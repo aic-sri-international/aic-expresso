@@ -94,7 +94,7 @@ public class BooleanUtil {
 					return newArguments.get(0);
 				} 
 				else {
-					return Expressions.make(functor, newArguments);
+					return Expressions.makeFunctionApplication(functor, newArguments);
 				}
 			} 
 			else if ( functor.equals(Not.FUNCTOR) ) {

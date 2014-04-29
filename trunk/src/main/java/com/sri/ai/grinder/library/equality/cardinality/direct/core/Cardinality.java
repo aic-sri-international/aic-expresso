@@ -128,7 +128,7 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 									CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(
 										CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(Not.make(f), indexExpressionsAsArray), 
 										CardinalityRewriter.Quantification.NONE));
-						Expression subtraction = Expressions.make(FunctorConstants.MINUS, cardIndexX, negationCardinality);
+						Expression subtraction = Expressions.makeFunctionApplication(FunctorConstants.MINUS, cardIndexX, negationCardinality);
 						result = process.rewrite(CardinalityRewriter.R_normalize, subtraction);
 					}
 					else {

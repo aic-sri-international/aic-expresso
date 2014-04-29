@@ -204,7 +204,7 @@ public class GrinderTest extends AbstractGrinderTest {
 				new Associative("+"));
 		evaluator = new ExhaustiveRewriter(library);
 		
-		Expression topExpression = Expressions.make(FunctorConstants.EQUAL, Expressions.createSymbol("V"), "2");
+		Expression topExpression = Expressions.makeFunctionApplication(FunctorConstants.EQUAL, Expressions.createSymbol("V"), "2");
 		RewritingProcess process = new DefaultRewritingProcess(topExpression, evaluator);
 		
 		Expression var = Expressions.makeUniqueVariable("X", topExpression, process);
@@ -1330,14 +1330,14 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 
 		expressionString = "if even(X) then f(even(Y)) else g(even(X))";
-		expected = Expressions.make(ANY_OF,
+		expected = Expressions.makeFunctionApplication(ANY_OF,
 				parse("if even(X) then f(if Y = X then true else even(Y)) else g(false)"),
 				parse("if even(X) then f(even(Y)) else g(false)")
 				);
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 
 		expressionString = "if even(X) then {(on even(a)) f(even(Y))} else g(even(X))";
-		expected = Expressions.make(ANY_OF, 
+		expected = Expressions.makeFunctionApplication(ANY_OF, 
 				parse("if even(X) then { ( on even(a) ) f(even(Y)) } else g(false)"),
 				parse("if even(X) then {(on even(a)) f(if Y != a and Y = X then true else even(Y))} else g(false)"),
 				parse("if even(X) then {(on even(a)) f(if X != a and Y = X then true else even(Y))} else g(false)"));

@@ -88,7 +88,7 @@ public class AssociativeSequence extends Sequence {
 		StringBuffer result = new StringBuffer();
 		String separator = " ";
 		SyntaxTree rootTree = syntaxTree.getRootTree();
-		String rootTreeString = writer.toString(Expressions.make(rootTree));
+		String rootTreeString = writer.toString(Expressions.makeFromSyntaxTree(rootTree));
 		
 		if (rootTree.numberOfImmediateSubTrees() > 0) {
 			rootTreeString = "(" + rootTreeString + ")";

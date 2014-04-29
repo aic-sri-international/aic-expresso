@@ -470,7 +470,7 @@ public class Sequence extends AbstractParsingExpression implements BasicParsingE
 			} 
 			else {
 				if (subParsingExpression.hasFunctor("kleene")) {
-					Expression kleeneList = Expressions.make(syntaxTree.getSubTree(subTreeIndex));
+					Expression kleeneList = Expressions.makeFromSyntaxTree(syntaxTree.getSubTree(subTreeIndex));
 					Iterator<String> listElementsRepresentationIterator =
 						new FunctionIterator(
 								Expressions.ensureListFromKleeneList(kleeneList),

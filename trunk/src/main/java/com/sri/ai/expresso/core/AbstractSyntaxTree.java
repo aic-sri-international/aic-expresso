@@ -119,76 +119,6 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 		return result;
 	}
 
-	@Override
-	public SyntaxTree replaceSubTreesFirstOccurrence(SyntaxTree replaced, SyntaxTree replacement) {
-		return replaceSubTreesFirstOccurrence(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), null, null);
-	}
-
-	@Override
-	public SyntaxTree replaceSubTreesAllOccurrences(SyntaxTree replaced, SyntaxTree replacement) {
-		return replaceSubTreesAllOccurrences(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), null, null);
-	}
-
-	@Override
-	public SyntaxTree replaceSubTreesFirstOccurrence(SyntaxTree replaced, SyntaxTree replacement, Predicate<SyntaxTree> prunePredicate) {
-		return replaceSubTreesFirstOccurrence(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), prunePredicate);
-	}
-
-	@Override
-	public SyntaxTree replaceSubTreesAllOccurrences(SyntaxTree replaced, SyntaxTree replacement, Predicate<SyntaxTree> prunePredicate) {
-		return replaceSubTreesAllOccurrences(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), prunePredicate);
-	}
-
-	@Override
-	public SyntaxTree replaceSubTreesFirstOccurrence(Function<SyntaxTree, SyntaxTree> replacementFunction) {
-		return replaceSubTreesFirstOccurrence(replacementFunction, null, null);
-	}
-
-	@Override
-	public SyntaxTree replaceSubTreesAllOccurrences(Function<SyntaxTree, SyntaxTree> replacementFunction) {
-		return replaceSubTreesAllOccurrences(replacementFunction, null, null);
-	}
-
-	@Override
-	public SyntaxTree replaceSubTreesFirstOccurrence(Function<SyntaxTree, SyntaxTree> replacementFunction, Predicate<SyntaxTree> prunePredicate) {
-		return replaceSubTreesFirstOccurrence(replacementFunction, prunePredicate, null);
-	}
-
-	@Override
-	public SyntaxTree replaceSubTreesAllOccurrences(Function<SyntaxTree, SyntaxTree> replacementFunction, Predicate<SyntaxTree> prunePredicate) {
-		return replaceSubTreesAllOccurrences(replacementFunction, prunePredicate, null);
-	}
-
-	@Override
-	public SyntaxTree replaceSubTreesFirstOccurrence(Function<SyntaxTree, SyntaxTree> replacementFunction, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
-		return replaceSubTreesFirstOccurrence(replacementFunction, null, listener);
-	}
-
-	@Override
-	public SyntaxTree replaceSubTreesAllOccurrences(Function<SyntaxTree, SyntaxTree> replacementFunction, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
-		return replaceSubTreesAllOccurrences(replacementFunction, null, listener);
-	}
-
-	@Override
-	public SyntaxTree replaceSubTreesFirstOccurrence(SyntaxTree replaced, SyntaxTree replacement, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
-		return replaceSubTreesFirstOccurrence(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), null, listener);
-	}
-
-	@Override
-	public SyntaxTree replaceSubTreesAllOccurrences(SyntaxTree replaced, SyntaxTree replacement, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
-		return replaceSubTreesAllOccurrences(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), null, listener);
-	}
-
-	@Override
-	public SyntaxTree replaceSubTreesFirstOccurrence(SyntaxTree replaced, SyntaxTree replacement, Predicate<SyntaxTree> prunePredicate, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
-		return replaceSubTreesFirstOccurrence(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), prunePredicate, listener);
-	}
-
-	@Override
-	public SyntaxTree replaceSubTreesAllOccurrences(SyntaxTree replaced, SyntaxTree replacement, Predicate<SyntaxTree> prunePredicate, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
-		return replaceSubTreesAllOccurrences(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), prunePredicate, listener);
-	}
-
 	abstract public Expression clone();
 	
 	/**
@@ -257,41 +187,6 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 		new FunctionIterator<ExpressionAndContext, Expression>(
 				getImmediateSubExpressionsAndContextsIterator(),
 				ExpressionAndContext.GET_EXPRESSION);
-	}
-
-	@Override
-	public int numberOfImmediateSubTrees() {
-		return subTrees.size();
-	}
-
-	@Override
-	public SyntaxTree getSubTree(Object fieldKey) {
-		if (fieldKey.equals("functor")) {
-			return getRootTree();
-		}
-		else if (fieldKey instanceof Number) {
-			int index = ((Number)fieldKey).intValue();
-			if (index == -1) {
-				return (SyntaxTree) valueOrRootSyntaxTree;
-			}
-			if (index < subTrees.size()) {
-				return subTrees.get(index);
-			}
-			else {
-				return null;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public List<SyntaxTree> getImmediateSubTrees() {
-		return subTrees;
-	}
-
-	@Override
-	public Iterator<SyntaxTree> getImmediateSubTreesIterator() {
-		return getImmediateSubTrees().iterator();
 	}
 
 	///////////////////////// FUNCTION APPLICATION METHODS //////////////////////
@@ -364,7 +259,7 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 			if (newIthArgument == oldArgument) {
 				return this;
 			}
-			Expression result = Expressions.make(getSyntaxTree().setImmediateSubTree(index, newIthArgument));
+			Expression result = Expressions.makeFromSyntaxTree(getSyntaxTree().setImmediateSubTree(index, newIthArgument));
 			return result;
 		}
 		Util.fatalError("set can only be invoked for Expressions of function application syntactic form, but was invoked for " + this);
@@ -420,4 +315,112 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 		
 		return result;
 	}
+//}/*
+	@Override
+	public SyntaxTree replaceSubTreesFirstOccurrence(SyntaxTree replaced, SyntaxTree replacement) {
+		return replaceSubTreesFirstOccurrence(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), null, null);
+	}
+
+	@Override
+	public SyntaxTree replaceSubTreesAllOccurrences(SyntaxTree replaced, SyntaxTree replacement) {
+		return replaceSubTreesAllOccurrences(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), null, null);
+	}
+
+	@Override
+	public SyntaxTree replaceSubTreesFirstOccurrence(SyntaxTree replaced, SyntaxTree replacement, Predicate<SyntaxTree> prunePredicate) {
+		return replaceSubTreesFirstOccurrence(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), prunePredicate);
+	}
+
+	@Override
+	public SyntaxTree replaceSubTreesAllOccurrences(SyntaxTree replaced, SyntaxTree replacement, Predicate<SyntaxTree> prunePredicate) {
+		return replaceSubTreesAllOccurrences(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), prunePredicate);
+	}
+
+	@Override
+	public SyntaxTree replaceSubTreesFirstOccurrence(Function<SyntaxTree, SyntaxTree> replacementFunction) {
+		return replaceSubTreesFirstOccurrence(replacementFunction, null, null);
+	}
+
+	@Override
+	public SyntaxTree replaceSubTreesAllOccurrences(Function<SyntaxTree, SyntaxTree> replacementFunction) {
+		return replaceSubTreesAllOccurrences(replacementFunction, null, null);
+	}
+
+	@Override
+	public SyntaxTree replaceSubTreesFirstOccurrence(Function<SyntaxTree, SyntaxTree> replacementFunction, Predicate<SyntaxTree> prunePredicate) {
+		return replaceSubTreesFirstOccurrence(replacementFunction, prunePredicate, null);
+	}
+
+	@Override
+	public SyntaxTree replaceSubTreesAllOccurrences(Function<SyntaxTree, SyntaxTree> replacementFunction, Predicate<SyntaxTree> prunePredicate) {
+		return replaceSubTreesAllOccurrences(replacementFunction, prunePredicate, null);
+	}
+
+	@Override
+	public SyntaxTree replaceSubTreesFirstOccurrence(Function<SyntaxTree, SyntaxTree> replacementFunction, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
+		return replaceSubTreesFirstOccurrence(replacementFunction, null, listener);
+	}
+
+	@Override
+	public SyntaxTree replaceSubTreesAllOccurrences(Function<SyntaxTree, SyntaxTree> replacementFunction, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
+		return replaceSubTreesAllOccurrences(replacementFunction, null, listener);
+	}
+
+	@Override
+	public SyntaxTree replaceSubTreesFirstOccurrence(SyntaxTree replaced, SyntaxTree replacement, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
+		return replaceSubTreesFirstOccurrence(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), null, listener);
+	}
+
+	@Override
+	public SyntaxTree replaceSubTreesAllOccurrences(SyntaxTree replaced, SyntaxTree replacement, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
+		return replaceSubTreesAllOccurrences(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), null, listener);
+	}
+
+	@Override
+	public SyntaxTree replaceSubTreesFirstOccurrence(SyntaxTree replaced, SyntaxTree replacement, Predicate<SyntaxTree> prunePredicate, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
+		return replaceSubTreesFirstOccurrence(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), prunePredicate, listener);
+	}
+
+	@Override
+	public SyntaxTree replaceSubTreesAllOccurrences(SyntaxTree replaced, SyntaxTree replacement, Predicate<SyntaxTree> prunePredicate, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
+		return replaceSubTreesAllOccurrences(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), prunePredicate, listener);
+	}
+
+	@Override
+	public int numberOfImmediateSubTrees() {
+		return subTrees.size();
+	}
+
+	@Override
+	public SyntaxTree getSubTree(Object fieldKey) {
+		if (fieldKey.equals("functor")) {
+			return getRootTree();
+		}
+		else if (fieldKey instanceof Number) {
+			int index = ((Number)fieldKey).intValue();
+			if (index == -1) {
+				return (SyntaxTree) valueOrRootSyntaxTree;
+			}
+			if (index < subTrees.size()) {
+				return subTrees.get(index);
+			}
+			else {
+				return null;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public List<SyntaxTree> getImmediateSubTrees() {
+		return subTrees;
+	}
+
+	@Override
+	public Iterator<SyntaxTree> getImmediateSubTreesIterator() {
+		return getImmediateSubTrees().iterator();
+	}
+
 }
+
+//*/

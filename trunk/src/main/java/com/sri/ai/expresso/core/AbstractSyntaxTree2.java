@@ -52,16 +52,16 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.sri.ai.expresso.ExpressoConfiguration;
+import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractExpression;
+import com.sri.ai.grinder.core.AbstractExpression2;
 import com.sri.ai.grinder.core.FunctionApplicationProvider;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryProcedure;
@@ -74,7 +74,7 @@ import com.sri.ai.util.collect.FunctionIterator;
  * @author braz
  */
 @Beta
-public abstract class AbstractSyntaxTree2 extends AbstractExpression implements SyntaxTree {
+public abstract class AbstractSyntaxTree2 extends AbstractExpression2 implements SyntaxTree {
 	private static final long serialVersionUID = 1L;
 	
 	public static final Function<Object, SyntaxTree> wrapper = new Function<Object, SyntaxTree>() {
@@ -364,7 +364,7 @@ public abstract class AbstractSyntaxTree2 extends AbstractExpression implements 
 			if (newIthArgument == oldArgument) {
 				return this;
 			}
-			Expression result = Expressions.make(getSyntaxTree().setImmediateSubTree(index, newIthArgument));
+			Expression result = Expressions.makeFromSyntaxTree(getSyntaxTree().setImmediateSubTree(index, newIthArgument));
 			return result;
 		}
 		Util.fatalError("set can only be invoked for Expressions of function application syntactic form, but was invoked for " + this);

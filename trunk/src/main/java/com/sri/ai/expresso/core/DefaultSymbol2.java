@@ -82,7 +82,7 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class DefaultSymbol2 extends AbstractSyntaxTree implements Symbol  {
+public class DefaultSymbol2 extends AbstractSyntaxTree2 implements Symbol  {
 	private static final long serialVersionUID = 1L;
 	
 	private static int _displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();

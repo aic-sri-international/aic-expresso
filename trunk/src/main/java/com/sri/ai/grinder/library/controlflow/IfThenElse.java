@@ -115,7 +115,7 @@ public class IfThenElse extends AbstractRewriter {
 		if (thenBranch.equals(true) && elseBranch.equals(false)) {
 			return condition;
 		}
-		Expression result = Expressions.make(FunctorConstants.IF_THEN_ELSE, condition, thenBranch, elseBranch);
+		Expression result = Expressions.makeFunctionApplication(FunctorConstants.IF_THEN_ELSE, condition, thenBranch, elseBranch);
 		return result;
 	}
 

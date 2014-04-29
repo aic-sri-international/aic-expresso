@@ -241,7 +241,7 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 		if (expression.numberOfArguments() == 2
 				&& process.isConstant(expression.get(0))) {
 			if ( ! process.isConstant(expression.get(1))) {
-				Expression result = Expressions.make(expression.getFunctor(), expression.get(1), expression.get(0));
+				Expression result = Expressions.makeFunctionApplication(expression.getFunctor(), expression.get(1), expression.get(0));
 				return result;
 			}
 		}

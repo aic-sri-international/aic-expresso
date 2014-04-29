@@ -276,12 +276,12 @@ public class SimpleFormulaGenerator {
 	}
 	
 	protected Expression generateSimpleEquivalence() {
-		Expression result = Expressions.make(Equivalence.FUNCTOR, generateLiteral() , generateLiteral());
+		Expression result = Expressions.makeFunctionApplication(Equivalence.FUNCTOR, generateLiteral() , generateLiteral());
 		return result;
 	}
 	
 	protected Expression generateEquivalence(Expression f1, Expression f2) {
-		Expression result = Expressions.make(Equivalence.FUNCTOR, f1, f2);
+		Expression result = Expressions.makeFunctionApplication(Equivalence.FUNCTOR, f1, f2);
 		return result;
 	}
 	
@@ -316,7 +316,7 @@ public class SimpleFormulaGenerator {
 			}
 		} 
 		else {
-			result = Expressions.make(clauseConnector, clauses.toArray());
+			result = Expressions.makeFunctionApplication(clauseConnector, clauses.toArray());
 		}
 		
 		return result;
@@ -359,7 +359,7 @@ public class SimpleFormulaGenerator {
 				clause = clausesList.get(i).get(0);
 			}
 			else {
-				clause = Expressions.make(literalConnector, clausesList.get(i).toArray());
+				clause = Expressions.makeFunctionApplication(literalConnector, clausesList.get(i).toArray());
 			}
 			clauses.add(clause);
 		}
@@ -376,7 +376,7 @@ public class SimpleFormulaGenerator {
 			}
 		} 
 		else {
-			result = Expressions.make(clauseConnector, clauses.toArray());
+			result = Expressions.makeFunctionApplication(clauseConnector, clauses.toArray());
 		}
 		
 		return result;
@@ -451,7 +451,7 @@ public class SimpleFormulaGenerator {
 			}
 		} 
 		else {
-			result = Expressions.make(connector, literals.toArray());
+			result = Expressions.makeFunctionApplication(connector, literals.toArray());
 		}
 		return result;
 	}

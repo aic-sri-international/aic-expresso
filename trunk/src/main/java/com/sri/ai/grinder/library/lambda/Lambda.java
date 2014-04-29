@@ -80,11 +80,11 @@ public class Lambda extends QuantifierSubExpressionAndScopedVariableProvider {
 	}
 
 	public static List<Expression> getIndexExpressions(Expression expression) {
-		return Expressions.ensureListFromKleeneList(Expressions.make(expression.getSyntaxTree().getSubTree(0))); // does need to be sub tree
+		return Expressions.ensureListFromKleeneList(Expressions.makeFromSyntaxTree(expression.getSyntaxTree().getSubTree(0))); // does need to be sub tree
 	}
 
 	public static Expression getBody(Expression lambda) {
-		return Expressions.make(lambda.getSyntaxTree().getSubTree(1)); // does need to be sub tree
+		return Expressions.makeFromSyntaxTree(lambda.getSyntaxTree().getSubTree(1)); // does need to be sub tree
 	}
 
 	/**
