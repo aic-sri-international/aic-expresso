@@ -41,13 +41,17 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
+import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
@@ -205,18 +209,55 @@ public abstract class AbstractSyntaxTree2 extends AbstractExpression2 implements
 	@Override
 	public String toString() {
 		if (cachedToString == null) {
-//			Function<Expression, String> toString = getToString();
-//			if (toString != null) {
-//				cachedToString = toString.apply(this);
-//			}
-//			else 
-//			{
+			Function<Expression, String> toString = getToString();
+			if (toString != null) {
+				cachedToString = toString.apply(this);
+			}
+			else 
+			{
 				cachedToString = defaultToString();
-//			}
+			}
 		}
 		return cachedToString;
 	}
 	
+	/**
+	 * 
+	 * @return the default configured to string unary function for the current
+	 *         thread. The instance to use is determined by the configuration
+	 *         settings for
+	 *         {@link ExpressoConfiguration#KEY_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS}
+	 *         .
+	 */
+	private static Function<Expression, String> getToString() {
+		Function<Expression, String> result = threadToString.getIfPresent(Thread.currentThread());
+		if (result == null) {
+			// Initialize with the defaultToString() caller, as other methods can
+			// rely on Grammar instances that can cause recursive calls, this
+			// prevents such recursion from occurring.
+			threadToString.put(Thread.currentThread(), new SyntaxTreeToStringFunction());
+			
+			result = ExpressoConfiguration.newConfiguredInstance(ExpressoConfiguration.getDefaultSyntaxToStringUnaryFunctionClass());
+
+			// Now assign the configured object.
+			threadToString.put(Thread.currentThread(), result);
+		}
+		
+		return result;
+	}
+
+	private static Cache<Thread, Function<Expression, String>> threadToString = newThreadToStringCache();
+
+	private static Cache<Thread, Function<Expression, String>> newThreadToStringCache() {
+		Cache<Thread, Function<Expression, String>> result = CacheBuilder.newBuilder()
+				.expireAfterAccess(ExpressoConfiguration.getSyntaxToStringThreadCacheTimeoutInSeconds(), TimeUnit.SECONDS)
+				// Don't hold onto old threads unnecessarily
+				.weakKeys()
+				.build();
+		
+		return result;
+	}
+
 	private static final long serialVersionUID = 1L;
 	private volatile Object                    cachedSyntacticFormType             = null;
 	private Lock                               lazyInitCachedSyntacticFormTypeLock = new ReentrantLock();

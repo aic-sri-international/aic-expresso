@@ -52,7 +52,6 @@ import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.core.OrderNormalize;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryProcedure;
 import com.sri.ai.util.collect.FunctionIterator;
@@ -154,54 +153,15 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		return hashCode;
 	}
 
-	private boolean mayBeEqualAsFarAsFunctorIsConcerned(Expression anotherExpression) {
-		boolean result = false;
-		try {
-			DefaultCompoundSyntaxTree anotherDefaultCompoundSyntaxTree = (DefaultCompoundSyntaxTree) anotherExpression;
-			if (anotherDefaultCompoundSyntaxTree.getFunctor().equals(getFunctor())) {
-				result = true;
-			}
-		}
-		catch (ClassCastException e) {
-			// result remains false;
-		}
-		return result;
-	}
-
 	public boolean equals(Object anotherObject) {
 		boolean result;
-		if ( ! useOrderNormalization) {
-			result = basicEquals(this, anotherObject);
-		}
-		else {
-			Expression anotherExpression;
-			try {
-				anotherExpression = (Expression) anotherObject;
-			}
-			catch (ClassCastException e) {
-				return false; // it could be a string, but in that case it must be interpreted as a symbol, so comparison is false.
-			}
-			
-			if (mayBeEqualAsFarAsFunctorIsConcerned(anotherExpression)) { // no need to order-normalize if functors are different.
-				result = basicEquals(this, anotherObject);
-			}
-			else {
-				result =false;
-			}
-		}
 		
-		return result;
-	}
-
-	protected static boolean basicEquals(Expression normalizedThis, Object normalizedAnother) {
-		boolean result;
-
-		if (normalizedAnother instanceof Expression &&
-				((Expression) normalizedAnother).getSyntaxTree() instanceof CompoundSyntaxTree) {
-			Expression normalizedAnotherCompoundSyntaxTree = (Expression) normalizedAnother;
-			if (normalizedThis.hashCode() == normalizedAnotherCompoundSyntaxTree.hashCode()) {
+		if (anotherObject instanceof Expression &&
+				((Expression) anotherObject).getSyntaxTree() instanceof CompoundSyntaxTree) {
+			Expression normalizedAnotherCompoundSyntaxTree = (Expression) anotherObject;
+			if (this.hashCode() == normalizedAnotherCompoundSyntaxTree.hashCode()) {
 				List<SyntaxTree> anotherSubTrees = normalizedAnotherCompoundSyntaxTree.getSyntaxTree().getImmediateSubTrees();
-				result = normalizedThis.getSyntaxTree().getRootTree().equals(normalizedAnotherCompoundSyntaxTree.getSyntaxTree().getRootTree()) && normalizedThis.getSyntaxTree().getImmediateSubTrees().equals(anotherSubTrees);
+				result = this.getSyntaxTree().getRootTree().equals(normalizedAnotherCompoundSyntaxTree.getSyntaxTree().getRootTree()) && this.getSyntaxTree().getImmediateSubTrees().equals(anotherSubTrees);
 			}
 			else {
 				result = false;
@@ -210,7 +170,6 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		else {
 			result = false;
 		}
-
 		return result;
 	}
 
@@ -332,7 +291,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	 */
 	private SyntaxTree makeReplacementIfAny(Object rootTreeReplacement, List<SyntaxTree> subTreesReplacement) {
 		if (rootTreeReplacement != getRootTree() || subTreesReplacement != subTrees) {
-			return new DefaultCompoundSyntaxTree(Expressions.wrap(SyntaxTrees.wrap(rootTreeReplacement)), Collections.unmodifiableList(new ArrayList<SyntaxTree>(subTreesReplacement)));
+			return SyntaxTrees.make(rootTreeReplacement, Collections.unmodifiableList(new ArrayList<SyntaxTree>(subTreesReplacement)));
 		}
 		return this;
 	}
