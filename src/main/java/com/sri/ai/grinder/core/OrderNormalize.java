@@ -59,7 +59,7 @@ public class OrderNormalize extends AbstractRewriter {
 					newArguments = Util.mapIntoArrayList(arguments, new OrderNormalizeFunction(process));
 //				}
 				
-				Collections.sort(newArguments);
+				Collections.sort(newArguments, null); // FIXME: NEED TO ADD COMPARATOR BECAUSE EXPRESSION IS NO LONGER COMPARABLE
 				
 				Expression original = expression;
 				if ( ! Util.equals(newArguments, arguments)) {

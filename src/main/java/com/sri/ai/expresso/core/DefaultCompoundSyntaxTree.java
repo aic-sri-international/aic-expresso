@@ -71,10 +71,6 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
 	
-	private DefaultCompoundSyntaxTree() {
-		syntaxTree = this;
-	}
-
 	/**
 	 * Constructs an expression based on a syntax tree with given label and sub-trees,
 	 * copying them for internal use.
@@ -82,7 +78,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	 * a single argument is given and it is a List;
 	 * in this case, it is considered to be a List<Expression>
 	 * and a copy is used the function application arguments
-	 * (doing pretty much the same thing as {@link #makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object, List)}, but in a slightly slower manner).
+	 * (doing pretty much the same thing as {@link Expressions#makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object, List)}, but in a slightly slower manner).
 	 */
 	@SuppressWarnings("unchecked")
 	public DefaultCompoundSyntaxTree(Object functor, Object ... args) {
@@ -115,19 +111,6 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		return valueOrRootSyntaxTree;
 	}
 
-	/**
-	 * Constructs an expression based on a syntax tree with given label and sub-trees.
-	 * This is a more efficient constructor than {@link #DefaultCompoundSyntaxTree(Object, Object...)}
-	 * and offers the possibility of using an already existing list.
-	 */
-	public static DefaultCompoundSyntaxTree makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object label, List<? extends SyntaxTree> subTrees) {
-		DefaultCompoundSyntaxTree result = new DefaultCompoundSyntaxTree();
-		result.valueOrRootSyntaxTree    = Expressions.wrap(label);
-		// Note: We can have nulls, therefore cannot use ImmutableList directly.
-		result.subTrees = Collections.unmodifiableList(new ArrayList<SyntaxTree>(subTrees));
-		return result;
-	}
-
 	@Override
 	public Iterator<SyntaxTree> getImmediateSubTreesIncludingRootOneIterator() {
 		return new NestedIterator<SyntaxTree>(Util.list(getRootTree(), getImmediateSubTreesIterator()));
@@ -156,39 +139,10 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		return result;
 	}
 
-	public DefaultCompoundSyntaxTree orderNormalized = null;
+	public Expression orderNormalized = null;
 	public static final boolean useOrderNormalization = false;
 	
-	@Override
-	public String getStringForComparisonPurposes() {
-		Expression orderNormalized;
-
-		if ( ! useOrderNormalization) {
-			orderNormalized = this;
-		}
-		else {
-			orderNormalized = this.getOrderNormalized();
-		}
-		
-		String result = orderNormalized.toString();
-		
-		return result;
-	}
-
 	public int hashCode() {
-		Expression orderNormalized;
-
-		if ( ! useOrderNormalization) {
-			orderNormalized = this;
-		}
-		else {
-			orderNormalized = this.getOrderNormalized();
-		}
-		
-		if (orderNormalized != this) {
-			return orderNormalized.hashCode();
-		}
-		
 		if (hashCode == -1) {
 			SyntaxTree rootTree = getSyntaxTree().getRootTree();
 			int rootHashCode = rootTree.hashCode();
@@ -229,9 +183,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 			}
 			
 			if (mayBeEqualAsFarAsFunctorIsConcerned(anotherExpression)) { // no need to order-normalize if functors are different.
-				Expression normalizedThis = getOrderNormalized();
-				Object normalizedAnother = getOrderNormalizedOrSameIfNotCompoundSyntaxTree(anotherObject);
-				result = basicEquals(normalizedThis, normalizedAnother);
+				result = basicEquals(this, anotherObject);
 			}
 			else {
 				result =false;
@@ -262,27 +214,6 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		return result;
 	}
 
-	protected Object getOrderNormalizedOrSameIfNotCompoundSyntaxTree(Object anotherObject) {
-		boolean isDefaultCompountSyntaxTree = anotherObject instanceof DefaultCompoundSyntaxTree;
-		Object normalizedAnother = isDefaultCompountSyntaxTree? ((DefaultCompoundSyntaxTree)anotherObject).getOrderNormalized()
-				: anotherObject;
-		return normalizedAnother;
-	}
-
-	protected Expression getOrderNormalized() {
-		if (orderNormalized == null) {
-			//RewritingProcess process = getProcess(); // OrderNormalize does not currently use the process.
-			DefaultCompoundSyntaxTree value = (DefaultCompoundSyntaxTree) OrderNormalize.orderNormalize(this, null /*process*/);
-			setOrderNormalized(value);
-			orderNormalized.setOrderNormalized(orderNormalized); // no need to re-normalize what we know to be normalized.
-		}
-		return orderNormalized;
-	}
-	
-	protected void setOrderNormalized(DefaultCompoundSyntaxTree value) {
-		orderNormalized = value;
-	}
-	
 	public String defaultToString() {
 		String rootTreeString = getSyntaxTree().getRootTree().defaultToString();
 		if ( ! (getSyntaxTree().getRootTree() instanceof Symbol)) {
@@ -401,13 +332,13 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	 */
 	private SyntaxTree makeReplacementIfAny(Object rootTreeReplacement, List<SyntaxTree> subTreesReplacement) {
 		if (rootTreeReplacement != getRootTree() || subTreesReplacement != subTrees) {
-			return makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(SyntaxTrees.wrap(rootTreeReplacement), subTreesReplacement);
+			return new DefaultCompoundSyntaxTree(Expressions.wrap(SyntaxTrees.wrap(rootTreeReplacement)), Collections.unmodifiableList(new ArrayList<SyntaxTree>(subTreesReplacement)));
 		}
 		return this;
 	}
 	
 	public Expression clone() {
-		return DefaultCompoundSyntaxTree.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(getSyntaxTree().getRootTree(), getSyntaxTree().getImmediateSubTrees());
+		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(getSyntaxTree().getRootTree(), getSyntaxTree().getImmediateSubTrees());
 		// it is best to use the field 'arguments' instead of method 'getArguments'
 		// because we can share argument lists among function applications, since they are never modified.
 		// The method 'getArguments' would unnecessarily create an unmodifiable list object.

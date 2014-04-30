@@ -90,7 +90,7 @@ public class ParsingExpressionForFunctionApplications extends AbstractParsingExp
 			DefaultParsingResult result = new DefaultParsingResult(
 					this,
 					equivalentParsingResult.getTokens(),
-					Expressions.makeFromSyntaxTree(new DefaultCompoundSyntaxTree2(equivalentParsingResult.getParse().getSyntaxTree().getSubTree(0), argumentsArray)), equivalentParsingResult.tokenPositionLimitInfluencedResult());
+					Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(equivalentParsingResult.getParse().getSyntaxTree().getSubTree(0), argumentsArray), equivalentParsingResult.tokenPositionLimitInfluencedResult());
 			return result;
 		}
 		

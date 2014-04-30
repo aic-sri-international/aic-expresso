@@ -435,7 +435,7 @@ public class Expressions {
 			subTrees.add(subTree);
 		}
 		SyntaxTree rootTree = SyntaxTrees.wrap(label);
-		Expression result = DefaultCompoundSyntaxTree.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(rootTree, subTrees);
+		Expression result = new DefaultCompoundSyntaxTree(Expressions.wrap(rootTree), Collections.unmodifiableList(new ArrayList<SyntaxTree>(subTrees)));
 		return result;
 	}
 

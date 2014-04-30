@@ -57,7 +57,7 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public interface Expression extends Cloneable, Serializable, Comparable<Expression> {
+public interface Expression extends Cloneable, Serializable {
 	
 	/**
 	 * Provides the sub-expression of this expression.
@@ -238,15 +238,6 @@ public interface Expression extends Cloneable, Serializable, Comparable<Expressi
 	 */
 	Rational rationalValue();
 	
-	/**
-	 * A method providing a string to be used as a medium for comparison.
-	 * This does not need to be the Expression's string representation,
-	 * but a value that represents its place in a total order
-	 * (for example the string representation of a normal form of the expression).
-	 */
-	public String getStringForComparisonPurposes();
-	
-
 	/** A default <code>toString()</code> method not using any user-defined writing object. */
 	String defaultToString();
 }
