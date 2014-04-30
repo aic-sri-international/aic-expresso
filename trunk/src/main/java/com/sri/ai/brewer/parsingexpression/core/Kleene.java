@@ -47,7 +47,8 @@ import com.sri.ai.brewer.api.ParsingProcess;
 import com.sri.ai.brewer.core.DefaultParsingResult;
 import com.sri.ai.brewer.core.ParsingResult;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
+import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree2;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.Util;
 
 /**
@@ -162,7 +163,7 @@ public class Kleene extends AbstractParsingExpression {
 		if (subTrees.size() == 1 && ! firstResultIsKleeneListItself(results)) {
 			return new DefaultParsingResult(this, results.get(0).getTokens(), results.get(0).getParse(), tokenPositionLimitInfluencedResult);
 		}
-		return new DefaultParsingResult(this, tokens(results), new DefaultCompoundSyntaxTree("kleene list", subTrees.toArray()), tokenPositionLimitInfluencedResult);
+		return new DefaultParsingResult(this, tokens(results), Expressions.makeFromSyntaxTree(new DefaultCompoundSyntaxTree2("kleene list", subTrees.toArray())), tokenPositionLimitInfluencedResult);
 	}
 
 	private boolean firstResultIsKleeneListItself(List<ParsingResult> results) {

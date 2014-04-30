@@ -56,8 +56,8 @@ import com.sri.ai.brewer.core.ParserFlags;
 import com.sri.ai.brewer.core.ParsingResult;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
-import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree2;
+import com.sri.ai.expresso.core.DefaultSymbol2;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.FunctionIterator;
@@ -97,9 +97,9 @@ import com.sri.ai.util.collect.FunctionIterator;
  * It also forms an sub-tree list out of the parses of sub-parsing expressions.
  * The final parse is:
  * <ul>
- * <li>a {@link DefaultCompoundSyntaxTree} of the functor name to the list of
+ * <li>an Expression based on {@link DefaultCompoundSyntaxTree2} of the functor name to the list of
  * arguments, if there is more than zero arguments
- * <li>a {@link DefaultSymbol} on the functor name, if there are no arguments.
+ * <li>an Expression based on {@link DefaultSymbol2} on the functor name, if there are no arguments.
  * </ul>
  * 
  * @author braz
@@ -366,7 +366,7 @@ public class Sequence extends AbstractParsingExpression implements BasicParsingE
 		
 		Expression parse;
 		if (subTrees.size() != 0) {
-			parse = new DefaultCompoundSyntaxTree(rootTreeName, subTrees.toArray());
+			parse = Expressions.makeFromSyntaxTree(new DefaultCompoundSyntaxTree2(rootTreeName, subTrees.toArray()));
 		}
 		else {
 			parse = Expressions.createSymbol(rootTreeName);

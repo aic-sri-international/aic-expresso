@@ -276,12 +276,12 @@ public class SimpleFormulaGenerator {
 	}
 	
 	protected Expression generateSimpleEquivalence() {
-		Expression result = Expressions.makeFunctionApplication(Equivalence.FUNCTOR, generateLiteral() , generateLiteral());
+		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Equivalence.FUNCTOR, generateLiteral() , generateLiteral());
 		return result;
 	}
 	
 	protected Expression generateEquivalence(Expression f1, Expression f2) {
-		Expression result = Expressions.makeFunctionApplication(Equivalence.FUNCTOR, f1, f2);
+		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Equivalence.FUNCTOR, f1, f2);
 		return result;
 	}
 	
@@ -316,7 +316,7 @@ public class SimpleFormulaGenerator {
 			}
 		} 
 		else {
-			result = Expressions.makeFunctionApplication(clauseConnector, clauses.toArray());
+			result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(clauseConnector, clauses.toArray());
 		}
 		
 		return result;
@@ -359,7 +359,7 @@ public class SimpleFormulaGenerator {
 				clause = clausesList.get(i).get(0);
 			}
 			else {
-				clause = Expressions.makeFunctionApplication(literalConnector, clausesList.get(i).toArray());
+				clause = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(literalConnector, clausesList.get(i).toArray());
 			}
 			clauses.add(clause);
 		}
@@ -376,7 +376,7 @@ public class SimpleFormulaGenerator {
 			}
 		} 
 		else {
-			result = Expressions.makeFunctionApplication(clauseConnector, clauses.toArray());
+			result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(clauseConnector, clauses.toArray());
 		}
 		
 		return result;
@@ -451,7 +451,7 @@ public class SimpleFormulaGenerator {
 			}
 		} 
 		else {
-			result = Expressions.makeFunctionApplication(connector, literals.toArray());
+			result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(connector, literals.toArray());
 		}
 		return result;
 	}

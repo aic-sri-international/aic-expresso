@@ -313,11 +313,11 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 			ArrayList<Expression> newDisjunctsArgs = new ArrayList<Expression>();
 			for (Expression disjunct: disjuncts) {
 				otherConjuncts.add(0, disjunct);
-				Expression newConjunct = Expressions.makeFunctionApplication(And.FUNCTOR, otherConjuncts);
+				Expression newConjunct = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(And.FUNCTOR, otherConjuncts);
 				newDisjunctsArgs.add(newConjunct);
 				otherConjuncts.remove(0);
 			}
-			Expression newDisjunct = Expressions.makeFunctionApplication(Or.FUNCTOR, newDisjunctsArgs);
+			Expression newDisjunct = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Or.FUNCTOR, newDisjunctsArgs);
 			
 			result = cardinalityCompute(newDisjunct, indexExpressions, process);
 		} 
@@ -423,7 +423,7 @@ public class ConcurrentCardinality extends AbstractHierarchicalRewriter {
 			Expression card1 = cardinalityCompute(first, duplicate(indexExpressions), process); 
 			Expression card2 = cardinalityCompute(newOr, duplicate(indexExpressions), process); 
 			Expression card3 = cardinalityCompute(newAnd, duplicate(indexExpressions), process); 
-			Expression c1c2 = Expressions.makeFunctionApplication("+", card1, card2);
+			Expression c1c2 = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("+", card1, card2);
 			result = Minus.make(c1c2, card3);
 		}
 		result = process.rewrite(CardinalityRewriter.R_complete_normalize, result);

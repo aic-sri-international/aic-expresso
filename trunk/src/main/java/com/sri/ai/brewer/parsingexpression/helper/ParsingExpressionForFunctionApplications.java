@@ -50,7 +50,8 @@ import com.sri.ai.brewer.parsingexpression.core.Kleene;
 import com.sri.ai.brewer.parsingexpression.core.Sequence;
 import com.sri.ai.brewer.parsingexpression.core.Terminal;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
+import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree2;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.Util;
 
 /**
@@ -89,7 +90,7 @@ public class ParsingExpressionForFunctionApplications extends AbstractParsingExp
 			DefaultParsingResult result = new DefaultParsingResult(
 					this,
 					equivalentParsingResult.getTokens(),
-					new DefaultCompoundSyntaxTree(equivalentParsingResult.getParse().getSyntaxTree().getSubTree(0), argumentsArray), equivalentParsingResult.tokenPositionLimitInfluencedResult());
+					Expressions.makeFromSyntaxTree(new DefaultCompoundSyntaxTree2(equivalentParsingResult.getParse().getSyntaxTree().getSubTree(0), argumentsArray)), equivalentParsingResult.tokenPositionLimitInfluencedResult());
 			return result;
 		}
 		

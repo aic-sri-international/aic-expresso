@@ -45,7 +45,6 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.AbstractSyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.set.Sets;
@@ -64,7 +63,7 @@ public class ExtensionalSet {
 	public static final String UNI_SET_LABEL = "{ . }";
 	public static final String MULTI_SET_LABEL = "{{ . }}";
 
-	public static AbstractSyntaxTree make(Object label, List<Expression> elements) {
+	public static Expression make(Object label, List<Expression> elements) {
 		return new DefaultCompoundSyntaxTree(label, Expressions.makeKleeneListIfNeeded(elements));
 	}
 	
@@ -79,24 +78,24 @@ public class ExtensionalSet {
 		return result;
 	}
 
-	public static AbstractSyntaxTree makeUniSet(List<Expression> elements) {
+	public static Expression makeUniSet(List<Expression> elements) {
 		return new DefaultCompoundSyntaxTree(UNI_SET_LABEL, Expressions.makeKleeneListIfNeeded(elements));
 	}
 	
 	public static Expression makeUniSetExpression(List<Expression> elements) {
-		return Expressions.makeFunctionApplication(UNI_SET_LABEL, Expressions.makeKleeneListIfNeeded(elements));
+		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(UNI_SET_LABEL, Expressions.makeKleeneListIfNeeded(elements));
 	}
 	
-	public static AbstractSyntaxTree makeUniSet(Expression... elements) {
+	public static Expression makeUniSet(Expression... elements) {
 		return new DefaultCompoundSyntaxTree(UNI_SET_LABEL, Expressions.makeKleeneListIfNeeded(Arrays.asList(elements)));
 	}
 	
-	public static AbstractSyntaxTree makeMultiSet(List<Expression> elements) {
+	public static Expression makeMultiSet(List<Expression> elements) {
 		return new DefaultCompoundSyntaxTree(MULTI_SET_LABEL,
 				Expressions.makeKleeneListIfNeeded(elements));
 	}
 	
-	public static AbstractSyntaxTree makeEmptySet() {
+	public static Expression makeEmptySet() {
 		return makeUniSet(new ArrayList<Expression>());
 	}
 	

@@ -42,8 +42,8 @@ import com.google.common.base.Function;
 import com.sri.ai.grinder.api.RewritingProcess;
 
 /**
- * A type of replacement function to be used by {@link AbstractExpression} that
- * receives the current rewriting process as well as the expression.
+ * A type of replacement function to be used by Expression's replace function.
+ * that receives the current rewriting process as well as the expression.
  * 
  * @author braz
  * 

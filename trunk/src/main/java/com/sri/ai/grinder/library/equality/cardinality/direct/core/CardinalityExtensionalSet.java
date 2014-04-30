@@ -117,7 +117,7 @@ public class CardinalityExtensionalSet extends AbstractHierarchicalRewriter impl
 				Expression       t1                   = elements.get(0);
 				List<Expression> t2ToTk               = elements.subList(1, elements.size());
 				Expression       t2ToTkExtensionalSet = ExtensionalSet.makeUniSetExpression(t2ToTk);
-				Expression       cardinalityT2ToTk    = Expressions.makeFunctionApplication(FunctorConstants.CARDINALITY, t2ToTkExtensionalSet);
+				Expression       cardinalityT2ToTk    = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.CARDINALITY, t2ToTkExtensionalSet);
 				Expression       n                    = process.rewrite(R_cardExtensionalSet, cardinalityT2ToTk);
 				
 				Trace.log("Irrelevant <- R_normalize(t1 = t2 or ... or t1 = tn)");

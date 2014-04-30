@@ -49,6 +49,7 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.util.base.IsInstanceOf;
@@ -66,13 +67,6 @@ public abstract class AbstractExpression implements Expression {
 	protected SyntaxTree syntaxTree;
 	
 	//
-	public static final PruningPredicate TRUE_PRUNING_PREDICATE = new PruningPredicate() {
-		@Override
-		public boolean apply(Expression o1, Function<Expression, Expression> replacementFunction, RewritingProcess o2) {
-			return true;
-		}
-	};
-	//
 	private static final long serialVersionUID = 3L; // Note: Increment this when you want to ensure any parsing caches are invalidated 
 	
 	protected static final IsInstanceOf IS_EXPRESSION_MODULE = new IsInstanceOf<Object>(ExpressionKnowledgeModule.class);
@@ -80,19 +74,6 @@ public abstract class AbstractExpression implements Expression {
 	private volatile transient ImmutableList<ExpressionAndContext> cachedImmediateSubExpressionsAndContexts;
 	private Lock               lazyInitCachedImmediateSubExpressionsAndContextsLock = new ReentrantLock();
 	
-	public static RewritingProcess getProcess() {
-		return DefaultRewritingProcess.getGlobalRewritingProcessForKnowledgeBasedExpressions();
-	}
-
-	public static ExpressionKnowledgeModule getKnowledgeBasedExpressionModule() {
-		RewritingProcess process = getProcess();
-		if (process == null) {
-			return null;
-		}
-		ExpressionKnowledgeModule result = (ExpressionKnowledgeModule) process.findModule(ExpressionKnowledgeModule.class);
-		return result;
-	}
-
 	@Override
 	public Expression replaceFirstOccurrence(Expression replaced, Expression replacement, RewritingProcess process) {
 		return replaceFirstOccurrence(new ReplaceByIfEqualTo<Expression>(replacement, replaced), null, null, process);
@@ -234,7 +215,7 @@ public abstract class AbstractExpression implements Expression {
 					prunePredicateForThisSubExpressionAndContext =
 							makeSpecificSubExpressionAndContextPrunePredicate.apply(
 									this, prunePredicate, subExpressionAndContext);
-					if (prunePredicateForThisSubExpressionAndContext == TRUE_PRUNING_PREDICATE) {
+					if (prunePredicateForThisSubExpressionAndContext == Expressions.TRUE_PRUNING_PREDICATE) {
 						continue;
 					}
 				}

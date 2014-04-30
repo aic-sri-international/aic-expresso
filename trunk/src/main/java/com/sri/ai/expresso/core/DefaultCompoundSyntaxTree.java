@@ -76,15 +76,18 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	}
 
 	/**
-	 * Constructs a function application with given functor and arguments, copying them for internal use.
+	 * Constructs an expression based on a syntax tree with given label and sub-trees,
+	 * copying them for internal use.
 	 * Objects that are not Expressions are wrapped as DefaultSymbols, unless
 	 * a single argument is given and it is a List;
 	 * in this case, it is considered to be a List<Expression>
 	 * and a copy is used the function application arguments
-	 * (doing pretty much the same thing as {@link #make(Object, List)}, but in a slightly slower manner).
+	 * (doing pretty much the same thing as {@link #makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object, List)}, but in a slightly slower manner).
 	 */
 	@SuppressWarnings("unchecked")
 	public DefaultCompoundSyntaxTree(Object functor, Object ... args) {
+//		this.syntaxTree = new DefaultCompoundSyntaxTree2(functor, args);
+		
 		this.valueOrRootSyntaxTree = Expressions.wrap(functor);
 		if (args.length == 1 && args[0] instanceof List) {
 			// Note: We can have nulls, therefore cannot use ImmutableList directly.
@@ -113,13 +116,13 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	}
 
 	/**
-	 * Constructs a function application with given functor and arguments, keeping the arguments ownership.
+	 * Constructs an expression based on a syntax tree with given label and sub-trees.
 	 * This is a more efficient constructor than {@link #DefaultCompoundSyntaxTree(Object, Object...)}
 	 * and offers the possibility of using an already existing list.
 	 */
-	public static DefaultCompoundSyntaxTree make(Object functor, List<? extends SyntaxTree> subTrees) {
+	public static DefaultCompoundSyntaxTree makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object label, List<? extends SyntaxTree> subTrees) {
 		DefaultCompoundSyntaxTree result = new DefaultCompoundSyntaxTree();
-		result.valueOrRootSyntaxTree    = Expressions.wrap(functor);
+		result.valueOrRootSyntaxTree    = Expressions.wrap(label);
 		// Note: We can have nulls, therefore cannot use ImmutableList directly.
 		result.subTrees = Collections.unmodifiableList(new ArrayList<SyntaxTree>(subTrees));
 		return result;
@@ -398,13 +401,13 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	 */
 	private SyntaxTree makeReplacementIfAny(Object rootTreeReplacement, List<SyntaxTree> subTreesReplacement) {
 		if (rootTreeReplacement != getRootTree() || subTreesReplacement != subTrees) {
-			return make(SyntaxTrees.wrap(rootTreeReplacement), subTreesReplacement);
+			return makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(SyntaxTrees.wrap(rootTreeReplacement), subTreesReplacement);
 		}
 		return this;
 	}
 	
 	public Expression clone() {
-		return DefaultCompoundSyntaxTree.make(getSyntaxTree().getRootTree(), getSyntaxTree().getImmediateSubTrees());
+		return DefaultCompoundSyntaxTree.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(getSyntaxTree().getRootTree(), getSyntaxTree().getImmediateSubTrees());
 		// it is best to use the field 'arguments' instead of method 'getArguments'
 		// because we can share argument lists among function applications, since they are never modified.
 		// The method 'getArguments' would unnecessarily create an unmodifiable list object.

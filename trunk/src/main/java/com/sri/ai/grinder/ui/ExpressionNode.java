@@ -205,16 +205,16 @@ public class ExpressionNode implements TreeNode {
 		return result;
 	}
 	
-	protected Vector<ExpressionNode> simpleExpressionToTree(SyntaxTree expression) {
+	protected Vector<ExpressionNode> simpleExpressionToTree(SyntaxTree syntaxTree) {
 		Vector<ExpressionNode> result = new Vector<ExpressionNode>();
-		if (expression == null) {
+		if (syntaxTree == null) {
 			return null;
 		}
-		if (expression.getSyntaxTree() instanceof CompoundSyntaxTree ) {
-			return functionApplicationToTree(expression);
+		if (syntaxTree instanceof CompoundSyntaxTree ) {
+			return functionApplicationToTree(syntaxTree);
 		}
 		// SyntaxTree is just a symbol:
-		result.add(new ExpressionNode(expression, NodeType.SYMBOL, this));
+		result.add(new ExpressionNode(syntaxTree, NodeType.SYMBOL, this));
 		return result;
 	}
 	
