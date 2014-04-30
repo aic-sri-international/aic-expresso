@@ -53,7 +53,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.AbstractSyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -211,7 +210,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 
 	/** Make either uni or multiset by using provided functor. */
 	private static Expression make(Object label, Expression scopingExpression, Expression head, Expression condition) {
-		AbstractSyntaxTree conditionExpression =
+		Expression conditionExpression =
 			(condition == null || condition.equals("true"))?
 					null
 					: new DefaultCompoundSyntaxTree(IntensionalSet.CONDITION_LABEL, condition);

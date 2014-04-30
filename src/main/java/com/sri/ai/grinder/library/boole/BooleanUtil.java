@@ -44,7 +44,6 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
-import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -94,7 +93,7 @@ public class BooleanUtil {
 					return newArguments.get(0);
 				} 
 				else {
-					return Expressions.makeFunctionApplication(functor, newArguments);
+					return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(functor, newArguments);
 				}
 			} 
 			else if ( functor.equals(Not.FUNCTOR) ) {

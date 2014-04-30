@@ -103,7 +103,7 @@ public class MoveNotIn extends AbstractHierarchicalRewriter implements Cardinali
 				Expression first  = notF.get(i);
 				Expression second = notF.get(i + 1);
 				if ( ! first.equals(second)) { // not the same expression (which would be trivially false)
-					disequalities.add(Expressions.makeFunctionApplication("!=", first, second));
+					disequalities.add(Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("!=", first, second));
 				}
 			}
 			result = Or.make(disequalities);
@@ -111,7 +111,7 @@ public class MoveNotIn extends AbstractHierarchicalRewriter implements Cardinali
 		else if (notF.hasFunctor(FunctorConstants.INEQUALITY)) {
 			Trace.log("F is \"not x != t\"");
 			Trace.log("   return x = t");
-			result = Expressions.makeFunctionApplication(FunctorConstants.EQUAL, notF.getArguments());
+			result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.EQUAL, notF.getArguments());
 			// Handle normalization edge case.
 			if (CardinalityUtil.isEqualityOnSameTerms(result)) {
 				result = Expressions.TRUE;

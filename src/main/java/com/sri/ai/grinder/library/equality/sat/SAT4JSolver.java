@@ -435,7 +435,7 @@ public class SAT4JSolver implements SATSolver {
 							done = true;
 						}
 					}
-					result = Expressions.makeFunctionApplication(GATE_FUNCTOR, DefaultSymbol.createSymbol(this.nextAuxVarid));
+					result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(GATE_FUNCTOR, DefaultSymbol.createSymbol(this.nextAuxVarid));
 					this.nextAuxVarid++;
 				}
 			}

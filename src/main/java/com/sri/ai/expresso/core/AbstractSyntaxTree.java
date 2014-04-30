@@ -135,10 +135,10 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 			try {
 				// Note: Ensure still null when acquire the lock
 				if (cachedSyntacticFormType == null) {
-					ExpressionKnowledgeModule knowledgeBasedExpressionModule = getKnowledgeBasedExpressionModule();
+					ExpressionKnowledgeModule knowledgeBasedExpressionModule = Expressions.getKnowledgeBasedExpressionModule();
 		
 					if (knowledgeBasedExpressionModule != null) {
-						cachedSyntacticFormType = knowledgeBasedExpressionModule.getSyntacticFormType(this, getProcess());
+						cachedSyntacticFormType = knowledgeBasedExpressionModule.getSyntacticFormType(this, Expressions.getProcess());
 					}
 		
 					if (cachedSyntacticFormType == null) { // no one knows about this expression, we use the default.
@@ -178,7 +178,7 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 
 	@Override
 	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator() {
-		return getImmediateSubExpressionsAndContextsIterator(getProcess());
+		return getImmediateSubExpressionsAndContextsIterator(Expressions.getProcess());
 	}
 
 	@Override

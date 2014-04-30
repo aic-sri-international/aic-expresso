@@ -50,6 +50,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.expresso.core.AbstractReplacementFunctionWithContextuallyUpdatedProcess;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.Rewriter;
@@ -382,7 +383,7 @@ public class TotalRewriter extends AbstractRewriter {
 				PruningPredicate pruningPredicate,
 				ExpressionAndContext subExpressionAndContext) {
 			if (pruningPredicate == childPruningPredicate) {
-				return AbstractExpression.TRUE_PRUNING_PREDICATE;
+				return Expressions.TRUE_PRUNING_PREDICATE;
 			}
 
 			return childPruningPredicate;

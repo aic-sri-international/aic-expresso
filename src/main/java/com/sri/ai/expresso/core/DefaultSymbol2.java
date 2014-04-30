@@ -53,6 +53,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.base.BinaryProcedure;
 import com.sri.ai.util.math.Rational;
@@ -339,11 +340,6 @@ public class DefaultSymbol2 extends AbstractSyntaxTree2 implements Symbol  {
 	}
 
 	@Override
-	public String getStringForComparisonPurposes() {
-		return toString();
-	}
-
-	@Override
 	public int hashCode() {
 		if (hashCode == -1) {
 			hashCode = getValue().hashCode();
@@ -423,43 +419,10 @@ public class DefaultSymbol2 extends AbstractSyntaxTree2 implements Symbol  {
 		return this;
 	}
 
-	public Expression clone() {
-		return Expressions.createSymbol(getValue());
+	public SyntaxTree clone() {
+		return DefaultSymbol2.createSymbol(getValue());
 	}
 
-	@Override
-	public int intValue() {
-		if (valueOrRootSyntaxTree instanceof Number) {
-			return ((Number) valueOrRootSyntaxTree).intValue();
-		}
-		throw new Error("DefaultSymbol.intValue() invoked on " + this + ", which is not a number.");
-	}
-
-	@Override
-	public int intValueExact() throws ArithmeticException {
-		if (valueOrRootSyntaxTree instanceof Rational) {
-			return ((Rational) valueOrRootSyntaxTree).intValueExact();
-		}
-		throw new Error("DefaultSymbol.intValueExact() invoked on " + this + ", which is not a number.");
-	}
-
-	@Override
-	public double doubleValue() {
-		if (valueOrRootSyntaxTree instanceof Number) {
-			return ((Number) valueOrRootSyntaxTree).doubleValue();
-		}
-		throw new Error("DefaultSymbol.doubleValue() invoked on " + this + ", which is not a number.");
-	}
-
-
-	@Override
-	public Rational rationalValue() {
-		if (valueOrRootSyntaxTree instanceof Number) {
-			return (Rational) valueOrRootSyntaxTree;
-		}
-		throw new Error("DefaultSymbol.rationalValue() invoked on " + this + ", which is not a number.");
-	}
-	
 	//
 	// PRIVATE METHODS
 	//
@@ -567,5 +530,42 @@ public class DefaultSymbol2 extends AbstractSyntaxTree2 implements Symbol  {
 		Cache<Object, DefaultSymbol2> result = cb.build();
 		
 		return result;
+	}
+
+	@Override
+	public int intValueExact() throws ArithmeticException {
+		if (valueOrRootSyntaxTree instanceof Rational) {
+			return ((Rational) valueOrRootSyntaxTree).intValueExact();
+		}
+		throw new Error("DefaultSymbol.intValueExact() invoked on " + this + ", which is not a number.");
+	}
+
+	@Override
+	public double doubleValue() {
+		if (valueOrRootSyntaxTree instanceof Number) {
+			return ((Number) valueOrRootSyntaxTree).doubleValue();
+		}
+		throw new Error("DefaultSymbol.doubleValue() invoked on " + this + ", which is not a number.");
+	}
+
+
+	@Override
+	public Rational rationalValue() {
+		if (valueOrRootSyntaxTree instanceof Number) {
+			return (Rational) valueOrRootSyntaxTree;
+		}
+		throw new Error("DefaultSymbol.rationalValue() invoked on " + this + ", which is not a number.");
+	}
+	@Override
+	public String getStringForComparisonPurposes() {
+		return toString();
+	}
+	
+	@Override
+	public int intValue() {
+		if (valueOrRootSyntaxTree instanceof Number) {
+			return ((Number) valueOrRootSyntaxTree).intValue();
+		}
+		throw new Error("DefaultSymbol.intValue() invoked on " + this + ", which is not a number.");
 	}
 }

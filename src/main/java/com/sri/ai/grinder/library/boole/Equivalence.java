@@ -38,9 +38,7 @@
 package com.sri.ai.grinder.library.boole;
 
 import com.google.common.annotations.Beta;
-
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.AbstractSyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -68,7 +66,7 @@ public class Equivalence extends AbstractRewriterDefiningSymmetricFunction {
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 
-		AbstractSyntaxTree syntaxTree = new DefaultCompoundSyntaxTree(
+		Expression result = new DefaultCompoundSyntaxTree(
 						"or",
 						new DefaultCompoundSyntaxTree(
 								"and",
@@ -80,7 +78,7 @@ public class Equivalence extends AbstractRewriterDefiningSymmetricFunction {
 								new DefaultCompoundSyntaxTree("not", expression.get(0).getSyntaxTree()),
 								new DefaultCompoundSyntaxTree("not", expression.get(1).getSyntaxTree())));
 		
-		return syntaxTree;
+		return result;
 	}
 
 	public Expression getFunctor() {

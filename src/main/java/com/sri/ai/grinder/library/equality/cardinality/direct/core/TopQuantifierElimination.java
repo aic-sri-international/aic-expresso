@@ -116,7 +116,7 @@ public class TopQuantifierElimination extends AbstractHierarchicalRewriter imple
 			result = process.rewrite(R_normalize, resultCard1EqualCardX);
 		} 
 		else {
-			Expression resultCard1NotEqual0 = Expressions.makeFunctionApplication(FunctorConstants.GREATER_THAN, resultCard1, Expressions.ZERO);
+			Expression resultCard1NotEqual0 = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.GREATER_THAN, resultCard1, Expressions.ZERO);
 			
 			result = process.rewrite(R_normalize, resultCard1NotEqual0);
 		}

@@ -63,6 +63,8 @@ import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.DefaultSymbol2;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.core.PruningPredicate;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.IsVariable;
@@ -101,6 +103,11 @@ public class Expressions {
 	
 	/** Returns an expression represented by a given syntax tree. */
 	public static Expression makeFromSyntaxTree(SyntaxTree syntaxTree) {
+//		if (syntaxTree instanceof DefaultCompoundSyntaxTree2 || syntaxTree instanceof DefaultSymbol2) {
+//			Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(syntaxTree.getLabel(), syntaxTree.getImmediateSubExpressionsAndContextsIterator());
+//			return result;
+//		}
+//		// TODO: once Expression/SyntaxTree is complete, all syntax trees will satisfy the conditions above.
 		return syntaxTree;
 	}
 
@@ -149,7 +156,7 @@ public class Expressions {
 		if (list.size() == 1) {
 			return list.get(0);
 		}
-		return Expressions.makeFunctionApplication("kleene list", list);
+		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("kleene list", list);
 	}
 
 	/**
@@ -190,7 +197,7 @@ public class Expressions {
 		}
 		
 		if (change) {
-			return Expressions.makeFunctionApplication(functor, resultArguments);
+			return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(functor, resultArguments);
 		}
 		
 		return expression;
@@ -404,33 +411,36 @@ public class Expressions {
 	public static Expression addExpressionToArgumentsOfFunctionApplication(Expression expression, Object newArgument) {
 		ArrayList<Expression> newArguments = new ArrayList<Expression>(expression.getArguments());
 		newArguments.add(wrap(newArgument));
-		return Expressions.makeFunctionApplication(expression.getFunctor(), newArguments);
+		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), newArguments);
 	}
 
-	public static Expression makeFunctionApplication(Object functor, Object... arguments) {
-		if (arguments.length != 0) {
-			if (arguments[0] instanceof Expression[]) {
-				return makeFunctionApplication(functor, (Object[]) arguments[0]); // the cast avoids arguments[0] being wrapper in a new 1-element array
+	/**
+	 * Makes Expression based on a syntax tree with given label and sub-trees.
+	 */
+	public static Expression makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object label, Object... subTreeObjects) {
+		if (subTreeObjects.length != 0) {
+			if (subTreeObjects[0] instanceof Expression[]) {
+				return makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(label, (Object[]) subTreeObjects[0]); // the cast avoids arguments[0] being wrapper in a new 1-element array
 			}
-			if (arguments[0] instanceof Collection) {
-				return makeFunctionApplication(functor, ((Collection)arguments[0]).toArray());
+			if (subTreeObjects[0] instanceof Collection) {
+				return makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(label, ((Collection)subTreeObjects[0]).toArray());
 			}
 		}
 	
 		List<SyntaxTree> subTrees = new LinkedList<SyntaxTree>();
-		Iterator<Object> argumentIterator = Arrays.asList(arguments).iterator();
-		while (argumentIterator.hasNext()) {
-			Object object = argumentIterator.next();
+		Iterator<Object> subTreeIterator = Arrays.asList(subTreeObjects).iterator();
+		while (subTreeIterator.hasNext()) {
+			Object object = subTreeIterator.next();
 			SyntaxTree subTree = SyntaxTrees.wrap(object);
 			subTrees.add(subTree);
 		}
-		SyntaxTree rootTree = SyntaxTrees.wrap(functor);
-		Expression result = DefaultCompoundSyntaxTree.make(rootTree, subTrees);
+		SyntaxTree rootTree = SyntaxTrees.wrap(label);
+		Expression result = DefaultCompoundSyntaxTree.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(rootTree, subTrees);
 		return result;
 	}
 
 	public static Expression apply(Object functor, Object... arguments) {
-		return makeFunctionApplication(functor, arguments);
+		return makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(functor, arguments);
 	}
 
 	public static List<Expression> getSyntaxTreesOfSubExpressions(Expression syntaxTree) {
@@ -811,7 +821,7 @@ public class Expressions {
 		}
 		List<Expression> result = new LinkedList<Expression>();
 		for (int i = 0; i != list1.size(); i++) {
-			result.add(Expressions.makeFunctionApplication(functor, list1.get(i), list2.get(i)));
+			result.add(Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(functor, list1.get(i), list2.get(i)));
 		}
 		return result;
 	}
@@ -868,7 +878,7 @@ public class Expressions {
 	 */
 	public static Expression removeIthArgument(Expression expression, int i) {
 		List<Expression> newArguments = Util.removeNonDestructively(expression.getArguments(), i);
-		Expression result = Expressions.makeFunctionApplication(expression.getFunctor(), newArguments);
+		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), newArguments);
 		return result;
 	}
 
@@ -1036,5 +1046,27 @@ public class Expressions {
 		}
 		Pair<Integer, Expression> result = Pair.make(i, expression);
 		return result;
+	}
+
+	public static ExpressionKnowledgeModule getKnowledgeBasedExpressionModule() {
+		RewritingProcess process = Expressions.getProcess();
+		if (process == null) {
+			return null;
+		}
+		ExpressionKnowledgeModule result = (ExpressionKnowledgeModule) process.findModule(ExpressionKnowledgeModule.class);
+		return result;
+	}
+
+
+	//
+	public static final PruningPredicate TRUE_PRUNING_PREDICATE = new PruningPredicate() {
+		@Override
+		public boolean apply(Expression o1, Function<Expression, Expression> replacementFunction, RewritingProcess o2) {
+			return true;
+		}
+	};
+
+	public static RewritingProcess getProcess() {
+		return DefaultRewritingProcess.getGlobalRewritingProcessForKnowledgeBasedExpressions();
 	}
 }

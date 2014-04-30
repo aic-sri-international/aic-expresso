@@ -75,7 +75,6 @@ import com.sri.ai.util.collect.FunctionIterator;
  */
 @Beta
 public abstract class AbstractSyntaxTree2 extends AbstractExpression2 implements SyntaxTree {
-	private static final long serialVersionUID = 1L;
 	
 	public static final Function<Object, SyntaxTree> wrapper = new Function<Object, SyntaxTree>() {
 		@Override
@@ -93,30 +92,11 @@ public abstract class AbstractSyntaxTree2 extends AbstractExpression2 implements
 	// Note: Should only be assigned immutable lists.
 	protected List<SyntaxTree> subTrees = Collections.emptyList();
 	//
-	private static Cache<Thread, Function<Expression, String>> threadToString = newThreadToStringCache();
 	//
 	private String                             cachedToString                      = null;
-	private volatile Object                    cachedSyntacticFormType             = null;
-	private Lock                               lazyInitCachedSyntacticFormTypeLock = new ReentrantLock();
-	private volatile ImmutableList<Expression> cachedArguments                     = null;
-	private Lock                               lazyInitCachedArgumentsLock         = new ReentrantLock();
 
 	public static Map<SyntaxTree, SyntaxTree> wrapAsMap(Object... pairs) {
 		return Util.map(Expressions.wrap(pairs).toArray());
-	}
-
-	@Override
-	public List<Expression> getSubExpressions() {
-		List<Expression> result = null;
-		Iterator<ExpressionAndContext> immediateSubExpressionsAndContextsIterator = getImmediateSubExpressionsAndContextsIterator();
-	
-		Iterator<Expression> resultIterator =
-			new FunctionIterator<ExpressionAndContext, Expression>(
-					immediateSubExpressionsAndContextsIterator,
-					ExpressionAndContext.GET_EXPRESSION);
-	
-		result = Util.listFrom(resultIterator);
-		return result;
 	}
 
 	@Override
@@ -189,8 +169,114 @@ public abstract class AbstractSyntaxTree2 extends AbstractExpression2 implements
 		return replaceSubTreesAllOccurrences(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), prunePredicate, listener);
 	}
 
-	abstract public Expression clone();
+	abstract public SyntaxTree clone();
 	
+	@Override
+	public int numberOfImmediateSubTrees() {
+		return subTrees.size();
+	}
+
+	@Override
+	public SyntaxTree getSubTree(Object fieldKey) {
+		if (fieldKey.equals("functor")) {
+			return getRootTree();
+		}
+		else if (fieldKey instanceof Number) {
+			int index = ((Number)fieldKey).intValue();
+			if (index == -1) {
+				return (SyntaxTree) valueOrRootSyntaxTree;
+			}
+			if (index < subTrees.size()) {
+				return subTrees.get(index);
+			}
+			else {
+				return null;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public List<SyntaxTree> getImmediateSubTrees() {
+		return subTrees;
+	}
+
+	@Override
+	public Iterator<SyntaxTree> getImmediateSubTreesIterator() {
+		return getImmediateSubTrees().iterator();
+	}
+
+	@Override
+	public String toString() {
+		if (cachedToString == null) {
+//			Function<Expression, String> toString = getToString();
+//			if (toString != null) {
+//				cachedToString = toString.apply(this);
+//			}
+//			else 
+//			{
+				cachedToString = defaultToString();
+//			}
+		}
+		return cachedToString;
+	}
+	
+	private static Cache<Thread, Function<Expression, String>> newThreadToStringCache() {
+		Cache<Thread, Function<Expression, String>> result = CacheBuilder.newBuilder()
+				.expireAfterAccess(ExpressoConfiguration.getSyntaxToStringThreadCacheTimeoutInSeconds(), TimeUnit.SECONDS)
+				// Don't hold onto old threads unnecessarily
+				.weakKeys()
+				.build();
+		
+		return result;
+	}
+	
+	/**
+	 * 
+	 * @return the default configured to string unary function for the current
+	 *         thread. The instance to use is determined by the configuration
+	 *         settings for
+	 *         {@link ExpressoConfiguration#KEY_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS}
+	 *         .
+	 */
+	private static Function<Expression, String> getToString() {
+		Function<Expression, String> result = threadToString.getIfPresent(Thread.currentThread());
+		if (result == null) {
+			// Initialize with the defaultToString() caller, as other methods can
+			// rely on Grammar instances that can cause recursive calls, this
+			// prevents such recursion from occurring.
+			threadToString.put(Thread.currentThread(), new SyntaxTreeToStringFunction());
+			
+			result = ExpressoConfiguration.newConfiguredInstance(ExpressoConfiguration.getDefaultSyntaxToStringUnaryFunctionClass());
+
+			// Now assign the configured object.
+			threadToString.put(Thread.currentThread(), result);
+		}
+		
+		return result;
+	}
+
+	private static final long serialVersionUID = 1L;
+	private volatile Object                    cachedSyntacticFormType             = null;
+	private Lock                               lazyInitCachedSyntacticFormTypeLock = new ReentrantLock();
+	private volatile ImmutableList<Expression> cachedArguments                     = null;
+	private Lock                               lazyInitCachedArgumentsLock         = new ReentrantLock();
+	private static Cache<Thread, Function<Expression, String>> threadToString = newThreadToStringCache();
+
+	@Override
+	public List<Expression> getSubExpressions() {
+		List<Expression> result = null;
+		Iterator<ExpressionAndContext> immediateSubExpressionsAndContextsIterator = getImmediateSubExpressionsAndContextsIterator();
+	
+		Iterator<Expression> resultIterator =
+			new FunctionIterator<ExpressionAndContext, Expression>(
+					immediateSubExpressionsAndContextsIterator,
+					ExpressionAndContext.GET_EXPRESSION);
+	
+		result = Util.listFrom(resultIterator);
+		return result;
+	}
+
 	/**
 	 * Indicates what syntactic form type the expression is.
 	 * Syntactic forms are the primitive types of expressions in a logic.
@@ -257,41 +343,6 @@ public abstract class AbstractSyntaxTree2 extends AbstractExpression2 implements
 		new FunctionIterator<ExpressionAndContext, Expression>(
 				getImmediateSubExpressionsAndContextsIterator(),
 				ExpressionAndContext.GET_EXPRESSION);
-	}
-
-	@Override
-	public int numberOfImmediateSubTrees() {
-		return subTrees.size();
-	}
-
-	@Override
-	public SyntaxTree getSubTree(Object fieldKey) {
-		if (fieldKey.equals("functor")) {
-			return getRootTree();
-		}
-		else if (fieldKey instanceof Number) {
-			int index = ((Number)fieldKey).intValue();
-			if (index == -1) {
-				return (SyntaxTree) valueOrRootSyntaxTree;
-			}
-			if (index < subTrees.size()) {
-				return subTrees.get(index);
-			}
-			else {
-				return null;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public List<SyntaxTree> getImmediateSubTrees() {
-		return subTrees;
-	}
-
-	@Override
-	public Iterator<SyntaxTree> getImmediateSubTreesIterator() {
-		return getImmediateSubTrees().iterator();
 	}
 
 	///////////////////////// FUNCTION APPLICATION METHODS //////////////////////
@@ -371,53 +422,4 @@ public abstract class AbstractSyntaxTree2 extends AbstractExpression2 implements
 		return null;
 	}
 	
-	@Override
-	public String toString() {
-		if (cachedToString == null) {
-			Function<Expression, String> toString = getToString();
-			if (toString != null) {
-				cachedToString = toString.apply(this);
-			}
-			else 
-			{
-				cachedToString = defaultToString();
-			}
-		}
-		return cachedToString;
-	}
-	
-	private static Cache<Thread, Function<Expression, String>> newThreadToStringCache() {
-		Cache<Thread, Function<Expression, String>> result = CacheBuilder.newBuilder()
-				.expireAfterAccess(ExpressoConfiguration.getSyntaxToStringThreadCacheTimeoutInSeconds(), TimeUnit.SECONDS)
-				// Don't hold onto old threads unnecessarily
-				.weakKeys()
-				.build();
-		
-		return result;
-	}
-	
-	/**
-	 * 
-	 * @return the default configured to string unary function for the current
-	 *         thread. The instance to use is determined by the configuration
-	 *         settings for
-	 *         {@link ExpressoConfiguration#KEY_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS}
-	 *         .
-	 */
-	private static Function<Expression, String> getToString() {
-		Function<Expression, String> result = threadToString.getIfPresent(Thread.currentThread());
-		if (result == null) {
-			// Initialize with the defaultToString() caller, as other methods can
-			// rely on Grammar instances that can cause recursive calls, this
-			// prevents such recursion from occurring.
-			threadToString.put(Thread.currentThread(), new SyntaxTreeToStringFunction());
-			
-			result = ExpressoConfiguration.newConfiguredInstance(ExpressoConfiguration.getDefaultSyntaxToStringUnaryFunctionClass());
-
-			// Now assign the configured object.
-			threadToString.put(Thread.currentThread(), result);
-		}
-		
-		return result;
-	}
 }

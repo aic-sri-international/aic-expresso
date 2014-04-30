@@ -66,7 +66,7 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements CompoundSyntaxTree, Expression {
+public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements CompoundSyntaxTree , Expression {
 	private static final long serialVersionUID = 1L;
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
@@ -153,35 +153,19 @@ public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements C
 	public DefaultCompoundSyntaxTree2 orderNormalized = null;
 	public static final boolean useOrderNormalization = false;
 	
-	@Override
-	public String getStringForComparisonPurposes() {
-		SyntaxTree orderNormalized;
-
-		if ( ! useOrderNormalization) {
-			orderNormalized = this;
-		}
-		else {
-			orderNormalized = this.getOrderNormalized();
-		}
-		
-		String result = orderNormalized.toString();
-		
-		return result;
-	}
-
 	public int hashCode() {
-		SyntaxTree orderNormalized;
-
-		if ( ! useOrderNormalization) {
-			orderNormalized = this;
-		}
-		else {
-			orderNormalized = this.getOrderNormalized();
-		}
-		
-		if (orderNormalized != this) {
-			return orderNormalized.hashCode();
-		}
+//		SyntaxTree orderNormalized;
+//
+//		if ( ! useOrderNormalization) {
+//			orderNormalized = this;
+//		}
+//		else {
+//			orderNormalized = this.getOrderNormalized();
+//		}
+//		
+//		if (orderNormalized != this) {
+//			return orderNormalized.hashCode();
+//		}
 		
 		if (hashCode == -1) {
 			SyntaxTree rootTree = getRootTree();
@@ -194,44 +178,46 @@ public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements C
 		return hashCode;
 	}
 
-	private boolean mayBeEqualAsFarAsFunctorIsConcerned(Expression anotherExpression) {
-		boolean result = false;
-		try {
-			DefaultCompoundSyntaxTree2 anotherDefaultCompoundSyntaxTree = (DefaultCompoundSyntaxTree2) anotherExpression;
-			if (anotherDefaultCompoundSyntaxTree.getFunctor().equals(getFunctor())) {
-				result = true;
-			}
-		}
-		catch (ClassCastException e) {
-			// result remains false;
-		}
-		return result;
-	}
+//	private boolean mayBeEqualAsFarAsFunctorIsConcerned(Expression anotherExpression) {
+//		boolean result = false;
+//		try {
+//			DefaultCompoundSyntaxTree2 anotherDefaultCompoundSyntaxTree = (DefaultCompoundSyntaxTree2) anotherExpression;
+//			if (anotherDefaultCompoundSyntaxTree.getFunctor().equals(getFunctor())) {
+//				result = true;
+//			}
+//		}
+//		catch (ClassCastException e) {
+//			// result remains false;
+//		}
+//		return result;
+//	}
 
 	public boolean equals(Object anotherObject) {
-		boolean result;
-		if ( ! useOrderNormalization) {
-			result = basicEquals(this, anotherObject);
-		}
-		else {
-			Expression anotherExpression;
-			try {
-				anotherExpression = (Expression) anotherObject;
-			}
-			catch (ClassCastException e) {
-				return false; // it could be a string, but in that case it must be interpreted as a symbol, so comparison is false.
-			}
-			
-			if (mayBeEqualAsFarAsFunctorIsConcerned(anotherExpression)) { // no need to order-normalize if functors are different.
-				SyntaxTree normalizedThis = getOrderNormalized();
-				Object normalizedAnother = getOrderNormalizedOrSameIfNotCompoundSyntaxTree(anotherObject);
-				result = basicEquals(normalizedThis, normalizedAnother);
-			}
-			else {
-				result =false;
-			}
-		}
-		
+//		boolean result;
+//		if ( ! useOrderNormalization) {
+//			result = basicEquals(this, anotherObject);
+//		}
+//		else {
+//			Expression anotherExpression;
+//			try {
+//				anotherExpression = (Expression) anotherObject;
+//			}
+//			catch (ClassCastException e) {
+//				return false; // it could be a string, but in that case it must be interpreted as a symbol, so comparison is false.
+//			}
+//			
+//			if (mayBeEqualAsFarAsFunctorIsConcerned(anotherExpression)) { // no need to order-normalize if functors are different.
+//				SyntaxTree normalizedThis = getOrderNormalized();
+//				Object normalizedAnother = getOrderNormalizedOrSameIfNotCompoundSyntaxTree(anotherObject);
+//				result = basicEquals(normalizedThis, normalizedAnother);
+//			}
+//			else {
+//				result =false;
+//			}
+//		}
+//		
+//		return result;
+		boolean result = basicEquals(this, anotherObject);
 		return result;
 	}
 
@@ -255,23 +241,6 @@ public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements C
 		return result;
 	}
 
-	protected Object getOrderNormalizedOrSameIfNotCompoundSyntaxTree(Object anotherObject) {
-		boolean isDefaultCompountSyntaxTree = anotherObject instanceof DefaultCompoundSyntaxTree2;
-		Object normalizedAnother = isDefaultCompountSyntaxTree? ((DefaultCompoundSyntaxTree2)anotherObject).getOrderNormalized()
-				: anotherObject;
-		return normalizedAnother;
-	}
-
-	protected SyntaxTree getOrderNormalized() {
-		if (orderNormalized == null) {
-			//RewritingProcess process = getProcess(); // OrderNormalize does not currently use the process.
-			DefaultCompoundSyntaxTree2 value = (DefaultCompoundSyntaxTree2) OrderNormalize.orderNormalize(this, null /*process*/);
-			setOrderNormalized(value);
-			orderNormalized.setOrderNormalized(orderNormalized); // no need to re-normalize what we know to be normalized.
-		}
-		return orderNormalized;
-	}
-	
 	protected void setOrderNormalized(DefaultCompoundSyntaxTree2 value) {
 		orderNormalized = value;
 	}
@@ -399,11 +368,27 @@ public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements C
 		return this;
 	}
 	
-	public Expression clone() {
+	public SyntaxTree clone() {
 		return DefaultCompoundSyntaxTree2.make(getRootTree(), subTrees);
 		// it is best to use the field 'arguments' instead of method 'getArguments'
 		// because we can share argument lists among function applications, since they are never modified.
 		// The method 'getArguments' would unnecessarily create an unmodifiable list object.
+	}
+
+	@Override
+	public String getStringForComparisonPurposes() {
+		SyntaxTree orderNormalized;
+
+		if ( ! useOrderNormalization) {
+			orderNormalized = this;
+		}
+		else {
+			orderNormalized = this.getOrderNormalized();
+		}
+		
+		String result = orderNormalized.toString();
+		
+		return result;
 	}
 
 	@Override
@@ -425,4 +410,22 @@ public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements C
 	public Rational rationalValue() {
 		throw new Error("Expression.rationalValue() not defined for CompoundSyntaxTree " + this);
 	}
+
+	protected Object getOrderNormalizedOrSameIfNotCompoundSyntaxTree(Object anotherObject) {
+		boolean isDefaultCompountSyntaxTree = anotherObject instanceof DefaultCompoundSyntaxTree2;
+		Object normalizedAnother = isDefaultCompountSyntaxTree? ((DefaultCompoundSyntaxTree2)anotherObject).getOrderNormalized()
+				: anotherObject;
+		return normalizedAnother;
+	}
+
+	protected SyntaxTree getOrderNormalized() {
+		if (orderNormalized == null) {
+			//RewritingProcess process = getProcess(); // OrderNormalize does not currently use the process.
+			DefaultCompoundSyntaxTree2 value = (DefaultCompoundSyntaxTree2) OrderNormalize.orderNormalize(this, null /*process*/);
+			setOrderNormalized(value);
+			orderNormalized.setOrderNormalized(orderNormalized); // no need to re-normalize what we know to be normalized.
+		}
+		return orderNormalized;
+	}
+
 }

@@ -48,7 +48,6 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.core.AbstractModuleNoOpRewriter;
 import com.sri.ai.grinder.api.Module;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractExpression;
 import com.sri.ai.grinder.core.FunctionApplicationProvider;
 
 /**
@@ -125,7 +124,7 @@ public class ExpressionKnowledgeModule extends AbstractModuleNoOpRewriter {
 	
 		Iterator<ExpressionAndContext> result = null;
 	
-		ExpressionKnowledgeModule knowledgeBasedExpressionModule = AbstractExpression.getKnowledgeBasedExpressionModule();
+		ExpressionKnowledgeModule knowledgeBasedExpressionModule = Expressions.getKnowledgeBasedExpressionModule();
 	
 		if (knowledgeBasedExpressionModule != null) {
 			result = knowledgeBasedExpressionModule.getImmediateSubExpressionsIterator(expression, process);

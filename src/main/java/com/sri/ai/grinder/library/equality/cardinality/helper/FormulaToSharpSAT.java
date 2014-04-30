@@ -257,7 +257,7 @@ public class FormulaToSharpSAT {
 			}
 		}
 		
-		result = Expressions.makeFunctionApplication(Or.FUNCTOR, disjuncts);
+		result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Or.FUNCTOR, disjuncts);
  		
 		return result;
 	}

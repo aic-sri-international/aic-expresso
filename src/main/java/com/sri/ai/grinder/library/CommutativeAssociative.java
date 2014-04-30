@@ -180,7 +180,7 @@ public abstract class CommutativeAssociative extends AbstractRewriterDefiningSym
 	}
 	
 	/**
-	 * Similar to {@link DefaultCompoundSyntaxTree#make(Object, List)},
+	 * Similar to {@link DefaultCompoundSyntaxTree#makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object, List)},
 	 * but makes a simplified function application of an associative commutative operator,
 	 * that is, its application but for the cases in which there are no arguments, or a single argument.
 	 * When there are no arguments, a given neutral element value is returned.
@@ -195,11 +195,11 @@ public abstract class CommutativeAssociative extends AbstractRewriterDefiningSym
 		if (arguments.size() == 1) {
 			return arguments.get(0);
 		}
-		return Expressions.makeFunctionApplication(Expressions.wrap(functor), arguments);
+		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Expressions.wrap(functor), arguments);
 	}
 
 	/**
-	 * Similar to {@link DefaultCompoundSyntaxTree#make(Object, List)},
+	 * Similar to {@link DefaultCompoundSyntaxTree#makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object, List)},
 	 * but makes a simplified function application of an associative commutative operator,
 	 * that is, its application but for the cases in which there are no arguments, or a single argument.
 	 * When there are no arguments, a given neutral element value is returned.
@@ -214,7 +214,7 @@ public abstract class CommutativeAssociative extends AbstractRewriterDefiningSym
 		if (arguments.size() == 1) {
 			return arguments.get(0);
 		}
-		Expression result = Expressions.makeFunctionApplication(Expressions.wrap(functor), arguments);
+		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Expressions.wrap(functor), arguments);
 		return result;
 	}
 
