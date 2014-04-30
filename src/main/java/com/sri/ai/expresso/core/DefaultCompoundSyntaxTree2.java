@@ -37,7 +37,6 @@
  */
 package com.sri.ai.expresso.core;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -71,9 +70,6 @@ public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements C
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
 	
-	private DefaultCompoundSyntaxTree2() {
-	}
-
 	/**
 	 * Constructs a function application with given functor and arguments, copying them for internal use.
 	 * Objects that are not Expressions are wrapped as DefaultSymbols, unless
@@ -107,19 +103,6 @@ public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements C
 	@Override
 	public Object getLabel() {
 		return valueOrRootSyntaxTree;
-	}
-
-	/**
-	 * Constructs a function application with given functor and arguments, keeping the arguments ownership.
-	 * This is a more efficient constructor than {@link #DefaultCompoundSyntaxTree(Object, Object...)}
-	 * and offers the possibility of using an already existing list.
-	 */
-	public static DefaultCompoundSyntaxTree2 make(Object functor, List<? extends SyntaxTree> subTrees) {
-		DefaultCompoundSyntaxTree2 result = new DefaultCompoundSyntaxTree2();
-		result.valueOrRootSyntaxTree    = Expressions.wrap(functor);
-		// Note: We can have nulls, therefore cannot use ImmutableList directly.
-		result.subTrees = Collections.unmodifiableList(new ArrayList<SyntaxTree>(subTrees));
-		return result;
 	}
 
 	@Override
@@ -363,13 +346,13 @@ public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements C
 	 */
 	private SyntaxTree makeReplacementIfAny(Object rootTreeReplacement, List<SyntaxTree> subTreesReplacement) {
 		if (rootTreeReplacement != getRootTree() || subTreesReplacement != subTrees) {
-			return make(SyntaxTrees.wrap(rootTreeReplacement), subTreesReplacement);
+			return SyntaxTrees.make(SyntaxTrees.wrap(rootTreeReplacement), subTreesReplacement);
 		}
 		return this;
 	}
 	
-	public SyntaxTree clone() {
-		return DefaultCompoundSyntaxTree2.make(getRootTree(), subTrees);
+	public Expression clone() {
+		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(getRootTree(), subTrees);
 		// it is best to use the field 'arguments' instead of method 'getArguments'
 		// because we can share argument lists among function applications, since they are never modified.
 		// The method 'getArguments' would unnecessarily create an unmodifiable list object.

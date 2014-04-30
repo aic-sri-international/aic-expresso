@@ -169,7 +169,7 @@ public abstract class AbstractSyntaxTree2 extends AbstractExpression2 implements
 		return replaceSubTreesAllOccurrences(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), prunePredicate, listener);
 	}
 
-	abstract public SyntaxTree clone();
+	abstract public Expression clone();
 	
 	@Override
 	public int numberOfImmediateSubTrees() {
