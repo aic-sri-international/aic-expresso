@@ -45,6 +45,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree2;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.DefaultSymbol2;
 import com.sri.ai.util.Util;
@@ -98,5 +99,9 @@ public class SyntaxTrees {
 			return wrap(object);
 		}
 	};
-	
+
+	public static SyntaxTree make(Object rootTreeReplacement, List<SyntaxTree> subTrees) {
+		SyntaxTree result = new DefaultCompoundSyntaxTree2(rootTreeReplacement, subTrees);
+		return result;
+	}
 }
