@@ -95,12 +95,6 @@ import com.sri.ai.util.collect.FunctionIterator;
  * </ul>
  * <p>
  * It also forms an sub-tree list out of the parses of sub-parsing expressions.
- * The final parse is:
- * <ul>
- * <li>an Expression based on {@link DefaultCompoundSyntaxTree2} of the functor name to the list of
- * arguments, if there is more than zero arguments
- * <li>an Expression based on {@link DefaultSymbol2} on the functor name, if there are no arguments.
- * </ul>
  * 
  * @author braz
  */
@@ -366,7 +360,7 @@ public class Sequence extends AbstractParsingExpression implements BasicParsingE
 		
 		Expression parse;
 		if (subTrees.size() != 0) {
-			parse = Expressions.makeFromSyntaxTree(new DefaultCompoundSyntaxTree2(rootTreeName, subTrees.toArray()));
+			parse = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(rootTreeName, subTrees.toArray());
 		}
 		else {
 			parse = Expressions.createSymbol(rootTreeName);

@@ -52,8 +52,6 @@ import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.base.BinaryProcedure;
 import com.sri.ai.util.math.Rational;
@@ -555,10 +553,6 @@ public class DefaultSymbol2 extends AbstractSyntaxTree2 implements Symbol  {
 			return (Rational) valueOrRootSyntaxTree;
 		}
 		throw new Error("DefaultSymbol.rationalValue() invoked on " + this + ", which is not a number.");
-	}
-	@Override
-	public String getStringForComparisonPurposes() {
-		return toString();
 	}
 	
 	@Override

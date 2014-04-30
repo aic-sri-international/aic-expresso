@@ -376,22 +376,6 @@ public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements C
 	}
 
 	@Override
-	public String getStringForComparisonPurposes() {
-		SyntaxTree orderNormalized;
-
-		if ( ! useOrderNormalization) {
-			orderNormalized = this;
-		}
-		else {
-			orderNormalized = this.getOrderNormalized();
-		}
-		
-		String result = orderNormalized.toString();
-		
-		return result;
-	}
-
-	@Override
 	public int intValue() {
 		throw new Error("Expression.intValue() not defined for CompoundSyntaxTree " + this);
 	}

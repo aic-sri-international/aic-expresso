@@ -163,7 +163,7 @@ public class Kleene extends AbstractParsingExpression {
 		if (subTrees.size() == 1 && ! firstResultIsKleeneListItself(results)) {
 			return new DefaultParsingResult(this, results.get(0).getTokens(), results.get(0).getParse(), tokenPositionLimitInfluencedResult);
 		}
-		return new DefaultParsingResult(this, tokens(results), Expressions.makeFromSyntaxTree(new DefaultCompoundSyntaxTree2("kleene list", subTrees.toArray())), tokenPositionLimitInfluencedResult);
+		return new DefaultParsingResult(this, tokens(results), Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("kleene list", subTrees.toArray()), tokenPositionLimitInfluencedResult);
 	}
 
 	private boolean firstResultIsKleeneListItself(List<ParsingResult> results) {

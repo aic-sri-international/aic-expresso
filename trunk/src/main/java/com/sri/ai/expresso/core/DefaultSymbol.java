@@ -283,11 +283,6 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	}
 
 	@Override
-	public String getStringForComparisonPurposes() {
-		return toString();
-	}
-
-	@Override
 	public int hashCode() {
 		if (hashCode == -1) {
 			hashCode = getValue().hashCode();

@@ -309,10 +309,4 @@ public abstract class AbstractExpression2 implements Expression {
 
 	/** Makes a shallow copy of this tree. */
 	abstract public Object clone() throws CloneNotSupportedException;
-	
-	@Override
-	public int compareTo(Expression anotherExpression) {
-		int result = getStringForComparisonPurposes().compareTo(anotherExpression.getStringForComparisonPurposes());
-		return result;
-	}
 }
