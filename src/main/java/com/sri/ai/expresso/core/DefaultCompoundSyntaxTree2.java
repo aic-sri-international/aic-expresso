@@ -71,16 +71,15 @@ public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements C
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
 	
 	/**
-	 * Constructs a function application with given functor and arguments, copying them for internal use.
-	 * Objects that are not Expressions are wrapped as DefaultSymbols, unless
+	 * Constructs a syntax tree with given label and sub-trees, copying them for internal use.
+	 * Objects that are not syntax trees will be wrapped as such, unless
 	 * a single argument is given and it is a List;
-	 * in this case, it is considered to be a List<Expression>
-	 * and a copy is used the function application arguments
-	 * (doing pretty much the same thing as {@link #make(Object, List)}, but in a slightly slower manner).
+	 * in this case, it is considered to be a List<SyntaxTree>
+	 * and a copy is used as the sub-trees
 	 */
 	@SuppressWarnings("unchecked")
-	public DefaultCompoundSyntaxTree2(Object functor, Object ... args) {
-		this.valueOrRootSyntaxTree = Expressions.wrap(functor);
+	public DefaultCompoundSyntaxTree2(Object label, Object ... args) {
+		this.valueOrRootSyntaxTree = Expressions.wrap(label);
 		if (args.length == 1 && args[0] instanceof List) {
 			// Note: We can have nulls, therefore cannot use ImmutableList directly.
 			this.subTrees = Collections.unmodifiableList((List<SyntaxTree>) args[0]); // makes a copy since this constructor does not assume ownership.
