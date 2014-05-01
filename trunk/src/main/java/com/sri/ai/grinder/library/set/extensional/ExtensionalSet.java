@@ -45,7 +45,6 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.util.Util;
