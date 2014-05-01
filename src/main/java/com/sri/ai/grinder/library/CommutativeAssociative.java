@@ -45,7 +45,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -180,7 +179,7 @@ public abstract class CommutativeAssociative extends AbstractRewriterDefiningSym
 	}
 	
 	/**
-	 * Similar to {@link DefaultCompoundSyntaxTree#makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object, List)},
+	 * Similar to {@link Expressions#apply(Object, Object...)},
 	 * but makes a simplified function application of an associative commutative operator,
 	 * that is, its application but for the cases in which there are no arguments, or a single argument.
 	 * When there are no arguments, a given neutral element value is returned.
@@ -199,7 +198,7 @@ public abstract class CommutativeAssociative extends AbstractRewriterDefiningSym
 	}
 
 	/**
-	 * Similar to {@link DefaultCompoundSyntaxTree#makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object, List)},
+	 * Similar to {@link Expressions#apply(Object, Object...)},
 	 * but makes a simplified function application of an associative commutative operator,
 	 * that is, its application but for the cases in which there are no arguments, or a single argument.
 	 * When there are no arguments, a given neutral element value is returned.

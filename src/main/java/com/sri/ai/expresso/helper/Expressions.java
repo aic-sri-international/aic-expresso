@@ -181,7 +181,7 @@ public class Expressions {
 	 * Returns a "list" application if given list is not singleton,
 	 * and the single element itself otherwise.
 	 * Wraps objects into expressions.
-	 * This is a inverse operation of {@ #ensureList(Expression)}.
+	 * This is a inverse operation of {@link #ensureListFromList(Expression)}.
 	 */
 	public static <T> Expression makeListIfNeeded(Collection<T> objects) {
 		if (objects.size() == 1 ) {

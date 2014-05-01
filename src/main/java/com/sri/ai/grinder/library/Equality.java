@@ -46,7 +46,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.HasFunctor;
@@ -161,7 +160,7 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 		if (uniqueExpressions.size() < 2) {
 			return Expressions.TRUE;
 		}
-		return new DefaultCompoundSyntaxTree("=", expressions);
+		return Expressions.apply("=", expressions);
 	}
 
 	public static BinaryFunction<Expression, Expression, Expression> MAKE_PAIR_EQUALITY = new BinaryFunction<Expression, Expression, Expression>() {

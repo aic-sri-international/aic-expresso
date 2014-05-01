@@ -63,7 +63,7 @@ import com.sri.ai.util.Util;
 @Beta
 public class ScopedVariables extends AbstractModuleAndPossibleActiveRewriter {
 
-	private static final Expression _emptyScope = new DefaultCompoundSyntaxTree("list");
+	private static final Expression _emptyScope = Expressions.apply("list");
 	//
 	public ScopedVariables() {
 		this.setReifiedTests(new DefaultRewriterTest(KindAttribute.INSTANCE, KindAttribute.VALUE_SCOPED_VARIABLES));
