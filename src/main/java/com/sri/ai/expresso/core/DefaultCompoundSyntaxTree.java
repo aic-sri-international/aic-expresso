@@ -80,10 +80,10 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	 * (doing pretty much the same thing as {@link Expressions#makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object, List)}, but in a slightly slower manner).
 	 */
 	@SuppressWarnings("unchecked")
-	public DefaultCompoundSyntaxTree(Object functor, Object ... args) {
+	public DefaultCompoundSyntaxTree(Object label, Object ... args) {
 //		this.syntaxTree = new DefaultCompoundSyntaxTree2(functor, args);
 		
-		this.valueOrRootSyntaxTree = Expressions.wrap(functor);
+		this.valueOrRootSyntaxTree = SyntaxTrees.wrap(label);
 		if (args.length == 1 && args[0] instanceof List) {
 			// Note: We can have nulls, therefore cannot use ImmutableList directly.
 			this.subTrees = Collections.unmodifiableList((List<SyntaxTree>) args[0]); // makes a copy since this constructor does not assume ownership.
