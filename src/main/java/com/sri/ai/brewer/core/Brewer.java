@@ -125,7 +125,7 @@ public class Brewer {
 	 * @param tabLevel
 	 *            The number of tabs to indent.
 	 * @param forceSymbolPrint
-	 *            Whether to print "DefaultSymbol.createSymbol()" for symbols or
+	 *            Whether to print "Expressions.createSymbol()" for symbols or
 	 *            just the string.
 	 */
 	public static void generateFunctionApplicationString(StringBuffer sb, Expression expression, int tabLevel, boolean forceSymbolPrint) {
@@ -133,7 +133,7 @@ public class Brewer {
 			sb.append("\n");
 			for (int i = 0; i < tabLevel; i++)
 				sb.append("\t");
-			sb.append("new DefaultCompoundSyntaxTree(");
+			sb.append("Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(");
 
 			boolean firstChild = true;
 			List<Expression> children = expression.getSubExpressions();
@@ -154,13 +154,13 @@ public class Brewer {
 				sb.append("\n");
 				for (int i = 0; i < tabLevel; i++)
 					sb.append("\t");
-				sb.append("DefaultSymbol.createSymbol(");
+				sb.append("Expressions.createSymbol(");
 				generateFunctionApplicationString(sb, (Expression)label, tabLevel + 2, true);
 				sb.append(")");
 			}
 			else {
 				if (forceSymbolPrint) {
-					sb.append("DefaultSymbol.createSymbol(");
+					sb.append("Expressions.createSymbol(");
 				}
 				sb.append("\"");
 				String string = expression.toString();
