@@ -53,7 +53,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -98,7 +97,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	public static final String SCOPED_VARIABLES_LABEL = "( on . )";
 	public static final String CONDITION_LABEL        = "|";
 	//
-	public static final Expression EMPTY_SCOPING_EXPRESSION = makeScopingExpression(new ArrayList<Expression>());
+	public static final Expression EMPTY_SCOPING_EXPRESSION = makeScopingSyntaxTree(new ArrayList<Expression>());
 	
 	//
 	private static final List<Integer> _pathToHead      = Collections.unmodifiableList(Arrays.asList(new Integer(1)));
@@ -200,46 +199,45 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		return IntensionalSet._pathToCondition;
 	}
 
-	private static Expression makeUniSet(SyntaxTree scopingExpression, Expression head, Expression condition) {
-		return IntensionalSet.make(IntensionalSet.UNI_SET_LABEL, scopingExpression, head, condition);
+	private static Expression makeUniSet(SyntaxTree scopingSyntaxTree, Expression head, Expression condition) {
+		return IntensionalSet.make(IntensionalSet.UNI_SET_LABEL, scopingSyntaxTree, head, condition);
 	}
 
-	private static Expression makeMultiSet(SyntaxTree scopingExpression, Expression head, Expression condition) {
-		return IntensionalSet.make(IntensionalSet.MULTI_SET_LABEL, scopingExpression, head, condition);
+	private static Expression makeMultiSet(SyntaxTree scopingSyntaxTree, Expression head, Expression condition) {
+		return IntensionalSet.make(IntensionalSet.MULTI_SET_LABEL, scopingSyntaxTree, head, condition);
 	}
 
 	/** Make either uni or multiset by using provided label. */
-	private static Expression make(Object label, SyntaxTree scopingExpression, Expression head, Expression condition) {
+	private static Expression make(Object label, SyntaxTree scopingSyntaxTree, Expression head, Expression condition) {
 		SyntaxTree conditionSyntaxTree =
 			(condition == null || condition.equals("true"))?
 					null
 					: SyntaxTrees.make(IntensionalSet.CONDITION_LABEL, condition.getSyntaxTree());
 		Expression result = SyntaxTrees.make(
 				label,
-				scopingExpression,
+				scopingSyntaxTree,
 				head.getSyntaxTree(),
 				conditionSyntaxTree);
 		return result;
 	}
 
 	public static Expression makeUniSetFromIndexExpressionsList(List<Expression> indexExpressionsList, Expression head, Expression condition) {
-		Expression result = IntensionalSet.makeUniSet(makeScopingExpression(indexExpressionsList), head, condition);
+		Expression result = IntensionalSet.makeUniSet(makeScopingSyntaxTree(indexExpressionsList), head, condition);
 		return result;
 	}
 
 	public static Expression makeMultiSetFromIndexExpressionsList(List<Expression> indexExpressionsList, Expression head, Expression condition) {
 		Expression result = IntensionalSet.makeMultiSet(
-				IntensionalSet.makeScopingExpression(indexExpressionsList),
+				IntensionalSet.makeScopingSyntaxTree(indexExpressionsList),
 				head,
 				condition);
 		return result;
 	}
 
 	/** Makes a scoping expression out of a list of scoping variables. */
-	public static DefaultCompoundSyntaxTree makeScopingExpression(List<Expression> indexExpressionsList) {
-		return new DefaultCompoundSyntaxTree(
-				SCOPED_VARIABLES_LABEL, Expressions.makeKleeneListIfNeeded(indexExpressionsList)
-		);
+	public static SyntaxTree makeScopingSyntaxTree(List<Expression> indexExpressionsList) {
+		SyntaxTree result = SyntaxTrees.make(SCOPED_VARIABLES_LABEL, Expressions.makeKleeneListIfNeeded(indexExpressionsList));
+		return result;
 	}
 	
 	public static Expression copyWithNewIndexExpressionsList(Expression intensionalSetExpression, List<Expression> indexExpressionsList) {
@@ -272,7 +270,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		
 		Expression result = make(
 				Expressions.wrap(label),
-				makeScopingExpression(indexExpressionsList),
+				makeScopingSyntaxTree(indexExpressionsList),
 				head,
 				condition);
 		return result;
@@ -302,7 +300,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	public static Expression makeMultiSetWithASingleIndexExpression(
 			Expression indexExpression, Expression head, Expression condition) {
 		Expression result = IntensionalSet.makeMultiSet(
-				new DefaultCompoundSyntaxTree(IntensionalSet.SCOPED_VARIABLES_LABEL, indexExpression),
+				SyntaxTrees.make(IntensionalSet.SCOPED_VARIABLES_LABEL, indexExpression.getSyntaxTree()),
 				head,
 				condition);
 		return result;
@@ -328,9 +326,12 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	 */
 	public static List<Expression> getIndexExpressions(Expression intensionalSetExpression) {
 		if ( ! Sets.isEmptySet(intensionalSetExpression)) {
-			Expression scopingExpression = IntensionalSet.getScopingSyntaxTree(intensionalSetExpression);
-			if (scopingExpression != null) {
-				List<Expression> indexExpressions = Expressions.ensureListFromKleeneList(Expressions.makeFromSyntaxTree(scopingExpression.getSyntaxTree().getSubTree(0))); // does need to be sub tree
+			SyntaxTree scopingSyntaxTree = IntensionalSet.getScopingSyntaxTree(intensionalSetExpression);
+			if (scopingSyntaxTree != null) {
+				List<SyntaxTree> indexExpressionsSyntaxTrees =
+						SyntaxTrees.ensureListFromKleeneList(scopingSyntaxTree.getSubTree(0));
+				List<Expression> indexExpressions =
+						Collections.unmodifiableList(Expressions.makeListOfExpressions(indexExpressionsSyntaxTrees));
 				return indexExpressions;
 			}
 		}

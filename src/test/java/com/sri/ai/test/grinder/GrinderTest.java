@@ -1609,16 +1609,16 @@ public class GrinderTest extends AbstractGrinderTest {
 		
 		evaluator = new ExhaustiveRewriter(library);
 		
-		Expression S = parse("{(on X,Y) f(X) | Z = X}");	
-		String expectedS = S.toString();
-		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(S);
+		Expression setExpression = parse("{(on X,Y) f(X) | Z = X}");	
+		String expectedSetString = setExpression.toString();
+		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(setExpression);
 		try {
 			indexExpressions.remove(0);
 			Assert.fail("An exception should have thrown");
 		} catch (Exception ex) {
 			// Expected
 		}
-		Assert.assertEquals(expectedS, S.toString());
+		Assert.assertEquals(expectedSetString, setExpression.toString());
 	}
 
 	

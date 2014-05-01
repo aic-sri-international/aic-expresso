@@ -47,7 +47,8 @@ public class IndexExpressions {
 		return result;
 	}
 
-	public static LinkedHashMap<Expression, Expression> getIndexToDomainMapWithDefaultTypeOfIndex(List<Expression> indexExpressions) {
+	public static LinkedHashMap<Expression, Expression>
+	getIndexToDomainMapWithDefaultTypeOfIndex(List<Expression> indexExpressions) {
 		LinkedHashMap<Expression, Expression> result =
 			Expressions.getRelationalMap(
 					indexExpressions,

@@ -1063,4 +1063,10 @@ public class Expressions {
 	public static RewritingProcess getProcess() {
 		return DefaultRewritingProcess.getGlobalRewritingProcessForKnowledgeBasedExpressions();
 	}
+
+
+	public static List<Expression> makeListOfExpressions(List<SyntaxTree> syntaxTrees) {
+		List<Expression> result = Util.mapIntoArrayList(syntaxTrees, MAKER);
+		return result;
+	}
 }

@@ -666,7 +666,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		String string;
 		
 		string = "{{ ( on ) ([ if X then 1 else 0 ]) }}";
-		test(string, new DefaultCompoundSyntaxTree("{{ . . . }}", IntensionalSet.makeScopingExpression(new ArrayList<Expression>()), 
+		test(string, new DefaultCompoundSyntaxTree("{{ . . . }}", IntensionalSet.makeScopingSyntaxTree(new ArrayList<Expression>()), 
 				new DefaultCompoundSyntaxTree("[ . ]",
 						new DefaultCompoundSyntaxTree("if . then . else .", "X", "1", "0")), null));
 		
@@ -760,11 +760,11 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		String string;	
 		
 		string = "{ ( on ) p(X, X) | true }";
-		test(string, new DefaultCompoundSyntaxTree("{ . . . }", IntensionalSet.makeScopingExpression(new ArrayList<Expression>()), 
+		test(string, new DefaultCompoundSyntaxTree("{ . . . }", IntensionalSet.makeScopingSyntaxTree(new ArrayList<Expression>()), 
 				new DefaultCompoundSyntaxTree("p", "X", "X"), Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(IntensionalSet.CONDITION_LABEL, "true")));
 
 		string = "{ ( on ) X | true }";
-		test(string, new DefaultCompoundSyntaxTree("{ . . . }", IntensionalSet.makeScopingExpression(new ArrayList<Expression>()),  
+		test(string, new DefaultCompoundSyntaxTree("{ . . . }", IntensionalSet.makeScopingSyntaxTree(new ArrayList<Expression>()),  
 				"X", Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(IntensionalSet.CONDITION_LABEL, "true")));
 				
 		string = "{ a | true}";

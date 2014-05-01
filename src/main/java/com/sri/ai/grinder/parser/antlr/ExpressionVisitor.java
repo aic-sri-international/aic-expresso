@@ -377,7 +377,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 			AntlrGrinderParser.ExprContext head, AntlrGrinderParser.ExprContext condition) {
 		Expression scopingExpression = null;
 		if (scope != null) {
-			scopingExpression = IntensionalSet.makeScopingExpression(expressionsList(scopeargs));
+			scopingExpression = IntensionalSet.makeScopingSyntaxTree(expressionsList(scopeargs));
 		}
 		Expression headExpression      = visit(head);
 		Expression conditionExpression = null;
