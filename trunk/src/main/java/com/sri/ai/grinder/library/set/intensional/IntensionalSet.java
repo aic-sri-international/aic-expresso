@@ -212,8 +212,8 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		SyntaxTree conditionSyntaxTree =
 			(condition == null || condition.equals("true"))?
 					null
-					: SyntaxTrees.make(IntensionalSet.CONDITION_LABEL, condition.getSyntaxTree());
-		Expression result = SyntaxTrees.make(
+					: SyntaxTrees.makeCompoundSyntaxTree(IntensionalSet.CONDITION_LABEL, condition.getSyntaxTree());
+		Expression result = SyntaxTrees.makeCompoundSyntaxTree(
 				label,
 				scopingSyntaxTree,
 				head.getSyntaxTree(),
@@ -236,7 +236,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 
 	/** Makes a scoping expression out of a list of scoping variables. */
 	public static SyntaxTree makeScopingSyntaxTree(List<Expression> indexExpressionsList) {
-		SyntaxTree result = SyntaxTrees.make(SCOPED_VARIABLES_LABEL, Expressions.makeKleeneListIfNeeded(indexExpressionsList));
+		SyntaxTree result = SyntaxTrees.makeCompoundSyntaxTree(SCOPED_VARIABLES_LABEL, Expressions.makeKleeneListIfNeeded(indexExpressionsList));
 		return result;
 	}
 	
@@ -300,7 +300,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	public static Expression makeMultiSetWithASingleIndexExpression(
 			Expression indexExpression, Expression head, Expression condition) {
 		Expression result = IntensionalSet.makeMultiSet(
-				SyntaxTrees.make(IntensionalSet.SCOPED_VARIABLES_LABEL, indexExpression.getSyntaxTree()),
+				SyntaxTrees.makeCompoundSyntaxTree(IntensionalSet.SCOPED_VARIABLES_LABEL, indexExpression.getSyntaxTree()),
 				head,
 				condition);
 		return result;

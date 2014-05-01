@@ -345,7 +345,7 @@ public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements C
 	 */
 	private SyntaxTree makeReplacementIfAny(Object rootTreeReplacement, List<SyntaxTree> subTreesReplacement) {
 		if (rootTreeReplacement != getRootTree() || subTreesReplacement != subTrees) {
-			return SyntaxTrees.make(SyntaxTrees.wrap(rootTreeReplacement), subTreesReplacement);
+			return SyntaxTrees.makeCompoundSyntaxTree(SyntaxTrees.wrap(rootTreeReplacement), subTreesReplacement);
 		}
 		return this;
 	}

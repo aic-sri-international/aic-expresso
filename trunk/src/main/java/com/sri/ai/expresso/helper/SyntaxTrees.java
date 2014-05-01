@@ -45,6 +45,8 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.sri.ai.expresso.api.CompoundSyntaxTree;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree2;
 import com.sri.ai.expresso.core.DefaultSymbol;
@@ -101,8 +103,13 @@ public class SyntaxTrees {
 		}
 	};
 
-	public static SyntaxTree make(Object rootTreeReplacement, Object... subTrees) {
-		SyntaxTree result = new DefaultCompoundSyntaxTree2(rootTreeReplacement, subTrees);
+	public static CompoundSyntaxTree makeCompoundSyntaxTree(Object rootTreeReplacement, Object... subTrees) {
+		CompoundSyntaxTree result = new DefaultCompoundSyntaxTree2(rootTreeReplacement, subTrees);
+		return result;
+	}
+	
+	public static Symbol makeSymbol(Object value) {
+		Symbol result = DefaultSymbol2.createSymbol(value);
 		return result;
 	}
 
@@ -116,7 +123,7 @@ public class SyntaxTrees {
 		if (objects.size() == 1 ) {
 			return SyntaxTrees.wrap(Util.getFirstOrNull(objects));
 		}
-		return SyntaxTrees.make("kleene list", objects);
+		return SyntaxTrees.makeCompoundSyntaxTree("kleene list", objects);
 	}
 	
 }
