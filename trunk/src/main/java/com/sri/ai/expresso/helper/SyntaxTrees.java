@@ -100,7 +100,7 @@ public class SyntaxTrees {
 		}
 	};
 
-	public static SyntaxTree make(Object rootTreeReplacement, List<SyntaxTree> subTrees) {
+	public static SyntaxTree make(Object rootTreeReplacement, Object... subTrees) {
 		SyntaxTree result = new DefaultCompoundSyntaxTree2(rootTreeReplacement, subTrees);
 		return result;
 	}
