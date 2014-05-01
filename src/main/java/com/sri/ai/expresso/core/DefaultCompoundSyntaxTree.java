@@ -291,7 +291,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	 */
 	private SyntaxTree makeReplacementIfAny(Object rootTreeReplacement, List<SyntaxTree> subTreesReplacement) {
 		if (rootTreeReplacement != getRootTree() || subTreesReplacement != subTrees) {
-			return SyntaxTrees.make(rootTreeReplacement, Collections.unmodifiableList(new ArrayList<SyntaxTree>(subTreesReplacement)));
+			return SyntaxTrees.makeCompoundSyntaxTree(rootTreeReplacement, Collections.unmodifiableList(new ArrayList<SyntaxTree>(subTreesReplacement)));
 		}
 		return this;
 	}

@@ -66,9 +66,9 @@ import com.sri.ai.brewer.parsingexpression.helper.AssociativeSequence;
 import com.sri.ai.brewer.parsingexpression.helper.ParenthesizedNonTerminal;
 import com.sri.ai.brewer.parsingexpression.helper.ParsingExpressionForFunctionApplications;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.util.Util;
 
 public class ParsingExpressionTest {
@@ -208,7 +208,7 @@ public class ParsingExpressionTest {
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "{ 1, 2, 3 }";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("{ . }", new DefaultCompoundSyntaxTree("kleene list", 1, 2, 3)));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("{ . }", SyntaxTrees.makeCompoundSyntaxTree("kleene list", 1, 2, 3)));
 	}
 	
 	@Test
@@ -230,7 +230,7 @@ public class ParsingExpressionTest {
 		// DEBUGGING
 		parsingExpression = new Sequence(new Symbol("Expression"), new Terminal("-th"), new Terminal("root"), new Terminal("of"), new Symbol("Expression"));
 		string = "3-th root of 4";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("-th root of", DefaultSymbol.createSymbol(3), DefaultSymbol.createSymbol(4)));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("-th root of", SyntaxTrees.makeSymbol(3), SyntaxTrees.makeSymbol(4)));
 
 
 		
@@ -245,31 +245,31 @@ public class ParsingExpressionTest {
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "add x to y";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("add . to .","x","y"));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("add . to .","x","y"));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "items x y with z";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("items . . with .","x","y","z"));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("items . . with .","x","y","z"));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "add x to y";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("add . to .","x","y"));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("add . to .","x","y"));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "x+y";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("+","x","y"));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("+","x","y"));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "++x";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("++","x"));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("++","x"));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "x++";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree(". ++","x"));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree(". ++","x"));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "x y doublepostfix";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree(". . doublepostfix","x","y"));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree(". . doublepostfix","x","y"));
 
 		parsingExpression = new Sequence();
 		string = "";
@@ -309,11 +309,11 @@ public class ParsingExpressionTest {
 
 		parsingExpression = new Sequence(new Terminal("k1"), new Optional(new Sequence(new Terminal("k2"))), new Terminal("k3"));
 		string = "k1 k3";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("k1 . k3", new Object[]{null}));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("k1 . k3", new Object[]{null}));
 
 		parsingExpression = new Sequence(new Terminal("k1"), new Optional(new Sequence(new Terminal("k2"))), new Terminal("k3"));
 		string = "k1 k2 k3";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("k1 . k3", DefaultSymbol.createSymbol("k2")));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("k1 . k3", SyntaxTrees.makeSymbol("k2")));
 
 		parsingExpression = new Sequence(new Optional(new Terminal("*")), new Terminal("/"));
 		string = "+/";
@@ -321,23 +321,23 @@ public class ParsingExpressionTest {
 
 		parsingExpression = new Sequence(new Terminal("+"), new Optional(new Terminal("*")), new Terminal("/"));
 		string = "+*/";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("+ . /", DefaultSymbol.createSymbol("*")));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("+ . /", SyntaxTrees.makeSymbol("*")));
 
 		parsingExpression = new Sequence(new Terminal("log"), new Symbol("Expression"));
 		string = "log 10";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("log", DefaultSymbol.createSymbol(10)));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("log", SyntaxTrees.makeSymbol(10)));
 
 		parsingExpression = new Sequence(new Symbol("Expression"), new Terminal("+"), new Symbol("Expression"));
 		string = "2+2";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("+", DefaultSymbol.createSymbol(2), DefaultSymbol.createSymbol(2)));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("+", SyntaxTrees.makeSymbol(2), SyntaxTrees.makeSymbol(2)));
 
 		parsingExpression = new Sequence(new Symbol("Expression"), new Terminal("-th"), new Terminal("root"), new Terminal("of"), new Symbol("Expression"));
 		string = "3-th root of 4";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("-th root of", DefaultSymbol.createSymbol(3), DefaultSymbol.createSymbol(4)));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("-th root of", SyntaxTrees.makeSymbol(3), SyntaxTrees.makeSymbol(4)));
 
 		parsingExpression = new Sequence(new Terminal("ship"), new Terminal("with"), new Symbol("Expression"), new Terminal("ton"), new Terminal("capacity"));
 		string = "ship with 10 ton capacity";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("ship with . ton capacity", DefaultSymbol.createSymbol(10)));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("ship with . ton capacity", SyntaxTrees.makeSymbol(10)));
 	}
 
 	@Test
@@ -357,13 +357,13 @@ public class ParsingExpressionTest {
 	public void testKleene() throws IOException {
 		parsingExpression = new Kleene(new Terminal("keyword105"), new Optional(new Terminal(",")));
 		string = "";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("kleene list"));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("kleene list"));
 
 		parsingExpression = new Sequence(
 				new Terminal("keyword34"),
 				new Kleene(new Terminal("keyword105"), new Optional(new Terminal(","))));
 		string = "keyword34";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("keyword34", new DefaultCompoundSyntaxTree("kleene list")));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("keyword34", SyntaxTrees.makeCompoundSyntaxTree("kleene list")));
 
 		parsingExpression = new Kleene(new Terminal("keyword"), new Optional(new Terminal(",")));
 		string = "keyword";
@@ -375,21 +375,21 @@ public class ParsingExpressionTest {
 
 		parsingExpression = new Kleene(new Terminal("keyword"), new Optional(new Terminal(",")));
 		string = "keyword keyword keyword";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("kleene list", DefaultSymbol.createSymbol("keyword"), DefaultSymbol.createSymbol("keyword"), DefaultSymbol.createSymbol("keyword")));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("kleene list", SyntaxTrees.makeSymbol("keyword"), SyntaxTrees.makeSymbol("keyword"), SyntaxTrees.makeSymbol("keyword")));
 
 		parsingExpression = new Kleene(new Terminal("keyword"), new Optional(new Terminal(",")));
 		string = "keyword, keyword, keyword";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("kleene list", DefaultSymbol.createSymbol("keyword"), DefaultSymbol.createSymbol("keyword"), DefaultSymbol.createSymbol("keyword")));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("kleene list", SyntaxTrees.makeSymbol("keyword"), SyntaxTrees.makeSymbol("keyword"), SyntaxTrees.makeSymbol("keyword")));
 
 		// the following tests whether something perceived as a separator turns out not to be and needs to be put back in the token stream.
 		parsingExpression = new Sequence(new Kleene(new Terminal("keyword"), new Optional(new Terminal(","))), new Terminal(","), new Terminal("anotherkeyword"));
 		string = "keyword, keyword, anotherkeyword"; // the second comma is taken by Kleene as a separator, but since the next item is not part of the repeating pattern, it really is not and needs to be returned.
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree(". , anotherkeyword", new DefaultCompoundSyntaxTree("kleene list", DefaultSymbol.createSymbol("keyword"), DefaultSymbol.createSymbol("keyword"))));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree(". , anotherkeyword", SyntaxTrees.makeCompoundSyntaxTree("kleene list", SyntaxTrees.makeSymbol("keyword"), SyntaxTrees.makeSymbol("keyword"))));
 
 		// testing Kleene with a minimum number of elements -- success
 		parsingExpression = new Sequence(new Kleene(new Terminal("keyword"), new Optional(new Terminal(",")), 2), new Terminal(","), new Terminal("anotherkeyword"));
 		string = "keyword, keyword, anotherkeyword"; // the second comma is taken by Kleene as a separator, but since the next item is not part of the repeating pattern, it really is not and needs to be returned.
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree(". , anotherkeyword", new DefaultCompoundSyntaxTree("kleene list", DefaultSymbol.createSymbol("keyword"), DefaultSymbol.createSymbol("keyword"))));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree(". , anotherkeyword", SyntaxTrees.makeCompoundSyntaxTree("kleene list", SyntaxTrees.makeSymbol("keyword"), SyntaxTrees.makeSymbol("keyword"))));
 
 		// testing Kleene with a minimum number of elements -- failure
 		parsingExpression = new Sequence(new Kleene(new Terminal("keyword"), new Optional(new Terminal(",")), 3), new Terminal(","), new Terminal("anotherkeyword"));
@@ -417,7 +417,7 @@ public class ParsingExpressionTest {
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "x + y + z";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("+", "x", new DefaultCompoundSyntaxTree("+", "y", "z")));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("+", "x", SyntaxTrees.makeCompoundSyntaxTree("+", "y", "z")));
 
 		grammar.clear();
 		grammar.put("Expression", new Disjunction(
@@ -427,7 +427,7 @@ public class ParsingExpressionTest {
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "x + y + z";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("+", "x", "y", "z"));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("+", "x", "y", "z"));
 	}
 
 	@Test
@@ -448,78 +448,78 @@ public class ParsingExpressionTest {
 		parsingExpression = new NonTerminal("Expression");
 		string = "log a";
 		test(parsingExpression, string,
-				new DefaultCompoundSyntaxTree("log", DefaultSymbol.createSymbol("a")));
+				SyntaxTrees.makeCompoundSyntaxTree("log", SyntaxTrees.makeSymbol("a")));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "log a-a";
 		test(parsingExpression, string,
-				new DefaultCompoundSyntaxTree("log",
-						new DefaultCompoundSyntaxTree("-",
-								DefaultSymbol.createSymbol("a"),
-								DefaultSymbol.createSymbol("a"))));
+				SyntaxTrees.makeCompoundSyntaxTree("log",
+						SyntaxTrees.makeCompoundSyntaxTree("-",
+								SyntaxTrees.makeSymbol("a"),
+								SyntaxTrees.makeSymbol("a"))));
 
 		string = "a^a-a";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("-",
-				new DefaultCompoundSyntaxTree("^", DefaultSymbol.createSymbol("a"), DefaultSymbol.createSymbol("a")),
-				DefaultSymbol.createSymbol("a")));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("-",
+				SyntaxTrees.makeCompoundSyntaxTree("^", SyntaxTrees.makeSymbol("a"), SyntaxTrees.makeSymbol("a")),
+				SyntaxTrees.makeSymbol("a")));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "a^log a-a";
 		test(parsingExpression, string, Expressions.createSymbol("a")); // this one is a bit tricky. The ^ on log does not parse because log is supposed to be of smaller precedence than ^, so it cannot be its argument. The non-intuitiveness of the example comes from log being typically of higher precedence.
 
 		string = "a*a+a";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("+",
-				new DefaultCompoundSyntaxTree("*", DefaultSymbol.createSymbol("a"), DefaultSymbol.createSymbol("a")),
-				DefaultSymbol.createSymbol("a")));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("+",
+				SyntaxTrees.makeCompoundSyntaxTree("*", SyntaxTrees.makeSymbol("a"), SyntaxTrees.makeSymbol("a")),
+				SyntaxTrees.makeSymbol("a")));
 
 		string = "a+a*a";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("+",
-				DefaultSymbol.createSymbol("a"),
-				new DefaultCompoundSyntaxTree("*", DefaultSymbol.createSymbol("a"), DefaultSymbol.createSymbol("a"))));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("+",
+				SyntaxTrees.makeSymbol("a"),
+				SyntaxTrees.makeCompoundSyntaxTree("*", SyntaxTrees.makeSymbol("a"), SyntaxTrees.makeSymbol("a"))));
 
 		string = "-a*a+a";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("+",
-				new DefaultCompoundSyntaxTree("*",
-						new DefaultCompoundSyntaxTree("-", DefaultSymbol.createSymbol("a")),
-						DefaultSymbol.createSymbol("a")),
-						DefaultSymbol.createSymbol("a")));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("+",
+				SyntaxTrees.makeCompoundSyntaxTree("*",
+						SyntaxTrees.makeCompoundSyntaxTree("-", SyntaxTrees.makeSymbol("a")),
+						SyntaxTrees.makeSymbol("a")),
+						SyntaxTrees.makeSymbol("a")));
 
 		string = "-a*-a-a";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("-",
-				new DefaultCompoundSyntaxTree("*",
-						new DefaultCompoundSyntaxTree("-", DefaultSymbol.createSymbol("a")),
-						new DefaultCompoundSyntaxTree("-", DefaultSymbol.createSymbol("a"))),
-						DefaultSymbol.createSymbol("a")));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("-",
+				SyntaxTrees.makeCompoundSyntaxTree("*",
+						SyntaxTrees.makeCompoundSyntaxTree("-", SyntaxTrees.makeSymbol("a")),
+						SyntaxTrees.makeCompoundSyntaxTree("-", SyntaxTrees.makeSymbol("a"))),
+						SyntaxTrees.makeSymbol("a")));
 
 		string = "-a*-a^a-a";
 		test(parsingExpression, string,
-				new DefaultCompoundSyntaxTree("-",
-						new DefaultCompoundSyntaxTree("*",
-								new DefaultCompoundSyntaxTree("-", DefaultSymbol.createSymbol("a")),
-								new DefaultCompoundSyntaxTree("^",
-										new DefaultCompoundSyntaxTree("-", DefaultSymbol.createSymbol("a")),
-										DefaultSymbol.createSymbol("a"))),
-										DefaultSymbol.createSymbol("a")));
+				SyntaxTrees.makeCompoundSyntaxTree("-",
+						SyntaxTrees.makeCompoundSyntaxTree("*",
+								SyntaxTrees.makeCompoundSyntaxTree("-", SyntaxTrees.makeSymbol("a")),
+								SyntaxTrees.makeCompoundSyntaxTree("^",
+										SyntaxTrees.makeCompoundSyntaxTree("-", SyntaxTrees.makeSymbol("a")),
+										SyntaxTrees.makeSymbol("a"))),
+										SyntaxTrees.makeSymbol("a")));
 
 		string = "-a*-a^-a";
 		test(parsingExpression, string, 
-				new DefaultCompoundSyntaxTree("*",
-						new DefaultCompoundSyntaxTree("-", DefaultSymbol.createSymbol("a")),
-						new DefaultCompoundSyntaxTree("^",
-								new DefaultCompoundSyntaxTree("-", DefaultSymbol.createSymbol("a")),
-								new DefaultCompoundSyntaxTree("-", DefaultSymbol.createSymbol("a")))));
+				SyntaxTrees.makeCompoundSyntaxTree("*",
+						SyntaxTrees.makeCompoundSyntaxTree("-", SyntaxTrees.makeSymbol("a")),
+						SyntaxTrees.makeCompoundSyntaxTree("^",
+								SyntaxTrees.makeCompoundSyntaxTree("-", SyntaxTrees.makeSymbol("a")),
+								SyntaxTrees.makeCompoundSyntaxTree("-", SyntaxTrees.makeSymbol("a")))));
 
 		string = "ship with a ton capacity - ship with a ton capacity";
 		test(parsingExpression, string, 
-				new DefaultCompoundSyntaxTree("-",
-						new DefaultCompoundSyntaxTree("ship with . ton capacity", DefaultSymbol.createSymbol("a")),
-						new DefaultCompoundSyntaxTree("ship with . ton capacity", DefaultSymbol.createSymbol("a"))));
+				SyntaxTrees.makeCompoundSyntaxTree("-",
+						SyntaxTrees.makeCompoundSyntaxTree("ship with . ton capacity", SyntaxTrees.makeSymbol("a")),
+						SyntaxTrees.makeCompoundSyntaxTree("ship with . ton capacity", SyntaxTrees.makeSymbol("a"))));
 
 		string = "ship with a + a ton capacity - ship with a ton capacity";
 		test(parsingExpression, string, 
-				new DefaultCompoundSyntaxTree("-",
-						new DefaultCompoundSyntaxTree("ship with . ton capacity", new DefaultCompoundSyntaxTree("+", DefaultSymbol.createSymbol("a"), DefaultSymbol.createSymbol("a"))),
-						new DefaultCompoundSyntaxTree("ship with . ton capacity", DefaultSymbol.createSymbol("a"))));
+				SyntaxTrees.makeCompoundSyntaxTree("-",
+						SyntaxTrees.makeCompoundSyntaxTree("ship with . ton capacity", SyntaxTrees.makeCompoundSyntaxTree("+", SyntaxTrees.makeSymbol("a"), SyntaxTrees.makeSymbol("a"))),
+						SyntaxTrees.makeCompoundSyntaxTree("ship with . ton capacity", SyntaxTrees.makeSymbol("a"))));
 	}
 
 	@Test
@@ -547,14 +547,14 @@ public class ParsingExpressionTest {
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "x+y";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree("+","x","y"));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree("+","x","y"));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "f()";
 		test(parsingExpression, string,
-				new DefaultCompoundSyntaxTree(
-						DefaultSymbol.createSymbol("f"),
-						new DefaultCompoundSyntaxTree("kleene list")));
+				SyntaxTrees.makeCompoundSyntaxTree(
+						SyntaxTrees.makeSymbol("f"),
+						SyntaxTrees.makeCompoundSyntaxTree("kleene list")));
 		// this one may seem strange, but it makes sense because "Expression" can be an empty
 		// kleene list, which is what the empty space between parentheses is:
 		// a one-element kleene list, with the element being an empty kleene list.
@@ -562,32 +562,32 @@ public class ParsingExpressionTest {
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "f(10)";
-		test(parsingExpression, string, new DefaultCompoundSyntaxTree(DefaultSymbol.createSymbol("f"), DefaultSymbol.createSymbol(10)));
+		test(parsingExpression, string, SyntaxTrees.makeCompoundSyntaxTree(SyntaxTrees.makeSymbol("f"), SyntaxTrees.makeSymbol(10)));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "f(10 + a)";
 		test(parsingExpression, string, 								
-				new DefaultCompoundSyntaxTree("f",
-						new DefaultCompoundSyntaxTree(
+				SyntaxTrees.makeCompoundSyntaxTree("f",
+						SyntaxTrees.makeCompoundSyntaxTree(
 								"+",
-								DefaultSymbol.createSymbol(10),
-								DefaultSymbol.createSymbol("a"))));
+								SyntaxTrees.makeSymbol(10),
+								SyntaxTrees.makeSymbol("a"))));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "f(10+a) - f(a, b)";
 		test(parsingExpression, string,
-				new DefaultCompoundSyntaxTree(
+				SyntaxTrees.makeCompoundSyntaxTree(
 						"-",
-						new DefaultCompoundSyntaxTree(
-								DefaultSymbol.createSymbol("f"),
-								new DefaultCompoundSyntaxTree(
+						SyntaxTrees.makeCompoundSyntaxTree(
+								SyntaxTrees.makeSymbol("f"),
+								SyntaxTrees.makeCompoundSyntaxTree(
 										"+",
-										DefaultSymbol.createSymbol(10),
-										DefaultSymbol.createSymbol("a")
+										SyntaxTrees.makeSymbol(10),
+										SyntaxTrees.makeSymbol("a")
 								)),
-								new DefaultCompoundSyntaxTree(
-										DefaultSymbol.createSymbol("f"),
-										new DefaultCompoundSyntaxTree("kleene list",
+								SyntaxTrees.makeCompoundSyntaxTree(
+										SyntaxTrees.makeSymbol("f"),
+										SyntaxTrees.makeCompoundSyntaxTree("kleene list",
 												DefaultSymbol
 														.createSymbol("a"),
 												DefaultSymbol
@@ -598,14 +598,14 @@ public class ParsingExpressionTest {
 		parsingExpression = new NonTerminal("Expression");
 		string = "f(10)-f()";
 		test(parsingExpression, string,
-				new DefaultCompoundSyntaxTree(
+				SyntaxTrees.makeCompoundSyntaxTree(
 						"-",
-						new DefaultCompoundSyntaxTree(
-								DefaultSymbol.createSymbol("f"),
-								DefaultSymbol.createSymbol(10)
+						SyntaxTrees.makeCompoundSyntaxTree(
+								SyntaxTrees.makeSymbol("f"),
+								SyntaxTrees.makeSymbol(10)
 						),
-						new DefaultCompoundSyntaxTree("f",
-								new DefaultCompoundSyntaxTree("kleene list"))));
+						SyntaxTrees.makeCompoundSyntaxTree("f",
+								SyntaxTrees.makeCompoundSyntaxTree("kleene list"))));
 		// this one may seem strange, but it makes sense because "Expression" can be an empty
 		// kleene list, which is what the empty space between parentheses is:
 		// a one-element kleene list, with the element being an empty kleene list.
@@ -614,39 +614,39 @@ public class ParsingExpressionTest {
 		parsingExpression = new NonTerminal("Expression");
 		string = "10 + 10";
 		test(parsingExpression, string,
-				new DefaultCompoundSyntaxTree("+", DefaultSymbol.createSymbol(10), DefaultSymbol.createSymbol(10)));
+				SyntaxTrees.makeCompoundSyntaxTree("+", SyntaxTrees.makeSymbol(10), SyntaxTrees.makeSymbol(10)));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "10 + x*20";
 		test(parsingExpression, string,
-				new DefaultCompoundSyntaxTree("+", DefaultSymbol.createSymbol(10), new DefaultCompoundSyntaxTree("*", DefaultSymbol.createSymbol("x"),DefaultSymbol.createSymbol(20))));
+				SyntaxTrees.makeCompoundSyntaxTree("+", SyntaxTrees.makeSymbol(10), SyntaxTrees.makeCompoundSyntaxTree("*", SyntaxTrees.makeSymbol("x"),SyntaxTrees.makeSymbol(20))));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "ship Carpatia + x*log 20";
 		test(parsingExpression, string,
-				new DefaultCompoundSyntaxTree("+",
-						new DefaultCompoundSyntaxTree("ship", DefaultSymbol.createSymbol("Carpatia")),
-						new DefaultCompoundSyntaxTree("*",
-								DefaultSymbol.createSymbol("x"),
-								new DefaultCompoundSyntaxTree("log", DefaultSymbol.createSymbol(20)))));
+				SyntaxTrees.makeCompoundSyntaxTree("+",
+						SyntaxTrees.makeCompoundSyntaxTree("ship", SyntaxTrees.makeSymbol("Carpatia")),
+						SyntaxTrees.makeCompoundSyntaxTree("*",
+								SyntaxTrees.makeSymbol("x"),
+								SyntaxTrees.makeCompoundSyntaxTree("log", SyntaxTrees.makeSymbol(20)))));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "dock ship Carpatia at NY";
 		test(parsingExpression, string,
-				new DefaultCompoundSyntaxTree("dock . at .",
-						new DefaultCompoundSyntaxTree("ship", DefaultSymbol.createSymbol("Carpatia")),
-						DefaultSymbol.createSymbol("NY")));
+				SyntaxTrees.makeCompoundSyntaxTree("dock . at .",
+						SyntaxTrees.makeCompoundSyntaxTree("ship", SyntaxTrees.makeSymbol("Carpatia")),
+						SyntaxTrees.makeSymbol("NY")));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "10, 20; 30, f (x), f, (x)";
 		test(parsingExpression, string,
-				new DefaultCompoundSyntaxTree("kleene list",
-						DefaultSymbol.createSymbol(10),
-						DefaultSymbol.createSymbol(20),
-						DefaultSymbol.createSymbol(30),
-						new DefaultCompoundSyntaxTree(DefaultSymbol.createSymbol("f"), DefaultSymbol.createSymbol("x")),
-						DefaultSymbol.createSymbol("f"),
-						DefaultSymbol.createSymbol("x")));
+				SyntaxTrees.makeCompoundSyntaxTree("kleene list",
+						SyntaxTrees.makeSymbol(10),
+						SyntaxTrees.makeSymbol(20),
+						SyntaxTrees.makeSymbol(30),
+						SyntaxTrees.makeCompoundSyntaxTree(SyntaxTrees.makeSymbol("f"), SyntaxTrees.makeSymbol("x")),
+						SyntaxTrees.makeSymbol("f"),
+						SyntaxTrees.makeSymbol("x")));
 
 		grammar.clear();
 		grammar.put("Expression", new Disjunction(
@@ -661,13 +661,13 @@ public class ParsingExpressionTest {
 		parsingExpression = new NonTerminal("Expression");
 		string = "10 20; 30 f (x) f, (x)"; // commas are optional separators; we can use them to show that the second f is not being applied
 		test(parsingExpression, string,
-				new DefaultCompoundSyntaxTree("kleene list",
-						DefaultSymbol.createSymbol(10),
-						DefaultSymbol.createSymbol(20),
-						DefaultSymbol.createSymbol(30),
-						new DefaultCompoundSyntaxTree(DefaultSymbol.createSymbol("f"), DefaultSymbol.createSymbol("x")),
-						DefaultSymbol.createSymbol("f"),
-						DefaultSymbol.createSymbol("x")));
+				SyntaxTrees.makeCompoundSyntaxTree("kleene list",
+						SyntaxTrees.makeSymbol(10),
+						SyntaxTrees.makeSymbol(20),
+						SyntaxTrees.makeSymbol(30),
+						SyntaxTrees.makeCompoundSyntaxTree(SyntaxTrees.makeSymbol("f"), SyntaxTrees.makeSymbol("x")),
+						SyntaxTrees.makeSymbol("f"),
+						SyntaxTrees.makeSymbol("x")));
 	}
 
 	@Test
