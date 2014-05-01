@@ -38,7 +38,6 @@
 package com.sri.ai.expresso.helper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -90,7 +89,7 @@ import com.sri.ai.util.math.Rational;
  */
 @Beta
 public class Expressions {
-	public static final Expression EMPTY_LIST      = new DefaultCompoundSyntaxTree("list");
+	public static final Expression EMPTY_LIST      = Expressions.createSymbol("list");
 	public static final Expression TRUE            = Expressions.createSymbol("true");
 	public static final Expression FALSE           = Expressions.createSymbol("false");
 	public static final Expression ZERO            = Expressions.createSymbol(0);
@@ -112,6 +111,25 @@ public class Expressions {
 	}
 
 	
+	/**
+	 * Makes Expression based on a syntax tree with given label and sub-trees.
+	 */
+	public static Expression makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object label, Object... subTreeObjects) {
+		if (subTreeObjects.length != 0) {
+			if (subTreeObjects[0] instanceof Expression[]) {
+				return makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(label, (Object[]) subTreeObjects[0]); // the cast avoids arguments[0] being wrapper in a new 1-element array
+			}
+			if (subTreeObjects[0] instanceof Collection) {
+				return makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(label, ((Collection)subTreeObjects[0]).toArray());
+			}
+		}
+	
+		Expression result = new DefaultCompoundSyntaxTree(label, subTreeObjects);
+		
+		return result;
+	}
+
+
 	public static final Function<SyntaxTree, Expression> MAKER = new Function<SyntaxTree, Expression>() {
 		@Override
 		public Expression apply(SyntaxTree input) {
@@ -169,7 +187,7 @@ public class Expressions {
 		if (objects.size() == 1 ) {
 			return Expressions.wrap(Util.getFirstOrNull(objects));
 		}
-		return new DefaultCompoundSyntaxTree("list", Expressions.wrap(objects.toArray()).toArray());
+		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("list", objects);
 	}
 	
 	public static boolean argumentsIntersect(Expression expression1, Expression expression2) {
@@ -414,33 +432,9 @@ public class Expressions {
 		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), newArguments);
 	}
 
-	/**
-	 * Makes Expression based on a syntax tree with given label and sub-trees.
-	 */
-	public static Expression makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object label, Object... subTreeObjects) {
-		if (subTreeObjects.length != 0) {
-			if (subTreeObjects[0] instanceof Expression[]) {
-				return makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(label, (Object[]) subTreeObjects[0]); // the cast avoids arguments[0] being wrapper in a new 1-element array
-			}
-			if (subTreeObjects[0] instanceof Collection) {
-				return makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(label, ((Collection)subTreeObjects[0]).toArray());
-			}
-		}
-	
-		List<SyntaxTree> subTrees = new LinkedList<SyntaxTree>();
-		Iterator<Object> subTreeIterator = Arrays.asList(subTreeObjects).iterator();
-		while (subTreeIterator.hasNext()) {
-			Object object = subTreeIterator.next();
-			SyntaxTree subTree = SyntaxTrees.wrap(object);
-			subTrees.add(subTree);
-		}
-		SyntaxTree rootTree = SyntaxTrees.wrap(label);
-		Expression result = new DefaultCompoundSyntaxTree(Expressions.wrap(rootTree), Collections.unmodifiableList(new ArrayList<SyntaxTree>(subTrees)));
-		return result;
-	}
-
 	public static Expression apply(Object functor, Object... arguments) {
-		return makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(functor, arguments);
+		Expression result = makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(functor, arguments);
+		return result;
 	}
 
 	public static List<Expression> getSyntaxTreesOfSubExpressions(Expression syntaxTree) {

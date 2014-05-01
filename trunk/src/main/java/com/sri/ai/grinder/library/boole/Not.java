@@ -91,7 +91,7 @@ public class Not extends AbstractRewriter {
 		if (expression.equals(Expressions.FALSE)){
 			return Expressions.TRUE;
 		}
-		return new DefaultCompoundSyntaxTree("not", expression);
+		return Expressions.apply("not", expression);
 	}
 
 	public static Expression getFunctor() {

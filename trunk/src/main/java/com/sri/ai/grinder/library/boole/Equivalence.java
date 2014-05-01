@@ -66,17 +66,17 @@ public class Equivalence extends AbstractRewriterDefiningSymmetricFunction {
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 
-		Expression result = new DefaultCompoundSyntaxTree(
+		Expression result = Expressions.apply(
 						"or",
-						new DefaultCompoundSyntaxTree(
+						Expressions.apply(
 								"and",
-								expression.get(0).getSyntaxTree(),
-								expression.get(1).getSyntaxTree()
+								expression.get(0),
+								expression.get(1)
 						),
-						new DefaultCompoundSyntaxTree(
+						Expressions.apply(
 								"and",
-								new DefaultCompoundSyntaxTree("not", expression.get(0).getSyntaxTree()),
-								new DefaultCompoundSyntaxTree("not", expression.get(1).getSyntaxTree())));
+								Expressions.apply("not", expression.get(0)),
+								Expressions.apply("not", expression.get(1))));
 		
 		return result;
 	}

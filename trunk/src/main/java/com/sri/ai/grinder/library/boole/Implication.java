@@ -66,9 +66,9 @@ public class Implication extends AbstractRewriter {
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		
-		Expression result = new DefaultCompoundSyntaxTree(
+		Expression result = Expressions.apply(
 				"or",
-				new DefaultCompoundSyntaxTree("not", expression.get(0)),
+				Expressions.apply("not", expression.get(0)),
 				expression.get(1));
 		return result;
 	}
@@ -88,6 +88,6 @@ public class Implication extends AbstractRewriter {
 	 * @return antecedent => consequent.
 	 */
 	public static Expression make(Expression antecedent, Expression consequent) {
-		return new DefaultCompoundSyntaxTree(FUNCTOR, antecedent, consequent);
+		return Expressions.apply(FUNCTOR, antecedent, consequent);
 	}
 }

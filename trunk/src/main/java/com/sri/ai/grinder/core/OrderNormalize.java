@@ -50,14 +50,7 @@ public class OrderNormalize extends AbstractRewriter {
 				List<Expression> arguments = expression.getArguments();
 
 				List<Expression> newArguments;
-//				if (DefaultCompoundSyntaxTree.useOrderNormalization) {
-//					newArguments = new ArrayList<Expression>(arguments);
-//					// if Expression.equals(...) is using order normalization,
-//					// arguments will be normalized and their normalizations cached during the sort() anyway, so no need to do it in advance.
-//				}
-//				else {
-					newArguments = Util.mapIntoArrayList(arguments, new OrderNormalizeFunction(process));
-//				}
+				newArguments = Util.mapIntoArrayList(arguments, new OrderNormalizeFunction(process));
 				
 				Collections.sort(newArguments, null); // FIXME: NEED TO ADD COMPARATOR BECAUSE EXPRESSION IS NO LONGER COMPARABLE
 				

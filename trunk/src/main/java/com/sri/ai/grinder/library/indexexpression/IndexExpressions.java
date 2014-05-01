@@ -88,10 +88,10 @@ public class IndexExpressions {
 				if (indexExpression.hasFunctor("in")) {
 					return indexExpression;
 				}
-				return new DefaultCompoundSyntaxTree(
+				return Expressions.apply(
 						"in",
 						indexExpression,
-						new DefaultCompoundSyntaxTree("type", indexExpression));
+						Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("type", indexExpression));
 			}
 		};
 	}
@@ -99,7 +99,7 @@ public class IndexExpressions {
 	private static class TypeOfIndexInIndexExpression implements Function<Expression, Expression> {
 		@Override
 		public Expression apply(Expression expression) {
-			return new DefaultCompoundSyntaxTree("type", expression);
+			return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("type", expression);
 		}
 	}
 
@@ -182,7 +182,7 @@ public class IndexExpressions {
 	}
 
 	public static Expression type(Expression expression) {
-		return new DefaultCompoundSyntaxTree("type", expression);
+		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("type", expression);
 	}
 
 	public static Expression getIndex(Expression indexExpression) {
