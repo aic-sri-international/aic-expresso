@@ -37,6 +37,7 @@
  */
 package com.sri.ai.expresso.helper;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -104,4 +105,18 @@ public class SyntaxTrees {
 		SyntaxTree result = new DefaultCompoundSyntaxTree2(rootTreeReplacement, subTrees);
 		return result;
 	}
+
+	/**
+	 * Returns a "kleen list"-labeled syntax tree if given list is not singleton,
+	 * and the single element itself otherwise.
+	 * Wraps objects into expressions.
+	 * This is a inverse operation of {@link #ensureListFromKleeneList(SyntaxTree)}.
+	 */
+	public static <T> SyntaxTree makeKleeneListIfNeeded(Collection<T> objects) {
+		if (objects.size() == 1 ) {
+			return SyntaxTrees.wrap(Util.getFirstOrNull(objects));
+		}
+		return SyntaxTrees.make("kleene list", objects);
+	}
+	
 }

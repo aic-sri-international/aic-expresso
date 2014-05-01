@@ -45,10 +45,10 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -94,7 +94,9 @@ MutuallyExclusiveCoDomainsModule.Provider {
 		else {
 			list = Arrays.asList(elements);
 		}
-		DefaultCompoundSyntaxTree result = new DefaultCompoundSyntaxTree(TUPLE_LABEL, Expressions.makeKleeneListIfNeeded(list));
+		Expression result =
+				Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(
+						TUPLE_LABEL, SyntaxTrees.makeKleeneListIfNeeded(list));
 		return result;
 	}
 
