@@ -347,7 +347,7 @@ public class Expressions {
 		if (object == null || object instanceof Expression) {
 			return (Expression) object;
 		}
-		return DefaultSymbol.createSymbol(object);
+		return createSymbol(object);
 	}
 
 	/** The array version of {@link #wrap(Object)}. */
