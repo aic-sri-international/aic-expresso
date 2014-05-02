@@ -60,7 +60,6 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.core.DefaultSymbol;
-import com.sri.ai.expresso.core.DefaultSymbol2;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.PruningPredicate;
@@ -102,7 +101,7 @@ public class Expressions {
 	
 	/** Returns an expression represented by a given syntax tree. */
 	public static Expression makeFromSyntaxTree(SyntaxTree syntaxTree) {
-//		if (syntaxTree instanceof DefaultCompoundSyntaxTree2 || syntaxTree instanceof DefaultSymbol2) {
+//		if (syntaxTree instanceof CompoundSyntaxTree || syntaxTree instanceof Symbol) {
 //			Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(syntaxTree.getLabel(), syntaxTree.getImmediateSubExpressionsAndContextsIterator());
 //			return result;
 //		}
@@ -665,7 +664,7 @@ public class Expressions {
 			else {
 				rounded = value.toStringDotRelative(precision);
 			}
-			return DefaultSymbol2.createSymbol(rounded);
+			return SyntaxTrees.makeSymbol(rounded);
 		}
 		return syntaxTree;
 	}

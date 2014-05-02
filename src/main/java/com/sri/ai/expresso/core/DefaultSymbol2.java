@@ -52,6 +52,7 @@ import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.base.BinaryProcedure;
 import com.sri.ai.util.math.Rational;
@@ -89,22 +90,22 @@ public class DefaultSymbol2 extends AbstractSyntaxTree2 implements Symbol  {
 	private static int _displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
 	//
 	// Well known static Symbols
-	private static final DefaultSymbol2 SYMBOL_TRUE  = new DefaultSymbol2(true);
-	private static final DefaultSymbol2 SYMBOL_FALSE = new DefaultSymbol2(false);
-	private static final DefaultSymbol2 SYMBOL_0     = new DefaultSymbol2(new Rational(0));
-	private static final DefaultSymbol2 SYMBOL_1     = new DefaultSymbol2(new Rational(1));
-	private static final DefaultSymbol2 SYMBOL_2     = new DefaultSymbol2(new Rational(2));
-	private static final DefaultSymbol2 SYMBOL_3     = new DefaultSymbol2(new Rational(3));
-	private static final DefaultSymbol2 SYMBOL_4     = new DefaultSymbol2(new Rational(4));
-	private static final DefaultSymbol2 SYMBOL_5     = new DefaultSymbol2(new Rational(5));
-	private static final DefaultSymbol2 SYMBOL_6     = new DefaultSymbol2(new Rational(6));
-	private static final DefaultSymbol2 SYMBOL_7     = new DefaultSymbol2(new Rational(7));
-	private static final DefaultSymbol2 SYMBOL_8     = new DefaultSymbol2(new Rational(8));
-	private static final DefaultSymbol2 SYMBOL_9     = new DefaultSymbol2(new Rational(9));
+	private static final Symbol SYMBOL_TRUE  = SyntaxTrees.makeSymbol(true);
+	private static final Symbol SYMBOL_FALSE = SyntaxTrees.makeSymbol(false);
+	private static final Symbol SYMBOL_0     = SyntaxTrees.makeSymbol(new Rational(0));
+	private static final Symbol SYMBOL_1     = SyntaxTrees.makeSymbol(new Rational(1));
+	private static final Symbol SYMBOL_2     = SyntaxTrees.makeSymbol(new Rational(2));
+	private static final Symbol SYMBOL_3     = SyntaxTrees.makeSymbol(new Rational(3));
+	private static final Symbol SYMBOL_4     = SyntaxTrees.makeSymbol(new Rational(4));
+	private static final Symbol SYMBOL_5     = SyntaxTrees.makeSymbol(new Rational(5));
+	private static final Symbol SYMBOL_6     = SyntaxTrees.makeSymbol(new Rational(6));
+	private static final Symbol SYMBOL_7     = SyntaxTrees.makeSymbol(new Rational(7));
+	private static final Symbol SYMBOL_8     = SyntaxTrees.makeSymbol(new Rational(8));
+	private static final Symbol SYMBOL_9     = SyntaxTrees.makeSymbol(new Rational(9));
 	//
 	private static boolean                      _useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
 	private static boolean                      _cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
-	private static Cache<Object, DefaultSymbol2> _globalSymbolTable    = newSymbolTable();
+	private static Cache<Object, Symbol>        _globalSymbolTable    = newSymbolTable();
 	static {
 		flushGlobalSymbolTable();
 	}
@@ -223,7 +224,7 @@ public class DefaultSymbol2 extends AbstractSyntaxTree2 implements Symbol  {
 	}
 	
 	public static Symbol createSymbol(Object value) {
-		DefaultSymbol2 result = null;
+		Symbol result = null;
 		// If global symbol table to be used and the symbol's value is not
 		// an expression - i.e. quoted expressions of the form:
 		// <X>
@@ -510,7 +511,7 @@ public class DefaultSymbol2 extends AbstractSyntaxTree2 implements Symbol  {
 		return escaped;
 	}
 	
-	private static Cache<Object, DefaultSymbol2> newSymbolTable() {
+	private static Cache<Object, Symbol> newSymbolTable() {
 		CacheBuilder<Object, Object> cb = CacheBuilder.newBuilder();
 		
 		long maximumSize = ExpressoConfiguration.getGlobalSymbolTableMaximumSize();
@@ -525,7 +526,7 @@ public class DefaultSymbol2 extends AbstractSyntaxTree2 implements Symbol  {
 			cb.recordStats();
 		}
 		
-		Cache<Object, DefaultSymbol2> result = cb.build();
+		Cache<Object, Symbol> result = cb.build();
 		
 		return result;
 	}

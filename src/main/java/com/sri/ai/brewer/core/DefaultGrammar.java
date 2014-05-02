@@ -50,8 +50,8 @@ import com.sri.ai.brewer.api.ParsingProcess;
 import com.sri.ai.brewer.parsingexpression.core.Disjunction;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.DefaultSymbol2;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryPredicate;
 import com.sri.ai.util.base.LessThanOnIntegers;
@@ -160,9 +160,8 @@ public class DefaultGrammar extends HashMap<String, ParsingExpression> implement
 		}
 	}
 
-	private Pair<SyntaxTree, Integer> makeRootTreeAndArityPair(
-			BasicParsingExpression basicParsingExpression) {
-		SyntaxTree rootTree = DefaultSymbol2.createSymbol(basicParsingExpression.getRootTreeName());
+	private Pair<SyntaxTree, Integer> makeRootTreeAndArityPair(BasicParsingExpression basicParsingExpression) {
+		SyntaxTree rootTree = SyntaxTrees.makeSymbol(basicParsingExpression.getRootTreeName());
 		Pair<SyntaxTree, Integer> pair = Pair.make(rootTree, basicParsingExpression.getArity());
 		return pair;
 	}
