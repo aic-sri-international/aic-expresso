@@ -1069,9 +1069,4 @@ public class Expressions {
 		List<Expression> result = Util.mapIntoArrayList(syntaxTrees, MAKER);
 		return result;
 	}
-
-
-	public static void flushGlobalSymbolTable() {
-		DefaultSymbol.flushGlobalSymbolTable();
-	}
 }

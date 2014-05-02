@@ -131,6 +131,10 @@ public class SyntaxTrees {
 		return DefaultSymbol.makeStringValuedSymbolParseSafe(string);
 	}
 
+	public static void flushGlobalSymbolTable() {
+		DefaultSymbol.flushGlobalSymbolTable();
+	}
+
 	public static int setNumericDisplayPrecision(Integer value) {
 		return SyntaxTrees.setNumericDisplayPrecision(value);
 	}

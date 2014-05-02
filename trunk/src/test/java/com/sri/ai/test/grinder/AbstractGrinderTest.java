@@ -60,7 +60,7 @@ import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -99,7 +99,7 @@ abstract public class AbstractGrinderTest {
 	public void setUp() {
 		TreeUtil.flushData();
 		Configuration.clear();
-		Expressions.flushGlobalSymbolTable();
+		SyntaxTrees.flushGlobalSymbolTable();
 		BranchAndMerge.reset();
 		
 		//System.out.println("Creating grammar...");

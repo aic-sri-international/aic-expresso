@@ -174,8 +174,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		// <X>
 		// as these need to be instantiated each time in order to be
 		// parsed correctly.
-		if (_useGlobalSymbolTable &&
-			!(value instanceof Expression)) {
+		if (_useGlobalSymbolTable && !(value instanceof Expression)) {
 			
 			result = _globalSymbolTable.getIfPresent(value);
 			if (result == null) {
