@@ -40,7 +40,7 @@ package com.sri.ai.brewer.parsingconstraint;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.brewer.api.ParsingExpression;
-import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 
 /**
  * A precedence condition with respect to a given disjunct in a given
@@ -57,12 +57,12 @@ public class GreaterThanOrUnrelated extends AbstractAtomicParsingConstraint {
     
 	public GreaterThanOrUnrelated(ParsingExpression disjunct, ParsingExpression disjunction) {
 		super(disjunct, disjunction);
-		valueOrRootSyntaxTree = DefaultSymbol.createSymbol("> or unrelated");
+		valueOrRootSyntaxTree = SyntaxTrees.makeSymbol("> or unrelated");
 	}
 
 	public GreaterThanOrUnrelated(Side side, ParsingExpression disjunct, ParsingExpression disjunction) {
 		super(side, disjunct, disjunction);
-		valueOrRootSyntaxTree = DefaultSymbol.createSymbol("> or unrelated");
+		valueOrRootSyntaxTree = SyntaxTrees.makeSymbol("> or unrelated");
 	}
 
 	@Override

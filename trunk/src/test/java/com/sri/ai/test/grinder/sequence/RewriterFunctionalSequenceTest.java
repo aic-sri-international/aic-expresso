@@ -117,7 +117,8 @@ public class RewriterFunctionalSequenceTest extends AbstractGrinderTest {
 		DefaultRewritingProcess process = new DefaultRewritingProcess(rewriter, rewriterLookup);
 		
 		HalfTheAverageRewriterFunctionalSequence sequence =
-				new HalfTheAverageRewriterFunctionalSequence("R_HalfTheAverageRewriter", 
+				new HalfTheAverageRewriterFunctionalSequence("R_HalfTheAverageRewriter",
+						// REMOVE DEFAULTSYMBOL IF POSSIBLE
 						Expressions.apply("args", DefaultSymbol.createSymbol(numberOfLevels), Expressions.ZERO), 
 						process);
 		
@@ -129,22 +130,22 @@ public class RewriterFunctionalSequenceTest extends AbstractGrinderTest {
 			results.add(result);
 		}
 		assertEquals(Util.list(
-				DefaultSymbol.createSymbol(1),
-				DefaultSymbol.createSymbol(0.5),
-				DefaultSymbol.createSymbol(0.375),
-				DefaultSymbol.createSymbol(0.34375),
-				DefaultSymbol.createSymbol(0.328125),
-				DefaultSymbol.createSymbol(0.3125),
-				DefaultSymbol.createSymbol(0.28125),
-				DefaultSymbol.createSymbol(0.265625),
-				DefaultSymbol.createSymbol(0.25),
-				DefaultSymbol.createSymbol(0.125),
-				DefaultSymbol.createSymbol(0.09375),
-				DefaultSymbol.createSymbol(0.078125),
-				DefaultSymbol.createSymbol(0.0625),
-				DefaultSymbol.createSymbol(0.03125),
-				DefaultSymbol.createSymbol(0.015625),
-				DefaultSymbol.createSymbol(0)
+				Expressions.createSymbol(1),
+				Expressions.createSymbol(0.5),
+				Expressions.createSymbol(0.375),
+				Expressions.createSymbol(0.34375),
+				Expressions.createSymbol(0.328125),
+				Expressions.createSymbol(0.3125),
+				Expressions.createSymbol(0.28125),
+				Expressions.createSymbol(0.265625),
+				Expressions.createSymbol(0.25),
+				Expressions.createSymbol(0.125),
+				Expressions.createSymbol(0.09375),
+				Expressions.createSymbol(0.078125),
+				Expressions.createSymbol(0.0625),
+				Expressions.createSymbol(0.03125),
+				Expressions.createSymbol(0.015625),
+				Expressions.createSymbol(0)
 				), results);
 		
 		rewriterLookup = new DefaultRewriterLookup();		
@@ -154,6 +155,7 @@ public class RewriterFunctionalSequenceTest extends AbstractGrinderTest {
 		process = new DefaultRewritingProcess(rewriter, rewriterLookup);
 		
 		sequence = new HalfTheAverageRewriterFunctionalSequence("R_HalfTheAverageRewriterWithSharedSubRewriterInvocations", 
+				// REMOVE DEFAULTSYMBOL IF POSSIBLE
 							Expressions.apply("args", DefaultSymbol.createSymbol(numberOfLevels), Expressions.ZERO), 
 							process);
 		
@@ -165,11 +167,11 @@ public class RewriterFunctionalSequenceTest extends AbstractGrinderTest {
 			results.add(result);
 		}
 		assertEquals(Util.list(
-				DefaultSymbol.createSymbol(1),
-				DefaultSymbol.createSymbol(0.5),
-				DefaultSymbol.createSymbol(0.25),
-				DefaultSymbol.createSymbol(0.125),
-				DefaultSymbol.createSymbol(0)
+				Expressions.createSymbol(1),
+				Expressions.createSymbol(0.5),
+				Expressions.createSymbol(0.25),
+				Expressions.createSymbol(0.125),
+				Expressions.createSymbol(0)
 				), results);
 	}
 

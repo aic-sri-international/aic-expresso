@@ -100,6 +100,7 @@ public abstract class RewriterRefiner extends AbstractFunctionalRefiner<Expressi
 		if (isRootRefiner) {
 			// This is the root refiner, therefore increment the timestep.
 			timestep++;
+			// REMOVE DEFAULTSYMBOL IF POSSIBLE
 			expression = Tuple.make(Tuple.get(expression, 0), DefaultSymbol.createSymbol(timestep));
 		}
 		Expression result = process.rewrite(rewriterName, expression, intercepter);

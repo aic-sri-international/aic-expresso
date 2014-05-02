@@ -47,12 +47,11 @@ import com.sri.ai.brewer.api.ParsingExpression;
 import com.sri.ai.brewer.api.ParsingProcess;
 import com.sri.ai.brewer.core.DefaultParsingResult;
 import com.sri.ai.brewer.core.ParsingResult;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.Util;
 
 /**
- * A parsing expression for symbols. Its parse is a {@link DefaultSymbol}. It
+ * A parsing expression for symbols. Its parse is an atomic expression. It
  * accepts Unicode identifiers, numbers and single symbols, but rejects strings
  * in {@link #exceptions}, which defaults to
  * <code>"(", ")", "[", "]", "{", "}", ","</code>.

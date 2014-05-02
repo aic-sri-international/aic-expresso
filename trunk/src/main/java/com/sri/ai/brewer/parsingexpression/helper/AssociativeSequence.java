@@ -47,8 +47,8 @@ import com.sri.ai.brewer.core.DefaultWriter;
 import com.sri.ai.brewer.parsingexpression.core.Sequence;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.util.Util;
 
 /**
@@ -63,7 +63,7 @@ public class AssociativeSequence extends Sequence {
 	
 	public AssociativeSequence(Object... args) {
 		super(args);
-		valueOrRootSyntaxTree = DefaultSymbol.createSymbol("associative sequence");
+		valueOrRootSyntaxTree = SyntaxTrees.makeSymbol("associative sequence");
 	}
 
 	@Override

@@ -66,7 +66,6 @@ import com.sri.ai.brewer.parsingexpression.helper.AssociativeSequence;
 import com.sri.ai.brewer.parsingexpression.helper.ParenthesizedNonTerminal;
 import com.sri.ai.brewer.parsingexpression.helper.ParsingExpressionForFunctionApplications;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.util.Util;
@@ -588,10 +587,8 @@ public class ParsingExpressionTest {
 								SyntaxTrees.makeCompoundSyntaxTree(
 										SyntaxTrees.makeSymbol("f"),
 										SyntaxTrees.makeCompoundSyntaxTree("kleene list",
-												DefaultSymbol
-														.createSymbol("a"),
-												DefaultSymbol
-														.createSymbol("b")))));
+												SyntaxTrees.makeSymbol("a"),
+												SyntaxTrees.makeSymbol("b")))));
 		// this is weird but makes sense since "a,b" can be seen as a *single* expression
 		// which is a kleene list, since "Expression" starts with a Kleene parsing expression.
 		
@@ -676,7 +673,7 @@ public class ParsingExpressionTest {
 
 //		parsingExpression = new NonTerminal("Expression");
 //		string = "<x>";
-//		test(parsingExpression, string, new DefaultSymbol(new DefaultSymbol("x")));
+//		test(parsingExpression, string, Expressions.createSymbol(Expressions.createSymbol("x")));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "<x>1>"; // tricky, huh? Of course, we could have written <x > 1> or <(x > 1)> for clarity.
@@ -684,7 +681,7 @@ public class ParsingExpressionTest {
 
 //		parsingExpression = new NonTerminal("Expression");
 //		string = "(<x>) < (<y>)";
-//		test(parsingExpression, string, Expressions.apply("<", new DefaultSymbol(new DefaultSymbol("x")), new DefaultSymbol(new DefaultSymbol("y"))));
+//		test(parsingExpression, string, Expressions.apply("<", Expressions.createSymbol(Expressions.createSymbol("x")), Expressions.createSymbol(Expressions.createSymbol("y"))));
 	}
 	
 	private void test(ParsingExpression parsingExpression, String string, Expression expectedParse)

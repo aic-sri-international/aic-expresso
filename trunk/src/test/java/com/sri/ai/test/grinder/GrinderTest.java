@@ -53,10 +53,10 @@ import org.junit.Test;
 import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.Library;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -159,44 +159,44 @@ public class GrinderTest extends AbstractGrinderTest {
 		String s;
 		
 		// No change
-		s = DefaultSymbol.makeStringValuedSymbolParseSafe("aSymbol");
+		s = SyntaxTrees.makeStringValuedSymbolParseSafe("aSymbol");
 		Assert.assertEquals("aSymbol", s);
 		
-		s = DefaultSymbol.makeStringValuedSymbolParseSafe("aSymbol'");
+		s = SyntaxTrees.makeStringValuedSymbolParseSafe("aSymbol'");
 		Assert.assertEquals("aSymbol'", s);
 		
-		s = DefaultSymbol.makeStringValuedSymbolParseSafe("aSymbol'''");
+		s = SyntaxTrees.makeStringValuedSymbolParseSafe("aSymbol'''");
 		Assert.assertEquals("aSymbol'''", s);
 		
 		// spaces
-		s = DefaultSymbol.makeStringValuedSymbolParseSafe("I have a space");
+		s = SyntaxTrees.makeStringValuedSymbolParseSafe("I have a space");
 		Assert.assertEquals("'I have a space'", s);
 		
 		// ' not escaped
-		s = DefaultSymbol.makeStringValuedSymbolParseSafe("I have'nt a space");
+		s = SyntaxTrees.makeStringValuedSymbolParseSafe("I have'nt a space");
 		Assert.assertEquals("'I have\\'nt a space'", s);
 		
 		// ' is escaped
-		s = DefaultSymbol.makeStringValuedSymbolParseSafe("I have\\'nt a space");
+		s = SyntaxTrees.makeStringValuedSymbolParseSafe("I have\\'nt a space");
 		Assert.assertEquals("'I have\\'nt a space'", s);
 		
 		// ' not escaped
-		s = DefaultSymbol.makeStringValuedSymbolParseSafe("I have\\\\'nt a space");
+		s = SyntaxTrees.makeStringValuedSymbolParseSafe("I have\\\\'nt a space");
 		Assert.assertEquals("'I have\\\\\\'nt a space'", s);
 		
 		// ' not escaped
-		s = DefaultSymbol.makeStringValuedSymbolParseSafe("i'have");
+		s = SyntaxTrees.makeStringValuedSymbolParseSafe("i'have");
 		Assert.assertEquals("'i\\'have'", s);
 		
 		// ' is escaped
-		s = DefaultSymbol.makeStringValuedSymbolParseSafe("i\\'have");
+		s = SyntaxTrees.makeStringValuedSymbolParseSafe("i\\'have");
 		Assert.assertEquals("'i\\'have'", s);
 		
 		// ' not escaped
-		s = DefaultSymbol.makeStringValuedSymbolParseSafe("i\\\\'have");
+		s = SyntaxTrees.makeStringValuedSymbolParseSafe("i\\\\'have");
 		Assert.assertEquals("'i\\\\\\'have'", s);
 	}
-	
+
 	@Test
 	public void testMakeUniqueVariable() {
 		Library library = new DefaultLibrary(

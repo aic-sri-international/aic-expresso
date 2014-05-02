@@ -39,7 +39,7 @@ package com.sri.ai.grinder.core;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.Expressions;
 
 @Beta
 public class HasFunctor extends DefaultRewriterTest {
@@ -54,6 +54,6 @@ public class HasFunctor extends DefaultRewriterTest {
 		// Note: for safety ensure we always compare expressions.
 		super(KindAttribute.INSTANCE,
 				functorValue instanceof Expression ? functorValue
-						: DefaultSymbol.createSymbol(functorValue));
+						: Expressions.createSymbol(functorValue));
 	}
 }

@@ -43,7 +43,7 @@ import org.junit.Test;
 import com.sri.ai.brewer.api.Grammar;
 import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.Basic;
@@ -70,8 +70,8 @@ public class FormulaUtilTest extends AbstractGrinderTest {
 		Assert.assertTrue(FormulaUtil.isLegalFormulaConstant(parse("a"), process));
 		Assert.assertTrue(FormulaUtil.isLegalFormulaConstant(parse("ab"), process));
 		Assert.assertTrue(FormulaUtil.isLegalFormulaConstant(parse("aB"), process));
-		Assert.assertTrue(FormulaUtil.isLegalFormulaConstant(DefaultSymbol.createSymbol(false), process));
-		Assert.assertTrue(FormulaUtil.isLegalFormulaConstant(DefaultSymbol.createSymbol(true), process));
+		Assert.assertTrue(FormulaUtil.isLegalFormulaConstant(Expressions.FALSE, process));
+		Assert.assertTrue(FormulaUtil.isLegalFormulaConstant(Expressions.TRUE, process));
 		Assert.assertTrue(FormulaUtil.isLegalFormulaConstant(parse("1"), process));
 		Assert.assertTrue(FormulaUtil.isLegalFormulaConstant(parse("3.14"), process));
 		Assert.assertTrue(FormulaUtil.isLegalFormulaConstant(parse("<a>"), process));
@@ -86,8 +86,8 @@ public class FormulaUtilTest extends AbstractGrinderTest {
 		Assert.assertTrue(FormulaUtil.isFiniteConstant(parse("a"), process));
 		Assert.assertTrue(FormulaUtil.isFiniteConstant(parse("ab"), process));
 		Assert.assertTrue(FormulaUtil.isFiniteConstant(parse("aB"), process));
-		Assert.assertTrue(FormulaUtil.isFiniteConstant(DefaultSymbol.createSymbol(false), process));
-		Assert.assertTrue(FormulaUtil.isFiniteConstant(DefaultSymbol.createSymbol(true), process));
+		Assert.assertTrue(FormulaUtil.isFiniteConstant(Expressions.FALSE, process));
+		Assert.assertTrue(FormulaUtil.isFiniteConstant(Expressions.TRUE, process));
 		
 		Assert.assertFalse(FormulaUtil.isFiniteConstant(parse("<a>"), process));
 		Assert.assertFalse(FormulaUtil.isFiniteConstant(parse("1"), process));
@@ -101,15 +101,15 @@ public class FormulaUtilTest extends AbstractGrinderTest {
 		
 		//
 		// the Boolean constants False and True are formulas;
-		Assert.assertTrue(FormulaUtil.isFormula(DefaultSymbol.createSymbol(false), process));
-		Assert.assertTrue(FormulaUtil.isFormula(DefaultSymbol.createSymbol(true), process));
-		Assert.assertTrue(FormulaUtil.isFormula(DefaultSymbol.createSymbol("false"), process));
-		Assert.assertTrue(FormulaUtil.isFormula(DefaultSymbol.createSymbol("true"), process));
+		Assert.assertTrue(FormulaUtil.isFormula(Expressions.createSymbol(false), process));
+		Assert.assertTrue(FormulaUtil.isFormula(Expressions.createSymbol(true), process));
+		Assert.assertTrue(FormulaUtil.isFormula(Expressions.createSymbol("false"), process));
+		Assert.assertTrue(FormulaUtil.isFormula(Expressions.createSymbol("true"), process));
 		//
-		Assert.assertFalse(FormulaUtil.isFormula(DefaultSymbol.createSymbol("a"), process));
-		Assert.assertFalse(FormulaUtil.isFormula(DefaultSymbol.createSymbol("X"), process));
-		Assert.assertFalse(FormulaUtil.isFormula(DefaultSymbol.createSymbol("1"), process));
-		Assert.assertFalse(FormulaUtil.isFormula(DefaultSymbol.createSymbol("3.14"), process));
+		Assert.assertFalse(FormulaUtil.isFormula(Expressions.createSymbol("a"), process));
+		Assert.assertFalse(FormulaUtil.isFormula(Expressions.createSymbol("X"), process));
+		Assert.assertFalse(FormulaUtil.isFormula(Expressions.createSymbol("1"), process));
+		Assert.assertFalse(FormulaUtil.isFormula(Expressions.createSymbol("3.14"), process));
 		//
 		// if alpha and beta are variable or constant symbols of finite types,
 		// then alpha = beta is a formula. 
@@ -202,9 +202,9 @@ public class FormulaUtilTest extends AbstractGrinderTest {
 		RewritingProcess process = new DefaultRewritingProcess(parse(""), new Basic());
 		//
 		// the Boolean constants False and True are formulas;
-		Assert.assertTrue(FormulaUtil.isQuantifierFreeFormula(DefaultSymbol.createSymbol(false), process));
+		Assert.assertTrue(FormulaUtil.isQuantifierFreeFormula(Expressions.createSymbol(false), process));
 		//
-		Assert.assertFalse(FormulaUtil.isQuantifierFreeFormula(DefaultSymbol.createSymbol("a"), process));
+		Assert.assertFalse(FormulaUtil.isQuantifierFreeFormula(Expressions.createSymbol("a"), process));
 		//
 		// if alpha and beta are variable or constant symbols of finite types,
 		// then alpha = beta is a formula. 
@@ -292,9 +292,9 @@ public class FormulaUtilTest extends AbstractGrinderTest {
 		RewritingProcess process = new DefaultRewritingProcess(parse(""), new Basic());
 		//
 		// the Boolean constants False and True are formulas;
-		Assert.assertTrue(FormulaUtil.isNNF(DefaultSymbol.createSymbol(false), process));
+		Assert.assertTrue(FormulaUtil.isNNF(Expressions.createSymbol(false), process));
 		//
-		Assert.assertFalse(FormulaUtil.isNNF(DefaultSymbol.createSymbol("a"), process));
+		Assert.assertFalse(FormulaUtil.isNNF(Expressions.createSymbol("a"), process));
 		//
 		// if alpha and beta are variable or constant symbols of finite types,
 		// then alpha = beta is a formula. 

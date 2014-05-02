@@ -342,7 +342,7 @@ public class Expressions {
 		return (Number) ((Symbol) expression.getSyntaxTree()).getValue();
 	}
 
-	/** Gets an object and returns it if it is an expression, or a {@link DefaultSymbol} containing it as value. */
+	/** Gets an object and returns it if it is an expression, or an atomic expression containing it as value. */
 	public static Expression wrap(Object object) {
 		if (object == null || object instanceof Expression) {
 			return (Expression) object;
@@ -1068,5 +1068,10 @@ public class Expressions {
 	public static List<Expression> makeListOfExpressions(List<SyntaxTree> syntaxTrees) {
 		List<Expression> result = Util.mapIntoArrayList(syntaxTrees, MAKER);
 		return result;
+	}
+
+
+	public static void flushGlobalSymbolTable() {
+		DefaultSymbol.flushGlobalSymbolTable();
 	}
 }

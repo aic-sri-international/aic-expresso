@@ -27,7 +27,6 @@ options {
     import java.util.ArrayList;
 
     import com.sri.ai.expresso.api.Expression;
-    import com.sri.ai.expresso.core.DefaultSymbol;
     import com.sri.ai.expresso.helper.Expressions;
 }
 
@@ -133,8 +132,8 @@ expr returns [Expression value]
     | ^(SEQUENCE a=expr)                                  { $value = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("| . |", a); }
     | ^(TUPLE a=expr)                                     { $value = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("( . )", a); }
     | ^(FUNCTION a=expr (b=expr {varargs.add(b); })*)     { $value = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(a, varargs); }
-    | ^(SYMBOL ID)                                        { $value = DefaultSymbol.createSymbol($ID.text); }
-    | ^(SYMBOL_EXPRESSION a=expr)                         { $value = DefaultSymbol.createSymbol(a); }
+    | ^(SYMBOL ID)                                        { $value = Expressions.createSymbol($ID.text); }
+    | ^(SYMBOL_EXPRESSION a=expr)                         { $value = Expressions.createSymbol(a); }
     | ^(KLEENE (a=expr { varargs.add(a); })*)             { $value = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("kleene list", varargs); }
     | ^(COMPREHENSION_ON a=expr)                          { $value = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("( on . )", a); }
     | ^(COMPREHENSION_VERT_BAR a=expr)                    { $value = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("|", a); }

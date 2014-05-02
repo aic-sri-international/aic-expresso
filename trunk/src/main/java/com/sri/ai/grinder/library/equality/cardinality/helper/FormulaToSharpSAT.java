@@ -46,7 +46,6 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
@@ -100,7 +99,7 @@ public class FormulaToSharpSAT {
 				// Extend with additional constants to represent the full domain size
 				int id = 1;
 				while (constIds.size() < domainSize) {
-					Expression newConstant = DefaultSymbol.createSymbol("a"+id);
+					Expression newConstant = Expressions.createSymbol("a" + id);
 					if (!constIds.containsKey(newConstant)) {
 						constIds.put(newConstant, constIds.size()+1);
 					}

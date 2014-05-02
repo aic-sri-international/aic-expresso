@@ -85,9 +85,9 @@ import com.sri.ai.util.math.Rational;
 public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	private static final long serialVersionUID = 1L;
 	
-	private static int _displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
-	private static int _displayScientificGreaterNIntegerPlaces = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
-	private static int _displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
+	public static int _displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
+	public static int _displayScientificGreaterNIntegerPlaces = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
+	public static int _displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
 	//
 	// Well known static Symbols
 	private static final DefaultSymbol SYMBOL_TRUE  = new DefaultSymbol(true);
@@ -116,52 +116,6 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		return valueOrRootSyntaxTree;
 	}
 
-	/**
-	 * Set the numeric display precision for numeric valued symbols.
-	 * 
-	 * @param precision
-	 *        the decimal display precision.
-	 *        
-	 * @return the old numeric display precision;
-	 */
-	public static int setNumericDisplayPrecision(int precision) {
-		int oldPrecision = _displayNumericPrecision;
-		
-		_displayNumericPrecision = precision;
-		
-		return oldPrecision;
-	}
-	
-	/**
-	 * Set the number of integer places a number is to have before it is
-	 * displayed in scientific notation.
-	 * 
-	 * @param numIntegerPlaces
-	 * @return the value previously used before being set here.
-	 */
-	public static int setDisplayScientificGreaterNIntegerPlaces(int numIntegerPlaces) {
-		int oldValue = _displayScientificGreaterNIntegerPlaces;
-		
-		_displayScientificGreaterNIntegerPlaces = numIntegerPlaces;
-				
-		return oldValue;
-	}
-	
-	/**
-	 * Set the number of decimal places a number is to have before it is
-	 * displayed in scientific notation.
-	 * 
-	 * @param numDecimalPlaces
-	 * @return the value previously used before being set here.
-	 */
-	public static int setDisplayScientificAfterNDecimalPlaces(int numDecimalPlaces) {
-		int oldValue = _displayScientificAfterNDecimalPlaces;
-		
-		_displayScientificAfterNDecimalPlaces = numDecimalPlaces;
-				
-		return oldValue;
-	}
-	
 	public static void flushGlobalSymbolTable() {
 		if (AICUtilConfiguration.isRecordCacheStatistics()) {
 			System.out.println("Global Symbol Table Cache Stats="+_globalSymbolTable.stats());
@@ -366,7 +320,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		if (getSyntaxTree().getLabel() instanceof Number) {
 			return ((Number) getSyntaxTree().getLabel()).intValue();
 		}
-		throw new Error("DefaultSymbol.intValue() invoked on " + this + ", which is not a number.");
+		throw new Error("Expression.intValue() invoked on " + this + ", which is not a number.");
 	}
 
 	@Override
@@ -374,7 +328,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		if (getSyntaxTree().getLabel() instanceof Rational) {
 			return ((Rational) getSyntaxTree().getLabel()).intValueExact();
 		}
-		throw new Error("DefaultSymbol.intValueExact() invoked on " + this + ", which is not a number.");
+		throw new Error("Expression.intValueExact() invoked on " + this + ", which is not a number.");
 	}
 
 	@Override
@@ -382,7 +336,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		if (getSyntaxTree().getLabel() instanceof Number) {
 			return ((Number) getSyntaxTree().getLabel()).doubleValue();
 		}
-		throw new Error("DefaultSymbol.doubleValue() invoked on " + this + ", which is not a number.");
+		throw new Error("Expression.doubleValue() invoked on " + this + ", which is not a number.");
 	}
 
 
@@ -391,7 +345,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		if (getSyntaxTree().getLabel() instanceof Number) {
 			return (Rational) getSyntaxTree().getLabel();
 		}
-		throw new Error("DefaultSymbol.rationalValue() invoked on " + this + ", which is not a number.");
+		throw new Error("Expression.rationalValue() invoked on " + this + ", which is not a number.");
 	}
 	
 	//
