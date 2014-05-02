@@ -121,9 +121,10 @@ public class SyntaxTrees {
 	 */
 	public static <T> SyntaxTree makeKleeneListIfNeeded(Collection<T> objects) {
 		if (objects.size() == 1 ) {
-			return SyntaxTrees.wrap(Util.getFirstOrNull(objects));
+			return SyntaxTrees.wrap(Util.getFirst(objects));
 		}
-		return SyntaxTrees.makeCompoundSyntaxTree("kleene list", objects);
+		CompoundSyntaxTree result = SyntaxTrees.makeCompoundSyntaxTree("kleene list", objects);
+		return result;
 	}
 
 	public static String makeStringValuedSymbolParseSafe(String string) {

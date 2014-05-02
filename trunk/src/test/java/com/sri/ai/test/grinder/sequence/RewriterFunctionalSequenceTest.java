@@ -118,8 +118,7 @@ public class RewriterFunctionalSequenceTest extends AbstractGrinderTest {
 		
 		HalfTheAverageRewriterFunctionalSequence sequence =
 				new HalfTheAverageRewriterFunctionalSequence("R_HalfTheAverageRewriter",
-						// REMOVE DEFAULTSYMBOL IF POSSIBLE
-						Expressions.apply("args", DefaultSymbol.createSymbol(numberOfLevels), Expressions.ZERO), 
+						Expressions.apply("args", numberOfLevels, Expressions.ZERO), 
 						process);
 		
 		System.out.println("Starting functional sequence *without* shared sub-functional sequences: ");
@@ -155,8 +154,7 @@ public class RewriterFunctionalSequenceTest extends AbstractGrinderTest {
 		process = new DefaultRewritingProcess(rewriter, rewriterLookup);
 		
 		sequence = new HalfTheAverageRewriterFunctionalSequence("R_HalfTheAverageRewriterWithSharedSubRewriterInvocations", 
-				// REMOVE DEFAULTSYMBOL IF POSSIBLE
-							Expressions.apply("args", DefaultSymbol.createSymbol(numberOfLevels), Expressions.ZERO), 
+							Expressions.apply("args", numberOfLevels, Expressions.ZERO), 
 							process);
 		
 		System.out.println("\nStarting functional sequence *with* shared sub-functional sequences: ");
