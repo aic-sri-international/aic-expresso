@@ -45,12 +45,11 @@ import com.sri.ai.brewer.api.ParsingExpression;
 import com.sri.ai.brewer.api.ParsingProcess;
 import com.sri.ai.brewer.core.DefaultParsingResult;
 import com.sri.ai.brewer.core.ParsingResult;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 
 /**
  * A parsing expression representing a fixed grammar terminal, producing a parse
- * equal to a {@link DefaultSymbol} on the terminal string.
+ * equal to an atomic expression on the terminal string.
  * 
  * @author braz
  */

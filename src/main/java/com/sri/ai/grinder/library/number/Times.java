@@ -43,7 +43,6 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTreeIsSymbolOfType;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -60,8 +59,8 @@ import com.sri.ai.util.Util;
 @Beta
 public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly {
 
-	private final static Expression            neutralElement              = DefaultSymbol.createSymbol(1);
-	private final static Expression            absorbingElement            = DefaultSymbol.createSymbol(0);
+	private final static Expression            neutralElement              = Expressions.createSymbol(1);
+	private final static Expression            absorbingElement            = Expressions.createSymbol(0);
 	private final static Predicate<Expression> isOperableArgumentPredicate = new SyntaxTreeIsSymbolOfType(Number.class);
 
 	protected Object getFunctor() {

@@ -535,7 +535,7 @@ public class DefaultSymbol2 extends AbstractSyntaxTree2 implements Symbol  {
 		if (valueOrRootSyntaxTree instanceof Rational) {
 			return ((Rational) valueOrRootSyntaxTree).intValueExact();
 		}
-		throw new Error("DefaultSymbol.intValueExact() invoked on " + this + ", which is not a number.");
+		throw new Error("Expression.intValueExact() invoked on " + this + ", which is not a number.");
 	}
 
 	@Override
@@ -543,7 +543,7 @@ public class DefaultSymbol2 extends AbstractSyntaxTree2 implements Symbol  {
 		if (valueOrRootSyntaxTree instanceof Number) {
 			return ((Number) valueOrRootSyntaxTree).doubleValue();
 		}
-		throw new Error("DefaultSymbol.doubleValue() invoked on " + this + ", which is not a number.");
+		throw new Error("Expression.doubleValue() invoked on " + this + ", which is not a number.");
 	}
 
 
@@ -552,7 +552,7 @@ public class DefaultSymbol2 extends AbstractSyntaxTree2 implements Symbol  {
 		if (valueOrRootSyntaxTree instanceof Number) {
 			return (Rational) valueOrRootSyntaxTree;
 		}
-		throw new Error("DefaultSymbol.rationalValue() invoked on " + this + ", which is not a number.");
+		throw new Error("Expression.rationalValue() invoked on " + this + ", which is not a number.");
 	}
 	
 	@Override
@@ -560,6 +560,6 @@ public class DefaultSymbol2 extends AbstractSyntaxTree2 implements Symbol  {
 		if (valueOrRootSyntaxTree instanceof Number) {
 			return ((Number) valueOrRootSyntaxTree).intValue();
 		}
-		throw new Error("DefaultSymbol.intValue() invoked on " + this + ", which is not a number.");
+		throw new Error("Expression.intValue() invoked on " + this + ", which is not a number.");
 	}
 }

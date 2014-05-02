@@ -71,7 +71,7 @@ public class SyntaxTrees {
 		return (isListName ? listOrSingleElementOfList.getImmediateSubTrees() : Lists.newArrayList(listOrSingleElementOfList));
 	}
 
-	/** Gets an object and returns it if it is an expression, or a {@link DefaultSymbol} containing it as value. */
+	/** Gets an object and returns it if it is an expression, or a {@link Symbol} containing it as value. */
 	public static SyntaxTree wrap(Object object) {
 		if (object == null || object instanceof SyntaxTree) {
 			return (SyntaxTree) object;
@@ -114,7 +114,7 @@ public class SyntaxTrees {
 	}
 
 	/**
-	 * Returns a "kleen list"-labeled syntax tree if given list is not singleton,
+	 * Returns a "kleene list"-labeled syntax tree if given list is not singleton,
 	 * and the single element itself otherwise.
 	 * Wraps objects into expressions.
 	 * This is a inverse operation of {@link #ensureListFromKleeneList(SyntaxTree)}.
@@ -124,6 +124,60 @@ public class SyntaxTrees {
 			return SyntaxTrees.wrap(Util.getFirstOrNull(objects));
 		}
 		return SyntaxTrees.makeCompoundSyntaxTree("kleene list", objects);
+	}
+
+	public static String makeStringValuedSymbolParseSafe(String string) {
+		return DefaultSymbol.makeStringValuedSymbolParseSafe(string);
+	}
+
+	public static int setNumericDisplayPrecision(Integer value) {
+		return SyntaxTrees.setNumericDisplayPrecision(value);
+	}
+
+	/**
+	 * Set the number of integer places a number is to have before it is
+	 * displayed in scientific notation.
+	 * 
+	 * @param numIntegerPlaces
+	 * @return the value previously used before being set here.
+	 */
+	public static int setDisplayScientificGreaterNIntegerPlaces(int numIntegerPlaces) {
+		int oldValue = DefaultSymbol._displayScientificGreaterNIntegerPlaces;
+		
+		DefaultSymbol._displayScientificGreaterNIntegerPlaces = numIntegerPlaces;
+				
+		return oldValue;
+	}
+
+	/**
+	 * Set the number of decimal places a number is to have before it is
+	 * displayed in scientific notation.
+	 * 
+	 * @param numDecimalPlaces
+	 * @return the value previously used before being set here.
+	 */
+	public static int setDisplayScientificAfterNDecimalPlaces(int numDecimalPlaces) {
+		int oldValue = DefaultSymbol._displayScientificAfterNDecimalPlaces;
+		
+		DefaultSymbol._displayScientificAfterNDecimalPlaces = numDecimalPlaces;
+				
+		return oldValue;
+	}
+
+	/**
+	 * Set the numeric display precision for numeric valued symbols.
+	 * 
+	 * @param precision
+	 *        the decimal display precision.
+	 *        
+	 * @return the old numeric display precision;
+	 */
+	public static int setNumericDisplayPrecision(int precision) {
+		int oldPrecision = DefaultSymbol._displayNumericPrecision;
+		
+		DefaultSymbol._displayNumericPrecision = precision;
+		
+		return oldPrecision;
 	}
 	
 }

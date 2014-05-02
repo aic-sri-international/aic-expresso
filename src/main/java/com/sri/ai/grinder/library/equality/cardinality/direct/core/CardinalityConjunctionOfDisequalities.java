@@ -44,7 +44,6 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -126,7 +125,7 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractHierarchical
 			} 
 			else {
 				Expression cardIndexXGreaterThanZero = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.GREATER_THAN, cardIndex, Expressions.ZERO);
-				Expression cardIndexXGreaterThanK    = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.GREATER_THAN, cardIndex, DefaultSymbol.createSymbol(t1ToTk.size()));
+				Expression cardIndexXGreaterThanK    = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.GREATER_THAN, cardIndex, Expressions.createSymbol(t1ToTk.size()));
 				if (quantification == CardinalityRewriter.Quantification.FOR_ALL &&
 					(GrinderConfiguration.isAssumeDomainsAlwaysLarge() || process.rewrite(R_normalize, cardIndexXGreaterThanZero).equals(Expressions.TRUE))) {
 					Trace.log("    if quantification is \"for all\" and (ASSUME_DOMAIN_ALWAYS_LARGE or |type(x)| > 0)");

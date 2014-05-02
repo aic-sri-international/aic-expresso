@@ -840,7 +840,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			public Expression getTopExpression() {
 				this.exprF = parse(F);
 				this.exprConjunction = parse(conjunction);
-				
+				// REMOVE DEFAULTSYMBOL IF POSSIBLE
 				return Tuple.make(exprF, DefaultSymbol.createSymbol(i), exprConjunction);
 			}
 			
@@ -1029,7 +1029,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			public Expression getTopExpression() {
 				this.exprF = parse(F);
 				this.exprDisjunction = parse(disjunction);
-				
+				// REMOVE DEFAULTSYMBOL IF POSSIBLE
 				return Tuple.make(exprF, DefaultSymbol.createSymbol(i), exprDisjunction);
 			}
 			

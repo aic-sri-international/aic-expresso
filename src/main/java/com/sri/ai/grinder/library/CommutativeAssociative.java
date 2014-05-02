@@ -45,7 +45,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.HasFunctor;
@@ -167,7 +166,7 @@ public abstract class CommutativeAssociative extends AbstractRewriterDefiningSym
 	 * that uses the current object for obtaining the functor and neutral element.
 	 */
 	public Expression makeWithSameFunctorAsThis(List<Expression> arguments) {
-		return make(DefaultSymbol.createSymbol(getFunctor()), arguments, getNeutralElement());
+		return make(Expressions.wrap(getFunctor()), arguments, getNeutralElement());
 	}
 	
 	/**
@@ -175,7 +174,7 @@ public abstract class CommutativeAssociative extends AbstractRewriterDefiningSym
 	 * that uses the current object for obtaining the functor and neutral element.
 	 */
 	public Expression makeExpressionWithSameFunctorAsThis(List<Expression> arguments) {
-		return makeExpression(DefaultSymbol.createSymbol(getFunctor()), arguments, getNeutralElement());
+		return makeExpression(Expressions.wrap(getFunctor()), arguments, getNeutralElement());
 	}
 	
 	/**

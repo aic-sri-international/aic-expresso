@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 
 public class DefaultSymbolTest {
 	int oldPrecision;
@@ -16,16 +17,16 @@ public class DefaultSymbolTest {
 
 	@Before
 	public void setUp() {
-		oldPrecision         = DefaultSymbol.setNumericDisplayPrecision(2);
-		oldScientificGreater = DefaultSymbol.setDisplayScientificGreaterNIntegerPlaces(6);
-		oldScientificAfter   = DefaultSymbol.setDisplayScientificAfterNDecimalPlaces(4); 
+		oldPrecision         = SyntaxTrees.setNumericDisplayPrecision(2);
+		oldScientificGreater = SyntaxTrees.setDisplayScientificGreaterNIntegerPlaces(6);
+		oldScientificAfter   = SyntaxTrees.setDisplayScientificAfterNDecimalPlaces(4); 
 	}
 	
 	@After
 	public void tearDown() {
-		DefaultSymbol.setNumericDisplayPrecision(oldPrecision);
-		DefaultSymbol.setDisplayScientificGreaterNIntegerPlaces(oldScientificGreater);
-		DefaultSymbol.setDisplayScientificAfterNDecimalPlaces(oldScientificAfter);
+		SyntaxTrees.setNumericDisplayPrecision(oldPrecision);
+		SyntaxTrees.setDisplayScientificGreaterNIntegerPlaces(oldScientificGreater);
+		SyntaxTrees.setDisplayScientificAfterNDecimalPlaces(oldScientificAfter);
 	}
 	
 	@Test

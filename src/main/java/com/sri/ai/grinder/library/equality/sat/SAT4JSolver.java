@@ -58,7 +58,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -435,7 +434,7 @@ public class SAT4JSolver implements SATSolver {
 							done = true;
 						}
 					}
-					result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(GATE_FUNCTOR, DefaultSymbol.createSymbol(this.nextAuxVarid));
+					result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(GATE_FUNCTOR, this.nextAuxVarid);
 					this.nextAuxVarid++;
 				}
 			}
