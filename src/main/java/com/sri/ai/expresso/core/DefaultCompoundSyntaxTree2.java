@@ -77,16 +77,16 @@ public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements C
 	 * in this case, it is considered to be a List<SyntaxTree>
 	 * and a copy is used as the sub-trees
 	 */
-	@SuppressWarnings("unchecked")
-	public DefaultCompoundSyntaxTree2(Object label, Object ... args) {
+	public DefaultCompoundSyntaxTree2(Object label, Object ... subTrees) {
 		this.valueOrRootSyntaxTree = Expressions.wrap(label);
-		if (args.length == 1 && args[0] instanceof List) {
+		if (subTrees.length == 1 && subTrees[0] instanceof List) {
 			// Note: We can have nulls, therefore cannot use ImmutableList directly.
-			this.subTrees = Collections.unmodifiableList((List<SyntaxTree>) args[0]); // makes a copy since this constructor does not assume ownership.
+			Object[] subTreesArray = ((List) subTrees[0]).toArray();
+			this.subTrees = Collections.unmodifiableList(SyntaxTrees.wrap(subTreesArray)); // makes a copy since this constructor does not assume ownership.
 		}
 		else {
 			// Note: We can have nulls, therefore cannot use ImmutableList directly.
-			this.subTrees = Collections.unmodifiableList(SyntaxTrees.wrap(args));
+			this.subTrees = Collections.unmodifiableList(SyntaxTrees.wrap(subTrees));
 		}
 	}
 
