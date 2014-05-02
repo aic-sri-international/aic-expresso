@@ -71,7 +71,7 @@ import org.antlr.v4.runtime.Token;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.core.DefaultSymbol2;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderLexer;
 
 @Beta
@@ -235,7 +235,7 @@ public class ExpressionEditor extends JPanel {
 	protected boolean isNumber(Token t) {
 		boolean result = false;
 		if (isSymbol(t)) {
-			Symbol s = DefaultSymbol2.createSymbol(t.getText());
+			Symbol s = SyntaxTrees.makeSymbol(t.getText());
 			if (s.getValue() instanceof Number) {
 				result = true;
 			}

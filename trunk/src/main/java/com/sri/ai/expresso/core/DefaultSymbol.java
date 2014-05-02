@@ -53,6 +53,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.base.BinaryProcedure;
 import com.sri.ai.util.math.Rational;
@@ -254,7 +255,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 			anotherSymbol = (Symbol) ((Expression) another).getSyntaxTree();
 		} 
 		else {
-			anotherSymbol = DefaultSymbol2.createSymbol(another);
+			anotherSymbol = SyntaxTrees.makeSymbol(another);
 			// Test again, as may have had self returned from the symbol table.
 			if (this.getSyntaxTree() == anotherSymbol) {
 				return true;

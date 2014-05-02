@@ -76,7 +76,7 @@ public class SyntaxTrees {
 		if (object == null || object instanceof SyntaxTree) {
 			return (SyntaxTree) object;
 		}
-		return DefaultSymbol2.createSymbol(object);
+		return makeSymbol(object);
 	}
 
 	/** The array version of {@link #wrap(Object)}. */
