@@ -90,22 +90,22 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	public static int _displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
 	//
 	// Well known static Symbols
-	private static final DefaultSymbol SYMBOL_TRUE  = new DefaultSymbol(true);
-	private static final DefaultSymbol SYMBOL_FALSE = new DefaultSymbol(false);
-	private static final DefaultSymbol SYMBOL_0     = new DefaultSymbol(new Rational(0));
-	private static final DefaultSymbol SYMBOL_1     = new DefaultSymbol(new Rational(1));
-	private static final DefaultSymbol SYMBOL_2     = new DefaultSymbol(new Rational(2));
-	private static final DefaultSymbol SYMBOL_3     = new DefaultSymbol(new Rational(3));
-	private static final DefaultSymbol SYMBOL_4     = new DefaultSymbol(new Rational(4));
-	private static final DefaultSymbol SYMBOL_5     = new DefaultSymbol(new Rational(5));
-	private static final DefaultSymbol SYMBOL_6     = new DefaultSymbol(new Rational(6));
-	private static final DefaultSymbol SYMBOL_7     = new DefaultSymbol(new Rational(7));
-	private static final DefaultSymbol SYMBOL_8     = new DefaultSymbol(new Rational(8));
-	private static final DefaultSymbol SYMBOL_9     = new DefaultSymbol(new Rational(9));
+	private static final Expression SYMBOL_TRUE  = Expressions.createSymbol(true);
+	private static final Expression SYMBOL_FALSE = Expressions.createSymbol(false);
+	private static final Expression SYMBOL_0     = Expressions.createSymbol(new Rational(0));
+	private static final Expression SYMBOL_1     = Expressions.createSymbol(new Rational(1));
+	private static final Expression SYMBOL_2     = Expressions.createSymbol(new Rational(2));
+	private static final Expression SYMBOL_3     = Expressions.createSymbol(new Rational(3));
+	private static final Expression SYMBOL_4     = Expressions.createSymbol(new Rational(4));
+	private static final Expression SYMBOL_5     = Expressions.createSymbol(new Rational(5));
+	private static final Expression SYMBOL_6     = Expressions.createSymbol(new Rational(6));
+	private static final Expression SYMBOL_7     = Expressions.createSymbol(new Rational(7));
+	private static final Expression SYMBOL_8     = Expressions.createSymbol(new Rational(8));
+	private static final Expression SYMBOL_9     = Expressions.createSymbol(new Rational(9));
 	//
 	private static boolean                      _useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
 	private static boolean                      _cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
-	private static Cache<Object, DefaultSymbol> _globalSymbolTable    = newSymbolTable();
+	private static Cache<Object, Expression>    _globalSymbolTable    = newSymbolTable();
 	static {
 		flushGlobalSymbolTable();
 	}
@@ -168,7 +168,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	}
 	
 	public static Expression createSymbol(Object value) {
-		DefaultSymbol result = null;
+		Expression result = null;
 		// If global symbol table to be used and the symbol's value is not
 		// an expression - i.e. quoted expressions of the form:
 		// <X>
@@ -438,7 +438,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		return escaped;
 	}
 	
-	private static Cache<Object, DefaultSymbol> newSymbolTable() {
+	private static Cache<Object, Expression> newSymbolTable() {
 		CacheBuilder<Object, Object> cb = CacheBuilder.newBuilder();
 		
 		long maximumSize = ExpressoConfiguration.getGlobalSymbolTableMaximumSize();
@@ -453,7 +453,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 			cb.recordStats();
 		}
 		
-		Cache<Object, DefaultSymbol> result = cb.build();
+		Cache<Object, Expression> result = cb.build();
 		
 		return result;
 	}
