@@ -45,6 +45,7 @@ import com.sri.ai.brewer.api.ParsingProcess;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.SyntaxTree;
 
 /**
  * Utility interface for parsing.
@@ -85,18 +86,18 @@ public class Brewer {
 	 * Call this to generate the Java code to produce the given expression
 	 * object.
 	 * 
-	 * @param expr
+	 * @param syntaxTree
 	 *            The expression object.
 	 * @return A string of Java code for generating the given object.
 	 */
-	public static String generateBuildString (Expression expr) {
+	public static String generateBuildString (SyntaxTree syntaxTree) {
 		StringBuffer sb = new StringBuffer();
 
-		if (expr == null) {
+		if (syntaxTree == null) {
 			return "";
 		}
 
-		generateFunctionApplicationString(sb, expr, 3, true);
+		generateFunctionApplicationString(sb, syntaxTree, 3, true);
 
 		return sb.toString();
 	}
@@ -106,13 +107,13 @@ public class Brewer {
 	 * 
 	 * @param sb
 	 *            The string buffer to append to.
-	 * @param expr
-	 *            The expression object to generate.
+	 * @param syntaxTree
+	 *            The syntax tree object to generate.
 	 * @param tabLevel
 	 *            The number of tabs to indent.
 	 */
-	public static void generateFunctionApplicationString(StringBuffer sb, Expression expr, int tabLevel) {
-		generateFunctionApplicationString(sb, expr, tabLevel, false);
+	public static void generateFunctionApplicationString(StringBuffer sb, SyntaxTree syntaxTree, int tabLevel) {
+		generateFunctionApplicationString(sb, syntaxTree, tabLevel, false);
 	}
 	
 	/**
@@ -120,7 +121,7 @@ public class Brewer {
 	 * 
 	 * @param sb
 	 *            The string buffer to append to.
-	 * @param expression
+	 * @param syntaxTree
 	 *            The expression object to generate.
 	 * @param tabLevel
 	 *            The number of tabs to indent.
@@ -128,34 +129,34 @@ public class Brewer {
 	 *            Whether to print "Expressions.createSymbol()" for symbols or
 	 *            just the string.
 	 */
-	public static void generateFunctionApplicationString(StringBuffer sb, Expression expression, int tabLevel, boolean forceSymbolPrint) {
-		if (expression instanceof CompoundSyntaxTree) {
+	public static void generateFunctionApplicationString(StringBuffer sb, SyntaxTree syntaxTree, int tabLevel, boolean forceSymbolPrint) {
+		if (syntaxTree instanceof CompoundSyntaxTree) {
 			sb.append("\n");
 			for (int i = 0; i < tabLevel; i++)
 				sb.append("\t");
 			sb.append("Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(");
 
 			boolean firstChild = true;
-			List<Expression> children = expression.getSubExpressions();
-			for (Expression child : children) {
+			List<SyntaxTree> subTrees = syntaxTree.getImmediateSubTrees();
+			for (SyntaxTree subTree : subTrees) {
 				if (firstChild)
 					firstChild = false;
 				else
 					sb.append(", ");
-				generateFunctionApplicationString(sb, child, tabLevel + 2);
+				generateFunctionApplicationString(sb, subTree, tabLevel + 2);
 
 			}
 			sb.append(")");
 		}
-		else if (expression instanceof Symbol) {
-			Symbol symbol = (Symbol) expression;
+		else if (syntaxTree instanceof Symbol) {
+			Symbol symbol = (Symbol) syntaxTree;
 			Object label = symbol.getValue();
 			if (label instanceof Expression) {
 				sb.append("\n");
 				for (int i = 0; i < tabLevel; i++)
 					sb.append("\t");
 				sb.append("Expressions.createSymbol(");
-				generateFunctionApplicationString(sb, (Expression)label, tabLevel + 2, true);
+				generateFunctionApplicationString(sb, ((Expression) label).getSyntaxTree(), tabLevel + 2, true);
 				sb.append(")");
 			}
 			else {
@@ -163,7 +164,7 @@ public class Brewer {
 					sb.append("Expressions.createSymbol(");
 				}
 				sb.append("\"");
-				String string = expression.toString();
+				String string = syntaxTree.toString();
 				if (string.startsWith("'"))
 					string = string.substring(1, string.length()-1);
 				sb.append(string);
@@ -173,7 +174,7 @@ public class Brewer {
 				}
 			}
 		}
-		else if (expression == null) {
+		else if (syntaxTree == null) {
 			sb.append("null");
 		}
 

@@ -65,7 +65,7 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements CompoundSyntaxTree, Expression {
+public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements CompoundSyntaxTree {
 	private static final long serialVersionUID = 1L;
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
@@ -98,43 +98,6 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		return null;
 	}
 
-	@Override
-	public SyntaxTree getRootTree() {
-		return (SyntaxTree) valueOrRootSyntaxTree;
-	}
-
-	@Override
-	public Object getLabel() {
-		return valueOrRootSyntaxTree;
-	}
-
-	@Override
-	public Iterator<SyntaxTree> getImmediateSubTreesIncludingRootOneIterator() {
-		return new NestedIterator<SyntaxTree>(Util.list(getRootTree(), getImmediateSubTreesIterator()));
-	}
-
-	@Override
-	public int numberOfImmediateSubTreesIncludingRootOneIterator() {
-		return 1 + numberOfImmediateSubTrees();
-	}
-
-	@Override
-	public SyntaxTree setImmediateSubTree(int i, Object newIthSubTreeObject) {
-		SyntaxTree newRootTree = getRootTree();
-		SyntaxTree newIthSubTree = SyntaxTrees.wrap(newIthSubTreeObject);
-		List<SyntaxTree> newSubTrees = subTrees;
-		// it is important to use field {@link #subTrees} above instead of method {@link #getSubTrees()}
-		// because we want to be able to reuse {@link #subTrees} in case the root tree is being set.
-		// If we use {@link #getSubTrees()}, we get an unmodifiable list object instead of the original arguments list.
-		if (i == -1) {
-			newRootTree = newIthSubTree;
-		}
-		else {
-			newSubTrees = storeSubTreeReplacement(newSubTrees, i, getSubTree(i), newIthSubTree);
-		}	
-		SyntaxTree result = makeReplacementIfAny(newRootTree, newSubTrees);
-		return result;
-	}
 
 	public Expression orderNormalized = null;
 	public static final boolean useOrderNormalization = false;
@@ -191,14 +154,80 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		}
 	}
 
+	public Expression clone() {
+		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(getSyntaxTree().getRootTree(), getSyntaxTree().getImmediateSubTrees());
+		// it is best to use the field 'arguments' instead of method 'getArguments'
+		// because we can share argument lists among function applications, since they are never modified.
+		// The method 'getArguments' would unnecessarily create an unmodifiable list object.
+	}
+
+	@Override
+	public int intValue() {
+		throw new Error("Expression.intValue() not defined for CompoundSyntaxTree " + this);
+	}
+
+	@Override
+	public int intValueExact() throws ArithmeticException {
+		throw new Error("Expression.intValueExact() not defined for CompoundSyntaxTree " + this);
+	}
+
+	@Override
+	public double doubleValue() {
+		throw new Error("Expression.doubleValue() not defined for CompoundSyntaxTree " + this);
+	}
+
+	@Override
+	public Rational rationalValue() {
+		throw new Error("Expression.rationalValue() not defined for CompoundSyntaxTree " + this);
+	}
+
+//}
+	@Override
+	public SyntaxTree getRootTree() {
+		return (SyntaxTree) valueOrRootSyntaxTree;
+	}
+
+	@Override
+	public Object getLabel() {
+		return valueOrRootSyntaxTree;
+	}
+
+	@Override
+	public Iterator<SyntaxTree> getImmediateSubTreesIncludingRootOneIterator() {
+		return new NestedIterator<SyntaxTree>(Util.list(getRootTree(), getImmediateSubTreesIterator()));
+	}
+
+	@Override
+	public int numberOfImmediateSubTreesIncludingRootOneIterator() {
+		return 1 + numberOfImmediateSubTrees();
+	}
+
+	@Override
+	public SyntaxTree setImmediateSubTree(int i, Object newIthSubTreeObject) {
+		SyntaxTree newRootTree = getRootTree();
+		SyntaxTree newIthSubTree = SyntaxTrees.wrap(newIthSubTreeObject);
+		List<SyntaxTree> newSubTrees = subTrees;
+		// it is important to use field {@link #subTrees} above instead of method {@link #getSubTrees()}
+		// because we want to be able to reuse {@link #subTrees} in case the root tree is being set.
+		// If we use {@link #getSubTrees()}, we get an unmodifiable list object instead of the original arguments list.
+		if (i == -1) {
+			newRootTree = newIthSubTree;
+		}
+		else {
+			newSubTrees = storeSubTreeReplacement(newSubTrees, i, getSubTree(i), newIthSubTree);
+		}	
+		SyntaxTree result = makeReplacementIfAny(newRootTree, newSubTrees);
+		return result;
+	}
+
 	@Override
 	public SyntaxTree replaceSubTreesFirstOccurrence(Function<SyntaxTree, SyntaxTree> replacementFunction, Predicate<SyntaxTree> prunePredicate, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
-		return replaceSubTrees(replacementFunction, true /* only the first one */, prunePredicate, listener, false);
+		return replaceSubTrees(replacementFunction, true, prunePredicate, listener, false);
 	}
 
 	@Override
 	public SyntaxTree replaceSubTreesAllOccurrences(Function<SyntaxTree, SyntaxTree> replacementFunction, Predicate<SyntaxTree> prunePredicate, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
-		return replaceSubTrees(replacementFunction, false /* not only the first one */, prunePredicate, listener, false);
+		return replaceSubTrees(replacementFunction, false, prunePredicate, listener, false);
 	}
 
 	@Override
@@ -283,10 +312,6 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		return subTreesReplacement;
 	}
 
-	/**
-	 * The following needs to be private because it relies on whether the given subTreesReplacement
-	 * is the same object as subTrees, which is private (getImmediateSubTrees() provides an unmodifiable version of it).
-	 */
 	private SyntaxTree makeReplacementIfAny(Object rootTreeReplacement, List<SyntaxTree> subTreesReplacement) {
 		if (rootTreeReplacement != getRootTree() || subTreesReplacement != subTrees) {
 			return SyntaxTrees.makeCompoundSyntaxTree(rootTreeReplacement, Collections.unmodifiableList(new ArrayList<SyntaxTree>(subTreesReplacement)));
@@ -294,30 +319,4 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		return this;
 	}
 	
-	public Expression clone() {
-		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(getSyntaxTree().getRootTree(), getSyntaxTree().getImmediateSubTrees());
-		// it is best to use the field 'arguments' instead of method 'getArguments'
-		// because we can share argument lists among function applications, since they are never modified.
-		// The method 'getArguments' would unnecessarily create an unmodifiable list object.
-	}
-
-	@Override
-	public int intValue() {
-		throw new Error("Expression.intValue() not defined for CompoundSyntaxTree " + this);
-	}
-
-	@Override
-	public int intValueExact() throws ArithmeticException {
-		throw new Error("Expression.intValueExact() not defined for CompoundSyntaxTree " + this);
-	}
-
-	@Override
-	public double doubleValue() {
-		throw new Error("Expression.doubleValue() not defined for CompoundSyntaxTree " + this);
-	}
-
-	@Override
-	public Rational rationalValue() {
-		throw new Error("Expression.rationalValue() not defined for CompoundSyntaxTree " + this);
-	}
-}
+} //*/

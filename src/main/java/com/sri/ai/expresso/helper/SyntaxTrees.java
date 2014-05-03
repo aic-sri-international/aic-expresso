@@ -46,6 +46,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree2;
@@ -185,4 +186,19 @@ public class SyntaxTrees {
 		return oldPrecision;
 	}
 	
+
+	public static Function<Object, Object> MAKE_SURE_IT_IS_SYNTAX_TREE_OR_NON_EXPRESSION_OBJECT = new Function<Object, Object>() {
+		@Override
+		public Object apply(Object input) {
+			return SyntaxTrees.makeSureItIsSyntaxTreeOrNonExpressionObject(input);
+		}
+	
+	};
+
+	public static Object makeSureItIsSyntaxTreeOrNonExpressionObject(Object input) {
+		if (input instanceof Expression) {
+			input = ((Expression)input).getSyntaxTree();
+		}
+		return input;
+	}
 }
