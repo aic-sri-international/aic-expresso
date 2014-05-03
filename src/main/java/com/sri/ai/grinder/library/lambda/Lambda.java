@@ -44,7 +44,6 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.SemanticSubstitute;
@@ -119,9 +118,8 @@ public class Lambda extends QuantifierSubExpressionAndScopedVariableProvider {
 				Expression parameter1 = parameter1Iterator.next();
 				Expression parameter2 = parameter2Iterator.next();
 				if ( ! parameter1.equals(parameter2)) {
-					if (parameter1 instanceof Symbol && parameter2 instanceof Symbol) {
+					if (parameter1.getSyntacticFormType().equals("Symbol") && parameter2.getSyntacticFormType().equals("Symbol")) {
 						body2 = SemanticSubstitute.replace(body2, parameter2, parameter1, process);
-//						body2 = Substitute.replaceWithoutTryingToUnify(body2, parameter2, parameter1, process);
 					}
 					else {
 						return false; // not renaming function applications, so just give up.

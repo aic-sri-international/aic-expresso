@@ -53,6 +53,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
+import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.Symbol;
@@ -101,11 +102,16 @@ public class Expressions {
 	
 	/** Returns an expression represented by a given syntax tree. */
 	public static Expression makeFromSyntaxTree(SyntaxTree syntaxTree) {
-//		if (syntaxTree instanceof CompoundSyntaxTree || syntaxTree instanceof Symbol) {
-//			Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(syntaxTree.getLabel(), syntaxTree.getImmediateSubExpressionsAndContextsIterator());
+//		if (syntaxTree instanceof CompoundSyntaxTree) {
+//			Expression result = new DefaultCompoundSyntaxTree(syntaxTree.getLabel(), syntaxTree.getImmediateSubExpressionsAndContextsIterator());
 //			return result;
 //		}
-//		// TODO: once Expression/SyntaxTree is complete, all syntax trees will satisfy the conditions above.
+//		if (syntaxTree instanceof Symbol) {
+//			Expression result = createSymbol(syntaxTree.getLabel());
+//			return result;
+//		}
+//		throw new Error("Syntax tree " + syntaxTree + " should be either a CompoundSyntaxTree or a Symbol");
+		// TODO: once Expression/SyntaxTree is complete, all syntax trees will satisfy the conditions above.
 		return syntaxTree;
 	}
 
@@ -331,8 +337,8 @@ public class Expressions {
 
 	/** Indicates whether an expression is a Symbol representing a numeric constant. */
 	public static boolean isNumber(Expression expression) {
-		boolean result = expression.getSyntaxTree() instanceof Symbol &&
-				((Symbol)expression.getSyntaxTree()).getValue() instanceof Number;
+		boolean result = expression.getSyntacticFormType().equals("Symbol") &&
+				expression.getValue() instanceof Number;
 		return result;
 	}
 	
@@ -921,7 +927,7 @@ public class Expressions {
 		// this method became more fundamentally distinct since Expression.replace uses contextual expansion and therefore these checks,
 		// while this method here does not perform such checks.
 		
-		if (expression.getSyntaxTree() instanceof Symbol) {
+		if (expression.getSyntacticFormType().equals("Symbol")) {
 			if (process.isVariable(expression)) {
 				if (!quantifiedVariables.contains(expression)) {
 					freeVariables.add(expression);
@@ -963,7 +969,7 @@ public class Expressions {
 	private static void freeSymbols(Expression expression, Set<Expression> freeSymbols, Set<Expression> quantifiedSymbols, RewritingProcess process) {
 		// Note: this is a slight modification of freeVariables. I am adding (*) near the modified bits.
 		
-		if (expression.getSyntaxTree() instanceof Symbol) { // (*) no check for being a variable
+		if (expression.getSyntacticFormType().equals("Symbol")) { // (*) no check for being a variable
 			if (!quantifiedSymbols.contains(expression)) {
 				freeSymbols.add(expression);
 			}

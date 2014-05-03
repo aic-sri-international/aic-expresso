@@ -49,7 +49,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Throwables;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
@@ -846,7 +845,7 @@ public class GrinderUtil {
 	 * So far, it does not work for non-symbols, or constants, throwing exceptions in these cases, but it will be extended in the direction in the future.
 	 */
 	public static Object getType(Expression expression, RewritingProcess process) {
-		if ( ! (expression.getSyntaxTree() instanceof Symbol)) {
+		if ( ! (expression.getSyntacticFormType().equals("Symbol"))) {
 			throw new Error("GrinderUtil.getType() not implemented for non-symbol expressions at this point, but invoked with " + expression);
 		}
 		if (process.isConstant(expression)) {

@@ -318,25 +318,25 @@ abstract public class AbstractGrinderTest {
 	 * Returns true if e1 is equal to e2. e2 can have sub-syntax trees defined by anyof().
 	 * For instance, if e2 is 'anyof(1, 3 + anyof(X, Y))', then e1 can be any of '1', '3+X', or '3+Y'.
 	 * 
-	 * @param e1
-	 * @param e2
+	 * @param syntaxTree1
+	 * @param syntaxTree2
 	 * @return true if e1 and e2 are equal, considering that e2 may be defined using anyof()
 	 */
-	protected boolean areEqual(SyntaxTree e1, SyntaxTree e2) {
+	protected boolean areEqual(SyntaxTree syntaxTree1, SyntaxTree syntaxTree2) {
 		boolean succeeded = false;
-		if ( e1 == null ) {
-			succeeded = e2 == null;
+		if ( syntaxTree1 == null ) {
+			succeeded = syntaxTree2 == null;
 		} 
-		else if ( e2 != null && e2.getLabel().equals(ANY_OF) ) {
-			succeeded = isEqualToAny(e1, e2.getImmediateSubTrees());
+		else if ( syntaxTree2 != null && syntaxTree2.getLabel().equals(ANY_OF) ) {
+			succeeded = isEqualToAny(syntaxTree1, syntaxTree2.getImmediateSubTrees());
 		}
-		else if ( e1 instanceof Symbol && e2 instanceof Symbol ) {
-			succeeded = ((Symbol)e1).getValue().equals(((Symbol)e2).getValue());
+		else if ( syntaxTree1 instanceof Symbol && syntaxTree2 instanceof Symbol ) {
+			succeeded = ((Symbol)syntaxTree1).getValue().equals(((Symbol)syntaxTree2).getValue());
 		}
-		else if ( e1 instanceof CompoundSyntaxTree && e2 instanceof CompoundSyntaxTree ) {
-			CompoundSyntaxTree e1fa = (CompoundSyntaxTree) e1;
-			CompoundSyntaxTree e2fa = (CompoundSyntaxTree) e2;
-			if ( e1.getLabel().equals(e2.getLabel()) && e1fa.getImmediateSubTrees().size() == e2fa.getImmediateSubTrees().size() ) {
+		else if ( syntaxTree1 instanceof CompoundSyntaxTree && syntaxTree2 instanceof CompoundSyntaxTree ) {
+			CompoundSyntaxTree e1fa = (CompoundSyntaxTree) syntaxTree1;
+			CompoundSyntaxTree e2fa = (CompoundSyntaxTree) syntaxTree2;
+			if ( syntaxTree1.getLabel().equals(syntaxTree2.getLabel()) && e1fa.getImmediateSubTrees().size() == e2fa.getImmediateSubTrees().size() ) {
 				succeeded = true;
 				List<SyntaxTree> e1SubTrees = e1fa.getImmediateSubTrees();
 				List<SyntaxTree> e2SubTrees = e2fa.getImmediateSubTrees();
@@ -349,7 +349,7 @@ abstract public class AbstractGrinderTest {
 			}
 		}
 		else {
-			succeeded = e1.equals(e2);
+			succeeded = syntaxTree1.equals(syntaxTree2);
 		}
 		return succeeded;
 	}

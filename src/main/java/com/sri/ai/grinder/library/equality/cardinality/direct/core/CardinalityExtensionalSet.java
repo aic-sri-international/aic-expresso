@@ -44,7 +44,6 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
@@ -166,8 +165,8 @@ public class CardinalityExtensionalSet extends AbstractHierarchicalRewriter impl
 	private static Expression plusOne(Expression countingSolution) {
 		Expression result = null;
 
-		if (countingSolution.getSyntaxTree() instanceof Symbol) {
-			Number value = (Number) ((Symbol) countingSolution.getSyntaxTree()).getValue();
+		if (countingSolution.getSyntacticFormType().equals("Symbol")) {
+			Number value = (Number) countingSolution.getValue();
 			result = Expressions.createSymbol(value.intValue() + 1);
 		}
 		else { // counting solution is an if then else

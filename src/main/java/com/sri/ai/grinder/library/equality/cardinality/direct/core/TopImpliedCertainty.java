@@ -43,7 +43,6 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -89,7 +88,7 @@ public class TopImpliedCertainty extends AbstractHierarchicalRewriter implements
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expression result = expression;
 		
-		if (!(expression instanceof Symbol)) {			
+		if ( ! expression.getSyntacticFormType().equals("Symbol")) {			
 			// Note: as is_tautology relies on R_complete_normalize,
 			// which this rewriter is a part of, ensure we do not
 			// recurse indefinitely in the case where a similar formula
