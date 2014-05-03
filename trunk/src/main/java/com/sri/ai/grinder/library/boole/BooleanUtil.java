@@ -145,7 +145,7 @@ public class BooleanUtil {
 	 * @return true if expression is of the form "x=y" or "not (x != y)"
 	 */
 	public static boolean isEquality(Expression expression) {
-		return (expression.hasFunctor(Equality.FUNCTOR) && expression.getArguments().size()==2) || 
+		return (expression.hasFunctor(Equality.FUNCTOR) && expression.getArguments().size() == 2) || 
 				(expression.hasFunctor(Not.FUNCTOR) && isNotEquality(expression.get(0)));
 	}
 	

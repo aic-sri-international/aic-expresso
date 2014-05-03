@@ -373,7 +373,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol {
 		}
 
 		this.valueOrRootSyntaxTree = value;
-		syntaxTree = this;
+		syntaxTree = this;//DefaultSymbol2.createSymbol(value);
 	}
 	
 	private static String removeTrailingZerosToRight(String number) {

@@ -48,7 +48,6 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -699,12 +698,12 @@ public class CardinalityUtil {
 				pair.second = expression;
 			}
 		}
-		else if ( Expressions.TRUE.equals(expression) || Expressions.FALSE.equals(expression) ) {
+		else if ( expression.equals(Expressions.TRUE) || expression.equals(Expressions.FALSE) ) {
 			pair.first = expression;
 			pair.second = emptyCase;			
 		}
 		else {
-			throw new IllegalArgumentException("The expression should be a conjunction or a disjunction");
+			throw new IllegalArgumentException("The expression should be a conjunction or a disjunction, but is " + expression);
 		}
 		return pair;
 	}
@@ -924,7 +923,7 @@ public class CardinalityUtil {
 		if (IfThenElse.isIfThenElse(expression)) {
 			result = everyLeafIsConstantGreaterThanZero(IfThenElse.getThenBranch(expression)) && everyLeafIsConstantGreaterThanZero(IfThenElse.getElseBranch(expression));
 		}
-		else if (expression.getSyntaxTree() instanceof Symbol) {
+		else if (expression.getSyntacticFormType().equals("Symbol")) {
 			if (expression.getValue() instanceof Number) {
 				if (expression.rationalValue().isPositive()) {
 					result = true;
