@@ -89,6 +89,9 @@ import com.sri.ai.util.math.Rational;
  */
 @Beta
 public class Expressions {
+	
+	public static final boolean USE_PROPER_IMPLEMENTATIONS = false;
+	
 	public static final Expression EMPTY_LIST      = Expressions.createSymbol("list");
 	public static final Expression TRUE            = Expressions.createSymbol("true");
 	public static final Expression FALSE           = Expressions.createSymbol("false");
@@ -102,17 +105,20 @@ public class Expressions {
 	
 	/** Returns an expression represented by a given syntax tree. */
 	public static Expression makeFromSyntaxTree(SyntaxTree syntaxTree) {
-//		if (syntaxTree instanceof CompoundSyntaxTree) {
-//			Expression result = new DefaultCompoundSyntaxTree(syntaxTree.getLabel(), syntaxTree.getImmediateSubExpressionsAndContextsIterator());
-//			return result;
-//		}
-//		if (syntaxTree instanceof Symbol) {
-//			Expression result = createSymbol(syntaxTree.getLabel());
-//			return result;
-//		}
-//		throw new Error("Syntax tree " + syntaxTree + " should be either a CompoundSyntaxTree or a Symbol");
-		// TODO: once Expression/SyntaxTree is complete, all syntax trees will satisfy the conditions above.
-		return syntaxTree;
+		if (USE_PROPER_IMPLEMENTATIONS) {
+			if (syntaxTree instanceof CompoundSyntaxTree) {
+				Expression result = new DefaultCompoundSyntaxTree(syntaxTree.getLabel(), syntaxTree.getImmediateSubTrees());
+				return result;
+			}
+			if (syntaxTree instanceof Symbol) {
+				Expression result = DefaultSymbol.createSymbol(syntaxTree.getLabel());
+				return result;
+			}
+			throw new Error("Syntax tree " + syntaxTree + " should be either a CompoundSyntaxTree or a Symbol");
+		}
+		else {
+			return syntaxTree;
+		}
 	}
 
 	
@@ -120,17 +126,7 @@ public class Expressions {
 	 * Makes Expression based on a syntax tree with given label and sub-trees.
 	 */
 	public static Expression makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object label, Object... subTreeObjects) {
-		if (subTreeObjects.length != 0) {
-			if (subTreeObjects[0] instanceof Expression[]) {
-				return makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(label, (Object[]) subTreeObjects[0]); // the cast avoids arguments[0] being wrapper in a new 1-element array
-			}
-			if (subTreeObjects[0] instanceof Collection) {
-				return makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(label, ((Collection)subTreeObjects[0]).toArray());
-			}
-		}
-	
 		Expression result = new DefaultCompoundSyntaxTree(label, subTreeObjects);
-		
 		return result;
 	}
 

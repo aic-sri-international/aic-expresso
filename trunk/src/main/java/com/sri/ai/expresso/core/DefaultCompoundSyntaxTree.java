@@ -38,6 +38,7 @@
 package com.sri.ai.expresso.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -80,17 +81,23 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	 * (doing pretty much the same thing as {@link Expressions#makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object, List)}, but in a slightly slower manner).
 	 */
 	public DefaultCompoundSyntaxTree(Object label, Object ... subTrees) {
-		this.valueOrRootSyntaxTree = SyntaxTrees.wrap(label);
-		if (subTrees.length == 1 && subTrees[0] instanceof List) {
-			// Note: We can have nulls, therefore cannot use ImmutableList directly.
-			Object[] subTreesArray = ((List) subTrees[0]).toArray();
-			this.subTrees = Collections.unmodifiableList(SyntaxTrees.wrap(subTreesArray)); // makes a copy since this constructor does not assume ownership.
+		if (Expressions.USE_PROPER_IMPLEMENTATIONS) {
+			syntaxTree = new DefaultCompoundSyntaxTree2(valueOrRootSyntaxTree, subTrees);
 		}
 		else {
-			// Note: We can have nulls, therefore cannot use ImmutableList directly.
-			this.subTrees = Collections.unmodifiableList(SyntaxTrees.wrap(subTrees));
+			this.valueOrRootSyntaxTree = SyntaxTrees.wrap(label);
+			if (subTrees.length == 1 && subTrees[0] instanceof Collection) {
+				// Note: We can have nulls, therefore cannot use ImmutableList directly.
+				Object[] subTreesArray = ((Collection) subTrees[0]).toArray();
+				this.subTrees = Collections.unmodifiableList(SyntaxTrees.wrap(subTreesArray)); // makes a copy since this constructor does not assume ownership.
+			}
+			else {
+				// Note: We can have nulls, therefore cannot use ImmutableList directly.
+				this.subTrees = Collections.unmodifiableList(SyntaxTrees.wrap(subTrees));
+			}
+			
+			syntaxTree = this;
 		}
-		syntaxTree = this;
 	}
 
 	@Override
