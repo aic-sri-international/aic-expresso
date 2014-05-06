@@ -169,7 +169,7 @@ public abstract class AbstractSyntaxTree2 extends AbstractExpression2 implements
 		return replaceSubTreesAllOccurrences(new ReplaceByIfEqualTo<SyntaxTree>(replacement, replaced), prunePredicate, listener);
 	}
 
-	abstract public Expression clone();
+	abstract public SyntaxTree clone();
 	
 	@Override
 	public int numberOfImmediateSubTrees() {
@@ -221,6 +221,14 @@ public abstract class AbstractSyntaxTree2 extends AbstractExpression2 implements
 		return cachedToString;
 	}
 	
+
+	private static final long serialVersionUID = 1L;
+	private volatile Object                    cachedSyntacticFormType             = null;
+	private Lock                               lazyInitCachedSyntacticFormTypeLock = new ReentrantLock();
+	private volatile ImmutableList<Expression> cachedArguments                     = null;
+	private Lock                               lazyInitCachedArgumentsLock         = new ReentrantLock();
+	private static Cache<Thread, Function<Expression, String>> threadToString = newThreadToStringCache();
+
 	/**
 	 * 
 	 * @return the default configured to string unary function for the current
@@ -246,8 +254,6 @@ public abstract class AbstractSyntaxTree2 extends AbstractExpression2 implements
 		return result;
 	}
 
-	private static Cache<Thread, Function<Expression, String>> threadToString = newThreadToStringCache();
-
 	private static Cache<Thread, Function<Expression, String>> newThreadToStringCache() {
 		Cache<Thread, Function<Expression, String>> result = CacheBuilder.newBuilder()
 				.expireAfterAccess(ExpressoConfiguration.getSyntaxToStringThreadCacheTimeoutInSeconds(), TimeUnit.SECONDS)
@@ -257,12 +263,6 @@ public abstract class AbstractSyntaxTree2 extends AbstractExpression2 implements
 		
 		return result;
 	}
-
-	private static final long serialVersionUID = 1L;
-	private volatile Object                    cachedSyntacticFormType             = null;
-	private Lock                               lazyInitCachedSyntacticFormTypeLock = new ReentrantLock();
-	private volatile ImmutableList<Expression> cachedArguments                     = null;
-	private Lock                               lazyInitCachedArgumentsLock         = new ReentrantLock();
 
 	@Override
 	public List<Expression> getSubExpressions() {

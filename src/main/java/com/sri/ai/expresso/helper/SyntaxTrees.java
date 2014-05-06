@@ -37,6 +37,7 @@
  */
 package com.sri.ai.expresso.helper;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -49,6 +50,7 @@ import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree2;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.DefaultSymbol2;
@@ -104,8 +106,8 @@ public class SyntaxTrees {
 		}
 	};
 
-	public static CompoundSyntaxTree makeCompoundSyntaxTree(Object rootTreeReplacement, Object... subTrees) {
-		CompoundSyntaxTree result = new DefaultCompoundSyntaxTree2(rootTreeReplacement, subTrees);
+	public static CompoundSyntaxTree makeCompoundSyntaxTree(Object label, Object... subTrees) {
+		CompoundSyntaxTree result = new DefaultCompoundSyntaxTree2(label, subTrees);
 		return result;
 	}
 	
@@ -148,9 +150,9 @@ public class SyntaxTrees {
 	 * @return the value previously used before being set here.
 	 */
 	public static int setDisplayScientificGreaterNIntegerPlaces(int numIntegerPlaces) {
-		int oldValue = DefaultSymbol._displayScientificGreaterNIntegerPlaces;
+		int oldValue = DefaultSymbol2._displayScientificGreaterNIntegerPlaces;
 		
-		DefaultSymbol._displayScientificGreaterNIntegerPlaces = numIntegerPlaces;
+		DefaultSymbol2._displayScientificGreaterNIntegerPlaces = numIntegerPlaces;
 				
 		return oldValue;
 	}
@@ -163,9 +165,9 @@ public class SyntaxTrees {
 	 * @return the value previously used before being set here.
 	 */
 	public static int setDisplayScientificAfterNDecimalPlaces(int numDecimalPlaces) {
-		int oldValue = DefaultSymbol._displayScientificAfterNDecimalPlaces;
+		int oldValue = DefaultSymbol2._displayScientificAfterNDecimalPlaces;
 		
-		DefaultSymbol._displayScientificAfterNDecimalPlaces = numDecimalPlaces;
+		DefaultSymbol2._displayScientificAfterNDecimalPlaces = numDecimalPlaces;
 				
 		return oldValue;
 	}
@@ -179,13 +181,21 @@ public class SyntaxTrees {
 	 * @return the old numeric display precision;
 	 */
 	public static int setNumericDisplayPrecision(int precision) {
-		int oldPrecision = DefaultSymbol._displayNumericPrecision;
+		int oldPrecision = DefaultSymbol2._displayNumericPrecision;
 		
-		DefaultSymbol._displayNumericPrecision = precision;
+		DefaultSymbol2._displayNumericPrecision = precision;
 		
 		return oldPrecision;
 	}
 	
+
+	public static Object[] makeSureItIsSyntaxTreeOrNonExpressionObject(Object[] input) {
+		Object[] result =
+				Util
+				.mapIntoArrayList(Arrays.asList(input), MAKE_SURE_IT_IS_SYNTAX_TREE_OR_NON_EXPRESSION_OBJECT)
+				.toArray();
+		return result;
+	}
 
 	public static Function<Object, Object> MAKE_SURE_IT_IS_SYNTAX_TREE_OR_NON_EXPRESSION_OBJECT = new Function<Object, Object>() {
 		@Override
@@ -196,7 +206,7 @@ public class SyntaxTrees {
 	};
 
 	public static Object makeSureItIsSyntaxTreeOrNonExpressionObject(Object input) {
-		if (input instanceof Expression) {
+		if (input instanceof DefaultSymbol || input instanceof DefaultCompoundSyntaxTree) {
 			input = ((Expression)input).getSyntaxTree();
 		}
 		return input;

@@ -113,8 +113,13 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol {
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
 	
+	public DefaultSymbol(SyntaxTree syntaxTree) {
+		this.syntaxTree = syntaxTree;
+		this.valueOrRootSyntaxTree = null;
+	}
+	
 	public Object getValue() {
-		return valueOrRootSyntaxTree;
+		return getSyntaxTree().getValue();
 	}
 
 	public static void flushGlobalSymbolTable() {
@@ -272,13 +277,13 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol {
 	public String defaultToString() {
 		String result = "";
 		if (getSyntaxTree().getLabel() instanceof String) {
-			result = makeStringValuedSymbolParseSafe((String)valueOrRootSyntaxTree);
+			result = makeStringValuedSymbolParseSafe((String)getSyntaxTree().getValue());
 		}
 		else if (getSyntaxTree().getLabel() instanceof Expression) {
-			result = "<" + valueOrRootSyntaxTree + ">";
+			result = "<" + getSyntaxTree().getValue() + ">";
 		}
 		else if (getSyntaxTree().getLabel() instanceof Number && _displayNumericPrecision != 0) {
-			Rational rLabel = ((Rational) valueOrRootSyntaxTree);
+			Rational rLabel = ((Rational) getSyntaxTree().getValue());
 			if (rLabel.isInteger()) {
 				result = rLabel.toString();
 			} 
@@ -305,7 +310,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol {
 			}
 		}
 		else {
-			result = valueOrRootSyntaxTree.toString();
+			result = getSyntaxTree().getValue().toString();
 		}
 		
 		return result;
@@ -372,13 +377,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol {
 			}
 		}
 
-		if (Expressions.USE_PROPER_IMPLEMENTATIONS) {
-			syntaxTree = DefaultSymbol2.createSymbol(value);
-		}
-		else {
-			this.valueOrRootSyntaxTree = value;
-			syntaxTree = this;
-		}
+		syntaxTree = DefaultSymbol2.createSymbol(value);
 	}
 	
 	private static String removeTrailingZerosToRight(String number) {
@@ -465,12 +464,12 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol {
 //}/*
 	@Override
 	public SyntaxTree getRootTree() {
-		return null;
+		return getSyntaxTree().getRootTree();
 	}
 
 	@Override
 	public Object getLabel() {
-		return valueOrRootSyntaxTree;
+		return getSyntaxTree().getLabel();
 	}
 
 	@Override

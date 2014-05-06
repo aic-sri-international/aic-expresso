@@ -38,6 +38,9 @@
 package com.sri.ai.grinder.core;
 
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -52,6 +55,7 @@ import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.IsInstanceOf;
 import com.sri.ai.util.base.ReplaceByIfEqualTo;
 import com.sri.ai.util.base.TernaryProcedure;
@@ -271,6 +275,15 @@ public abstract class AbstractExpression implements Expression {
 		return result;
 	}
 	
+	/**
+	 * When arguments to constructor are Expressions, store them, indexing them by their path in the syntax tree.
+	 * When a sub-expression is determined with the same path, it gets replaced by the original one.
+	 * This is important because the original expression may be an instance of an Expression extension,
+	 * whereas the normal sub-expression mechanism always produces DefaultCompoundSyntaxTree or DefaultSymbols.
+	 */
+	protected Map<List<Integer>, Expression> originalExpressionsByPath =
+			new LinkedHashMap<List<Integer>, Expression>();
+	
 	@Override
 	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(RewritingProcess process) {
 		if (cachedImmediateSubExpressionsAndContexts == null) {
@@ -279,8 +292,17 @@ public abstract class AbstractExpression implements Expression {
 				// Note: Ensure still null when acquire the lock
 				if (cachedImmediateSubExpressionsAndContexts == null) { 
 					Iterator<? extends ExpressionAndContext> iterator = getImmediateSubExpressionsAndContextsIteratorAfterBookkeeping(process);
+					
+					@SuppressWarnings("unchecked")
+					List<ExpressionAndContext> expressionAndContexts = (List<ExpressionAndContext>) Util.listFrom(iterator);
+					expressionAndContexts =
+							Util.replaceElementsNonDestructively(
+									expressionAndContexts,
+									new ReplaceExpressionByOriginalOneIndexedByPathInGivenMap());
+					// the above is a bit of a hack to ensure Expressions provided at construction are re-used as sub-expressions.
+					
 					// Ensure they cannot be mutated by accident.
-					cachedImmediateSubExpressionsAndContexts = ImmutableList.copyOf(iterator);
+					cachedImmediateSubExpressionsAndContexts = ImmutableList.copyOf(expressionAndContexts);
 				}
 			} finally {
 				lazyInitCachedImmediateSubExpressionsAndContextsLock.unlock();
@@ -289,6 +311,20 @@ public abstract class AbstractExpression implements Expression {
 		return cachedImmediateSubExpressionsAndContexts.iterator();
 	}
 
+	
+	private class ReplaceExpressionByOriginalOneIndexedByPathInGivenMap implements Function<ExpressionAndContext, ExpressionAndContext> {
+		@Override
+		public ExpressionAndContext apply(ExpressionAndContext input) {
+			ExpressionAndContext result = input;
+			List<Integer> path = input.getPath();
+			Expression original = originalExpressionsByPath.get(path);
+			if (original != null) {
+				result = input.setExpression(original);
+			}
+			return result;
+		}
+	};
+	
 	public abstract Iterator<? extends ExpressionAndContext> getImmediateSubExpressionsAndContextsIteratorAfterBookkeeping(RewritingProcess process);
 
 	/** Makes a shallow copy of this tree. */

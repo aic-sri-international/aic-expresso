@@ -66,7 +66,7 @@ import com.sri.ai.util.base.BinaryProcedure;
  */
 @Beta
 public interface SyntaxTree extends Expression {
-//	public interface SyntaxTree {
+// public interface SyntaxTree {
 
 	Object getValue();
 	
@@ -86,7 +86,7 @@ public interface SyntaxTree extends Expression {
 
 	/**
 	 * Returns the subtree corresponding to a given key (so far, only integers are supported),
-	 * with -1 representing the functor.
+	 * with -1 representing the label.
 	 */
 	SyntaxTree getSubTree(Object fieldKey);
 	
