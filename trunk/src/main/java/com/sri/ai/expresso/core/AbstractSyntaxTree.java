@@ -65,6 +65,7 @@ import com.sri.ai.grinder.core.AbstractExpression;
 import com.sri.ai.grinder.core.FunctionApplicationProvider;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryProcedure;
+import com.sri.ai.util.base.IsInstanceOf;
 import com.sri.ai.util.base.ReplaceByIfEqualTo;
 import com.sri.ai.util.collect.FunctionIterator;
 
@@ -214,6 +215,7 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 	
 	@Override
 	public List<Expression> getArguments() {
+		// cachedArguments = null; // for debugging only
 		if (cachedArguments == null) {
 			lazyInitCachedArgumentsLock.lock();
 			try {
@@ -237,6 +239,12 @@ public abstract class AbstractSyntaxTree extends AbstractExpression implements S
 					
 					// Ensure they cannot be mutated by accident.
 					cachedArguments = ImmutableList.copyOf(resultIterator);
+					
+					if (Util.thereExists(cachedArguments, new IsInstanceOf<Expression>(DefaultSymbol2.class))) {
+						System.out.println("Found culprit");
+						System.out.println();	
+						//System.exit(0); // FIXME: remove this check
+					}
 				}
 			} finally {
 				lazyInitCachedArgumentsLock.unlock();

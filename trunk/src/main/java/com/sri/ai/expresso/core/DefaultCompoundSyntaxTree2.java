@@ -37,6 +37,7 @@
  */
 package com.sri.ai.expresso.core;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -46,10 +47,8 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
-import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryProcedure;
@@ -64,7 +63,7 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements CompoundSyntaxTree , Expression {
+public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements CompoundSyntaxTree {
 	private static final long serialVersionUID = 1L;
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
@@ -72,15 +71,18 @@ public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements C
 	/**
 	 * Constructs a syntax tree with given label and sub-trees, copying them for internal use.
 	 * Objects that are not syntax trees will be wrapped as such, unless
-	 * a single argument is given and it is a List;
-	 * in this case, it is considered to be a List<SyntaxTree>
-	 * and a copy is used as the sub-trees
+	 * a single argument is given and it is a Collection;
+	 * in this case, a copy of the collection is used for the list of the sub-trees
 	 */
 	public DefaultCompoundSyntaxTree2(Object label, Object ... subTrees) {
 		this.valueOrRootSyntaxTree = SyntaxTrees.wrap(label);
-		if (subTrees.length == 1 && subTrees[0] instanceof List) {
+		if (valueOrRootSyntaxTree == null) {
+			System.out.println("Wrapped label is null");	
+			System.out.println("Originl label is: " + label);	
+		}
+		if (subTrees.length == 1 && subTrees[0] instanceof Collection) {
 			// Note: We can have nulls, therefore cannot use ImmutableList directly.
-			Object[] subTreesArray = ((List) subTrees[0]).toArray();
+			Object[] subTreesArray = ((Collection) subTrees[0]).toArray();
 			this.subTrees = Collections.unmodifiableList(SyntaxTrees.wrap(subTreesArray)); // makes a copy since this constructor does not assume ownership.
 		}
 		else {
@@ -287,8 +289,8 @@ public class DefaultCompoundSyntaxTree2 extends AbstractSyntaxTree2 implements C
 		return this;
 	}
 	
-	public Expression clone() {
-		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(getRootTree(), subTrees);
+	public SyntaxTree clone() {
+		return SyntaxTrees.makeCompoundSyntaxTree(getRootTree(), subTrees);
 		// it is best to use the field 'arguments' instead of method 'getArguments'
 		// because we can share argument lists among function applications, since they are never modified.
 		// The method 'getArguments' would unnecessarily create an unmodifiable list object.

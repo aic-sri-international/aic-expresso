@@ -46,6 +46,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.base.Pair;
@@ -148,11 +149,33 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 			this.indexExpressions    = indexExpressions;
 		}
 		
-		@SuppressWarnings("unchecked")
 		@Override
 		public ExpressionAndContext apply(List<Object> expressionAndPath) {
 			Expression expression = (Expression) expressionAndPath.get(0);
+			@SuppressWarnings("unchecked")
 			List<Integer> path    = (List<Integer>) expressionAndPath.get(1);
+			DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, path, indexExpressions);
+			return result;
+		}
+	}
+	
+	/**
+	 * A function mapping lists of two elements, a syntax tree and a path,
+	 * to the corresponding knowledge-based sub-expression.
+	 */
+	public static class MakerFromSyntaxTreeAndPathList implements Function<List<Object>, ExpressionAndContext> {
+		private List<Expression>       indexExpressions;
+		
+		public MakerFromSyntaxTreeAndPathList(List<Expression> indexExpressions) {
+			this.indexExpressions    = indexExpressions;
+		}
+		
+		@Override
+		public ExpressionAndContext apply(List<Object> syntaxTreeAndPath) {
+			SyntaxTree syntaxTree = (SyntaxTree) syntaxTreeAndPath.get(0);
+			Expression expression = Expressions.makeFromSyntaxTree(syntaxTree);
+			@SuppressWarnings("unchecked")
+			List<Integer> path    = (List<Integer>) syntaxTreeAndPath.get(1);
 			DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, path, indexExpressions);
 			return result;
 		}

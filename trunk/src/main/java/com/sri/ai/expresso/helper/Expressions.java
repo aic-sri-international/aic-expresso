@@ -107,17 +107,21 @@ public class Expressions {
 	public static Expression makeFromSyntaxTree(SyntaxTree syntaxTree) {
 		if (USE_PROPER_IMPLEMENTATIONS) {
 			if (syntaxTree instanceof CompoundSyntaxTree) {
-				Expression result = new DefaultCompoundSyntaxTree(syntaxTree.getLabel(), syntaxTree.getImmediateSubTrees());
+				Expression result = new DefaultCompoundSyntaxTree(syntaxTree);
+//				Expression result = new DefaultCompoundSyntaxTree(syntaxTree.getLabel(), syntaxTree.getImmediateSubTrees());
 				return result;
 			}
 			if (syntaxTree instanceof Symbol) {
-				Expression result = DefaultSymbol.createSymbol(syntaxTree.getLabel());
+				Expression result = new DefaultSymbol(syntaxTree);
+//				Expression result = DefaultSymbol.createSymbol(syntaxTree.getLabel());
 				return result;
 			}
 			throw new Error("Syntax tree " + syntaxTree + " should be either a CompoundSyntaxTree or a Symbol");
 		}
 		else {
-			return syntaxTree;
+			return (Expression) syntaxTree;
+			// this cast fails if syntax tree implementations are not extending Expression,
+			// so USE_PROPER_IMPLEMENTATIONS should be true when that is the case.
 		}
 	}
 
@@ -772,7 +776,7 @@ public class Expressions {
 		Iterator<ExpressionAndContext> result =
 			new FunctionIterator<List<Object>, ExpressionAndContext>(
 					new ZipIterator(subTreesIterator, pathsIterator),
-					new DefaultExpressionAndContext.MakerFromExpressionAndPathList(indexExpressions));
+					new DefaultExpressionAndContext.MakerFromSyntaxTreeAndPathList(indexExpressions));
 	
 		return result;
 	}

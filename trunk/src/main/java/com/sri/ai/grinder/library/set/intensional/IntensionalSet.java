@@ -97,7 +97,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	public static final String SCOPED_VARIABLES_LABEL = "( on . )";
 	public static final String CONDITION_LABEL        = "|";
 	//
-	public static final Expression EMPTY_SCOPING_EXPRESSION = makeScopingSyntaxTree(new ArrayList<Expression>());
+	public static final SyntaxTree EMPTY_SCOPING_SYNTAX_TREE = makeScopingSyntaxTree(new ArrayList<Expression>());
 	
 	//
 	private static final List<Integer> _pathToHead      = Collections.unmodifiableList(Arrays.asList(new Integer(1)));
@@ -213,7 +213,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 			(condition == null || condition.equals("true"))?
 					null
 					: SyntaxTrees.makeCompoundSyntaxTree(IntensionalSet.CONDITION_LABEL, condition.getSyntaxTree());
-		Expression result = SyntaxTrees.makeCompoundSyntaxTree(
+		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(
 				label,
 				scopingSyntaxTree,
 				head.getSyntaxTree(),
@@ -339,9 +339,9 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	}
 
 	public static Iterator<Expression> getIndexExpressionsIterator(Expression intensionalSetExpression) {
-		Expression scopingExpression = IntensionalSet.getScopingSyntaxTree(intensionalSetExpression);
-		if (scopingExpression != null) {
-			return Expressions.ensureListFromKleeneList(Expressions.makeFromSyntaxTree(scopingExpression.getSyntaxTree().getSubTree(0))).iterator();
+		SyntaxTree scopingSyntaxTree = IntensionalSet.getScopingSyntaxTree(intensionalSetExpression);
+		if (scopingSyntaxTree != null) {
+			return Expressions.ensureListFromKleeneList(Expressions.makeFromSyntaxTree(scopingSyntaxTree.getSubTree(0))).iterator();
 			// does need to be sub tree
 		}
 		return new LinkedList<Expression>().iterator();

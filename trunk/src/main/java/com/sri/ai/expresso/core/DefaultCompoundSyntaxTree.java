@@ -53,6 +53,7 @@ import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
+import com.sri.ai.grinder.core.AbstractExpression;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryProcedure;
 import com.sri.ai.util.collect.FunctionIterator;
@@ -71,18 +72,53 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
 	
+	public DefaultCompoundSyntaxTree(SyntaxTree syntaxTree) {
+
+		if (Expressions.USE_PROPER_IMPLEMENTATIONS) {
+			this.valueOrRootSyntaxTree = null;
+			this.subTrees = null;
+			this.syntaxTree = syntaxTree;
+		}
+		else {
+			this.valueOrRootSyntaxTree = syntaxTree.getLabel();
+			this.subTrees = syntaxTree.getImmediateSubTrees();
+			this.syntaxTree = syntaxTree;
+		}
+	}
+	
 	/**
-	 * Constructs an expression based on a syntax tree with given label and sub-trees,
+	 * Constructs an expression based on a syntax tree with given label and sub-trees (or their Expressions),
 	 * copying them for internal use.
 	 * Objects that are not Expressions are wrapped as DefaultSymbols, unless
-	 * a single argument is given and it is a List;
-	 * in this case, it is considered to be a List<Expression>
-	 * and a copy is used the function application arguments
-	 * (doing pretty much the same thing as {@link Expressions#makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object, List)}, but in a slightly slower manner).
+	 * a single argument is given and it is a Collection;
+	 * in this case, it is considered to be a Collection
+	 * and a copy of the collection is used as the sub-trees.
+	 * There is also a guarantee that if Expressions are provided,
+	 * the corresponding sub-expressions will be the same object instances.
 	 */
 	public DefaultCompoundSyntaxTree(Object label, Object ... subTrees) {
+		
 		if (Expressions.USE_PROPER_IMPLEMENTATIONS) {
-			syntaxTree = new DefaultCompoundSyntaxTree2(valueOrRootSyntaxTree, subTrees);
+			if (label instanceof AbstractExpression) { // when we are sure SyntaxTrees don't extend Expression, we can replace this test by Expression, which is more clear
+				List<Integer> path = Util.list(-1);
+				originalExpressionsByPath.put(path, (Expression) label);
+			}
+			
+			for (int i = 0; i != subTrees.length; i++) {
+				Object subTreeObject = subTrees[i];
+				if (subTreeObject instanceof AbstractExpression) { // when we are sure SyntaxTrees don't extend Expression, we can replace this test by Expression, which is more clear
+					List<Integer> path = Util.list(i);
+					originalExpressionsByPath.put(path, (Expression) subTreeObject);
+				}
+			}
+			
+			label    = SyntaxTrees.makeSureItIsSyntaxTreeOrNonExpressionObject(label);
+			subTrees = SyntaxTrees.makeSureItIsSyntaxTreeOrNonExpressionObject(subTrees);
+
+			syntaxTree = new DefaultCompoundSyntaxTree2(label, subTrees);
+			
+			this.valueOrRootSyntaxTree = null;
+			this.subTrees = null;
 		}
 		else {
 			this.valueOrRootSyntaxTree = SyntaxTrees.wrap(label);
@@ -96,7 +132,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 				this.subTrees = Collections.unmodifiableList(SyntaxTrees.wrap(subTrees));
 			}
 			
-			syntaxTree = this;
+			syntaxTree = (SyntaxTree) this; // depends on SyntaxTree being Expression!
 		}
 	}
 

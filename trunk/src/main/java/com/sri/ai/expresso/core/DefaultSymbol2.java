@@ -85,9 +85,9 @@ import com.sri.ai.util.math.Rational;
 public class DefaultSymbol2 extends AbstractSyntaxTree2 implements Symbol  {
 	private static final long serialVersionUID = 1L;
 	
-	private static int _displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
-	private static int _displayScientificGreaterNIntegerPlaces = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
-	private static int _displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
+	public static int _displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
+	public static int _displayScientificGreaterNIntegerPlaces = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
+	public static int _displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
 	//
 	// Well known static Symbols
 	private static final Symbol SYMBOL_TRUE  = SyntaxTrees.makeSymbol(true);

@@ -48,6 +48,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
@@ -375,9 +376,9 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	
 	protected Expression makeIntensionalSet(Object label, Token scope, List<AntlrGrinderParser.ExprContext> scopeargs, 
 			AntlrGrinderParser.ExprContext head, AntlrGrinderParser.ExprContext condition) {
-		Expression scopingExpression = null;
+		SyntaxTree scopingSyntaxTree = null;
 		if (scope != null) {
-			scopingExpression = IntensionalSet.makeScopingSyntaxTree(expressionsList(scopeargs));
+			scopingSyntaxTree = IntensionalSet.makeScopingSyntaxTree(expressionsList(scopeargs));
 		}
 		Expression headExpression      = visit(head);
 		Expression conditionExpression = null;
@@ -396,7 +397,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 			}
 		}
 		else {
-			result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(label, scopingExpression, headExpression, conditionExpression);
+			result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(label, scopingSyntaxTree, headExpression, conditionExpression);
 		}
 		
 		return result;
