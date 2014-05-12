@@ -52,14 +52,13 @@ import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.base.BinaryProcedure;
 import com.sri.ai.util.math.Rational;
 
 /**
- * An Expression with a single node representing a symbol. Symbols can stand for
+ * A syntax tree with a single node representing a symbol. Symbols can stand for
  * variables or values; however, in this library, variables are
  * indistinguishable from string values at the expression representation level.
  * Strings are regarded as variable names at the semantic, rather than
@@ -83,45 +82,95 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class DefaultSymbol extends AbstractSyntaxTree implements Symbol {
-	private static final long serialVersionUID = 1L;
+public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	
 	public static int _displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
 	public static int _displayScientificGreaterNIntegerPlaces = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
 	public static int _displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
 	//
 	// Well known static Symbols
-	private static final Expression SYMBOL_TRUE  = Expressions.createSymbol(true);
-	private static final Expression SYMBOL_FALSE = Expressions.createSymbol(false);
-	private static final Expression SYMBOL_0     = Expressions.createSymbol(new Rational(0));
-	private static final Expression SYMBOL_1     = Expressions.createSymbol(new Rational(1));
-	private static final Expression SYMBOL_2     = Expressions.createSymbol(new Rational(2));
-	private static final Expression SYMBOL_3     = Expressions.createSymbol(new Rational(3));
-	private static final Expression SYMBOL_4     = Expressions.createSymbol(new Rational(4));
-	private static final Expression SYMBOL_5     = Expressions.createSymbol(new Rational(5));
-	private static final Expression SYMBOL_6     = Expressions.createSymbol(new Rational(6));
-	private static final Expression SYMBOL_7     = Expressions.createSymbol(new Rational(7));
-	private static final Expression SYMBOL_8     = Expressions.createSymbol(new Rational(8));
-	private static final Expression SYMBOL_9     = Expressions.createSymbol(new Rational(9));
+	private static final Symbol SYMBOL_TRUE  = SyntaxTrees.makeSymbol(true);
+	private static final Symbol SYMBOL_FALSE = SyntaxTrees.makeSymbol(false);
+	private static final Symbol SYMBOL_0     = SyntaxTrees.makeSymbol(new Rational(0));
+	private static final Symbol SYMBOL_1     = SyntaxTrees.makeSymbol(new Rational(1));
+	private static final Symbol SYMBOL_2     = SyntaxTrees.makeSymbol(new Rational(2));
+	private static final Symbol SYMBOL_3     = SyntaxTrees.makeSymbol(new Rational(3));
+	private static final Symbol SYMBOL_4     = SyntaxTrees.makeSymbol(new Rational(4));
+	private static final Symbol SYMBOL_5     = SyntaxTrees.makeSymbol(new Rational(5));
+	private static final Symbol SYMBOL_6     = SyntaxTrees.makeSymbol(new Rational(6));
+	private static final Symbol SYMBOL_7     = SyntaxTrees.makeSymbol(new Rational(7));
+	private static final Symbol SYMBOL_8     = SyntaxTrees.makeSymbol(new Rational(8));
+	private static final Symbol SYMBOL_9     = SyntaxTrees.makeSymbol(new Rational(9));
 	//
 	private static boolean                      _useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
 	private static boolean                      _cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
-	private static Cache<Object, Expression>    _globalSymbolTable    = newSymbolTable();
+	private static Cache<Object, Symbol>        _globalSymbolTable    = newSymbolTable();
 	static {
 		flushGlobalSymbolTable();
 	}
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
 	
-	public DefaultSymbol(SyntaxTree syntaxTree) {
-		this.syntaxTree = syntaxTree;
-		this.valueOrRootSyntaxTree = null;
-	}
-	
 	public Object getValue() {
-		return getSyntaxTree().getValue();
+		return valueOrRootSyntaxTree;
 	}
 
+	@Override
+	public SyntaxTree getRootTree() {
+		return null;
+	}
+
+	@Override
+	public Object getLabel() {
+		return valueOrRootSyntaxTree;
+	}
+
+	/**
+	 * Set the numeric display precision for numeric valued symbols.
+	 * 
+	 * @param precision
+	 *        the decimal display precision.
+	 *        
+	 * @return the old numeric display precision;
+	 */
+	public static int setNumericDisplayPrecision(int precision) {
+		int oldPrecision = _displayNumericPrecision;
+		
+		_displayNumericPrecision = precision;
+		
+		return oldPrecision;
+	}
+	
+	/**
+	 * Set the number of integer places a number is to have before it is
+	 * displayed in scientific notation.
+	 * 
+	 * @param numIntegerPlaces
+	 * @return the value previously used before being set here.
+	 */
+	public static int setDisplayScientificGreaterNIntegerPlaces(int numIntegerPlaces) {
+		int oldValue = _displayScientificGreaterNIntegerPlaces;
+		
+		_displayScientificGreaterNIntegerPlaces = numIntegerPlaces;
+				
+		return oldValue;
+	}
+	
+	/**
+	 * Set the number of decimal places a number is to have before it is
+	 * displayed in scientific notation.
+	 * 
+	 * @param numDecimalPlaces
+	 * @return the value previously used before being set here.
+	 */
+	public static int setDisplayScientificAfterNDecimalPlaces(int numDecimalPlaces) {
+		int oldValue = _displayScientificAfterNDecimalPlaces;
+		
+		_displayScientificAfterNDecimalPlaces = numDecimalPlaces;
+				
+		return oldValue;
+	}
+	
 	public static void flushGlobalSymbolTable() {
 		if (AICUtilConfiguration.isRecordCacheStatistics()) {
 			System.out.println("Global Symbol Table Cache Stats="+_globalSymbolTable.stats());
@@ -173,14 +222,15 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol {
 		_globalSymbolTable.put(new Rational(9), SYMBOL_9);
 	}
 	
-	public static Expression createSymbol(Object value) {
-		Expression result = null;
+	public static Symbol createSymbol(Object value) {
+		Symbol result = null;
 		// If global symbol table to be used and the symbol's value is not
 		// an expression - i.e. quoted expressions of the form:
 		// <X>
 		// as these need to be instantiated each time in order to be
 		// parsed correctly.
-		if (_useGlobalSymbolTable && !(value instanceof Expression)) {
+		if (_useGlobalSymbolTable &&
+			!(value instanceof Expression)) {
 			
 			result = _globalSymbolTable.getIfPresent(value);
 			if (result == null) {
@@ -242,237 +292,6 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol {
 	}
 
 	@Override
-	public int hashCode() {
-		if (hashCode == -1) {
-			hashCode = getValue().hashCode();
-		}
-		return hashCode;
-	}
-	
-	@Override
-	public boolean equals(Object another) {
-		if (this == another) {
-			return true;
-		}
-		
-		Symbol anotherSymbol = null;
-		if (another instanceof Expression && ((Expression) another).getSyntaxTree() instanceof Symbol) {
-			anotherSymbol = (Symbol) ((Expression) another).getSyntaxTree();
-		} 
-		else {
-			anotherSymbol = SyntaxTrees.makeSymbol(another);
-			// Test again, as may have had self returned from the symbol table.
-			if (this.getSyntaxTree() == anotherSymbol) {
-				return true;
-			}
-		}
-		
-		if (getSyntaxTree().hashCode() == anotherSymbol.hashCode()) {
-			return getSyntaxTree().getValue().equals(anotherSymbol.getValue());
-		}
-		return false;
-	}
-
-	@Override
-	public String defaultToString() {
-		String result = "";
-		if (getSyntaxTree().getLabel() instanceof String) {
-			result = makeStringValuedSymbolParseSafe((String)getSyntaxTree().getValue());
-		}
-		else if (getSyntaxTree().getLabel() instanceof Expression) {
-			result = "<" + getSyntaxTree().getValue() + ">";
-		}
-		else if (getSyntaxTree().getLabel() instanceof Number && _displayNumericPrecision != 0) {
-			Rational rLabel = ((Rational) getSyntaxTree().getValue());
-			if (rLabel.isInteger()) {
-				result = rLabel.toString();
-			} 
-			else {	
-				Rational absValue       = rLabel.abs();
-				Rational integerPart    = absValue.round(Rational.ROUND_FLOOR);
-				
-				// We don't want to loose any precision in the integer part.
-				String formattedIntegerPart = integerPart.toString();
-				int displayNumericPrecision = Math.max(formattedIntegerPart.length(), _displayNumericPrecision);
-				
-				String formattedAbsResult = removeTrailingZerosToRight(absValue.toStringDotRelative(displayNumericPrecision));
-				
-				// Once we have precision taken care of, now determine if we should instead
-				// output the result in scientific notation.
-				int[] integerAndFractionalPartSizes = getIntegerAndFractionalPartSizes(formattedAbsResult);
-				if (integerAndFractionalPartSizes[0] > _displayScientificGreaterNIntegerPlaces ||
-					integerAndFractionalPartSizes[1] > _displayScientificAfterNDecimalPlaces     ) {
-					result = rLabel.toStringExponent(displayNumericPrecision);
-				}
-				else {
-					result = (rLabel.isNegative() ? "-" : "") + formattedAbsResult;
-				}
-			}
-		}
-		else {
-			result = getSyntaxTree().getValue().toString();
-		}
-		
-		return result;
-	}
-
-	public Expression clone() {
-		return Expressions.createSymbol(getValue());
-	}
-
-	@Override
-	public int intValue() {
-		if (getSyntaxTree().getLabel() instanceof Number) {
-			return ((Number) getSyntaxTree().getLabel()).intValue();
-		}
-		throw new Error("Expression.intValue() invoked on " + this + ", which is not a number.");
-	}
-
-	@Override
-	public int intValueExact() throws ArithmeticException {
-		if (getSyntaxTree().getLabel() instanceof Rational) {
-			return ((Rational) getSyntaxTree().getLabel()).intValueExact();
-		}
-		throw new Error("Expression.intValueExact() invoked on " + this + ", which is not a number.");
-	}
-
-	@Override
-	public double doubleValue() {
-		if (getSyntaxTree().getLabel() instanceof Number) {
-			return ((Number) getSyntaxTree().getLabel()).doubleValue();
-		}
-		throw new Error("Expression.doubleValue() invoked on " + this + ", which is not a number.");
-	}
-
-
-	@Override
-	public Rational rationalValue() {
-		if (getSyntaxTree().getLabel() instanceof Number) {
-			return (Rational) getSyntaxTree().getLabel();
-		}
-		throw new Error("Expression.rationalValue() invoked on " + this + ", which is not a number.");
-	}
-	
-	//
-	// PRIVATE METHODS
-	//
-	// Note: Can only instantiate Symbols via the factory method.
-	private DefaultSymbol(Object value) {
-		
-		if (value instanceof Number && !(value instanceof Rational)) {
-			value = new Rational(((Number)value).doubleValue());
-		} 
-		else if (value.equals("true")) {
-			value = Boolean.TRUE;
-		} 
-		else if (value.equals("false")) {
-			value = Boolean.FALSE;
-		} 
-		else if (value instanceof String) {
-			try {
-				value = new Rational((String)value);
-			}
-			catch (NumberFormatException e) {
-				// ignore
-			}
-		}
-
-		syntaxTree = DefaultSymbol2.createSymbol(value);
-	}
-	
-	private static String removeTrailingZerosToRight(String number) {
-		String result = number;
-		int dot = result.indexOf('.');
-		int end = result.length();
-		
-		if (dot >= 0) {
-			for (int i = end-1; i > dot; i--) {
-				if (result.charAt(i) == '0') {
-					end--;
-				}
-				else {
-					break;
-				}
-			}
-			result = result.substring(0, end);
-		}
-		// 11.0 would get converted to 11. 
-		// This logic ensures the trailing dot is removed.
-		if (result.endsWith(".")) {
-			result = result.substring(0, result.length()-1);
-		}
-	
-		return result;
-	}
-	
-	private static int[] getIntegerAndFractionalPartSizes(String absoluteValue) {
-		int[] result = new int[] {0, 0};
-		
-		int dot = absoluteValue.indexOf('.');
-		// No Fractional part
-		if (dot == -1) {
-			result[0] = absoluteValue.length();
-		}
-		else {
-			result[0] = dot;
-			result[1] = absoluteValue.length() - dot - 1; // exclude the dot as well
-		}
-		
-		return result;
-	}
-	
-	private static boolean escapedAlready(StringBuilder stringBuilder, int pos) {
-		boolean escaped = false;
-		
-		int numberEscapes = 0;
-		for (int i = pos-1; i >= 0; i--) {
-			if ("\\".equals(stringBuilder.substring(i, i + 1))) {
-				numberEscapes++;
-			} 
-			else {
-				break;
-			}
-		}
-		
-		// If escaped and the number of sequential escapes is odd.
-		if (numberEscapes > 0 && (numberEscapes % 2) == 1) {
-			escaped = true;
-		}
-		
-		return escaped;
-	}
-	
-	private static Cache<Object, Expression> newSymbolTable() {
-		CacheBuilder<Object, Object> cb = CacheBuilder.newBuilder();
-		
-		long maximumSize = ExpressoConfiguration.getGlobalSymbolTableMaximumSize();
-		// Note: a maximumSize of 
-		// < 0 means no size restrictions
-		// = 0 means no cache
-		// > 0 means maximum size of cache
-		if (maximumSize >= 0L) {			
-			cb.maximumSize(maximumSize);
-		}
-		if (AICUtilConfiguration.isRecordCacheStatistics()) {
-			cb.recordStats();
-		}
-		
-		Cache<Object, Expression> result = cb.build();
-		
-		return result;
-	}
-//}/*
-	@Override
-	public SyntaxTree getRootTree() {
-		return getSyntaxTree().getRootTree();
-	}
-
-	@Override
-	public Object getLabel() {
-		return getSyntaxTree().getLabel();
-	}
-
-	@Override
 	public Iterator<SyntaxTree> getImmediateSubTreesIncludingRootOneIterator() {
 		List<SyntaxTree> emptyList = Collections.emptyList();
 		return emptyList.iterator();
@@ -519,9 +338,207 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol {
 	}
 
 	@Override
+	public int hashCode() {
+		if (hashCode == -1) {
+			hashCode = getValue().hashCode();
+		}
+		return hashCode;
+	}
+	
+	@Override
+	public boolean equals(Object another) {
+		if (this == another) {
+			return true;
+		}
+		
+		Symbol anotherSymbol = null;
+		if (another instanceof Symbol) {
+			anotherSymbol = (Symbol) another;
+		} 
+		else {
+			anotherSymbol = createSymbol(another);
+			// Test again, as may have had self returned from the symbol table.
+			if (this == anotherSymbol) {
+				return true;
+			}
+		}
+		
+		if (hashCode() == anotherSymbol.hashCode()) {
+			return getValue().equals(anotherSymbol.getValue());
+		}
+		return false;
+	}
+
+	@Override
+	public String defaultToString() {
+		String result = "";
+		if (valueOrRootSyntaxTree instanceof String) {
+			result = makeStringValuedSymbolParseSafe((String)valueOrRootSyntaxTree);
+		}
+		else if (valueOrRootSyntaxTree instanceof Expression) {
+			result = "<" + valueOrRootSyntaxTree + ">";
+		}
+		else if (valueOrRootSyntaxTree instanceof Number && _displayNumericPrecision != 0) {
+			Rational rLabel = ((Rational) valueOrRootSyntaxTree);
+			if (rLabel.isInteger()) {
+				result = rLabel.toString();
+			} 
+			else {	
+				Rational absValue       = rLabel.abs();
+				Rational integerPart    = absValue.round(Rational.ROUND_FLOOR);
+				
+				// We don't want to loose any precision in the integer part.
+				String formattedIntegerPart = integerPart.toString();
+				int displayNumericPrecision = Math.max(formattedIntegerPart.length(), _displayNumericPrecision);
+				
+				String formattedAbsResult = removeTrailingZerosToRight(absValue.toStringDotRelative(displayNumericPrecision));
+				
+				// Once we have precision taken care of, now determine if we should instead
+				// output the result in scientific notation.
+				int[] integerAndFractionalPartSizes = getIntegerAndFractionalPartSizes(formattedAbsResult);
+				if (integerAndFractionalPartSizes[0] > _displayScientificGreaterNIntegerPlaces ||
+					integerAndFractionalPartSizes[1] > _displayScientificAfterNDecimalPlaces     ) {
+					result = rLabel.toStringExponent(displayNumericPrecision);
+				}
+				else {
+					result = (rLabel.isNegative() ? "-" : "") + formattedAbsResult;
+				}
+			}
+		}
+		else {
+			result = valueOrRootSyntaxTree.toString();
+		}
+		
+		return result;
+	}
+
+	@Override
 	public SyntaxTree replaceSubTrees(Function<SyntaxTree, SyntaxTree> replacementFunction) {
 		return this;
 	}
 
+	public SyntaxTree clone() {
+		return DefaultSymbol.createSymbol(getValue());
+	}
+
+	private static boolean dontAcceptSymbolValueToBeExpression = true;
+	public static boolean setDontAcceptSymbolValueToBeExpression(boolean newValue) {
+		boolean oldValue = dontAcceptSymbolValueToBeExpression;
+		dontAcceptSymbolValueToBeExpression = newValue;
+		return oldValue;
+	}
+	
+	//
+	// PRIVATE METHODS
+	//
+	// Note: Can only instantiate Symbols via the factory method.
+	private DefaultSymbol(Object value) {
+		
+		if (value instanceof Number && !(value instanceof Rational)) {
+			value = new Rational(((Number)value).doubleValue());
+		} 
+		else if (value.equals("true")) {
+			value = Boolean.TRUE;
+		} 
+		else if (value.equals("false")) {
+			value = Boolean.FALSE;
+		} 
+		else if (value instanceof String) {
+			try {
+				value = new Rational((String)value);
+			}
+			catch (NumberFormatException e) {
+				// ignore
+			}
+		}
+
+		if (value instanceof Expression) {
+			if (dontAcceptSymbolValueToBeExpression)
+				throw new Error("Symbol received an expression: " + value);	
+		}
+		
+		this.valueOrRootSyntaxTree = value;
+	}
+	
+	private static String removeTrailingZerosToRight(String number) {
+		String result = number;
+		int dot = result.indexOf('.');
+		int end = result.length();
+		
+		if (dot >= 0) {
+			for (int i = end-1; i > dot; i--) {
+				if (result.charAt(i) == '0') {
+					end--;
+				}
+				else {
+					break;
+				}
+			}
+			result = result.substring(0, end);
+		}
+		// 11.0 would get converted to 11. 
+		// This logic ensures the trailing dot is removed.
+		if (result.endsWith(".")) {
+			result = result.substring(0, result.length()-1);
+		}
+	
+		return result;
+	}
+	
+	private static int[] getIntegerAndFractionalPartSizes(String absValue) {
+		int[] result = new int[] {0, 0};
+		
+		int dot = absValue.indexOf('.');
+		// No Fractional part
+		if (dot == -1) {
+			result[0] = absValue.length();
+		}
+		else {
+			result[0] = dot;
+			result[1] = absValue.length() - dot - 1; // exclude the dot as well
+		}
+		
+		return result;
+	}
+	
+	private static boolean escapedAlready(StringBuilder sb, int pos) {
+		boolean escaped = false;
+		
+		int numberEscapes = 0;
+		for (int i = pos-1; i >= 0; i--) {
+			if ("\\".equals(sb.substring(i, i+1))) {
+				numberEscapes++;
+			} 
+			else {
+				break;
+			}
+		}
+		
+		// If escaped and the number of sequential escapes is odd.
+		if (numberEscapes > 0 && (numberEscapes % 2) == 1) {
+			escaped = true;
+		}
+		
+		return escaped;
+	}
+	
+	private static Cache<Object, Symbol> newSymbolTable() {
+		CacheBuilder<Object, Object> cb = CacheBuilder.newBuilder();
+		
+		long maximumSize = ExpressoConfiguration.getGlobalSymbolTableMaximumSize();
+		// Note: a maximumSize of 
+		// < 0 means no size restrictions
+		// = 0 means no cache
+		// > 0 means maximum size of cache
+		if (maximumSize >= 0L) {			
+			cb.maximumSize(maximumSize);
+		}
+		if (AICUtilConfiguration.isRecordCacheStatistics()) {
+			cb.recordStats();
+		}
+		
+		Cache<Object, Symbol> result = cb.build();
+		
+		return result;
+	}
 }
-//*/

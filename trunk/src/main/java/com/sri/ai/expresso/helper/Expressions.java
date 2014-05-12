@@ -38,6 +38,7 @@
 package com.sri.ai.expresso.helper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -58,9 +59,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
+import com.sri.ai.expresso.core.DefaultExpressionOnCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
-import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.core.DefaultExpressionOnSymbol;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.PruningPredicate;
@@ -90,8 +91,6 @@ import com.sri.ai.util.math.Rational;
 @Beta
 public class Expressions {
 	
-	public static final boolean USE_PROPER_IMPLEMENTATIONS = false;
-	
 	public static final Expression EMPTY_LIST      = Expressions.createSymbol("list");
 	public static final Expression TRUE            = Expressions.createSymbol("true");
 	public static final Expression FALSE           = Expressions.createSymbol("false");
@@ -105,24 +104,15 @@ public class Expressions {
 	
 	/** Returns an expression represented by a given syntax tree. */
 	public static Expression makeFromSyntaxTree(SyntaxTree syntaxTree) {
-		if (USE_PROPER_IMPLEMENTATIONS) {
-			if (syntaxTree instanceof CompoundSyntaxTree) {
-				Expression result = new DefaultCompoundSyntaxTree(syntaxTree);
-//				Expression result = new DefaultCompoundSyntaxTree(syntaxTree.getLabel(), syntaxTree.getImmediateSubTrees());
-				return result;
-			}
-			if (syntaxTree instanceof Symbol) {
-				Expression result = new DefaultSymbol(syntaxTree);
-//				Expression result = DefaultSymbol.createSymbol(syntaxTree.getLabel());
-				return result;
-			}
-			throw new Error("Syntax tree " + syntaxTree + " should be either a CompoundSyntaxTree or a Symbol");
+		if (syntaxTree instanceof CompoundSyntaxTree) {
+			Expression result = new DefaultExpressionOnCompoundSyntaxTree(syntaxTree);
+			return result;
 		}
-		else {
-			return (Expression) syntaxTree;
-			// this cast fails if syntax tree implementations are not extending Expression,
-			// so USE_PROPER_IMPLEMENTATIONS should be true when that is the case.
+		if (syntaxTree instanceof Symbol) {
+			Expression result = new DefaultExpressionOnSymbol(syntaxTree);
+			return result;
 		}
+		throw new Error("Syntax tree " + syntaxTree + " should be either a CompoundSyntaxTree or a Symbol");
 	}
 
 	
@@ -130,7 +120,7 @@ public class Expressions {
 	 * Makes Expression based on a syntax tree with given label and sub-trees.
 	 */
 	public static Expression makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object label, Object... subTreeObjects) {
-		Expression result = new DefaultCompoundSyntaxTree(label, subTreeObjects);
+		Expression result = new DefaultExpressionOnCompoundSyntaxTree(label, subTreeObjects);
 		return result;
 	}
 
@@ -147,7 +137,7 @@ public class Expressions {
 	 * Creates an atomic expression. TODO: Name should change once cleanup of SyntaxTree/Expression is completed.
 	 */
 	public static Expression createSymbol(Object object) {
-		return DefaultSymbol.createSymbol(object);
+		return DefaultExpressionOnSymbol.createSymbol(object);
 	}
 	
 	/**
@@ -383,39 +373,53 @@ public class Expressions {
 		return Util.map(Expressions.wrap(pairs).toArray());
 	}
 
-	public static Expression replaceAtPath(Expression expression, List<Integer> path, Expression subExpressions) {
-		Expression result = Expressions.makeFromSyntaxTree(replaceAtPath(expression.getSyntaxTree(), path, subExpressions.getSyntaxTree()));
+	/**
+	 * Makes a new Expression identical to given expression in all respects but with the expression at the end of given path
+	 * (over syntax tree) equal to given subExpression (including a guarantee that it will be the same object instance).
+	 * The path is a list of indices indicating a path in the expression's syntax tree.
+	 * If there are no indices to be followed (path is empty), the subExpression itself is returned.
+	 * The method assumes the path describes an existing sub-syntax tree in the expression's syntax tree.
+	 */
+	public static Expression replaceAtPath(Expression expression, List<Integer> path, Expression subExpression) {
+		Expression result = replaceAtPath(expression.getSyntaxTree(), path, 0, subExpression);
 		return result;
 	}
 
 	/**
-	 * Given a syntax tree, a path, and a sub-syntax tree,
-	 * returns the expression with its path-sub-syntax tree replaced by the given sub-syntax tree.
-	 * The path is a list of indices indicating a path in the syntax tree.
-	 * If there are no indices to be followed (path is empty), the sub-syntax tree itself is returned.
-	 * The method assumes the path describes an existing path-sub-syntax tree.
-	 */
-	public static SyntaxTree replaceAtPath(SyntaxTree syntaxTree, List<Integer> path, SyntaxTree subTree) {
-		return replaceAtPath(syntaxTree, path, 0, subTree);
-	}
-
-	/**
-	 * Given an expression, a path, a position i in the path, and a sub-expression,
-	 * returns the expression with its path-i-sub-expression replaced by the given sub-expression.
+	 * Makes a new Expression based on a syntax tree, but with the sub-expression at the end of given path (from the ith step on)
+	 * (over syntax tree) equal to given subExpression (including a guarantee that it will be the same object instance).
 	 * The path is a list of indices indicating a path in the expression tree.
 	 * The path-i-sub-expression is the expression obtained by following the path from the position i on.
 	 * If there are no indices to be followed (i is equal to the path's length), the sub-expression is returned.
 	 * The method assumes the path describes an existing path-i-sub-expression.
 	 */
-	private static SyntaxTree replaceAtPath(SyntaxTree syntaxTree, List<Integer> path, int i, SyntaxTree subTree) {
+	private static Expression replaceAtPath(SyntaxTree syntaxTree, List<Integer> path, int i, Expression subExpression) {
+		// This method is subtle; follow explanations below carefully.
 		if (i != path.size()) {
+
+			Object rootTreeOrExpression = syntaxTree.getRootTree();
+			List<SyntaxTree> subTrees = syntaxTree.getImmediateSubTrees();
+			Object[] subTreesOrSubExpressions = Arrays.copyOf(syntaxTree.getImmediateSubTrees().toArray(), subTrees.size());
+
 			int index = path.get(i);
-			SyntaxTree subTreeAtI = replaceAtPath(syntaxTree.getSubTree(index), path, i + 1, subTree);
-			 // does need to be sub tree
-			SyntaxTree result = syntaxTree.setImmediateSubTree(index, subTreeAtI);
+			// at this point, (rootTreeOrExpression, subTreesOrSubExpressions) contains only syntax trees, the sub-trees of syntaxTree.
+			if (index == -1) { // replace the root tree
+				rootTreeOrExpression = subExpression;
+			}
+			else {         // replace a sub-tree
+				Expression subExpressionAtI = replaceAtPath((SyntaxTree) subTreesOrSubExpressions[index], path, i + 1, subExpression);
+				// by recursion, subExpressionAtI is guaranteed to be based on the sub-tree on index with subExpression instance placed at the end of path.
+				subTreesOrSubExpressions[index] = subExpressionAtI;
+			}
+			// now (rootTreeOrExpression, subTreesOrSubExpressions) contains an Expression, and not only SyntaxTrees.
+
+			Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(rootTreeOrExpression, subTreesOrSubExpressions);
+			// remember that constructors for expressions receive the *syntax tree* components, but when they receive Expressions,
+			// they keep them around to make sure the corresponding sub-expressions use the same Expression instance.
+			// This only holds for immediate sub-expressions, but the recursive class to replaceAtPath took care of the deeper ones.
 			return result;
 		}
-		return subTree;
+		return subExpression;
 	}
 
 	public static boolean isSubExpressionOf(Expression searched, Expression expression) {
@@ -1073,5 +1077,37 @@ public class Expressions {
 	public static List<Expression> makeListOfExpressions(List<SyntaxTree> syntaxTrees) {
 		List<Expression> result = Util.mapIntoArrayList(syntaxTrees, MAKER);
 		return result;
+	}
+
+
+	public static Function<Object, Object> MAKE_SURE_IT_IS_SYNTAX_TREE_OR_NON_EXPRESSION_OBJECT = new Function<Object, Object>() {
+		@Override
+		public Object apply(Object input) {
+			return Expressions.makeSureItIsSyntaxTreeOrNonExpressionObject(input);
+		}
+	
+	};
+
+	public static Object[] makeSureItIsSyntaxTreeOrNonExpressionObject(Object[] input) {
+		Object[] result =
+				Util
+				.mapIntoArrayList(Arrays.asList(input), MAKE_SURE_IT_IS_SYNTAX_TREE_OR_NON_EXPRESSION_OBJECT)
+				.toArray();
+		return result;
+	}
+
+
+	public static <T> List<Object> makeSureItIsSyntaxTreeOrNonExpressionObject(List<T> list) {
+		List<Object> result =
+				Util
+				.mapIntoArrayList(list, MAKE_SURE_IT_IS_SYNTAX_TREE_OR_NON_EXPRESSION_OBJECT);
+		return result;
+	}
+
+	public static Object makeSureItIsSyntaxTreeOrNonExpressionObject(Object input) {
+		if (input instanceof DefaultExpressionOnSymbol || input instanceof DefaultExpressionOnCompoundSyntaxTree) {
+			input = ((Expression)input).getSyntaxTree();
+		}
+		return input;
 	}
 }

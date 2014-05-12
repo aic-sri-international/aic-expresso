@@ -78,18 +78,18 @@ public class ParsingExpressionForFunctionApplications extends AbstractParsingExp
 		ParsingResult equivalentParsingResult = equivalent.parsingResult(process);
 		
 		if (DefaultParsingResult.isSuccessful(equivalentParsingResult)) {
-			SyntaxTree arguments = equivalentParsingResult.getParse().getSyntaxTree().getSubTree(1); // result is an application of ". (.)" to the actual functor and the argument list, so arguments are get(1)
-			Object[] argumentsArray;
-			if (arguments != null && arguments.getLabel().equals("kleene list")) {
-				argumentsArray = arguments.getImmediateSubTrees().toArray();
+			SyntaxTree argumentSubTrees = equivalentParsingResult.getParse().getSyntaxTree().getSubTree(1); // result is an application of ". (.)" to the actual functor and the argument list, so arguments are the second (index 1) sub-tree
+			Object[] argumentSubTreesArray;
+			if (argumentSubTrees != null && argumentSubTrees.getLabel().equals("kleene list")) {
+				argumentSubTreesArray = argumentSubTrees.getImmediateSubTrees().toArray();
 			}
 			else {
-				argumentsArray = new Object[]{arguments};
+				argumentSubTreesArray = new Object[]{argumentSubTrees};
 			}
 			DefaultParsingResult result = new DefaultParsingResult(
 					this,
 					equivalentParsingResult.getTokens(),
-					Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(equivalentParsingResult.getParse().getSyntaxTree().getSubTree(0), argumentsArray), equivalentParsingResult.tokenPositionLimitInfluencedResult());
+					Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(equivalentParsingResult.getParse().getSyntaxTree().getSubTree(0), argumentSubTreesArray), equivalentParsingResult.tokenPositionLimitInfluencedResult());
 			return result;
 		}
 		

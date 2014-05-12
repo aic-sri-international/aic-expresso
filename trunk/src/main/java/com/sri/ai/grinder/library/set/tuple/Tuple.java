@@ -94,6 +94,7 @@ MutuallyExclusiveCoDomainsModule.Provider {
 		else {
 			list = Arrays.asList(elements);
 		}
+		list = Expressions.makeSureItIsSyntaxTreeOrNonExpressionObject(list);
 		Expression result =
 				Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(
 						TUPLE_LABEL, SyntaxTrees.makeKleeneListIfNeeded(list));

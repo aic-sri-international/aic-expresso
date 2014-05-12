@@ -44,8 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.util.collect.DepthFirstIterator;
 
 /**
- * An iterator ranging over all sub-syntax trees of a syntax tree, including
- * itself and its functor.
+ * An iterator ranging over all sub-expressions of an expression, including itself.
  * 
  * @author braz
  */

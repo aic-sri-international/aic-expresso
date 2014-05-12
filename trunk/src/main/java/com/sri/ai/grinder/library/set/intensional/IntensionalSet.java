@@ -236,12 +236,14 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 
 	/** Makes a scoping expression out of a list of scoping variables. */
 	public static SyntaxTree makeScopingSyntaxTree(List<Expression> indexExpressionsList) {
-		SyntaxTree result = SyntaxTrees.makeCompoundSyntaxTree(SCOPED_VARIABLES_LABEL, Expressions.makeKleeneListIfNeeded(indexExpressionsList));
+		Expression kleeneListExpression = Expressions.makeKleeneListIfNeeded(indexExpressionsList);
+		SyntaxTree kleeneListSyntaxTree = kleeneListExpression.getSyntaxTree();
+		SyntaxTree result = SyntaxTrees.makeCompoundSyntaxTree(SCOPED_VARIABLES_LABEL, kleeneListSyntaxTree);
 		return result;
 	}
 	
 	public static Expression copyWithNewIndexExpressionsList(Expression intensionalSetExpression, List<Expression> indexExpressionsList) {
-		Expression label = Sets.getLabel(intensionalSetExpression);
+		SyntaxTree label = Sets.getLabel(intensionalSetExpression);
 		Expression head = IntensionalSet.getHead(intensionalSetExpression);
 		Expression condition = IntensionalSet.getCondition(intensionalSetExpression);
 		Expression result = IntensionalSet.makeSetFromIndexExpressionsList(label, indexExpressionsList, head, condition);

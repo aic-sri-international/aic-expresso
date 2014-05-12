@@ -37,7 +37,6 @@
  */
 package com.sri.ai.expresso.core;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -48,183 +47,49 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
-import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.core.AbstractExpression;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryProcedure;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.NestedIterator;
-import com.sri.ai.util.math.Rational;
 
 /**
  * A default implementation of {@link CompoundSyntaxTree}. It is based on
- * keeping a functor Expression and a list of argument SyntaxTrees.
+ * a root object (either a syntax tree or another object) and a list of sub-trees.
  * 
  * @author braz
  */
 @Beta
 public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements CompoundSyntaxTree {
-	private static final long serialVersionUID = 1L;
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
 	
-	public DefaultCompoundSyntaxTree(SyntaxTree syntaxTree) {
-
-		if (Expressions.USE_PROPER_IMPLEMENTATIONS) {
-			this.valueOrRootSyntaxTree = null;
-			this.subTrees = null;
-			this.syntaxTree = syntaxTree;
-		}
-		else {
-			this.valueOrRootSyntaxTree = syntaxTree.getLabel();
-			this.subTrees = syntaxTree.getImmediateSubTrees();
-			this.syntaxTree = syntaxTree;
-		}
-	}
-	
 	/**
-	 * Constructs an expression based on a syntax tree with given label and sub-trees (or their Expressions),
-	 * copying them for internal use.
-	 * Objects that are not Expressions are wrapped as DefaultSymbols, unless
+	 * Constructs a syntax tree with given label and sub-trees, copying them for internal use.
+	 * Objects that are not syntax trees will be wrapped as such, unless
 	 * a single argument is given and it is a Collection;
-	 * in this case, it is considered to be a Collection
-	 * and a copy of the collection is used as the sub-trees.
-	 * There is also a guarantee that if Expressions are provided,
-	 * the corresponding sub-expressions will be the same object instances.
+	 * in this case, a copy of the collection is used for the list of the sub-trees
 	 */
 	public DefaultCompoundSyntaxTree(Object label, Object ... subTrees) {
-		
-		if (Expressions.USE_PROPER_IMPLEMENTATIONS) {
-			if (label instanceof AbstractExpression) { // when we are sure SyntaxTrees don't extend Expression, we can replace this test by Expression, which is more clear
-				List<Integer> path = Util.list(-1);
-				originalExpressionsByPath.put(path, (Expression) label);
-			}
-			
-			for (int i = 0; i != subTrees.length; i++) {
-				Object subTreeObject = subTrees[i];
-				if (subTreeObject instanceof AbstractExpression) { // when we are sure SyntaxTrees don't extend Expression, we can replace this test by Expression, which is more clear
-					List<Integer> path = Util.list(i);
-					originalExpressionsByPath.put(path, (Expression) subTreeObject);
-				}
-			}
-			
-			label    = SyntaxTrees.makeSureItIsSyntaxTreeOrNonExpressionObject(label);
-			subTrees = SyntaxTrees.makeSureItIsSyntaxTreeOrNonExpressionObject(subTrees);
 
-			syntaxTree = new DefaultCompoundSyntaxTree2(label, subTrees);
-			
-			this.valueOrRootSyntaxTree = null;
-			this.subTrees = null;
+		label = Expressions.makeSureItIsSyntaxTreeOrNonExpressionObject(label);
+		this.valueOrRootSyntaxTree = SyntaxTrees.wrap(label);
+
+		if (subTrees.length == 1 && subTrees[0] instanceof Collection) {
+			subTrees = ((Collection) subTrees[0]).toArray();
 		}
-		else {
-			this.valueOrRootSyntaxTree = SyntaxTrees.wrap(label);
-			if (subTrees.length == 1 && subTrees[0] instanceof Collection) {
-				// Note: We can have nulls, therefore cannot use ImmutableList directly.
-				Object[] subTreesArray = ((Collection) subTrees[0]).toArray();
-				this.subTrees = Collections.unmodifiableList(SyntaxTrees.wrap(subTreesArray)); // makes a copy since this constructor does not assume ownership.
-			}
-			else {
-				// Note: We can have nulls, therefore cannot use ImmutableList directly.
-				this.subTrees = Collections.unmodifiableList(SyntaxTrees.wrap(subTrees));
-			}
-			
-			syntaxTree = (SyntaxTree) this; // depends on SyntaxTree being Expression!
-		}
+		subTrees = Expressions.makeSureItIsSyntaxTreeOrNonExpressionObject(subTrees);
+		this.subTrees = Collections.unmodifiableList(SyntaxTrees.wrap(subTrees)); // makes a copy since this constructor does not assume ownership.
+		// Note: We can have nulls, therefore cannot use ImmutableList directly.
 	}
 
-	@Override
 	public Object getValue() {
 		return null;
 	}
 
-
-	public Expression orderNormalized = null;
-	public static final boolean useOrderNormalization = false;
-	
-	public int hashCode() {
-		if (hashCode == -1) {
-			SyntaxTree rootTree = getSyntaxTree().getRootTree();
-			int rootHashCode = rootTree.hashCode();
-			List<SyntaxTree> immediateSubTrees = getSyntaxTree().getImmediateSubTrees();
-			int subTreesHashCode = immediateSubTrees.hashCode();
-			hashCode = rootHashCode + subTreesHashCode;
-		}
-		
-		return hashCode;
-	}
-
-	public boolean equals(Object anotherObject) {
-		boolean result;
-		
-		if (anotherObject instanceof Expression &&
-				((Expression) anotherObject).getSyntaxTree() instanceof CompoundSyntaxTree) {
-			Expression normalizedAnotherCompoundSyntaxTree = (Expression) anotherObject;
-			if (this.hashCode() == normalizedAnotherCompoundSyntaxTree.hashCode()) {
-				List<SyntaxTree> anotherSubTrees = normalizedAnotherCompoundSyntaxTree.getSyntaxTree().getImmediateSubTrees();
-				result = this.getSyntaxTree().getRootTree().equals(normalizedAnotherCompoundSyntaxTree.getSyntaxTree().getRootTree()) && this.getSyntaxTree().getImmediateSubTrees().equals(anotherSubTrees);
-			}
-			else {
-				result = false;
-			}
-		}
-		else {
-			result = false;
-		}
-		return result;
-	}
-
-	public String defaultToString() {
-		String rootTreeString = getSyntaxTree().getRootTree().defaultToString();
-		if ( ! (getSyntaxTree().getRootTree() instanceof Symbol)) {
-			rootTreeString = "(" + rootTreeString + ")";
-		}
-		Iterator defaultToStringOfSubTrees =
-			new FunctionIterator<SyntaxTree, String>(new DefaultToString(), getSyntaxTree().getImmediateSubTrees());
-		return rootTreeString + "(" + Util.join(", ", defaultToStringOfSubTrees) + ")";
-	}
-	
-	private static class DefaultToString implements Function<SyntaxTree, String> {
-		@Override
-		public String apply(SyntaxTree syntaxTree) {
-			if (syntaxTree == null) {
-				return "null";
-			}
-			return syntaxTree.defaultToString();
-		}
-	}
-
-	public Expression clone() {
-		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(getSyntaxTree().getRootTree(), getSyntaxTree().getImmediateSubTrees());
-		// it is best to use the field 'arguments' instead of method 'getArguments'
-		// because we can share argument lists among function applications, since they are never modified.
-		// The method 'getArguments' would unnecessarily create an unmodifiable list object.
-	}
-
-	@Override
-	public int intValue() {
-		throw new Error("Expression.intValue() not defined for CompoundSyntaxTree " + this);
-	}
-
-	@Override
-	public int intValueExact() throws ArithmeticException {
-		throw new Error("Expression.intValueExact() not defined for CompoundSyntaxTree " + this);
-	}
-
-	@Override
-	public double doubleValue() {
-		throw new Error("Expression.doubleValue() not defined for CompoundSyntaxTree " + this);
-	}
-
-	@Override
-	public Rational rationalValue() {
-		throw new Error("Expression.rationalValue() not defined for CompoundSyntaxTree " + this);
-	}
-
-//}
 	@Override
 	public SyntaxTree getRootTree() {
 		return (SyntaxTree) valueOrRootSyntaxTree;
@@ -263,14 +128,67 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		return result;
 	}
 
+	public static final boolean useOrderNormalization = false;
+	
+	public int hashCode() {
+		if (hashCode == -1) {
+			SyntaxTree rootTree = getRootTree();
+			int rootHashCode = rootTree.hashCode();
+			List<SyntaxTree> immediateSubTrees = getImmediateSubTrees();
+			int subTreesHashCode = immediateSubTrees.hashCode();
+			hashCode = rootHashCode + subTreesHashCode;
+		}
+		
+		return hashCode;
+	}
+
+	public boolean equals(Object anotherObject) {
+		boolean result;
+		
+		if (anotherObject instanceof CompoundSyntaxTree) {
+			CompoundSyntaxTree normalizedAnotherCompoundSyntaxTree = (CompoundSyntaxTree) anotherObject;
+			if (this.hashCode() == normalizedAnotherCompoundSyntaxTree.hashCode()) {
+				List<SyntaxTree> anotherSubTrees = normalizedAnotherCompoundSyntaxTree.getImmediateSubTrees();
+				result = this.getRootTree().equals(normalizedAnotherCompoundSyntaxTree.getRootTree()) && this.getImmediateSubTrees().equals(anotherSubTrees);
+			}
+			else {
+				result = false;
+			}
+		}
+		else {
+			result = false;
+		}
+		return result;
+	}
+
+	public String defaultToString() {
+		String rootTreeString = getRootTree().defaultToString();
+		if ( ! (getRootTree() instanceof Symbol)) {
+			rootTreeString = "(" + rootTreeString + ")";
+		}
+		Iterator defaultToStringOfSubTrees =
+			new FunctionIterator<SyntaxTree, String>(new DefaultToString(), getImmediateSubTrees());
+		return rootTreeString + "(" + Util.join(", ", defaultToStringOfSubTrees) + ")";
+	}
+	
+	private static class DefaultToString implements Function<SyntaxTree, String> {
+		@Override
+		public String apply(SyntaxTree syntaxTree) {
+			if (syntaxTree == null) {
+				return "null";
+			}
+			return syntaxTree.defaultToString();
+		}
+	}
+
 	@Override
 	public SyntaxTree replaceSubTreesFirstOccurrence(Function<SyntaxTree, SyntaxTree> replacementFunction, Predicate<SyntaxTree> prunePredicate, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
-		return replaceSubTrees(replacementFunction, true, prunePredicate, listener, false);
+		return replaceSubTrees(replacementFunction, true /* only the first one */, prunePredicate, listener, false);
 	}
 
 	@Override
 	public SyntaxTree replaceSubTreesAllOccurrences(Function<SyntaxTree, SyntaxTree> replacementFunction, Predicate<SyntaxTree> prunePredicate, BinaryProcedure<SyntaxTree, SyntaxTree> listener) {
-		return replaceSubTrees(replacementFunction, false, prunePredicate, listener, false);
+		return replaceSubTrees(replacementFunction, false /* not only the first one */, prunePredicate, listener, false);
 	}
 
 	@Override
@@ -355,11 +273,21 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		return subTreesReplacement;
 	}
 
+	/**
+	 * The following needs to be private because it relies on whether the given subTreesReplacement
+	 * is the same object as subTrees, which is private (getImmediateSubTrees() provides an unmodifiable version of it).
+	 */
 	private SyntaxTree makeReplacementIfAny(Object rootTreeReplacement, List<SyntaxTree> subTreesReplacement) {
 		if (rootTreeReplacement != getRootTree() || subTreesReplacement != subTrees) {
-			return SyntaxTrees.makeCompoundSyntaxTree(rootTreeReplacement, Collections.unmodifiableList(new ArrayList<SyntaxTree>(subTreesReplacement)));
+			return SyntaxTrees.makeCompoundSyntaxTree(SyntaxTrees.wrap(rootTreeReplacement), subTreesReplacement);
 		}
 		return this;
 	}
 	
-} //*/
+	public SyntaxTree clone() {
+		return SyntaxTrees.makeCompoundSyntaxTree(getRootTree(), subTrees);
+		// it is best to use the field 'arguments' instead of method 'getArguments'
+		// because we can share argument lists among function applications, since they are never modified.
+		// The method 'getArguments' would unnecessarily create an unmodifiable list object.
+	}
+}

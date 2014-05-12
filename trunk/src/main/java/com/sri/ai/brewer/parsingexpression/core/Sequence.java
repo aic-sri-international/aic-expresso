@@ -57,6 +57,7 @@ import com.sri.ai.brewer.core.ParsingResult;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.FunctionIterator;
 
@@ -447,7 +448,6 @@ public class Sequence extends AbstractParsingExpression implements BasicParsingE
 		return Character.isSpaceChar(rootTreeName.charAt(index)) || rootTreeName.charAt(index) == '.';
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public String toString(SyntaxTree syntaxTree, Writer writer) {
 		StringBuffer result = new StringBuffer();
@@ -462,10 +462,10 @@ public class Sequence extends AbstractParsingExpression implements BasicParsingE
 			} 
 			else {
 				if (subParsingExpression.hasFunctor("kleene")) {
-					Expression kleeneList = Expressions.makeFromSyntaxTree(syntaxTree.getSubTree(subTreeIndex));
+					SyntaxTree kleeneListSyntaxTree = syntaxTree.getSubTree(subTreeIndex);
 					Iterator<String> listElementsRepresentationIterator =
-						new FunctionIterator(
-								Expressions.ensureListFromKleeneList(kleeneList),
+						new FunctionIterator<SyntaxTree, String>(
+								SyntaxTrees.ensureListFromKleeneList(kleeneListSyntaxTree),
 								new DefaultWriter.SubTreeRepresentation(
 										syntaxTree, writer, subParsingExpressionIndex == 0, false));
 					toBeAppended = Util.join(", ", listElementsRepresentationIterator);

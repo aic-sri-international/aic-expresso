@@ -65,8 +65,7 @@ import com.sri.ai.util.base.BinaryProcedure;
  *
  */
 @Beta
-public interface SyntaxTree extends Expression {
-// public interface SyntaxTree {
+public interface SyntaxTree {
 
 	Object getValue();
 	
@@ -90,11 +89,6 @@ public interface SyntaxTree extends Expression {
 	 */
 	SyntaxTree getSubTree(Object fieldKey);
 	
-//	/**
-//	 * Returns a syntax tree resulting from replacing the index-th subtree by a new sub-tree.
-//	 */
-//	void setSubTree(int index, SyntaxTree subTree);
-//	
 	/** 
 	 * An iterator-based (and therefore possibly lazy) version of {@link #getImmediateSubTrees()}.
 	 */

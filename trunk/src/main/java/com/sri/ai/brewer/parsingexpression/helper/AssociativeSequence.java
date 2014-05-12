@@ -63,7 +63,7 @@ public class AssociativeSequence extends Sequence {
 	
 	public AssociativeSequence(Object... args) {
 		super(args);
-		valueOrRootSyntaxTree = SyntaxTrees.makeSymbol("associative sequence");
+		syntaxTree = SyntaxTrees.makeCompoundSyntaxTree("associative sequence", syntaxTree.getImmediateSubTrees());
 	}
 
 	@Override

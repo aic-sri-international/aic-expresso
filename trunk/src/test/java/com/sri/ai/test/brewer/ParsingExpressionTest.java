@@ -66,6 +66,7 @@ import com.sri.ai.brewer.parsingexpression.helper.AssociativeSequence;
 import com.sri.ai.brewer.parsingexpression.helper.ParenthesizedNonTerminal;
 import com.sri.ai.brewer.parsingexpression.helper.ParsingExpressionForFunctionApplications;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.util.Util;
@@ -671,17 +672,21 @@ public class ParsingExpressionTest {
 	public void testQuotedTerms() throws IOException {
 		grammar = new CommonGrammar();
 
-//		parsingExpression = new NonTerminal("Expression");
-//		string = "<x>";
-//		test(parsingExpression, string, Expressions.createSymbol(Expressions.createSymbol("x")));
+		boolean oldValue = DefaultSymbol.setDontAcceptSymbolValueToBeExpression(false);
+		
+		parsingExpression = new NonTerminal("Expression");
+		string = "<x>";
+		test(parsingExpression, string, Expressions.createSymbol(Expressions.createSymbol("x")));
 
 		parsingExpression = new NonTerminal("Expression");
 		string = "<x>1>"; // tricky, huh? Of course, we could have written <x > 1> or <(x > 1)> for clarity.
 		test(parsingExpression, string, Expressions.createSymbol(Expressions.apply(">", "x", 1)));
 
-//		parsingExpression = new NonTerminal("Expression");
-//		string = "(<x>) < (<y>)";
-//		test(parsingExpression, string, Expressions.apply("<", Expressions.createSymbol(Expressions.createSymbol("x")), Expressions.createSymbol(Expressions.createSymbol("y"))));
+		parsingExpression = new NonTerminal("Expression");
+		string = "(<x>) < (<y>)";
+		test(parsingExpression, string, Expressions.apply("<", Expressions.createSymbol(Expressions.createSymbol("x")), Expressions.createSymbol(Expressions.createSymbol("y"))));
+
+		DefaultSymbol.setDontAcceptSymbolValueToBeExpression(oldValue);
 	}
 	
 	private void test(ParsingExpression parsingExpression, String string, Expression expectedParse)

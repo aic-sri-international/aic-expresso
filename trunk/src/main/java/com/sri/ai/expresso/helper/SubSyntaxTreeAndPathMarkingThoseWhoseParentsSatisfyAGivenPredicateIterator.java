@@ -123,7 +123,7 @@ public class SubSyntaxTreeAndPathMarkingThoseWhoseParentsSatisfyAGivenPredicateI
 		}
 	}
 
-	public Predicate getIsMarkedPredicate() {
+	public Predicate<Pair<Expression, List<Integer>>> getIsMarkedPredicate() {
 		return new IsMarked(this);
 	}
 }

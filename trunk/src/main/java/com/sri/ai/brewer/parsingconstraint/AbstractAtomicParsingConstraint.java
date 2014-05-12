@@ -42,7 +42,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.brewer.api.ParsingConstraint;
 import com.sri.ai.brewer.api.ParsingExpression;
-import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
+import com.sri.ai.expresso.core.DefaultExpressionOnCompoundSyntaxTree;
 import com.sri.ai.util.Util;
 
 /**
@@ -51,7 +51,7 @@ import com.sri.ai.util.Util;
  * @author braz
  */
 @Beta
-public abstract class AbstractAtomicParsingConstraint extends DefaultCompoundSyntaxTree implements ParsingConstraint {
+public abstract class AbstractAtomicParsingConstraint extends DefaultExpressionOnCompoundSyntaxTree implements ParsingConstraint {
 	private static final long serialVersionUID = 1L;
 
 	// For now, side information is not being used; it is left for possible future extensions

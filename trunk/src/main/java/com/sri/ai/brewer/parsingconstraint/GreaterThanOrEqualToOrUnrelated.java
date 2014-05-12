@@ -40,7 +40,7 @@ package com.sri.ai.brewer.parsingconstraint;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.brewer.api.ParsingExpression;
-import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 
 /**
  * A precedence condition with respect to a given disjunct in a given
@@ -56,12 +56,12 @@ public class GreaterThanOrEqualToOrUnrelated extends AbstractAtomicParsingConstr
 	
 	public GreaterThanOrEqualToOrUnrelated(ParsingExpression disjunct, ParsingExpression disjunction) {
 		super(disjunct, disjunction);
-		valueOrRootSyntaxTree = Expressions.createSymbol(">= or unrelated");
+		syntaxTree = SyntaxTrees.makeCompoundSyntaxTree(">= or unrelated", syntaxTree.getImmediateSubTrees());
 	}
 
 	public GreaterThanOrEqualToOrUnrelated(Side side, ParsingExpression disjunct, ParsingExpression disjunction) {
 		super(side, disjunct, disjunction);
-		valueOrRootSyntaxTree = Expressions.createSymbol(">= or unrelated");
+		syntaxTree = SyntaxTrees.makeCompoundSyntaxTree(">= or unrelated", syntaxTree.getImmediateSubTrees());
 	}
 
 	@Override

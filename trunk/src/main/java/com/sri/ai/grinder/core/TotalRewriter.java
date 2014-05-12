@@ -199,8 +199,7 @@ public class TotalRewriter extends AbstractRewriter {
 		final AtomicInteger numberOfSelections   = new AtomicInteger(0);
 		ReplacementFunctionWithContextuallyUpdatedProcess rewriteCurrentExpressionExhaustivelyFunction = new AbstractReplacementFunctionWithContextuallyUpdatedProcess() {
 			@Override
-			public Expression apply(Expression expression,
-					RewritingProcess process) {
+			public Expression apply(Expression expression, RewritingProcess process) {
 				Expression result      = expression;
 				Expression priorResult = expression;
 				Rewriter   rewriter    = null;
