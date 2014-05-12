@@ -46,8 +46,9 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
-import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -65,10 +66,10 @@ import com.sri.ai.grinder.core.AbstractRewriter;
 public class SyntacticFunctionsSubExpressionsProvider extends AbstractRewriter
 implements NoOpRewriter, ExpressionKnowledgeModule.Provider
 {
-	private Set<Expression> functionNameSymbols;
+	private Set<SyntaxTree> syntacticFunctionLabels;
 
 	public SyntacticFunctionsSubExpressionsProvider(String... names) {
-		functionNameSymbols = new LinkedHashSet<Expression>(Expressions.wrap(names));
+		syntacticFunctionLabels = new LinkedHashSet<SyntaxTree>(SyntaxTrees.wrap(names));
 	}
 	
 	@Override
@@ -98,7 +99,7 @@ implements NoOpRewriter, ExpressionKnowledgeModule.Provider
 	private boolean knowledgeApplies(Expression expression) {
 		boolean result =
 			expression.getSyntaxTree().getRootTree() != null &&
-			functionNameSymbols.contains(expression.getSyntaxTree().getRootTree()) &&
+			syntacticFunctionLabels.contains(expression.getSyntaxTree().getRootTree()) &&
 			expression.getSyntaxTree().numberOfImmediateSubTrees() == 1;
 		return result;
 	}

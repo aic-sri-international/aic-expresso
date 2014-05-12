@@ -80,7 +80,7 @@ public class SubSyntaxTreeAndPathDepthFirstIterator extends DepthFirstIterator<P
 
 	@Override
 	public Iterator<Pair<Expression, List<Integer>>> getChildrenIterator(Pair<Expression, List<Integer>> expressionAndPath) {
-		SyntaxTree syntaxTree = (SyntaxTree) expressionAndPath.first;
+		SyntaxTree syntaxTree  = expressionAndPath.first.getSyntaxTree();
 		List<Integer> basePath = expressionAndPath.second;
 		Iterator<Pair<Expression, List<Integer>>> result =
 			new FunctionIterator<List<Object>, Pair<Expression, List<Integer>>>(
@@ -102,7 +102,8 @@ public class SubSyntaxTreeAndPathDepthFirstIterator extends DepthFirstIterator<P
 		@SuppressWarnings("unchecked")
 		@Override
 		public Pair<Expression, List<Integer>> apply(List<Object> binaryList) {
-			Expression expression = (Expression)    binaryList.get(0);
+			SyntaxTree syntaxTree = (SyntaxTree) binaryList.get(0);
+			Expression expression = Expressions.makeFromSyntaxTree(syntaxTree);
 			List<Integer> path    = (List<Integer>) binaryList.get(1);
 
 			List<Integer> newPath = new LinkedList<Integer>(basePath);

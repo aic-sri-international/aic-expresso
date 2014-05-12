@@ -54,10 +54,11 @@ import com.sri.ai.util.collect.PredicateIterator;
 @Beta
 public class SubSyntaxTreeAndPathWhoseParentsSatisfyAGivenPredicateIterator extends PredicateIterator<Pair<Expression, List<Integer>>> {
 	
-	@SuppressWarnings("unchecked")
 	public SubSyntaxTreeAndPathWhoseParentsSatisfyAGivenPredicateIterator(Expression expression, Predicate<Pair<Expression, List<Integer>>> parentsPredicate) {
 		super(new SubSyntaxTreeAndPathMarkingThoseWhoseParentsSatisfyAGivenPredicateIterator(expression, parentsPredicate), null);
 		predicate = ((SubSyntaxTreeAndPathMarkingThoseWhoseParentsSatisfyAGivenPredicateIterator)base).getIsMarkedPredicate();
 		// We cannot provide the predicate to the super constructor because it depends on the base iterator being constructed during that call.
+		// Note that this depends on the base iterator being depth-first,
+		// because 'predicate' can only possibly be true for expressions whose parents have already been visited. 
 	}
 }

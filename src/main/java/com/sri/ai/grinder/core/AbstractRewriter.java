@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -112,7 +113,11 @@ public abstract class AbstractRewriter implements Rewriter {
 						pair.indexOfFirst, pair.indexOfSecond);
 
 			@SuppressWarnings("unchecked")
-			List<Expression> arguments = Util.addAllToANewList(slices.first, Lists.newArrayList(operationResult), slices.second);
+			List<Expression> arguments =
+					Util.addAllToANewList(
+							(Collection<Expression>) slices.first,
+							(Collection<Expression>) Lists.newArrayList(operationResult),
+							(Collection<Expression>) slices.second);
 
 			if (noUnaryApplication && arguments.size() == 1) {
 				return arguments.get(0);

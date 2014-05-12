@@ -49,6 +49,7 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.PairIterator;
@@ -65,8 +66,13 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	private Expression                expression;
 	private List<Integer>             path;
 	private ImmutableList<Expression> indexExpressions;
-	private ImmutableList<Expression> quantifiedVariables;
 	private Expression                constrainingCondition;
+	
+	private ImmutableList<Expression> cachedIndices;
+
+	public DefaultExpressionAndContext(Expression expression) {
+		this(expression, Util.<Integer>list());
+	}
 	
 	public DefaultExpressionAndContext(Expression expression, List<Integer> path) {
 		this(expression, path, new LinkedList<Expression>(), Expressions.TRUE);
@@ -80,8 +86,9 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 		this.expression            = expression;
 		this.path                  = path;
 		this.indexExpressions      = ImmutableList.<Expression>builder().addAll(indexExpressions).build();
-		this.quantifiedVariables   = null;
 		this.constrainingCondition = constrainingCondition;
+
+		this.cachedIndices         = null;
 	}
 	
 	//
@@ -94,7 +101,7 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	
 	@Override
 	public ExpressionAndContext setExpression(Expression expression) {
-		DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, getPath(), getIndexExpressions());
+		DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, getPath(), getIndexExpressions(), getConstrainingCondition());
 		return result;
 	}
 
@@ -110,10 +117,10 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	
 	@Override
 	public List<Expression> getQuantifiedVariables() {
-		if (quantifiedVariables == null) {
-			quantifiedVariables = ImmutableList.<Expression>builder().addAll(IndexExpressions.getIndices(indexExpressions)).build();
+		if (cachedIndices == null) {
+			cachedIndices = ImmutableList.<Expression>builder().addAll(IndexExpressions.getIndices(indexExpressions)).build();
 		}
-		return quantifiedVariables;
+		return cachedIndices;
 	}
 	
 	@Override 

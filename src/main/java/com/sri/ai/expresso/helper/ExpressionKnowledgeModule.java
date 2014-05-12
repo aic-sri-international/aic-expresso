@@ -37,9 +37,7 @@
  */
 package com.sri.ai.expresso.helper;
 
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
@@ -48,7 +46,6 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.core.AbstractModuleNoOpRewriter;
 import com.sri.ai.grinder.api.Module;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.FunctionApplicationProvider;
 
 /**
  * This module concentrates the functionality for registering and using
@@ -114,33 +111,5 @@ public class ExpressionKnowledgeModule extends AbstractModuleNoOpRewriter {
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Method defining the extraction of knowledge-based sub-expressions from a given expression and process.
-	 */
-	public static Iterator<ExpressionAndContext> getKnowledgeBasedImmediateSubExpressionsAndContextIteratorAfterBookkeeping(
-			Expression expression, RewritingProcess process) {
-	
-		Iterator<ExpressionAndContext> result = null;
-	
-		ExpressionKnowledgeModule knowledgeBasedExpressionModule = Expressions.getKnowledgeBasedExpressionModule();
-	
-		if (knowledgeBasedExpressionModule != null) {
-			result = knowledgeBasedExpressionModule.getImmediateSubExpressionsIterator(expression, process);
-		}
-	
-		if (result == null) { // because no provider knows about this expression, we use the default method:
-			if (expression.getSyntaxTree() instanceof CompoundSyntaxTree) {
-				result = FunctionApplicationProvider.getImmediateSubExpressionsAndContextsIteratorFromFunctionApplication(
-						expression, process);
-			}
-			else {
-				List<ExpressionAndContext> emptyList = Collections.emptyList();
-				result = emptyList.iterator();
-			}
-		}
-	
-		return result;
 	}
 }

@@ -40,7 +40,9 @@ package com.sri.ai.grinder.library.set;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
@@ -236,8 +238,8 @@ public class Sets {
 	 * {@link IntensionalSet#MULTI_SET_LABEL}, {@link IntensionalSet#UNI_SET_LABEL},
 	 * {@link ExtensionalSet#MULTI_SET_LABEL}, or {@link ExtensionalSet#UNI_SET_LABEL}.
 	 */
-	public static Expression getLabel(Expression setExpression) {
-		Expression result = (Expression) setExpression.getSyntaxTree().getLabel();
+	public static SyntaxTree getLabel(Expression setExpression) {
+		SyntaxTree result = SyntaxTrees.wrap(setExpression.getSyntaxTree().getLabel());
 		return result;
 	}
 }

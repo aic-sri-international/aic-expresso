@@ -98,6 +98,9 @@ public class ExpressionNode implements TreeNode {
 	}
 	
 	public ExpressionNode(Object object, ExpressionNode parent) {
+		if (object instanceof SyntaxTree) {
+			object = Expressions.makeFromSyntaxTree((SyntaxTree) object);
+		}
 		writer = TreeUtil.getWriter();
 		type = (object instanceof String)? NodeType.STRING: null;
 		userObject = object;
@@ -236,11 +239,11 @@ public class ExpressionNode implements TreeNode {
 		Vector<ExpressionNode> result = new Vector<ExpressionNode>();
 		int argumentIndex = 0;
 		try {
-		for (SyntaxTree parsingExpressionSubTree : parsingExpression.getImmediateSubTrees()) {
-			ParsingExpression subParsingExpression = (ParsingExpression) parsingExpressionSubTree;
+		for (Expression parsingExpressionSubExpression : parsingExpression.getArguments()) {
+			ParsingExpression subParsingExpression = (ParsingExpression) parsingExpressionSubExpression;
 
 			if (subParsingExpression.hasFunctor("terminal")) {
-				result.add(new ExpressionNode(parsingExpressionSubTree.getSubTree(0), NodeType.TERMINAL, this));
+				result.add(new ExpressionNode(parsingExpressionSubExpression.get(0).getSyntaxTree(), NodeType.TERMINAL, this));
 			}
 			else if (subParsingExpression.hasFunctor("kleene")) {
 				SyntaxTree kleeneList = expression.getImmediateSubTrees().get(argumentIndex);

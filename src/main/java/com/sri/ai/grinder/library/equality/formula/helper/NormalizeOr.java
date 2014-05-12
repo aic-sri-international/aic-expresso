@@ -70,8 +70,7 @@ public class NormalizeOr extends AbstractRewriter {
 	}
 	
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression,
-			RewritingProcess process) {
+	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expression result = expression;
 		
 		// or() -> false

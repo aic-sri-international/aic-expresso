@@ -85,7 +85,8 @@ public class Symbol extends AbstractParsingExpression {
 
 			if (DefaultParsingResult.isSuccessful(result)) { // if this is a quoted term
 				// return Symbol named by that term
-				return new DefaultParsingResult(this, result.getTokens(), Expressions.createSymbol(result.getParse().getSyntaxTree().getSubTree(0)), result.tokenPositionLimitInfluencedResult());
+				// result.parse is a function application of '< . >' on the quoted expression, so we access this quoted expression as its first argument.
+				return new DefaultParsingResult(this, result.getTokens(), Expressions.createSymbol(result.getParse().get(0)), result.tokenPositionLimitInfluencedResult());
 			}
 		}
 
@@ -101,12 +102,8 @@ public class Symbol extends AbstractParsingExpression {
 	}
 
 	private String getQuotedNonTerminalName() {
-		if (numberOfArguments() == 0) {
-			return null;
-		}
-		com.sri.ai.expresso.api.Symbol argument = (com.sri.ai.expresso.api.Symbol) get(0).getSyntaxTree();
-		Object value = argument.getValue();
-		return value.toString();
+		Object result = get(0).getValue();
+		return result.toString();
 		// we get value first instead of using toString on the symbol straight because the latter includes quotes when there are spaces.
 	}
 

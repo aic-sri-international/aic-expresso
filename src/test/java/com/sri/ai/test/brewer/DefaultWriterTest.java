@@ -189,7 +189,7 @@ public class DefaultWriterTest {
 		Expression expression = Brewer.parse(originalString, grammar, "Expression");
 		
 		Expression parseOfTheTreeNotation = Brewer.parse(expression.getSyntaxTree().defaultToString(), grammar, "Expression");
-		String unparse              = writer.toString(expression);
+		String unparse               = writer.toString(expression);
 		Expression parseOfTheUnparse = Brewer.parse(unparse, grammar, "Expression");
 		System.out.println("Test case                 : " + originalString);
 		System.out.println("Parse                     : " + expression.getSyntaxTree().defaultToString());

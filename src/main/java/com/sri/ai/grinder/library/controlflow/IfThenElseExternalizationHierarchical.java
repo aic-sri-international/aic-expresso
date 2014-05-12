@@ -41,7 +41,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -74,16 +73,25 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 
 		// Make sure sub-expressions are normalized (externalized) first.
 		if ( ! subExpressionsAreNormalized) {
-			expression = expression.replace(new RewriterReplacementFunction(this), false /* all occurrences */, null, true /* ignore top expression, expression */, null, process);
+			expression = expression.replace(
+					new RewriterReplacementFunction(this),
+					false /* don't do first occurrence only, but all occurrences */,
+					null /* no pruning */,
+					true /* ignore top expression */,
+					null,
+					process);
 		}
 
 		ExpressionAndContext conditionalSubExpressionAndContext = findConditionalSubExpressionAndContext(expression, process);
 		if (conditionalSubExpressionAndContext != null) {
 			if (IfThenElse.isIfThenElse(expression) && conditionalSubExpressionAndContext.getExpression() != IfThenElse.getCondition(expression)) {
-				// the conditional sub-expression is not the condition of 'expression'
-				// therefore expression is already normalized; this is the recursion base case.
+				// The conditional sub-expression is not the condition of 'expression'.
+				// This, together with the fact that all sub-expressions are normalized (externalized),
+				// means expression is already normalized; this is the recursion base case.
 			}
-			else { // expression is not a conditional expression itself
+			else {
+				// expression is not a conditional expression itself and has a conditional sub-expression,
+				// or it is and its own condition is also a conditional -- both cases require externalization
 				Expression conditionalSubExpression = conditionalSubExpressionAndContext.getExpression();
 				boolean noScopingRestrictions = decideWhetherThereAreNoScopingRestrictions(expression, conditionalSubExpression, process);
 				if (noScopingRestrictions) {
@@ -97,7 +105,7 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 
 					// Make sure the *new* subexpressions are normalized themselves, even though the original ones already were.
 					// If they are not normalized, the unnormalized part must be on their top expression only,
-					// since their sub-expressions were the original expression's sub-expressions, which we know to be normalized.
+					// since their sub-expressions were original expression's sub-expressions, which we know to be normalized.
 					// For example, suppose expression was f(if C1 then A1 else B1, if C2 then A2 else B2).
 					// At this point, we have if C1 then f(A1, if C2 then A2 else B2) else f(B1, if C2 then A2 else B2)
 					// f(A1, if C2 then A2 else B2) and f(B1, if C2 then A2 else B2) are not normalized, but their sub-expressions are (they are some of expression's sub-expressions).
@@ -119,7 +127,7 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 	private static ExpressionAndContext findConditionalSubExpressionAndContext(Expression expression, RewritingProcess process) {
 		ExpressionAndContext result = 
 		Util.getFirstSatisfyingPredicateOrNull(
-				ExpressionKnowledgeModule.getKnowledgeBasedImmediateSubExpressionsAndContextIteratorAfterBookkeeping(expression, process),
+				expression.getImmediateSubExpressionsAndContextsIterator(process),
 				new IsConditionalSubExpression());
 		return result;
 	}

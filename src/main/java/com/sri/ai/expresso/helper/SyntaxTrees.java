@@ -37,7 +37,6 @@
  */
 package com.sri.ai.expresso.helper;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -47,13 +46,11 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
-import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
-import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree2;
+import com.sri.ai.expresso.core.DefaultExpressionOnSymbol;
 import com.sri.ai.expresso.core.DefaultSymbol;
-import com.sri.ai.expresso.core.DefaultSymbol2;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.FunctionIterator;
 
@@ -64,17 +61,7 @@ import com.sri.ai.util.collect.FunctionIterator;
  */
 @Beta
 public class SyntaxTrees {
-	/**
-	 * If argument is a "kleene list" application, returns a {@link List} of its arguments;
-	 * otherwise, returns a {@link List} containing this argument.
-	 */
-	public
-	static List<SyntaxTree> ensureListFromKleeneList(SyntaxTree listOrSingleElementOfList) {
-		boolean isListName = listOrSingleElementOfList != null && listOrSingleElementOfList.getLabel().equals("kleene list");
-		return (isListName ? listOrSingleElementOfList.getImmediateSubTrees() : Lists.newArrayList(listOrSingleElementOfList));
-	}
-
-	/** Gets an object and returns it if it is an expression, or a {@link Symbol} containing it as value. */
+	/** Gets an object and returns it if it is an syntax tree, or a {@link Symbol} containing it as value. */
 	public static SyntaxTree wrap(Object object) {
 		if (object == null || object instanceof SyntaxTree) {
 			return (SyntaxTree) object;
@@ -107,19 +94,29 @@ public class SyntaxTrees {
 	};
 
 	public static CompoundSyntaxTree makeCompoundSyntaxTree(Object label, Object... subTrees) {
-		CompoundSyntaxTree result = new DefaultCompoundSyntaxTree2(label, subTrees);
+		CompoundSyntaxTree result = new DefaultCompoundSyntaxTree(label, subTrees);
 		return result;
 	}
 	
 	public static Symbol makeSymbol(Object value) {
-		Symbol result = DefaultSymbol2.createSymbol(value);
+		Symbol result = DefaultSymbol.createSymbol(value);
 		return result;
+	}
+
+	/**
+	 * If argument is a "kleene list" application, returns a {@link List} of its arguments;
+	 * otherwise, returns a {@link List} containing this argument.
+	 */
+	public
+	static List<SyntaxTree> ensureListFromKleeneList(SyntaxTree listOrSingleElementOfList) {
+		boolean isListName = listOrSingleElementOfList != null && listOrSingleElementOfList.getLabel().equals("kleene list");
+		return (isListName ? listOrSingleElementOfList.getImmediateSubTrees() : Lists.newArrayList(listOrSingleElementOfList));
 	}
 
 	/**
 	 * Returns a "kleene list"-labeled syntax tree if given list is not singleton,
 	 * and the single element itself otherwise.
-	 * Wraps objects into expressions.
+	 * Wraps objects into syntax trees.
 	 * This is a inverse operation of {@link #ensureListFromKleeneList(SyntaxTree)}.
 	 */
 	public static <T> SyntaxTree makeKleeneListIfNeeded(Collection<T> objects) {
@@ -131,15 +128,11 @@ public class SyntaxTrees {
 	}
 
 	public static String makeStringValuedSymbolParseSafe(String string) {
-		return DefaultSymbol.makeStringValuedSymbolParseSafe(string);
+		return DefaultExpressionOnSymbol.makeStringValuedSymbolParseSafe(string);
 	}
 
 	public static void flushGlobalSymbolTable() {
-		DefaultSymbol.flushGlobalSymbolTable();
-	}
-
-	public static int setNumericDisplayPrecision(Integer value) {
-		return SyntaxTrees.setNumericDisplayPrecision(value);
+		DefaultExpressionOnSymbol.flushGlobalSymbolTable();
 	}
 
 	/**
@@ -150,9 +143,9 @@ public class SyntaxTrees {
 	 * @return the value previously used before being set here.
 	 */
 	public static int setDisplayScientificGreaterNIntegerPlaces(int numIntegerPlaces) {
-		int oldValue = DefaultSymbol2._displayScientificGreaterNIntegerPlaces;
+		int oldValue = DefaultSymbol._displayScientificGreaterNIntegerPlaces;
 		
-		DefaultSymbol2._displayScientificGreaterNIntegerPlaces = numIntegerPlaces;
+		DefaultSymbol._displayScientificGreaterNIntegerPlaces = numIntegerPlaces;
 				
 		return oldValue;
 	}
@@ -165,9 +158,9 @@ public class SyntaxTrees {
 	 * @return the value previously used before being set here.
 	 */
 	public static int setDisplayScientificAfterNDecimalPlaces(int numDecimalPlaces) {
-		int oldValue = DefaultSymbol2._displayScientificAfterNDecimalPlaces;
+		int oldValue = DefaultSymbol._displayScientificAfterNDecimalPlaces;
 		
-		DefaultSymbol2._displayScientificAfterNDecimalPlaces = numDecimalPlaces;
+		DefaultSymbol._displayScientificAfterNDecimalPlaces = numDecimalPlaces;
 				
 		return oldValue;
 	}
@@ -181,34 +174,45 @@ public class SyntaxTrees {
 	 * @return the old numeric display precision;
 	 */
 	public static int setNumericDisplayPrecision(int precision) {
-		int oldPrecision = DefaultSymbol2._displayNumericPrecision;
+		int oldPrecision = DefaultSymbol._displayNumericPrecision;
 		
-		DefaultSymbol2._displayNumericPrecision = precision;
+		DefaultSymbol._displayNumericPrecision = precision;
 		
 		return oldPrecision;
 	}
 	
 
-	public static Object[] makeSureItIsSyntaxTreeOrNonExpressionObject(Object[] input) {
-		Object[] result =
-				Util
-				.mapIntoArrayList(Arrays.asList(input), MAKE_SURE_IT_IS_SYNTAX_TREE_OR_NON_EXPRESSION_OBJECT)
-				.toArray();
-		return result;
+	public static int setNumericDisplayPrecision(Integer value) {
+		return SyntaxTrees.setNumericDisplayPrecision(value.intValue());
 	}
 
-	public static Function<Object, Object> MAKE_SURE_IT_IS_SYNTAX_TREE_OR_NON_EXPRESSION_OBJECT = new Function<Object, Object>() {
-		@Override
-		public Object apply(Object input) {
-			return SyntaxTrees.makeSureItIsSyntaxTreeOrNonExpressionObject(input);
-		}
-	
-	};
+	/**
+	 * Given a syntax tree, a path, and a sub-syntax tree,
+	 * returns the syntax tree with its path-sub-syntax tree replaced by the given sub-syntax tree.
+	 * The path is a list of indices indicating a path in the syntax tree.
+	 * If there are no indices to be followed (path is empty), the sub-syntax tree itself is returned.
+	 * The method assumes the path describes an existing path-sub-syntax tree.
+	 */
+	public static SyntaxTree replaceAtPath(SyntaxTree syntaxTree, List<Integer> path, SyntaxTree subTree) {
+		return replaceAtPath(syntaxTree, path, 0, subTree);
+	}
 
-	public static Object makeSureItIsSyntaxTreeOrNonExpressionObject(Object input) {
-		if (input instanceof DefaultSymbol || input instanceof DefaultCompoundSyntaxTree) {
-			input = ((Expression)input).getSyntaxTree();
+	/**
+	 * Given an syntax tree, a path, a position i in the path, and a sub-syntax tree,
+	 * returns the syntax tree with its path-i-sub-syntax tree replaced by the given sub-syntax tree.
+	 * The path is a list of indices indicating a path in the syntax tree.
+	 * The path-i-sub-syntax tree is the syntax tree obtained by following the path from the position i on.
+	 * If there are no indices to be followed (i is equal to the path's length), the sub-syntax tree is returned.
+	 * The method assumes the path describes an existing path-i-sub-syntax tree.
+	 */
+	private static SyntaxTree replaceAtPath(SyntaxTree syntaxTree, List<Integer> path, int i, SyntaxTree subTree) {
+		if (i != path.size()) {
+			int index = path.get(i);
+			SyntaxTree subTreeAtI = replaceAtPath(syntaxTree.getSubTree(index), path, i + 1, subTree);
+			 // does need to be sub tree
+			SyntaxTree result = syntaxTree.setImmediateSubTree(index, subTreeAtI);
+			return result;
 		}
-		return input;
+		return subTree;
 	}
 }

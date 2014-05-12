@@ -43,6 +43,7 @@ import java.util.Iterator;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.util.collect.DepthFirstIterator;
 
@@ -57,6 +58,10 @@ public class ExpressionAndContextDepthFirstIterator extends com.sri.ai.util.coll
 
 	private RewritingProcess process;
 
+	public ExpressionAndContextDepthFirstIterator(Expression expression, RewritingProcess process) {
+		this(new DefaultExpressionAndContext(expression), process);
+	}
+	
 	public ExpressionAndContextDepthFirstIterator(ExpressionAndContext expressionAndContext, RewritingProcess process) {
 		super(expressionAndContext);
 		this.process = process;

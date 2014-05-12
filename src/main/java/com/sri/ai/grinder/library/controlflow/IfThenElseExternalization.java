@@ -41,7 +41,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -99,7 +98,7 @@ public class IfThenElseExternalization extends AbstractRewriter {
 	private static ExpressionAndContext findIfThenElseSubExpressionAndContext(Expression expression, RewritingProcess process) {
 		ExpressionAndContext result = 
 		Util.getFirstSatisfyingPredicateOrNull(
-				ExpressionKnowledgeModule.getKnowledgeBasedImmediateSubExpressionsAndContextIteratorAfterBookkeeping(expression, process),
+				expression.getImmediateSubExpressionsAndContextsIterator(process),
 				new IsIfThenElseSubExpression());
 		return result;
 	}

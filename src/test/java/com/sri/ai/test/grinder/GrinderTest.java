@@ -1207,8 +1207,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		RewritingProcess process = new DefaultRewritingProcess(expression, evaluator);
 		
 		expression = parse("if A = B then aAndBEqual else aAndBNotEqual");
-		expressionsAndContext = Util.listFrom(
-				ExpressionKnowledgeModule.getKnowledgeBasedImmediateSubExpressionsAndContextIteratorAfterBookkeeping(expression, process));
+		expressionsAndContext = Util.listFrom(expression.getImmediateSubExpressionsAndContextsIterator(process));
 		Assert.assertEquals(4, expressionsAndContext.size());
 		//
 		Assert.assertEquals("'if . then . else .'", expressionsAndContext.get(0).getExpression().toString());
@@ -1228,8 +1227,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		Assert.assertEquals(IfThenElse.getPathToElse(), expressionsAndContext.get(3).getPath());
 		
 		expression = parse("{(on X) X | X != a}");
-		expressionsAndContext = Util.listFrom(
-				ExpressionKnowledgeModule.getKnowledgeBasedImmediateSubExpressionsAndContextIteratorAfterBookkeeping(expression, process));
+		expressionsAndContext = Util.listFrom(expression.getImmediateSubExpressionsAndContextsIterator(process));
 		Assert.assertEquals(2, expressionsAndContext.size());
 		Assert.assertEquals("X", expressionsAndContext.get(0).getExpression().toString());
 		Assert.assertEquals("X != a", expressionsAndContext.get(0).getConstrainingCondition().toString());

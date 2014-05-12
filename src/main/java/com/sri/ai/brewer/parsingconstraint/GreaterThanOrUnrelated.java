@@ -57,12 +57,12 @@ public class GreaterThanOrUnrelated extends AbstractAtomicParsingConstraint {
     
 	public GreaterThanOrUnrelated(ParsingExpression disjunct, ParsingExpression disjunction) {
 		super(disjunct, disjunction);
-		valueOrRootSyntaxTree = SyntaxTrees.makeSymbol("> or unrelated");
+		syntaxTree = SyntaxTrees.makeCompoundSyntaxTree("> or unrelated", syntaxTree.getImmediateSubTrees());
 	}
 
 	public GreaterThanOrUnrelated(Side side, ParsingExpression disjunct, ParsingExpression disjunction) {
 		super(side, disjunct, disjunction);
-		valueOrRootSyntaxTree = SyntaxTrees.makeSymbol("> or unrelated");
+		syntaxTree = SyntaxTrees.makeCompoundSyntaxTree("> or unrelated", syntaxTree.getImmediateSubTrees());
 	}
 
 	@Override
