@@ -250,31 +250,32 @@ public class DefaultExpressionOnSymbol extends AbstractExpression {
 		return hashCode;
 	}
 	
+	/**
+	 * The semantics of comparison of expressions based on Symbols 
+	 * is the comparison of the underlying syntax trees.
+	 * If the other object is a syntax tree itself, it is considered its own underlying syntax tree.
+	 * If it is not an Expression or a SyntaxTree, a Symbol is built on it and used.
+	 */
 	@Override
 	public boolean equals(Object another) {
 		if (this == another) {
 			return true;
 		}
+
+		SyntaxTree anotherSyntaxTree;
 		
-		Symbol anotherSymbol = null;
-		if (another instanceof Expression && ((Expression) another).getSyntaxTree() instanceof Symbol) {
-			anotherSymbol = (Symbol) ((Expression) another).getSyntaxTree();
-		} 
+		if (another instanceof SyntaxTree) {
+			anotherSyntaxTree = (SyntaxTree) another;
+		}
+		else if (another instanceof Expression) {
+			anotherSyntaxTree = ((Expression) another).getSyntaxTree();
+		}
 		else {
-			// allow for symbol around expression just here
-			boolean oldValue = DefaultSymbol.setDontAcceptSymbolValueToBeExpression(false);
-			anotherSymbol = SyntaxTrees.makeSymbol(another);
-			DefaultSymbol.setDontAcceptSymbolValueToBeExpression(oldValue);
-			// Test again, as may have had self returned from the symbol table.
-			if (this.getSyntaxTree() == anotherSymbol) {
-				return true;
-			}
+			anotherSyntaxTree = SyntaxTrees.makeSymbol(another);
 		}
 		
-		if (getSyntaxTree().hashCode() == anotherSymbol.hashCode()) {
-			return getSyntaxTree().getValue().equals(anotherSymbol.getValue());
-		}
-		return false;
+		boolean result = getSyntaxTree().equals(anotherSyntaxTree);
+		return result;
 	}
 
 	@Override

@@ -59,8 +59,8 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.DefaultExpressionOnCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
+import com.sri.ai.expresso.core.DefaultExpressionOnCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionOnSymbol;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
@@ -728,9 +728,8 @@ public class Expressions {
 		// does need to be sub tree
 		FunctionIterator<Integer, List<Integer>> pathsIterator = Expressions.makeSingleIndexPathsIteratorFromTo(0, expression.getSyntaxTree().numberOfImmediateSubTrees());
 		
-		List<Expression> emptyList = Collections.emptyList();
 		Iterator<ExpressionAndContext> result = Expressions.makeIteratorOfSubExpressionsAndContextsFromIteratorsOnSubTreesAndPathsWithGivenQuantifiedVariables(
-				subTreesIterator, pathsIterator, emptyList /* no index expressions */, emptyList /* no quantified variables */, process);
+				subTreesIterator, pathsIterator, process);
 	
 		return result;
 	}
@@ -747,9 +746,8 @@ public class Expressions {
 		// does need to be sub tree
 		FunctionIterator<Integer, List<Integer>> pathsIterator = Expressions.makeSingleIndexPathsIterator(expression);
 		
-		List<Expression> emptyList = Collections.emptyList();
 		Iterator<ExpressionAndContext> result = Expressions.makeIteratorOfSubExpressionsAndContextsFromIteratorsOnSubTreesAndPathsWithGivenQuantifiedVariables(
-				subTreesIterator, pathsIterator, emptyList /* no index expressions */, emptyList /* no quantified variables */, process);
+				subTreesIterator, pathsIterator, process);
 	
 		return result;
 	}
@@ -766,21 +764,19 @@ public class Expressions {
 
 	/**
 	 * Makes an iterator of sub-expressions and their contexts built from two iterators,
-	 * one on the sub-trees and another on their paths.
+	 * one on the sub-trees and another on their paths, with no index expressions.
 	 * The quantified variables of the sub expressions will be the one provided as argument.
 	 */
 	public
 	static Iterator<ExpressionAndContext> makeIteratorOfSubExpressionsAndContextsFromIteratorsOnSubTreesAndPathsWithGivenQuantifiedVariables(
 			Iterator<? extends SyntaxTree> subTreesIterator, 
 			FunctionIterator<Integer, List<Integer>> pathsIterator,
-			List<Expression> indexExpressions,
-			Collection<Expression> quantifiedVariables, 
 			RewritingProcess process) {
 		
 		Iterator<ExpressionAndContext> result =
 			new FunctionIterator<List<Object>, ExpressionAndContext>(
 					new ZipIterator(subTreesIterator, pathsIterator),
-					new DefaultExpressionAndContext.MakerFromSyntaxTreeAndPathList(indexExpressions));
+					new DefaultExpressionAndContext.MakerFromSyntaxTreeAndPathList(Collections.<Expression> emptyList()));
 	
 		return result;
 	}
@@ -954,7 +950,7 @@ public class Expressions {
 					newLocalQuantifiedVariables.clear();
 				}
 				
-				for (Expression localVariable : subExpressionAndContext.getQuantifiedVariables()) {
+				for (Expression localVariable : subExpressionAndContext.getIndices()) {
 					if (quantifiedVariables.add(localVariable)) {
 						newLocalQuantifiedVariables.add(localVariable);
 					}

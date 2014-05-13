@@ -199,7 +199,7 @@ public class SemanticSubstitute {
 		public Function<Expression, Expression> apply(Expression expression, Function<Expression, Expression> replacementFunctionFunction, ExpressionAndContext expressionAndContext, RewritingProcess process) {
 			SubstituteReplacementFunction replacementFunction = (SubstituteReplacementFunction) replacementFunctionFunction;
 			Expression constraintOnReplaced = replacementFunction.constraintOnReplaced;
-			for (Expression quantifiedVariable : expressionAndContext.getQuantifiedVariables()) {
+			for (Expression quantifiedVariable : expressionAndContext.getIndices()) {
 				if (quantifiedVariable.getFunctorOrSymbol().equals(replacementFunction.replaced.getFunctorOrSymbol())) {
 					Expression argumentsAreDistinct = Not.make(Equality.makePairwiseEquality(quantifiedVariable.getArguments(), replacementFunction.replaced.getArguments()));
 					Expression argumentsAreDistinctAndReplacedIsConstrained = And.make(constraintOnReplaced, argumentsAreDistinct);

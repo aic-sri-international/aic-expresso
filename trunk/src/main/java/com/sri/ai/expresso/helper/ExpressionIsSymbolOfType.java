@@ -42,10 +42,10 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 
 /**
- * A unary predicate indicating whether an object is a Number or a Symbol
- * representing a Number.
+ * A {@link Predicate} indicating whether an expression is a
+ * symbolic one whose value is an instance of a given class.
  * 
- * @author braz
+ * @autho braz
  */
 @Beta
 public class ExpressionIsSymbolOfType implements Predicate<Expression> {
@@ -56,11 +56,20 @@ public class ExpressionIsSymbolOfType implements Predicate<Expression> {
 		this.clazz = clazz;
 	}
 
+	@Override
 	public boolean apply(Expression expression) {
 		return apply(expression, clazz);
 	}
 
 	public static boolean apply(Expression expression, Class clazz) {
-		return SyntaxTreeIsSymbolOfType.isSymbolOfType(expression, clazz);
+		return isSymbolOfType(expression, clazz);
+	}
+
+	public static boolean isSymbolOfType(Expression expression, Class clazz) {
+		return
+		(expression.getSyntacticFormType().equals("Symbol") &&
+				clazz.isInstance(expression.getValue()))
+		||
+		clazz.isInstance(expression);
 	}
 }

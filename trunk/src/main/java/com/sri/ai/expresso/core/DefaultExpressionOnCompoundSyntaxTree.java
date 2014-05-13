@@ -97,9 +97,6 @@ public class DefaultExpressionOnCompoundSyntaxTree extends AbstractExpression {
 			}
 		}
 
-		label    = Expressions.makeSureItIsSyntaxTreeOrNonExpressionObject(label);
-		subTrees = Expressions.makeSureItIsSyntaxTreeOrNonExpressionObject(subTrees);
-
 		syntaxTree = SyntaxTrees.makeCompoundSyntaxTree(label, subTrees);
 	}
 
@@ -108,10 +105,6 @@ public class DefaultExpressionOnCompoundSyntaxTree extends AbstractExpression {
 		return null;
 	}
 
-
-	public Expression orderNormalized = null;
-	public static final boolean useOrderNormalization = false;
-	
 	public int hashCode() {
 		if (hashCode == -1) {
 			SyntaxTree rootTree = getSyntaxTree().getRootTree();
@@ -125,21 +118,17 @@ public class DefaultExpressionOnCompoundSyntaxTree extends AbstractExpression {
 	}
 
 	public boolean equals(Object anotherObject) {
-		boolean result;
+		boolean result = false;
 		
 		if (anotherObject instanceof Expression &&
 				((Expression) anotherObject).getSyntaxTree() instanceof CompoundSyntaxTree) {
-			Expression normalizedAnotherCompoundSyntaxTree = (Expression) anotherObject;
-			if (this.hashCode() == normalizedAnotherCompoundSyntaxTree.hashCode()) {
-				List<SyntaxTree> anotherSubTrees = normalizedAnotherCompoundSyntaxTree.getSyntaxTree().getImmediateSubTrees();
-				result = this.getSyntaxTree().getRootTree().equals(normalizedAnotherCompoundSyntaxTree.getSyntaxTree().getRootTree()) && this.getSyntaxTree().getImmediateSubTrees().equals(anotherSubTrees);
+			Expression anotherCompoundSyntaxTree = (Expression) anotherObject;
+			if (this.hashCode() == anotherCompoundSyntaxTree.hashCode()) {
+				List<SyntaxTree> anotherSubTrees = anotherCompoundSyntaxTree.getSyntaxTree().getImmediateSubTrees();
+				result =
+						this.getSyntaxTree().getRootTree().equals(anotherCompoundSyntaxTree.getSyntaxTree().getRootTree())
+						&& this.getSyntaxTree().getImmediateSubTrees().equals(anotherSubTrees);
 			}
-			else {
-				result = false;
-			}
-		}
-		else {
-			result = false;
 		}
 		return result;
 	}
