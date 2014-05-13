@@ -92,7 +92,8 @@ implements ExpressionKnowledgeModule.Provider, ScopedVariables.Provider, NoOpRew
 				new DefaultExpressionAndContext(
 						Expressions.makeFromSyntaxTree(expression.getSyntaxTree().getSubTree(1)),
 						_pathOne,
-						getIndexExpressions(expression));
+						getIndexExpressions(expression),
+						Expressions.TRUE);
 			
 			// get arguments of index, for example the X and Y in there exists p(X,Y) : ...
 			List<Integer> indexBasePath = _pathZero; // path to get to index; this is the base for paths to arguments of the index, which are also sub-expressions.

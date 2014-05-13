@@ -46,7 +46,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.expresso.helper.SyntaxTreeIsSymbolOfType;
+import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
 import com.sri.ai.grinder.library.CommutativeAssociative;
 import com.sri.ai.util.Util;
 
@@ -63,7 +63,7 @@ public class And extends BooleanCommutativeAssociative {
 	//
 	private final static Expression            neutralElement              = Expressions.createSymbol(true);
 	private final static Expression            absorbingElement            = Expressions.createSymbol(false);
-	private final static Predicate<Expression> isOperableArgumentPredicate = new SyntaxTreeIsSymbolOfType(Boolean.class);
+	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Boolean.class);
 
 	protected Object getFunctor() {
 		return "and";

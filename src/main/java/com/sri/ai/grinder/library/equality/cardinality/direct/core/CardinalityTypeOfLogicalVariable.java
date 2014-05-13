@@ -75,7 +75,7 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 	// on the process's global objects map.
 	public final static String PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_LOGICAL_VARIABLE = "domain size of logical variable";
 
-	public final static String FUNCTOR_TYPE = "type";
+	public final static String TYPE_LABEL = "type";
 
 	/**
 	 * Interface to be implemented by a source that is able to determine the
@@ -128,7 +128,7 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 			// (if they were, we would be able to rewrite type(X) to type(10) when X = 10,
 			// and this would be incorrect.
 			// In order to access their "argument", we must use their syntax tree.
-			if (cardinalityArgument.hasFunctor(FUNCTOR_TYPE)
+			if (cardinalityArgument.hasFunctor(TYPE_LABEL)
 					&& cardinalityArgument.getSyntaxTree().numberOfImmediateSubTrees() == 1
 					&& process.isVariable(Expressions.makeFromSyntaxTree(cardinalityArgument.getSyntaxTree().getImmediateSubTrees().get(0)))) {
 				

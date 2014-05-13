@@ -65,7 +65,6 @@ import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.IsInstanceOf;
 import com.sri.ai.util.base.ReplaceByIfEqualTo;
 import com.sri.ai.util.base.TernaryProcedure;
 import com.sri.ai.util.collect.FunctionIterator;
@@ -77,14 +76,13 @@ import com.sri.ai.util.collect.FunctionIterator;
  */
 @Beta
 public abstract class AbstractExpression implements Expression {
-	
 	//
 	private static final long serialVersionUID = 3L; // Note: Increment this when you want to ensure any parsing caches are invalidated 
 	
+	private static final List<Integer> FUNCTOR_PATH = Util.list(-1);
+
 	protected SyntaxTree syntaxTree;
 	
-	protected static final IsInstanceOf IS_EXPRESSION_MODULE = new IsInstanceOf<Object>(ExpressionKnowledgeModule.class);
-	//
 	private volatile transient ImmutableList<ExpressionAndContext> cachedImmediateSubExpressionsAndContexts;
 	private Lock               lazyInitCachedImmediateSubExpressionsAndContextsLock = new ReentrantLock();
 	
@@ -301,7 +299,7 @@ public abstract class AbstractExpression implements Expression {
 			try {
 				// Note: Ensure still null when acquire the lock
 				if (cachedImmediateSubExpressionsAndContexts == null) { 
-					Iterator<? extends ExpressionAndContext> iterator = getImmediateSubExpressionsAndContextsIteratorAfterBookkeeping(process);
+					Iterator<? extends ExpressionAndContext> iterator = getImmediateSubExpressionsAndContextsIteratorFromExpressionKnowledgeModule(process);
 					
 					@SuppressWarnings("unchecked")
 					List<ExpressionAndContext> expressionAndContexts = (List<ExpressionAndContext>) Util.listFrom(iterator);
@@ -335,7 +333,7 @@ public abstract class AbstractExpression implements Expression {
 		}
 	};
 	
-	private Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIteratorAfterBookkeeping(RewritingProcess process) {
+	private Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIteratorFromExpressionKnowledgeModule(RewritingProcess process) {
 		Iterator<ExpressionAndContext> result = null;
 		
 		ExpressionKnowledgeModule knowledgeBasedExpressionModule = Expressions.getKnowledgeBasedExpressionModule();
@@ -372,7 +370,8 @@ public abstract class AbstractExpression implements Expression {
 	private Lock                               lazyInitCachedSyntacticFormTypeLock = new ReentrantLock();
 	private volatile ImmutableList<Expression> cachedArguments                     = null;
 	private Lock                               lazyInitCachedArgumentsLock         = new ReentrantLock();
-
+	private Expression                         cachedFunctor                       = null;
+	
 	public static Map<SyntaxTree, SyntaxTree> wrapAsMap(Object... pairs) {
 		return Util.map(Expressions.wrap(pairs).toArray());
 	}
@@ -459,12 +458,25 @@ public abstract class AbstractExpression implements Expression {
 
 	@Override
 	public Expression getFunctor() {
-		return FunctionApplicationProvider.getFunctor(this);
+		if (cachedFunctor == null) {
+			Expression possibleOriginalFunctorExpression = originalExpressionsByPath.get(FUNCTOR_PATH);
+			if (possibleOriginalFunctorExpression != null) {
+				cachedFunctor = possibleOriginalFunctorExpression;
+			}
+			else {
+				cachedFunctor = FunctionApplicationProvider.getFunctor(this);
+			}
+		}
+		return cachedFunctor;
 	}
 
 	@Override
 	public Expression getFunctorOrSymbol() {
-		return FunctionApplicationProvider.getFunctorOrSymbol(this);
+		Expression result = getFunctor();
+		if (result == null && getSyntacticFormType().equals("Symbol")) {
+			result = this;
+		}
+		return result;
 	}
 
 	@Override

@@ -106,10 +106,9 @@ public interface ExpressionAndContext extends Serializable {
 
 	/**
 	 * 
-	 * @return a list of quantified variables that the parent expression may
-	 *         declare that the sub-expression in this context is bound to.
+	 * @return a list of the indices in {@link #getIndexExpressions()}.
 	 */
-	List<Expression> getQuantifiedVariables();
+	List<Expression> getIndices();
 
 	/**
 	 * The constraining condition that a parent expression imposes on its

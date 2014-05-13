@@ -43,7 +43,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.expresso.helper.SyntaxTreeIsSymbolOfType;
+import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
 import com.sri.ai.grinder.library.CommutativeAssociativeWithOperationOnConstantsOnly;
 import com.sri.ai.util.Util;
 
@@ -57,7 +57,7 @@ import com.sri.ai.util.Util;
 public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly {
 
 	private final static Expression            neutralElement              = Expressions.createSymbol(0);
-	private final static Predicate<Expression> isOperableArgumentPredicate = new SyntaxTreeIsSymbolOfType(Number.class);
+	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);
 
 	protected Object getFunctor() {
 		return "+";

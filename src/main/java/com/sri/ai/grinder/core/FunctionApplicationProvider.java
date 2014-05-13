@@ -37,14 +37,13 @@
  */
 package com.sri.ai.grinder.core;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
@@ -74,10 +73,9 @@ ExpressionKnowledgeModule.Provider
 				Expressions.makeSingleIndexPathsIteratorFromTo(
 						-1, expression.getSyntaxTree().numberOfImmediateSubTrees() - 1);
 			
-			List<Expression> emptyList = Collections.emptyList();
 			Iterator<ExpressionAndContext> result =
 				Expressions.makeIteratorOfSubExpressionsAndContextsFromIteratorsOnSubTreesAndPathsWithGivenQuantifiedVariables(
-						subTreesAndRootTreeIterator, pathsIterator, emptyList /* no index expressions */, emptyList, process); // by default, no quantified variables
+						subTreesAndRootTreeIterator, pathsIterator, process); // by default, no quantified variables
 		
 			return result;
 		}
@@ -89,15 +87,6 @@ ExpressionKnowledgeModule.Provider
 			return Expressions.makeFromSyntaxTree(expression.getSyntaxTree().getRootTree());
 		}		
 		return null;
-	}
-
-	public static Expression getFunctorOrSymbol(Expression expression) {
-		if (expression.getSyntaxTree() instanceof CompoundSyntaxTree) {
-			return expression.getFunctor();
-		}
-		else {
-			return expression;
-		}
 	}
 
 	private static boolean knowledgeApplies(Expression expression) {

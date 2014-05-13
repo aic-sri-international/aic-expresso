@@ -248,7 +248,7 @@ public class CardinalityUtil {
 					set = indexExpression.get(1);
 				}
 				else {
-					set = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(CardinalityTypeOfLogicalVariable.FUNCTOR_TYPE, indexExpression);
+					set = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(CardinalityTypeOfLogicalVariable.TYPE_LABEL, indexExpression);
 				}
 				Expression cardinality = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.CARDINALITY, set);
 				cardinalities.add(cardinality);

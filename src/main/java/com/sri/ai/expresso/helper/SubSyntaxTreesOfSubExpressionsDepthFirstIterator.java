@@ -51,7 +51,7 @@ import com.sri.ai.util.collect.FunctionIterator;
 public class SubSyntaxTreesOfSubExpressionsDepthFirstIterator extends FunctionIterator<Expression, SyntaxTree> {
 	public SubSyntaxTreesOfSubExpressionsDepthFirstIterator(Expression syntaxTree) {
 		super(
-				new ExpressionDepthFirstIterator(syntaxTree),
+				new SubExpressionsDepthFirstIterator(syntaxTree),
 				new GetSyntaxTree()
 		);
 	}

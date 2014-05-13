@@ -78,10 +78,6 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 		this(expression, path, new LinkedList<Expression>(), Expressions.TRUE);
 	}
 	
-	public DefaultExpressionAndContext(Expression expression, List<Integer> path, List<Expression> indexExpressions) {
-		this(expression, path, indexExpressions, Expressions.TRUE);
-	}
-	
 	public DefaultExpressionAndContext(Expression expression, List<Integer> path, List<Expression> indexExpressions, Expression constrainingCondition) {
 		this.expression            = expression;
 		this.path                  = path;
@@ -116,7 +112,7 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	}
 	
 	@Override
-	public List<Expression> getQuantifiedVariables() {
+	public List<Expression> getIndices() {
 		if (cachedIndices == null) {
 			cachedIndices = ImmutableList.<Expression>builder().addAll(IndexExpressions.getIndices(indexExpressions)).build();
 		}
@@ -134,7 +130,7 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	//
 
 	public String toString() {
-		return getExpression() + " at " + getPath() + " with quantified variables " + getQuantifiedVariables() + " and constraining condition " + getConstrainingCondition();
+		return getExpression() + " at " + getPath() + " with quantified variables " + getIndices() + " and constraining condition " + getConstrainingCondition();
 	}
 	
 	public static FunctionIterator<Pair<Expression, List<Integer>>, ExpressionAndContext> makeExpressionAndContextIteratorFromPairs(
@@ -161,7 +157,7 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 			Expression expression = (Expression) expressionAndPath.get(0);
 			@SuppressWarnings("unchecked")
 			List<Integer> path    = (List<Integer>) expressionAndPath.get(1);
-			DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, path, indexExpressions);
+			DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, path, indexExpressions, Expressions.TRUE);
 			return result;
 		}
 	}
@@ -183,7 +179,7 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 			Expression expression = Expressions.makeFromSyntaxTree(syntaxTree);
 			@SuppressWarnings("unchecked")
 			List<Integer> path    = (List<Integer>) syntaxTreeAndPath.get(1);
-			DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, path, indexExpressions);
+			DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, path, indexExpressions, Expressions.TRUE);
 			return result;
 		}
 	}
@@ -203,7 +199,7 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 		public ExpressionAndContext apply(Pair<Expression, List<Integer>> expressionAndPath) {
 			Expression    expression = expressionAndPath.first;
 			List<Integer> path       = expressionAndPath.second;
-			DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, path, indexExpressions);
+			DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, path, indexExpressions, Expressions.TRUE);
 			return result;
 		}
 	}
