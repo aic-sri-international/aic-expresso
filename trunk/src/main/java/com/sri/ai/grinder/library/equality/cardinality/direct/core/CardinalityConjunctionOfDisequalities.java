@@ -124,8 +124,8 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractHierarchical
 				result = Expressions.ZERO;
 			} 
 			else {
-				Expression cardIndexXGreaterThanZero = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.GREATER_THAN, cardIndex, Expressions.ZERO);
-				Expression cardIndexXGreaterThanK    = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.GREATER_THAN, cardIndex, Expressions.createSymbol(t1ToTk.size()));
+				Expression cardIndexXGreaterThanZero = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.GREATER_THAN, cardIndex, Expressions.ZERO);
+				Expression cardIndexXGreaterThanK    = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.GREATER_THAN, cardIndex, Expressions.makeSymbol(t1ToTk.size()));
 				if (quantification == CardinalityRewriter.Quantification.FOR_ALL &&
 					(GrinderConfiguration.isAssumeDomainsAlwaysLarge() || process.rewrite(R_normalize, cardIndexXGreaterThanZero).equals(Expressions.TRUE))) {
 					Trace.log("    if quantification is \"for all\" and (ASSUME_DOMAIN_ALWAYS_LARGE or |type(x)| > 0)");
@@ -141,9 +141,9 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractHierarchical
 				else {
 					Trace.log("    return R_normalize(|type(x)| - R_cardExtensionalSet(|{t1,...,tk}|)");
 					Expression extensionalSet                  = ExtensionalSet.makeUniSet(new ArrayList<Expression>(t1ToTk));
-					Expression cardExtensionalSet              = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.CARDINALITY, extensionalSet);
+					Expression cardExtensionalSet              = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.CARDINALITY, extensionalSet);
 					Expression resultRewriteCardExtensionalSet = process.rewrite(R_cardExtensionalSet, cardExtensionalSet);
-					Expression cardIndexXMinusRewriteResult    = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.MINUS, cardIndex, resultRewriteCardExtensionalSet);
+					Expression cardIndexXMinusRewriteResult    = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.MINUS, cardIndex, resultRewriteCardExtensionalSet);
 					result = process.rewrite(R_normalize, cardIndexXMinusRewriteResult);
 				}
 			}

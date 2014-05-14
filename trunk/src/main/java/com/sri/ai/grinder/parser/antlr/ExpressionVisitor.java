@@ -87,7 +87,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	public Expression visitExpressionSymbol(
 			AntlrGrinderParser.ExpressionSymbolContext ctx) {
 		Expression expr   = visit(ctx.expr());
-		Expression result = Expressions.createSymbol(expr);
+		Expression result = Expressions.makeSymbol(expr);
 		return result;
 	}
 	
@@ -96,7 +96,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override 
 	public Expression visitFunctionApplication(
 			AntlrGrinderParser.FunctionApplicationContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(visit(ctx.functor), expressions(ctx.args));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(visit(ctx.functor), expressions(ctx.args));
 		
 		return result;
 	}
@@ -113,7 +113,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// '|' expr '|' #cardinality
 	@Override
 	public Expression visitCardinality(AntlrGrinderParser.CardinalityContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.CARDINALITY, visit(ctx.expr()));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.CARDINALITY, visit(ctx.expr()));
 		return result;
 	}
 	
@@ -156,7 +156,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override
 	public Expression visitBracketedExpression(
 			AntlrGrinderParser.BracketedExpressionContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.LEFT_DOT_RIGHT, visit(ctx.expr()));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.LEFT_DOT_RIGHT, visit(ctx.expr()));
 		return result;
 	}
 	
@@ -164,7 +164,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// NOT expr #not
 	@Override
 	public Expression visitNot(AntlrGrinderParser.NotContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Not.FUNCTOR, visit(ctx.expr()));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Not.FUNCTOR, visit(ctx.expr()));
 		return result;
 	}
 	
@@ -172,7 +172,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// '-' expr #negative
 	@Override
 	public Expression visitNegative(AntlrGrinderParser.NegativeContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.MINUS, visit(ctx.expr()));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.MINUS, visit(ctx.expr()));
 		return result;
 	}
 	
@@ -180,7 +180,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// base=expr '^'<assoc=right> exponent=expr #Exponentiation
 	@Override
 	public Expression visitExponentiation(AntlrGrinderParser.ExponentiationContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.EXPONENTIATION, visit(ctx.base), visit(ctx.exponent));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.EXPONENTIATION, visit(ctx.base), visit(ctx.exponent));
 		return result;
 	}
 	
@@ -188,7 +188,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// numerator=expr op=('*' | '/') denominator=expr #multiplicationOrDivision
 	@Override
 	public Expression visitMultiplicationOrDivision(AntlrGrinderParser.MultiplicationOrDivisionContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(ctx.op.getText(), visit(ctx.leftop), visit(ctx.rightop));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(ctx.op.getText(), visit(ctx.leftop), visit(ctx.rightop));
 		result = possiblyFlatten(result);
 		return result;
 	}
@@ -197,7 +197,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// leftop=expr op=('+' | '-') rightop=expr #additionOrSubtraction
 	@Override
 	public Expression visitAdditionOrSubtraction(AntlrGrinderParser.AdditionOrSubtractionContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(ctx.op.getText(), visit(ctx.leftop), visit(ctx.rightop));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(ctx.op.getText(), visit(ctx.leftop), visit(ctx.rightop));
 		result = possiblyFlatten(result);
 		return result;
 	}
@@ -207,7 +207,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override
 	public Expression visitIntersection(
 			AntlrGrinderParser.IntersectionContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTERSECTION, visit(ctx.leftop), visit(ctx.rightop));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.INTERSECTION, visit(ctx.leftop), visit(ctx.rightop));
 		result = possiblyFlatten(result);
 		return result;
 	}
@@ -216,7 +216,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// leftop=expr UNION rightop=expr #union
 	@Override
 	public Expression visitUnion(AntlrGrinderParser.UnionContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.UNION, visit(ctx.leftop), visit(ctx.rightop));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.UNION, visit(ctx.leftop), visit(ctx.rightop));
 		result = possiblyFlatten(result);
 		return result;
 	}	
@@ -225,7 +225,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// leftop=expr IN rightop=expr #in
 	@Override
 	public Expression visitIn(AntlrGrinderParser.InContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IN, visit(ctx.leftop), visit(ctx.rightop));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IN, visit(ctx.leftop), visit(ctx.rightop));
 		return result;
 	}
 	
@@ -233,7 +233,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// leftop=expr op=('<' | '<=' | '=' | '!=' | '>=' | '>') rightop=expr #comparison
 	@Override
 	public Expression visitComparison(AntlrGrinderParser.ComparisonContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(ctx.op.getText(), visit(ctx.leftop), visit(ctx.rightop));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(ctx.op.getText(), visit(ctx.leftop), visit(ctx.rightop));
 		result = possiblyFlatten(result);
 		return result;
 	}
@@ -242,7 +242,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// leftconj=expr AND rightconj=expr #and
 	@Override
 	public Expression visitAnd(AntlrGrinderParser.AndContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(And.FUNCTOR, visit(ctx.leftconj), visit(ctx.rightconj));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(And.FUNCTOR, visit(ctx.leftconj), visit(ctx.rightconj));
 		result = possiblyFlatten(result);
 		return result;
 	}
@@ -251,7 +251,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// leftdisj=expr OR rightdisj=expr #or
 	@Override
 	public Expression visitOr(AntlrGrinderParser.OrContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Or.FUNCTOR, visit(ctx.leftdisj), visit(ctx.rightdisj));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Or.FUNCTOR, visit(ctx.leftdisj), visit(ctx.rightdisj));
 		result = possiblyFlatten(result);
 		return result;
 	}
@@ -260,7 +260,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// antecedent=expr IMPLICATION consequent=expr #implication
 	@Override
 	public Expression visitImplication(AntlrGrinderParser.ImplicationContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IMPLICATION, visit(ctx.antecedent), visit(ctx.consequent));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IMPLICATION, visit(ctx.antecedent), visit(ctx.consequent));
 		return result;
 	}
 	
@@ -269,7 +269,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override
 	public Expression visitBiconditional(
 			AntlrGrinderParser.BiconditionalContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.EQUIVALENCE, visit(ctx.leftop), visit(ctx.rightop));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.EQUIVALENCE, visit(ctx.leftop), visit(ctx.rightop));
 		return result;
 	}
 	
@@ -280,7 +280,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		Expression condition  = visit(ctx.condition);
 		Expression thenBranch = visit(ctx.thenbranch);
 		Expression elseBranch = visit(ctx.elsebranch);
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, condition, thenBranch, elseBranch);
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, condition, thenBranch, elseBranch);
 		return result;
 	}
 	
@@ -297,7 +297,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override
 	public Expression visitPreviousMessageToFrom(
 			AntlrGrinderParser.PreviousMessageToFromContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("previous message to . from .", visit(ctx.to), visit(ctx.from));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("previous message to . from .", visit(ctx.to), visit(ctx.from));
 		return result;
 	}
 
@@ -305,7 +305,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override
 	public Expression visitMessageToFrom(
 			AntlrGrinderParser.MessageToFromContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("message to . from .", visit(ctx.to), visit(ctx.from));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("message to . from .", visit(ctx.to), visit(ctx.from));
 		return result;
 	}
 	
@@ -313,7 +313,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override
 	public Expression visitNeighborsOfVariable(
 			AntlrGrinderParser.NeighborsOfVariableContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("neighbors of variable", visit(ctx.variable));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of variable", visit(ctx.variable));
 		return result;
 	}
 	
@@ -321,7 +321,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override
 	public Expression visitNeighborsOfFactor(
 			AntlrGrinderParser.NeighborsOfFactorContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("neighbors of factor", visit(ctx.factor));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of factor", visit(ctx.factor));
 		return result;
 	}
 
@@ -329,7 +329,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override
 	public Expression visitNeighborsOfFrom(
 			AntlrGrinderParser.NeighborsOfFromContext ctx) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("neighbors of . from .", visit(ctx.of), visit(ctx.from));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of . from .", visit(ctx.of), visit(ctx.from));
 		return result;
 	}
 	
@@ -370,7 +370,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 
 		text = new String(text);
 
-		Expression result = Expressions.createSymbol(text);
+		Expression result = Expressions.makeSymbol(text);
 		return result;
 	}
 	
@@ -383,7 +383,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		Expression headExpression      = visit(head);
 		Expression conditionExpression = null;
 		if (condition != null) {
-			conditionExpression = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(IntensionalSet.CONDITION_LABEL, visit(condition));
+			conditionExpression = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(IntensionalSet.CONDITION_LABEL, visit(condition));
 		}
 	
 		Expression result = null;
@@ -397,7 +397,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 			}
 		}
 		else {
-			result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(label, scopingSyntaxTree, headExpression, conditionExpression);
+			result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(label, scopingSyntaxTree, headExpression, conditionExpression);
 		}
 		
 		return result;
@@ -437,7 +437,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 						args.add(arg);
 					}
 				}
-				result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(functor, args.toArray());
+				result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(functor, args.toArray());
 			}
 		}
 		

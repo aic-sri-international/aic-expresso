@@ -59,8 +59,8 @@ import com.sri.ai.util.Util;
 @Beta
 public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly {
 
-	private final static Expression            neutralElement              = Expressions.createSymbol(1);
-	private final static Expression            absorbingElement            = Expressions.createSymbol(0);
+	private final static Expression            neutralElement              = Expressions.makeSymbol(1);
+	private final static Expression            absorbingElement            = Expressions.makeSymbol(0);
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);
 
 	protected Object getFunctor() {

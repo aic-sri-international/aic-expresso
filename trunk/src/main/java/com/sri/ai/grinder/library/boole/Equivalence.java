@@ -55,7 +55,7 @@ import com.sri.ai.grinder.library.function.AbstractRewriterDefiningSymmetricFunc
 @Beta
 public class Equivalence extends AbstractRewriterDefiningSymmetricFunction {
 
-	public final static Expression FUNCTOR = Expressions.createSymbol(FunctorConstants.EQUIVALENCE);
+	public final static Expression FUNCTOR = Expressions.makeSymbol(FunctorConstants.EQUIVALENCE);
 	
 	public Equivalence() {
 		this.setReifiedTests(new HasFunctor(FUNCTOR),

@@ -62,7 +62,7 @@ import com.sri.ai.util.base.Pair;
 @Beta
 public class IfThenElse extends AbstractRewriter {
 
-	private static final Expression NOT_FUNCTOR = Expressions.createSymbol(FunctorConstants.NOT);
+	private static final Expression NOT_FUNCTOR = Expressions.makeSymbol(FunctorConstants.NOT);
 	//
 	private static final List<Integer> _pathToFunctor   = Collections.unmodifiableList(Arrays.asList(FunctionApplicationProvider.INDEX_OF_FUNCTOR_IN_FUNCTION_APPLICATIONS));
 	private static final List<Integer> _pathToCondition = Collections.unmodifiableList(Arrays.asList(0));
@@ -115,7 +115,7 @@ public class IfThenElse extends AbstractRewriter {
 		if (thenBranch.equals(true) && elseBranch.equals(false)) {
 			return condition;
 		}
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, condition, thenBranch, elseBranch);
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, condition, thenBranch, elseBranch);
 		return result;
 	}
 

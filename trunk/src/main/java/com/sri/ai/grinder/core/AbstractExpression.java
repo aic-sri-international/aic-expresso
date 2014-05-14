@@ -58,7 +58,7 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.SyntaxTreeToStringFunction;
+import com.sri.ai.expresso.core.ExpressionSyntaxTreeToStringFunction;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
@@ -542,7 +542,7 @@ public abstract class AbstractExpression implements Expression {
 			Object root = getSyntaxTree().getRootTree();
 			Object[] subTrees = getSyntaxTree().getImmediateSubTrees().toArray();
 			subTrees[index] = newIthArgument;
-			Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(root, subTrees);
+			Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(root, subTrees);
 			return result;
 		}
 		Util.fatalError("set can only be invoked for Expressions of function application syntactic form, but was invoked for " + this);
@@ -558,7 +558,7 @@ public abstract class AbstractExpression implements Expression {
 			}
 			else 
 			{
-				cachedToString = defaultToString();
+				cachedToString = getSyntaxTree().toString();
 			}
 		}
 		return cachedToString;
@@ -585,14 +585,13 @@ public abstract class AbstractExpression implements Expression {
 	private static Function<Expression, String> getToString() {
 		Function<Expression, String> result = threadToString.getIfPresent(Thread.currentThread());
 		if (result == null) {
-			// Initialize with the defaultToString() caller, as other methods can
-			// rely on Grammar instances that can cause recursive calls, this
-			// prevents such recursion from occurring.
-			threadToString.put(Thread.currentThread(), new SyntaxTreeToStringFunction());
+//			// Initialize with a function that generates the string from the syntax tree only,
+//          // as other methods can rely on Grammar instances that can cause recursive calls.
+//			// This prevents such recursion from occurring.
+			threadToString.put(Thread.currentThread(), new ExpressionSyntaxTreeToStringFunction());
 			
-			result = ExpressoConfiguration.newConfiguredInstance(ExpressoConfiguration.getDefaultSyntaxToStringUnaryFunctionClass());
-
 			// Now assign the configured object.
+			result = ExpressoConfiguration.newConfiguredInstance(ExpressoConfiguration.getDefaultSyntaxToStringUnaryFunctionClass());
 			threadToString.put(Thread.currentThread(), result);
 		}
 		

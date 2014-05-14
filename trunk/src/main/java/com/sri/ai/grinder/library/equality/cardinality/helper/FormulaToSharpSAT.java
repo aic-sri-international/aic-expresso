@@ -99,7 +99,7 @@ public class FormulaToSharpSAT {
 				// Extend with additional constants to represent the full domain size
 				int id = 1;
 				while (constIds.size() < domainSize) {
-					Expression newConstant = Expressions.createSymbol("a" + id);
+					Expression newConstant = Expressions.makeSymbol("a" + id);
 					if (!constIds.containsKey(newConstant)) {
 						constIds.put(newConstant, constIds.size()+1);
 					}
@@ -256,7 +256,7 @@ public class FormulaToSharpSAT {
 			}
 		}
 		
-		result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Or.FUNCTOR, disjuncts);
+		result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Or.FUNCTOR, disjuncts);
  		
 		return result;
 	}

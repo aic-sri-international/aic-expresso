@@ -189,13 +189,8 @@ public class ExpressionOnSymbol extends AbstractExpression {
 		throw new Error("Expression.rationalValue() invoked on " + this + ", which is not a number.");
 	}
 
-	@Override
-	public String defaultToString() {
-		return getSyntaxTree().toString();
-	}
-
 	public Expression clone() {
-		return Expressions.createSymbol(getValue());
+		return Expressions.makeSymbol(getValue());
 	}
 
 	public static void flushGlobalSymbolTable() {
@@ -273,29 +268,29 @@ public class ExpressionOnSymbol extends AbstractExpression {
 
 	//
 	// Commonly used symbol expressions
-	private static final Expression SYMBOL_TRUE  = Expressions.createSymbol(true);
+	private static final Expression SYMBOL_TRUE  = Expressions.makeSymbol(true);
 
-	private static final Expression SYMBOL_FALSE = Expressions.createSymbol(false);
+	private static final Expression SYMBOL_FALSE = Expressions.makeSymbol(false);
 
-	private static final Expression SYMBOL_0     = Expressions.createSymbol(new Rational(0));
+	private static final Expression SYMBOL_0     = Expressions.makeSymbol(new Rational(0));
 
-	private static final Expression SYMBOL_1     = Expressions.createSymbol(new Rational(1));
+	private static final Expression SYMBOL_1     = Expressions.makeSymbol(new Rational(1));
 
-	private static final Expression SYMBOL_2     = Expressions.createSymbol(new Rational(2));
+	private static final Expression SYMBOL_2     = Expressions.makeSymbol(new Rational(2));
 
-	private static final Expression SYMBOL_3     = Expressions.createSymbol(new Rational(3));
+	private static final Expression SYMBOL_3     = Expressions.makeSymbol(new Rational(3));
 
-	private static final Expression SYMBOL_4     = Expressions.createSymbol(new Rational(4));
+	private static final Expression SYMBOL_4     = Expressions.makeSymbol(new Rational(4));
 
-	private static final Expression SYMBOL_5     = Expressions.createSymbol(new Rational(5));
+	private static final Expression SYMBOL_5     = Expressions.makeSymbol(new Rational(5));
 
-	private static final Expression SYMBOL_6     = Expressions.createSymbol(new Rational(6));
+	private static final Expression SYMBOL_6     = Expressions.makeSymbol(new Rational(6));
 
-	private static final Expression SYMBOL_7     = Expressions.createSymbol(new Rational(7));
+	private static final Expression SYMBOL_7     = Expressions.makeSymbol(new Rational(7));
 
-	private static final Expression SYMBOL_8     = Expressions.createSymbol(new Rational(8));
+	private static final Expression SYMBOL_8     = Expressions.makeSymbol(new Rational(8));
 
-	private static final Expression SYMBOL_9     = Expressions.createSymbol(new Rational(9));
+	private static final Expression SYMBOL_9     = Expressions.makeSymbol(new Rational(9));
 
 	//
 	private static boolean                      _useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();

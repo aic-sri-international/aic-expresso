@@ -55,7 +55,7 @@ public class GreaterThanOrEqualTo extends BinaryOperator {
 
 	public GreaterThanOrEqualTo() {
 		this.functors = new LinkedHashSet<Expression>();
-		this.functors.add(Expressions.createSymbol(">="));
+		this.functors.add(Expressions.makeSymbol(">="));
 		//
 		this.firstType  = Number.class;
 		this.secondType = Number.class;

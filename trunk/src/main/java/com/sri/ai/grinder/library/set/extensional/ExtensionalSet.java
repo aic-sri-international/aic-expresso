@@ -63,7 +63,7 @@ public class ExtensionalSet {
 	public static final String MULTI_SET_LABEL = "{{ . }}";
 
 	public static Expression make(Object label, List<Expression> elements) {
-		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(label, Expressions.makeKleeneListIfNeeded(elements));
+		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(label, Expressions.makeKleeneListIfNeeded(elements));
 	}
 	
 	public static Expression makeOfSameTypeAsIntensionalSet(Expression intensionalSetExpression, List<Expression> elements) {
@@ -78,19 +78,19 @@ public class ExtensionalSet {
 	}
 
 	public static Expression makeUniSet(List<Expression> elements) {
-		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(UNI_SET_LABEL, Expressions.makeKleeneListIfNeeded(elements));
+		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(UNI_SET_LABEL, Expressions.makeKleeneListIfNeeded(elements));
 	}
 	
 	public static Expression makeUniSetExpression(List<Expression> elements) {
-		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(UNI_SET_LABEL, Expressions.makeKleeneListIfNeeded(elements));
+		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(UNI_SET_LABEL, Expressions.makeKleeneListIfNeeded(elements));
 	}
 	
 	public static Expression makeUniSet(Expression... elements) {
-		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(UNI_SET_LABEL, Expressions.makeKleeneListIfNeeded(Arrays.asList(elements)));
+		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(UNI_SET_LABEL, Expressions.makeKleeneListIfNeeded(Arrays.asList(elements)));
 	}
 	
 	public static Expression makeMultiSet(List<Expression> elements) {
-		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(MULTI_SET_LABEL, Expressions.makeKleeneListIfNeeded(elements));
+		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(MULTI_SET_LABEL, Expressions.makeKleeneListIfNeeded(elements));
 	}
 	
 	public static Expression makeEmptySet() {

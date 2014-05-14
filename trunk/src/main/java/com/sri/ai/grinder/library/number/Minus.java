@@ -73,7 +73,7 @@ public class Minus extends AbstractRewriter {
 			Rational firstValue = first.rationalValue();
 			if (Expressions.isNumber(second)) {
 				Rational secondValue = second.rationalValue();
-				result = Expressions.createSymbol(firstValue.subtract(secondValue));
+				result = Expressions.makeSymbol(firstValue.subtract(secondValue));
 			} 
 			else if (firstValue.isZero()) {
 				result = Expressions.apply("-", second);

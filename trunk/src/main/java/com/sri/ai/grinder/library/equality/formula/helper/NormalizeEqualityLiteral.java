@@ -91,7 +91,7 @@ public class NormalizeEqualityLiteral extends AbstractRewriter {
 				String e0 = expression.get(0).toString();
 				String e1 = expression.get(1).toString();
 			    if (e0.compareTo(e1) > 0 && process.isVariable(expression.get(0)) && process.isVariable(expression.get(1))) {
-			    	result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), expression.get(1), expression.get(0));
+			    	result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), expression.get(1), expression.get(0));
 			    }
 				// X = X  -> true
 			    else if (expression.get(0).equals(expression.get(1))) {

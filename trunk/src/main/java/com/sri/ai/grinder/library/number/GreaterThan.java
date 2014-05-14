@@ -57,7 +57,7 @@ public class GreaterThan extends BinaryOperator {
 
 	public GreaterThan() {
 		this.functors = new LinkedHashSet<Expression>(); 
-		this.functors.add(Expressions.createSymbol(FunctorConstants.GREATER_THAN));
+		this.functors.add(Expressions.makeSymbol(FunctorConstants.GREATER_THAN));
 		//
 		this.firstType  = Number.class;
 		this.secondType = Number.class;

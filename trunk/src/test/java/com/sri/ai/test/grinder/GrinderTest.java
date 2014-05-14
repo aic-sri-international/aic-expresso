@@ -204,32 +204,32 @@ public class GrinderTest extends AbstractGrinderTest {
 				new Associative("+"));
 		evaluator = new ExhaustiveRewriter(library);
 		
-		Expression topExpression = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.EQUAL, Expressions.createSymbol("V"), "2");
+		Expression topExpression = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.EQUAL, Expressions.makeSymbol("V"), "2");
 		RewritingProcess process = new DefaultRewritingProcess(topExpression, evaluator);
 		
 		Expression var = Expressions.makeUniqueVariable("X", topExpression, process);
-		assertEquals(Expressions.createSymbol("X"), var);
+		assertEquals(Expressions.makeSymbol("X"), var);
 		
 		var = Expressions.makeUniqueVariable("x", topExpression, process);
-		assertEquals(Expressions.createSymbol("X"), var);
+		assertEquals(Expressions.makeSymbol("X"), var);
 		
 		var = Expressions.makeUniqueVariable("X1", topExpression, process);	
-		assertEquals(Expressions.createSymbol("X1"), var);
+		assertEquals(Expressions.makeSymbol("X1"), var);
 		
 		var = Expressions.makeUniqueVariable("x1", topExpression, process);
-		assertEquals(Expressions.createSymbol("X1"), var);
+		assertEquals(Expressions.makeSymbol("X1"), var);
 		
 		var = Expressions.makeUniqueVariable("V", topExpression, process);
-		assertEquals(Expressions.createSymbol("V'"), var);
+		assertEquals(Expressions.makeSymbol("V'"), var);
 		
 		var = Expressions.makeUniqueVariable("v", topExpression, process);
-		assertEquals(Expressions.createSymbol("V'"), var);
+		assertEquals(Expressions.makeSymbol("V'"), var);
 		
 		var = Expressions.makeUniqueVariable("V1", topExpression, process);
-		assertEquals(Expressions.createSymbol("V1"), var);
+		assertEquals(Expressions.makeSymbol("V1"), var);
 		
 		var = Expressions.makeUniqueVariable("v1", topExpression, process);
-		assertEquals(Expressions.createSymbol("V1"), var);
+		assertEquals(Expressions.makeSymbol("V1"), var);
 	}
 
 	@Ignore // need to include asserts in this test
@@ -244,7 +244,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluator = new TotalRewriter(GrinderTest.class.getName()+ " testEquivalencyCache Total Rewriter", library);
 		
 		expressionString = "((1 + 2) * (1 + 2)) + ((1 + 2) * (1 + 2))"; // should reuse equivalency results
-		expected   = Expressions.createSymbol(18);
+		expected   = Expressions.makeSymbol(18);
 		evaluationTest();
 
 	}
@@ -257,7 +257,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluator = new ExhaustiveRewriter(library);
 		
 		expressionString = "3";
-		expected   = Expressions.createSymbol(3);
+		expected   = Expressions.makeSymbol(3);
 		evaluationTest();
 
 		expressionString = "x + y";
@@ -265,7 +265,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluationTest();
 		
 		expressionString = "1 + 2";
-		expected   = Expressions.createSymbol(3);
+		expected   = Expressions.makeSymbol(3);
 		evaluationTest();
 		
 		expressionString = "x + 2";
@@ -317,11 +317,11 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluator = new ExhaustiveRewriter(library);
 		
 		expressionString = "3 - 1";
-		expected   = Expressions.createSymbol(2);
+		expected   = Expressions.makeSymbol(2);
 		evaluationTest();
 		
 		expressionString = "1 - 3";
-		expected   = Expressions.createSymbol(-2);
+		expected   = Expressions.makeSymbol(-2);
 		evaluationTest();
 		
 		expressionString = "X - Y";
@@ -329,7 +329,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluationTest();
 		
 		expressionString = "X - 0";
-		expected   = Expressions.createSymbol("X");
+		expected   = Expressions.makeSymbol("X");
 		evaluationTest();
 		
 		expressionString = "0 - X";
@@ -344,7 +344,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluator = new ExhaustiveRewriter(library);
 		
 		expressionString = "-1";
-		expected   = Expressions.createSymbol(-1);
+		expected   = Expressions.makeSymbol(-1);
 		evaluationTest();
 		
 		expressionString = "-x";
@@ -361,7 +361,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluator = new ExhaustiveRewriter(library);
 		
 		expressionString = "3";
-		expected   = Expressions.createSymbol(3);
+		expected   = Expressions.makeSymbol(3);
 		evaluationTest();
 
 		expressionString = "x * y";
@@ -369,7 +369,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluationTest();
 		
 		expressionString = "2 * 2";
-		expected   = Expressions.createSymbol(4);
+		expected   = Expressions.makeSymbol(4);
 		evaluationTest();
 		
 		expressionString = "x * 2";
@@ -412,23 +412,23 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluator = new ExhaustiveRewriter(library);
 		
 		expressionString = "3^2";
-		expected   = Expressions.createSymbol(9);
+		expected   = Expressions.makeSymbol(9);
 		evaluationTest();
 		
 		expressionString = "x^1";
-		expected   = Expressions.createSymbol("x");
+		expected   = Expressions.makeSymbol("x");
 		evaluationTest();
 		
 		expressionString = "x^0";
-		expected   = Expressions.createSymbol(1);
+		expected   = Expressions.makeSymbol(1);
 		evaluationTest();
 		
 		expressionString = "x^0.0";
-		expected   = Expressions.createSymbol(1);
+		expected   = Expressions.makeSymbol(1);
 		evaluationTest();
 		
 		expressionString = "1^n";
-		expected   = Expressions.createSymbol(1);
+		expected   = Expressions.makeSymbol(1);
 		evaluationTest();
 		
 		expressionString = "2^n";
@@ -446,57 +446,57 @@ public class GrinderTest extends AbstractGrinderTest {
 		Rational nonZeroMinAbsValue = new Rational(1).divide(new Rational(10).pow(324));
 		
 		expressionString = "10^1022";
-		expected   = Expressions.createSymbol(new Rational(10).pow(1022));
+		expected   = Expressions.makeSymbol(new Rational(10).pow(1022));
 		evaluationTest();
 		
 		expressionString = "10^1023";
-		expected   = Expressions.createSymbol(Double.MAX_VALUE);
+		expected   = Expressions.makeSymbol(Double.MAX_VALUE);
 		evaluationTest();
 		
 		expressionString = "10^1024";
-		expected   = Expressions.createSymbol(Double.MAX_VALUE);
+		expected   = Expressions.makeSymbol(Double.MAX_VALUE);
 		evaluationTest();
 		
 		//
 		expressionString = "0.1^324";
-		expected   = Expressions.createSymbol(new Rational(10).pow(-324));
+		expected   = Expressions.makeSymbol(new Rational(10).pow(-324));
 		evaluationTest();
 		
 		expressionString = "0.1^325";
-		expected   = Expressions.createSymbol(nonZeroMinAbsValue);
+		expected   = Expressions.makeSymbol(nonZeroMinAbsValue);
 		evaluationTest();
 		
 		expressionString = "0.1^1022";
-		expected   = Expressions.createSymbol(nonZeroMinAbsValue);
+		expected   = Expressions.makeSymbol(nonZeroMinAbsValue);
 		evaluationTest();
 		
 		expressionString = "0.1^1023";
-		expected   = Expressions.createSymbol(nonZeroMinAbsValue);
+		expected   = Expressions.makeSymbol(nonZeroMinAbsValue);
 		evaluationTest();
 		
 		expressionString = "0.1^2000";
-		expected   = Expressions.createSymbol(nonZeroMinAbsValue);
+		expected   = Expressions.makeSymbol(nonZeroMinAbsValue);
 		evaluationTest();
 		
 		//
 		expressionString = "10^(0-324)";
-		expected   = Expressions.createSymbol(new Rational(10).pow(-324));
+		expected   = Expressions.makeSymbol(new Rational(10).pow(-324));
 		evaluationTest();
 		
 		expressionString = "10^(0-325)";
-		expected   = Expressions.createSymbol(nonZeroMinAbsValue);
+		expected   = Expressions.makeSymbol(nonZeroMinAbsValue);
 		evaluationTest();
 		
 		expressionString = "10^(0-1022)";
-		expected   = Expressions.createSymbol(nonZeroMinAbsValue);
+		expected   = Expressions.makeSymbol(nonZeroMinAbsValue);
 		evaluationTest();
 		
 		expressionString = "10^(0-1023)";
-		expected   = Expressions.createSymbol(nonZeroMinAbsValue);
+		expected   = Expressions.makeSymbol(nonZeroMinAbsValue);
 		evaluationTest();
 		
 		expressionString = "10^(0-2000)";
-		expected   = Expressions.createSymbol(nonZeroMinAbsValue);
+		expected   = Expressions.makeSymbol(nonZeroMinAbsValue);
 		evaluationTest();
 	}
 	
@@ -507,17 +507,17 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluator = new ExhaustiveRewriter(library);
 		
 		expressionString = "4/2";
-		expected   = Expressions.createSymbol(2);
+		expected   = Expressions.makeSymbol(2);
 		evaluationTest();
 		
 		expressionString = "4.0/2.0";
-		expected   = Expressions.createSymbol(2);
+		expected   = Expressions.makeSymbol(2);
 		evaluationTest();
 		
 		// Note: Arbitrary precision supported by Rationals
 		// in this case you get 1.3333333....
 		expressionString = "4.0/3.0";
-		expected   = Expressions.createSymbol(new Rational("4/3"));
+		expected   = Expressions.makeSymbol(new Rational("4/3"));
 		evaluationTest();
 		
 		expressionString = "a/b";
@@ -576,15 +576,15 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluator = new ExhaustiveRewriter(library);
 		
 		expressionString = "3 > 1";
-		expected   = Expressions.createSymbol(true);
+		expected   = Expressions.makeSymbol(true);
 		evaluationTest();
 
 		expressionString = "3 > 3";
-		expected   = Expressions.createSymbol(false);
+		expected   = Expressions.makeSymbol(false);
 		evaluationTest();
 
 		expressionString = "1 > 3";
-		expected   = Expressions.createSymbol(false);
+		expected   = Expressions.makeSymbol(false);
 		evaluationTest();
 
 		expressionString = "1 > y";
@@ -603,15 +603,15 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluator = new ExhaustiveRewriter(library);
 		
 		expressionString = "3 >= 1";
-		expected   = Expressions.createSymbol(true);
+		expected   = Expressions.makeSymbol(true);
 		evaluationTest();
 		
 		expressionString = "3 >= 3";
-		expected   = Expressions.createSymbol(true);
+		expected   = Expressions.makeSymbol(true);
 		evaluationTest();
 
 		expressionString = "1 >= 3";
-		expected   = Expressions.createSymbol(false);
+		expected   = Expressions.makeSymbol(false);
 		evaluationTest();
 
 		expressionString = "1 >= y";
@@ -647,11 +647,11 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluator = new ExhaustiveRewriter(library);
 		
 		expressionString = "true and x";
-		expected   = Expressions.createSymbol("x");
+		expected   = Expressions.makeSymbol("x");
 		evaluationTest();
 
 		expressionString = "true";
-		expected   = Expressions.createSymbol(true);
+		expected   = Expressions.makeSymbol(true);
 		evaluationTest();
 
 		expressionString = "x and y";
@@ -659,7 +659,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluationTest();
 		
 		expressionString = "true and false";
-		expected   = Expressions.createSymbol(false);
+		expected   = Expressions.makeSymbol(false);
 		evaluationTest();
 		
 		expressionString = "x and false";
@@ -699,7 +699,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluator = new ExhaustiveRewriter(library);
 		
 		expressionString = "true";
-		expected   = Expressions.createSymbol(true);
+		expected   = Expressions.makeSymbol(true);
 		evaluationTest();
 	
 		expressionString = "x and y";
@@ -707,7 +707,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluationTest();
 		
 		expressionString = "true and false";
-		expected   = Expressions.createSymbol(false);
+		expected   = Expressions.makeSymbol(false);
 		evaluationTest();
 		
 		expressionString = "x and false";
@@ -748,15 +748,15 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluator = new ExhaustiveRewriter(library);
 		
 		expressionString = "false or x";
-		expected   = Expressions.createSymbol("x");
+		expected   = Expressions.makeSymbol("x");
 		evaluationTest();
 
 		expressionString = "x or false";
-		expected   = Expressions.createSymbol("x");
+		expected   = Expressions.makeSymbol("x");
 		evaluationTest();
 
 		expressionString = "true";
-		expected   = Expressions.createSymbol(true);
+		expected   = Expressions.makeSymbol(true);
 		evaluationTest();
 	
 		expressionString = "x or y";
@@ -764,7 +764,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluationTest();
 		
 		expressionString = "true or false";
-		expected   = Expressions.createSymbol(true);
+		expected   = Expressions.makeSymbol(true);
 		evaluationTest();
 		
 		expressionString = "x or true";
@@ -791,7 +791,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluationTest();
 		
 		expressionString = "x or x";
-		expected   = Expressions.createSymbol("x");
+		expected   = Expressions.makeSymbol("x");
 		evaluationTest();
 	}
 	
@@ -802,11 +802,11 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluator = new ExhaustiveRewriter(library);
 		
 		expressionString = "not true";
-		expected   = Expressions.createSymbol(false);
+		expected   = Expressions.makeSymbol(false);
 		evaluationTest();
 		
 		expressionString = "not false";
-		expected   = Expressions.createSymbol(true);
+		expected   = Expressions.makeSymbol(true);
 		evaluationTest();
 		
 		expressionString = "not x";
@@ -1328,14 +1328,14 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 
 		expressionString = "if even(X) then f(even(Y)) else g(even(X))";
-		expected = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(ANY_OF,
+		expected = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(ANY_OF,
 				parse("if even(X) then f(if Y = X then true else even(Y)) else g(false)"),
 				parse("if even(X) then f(even(Y)) else g(false)")
 				);
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 
 		expressionString = "if even(X) then {(on even(a)) f(even(Y))} else g(even(X))";
-		expected = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(ANY_OF, 
+		expected = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(ANY_OF, 
 				parse("if even(X) then { ( on even(a) ) f(even(Y)) } else g(false)"),
 				parse("if even(X) then {(on even(a)) f(if Y != a and Y = X then true else even(Y))} else g(false)"),
 				parse("if even(X) then {(on even(a)) f(if X != a and Y = X then true else even(Y))} else g(false)"));
@@ -1825,7 +1825,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluator = new ExhaustiveRewriter(library);
 		
 		expressionString = "3";
-		expected   = Expressions.createSymbol(3);
+		expected   = Expressions.makeSymbol(3);
 		evaluationTest();
 	
 		expressionString = "{x} union {y}";
@@ -1968,7 +1968,7 @@ public class GrinderTest extends AbstractGrinderTest {
 				RewritingProcess process) {
 			if (expression.hasFunctor("g")) {
 				count++;
-				return Expressions.createSymbol("foo");
+				return Expressions.makeSymbol("foo");
 			}
 			return expression;
 		}

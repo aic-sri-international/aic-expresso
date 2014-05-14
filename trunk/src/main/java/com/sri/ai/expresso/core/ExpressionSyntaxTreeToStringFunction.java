@@ -42,18 +42,13 @@ import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 
 /**
- * Convert a Syntax Tree to its default string representation.
+ * Maps an expression to the string representation of its syntax tree.
  * 
  * @author braz
  *
  */
 @Beta
-public class SyntaxTreeToStringFunction implements Function<Expression, String> {
-
-	public SyntaxTreeToStringFunction() {
-		
-	}
-	
+public class ExpressionSyntaxTreeToStringFunction implements Function<Expression, String> {
 	@Override
 	public String apply(Expression expression) {
 		String result = expression.getSyntaxTree().toString();

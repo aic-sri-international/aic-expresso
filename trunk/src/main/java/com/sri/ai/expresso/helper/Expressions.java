@@ -52,7 +52,6 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
@@ -91,14 +90,14 @@ import com.sri.ai.util.math.Rational;
 @Beta
 public class Expressions {
 	
-	public static final Expression EMPTY_LIST      = Expressions.createSymbol("list");
-	public static final Expression TRUE            = Expressions.createSymbol("true");
-	public static final Expression FALSE           = Expressions.createSymbol("false");
-	public static final Expression ZERO            = Expressions.createSymbol(0);
-	public static final Expression ZERO_POINT_FIVE = Expressions.createSymbol(0.5);
-	public static final Expression ONE             = Expressions.createSymbol(1);
-	public static final Expression TWO             = Expressions.createSymbol(2);
-	public static final Expression THREE           = Expressions.createSymbol(3);
+	public static final Expression EMPTY_LIST      = Expressions.makeSymbol("list");
+	public static final Expression TRUE            = Expressions.makeSymbol("true");
+	public static final Expression FALSE           = Expressions.makeSymbol("false");
+	public static final Expression ZERO            = Expressions.makeSymbol(0);
+	public static final Expression ZERO_POINT_FIVE = Expressions.makeSymbol(0.5);
+	public static final Expression ONE             = Expressions.makeSymbol(1);
+	public static final Expression TWO             = Expressions.makeSymbol(2);
+	public static final Expression THREE           = Expressions.makeSymbol(3);
 	//
 	private static final SingletonListMaker<Integer> INTEGER_SINGLETON_LIST_MAKER = new SingletonListMaker<Integer>();
 	
@@ -119,13 +118,13 @@ public class Expressions {
 	/**
 	 * Makes Expression based on a syntax tree with given label and sub-trees.
 	 */
-	public static Expression makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object label, Object... subTreeObjects) {
+	public static Expression makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Object label, Object... subTreeObjects) {
 		Expression result = new ExpressionOnCompoundSyntaxTree(label, subTreeObjects);
 		return result;
 	}
 
 
-	public static final Function<SyntaxTree, Expression> MAKER = new Function<SyntaxTree, Expression>() {
+	public static final Function<SyntaxTree, Expression> SYNTAX_TREE_TO_EXPRESSION = new Function<SyntaxTree, Expression>() {
 		@Override
 		public Expression apply(SyntaxTree input) {
 			Expression result = makeFromSyntaxTree(input);
@@ -134,9 +133,9 @@ public class Expressions {
 	};
 	
 	/**
-	 * Creates an atomic expression. TODO: Name should change once cleanup of SyntaxTree/Expression is completed.
+	 * Makes an expression based on a symbol with given value.
 	 */
-	public static Expression createSymbol(Object object) {
+	public static Expression makeSymbol(Object object) {
 		return ExpressionOnSymbol.createSymbol(object);
 	}
 	
@@ -151,16 +150,6 @@ public class Expressions {
 	}
 
 	/**
-	 * If argument is a "list" application, returns a {@link List} of its arguments;
-	 * otherwise, returns a {@link List} containing this argument.
-	 */
-	public
-	static List<Expression> ensureListFromList(Expression listOrSingleElementOfList) {
-		boolean isListName = listOrSingleElementOfList != null && listOrSingleElementOfList.hasFunctor("kleene list");
-		return (isListName? listOrSingleElementOfList.getArguments() : Lists.newArrayList(listOrSingleElementOfList));
-	}
-
-	/**
 	 * Returns a "kleene list" application if given list of expressions is not singleton,
 	 * and the single element itself otherwise.
 	 * This is a inverse operation of {@ #ensureList(Expression)}.
@@ -169,60 +158,9 @@ public class Expressions {
 		if (list.size() == 1) {
 			return list.get(0);
 		}
-		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("kleene list", list);
+		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", list);
 	}
 
-	/**
-	 * Returns a "list" application if given list is not singleton,
-	 * and the single element itself otherwise.
-	 * Wraps objects into expressions.
-	 * This is a inverse operation of {@link #ensureListFromList(Expression)}.
-	 */
-	public static <T> Expression makeListIfNeeded(Collection<T> objects) {
-		if (objects.size() == 1 ) {
-			return Expressions.wrap(Util.getFirstOrNull(objects));
-		}
-		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("list", objects);
-	}
-	
-	public static boolean argumentsIntersect(Expression expression1, Expression expression2) {
-		return Util.intersect(expression1.getArguments(), expression2.getArguments());
-	}
-	
-	/** A static version of associate when check for associative operator is done, with predicate indicating whether argument of same functor is to be associated. */
-	public static Expression associateWhenSureOperatorIsAssociative(Expression expression, Predicate<Expression> isAssociatable) {
-		if (expression.numberOfArguments() == 0) {
-			return expression;
-		}
-		List<Expression> resultArguments = new LinkedList<Expression>();
-		Expression functor = expression.getFunctor();
-		boolean change = false;
-		for (Expression argument : expression.getArguments()) {
-			if (argument.hasFunctor(functor) &&
-					argument.numberOfArguments() > 1 &&
-					isAssociatable.apply(argument)) {
-				resultArguments.addAll(argument.getArguments());
-				change = true;
-			}
-			else {
-				resultArguments.add(argument);
-			}
-		}
-		
-		if (change) {
-			return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(functor, resultArguments);
-		}
-		
-		return expression;
-	}
-
-	/** A static version of associate when check for associative operator is done, with predicate indicating whether argument of same functor is to be associated. */
-	public static Expression associateWhenSureOperatorIsAssociative(Expression expression) {
-		Predicate<Expression> alwaysTrue = Predicates.alwaysTrue();
-		Expression result = associateWhenSureOperatorIsAssociative(expression, alwaysTrue);
-		return result;
-	}
-	
 	/**
 	 * Given a symbol assumed to be an identifier,
 	 * returns a symbol with a minimum 0 or more prime ("'") characters appended to it
@@ -230,7 +168,7 @@ public class Expressions {
 	 */
 	public static Expression primedUntilUnique(Expression symbol, Predicate<Expression> isUnique) {
 		while (! isUnique.apply(symbol)) {
-			symbol = Expressions.createSymbol(symbol + "'");
+			symbol = Expressions.makeSymbol(symbol + "'");
 		}
 		return symbol;
 	}
@@ -242,7 +180,7 @@ public class Expressions {
 	 */
 	public static Expression prefixedUntilUnique(Expression symbol, String prefix, Predicate<Expression> isUnique) {
 		while (! isUnique.apply(symbol)) {
-			symbol = Expressions.createSymbol(prefix + symbol);
+			symbol = Expressions.makeSymbol(prefix + symbol);
 		}
 		return symbol;
 	}
@@ -273,31 +211,23 @@ public class Expressions {
 	 * @return a uniquely named variable in the context of the passed in
 	 *         expression.
 	 */
-	public static Expression makeUniqueVariable(String variableName,
-			Expression expression, RewritingProcess process) {
+	public static Expression makeUniqueVariable(
+			String variableName, Expression expression, RewritingProcess process) {
 		// Variables have a leading captial
 		if (variableName.length() > 0) {
 			String leadingChar = variableName.substring(0, 1);
 			if (!leadingChar.equals(leadingChar.toUpperCase())) {
-				variableName = leadingChar.toUpperCase()
-						+ variableName.substring(1);
+				variableName = leadingChar.toUpperCase() + variableName.substring(1);
 			}
 		} 
 		else {
 			variableName = "V";
 		}
 
-		Expression result = primedUntilUnique(Expressions.createSymbol(variableName), expression, process);
+		Expression result = primedUntilUnique(Expressions.makeSymbol(variableName), expression, process);
 		return result;
 	}
 	
-	/**
-	 * Indicates whether any of <code>expression</code> is a sub-expression of <code>expression</code>.
-	 */
-	public static boolean containsAnyOf(Expression expression, Collection<Expression> expressions) {
-		return Util.thereExists(expressions, new In(expression));
-	}
-
 	/**
 	 * Given a collection of expressions <code>c</code>,
 	 * returns a map with the an entry for each expression <code>e</code> in <code>c</code>,
@@ -342,7 +272,7 @@ public class Expressions {
 		if (object == null || object instanceof Expression) {
 			return (Expression) object;
 		}
-		return createSymbol(object);
+		return makeSymbol(object);
 	}
 
 	/** The array version of {@link #wrap(Object)}. */
@@ -413,7 +343,7 @@ public class Expressions {
 			}
 			// now (rootTreeOrExpression, subTreesOrSubExpressions) contains an Expression, and not only SyntaxTrees.
 
-			Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(rootTreeOrExpression, subTreesOrSubExpressions);
+			Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(rootTreeOrExpression, subTreesOrSubExpressions);
 			// remember that constructors for expressions receive the *syntax tree* components, but when they receive Expressions,
 			// they keep them around to make sure the corresponding sub-expressions use the same Expression instance.
 			// This only holds for immediate sub-expressions, but the recursive class to replaceAtPath took care of the deeper ones.
@@ -428,6 +358,14 @@ public class Expressions {
 	}
 
 	/**
+	 * Indicates whether any of <code>expressions</code> is a sub-expression of <code>expression</code>.
+	 */
+	public static boolean containsAnyOfGivenCollectionAsSubExpression(Expression expression, Collection<Expression> expressions) {
+		return Util.thereExists(expressions, new IsSubExpressionOf(expression));
+	}
+
+
+	/**
 	 * Tests whether the functor of a given (possibly null) expression equals a given object.
 	 */
 	public static boolean hasFunctor(Expression expression, Object functor) {
@@ -438,11 +376,11 @@ public class Expressions {
 	public static Expression addExpressionToArgumentsOfFunctionApplication(Expression expression, Object newArgument) {
 		ArrayList<Expression> newArguments = new ArrayList<Expression>(expression.getArguments());
 		newArguments.add(wrap(newArgument));
-		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), newArguments);
+		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), newArguments);
 	}
 
 	public static Expression apply(Object functor, Object... arguments) {
-		Expression result = makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(functor, arguments);
+		Expression result = makeExpressionOnSyntaxTreeWithLabelAndSubTrees(functor, arguments);
 		return result;
 	}
 
@@ -711,7 +649,7 @@ public class Expressions {
 			else {
 				rounded = value.toStringDotRelative(precision);
 			}
-			return Expressions.createSymbol(rounded);
+			return Expressions.makeSymbol(rounded);
 		}
 		return expression;
 	}
@@ -820,7 +758,7 @@ public class Expressions {
 		}
 		List<Expression> result = new LinkedList<Expression>();
 		for (int i = 0; i != list1.size(); i++) {
-			result.add(Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(functor, list1.get(i), list2.get(i)));
+			result.add(Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(functor, list1.get(i), list2.get(i)));
 		}
 		return result;
 	}
@@ -877,7 +815,7 @@ public class Expressions {
 	 */
 	public static Expression removeIthArgument(Expression expression, int i) {
 		List<Expression> newArguments = Util.removeNonDestructively(expression.getArguments(), i);
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), newArguments);
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), newArguments);
 		return result;
 	}
 
@@ -1069,19 +1007,16 @@ public class Expressions {
 		return DefaultRewritingProcess.getGlobalRewritingProcessForKnowledgeBasedExpressions();
 	}
 
-
 	public static List<Expression> makeListOfExpressions(List<SyntaxTree> syntaxTrees) {
-		List<Expression> result = Util.mapIntoArrayList(syntaxTrees, MAKER);
+		List<Expression> result = Util.mapIntoArrayList(syntaxTrees, SYNTAX_TREE_TO_EXPRESSION);
 		return result;
 	}
-
 
 	public static Function<Object, Object> MAKE_SURE_IT_IS_SYNTAX_TREE_OR_NON_EXPRESSION_OBJECT = new Function<Object, Object>() {
 		@Override
 		public Object apply(Object input) {
 			return Expressions.makeSureItIsSyntaxTreeOrNonExpressionObject(input);
 		}
-	
 	};
 
 	public static Object[] makeSureItIsSyntaxTreeOrNonExpressionObject(Object[] input) {
@@ -1091,7 +1026,6 @@ public class Expressions {
 				.toArray();
 		return result;
 	}
-
 
 	public static <T> List<Object> makeSureItIsSyntaxTreeOrNonExpressionObject(List<T> list) {
 		List<Object> result =

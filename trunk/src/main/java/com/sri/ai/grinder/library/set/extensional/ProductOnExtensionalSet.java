@@ -63,7 +63,7 @@ public class ProductOnExtensionalSet extends AbstractRewriter {
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		if (Sets.isExtensionalSet(expression.get(0))) {
-			return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("*", ExtensionalSet.getElements(expression.get(0)));
+			return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("*", ExtensionalSet.getElements(expression.get(0)));
 		}
 		return expression;
 	}

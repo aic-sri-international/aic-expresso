@@ -61,8 +61,8 @@ public class Or extends BooleanCommutativeAssociative {
 
 	public static final Object FUNCTOR = "or";
 	//
-	private final static Expression            neutralElement              = Expressions.createSymbol(false);
-	private final static Expression            absorbingElement            = Expressions.createSymbol(true);
+	private final static Expression            neutralElement              = Expressions.makeSymbol(false);
+	private final static Expression            absorbingElement            = Expressions.makeSymbol(true);
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Boolean.class);
 
 	protected Object getFunctor() {

@@ -69,7 +69,7 @@ public interface Rewriter {
 	 * Return value returned if the rewriter is called within a
 	 * rewriting process whose contextual constraint evaluates to false.
 	 */
-	Expression FALSE_CONTEXTUAL_CONTRAINT_RETURN_VALUE = Expressions.createSymbol("whatever");
+	Expression FALSE_CONTEXTUAL_CONTRAINT_RETURN_VALUE = Expressions.makeSymbol("whatever");
 
 	/**
 	 * An unique identifying name for the rewriter (intended to correspond to

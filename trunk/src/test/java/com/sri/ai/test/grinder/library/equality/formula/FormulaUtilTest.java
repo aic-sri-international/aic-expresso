@@ -105,15 +105,15 @@ public class FormulaUtilTest extends AbstractGrinderTest {
 		
 		//
 		// the Boolean constants False and True are formulas;
-		Assert.assertTrue(FormulaUtil.isFormula(Expressions.createSymbol(false), process));
-		Assert.assertTrue(FormulaUtil.isFormula(Expressions.createSymbol(true), process));
-		Assert.assertTrue(FormulaUtil.isFormula(Expressions.createSymbol("false"), process));
-		Assert.assertTrue(FormulaUtil.isFormula(Expressions.createSymbol("true"), process));
+		Assert.assertTrue(FormulaUtil.isFormula(Expressions.makeSymbol(false), process));
+		Assert.assertTrue(FormulaUtil.isFormula(Expressions.makeSymbol(true), process));
+		Assert.assertTrue(FormulaUtil.isFormula(Expressions.makeSymbol("false"), process));
+		Assert.assertTrue(FormulaUtil.isFormula(Expressions.makeSymbol("true"), process));
 		//
-		Assert.assertFalse(FormulaUtil.isFormula(Expressions.createSymbol("a"), process));
-		Assert.assertFalse(FormulaUtil.isFormula(Expressions.createSymbol("X"), process));
-		Assert.assertFalse(FormulaUtil.isFormula(Expressions.createSymbol("1"), process));
-		Assert.assertFalse(FormulaUtil.isFormula(Expressions.createSymbol("3.14"), process));
+		Assert.assertFalse(FormulaUtil.isFormula(Expressions.makeSymbol("a"), process));
+		Assert.assertFalse(FormulaUtil.isFormula(Expressions.makeSymbol("X"), process));
+		Assert.assertFalse(FormulaUtil.isFormula(Expressions.makeSymbol("1"), process));
+		Assert.assertFalse(FormulaUtil.isFormula(Expressions.makeSymbol("3.14"), process));
 		//
 		// if alpha and beta are variable or constant symbols of finite types,
 		// then alpha = beta is a formula. 
@@ -206,9 +206,9 @@ public class FormulaUtilTest extends AbstractGrinderTest {
 		RewritingProcess process = new DefaultRewritingProcess(parse(""), new Basic());
 		//
 		// the Boolean constants False and True are formulas;
-		Assert.assertTrue(FormulaUtil.isQuantifierFreeFormula(Expressions.createSymbol(false), process));
+		Assert.assertTrue(FormulaUtil.isQuantifierFreeFormula(Expressions.makeSymbol(false), process));
 		//
-		Assert.assertFalse(FormulaUtil.isQuantifierFreeFormula(Expressions.createSymbol("a"), process));
+		Assert.assertFalse(FormulaUtil.isQuantifierFreeFormula(Expressions.makeSymbol("a"), process));
 		//
 		// if alpha and beta are variable or constant symbols of finite types,
 		// then alpha = beta is a formula. 
@@ -296,9 +296,9 @@ public class FormulaUtilTest extends AbstractGrinderTest {
 		RewritingProcess process = new DefaultRewritingProcess(parse(""), new Basic());
 		//
 		// the Boolean constants False and True are formulas;
-		Assert.assertTrue(FormulaUtil.isNNF(Expressions.createSymbol(false), process));
+		Assert.assertTrue(FormulaUtil.isNNF(Expressions.makeSymbol(false), process));
 		//
-		Assert.assertFalse(FormulaUtil.isNNF(Expressions.createSymbol("a"), process));
+		Assert.assertFalse(FormulaUtil.isNNF(Expressions.makeSymbol("a"), process));
 		//
 		// if alpha and beta are variable or constant symbols of finite types,
 		// then alpha = beta is a formula. 

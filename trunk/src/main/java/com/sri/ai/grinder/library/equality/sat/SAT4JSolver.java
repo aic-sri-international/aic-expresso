@@ -285,9 +285,9 @@ public class SAT4JSolver implements SATSolver {
 							if (atomI.first.equals(atomK.first)  &&
 							    atomJ.second.equals(atomK.second)   ) {
 								result.add(new Triple<Expression, Expression, Expression>(
-										Expressions.createSymbol(atomToPropVar.get(atomI)),
-										Expressions.createSymbol(atomToPropVar.get(atomJ)),
-										Expressions.createSymbol(atomToPropVar.get(atomK))
+										Expressions.makeSymbol(atomToPropVar.get(atomI)),
+										Expressions.makeSymbol(atomToPropVar.get(atomJ)),
+										Expressions.makeSymbol(atomToPropVar.get(atomK))
 										));
 							}
 						}
@@ -321,7 +321,7 @@ public class SAT4JSolver implements SATSolver {
 		Expression result = null;
 		
 		do {
-			result = Expressions.createSymbol("C"+suffixIdx);
+			result = Expressions.makeSymbol("C"+suffixIdx);
 			suffixIdx++;
 		} while (existingVariables.contains(result));
 		
@@ -434,7 +434,7 @@ public class SAT4JSolver implements SATSolver {
 							done = true;
 						}
 					}
-					result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(GATE_FUNCTOR, this.nextAuxVarid);
+					result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(GATE_FUNCTOR, this.nextAuxVarid);
 					this.nextAuxVarid++;
 				}
 			}
@@ -479,10 +479,10 @@ public class SAT4JSolver implements SATSolver {
 					atomToPropVar.put(key, propVarId);
 				}
 				if (Equality.isEquality(expression)) {
-					result = Expressions.createSymbol(propVarId);
+					result = Expressions.makeSymbol(propVarId);
 				}
 				else {
-					result = Not.make(Expressions.createSymbol(propVarId));
+					result = Not.make(Expressions.makeSymbol(propVarId));
 				}
 			}
 			

@@ -85,7 +85,7 @@ public class Division extends AbstractRewriter {
 
 			Rational quotient = Util.divisionWithArbitraryPrecisionIfPossible(numerator, denominator);
 			if (quotient != null) {
-				return Expressions.createSymbol(quotient);
+				return Expressions.makeSymbol(quotient);
 			}
 		}
 

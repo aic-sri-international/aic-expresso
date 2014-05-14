@@ -38,7 +38,7 @@
 package com.sri.ai.expresso;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.core.SyntaxTreeToStringFunction;
+import com.sri.ai.expresso.core.ExpressionSyntaxTreeToStringFunction;
 import com.sri.ai.util.Configuration;
 import com.sri.ai.util.cache.CacheMap;
 
@@ -69,7 +69,7 @@ public class ExpressoConfiguration extends Configuration {
 	public static final Boolean DEFAULT_VALUE_GLOBAL_SYMBOL_TABLE_CACHES_NUMERICS             = Boolean.FALSE;
  	//
 	public static final String KEY_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS              = "expresso.syntax.to.string.unary.function.class";
-	public static final String DEFAULT_VALUE_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS    = SyntaxTreeToStringFunction.class.getName();
+	public static final String DEFAULT_VALUE_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS    = ExpressionSyntaxTreeToStringFunction.class.getName();
 	//
 	public static final String KEY_SYNTAX_TO_STRING_THREAD_CACHE_TIMEOUT_IN_SECONDS           = "expresso.syntax.to.string.thread.cache.timeout";
 	public static final Long   DEFAULT_VALUE_SYNTAX_TO_STRING_THREAD_CACHE_TIMEOUT_IN_SECONDS = new Long(60);

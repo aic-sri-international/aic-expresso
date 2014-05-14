@@ -159,7 +159,7 @@ public class CardinalityUtil {
 		List<Expression> indicesList  = IndexExpressions.getIndices(indexExpressionsList);
 		Expression       indicesTuple = Tuple.make(indicesList);
 		
-		result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.CARDINALITY, IntensionalSet.makeUniSetFromIndexExpressionsList(indexExpressionsList, indicesTuple, formulaF));
+		result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.CARDINALITY, IntensionalSet.makeUniSetFromIndexExpressionsList(indexExpressionsList, indicesTuple, formulaF));
 		
 		return result;
 	}
@@ -248,9 +248,9 @@ public class CardinalityUtil {
 					set = indexExpression.get(1);
 				}
 				else {
-					set = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(CardinalityTypeOfLogicalVariable.TYPE_LABEL, indexExpression);
+					set = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(CardinalityTypeOfLogicalVariable.TYPE_LABEL, indexExpression);
 				}
-				Expression cardinality = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.CARDINALITY, set);
+				Expression cardinality = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.CARDINALITY, set);
 				cardinalities.add(cardinality);
 			}
 			result = Times.make(cardinalities);
@@ -271,7 +271,7 @@ public class CardinalityUtil {
 	 * @return an expression of the form: sum_{x: Cx} S.
 	 */
 	public static Expression makeSummationExpression(Expression indexX, Expression constraintsOnX, Expression countingSolutionS) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(
 				FunctorConstants.SUM,
 				IntensionalSet.makeMultiSetWithASingleIndexExpression(indexX, countingSolutionS, constraintsOnX));
 		return result;

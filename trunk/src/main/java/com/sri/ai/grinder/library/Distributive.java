@@ -73,7 +73,7 @@ public class Distributive extends AbstractRewriter {
 				Expression resultArgument = expression.set(lowerOperatorApplicationIndex, lowerOperatorApplicationArgument);
 				resultArguments.add(resultArgument);
 			}
-			return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(lowerOperator, resultArguments);
+			return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(lowerOperator, resultArguments);
 		}
 		return expression;
 	}

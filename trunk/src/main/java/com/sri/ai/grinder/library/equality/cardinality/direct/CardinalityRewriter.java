@@ -73,8 +73,8 @@ public interface CardinalityRewriter {
 	//
 	// START - Parameters
 	enum Quantification {
-		FOR_ALL(Expressions.createSymbol("for all")), THERE_EXISTS(
-				Expressions.createSymbol("there exists")), NONE(Expressions.createSymbol("none"));
+		FOR_ALL(Expressions.makeSymbol("for all")), THERE_EXISTS(
+				Expressions.makeSymbol("there exists")), NONE(Expressions.makeSymbol("none"));
 
 		private Expression quantificationSymbol = null;
 

@@ -38,6 +38,8 @@
 package com.sri.ai.grinder.library;
 
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
@@ -79,11 +81,45 @@ public class Associative extends AbstractRewriter {
 		Expression functor = expression.getFunctor();
 		if (operators.contains(functor)) {
 			Predicate<Expression> alwaysTrue = Predicates.alwaysTrue();
-			Expression result = Expressions
+			Expression result = Associative
 					.associateWhenSureOperatorIsAssociative(
 							expression, alwaysTrue);
 			return result;
 		}
+		return expression;
+	}
+
+	/** A static version of associate when check for associative operator is done, with predicate indicating whether argument of same functor is to be associated. */
+	public static Expression associateWhenSureOperatorIsAssociative(Expression expression) {
+		Predicate<Expression> alwaysTrue = Predicates.alwaysTrue();
+		Expression result = associateWhenSureOperatorIsAssociative(expression, alwaysTrue);
+		return result;
+	}
+
+	/** A static version of associate when check for associative operator is done, with predicate indicating whether argument of same functor is to be associated. */
+	public static Expression associateWhenSureOperatorIsAssociative(Expression expression, Predicate<Expression> isAssociatable) {
+		if (expression.numberOfArguments() == 0) {
+			return expression;
+		}
+		List<Expression> resultArguments = new LinkedList<Expression>();
+		Expression functor = expression.getFunctor();
+		boolean change = false;
+		for (Expression argument : expression.getArguments()) {
+			if (argument.hasFunctor(functor) &&
+					argument.numberOfArguments() > 1 &&
+					isAssociatable.apply(argument)) {
+				resultArguments.addAll(argument.getArguments());
+				change = true;
+			}
+			else {
+				resultArguments.add(argument);
+			}
+		}
+		
+		if (change) {
+			return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(functor, resultArguments);
+		}
+		
 		return expression;
 	}
 }

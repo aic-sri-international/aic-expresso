@@ -64,7 +64,7 @@ import com.sri.ai.util.base.Pair;
 @Beta
 public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 
-	public static final Expression FUNCTOR = Expressions.createSymbol("=");
+	public static final Expression FUNCTOR = Expressions.makeSymbol("=");
 	
 	public Equality() {
 		this.setReifiedTests(new HasFunctor(FUNCTOR));
@@ -84,7 +84,7 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 	public static Expression equalityResultIfItIsKnown(Expression expression, RewritingProcess process) {
 		Boolean equalityResult = equalityResultIfItIsKnownOrNull(expression, process.getIsConstantPredicate(), process);
 		if (equalityResult != null) {
-			return Expressions.createSymbol(equalityResult);
+			return Expressions.makeSymbol(equalityResult);
 		}
 		return expression;
 	}
@@ -240,7 +240,7 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 		if (expression.numberOfArguments() == 2
 				&& process.isConstant(expression.get(0))) {
 			if ( ! process.isConstant(expression.get(1))) {
-				Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), expression.get(1), expression.get(0));
+				Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), expression.get(1), expression.get(0));
 				return result;
 			}
 		}

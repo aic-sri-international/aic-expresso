@@ -96,7 +96,7 @@ MutuallyExclusiveCoDomainsModule.Provider {
 		}
 		list = Expressions.makeSureItIsSyntaxTreeOrNonExpressionObject(list);
 		Expression result =
-				Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(
 						TUPLE_LABEL, SyntaxTrees.makeKleeneListIfNeeded(list));
 		return result;
 	}
@@ -178,7 +178,7 @@ MutuallyExclusiveCoDomainsModule.Provider {
 		if ( ! isTuple(expression)) {
 			return null;
 		}
-		Expression token = Expressions.createSymbol("tuple/" + size(expression));
+		Expression token = Expressions.makeSymbol("tuple/" + size(expression));
 		return token;
 	}
 

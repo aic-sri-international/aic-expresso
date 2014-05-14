@@ -49,11 +49,11 @@ import com.sri.ai.expresso.api.Expression;
  * 
  */
 @Beta
-public class In implements Predicate<Expression> {
+public class IsSubExpressionOf implements Predicate<Expression> {
 
 	private Expression expression;
 
-	public In(Expression expression) {
+	public IsSubExpressionOf(Expression expression) {
 		super();
 		this.expression = expression;
 	}

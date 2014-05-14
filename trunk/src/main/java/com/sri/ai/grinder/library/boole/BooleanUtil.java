@@ -93,7 +93,7 @@ public class BooleanUtil {
 					return newArguments.get(0);
 				} 
 				else {
-					return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(functor, newArguments);
+					return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(functor, newArguments);
 				}
 			} 
 			else if ( functor.equals(Not.FUNCTOR) ) {
@@ -243,7 +243,7 @@ public class BooleanUtil {
 	 * @return true if element occurs in expression
 	 */
 	public static boolean occurs(Expression expression, Expression element) {
-		return Expressions.containsAnyOf(expression, Lists.newArrayList(element));
+		return Expressions.containsAnyOfGivenCollectionAsSubExpression(expression, Lists.newArrayList(element));
 	}
 
 	/**
