@@ -53,7 +53,7 @@ import com.sri.ai.brewer.core.DefaultParsingResult;
 import com.sri.ai.brewer.core.ParserFlags;
 import com.sri.ai.brewer.core.ParsingResult;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultExpressionOnCompoundSyntaxTree;
+import com.sri.ai.expresso.core.ExpressionOnCompoundSyntaxTree;
 import com.sri.ai.util.Util;
 
 /**
@@ -68,7 +68,7 @@ import com.sri.ai.util.Util;
  * @braz
  */
 @Beta
-public abstract class AbstractParsingExpression extends DefaultExpressionOnCompoundSyntaxTree implements ParsingExpression {
+public abstract class AbstractParsingExpression extends ExpressionOnCompoundSyntaxTree implements ParsingExpression {
 	private static final long serialVersionUID = 1L;
 	//
 	public static boolean caching = true;

@@ -49,7 +49,7 @@ import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
-import com.sri.ai.expresso.core.DefaultExpressionOnSymbol;
+import com.sri.ai.expresso.core.ExpressionOnSymbol;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.FunctionIterator;
@@ -128,11 +128,11 @@ public class SyntaxTrees {
 	}
 
 	public static String makeStringValuedSymbolParseSafe(String string) {
-		return DefaultExpressionOnSymbol.makeStringValuedSymbolParseSafe(string);
+		return DefaultSymbol.makeStringValuedSymbolParseSafe(string);
 	}
 
 	public static void flushGlobalSymbolTable() {
-		DefaultExpressionOnSymbol.flushGlobalSymbolTable();
+		ExpressionOnSymbol.flushGlobalSymbolTable();
 	}
 
 	/**

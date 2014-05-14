@@ -194,7 +194,7 @@ public abstract class AbstractSyntaxTree implements SyntaxTree {
 	@Override
 	public String toString() {
 		if (cachedToString == null) {
-			cachedToString = defaultToString();
+			cachedToString = toStringWithoutCaching();
 		}
 		return cachedToString;
 	}

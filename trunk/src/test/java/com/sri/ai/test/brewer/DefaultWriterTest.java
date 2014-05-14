@@ -188,14 +188,14 @@ public class DefaultWriterTest {
 		
 		Expression expression = Brewer.parse(originalString, grammar, "Expression");
 		
-		Expression parseOfTheTreeNotation = Brewer.parse(expression.getSyntaxTree().defaultToString(), grammar, "Expression");
+		Expression parseOfTheTreeNotation = Brewer.parse(expression.getSyntaxTree().toString(), grammar, "Expression");
 		String unparse               = writer.toString(expression);
 		Expression parseOfTheUnparse = Brewer.parse(unparse, grammar, "Expression");
 		System.out.println("Test case                 : " + originalString);
-		System.out.println("Parse                     : " + expression.getSyntaxTree().defaultToString());
-		System.out.println("Parse of the tree notation: " + parseOfTheTreeNotation.getSyntaxTree().defaultToString());
+		System.out.println("Parse                     : " + expression.getSyntaxTree().toString());
+		System.out.println("Parse of the tree notation: " + parseOfTheTreeNotation.getSyntaxTree().toString());
 		System.out.println("Unparse                   : " + unparse);
-		System.out.println("Parsed of the unparse     : " + parseOfTheUnparse.getSyntaxTree().defaultToString() + "\n");
+		System.out.println("Parsed of the unparse     : " + parseOfTheUnparse.getSyntaxTree().toString() + "\n");
 		assertEquals(originalString, unparse);
 		assertEquals(expression, parseOfTheUnparse);
 		assertEquals(expression, parseOfTheTreeNotation);

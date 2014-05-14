@@ -251,5 +251,5 @@ public interface SyntaxTree {
 	SyntaxTree replaceSubTrees(Function<SyntaxTree, SyntaxTree> replacementFunction, boolean onlyTheFirstOne, Predicate<SyntaxTree> prunePredicate, BinaryProcedure<SyntaxTree, SyntaxTree> listener, boolean ignoreRootTree);
 
 	/** A default <code>toString()</code> method not using any user-defined writing object. */
-	String defaultToString();
+	String toStringWithoutCaching();
 }
