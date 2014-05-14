@@ -60,8 +60,8 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
-import com.sri.ai.expresso.core.DefaultExpressionOnCompoundSyntaxTree;
-import com.sri.ai.expresso.core.DefaultExpressionOnSymbol;
+import com.sri.ai.expresso.core.ExpressionOnCompoundSyntaxTree;
+import com.sri.ai.expresso.core.ExpressionOnSymbol;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.PruningPredicate;
@@ -105,11 +105,11 @@ public class Expressions {
 	/** Returns an expression represented by a given syntax tree. */
 	public static Expression makeFromSyntaxTree(SyntaxTree syntaxTree) {
 		if (syntaxTree instanceof CompoundSyntaxTree) {
-			Expression result = new DefaultExpressionOnCompoundSyntaxTree(syntaxTree);
+			Expression result = new ExpressionOnCompoundSyntaxTree(syntaxTree);
 			return result;
 		}
 		if (syntaxTree instanceof Symbol) {
-			Expression result = new DefaultExpressionOnSymbol(syntaxTree);
+			Expression result = new ExpressionOnSymbol(syntaxTree);
 			return result;
 		}
 		throw new Error("Syntax tree " + syntaxTree + " should be either a CompoundSyntaxTree or a Symbol");
@@ -120,7 +120,7 @@ public class Expressions {
 	 * Makes Expression based on a syntax tree with given label and sub-trees.
 	 */
 	public static Expression makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Object label, Object... subTreeObjects) {
-		Expression result = new DefaultExpressionOnCompoundSyntaxTree(label, subTreeObjects);
+		Expression result = new ExpressionOnCompoundSyntaxTree(label, subTreeObjects);
 		return result;
 	}
 
@@ -137,7 +137,7 @@ public class Expressions {
 	 * Creates an atomic expression. TODO: Name should change once cleanup of SyntaxTree/Expression is completed.
 	 */
 	public static Expression createSymbol(Object object) {
-		return DefaultExpressionOnSymbol.createSymbol(object);
+		return ExpressionOnSymbol.createSymbol(object);
 	}
 	
 	/**
@@ -1101,7 +1101,7 @@ public class Expressions {
 	}
 
 	public static Object makeSureItIsSyntaxTreeOrNonExpressionObject(Object input) {
-		if (input instanceof DefaultExpressionOnSymbol || input instanceof DefaultExpressionOnCompoundSyntaxTree) {
+		if (input instanceof ExpressionOnSymbol || input instanceof ExpressionOnCompoundSyntaxTree) {
 			input = ((Expression)input).getSyntaxTree();
 		}
 		return input;

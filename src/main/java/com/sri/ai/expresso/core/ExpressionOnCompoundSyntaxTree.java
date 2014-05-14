@@ -60,12 +60,12 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class DefaultExpressionOnCompoundSyntaxTree extends AbstractExpression {
+public class ExpressionOnCompoundSyntaxTree extends AbstractExpression {
 	private static final long serialVersionUID = 1L;
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
 	
-	public DefaultExpressionOnCompoundSyntaxTree(SyntaxTree syntaxTree) {
+	public ExpressionOnCompoundSyntaxTree(SyntaxTree syntaxTree) {
 		this.syntaxTree = syntaxTree;
 	}
 	
@@ -79,7 +79,7 @@ public class DefaultExpressionOnCompoundSyntaxTree extends AbstractExpression {
 	 * There is also a guarantee that if Expressions are provided,
 	 * the corresponding sub-expressions will be the same object instances.
 	 */
-	public DefaultExpressionOnCompoundSyntaxTree(Object label, Object ... subTrees) {
+	public ExpressionOnCompoundSyntaxTree(Object label, Object ... subTrees) {
 
 		if (label instanceof AbstractExpression) { // when we are sure SyntaxTrees don't extend Expression, we can replace this test by Expression, which is more clear
 			List<Integer> path = Util.list(-1);
@@ -134,22 +134,22 @@ public class DefaultExpressionOnCompoundSyntaxTree extends AbstractExpression {
 	}
 
 	public String defaultToString() {
-		String rootTreeString = getSyntaxTree().getRootTree().defaultToString();
+		String rootTreeString = getSyntaxTree().getRootTree().toStringWithoutCaching();
 		if ( ! (getSyntaxTree().getRootTree() instanceof Symbol)) {
 			rootTreeString = "(" + rootTreeString + ")";
 		}
 		Iterator defaultToStringOfSubTrees =
-			new FunctionIterator<SyntaxTree, String>(new DefaultToString(), getSyntaxTree().getImmediateSubTrees());
+			new FunctionIterator<SyntaxTree, String>(new SyntaxTreeToString(), getSyntaxTree().getImmediateSubTrees());
 		return rootTreeString + "(" + Util.join(", ", defaultToStringOfSubTrees) + ")";
 	}
 	
-	private static class DefaultToString implements Function<SyntaxTree, String> {
+	private static class SyntaxTreeToString implements Function<SyntaxTree, String> {
 		@Override
 		public String apply(SyntaxTree syntaxTree) {
 			if (syntaxTree == null) {
 				return "null";
 			}
-			return syntaxTree.defaultToString();
+			return syntaxTree.toString();
 		}
 	}
 

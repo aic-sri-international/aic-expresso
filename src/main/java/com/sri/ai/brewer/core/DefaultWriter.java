@@ -122,7 +122,7 @@ public class DefaultWriter implements Writer {
 		if (syntaxTree.numberOfImmediateSubTrees() > 0) {
 			return writeFunctionApplicationThatIsNotFromBasicParsingExpression(syntaxTree);
 		}
-		return syntaxTree.defaultToString();
+		return syntaxTree.toString();
 	}
 
 	private String writeFunctionApplicationThatIsNotFromBasicParsingExpression(SyntaxTree syntaxTree) {

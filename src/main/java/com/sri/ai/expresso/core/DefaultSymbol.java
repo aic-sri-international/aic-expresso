@@ -84,30 +84,6 @@ import com.sri.ai.util.math.Rational;
 @Beta
 public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	
-	public static int _displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
-	public static int _displayScientificGreaterNIntegerPlaces = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
-	public static int _displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
-	//
-	// Well known static Symbols
-	private static final Symbol SYMBOL_TRUE  = SyntaxTrees.makeSymbol(true);
-	private static final Symbol SYMBOL_FALSE = SyntaxTrees.makeSymbol(false);
-	private static final Symbol SYMBOL_0     = SyntaxTrees.makeSymbol(new Rational(0));
-	private static final Symbol SYMBOL_1     = SyntaxTrees.makeSymbol(new Rational(1));
-	private static final Symbol SYMBOL_2     = SyntaxTrees.makeSymbol(new Rational(2));
-	private static final Symbol SYMBOL_3     = SyntaxTrees.makeSymbol(new Rational(3));
-	private static final Symbol SYMBOL_4     = SyntaxTrees.makeSymbol(new Rational(4));
-	private static final Symbol SYMBOL_5     = SyntaxTrees.makeSymbol(new Rational(5));
-	private static final Symbol SYMBOL_6     = SyntaxTrees.makeSymbol(new Rational(6));
-	private static final Symbol SYMBOL_7     = SyntaxTrees.makeSymbol(new Rational(7));
-	private static final Symbol SYMBOL_8     = SyntaxTrees.makeSymbol(new Rational(8));
-	private static final Symbol SYMBOL_9     = SyntaxTrees.makeSymbol(new Rational(9));
-	//
-	private static boolean                      _useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
-	private static boolean                      _cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
-	private static Cache<Object, Symbol>        _globalSymbolTable    = newSymbolTable();
-	static {
-		flushGlobalSymbolTable();
-	}
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
 	
@@ -169,57 +145,6 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		_displayScientificAfterNDecimalPlaces = numDecimalPlaces;
 				
 		return oldValue;
-	}
-	
-	public static void flushGlobalSymbolTable() {
-		if (AICUtilConfiguration.isRecordCacheStatistics()) {
-			System.out.println("Global Symbol Table Cache Stats="+_globalSymbolTable.stats());
-		}
-		// Causes relevant flags to be reset.
-		_useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
-		_cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
-		
-		_globalSymbolTable.invalidateAll();
-		_globalSymbolTable = newSymbolTable();
-		// Add well known symbols to the table
-		// The Booleans.
-		_globalSymbolTable.put(true,          SYMBOL_TRUE);
-		_globalSymbolTable.put(Boolean.TRUE,  SYMBOL_TRUE);
-		_globalSymbolTable.put("true",        SYMBOL_TRUE);
-		_globalSymbolTable.put(false,         SYMBOL_FALSE);
-		_globalSymbolTable.put(Boolean.FALSE, SYMBOL_FALSE);
-		_globalSymbolTable.put("false",       SYMBOL_FALSE);
-		// Common Numbers
-		_globalSymbolTable.put("0",             SYMBOL_0);
-		_globalSymbolTable.put(new Integer(0),  SYMBOL_0);
-		_globalSymbolTable.put(new Rational(0), SYMBOL_0);
-		_globalSymbolTable.put("1",             SYMBOL_1);
-		_globalSymbolTable.put(new Integer(1),  SYMBOL_1);
-		_globalSymbolTable.put(new Rational(1), SYMBOL_1);
-		_globalSymbolTable.put("2",             SYMBOL_2);
-		_globalSymbolTable.put(new Integer(2),  SYMBOL_2);
-		_globalSymbolTable.put(new Rational(2), SYMBOL_2);
-		_globalSymbolTable.put("3",             SYMBOL_3);
-		_globalSymbolTable.put(new Integer(3),  SYMBOL_3);
-		_globalSymbolTable.put(new Rational(3), SYMBOL_3);
-		_globalSymbolTable.put("4",             SYMBOL_4);
-		_globalSymbolTable.put(new Integer(4),  SYMBOL_4);
-		_globalSymbolTable.put(new Rational(4), SYMBOL_4);
-		_globalSymbolTable.put("5",             SYMBOL_5);
-		_globalSymbolTable.put(new Integer(5),  SYMBOL_5);
-		_globalSymbolTable.put(new Rational(5), SYMBOL_5);
-		_globalSymbolTable.put("6",             SYMBOL_6);
-		_globalSymbolTable.put(new Integer(6),  SYMBOL_6);
-		_globalSymbolTable.put(new Rational(6), SYMBOL_6);
-		_globalSymbolTable.put("7",             SYMBOL_7);
-		_globalSymbolTable.put(new Integer(7),  SYMBOL_7);
-		_globalSymbolTable.put(new Rational(7), SYMBOL_7);
-		_globalSymbolTable.put("8",             SYMBOL_8);
-		_globalSymbolTable.put(new Integer(8),  SYMBOL_8);
-		_globalSymbolTable.put(new Rational(8), SYMBOL_8);
-		_globalSymbolTable.put("9",             SYMBOL_9);
-		_globalSymbolTable.put(new Integer(9),  SYMBOL_9);
-		_globalSymbolTable.put(new Rational(9), SYMBOL_9);
 	}
 	
 	public static Symbol createSymbol(Object value) {
@@ -370,7 +295,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	}
 
 	@Override
-	public String defaultToString() {
+	public String toStringWithoutCaching() {
 		String result = "";
 		if (valueOrRootSyntaxTree instanceof String) {
 			result = makeStringValuedSymbolParseSafe((String)valueOrRootSyntaxTree);
@@ -522,6 +447,61 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		return escaped;
 	}
 	
+	public static int _displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
+	public static int _displayScientificGreaterNIntegerPlaces = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
+	public static int _displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
+
+	public static void flushGlobalSymbolTable() {
+		if (AICUtilConfiguration.isRecordCacheStatistics()) {
+			System.out.println("Global Symbol Table Cache Stats="+_globalSymbolTable.stats());
+		}
+		// Causes relevant flags to be reset.
+		_useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
+		_cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
+		
+		_globalSymbolTable.invalidateAll();
+		_globalSymbolTable = newSymbolTable();
+		// Add well known symbols to the table
+		// The Booleans.
+		_globalSymbolTable.put(true,          SYMBOL_TRUE);
+		_globalSymbolTable.put(Boolean.TRUE,  SYMBOL_TRUE);
+		_globalSymbolTable.put("true",        SYMBOL_TRUE);
+		_globalSymbolTable.put(false,         SYMBOL_FALSE);
+		_globalSymbolTable.put(Boolean.FALSE, SYMBOL_FALSE);
+		_globalSymbolTable.put("false",       SYMBOL_FALSE);
+		// Common Numbers
+		_globalSymbolTable.put("0",             SYMBOL_0);
+		_globalSymbolTable.put(new Integer(0),  SYMBOL_0);
+		_globalSymbolTable.put(new Rational(0), SYMBOL_0);
+		_globalSymbolTable.put("1",             SYMBOL_1);
+		_globalSymbolTable.put(new Integer(1),  SYMBOL_1);
+		_globalSymbolTable.put(new Rational(1), SYMBOL_1);
+		_globalSymbolTable.put("2",             SYMBOL_2);
+		_globalSymbolTable.put(new Integer(2),  SYMBOL_2);
+		_globalSymbolTable.put(new Rational(2), SYMBOL_2);
+		_globalSymbolTable.put("3",             SYMBOL_3);
+		_globalSymbolTable.put(new Integer(3),  SYMBOL_3);
+		_globalSymbolTable.put(new Rational(3), SYMBOL_3);
+		_globalSymbolTable.put("4",             SYMBOL_4);
+		_globalSymbolTable.put(new Integer(4),  SYMBOL_4);
+		_globalSymbolTable.put(new Rational(4), SYMBOL_4);
+		_globalSymbolTable.put("5",             SYMBOL_5);
+		_globalSymbolTable.put(new Integer(5),  SYMBOL_5);
+		_globalSymbolTable.put(new Rational(5), SYMBOL_5);
+		_globalSymbolTable.put("6",             SYMBOL_6);
+		_globalSymbolTable.put(new Integer(6),  SYMBOL_6);
+		_globalSymbolTable.put(new Rational(6), SYMBOL_6);
+		_globalSymbolTable.put("7",             SYMBOL_7);
+		_globalSymbolTable.put(new Integer(7),  SYMBOL_7);
+		_globalSymbolTable.put(new Rational(7), SYMBOL_7);
+		_globalSymbolTable.put("8",             SYMBOL_8);
+		_globalSymbolTable.put(new Integer(8),  SYMBOL_8);
+		_globalSymbolTable.put(new Rational(8), SYMBOL_8);
+		_globalSymbolTable.put("9",             SYMBOL_9);
+		_globalSymbolTable.put(new Integer(9),  SYMBOL_9);
+		_globalSymbolTable.put(new Rational(9), SYMBOL_9);
+	}
+
 	private static Cache<Object, Symbol> newSymbolTable() {
 		CacheBuilder<Object, Object> cb = CacheBuilder.newBuilder();
 		
@@ -540,5 +520,28 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		Cache<Object, Symbol> result = cb.build();
 		
 		return result;
+	}
+
+	//
+	// Well known static Symbols
+	private static final Symbol SYMBOL_TRUE  = SyntaxTrees.makeSymbol(true);
+	private static final Symbol SYMBOL_FALSE = SyntaxTrees.makeSymbol(false);
+	private static final Symbol SYMBOL_0     = SyntaxTrees.makeSymbol(new Rational(0));
+	private static final Symbol SYMBOL_1     = SyntaxTrees.makeSymbol(new Rational(1));
+	private static final Symbol SYMBOL_2     = SyntaxTrees.makeSymbol(new Rational(2));
+	private static final Symbol SYMBOL_3     = SyntaxTrees.makeSymbol(new Rational(3));
+	private static final Symbol SYMBOL_4     = SyntaxTrees.makeSymbol(new Rational(4));
+	private static final Symbol SYMBOL_5     = SyntaxTrees.makeSymbol(new Rational(5));
+	private static final Symbol SYMBOL_6     = SyntaxTrees.makeSymbol(new Rational(6));
+	private static final Symbol SYMBOL_7     = SyntaxTrees.makeSymbol(new Rational(7));
+	private static final Symbol SYMBOL_8     = SyntaxTrees.makeSymbol(new Rational(8));
+	private static final Symbol SYMBOL_9     = SyntaxTrees.makeSymbol(new Rational(9));
+	//
+	private static boolean                      _useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
+	private static boolean                      _cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
+	private static Cache<Object, Symbol>        _globalSymbolTable    = newSymbolTable();
+
+	static {
+		flushGlobalSymbolTable();
 	}
 }

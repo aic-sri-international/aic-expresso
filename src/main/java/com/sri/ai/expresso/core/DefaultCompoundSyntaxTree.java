@@ -161,23 +161,23 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		return result;
 	}
 
-	public String defaultToString() {
-		String rootTreeString = getRootTree().defaultToString();
+	public String toStringWithoutCaching() {
+		String rootTreeString = getRootTree().toString();
 		if ( ! (getRootTree() instanceof Symbol)) {
 			rootTreeString = "(" + rootTreeString + ")";
 		}
-		Iterator defaultToStringOfSubTrees =
-			new FunctionIterator<SyntaxTree, String>(new DefaultToString(), getImmediateSubTrees());
-		return rootTreeString + "(" + Util.join(", ", defaultToStringOfSubTrees) + ")";
+		Iterator stringOfSubTrees =
+			new FunctionIterator<SyntaxTree, String>(new ToStringWithoutCaching(), getImmediateSubTrees());
+		return rootTreeString + "(" + Util.join(", ", stringOfSubTrees) + ")";
 	}
 	
-	private static class DefaultToString implements Function<SyntaxTree, String> {
+	private static class ToStringWithoutCaching implements Function<SyntaxTree, String> {
 		@Override
 		public String apply(SyntaxTree syntaxTree) {
 			if (syntaxTree == null) {
 				return "null";
 			}
-			return syntaxTree.defaultToString();
+			return syntaxTree.toStringWithoutCaching();
 		}
 	}
 

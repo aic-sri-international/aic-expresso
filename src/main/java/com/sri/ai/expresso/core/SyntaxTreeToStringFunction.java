@@ -56,7 +56,7 @@ public class SyntaxTreeToStringFunction implements Function<Expression, String> 
 	
 	@Override
 	public String apply(Expression expression) {
-		String result = expression.getSyntaxTree().defaultToString();
+		String result = expression.getSyntaxTree().toString();
 		return result;
 	}
 }
