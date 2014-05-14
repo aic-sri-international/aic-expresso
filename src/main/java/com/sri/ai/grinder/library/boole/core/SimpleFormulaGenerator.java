@@ -142,7 +142,7 @@ public class SimpleFormulaGenerator {
 		if ( possibleFreeVariables ) {
 			for (String v: variables) {
 				if ( rand.nextInt(3) != 0 ) {
-					indices.add(Expressions.createSymbol(v));
+					indices.add(Expressions.makeSymbol(v));
 				}
 			}
 		}
@@ -276,12 +276,12 @@ public class SimpleFormulaGenerator {
 	}
 	
 	protected Expression generateSimpleEquivalence() {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Equivalence.FUNCTOR, generateLiteral() , generateLiteral());
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Equivalence.FUNCTOR, generateLiteral() , generateLiteral());
 		return result;
 	}
 	
 	protected Expression generateEquivalence(Expression f1, Expression f2) {
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(Equivalence.FUNCTOR, f1, f2);
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Equivalence.FUNCTOR, f1, f2);
 		return result;
 	}
 	
@@ -316,7 +316,7 @@ public class SimpleFormulaGenerator {
 			}
 		} 
 		else {
-			result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(clauseConnector, clauses.toArray());
+			result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(clauseConnector, clauses.toArray());
 		}
 		
 		return result;
@@ -359,7 +359,7 @@ public class SimpleFormulaGenerator {
 				clause = clausesList.get(i).get(0);
 			}
 			else {
-				clause = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(literalConnector, clausesList.get(i).toArray());
+				clause = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(literalConnector, clausesList.get(i).toArray());
 			}
 			clauses.add(clause);
 		}
@@ -376,7 +376,7 @@ public class SimpleFormulaGenerator {
 			}
 		} 
 		else {
-			result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(clauseConnector, clauses.toArray());
+			result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(clauseConnector, clauses.toArray());
 		}
 		
 		return result;
@@ -451,7 +451,7 @@ public class SimpleFormulaGenerator {
 			}
 		} 
 		else {
-			result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(connector, literals.toArray());
+			result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(connector, literals.toArray());
 		}
 		return result;
 	}

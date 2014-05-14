@@ -63,7 +63,7 @@ public class NotOnDisequality extends AbstractRewriter {
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		if (expression.get(0).hasFunctor("!=") &&
 			expression.get(0).numberOfArguments() == 2) {
-			return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(
+			return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(
 					"=", expression.get(0).get(0), expression.get(0).get(1));
 		}
 		return expression;

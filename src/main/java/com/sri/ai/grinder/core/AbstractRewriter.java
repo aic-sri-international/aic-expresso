@@ -123,7 +123,7 @@ public abstract class AbstractRewriter implements Rewriter {
 				return arguments.get(0);
 			}
 
-			Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), arguments);
+			Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), arguments);
 			return result;
 		}
 		return expression;

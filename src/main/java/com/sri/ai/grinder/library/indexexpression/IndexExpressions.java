@@ -42,7 +42,7 @@ public class IndexExpressions {
 		LinkedHashMap<Expression, Expression> result =
 			Expressions.getRelationalMap(
 					indexExpressions,
-					Expressions.createSymbol("in"),
+					Expressions.makeSymbol("in"),
 					new Null<Expression, Expression>());
 		return result;
 	}
@@ -52,7 +52,7 @@ public class IndexExpressions {
 		LinkedHashMap<Expression, Expression> result =
 			Expressions.getRelationalMap(
 					indexExpressions,
-					Expressions.createSymbol("in"),
+					Expressions.makeSymbol("in"),
 					new TypeOfIndexInIndexExpression());
 		return result;
 	}
@@ -91,7 +91,7 @@ public class IndexExpressions {
 				return Expressions.apply(
 						"in",
 						indexExpression,
-						Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("type", indexExpression));
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("type", indexExpression));
 			}
 		};
 	}
@@ -99,7 +99,7 @@ public class IndexExpressions {
 	private static class TypeOfIndexInIndexExpression implements Function<Expression, Expression> {
 		@Override
 		public Expression apply(Expression expression) {
-			return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("type", expression);
+			return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("type", expression);
 		}
 	}
 
@@ -182,7 +182,7 @@ public class IndexExpressions {
 	}
 
 	public static Expression type(Expression expression) {
-		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("type", expression);
+		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("type", expression);
 	}
 
 	public static Expression getIndex(Expression indexExpression) {

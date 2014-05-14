@@ -73,7 +73,7 @@ public class Terminal extends AbstractParsingExpression {
 		process.logln("Terminal: Read " + token);
 		process.logln("Terminal: Position of tokenizer " + process.getTokenPosition());
 		if (token.equals(get(0).toString())) {
-			return new DefaultParsingResult(this, Lists.newArrayList(token), Expressions.createSymbol(token), false);
+			return new DefaultParsingResult(this, Lists.newArrayList(token), Expressions.makeSymbol(token), false);
 		}
 		else {
 			process.putBack(token);

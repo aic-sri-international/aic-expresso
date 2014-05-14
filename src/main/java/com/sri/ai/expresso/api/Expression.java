@@ -237,7 +237,4 @@ public interface Expression extends Cloneable, Serializable {
 	 * An error is thrown if the value of the symbol is not a number.
 	 */
 	Rational rationalValue();
-	
-	/** A default <code>toString()</code> method not using any user-defined writing object. */
-	String defaultToString();
 }

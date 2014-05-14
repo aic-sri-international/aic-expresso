@@ -54,6 +54,6 @@ public class HasFunctor extends DefaultRewriterTest {
 		// Note: for safety ensure we always compare expressions.
 		super(KindAttribute.INSTANCE,
 				functorValue instanceof Expression ? functorValue
-						: Expressions.createSymbol(functorValue));
+						: Expressions.makeSymbol(functorValue));
 	}
 }

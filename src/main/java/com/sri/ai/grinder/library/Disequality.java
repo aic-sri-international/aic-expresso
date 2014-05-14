@@ -59,7 +59,7 @@ import com.sri.ai.util.base.BinaryFunction;
 @Beta
 public class Disequality extends AbstractRewriterDefiningSymmetricFunction {
 
-	public  static final Expression FUNCTOR = Expressions.createSymbol(FunctorConstants.INEQUALITY);
+	public  static final Expression FUNCTOR = Expressions.makeSymbol(FunctorConstants.INEQUALITY);
 	//
 	public Disequality() {
 		this.setReifiedTests(new HasFunctor(FUNCTOR),
@@ -74,7 +74,7 @@ public class Disequality extends AbstractRewriterDefiningSymmetricFunction {
 			Symbol equalsResult = (Symbol) equals.getSyntaxTree();
 			Boolean booleanObject = (Boolean) equalsResult.getValue();
 			boolean booleanValue = booleanObject.booleanValue();
-			return Expressions.createSymbol(!booleanValue);
+			return Expressions.makeSymbol(!booleanValue);
 		}
 		
 		return expression;
@@ -133,7 +133,7 @@ public class Disequality extends AbstractRewriterDefiningSymmetricFunction {
 	public static Expression normalize(Expression expression, RewritingProcess process) {
 		if (process.isConstant(expression.get(0))) {
 			if ( ! process.isConstant(expression.get(1))) {
-				Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), expression.get(1), expression.get(0));
+				Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), expression.get(1), expression.get(0));
 				return result;
 			}
 		}

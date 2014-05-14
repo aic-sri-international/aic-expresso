@@ -100,7 +100,7 @@ public class DefaultCardinalityExtensionalSet extends AbstractHierarchicalRewrit
 	private Expression rewriteInternalGeneral(Expression expression, RewritingProcess process) {
 		Expression result = null;
 		if (Sets.isExtensionalMultiSet(expression) ) {
-			result = Expressions.createSymbol(ExtensionalSet.getElements(expression).size());
+			result = Expressions.makeSymbol(ExtensionalSet.getElements(expression).size());
 		} 
 		else if ( Sets.isExtensionalUniSet(expression) ) {
 			List<Expression> elements = new ArrayList<Expression>();
@@ -115,7 +115,7 @@ public class DefaultCardinalityExtensionalSet extends AbstractHierarchicalRewrit
 				}
 			}
 			if ( elements.size() < 2 ) {
-				return Expressions.createSymbol(elements.size());
+				return Expressions.makeSymbol(elements.size());
 			} 
 			else {
 				Expression first = elements.get(0);

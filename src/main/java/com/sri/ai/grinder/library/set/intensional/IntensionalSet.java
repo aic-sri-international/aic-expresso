@@ -127,7 +127,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	@Override
 	public Expression getScopedVariablesAsExpression(Expression expression, RewritingProcess process) {
 		if (Sets.isIntensionalSet(expression)) {
-			return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("list", getScopedVariables(expression).toArray());
+			return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("list", getScopedVariables(expression).toArray());
 		}
 		return null;
 	}
@@ -213,7 +213,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 			(condition == null || condition.equals("true"))?
 					null
 					: SyntaxTrees.makeCompoundSyntaxTree(IntensionalSet.CONDITION_LABEL, condition.getSyntaxTree());
-		Expression result = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(
 				label,
 				scopingSyntaxTree,
 				head.getSyntaxTree(),

@@ -238,7 +238,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			public Expression callRewrite(RewritingProcess process) {
 				// Note technically not a rewriter
 				// but can test in the same way
-				Expression result = Expressions.createSymbol(IncompleteLinearImplies.implies(exprG, exprH, process));
+				Expression result = Expressions.makeSymbol(IncompleteLinearImplies.implies(exprG, exprH, process));
 				
 				return result;
 			}
@@ -1500,7 +1500,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 				countsDeclaration.setup(process);
 				
 				// Note: Not a rewriter but can call in a similar way.
-				Expression result = Expressions.createSymbol(IsTautology.isTautology(exprE, DirectCardinalityComputationFactory.newCardinalityProcess(exprE, process)));
+				Expression result = Expressions.makeSymbol(IsTautology.isTautology(exprE, DirectCardinalityComputationFactory.newCardinalityProcess(exprE, process)));
 				
 				return result;
 			}
@@ -1747,7 +1747,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 				countsDeclaration.setup(process);
 				
 				// Note: Not a rewriter but can call in a similar way.
-				Expression result = Expressions.createSymbol(IsContradiction.isContradiction(exprE, DirectCardinalityComputationFactory.newCardinalityProcess(exprE, process)));
+				Expression result = Expressions.makeSymbol(IsContradiction.isContradiction(exprE, DirectCardinalityComputationFactory.newCardinalityProcess(exprE, process)));
 				
 				return result;
 			}

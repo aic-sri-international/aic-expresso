@@ -55,7 +55,7 @@ import com.sri.ai.grinder.library.FunctorConstants;
 @Beta
 public class Not extends AbstractRewriter {
 
-	public static final Expression FUNCTOR = Expressions.createSymbol(FunctorConstants.NOT);
+	public static final Expression FUNCTOR = Expressions.makeSymbol(FunctorConstants.NOT);
 	
 	public Not() {
 		this.setReifiedTests(new HasFunctor(FUNCTOR), 

@@ -56,7 +56,7 @@ import com.sri.ai.util.Util;
 @Beta
 public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly {
 
-	private final static Expression            neutralElement              = Expressions.createSymbol(0);
+	private final static Expression            neutralElement              = Expressions.makeSymbol(0);
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);
 
 	protected Object getFunctor() {

@@ -142,7 +142,7 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 			if (domainSizeOfLogicalVariable != null) {
 				Integer size = domainSizeOfLogicalVariable.size(logicalVariable, process);
 				if (size != null) {
-					result = Expressions.createSymbol(size);
+					result = Expressions.makeSymbol(size);
 				}
 			}
 		} 

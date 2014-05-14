@@ -53,7 +53,7 @@ import com.sri.ai.grinder.core.HasNumberOfArguments;
 @Beta
 public class UnaryMinus extends AbstractRewriter {
 
-	private static final Expression MINUS = Expressions.createSymbol("-");
+	private static final Expression MINUS = Expressions.makeSymbol("-");
 	
 	public UnaryMinus() {
 		this.setReifiedTests(new HasFunctor(MINUS),
@@ -62,7 +62,7 @@ public class UnaryMinus extends AbstractRewriter {
 
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		if (expression.get(0).getValue() instanceof Number) {
-			return Expressions.createSymbol(expression.get(0).rationalValue().negate());
+			return Expressions.makeSymbol(expression.get(0).rationalValue().negate());
 		}
 		return expression;
 	}

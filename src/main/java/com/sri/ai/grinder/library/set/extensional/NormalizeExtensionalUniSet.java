@@ -99,7 +99,7 @@ public class NormalizeExtensionalUniSet extends AbstractRewriter {
 		// rewriters,
 		// but this can save a lot of time when sets contain lots of constants.
 		if (process.isConstant(firstMember) && process.isConstant(secondMember)) {
-			condition = Expressions.createSymbol(firstMember.equals(secondMember));
+			condition = Expressions.makeSymbol(firstMember.equals(secondMember));
 		} 
 		else {
 			condition = Equality.make(firstMember, secondMember);

@@ -38,20 +38,16 @@
 package com.sri.ai.expresso.core;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.core.AbstractExpression;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -81,7 +77,7 @@ public class ExpressionOnCompoundSyntaxTree extends AbstractExpression {
 	 */
 	public ExpressionOnCompoundSyntaxTree(Object label, Object ... subTrees) {
 
-		if (label instanceof AbstractExpression) { // when we are sure SyntaxTrees don't extend Expression, we can replace this test by Expression, which is more clear
+		if (label instanceof Expression) {
 			List<Integer> path = Util.list(-1);
 			originalExpressionsByPath.put(path, (Expression) label);
 		}
@@ -91,7 +87,7 @@ public class ExpressionOnCompoundSyntaxTree extends AbstractExpression {
 		}
 		for (int i = 0; i != subTrees.length; i++) {
 			Object subTreeObject = subTrees[i];
-			if (subTreeObject instanceof AbstractExpression) { // when we are sure SyntaxTrees don't extend Expression, we can replace this test by Expression, which is more clear
+			if (subTreeObject instanceof Expression) {
 				List<Integer> path = Util.list(i);
 				originalExpressionsByPath.put(path, (Expression) subTreeObject);
 			}
@@ -120,41 +116,30 @@ public class ExpressionOnCompoundSyntaxTree extends AbstractExpression {
 	public boolean equals(Object anotherObject) {
 		boolean result = false;
 		
-		if (anotherObject instanceof Expression &&
-				((Expression) anotherObject).getSyntaxTree() instanceof CompoundSyntaxTree) {
+		boolean anotherObjectiIsExpressionDefinedOnCompoundSyntaxTree =
+				anotherObject instanceof Expression &&
+				((Expression) anotherObject).getSyntaxTree() instanceof CompoundSyntaxTree;
+		
+		if (anotherObjectiIsExpressionDefinedOnCompoundSyntaxTree) {
+			
 			Expression anotherCompoundSyntaxTree = (Expression) anotherObject;
+			
 			if (this.hashCode() == anotherCompoundSyntaxTree.hashCode()) {
+				
+				SyntaxTree       thisRootTree    = this.getSyntaxTree().getRootTree();
+				SyntaxTree       anotherRootTree = anotherCompoundSyntaxTree.getSyntaxTree().getRootTree();
+				
+				List<SyntaxTree> thisSubTrees    = this.getSyntaxTree().getImmediateSubTrees();
 				List<SyntaxTree> anotherSubTrees = anotherCompoundSyntaxTree.getSyntaxTree().getImmediateSubTrees();
-				result =
-						this.getSyntaxTree().getRootTree().equals(anotherCompoundSyntaxTree.getSyntaxTree().getRootTree())
-						&& this.getSyntaxTree().getImmediateSubTrees().equals(anotherSubTrees);
+
+				result = thisRootTree.equals(anotherRootTree) && thisSubTrees.equals(anotherSubTrees);
 			}
 		}
 		return result;
 	}
 
-	public String defaultToString() {
-		String rootTreeString = getSyntaxTree().getRootTree().toStringWithoutCaching();
-		if ( ! (getSyntaxTree().getRootTree() instanceof Symbol)) {
-			rootTreeString = "(" + rootTreeString + ")";
-		}
-		Iterator defaultToStringOfSubTrees =
-			new FunctionIterator<SyntaxTree, String>(new SyntaxTreeToString(), getSyntaxTree().getImmediateSubTrees());
-		return rootTreeString + "(" + Util.join(", ", defaultToStringOfSubTrees) + ")";
-	}
-	
-	private static class SyntaxTreeToString implements Function<SyntaxTree, String> {
-		@Override
-		public String apply(SyntaxTree syntaxTree) {
-			if (syntaxTree == null) {
-				return "null";
-			}
-			return syntaxTree.toString();
-		}
-	}
-
 	public Expression clone() {
-		return Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(getSyntaxTree().getRootTree(), getSyntaxTree().getImmediateSubTrees());
+		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(getSyntaxTree().getRootTree(), getSyntaxTree().getImmediateSubTrees());
 		// it is best to use the field 'arguments' instead of method 'getArguments'
 		// because we can share argument lists among function applications, since they are never modified.
 		// The method 'getArguments' would unnecessarily create an unmodifiable list object.
@@ -162,21 +147,21 @@ public class ExpressionOnCompoundSyntaxTree extends AbstractExpression {
 
 	@Override
 	public int intValue() {
-		throw new Error("Expression.intValue() not defined for CompoundSyntaxTree " + this);
+		throw new Error("Expression.intValue() not defined for ExpressionOnCompoundSyntaxTree " + this);
 	}
 
 	@Override
 	public int intValueExact() throws ArithmeticException {
-		throw new Error("Expression.intValueExact() not defined for CompoundSyntaxTree " + this);
+		throw new Error("Expression.intValueExact() not defined for ExpressionOnCompoundSyntaxTree " + this);
 	}
 
 	@Override
 	public double doubleValue() {
-		throw new Error("Expression.doubleValue() not defined for CompoundSyntaxTree " + this);
+		throw new Error("Expression.doubleValue() not defined for ExpressionOnCompoundSyntaxTree " + this);
 	}
 
 	@Override
 	public Rational rationalValue() {
-		throw new Error("Expression.rationalValue() not defined for CompoundSyntaxTree " + this);
+		throw new Error("Expression.rationalValue() not defined for ExpressionOnCompoundSyntaxTree " + this);
 	}
 }

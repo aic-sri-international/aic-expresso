@@ -359,10 +359,10 @@ public class Sequence extends AbstractParsingExpression implements BasicParsingE
 		
 		Expression parse;
 		if (subTrees.size() != 0) {
-			parse = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(rootTreeName, subTrees.toArray());
+			parse = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(rootTreeName, subTrees.toArray());
 		}
 		else {
-			parse = Expressions.createSymbol(rootTreeName);
+			parse = Expressions.makeSymbol(rootTreeName);
 		}
 		
 		return new DefaultParsingResult(this, tokens(results), parse, tokenPositionLimitInfluencedResult);

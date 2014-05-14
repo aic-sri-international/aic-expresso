@@ -61,8 +61,8 @@ public class And extends BooleanCommutativeAssociative {
 
 	public static final  Object FUNCTOR = "and";
 	//
-	private final static Expression            neutralElement              = Expressions.createSymbol(true);
-	private final static Expression            absorbingElement            = Expressions.createSymbol(false);
+	private final static Expression            neutralElement              = Expressions.makeSymbol(true);
+	private final static Expression            absorbingElement            = Expressions.makeSymbol(false);
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Boolean.class);
 
 	protected Object getFunctor() {

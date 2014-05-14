@@ -128,22 +128,22 @@ public class RewriterFunctionalSequenceTest extends AbstractGrinderTest {
 			results.add(result);
 		}
 		assertEquals(Util.list(
-				Expressions.createSymbol(1),
-				Expressions.createSymbol(0.5),
-				Expressions.createSymbol(0.375),
-				Expressions.createSymbol(0.34375),
-				Expressions.createSymbol(0.328125),
-				Expressions.createSymbol(0.3125),
-				Expressions.createSymbol(0.28125),
-				Expressions.createSymbol(0.265625),
-				Expressions.createSymbol(0.25),
-				Expressions.createSymbol(0.125),
-				Expressions.createSymbol(0.09375),
-				Expressions.createSymbol(0.078125),
-				Expressions.createSymbol(0.0625),
-				Expressions.createSymbol(0.03125),
-				Expressions.createSymbol(0.015625),
-				Expressions.createSymbol(0)
+				Expressions.makeSymbol(1),
+				Expressions.makeSymbol(0.5),
+				Expressions.makeSymbol(0.375),
+				Expressions.makeSymbol(0.34375),
+				Expressions.makeSymbol(0.328125),
+				Expressions.makeSymbol(0.3125),
+				Expressions.makeSymbol(0.28125),
+				Expressions.makeSymbol(0.265625),
+				Expressions.makeSymbol(0.25),
+				Expressions.makeSymbol(0.125),
+				Expressions.makeSymbol(0.09375),
+				Expressions.makeSymbol(0.078125),
+				Expressions.makeSymbol(0.0625),
+				Expressions.makeSymbol(0.03125),
+				Expressions.makeSymbol(0.015625),
+				Expressions.makeSymbol(0)
 				), results);
 		
 		rewriterLookup = new DefaultRewriterLookup();		
@@ -164,11 +164,11 @@ public class RewriterFunctionalSequenceTest extends AbstractGrinderTest {
 			results.add(result);
 		}
 		assertEquals(Util.list(
-				Expressions.createSymbol(1),
-				Expressions.createSymbol(0.5),
-				Expressions.createSymbol(0.25),
-				Expressions.createSymbol(0.125),
-				Expressions.createSymbol(0)
+				Expressions.makeSymbol(1),
+				Expressions.makeSymbol(0.5),
+				Expressions.makeSymbol(0.25),
+				Expressions.makeSymbol(0.125),
+				Expressions.makeSymbol(0)
 				), results);
 	}
 
@@ -221,13 +221,13 @@ public class RewriterFunctionalSequenceTest extends AbstractGrinderTest {
 			double     level = doubleValue(expression.get(0));
 			Expression id    = expression.get(1);
 			if (level > 0) {
-				Expression levelMinusOne = Expressions.createSymbol(level - 1);
+				Expression levelMinusOne = Expressions.makeSymbol(level - 1);
 				Expression child1Id    = makeChildCallId(id, Expressions.ZERO);
 				Expression child2Id    = makeChildCallId(id, Expressions.ONE);
 				Expression child1Input = process.rewrite(getName(), Expressions.apply("args", levelMinusOne, child1Id));
 				Expression child2Input = process.rewrite(getName(), Expressions.apply("args", levelMinusOne, child2Id));
 				double halfTheAverage =	(doubleValue(child1Input) + doubleValue(child2Input)) / 2 / 2;
-				result = Expressions.createSymbol(halfTheAverage);
+				result = Expressions.makeSymbol(halfTheAverage);
 				System.out.println("Half the average at level " + level + ", id " + expression.get(1) + ", of " + child1Input + " and " + child2Input + " is " + result);
 			}
 			else {

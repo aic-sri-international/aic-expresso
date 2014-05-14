@@ -105,7 +105,7 @@ public class CardinalityExtensionalSet extends AbstractHierarchicalRewriter impl
 				// Is a set of constants just return their size
 				Trace.log("if all constant elements");
 				Trace.log("    return number of constants");
-				result = Expressions.createSymbol(constantElements.size());
+				result = Expressions.makeSymbol(constantElements.size());
 			} 
 			else {
 				Trace.log("N <- R_cardExtensionalSet( | {t2,...,tk} | ) ");
@@ -116,7 +116,7 @@ public class CardinalityExtensionalSet extends AbstractHierarchicalRewriter impl
 				Expression       t1                   = elements.get(0);
 				List<Expression> t2ToTk               = elements.subList(1, elements.size());
 				Expression       t2ToTkExtensionalSet = ExtensionalSet.makeUniSetExpression(t2ToTk);
-				Expression       cardinalityT2ToTk    = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.CARDINALITY, t2ToTkExtensionalSet);
+				Expression       cardinalityT2ToTk    = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.CARDINALITY, t2ToTkExtensionalSet);
 				Expression       n                    = process.rewrite(R_cardExtensionalSet, cardinalityT2ToTk);
 				
 				Trace.log("Irrelevant <- R_normalize(t1 = t2 or ... or t1 = tn)");
@@ -167,7 +167,7 @@ public class CardinalityExtensionalSet extends AbstractHierarchicalRewriter impl
 
 		if (countingSolution.getSyntacticFormType().equals("Symbol")) {
 			Number value = (Number) countingSolution.getValue();
-			result = Expressions.createSymbol(value.intValue() + 1);
+			result = Expressions.makeSymbol(value.intValue() + 1);
 		}
 		else { // counting solution is an if then else
 			Expression condition = IfThenElse.getCondition(countingSolution);

@@ -55,7 +55,7 @@ import com.sri.ai.grinder.library.FunctorConstants;
 @Beta
 public class Implication extends AbstractRewriter {
 
-	public static final Expression FUNCTOR = Expressions.createSymbol(FunctorConstants.IMPLICATION);
+	public static final Expression FUNCTOR = Expressions.makeSymbol(FunctorConstants.IMPLICATION);
 	
 	public Implication() {
 		this.setReifiedTests(new HasFunctor(FUNCTOR),

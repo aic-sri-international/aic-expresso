@@ -49,6 +49,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
+import com.sri.ai.grinder.library.Associative;
 import com.sri.ai.util.Util;
 
 /**
@@ -69,7 +70,7 @@ public class AssociativeSequence extends Sequence {
 	@Override
 	protected Expression postProcessParse(Expression parse) {
 		if (parse.numberOfArguments() > 0) {
-			return Expressions.associateWhenSureOperatorIsAssociative(parse);
+			return Associative.associateWhenSureOperatorIsAssociative(parse);
 		}
 		return parse;
 	}

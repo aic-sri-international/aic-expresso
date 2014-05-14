@@ -86,7 +86,7 @@ public class Symbol extends AbstractParsingExpression {
 			if (DefaultParsingResult.isSuccessful(result)) { // if this is a quoted term
 				// return Symbol named by that term
 				// result.parse is a function application of '< . >' on the quoted expression, so we access this quoted expression as its first argument.
-				return new DefaultParsingResult(this, result.getTokens(), Expressions.createSymbol(result.getParse().get(0)), result.tokenPositionLimitInfluencedResult());
+				return new DefaultParsingResult(this, result.getTokens(), Expressions.makeSymbol(result.getParse().get(0)), result.tokenPositionLimitInfluencedResult());
 			}
 		}
 
@@ -95,7 +95,7 @@ public class Symbol extends AbstractParsingExpression {
 		}
 		String token = process.nextTokenAccordingToCurrentConditions();
 		if ( ! exceptions.contains(token)) {
-			return new DefaultParsingResult(this, Lists.newArrayList(token), Expressions.createSymbol(token), false);
+			return new DefaultParsingResult(this, Lists.newArrayList(token), Expressions.makeSymbol(token), false);
 		}
 		process.putBack(token);
 		return DefaultParsingResult.makeFailedParsingResult(false /* limit did not influence result */);
