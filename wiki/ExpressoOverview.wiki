@@ -4,33 +4,3 @@
 The package responsible for representing expressions is called `expresso`. It forms the base of the AIC-Expresso library, and does not commit to a particular string-based representation syntax for expressions, nor to any particular way of processing them. It simply concerns itself with representing expressions and their properties as Java objects. 
 
 Expression objects are _immutable_, that is, they cannot be modified once they are constructed (just like the Java `String` class). This allows them to freely share sub-expressions. When a method such as `Expression.replace` (which replaces a given sub-expression in an original expression by another sub-expression) is invoked, the result is not the original expression object after having been modified, but a brand-new expression object. This new object will typically share the remaining, non-affected sub-expressions with the original expression. Note also that, if the sub-expression to be replaced is not present in the original expression, the result of replace will be identical to the original expression, and in this case it will indeed be the very same object; there is no need to create a new identical object representing the same expression. 
-
-=== Expressions and Syntax Trees, and why they are confused in the code right now ===
-One of the basic units of the library is the syntax tree, and another is the expression. Unfortunately, the distinction between them was not all that clear when the library was first developed, and this confusion is present in the code even now. We will eventually clean that up; for now, please bear with us. 
-
-An expression is an object that can be interpreted. Here are some examples of expressions: 
-  * `1 + 2`
-  * `X + 2`
-  * `f(X, 2)`
-  * `2`
-  * `{1, Y, 3}`
-  * `there exists X : f(X)`
-
-The interpretation of an expression is defined in terms of interpretations of its _sub-expressions_. There are multiple types of expressions, each of them with their own way of having their interpretations defined in terms of their sub-expressions interpretations. The first three examples above are _function applications_. The fourth one is a _symbol_ expression, the fifth an _extensional set_ expression, and the last one is an _existential quantification expression_. There are still a few other types that we introduce later.
-
-A syntax tree is just a tree of symbols that we use to represent many things, including expressions. The expression `1 + 2` has a syntax tree equal to a root with the symbol `+` and two sub-syntax trees with the symbols `1` and `2`, while `f(1,2)` is represented by a similar tree that has root `f` instead. `{1, Y, 3}` is represented by a syntax tree with root `{ . }` (by convention) and children `1`, `Y`, and `2` - or using a parenthetical notation for syntax trees, `"{ . }"(1, Y, 3)`. In all these cases, sub-syntax trees and sub-expressions match perfectly.
-
-This close structural resemblance between expressions and syntax trees is what led to the confusion between the two of them early on: it seemed that there were such expressions, and that every expression was just either a symbol, or a function applied to a list of arguments (in this view, the set `{1,Y,3}` is the result of applying "function" `{ . }` to arguments `1`, `Y`, `3`).  Unfortunately, this does not hold for all cases. For example, it makes some intuitive sense to represent `there exists X : f(X)` with a syntax tree like `"there exists . : ."(X, f(X))`. However, it is incorrect to consider the logical variable `X` a sub-expression; if that were the case, in a context in which `X` is known to have value `5`, the expression would be equivalent to `there exists 5 : f(5)`, which does not make sense. While the syntax tree has two children, the expression has only one, `f(X)`.
-
-The confused view that all expressions and syntax trees were the same thing and either function applications or symbols explains why the two interfaces for syntax trees used to be called `Symbol` and `FunctionApplication`, even though, technically speaking, "function application" is a type of expression, not of syntax tree. Now they are called `Symbol` and  `CompoundSyntaxTree`. This makes it more clear that syntax trees are just that, trees, with symbols at the leaves.
-
-At this point in the code, the `SyntaxTree` interface and its implementations are considered extensions of `Expression`. All expressions are internally represented by classes `DefaultSymbol` and `DefaultCompoundSyntaxTree`. These are types of syntax trees. Types of expressions are not programmatically determined by the class they are implemented as, but by `Expression.getSyntacticForm()`, and utility methods such as `Sets.isSet(Expression)`.
-
-The important things to remember when working with expressions (one rarely works with syntax trees but for lower-level, more advanced-level improvements) are that most of the time they will be function applications, in which case we use `Expression.hasFunctor(Object)` for testing for a functor (most used functors are in the class `FunctorConstants`), `Expression.get(int)` for accessing an argument (and, in fact, the i-th _sub-expression_ of any expression, including the ones that are not function applications), and `Expression.getArguments()` for accessing the list of arguments. Function applications can be created by using the method `Expressions.apply(Object...)` (note the plural in the class name). Symbols are created with `DefaultSymbol.createSymbol(Object value)` and their value is accessed with `Expression.getValue()`. Other types of expressions are the already mentioned extensional sets and _intensional sets_ the type of set defined by a condition, such as `{ (on X, Y) f(X,Y) | X != Y }`, and further detailed later). These are manipulated by classes `IntensionalSet` and `ExtensionalSet`, as well as by some general set methods in `Sets`. One can access immediate sub-expressions with `Expression.getImmediateSubExpressionIterator(RewritingProcess)`.
-
-We do not make a fundamental distinction between variable symbols and constant symbols. Constant symbols can be seen as variable symbols which are always interpreted to the same value. However, sometimes one needs to know which symbols are being used as unique names, that is, whether two constants of distinct names are automatically considered as referring to distinct objects (we will talk more about this later).  
-
-  
-
-  
-    
