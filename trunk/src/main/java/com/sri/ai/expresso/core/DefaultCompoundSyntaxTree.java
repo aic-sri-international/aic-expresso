@@ -54,6 +54,7 @@ import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryProcedure;
 import com.sri.ai.util.collect.FunctionIterator;
+import com.sri.ai.util.collect.LexicographicComparison;
 import com.sri.ai.util.collect.NestedIterator;
 
 /**
@@ -158,6 +159,30 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		else {
 			result = false;
 		}
+		
+		return result;
+	}
+
+	private static LexicographicComparison<SyntaxTree> lexicographicComparison = new LexicographicComparison<SyntaxTree>();
+
+	@Override
+	/**
+	 * Compares this CompoundSyntaxTree to other syntax trees, placing it after {@link Symbol}s and comparing
+	 * it lexicographically to other CompoundSyntaxTree, using both the label and sub trees.
+	 */
+	public int compareTo(Object anotherObject) {
+		int result;
+		
+		if (anotherObject instanceof CompoundSyntaxTree) {
+			CompoundSyntaxTree normalizedAnotherCompoundSyntaxTree = (CompoundSyntaxTree) anotherObject;
+			Iterator<SyntaxTree> subTreesIncludingLabel = getImmediateSubTreesIncludingRootOneIterator();
+			Iterator<SyntaxTree> anotherSubTreesIncludingLabel = normalizedAnotherCompoundSyntaxTree.getImmediateSubTreesIncludingRootOneIterator();
+			result = lexicographicComparison.compare(subTreesIncludingLabel, anotherSubTreesIncludingLabel);
+		}
+		else {
+			result = 1; // Symbols "come first" in the default order
+		}
+		
 		return result;
 	}
 

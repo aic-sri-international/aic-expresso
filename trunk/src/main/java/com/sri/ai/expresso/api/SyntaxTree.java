@@ -65,7 +65,7 @@ import com.sri.ai.util.base.BinaryProcedure;
  *
  */
 @Beta
-public interface SyntaxTree {
+public interface SyntaxTree extends Comparable {
 
 	Object getValue();
 	
