@@ -37,6 +37,8 @@
  */
 package com.sri.ai.test.grinder.helper;
 
+import static org.junit.Assert.assertSame;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -73,4 +75,21 @@ public class ExpressionsTest extends AbstractGrinderTest {
 		Assert.assertEquals(Util.set(parse("and"), parse("X")), Expressions.freeSymbols(e, process));
 	}
 
+	@Test
+	public void testSubExpressionInstance() {
+		// tests whether sub-expression instances are the same as the ones used for construction.
+		
+		Expression functor = Expressions.makeSymbol("f");
+		
+		expression = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(functor, 1, 2, 3);
+		assertSame(functor, expression.getFunctor());
+//		
+//		List<Expression> indexExpressions = Util.list(Expressions.apply(FunctorConstants.IN, "X", "Domain"), Expressions.apply(FunctorConstants.IN, "Y", "Domain"));
+//		Expression body = Equality.make("X", "Y");
+//		expression = ThereExists.make(indexExpressions, body);
+//		// multiple index expressions create nested "there exists" expressions
+//		assertSame(indexExpressions.get(0), ThereExists.getIndexExpression(expression));
+//		assertSame(indexExpressions.get(1), ThereExists.getIndexExpression(ThereExists.getBody(expression)));
+//		assertSame(body, ThereExists.getBody(ThereExists.getBody(expression)));
+	}
 }

@@ -45,12 +45,15 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.sri.ai.brewer.api.Parser;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
-import com.sri.ai.expresso.core.ExpressionOnSymbol;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.core.ExpressionOnSymbol;
+import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.FunctionIterator;
 
@@ -131,6 +134,18 @@ public class SyntaxTrees {
 		return DefaultSymbol.makeStringValuedSymbolParseSafe(string);
 	}
 
+	static private Parser parser = new AntlrGrinderParserWrapper();
+	
+	/**
+	 * Parse a string into a syntax tree by parsing it as an expression using {@link AntlrGrinderParserWrapper}
+	 * returning its syntax tree.
+	 */
+	public static SyntaxTree parse(String string) {
+		Expression expression = parser.parse(string);
+		SyntaxTree result = expression.getSyntaxTree();
+		return result;
+	}
+	
 	public static void flushGlobalSymbolTable() {
 		ExpressionOnSymbol.flushGlobalSymbolTable();
 	}

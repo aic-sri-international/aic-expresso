@@ -49,6 +49,7 @@ import com.google.common.base.Predicate;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.sri.ai.expresso.ExpressoConfiguration;
+import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
@@ -276,6 +277,10 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 			return true;
 		}
 		
+		if (another instanceof CompoundSyntaxTree) {
+			return false;
+		}
+		
 		Symbol anotherSymbol = null;
 		if (another instanceof Symbol) {
 			anotherSymbol = (Symbol) another;
@@ -292,6 +297,45 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 			return getValue().equals(anotherSymbol.getValue());
 		}
 		return false;
+	}
+	
+	@Override
+	/**
+	 * Compares this Symbol to other syntax trees, placing it before {@link CompoundSyntaxTree}s and comparing
+	 * it to other Symbols by comparing their values.
+	 */
+	public int compareTo(Object another) {
+		if (this == another) {
+			return 0;
+		}
+		
+		if (another instanceof CompoundSyntaxTree) {
+			return -1; // Symbols come first
+		}
+		
+		Symbol anotherSymbol = null;
+		if (another instanceof Symbol) {
+			anotherSymbol = (Symbol) another;
+		} 
+		else {
+			anotherSymbol = createSymbol(another);
+			// Test again, as may have had self returned from the symbol table.
+			if (this == anotherSymbol) {
+				return 0;
+			}
+		}
+		
+		try {
+			@SuppressWarnings("unchecked")
+			Comparable<Object> value        = (Comparable<Object>) getValue();
+			@SuppressWarnings("unchecked")
+			Comparable<Object> anotherValue = (Comparable<Object>) anotherSymbol.getValue();
+			int result = value.compareTo(anotherValue);
+			return result;
+		}
+		catch (ClassCastException e) {
+			throw new Error("Using DefaultSymbol.compareTo method with non-Comparable values.", e);
+		}
 	}
 
 	@Override
