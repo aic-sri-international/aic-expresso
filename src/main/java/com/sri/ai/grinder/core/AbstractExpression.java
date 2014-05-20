@@ -550,6 +550,27 @@ public abstract class AbstractExpression implements Expression {
 	}
 	
 	@Override
+	/** Expressions are compared in the same way their respective syntax trees are. */
+	public int compareTo(Object anotherObject) {
+		
+		if (this == anotherObject) {
+			return 0;
+		}
+		
+		SyntaxTree anotherSyntaxTree;
+		
+		if (anotherObject instanceof Expression) {
+			anotherSyntaxTree = ((Expression) anotherObject).getSyntaxTree();
+		}
+		else {
+			anotherSyntaxTree = SyntaxTrees.wrap(anotherObject);
+		}
+		
+		int result = getSyntaxTree().compareTo(anotherSyntaxTree);
+		return result;
+	}
+
+	@Override
 	public String toString() {
 		if (cachedToString == null) {
 			Function<Expression, String> toString = getToString();

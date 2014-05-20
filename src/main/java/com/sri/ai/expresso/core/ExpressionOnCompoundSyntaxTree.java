@@ -114,6 +114,11 @@ public class ExpressionOnCompoundSyntaxTree extends AbstractExpression {
 	}
 
 	public boolean equals(Object anotherObject) {
+		
+		if (this == anotherObject) {
+			return true;
+		}
+		
 		boolean result = false;
 		
 		boolean anotherObjectiIsExpressionDefinedOnCompoundSyntaxTree =

@@ -37,7 +37,11 @@
  */
 package com.sri.ai.test.grinder.helper;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -91,5 +95,70 @@ public class ExpressionsTest extends AbstractGrinderTest {
 //		assertSame(indexExpressions.get(0), ThereExists.getIndexExpression(expression));
 //		assertSame(indexExpressions.get(1), ThereExists.getIndexExpression(ThereExists.getBody(expression)));
 //		assertSame(body, ThereExists.getBody(ThereExists.getBody(expression)));
+	}
+
+	@Test
+	public void testComparison() {
+		Expression a;
+		Expression b;
+		Expression c;
+		List<Expression> list;
+		
+		a = Expressions.parse("a");
+		b = Expressions.parse("b");
+		c = Expressions.parse("c");
+		list = Util.list(a, b, c);
+		Collections.sort(list);
+		assertEquals(Util.list(a, b, c), list);
+		
+		a = Expressions.parse("f()");
+		b = Expressions.parse("f");
+		c = Expressions.parse("g()");
+		list = Util.list(a, b, c);
+		Collections.sort(list);
+		assertEquals(Util.list(b, a, c), list);
+		
+		a = Expressions.parse("f(a, b, c)");
+		b = Expressions.parse("f(c, b, a)");
+		c = Expressions.parse("g()");
+		list = Util.list(a, b, c);
+		Collections.sort(list);
+		assertEquals(Util.list(a, b, c), list);
+		
+		a = Expressions.parse("f(a, b, c)");
+		b = Expressions.parse("f(a)");
+		c = Expressions.parse("g()");
+		list = Util.list(a, b, c);
+		Collections.sort(list);
+		assertEquals(Util.list(b, a, c), list);
+		
+		a = Expressions.parse("f(a, b, c)");
+		b = Expressions.parse("f(c)");
+		c = Expressions.parse("g()");
+		list = Util.list(a, b, c);
+		Collections.sort(list);
+		assertEquals(Util.list(a, b, c), list);
+		
+		a = Expressions.parse("f(a(c,b), b, c)");
+		b = Expressions.parse("f(a(b,c), b, c)");
+		c = Expressions.parse("g()");
+		list = Util.list(a, b, c);
+		Collections.sort(list);
+		assertEquals(Util.list(b, a, c), list);
+		
+		a = Expressions.parse("f(a(b,c), f(a(b,a)), c)");
+		b = Expressions.parse("f(a(b,c), f(a(a,b)), c)");
+		c = Expressions.parse("g()");
+		list = Util.list(a, b, c);
+		Collections.sort(list);
+		assertEquals(Util.list(b, a, c), list);
+		
+		// Symbol labels f and g come first
+		a = Expressions.parse("f   (a(b,c), f(a(a,b)), c)");
+		b = Expressions.parse("f(x)(a(a,a), f(a(a,b)), c)");
+		c = Expressions.parse("g()");
+		list = Util.list(a, b, c);
+		Collections.sort(list);
+		assertEquals(Util.list(a, c, b), list);
 	}
 }

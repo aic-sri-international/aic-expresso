@@ -53,6 +53,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
+import com.sri.ai.brewer.api.Parser;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
@@ -70,6 +71,7 @@ import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
 import com.sri.ai.util.base.GetFirstOfPair;
@@ -137,6 +139,16 @@ public class Expressions {
 	 */
 	public static Expression makeSymbol(Object object) {
 		return ExpressionOnSymbol.createSymbol(object);
+	}
+	
+	static private Parser parser = new AntlrGrinderParserWrapper();
+
+	/**
+	 * Parse a string into an expression using {@link AntlrGrinderParserWrapper}.
+	 */
+	public static Expression parse(String string) {
+		Expression result = parser.parse(string);
+		return result;
 	}
 	
 	/**
