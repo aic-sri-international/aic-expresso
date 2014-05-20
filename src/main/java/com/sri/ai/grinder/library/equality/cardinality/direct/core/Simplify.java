@@ -146,7 +146,7 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 	protected List<Rewriter> getAtomicRewriters() {
 		return new ArrayList<Rewriter>(
 				Arrays.asList(new Rewriter[] {
-						//new OrderNormalize(),
+						// new OrderNormalize(),
 						new PlainSubstitution(),
 						new CardinalityTypeOfLogicalVariable(),
 						new Plus(),

@@ -19,6 +19,31 @@ public class SyntaxTreeTest {
 		SyntaxTree c;
 		List<SyntaxTree> list;
 		
+		// testing comparison of symbols of different types
+		a = SyntaxTrees.parse("a");    // String
+		b = SyntaxTrees.parse("true"); // Boolean
+		c = SyntaxTrees.parse("1.0");  // Number
+		list = Util.list(a, b, c);
+		Collections.sort(list);
+		assertEquals(Util.list(b, c, a), list);
+		
+		// testing comparison of symbols of different types
+		a = SyntaxTrees.parse("a");   // String
+		b = SyntaxTrees.parse("b");   // String
+		c = SyntaxTrees.parse("1.0"); // Number
+		list = Util.list(a, b, c);
+		Collections.sort(list);
+		assertEquals(Util.list(c, a, b), list);
+		
+		// testing comparison of numeric symbols of different classes (Integer and Double)
+		// numeric values should be compared
+		a = SyntaxTrees.parse("3");
+		b = SyntaxTrees.parse("2.0");
+		c = SyntaxTrees.parse("1.0");
+		list = Util.list(a, b, c);
+		Collections.sort(list);
+		assertEquals(Util.list(c, b, a), list);
+		
 		a = SyntaxTrees.parse("a");
 		b = SyntaxTrees.parse("b");
 		c = SyntaxTrees.parse("c");
