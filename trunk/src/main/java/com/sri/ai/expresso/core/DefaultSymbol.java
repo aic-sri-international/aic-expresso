@@ -302,7 +302,8 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	@Override
 	/**
 	 * Compares this Symbol to other syntax trees, placing it before {@link CompoundSyntaxTree}s and comparing
-	 * it to other Symbols by comparing their values.
+	 * it to other Symbols by comparing their values if they are in the same type (as returned by {@link #getValueType()},
+	 * or their types if they are of different types.
 	 */
 	public int compareTo(Object another) {
 		if (this == another) {
@@ -330,14 +331,36 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 			Comparable<Object> value        = (Comparable<Object>) getValue();
 			@SuppressWarnings("unchecked")
 			Comparable<Object> anotherValue = (Comparable<Object>) anotherSymbol.getValue();
-			int result = value.compareTo(anotherValue);
+			
+			int result;
+			String valueType = getValueType();
+			String anotherValueType = anotherSymbol.getValueType();
+			if (valueType.equals(anotherValueType)) {
+				result = value.compareTo(anotherValue);
+			}
+			else {
+				result = valueType.compareTo(anotherValueType);
+			}
 			return result;
 		}
 		catch (ClassCastException e) {
-			throw new Error("Using DefaultSymbol.compareTo method with non-Comparable values.", e);
+			throw new Error("Using DefaultSymbol.compareTo method with non-comparable values.", e);
 		}
 	}
 
+	/**
+	 * Returns "Number" if the Symbol's value is a number and a simple class name for other types.
+	 */
+	@Override
+	public String getValueType() {
+		if (getValue() instanceof Number) {
+			return "Number";
+		}
+		else {
+			return getValue().getClass().getSimpleName();
+		}
+	}
+	
 	@Override
 	public String toStringWithoutCaching() {
 		String result = "";

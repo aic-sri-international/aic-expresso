@@ -1,6 +1,7 @@
 package com.sri.ai.grinder.core;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,10 +21,10 @@ import com.sri.ai.util.cache.DefaultCacheMap;
  * @author braz
  *
  */
-public class OrderNormalize extends AbstractRewriter {
+public class OrderNormalize extends AbstractRewriter implements Comparator<Expression> {
 
 	private static Map<IdentityWrapper, Expression> cache = new DefaultCacheMap<IdentityWrapper, Expression>(3000);
-	
+
 	private final static List<String> symmetricFunctorStrings = Util.list(
 			FunctorConstants.AND,
 			FunctorConstants.OR,
@@ -44,22 +45,27 @@ public class OrderNormalize extends AbstractRewriter {
 		Expression functor = expression.getFunctor();
 		if (isSymmetric(functor, process)) {
 			
-			Expression cached = cache.get(new IdentityWrapper(expression));
+			IdentityWrapper originalCacheKey = new IdentityWrapper(expression);
+			Expression cached = cache.get(originalCacheKey);
 			if (cached == null) {
 
 				List<Expression> arguments = expression.getArguments();
 
 				List<Expression> newArguments;
 				newArguments = Util.mapIntoArrayList(arguments, new OrderNormalizeFunction(process));
+				Collections.sort(newArguments);
 				
-				Collections.sort(newArguments, null); // FIXME: NEED TO ADD COMPARATOR BECAUSE EXPRESSION IS NO LONGER COMPARABLE
-				
-				Expression original = expression;
-				if ( ! Util.equals(newArguments, arguments)) {
+				// at this point, newArguments is a distinct instance from arguments because we needed to sort it,
+				// but it may be identical otherwise.
+				// If it is identical, its elements will not only be equal, but they will be the *same instances* as the original,
+				// so we check for that, which is cheaper.
+				if (! Util.sameInstancesInSameIterableOrder(newArguments, arguments)) {
 					expression = Expressions.apply(functor, newArguments);
 					// System.out.println("\nOrder-normalized:\n" + original +  "\n" + expression);
 				}
-				cache.put(new IdentityWrapper(original), expression);
+				// else, no change in arguments and no need to create a new instance
+				
+				cache.put(originalCacheKey, expression);
 			}
 			else {
 				expression = cached;
@@ -68,19 +74,6 @@ public class OrderNormalize extends AbstractRewriter {
 		return expression;
 	}
 	
-	public boolean equalsUpToOrderNormalization(Expression expression1, Expression expression2, RewritingProcess process) {
-		boolean result;
-		if (isSymmetric(expression1.getFunctor(), process) && isSymmetric(expression2.getFunctor(), process)) {
-			Expression normalized1 = orderNormalize(expression1, process);
-			Expression normalized2 = orderNormalize(expression2, process);
-			result = normalized1.equals(normalized2);
-		}
-		else {
-			result = expression1.equals(expression2);
-		}
-		return result;
-	}
-
 	private static boolean isSymmetric(Expression functor, RewritingProcess process) {
 		boolean result = false;
 		
@@ -111,5 +104,13 @@ public class OrderNormalize extends AbstractRewriter {
 			Expression result = orderNormalize(input, process);
 			return result;
 		}
+	}
+
+	@Override
+	public int compare(Expression o1, Expression o2) {
+		Expression normalizedO1 = orderNormalize(o1, Expressions.getProcess());
+		Expression normalizedO2 = orderNormalize(o2, Expressions.getProcess());
+		int result = normalizedO1.compareTo(normalizedO2);
+		return result;
 	}
 }

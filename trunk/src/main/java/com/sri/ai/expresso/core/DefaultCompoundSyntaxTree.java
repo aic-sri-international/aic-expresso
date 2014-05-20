@@ -147,10 +147,10 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		boolean result;
 		
 		if (anotherObject instanceof CompoundSyntaxTree) {
-			CompoundSyntaxTree normalizedAnotherCompoundSyntaxTree = (CompoundSyntaxTree) anotherObject;
-			if (this.hashCode() == normalizedAnotherCompoundSyntaxTree.hashCode()) {
-				List<SyntaxTree> anotherSubTrees = normalizedAnotherCompoundSyntaxTree.getImmediateSubTrees();
-				result = this.getRootTree().equals(normalizedAnotherCompoundSyntaxTree.getRootTree()) && this.getImmediateSubTrees().equals(anotherSubTrees);
+			CompoundSyntaxTree anotherCompoundSyntaxTree = (CompoundSyntaxTree) anotherObject;
+			if (this.hashCode() == anotherCompoundSyntaxTree.hashCode()) {
+				List<SyntaxTree> anotherSubTrees = anotherCompoundSyntaxTree.getImmediateSubTrees();
+				result = this.getRootTree().equals(anotherCompoundSyntaxTree.getRootTree()) && this.getImmediateSubTrees().equals(anotherSubTrees);
 			}
 			else {
 				result = false;
