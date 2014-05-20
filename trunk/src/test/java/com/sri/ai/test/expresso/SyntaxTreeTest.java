@@ -12,9 +12,8 @@ import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.util.Util;
 
 public class SyntaxTreeTest {
-	@SuppressWarnings("unchecked")
 	@Test
-	public void testOrdering() {
+	public void testComparison() {
 		SyntaxTree a;
 		SyntaxTree b;
 		SyntaxTree c;

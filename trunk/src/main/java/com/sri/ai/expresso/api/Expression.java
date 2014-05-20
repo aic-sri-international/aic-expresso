@@ -57,7 +57,7 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public interface Expression extends Cloneable, Serializable {
+public interface Expression extends Cloneable, Serializable, Comparable<Object> {
 	
 	/**
 	 * Provides the sub-expression of this expression.
