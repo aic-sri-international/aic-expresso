@@ -45,6 +45,7 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.OrderNormalize;
 import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
@@ -92,7 +93,7 @@ public class IncompleteLinearImplies {
 		boolean result = false;
 		
 		// if G and H are the same expression
-		if (expressionG.equals(expressionH) ||
+		if (OrderNormalize.equals(expressionG, expressionH) ||
 		    // or
 		    // G is "t1 = t2" or "not (t1 != t2)" and 
 			// H is "t2 = t1" or "not (t2 != t1)"

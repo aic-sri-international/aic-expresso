@@ -30,8 +30,8 @@ public class OrderNormalize extends AbstractRewriter implements Comparator<Expre
 			FunctorConstants.OR,
 			FunctorConstants.PLUS,
 			FunctorConstants.PRODUCT,
-//			FunctorConstants.EQUALITY,
-//			FunctorConstants.DISEQUALITY,
+			FunctorConstants.EQUALITY,
+			FunctorConstants.DISEQUALITY,
 			FunctorConstants.EQUIVALENCE
 			);
 
@@ -111,6 +111,13 @@ public class OrderNormalize extends AbstractRewriter implements Comparator<Expre
 		Expression normalizedO1 = orderNormalize(o1, Expressions.getProcess());
 		Expression normalizedO2 = orderNormalize(o2, Expressions.getProcess());
 		int result = normalizedO1.compareTo(normalizedO2);
+		return result;
+	}
+
+	public static boolean equals(Expression o1, Expression o2) {
+		Expression normalizedO1 = orderNormalize(o1, Expressions.getProcess());
+		Expression normalizedO2 = orderNormalize(o2, Expressions.getProcess());
+		boolean result = normalizedO1.equals(normalizedO2);
 		return result;
 	}
 }
