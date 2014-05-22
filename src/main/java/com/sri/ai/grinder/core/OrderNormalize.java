@@ -9,7 +9,7 @@ import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.function.SymmetricModule;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.IdentityWrapper;
 import com.sri.ai.util.cache.DefaultCacheMap;
@@ -25,15 +25,20 @@ public class OrderNormalize extends AbstractRewriter implements Comparator<Expre
 
 	private static Map<IdentityWrapper, Expression> cache = new DefaultCacheMap<IdentityWrapper, Expression>(3000);
 
-	private final static List<String> symmetricFunctorStrings = Util.list(
-			FunctorConstants.AND,
-			FunctorConstants.OR,
-			FunctorConstants.PLUS,
-			FunctorConstants.PRODUCT,
-			FunctorConstants.EQUALITY,
-			FunctorConstants.DISEQUALITY,
-			FunctorConstants.EQUIVALENCE
-			);
+	@Override
+	public int compare(Expression o1, Expression o2) {
+		Expression normalizedO1 = orderNormalize(o1, Expressions.getProcess());
+		Expression normalizedO2 = orderNormalize(o2, Expressions.getProcess());
+		int result = normalizedO1.compareTo(normalizedO2);
+		return result;
+	}
+
+	public boolean equals(Expression o1, Expression o2) {
+		Expression normalizedO1 = orderNormalize(o1, Expressions.getProcess());
+		Expression normalizedO2 = orderNormalize(o2, Expressions.getProcess());
+		boolean result = normalizedO1.equals(normalizedO2);
+		return result;
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
@@ -41,7 +46,7 @@ public class OrderNormalize extends AbstractRewriter implements Comparator<Expre
 		return result;
 	}
 
-	public static Expression orderNormalize(Expression expression, RewritingProcess process) {
+	public Expression orderNormalize(Expression expression, RewritingProcess process) {
 		Expression functor = expression.getFunctor();
 		if (isSymmetric(functor, process)) {
 			
@@ -61,7 +66,6 @@ public class OrderNormalize extends AbstractRewriter implements Comparator<Expre
 				// so we check for that, which is cheaper.
 				if (! Util.sameInstancesInSameIterableOrder(newArguments, arguments)) {
 					expression = Expressions.apply(functor, newArguments);
-					// System.out.println("\nOrder-normalized:\n" + original +  "\n" + expression);
 				}
 				// else, no change in arguments and no need to create a new instance
 				
@@ -74,24 +78,20 @@ public class OrderNormalize extends AbstractRewriter implements Comparator<Expre
 		return expression;
 	}
 	
-	private static boolean isSymmetric(Expression functor, RewritingProcess process) {
+	private boolean isSymmetric(Expression functor, RewritingProcess process) {
 		boolean result = false;
 		
-		if (functor != null) {
-			result = symmetricFunctorStrings.contains(functor.toString());
+		if (functor != null && process != null) {
+			SymmetricModule symmetricModule = (SymmetricModule) process.findModule(SymmetricModule.class);
+			if (symmetricModule != null) {
+				result = symmetricModule.isSymmetric(functor, process);
+			}
 		}
-
-//		if (functor != null && process != null) {
-//			SymmetricModule symmetricModule = (SymmetricModule) process.findModule(SymmetricModule.class);
-//			if (symmetricModule != null) {
-//				result = symmetricModule.isSymmetric(functor, process);
-//			}
-//		}
 
 		return result;
 	}
 
-	private static class OrderNormalizeFunction implements Function<Expression,Expression> {
+	private class OrderNormalizeFunction implements Function<Expression,Expression> {
 		private RewritingProcess process;
 	
 		public OrderNormalizeFunction(RewritingProcess process) {
@@ -104,20 +104,5 @@ public class OrderNormalize extends AbstractRewriter implements Comparator<Expre
 			Expression result = orderNormalize(input, process);
 			return result;
 		}
-	}
-
-	@Override
-	public int compare(Expression o1, Expression o2) {
-		Expression normalizedO1 = orderNormalize(o1, Expressions.getProcess());
-		Expression normalizedO2 = orderNormalize(o2, Expressions.getProcess());
-		int result = normalizedO1.compareTo(normalizedO2);
-		return result;
-	}
-
-	public static boolean equals(Expression o1, Expression o2) {
-		Expression normalizedO1 = orderNormalize(o1, Expressions.getProcess());
-		Expression normalizedO2 = orderNormalize(o2, Expressions.getProcess());
-		boolean result = normalizedO1.equals(normalizedO2);
-		return result;
 	}
 }

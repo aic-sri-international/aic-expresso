@@ -56,7 +56,7 @@ public class UnionOnExtensionalSets extends CommutativeAssociative {
 	private final static Expression            neutralElement              = ExtensionalSet.makeEmptySet();
 	private final static Predicate<Expression> isOperableArgumentPredicate = new Sets.IsExtensionalSet();
 
-	protected Object getFunctor() {
+	public Object getFunctor() {
 		return "union";
 	}
 	

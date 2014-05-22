@@ -37,9 +37,13 @@
  */
 package com.sri.ai.grinder.library.function;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.AbstractModuleNoOpRewriter;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Module;
 import com.sri.ai.grinder.api.RewritingProcess;
 
@@ -64,6 +68,14 @@ public class SymmetricModule extends AbstractModuleNoOpRewriter {
 	 */
 	public static interface Provider extends Module.Provider {
 		boolean isSymmetric(Expression function, RewritingProcess process);
+		
+		/** 
+		 * If all the provider does is to compare the given function to a fixed functor,
+		 * it should return that functor with this method.
+		 * This allows the module to cache these values and be faster.
+		 * Return null to indicate this is not possible.
+		 */
+		Object getFunctor();
 	}
 
 	/**
@@ -74,12 +86,42 @@ public class SymmetricModule extends AbstractModuleNoOpRewriter {
 		register(SymmetricModule.class, provider, process);
 	}
 
+	private Set<Expression> cachedFunctors = new LinkedHashSet<Expression>();
+	private boolean notAllProvidersHaveFixedFunctor = false;
+	
+	public void register(Module.Provider moduleProvider) {
+		Provider provider = (Provider) moduleProvider;
+		Expression functor = Expressions.wrap(provider.getFunctor());
+		if (functor != null) {
+			cachedFunctors.add(functor);
+			// note that in this case we do not register the provider, as it will not be used anymore.
+		}
+		else {
+			notAllProvidersHaveFixedFunctor = true;
+			super.register(provider);
+		}
+	}
+
 	public boolean isSymmetric(Expression function, RewritingProcess process) {
+		if ( ! cachedFunctors.isEmpty()) {
+			boolean isInCachedFunctors = cachedFunctors.contains(function);
+			if (isInCachedFunctors) {
+				return true;
+			}
+			if ( ! notAllProvidersHaveFixedFunctor) {
+				// cachedFunctors are exhaustive and it was not found,
+				// so it will not be found by asking providers
+				return false;
+			}
+		}
+		
+		// At this point, either we do not have cached functors, or function is not there and the cache is not exhaustive,
+		// so we ask each provider.
 		for (Module.Provider moduleProvider : providers.keySet()) {
 			Provider provider = (Provider) moduleProvider;
 			boolean result = provider.isSymmetric(function, process);
 			if (result) {
-				return result;
+				return true;
 			}
 		}
 		return false;

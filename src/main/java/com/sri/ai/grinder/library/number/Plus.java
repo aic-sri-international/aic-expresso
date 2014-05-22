@@ -59,7 +59,7 @@ public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly {
 	private final static Expression            neutralElement              = Expressions.makeSymbol(0);
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);
 
-	protected Object getFunctor() {
+	public Object getFunctor() {
 		return "+";
 	}
 	

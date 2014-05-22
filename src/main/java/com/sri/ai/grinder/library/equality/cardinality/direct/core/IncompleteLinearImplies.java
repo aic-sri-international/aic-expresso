@@ -57,6 +57,8 @@ import com.sri.ai.grinder.library.FunctorConstants;
 @Beta
 public class IncompleteLinearImplies {
 	
+	private static OrderNormalize orderNormalize = new OrderNormalize();
+	
 	/**
 	 * <pre>
 	 * incomplete_linear_implies(G, H)
@@ -93,7 +95,7 @@ public class IncompleteLinearImplies {
 		boolean result = false;
 		
 		// if G and H are the same expression
-		if (OrderNormalize.equals(expressionG, expressionH) ||
+		if (orderNormalize.equals(expressionG, expressionH) ||
 		    // or
 		    // G is "t1 = t2" or "not (t1 != t2)" and 
 			// H is "t2 = t1" or "not (t2 != t1)"

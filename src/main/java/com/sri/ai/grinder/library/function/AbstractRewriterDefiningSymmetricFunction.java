@@ -51,7 +51,7 @@ import com.sri.ai.grinder.core.AbstractRewriter;
 @Beta
 abstract public class AbstractRewriterDefiningSymmetricFunction extends AbstractRewriter implements SymmetricModule.Provider {
 
-	protected abstract Object getFunctor();
+	public abstract Object getFunctor();
 	
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {

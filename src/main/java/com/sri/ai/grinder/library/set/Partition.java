@@ -49,7 +49,7 @@ import com.sri.ai.grinder.library.set.extensional.UnionOnExtensionalSets;
 public class Partition extends UnionOnExtensionalSets {
 
 	@Override
-	protected Object getFunctor() {
+	public Object getFunctor() {
 		return "partition";
 	}
 
