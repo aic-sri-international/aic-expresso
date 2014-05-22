@@ -200,7 +200,7 @@ public class IndexExpressions {
 	public static void addSubTreeWithIndexAndBasePathPlusArgumentIndex(
 			Expression syntaxTree, int subTreeIndex, List<Integer> basePath,
 			List<Pair<SyntaxTree, List<Integer>>> result) {
-		SyntaxTree subTree = syntaxTree.getSyntaxTree().getSubTree(subTreeIndex); // does need to be sub tree
+		SyntaxTree subTree = syntaxTree.getSyntaxTree().getSubTree(subTreeIndex);
 		List<Integer> subExpressionPath = new LinkedList<Integer>(basePath);
 		subExpressionPath.add(subTreeIndex);
 		result.add(new Pair<SyntaxTree, List<Integer>>(subTree, subExpressionPath));

@@ -273,10 +273,10 @@ public class ExpressionNode implements TreeNode {
 		return result;
 	}
 	
-	protected Vector<ExpressionNode> associateSequenceToTree(AssociativeSequence parsingExpression, final SyntaxTree syntaTree) {
+	protected Vector<ExpressionNode> associateSequenceToTree(AssociativeSequence parsingExpression, final SyntaxTree syntaxTree) {
 		Vector<ExpressionNode> result = new Vector<ExpressionNode>();
-		SyntaxTree rootTree = syntaTree.getRootTree();
-		List<SyntaxTree> subTree = syntaTree.getImmediateSubTrees(); // does need to be sub tree
+		SyntaxTree rootTree = syntaxTree.getRootTree();
+		List<SyntaxTree> subTree = syntaxTree.getImmediateSubTrees();
 		
 		if ( !subTree.isEmpty() ) {
 			result.add(new ExpressionNode(subTree.get(0), NodeType.INSUBTREE, this));

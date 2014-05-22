@@ -675,11 +675,11 @@ public class Expressions {
 		}
 	
 		Iterator<? extends SyntaxTree> subTreesIterator = expression.getSyntaxTree().getImmediateSubTreesIterator();
-		// does need to be sub tree
 		FunctionIterator<Integer, List<Integer>> pathsIterator = Expressions.makeSingleIndexPathsIteratorFromTo(0, expression.getSyntaxTree().numberOfImmediateSubTrees());
 		
-		Iterator<ExpressionAndContext> result = Expressions.makeIteratorOfSubExpressionsAndContextsFromIteratorsOnSubTreesAndPathsWithGivenQuantifiedVariables(
-				subTreesIterator, pathsIterator, process);
+		Iterator<ExpressionAndContext> result =
+				Expressions.makeIteratorOfSubExpressionsAndContextsFromIteratorsOnSubTreesAndPathsWithGivenQuantifiedVariables(
+						subTreesIterator, pathsIterator, process);
 	
 		return result;
 	}
