@@ -63,7 +63,7 @@ public class OrderNormalizeTest {
 		
 		a = Expressions.parse("p and q and r");
 		b = Expressions.parse("r and p and q");
-		assert(OrderNormalize.equals(a, b));
+		assert(comparator.equals(a, b));
 		
 		a = Expressions.parse("f(p,q,r)");
 		b = Expressions.parse("f(p,q,r)");

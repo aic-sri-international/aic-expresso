@@ -73,7 +73,7 @@ public abstract class CommutativeAssociative extends AbstractRewriterDefiningSym
 		this.setReifiedTests(new HasFunctor(getFunctor()));
 	}
 
-	protected abstract Object getFunctor();
+	public abstract Object getFunctor();
 	protected abstract Expression getNeutralElement();
 	protected abstract Expression getAbsorbingElement();
 	protected abstract Predicate<Expression> getIsOperableArgumentSyntaxTreePredicate();

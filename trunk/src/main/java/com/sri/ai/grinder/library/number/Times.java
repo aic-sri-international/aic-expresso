@@ -63,7 +63,7 @@ public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly {
 	private final static Expression            absorbingElement            = Expressions.makeSymbol(0);
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);
 
-	protected Object getFunctor() {
+	public Object getFunctor() {
 		return "*";
 	}
 	
