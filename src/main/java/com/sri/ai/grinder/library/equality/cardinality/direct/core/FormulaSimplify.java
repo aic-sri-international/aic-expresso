@@ -83,10 +83,18 @@ import com.sri.ai.grinder.library.number.GreaterThan;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsProvider;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
+import com.sri.ai.util.Util;
+import com.sri.ai.util.base.IsNull;
 
 /**
  * Successively and exhaustively applies simplifications to a formula expression,
  * that is, one formed of boolean formula operators plus if-then-else.
+ * 
+ * If constructed with the flag <code>preserveIfThenElseStructure</code>,
+ * the rewriter is committed to preserve the ordering and level of if-then-else arguments in the formula
+ * (this however does not apply to if-then-elses inside quantifiers).
+ * This means that levels will not be collapsed and condition order will not be switched
+ * (true or false conditions will still mean simplification of the if-then-else, though).
  * 
  * @author braz
  *
@@ -95,14 +103,23 @@ import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAn
 public class FormulaSimplify extends AbstractHierarchicalRewriter implements CardinalityRewriter {
 	private Rewriter rRootRewriter = null;
 	
+	private boolean preserveIfThenElseStructure = false;
+	
 	public FormulaSimplify() {
+		super();
+	}
+	
+	public FormulaSimplify(boolean preserveIfThenElseStructure) {
+		super();
+		this.preserveIfThenElseStructure = preserveIfThenElseStructure;
 	}
 	
 	@Override
 	public String getName() {
-		return CardinalityRewriter.R_formula_simplify;
+		return CardinalityRewriter.R_formula_simplify + (preserveIfThenElseStructure? " preserving if-then-else structure" : "");
 	}
 	
+
 	public Rewriter getRootRewriter() {
 		// Lazy initialize so that required supporting classes
 		// can be setup an configured as necessary.
@@ -134,7 +151,7 @@ public class FormulaSimplify extends AbstractHierarchicalRewriter implements Car
 	// PROTECTED METHODS
 	//
 	protected List<Rewriter> getAtomicRewriters() {
-		return new ArrayList<Rewriter>(
+		ArrayList<Rewriter> result = new ArrayList<Rewriter>(
 				Arrays.asList(new Rewriter[] {
 						new PlainSubstitution(),
 						new CardinalityTypeOfLogicalVariable(),
@@ -160,8 +177,8 @@ public class FormulaSimplify extends AbstractHierarchicalRewriter implements Car
 								"or", "true"),
 						new Associative("and"),
 						
-						//new FromConditionalFormulaToFormula(), // commented out because it potentially expands expression
-						new FromConditionalFormulaWithConstantBooleanBranchToFormula(),
+						// new FromConditionalFormulaToFormula(), // commented out because it potentially expands expression
+						(!preserveIfThenElseStructure? new FromConditionalFormulaWithConstantBooleanBranchToFormula() : null),
 						// new, cheap simplifiers to be used instead of full ImpliedCertainty
 						new IncompleteTopImpliedCertainty(),
 						new TrivialForAllCases(),
@@ -182,9 +199,9 @@ public class FormulaSimplify extends AbstractHierarchicalRewriter implements Car
 						new QuantifierEliminationWrapper(FunctorConstants.AND),
 						new QuantifierEliminationWrapper(FunctorConstants.OR),
 										
-						new IfThenElseIrrelevantCondition(),
+						(!preserveIfThenElseStructure? new IfThenElseIrrelevantCondition() : null),
 						// new DisequalityToEqualityInIfThenElseCondition(),
-						new IfThenElseBranchesAreBooleanConstants(),
+						(!preserveIfThenElseStructure? new IfThenElseBranchesAreBooleanConstants() : null),
 						new IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch(),
 						
 						// only modules from here on: they don't actually
@@ -202,5 +219,11 @@ public class FormulaSimplify extends AbstractHierarchicalRewriter implements Car
 						new IntensionalSet(), // Note: This is just a provider for scoped variables and not a rewriter.
 						new SyntacticFunctionsSubExpressionsProvider("type", "scoped variables"),
 						new OpenInterpretationModule() }));
+		
+		if (preserveIfThenElseStructure) {
+			Util.removeElementsSatisfying(result, new IsNull<Rewriter>());
+		}
+		
+		return result;
 	}
 }

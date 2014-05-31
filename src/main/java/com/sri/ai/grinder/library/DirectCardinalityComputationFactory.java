@@ -104,6 +104,10 @@ public class DirectCardinalityComputationFactory {
 		return new DefaultCardinalityConfiguration();
 	}
 	
+	public static RewritingProcess newCardinalityProcess() {
+		return newCardinalityProcess(null);
+	}
+
 	public static RewritingProcess newCardinalityProcess(Expression rootExpression) {
 		return newCardinalityProcess(rootExpression, newCardinalityConfiguration());
 	}

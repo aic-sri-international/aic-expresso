@@ -108,6 +108,8 @@ public interface RewritingProcess {
 
 	boolean getIsResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess();
 
+	Expression rewrite(Rewriter rewriter, Expression expression);
+
 	/**
 	 * Rewrites an expression within the context of this rewriting process.
 	 * 

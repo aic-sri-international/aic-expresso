@@ -88,7 +88,7 @@ public class CompleteSimplify extends Simplify implements CardinalityRewriter {
 		// if pretty(X) then if not pretty(X) then 1 else 2 else 3
 		// ---->
 		// if pretty(X) then 2 else 3
-		// which TopImpliedCertainty does not do.
+		// which TopImpliedCertainty does not do (it should eventually).
 		
 		return atomicRewriters;
 	}
