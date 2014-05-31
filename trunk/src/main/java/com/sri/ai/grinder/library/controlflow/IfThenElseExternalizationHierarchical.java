@@ -56,11 +56,30 @@ import com.sri.ai.util.Util;
  * Receives a basic expression (basic operators plus products of intensional sets with basic expressions in the head)
  * and returns an equivalent expression in which all conditional expressions are on the top of the expression,
  * but for the ones constrained to be inside sets because they use their indices.
- */
+ * 
+ * If constructed with the flag <code>preserveIfThenElseStructure</code>,
+ * it is passed through to the {@link FormulaSimplify} rewriter responsible for simplification during the process.
+*/
 @Beta
 public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalRewriter {
 
-	private Rewriter formulaSimplify = new FormulaSimplify();
+	private Rewriter formulaSimplify;
+	private boolean preserveIfThenElseStructure;
+	
+	public IfThenElseExternalizationHierarchical() {
+		this(false);
+	}
+	
+	public IfThenElseExternalizationHierarchical(boolean preserveIfThenElseStructure) {
+		super();
+		formulaSimplify = new FormulaSimplify(preserveIfThenElseStructure);
+		this.preserveIfThenElseStructure = preserveIfThenElseStructure;
+	}
+
+	@Override
+	public String getName() {
+		return "IfThenElseExternalizationHierarchical" + (preserveIfThenElseStructure? " preserving if-then-else structure" : "");
+	}
 	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
@@ -76,8 +95,8 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 			expression = expression.replace(
 					new RewriterReplacementFunction(this),
 					false /* don't do first occurrence only, but all occurrences */,
-					null /* no pruning */,
-					true /* ignore top expression */,
+					null  /* no pruning */,
+					true  /* ignore top expression */,
 					null,
 					process);
 		}

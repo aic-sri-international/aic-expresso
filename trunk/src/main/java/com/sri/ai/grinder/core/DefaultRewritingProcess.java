@@ -141,9 +141,38 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	private int                          recursionLevel                                                        = 0;
 	private boolean                      interrupted                                                           = false;
 	//
-	private ConcurrentHashMap<Object, Object>          globalObjects       = null;
-	private ConcurrentHashMap<Class<?>, Rewriter>      lookedUpModuleCache = null;
-	private ConcurrentHashMap<String, ExpressionCache> rewriterCaches      = null;
+	private ConcurrentHashMap<Object, Object>               globalObjects       = null;
+	private ConcurrentHashMap<Class<?>, Rewriter>           lookedUpModuleCache = null;
+	
+	/**
+	 * A class determining how rewriters are indexed in the rewriter caches.
+	 * This provides a quick way to change the indexing.
+	 */
+	private static class RewriterKey {
+		private Object key;
+		public RewriterKey(Rewriter rewriter) {
+			key = rewriter.getName();
+			// key = new IdentityWrapper(rewriter); // does get much slower.
+		}
+		public boolean equals(Object another) {
+			boolean result;
+			if (another instanceof RewriterKey) {
+				result = key.equals(((RewriterKey)another).key);
+			}
+			else {
+				result = false;
+			}
+			return result;
+		}
+		public int hashCode() {
+			int result = key.hashCode();
+			return result;
+		}
+		public String toString() {
+			return key.toString();
+		}
+	}
+	private ConcurrentHashMap<RewriterKey, ExpressionCache> rewriterCaches = null;
 	//
 	private long rewritingProcessCacheMaximumSize             = GrinderConfiguration.getRewritingProcessCacheMaximumSize();
 	private int  rewritingProcessCacheGarbageCollectionPeriod = GrinderConfiguration.getRewritingProcessCacheGarbageCollectionPeriod();
@@ -155,9 +184,9 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			return iterator;
 		}
 	};
-	private Function<String, ExpressionCache> cacheMaker = new Function<String, ExpressionCache>() {
+	private Function<RewriterKey, ExpressionCache> cacheMaker = new Function<RewriterKey, ExpressionCache>() {
 		@Override
-		public ExpressionCache apply(String rewriterName) {
+		public ExpressionCache apply(RewriterKey rewriterKey) {
 			return new ExpressionCache(rewritingProcessCacheMaximumSize,
 					reachableExpressionsIteratorMaker,
 					rewritingProcessCacheGarbageCollectionPeriod);
@@ -205,7 +234,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				Expressions.TRUE,
 				isConstantPredicate, 
 				new ConcurrentHashMap<Object, Object>(globalObjects), 
-				new ConcurrentHashMap<String, ExpressionCache>(),
+				new ConcurrentHashMap<RewriterKey, ExpressionCache>(),
 				new ConcurrentHashMap<Class<?>, Rewriter>(),
 				false, 
 				true);
@@ -227,7 +256,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				contextualConstraint,
 				isConstantPredicate, 
 				new ConcurrentHashMap<Object, Object>(globalObjects), 
-				new ConcurrentHashMap<String, ExpressionCache>(),
+				new ConcurrentHashMap<RewriterKey, ExpressionCache>(),
 				new ConcurrentHashMap<Class<?>, Rewriter>(),
 				false, 
 				true);
@@ -324,6 +353,12 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			notifyReadinessOfRewritingProcess();
 		}
 		return rootRewriter;
+	}
+	
+	@Override
+	public Expression rewrite(Rewriter rewriter, Expression expression) {
+		Expression result = rewriter.rewrite(expression, this);
+		return result;
 	}
 	
 	@Override
@@ -449,8 +484,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 	
 	@Override
-	public void rewritingPostProcessing(Rewriter rewriter,
-			Expression expression, Expression result) {
+	public void rewritingPostProcessing(Rewriter rewriter, Expression expression, Expression result) {
 
 		putInCache(rewriter, expression, result);
 
@@ -473,7 +507,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	@Override
 	public void notifyEndOfRewritingProcess() {
 		if (AICUtilConfiguration.isRecordCacheStatistics() && rewriterCaches != null) {
-			for (Map.Entry<String, ExpressionCache> entry : rewriterCaches.entrySet()) {
+			for (Map.Entry<RewriterKey, ExpressionCache> entry : rewriterCaches.entrySet()) {
 				System.out.println(String.format("RewritingProcess Cache Stats for %-80s are %s", entry.getKey(), entry.getValue().stats()));
 			}
 		}
@@ -642,7 +676,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				Expressions.TRUE,
 				process.getIsConstantPredicate(),
 				process.getGlobalObjects(),
-				new ConcurrentHashMap<String, ExpressionCache>(),
+				new ConcurrentHashMap<RewriterKey, ExpressionCache>(),
 				new ConcurrentHashMap<Class<?>, Rewriter>(),
 				process.getInterrupted(),
 				process.getIsResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess());
@@ -657,7 +691,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			Expression contextualConstraint,
 			Predicate<Expression> isConstantPredicate,
 			ConcurrentHashMap<Object, Object> globalObjects,
-			ConcurrentHashMap<String, ExpressionCache> rewriterCaches,
+			ConcurrentHashMap<RewriterKey, ExpressionCache> rewriterCaches,
 			ConcurrentHashMap<Class<?>, Rewriter> lookedUpModuleCache,
 			boolean interrupted,
 			boolean isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess) {
@@ -689,7 +723,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 	
 	private ExpressionCache getRewriterCache(Rewriter rewriter) {
-		ExpressionCache rewriterCache = Util.getValuePossiblyCreatingIt(rewriterCaches, rewriter.getName(), cacheMaker);
+		ExpressionCache rewriterCache = Util.getValuePossiblyCreatingIt(rewriterCaches, new RewriterKey(rewriter), cacheMaker);
 		return rewriterCache;
 	}
 	
