@@ -53,6 +53,7 @@ import com.sri.ai.grinder.helper.Justification;
 import com.sri.ai.grinder.helper.RewriterLoggingNamedRewriterFilter;
 import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
+import com.sri.ai.grinder.library.DeMorgans;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -176,14 +177,16 @@ public class FormulaSimplify extends AbstractHierarchicalRewriter implements Car
 						new AbsorbingElement(
 								"or", "true"),
 						new Associative("and"),
+						new Associative("or"),
 						
 						// new FromConditionalFormulaToFormula(), // commented out because it potentially expands expression
 						(!preserveIfThenElseStructure? new FromConditionalFormulaWithConstantBooleanBranchToFormula() : null),
+						new DeMorgans(),
 						// new, cheap simplifiers to be used instead of full ImpliedCertainty
 						new IncompleteTopImpliedCertainty(),
 						new TrivialForAllCases(),
 						new TrivialThereExistsCases(),
-						new ConjunctsHoldTrueForEachOther(),
+						(!preserveIfThenElseStructure? new ConjunctsHoldTrueForEachOther() : null),
 						
 						//
 						// Support for: Quantifier Elimination
@@ -199,9 +202,9 @@ public class FormulaSimplify extends AbstractHierarchicalRewriter implements Car
 						new QuantifierEliminationWrapper(FunctorConstants.AND),
 						new QuantifierEliminationWrapper(FunctorConstants.OR),
 										
-						(!preserveIfThenElseStructure? new IfThenElseIrrelevantCondition() : null),
+						new IfThenElseIrrelevantCondition(),
 						// new DisequalityToEqualityInIfThenElseCondition(),
-						(!preserveIfThenElseStructure? new IfThenElseBranchesAreBooleanConstants() : null),
+						new IfThenElseBranchesAreBooleanConstants(),
 						new IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch(),
 						
 						// only modules from here on: they don't actually

@@ -62,9 +62,11 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.core.ExpressionOnCompoundSyntaxTree;
 import com.sri.ai.expresso.core.ExpressionOnSymbol;
+import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.PruningPredicate;
+import com.sri.ai.grinder.helper.RewriterFunction;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.IsVariable;
@@ -1051,5 +1053,43 @@ public class Expressions {
 			input = ((Expression)input).getSyntaxTree();
 		}
 		return input;
+	}
+
+	/**
+	 * Given a function <code>F</code> and a function application <code>f(a1, ..., an)</code>,
+	 * returns <code>f(F(a1), ..., F(an))</code>.
+	 */
+	public static Expression passThroughFunctionApplication(Function<Expression, Expression> function, Expression expression) {
+		Expression       result;
+		Expression       functor            = expression.getFunctor();
+		List<Expression> arguments          = expression.getArguments();
+		List<Expression> resultingArguments = Util.mapIntoArrayList(arguments, function);
+		if (Util.sameInstancesInSameIterableOrder(arguments, resultingArguments)) {
+			result = expression;
+		}
+		else {
+			result = apply(functor, resultingArguments);
+		}
+		return result;
+	}
+
+	/**
+	 * Given a rewriter <code>R</code> and a function application <code>f(a1, ..., an)</code>,
+	 * returns <code>f(R(a1), ..., R(an))</code>.
+	 */
+	public static Expression passThroughFunctionApplication(Rewriter rewriter, Expression expression, RewritingProcess process) {
+		RewriterFunction thisRewriterFunction = new RewriterFunction(rewriter, process);
+		Expression result = passThroughFunctionApplication(thisRewriterFunction, expression);
+		return result;
+	}
+
+	/**
+	 * Given a rewriter <code>R</code> and a list <code>(a1, ..., an)</code>,
+	 * returns <code>(R(a1), ..., R(an))</code>.
+	 */
+	public static List<Expression> passThrough(Rewriter rewriter, List<Expression> expressions, RewritingProcess process) {
+		RewriterFunction thisRewriterFunction = new RewriterFunction(rewriter, process);
+		List<Expression> rewrittenExpressions = Util.mapIntoArrayList(expressions, thisRewriterFunction);
+		return rewrittenExpressions;
 	}
 }

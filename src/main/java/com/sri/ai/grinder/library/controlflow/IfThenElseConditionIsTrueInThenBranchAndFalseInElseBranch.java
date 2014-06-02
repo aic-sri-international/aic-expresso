@@ -54,9 +54,22 @@ import com.sri.ai.grinder.library.SyntacticSubstitute;
  */
 @Beta
 public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends AbstractRewriter {
+
+	private boolean simplifyToConditionIfPossible = false;
 	
+	/**
+	 * Constructor setting a flag authorizing simplifications of the type "if C then true else false -> C" to occur.
+	 */
 	public IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch() {
 		this.setReifiedTests(new HasFunctor(FunctorConstants.IF_THEN_ELSE));
+	}
+	
+	/**
+	 * Constructor taking a flag authorizing simplifications of the type "if C then true else false -> C" to occur.
+	 */
+	public IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch(boolean simplifyToConditionIfPossible) {
+		this.setReifiedTests(new HasFunctor(FunctorConstants.IF_THEN_ELSE));
+		this.simplifyToConditionIfPossible = simplifyToConditionIfPossible;
 	}
 	
 	@Override
@@ -73,7 +86,7 @@ public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends A
 			replaceCondition(elseBranch, condition, Expressions.FALSE, process);
 
 		if (thenBranchReplacement != thenBranch || elseBranchReplacement != elseBranch) {				
-			Expression result = IfThenElse.make(condition, thenBranchReplacement, elseBranchReplacement);			
+			Expression result = IfThenElse.make(condition, thenBranchReplacement, elseBranchReplacement, simplifyToConditionIfPossible);			
 			return result;
 		}
 

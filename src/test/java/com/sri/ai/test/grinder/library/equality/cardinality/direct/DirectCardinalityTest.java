@@ -1261,23 +1261,13 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					new CountsDeclaration("X", "10"),
 					"false"),
 		    //
-		    // Basic: if F is "not G"
+		    // Basic: no quantifiers to remove - do nothing
 			new QEData(false,
 					"not(a = a)",
 					new CountsDeclaration(10),
-					"false"),	
-			new QEData(false,
-					"not(a != a)",
-					new CountsDeclaration(10),
-					"true"),
-			new QEData(false,
-					"not(X = X)",
-					new CountsDeclaration(10),
-					"false"),	
-			new QEData(false,
-					"not(X != X)",
-					new CountsDeclaration(10),
-					"true"),
+					"not(a = a)"), // should not simplify if there were no removed quantifiers	
+		    //
+			// Basic: if F is "not G"
 			new QEData(false,
 					"not(for all X : X = X)",
 					new CountsDeclaration("X", "10"),
@@ -1297,14 +1287,6 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			//
 			// Basic: if F is G => H
 			new QEData(false,
-					"a = a => a != a",
-					new CountsDeclaration(10),
-					"false"),	
-			new QEData(false,
-					"a = a => a = a",
-					new CountsDeclaration(10),
-					"true"),
-			new QEData(false,
 					"(for all X: X = X) => (for all Y: Y = Y)",
 					new CountsDeclaration("X", "10", "Y", "10"),
 					"true"),
@@ -1314,14 +1296,6 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"false"),
 			//
 			// Basic: if F is G <=> H
-			new QEData(false,
-					"a = a <=> a != a",
-					new CountsDeclaration(10),
-					"a != a"),	
-			new QEData(false,
-					"a = a <=> a = a",
-					new CountsDeclaration(10),
-					"a = a"),
 			new QEData(false,
 					"(for all X: X = X) <=> (for all Y: Y = Y)",
 					new CountsDeclaration("X", "10", "Y", "10"),
@@ -1333,18 +1307,6 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			//
 			// Basic: if F is a conjunction F1 and ... and Fn
 			new QEData(false,
-					"a = a and a != a",
-					new CountsDeclaration(10),
-					"false"),
-			new QEData(false,
-					"X = X and X != X",
-					new CountsDeclaration(10),
-					"false"),	
-			new QEData(false,
-					"X = X and Y = Y",
-					new CountsDeclaration(10),
-					"X = X and Y = Y"),
-			new QEData(false,
 					"(for all X: X = X) and (for all Y: Y = Y)",
 					new CountsDeclaration("X", "10", "Y", "10"),
 					"true"),
@@ -1354,18 +1316,6 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"false"),
 			//
 			// Basic: if F is a disjunction F1 or ... or Fn
-			new QEData(false,
-					"a = a or a != a",
-					new CountsDeclaration(10),
-					"true"),
-			new QEData(false,
-					"X = X or X != X",
-					new CountsDeclaration(10),
-					"true"),	
-			new QEData(false,
-					"X = X or Y = Y",
-					new CountsDeclaration(10),
-					"X = X or Y = Y"),
 			new QEData(false,
 					"(for all X: X = X) or (for all Y: Y = Y)",
 					new CountsDeclaration("X", "10", "Y", "10"),
@@ -1378,34 +1328,6 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"(for all X: X != X) or (for all Y: Y != Y)",
 					new CountsDeclaration("X", "10", "Y", "10"),
 					"false"),
-			//
-			// Basic: None of the cases outlined
-			new QEData(false,
-					"a = a",
-					new CountsDeclaration(10),
-					"a = a"),	
-			new QEData(false,
-					"a != a",
-					new CountsDeclaration(10),
-					"a != a"),
-			new QEData(false,
-					"a = a and b = b",
-					new CountsDeclaration(10),
-					"a = a and b = b"),	
-			new QEData(false,
-					"a != a or b != b",
-					new CountsDeclaration(10),
-					"a != a or b != b"),
-			new QEData(false,
-					"X = 0",
-					new CountsDeclaration(10),
-					"X = 0"),
-			//
-			// Formerly Illegal Arguments Test, now valid with support of if then else in formulas
-			new QEData(false,
-					"if X = a then true else false",
-					new CountsDeclaration(10),
-					"X = a"),					
 		};
 		
 		perform(tests);

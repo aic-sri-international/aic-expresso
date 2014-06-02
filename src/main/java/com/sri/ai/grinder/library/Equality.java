@@ -207,8 +207,26 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 			result = null;
 		}
 		else {
-			result = new Pair<List<Expression>, Expression>(variables, Util.getFirst(constants));
+			result = Pair.make(variables, Util.getFirst(constants));
 		}
+		return result;
+	}
+
+	/**
+	 * Assumes that first argument is an equality (with possibly more than two arguments) and returns a pair,
+	 * the first member of which is a set of the variables in the equality,
+	 * and the second member of which is a set of constants in the equality.
+	 */
+	public static Pair<Set<Expression>, Set<Expression>> getVariablesListAndConstantsList(Expression equality, RewritingProcess process) {
+		Pair<Set<Expression>, Set<Expression>> result;
+		Set<Expression> variables = new LinkedHashSet<Expression>();
+		Set<Expression> constants = new LinkedHashSet<Expression>();
+		Predicate<Expression> notIsConstant = Predicates.not(process.getIsConstantPredicate());
+		Util.collectOrReturnFalseIfElementDoesNotFitEither(
+				equality.getArguments(),
+				variables, notIsConstant,
+				constants, process.getIsConstantPredicate());
+		result = Pair.make(variables, constants);
 		return result;
 	}
 
@@ -258,5 +276,56 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 			return result;
 		}
 		return Expressions.FALSE;
+	}
+
+	/**
+	 * Given an equality literal L (using disequality or equality, the latter with possibly many arguments) and a variable V,
+	 * returns a pair of equality literals (L1, L2) such that "L1 and L2 <=> L", and such that the only variable in L1 is V.
+	 * Returns <code>null</code> if it is not an equality literal.
+	 */
+	public static Pair<Expression, Expression> separateVariableLiteral(Expression variable, Expression literal, RewritingProcess process) {
+		Pair<Expression, Expression> result;
+		if (literal.equals(Expressions.TRUE) | literal.equals(Expressions.FALSE)) {
+			result = Pair.make(literal, literal);
+		}
+		else if (literal.hasFunctor(FunctorConstants.DISEQUALITY)) {
+			if ( ! literal.getArguments().contains(variable)) {
+				result = Pair.make(Expressions.TRUE, literal);
+			}
+			else {
+				result = Pair.make(literal, Expressions.TRUE); // this holds because disequalities have only two arguments
+			}
+		}
+		else if (literal.hasFunctor(FunctorConstants.EQUALITY)) {
+			if ( ! literal.getArguments().contains(variable)) {
+				result = Pair.make(Expressions.TRUE, literal);
+			}
+			else {
+				Pair<Set<Expression>, Set<Expression>> variablesAndConstants = getVariablesListAndConstantsList(literal, process);
+				Set<Expression> constants = variablesAndConstants.second;
+				if (constants.size() > 1) { // can't be equal to distinct constants
+					result = Pair.make(Expressions.FALSE, Expressions.FALSE);
+				}
+				else {
+					Set<Expression> variables = variablesAndConstants.first;
+					variables.remove(variable);
+					List<Expression> others = new LinkedList<Expression>(variables);
+					others.addAll(constants);
+					if (others.isEmpty()) {
+						result = Pair.make(Expressions.TRUE, Expressions.TRUE); // only argument is V, so it is saying nothing
+					}
+					else {
+						Expression representativeToBeEqualledToVariable = Util.getLast(others); // we get the last one because it is best to use a constant if there is one
+						Expression variableLiteral = Equality.make(variable, representativeToBeEqualledToVariable);
+						Expression othersLiteral   = Equality.make(others);
+						result = Pair.make(variableLiteral, othersLiteral);
+					}
+				}
+			}
+		}
+		else {
+			throw new Error(literal + " is not an equality literal as required by Equality.separateVariableLiteral");
+		}
+		return result;
 	}
 }
