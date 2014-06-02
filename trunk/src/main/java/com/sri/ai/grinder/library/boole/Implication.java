@@ -89,4 +89,9 @@ public class Implication extends AbstractRewriter {
 	public static Expression make(Expression antecedent, Expression consequent) {
 		return Expressions.apply(FUNCTOR, antecedent, consequent);
 	}
+
+	public static boolean isImplication(Expression expressionF) {
+		boolean result = expressionF.hasFunctor(FunctorConstants.IMPLICATION) && expressionF.numberOfArguments() == 2;
+		return result;
+	}
 }

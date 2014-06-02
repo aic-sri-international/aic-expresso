@@ -231,7 +231,7 @@ public class DirectSimplifyStressIT extends AbstractGrinderTest {
 				"(A = A'''' or A' = A'''' or A'' = A'''') and ((A = B = X and A != B' and A != A' and A != A'' and A != A''') and A' = B' and A' != B'' and A' != A'' and A' != A''' and A'' = B'' and A'' != B''' and A'' != A''' and not (A' = A''' = B''') and A''' = B''' and A''' != B'''' and A''' != A'''' and not (A' = A'''' = B'''') and not (A'' = A'''' = B'''') and A'''' = B'''')",
 				new CountsDeclaration(100),
 				//"(A = A'''' or A' = A'''' or A'' = A'''') and A = B = X and A != B' and A != A' and A != A'' and A != A''' and A' = B' and A' != B'' and A' != A'' and A' != A''' and A'' = B'' and A'' != B''' and A'' != A''' and (A' != A''' or A''' != B''') and A''' = B''' and A''' != B'''' and A''' != A'''' and (A' != A'''' or A'''' != B'''') and (A'' != A'''' or A'''' != B'''') and A'''' = B''''"
-				"A = A'''' and A = B = X and A != B' and A != A' and A != A'' and A != A''' and A' = B' and A' != B'' and A' != A'' and A' != A''' and A'' = B'' and A'' != B''' and A'' != A''' and A''' = B''' and A''' != B'''' and A''' != A'''' and A' != A'''' and A'' != A'''' and A'''' = B''''")	
+				  "(A = A'''' or A' = A'''' or A'' = A'''') and A = B = X and A != B' and A != A' and A != A'' and A != A''' and A' = B' and A' != B'' and A' != A'' and A' != A''' and A'' = B'' and A'' != B''' and A'' != A''' and not (A' = A''' = B''') and A''' = B''' and A''' != B'''' and A''' != A'''' and not (A' = A'''' = B'''') and not (A'' = A'''' = B'''') and A'''' = B''''")	
 		});
 	}
 	

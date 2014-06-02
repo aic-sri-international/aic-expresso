@@ -973,7 +973,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		
 		expression   = parse("{(on p(W,Z)) p(Y,X)}");
 		replacements = Util.map(parse("p(X,Y)"), parse("2"));
-		expected     = parse("{(on p(W,Z)) if (W != X or Z != Y) and X = Y then 2 else p(Y,X)}");
+		expected     = parse("{ ( on p(W, Z) ) (if (W != X or Z != Y) and X = Y then 2 else p(Y, X)) }");
 		testSemanticSubstitute(replacements, process);
 		
 		expression   = parse("{(on p(Y,X)) p(Y,X)}");

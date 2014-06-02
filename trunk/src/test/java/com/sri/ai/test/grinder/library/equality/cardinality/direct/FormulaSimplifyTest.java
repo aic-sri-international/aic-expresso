@@ -44,19 +44,20 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.controlflow.IfThenElseExternalizationHierarchical;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.FormulaSimplify;
 
 public class FormulaSimplifyTest {
 	
-	RewritingProcess process = DirectCardinalityComputationFactory.newCardinalityProcess();
+	RewritingProcess process;
 	
 	FormulaSimplify simplifier = new FormulaSimplify();
 	FormulaSimplify simplifierPreservingStructure = new FormulaSimplify(true);
 
 	IfThenElseExternalizationHierarchical externalizer                    = new IfThenElseExternalizationHierarchical();
-	IfThenElseExternalizationHierarchical externalizerPreservingStructure = new IfThenElseExternalizationHierarchical(true);
+	IfThenElseExternalizationHierarchical externalizerPreservingStructure = new IfThenElseExternalizationHierarchical(true, true);
 
 	Expression expression;
 	Expression expected;
@@ -67,28 +68,30 @@ public class FormulaSimplifyTest {
 
 	@Test
 	public void testFormulaSimplify() {
-		expression            = parse("if p then true else false");
-		expected              = parse("p");
-		expectedWithStructure = parse("if p then true else false"); // not ok to simplify when preserving structure
+		expression            = parse("if Y = p then true else false");
+		expected              = parse("Y = p");
+		expectedWithStructure = parse("Y = p"); // ok to remove trivial expressions
 		runFormulaSimplifyTest();
 		
-		expression            = parse("if false then ok else notOk");
-		expected              = parse("notOk");
-		expectedWithStructure = parse("notOk"); // ok to simplify when preserving structure
+		expression            = parse("if true then Y = p else false");
+		expected              = parse("Y = p");
+		expectedWithStructure = parse("Y = p"); // ok to remove trivial expressions
 		runFormulaSimplifyTest();
 		
-		expression            = parse("if p then p and q else q");
-		expected              = parse("q");
-		expectedWithStructure = parse("if p then q else q"); // not ok to simplify when preserving structure
+		expression            = parse("if Y = p then if X = q then true else true else X != q");
+		expected              = parse("Y = p or X != q"); // ok to collapse structure
+		expectedWithStructure = parse("if Y = p then true else X != q"); // not ok to collapse structure
 		runFormulaSimplifyTest();
 
-		expression            = parse("if p then if p then true else false else p");
-		expected              = parse("p");
-		expectedWithStructure = parse("if p then true else false"); // ok to simplify the consequences of testing p but not the removal of true and false branches
+		expression            = parse("if X = q then false else Y = p");
+		expected              = parse("X != q and Y = p"); // ok to collapse structure
+		expectedWithStructure = parse("if X = q then false else Y = p"); // not ok to collapse structure
 		runFormulaSimplifyTest();
 	}
 
 	public void runFormulaSimplifyTest() {
+		process = DirectCardinalityComputationFactory.newCardinalityProcess();
+		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(expression, process);
 		actual = process.rewrite(simplifier, expression);
 		assertEquals(expected, actual);
 		actualWithStructure = process.rewrite(simplifierPreservingStructure, expression);
@@ -97,13 +100,20 @@ public class FormulaSimplifyTest {
 
 	@Test
 	public void testIfThenElseExternalize() {
-		expression            = parse("if (if p then true else false) then if p then true else false else p");
-		expected              = parse("p");
-		expectedWithStructure = parse("if p then true else false"); // ok to simplify the consequences of testing p but not the removal of true and false branches
+		expression            = parse("(if Y = p then true else false) or Y = p");
+		expected              = parse("Y = p");
+		expectedWithStructure = parse("Y = p");
+		runIfThenElseExternalizeTest();
+
+		expression            = parse("if (if Y = p then true else false) then if X = q then true else false else Y = p");
+		expected              = parse("Y = p and X = q"); // ok to collapse structure
+		expectedWithStructure = parse("if Y = p then X = q else false"); // not ok to collapse structure
 		runIfThenElseExternalizeTest();
 	}
 
 	public void runIfThenElseExternalizeTest() {
+		process = DirectCardinalityComputationFactory.newCardinalityProcess();
+		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(expression, process);
 		actual = process.rewrite(externalizer, expression);
 		assertEquals(expected, actual);
 		actualWithStructure = process.rewrite(externalizerPreservingStructure, expression);

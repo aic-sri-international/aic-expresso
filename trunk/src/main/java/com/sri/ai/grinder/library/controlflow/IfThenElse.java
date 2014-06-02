@@ -49,7 +49,9 @@ import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.FunctionApplicationProvider;
 import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -86,6 +88,15 @@ public class IfThenElse extends AbstractRewriter {
 		return expression;
 	}
 	
+	public static Expression makeBooleanFormulaEquivalentToIfThenElse(Expression ifThenElse) {
+		Expression condition    = getCondition(ifThenElse);
+		Expression thenBranch   = getThenBranch(ifThenElse);
+		Expression elseBranch   = getElseBranch(ifThenElse);
+		Expression notCondition = Not.make(condition);
+		Expression equivalent   = Or.make(And.make(condition, thenBranch), And.make(notCondition, elseBranch));
+		return equivalent;
+	}
+
 	public static List<Integer> getPathToFunctor() {
 		return _pathToFunctor;
 	}
@@ -103,7 +114,8 @@ public class IfThenElse extends AbstractRewriter {
 	}
 
 	/**
-	 * Make an if then else expression, returning the then or else branches directly if condition is trivial.
+	 * Make an if then else expression, returning the then or else branches directly if condition is trivial,
+	 * or the condition (or its negation) if the branches are trivial.
 	 */
 	public static Expression make(Expression condition, Expression thenBranch, Expression elseBranch) {
 		if (condition.equals(true)) {
@@ -114,6 +126,32 @@ public class IfThenElse extends AbstractRewriter {
 		}
 		if (thenBranch.equals(true) && elseBranch.equals(false)) {
 			return condition;
+		}
+//		if (thenBranch.equals(false) && elseBranch.equals(true)) {
+//			return Not.make(condition);
+//		}
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, condition, thenBranch, elseBranch);
+		return result;
+	}
+
+	/**
+	 * Make an if then else expression, returning the then or else branches directly if condition is trivial.
+	 * Flag 'simplifyToConditionIfPossible' authorizes simplifications "if C then true else false -> C" to occur.
+	 */
+	public static Expression make(Expression condition, Expression thenBranch, Expression elseBranch, boolean simplifyToConditionIfPossible) {
+		if (condition.equals(true)) {
+			return thenBranch;
+		}
+		if (condition.equals(false)) {
+			return elseBranch;
+		}
+		if (simplifyToConditionIfPossible) {
+			if (thenBranch.equals(true) && elseBranch.equals(false)) {
+				return condition;
+			}
+			//		if (thenBranch.equals(false) && elseBranch.equals(true)) {
+			//			return Not.make(condition);
+			//		}
 		}
 		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, condition, thenBranch, elseBranch);
 		return result;

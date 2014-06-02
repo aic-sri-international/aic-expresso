@@ -53,6 +53,7 @@ import com.sri.ai.grinder.helper.Justification;
 import com.sri.ai.grinder.helper.RewriterLoggingNamedRewriterFilter;
 import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
+import com.sri.ai.grinder.library.DeMorgans;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -181,9 +182,11 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 						new Associative("+"),
 						new Associative("*"),
 						new Associative("and"),
+						new Associative("or"),
 						
 						//new FromConditionalFormulaToFormula(), // commented out because it potentially expands expression
 						new FromConditionalFormulaWithConstantBooleanBranchToFormula(),
+						new DeMorgans(),
 						// new, cheap simplifiers to be used instead of full ImpliedCertainty
 						new IncompleteTopImpliedCertainty(),
 						new TrivialForAllCases(),

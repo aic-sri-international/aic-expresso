@@ -35,57 +35,64 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.equality.cardinality.direct.core;
+package com.sri.ai.grinder.library;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewriterTest;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.DefaultRewriterTest;
 import com.sri.ai.grinder.core.HasFormula;
 import com.sri.ai.grinder.core.HasFunctor;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.util.Util;
 
 /**
- * Note: This wrapper is required as the default implementation throws an
- * assertion exception if the input arguments are not what is expected.
- * 
- * @author oreilly
+ * @author braz
  */
-public class QuantifierEliminationWrapper extends AbstractRewriter {	
+@Beta
+public class DeMorgans extends AbstractRewriter {
 
-	public QuantifierEliminationWrapper(String forFunctor) {
-		// Set the name based on the quantifier this is specific to.
-		this.setName("Quantifier Elimination Wrapper for " + forFunctor + " expressions");
-		
+	public DeMorgans() {
 		// Set up the relevant reified tests
-		List<RewriterTest> reifiedTests = new ArrayList<RewriterTest>();
-		reifiedTests.add(new HasFunctor(forFunctor));
-		if (forFunctor.equals(FunctorConstants.NOT)) {
-			reifiedTests.add(new HasNumberOfArguments(1));
-		}
-		else if (forFunctor.equals(FunctorConstants.IMPLICATION) ||
-				 forFunctor.equals(FunctorConstants.EQUIVALENCE)) {
-			reifiedTests.add(new HasNumberOfArguments(2));
-		}
-		reifiedTests.add(new HasFormula());
-		
+		List<DefaultRewriterTest> reifiedTests =
+				Util.list(
+						new HasFunctor(FunctorConstants.NOT),
+						new HasNumberOfArguments(1),
+						new HasFormula());
 		this.setReifiedTests(reifiedTests.toArray(new RewriterTest[reifiedTests.size()]));
 	}
 	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression result = expression;
-
-		result = process.rewrite(CardinalityRewriter.R_quantifier_elimination, expression);
-		if (result.equals(expression)) {
-			result = expression;
+		Expression argument = expression.get(0);
+		if (argument.hasFunctor(FunctorConstants.AND) || argument.hasFunctor(FunctorConstants.OR)) {
+			String newFunctor = theOther(argument.getFunctor());
+			List<Expression> newArguments = Util.mapIntoArrayList(argument.getArguments(), negator);
+			expression = Expressions.apply(newFunctor, newArguments);
 		}
+		return expression;
+	}
 
-		return result;
-	}	
+	private Function<Expression, Expression> negator = new Function<Expression, Expression>() {
+		@Override
+		public Expression apply(Expression input) {
+			return Not.make(input);
+		}
+	};
+	
+	private String theOther(Expression functor) {
+		if (functor.equals(FunctorConstants.AND)){
+			return FunctorConstants.OR;
+		}
+		else {
+			return FunctorConstants.AND;
+		}
+	}
 }

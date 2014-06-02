@@ -94,6 +94,8 @@ public class TopQuantifierElimination extends AbstractHierarchicalRewriter imple
 			throw new IllegalArgumentException("Invalid input argument expression, Qx F expected, where Q is a quantifier over x:"+expression);
 		}
 	
+		/////////////////////
+		
 		Trace.log("F <- R_top_simplify(F)");
 		f = process.rewrite(R_top_simplify, f);
 		
@@ -106,6 +108,8 @@ public class TopQuantifierElimination extends AbstractHierarchicalRewriter imple
 			Trace.log("    return R_normalize( R_card(|F|_x, Q) > 0)");
 		}
 		
+		/////////////////////
+
 		Expression cardinalityOfIndexedFormaulaF = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(f, indexExpression);
 		Expression resultCard1                   = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardinalityOfIndexedFormaulaF, quantification));
 		

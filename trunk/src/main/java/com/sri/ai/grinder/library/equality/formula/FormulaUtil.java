@@ -51,7 +51,10 @@ import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.Equivalence;
 import com.sri.ai.grinder.library.boole.ForAll;
+import com.sri.ai.grinder.library.boole.Implication;
+import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
@@ -449,6 +452,35 @@ public class FormulaUtil {
 			}
 		}
 
+		return result;
+	}
+
+	/**
+	 * Indicates whether expression is a boolean formula with the usual connectives (including quantification),
+	 * plus if-then-else with formulas in branches.
+	 */
+	public static boolean isNonAtomicFormula(Expression expressionF, RewritingProcess process) {
+		boolean result =
+				And.isConjunction(expressionF)         ||
+				Or.isDisjunction(expressionF)          ||
+				Not.isNegation(expressionF)            ||
+				Implication.isImplication(expressionF) ||
+				Equivalence.isEquivalence(expressionF) ||
+				ThereExists.isThereExists(expressionF) ||
+				ForAll.isForAll(expressionF)           ||
+				isConditionalFormula(expressionF, process);
+		return result;
+	}
+
+	/**
+	 * Indicates whether an expression is a conditional formula, that is,
+	 * an if-then-else expression with formulas in its then and else branches.
+	 */
+	public static boolean isConditionalFormula(Expression expressionF, RewritingProcess process) {
+		boolean result =
+				IfThenElse.isIfThenElse(expressionF) &&
+				isFormula(IfThenElse.getThenBranch(expressionF), process) &&
+				isFormula(IfThenElse.getElseBranch(expressionF), process);
 		return result;
 	}
 

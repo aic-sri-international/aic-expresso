@@ -83,4 +83,10 @@ public class Equivalence extends AbstractRewriterDefiningSymmetricFunction {
 	public Expression getFunctor() {
 		return FUNCTOR;
 	}
+
+
+	public static boolean isEquivalence(Expression expressionF) {
+		boolean result = expressionF.hasFunctor(FunctorConstants.EQUIVALENCE) && expressionF.numberOfArguments() == 2;
+		return result;
+	}
 }

@@ -78,7 +78,7 @@ public class Not extends AbstractRewriter {
 		return expression;
 	}
 
-	public static boolean isNot(Expression expression) {
+	public static boolean isNegation(Expression expression) {
 		return expression.hasFunctor(FunctorConstants.NOT);
 	}
 
