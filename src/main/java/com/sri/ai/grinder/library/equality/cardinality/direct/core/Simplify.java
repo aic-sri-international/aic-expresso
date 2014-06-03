@@ -186,7 +186,7 @@ public class Simplify extends AbstractHierarchicalRewriter implements Cardinalit
 						
 						//new FromConditionalFormulaToFormula(), // commented out because it potentially expands expression
 						new FromConditionalFormulaWithConstantBooleanBranchToFormula(),
-						new DeMorgans(),
+						// new DeMorgans(), // commenting out because it makes some stress tests much slower.
 						// new, cheap simplifiers to be used instead of full ImpliedCertainty
 						new IncompleteTopImpliedCertainty(),
 						new TrivialForAllCases(),

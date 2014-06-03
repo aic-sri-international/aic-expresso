@@ -181,7 +181,7 @@ public class FormulaSimplify extends AbstractHierarchicalRewriter implements Car
 						
 						// new FromConditionalFormulaToFormula(), // commented out because it potentially expands expression
 						(!preserveIfThenElseStructure? new FromConditionalFormulaWithConstantBooleanBranchToFormula() : null),
-						new DeMorgans(),
+						// new DeMorgans(), // commenting out because it makes some stress tests much slower.
 						// new, cheap simplifiers to be used instead of full ImpliedCertainty
 						new IncompleteTopImpliedCertainty(),
 						new TrivialForAllCases(),
