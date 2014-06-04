@@ -63,6 +63,7 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityIm
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CompleteNormalize;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.DefaultCardinalityConfiguration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.EqualityInConjunction;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.FormulaSimplify;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.IncompleteTopImpliedCertainty;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.MoveNotIn;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Normalize;
@@ -196,6 +197,7 @@ public class DirectCardinalityComputationFactory {
 	    cardRewriters.put(CardinalityRewriter.R_card_equivalence,             new CardinalityEquivalence());
 	    cardRewriters.put(CardinalityRewriter.R_cardExtensionalSet,           new CardinalityExtensionalSet());
 	    cardRewriters.put(CardinalityRewriter.R_card_implication,             new CardinalityImplication());
+	    cardRewriters.put(CardinalityRewriter.R_formula_simplify,             new FormulaSimplify());
 	    cardRewriters.put(CardinalityRewriter.R_normalize,                    new Normalize());
 	    cardRewriters.put(CardinalityRewriter.R_complete_normalize,           new CompleteNormalize());
 	    cardRewriters.put(CardinalityRewriter.R_equality_in_conjunction,      new EqualityInConjunction());

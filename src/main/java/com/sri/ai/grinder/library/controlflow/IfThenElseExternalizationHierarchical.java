@@ -37,8 +37,6 @@
  */
 package com.sri.ai.grinder.library.controlflow;
 
-import java.util.List;
-
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
@@ -58,45 +56,17 @@ import com.sri.ai.util.Util;
  * Receives a basic expression (basic operators plus products of intensional sets with basic expressions in the head)
  * and returns an equivalent expression in which all conditional expressions are on the top of the expression,
  * but for the ones constrained to be inside sets because they use their indices.
- * 
- * If constructed with the flag <code>preserveIfThenElseStructure</code>,
- * it is passed through to the {@link FormulaSimplify} rewriter responsible for simplification during the process.
 */
 @Beta
 public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalRewriter {
 
 	private Rewriter formulaSimplify;
-	private boolean preserveIfThenElseStructure;
-	private boolean finalSimplification;
 	
 	public IfThenElseExternalizationHierarchical() {
-		this(false, true);
-	}
-	
-	public IfThenElseExternalizationHierarchical(boolean preserveIfThenElseStructure, boolean finalSimplification) {
 		super();
-		formulaSimplify = new FormulaSimplify(preserveIfThenElseStructure);
-		this.preserveIfThenElseStructure = preserveIfThenElseStructure;
-		this.finalSimplification = finalSimplification;
-		setName();
+		formulaSimplify = new FormulaSimplify();
 	}
 
-	public void setName() {
-		List<String> qualifiers = Util.list();
-		if (preserveIfThenElseStructure) {
-			qualifiers.add("preserving if-then-else structure");
-		}
-		if (finalSimplification) {
-			qualifiers.add("with final simplification");
-		}
-		if (qualifiers.isEmpty()) {
-			setName("IfThenElseExternalizationHierarchical");
-		}
-		else {
-			setName("IfThenElseExternalizationHierarchical " + Util.join(qualifiers, " and "));
-		}
-	}
-	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expression result = normalize(expression, false, process);
@@ -105,24 +75,13 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 
 	private Expression normalize(Expression expression, boolean subExpressionsAreNormalized, RewritingProcess process) {
 
-		if (!preserveIfThenElseStructure) { // if expression is not externalized, simplification may lead to collapsing: e.g., "(if p then true else false) or q" -> "p or q"
-			expression = formulaSimplify.rewrite(expression, process);
-		}
+		expression = formulaSimplify.rewrite(expression, process);
 
 		// Make sure sub-expressions are normalized (externalized) first, if not already
 		// Note that this assumes formula simplifications above do not disturb if then else externalization
 		if ( ! subExpressionsAreNormalized) {
-			Rewriter recursive;
-			if (preserveIfThenElseStructure) {
-				recursive = new IfThenElseExternalizationHierarchical(true, false);
-				// if preserving if then else structure, we must normalize sub-expressions without final simplification
-				// because otherwise we could see a transformation of the sort "(if p then true else false) or q" -> "p or q" 
-			}
-			else {
-				recursive = new IfThenElseExternalizationHierarchical(false, true);
-			}
 			expression = expression.replace(
-					new RewriterReplacementFunction(recursive),
+					new RewriterReplacementFunction(this),
 					false /* don't do first occurrence only, but all occurrences */,
 					null  /* no pruning */,
 					true  /* ignore top expression */,
@@ -164,17 +123,12 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 					RewritingProcess elseProcess = GrinderUtil.extendContextualConstraint(Not.make(condition), process);
 					newElseBranch = normalize(newElseBranch, true, elseProcess);
 					
-					expression = IfThenElse.make(condition, newThenBranch, newElseBranch, ! preserveIfThenElseStructure /* do not simplify to condition if possible */);
-					// expression = normalize(expression, true, process);
-					expression = process.rewrite(formulaSimplify, expression);
-					// replaced the recursive call to normalization because 'expression' is already normalized at this point, since it is a conditional with normalized sub-expressions; all there is left to do is to attempt further simplifications.
+					expression = IfThenElse.make(condition, newThenBranch, newElseBranch);
 				}
 			}
 		}
 
-		if (finalSimplification) {
-			expression = process.rewrite(formulaSimplify, expression);
-		}
+		expression = process.rewrite(formulaSimplify, expression);
 		
 		return expression;
 	}

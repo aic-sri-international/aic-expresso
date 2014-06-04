@@ -67,13 +67,11 @@ public class GetConditionsFor {
 	 * under any assignment to the other variables.
 	 */
 	public static Expression getConditionsForVariable(Expression variable, Expression formula, RewritingProcess process) {
-		formula = process.rewrite(CardinalityRewriter.R_quantifier_elimination, formula);
-
 		Predicate<Expression> isNotGivenVariable = NotEquals.make(variable);
 		Predicate<Expression> isAnotherVariable = And.make(new IsVariable(process), isNotGivenVariable);
 		Predicate<Expression> containsAnotherVariable = new FunctionApplicationContainsArgumentSatisfying(isAnotherVariable);
 
-		Expression result = conditionQuantifierFreeFormula(formula, containsAnotherVariable, process);
+		Expression result = conditionOnAtomsSatisfyingPredicate(formula, containsAnotherVariable, process);
 		
 		return result;
 	}
@@ -84,16 +82,39 @@ public class GetConditionsFor {
 	 * The leaves are guaranteed to be reachable, and to not contain conditioning atoms. 
 	 * This is useful for determining the truth value of a group of atoms as a function of the truth values of the remaining ones.
 	 */
-	public static Expression conditionQuantifierFreeFormula(Expression formula, Predicate<Expression> isConditioningAtom, RewritingProcess process) {
+	public static Expression conditionOnAtomsSatisfyingPredicate(Expression formula, Predicate<Expression> isConditioningAtom, RewritingProcess process) {
+		formula = process.rewrite(CardinalityRewriter.R_quantifier_elimination, formula);
+		Expression result = conditionQuantifierFreeFormulaOnAtomsSatisfyingPredicate(formula, isConditioningAtom, process);
+		return result;
+	}
+	
+	/**
+	 * Receives a quantifier-free formula and returns an equivalent decision tree (nested if then elses)
+	 * such that only a given type of atom is used for conditioning (that is, to be in the inner conditions of the tree).
+	 * The leaves are guaranteed to be reachable, and to not contain conditioning atoms. 
+	 * This is useful for determining the truth value of a group of atoms as a function of the truth values of the remaining ones.
+	 */
+	public static Expression conditionQuantifierFreeFormulaOnAtomsSatisfyingPredicate(Expression formula, Predicate<Expression> isConditioningAtom, RewritingProcess process) {
 		Expression result;
 		
 		Expression splitter = FormulaUtil.pickAtomOfInterestFromQuantifierFreeFormula(formula, isConditioningAtom, process);
 		
 		if (splitter != null) {
-			Expression splitterIsTrue  = conditionUnder(         splitter,  formula, isConditioningAtom, process);
-			Expression splitterIsFalse = conditionUnder(Not.make(splitter), formula, isConditioningAtom, process);
-			result = IfThenElse.make(splitter, splitterIsTrue, splitterIsFalse, false);
-			// 'false' above does not allow simplification to 'splitter', lest conditioning atom end up in leave
+			Expression splitterIsTrue  = conditionsUnderGivenCondition(         splitter,  formula, isConditioningAtom, process);
+			Expression splitterIsFalse = conditionsUnderGivenCondition(Not.make(splitter), formula, isConditioningAtom, process);
+			if ( ! splitterIsTrue.equals(splitterIsFalse)) {
+				result = IfThenElse.make(splitter, splitterIsTrue, splitterIsFalse, false);
+				// 'false' above does not allow simplification to 'splitter', lest conditioning atom end up in leave
+			}
+			else {
+				result = splitterIsTrue;
+				// It is important that 'if L then true else true' cases (and similar ones) be simplified to 'true'
+				// because there will be no further simplifications from now on!
+				// Note that the lack of simplifications from now on does not violate the guarantee of completeness because
+				// the condition L is guaranteed not to occur in the branches, and the branches themselves are completely normalized.
+				// This means that the result is unsatisfiable/tautological if and only if the branches are both unsatisfiable/tautological as well,
+				// as, as we just mentioned, IfThenElse.make makes that a 'false'/'true' respectively.
+			}
 		}
 		else {
 			result = process.rewrite(CardinalityRewriter.R_complete_normalize, formula);			
@@ -102,10 +123,12 @@ public class GetConditionsFor {
 		return result;
 	}
 
-	private static Expression conditionUnder(Expression atomOfNoInterestIsTrue, Expression formula, Predicate<Expression> isAtomOfInterest, RewritingProcess process) {
-		RewritingProcess subProcessAtomIsTrue  = GrinderUtil.extendContextualConstraint(atomOfNoInterestIsTrue,  process);
-		Expression thenBranch =  subProcessAtomIsTrue.rewrite(CardinalityRewriter.R_complete_normalize, formula);
-		thenBranch = conditionQuantifierFreeFormula(thenBranch, isAtomOfInterest, subProcessAtomIsTrue);
-		return thenBranch;
+	private static Expression conditionsUnderGivenCondition(Expression givenCondition, Expression formula, Predicate<Expression> isConditioningAtom, RewritingProcess process) {
+		RewritingProcess subProcessGivenCondition = GrinderUtil.extendContextualConstraint(givenCondition, process);
+		Expression formulaGivenCondition = subProcessGivenCondition.rewrite(CardinalityRewriter.R_formula_simplify, formula);
+		// the simplification above eliminates the given condition from the formula and justifies the recursion below.
+		// it does not need to be a complete simplification; that role is performed by the induction base case.
+		formulaGivenCondition = conditionQuantifierFreeFormulaOnAtomsSatisfyingPredicate(formulaGivenCondition, isConditioningAtom, subProcessGivenCondition);
+		return formulaGivenCondition;
 	}
 }
