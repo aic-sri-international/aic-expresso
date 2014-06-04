@@ -48,21 +48,10 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GetConditionsFor;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
-import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 
 public class GetConditionsForTest {
 
 	private static final int NUMBER_OF_RUNS = 1; // for time-measurement
-	private static final boolean initialVersion = true; 
-	private static final boolean dpllVersion    = true;    
-	
-//	private static final int NUMBER_OF_RUNS = 1000; // for time-measurement
-//	private static final boolean initialVersion = true; 
-//	private static final boolean dpllVersion    = false;    
-	
-//	private static final int NUMBER_OF_RUNS = 1000; // for time-measurement
-//	private static final boolean initialVersion = false; 
-//	private static final boolean dpllVersion    = true;    
 	
 	private Expression expression;
 	private Expression variable;
@@ -88,80 +77,56 @@ public class GetConditionsForTest {
 	
 		expression = parse("true");
 		expected   = parse("true");
-		runTests();
+		runConditionsForVariableTest();
 	
 		expression = parse("false");
 		expected   = parse("false");
-		runTests();
+		runConditionsForVariableTest();
 	
 		expression = parse("X = a");
 		expected   = parse("X = a");
-		runTests();
+		runConditionsForVariableTest();
 	
 		expression = parse("Y = a");
 		expected   = parse("if Y = a then true else false");
-		runTests();
+		runConditionsForVariableTest();
 	
 		expression = parse("if X = a then true else false");
 		expected   = parse("X = a");
-		runTests();
+		runConditionsForVariableTest();
 	
 		expression = parse("(if C != paris then true else false) or X = france");
 		expected   = parse("if C != paris then true else X = france");
-		runTests();
+		runConditionsForVariableTest();
 	
 		expression = parse("C != paris or X = france");
 		expected   = parse("if C != paris then true else X = france");
-		runTests();
+		runConditionsForVariableTest();
 	
 		expression = parse("(C = paris => X = france) and (C != paris => X != france)");
 		expected   = parse("if C = paris then X = france else X != france");
-		runTests();
+		runConditionsForVariableTest();
 	
 		expression = parse("if C = paris then true else false");
 		expected   = parse("if C = paris then true else false");
-		runTests();
+		runConditionsForVariableTest();
 	
 		expression = parse("(C = paris => X = france) and (C = berlin => X != france)");
 		expected   = parse("if C = paris then X = france else if C != berlin then true else X != france");
 		expected2  = parse("if C = paris then X = france else if C = berlin then X != france else true");
-		runTests();
+		runConditionsForVariableTest();
 	
 		expression = parse("(C = paris => X = france) and (C = berlin => X != france) and (C = paris or C = berlin)");
 		expected   = parse("if C = paris then X = france else if C = berlin then X != france else false");
-		runTests();
+		runConditionsForVariableTest();
 	
 		expression = parse("X = france <=> (C = paris or C = lyon)");
 		expected   = parse("if C = paris then X = france else (if C = lyon then X = france else X != france)");
-		runTests();
+		runConditionsForVariableTest();
 	
 		expression = parse("X = male => C = human");
 		expected   = parse("if C = human then true else X != male");
-		runTests();
-	}
-
-	public void runTests() {
-		if (initialVersion) {
-			runConditionsForVariableTest();
-		}
-		if (dpllVersion) {
-		runConditionsForVariableDPLLTest();
-		}
-	}
-
-	public void runConditionsForVariableDPLLTest() {
-		for (int i = 0; i != NUMBER_OF_RUNS; i++) {
-			process = DirectCardinalityComputationFactory.newCardinalityProcess();
-			RewritingProcess subProcess =
-					GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(
-							expression, process);
-			
-			// run DPLL-style version
-			actual = GetConditionsFor.getConditionsForVariableDPLL(variable, expression, subProcess);
-			
-		}
-		String name = "getConditionsForVariableDPLL";
-		outputTestResult(name);
+		runConditionsForVariableTest();
 	}
 
 	public void runConditionsForVariableTest() {
@@ -170,23 +135,12 @@ public class GetConditionsForTest {
 			RewritingProcess subProcess =
 					GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(
 							expression, process);
-
-			// run non-DPLL-style version
 			actual = GetConditionsFor.getConditionsForVariable(variable, expression, subProcess);
-			// because this version does not return a completely simplified structure
-			// we run complete_normalize on it for time-measurement purposes
-			if (NUMBER_OF_RUNS > 1) {
-				subProcess.rewrite(CardinalityRewriter.R_complete_normalize, actual);
-			}
 		}
-		String name = "getConditionsForVariable";
-		outputTestResult(name);
-	}
-
-	public void outputTestResult(String name) {
+		
 		boolean success = expected.equals(actual) || expected2 != null && expected2.equals(actual);
 		if (!success) {
-			System.err.println("Test failed for " + name + " version");
+			System.err.println("Test failed for getConditionsForVariable");
 			System.err.println(expression);
 			System.err.println("should have been transformed to");
 			System.err.println(expected);
