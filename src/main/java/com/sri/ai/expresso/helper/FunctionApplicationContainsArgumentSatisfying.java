@@ -35,29 +35,29 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.equality.cardinality.direct.core;
+package com.sri.ai.expresso.helper;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.google.common.base.Predicate;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.util.Util;
 
 /**
- * Complete implementation of R_complete_normalize(E), including complete checking of implied certainties.
- * 
- * @author braz
- *
+ * Indicates whether a given expression, assumed to be a function application,
+ * has an argument satisfying a given predicate.
  */
 @Beta
-public class CompleteNormalize extends Normalize implements CardinalityRewriter {
+public class FunctionApplicationContainsArgumentSatisfying implements Predicate<Expression> {
+	private Predicate<Expression> base;
 	
-	public CompleteNormalize() {
+	public FunctionApplicationContainsArgumentSatisfying(Predicate<Expression> base) {
 		super();
-		// leaving first pass as simple simplification (inherited from super class)
-		// preSimplify  = new CompleteSimplify(); 
-		postSimplify = new CompleteSimplify();
+		this.base = base;
 	}
-	
+
 	@Override
-	public String getName() {
-		return R_complete_normalize;
+	public boolean apply(Expression input) {
+		boolean result = Util.thereExists(input.getArguments(), base);
+		return result;
 	}
 }

@@ -43,12 +43,18 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.OrderNormalize;
+import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 
 public class OrderNormalizeTest {
 
 	@Test
 	public void testComparator() {
+		@SuppressWarnings("unused")
+		RewritingProcess process = DirectCardinalityComputationFactory.newCardinalityProcess();
+		// we create this process to force Expressions to use the cardinality one which contains the SymmetryModule.
+		
 		Expression a;
 		Expression b;
 		OrderNormalize comparator = new OrderNormalize();
@@ -63,7 +69,7 @@ public class OrderNormalizeTest {
 		
 		a = Expressions.parse("p and q and r");
 		b = Expressions.parse("r and p and q");
-		assert(comparator.equals(a, b));
+		assertTrue(comparator.equals(a, b));
 		
 		a = Expressions.parse("f(p,q,r)");
 		b = Expressions.parse("f(p,q,r)");
