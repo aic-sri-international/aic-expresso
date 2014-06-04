@@ -91,6 +91,10 @@ public class RewriteOnce extends AbstractRewriter {
 		this("RewriteOnce", rewriters);
 	}
 	
+	public RewriteOnce(Rewriter rewriter) {
+		this("RewriteOnce", Util.list(rewriter));
+	}
+	
 	public RewriteOnce(String name, List<Rewriter> rewriters) {
 		super();
 		setName(name);

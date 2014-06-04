@@ -83,6 +83,10 @@ public class GetConditionsForTest {
 		expected   = parse("false");
 		runConditionsForVariableTest();
 	
+		expression = parse("(Y = a => (X = a or X != a)) or (Y != a => (X = a or X != a))");
+		expected   = parse("true");
+		runConditionsForVariableTest();
+	
 		expression = parse("X = a");
 		expected   = parse("X = a");
 		runConditionsForVariableTest();

@@ -83,18 +83,10 @@ import com.sri.ai.grinder.library.number.GreaterThan;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsProvider;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
-import com.sri.ai.util.Util;
-import com.sri.ai.util.base.IsNull;
 
 /**
  * Successively and exhaustively applies simplifications to a formula expression,
  * that is, one formed of boolean formula operators plus if-then-else.
- * 
- * If constructed with the flag <code>preserveIfThenElseStructure</code>,
- * the rewriter is committed to preserve the ordering and level of if-then-else arguments in the formula
- * (this however does not apply to if-then-elses inside quantifiers).
- * This means that levels will not be collapsed and condition order will not be switched
- * (true or false conditions will still mean simplification of the if-then-else, though).
  * 
  * @author braz
  *
@@ -103,23 +95,15 @@ import com.sri.ai.util.base.IsNull;
 public class FormulaSimplify extends AbstractHierarchicalRewriter implements CardinalityRewriter {
 	private Rewriter rRootRewriter = null;
 	
-	private boolean preserveIfThenElseStructure = false;
-	
 	public FormulaSimplify() {
 		super();
 	}
 	
-	public FormulaSimplify(boolean preserveIfThenElseStructure) {
-		super();
-		this.preserveIfThenElseStructure = preserveIfThenElseStructure;
-	}
-	
 	@Override
 	public String getName() {
-		return CardinalityRewriter.R_formula_simplify + (preserveIfThenElseStructure? " preserving if-then-else structure" : "");
+		return CardinalityRewriter.R_formula_simplify;
 	}
 	
-
 	public Rewriter getRootRewriter() {
 		// Lazy initialize so that required supporting classes
 		// can be setup an configured as necessary.
@@ -179,13 +163,13 @@ public class FormulaSimplify extends AbstractHierarchicalRewriter implements Car
 						new Associative("or"),
 						
 						// new FromConditionalFormulaToFormula(), // commented out because it potentially expands expression
-						(!preserveIfThenElseStructure? new FromConditionalFormulaWithConstantBooleanBranchToFormula() : null),
+						new FromConditionalFormulaWithConstantBooleanBranchToFormula(),
 						// new DeMorgans(), // commenting out because it makes some stress tests much slower.
 						// new, cheap simplifiers to be used instead of full ImpliedCertainty
 						new IncompleteTopImpliedCertainty(),
 						new TrivialForAllCases(),
 						new TrivialThereExistsCases(),
-						(!preserveIfThenElseStructure? new ConjunctsHoldTrueForEachOther() : null),
+						new ConjunctsHoldTrueForEachOther(),
 						
 						//
 						// Support for: Quantifier Elimination
@@ -221,10 +205,6 @@ public class FormulaSimplify extends AbstractHierarchicalRewriter implements Car
 						new IntensionalSet(), // Note: This is just a provider for scoped variables and not a rewriter.
 						new SyntacticFunctionsSubExpressionsProvider("type", "scoped variables"),
 						new OpenInterpretationModule() }));
-		
-		if (preserveIfThenElseStructure) {
-			Util.removeElementsSatisfying(result, new IsNull<Rewriter>());
-		}
 		
 		return result;
 	}
