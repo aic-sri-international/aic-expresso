@@ -115,7 +115,7 @@ public class QuantifierElimination extends AbstractHierarchicalRewriter implemen
 			
 			result = process.rewrite(R_normalize, numberOfSolutionsMustBeGreaterThanZero);
 		} 
-		else if (FormulaUtil.isNonAtomicFormula(expressionF, process)) {
+		else if (FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(expressionF)) {
 			Trace.log("return R_normalize(F with quantifiers eliminated from sub-expressions)");
 			result = Expressions.passThroughFunctionApplication(this, expressionF, process);
 			// we can safely assume it is a functional application because the only non-atomic formulas

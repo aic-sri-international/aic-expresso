@@ -42,6 +42,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
@@ -51,10 +52,7 @@ import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.library.boole.Equivalence;
 import com.sri.ai.grinder.library.boole.ForAll;
-import com.sri.ai.grinder.library.boole.Implication;
-import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
@@ -456,23 +454,6 @@ public class FormulaUtil {
 	}
 
 	/**
-	 * Indicates whether expression is a boolean formula with the usual connectives (including quantification),
-	 * plus if-then-else with formulas in branches.
-	 */
-	public static boolean isNonAtomicFormula(Expression expressionF, RewritingProcess process) {
-		boolean result =
-				And.isConjunction(expressionF)         ||
-				Or.isDisjunction(expressionF)          ||
-				Not.isNegation(expressionF)            ||
-				Implication.isImplication(expressionF) ||
-				Equivalence.isEquivalence(expressionF) ||
-				ThereExists.isThereExists(expressionF) ||
-				ForAll.isForAll(expressionF)           ||
-				isConditionalFormula(expressionF, process);
-		return result;
-	}
-
-	/**
 	 * Indicates whether an expression is a conditional formula, that is,
 	 * an if-then-else expression with formulas in its then and else branches.
 	 */
@@ -481,6 +462,52 @@ public class FormulaUtil {
 				IfThenElse.isIfThenElse(expressionF) &&
 				isFormula(IfThenElse.getThenBranch(expressionF), process) &&
 				isFormula(IfThenElse.getElseBranch(expressionF), process);
+		return result;
+	}
+
+	/**
+	 * Picks first atom in quantifier-free formula satisfying a given predicate.
+	 */
+	public static Expression pickAtomOfInterestFromQuantifierFreeFormula(Expression formula, final Predicate<Expression> isAtomOfInterest, final RewritingProcess process) {
+		Function<Expression, Expression> recursiveCallFunction = new Function<Expression, Expression>() {
+			@Override
+			public Expression apply(Expression input) {
+				return pickAtomOfInterestFromQuantifierFreeFormula(input, isAtomOfInterest, process);
+			}
+		};
+		Expression result = pickAtomOfInterestFromQuantifierFreeFormula(formula, isAtomOfInterest, recursiveCallFunction, process);
+		return result;
+	}
+
+	private static Expression pickAtomOfInterestFromQuantifierFreeFormula(Expression formula, Predicate<Expression> isAtomOfInterest, Function<Expression, Expression> recursiveCall, RewritingProcess process) {
+		Expression result;
+		if (formula.equals(Expressions.TRUE) || formula.equals(Expressions.FALSE)) {
+			result = null;
+		}
+		else if (functorIsALogicalConnectiveIncludingConditionals(formula)) {
+			result = Util.getFirstNonNullResultOrNull(formula.getArguments(), recursiveCall);
+		}
+		else {
+			// it is an atom, so now see if it a literal of interest
+			result = isAtomOfInterest.apply(formula)? formula : null;
+		}
+		
+		return result;
+	}
+
+	final public static Set<Expression> LOGICAL_CONNECTIVES_INCLUDING_CONDITIONALS =
+	Util.set(
+			Expressions.makeSymbol(FunctorConstants.NOT),         Expressions.makeSymbol(FunctorConstants.IF_THEN_ELSE),
+			Expressions.makeSymbol(FunctorConstants.AND),         Expressions.makeSymbol(FunctorConstants.OR),
+			Expressions.makeSymbol(FunctorConstants.IMPLIED),     Expressions.makeSymbol(FunctorConstants.IMPLICATION),
+			Expressions.makeSymbol(FunctorConstants.EQUIVALENCE));
+
+	/**
+	 * Indicates whether an expression is a compound boolean formula, including if then else
+	 * (does not check sub-expressions).
+	 */
+	public static boolean functorIsALogicalConnectiveIncludingConditionals(Expression formula) {
+		boolean result = LOGICAL_CONNECTIVES_INCLUDING_CONDITIONALS.contains(formula.getFunctor());
 		return result;
 	}
 

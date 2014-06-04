@@ -60,14 +60,15 @@ public class Normalize extends AbstractHierarchicalRewriter implements Cardinali
 	}
 	
 	protected Rewriter ifThenElseExternalizationHierarchical = new IfThenElseExternalizationHierarchical();
-	protected Rewriter simplify = new Simplify();
+	protected Rewriter preSimplify  = new Simplify();
+	protected Rewriter postSimplify = new Simplify();
 	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expression result = expression;
-		result = simplify.rewrite(result, process);
+		result = preSimplify.rewrite(result, process);
 		result = ifThenElseExternalizationHierarchical.rewrite(result, process);
-		result = simplify.rewrite(result, process);
+		result = postSimplify.rewrite(result, process);
 		return result;
 	}
 }
