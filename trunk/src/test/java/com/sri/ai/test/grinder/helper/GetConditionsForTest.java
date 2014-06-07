@@ -48,6 +48,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GetConditionsFor;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
+import com.sri.ai.util.Util;
 
 public class GetConditionsForTest {
 
@@ -83,8 +84,16 @@ public class GetConditionsForTest {
 		expected   = parse("false");
 		runConditionsForVariableTest();
 	
-		expression = parse("(Y = a => (X = a or X != a)) or (Y != a => (X = a or X != a))");
+		expression = parse("if X = a then true else X = c");
+		expected   = parse("X = a or X = c");
+		runConditionsForVariableTest();
+	
+		expression = parse("(Y = a => (X = a or X != a)) and (Y != a => (X = a or X != a))");
 		expected   = parse("true");
+		runConditionsForVariableTest();
+	
+		expression = parse("(Y = a => (X = a or X = b or X = c and X = d)) and (Y = b => (X = a or X = b))");
+		expected   = parse("if Y = a then X = a or X = b else (if Y = b then X = a or X = b else true)");
 		runConditionsForVariableTest();
 	
 		expression = parse("X = a");
@@ -100,11 +109,11 @@ public class GetConditionsForTest {
 		runConditionsForVariableTest();
 	
 		expression = parse("(if C != paris then true else false) or X = france");
-		expected   = parse("if C != paris then true else X = france");
+		expected   = parse("if C = paris then X = france else true");
 		runConditionsForVariableTest();
 	
 		expression = parse("C != paris or X = france");
-		expected   = parse("if C != paris then true else X = france");
+		expected   = parse("if C = paris then X = france else true");
 		runConditionsForVariableTest();
 	
 		expression = parse("(C = paris => X = france) and (C != paris => X != france)");
@@ -126,6 +135,10 @@ public class GetConditionsForTest {
 	
 		expression = parse("X = france <=> (C = paris or C = lyon)");
 		expected   = parse("if C = paris then X = france else (if C = lyon then X = france else X != france)");
+		runConditionsForVariableTest();
+	
+		expression = parse("if X = france then (C = lyon or C = paris) and C != berlin else if X = germany then C = berlin else C = somewhereElse");
+		expected   = parse("if C = lyon then X = france else (if C = paris then X = france else (if C = berlin then X = germany else (if C = somewhereElse then X != france and X != germany else false)))");
 		runConditionsForVariableTest();
 	
 		expression = parse("X = male => C = human");
@@ -157,5 +170,182 @@ public class GetConditionsForTest {
 		}
 		Assert.assertTrue(success);
 		System.out.println(expression + "\n   ->   " + actual + "\n");
+	}
+
+	@Test
+	public void testGetBDD() {
+		expression = parse("true");
+		expected   = parse("true");
+		runGetBDDTest();
+	
+		expression = parse("false");
+		expected   = parse("false");
+		runGetBDDTest();
+	
+		expression = parse("if X = a then true else X = c");
+		expected   = parse("if X = a then true else X = c");
+		runGetBDDTest();
+	
+		expression = parse("(Y = a => (X = a or X != a)) and (Y != a => (X = a or X != a))");
+		expected   = parse("true");
+		runGetBDDTest();
+	
+		expression = parse("(Y = a => (X = a or X = b or X = c and X = d)) and (Y = b => (X = a or X = b))");
+		expected   = parse("if Y = a then if X = a then true else X = b else (if Y = b then if X = a then true else X = b else true)");
+		runGetBDDTest();
+	
+		expression = parse("X = a");
+		expected   = parse("X = a");
+		runGetBDDTest();
+	
+		expression = parse("if X = a then true else false");
+		expected   = parse("X = a");
+		runGetBDDTest();
+
+		expression = parse("if X != a then false else true");
+		expected   = parse("X = a");
+		runGetBDDTest();
+
+		expression = parse("X != a");
+		expected   = parse("if X = a then false else true");
+		runGetBDDTest();
+
+		expression = parse("if X = france then (C = lyon or C = paris) and C != berlin else if X = germany then C = berlin else C = somewhereElse");
+		expected   = parse("if X = france then if C = lyon then true else C = paris else (if X = germany then C = berlin else C = somewhereElse)");
+		runGetBDDTest();
+	}
+
+	public void runGetBDDTest() {
+		for (int i = 0; i != NUMBER_OF_RUNS; i++) {
+			process = DirectCardinalityComputationFactory.newCardinalityProcess();
+			RewritingProcess subProcess =
+					GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(
+							expression, process);
+			actual = GetConditionsFor.getBDDOfQuantifierFreeFormula(expression, subProcess);
+		}
+		
+		boolean success = expected.equals(actual) || expected2 != null && expected2.equals(actual);
+		if (!success) {
+			System.err.println("Test failed for getConditionsForVariable");
+			System.err.println(expression);
+			System.err.println("should have been transformed to");
+			System.err.println(expected);
+			if (expected2 != null) {
+				System.err.println("or alternatively to");
+				System.err.println(expected2);
+			}
+			System.err.println("but was instead transformed to");
+			System.err.println(actual);
+		}
+		Assert.assertTrue(success);
+		System.out.println(expression + "\n   ->   " + actual + "\n");
+	}
+
+
+	//@Test // algorithm is incorrect
+	public void testGetImpliedValueFromBDD() {
+		variable   = parse("X");
+		
+		expression = parse("true");
+		expected   = null;
+		runGetImpliedValueFromBDDTest();
+		
+		expression = parse("Z = b");
+		expected   = null;
+		runGetImpliedValueFromBDDTest();
+		
+		expression = parse("X = a");
+		expected   = parse("a");
+		runGetImpliedValueFromBDDTest();
+		
+		expression = parse("X = a or X = b");
+		expected   = null;
+		runGetImpliedValueFromBDDTest();
+		
+		expression = parse("X = a and X = b");
+		expected   = null;
+		runGetImpliedValueFromBDDTest();
+		
+		expression = parse("X = a and X = a");
+		expected   = parse("a");
+		runGetImpliedValueFromBDDTest();
+		
+		expression = parse("if Y = b then X = a else X = b");
+		expected   = parse("if Y = b then a else b");
+		runGetImpliedValueFromBDDTest();
+		
+		expression = parse("if Z = b then X = a and X = Y else X = b and X = Y");
+		expected   = parse("if Z = b then a else b");
+		// expected   = parse("Y"); that would be nicer
+		runGetImpliedValueFromBDDTest();
+		
+		expression = parse("X = Y and X = a");
+		expected   = parse("Y");
+		runGetImpliedValueFromBDDTest();
+		
+		expression = parse("X = a and X = Y");
+		expected   = parse("a");
+		runGetImpliedValueFromBDDTest();
+		
+		expression = parse("X = Y and X = a  or  X = Y and X = b");
+		expected   = parse("Y");
+		runGetImpliedValueFromBDDTest();
+		
+		// The following is the test that made me realize the function is incorrect
+		// In the Z = b branch, X is known to be a and the branch becomes Y = a and X = a
+		// Then the BDD conditions on Y = a and find that if that is true, X = a, but if that is false,
+		// then there is no solution.
+		// Therefore it rejects the entire branch because under certain conditions it cannot find a value for X.
+		// This is odd because X = Y is indeed implied by the formula, and Y has a fixed, albeit unknown, value.
+		// It is true that if Y = c, then the formula is unsatisfiable, but in that case F => X = Y is still true!
+		// And here lies the problem, the algorithm does not that into account that we are seeking the implication,
+		// which is a license for considering only the possible worlds in which the formula holds.
+		// One may propose to ignore 'false' leaf nodes when we find them, since we know the formula will always be satisfiable.
+		// The problem with that is that some 'false' leaf nodes are legitimate.
+		// For example, consider the formula 'X = a and X != b'
+		// If we condition on X = b, we get false, but we do not want to dismiss that,
+		// because it is what tells us that X cannot be b.
+		// Perhaps there is a way to address this, but since I now realize the original pick single element works
+		// when we know that there is a single element, I will leave this algorithm sitting here for a while.
+//		expression = parse("if Z = b then X = Y and X = a else X = b and X = Y");
+//		expected   = parse("Y"); // fails! Returns 'null'
+//		runGetImpliedValueFromBDDTest();
+		
+		expression = parse("if Z = b then X = a and X = Y else X = b and X = Y");
+		expected   = parse("if Z = b then a else b");
+		// expected   = parse("Y"); that would be nicer
+		runGetImpliedValueFromBDDTest();
+		
+		expression = parse("Y = b => X = a");
+		expected   = null;
+		runGetImpliedValueFromBDDTest();
+	}
+
+	public void runGetImpliedValueFromBDDTest() {
+		Expression bdd = null;
+		for (int i = 0; i != NUMBER_OF_RUNS; i++) {
+			process = DirectCardinalityComputationFactory.newCardinalityProcess();
+			RewritingProcess subProcess =
+					GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(
+							expression, process);
+			bdd = GetConditionsFor.getBDDOfQuantifierFreeFormula(expression, subProcess);
+			actual = GetConditionsFor.getImpliedValueFromBDD(variable, bdd, subProcess);
+		}
+		
+		System.out.println(expression + "\n   (using BDD) " + bdd + "\n   -> " + actual + "\n");
+		boolean success = Util.equals(expected, actual);
+		if (!success) {
+			System.err.println("Test failed for getImpliedValueFromBDD");
+			System.err.println(expression);
+			System.err.println("should have resulted in");
+			System.err.println(expected);
+			if (expected2 != null) {
+				System.err.println("or alternatively to");
+				System.err.println(expected2);
+			}
+			System.err.println("but has instead resulted in");
+			System.err.println(actual);
+		}
+		Assert.assertTrue(success);
 	}
 }

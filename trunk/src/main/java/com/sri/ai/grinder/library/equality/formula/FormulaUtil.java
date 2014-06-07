@@ -468,18 +468,18 @@ public class FormulaUtil {
 	/**
 	 * Picks first atom in quantifier-free formula satisfying a given predicate.
 	 */
-	public static Expression pickAtomOfInterestFromQuantifierFreeFormula(Expression formula, final Predicate<Expression> isAtomOfInterest, final RewritingProcess process) {
+	public static Expression pickAtomSatisfyingPredicateFromQuantifierFreeFormula(Expression formula, final Predicate<Expression> predicate, final RewritingProcess process) {
 		Function<Expression, Expression> recursiveCallFunction = new Function<Expression, Expression>() {
 			@Override
 			public Expression apply(Expression input) {
-				return pickAtomOfInterestFromQuantifierFreeFormula(input, isAtomOfInterest, process);
+				return pickAtomSatisfyingPredicateFromQuantifierFreeFormula(input, predicate, process);
 			}
 		};
-		Expression result = pickAtomOfInterestFromQuantifierFreeFormula(formula, isAtomOfInterest, recursiveCallFunction, process);
+		Expression result = pickAtomSatisfyingPredicateFromQuantifierFreeFormula(formula, predicate, recursiveCallFunction, process);
 		return result;
 	}
 
-	private static Expression pickAtomOfInterestFromQuantifierFreeFormula(Expression formula, Predicate<Expression> isAtomOfInterest, Function<Expression, Expression> recursiveCall, RewritingProcess process) {
+	private static Expression pickAtomSatisfyingPredicateFromQuantifierFreeFormula(Expression formula, Predicate<Expression> predicate, Function<Expression, Expression> recursiveCall, RewritingProcess process) {
 		Expression result;
 		if (formula.equals(Expressions.TRUE) || formula.equals(Expressions.FALSE)) {
 			result = null;
@@ -489,7 +489,7 @@ public class FormulaUtil {
 		}
 		else {
 			// it is an atom, so now see if it a literal of interest
-			result = isAtomOfInterest.apply(formula)? formula : null;
+			result = predicate.apply(formula)? formula : null;
 		}
 		
 		return result;

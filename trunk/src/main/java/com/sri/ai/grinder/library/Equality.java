@@ -155,6 +155,9 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 	 * Makes an equality of some expressions, returning Expressions. Returns TRUE if the expressions are identical.
 	 */
 	public static Expression make(Object... arguments) {
+		if (arguments.length == 1 && arguments[0] instanceof List) {
+			arguments = ((List)arguments[0]).toArray();
+		}
 		List<Expression> expressions = Expressions.wrap(arguments);
 		Set<Expression> uniqueExpressions = new LinkedHashSet<Expression>(expressions);
 		if (uniqueExpressions.size() < 2) {
@@ -325,6 +328,30 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 		}
 		else {
 			throw new Error(literal + " is not an equality literal as required by Equality.separateVariableLiteral");
+		}
+		return result;
+	}
+	
+	/** 
+	 * Receives an equality T1 = T2 = ... = Tn and an expression E.
+	 * If n = 1 and E is equal to Ti, then returns Tj where j != i (the other term).
+	 * Otherwise, returns <code>null</code>. 
+	 */
+	public static Expression getWhatExpressionIsComparedToIfUniqueOrNull(Expression equality, Expression expression) {
+		Expression result;
+		if (equality.numberOfArguments() == 2) {
+			if (equality.get(0).equals(expression)) {
+				result = equality.get(1);
+			}
+			else if (equality.get(1).equals(expression)) {
+				result = equality.get(0);
+			}
+			else {
+				result = null;
+			}
+		}
+		else {
+			result = null;
 		}
 		return result;
 	}

@@ -390,7 +390,8 @@ public class Expressions {
 	public static Expression addExpressionToArgumentsOfFunctionApplication(Expression expression, Object newArgument) {
 		ArrayList<Expression> newArguments = new ArrayList<Expression>(expression.getArguments());
 		newArguments.add(wrap(newArgument));
-		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), newArguments);
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), newArguments);
+		return result;
 	}
 
 	public static Expression apply(Object functor, Object... arguments) {
@@ -1091,5 +1092,38 @@ public class Expressions {
 		RewriterFunction thisRewriterFunction = new RewriterFunction(rewriter, process);
 		List<Expression> rewrittenExpressions = Util.mapIntoArrayList(expressions, thisRewriterFunction);
 		return rewrittenExpressions;
+	}
+
+	public static final Function<Expression, Expression> IDENTITY_FUNCTION = new Function<Expression, Expression>() {
+		@Override
+		public Expression apply(Expression expression) {
+			return expression;
+		}
+	};
+
+	public static final Predicate<Expression> TRUE_PREDICATE = new Predicate<Expression>() {
+		@Override
+		public boolean apply(Expression input) {
+			return true;
+		}
+	};
+
+	/**
+	 * If expression is a function application of given functor, return a new one with same arguments and new argument given.
+	 * If it is not a function application, create a function application with given functor, the given expression and the new argument.
+	 * This is useful for keeping, for example, a disjuction
+	 * (X = b or X = c, or, X = a) -> X = b or X = c or X = a 
+	 * (X = b and X = c, or, X = a) -> (X = b and X = c) or X = a 
+	 * (true, or, X = a) -> true or X = a 
+	 */
+	public static Expression addExpressionToArgumentsOfFunctionApplicationOrCreateIt(Expression expression, String functor, Expression newArgument) {
+		Expression result;
+		if (expression.hasFunctor(functor)) {
+			result = addExpressionToArgumentsOfFunctionApplication(expression, newArgument);
+		}
+		else {
+			result = Expressions.apply(functor, expression, newArgument);
+		}
+		return result;
 	}
 }
