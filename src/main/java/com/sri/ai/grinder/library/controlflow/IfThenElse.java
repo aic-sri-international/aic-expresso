@@ -48,6 +48,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.FunctionApplicationProvider;
 import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
@@ -88,6 +89,13 @@ public class IfThenElse extends AbstractRewriter {
 		return expression;
 	}
 	
+	public static Expression flipBranchesWithThisCondition(Expression ifThenElse, Expression newCondition) {
+		Expression thenBranch = getThenBranch(ifThenElse);
+		Expression elseBranch = getElseBranch(ifThenElse);
+		ifThenElse = make(newCondition, elseBranch, thenBranch);
+		return ifThenElse;
+	}
+
 	public static Expression makeBooleanFormulaEquivalentToIfThenElse(Expression ifThenElse) {
 		Expression condition    = getCondition(ifThenElse);
 		Expression thenBranch   = getThenBranch(ifThenElse);
@@ -166,6 +174,30 @@ public class IfThenElse extends AbstractRewriter {
 			return IfThenElse.make(condition, firstBranch, secondBranch);
 		}
 		return IfThenElse.make(condition, secondBranch, firstBranch);
+	}
+
+	public static Expression makeWithEqualityOrDisequalityConditionAndInvertedToEqualityIfNeeded(Expression equalityLiteral, Expression thenBranch, Expression elseBranch) {
+		Expression result;
+		if (equalityLiteral.hasFunctor(FunctorConstants.DISEQUALITY)) {
+			Expression equalityCondition = Equality.make(equalityLiteral.getArguments());
+			result = make(equalityCondition, elseBranch, thenBranch); // invert
+		}
+		else {
+			result = make(equalityLiteral, thenBranch, elseBranch);
+		}
+		return result;
+	}
+
+	public static Expression makeWithEqualityOrDisequalityConditionAndInvertedToEqualityIfNeeded(Expression equalityLiteral, Expression thenBranch, Expression elseBranch, boolean simplifyToConditionIfPossible) {
+		Expression result;
+		if (equalityLiteral.hasFunctor(FunctorConstants.DISEQUALITY)) {
+			Expression equalityCondition = Equality.make(equalityLiteral.getArguments());
+			result = make(equalityCondition, elseBranch, thenBranch, simplifyToConditionIfPossible); // invert
+		}
+		else {
+			result = make(equalityLiteral, thenBranch, elseBranch, simplifyToConditionIfPossible);
+		}
+		return result;
 	}
 
 	public static boolean isIfThenElse(Expression expression) {
