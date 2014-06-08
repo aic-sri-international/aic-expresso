@@ -46,6 +46,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.DefaultRewriterTest;
 import com.sri.ai.grinder.core.KindAttribute;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.grinder.library.set.Sets;
 
@@ -74,10 +75,13 @@ public class IntensionalSetWithBoundIndex extends AbstractRewriter {
 			Expression value = boundIndexInformation.value;
 			Expression head = IntensionalSet.getHead(expression);
 			Expression condition = IntensionalSet.getCondition(expression);
-	
+
+			RewritingProcess subProcessForHead      = GrinderUtil.extendContextualVariablesAndConstraintWithIntensionalSet(expression, process);
+			RewritingProcess subProcessForCondition = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(expression, process);
+			
 			List<Expression> newIndexExpressions = boundIndexInformation.indexExpressionsWithoutBoundIndex;
-			Expression       newHead             = SemanticSubstitute.replace(head,      index, value, process);
-			Expression       newCondition        = SemanticSubstitute.replace(condition, index, value, process);
+			Expression       newHead             = SemanticSubstitute.replace(head,      index, value, subProcessForHead);
+			Expression       newCondition        = SemanticSubstitute.replace(condition, index, value, subProcessForCondition);
 			Expression       result              = IntensionalSet.makeSetFromIndexExpressionsList(Sets.getLabel(expression), newIndexExpressions, newHead, newCondition);
 			return result;
 		}
