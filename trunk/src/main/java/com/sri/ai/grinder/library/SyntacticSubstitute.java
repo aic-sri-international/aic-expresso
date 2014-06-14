@@ -38,12 +38,14 @@
 package com.sri.ai.grinder.library;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.MapReplacementFunction;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.PruningPredicate;
 import com.sri.ai.util.Util;
@@ -96,6 +98,17 @@ public class SyntacticSubstitute {
 						new SubstitutePruningPredicate(replaced, replacement, process), null,
 						process);
 		return result;
+	}
+
+	public static Expression replaceAll(Expression expression, Map<Expression, Expression> fromReplacedToReplacements, RewritingProcess process) {
+		Expression result = expression.replaceAllOccurrences(new MapReplacementFunction(fromReplacedToReplacements), process);
+		return result;
+
+//		// Used to be as below but that is incorrect as one of the new variables may be replaced by another new variable coming later.
+//		for (Map.Entry<Expression, Expression> entry : fromReplacedToReplacements.entrySet()) {
+//			expression = replace(expression, entry.getKey(), entry.getValue(), process);
+//		}
+//		return expression;
 	}
 
 	private static class SubstitutePruningPredicate implements PruningPredicate {

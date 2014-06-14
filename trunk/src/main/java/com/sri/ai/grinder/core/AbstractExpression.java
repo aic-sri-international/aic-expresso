@@ -239,7 +239,13 @@ public abstract class AbstractExpression implements Expression {
 							.apply(this, replacementFunction, subExpressionAndContext, process);
 				}
 
-				RewritingProcess subProcess = GrinderUtil.extendContextualVariablesAndConstraint(subExpressionAndContext, process);
+				RewritingProcess subProcess;
+				if (replacementFunction instanceof ReplacementFunctionWithContextuallyUpdatedProcess) {
+					subProcess = GrinderUtil.extendContextualVariablesAndConstraint(subExpressionAndContext, process);
+				}
+				else {
+					subProcess = process;
+				}
 
 				Expression replacementSubExpression =
 						originalSubExpression.replace(

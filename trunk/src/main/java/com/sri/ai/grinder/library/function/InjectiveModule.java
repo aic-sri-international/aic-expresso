@@ -95,4 +95,13 @@ public class InjectiveModule extends AbstractModuleNoOpRewriter {
 		}
 		return null;
 	}
+
+	public boolean injectiveFunctionTokensAreEqual(Expression expression1, Expression expression2, RewritingProcess process) {
+		Object messageValueSetDestinationInjectiveFunctionToken      = getInjectiveFunctionToken(expression1, process);
+		Object previousMessageValueDestinationInjectiveFunctionToken = getInjectiveFunctionToken(expression2, process);
+		if ( ! messageValueSetDestinationInjectiveFunctionToken.equals(previousMessageValueDestinationInjectiveFunctionToken)) {
+			return false;
+		}
+		return true;
+	}
 }

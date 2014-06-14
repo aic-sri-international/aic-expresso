@@ -68,7 +68,8 @@ import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.collect.FunctionIterator;
 
 /**
- * A intensional set is a set formed by the instantiations of a parametric
+ * An <i>intensionally defined set</i>. or <i>intensional set</i> for short,
+ * is a set formed by the instantiations of a parametric
  * expression (the <i>head</i>) according to parameter assignments satisfying a
  * given condition. For example, <code>{(on x in Natural) f(x) | x != 2 }</code>
  * can be interpreted as the set <code>{f(1), f(3), f(4), ...}</code>. They are
@@ -338,6 +339,11 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 			}
 		}
 		return new LinkedList<Expression>();
+	}
+
+	public static List<Expression> getIndices(Expression set) {
+		List<Expression> result = IndexExpressions.getIndices(getIndexExpressions(set));
+		return result;
 	}
 
 	public static Iterator<Expression> getIndexExpressionsIterator(Expression intensionalSetExpression) {
