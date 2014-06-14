@@ -39,6 +39,7 @@ package com.sri.ai.grinder.helper;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -65,6 +66,7 @@ import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
+import com.sri.ai.grinder.library.function.InjectiveModule;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.ui.TreeUtil;
@@ -859,5 +861,59 @@ public class GrinderUtil {
 		if (GrinderConfiguration.isWaitUntilUIClosedEnabled()) {
 			TreeUtil.waitUntilUIClosed();
 		}
+	}
+
+	/**
+	 * Assumes two given expressions are (possible multiple-level) injective expressions on symbols (variables or constants),
+	 * or symbols themselves,
+	 * and returns a pair of lists <code>(L1,L2)</code> such that <code>L1 = L2</code> must hold for the expressions to unify,
+	 * and <code>null</code> if their injective expression structure is not the same.
+	 */
+	public static Pair<List<Expression>, List<Expression>> getListsOfElementsToBeUnifiedInInjectiveExpressions(Expression expression1, Expression expression2, RewritingProcess process) {
+		InjectiveModule module = (InjectiveModule) process.findModule(InjectiveModule.class);
+		Pair<List<Expression>, List<Expression>> result = getListsOfElementsToBeUnifiedInInjectiveExpressionsWithModule(expression1, expression2, module, process);
+		return result;
+	}
+
+	/**
+	 * Version of {@link #getListsOfElementsToBeUnifiedInInjectiveExpressions(Expression, Expression, RewritingProcess)}
+	 * that receives an injective module rather than finds it in a rewriting process.
+	 * This is useful because the method is recursive and we do not want to look up the module at every recursive call.
+	 */
+	private static Pair<List<Expression>, List<Expression>> getListsOfElementsToBeUnifiedInInjectiveExpressionsWithModule(Expression expression1, Expression expression2, InjectiveModule module, RewritingProcess process) {
+		
+		Pair<List<Expression>, List<Expression>> result;
+	
+		if (expression1.getSyntacticFormType().equals("Symbol") && expression2.getSyntacticFormType().equals("Symbol")) {
+			result = Pair.make(Util.list(expression1), Util.list(expression2));
+		}
+		else {
+	
+			if ( ! module.injectiveFunctionTokensAreEqual(expression1, expression2, process)) {
+				return null;
+			}
+			
+			Iterator<Expression> subExpression1Iterator = expression1.getSubExpressions().iterator();
+			Iterator<Expression> subExpression2Iterator = expression2.getSubExpressions().iterator();
+			
+			List<Expression> list1 = new LinkedList<Expression>();
+			List<Expression> list2 = new LinkedList<Expression>();
+			
+			while (subExpression1Iterator.hasNext()) {
+				Expression subExpression1 = subExpression1Iterator.next();
+				Expression subExpression2 = subExpression2Iterator.next();
+				
+				Pair<List<Expression>, List<Expression>> subLists = getListsOfElementsToBeUnifiedInInjectiveExpressionsWithModule(subExpression1, subExpression2, module, process);
+				if (subLists == null) {
+					return null;
+				}
+				
+				list1.addAll(subLists.first);
+				list2.addAll(subLists.second);
+			}
+	
+			result = Pair.make(list1, list2);
+		}
+		return result;
 	}
 }
