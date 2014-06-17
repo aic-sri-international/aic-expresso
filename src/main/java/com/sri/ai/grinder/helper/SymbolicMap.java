@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -52,6 +53,7 @@ import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.StandardizedApartFrom;
 import com.sri.ai.grinder.library.SyntacticSubstitute;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
@@ -61,6 +63,64 @@ import com.sri.ai.util.base.Pair;
  */
 @Beta
 public class SymbolicMap  {
+	
+	/**
+	 * This method is used to "symbolically look up" an expression E in an "intensionally represented" "map".
+	 * Suppose we have an intensionally defined set <code>{(on Z, W) (f(Z,W), Z + W) | Z != a }</code> and consider it as defining
+	 * a function from <code>f(Z,W)</code> to <code>Z + W</code> applicable only when </code>Z != a</code>,
+	 * and wish to look up the value for <code>f(X,g(Y,V))</code>.
+	 * This method can then be used, and will return an expression <code>if X != a then X + g(Y,W) else f(Z,W)</code>. 
+	 * <p>
+	 * <b>Very importantly</b>, the {@link SymbolicMap} caches the variable unification work performed
+	 * so that if a lookup with the same expression and set with same "keys" but different "value" is requested,
+	 * that same unification is reused to generate the new corresponding value.
+	 * This is very useful in applications in which the "function" represented by the set is repeatedly updated. 
+	 * <p>
+	 * More formally, given an expression E, and an intensional set <code>{(on I) (K,V) | Cs }</code>,
+	 * such that both <code>E</code> and <code>K</code> are (possibly nested) injective applications,
+	 * where symbols (variables and constants) are considered injective functions,
+	 * and such that <code>K</code> contains all indices in <code>I</code>,
+	 * the method returns <code>E</code> if the set <code>{(on I) (E, V') | Cs and E = K}</code> is empty,
+	 * or it returns <code>if C then V' else E</code> if <code>{(on I) (E, V) | Cs and E = K}</code> is a singleton,
+	 * where <code>C<code> is equivalent to <code>there exists I : Cs and K = E</code>, but with the quantifier having been eliminated
+	 * (therefore not containing indices in I),
+	 * and <code>V'<code> is the second component of the only pair in that set.
+	 * <p>
+	 * The method also requires the name of a rewriter to be used as a complete simplifier
+	 * (in the sense that it guarantees tautologies and contradictions are rewritten as <code>true</code> and <code>false</code>, respectively).
+	 * This is needed for deciding whether the set is empty or a singleton.
+	 * <p>
+	 * Note that it is always the case that the set is either empty or a singleton from the fact that <code>K</code> contains all variables in <code>I</code>.
+	 * <p>
+	 * Finally, the method allows some more flexibility by allowing functions to be provided that map the given expression and set's head to the keys and values to be used.
+	 */
+	public Expression lookUpInjectiveExpressions(
+			Expression expression,
+			Expression intensionalSet, 
+			Function<Expression, Expression> fromExpressionToKey, 
+			Function<Expression, Expression> fromIntensionalSetHeadToKey, 
+			Function<Expression, Expression> fromIntensionalSetHeadToValue,
+			String completeNormalizerName,
+			RewritingProcess process) {
+
+		Expression expressionKey = fromExpressionToKey.apply(expression);
+		Expression head = IntensionalSet.getHead(intensionalSet);
+		Expression key = fromIntensionalSetHeadToKey.apply(head);
+		Expression intensionalSetWithKeyAsHead = IntensionalSet.copyWithNewHead(intensionalSet, key);
+		UnificationToIntensionalSetResult unificationResult = unifyToIntensionalSetAssumingInjectiveExpressions(expressionKey, intensionalSetWithKeyAsHead, completeNormalizerName, process);
+
+		Expression result;
+		if (unificationResult.isSuccessful()) {
+			Expression value = fromIntensionalSetHeadToValue.apply(head);
+			Expression valueForIntersection = SyntacticSubstitute.replaceAll(value, unificationResult.mapOfUnifiedVariables, process);
+			result = IfThenElse.make(unificationResult.conditionOnExpressionVariables, valueForIntersection, expression);
+		}
+		else {
+			result = expression;
+		}
+		
+		return result;
+	}
 
 	public static class UnificationToIntensionalSetResult {
 		public Expression conditionOnExpressionVariables;
