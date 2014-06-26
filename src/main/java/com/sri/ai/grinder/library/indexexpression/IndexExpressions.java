@@ -13,6 +13,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Null;
@@ -161,6 +162,9 @@ public class IndexExpressions {
 		}
 	}
 
+	/**
+	 * Makes an index expression for variable and domain (the latter being possibly <code>null</code> indicating unknown domain).
+	 */
 	public static Expression makeIndexExpression(Expression index, Expression domain) {
 		Expression result = domain == null? index : Expressions.apply("in", index, domain);
 		return result;
@@ -229,6 +233,12 @@ public class IndexExpressions {
 			}
 		}
 		return result;
+	}
+
+	public static Expression getIndexExpressionForVariableFromContextualVariablesAndDomains(Expression expression, RewritingProcess process) {
+		Expression domain = process.getContextualVariableDomain(expression);
+		Expression indexExpression = makeIndexExpression(expression, domain);
+		return indexExpression;
 	}
 	
 }

@@ -45,6 +45,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.library.SemanticSubstitute;
+import com.sri.ai.util.Util;
 
 /**
  * 
@@ -78,20 +79,37 @@ public class LambdaApplication extends AbstractRewriter {
 		Expression functor = expression.getFunctor();
 		if (Lambda.isLambdaExpression(functor) &&
 			performApplication.isApplicationToBePerformed(functor, process)) {
-			List<Expression> parameters = Lambda.getParameters(functor);
-			if (parameters.size() != expression.numberOfArguments()) {
-				throw new Error("Lambda application number of parameters and arguments does not match: " + expression);
-			}
-			Expression result = Lambda.getBody(functor);
-			Iterator<Expression> parameterIterator = parameters.iterator();
-			Iterator<Expression> argumentIterator = expression.getArguments().iterator();
-			while (parameterIterator.hasNext()) {
-				Expression parameter = parameterIterator.next();
-				Expression argument = argumentIterator.next();
-				result = SemanticSubstitute.replace(result, parameter, argument, process);
-			}
-			return result;
+			expression = performApplication(expression, process);
 		}
 		return expression;
+	}
+
+	public static Expression performApplication(Expression lambdaApplicationExpression, RewritingProcess process) throws Error {
+		Expression lambdaExpression = lambdaApplicationExpression.getFunctor();
+		List<Expression> arguments = lambdaApplicationExpression.getArguments();
+		Expression result = performApplication(lambdaExpression, arguments, process);
+		return result;
+	}
+
+	public static Expression performApplication(Expression lambdaExpression, List<Expression> arguments, RewritingProcess process) throws Error {
+		List<Expression> parameters = Lambda.getParameters(lambdaExpression);
+		if (parameters.size() != arguments.size()) {
+			throw new Error("Lambda application number of parameters and arguments does not match: " + lambdaExpression + "(" + Util.join(arguments) + ")");
+		}
+		Expression body = Lambda.getBody(lambdaExpression);
+		Expression result = performApplication(parameters, body, arguments, process);
+		return result;
+	}
+
+	public static Expression performApplication(List<Expression> parameters, Expression body, List<Expression> arguments, RewritingProcess process) {
+		Expression result = body;
+		Iterator<Expression> parameterIterator = parameters.iterator();
+		Iterator<Expression> argumentIterator = arguments.iterator();
+		while (parameterIterator.hasNext()) {
+			Expression parameter = parameterIterator.next();
+			Expression argument = argumentIterator.next();
+			result = SemanticSubstitute.replace(result, parameter, argument, process);
+		}
+		return result;
 	}
 }
