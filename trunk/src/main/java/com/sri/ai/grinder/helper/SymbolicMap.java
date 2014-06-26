@@ -54,15 +54,76 @@ import com.sri.ai.grinder.library.StandardizedApartFrom;
 import com.sri.ai.grinder.library.SyntacticSubstitute;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.function.InjectiveModule;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
 /**
- * Under developement. 
+ * Under development. 
  */
 @Beta
 public class SymbolicMap  {
+
+	private Function<Expression, Expression> fromExpressionToKey;
+	private Function<Expression, Expression> fromIntensionalSetHeadToKey;
+	private Function<Expression, Expression> fromIntensionalSetHeadToValue;
+	private String completeNormalizerName;
+	boolean keysAlreadyKnownToBeInjective;
+
+	private Map<Expression, List<Expression>> fromInjectiveFunctorToIntensionalSets;
+
+	public SymbolicMap(Function<Expression, Expression> fromExpressionToKey, Function<Expression, Expression> fromIntensionalSetHeadToKey, Function<Expression, Expression> fromIntensionalSetHeadToValue, String completeNormalizerName, boolean keysAlreadyKnownToBeInjective) {
+		super();
+		this.fromExpressionToKey = fromExpressionToKey;
+		this.fromIntensionalSetHeadToKey = fromIntensionalSetHeadToKey;
+		this.fromIntensionalSetHeadToValue = fromIntensionalSetHeadToValue;
+		this.completeNormalizerName = completeNormalizerName;
+		this.keysAlreadyKnownToBeInjective = keysAlreadyKnownToBeInjective;
+	}
+
+	/**
+	 * Stores an intensional set guaranteed by the user to be new.
+	 */
+	public void putNewIntensionalSet(Expression newIntensionalSet, RewritingProcess process) {
+		List<Expression> intensionalSetsForHeadKey = getIntensionalSetsForIntensionalSetHeadKey(newIntensionalSet, process);
+		intensionalSetsForHeadKey.add(newIntensionalSet);
+	}
+
+	/**
+	 * Replace an intensional set known to be stored by a new one with same key.
+	 */
+	public void replaceIntensionalSet(Expression newIntensionalSet, Expression instanceIntensionalSetAlreadyStoredInMap, RewritingProcess process) {
+		List<Expression> intensionalSetsForHeadKey = getIntensionalSetsForIntensionalSetHeadKey(newIntensionalSet, process);
+		Util.replaceInstanceInList(instanceIntensionalSetAlreadyStoredInMap, newIntensionalSet, intensionalSetsForHeadKey);
+	}
+
+	public Expression lookUpInjectiveExpression(Expression expression, RewritingProcess process) {
+		Expression expressionKey = fromExpressionToKey.apply(expression);
+		List<Expression> intensionalSetsForKey = getIntensionalSetsForKey(expressionKey, process);
+		Expression result = expression;
+		for (Expression intensionalSet : intensionalSetsForKey) {
+			result = lookUpInjectiveExpressionWithAlreadyCalculatedKey(expression, expressionKey, intensionalSet, process);
+			if (result != expression) {
+				break;
+			}
+		}
+		return result;
+	}
+
+	private List<Expression> getIntensionalSetsForIntensionalSetHeadKey(Expression intensionalSet, RewritingProcess process) {
+		Expression head = IntensionalSet.getHead(intensionalSet);
+		Expression key = fromIntensionalSetHeadToKey.apply(head);
+		List<Expression> intensionalSetsForKey = getIntensionalSetsForKey(key, process);
+		return intensionalSetsForKey;
+	}
+
+	private List<Expression> getIntensionalSetsForKey(Expression key, RewritingProcess process) {
+		Expression injectiveApplication = InjectiveModule.getInjectiveApplication(key, keysAlreadyKnownToBeInjective, process);
+		Expression injectiveFunctor = injectiveApplication.getFunctor();
+		List<Expression> intensionalSetsWithInjectiveFunctor = Util.getValuePossiblyCreatingIt(fromInjectiveFunctorToIntensionalSets, injectiveFunctor, LinkedList.class);
+		return intensionalSetsWithInjectiveFunctor;
+	}
 	
 	/**
 	 * This method is used to "symbolically look up" an expression E in an "intensionally represented" "map".
@@ -94,16 +155,12 @@ public class SymbolicMap  {
 	 * <p>
 	 * Finally, the method allows some more flexibility by allowing functions to be provided that map the given expression and set's head to the keys and values to be used.
 	 */
-	public Expression lookUpInjectiveExpressions(
-			Expression expression,
-			Expression intensionalSet, 
-			Function<Expression, Expression> fromExpressionToKey, 
-			Function<Expression, Expression> fromIntensionalSetHeadToKey, 
-			Function<Expression, Expression> fromIntensionalSetHeadToValue,
-			String completeNormalizerName,
-			RewritingProcess process) {
-
+	public Expression lookUpInjectiveExpression(Expression expression, Expression intensionalSet, RewritingProcess process) {
 		Expression expressionKey = fromExpressionToKey.apply(expression);
+		return lookUpInjectiveExpressionWithAlreadyCalculatedKey(expression, expressionKey, intensionalSet, process);
+	}
+
+	private Expression lookUpInjectiveExpressionWithAlreadyCalculatedKey(Expression expression, Expression expressionKey, Expression intensionalSet, RewritingProcess process) {
 		Expression head = IntensionalSet.getHead(intensionalSet);
 		Expression key = fromIntensionalSetHeadToKey.apply(head);
 		Expression intensionalSetWithKeyAsHead = IntensionalSet.copyWithNewHead(intensionalSet, key);

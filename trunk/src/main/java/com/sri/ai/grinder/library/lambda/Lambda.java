@@ -95,8 +95,8 @@ public class Lambda extends QuantifierSubExpressionAndScopedVariableProvider {
 		return result;
 	}
 	
-	public static Expression make(Expression variable, Expression body) {
-		return make(Lists.newArrayList(variable), body);
+	public static Expression make(Expression indexExpression, Expression body) {
+		return make(Lists.newArrayList(indexExpression), body);
 	}
 	
 	/**
