@@ -50,11 +50,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Module;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.PruningPredicate;
-import com.sri.ai.grinder.library.SyntacticSubstitute;
-import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.lambda.Lambda;
-import com.sri.ai.grinder.library.lambda.LambdaApplication;
-import com.sri.ai.util.Util;
 
 
 /**
