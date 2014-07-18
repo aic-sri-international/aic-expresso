@@ -126,11 +126,11 @@ public abstract class AbstractCardinalityRewriterStressTests extends AbstractGri
 		List<CardinalityStressTest> cardinalityStressTests = makeCardinalityStressTests();
 		
 		// Run all the cardinality stress tests and collect their results
-		List<List<Triple<String, String, List<Long>>>> cstResults = new ArrayList<List<Triple<String, String, List<Long>>>>();
-		for (CardinalityStressTest cst : cardinalityStressTests) {
-			System.out.println("--- Running "+cst.getTitle());
-			List<Triple<String, String, List<Long>>> results = cst.stressTest(cardinalityRewriters);
-			cstResults.add(results);
+		List<List<Triple<String, String, List<Long>>>> cardinalityStressTestResults = new ArrayList<List<Triple<String, String, List<Long>>>>();
+		for (CardinalityStressTest cardinalityStressTest : cardinalityStressTests) {
+			System.out.println("--- Running " + cardinalityStressTest.getTitle());
+			List<Triple<String, String, List<Long>>> results = cardinalityStressTest.stressTest(cardinalityRewriters);
+			cardinalityStressTestResults.add(results);
 			System.out.println("---");
 		}
 		List<AtomicLong> grandTotalTimes = new ArrayList<AtomicLong>();
@@ -138,12 +138,12 @@ public abstract class AbstractCardinalityRewriterStressTests extends AbstractGri
 			grandTotalTimes.add(new AtomicLong(0L));
 		}
 		// Now output their results.
-		for (int c = 0; c < cstResults.size(); c++) {
-			CardinalityStressTest cst = cardinalityStressTests.get(c);
-			List<Triple<String, String, List<Long>>> results = cstResults.get(c);
+		for (int testIndex = 0; testIndex < cardinalityStressTestResults.size(); testIndex++) {
+			CardinalityStressTest cardinalityStressTest = cardinalityStressTests.get(testIndex);
+			List<Triple<String, String, List<Long>>> results = cardinalityStressTestResults.get(testIndex);
 			
 			System.out.println("===");
-			System.out.println(cst.getTitle());
+			System.out.println(cardinalityStressTest.getTitle());
 			System.out.println("---");
 			List<AtomicLong> totalTimes = new ArrayList<AtomicLong>();
 			for (int i = 0; i < cardinalityRewriters.size(); i++) {
@@ -175,20 +175,19 @@ public abstract class AbstractCardinalityRewriterStressTests extends AbstractGri
 		
 		//
 		// Now output the Excel Spreadsheet output
-		// Now output their results.
 		System.out.println("");
-		System.out.println("EXCEL SPREADSHEET OUTUT");
-		System.out.println("=======================");
+		System.out.println("EXCEL SPREADSHEET OUTPUT");
+		System.out.println("========================");
 		System.out.print("\n\nExpression");
 		for (int i = 0; i < cardinalityRewriters.size(); i++) {
 			System.out.print(", ");
-			System.out.print("\""+cardinalityRewriters.get(i).getName()+"\"");
+			System.out.print("\"" + cardinalityRewriters.get(i).getName() + "\"");
 		}
 		System.out.println("");
-		for (int c = 0; c < cstResults.size(); c++) {
-			List<Triple<String, String, List<Long>>> results = cstResults.get(c);
+		for (int c = 0; c < cardinalityStressTestResults.size(); c++) {
+			List<Triple<String, String, List<Long>>> results = cardinalityStressTestResults.get(c);
 			for (Triple<String, String, List<Long>> testResult : results) {
-				System.out.print("\""+testResult.second+"\"");
+				System.out.print("\"" + testResult.second + "\"");
 				for (int i = 0; i < testResult.third.size(); i++) {
 					System.out.print(", ");
 					System.out.print(testResult.third.get(i));
@@ -201,21 +200,21 @@ public abstract class AbstractCardinalityRewriterStressTests extends AbstractGri
 	//
 	// PROTECTED METHODS
 	//
-	protected class DefaultCardinalityRewriter extends TestData implements CardinalityRewriter {
+	protected class TestedCardinalityRewriter extends TestData implements CardinalityRewriter {
 		private String name;
 		private CardinalityRewriteProcessFactory factory;
-		private String cardRewriterName;
+		private String cardinalityRewriterName;
 		private CountsDeclaration countsDeclaration;
 		private int numberRewritesToAverage;
 		private String E;
 		private Expression exprE;
 		
-		public DefaultCardinalityRewriter(String name, CardinalityRewriteProcessFactory factory, String cardRewriterName,
+		public TestedCardinalityRewriter(String name, CardinalityRewriteProcessFactory factory, String cardRewriterName,
 				CountsDeclaration countsDeclaration, int numberRewritesToAverage) {
 			super(false, IGNORE_EXPECTED);
 			this.name = name;
 			this.factory = factory;
-			this.cardRewriterName = cardRewriterName;
+			this.cardinalityRewriterName = cardRewriterName;
 			this.countsDeclaration = countsDeclaration;
 			if (numberRewritesToAverage < 1) {
 				throw new IllegalArgumentException("numberRewritesToAverage must be >= 1");
@@ -254,14 +253,14 @@ public abstract class AbstractCardinalityRewriterStressTests extends AbstractGri
 			
 			countsDeclaration.setup(process);
 			
-			Expression result = factory.newInstance(exprE, process).rewrite(cardRewriterName, exprE);
+			Expression result = factory.newInstance(exprE, process).rewrite(cardinalityRewriterName, exprE);
 			
 			return result;
 		}
 	}
 	
 	protected void outputTotals(List<CardinalityRewriter> cardinalityRewriters, String title, List<AtomicLong> totalTimes) {
-		System.out.print("--- "+title+" Totals: ");
+		System.out.print("--- " + title + " Totals: ");
 		for (int i = 0; i < cardinalityRewriters.size(); i++) {
 			if (i > 0) {
 				System.out.print(", ");

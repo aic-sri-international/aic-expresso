@@ -45,7 +45,11 @@ import com.sri.ai.test.grinder.library.equality.cardinality.AbstractCardinalityR
 import com.sri.ai.test.grinder.library.equality.cardinality.AbstractCardinalityRewriterStressTests.CardinalityStressTest;
 import com.sri.ai.util.base.Triple;
 
-public class FixedFormulaStressTest implements CardinalityStressTest {
+/**
+ * A stress test formed of formulas generated according to parametric scheme.
+ * @author oreilly
+ */
+public class ParametricStressTest implements CardinalityStressTest {
 	// Note: if you want numberMembers > 6 extend these arrays.
 	private String[] memberVarPrefixes  = new String[]{"X", "Y", "Z", "U", "V", "W"};
 	private String[] memberConsPrefixes = new String[]{"a", "b", "c", "d", "f", "g"};
@@ -55,7 +59,7 @@ public class FixedFormulaStressTest implements CardinalityStressTest {
 	private String[]     expectedExpressions = null;
 	private int          maxFormulaLength    = 0;
 	
-	public FixedFormulaStressTest(String formulaType, String equalityType, String termInBetweenOperator, String memberOperator, String memberInBetweenOperator,
+	public ParametricStressTest(String formulaType, String equalityType, String termInBetweenOperator, String memberOperator, String memberInBetweenOperator,
 			int cardTermsStart, int cardTermsIncrement, int cardTermsMax, int cardNumberMembers, int cardFreeVarsMax) {
 		this.title = "Times Cardinality of "+formulaType+" on "+equalityType+" formulas with "+cardNumberMembers+" members";
 		for (int f = 0; f <= cardFreeVarsMax; f++) {
@@ -75,7 +79,7 @@ public class FixedFormulaStressTest implements CardinalityStressTest {
 		}
 	}
 	
-	public FixedFormulaStressTest(String formulaType, String equalityType, String termInBetweenOperator, String memberOperator, String memberInBetweenOperator,
+	public ParametricStressTest(String formulaType, String equalityType, String termInBetweenOperator, String memberOperator, String memberInBetweenOperator,
 			int cardTermsStart, int cardTermsIncrement, int cardTermsMax, int cardNumberMembers, int cardFreeVarsMax,
 			String[] expected) {
 		this(formulaType, equalityType, termInBetweenOperator, memberOperator, memberInBetweenOperator,

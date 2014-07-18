@@ -45,36 +45,40 @@ import com.sri.ai.test.grinder.library.equality.cardinality.AbstractCardinalityR
 import com.sri.ai.test.grinder.library.equality.cardinality.AbstractCardinalityRewriterStressTests.CardinalityStressTest;
 import com.sri.ai.util.base.Triple;
 
-public class CannedFormulaStressTest implements CardinalityStressTest {
+/**
+ * A stress test formed of given formulas.
+ * @author saadati
+ */
+public class GivenFormulaStressTest implements CardinalityStressTest {
 	private String   titleAddition                = null;
-	private String[] cannedCardinalityExpressions = null;
+	private String[] givenCardinalityExpressions = null;
 	private String[] expectedExpressions          = null;
 	private int      maxFormulaLength             = 0;
 	
-	public CannedFormulaStressTest(String titleAddition, String[] cannedCardinalityExpressions) {
+	public GivenFormulaStressTest(String titleAddition, String[] givenCardinalityExpressions) {
 		this.titleAddition                = titleAddition;
-		this.cannedCardinalityExpressions = cannedCardinalityExpressions;
-		for (int i = 0; i < cannedCardinalityExpressions.length; i++) {
-			int length = cannedCardinalityExpressions[i].length();
+		this.givenCardinalityExpressions = givenCardinalityExpressions;
+		for (int i = 0; i < givenCardinalityExpressions.length; i++) {
+			int length = givenCardinalityExpressions[i].length();
 			if (length > maxFormulaLength) {
 				maxFormulaLength = length;
 			}
 		}
-		this.expectedExpressions = new String[cannedCardinalityExpressions.length];
+		this.expectedExpressions = new String[givenCardinalityExpressions.length];
 		for (int i = 0; i < this.expectedExpressions.length; i++) {
 			this.expectedExpressions[i] = AbstractGrinderTest.IGNORE_EXPECTED;
 		}
 	}
 	
-	public CannedFormulaStressTest(String titleAddition, String[][] cannedCardinalityExpressionsAndExpected) {
+	public GivenFormulaStressTest(String titleAddition, String[][] givenCardinalityExpressionsAndExpected) {
 		this.titleAddition                = titleAddition;
-		this.cannedCardinalityExpressions = new String[cannedCardinalityExpressionsAndExpected.length];
-		this.expectedExpressions          = new String[cannedCardinalityExpressionsAndExpected.length];
-		for (int i = 0; i < cannedCardinalityExpressionsAndExpected.length; i++) {
-			this.cannedCardinalityExpressions[i] = cannedCardinalityExpressionsAndExpected[i][0];
-			this.expectedExpressions[i]          = cannedCardinalityExpressionsAndExpected[i][1];
+		this.givenCardinalityExpressions = new String[givenCardinalityExpressionsAndExpected.length];
+		this.expectedExpressions          = new String[givenCardinalityExpressionsAndExpected.length];
+		for (int i = 0; i < givenCardinalityExpressionsAndExpected.length; i++) {
+			this.givenCardinalityExpressions[i] = givenCardinalityExpressionsAndExpected[i][0];
+			this.expectedExpressions[i]          = givenCardinalityExpressionsAndExpected[i][1];
 			//
-			int length = cannedCardinalityExpressions[i].length();
+			int length = givenCardinalityExpressions[i].length();
 			if (length > maxFormulaLength) {
 				maxFormulaLength = length;
 			}
@@ -89,8 +93,8 @@ public class CannedFormulaStressTest implements CardinalityStressTest {
 	@Override
 	public List<Triple<String, String, List<Long>>> stressTest(List<CardinalityRewriter> cardinalityRewriters) {
 		List<Triple<String, String, List<Long>>> results = new ArrayList<Triple<String, String, List<Long>>>();
-		for (int i = 0; i < cannedCardinalityExpressions.length; i++) {
-			String cardExpression = cannedCardinalityExpressions[i];
+		for (int i = 0; i < givenCardinalityExpressions.length; i++) {
+			String cardExpression = givenCardinalityExpressions[i];
 			String expected       = expectedExpressions[i];
 
 			String resultTitle = String.format("Times for canned %"+maxFormulaLength+"s = ", cardExpression);

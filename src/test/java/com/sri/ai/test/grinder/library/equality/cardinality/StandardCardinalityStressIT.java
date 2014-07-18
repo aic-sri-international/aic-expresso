@@ -61,7 +61,7 @@ public class StandardCardinalityStressIT extends AbstractCardinalityRewriterStre
 //						return ConcurrentCardinality.newCardinality();
 //					}
 //				}, _sharedCountsDeclaration, _numberRewritesToAverage));
-		result.add(new DefaultCardinalityRewriter("Direct Cardinality Rewriter",
+		result.add(new TestedCardinalityRewriter("Direct Cardinality Rewriter",
 				new CardinalityRewriteProcessFactory() {
 					@Override
 					public RewritingProcess newInstance(Expression rootExpression, RewritingProcess parentProcess) {
@@ -79,27 +79,27 @@ public class StandardCardinalityStressIT extends AbstractCardinalityRewriterStre
 		List<CardinalityStressTest> result = super.makeCardinalityStressTests();
 		
 		// Note: An example of using expected on a Canned Formula Stress Test
-		result.add(new CannedFormulaStressTest("Expected", new String[][] {
+		result.add(new GivenFormulaStressTest("Expected", new String[][] {
 				// Cardinality Expression, Expected Result
 				{"|{{(on X, Y) tuple(X, Y) | not (X=Y=Z) }}|",            "99"},
 				{"|{{(on X) tuple(X) | Z = a or (Y != a and X != a) }}|", "if Z = a then 10 else (if Y != a then 9 else 0)"}
 		}));
 		// Note: An example of using expected on a Fixed Formula Stress Test
-		result.add(new FixedFormulaStressTest("DNF", "Equality",   "or",  "=",  "and", 2, 1, 4, 2, 0, new String[] {
+		result.add(new ParametricStressTest("DNF", "Equality",   "or",  "=",  "and", 2, 1, 4, 2, 0, new String[] {
 				// Expected Result
 				"199", 
 				"29701",
 				"3940399"
 		}));
-		result.add(new FixedFormulaStressTest("DNF", "Equality",   "or",  "=",  "and", 2, 1, 10, 2, 0));
+		result.add(new ParametricStressTest("DNF", "Equality",   "or",  "=",  "and", 2, 1, 10, 2, 0));
 		// Note: Concurrent Cardinality appears to choke for values > 5, Direct Cardinality runs till 15+
-		result.add(new FixedFormulaStressTest("DNF", "Inequality", "or",  "!=", "and", 2, 1, 10, 2, 0));
+		result.add(new ParametricStressTest("DNF", "Inequality", "or",  "!=", "and", 2, 1, 10, 2, 0));
 		// Note: Concurrent Cardinality appears to choke for values > 9, Direct Cardinality runs till 15+
-		result.add(new FixedFormulaStressTest("CNF", "Equality",   "and", "=",  "or",  2, 1, 10, 2, 0));
+		result.add(new ParametricStressTest("CNF", "Equality",   "and", "=",  "or",  2, 1, 10, 2, 0));
 		// Note: Concurrent Cardinality appears to choke for values > 5, Direct Cardinality runs till 15+
-		result.add(new FixedFormulaStressTest("CNF", "Inequality", "and", "!=", "or",  2, 1, 10, 2, 0));
+		result.add(new ParametricStressTest("CNF", "Inequality", "and", "!=", "or",  2, 1, 10, 2, 0));
 		// Note: from Shahin's email 'Concurrent & Direct tested side by side
-		result.add(new CannedFormulaStressTest("Side by Side", new String[] {
+		result.add(new GivenFormulaStressTest("Side by Side", new String[] {
 				"|{{(on X, Y) tuple(X, Y) | not (X=Y=Z) }}|",
 				"|{{(on X) tuple(X) | Z = a or (Y != a and X != a) }}|",
 				"|{{(on X) tuple(X) | for all Y : Y != a => X=a}}|",
@@ -127,7 +127,7 @@ public class StandardCardinalityStressIT extends AbstractCardinalityRewriterStre
 				"|{{(on X, Y) 5 | not (X=Y=Z)}}|"
 		}));
 		// Note: from DirectCardinalityTest.testCardinality()
-		result.add(new CannedFormulaStressTest("DirectCardinalityTest.testCardinality()", new String[] {
+		result.add(new GivenFormulaStressTest("DirectCardinalityTest.testCardinality()", new String[] {
 				"| {(on X) tuple(X) | X = a } |",
 				"| {(on X) tuple(X) | X != a } |",
 				"| {(on X, Y) tuple(X, Y) | X = a and Y = b } |",
@@ -192,7 +192,7 @@ public class StandardCardinalityStressIT extends AbstractCardinalityRewriterStre
 				"| {(on X1, Y1, X2, Y2, Y3) tuple(X1, Y1, X2, Y2, Y3) | X1 != a1 or Y1 != b1 or X2 != a2 or Y2 != b2 or Y3 != b3} |"
 		}));
 		// Note: from LBPTest R_card calls.
-		result.add(new CannedFormulaStressTest("LBPTest R_card calls", new String[] {
+		result.add(new GivenFormulaStressTest("LBPTest R_card calls", new String[] {
 				"| { ( on A ) tuple( A ) | A != B } |",
 				"| { ( on A ) tuple( A ) | A != X } |",
 				"| { ( on A ) tuple( A ) } |",
