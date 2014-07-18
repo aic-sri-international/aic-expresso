@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.library.equality.cardinality;
+package com.sri.ai.test.grinder.library.equality.cardinality.shahintests;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -49,6 +49,8 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.core.SimpleFormulaGenerator;
+import com.sri.ai.test.grinder.library.equality.cardinality.AbstractCardinalityRewriterStressTests;
+import com.sri.ai.test.grinder.library.equality.cardinality.GivenFormulaStressTest;
 
 public class RandomCardinalityStressIT extends AbstractCardinalityRewriterStressTests {
 	public static final String PYTHON_OUTPUT_DIR = "/home/saadati/projects/Formula/src/";
@@ -78,7 +80,7 @@ public class RandomCardinalityStressIT extends AbstractCardinalityRewriterStress
 	public List<CardinalityRewriter> makeCardinalityRewriters() {
 		List<CardinalityRewriter> result = super.makeCardinalityRewriters();
 		
-		result.add(new DefaultCardinalityRewriter("Direct Cardinality Rewriter",
+		result.add(new TestedCardinalityRewriter("Direct Cardinality Rewriter",
 				new CardinalityRewriteProcessFactory() {
 					@Override
 					public RewritingProcess newInstance(Expression rootExpression, RewritingProcess parentProcess) {
@@ -152,7 +154,7 @@ public class RandomCardinalityStressIT extends AbstractCardinalityRewriterStress
 			Expression ex = gn.generateRandomCardinality(formula, withPossibleFreeVariables);
 			newTests.add(writer.toString(ex));
 		}
-		result.add(new CannedFormulaStressTest("Randomly genrated formulas", newTests.toArray(new String[0])));
+		result.add(new GivenFormulaStressTest("Randomly genrated formulas", newTests.toArray(new String[0])));
 	}	
 	
 	private void generateAndAddNewConjunctionOfDisequalities(List<CardinalityStressTest> result, boolean withPossibleFreeVariables) {
@@ -162,7 +164,7 @@ public class RandomCardinalityStressIT extends AbstractCardinalityRewriterStress
 			Expression ex = gn.generateRandomCardinality(formula, withPossibleFreeVariables);
 			newTests.add(writer.toString(ex));
 		}
-		result.add(new CannedFormulaStressTest("Randomly genrated conjunctions of disequalities", newTests.toArray(new String[0])));
+		result.add(new GivenFormulaStressTest("Randomly genrated conjunctions of disequalities", newTests.toArray(new String[0])));
 	}	
 	
 	private void generateAndAddNewCNFFormulas(List<CardinalityStressTest> result, boolean withPossibleFreeVariables) {
@@ -192,7 +194,7 @@ public class RandomCardinalityStressIT extends AbstractCardinalityRewriterStress
 			System.out.println("" + s);			
 		}
 		System.out.println("____________________________");
-		result.add(new CannedFormulaStressTest("Randomly genrated CNF formulas", newTests.toArray(new String[0])));
+		result.add(new GivenFormulaStressTest("Randomly genrated CNF formulas", newTests.toArray(new String[0])));
 	}	
 	
 	private void generateAndAddNewDNFFormulas(List<CardinalityStressTest> result, boolean withPossibleFreeVariables) {
@@ -222,11 +224,11 @@ public class RandomCardinalityStressIT extends AbstractCardinalityRewriterStress
 			System.out.println("" + s);			
 		}
 		System.out.println("____________________________");
-		result.add(new CannedFormulaStressTest("Randomly genrated DNF formulas", newTests.toArray(new String[0])));
+		result.add(new GivenFormulaStressTest("Randomly genrated DNF formulas", newTests.toArray(new String[0])));
 	}	
 	
 	private void addPreGenerateTestsWithFreeVariables(List<CardinalityStressTest> result) {
-		result.add(new CannedFormulaStressTest("Randomly pre-genrated formulas by SimpleFormulaGenerator", new String[] {
+		result.add(new GivenFormulaStressTest("Randomly pre-genrated formulas by SimpleFormulaGenerator", new String[] {
 		// CNF Formulas:
 				"| { ( on X1, X2, X3, X4, X5, X6, X8, X9, X10, X11, X13, X14, X15, X16, X17, X18, X19 ) ( X1, X2, X3, X4, X5, X6, X8, X9, X10, X11, X13, X14, X15, X16, X17, X18, X19 ) | X16 = X8 and X14 = a1 } |",
 				"| { ( on X2, X3, X5, X6, X9, X11, X12, X13, X15, X16, X18, X19, X20 ) ( X2, X3, X5, X6, X9, X11, X12, X13, X15, X16, X18, X19, X20 ) | X1 != X16 and X12 != X10 } |", 
@@ -313,7 +315,7 @@ public class RandomCardinalityStressIT extends AbstractCardinalityRewriterStress
 		}));
 	}
 	private void addPreGenerateTestsToCompareWithSharpSAT(List<CardinalityStressTest> result) {
-		result.add(new CannedFormulaStressTest("Randomly pre-genrated formulas by SimpleFormulaGenerator", new String[] {
+		result.add(new GivenFormulaStressTest("Randomly pre-genrated formulas by SimpleFormulaGenerator", new String[] {
 		// CNF Formulas:
 				"| { ( on X10, X6 ) ( X10, X6 ) | X10 != a1 and X6 != a2 } |", 
 				"| { ( on X2, X7, X14, X12 ) ( X2, X7, X14, X12 ) | X2 = X7 and X12 = X14 } |", 
@@ -401,7 +403,7 @@ public class RandomCardinalityStressIT extends AbstractCardinalityRewriterStress
 	}
 	
 	private void addPreGeneratedTests(List<CardinalityStressTest> result) {
-		result.add(new CannedFormulaStressTest("Randomly pre-genrated formulas by SimpleFormulaGenerator", new String[] {
+		result.add(new GivenFormulaStressTest("Randomly pre-genrated formulas by SimpleFormulaGenerator", new String[] {
 			"| { ( on X2, X3, X10, X4, X14, X13, X9, X18, X19, X15 ) ( X2, X3, X10, X4, X14, X13, X9, X18, X19, X15 ) | (X19 = X13 and a9 = X2 and a3 = a10 => a11 = a2 or false or X4 != a19) => (a6 = a13 and (X9 != X10 or X15 = a10) and X9 != a13 => X14 != X3 and X18 != a17 and a4 = a14) } |",
 			"| { ( on X1, X2, X10, X5, X6, X14, X13, X12, X11, X17, X16, X15, X9, X8 ) ( X1, X2, X10, X5, X6, X14, X13, X12, X11, X17, X16, X15, X9, X8 ) | a9 != X11 and X15 != X1 and X17 != X8 or a11 != X14 and a17 != X16 and X14 = a18 and X13 = X1 or a20 = a9 or X11 = X1 and X9 != X11 and a3 != X17 and X8 = X10 and X13 != a7 or a10 = a14 and a20 = X14 and X10 = X14 and X12 = X6 and X2 = X5 or a12 != X8 and X1 != a2 and a15 != X6 } |",
 			"| { ( on X1, X2, X3, X4, X5, X6, X14, X20, X11, X17, X16, X15, X9 ) ( X1, X2, X3, X4, X5, X6, X14, X20, X11, X17, X16, X15, X9 ) | a1 != X4 and a3 != X5 and a19 = a6 or a17 != X16 and X14 = X3 and a18 != a6 or a3 = X15 and a4 != X17 or X1 != X6 and a3 = X1 <=> (a17 = X11 or X1 != X15 and X2 = a9 or X15 = X9 => false and X20 = X16 or a2 != a12 and a11 = a4 or X6 = a2) } |",
