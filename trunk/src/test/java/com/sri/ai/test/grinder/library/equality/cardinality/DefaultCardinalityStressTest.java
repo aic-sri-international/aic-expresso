@@ -37,13 +37,15 @@
  */
 package com.sri.ai.test.grinder.library.equality.cardinality;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.Cardinality;
 
-public class StandardCardinalityStressIT extends AbstractCardinalityRewriterStressTests {
+public class DefaultCardinalityStressTest extends AbstractCardinalityRewriterStressTest {
 
 	@Override
 	public RewritingProcess makeRewritingProcess(Expression topExpression) {
@@ -51,55 +53,53 @@ public class StandardCardinalityStressIT extends AbstractCardinalityRewriterStre
 	}
 
 	public List<CardinalityRewriter> makeCardinalityRewriters() {
-		List<CardinalityRewriter> result = super.makeCardinalityRewriters();
-		
-		// Uncomment if you want to compare this too.
-//		result.add(new DefaultCardinalityRewriter("Concurrent Cardinality Rewriter",
-//				new CardinalityRewriterFactory() {
-//					@Override
-//					public Rewriter newInstance() {
-//						return ConcurrentCardinality.newCardinality();
-//					}
-//				}, _sharedCountsDeclaration, _numberRewritesToAverage));
-		result.add(new TestedCardinalityRewriter("Direct Cardinality Rewriter",
+		List<CardinalityRewriter> result = new LinkedList<CardinalityRewriter>();
+
+		result.add(new TestedCardinalityRewriter(
 				new CardinalityRewriteProcessFactory() {
-					@Override
-					public RewritingProcess newInstance(Expression rootExpression, RewritingProcess parentProcess) {
-						return DirectCardinalityComputationFactory.newCardinalityProcess(rootExpression, parentProcess);
-					}
-				}, 
-				com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter.R_card,
-				_sharedCountsDeclaration, _numberRewritesToAverage));
-		
+@Override
+public RewritingProcess newInstance(Expression rootExpression, RewritingProcess parentProcess) {
+		RewritingProcess process = DirectCardinalityComputationFactory.newCardinalityProcess(rootExpression, parentProcess);
+		return process;
+}
+},
+				new Cardinality()));
+
 		return result;
 	}
-	
+
 	@Override
-	public List<CardinalityStressTest> makeCardinalityStressTests() {
-		List<CardinalityStressTest> result = super.makeCardinalityStressTests();
-		
-		// Note: An example of using expected on a Canned Formula Stress Test
-		result.add(new GivenFormulaStressTest("Expected", new String[][] {
+	public List<CardinalityStressTestData> makeCardinalityStressTests() {
+		List<CardinalityStressTestData> result = new LinkedList<CardinalityStressTestData>();
+
+		// Note: An example of using expected on a GivenFormulaStressTest
+		result.add(new GivenFormulaStressTestData("Expected", new String[][] {
 				// Cardinality Expression, Expected Result
 				{"|{{(on X, Y) tuple(X, Y) | not (X=Y=Z) }}|",            "99"},
 				{"|{{(on X) tuple(X) | Z = a or (Y != a and X != a) }}|", "if Z = a then 10 else (if Y != a then 9 else 0)"}
 		}));
-		// Note: An example of using expected on a Fixed Formula Stress Test
-		result.add(new ParametricStressTest("DNF", "Equality",   "or",  "=",  "and", 2, 1, 4, 2, 0, new String[] {
-				// Expected Result
-				"199", 
-				"29701",
-				"3940399"
-		}));
-		result.add(new ParametricStressTest("DNF", "Equality",   "or",  "=",  "and", 2, 1, 10, 2, 0));
+
+		// Note: An example of using expected on a Parametric Stress Test
+		result.add(new ParametricStressTestData(
+				"DNF",
+				"Equality",
+				"or",
+				"=",
+				"and", 2, 4, 2, 0, new String[] {
+						// Expected Result
+						"199", 
+						"29701",
+				"3940399"}));
+
+		result.add(new ParametricStressTestData("DNF", "Equality",   "or",  "=",  "and", 2, 10, 2, 2));
 		// Note: Concurrent Cardinality appears to choke for values > 5, Direct Cardinality runs till 15+
-		result.add(new ParametricStressTest("DNF", "Inequality", "or",  "!=", "and", 2, 1, 10, 2, 0));
+		result.add(new ParametricStressTestData("DNF", "Inequality", "or",  "!=", "and", 2, 10, 2, 0));
 		// Note: Concurrent Cardinality appears to choke for values > 9, Direct Cardinality runs till 15+
-		result.add(new ParametricStressTest("CNF", "Equality",   "and", "=",  "or",  2, 1, 10, 2, 0));
+		result.add(new ParametricStressTestData("CNF", "Equality",   "and", "=",  "or",  2, 10, 2, 0));
 		// Note: Concurrent Cardinality appears to choke for values > 5, Direct Cardinality runs till 15+
-		result.add(new ParametricStressTest("CNF", "Inequality", "and", "!=", "or",  2, 1, 10, 2, 0));
+		result.add(new ParametricStressTestData("CNF", "Inequality", "and", "!=", "or",  2, 10, 2, 0));
 		// Note: from Shahin's email 'Concurrent & Direct tested side by side
-		result.add(new GivenFormulaStressTest("Side by Side", new String[] {
+		result.add(new GivenFormulaStressTestData("Side by Side", new String[] {
 				"|{{(on X, Y) tuple(X, Y) | not (X=Y=Z) }}|",
 				"|{{(on X) tuple(X) | Z = a or (Y != a and X != a) }}|",
 				"|{{(on X) tuple(X) | for all Y : Y != a => X=a}}|",
@@ -127,7 +127,7 @@ public class StandardCardinalityStressIT extends AbstractCardinalityRewriterStre
 				"|{{(on X, Y) 5 | not (X=Y=Z)}}|"
 		}));
 		// Note: from DirectCardinalityTest.testCardinality()
-		result.add(new GivenFormulaStressTest("DirectCardinalityTest.testCardinality()", new String[] {
+		result.add(new GivenFormulaStressTestData("DirectCardinalityTest.testCardinality()", new String[] {
 				"| {(on X) tuple(X) | X = a } |",
 				"| {(on X) tuple(X) | X != a } |",
 				"| {(on X, Y) tuple(X, Y) | X = a and Y = b } |",
@@ -192,7 +192,7 @@ public class StandardCardinalityStressIT extends AbstractCardinalityRewriterStre
 				"| {(on X1, Y1, X2, Y2, Y3) tuple(X1, Y1, X2, Y2, Y3) | X1 != a1 or Y1 != b1 or X2 != a2 or Y2 != b2 or Y3 != b3} |"
 		}));
 		// Note: from LBPTest R_card calls.
-		result.add(new GivenFormulaStressTest("LBPTest R_card calls", new String[] {
+		result.add(new GivenFormulaStressTestData("LBPTest R_card calls", new String[] {
 				"| { ( on A ) tuple( A ) | A != B } |",
 				"| { ( on A ) tuple( A ) | A != X } |",
 				"| { ( on A ) tuple( A ) } |",
@@ -266,7 +266,7 @@ public class StandardCardinalityStressIT extends AbstractCardinalityRewriterStre
 				"| { ( on Z ) tuple( Z ) } |",
 				"| { ( on Z' ) tuple( Z' ) | Z' != Z } |"
 		}));
-		
+
 		return result;
 	}
 }
