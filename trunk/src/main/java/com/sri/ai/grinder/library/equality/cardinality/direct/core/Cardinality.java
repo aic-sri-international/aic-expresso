@@ -43,7 +43,6 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -53,6 +52,7 @@ import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
+import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.Sets;
@@ -67,7 +67,7 @@ import com.sri.ai.grinder.library.set.tuple.Tuple;
  *
  */
 @Beta
-public class Cardinality extends AbstractHierarchicalRewriter implements CardinalityRewriter {
+public class Cardinality extends AbstractCardinalityRewriter {
 	
 	public Cardinality() {
 	}
@@ -259,7 +259,7 @@ public class Cardinality extends AbstractHierarchicalRewriter implements Cardina
 //								cardOfFormulaWithoutIfThenElseIndexedByX, quantification));
 //		}
 		else {
-			throw new IllegalArgumentException("F is unhandled:"+f);
+			throw new IllegalArgumentException("F is unhandled: " + f);
 		}
 		
 		return result;

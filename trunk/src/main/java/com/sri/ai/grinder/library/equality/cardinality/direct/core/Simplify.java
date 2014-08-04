@@ -46,7 +46,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.core.OpenInterpretationModule;
 import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.helper.Justification;
@@ -78,7 +77,7 @@ import com.sri.ai.grinder.library.controlflow.NormalizeEqualities;
 import com.sri.ai.grinder.library.equality.CheapDisequalityModule;
 import com.sri.ai.grinder.library.equality.NotOnDisequality;
 import com.sri.ai.grinder.library.equality.NotOnEquality;
-import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.function.SymmetricModule;
 import com.sri.ai.grinder.library.number.Division;
 import com.sri.ai.grinder.library.number.Exponentiation;
@@ -102,7 +101,7 @@ import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNo
  *
  */
 @Beta
-public class Simplify extends AbstractHierarchicalRewriter implements CardinalityRewriter {
+public class Simplify extends AbstractCardinalityRewriter {
 	private Rewriter rRootRewriter = null;
 	
 	public Simplify() {

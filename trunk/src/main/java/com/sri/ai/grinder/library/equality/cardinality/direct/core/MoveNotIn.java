@@ -44,7 +44,6 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
@@ -52,6 +51,7 @@ import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
+import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 
 /**
@@ -61,7 +61,7 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewrite
  *
  */
 @Beta
-public class MoveNotIn extends AbstractHierarchicalRewriter implements CardinalityRewriter {
+public class MoveNotIn extends AbstractCardinalityRewriter {
 	
 	public MoveNotIn() {
 	}

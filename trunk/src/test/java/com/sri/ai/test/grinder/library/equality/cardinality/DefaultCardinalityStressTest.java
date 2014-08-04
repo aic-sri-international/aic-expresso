@@ -41,6 +41,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Cardinality;
@@ -52,18 +53,10 @@ public class DefaultCardinalityStressTest extends AbstractCardinalityRewriterStr
 		return DirectCardinalityComputationFactory.newCardinalityProcess(topExpression);
 	}
 
-	public List<CardinalityRewriter> makeCardinalityRewriters() {
-		List<CardinalityRewriter> result = new LinkedList<CardinalityRewriter>();
+	public List<Rewriter> makeCardinalityRewriters() {
+		List<Rewriter> result = new LinkedList<Rewriter>();
 
-		result.add(new TestedCardinalityRewriter(
-				new CardinalityRewriteProcessFactory() {
-@Override
-public RewritingProcess newInstance(Expression rootExpression, RewritingProcess parentProcess) {
-		RewritingProcess process = DirectCardinalityComputationFactory.newCardinalityProcess(rootExpression, parentProcess);
-		return process;
-}
-},
-				new Cardinality()));
+		result.add(new Cardinality());
 
 		return result;
 	}

@@ -46,7 +46,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.core.HasFormula;
 import com.sri.ai.grinder.expression.ExpressionCacheKey;
 import com.sri.ai.grinder.helper.Trace;
@@ -54,6 +53,7 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
+import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.equality.sat.SATSolver;
@@ -66,7 +66,7 @@ import com.sri.ai.grinder.library.equality.sat.SATSolverFactory;
  *
  */
 @Beta
-public class TopImpliedCertainty extends AbstractHierarchicalRewriter implements CardinalityRewriter {
+public class TopImpliedCertainty extends AbstractCardinalityRewriter {
 	
 	private Set<ExpressionCacheKey> testing      = new LinkedHashSet<ExpressionCacheKey>();
 	private boolean                 useSATSolver = GrinderConfiguration.isCompleteSimplifyUseSATSolver();

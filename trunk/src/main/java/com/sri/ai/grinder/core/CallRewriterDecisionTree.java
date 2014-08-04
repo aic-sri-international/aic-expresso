@@ -459,7 +459,7 @@ public class CallRewriterDecisionTree {
 				}
 				if (applicable) {
 					// Call rewriter, indicating it should bypass its reified tests.
-					resultExpression = rewriterWithReifiedTests.rewriter.rewrite(expression, process, true);
+					resultExpression = rewriterWithReifiedTests.rewriter.rewrite(expression, true, process);
 					if (resultExpression != expression) {
 						rewriterProducingTheResult = rewriterWithReifiedTests.rewriter;
 						break;

@@ -35,39 +35,25 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.equality.cardinality.direct.core;
+package com.sri.ai.grinder.library.equality.cardinality.direct;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.controlflow.IfThenElseExternalizationHierarchical;
-import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
+import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 
 /**
- * Default implementation of R_normalize(E).
- * 
- * @author braz
- *
+ * Implements common functionality of all {@link CardinalityRewriter}s,
+ * namely that of creating a default {@link RewritingProcess}
+ * with {@link DirectCardinalityComputationFactory}.
  */
 @Beta
-public class Normalize extends AbstractCardinalityRewriter {
+public abstract class AbstractCardinalityRewriter extends AbstractHierarchicalRewriter implements CardinalityRewriter {
 	
 	@Override
-	public String getName() {
-		return R_normalize;
-	}
-	
-	protected Rewriter ifThenElseExternalizationHierarchical = new IfThenElseExternalizationHierarchical();
-	protected Rewriter preSimplify  = new Simplify();
-	protected Rewriter postSimplify = new Simplify();
-	
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression result = expression;
-		result = preSimplify.rewrite(result, process);
-		result = ifThenElseExternalizationHierarchical.rewrite(result, process);
-		result = postSimplify.rewrite(result, process);
+	public RewritingProcess makeRewritingProcess(Expression expression) {
+		RewritingProcess result = DirectCardinalityComputationFactory.newCardinalityProcess(expression);
 		return result;
 	}
 }

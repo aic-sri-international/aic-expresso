@@ -41,9 +41,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
@@ -54,6 +52,7 @@ import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewriterTest;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Justification;
 import com.sri.ai.grinder.helper.RewriterLogging;
 import com.sri.ai.grinder.helper.Trace;
@@ -149,7 +148,7 @@ public abstract class AbstractRewriter implements Rewriter {
 	}
 
 	@Override
-	public Expression rewrite(Expression expression, RewritingProcess process, boolean bypassTests){
+	public Expression rewrite(Expression expression, boolean bypassTests, RewritingProcess process){
 		Expression result   = expression;
 		Expression original = expression;
 		
@@ -207,22 +206,14 @@ public abstract class AbstractRewriter implements Rewriter {
 	@Override
 	public Expression rewrite(Expression expression, RewritingProcess process) {
 		// Don't bypass tests by default.
-		return rewrite(expression, process, false);
+		return rewrite(expression, false, process);
 	}
 	
 	@Override
 	public Expression rewrite(Expression expression) {
-		return rewrite(expression, makeRewritingProcess(expression));
-	}
-
-	@Override
-	public Expression rewrite(Expression expression, Predicate<Expression> isConstantPredicate) {
-		return rewrite(expression, makeRewritingProcess(expression, isConstantPredicate));
-	}
-	
-	@Override
-	public Expression rewrite(Expression expression, Map<Object, Object> globalObjects) {
-		return rewrite(expression,  makeRewritingProcess(expression, globalObjects));
+		RewritingProcess process = makeRewritingProcess(expression);
+		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(expression, process);
+		return rewrite(expression, process);
 	}
 
 	@Override
@@ -242,6 +233,12 @@ public abstract class AbstractRewriter implements Rewriter {
 	//
 	
 	public abstract Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process);
+
+	@Override
+	public RewritingProcess makeRewritingProcess(Expression expression) {
+		DefaultRewritingProcess result = new DefaultRewritingProcess(expression, this);
+		return result;
+	}
 
 	@Override
 	public String toString() {
@@ -281,31 +278,5 @@ public abstract class AbstractRewriter implements Rewriter {
 	
 	protected boolean isTraceInAndOutOfRewriter() {
 		return traceInAndOutOfRewriter;
-	}
-	
-	/**
-	 * Makes a brand new rewriting process. Extensions may have to override this if they
-	 * use specific types of processes.
-	 */
-	protected DefaultRewritingProcess makeRewritingProcess(Expression expression) {
-		return new DefaultRewritingProcess(expression, this);
-	}
-
-	/**
-	 * Makes a brand new rewriting process. Extensions may have to override this if they
-	 * use specific types of processes.
-	 */
-	protected DefaultRewritingProcess makeRewritingProcess(Expression expression,
-			Map<Object, Object> globalObjects) {
-		return new DefaultRewritingProcess(expression, this, globalObjects);
-	}
-
-	/**
-	 * Makes a brand new rewriting process. Extensions may have to override this if they
-	 * use specific types of processes.
-	 */
-	protected DefaultRewritingProcess makeRewritingProcess(
-			Expression expression, Predicate<Expression> isConstantPredicate) {
-		return new DefaultRewritingProcess(expression, this, Util.<Expression, Expression>map(), isConstantPredicate, new LinkedHashMap<Object, Object>());
 	}
 }

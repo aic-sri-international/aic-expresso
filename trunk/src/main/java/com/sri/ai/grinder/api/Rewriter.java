@@ -39,12 +39,12 @@ package com.sri.ai.grinder.api;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.core.DefaultRewritingProcess;
 
 /**
  * A rewriter rewrites a expression into another, for example by simplifying it,
@@ -104,36 +104,33 @@ public interface Rewriter {
 	 * 
 	 * @param expression
 	 *            the expression to be rewritten.
-	 * @param process
-	 *            the process in which the rewriting is occurring.
-	 * @param bypassTests
-	 *            set to true if the RewriterTest ojbects returned by getTests()
+	 * @param bypassReifiedTests
+	 *            set to true if the RewriterTest objects returned by getTests()
 	 *            should not be tested (assumes the caller has already done so),
 	 *            false otherwise.
+	 * @param process
+	 *            the process in which the rewriting is occurring.
 	 * @return the original input expression if no rewriting occurred, otherwise
 	 *         a new rewritten expression.
 	 */
-	Expression rewrite(Expression expression, RewritingProcess process, boolean bypassTests);
+	Expression rewrite(Expression expression, boolean bypassReifiedTests, RewritingProcess process);
 
 	/**
-	 * Same as {@link #rewrite(Expression, RewritingProcess)}, with a default
-	 * rewriting process object.
+	 * Same as {@link #rewrite(Expression, RewritingProcess)},
+	 * with a rewriting process made by {@link Rewriter#makeRewritingProcess(Expression)}.
 	 */
 	Expression rewrite(Expression expression);
 
 	/**
-	 * Same as {@link #rewrite(Expression, RewritingProcess)}, with a default
-	 * rewriting process object using a given predicate for indicating
-	 * constants.
+	 * Makes a brand new rewriting process with contextual variables and constraint
+	 * initialized from the given expression.
+	 * Default implementation creates a {@link DefaultRewritingProcess},
+	 * but implementations of certain rewriters may choose to instantiate
+	 * rewriting process adequate to them (in particular, it may be necessary to
+	 * instantiate rewriting process that have other rewriters registered by name).
 	 */
-	Expression rewrite(Expression expression, Predicate<Expression> isConstantPredicate);
-
-	/**
-	 * Same as {@link #rewrite(Expression, RewritingProcess)}, with a default
-	 * rewriting process object using a given map of global objects.
-	 */
-	Expression rewrite(Expression expression, Map<Object, Object> globalObjects);
-
+	RewritingProcess makeRewritingProcess(Expression expression);
+	
 	/**
 	 * Returns an iterator ranging over the children rewriters of this rewriter.
 	 */

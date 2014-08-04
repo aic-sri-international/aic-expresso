@@ -46,12 +46,12 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
@@ -63,7 +63,7 @@ import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
  *
  */
 @Beta
-public class CardinalityExtensionalSet extends AbstractHierarchicalRewriter implements CardinalityRewriter {
+public class CardinalityExtensionalSet extends AbstractCardinalityRewriter {
 	
 	public CardinalityExtensionalSet() {
 	}

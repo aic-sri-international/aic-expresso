@@ -40,6 +40,7 @@ package com.sri.ai.grinder.library.equality.cardinality.direct;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Rewriter;
 
 /**
  * <b>Rewriters for Computing the cardinality of a set</b><br>
@@ -68,7 +69,7 @@ import com.sri.ai.expresso.helper.Expressions;
  * 
  */
 @Beta
-public interface CardinalityRewriter {
+public interface CardinalityRewriter extends Rewriter {
 
 	//
 	// START - Parameters
