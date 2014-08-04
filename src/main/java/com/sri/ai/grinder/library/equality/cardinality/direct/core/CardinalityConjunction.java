@@ -59,6 +59,7 @@ import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
+import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.number.Plus;
@@ -74,7 +75,7 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public class CardinalityConjunction extends AbstractHierarchicalRewriter implements CardinalityRewriter {
+public class CardinalityConjunction extends AbstractCardinalityRewriter {
 	
 	private PickCheapest    pickCheapest               = new PickCheapest();
 	private RewriteOnBranch rewriteCardinalityOnBranch = new RewriteOnBranch() {

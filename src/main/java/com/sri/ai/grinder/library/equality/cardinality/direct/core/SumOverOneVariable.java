@@ -45,13 +45,13 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.helper.concurrent.BranchRewriteTask;
 import com.sri.ai.grinder.helper.concurrent.RewriteOnBranch;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
+import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
@@ -63,7 +63,7 @@ import com.sri.ai.grinder.library.number.Times;
  *
  */
 @Beta
-public class SumOverOneVariable extends AbstractHierarchicalRewriter implements CardinalityRewriter {
+public class SumOverOneVariable extends AbstractCardinalityRewriter {
 	
 	private RewriteOnBranch rewriteSumOverOneVariableOnBranch = new RewriteOnBranch() {
 				@Override

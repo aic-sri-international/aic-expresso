@@ -42,13 +42,13 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.helper.concurrent.BranchRewriteTask;
 import com.sri.ai.grinder.helper.concurrent.RewriteOnBranch;
 import com.sri.ai.grinder.library.boole.Equivalence;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
+import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
@@ -61,7 +61,7 @@ import com.sri.ai.grinder.library.set.tuple.Tuple;
  *
  */
 @Beta
-public class CardinalityEquivalence extends AbstractHierarchicalRewriter implements CardinalityRewriter {
+public class CardinalityEquivalence extends AbstractCardinalityRewriter {
 	
 	private RewriteOnBranch rewriteCardinalityOnBranch = new RewriteOnBranch() {
 				@Override

@@ -47,13 +47,13 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
+import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.number.Minus;
@@ -69,7 +69,7 @@ import com.sri.ai.util.Util;
  *
  */
 @Beta
-public class CardinalityConjunctionOfDisequalities  extends AbstractHierarchicalRewriter implements CardinalityRewriter {
+public class CardinalityConjunctionOfDisequalities  extends AbstractCardinalityRewriter {
 	
 	public CardinalityConjunctionOfDisequalities() {
 	}

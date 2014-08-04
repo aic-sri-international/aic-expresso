@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,8 +53,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
-import com.sri.ai.test.grinder.TestData;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.base.Triple;
 import com.sri.ai.util.concurrent.BranchAndMerge;
@@ -64,15 +66,6 @@ public abstract class AbstractCardinalityRewriterStressTest extends AbstractGrin
 	protected static final int				 domainSize = 10;
 	protected static final CountsDeclaration countsDeclaration = new CountsDeclaration(domainSize);
 	protected static final int               numberRewritesToAverage = 3;
-	
-	public interface CardinalityRewriter {
-		String getName();
-		long call(Expression cardinalityExpression, String expected);
-	}
-	
-	public interface CardinalityRewriteProcessFactory {
-		RewritingProcess newInstance(Expression rootExpression, RewritingProcess parentProcess);
-	}
 	
 	@Before
 	public void ignoreTest() {
@@ -99,18 +92,18 @@ public abstract class AbstractCardinalityRewriterStressTest extends AbstractGrin
 		BrewerConfiguration.setProperty(BrewerConfiguration.KEY_OUTPUT_PARSING_TIME_INFO, "false");
 	}
 	
+	public abstract List<Rewriter> makeCardinalityRewriters();
+	
+	public abstract List<CardinalityStressTestData> makeCardinalityStressTests();
+	
 	@Override
 	public Grammar makeGrammar() {
 		return new CommonGrammar();
 	}
 	
-	public abstract List<CardinalityRewriter> makeCardinalityRewriters();
-	
-	public abstract List<CardinalityStressTestData> makeCardinalityStressTests();
-	
 	@Test
 	public void stressTestCardinalityRewriters() {
-		List<CardinalityRewriter>       cardinalityRewriters   = makeCardinalityRewriters();
+		List<Rewriter>       cardinalityRewriters   = makeCardinalityRewriters();
 		List<CardinalityStressTestData> cardinalityStressTests = makeCardinalityStressTests();
 		
 		// Run all the cardinality stress tests and collect their results
@@ -189,70 +182,52 @@ public abstract class AbstractCardinalityRewriterStressTest extends AbstractGrin
 	// PROTECTED METHODS
 	//
 	
-	protected List<Triple<String, String, List<Long>>> stressTest(List<CardinalityRewriter> cardinalityRewriters, CardinalityStressTestData test) {
+	protected List<Triple<String, String, List<Long>>> stressTest(List<Rewriter> cardinalityRewriters, CardinalityStressTestData test) {
 		List<Triple<String, String, List<Long>>> results = new ArrayList<Triple<String, String, List<Long>>>();
 		for (int i = 0; i < test.getCardinalityExpressions().size(); i++) {
-			String cardinalityExpression = test.getCardinalityExpressions().get(i);
+			String cardinalityExpressionString = test.getCardinalityExpressions().get(i);
 			String expected       = test.getExpectedExpressions()[i];
 
-			String resultTitle = String.format("Times for '%s' %" + test.getMaximumFormulaLength() + "s = ", test.getTitle(), cardinalityExpression);
+			String resultTitle = String.format("Times for '%s' %" + test.getMaximumFormulaLength() + "s = ", test.getTitle(), cardinalityExpressionString);
 			List<Long> times = new ArrayList<Long>();
-			for (CardinalityRewriter cardinalityRewriter : cardinalityRewriters) {
-				System.out.println("Calling " + cardinalityRewriter.getName() + " on " + cardinalityExpression);
-				times.add(cardinalityRewriter.call(parse(cardinalityExpression), expected));
+			for (Rewriter cardinalityRewriter : cardinalityRewriters) {
+				System.out.println("Calling " + cardinalityRewriter.getName() + " on " + cardinalityExpressionString);
+				Expression cardinalityExpression = parse(cardinalityExpressionString);
+				times.add(call(cardinalityRewriter, cardinalityExpression, expected, countsDeclaration, numberRewritesToAverage));
 			}
-			results.add(new Triple<String, String, List<Long>>(resultTitle, cardinalityExpression, times));
+			results.add(new Triple<String, String, List<Long>>(resultTitle, cardinalityExpressionString, times));
 		}
 		
 		return results;
 	}
 
-	protected class TestedCardinalityRewriter extends TestData implements CardinalityRewriter {
-		private CardinalityRewriteProcessFactory factory;
-		private Rewriter cardinalityRewriter;
-		private Expression cardinalityExpression;
+	public static long call(Rewriter cardinalityRewriter, Expression cardinalityExpression, String expected, CountsDeclaration countsDeclaration, int numberRewritesToAverage) {
 		
-		public TestedCardinalityRewriter(CardinalityRewriteProcessFactory factory, Rewriter cardinalityRewriter) {
-			super(false, IGNORE_EXPECTED);
-			this.factory = factory;
-			this.cardinalityRewriter = cardinalityRewriter;
+		RewritingProcess process = DirectCardinalityComputationFactory.newCardinalityProcess(
+				cardinalityExpression);
+		countsDeclaration.setup(process);
+		process = GrinderUtil
+				.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(
+						cardinalityExpression, process);
+		
+		Expression actual = null;
+		long average = 0L; 
+		for (int i = 0; i < numberRewritesToAverage; i++) {
+			long start = System.currentTimeMillis();
+			actual = cardinalityRewriter.rewrite(cardinalityExpression, process);
+			long time = System.currentTimeMillis() - start;
+			average += time;
+		}
+		average = average / numberRewritesToAverage;			
+		
+		if (expected != IGNORE_EXPECTED) {
+			Assert.assertEquals(expected, actual.toString());
 		}
 		
-		@Override
-		public String getName() {
-			return cardinalityRewriter.getName();
-		}
-		
-		@Override
-		public long call(Expression cardinalityExpression, String expected) {
-			this.expected = expected;
-			this.cardinalityExpression = cardinalityExpression;
-			long average = 0L; 
-			
-			for (int i = 0; i < numberRewritesToAverage; i++) {
-				average += perform(new TestData[] {this});
-			}
-			average = average / numberRewritesToAverage;			
-			
-			return average;
-		}
-		
-		@Override
-		public Expression getTopExpression() {
-			return cardinalityExpression;
-		}
-		
-		@Override
-		public Expression callRewrite(RewritingProcess process) {
-			countsDeclaration.setup(process);
-			RewritingProcess subProcess = factory.newInstance(cardinalityExpression, process);
-			Expression result = cardinalityRewriter.rewrite(cardinalityExpression, subProcess);
-			
-			return result;
-		}
+		return average;
 	}
-	
-	protected void outputTotals(List<CardinalityRewriter> cardinalityRewriters, String title, List<AtomicLong> totalTimes) {
+
+	protected void outputTotals(List<Rewriter> cardinalityRewriters, String title, List<AtomicLong> totalTimes) {
 		System.out.print("--- " + title + " Totals: ");
 		for (int i = 0; i < cardinalityRewriters.size(); i++) {
 			if (i > 0) {

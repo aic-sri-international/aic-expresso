@@ -366,7 +366,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		
 		checkInterrupted();
 		
-		Rewriter   rewriter = rewriterLookup.getRewriterFor(rewriterName);
 		Expression result   = null;
 		
 		// If child calls are to be intercepted
@@ -422,7 +421,26 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		}
 		else {
 			// No interception needs to be handled, can just call directly with this process (no need to create a child process in this instance).
-			result = rewriter.rewrite(expression, this);
+			Rewriter rewriter = rewriterLookup.getRewriterFor(rewriterName);
+			try {
+				result = rewriter.rewrite(expression, this);
+			}
+			catch (NullPointerException e) {
+				if (rewriter == null) {
+					throw new Error(
+							"Rewriting request for rewriter name '" + rewriterName + "' failed because no rewriter with this name is registered "
+							+ "in the rewriting process."
+							+ "One possible way this can happen is to invoke Rewriter.rewrite(Expression) for a rewriter "
+							+ "with an implementation of makeRewritingProcess(Expression expression) "
+							+ "that does not create an adequate RewritingProcess, that is, "
+							+ "one with needed rewriters registered by name "
+							+ "(the default implementation merely creates a DefaultRewritingProcess)."
+							+ "This rewriter can request another rewriter by name that is not registered in the rewriting process.");
+				}
+				else {
+					throw e;
+				}
+			}
 		}
 		
 		return result;
