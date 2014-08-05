@@ -3,24 +3,29 @@ package com.sri.ai.test.grinder.library.equality.cardinality;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sri.ai.test.grinder.AbstractGrinderTest;
+import com.sri.ai.util.Util;
+
 public class DefaultCardinalityStressTestData implements CardinalityStressTestData {
 
 	protected String title = null;
 	protected List<String> cardinalityExpressions = new ArrayList<String>();
 	protected String[] expectedExpressions = null;
-	private int maxFormulaLength = 0;
+	private int maximumFormulaLength = 0;
 
-	public DefaultCardinalityStressTestData() {
+	public DefaultCardinalityStressTestData(String title, List<String> cardinalityExpressions, String[] expectedExpressions) {
 		super();
+		this.title = title;
+		this.cardinalityExpressions = cardinalityExpressions;
+		if (expectedExpressions.length != this.cardinalityExpressions.size()) {
+			throw new IllegalArgumentException("'expected' is not the correct length; it should be " + this.cardinalityExpressions.size());
+		}
+		this.expectedExpressions = expectedExpressions;
+		computeMaximumFormulaLength();
 	}
 
-	protected void computeMaximumFormulaLength() {
-		for (int i = 0; i < cardinalityExpressions.size(); i++) {
-			int length = cardinalityExpressions.get(i).length();
-			if (length > maxFormulaLength) {
-				maxFormulaLength = length;
-			}
-		}
+	public DefaultCardinalityStressTestData(String title, List<String> cardinalityExpressions) {
+		this(title, cardinalityExpressions, Util.makeArrayFilledOutWith(AbstractGrinderTest.IGNORE_EXPECTED, cardinalityExpressions.size()));
 	}
 
 	@Override
@@ -38,9 +43,16 @@ public class DefaultCardinalityStressTestData implements CardinalityStressTestDa
 		return expectedExpressions;
 	}
 
-	@Override
 	public int getMaximumFormulaLength() {
-		return maxFormulaLength;
+		return maximumFormulaLength;
 	}
 
+	protected void computeMaximumFormulaLength() {
+		for (int i = 0; i < cardinalityExpressions.size(); i++) {
+			int length = cardinalityExpressions.get(i).length();
+			if (length > maximumFormulaLength) {
+				maximumFormulaLength = length;
+			}
+		}
+	}
 }

@@ -37,8 +37,6 @@
  */
 package com.sri.ai.test.grinder.library.equality.cardinality;
 
-import java.util.LinkedList;
-
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 import com.sri.ai.util.Util;
 
@@ -46,27 +44,19 @@ import com.sri.ai.util.Util;
  * A stress test formed of given formulas.
  * 
  * @author saadati
+ * @author braz
  */
 public class GivenFormulaStressTestData extends DefaultCardinalityStressTestData {
 	
 	public GivenFormulaStressTestData(String titleAddition, String[] givenCardinalityExpressions) {
-		this.title = "Times Given Formula (" + titleAddition + ")";
-		this.cardinalityExpressions = Util.listFrom(givenCardinalityExpressions);
-		this.expectedExpressions = new String[givenCardinalityExpressions.length];
-		for (int i = 0; i < this.expectedExpressions.length; i++) {
-			this.expectedExpressions[i] = AbstractGrinderTest.IGNORE_EXPECTED;
-		}
-		computeMaximumFormulaLength();
+		super("Times Given Formula (" + titleAddition + ")",
+				Util.listFrom(givenCardinalityExpressions),
+				Util.makeArrayFilledOutWith(AbstractGrinderTest.IGNORE_EXPECTED, givenCardinalityExpressions.length));
 	}
 
 	public GivenFormulaStressTestData(String titleAddition, String[][] givenCardinalityExpressionsAndExpected) {
-		this.title = "Times Given Formula (" + titleAddition + ")";
-		this.cardinalityExpressions = new LinkedList<String>();
-		this.expectedExpressions          = new String[givenCardinalityExpressionsAndExpected.length];
-		for (int i = 0; i < givenCardinalityExpressionsAndExpected.length; i++) {
-			this.cardinalityExpressions.add(givenCardinalityExpressionsAndExpected[i][0]);
-			this.expectedExpressions[i]          = givenCardinalityExpressionsAndExpected[i][1];
-		}
-		computeMaximumFormulaLength();
+		super("Times Given Formula (" + titleAddition + ")",
+				Util.getFirstColumnAsList(givenCardinalityExpressionsAndExpected),
+				Util.getSecondColumnAsArray(givenCardinalityExpressionsAndExpected));
 	}	
 }
