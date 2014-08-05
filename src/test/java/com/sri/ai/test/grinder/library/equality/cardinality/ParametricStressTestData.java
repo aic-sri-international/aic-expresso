@@ -37,7 +37,8 @@
  */
 package com.sri.ai.test.grinder.library.equality.cardinality;
 
-import com.sri.ai.test.grinder.AbstractGrinderTest;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A stress test formed of formulas generated according to a parametric scheme.
@@ -51,6 +52,7 @@ import com.sri.ai.test.grinder.AbstractGrinderTest;
  * (always the last ones in the enumeration of variables).
  * 
  * @author oreilly
+ * @author braz
  */
 public class ParametricStressTestData extends DefaultCardinalityStressTestData {
 	
@@ -58,9 +60,28 @@ public class ParametricStressTestData extends DefaultCardinalityStressTestData {
 			String formulaType, String equalityOrInequality, String interClauseOperator, String predicate, String clauseOperator,
 			int initialNumberOfClauses, int maximumNumberOfClauses, int clauseSize, int maximumNumberOfFreeVariables) {
 		
-		this.title = "Times Cardinality of " + formulaType + " on " + equalityOrInequality + " formulas with clauses with two " +
-				clauseSize + " literals and up to " + maximumNumberOfFreeVariables + " free variables";
+		super("Times Cardinality of " + formulaType + " on " + equalityOrInequality + " formulas with clauses with two " +
+				clauseSize + " literals and up to " + maximumNumberOfFreeVariables + " free variables",
+				makeParametricCardinalityExpressionStrings(interClauseOperator, predicate, clauseOperator, initialNumberOfClauses, maximumNumberOfClauses, clauseSize, maximumNumberOfFreeVariables)
+				);
+	}
+
+	public ParametricStressTestData(
+			String formulaType, String equalityOrInequality, String interClauseOperator, String predicate, String clauseOperator,
+			int initialNumberOfClauses, int maximumNumberOfClauses, int clauseSize, int maximumNumberOfFreeVariables,
+			String[] expectedExpressions) {
 		
+		super("Times Cardinality of " + formulaType + " on " + equalityOrInequality + " formulas with clauses with two " +
+				clauseSize + " literals and up to " + maximumNumberOfFreeVariables + " free variables",
+				makeParametricCardinalityExpressionStrings(interClauseOperator, predicate, clauseOperator, initialNumberOfClauses, maximumNumberOfClauses, clauseSize, maximumNumberOfFreeVariables),
+				expectedExpressions);
+	}
+	
+	/**
+	 * Generates a list of cardinality expression strings according to the definition explained in the documentation of {@link ParametricStressTestData}.
+	 */
+	public static List<String> makeParametricCardinalityExpressionStrings(String interClauseOperator, String predicate, String clauseOperator, int initialNumberOfClauses, int maximumNumberOfClauses, int clauseSize, int maximumNumberOfFreeVariables) {
+		List<String> cardinalityExpressions = new LinkedList<String>();
 		for (int numberOfFreeVariables = 0; numberOfFreeVariables <= maximumNumberOfFreeVariables; numberOfFreeVariables++) {
 			for (int cardinalityIndex = initialNumberOfClauses; cardinalityIndex <= maximumNumberOfClauses; cardinalityIndex++) {
 				String cardinalityExpression =
@@ -69,32 +90,10 @@ public class ParametricStressTestData extends DefaultCardinalityStressTestData {
 				cardinalityExpressions.add(cardinalityExpression);
 			}
 		}
-		
-		this.expectedExpressions = new String[cardinalityExpressions.size()];
-		for (int i = 0; i < this.expectedExpressions.length; i++) {
-			this.expectedExpressions[i] = AbstractGrinderTest.IGNORE_EXPECTED;
-		}
-		
-		computeMaximumFormulaLength();
+		return cardinalityExpressions;
 	}
-	
-	public ParametricStressTestData(
-			String formulaType, String equalityOrInequality, String interClauseOperator, String predicate, String clauseOperator,
-			int initialNumberOfClauses, int maximumNumberOfClauses, int clauseSize, int maximumNumberOfFreeVariables, String[] expected) {
-		
-		this(formulaType, equalityOrInequality, interClauseOperator, predicate, clauseOperator,
-				initialNumberOfClauses, maximumNumberOfClauses, clauseSize, maximumNumberOfFreeVariables);
-		
-		if (expected.length != this.expectedExpressions.length) {
-			throw new IllegalArgumentException("'expected' is not the correct length; it should be " + this.expectedExpressions.length);
-		}
-		
-		for (int i = 0; i < this.expectedExpressions.length; i++) {
-			this.expectedExpressions[i] = expected[i];
-		}
-	}
-	
-	private String generateBasicCardinalityExpression(
+
+	private static String generateBasicCardinalityExpression(
 			int numberOfClauses, String interClauseOperator, int clauseSize, String predicate, String clauseOperator, int numberOfFreeVariables) {
 		
 		StringBuilder stringBuilder = new StringBuilder();
@@ -140,7 +139,7 @@ public class ParametricStressTestData extends DefaultCardinalityStressTestData {
 	//
 	// PRIVATE METHODS
 	//
-	private String generateBasicFormula(int numberOfClauses, String interClauseOperator, int clauseSize, String predicate, String clauseOperator) {
+	private static String generateBasicFormula(int numberOfClauses, String interClauseOperator, int clauseSize, String predicate, String clauseOperator) {
 		StringBuilder stringBuilder = new StringBuilder();
 		
 		for (int clauseIndex = 0; clauseIndex < numberOfClauses; clauseIndex++) {
