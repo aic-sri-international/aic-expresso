@@ -1,4 +1,4 @@
-package com.sri.ai.test.grinder.library.equality.cardinality;
+package com.sri.ai.test.grinder;
 
 import java.util.List;
 

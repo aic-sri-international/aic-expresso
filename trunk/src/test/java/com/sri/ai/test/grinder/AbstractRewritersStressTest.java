@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.library.equality.cardinality;
+package com.sri.ai.test.grinder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +54,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.test.grinder.AbstractGrinderTest;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.base.Triple;
 import com.sri.ai.util.concurrent.BranchAndMerge;
@@ -75,6 +74,12 @@ import com.sri.ai.util.concurrent.BranchAndMerge;
 public abstract class AbstractRewritersStressTest extends AbstractGrinderTest {
 
 	protected static int numberOfRewritesToAverage = 3;
+
+	public abstract RewritingProcess makeRewritingProcessFor(Rewriter rewriter, Expression problemExpression);
+
+	public abstract List<? extends Rewriter> makeRewriters();
+
+	public abstract List<StressTestData> makeStressTestDataObjects();
 
 	@Override
 	public RewritingProcess makeRewritingProcess(Expression topExpression) {
@@ -101,12 +106,6 @@ public abstract class AbstractRewritersStressTest extends AbstractGrinderTest {
 		
 		return average;
 	}
-
-	public abstract RewritingProcess makeRewritingProcessFor(Rewriter rewriter, Expression problemExpression);
-
-	public abstract List<? extends Rewriter> makeRewriters();
-
-	public abstract List<StressTestData> makeStressTestDataObjects();
 
 	@Before
 	public void ignoreTest() {
