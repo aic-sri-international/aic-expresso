@@ -40,40 +40,38 @@ package com.sri.ai.test.grinder.library.equality.cardinality;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.sri.ai.expresso.api.Expression;
+import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Cardinality;
+import com.sri.ai.util.Util;
 
-public class DefaultCardinalityStressTest extends AbstractCardinalityRewriterStressTest {
+/**
+ * A collection of cardinality stress tests.
+ * @author oreilly
+ *
+ */
+@Beta
+public class DefaultCardinalityStressTest extends AbstractCardinalityRewritersStressTest {
 
 	@Override
-	public RewritingProcess makeRewritingProcess(Expression topExpression) {
-		return DirectCardinalityComputationFactory.newCardinalityProcess(topExpression);
-	}
-
-	public List<Rewriter> makeCardinalityRewriters() {
-		List<Rewriter> result = new LinkedList<Rewriter>();
-
-		result.add(new Cardinality());
-
+	public List<? extends Rewriter> makeRewriters() {
+		List<? extends Rewriter> result = Util.list(new Cardinality());
 		return result;
 	}
 
 	@Override
-	public List<CardinalityStressTestData> makeCardinalityStressTests() {
-		List<CardinalityStressTestData> result = new LinkedList<CardinalityStressTestData>();
+	public List<StressTestData> makeStressTestDataObjects() {
+		List<StressTestData> result = new LinkedList<StressTestData>();
 
 		// Note: An example of using expected on a GivenFormulaStressTest
-		result.add(new GivenFormulaStressTestData("Expected", new String[][] {
+		result.add(new GivenCardinalityStressTestData("Expected", new String[][] {
 				// Cardinality Expression, Expected Result
 				{"|{{(on X, Y) tuple(X, Y) | not (X=Y=Z) }}|",            "99"},
 				{"|{{(on X) tuple(X) | Z = a or (Y != a and X != a) }}|", "if Z = a then 10 else (if Y != a then 9 else 0)"}
 		}));
 
 		// Note: An example of using expected on a Parametric Stress Test
-		result.add(new ParametricStressTestData(
+		result.add(new ParametricCardinalityStressTestData(
 				"DNF",
 				"Equality",
 				"or",
@@ -84,15 +82,15 @@ public class DefaultCardinalityStressTest extends AbstractCardinalityRewriterStr
 						"29701",
 				"3940399"}));
 
-		result.add(new ParametricStressTestData("DNF", "Equality",   "or",  "=",  "and", 2, 10, 2, 2));
+		result.add(new ParametricCardinalityStressTestData("DNF", "Equality",   "or",  "=",  "and", 2, 10, 2, 2));
 		// Note: Concurrent Cardinality appears to choke for values > 5, Direct Cardinality runs till 15+
-		result.add(new ParametricStressTestData("DNF", "Inequality", "or",  "!=", "and", 2, 10, 2, 0));
+		result.add(new ParametricCardinalityStressTestData("DNF", "Inequality", "or",  "!=", "and", 2, 10, 2, 0));
 		// Note: Concurrent Cardinality appears to choke for values > 9, Direct Cardinality runs till 15+
-		result.add(new ParametricStressTestData("CNF", "Equality",   "and", "=",  "or",  2, 10, 2, 0));
+		result.add(new ParametricCardinalityStressTestData("CNF", "Equality",   "and", "=",  "or",  2, 10, 2, 0));
 		// Note: Concurrent Cardinality appears to choke for values > 5, Direct Cardinality runs till 15+
-		result.add(new ParametricStressTestData("CNF", "Inequality", "and", "!=", "or",  2, 10, 2, 0));
+		result.add(new ParametricCardinalityStressTestData("CNF", "Inequality", "and", "!=", "or",  2, 10, 2, 0));
 		// Note: from Shahin's email 'Concurrent & Direct tested side by side
-		result.add(new GivenFormulaStressTestData("Side by Side", new String[] {
+		result.add(new GivenCardinalityStressTestData("Side by Side", new String[] {
 				"|{{(on X, Y) tuple(X, Y) | not (X=Y=Z) }}|",
 				"|{{(on X) tuple(X) | Z = a or (Y != a and X != a) }}|",
 				"|{{(on X) tuple(X) | for all Y : Y != a => X=a}}|",
@@ -120,7 +118,7 @@ public class DefaultCardinalityStressTest extends AbstractCardinalityRewriterStr
 				"|{{(on X, Y) 5 | not (X=Y=Z)}}|"
 		}));
 		// Note: from DirectCardinalityTest.testCardinality()
-		result.add(new GivenFormulaStressTestData("DirectCardinalityTest.testCardinality()", new String[] {
+		result.add(new GivenCardinalityStressTestData("DirectCardinalityTest.testCardinality()", new String[] {
 				"| {(on X) tuple(X) | X = a } |",
 				"| {(on X) tuple(X) | X != a } |",
 				"| {(on X, Y) tuple(X, Y) | X = a and Y = b } |",
@@ -185,7 +183,7 @@ public class DefaultCardinalityStressTest extends AbstractCardinalityRewriterStr
 				"| {(on X1, Y1, X2, Y2, Y3) tuple(X1, Y1, X2, Y2, Y3) | X1 != a1 or Y1 != b1 or X2 != a2 or Y2 != b2 or Y3 != b3} |"
 		}));
 		// Note: from LBPTest R_card calls.
-		result.add(new GivenFormulaStressTestData("LBPTest R_card calls", new String[] {
+		result.add(new GivenCardinalityStressTestData("LBPTest R_card calls", new String[] {
 				"| { ( on A ) tuple( A ) | A != B } |",
 				"| { ( on A ) tuple( A ) | A != X } |",
 				"| { ( on A ) tuple( A ) } |",

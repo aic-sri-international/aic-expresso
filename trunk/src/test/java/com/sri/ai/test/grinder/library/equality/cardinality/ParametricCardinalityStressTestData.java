@@ -54,9 +54,9 @@ import java.util.List;
  * @author oreilly
  * @author braz
  */
-public class ParametricStressTestData extends DefaultCardinalityStressTestData {
+public class ParametricCardinalityStressTestData extends DefaultStressTestData {
 	
-	public ParametricStressTestData(
+	public ParametricCardinalityStressTestData(
 			String formulaType, String equalityOrInequality, String interClauseOperator, String predicate, String clauseOperator,
 			int initialNumberOfClauses, int maximumNumberOfClauses, int clauseSize, int maximumNumberOfFreeVariables) {
 		
@@ -66,7 +66,7 @@ public class ParametricStressTestData extends DefaultCardinalityStressTestData {
 				);
 	}
 
-	public ParametricStressTestData(
+	public ParametricCardinalityStressTestData(
 			String formulaType, String equalityOrInequality, String interClauseOperator, String predicate, String clauseOperator,
 			int initialNumberOfClauses, int maximumNumberOfClauses, int clauseSize, int maximumNumberOfFreeVariables,
 			String[] expectedExpressions) {
@@ -78,7 +78,7 @@ public class ParametricStressTestData extends DefaultCardinalityStressTestData {
 	}
 	
 	/**
-	 * Generates a list of cardinality expression strings according to the definition explained in the documentation of {@link ParametricStressTestData}.
+	 * Generates a list of cardinality expression strings according to the definition explained in the documentation of {@link ParametricCardinalityStressTestData}.
 	 */
 	public static List<String> makeParametricCardinalityExpressionStrings(String interClauseOperator, String predicate, String clauseOperator, int initialNumberOfClauses, int maximumNumberOfClauses, int clauseSize, int maximumNumberOfFreeVariables) {
 		List<String> cardinalityExpressions = new LinkedList<String>();
