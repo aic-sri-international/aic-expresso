@@ -46,15 +46,15 @@ import com.sri.ai.util.Util;
  * @author saadati
  * @author braz
  */
-public class GivenFormulaStressTestData extends DefaultCardinalityStressTestData {
+public class GivenCardinalityStressTestData extends DefaultStressTestData {
 	
-	public GivenFormulaStressTestData(String titleAddition, String[] givenCardinalityExpressions) {
+	public GivenCardinalityStressTestData(String titleAddition, String[] givenCardinalityExpressions) {
 		super("Times Given Formula (" + titleAddition + ")",
 				Util.listFrom(givenCardinalityExpressions),
 				Util.makeArrayFilledOutWith(AbstractGrinderTest.IGNORE_EXPECTED, givenCardinalityExpressions.length));
 	}
 
-	public GivenFormulaStressTestData(String titleAddition, String[][] givenCardinalityExpressionsAndExpected) {
+	public GivenCardinalityStressTestData(String titleAddition, String[][] givenCardinalityExpressionsAndExpected) {
 		super("Times Given Formula (" + titleAddition + ")",
 				Util.getFirstColumnAsList(givenCardinalityExpressionsAndExpected),
 				Util.getSecondColumnAsArray(givenCardinalityExpressionsAndExpected));

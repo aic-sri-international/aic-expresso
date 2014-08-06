@@ -46,6 +46,7 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.annotations.Beta;
 import com.sri.ai.brewer.BrewerConfiguration;
 import com.sri.ai.brewer.api.Grammar;
 import com.sri.ai.brewer.core.CommonGrammar;
@@ -53,29 +54,65 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.base.Triple;
 import com.sri.ai.util.concurrent.BranchAndMerge;
 
-public abstract class AbstractCardinalityRewriterStressTest extends AbstractGrinderTest {
-	
-	//
-	protected static final int				 domainSize = 10;
-	protected static final CountsDeclaration countsDeclaration = new CountsDeclaration(domainSize);
-	protected static final int               numberRewritesToAverage = 3;
-	
-	public abstract List<Rewriter> makeCardinalityRewriters();
-	
-	public abstract List<CardinalityStressTestData> makeCardinalityStressTests();
-	
+/**
+ * A partial implementation of a type of test taking a list of rewriters and a list of expressions
+ * representing problems to be solved by those rewriters.
+ * <p>
+ * It runs all rewriters on all tests, measuring their time over {@link #numberOfRewritesToAverage},
+ * and outputs those times per problem to the standard output.
+ * <p>
+ * It leaves a few methods to be declared by extensions that implement the generation of
+ * the rewriters, the problems, and the rewriting process per rewriter and problem.
+ * 
+ * @author braz
+ */
+@Beta
+public abstract class AbstractRewritersStressTest extends AbstractGrinderTest {
+
+	protected static int numberOfRewritesToAverage = 3;
+
+	@Override
+	public RewritingProcess makeRewritingProcess(Expression topExpression) {
+		throw new Error("AbstractGrinderTest.makeRewritingProcess not used in AbstractStressTest because each rewriter may need a different type of rewriting process, so it uses Rewriter.makeRewritingProcess(Expression) instead");
+	}
+
+	public long call(Rewriter rewriter, Expression problemExpression, String expected, int numberRewritesToAverage) {
+		
+		RewritingProcess process = makeRewritingProcessFor(rewriter, problemExpression);
+		
+		Expression actual = null;
+		long average = 0L; 
+		for (int i = 0; i < numberRewritesToAverage; i++) {
+			long start = System.currentTimeMillis();
+			actual = rewriter.rewrite(problemExpression, process);
+			long time = System.currentTimeMillis() - start;
+			average += time;
+		}
+		average = average / numberRewritesToAverage;			
+		
+		if (expected != IGNORE_EXPECTED) {
+			Assert.assertEquals(expected, actual.toString());
+		}
+		
+		return average;
+	}
+
+	public abstract RewritingProcess makeRewritingProcessFor(Rewriter rewriter, Expression problemExpression);
+
+	public abstract List<? extends Rewriter> makeRewriters();
+
+	public abstract List<StressTestData> makeStressTestDataObjects();
+
 	@Before
 	public void ignoreTest() {
 		Assume.assumeFalse("Stress Tests Ignored.", Boolean.getBoolean("ignore.stress.tests"));
 	}
-	
+
 	@Before
 	public void setup() {
 		// NOTE: All Times should be taken with all trace turned off
@@ -95,97 +132,71 @@ public abstract class AbstractCardinalityRewriterStressTest extends AbstractGrin
 		// For convenience
 		BrewerConfiguration.setProperty(BrewerConfiguration.KEY_OUTPUT_PARSING_TIME_INFO, "false");
 	}
-	
+
 	@Override
 	public Grammar makeGrammar() {
 		return new CommonGrammar();
 	}
-	
+
 	@Test
-	public void stressTestCardinalityRewriters() {
-		List<Rewriter> cardinalityRewriters = makeCardinalityRewriters();
-		List<CardinalityStressTestData> cardinalityStressTests = makeCardinalityStressTests();
+	public void stressTestAllRewriters() {
+		List<? extends Rewriter> rewriters = makeRewriters();
+		List<StressTestData> stressTestDataObjects = makeStressTestDataObjects();
 		
 		// Run all the cardinality stress tests and collect their results
-		List<List<Triple<String, String, List<Long>>>> cardinalityStressTestResults = new ArrayList<List<Triple<String, String, List<Long>>>>();
-		for (CardinalityStressTestData cardinalityStressTest : cardinalityStressTests) {
-			System.out.println("--- Running " + cardinalityStressTest.getTitle());
-			List<Triple<String, String, List<Long>>> results = stressTest(cardinalityRewriters, cardinalityStressTest);
-			cardinalityStressTestResults.add(results);
+		List<List<Triple<String, String, List<Long>>>> stressTestResults = new ArrayList<List<Triple<String, String, List<Long>>>>();
+		for (StressTestData stressTestData : stressTestDataObjects) {
+			System.out.println("--- Running " + stressTestData.getTitle());
+			List<Triple<String, String, List<Long>>> results = runAllRewritersOnStressTestDataObject(rewriters, stressTestData);
+			stressTestResults.add(results);
 			System.out.println("---");
 		}
 		
-		outputResults(cardinalityRewriters, cardinalityStressTests, cardinalityStressTestResults);
+		outputResults(rewriters, stressTestDataObjects, stressTestResults);
 	}
-	
-	//
-	// PROTECTED METHODS
-	//
-	
-	protected List<Triple<String, String, List<Long>>> stressTest(List<Rewriter> cardinalityRewriters, CardinalityStressTestData test) {
-		List<Triple<String, String, List<Long>>> results = new ArrayList<Triple<String, String, List<Long>>>();
-		for (int i = 0; i < test.getCardinalityExpressions().size(); i++) {
-			String cardinalityExpressionString = test.getCardinalityExpressions().get(i);
-			String expected       = test.getExpectedExpressions()[i];
 
-			String resultTitle = String.format("Times for '%s' %" + test.getMaximumFormulaLength() + "s = ", test.getTitle(), cardinalityExpressionString);
+	protected List<Triple<String, String, List<Long>>> runAllRewritersOnStressTestDataObject(List<? extends Rewriter> rewriters, StressTestData testData) {
+		List<Triple<String, String, List<Long>>> results = new ArrayList<Triple<String, String, List<Long>>>();
+		for (int i = 0; i < testData.getProblemExpressions().size(); i++) {
+			String problemExpressionString = testData.getProblemExpressions().get(i);
+			String expected          = testData.getExpectedExpressions()[i];
+	
+			String resultTitle = String.format("Times for '%s' %s: ", testData.getTitle(), problemExpressionString);
 			List<Long> times = new ArrayList<Long>();
-			for (Rewriter cardinalityRewriter : cardinalityRewriters) {
-				System.out.println("Calling " + cardinalityRewriter.getName() + " on " + cardinalityExpressionString);
-				Expression cardinalityExpression = parse(cardinalityExpressionString);
-				times.add(call(cardinalityRewriter, cardinalityExpression, expected, countsDeclaration, numberRewritesToAverage));
+			for (Rewriter rewriter : rewriters) {
+				System.out.println("Calling " + rewriter.getName() + " on " + problemExpressionString);
+				Expression problemExpression = parse(problemExpressionString);
+				times.add(call(rewriter, problemExpression, expected, numberOfRewritesToAverage));
 			}
-			results.add(new Triple<String, String, List<Long>>(resultTitle, cardinalityExpressionString, times));
+			results.add(new Triple<String, String, List<Long>>(resultTitle, problemExpressionString, times));
 		}
 		
 		return results;
 	}
 
-	public static long call(Rewriter cardinalityRewriter, Expression cardinalityExpression, String expected, CountsDeclaration countsDeclaration, int numberRewritesToAverage) {
-		
-		RewritingProcess process = DirectCardinalityComputationFactory.newCardinalityProcess(
-				cardinalityExpression);
-		countsDeclaration.setup(process);
-		process = GrinderUtil
-				.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(
-						cardinalityExpression, process);
-		
-		Expression actual = null;
-		long average = 0L; 
-		for (int i = 0; i < numberRewritesToAverage; i++) {
-			long start = System.currentTimeMillis();
-			actual = cardinalityRewriter.rewrite(cardinalityExpression, process);
-			long time = System.currentTimeMillis() - start;
-			average += time;
-		}
-		average = average / numberRewritesToAverage;			
-		
-		if (expected != IGNORE_EXPECTED) {
-			Assert.assertEquals(expected, actual.toString());
-		}
-		
-		return average;
+	public AbstractRewritersStressTest() {
+		super();
 	}
 
-	protected void outputResults(List<Rewriter> cardinalityRewriters, List<CardinalityStressTestData> cardinalityStressTests, List<List<Triple<String, String, List<Long>>>> cardinalityStressTestResults) {
+	protected void outputResults(List<? extends Rewriter> rewriters, List<StressTestData> stressTestDataObjects, List<List<Triple<String, String, List<Long>>>> stressTestResults) {
 		List<AtomicLong> grandTotalTimes = new ArrayList<AtomicLong>();
-		for (int i = 0; i < cardinalityRewriters.size(); i++) {
+		for (int i = 0; i < rewriters.size(); i++) {
 			grandTotalTimes.add(new AtomicLong(0L));
 		}
 		// Now output their results.
-		for (int testIndex = 0; testIndex < cardinalityStressTestResults.size(); testIndex++) {
-			CardinalityStressTestData cardinalityStressTest = cardinalityStressTests.get(testIndex);
-			List<Triple<String, String, List<Long>>> results = cardinalityStressTestResults.get(testIndex);
+		for (int testIndex = 0; testIndex < stressTestResults.size(); testIndex++) {
+			StressTestData stressTestData = stressTestDataObjects.get(testIndex);
+			List<Triple<String, String, List<Long>>> results = stressTestResults.get(testIndex);
 			
 			System.out.println("===");
-			System.out.println(cardinalityStressTest.getTitle());
+			System.out.println(stressTestData.getTitle());
 			System.out.println("---");
 			List<AtomicLong> totalTimes = new ArrayList<AtomicLong>();
-			for (int i = 0; i < cardinalityRewriters.size(); i++) {
+			for (int i = 0; i < rewriters.size(); i++) {
 				if (i > 0) {
 					System.out.print(", ");
 				}
-				System.out.print(cardinalityRewriters.get(i).getName());
+				System.out.print(rewriters.get(i).getName());
 				totalTimes.add(new AtomicLong(0L));
 			}
 			System.out.println("");
@@ -204,9 +215,9 @@ public abstract class AbstractCardinalityRewriterStressTest extends AbstractGrin
 				}
 				System.out.println("");
 			}
-			outputTotals(cardinalityRewriters, "Stress Test Suite", totalTimes);
+			outputTotals(rewriters, "Stress Test Suite", totalTimes);
 		}
-		outputTotals(cardinalityRewriters, "Grand", grandTotalTimes);
+		outputTotals(rewriters, "Grand", grandTotalTimes);
 		
 		//
 		// Now output the Excel Spreadsheet output
@@ -214,13 +225,13 @@ public abstract class AbstractCardinalityRewriterStressTest extends AbstractGrin
 		System.out.println("EXCEL SPREADSHEET OUTPUT");
 		System.out.println("========================");
 		System.out.print("\n\nExpression");
-		for (int i = 0; i < cardinalityRewriters.size(); i++) {
+		for (int i = 0; i < rewriters.size(); i++) {
 			System.out.print(", ");
-			System.out.print("\"" + cardinalityRewriters.get(i).getName() + "\"");
+			System.out.print("\"" + rewriters.get(i).getName() + "\"");
 		}
 		System.out.println("");
-		for (int c = 0; c < cardinalityStressTestResults.size(); c++) {
-			List<Triple<String, String, List<Long>>> results = cardinalityStressTestResults.get(c);
+		for (int c = 0; c < stressTestResults.size(); c++) {
+			List<Triple<String, String, List<Long>>> results = stressTestResults.get(c);
 			for (Triple<String, String, List<Long>> testResult : results) {
 				System.out.print("\"" + testResult.second + "\"");
 				for (int i = 0; i < testResult.third.size(); i++) {
@@ -232,13 +243,13 @@ public abstract class AbstractCardinalityRewriterStressTest extends AbstractGrin
 		}
 	}
 
-	protected void outputTotals(List<Rewriter> cardinalityRewriters, String title, List<AtomicLong> totalTimes) {
+	protected void outputTotals(List<? extends Rewriter> rewriters, String title, List<AtomicLong> totalTimes) {
 		System.out.print("--- " + title + " Totals: ");
-		for (int i = 0; i < cardinalityRewriters.size(); i++) {
+		for (int i = 0; i < rewriters.size(); i++) {
 			if (i > 0) {
 				System.out.print(", ");
 			}
-			System.out.print(cardinalityRewriters.get(i).getName());
+			System.out.print(rewriters.get(i).getName());
 		}
 		System.out.println(" ---");
 		for (int i = 0; i < totalTimes.size(); i++) {
@@ -250,4 +261,3 @@ public abstract class AbstractCardinalityRewriterStressTest extends AbstractGrin
 		System.out.println("\n===\n");
 	}
 }
-
