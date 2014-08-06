@@ -38,6 +38,7 @@
 package com.sri.ai.test.grinder.library.equality.cardinality;
 
 import com.sri.ai.test.grinder.AbstractGrinderTest;
+import com.sri.ai.test.grinder.DefaultStressTestData;
 import com.sri.ai.util.Util;
 
 /**

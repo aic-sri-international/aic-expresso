@@ -43,6 +43,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Cardinality;
+import com.sri.ai.test.grinder.StressTestData;
 import com.sri.ai.util.Util;
 
 /**

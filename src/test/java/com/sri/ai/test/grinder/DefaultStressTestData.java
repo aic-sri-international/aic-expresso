@@ -1,9 +1,8 @@
-package com.sri.ai.test.grinder.library.equality.cardinality;
+package com.sri.ai.test.grinder;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sri.ai.test.grinder.AbstractGrinderTest;
 import com.sri.ai.util.Util;
 
 public class DefaultStressTestData implements StressTestData {

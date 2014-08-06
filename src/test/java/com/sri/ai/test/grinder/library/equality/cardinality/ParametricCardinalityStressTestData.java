@@ -40,6 +40,8 @@ package com.sri.ai.test.grinder.library.equality.cardinality;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.sri.ai.test.grinder.DefaultStressTestData;
+
 /**
  * A stress test formed of formulas generated according to a parametric scheme.
  * <p>
