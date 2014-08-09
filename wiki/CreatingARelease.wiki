@@ -1,7 +1,7 @@
 #summary Check List for Creating an AIC-Expresso Release
 
 = Setup Required for doing a Release =
-  # Ensure you can deploy to the Maven Central repository from your workspace, see: [https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide Deploying via Nexus Guide] for details.
+  # Ensure you can deploy to the Maven Central repository from your workspace, see: [http://central.sonatype.org/pages/ossrh-guide.html Deploying via Nexus Guide] for details.
 
 = Preparing the Release =
   # Checkout the latest version of aic-expresso into a clean workspace.
