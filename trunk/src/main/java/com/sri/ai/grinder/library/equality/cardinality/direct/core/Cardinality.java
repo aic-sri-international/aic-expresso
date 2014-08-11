@@ -58,6 +58,7 @@ import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
+import com.sri.ai.test.grinder.library.equality.cardinality.CountsDeclaration;
 
 
 /**
@@ -70,6 +71,10 @@ import com.sri.ai.grinder.library.set.tuple.Tuple;
 public class Cardinality extends AbstractCardinalityRewriter {
 	
 	public Cardinality() {
+	}
+	
+	public Cardinality(CountsDeclaration countsDeclaration) {
+		super(countsDeclaration);
 	}
 	
 	@Override
