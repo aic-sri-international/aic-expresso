@@ -48,6 +48,7 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Throwables;
+import com.sri.ai.brewer.BrewerConfiguration;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.helper.Expressions;
@@ -70,6 +71,7 @@ import com.sri.ai.grinder.library.function.InjectiveModule;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.ui.TreeUtil;
+import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.NotContainedBy;
 import com.sri.ai.util.base.Pair;
@@ -915,5 +917,24 @@ public class GrinderUtil {
 			result = Pair.make(list1, list2);
 		}
 		return result;
+	}
+
+	public static void setMinimumOutputForProfiling() {
+		// NOTE: All Times should be taken with all trace turned off
+		// as this has a huge impact on these tests (due to the amount generated).
+		// In addition, turn concurrency off in order to test the algorithms run synchronously be default.
+		// i.e.:
+		// -Dgrinder.display.tree.util.ui=false
+		// -Dtrace.level=off
+		// -Djustification.level=off
+		// -Dsriutil.branch.and.merge.threading.enabled=false
+		// Setting here explicitly so its not forgotten.
+		GrinderConfiguration.setProperty(GrinderConfiguration.KEY_DISPLAY_TREE_UTIL_UI, "false");
+		GrinderConfiguration.disableTrace();
+		GrinderConfiguration.disableJustification();
+		AICUtilConfiguration.setProperty(AICUtilConfiguration.KEY_BRANCH_AND_MERGE_THREADING_ENABLED, "false");
+		BranchAndMerge.reset();
+		// For convenience
+		BrewerConfiguration.setProperty(BrewerConfiguration.KEY_OUTPUT_PARSING_TIME_INFO, "false");
 	}
 }

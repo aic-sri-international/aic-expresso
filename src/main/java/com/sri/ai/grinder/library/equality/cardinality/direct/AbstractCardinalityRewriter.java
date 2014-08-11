@@ -42,18 +42,33 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
+import com.sri.ai.test.grinder.library.equality.cardinality.CountsDeclaration;
 
 /**
  * Implements common functionality of all {@link CardinalityRewriter}s,
- * namely that of creating a default {@link RewritingProcess}
+ * namely that of taking a {@link CountsDeclaration} at construction and
+ * creating a default {@link RewritingProcess}
  * with {@link DirectCardinalityComputationFactory}.
  */
 @Beta
 public abstract class AbstractCardinalityRewriter extends AbstractHierarchicalRewriter implements CardinalityRewriter {
 	
+	protected CountsDeclaration countsDeclaration;
+	
+	public AbstractCardinalityRewriter() {
+		this.countsDeclaration = null;
+	}
+
+	public AbstractCardinalityRewriter(CountsDeclaration countsDeclaration) {
+		this.countsDeclaration = countsDeclaration;
+	}
+
 	@Override
 	public RewritingProcess makeRewritingProcess(Expression expression) {
 		RewritingProcess result = DirectCardinalityComputationFactory.newCardinalityProcess(expression);
+		if (countsDeclaration != null) {
+			countsDeclaration.setup(result);
+		}
 		return result;
 	}
 }

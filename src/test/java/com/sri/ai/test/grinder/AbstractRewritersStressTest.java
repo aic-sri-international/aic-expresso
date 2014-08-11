@@ -47,16 +47,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.brewer.BrewerConfiguration;
 import com.sri.ai.brewer.api.Grammar;
 import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.util.AICUtilConfiguration;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.util.base.Triple;
-import com.sri.ai.util.concurrent.BranchAndMerge;
 
 /**
  * A partial implementation of a type of test taking a list of rewriters and a list of expressions
@@ -114,22 +111,7 @@ public abstract class AbstractRewritersStressTest extends AbstractGrinderTest {
 
 	@Before
 	public void setup() {
-		// NOTE: All Times should be taken with all trace turned off
-		// as this has a huge impact on these tests (due to the amount generated).
-		// In addition, turn concurrency off in order to test the algorithms run synchronously be default.
-		// i.e.:
-		// -Dgrinder.display.tree.util.ui=false
-		// -Dtrace.level=off
-		// -Djustification.level=off
-		// -Dsriutil.branch.and.merge.threading.enabled=false
-		// Setting here explicitly so its not forgotten.
-		GrinderConfiguration.setProperty(GrinderConfiguration.KEY_DISPLAY_TREE_UTIL_UI, "false");
-		GrinderConfiguration.disableTrace();
-		GrinderConfiguration.disableJustification();
-		AICUtilConfiguration.setProperty(AICUtilConfiguration.KEY_BRANCH_AND_MERGE_THREADING_ENABLED, "false");
-		BranchAndMerge.reset();
-		// For convenience
-		BrewerConfiguration.setProperty(BrewerConfiguration.KEY_OUTPUT_PARSING_TIME_INFO, "false");
+		GrinderUtil.setMinimumOutputForProfiling();
 	}
 
 	@Override
