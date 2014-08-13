@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.library.boole;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -135,5 +136,14 @@ public class And extends BooleanCommutativeAssociative {
 			return condition.getArguments();
 		}
 		return Util.list(condition);
+	}
+
+	public static Expression addConjunct(Expression conjunction, Expression newConjunct) {
+		List<Expression> conjuncts = getConjuncts(conjunction);
+		List<Expression> newConjuncts = new ArrayList<Expression>(conjuncts.size() + 1);
+		newConjuncts.addAll(conjuncts);
+		newConjuncts.add(newConjunct);
+		Expression result = And.make(newConjuncts);
+		return result;
 	}
 }

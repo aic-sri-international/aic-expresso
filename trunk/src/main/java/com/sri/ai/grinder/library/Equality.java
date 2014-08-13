@@ -355,4 +355,18 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 		}
 		return result;
 	}
+
+	/**
+	 * Returns an expression equivalent to equality (and perhaps simpler) given a disequality.
+	 */
+	public static Expression simplifyGivenDisequality(Expression equality, Expression variable, Expression otherTerm) {
+		Expression result;
+		if (equality.getArguments().contains(variable) && equality.getArguments().contains(otherTerm)) {
+			result = Expressions.FALSE;
+		}
+		else {
+			result = equality;
+		}
+		return result;
+	}
 }

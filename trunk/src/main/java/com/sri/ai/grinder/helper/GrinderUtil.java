@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -52,9 +53,11 @@ import com.sri.ai.brewer.BrewerConfiguration;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.concurrent.BranchRewriteTask;
 import com.sri.ai.grinder.helper.concurrent.CallableRewriteOnBranch;
 import com.sri.ai.grinder.helper.concurrent.CallableRewriteOnConditionedBranch;
@@ -936,5 +939,14 @@ public class GrinderUtil {
 		BranchAndMerge.reset();
 		// For convenience
 		BrewerConfiguration.setProperty(BrewerConfiguration.KEY_OUTPUT_PARSING_TIME_INFO, "false");
+	}
+
+	/**
+	 * Returns all sub-expressions that are a logical variable.
+	 */
+	public static Collection<Expression> getAllVariables(Expression expression, DefaultRewritingProcess process) {
+		Collection<Expression> result = new LinkedHashSet<Expression>();
+		Util.collect(new SubExpressionsDepthFirstIterator(expression), result, new IsVariable(process));
+		return result;
 	}
 }
