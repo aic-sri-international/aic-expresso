@@ -48,7 +48,7 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTy
 public class CountsDeclaration implements CardinalityTypeOfLogicalVariable.DomainSizeOfLogicalVariable {
 	private Integer  allCounts          = null;
 	private String[] variableCountPairs = null;
-	private Map<Expression, Integer> varibleDomainSizes = new LinkedHashMap<Expression, Integer>();
+	private Map<Expression, Integer> variableDomainSizes = new LinkedHashMap<Expression, Integer>();
 	private Parser parser;
 	
 	public CountsDeclaration(int allCounts) {
@@ -75,7 +75,7 @@ public class CountsDeclaration implements CardinalityTypeOfLogicalVariable.Domai
 			result = allCounts;
 		} 
 		else {
-			result = varibleDomainSizes.get(logicalVariable);
+			result = variableDomainSizes.get(logicalVariable);
 		}
 		return result;
 	}
@@ -87,7 +87,7 @@ public class CountsDeclaration implements CardinalityTypeOfLogicalVariable.Domai
 			for (int i = 0; i < variableCountPairs.length; i += 2) {
 				Expression var  = parser.parse(variableCountPairs[i]);
 				Integer    size = new Integer(variableCountPairs[i+1]);
-				varibleDomainSizes.put(var, size);
+				variableDomainSizes.put(var, size);
 			}
 		}
 		CardinalityTypeOfLogicalVariable.registerDomainSizeOfLogicalVariableWithProcess(this, process);
