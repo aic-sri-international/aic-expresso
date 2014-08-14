@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.library.equality.cardinality;
+package com.sri.ai.grinder.library.equality.cardinality.core;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

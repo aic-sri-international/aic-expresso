@@ -42,7 +42,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
-import com.sri.ai.test.grinder.library.equality.cardinality.CountsDeclaration;
+import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 
 /**
  * Implements common functionality of all {@link CardinalityRewriter}s,

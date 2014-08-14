@@ -94,6 +94,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElseConditionIsTrueInThenBra
 import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
 import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
+import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CompleteNormalize;
 import com.sri.ai.grinder.library.equality.injective.DisequalityOnInjectiveSubExpressions;
 import com.sri.ai.grinder.library.equality.injective.DisequalityOnMutuallyExclusiveCoDomainExpressions;
@@ -123,7 +124,6 @@ import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAn
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithBoundIndex;
 import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNotUsedInHead;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
-import com.sri.ai.test.grinder.library.equality.cardinality.CountsDeclaration;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;

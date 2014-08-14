@@ -37,6 +37,7 @@
  */
 package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.junit.Assert;
@@ -46,10 +47,13 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainCardinalityDPLL;
-import com.sri.ai.test.grinder.library.equality.cardinality.CountsDeclaration;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.util.Util;
 
 @Beta
@@ -61,8 +65,17 @@ public class PlainCardinalityDPLLTest {
 		Expression expected;
 		Collection<String> indices;
 		
+		GrinderUtil.setMinimumOutputForProfiling();
 		
+		expression = Expressions.parse("X1 != X2 and (X2 = X3 or X2 = X4) and X3 = X1 and X4 = X1");
+		indices    = null; // means all variables
+		expected   = Expressions.parse("0");
+		runTest(expression, indices, expected);
 		
+		expression = Expressions.parse("X1 != X2 and X2 != X0 and X1 != X0");
+		indices    = null; // means all variables
+		expected   = Expressions.parse("720");
+		runTest(expression, indices, expected);
 		
 		expression = Expressions.parse("true");
 		indices    = null; // means all variables
@@ -141,7 +154,10 @@ public class PlainCardinalityDPLLTest {
 			indices = GrinderUtil.getAllVariables(expression, process);
 		}
 		
-		Expression actual = PlainCardinalityDPLL.count(expression, Expressions.TRUE, indices, process);
+		Rewriter cardinalityRewriter = new PlainCardinalityDPLL(countsDeclaration);
+		Expression set = IntensionalSet.makeMultiSetFromIndexExpressionsList(new ArrayList<Expression>(indices), Expressions.ONE, expression);
+		Expression cardinalityProblem = Expressions.apply(FunctorConstants.CARDINALITY, set);
+		Expression actual = cardinalityRewriter.rewrite(cardinalityProblem, process);
 		Assert.assertEquals(expected, actual);
 	}
 	
