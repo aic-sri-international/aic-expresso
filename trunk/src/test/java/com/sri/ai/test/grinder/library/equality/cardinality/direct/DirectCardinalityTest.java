@@ -58,6 +58,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
+import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter.Quantification;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.AddConjunctAndTopSimplify;
@@ -75,7 +76,6 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.WorstCaseNumb
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 import com.sri.ai.test.grinder.TestData;
-import com.sri.ai.test.grinder.library.equality.cardinality.CountsDeclaration;
 import com.sri.ai.util.base.Pair;
 
 public class DirectCardinalityTest extends AbstractGrinderTest {

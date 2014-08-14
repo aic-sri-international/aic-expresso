@@ -45,8 +45,8 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.equality.RandomCardinalityProblemGenerator;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.Cardinality;
-import com.sri.ai.test.grinder.library.equality.cardinality.CountsDeclaration;
+import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainCardinalityDPLL;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.FirstNIterator;
 import com.sri.ai.util.experiment.Experiment;
@@ -61,24 +61,42 @@ import com.sri.ai.util.rangeoperation.library.rangeoperations.Dimension;
  */
 public class RandomCardinalityExpressionsExperiment {
 	
-	public static int numberOfRunsForAveraging = 2;
+
+	private static final String X_VARIABLE_NAME = "depth = number of variables = number of constants";
+
+	public static int SEED = 1;
+	public static int sizeOfDataset = 50;
+	public static int minimumSize = 2;
+	public static int maximumSize = 7;
+	public static int numberOfRunsForAveraging = 10;
 	
 	@SuppressWarnings("unchecked")
 	public static void performanceByNumberOfVariables() {
 		
 		GrinderUtil.setMinimumOutputForProfiling();
 		
+		long start = System.currentTimeMillis();
+		
 		Experiment.experiment(
-				new Dimension("algorithm", Util.list(new Cardinality(new CountsDeclaration(10)), new Cardinality(new CountsDeclaration(20)))),
+				new Dimension("algorithm",
+						Util.list(
+								new PlainCardinalityDPLL(new CountsDeclaration(10))
+								//new Cardinality(new CountsDeclaration(10))
+								)),
 				
-				"ylabel", "Time (ms)",
-				new Dimension("depth, number of variables, number of constants", 1, 4, 1),
+				"ylabel", "Average time per problem (ms)",
+				new Dimension(X_VARIABLE_NAME, minimumSize, maximumSize, 1),
 
 				computeTimeForSolvingCardinalityExpressionsBatch,
 				
 				new DataSeriesSpec("algorithm", Util.list(
-						Util.list("title 'Direct 1'", "w linespoints"),
-						Util.list("title 'Direct 2'", "w linespoints"))));
+						Util.list("title 'Plain no   caching'", "w linespoints")
+						//Util.list("title 'Direct'", "w linespoints")
+						)));
+		
+		long total = System.currentTimeMillis() - start;
+		
+		System.out.println("Total time: " + total + " ms");
 	}
 	
 	private static DAEFunction computeTimeForSolvingCardinalityExpressionsBatch = new DAEFunction() {
@@ -86,20 +104,24 @@ public class RandomCardinalityExpressionsExperiment {
 		@SuppressWarnings("unchecked")
 		@Override
 		public Object apply(DependencyAwareEnvironment environment) {
+			int size = environment.getInt(X_VARIABLE_NAME);
 			Rewriter rewriter = (Rewriter) environment.get("algorithm");
 			final List<Expression> cardinalityExpressions = (List<Expression>) environment.getResultOrRecompute(sampleCardinalityExpressions);
-			Iterator<Expression> cardinalityExpressionsIterator = cardinalityExpressions.iterator();
 			long totalTime = 0;
-			for (int i = 0; i != numberOfRunsForAveraging; i++) {
-				Expression cardinalityExpression = cardinalityExpressionsIterator.next();
+			int problemIndex = 1;
+			for (Expression cardinalityExpression : cardinalityExpressions) {
 				System.out.println(cardinalityExpression);
+				Expression cardinality = null;
 				long start = System.currentTimeMillis();
-				Expression cardinality = rewriter.rewrite(cardinalityExpression);
+				for (int i = 0; i != numberOfRunsForAveraging; i++) {
+					cardinality = rewriter.rewrite(cardinalityExpression);
+				}
 				final long time = System.currentTimeMillis() - start;
 				totalTime += time;
-				System.out.println("->\n" + cardinality + "\n(" + time + " ms)\n");
+				System.out.println("->\n" + cardinality + "\n(Size " + size + ", " + problemIndex + "-th problem, " + ((double)time)/numberOfRunsForAveraging + " ms, " + rewriter.getName() + ")\n");
+				problemIndex++;
 			}
-			long average = totalTime / numberOfRunsForAveraging;	
+			double average = ((double) totalTime) / numberOfRunsForAveraging / cardinalityExpressions.size();	
 			return average;
 		}
 
@@ -114,10 +136,10 @@ public class RandomCardinalityExpressionsExperiment {
 
 		@Override
 		public Object apply(DependencyAwareEnvironment environment) {
-			int size = environment.getInt("depth, number of variables, number of constants");
+			int size = environment.getInt(X_VARIABLE_NAME);
 			System.out.println("Size: " + size);	
-			Iterator<Expression> cardinalityExpressionsIterator = new RandomCardinalityProblemGenerator(new Random(), size, size, size, 3);
-			List<Expression> cardinalityExpressions = Util.listFrom(new FirstNIterator<Expression>(numberOfRunsForAveraging, cardinalityExpressionsIterator));
+			Iterator<Expression> cardinalityExpressionsIterator = new RandomCardinalityProblemGenerator(new Random(SEED), size, size, size, size, 3);
+			List<Expression> cardinalityExpressions = Util.listFrom(new FirstNIterator<Expression>(sizeOfDataset, cardinalityExpressionsIterator));
 			return cardinalityExpressions;
 		}
 

@@ -58,6 +58,7 @@ public class RandomCardinalityProblemGenerator extends EZIterator<Expression> {
 	
 	private Random random;
 	private int numberOfVariables;
+	private int minimumNumberOfIndices;
 	private RandomEqualityFormulaGenerator randomFormulaGenerator;
 
 	/**
@@ -71,17 +72,18 @@ public class RandomCardinalityProblemGenerator extends EZIterator<Expression> {
 	 * @param depth the depth of the formula (all its sub-expressions with have depth equal to <code>depth - 1</code>).
 	 * @param breadth the number of sub-expressions of conjunctions and disjunctions.
 	 */
-	public RandomCardinalityProblemGenerator(Random random, int numberOfVariables, int numberOfConstants, int depth, int breadth) {
+	public RandomCardinalityProblemGenerator(Random random, int numberOfVariables, int numberOfConstants, int minimumNumberOfIndices, int depth, int breadth) {
 		super();
 		this.random = random;
 		this.numberOfVariables = numberOfVariables;
+		this.minimumNumberOfIndices = minimumNumberOfIndices;
 		this.randomFormulaGenerator = new RandomEqualityFormulaGenerator(random, numberOfVariables, numberOfConstants, depth, breadth);
 	}
 
 	@Override
 	protected Expression calculateNext() {
 		Expression formula       = randomFormulaGenerator.next();
-		int numberOfIndices      = random.nextInt(numberOfVariables);
+		int numberOfIndices      = random.nextInt(numberOfVariables - minimumNumberOfIndices + 1) + minimumNumberOfIndices;
 		List<Expression> indices = randomFormulaGenerator.getVariables().subList(0, numberOfIndices);
 		Expression tuple         = Tuple.make(indices);
 		Expression set           = IntensionalSet.makeMultiSetFromIndexExpressionsList(indices, tuple, formula);
@@ -91,7 +93,7 @@ public class RandomCardinalityProblemGenerator extends EZIterator<Expression> {
 
 	/** A simple test sampling 10 random cardinality expressions and printing them to the standard output. */
 	public static void main(String[] args) {
-		RandomCardinalityProblemGenerator iterator = new RandomCardinalityProblemGenerator(new Random(), 10, 5, 2, 2);
+		RandomCardinalityProblemGenerator iterator = new RandomCardinalityProblemGenerator(new Random(), 10, 5, 0, 2, 2);
 		for (int i = 0; i != 10; i++) {
 			System.out.println(iterator.next());	
 		}
