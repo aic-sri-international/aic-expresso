@@ -50,6 +50,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
+import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
@@ -61,6 +62,7 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable.DomainSizeOfLogicalVariable;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
@@ -122,7 +124,9 @@ public class PlainCardinalityDPLL extends AbstractHierarchicalRewriter {
 
 	@Override
 	public RewritingProcess makeRewritingProcess(Expression expression) {
-		RewritingProcess result = new DefaultRewritingProcess(expression, this);
+		Rewriter rewriterWithModules = new Simplify();
+		RewritingProcess result = new DefaultRewritingProcess(expression, rewriterWithModules);
+		result.notifyReadinessOfRewritingProcess();
 		if (countsDeclaration != null) {
 			countsDeclaration.setup(result);
 		}
