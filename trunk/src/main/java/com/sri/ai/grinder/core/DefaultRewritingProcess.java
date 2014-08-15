@@ -541,8 +541,9 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	public Rewriter findModule(Predicate<Rewriter> predicate) {
 		Iterator<Rewriter> rewriterIterator = new RewriterDepthFirstIterator(
 				rootRewriter);
-		return Util.getFirstSatisfyingPredicateOrNull(
+		Rewriter result = Util.getFirstSatisfyingPredicateOrNull(
 				rewriterIterator, predicate);
+		return result;
 	}
 
 	@Override

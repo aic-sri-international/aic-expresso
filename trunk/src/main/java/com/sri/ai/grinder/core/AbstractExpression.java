@@ -312,7 +312,7 @@ public abstract class AbstractExpression implements Expression {
 					expressionAndContexts =
 							Util.replaceElementsNonDestructively(
 									expressionAndContexts,
-									new ReplaceExpressionByOriginalOneIndexedByPathInGivenMap());
+									new ReplaceExpressionByOriginalOneIndexedByPath());
 					// the above is a bit of a hack to ensure Expressions provided at construction are re-used as sub-expressions.
 					
 					// Ensure they cannot be mutated by accident.
@@ -326,7 +326,7 @@ public abstract class AbstractExpression implements Expression {
 	}
 
 	
-	private class ReplaceExpressionByOriginalOneIndexedByPathInGivenMap implements Function<ExpressionAndContext, ExpressionAndContext> {
+	private class ReplaceExpressionByOriginalOneIndexedByPath implements Function<ExpressionAndContext, ExpressionAndContext> {
 		@Override
 		public ExpressionAndContext apply(ExpressionAndContext input) {
 			ExpressionAndContext result = input;
