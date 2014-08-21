@@ -72,14 +72,15 @@ import com.sri.ai.util.base.Not;
 @Beta
 /** 
  * A class for plain, 
- * non-rewriter computation of cardinality of intensional sets with equality boolean formula conditions.
+ * non-rewriter computation of cardinality of intensional sets with equality boolean formula conditions
+ * with free variables.
  */
 public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalRewriter {
 	
 	/*
 	 * Implementation notes.
 	 * 
-	 * Pseudo-code:
+	 * Pseudo-code for version without free variables:
 	 * 
 	 * count(F, C, I): // assume F simplified in itself and with respect to C
 	 * 
@@ -112,6 +113,16 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 	 *     solution *= ( |domain(V)| - |diseq(V)| )
 	 * return solution
 	 * 
+	 * Free variables require a few additions.
+	 * They are assumed to always come before indices in the general ordering,
+	 * because they are assumed to have a fixed (albeit unknown) value.
+	 * If the splitter atom contains a free variable and not an index, we condition on it but combine
+	 * the results in an if-then-else condition, with the splitter as condition.
+	 * Otherwise (the splitter is on an index), the recursive results must be summed.
+	 * However, now the recursive results can be conditional themselves,
+	 * which requires merging their trees.
+	 * When the splitter atom is picked and it contains a free variable and an index (as second argument),
+	 * we invert it to make sure the index (if there is one) is the variable to be eliminated.
 	 */
 
 	protected CountsDeclaration countsDeclaration;
@@ -188,6 +199,13 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 			if (splitter != null) {
 				Expression variable  = splitter.get(0);
 				Expression otherTerm = splitter.get(1);
+				
+				// if variable is a free variable and other term is an index, we invert them because conditions must be on free variables only,
+				// so it must be the index to be eliminated (replaced by otherTerm).
+				if ( ! indices.contains(variable) && indices.contains(otherTerm) ) {
+					variable  = splitter.get(1);
+					otherTerm = splitter.get(0);
+				}
 
 				Expression formula1 = applyEquality   (formula, variable, otherTerm, process);
 				Expression formula2 = applyDisequality(formula, variable, otherTerm, process);
@@ -214,7 +232,7 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 					result = IfThenElse.make(Equality.make(variable, otherTerm), count1, count2);
 				}
 				else {
-					result = sumSymbolicCounts(count1, count2);
+					result = sumSymbolicCounts(count1, count2, process);
 				}
 			}
 		}
@@ -226,23 +244,27 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 	 * If counts are numerical expressions, simply sum them.
 	 * If they are conditional, perform distributive on conditions.
 	 */
-	private Expression sumSymbolicCounts(Expression count1, Expression count2) {
+	private Expression sumSymbolicCounts(Expression count1, Expression count2, RewritingProcess process) {
 
 		Expression result = null;
 		if (IfThenElse.isIfThenElse(count1)) {
 			Expression condition  = IfThenElse.getCondition(count1);
 			Expression thenBranch = IfThenElse.getThenBranch(count1);
 			Expression elseBranch = IfThenElse.getElseBranch(count1);
-			Expression newThenBranch = sumSymbolicCounts(thenBranch, count2);
-			Expression newElseBranch = sumSymbolicCounts(elseBranch, count2);
+			Expression count2UnderCondition    = applyEquality(   count2, condition.get(0), condition.get(1), process);
+			Expression count2UnderNotCondition = applyDisequality(count2, condition.get(0), condition.get(1), process);
+			Expression newThenBranch = sumSymbolicCounts(thenBranch, count2UnderCondition,    process);
+			Expression newElseBranch = sumSymbolicCounts(elseBranch, count2UnderNotCondition, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
 		}
-		if (IfThenElse.isIfThenElse(count2)) {
+		else if (IfThenElse.isIfThenElse(count2)) {
 			Expression condition  = IfThenElse.getCondition(count2);
 			Expression thenBranch = IfThenElse.getThenBranch(count2);
 			Expression elseBranch = IfThenElse.getElseBranch(count2);
-			Expression newThenBranch = sumSymbolicCounts(count1, thenBranch);
-			Expression newElseBranch = sumSymbolicCounts(count1, elseBranch);
+			Expression count1UnderCondition    = applyEquality(   count1, condition.get(0), condition.get(1), process);
+			Expression count1UnderNotCondition = applyDisequality(count1, condition.get(0), condition.get(1), process);
+			Expression newThenBranch = sumSymbolicCounts(count1UnderCondition,    thenBranch, process);
+			Expression newElseBranch = sumSymbolicCounts(count1UnderNotCondition, elseBranch, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
 		}
 		else {

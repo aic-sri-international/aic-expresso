@@ -46,7 +46,7 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.equality.RandomCardinalityProblemGenerator;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainCardinalityDPLL;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainCardinalityDPLLWithFreeVariables;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.FirstNIterator;
 import com.sri.ai.util.experiment.Experiment;
@@ -80,7 +80,7 @@ public class RandomCardinalityExpressionsExperiment {
 		Experiment.experiment(
 				new Dimension("algorithm",
 						Util.list(
-								new PlainCardinalityDPLL(new CountsDeclaration(10))
+								new PlainCardinalityDPLLWithFreeVariables(new CountsDeclaration(10))
 								//new Cardinality(new CountsDeclaration(10))
 								)),
 				

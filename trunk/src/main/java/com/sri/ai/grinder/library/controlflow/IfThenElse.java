@@ -274,4 +274,12 @@ public class IfThenElse extends AbstractRewriter {
 		}
 		return expression;
 	}
+
+	public static Expression simplify(Expression ifThenElse) {
+		Expression condition  = getCondition(ifThenElse);
+		Expression thenBranch = getThenBranch(ifThenElse);
+		Expression elseBranch = getElseBranch(ifThenElse);
+		Expression result = IfThenElse.make(condition, thenBranch, elseBranch);
+		return result;
+	}
 }
