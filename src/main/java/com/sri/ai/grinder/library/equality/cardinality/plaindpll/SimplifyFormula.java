@@ -47,6 +47,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
 import com.sri.ai.util.base.Not;
@@ -164,6 +165,9 @@ public class SimplifyFormula {
 			else {
 				result = formula;
 			}
+		}
+		else if (IfThenElse.isIfThenElse(formula)) {
+			result = IfThenElse.simplify(formula);
 		}
 		
 		return result;
