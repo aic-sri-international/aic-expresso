@@ -321,6 +321,7 @@ public class GetConditionsForTest {
 		runGetImpliedValueFromBDDTest();
 	}
 
+	@SuppressWarnings("deprecation")
 	public void runGetImpliedValueFromBDDTest() {
 		Expression bdd = null;
 		for (int i = 0; i != NUMBER_OF_RUNS; i++) {

@@ -30,7 +30,7 @@ expr :
        // NOTE:  P)arentheses, E)xponents, ( M)ultiplication, D)ivision ), ( A)ddition, S)ubtraction )
        // see: http://en.wikipedia.org/wiki/Order_of_operations
        // exponentiation, e.g. 2^3^4 -> 2^(3^4)
-     | base=expr '^'<assoc=right> exponent=expr #Exponentiation
+     |<assoc=right> base=expr '^' exponent=expr #Exponentiation
        // multiplication or division, e.g.: 2*3/2 -> 2*(3/2)
      | leftop=expr op=('*' | '/') rightop=expr #multiplicationOrDivision
        // addition or subtraction, e.g.: 1-2+3 -> (1-2)+3
@@ -48,9 +48,9 @@ expr :
        // disjunction, e.g.: A => B or C -> A => (B or C)
      | leftdisj=expr OR rightdisj=expr #or
        // implication, e.g.: A = B => C = D
-     | antecedent=expr IMPLICATION<assoc=right> consequent=expr #implication
+     |<assoc=right> antecedent=expr IMPLICATION consequent=expr #implication
        // biconditional, e.g.: A = B <=> C = D
-     | leftop=expr BICONDITIONAL<assoc=right> rightop=expr #biconditional
+     |<assoc=right> leftop=expr BICONDITIONAL rightop=expr #biconditional
        // conditional, e.g.: if X = Y then 1 else 2
      | IF condition=expr THEN thenbranch=expr ELSE elsebranch=expr #ifThenElse
        // lambda, e.g.: lambda f(X) : 2 + f(X)
