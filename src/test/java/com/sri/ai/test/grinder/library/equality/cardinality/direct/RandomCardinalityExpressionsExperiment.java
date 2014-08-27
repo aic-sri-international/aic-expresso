@@ -69,6 +69,7 @@ public class RandomCardinalityExpressionsExperiment {
 	public static int minimumSize = 2;
 	public static int maximumSize = 7;
 	public static int numberOfRunsForAveraging = 10;
+	public static boolean useFreeVariables = false;
 	
 	@SuppressWarnings("unchecked")
 	public static void performanceByNumberOfVariables() {
@@ -138,7 +139,8 @@ public class RandomCardinalityExpressionsExperiment {
 		public Object apply(DependencyAwareEnvironment environment) {
 			int size = environment.getInt(X_VARIABLE_NAME);
 			System.out.println("Size: " + size);	
-			Iterator<Expression> cardinalityExpressionsIterator = new RandomCardinalityProblemGenerator(new Random(SEED), size, size, size, size, 3);
+			int minimumNumberOfIndices = useFreeVariables? size/2 : size;
+			Iterator<Expression> cardinalityExpressionsIterator = new RandomCardinalityProblemGenerator(new Random(SEED), size, size, minimumNumberOfIndices, size, 3);
 			List<Expression> cardinalityExpressions = Util.listFrom(new FirstNIterator<Expression>(sizeOfDataset, cardinalityExpressionsIterator));
 			return cardinalityExpressions;
 		}

@@ -123,6 +123,10 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 	 * which requires merging their trees.
 	 * When the splitter atom is picked and it contains a free variable and an index (as second argument),
 	 * we invert it to make sure the index (if there is one) is the variable to be eliminated.
+	 * 
+	 * I have the intuition that the returned conditionals will be complete
+     * (in the sense that every condition is both satisfiable and falsifiable),
+     * but a proper, non-trivial proof is needed.
 	 */
 
 	protected CountsDeclaration countsDeclaration;
@@ -207,8 +211,8 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 					otherTerm = splitter.get(0);
 				}
 
-				Expression formula1 = applyEquality   (formula, variable, otherTerm, process);
-				Expression formula2 = applyDisequality(formula, variable, otherTerm, process);
+				Expression formula1 = SimplifyFormula.applyEqualityTo   (formula, variable, otherTerm, process);
+				Expression formula2 = SimplifyFormula.applyDisequalityTo(formula, variable, otherTerm, process);
 
 				Map<Expression, Collection<Expression>> constraintMap1 = applyEqualityToConstraint   (constraintMap, variable, otherTerm, indices, process);
 				Map<Expression, Collection<Expression>> constraintMap2 = applyDisequalityToConstraint(constraintMap, variable, otherTerm, indices, process);
@@ -247,12 +251,13 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 	private Expression sumSymbolicCounts(Expression count1, Expression count2, RewritingProcess process) {
 
 		Expression result = null;
+
 		if (IfThenElse.isIfThenElse(count1)) {
 			Expression condition  = IfThenElse.getCondition(count1);
 			Expression thenBranch = IfThenElse.getThenBranch(count1);
 			Expression elseBranch = IfThenElse.getElseBranch(count1);
-			Expression count2UnderCondition    = applyEquality(   count2, condition.get(0), condition.get(1), process);
-			Expression count2UnderNotCondition = applyDisequality(count2, condition.get(0), condition.get(1), process);
+			Expression count2UnderCondition    = SimplifyFormula.applyEqualityTo(   count2, condition.get(0), condition.get(1), process);
+			Expression count2UnderNotCondition = SimplifyFormula.applyDisequalityTo(count2, condition.get(0), condition.get(1), process);
 			Expression newThenBranch = sumSymbolicCounts(thenBranch, count2UnderCondition,    process);
 			Expression newElseBranch = sumSymbolicCounts(elseBranch, count2UnderNotCondition, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
@@ -261,8 +266,8 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 			Expression condition  = IfThenElse.getCondition(count2);
 			Expression thenBranch = IfThenElse.getThenBranch(count2);
 			Expression elseBranch = IfThenElse.getElseBranch(count2);
-			Expression count1UnderCondition    = applyEquality(   count1, condition.get(0), condition.get(1), process);
-			Expression count1UnderNotCondition = applyDisequality(count1, condition.get(0), condition.get(1), process);
+			Expression count1UnderCondition    = SimplifyFormula.applyEqualityTo(   count1, condition.get(0), condition.get(1), process);
+			Expression count1UnderNotCondition = SimplifyFormula.applyDisequalityTo(count1, condition.get(0), condition.get(1), process);
 			Expression newThenBranch = sumSymbolicCounts(count1UnderCondition,    thenBranch, process);
 			Expression newElseBranch = sumSymbolicCounts(count1UnderNotCondition, elseBranch, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
@@ -270,6 +275,28 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 		else {
 			result = Expressions.makeSymbol(count1.rationalValue().add(count2.rationalValue()));
 		}
+
+		// The code below is left to show what I tried when separating externalization from the main algorithm.
+		// I would simply sum the counts without trying to externalize, and have a separate counting algorithm-with-externalization
+		// using this non-externalized one and doing the externalization as a post-processing step. It was almost half the speed,
+		// possible because doing the externalization on the fly allows for simplifications to be performed sooner.
+		// I also tried using the code below with general-purpose externalization right after the function application case,
+		// and it was indeed almost as fast as the above, but still about 10% slower, so I decided to stick with the general-purpose case.
+		
+//		if (count1.equals(Expressions.ZERO)) {
+//			result = count2;
+//		}
+//		else if (count2.equals(Expressions.ZERO)) {
+//			result = count1;
+//		}
+//		else if (count1.getSyntacticFormType().equals("Function application") ||
+//				count2.getSyntacticFormType().equals("Function application")) {
+//
+//			result = Expressions.apply(FunctorConstants.PLUS, count1, count2);
+//		}
+//		else {
+//			result = Expressions.makeSymbol(count1.rationalValue().add(count2.rationalValue()));
+//		}
 
 		return result;
 	}
@@ -296,18 +323,6 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 			}
 		}
 		
-		return result;
-	}
-
-	private static Expression applyEquality(Expression formula, Expression variable, Expression otherTerm, RewritingProcess process) {
-		Expression result = formula.replaceAllOccurrences(variable, otherTerm, process);
-		result = SimplifyFormula.simplify(result, process);
-		return result;
-	}
-
-	private static Expression applyDisequality(Expression formula, final Expression variable, final Expression otherTerm, RewritingProcess process) {
-		Expression result = formula.replaceAllOccurrences(new SimplifyAtomGivenDisequality(variable, otherTerm), process);
-		result = SimplifyFormula.simplify(result, process);
 		return result;
 	}
 

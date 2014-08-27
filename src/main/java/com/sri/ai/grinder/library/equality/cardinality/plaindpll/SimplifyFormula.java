@@ -187,4 +187,16 @@ public class SimplifyFormula {
 			return result;
 		}
 	}
+
+	protected static Expression applyEqualityTo(Expression formula, Expression variable, Expression otherTerm, RewritingProcess process) {
+		Expression result = formula.replaceAllOccurrences(variable, otherTerm, process);
+		result = simplify(result, process);
+		return result;
+	}
+
+	protected static Expression applyDisequalityTo(Expression formula, final Expression variable, final Expression otherTerm, RewritingProcess process) {
+		Expression result = formula.replaceAllOccurrences(new SimplifyAtomGivenDisequality(variable, otherTerm), process);
+		result = simplify(result, process);
+		return result;
+	}
 }
