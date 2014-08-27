@@ -135,6 +135,9 @@ public class IfThenElse extends AbstractRewriter {
 		if (thenBranch.equals(true) && elseBranch.equals(false)) {
 			return condition;
 		}
+//		if (thenBranch.equals(elseBranch)) { // breaking some code even though it should not; we want to have it eventually
+//			return thenBranch;
+//		}
 //		if (thenBranch.equals(false) && elseBranch.equals(true)) { // this may violate normalization routines in which 'not' is moved in
 //			return Not.make(condition);
 //		}
@@ -161,6 +164,9 @@ public class IfThenElse extends AbstractRewriter {
 			//			return Not.make(condition);
 			//		}
 		}
+//		if (thenBranch.equals(elseBranch)) { // breaking some code even though it should not; we want to have it eventually
+//			return thenBranch;
+//		}
 		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, condition, thenBranch, elseBranch);
 		return result;
 	}

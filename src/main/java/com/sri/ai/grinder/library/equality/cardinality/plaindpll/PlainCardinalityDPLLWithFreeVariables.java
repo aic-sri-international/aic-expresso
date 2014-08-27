@@ -39,7 +39,6 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -49,25 +48,17 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
-import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable.DomainSizeOfLogicalVariable;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.Equals;
-import com.sri.ai.util.base.Not;
 
 @Beta
 /** 
@@ -75,59 +66,22 @@ import com.sri.ai.util.base.Not;
  * non-rewriter computation of cardinality of intensional sets with equality boolean formula conditions
  * with free variables.
  */
-public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalRewriter {
+public class PlainCardinalityDPLLWithFreeVariables extends PlainGenericDPLLWithFreeVariables {
 	
-	/*
-	 * Implementation notes.
-	 * 
-	 * Pseudo-code for version without free variables:
-	 * 
-	 * count(F, C, I): // assume F simplified in itself and with respect to C
-	 * 
-	 * if F is false, return 0
-	 *     
-	 * pick atom X = T, T a variable or constant, from formula or constraint  // linear in F size
-	 * if no atom
-	 *     return | C |_I // linear in number of symbols
-	 * else
-	 *     C1 = C[X/T] // linear in F size
-	 *     C2 = C and X != T // amortized constant
-	 *     F'  = simplify(F[X/T])
-	 *     F'' = simplify(F with "X != T" replaced by true and "X = T" replaced by false)
-	 *     return count( F' , C1, I - {X} ) + count( F'', C2 )
-	 * 
-	 * simplify must exploit short circuits and eliminate atoms already determined in the contextual constraint.
-	 * 
-	 * To compute | C |_I
-	 * 
-	 * C is a conjunction of disequalities, but represented in a map data structure for greater efficiency.
-	 * Assume a total ordering of variables (we use alphabetical order)
-	 * C is represented as a map that is null if C is false,
-	 * or that maps each variable V to the set diseq(V) of terms it is constrained to be distinct,
-	 * excluding variables V' > V.
-	 * The idea is that values for variables are picked in a certain order and
-	 * we exclude values already picked for variables constrained to be distinct and constants.
-	 * Now,
-	 * solution = 1
-	 * For each variable V according to the total ordering
-	 *     solution *= ( |domain(V)| - |diseq(V)| )
-	 * return solution
-	 * 
-	 * Free variables require a few additions.
-	 * They are assumed to always come before indices in the general ordering,
-	 * because they are assumed to have a fixed (albeit unknown) value.
-	 * If the splitter atom contains a free variable and not an index, we condition on it but combine
-	 * the results in an if-then-else condition, with the splitter as condition.
-	 * Otherwise (the splitter is on an index), the recursive results must be summed.
-	 * However, now the recursive results can be conditional themselves,
-	 * which requires merging their trees.
-	 * When the splitter atom is picked and it contains a free variable and an index (as second argument),
-	 * we invert it to make sure the index (if there is one) is the variable to be eliminated.
-	 * 
-	 * I have the intuition that the returned conditionals will be complete
-     * (in the sense that every condition is both satisfiable and falsifiable),
-     * but a proper, non-trivial proof is needed.
-	 */
+	@Override
+	protected Expression neutralElement() {
+		return Expressions.ZERO;
+	}
+
+	@Override
+	protected boolean isShortCircuitingSolution(Expression solutionForSubProblem) {
+		return false;
+	}
+
+	@Override
+	protected Expression combineUnconditionalSolutions(Expression solution1, Expression solution2) {
+		return Expressions.makeSymbol(solution1.rationalValue().add(solution2.rationalValue()));
+	}
 
 	protected CountsDeclaration countsDeclaration;
 
@@ -151,7 +105,7 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression result = count(expression, process);
+		Expression result = solve(expression, process);
 		return result;
 	}
 
@@ -159,11 +113,11 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 	 * Rewrites a cardinality problem to its cardinality value.
 	 * Assumes it is already simplified with respect to context.
 	 */
-	public Expression count(Expression cardinalityProblem, RewritingProcess process) {
+	public Expression solve(Expression cardinalityProblem, RewritingProcess process) {
 		Expression set = cardinalityProblem.get(0);
 		List<Expression> indices = IntensionalSet.getIndices(set);
 		Expression formula = SimplifyFormula.simplify(IntensionalSet.getCondition(set), process);
-		Expression result = count(formula, Expressions.TRUE, indices, process);
+		Expression result = solve(formula, Expressions.TRUE, indices, process);
 		return result;
 	}
 
@@ -171,182 +125,16 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 	 * Rewrites a cardinality problem to its cardinality value.
 	 * Assumes it is already simplified with respect to context.
 	 */
-	public Expression count(Expression formula, Expression constraint, Collection<Expression> indices, RewritingProcess process) {
+	public Expression solve(Expression formula, Expression constraint, Collection<Expression> indices, RewritingProcess process) {
 		Map<Expression, Collection<Expression>> constraintMap = makeConstraintMap(constraint, indices, process);
-		Expression result = count(formula, constraintMap, indices, process);
+		Expression result = solve(formula, constraintMap, indices, process);
 		return result;
 	}
 
-	/**
-	 * Rewrites a cardinality problem to its cardinality value.
-	 * Assumes it is already simplified with respect to context.
-	 */
-	public Expression count(Expression formula, Map<Expression, Collection<Expression>> constraintMap, Collection<Expression> indices, RewritingProcess process) {
-		
-		Expression result = null;
-		
-		if (formula.equals(Expressions.FALSE) || constraintMap == null) {
-			result = Expressions.ZERO;
-		}
-		else {
-			Expression splitter = pickAtomFromFormula(formula, indices, process);
-			if (splitter == null) { // formula is 'true'
-				// check if we need to split in order for constraint to get ready to be counted
-				splitter = pickAtomFromConstraintMap(constraintMap, process);
-				// the splitting stops only when the formula has no atoms, *and* when the constraint satisfies some necessary conditions
-				if (splitter == null) {
-					// formula is 'true' and constraint is ready to be counted
-					result = countConstraintMap(indices, constraintMap, process);
-				}
-			}
+	///// CONSTRAINT MAP METHODS
 
-			if (splitter != null) {
-				Expression variable  = splitter.get(0);
-				Expression otherTerm = splitter.get(1);
-				
-				// if variable is a free variable and other term is an index, we invert them because conditions must be on free variables only,
-				// so it must be the index to be eliminated (replaced by otherTerm).
-				if ( ! indices.contains(variable) && indices.contains(otherTerm) ) {
-					variable  = splitter.get(1);
-					otherTerm = splitter.get(0);
-				}
-
-				Expression formula1 = SimplifyFormula.applyEqualityTo   (formula, variable, otherTerm, process);
-				Expression formula2 = SimplifyFormula.applyDisequalityTo(formula, variable, otherTerm, process);
-
-				Map<Expression, Collection<Expression>> constraintMap1 = applyEqualityToConstraint   (constraintMap, variable, otherTerm, indices, process);
-				Map<Expression, Collection<Expression>> constraintMap2 = applyDisequalityToConstraint(constraintMap, variable, otherTerm, indices, process);
-
-				Collection<Expression> indicesUnderEquality = new LinkedHashSet<Expression>(indices);
-				boolean conditionOnFreeVariable = false;
-				if (indices.contains(variable)) {
-					indicesUnderEquality.remove(variable);
-				}
-				else {
-					conditionOnFreeVariable = true;
-				}
-				
-				Expression count1;
-				Expression count2;
-
-				count1 = count(formula1, constraintMap1, indicesUnderEquality, process);
-				count2 = count(formula2, constraintMap2, indices,              process);
-
-				if (conditionOnFreeVariable) {
-					result = IfThenElse.make(Equality.make(variable, otherTerm), count1, count2);
-				}
-				else {
-					result = sumSymbolicCounts(count1, count2, process);
-				}
-			}
-		}
-		
-		return result;
-	}
-
-	/**
-	 * If counts are numerical expressions, simply sum them.
-	 * If they are conditional, perform distributive on conditions.
-	 */
-	private Expression sumSymbolicCounts(Expression count1, Expression count2, RewritingProcess process) {
-
-		Expression result = null;
-
-		if (IfThenElse.isIfThenElse(count1)) {
-			Expression condition  = IfThenElse.getCondition(count1);
-			Expression thenBranch = IfThenElse.getThenBranch(count1);
-			Expression elseBranch = IfThenElse.getElseBranch(count1);
-			Expression count2UnderCondition    = SimplifyFormula.applyEqualityTo(   count2, condition.get(0), condition.get(1), process);
-			Expression count2UnderNotCondition = SimplifyFormula.applyDisequalityTo(count2, condition.get(0), condition.get(1), process);
-			Expression newThenBranch = sumSymbolicCounts(thenBranch, count2UnderCondition,    process);
-			Expression newElseBranch = sumSymbolicCounts(elseBranch, count2UnderNotCondition, process);
-			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
-		}
-		else if (IfThenElse.isIfThenElse(count2)) {
-			Expression condition  = IfThenElse.getCondition(count2);
-			Expression thenBranch = IfThenElse.getThenBranch(count2);
-			Expression elseBranch = IfThenElse.getElseBranch(count2);
-			Expression count1UnderCondition    = SimplifyFormula.applyEqualityTo(   count1, condition.get(0), condition.get(1), process);
-			Expression count1UnderNotCondition = SimplifyFormula.applyDisequalityTo(count1, condition.get(0), condition.get(1), process);
-			Expression newThenBranch = sumSymbolicCounts(count1UnderCondition,    thenBranch, process);
-			Expression newElseBranch = sumSymbolicCounts(count1UnderNotCondition, elseBranch, process);
-			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
-		}
-		else {
-			result = Expressions.makeSymbol(count1.rationalValue().add(count2.rationalValue()));
-		}
-
-		// The code below is left to show what I tried when separating externalization from the main algorithm.
-		// I would simply sum the counts without trying to externalize, and have a separate counting algorithm-with-externalization
-		// using this non-externalized one and doing the externalization as a post-processing step. It was almost half the speed,
-		// possible because doing the externalization on the fly allows for simplifications to be performed sooner.
-		// I also tried using the code below with general-purpose externalization right after the function application case,
-		// and it was indeed almost as fast as the above, but still about 10% slower, so I decided to stick with the general-purpose case.
-		
-//		if (count1.equals(Expressions.ZERO)) {
-//			result = count2;
-//		}
-//		else if (count2.equals(Expressions.ZERO)) {
-//			result = count1;
-//		}
-//		else if (count1.getSyntacticFormType().equals("Function application") ||
-//				count2.getSyntacticFormType().equals("Function application")) {
-//
-//			result = Expressions.apply(FunctorConstants.PLUS, count1, count2);
-//		}
-//		else {
-//			result = Expressions.makeSymbol(count1.rationalValue().add(count2.rationalValue()));
-//		}
-
-		return result;
-	}
-
-	private static Expression pickAtomFromFormula(Expression formula, Collection<Expression> indices, RewritingProcess process) {
-		
-		Expression result = null;
-		
-		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(formula);
-		while (result == null && subExpressionIterator.hasNext()) {
-			
-			Expression subExpression = subExpressionIterator.next();
-			
-			if (subExpression.hasFunctor(FunctorConstants.EQUALITY) || 
-					subExpression.hasFunctor(FunctorConstants.DISEQUALITY)) {
-				
-				Expression variable = Util.getFirstSatisfyingPredicateOrNull(
-						subExpression.getArguments(), new IsVariable(process));
-				
-				Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(
-						subExpression.getArguments(), Not.make(Equals.make(variable)));
-				
-				result = Equality.make(variable, otherTerm);
-			}
-		}
-		
-		return result;
-	}
-
-	/**
-	 * Not used anymore but left to show how the treatment of constraints were before they were maps but only a disjunction of equalities.
-	 */
-	@SuppressWarnings("unused")
-	private static Expression applyEqualityToConstraint(Expression constraint, Expression variable, Expression otherTerm, RewritingProcess process) {
-		Expression result = constraint.replaceAllOccurrences(variable, otherTerm, process);
-		result = SimplifyFormula.simplify(result, process);
-		return result;
-	}
-
-	/**
-	 * Not used anymore but left to show how the treatment of constraints were before they were maps but only a disjunction of equalities.
-	 */
-	@SuppressWarnings("unused")
-	private static Expression applyDisequalityToConstraint(Expression constraint, Expression variable, Expression otherTerm, RewritingProcess process) {
-		Expression result = And.addConjunct(constraint, Disequality.make(variable, otherTerm));
-		// no need to simplify; adding a disequality does not affect the other ones.
-		return result;
-	}
-
-	private static Expression countConstraintMap(
+	@Override
+	protected Expression solutionForConstraintMap(
 			Collection<Expression> indices, Map<Expression, Collection<Expression>> constraintMap, RewritingProcess process) {
 		
 		long resultValue = 1;
@@ -368,8 +156,6 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 		return domainSize;
 	}
 	
-	///// CONSTRAINT MAP METHODS
-
 	/**
 	 * Assumes a conjunction of disequalities and builds a map from each variable to
 	 * the terms constraint to be distinct from it that are defined before it in the choosing order
@@ -383,7 +169,8 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 	 * other (a condition similar but not identical to what is called "normalized constraints" in the lifted inference literature).
 	 * The algorithm does check and enforces this guarantee.
 	 */
-	private static Map<Expression, Collection<Expression>> makeConstraintMap(Expression constraint, Collection<Expression> indices, RewritingProcess process) {
+	@Override
+	protected Map<Expression, Collection<Expression>> makeConstraintMap(Expression constraint, Collection<Expression> indices, RewritingProcess process) {
 	
 		Map<Expression, Collection<Expression>> result = new LinkedHashMap<Expression, Collection<Expression>>();
 	
@@ -406,7 +193,8 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 		return result;
 	}
 
-	private static Expression pickAtomFromConstraintMap(Map<Expression, Collection<Expression>> constraintMap, RewritingProcess process) {
+	@Override
+	protected Expression pickAtomFromConstraintMap(Map<Expression, Collection<Expression>> constraintMap, RewritingProcess process) {
 		Expression result = null;
 		
 		for (Map.Entry<Expression, Collection<Expression>> entryForVariable1 : constraintMap.entrySet()) {
@@ -461,7 +249,8 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 		return false;
 	}
 
-	private static Map<Expression, Collection<Expression>> applyEqualityToConstraint(Map<Expression, Collection<Expression>> constraintMap, Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
+	@Override
+	protected Map<Expression, Collection<Expression>> applyEqualityToConstraint(Map<Expression, Collection<Expression>> constraintMap, Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
 		
 		if (equalityIsInconsistentWithConstraintMap(variable, otherTerm, constraintMap)) {
 			return null;
@@ -518,7 +307,8 @@ public class PlainCardinalityDPLLWithFreeVariables extends AbstractHierarchicalR
 		distinctFromTerm1.add(term2);
 	}
 
-	private static Map<Expression, Collection<Expression>> applyDisequalityToConstraint(
+	@Override
+	protected Map<Expression, Collection<Expression>> applyDisequalityToConstraint(
 			Map<Expression, Collection<Expression>> constraintMap, Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
 		
 		Map<Expression, Collection<Expression>> result = new LinkedHashMap<Expression, Collection<Expression>>(constraintMap);
