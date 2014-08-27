@@ -1,0 +1,304 @@
+/*
+ * Copyright (c) 2013, SRI International
+ * All rights reserved.
+ * Licensed under the The BSD 3-Clause License;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ * 
+ * http://opensource.org/licenses/BSD-3-Clause
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 
+ * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * 
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * 
+ * Neither the name of the aic-expresso nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.library.Equality;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.IsVariable;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.util.Util;
+import com.sri.ai.util.base.Equals;
+import com.sri.ai.util.base.Not;
+
+public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarchicalRewriter {
+
+	/*
+	 * Implementation notes.
+	 * 
+	 * Pseudo-code for version without free variables and for model counting
+	 * (actual code allows methods to be overriden for different problems):
+	 * 
+	 * count(F, C, I): // assume F simplified in itself and with respect to C
+	 * 
+	 * if F is false, return 0
+	 *     
+	 * pick atom X = T, T a variable or constant, from formula or constraint  // linear in F size
+	 * if no atom
+	 *     return | C |_I // linear in number of symbols
+	 * else
+	 *     C1 = C[X/T] // linear in F size
+	 *     C2 = C and X != T // amortized constant
+	 *     F'  = simplify(F[X/T])
+	 *     F'' = simplify(F with "X != T" replaced by true and "X = T" replaced by false)
+	 *     return count( F' , C1, I - {X} ) + count( F'', C2 )
+	 * 
+	 * simplify must exploit short circuits and eliminate atoms already determined in the contextual constraint.
+	 * 
+	 * To compute | C |_I
+	 * 
+	 * C is a conjunction of disequalities, but represented in a map data structure for greater efficiency.
+	 * Assume a total ordering of variables (we use alphabetical order)
+	 * C is represented as a map that is null if C is false,
+	 * or that maps each variable V to the set diseq(V) of terms it is constrained to be distinct,
+	 * excluding variables V' > V.
+	 * The idea is that values for variables are picked in a certain order and
+	 * we exclude values already picked for variables constrained to be distinct and constants.
+	 * Now,
+	 * solution = 1
+	 * For each variable V according to the total ordering
+	 *     solution *= ( |domain(V)| - |diseq(V)| )
+	 * return solution
+	 * 
+	 * Free variables require a few additions.
+	 * They are assumed to always come before indices in the general ordering,
+	 * because they are assumed to have a fixed (albeit unknown) value.
+	 * If the splitter atom contains a free variable and not an index, we condition on it but combine
+	 * the results in an if-then-else condition, with the splitter as condition.
+	 * Otherwise (the splitter is on an index), the recursive results must be summed.
+	 * However, now the recursive results can be conditional themselves,
+	 * which requires merging their trees.
+	 * When the splitter atom is picked and it contains a free variable and an index (as second argument),
+	 * we invert it to make sure the index (if there is one) is the variable to be eliminated.
+	 * 
+	 * I have the intuition that the returned conditionals will be complete
+	 * (in the sense that every condition is both satisfiable and falsifiable),
+	 * but a proper, non-trivial proof is needed.
+	 */
+	
+	public PlainGenericDPLLWithFreeVariables() {
+		super();
+	}
+
+	/**
+	 * Defines the solution the combination of which with any other solution S produces S itself (for example, 0 in model counting and false in satisfiability).
+	 */
+	protected abstract Expression neutralElement();
+
+	/**
+	 * Indicates whether given solution for a sub-problem makes the other sub-problem for an index conditioning irrelevant
+	 * (for example, the solution 'true' in satisfiability).
+	 */
+	protected abstract boolean isShortCircuitingSolution(Expression solutionForSubProblem);
+	
+	/**
+	 * Combines two unconditional solutions for sub-problems in an index conditioning
+	 * (for example, disjunction of two boolean constants in satisfiability, or addition in model counting).
+	 */
+	protected abstract Expression combineUnconditionalSolutions(Expression solution1, Expression solution2);
+
+	/**
+	 * Converts a conjunction of atoms into whatever efficient representation is used for constraint maps.
+	 */
+	protected abstract Map<Expression, Collection<Expression>> makeConstraintMap(Expression constraint, Collection<Expression> indices, RewritingProcess process);
+
+	/**
+	 * Indicates which atom needs to be split for constraint map to become closer to state for which solutions can be computed in polynomial time,
+	 * or null if it is already in such a state.
+	 */
+	protected abstract Expression pickAtomFromConstraintMap(Map<Expression, Collection<Expression>> constraintMap, RewritingProcess process);
+
+	/**
+	 * Computes solution for constraint map in polynomial time.
+	 */
+	abstract protected Expression solutionForConstraintMap(Collection<Expression> indices, Map<Expression, Collection<Expression>> constraintMap, RewritingProcess process);
+
+	/**
+	 * Generates new constraint map representing conjunction of given equality and given constraint map.
+	 */
+	abstract protected Map<Expression, Collection<Expression>> applyEqualityToConstraint(Map<Expression, Collection<Expression>> constraintMap, Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process);
+
+	/**
+	 * Generates new constraint map representing conjunction of given disequality and given constraint map.
+	 */
+	abstract protected Map<Expression, Collection<Expression>> applyDisequalityToConstraint(Map<Expression, Collection<Expression>> constraintMap, Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process);
+
+	/**
+	 * Solves a problem for the given formula.
+	 * Assumes it is already simplified with respect to context represented by constraint map.
+	 */
+	protected Expression solve(Expression formula, Map<Expression, Collection<Expression>> constraintMap, Collection<Expression> indices, RewritingProcess process) {
+		
+		Expression result = null;
+		
+		if (formula.equals(Expressions.FALSE) || constraintMap == null) {
+			result = neutralElement();
+		}
+		else {
+			Expression splitter = pickAtomFromFormula(formula, indices, process);
+			if (splitter == null) { // formula is 'true'
+				// check if we need to split in order for constraint to get ready to be counted
+				splitter = pickAtomFromConstraintMap(constraintMap, process);
+				// the splitting stops only when the formula has no atoms, *and* when the constraint satisfies some necessary conditions
+				if (splitter == null) {
+					// formula is 'true' and constraint is ready to be counted
+					result = solutionForConstraintMap(indices, constraintMap, process);
+				}
+			}
+	
+			if (splitter != null) {
+				Expression variable  = splitter.get(0);
+				Expression otherTerm = splitter.get(1);
+				
+				// if variable is a free variable and other term is an index, we invert them because conditions must be on free variables only,
+				// so it must be the index to be eliminated (replaced by otherTerm).
+				if ( ! indices.contains(variable) && indices.contains(otherTerm) ) {
+					variable  = splitter.get(1);
+					otherTerm = splitter.get(0);
+				}
+	
+				// Solve sub-problem under disequality first since it does not require indices processing and may make sub-problem under equality irrelevant.
+				Expression formulaUnderDisequality = SimplifyFormula.applyDisequalityTo(formula, variable, otherTerm, process);
+				Map<Expression, Collection<Expression>> constraintMapUnderDisequality = applyDisequalityToConstraint(constraintMap, variable, otherTerm, indices, process);
+				Collection<Expression> indicesUnderDisequality = indices;
+				Expression solutionUnderDisequality = solve(formulaUnderDisequality, constraintMapUnderDisequality, indicesUnderDisequality, process);
+	
+				boolean conditionOnFreeVariable = ! indices.contains(variable);
+	
+				if ( ! conditionOnFreeVariable && isShortCircuitingSolution(solutionUnderDisequality)) {
+					result = solutionUnderDisequality;
+				}
+				else {
+					Expression formulaUnderEquality = SimplifyFormula.applyEqualityTo(formula, variable, otherTerm, process);
+					Map<Expression, Collection<Expression>> constraintMapUnderEquality = applyEqualityToConstraint(constraintMap, variable, otherTerm, indices, process);
+					Collection<Expression> indicesUnderEquality = ! indices.contains(variable)? indices : Util.makeSetWithoutExcludedElement(indices, variable);
+					Expression solutionUnderEquality = solve(formulaUnderEquality, constraintMapUnderEquality, indicesUnderEquality, process);
+	
+					if (conditionOnFreeVariable) {
+						result = IfThenElse.make(Equality.make(variable, otherTerm), solutionUnderEquality, solutionUnderDisequality);
+					}
+					else {
+						result = combineSymbolicResults(solutionUnderEquality, solutionUnderDisequality, process);
+					}
+				}
+			}
+		}
+		
+		return result;
+	}
+
+	private Expression pickAtomFromFormula(Expression formula, Collection<Expression> indices, RewritingProcess process) {
+
+		Expression result = null;
+
+		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(formula);
+		while (result == null && subExpressionIterator.hasNext()) {
+
+			Expression subExpression = subExpressionIterator.next();
+
+			if (subExpression.hasFunctor(FunctorConstants.EQUALITY) || 
+					subExpression.hasFunctor(FunctorConstants.DISEQUALITY)) {
+
+				Expression variable = Util.getFirstSatisfyingPredicateOrNull(
+						subExpression.getArguments(), new IsVariable(process));
+
+				Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(
+						subExpression.getArguments(), Not.make(Equals.make(variable)));
+
+				result = Equality.make(variable, otherTerm);
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * If solutions are unconditional expressions, simply combine them.
+	 * If they are conditional, perform distributive on conditions.
+	 */
+	private Expression combineSymbolicResults(Expression solution1, Expression solution2, RewritingProcess process) {
+
+		Expression result = null;
+
+		if (IfThenElse.isIfThenElse(solution1)) {
+			Expression condition  = IfThenElse.getCondition(solution1);
+			Expression thenBranch = IfThenElse.getThenBranch(solution1);
+			Expression elseBranch = IfThenElse.getElseBranch(solution1);
+			Expression solution2UnderCondition    = SimplifyFormula.applyEqualityTo(   solution2, condition.get(0), condition.get(1), process);
+			Expression solution2UnderNotCondition = SimplifyFormula.applyDisequalityTo(solution2, condition.get(0), condition.get(1), process);
+			Expression newThenBranch = combineSymbolicResults(thenBranch, solution2UnderCondition,    process);
+			Expression newElseBranch = combineSymbolicResults(elseBranch, solution2UnderNotCondition, process);
+			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
+		}
+		else if (IfThenElse.isIfThenElse(solution2)) {
+			Expression condition  = IfThenElse.getCondition(solution2);
+			Expression thenBranch = IfThenElse.getThenBranch(solution2);
+			Expression elseBranch = IfThenElse.getElseBranch(solution2);
+			Expression solution1UnderCondition    = SimplifyFormula.applyEqualityTo(   solution1, condition.get(0), condition.get(1), process);
+			Expression solution1UnderNotCondition = SimplifyFormula.applyDisequalityTo(solution1, condition.get(0), condition.get(1), process);
+			Expression newThenBranch = combineSymbolicResults(solution1UnderCondition,    thenBranch, process);
+			Expression newElseBranch = combineSymbolicResults(solution1UnderNotCondition, elseBranch, process);
+			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
+		}
+		else {
+			result = combineUnconditionalSolutions(solution1, solution2);
+		}
+
+		// The code below is left to show what I tried when separating externalization from the main algorithm.
+		// I would simply sum the counts without trying to externalize, and have a separate counting algorithm-with-externalization
+		// using this non-externalized one and doing the externalization as a post-processing step. It was almost half the speed,
+		// possible because doing the externalization on the fly allows for simplifications to be performed sooner.
+		// I also tried using the code below with general-purpose externalization right after the function application case,
+		// and it was indeed almost as fast as the above, but still about 10% slower, so I decided to stick with the general-purpose case.
+
+		//		if (count1.equals(Expressions.ZERO)) {
+		//			result = count2;
+		//		}
+		//		else if (count2.equals(Expressions.ZERO)) {
+		//			result = count1;
+		//		}
+		//		else if (count1.getSyntacticFormType().equals("Function application") ||
+		//				count2.getSyntacticFormType().equals("Function application")) {
+		//
+		//			result = Expressions.apply(FunctorConstants.PLUS, count1, count2);
+		//		}
+		//		else {
+		//			result = Expressions.makeSymbol(count1.rationalValue().add(count2.rationalValue()));
+		//		}
+
+		return result;
+	}
+}
