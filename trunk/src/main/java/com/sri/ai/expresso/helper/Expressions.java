@@ -1126,4 +1126,19 @@ public class Expressions {
 		}
 		return result;
 	}
+
+
+	/**
+	 * Replaces immediate subexpressions by versions provided by a replacement function, conserving original instance if
+	 * function returns original subexpressions.
+	 */
+	public static Expression replaceImmediateSubexpressions(Expression expression, Function<Expression, Expression> replacementFunction) {
+		Iterator<ExpressionAndContext> expressionAndContextIterator = expression.getImmediateSubExpressionsAndContextsIterator();
+		while (expressionAndContextIterator.hasNext()) {
+			ExpressionAndContext expressionAndContext = expressionAndContextIterator.next();
+			Expression newExpression = replacementFunction.apply(expressionAndContext.getExpression());
+			expression = replaceAtPath(expression, expressionAndContext.getPath(), newExpression);
+		}
+		return expression;
+	}
 }
