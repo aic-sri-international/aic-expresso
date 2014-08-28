@@ -151,6 +151,11 @@ public class ExpressionOnCompoundSyntaxTree extends AbstractExpression {
 	}
 
 	@Override
+	public boolean booleanValue() {
+		throw new Error("Expression.booleanValue() not defined for ExpressionOnCompoundSyntaxTree " + this);
+	}
+
+	@Override
 	public int intValue() {
 		throw new Error("Expression.intValue() not defined for ExpressionOnCompoundSyntaxTree " + this);
 	}

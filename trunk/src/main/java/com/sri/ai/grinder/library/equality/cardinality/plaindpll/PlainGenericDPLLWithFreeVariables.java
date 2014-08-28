@@ -39,7 +39,7 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
@@ -53,14 +53,24 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
 import com.sri.ai.util.base.Not;
+import com.sri.ai.util.base.Pair;
 
+/**
+ * A "plain" implementation of DPLL (without using Grinder-style contexts and simplifications)
+ * that is more ad hoc than rewriter-based approaches but also much faster.
+ * 
+ * This generic skeleton allows the algorithm to be used for different tasks.
+ * 
+ * @author braz
+ *
+ */
 public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarchicalRewriter {
 
 	/*
 	 * Implementation notes.
 	 * 
 	 * Pseudo-code for version without free variables and for model counting
-	 * (actual code allows methods to be overriden for different problems):
+	 * (actual code allows methods to be overridden for different problems):
 	 * 
 	 * count(F, C, I): // assume F simplified in itself and with respect to C
 	 * 
@@ -109,73 +119,76 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 	 * but a proper, non-trivial proof is needed.
 	 */
 	
-	public PlainGenericDPLLWithFreeVariables() {
-		super();
-	}
+	///////////////////////////// BEGINNING OF ABSTRACT METHODS //////////////////////////////////////
+
+	/**
+	 * Derives formula and indices to be used from expression passed to rewriter as argument.
+	 */
+	abstract protected Pair<Expression, List<Expression>> getFormulaAndIndicesFromRewriterProblemArgument(Expression problem, RewritingProcess process);
 
 	/**
 	 * Defines the solution the combination of which with any other solution S produces S itself (for example, 0 in model counting and false in satisfiability).
 	 */
-	protected abstract Expression neutralElement();
+	protected abstract Expression neutralSolution();
 
 	/**
 	 * Indicates whether given solution for a sub-problem makes the other sub-problem for an index conditioning irrelevant
-	 * (for example, the solution 'true' in satisfiability).
+	 * (for example, the solution 'true' in satisfiability, or the total number of possible models, in model counting).
 	 */
 	protected abstract boolean isShortCircuitingSolution(Expression solutionForSubProblem);
 	
 	/**
-	 * Combines two unconditional solutions for sub-problems in an index conditioning
+	 * Combines two unconditional solutions for split sub-problems
 	 * (for example, disjunction of two boolean constants in satisfiability, or addition in model counting).
 	 */
 	protected abstract Expression combineUnconditionalSolutions(Expression solution1, Expression solution2);
 
 	/**
-	 * Converts a conjunction of atoms into whatever efficient representation is used for constraint maps.
+	 * Converts a conjunction of atoms into the equivalent {@link #TheoryConstraint} object.
 	 */
-	protected abstract Map<Expression, Collection<Expression>> makeConstraintMap(Expression constraint, Collection<Expression> indices, RewritingProcess process);
+	protected abstract TheoryConstraint makeConstraint(Expression atomsConjunction, Collection<Expression> indices, RewritingProcess process);
+
+	///////////////////////////// END OF ABSTRACT METHODS //////////////////////////////////////
+
+	///////////////////////////// BEGINNING OF FIXED PART OF GENERIC DPLL //////////////////////////////////////
+	
+	@Override
+	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		Pair<Expression, List<Expression>> formulaAndIndices = getFormulaAndIndicesFromRewriterProblemArgument(expression, process);
+		Expression result = solve(formulaAndIndices.first, Expressions.TRUE, formulaAndIndices.second, process);
+		return result;
+	}
 
 	/**
-	 * Indicates which atom needs to be split for constraint map to become closer to state for which solutions can be computed in polynomial time,
-	 * or null if it is already in such a state.
+	 * Returns the solution of a problem.
+	 * Assumes it is already simplified with respect to context.
 	 */
-	protected abstract Expression pickAtomFromConstraintMap(Map<Expression, Collection<Expression>> constraintMap, RewritingProcess process);
-
-	/**
-	 * Computes solution for constraint map in polynomial time.
-	 */
-	abstract protected Expression solutionForConstraintMap(Collection<Expression> indices, Map<Expression, Collection<Expression>> constraintMap, RewritingProcess process);
-
-	/**
-	 * Generates new constraint map representing conjunction of given equality and given constraint map.
-	 */
-	abstract protected Map<Expression, Collection<Expression>> applyEqualityToConstraint(Map<Expression, Collection<Expression>> constraintMap, Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process);
-
-	/**
-	 * Generates new constraint map representing conjunction of given disequality and given constraint map.
-	 */
-	abstract protected Map<Expression, Collection<Expression>> applyDisequalityToConstraint(Map<Expression, Collection<Expression>> constraintMap, Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process);
+	private Expression solve(Expression formula, Expression constraintFormula, Collection<Expression> indices, RewritingProcess process) {
+		TheoryConstraint constraint = makeConstraint(constraintFormula, indices, process);
+		Expression result = solve(formula, constraint, indices, process);
+		return result;
+	}
 
 	/**
 	 * Solves a problem for the given formula.
-	 * Assumes it is already simplified with respect to context represented by constraint map.
+	 * Assumes it is already simplified with respect to context represented by constraint.
 	 */
-	protected Expression solve(Expression formula, Map<Expression, Collection<Expression>> constraintMap, Collection<Expression> indices, RewritingProcess process) {
+	private Expression solve(Expression formula, TheoryConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
 		
 		Expression result = null;
 		
-		if (formula.equals(Expressions.FALSE) || constraintMap == null) {
-			result = neutralElement();
+		if (formula.equals(Expressions.FALSE) || constraint == null) {
+			result = neutralSolution();
 		}
 		else {
 			Expression splitter = pickAtomFromFormula(formula, indices, process);
 			if (splitter == null) { // formula is 'true'
 				// check if we need to split in order for constraint to get ready to be counted
-				splitter = pickAtomFromConstraintMap(constraintMap, process);
+				splitter = constraint.pickAtom(process);
 				// the splitting stops only when the formula has no atoms, *and* when the constraint satisfies some necessary conditions
 				if (splitter == null) {
 					// formula is 'true' and constraint is ready to be counted
-					result = solutionForConstraintMap(indices, constraintMap, process);
+					result = constraint.solution(indices, process);
 				}
 			}
 	
@@ -192,7 +205,7 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 	
 				// Solve sub-problem under disequality first since it does not require indices processing and may make sub-problem under equality irrelevant.
 				Expression formulaUnderDisequality = SimplifyFormula.applyDisequalityTo(formula, variable, otherTerm, process);
-				Map<Expression, Collection<Expression>> constraintMapUnderDisequality = applyDisequalityToConstraint(constraintMap, variable, otherTerm, indices, process);
+				TheoryConstraint constraintMapUnderDisequality = constraint.applyDisequality(variable, otherTerm, indices, process);
 				Collection<Expression> indicesUnderDisequality = indices;
 				Expression solutionUnderDisequality = solve(formulaUnderDisequality, constraintMapUnderDisequality, indicesUnderDisequality, process);
 	
@@ -203,7 +216,7 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 				}
 				else {
 					Expression formulaUnderEquality = SimplifyFormula.applyEqualityTo(formula, variable, otherTerm, process);
-					Map<Expression, Collection<Expression>> constraintMapUnderEquality = applyEqualityToConstraint(constraintMap, variable, otherTerm, indices, process);
+					TheoryConstraint constraintMapUnderEquality = constraint.applyEquality(variable, otherTerm, indices, process);
 					Collection<Expression> indicesUnderEquality = ! indices.contains(variable)? indices : Util.makeSetWithoutExcludedElement(indices, variable);
 					Expression solutionUnderEquality = solve(formulaUnderEquality, constraintMapUnderEquality, indicesUnderEquality, process);
 	
@@ -301,4 +314,6 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 
 		return result;
 	}
+
+	///////////////////////////// END OF FIXED PART OF GENERIC DPLL //////////////////////////////////////
 }

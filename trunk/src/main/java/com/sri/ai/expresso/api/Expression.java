@@ -215,6 +215,12 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	public Object getValue();
 
 	/** 
+	 * Returns the value of the symbol as a boolean.
+	 * An error is thrown if the value of the symbol is not a boolean.
+	 */
+	boolean booleanValue();
+
+	/** 
 	 * Returns the value of the symbol as an int. This may involve rounding or truncation.
 	 * An error is thrown if the value of the symbol is not a number.
 	 */
