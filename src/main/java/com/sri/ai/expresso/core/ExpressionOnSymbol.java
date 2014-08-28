@@ -158,6 +158,14 @@ public class ExpressionOnSymbol extends AbstractExpression {
 	}
 
 	@Override
+	public boolean booleanValue() {
+		if (getSyntaxTree().getLabel() instanceof Boolean) {
+			return ((Boolean) getSyntaxTree().getLabel()).booleanValue();
+		}
+		throw new Error("Expression.intValue() invoked on " + this + ", which is not a boolean.");
+	}
+
+	@Override
 	public int intValue() {
 		if (getSyntaxTree().getLabel() instanceof Number) {
 			return ((Number) getSyntaxTree().getLabel()).intValue();
