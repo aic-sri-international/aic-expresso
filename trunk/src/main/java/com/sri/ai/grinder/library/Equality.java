@@ -166,6 +166,13 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 		return Expressions.apply("=", expressions);
 	}
 
+	/** Make equality of two terms, simplifying if possible, taking into account that constants are uniquely named. */
+	public static Expression makeWithConstantSimplification(Expression term1, Expression term2, RewritingProcess process) {
+		Expression equality = make(term1, term2);
+		Expression result = equalityResultIfItIsKnown(equality, process);
+		return result;
+	}
+
 	public static BinaryFunction<Expression, Expression, Expression> MAKE_PAIR_EQUALITY = new BinaryFunction<Expression, Expression, Expression>() {
 		@Override
 		public Expression apply(Expression e1, Expression e2) {
