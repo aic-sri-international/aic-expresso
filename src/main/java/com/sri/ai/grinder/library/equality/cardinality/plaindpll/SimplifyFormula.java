@@ -63,7 +63,7 @@ public class SimplifyFormula {
 		formula = topSimplify(formula, process);
 		if (formula.getSyntacticFormType().equals("Function application")) {
 			ArrayList<Expression> simplifiedArguments =
-					Util.mapIntoArrayList(formula.getArguments(), new SimplifyFunction(process));
+					Util.mapIntoArrayList(formula.getArguments(), new SimplifyAsFunction(process));
 			formula = Expressions.apply(formula.getFunctor(), simplifiedArguments);
 			formula = topSimplify(formula, process);
 		}
@@ -166,18 +166,18 @@ public class SimplifyFormula {
 				result = formula;
 			}
 		}
-		else if (IfThenElse.isIfThenElse(formula)) {
+		else if (formula.hasFunctor(FunctorConstants.IF_THEN_ELSE)) {
 			result = IfThenElse.simplify(formula);
 		}
 		
 		return result;
 	}
 
-	private static class SimplifyFunction implements Function<Expression, Expression> {
+	private static class SimplifyAsFunction implements Function<Expression, Expression> {
 	
 		RewritingProcess process;
 		
-		public SimplifyFunction(RewritingProcess process) {
+		public SimplifyAsFunction(RewritingProcess process) {
 			this.process = process;
 		}
 		
@@ -188,14 +188,21 @@ public class SimplifyFormula {
 		}
 	}
 
-	protected static Expression applyEqualityTo(Expression formula, Expression variable, Expression otherTerm, RewritingProcess process) {
-		Expression result = formula.replaceAllOccurrences(variable, otherTerm, process);
+	/**
+	 * Applies an equality between two terms to a formula by replacing the first one by the second everywhere and simplifying the result.
+	 */
+	protected static Expression applyEqualityTo(Expression formula, Expression equalityOfTwoTerms, RewritingProcess process) {
+		Expression term1 = equalityOfTwoTerms.get(0);
+		Expression term2 = equalityOfTwoTerms.get(1);
+		Expression result = formula.replaceAllOccurrences(term1, term2, process);
 		result = simplify(result, process);
 		return result;
 	}
 
-	protected static Expression applyDisequalityTo(Expression formula, final Expression variable, final Expression otherTerm, RewritingProcess process) {
-		Expression result = formula.replaceAllOccurrences(new SimplifyAtomGivenDisequality(variable, otherTerm), process);
+	protected static Expression applyDisequalityTo(Expression formula, Expression disequality, RewritingProcess process) {
+		Expression term1 = disequality.get(0);
+		Expression term2 = disequality.get(1);
+		Expression result = formula.replaceAllOccurrences(new SimplifyAtomGivenDisequality(term1, term2), process);
 		result = simplify(result, process);
 		return result;
 	}

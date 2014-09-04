@@ -54,8 +54,9 @@ public interface TheoryConstraint {
 	/**
 	 * Indicates which atom needs to be split for constraint to become closer to state
 	 * for which solutions can be computed in polynomial time, or null if it is already in such a state.
+	 * @param indices TODO
 	 */
-	public Expression pickAtom(RewritingProcess process);
+	public Expression pickAtom(Collection<Expression> indices, RewritingProcess process);
 	
 	/**
 	 * Computes solution for constraint in polynomial time.
@@ -63,12 +64,12 @@ public interface TheoryConstraint {
 	public Expression solution(Collection<Expression> indices, RewritingProcess process);
 
 	/**
-	 * Generates new constraint representing conjunction of given equality and given constraint.
+	 * Generates new constraint representing conjunction of this constraint and given splitter.
 	 */
-	public TheoryConstraint applyEquality(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process);
+	public TheoryConstraint applySplitter(Expression splitter, Collection<Expression> indices, RewritingProcess process);
 
 	/**
-	 * Generates new constraint representing conjunction of given disequality and given constraint.
+	 * Generates new constraint representing conjunction of this constraint and the negation of given splitter.
 	 */
-	public TheoryConstraint applyDisequality(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process);
+	public TheoryConstraint applySplitterNegation(Expression splitter, Collection<Expression> indices, RewritingProcess process);
 }

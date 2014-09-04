@@ -46,13 +46,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
-import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.util.Util;
-import com.sri.ai.util.base.Equals;
-import com.sri.ai.util.base.Not;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -113,10 +107,6 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 	 * which requires merging their trees.
 	 * When the splitter atom is picked and it contains a free variable and an index (as second argument),
 	 * we invert it to make sure the index (if there is one) is the variable to be eliminated.
-	 * 
-	 * I have the intuition that the returned conditionals will be complete
-	 * (in the sense that every condition is both satisfiable and falsifiable),
-	 * but a proper, non-trivial proof is needed.
 	 */
 	
 	///////////////////////////// BEGINNING OF ABSTRACT METHODS //////////////////////////////////////
@@ -129,13 +119,13 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 	/**
 	 * Defines the solution the combination of which with any other solution S produces S itself (for example, 0 in model counting and false in satisfiability).
 	 */
-	protected abstract Expression neutralSolution();
+	protected abstract Expression bottomSolution();
 
 	/**
 	 * Indicates whether given solution for a sub-problem makes the other sub-problem for an index conditioning irrelevant
 	 * (for example, the solution 'true' in satisfiability, or the total number of possible models, in model counting).
 	 */
-	protected abstract boolean isShortCircuitingSolution(Expression solutionForSubProblem);
+	protected abstract boolean isTopSolution(Expression solutionForSubProblem);
 	
 	/**
 	 * Combines two unconditional solutions for split sub-problems
@@ -147,6 +137,34 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 	 * Converts a conjunction of atoms into the equivalent {@link #TheoryConstraint} object.
 	 */
 	protected abstract TheoryConstraint makeConstraint(Expression atomsConjunction, Collection<Expression> indices, RewritingProcess process);
+
+	/**
+	 * Returns given subExpression (or an atom equivalent to it) if it is appropriate to be a DPLL splitter atom,
+	 * or <code>null</code> otherwise.
+	 */
+	protected abstract Expression expressionIsSplitterCandidate(Expression subExpression, Collection<Expression> indices, RewritingProcess process);
+	
+	/**
+	 * Returns simplification of formula given splitter.
+	 */
+	protected abstract Expression applySplitterTo(Expression formula, Expression splitter, RewritingProcess process);
+
+	/**
+	 * Returns simplification of formula given splitter negation.
+	 */
+	protected abstract Expression applySplitterNegationTo(Expression formula, Expression splitter, RewritingProcess process);
+
+	/**
+	 * Returns indices to be used given splitter.
+	 */
+	protected abstract Collection<Expression> getIndicesUnderSplitter(Expression splitter, Collection<Expression> indices);
+	
+	/**
+	 * Returns indices to be used given splitter negation.
+	 */
+	protected abstract Collection<Expression> getIndicesUnderSplitterNegation(Expression splitter, Collection<Expression> indices);
+	
+	abstract protected boolean splitterIsOnFreeVariablesOnly(Expression splitter, Collection<Expression> indices);
 
 	///////////////////////////// END OF ABSTRACT METHODS //////////////////////////////////////
 
@@ -160,11 +178,11 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 	}
 
 	/**
-	 * Returns the solution of a problem.
-	 * Assumes it is already simplified with respect to context.
+	 * Returns the solution of a problem under a given constraint, which must be a conjunction of atoms, or true.
+	 * Assumes it is already simplified with respect to constraint.
 	 */
-	private Expression solve(Expression formula, Expression constraintFormula, Collection<Expression> indices, RewritingProcess process) {
-		TheoryConstraint constraint = makeConstraint(constraintFormula, indices, process);
+	private Expression solve(Expression formula, Expression constraintConjunctionOfAtoms, Collection<Expression> indices, RewritingProcess process) {
+		TheoryConstraint constraint = makeConstraint(constraintConjunctionOfAtoms, indices, process);
 		Expression result = solve(formula, constraint, indices, process);
 		return result;
 	}
@@ -178,53 +196,36 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 		Expression result = null;
 		
 		if (formula.equals(Expressions.FALSE) || constraint == null) {
-			result = neutralSolution();
+			result = bottomSolution();
 		}
 		else {
 			Expression splitter = pickAtomFromFormula(formula, indices, process);
 			if (splitter == null) { // formula is 'true'
-				// check if we need to split in order for constraint to get ready to be counted
-				splitter = constraint.pickAtom(process);
+				// check if we need to split in order for constraint to get ready to yield solution (such as providing number of solutions
+				splitter = constraint.pickAtom(indices, process);
 				// the splitting stops only when the formula has no atoms, *and* when the constraint satisfies some necessary conditions
 				if (splitter == null) {
-					// formula is 'true' and constraint is ready to be counted
+					// formula is 'true' and constraint is ready to yield solution
 					result = constraint.solution(indices, process);
 				}
 			}
 	
-			if (splitter != null) {
-				Expression variable  = splitter.get(0);
-				Expression otherTerm = splitter.get(1);
-				
-				// if variable is a free variable and other term is an index, we invert them because conditions must be on free variables only,
-				// so it must be the index to be eliminated (replaced by otherTerm).
-				if ( ! indices.contains(variable) && indices.contains(otherTerm) ) {
-					variable  = splitter.get(1);
-					otherTerm = splitter.get(0);
-				}
+			if (splitter != null) { // it is tempting to make this an else to if(splitter == null) but that would not work because it needs to be an else for the inner if as well.
+				Expression solutionUnderSplitter = solveUnderSplitter(splitter, formula, constraint, indices, process);
 	
-				// Solve sub-problem under disequality first since it does not require indices processing and may make sub-problem under equality irrelevant.
-				Expression formulaUnderDisequality = SimplifyFormula.applyDisequalityTo(formula, variable, otherTerm, process);
-				TheoryConstraint constraintMapUnderDisequality = constraint.applyDisequality(variable, otherTerm, indices, process);
-				Collection<Expression> indicesUnderDisequality = indices;
-				Expression solutionUnderDisequality = solve(formulaUnderDisequality, constraintMapUnderDisequality, indicesUnderDisequality, process);
+				boolean conditionIsOnFreeVariablesOnly = splitterIsOnFreeVariablesOnly(splitter, indices);
 	
-				boolean conditionOnFreeVariable = ! indices.contains(variable);
-	
-				if ( ! conditionOnFreeVariable && isShortCircuitingSolution(solutionUnderDisequality)) {
-					result = solutionUnderDisequality;
+				if ( ! conditionIsOnFreeVariablesOnly && isTopSolution(solutionUnderSplitter)) {
+					result = solutionUnderSplitter;
 				}
 				else {
-					Expression formulaUnderEquality = SimplifyFormula.applyEqualityTo(formula, variable, otherTerm, process);
-					TheoryConstraint constraintMapUnderEquality = constraint.applyEquality(variable, otherTerm, indices, process);
-					Collection<Expression> indicesUnderEquality = ! indices.contains(variable)? indices : Util.makeSetWithoutExcludedElement(indices, variable);
-					Expression solutionUnderEquality = solve(formulaUnderEquality, constraintMapUnderEquality, indicesUnderEquality, process);
+					Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, formula, constraint, indices, process);
 	
-					if (conditionOnFreeVariable) {
-						result = IfThenElse.make(Equality.make(variable, otherTerm), solutionUnderEquality, solutionUnderDisequality);
+					if (conditionIsOnFreeVariablesOnly) {
+						result = IfThenElse.make(splitter, solutionUnderSplitter, solutionUnderSplitterNegation);
 					}
 					else {
-						result = combineSymbolicResults(solutionUnderEquality, solutionUnderDisequality, process);
+						result = combineSymbolicResults(solutionUnderSplitter, solutionUnderSplitterNegation, process);
 					}
 				}
 			}
@@ -233,26 +234,35 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 		return result;
 	}
 
+	protected Expression solveUnderSplitter(Expression splitter, Expression formula, TheoryConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
+		Expression formulaUnderSplitter = applySplitterTo(formula, splitter, process);
+		TheoryConstraint constraintUnderSplitter = constraint.applySplitter(splitter, indices, process);
+		Collection<Expression> indicesUnderSplitter = getIndicesUnderSplitter(splitter, indices);
+		Expression result = solve(formulaUnderSplitter, constraintUnderSplitter, indicesUnderSplitter, process);
+		return result;
+	}
+
+	protected Expression solveUnderSplitterNegation(Expression splitter, Expression formula, TheoryConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
+		Expression formulaUnderSplitterNegation = applySplitterNegationTo(formula, splitter, process);
+		TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitterNegation(splitter, indices, process);
+		Collection<Expression> indicesUnderSplitterNegation = getIndicesUnderSplitterNegation(splitter, indices);
+		Expression result = solve(formulaUnderSplitterNegation, constraintUnderSplitterNegation, indicesUnderSplitterNegation, process);
+		return result;
+	}
+
+	/**
+	 * Receives formula assumed to not be 'false',
+	 * and returns atom to do next splitting, or null if there is none.
+	 * Since the formula is not 'false', a returned null implies that the formula is 'true'.
+	 */
 	private Expression pickAtomFromFormula(Expression formula, Collection<Expression> indices, RewritingProcess process) {
 
 		Expression result = null;
 
 		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(formula);
 		while (result == null && subExpressionIterator.hasNext()) {
-
 			Expression subExpression = subExpressionIterator.next();
-
-			if (subExpression.hasFunctor(FunctorConstants.EQUALITY) || 
-					subExpression.hasFunctor(FunctorConstants.DISEQUALITY)) {
-
-				Expression variable = Util.getFirstSatisfyingPredicateOrNull(
-						subExpression.getArguments(), new IsVariable(process));
-
-				Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(
-						subExpression.getArguments(), Not.make(Equals.make(variable)));
-
-				result = Equality.make(variable, otherTerm);
-			}
+			result = expressionIsSplitterCandidate(subExpression, indices, process);
 		}
 
 		return result;
@@ -270,8 +280,8 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 			Expression condition  = IfThenElse.getCondition(solution1);
 			Expression thenBranch = IfThenElse.getThenBranch(solution1);
 			Expression elseBranch = IfThenElse.getElseBranch(solution1);
-			Expression solution2UnderCondition    = SimplifyFormula.applyEqualityTo(   solution2, condition.get(0), condition.get(1), process);
-			Expression solution2UnderNotCondition = SimplifyFormula.applyDisequalityTo(solution2, condition.get(0), condition.get(1), process);
+			Expression solution2UnderCondition    = applySplitterTo        (solution2, condition, process);
+			Expression solution2UnderNotCondition = applySplitterNegationTo(solution2, condition, process);
 			Expression newThenBranch = combineSymbolicResults(thenBranch, solution2UnderCondition,    process);
 			Expression newElseBranch = combineSymbolicResults(elseBranch, solution2UnderNotCondition, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
@@ -280,8 +290,8 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 			Expression condition  = IfThenElse.getCondition(solution2);
 			Expression thenBranch = IfThenElse.getThenBranch(solution2);
 			Expression elseBranch = IfThenElse.getElseBranch(solution2);
-			Expression solution1UnderCondition    = SimplifyFormula.applyEqualityTo(   solution1, condition.get(0), condition.get(1), process);
-			Expression solution1UnderNotCondition = SimplifyFormula.applyDisequalityTo(solution1, condition.get(0), condition.get(1), process);
+			Expression solution1UnderCondition    = applySplitterTo        (solution1, condition, process);
+			Expression solution1UnderNotCondition = applySplitterNegationTo(solution1, condition, process);
 			Expression newThenBranch = combineSymbolicResults(solution1UnderCondition,    thenBranch, process);
 			Expression newElseBranch = combineSymbolicResults(solution1UnderNotCondition, elseBranch, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch);

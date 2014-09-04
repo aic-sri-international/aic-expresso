@@ -49,7 +49,6 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable.DomainSizeOfLogicalVariable;
@@ -57,7 +56,7 @@ import com.sri.ai.util.Util;
 
 @SuppressWarnings("serial")
 /**
- * Represents and manipulates constraints in the theory of equalities of symbols (variables and constants).
+ * Represents and manipulates constraints in the theory of equalities of symbols (variables and constants) for model counting purposes.
  * 
  * It does this by keeping the equivalent of a conjunction of disequalities in a map from each variable to
  * the terms constraint to be distinct from it that are defined before it in the choosing order
@@ -72,28 +71,32 @@ import com.sri.ai.util.Util;
  * The algorithm does check and enforces this guarantee.
  */
 @Beta
-public class SymbolEqualityConstraint extends LinkedHashMap<Expression, Collection<Expression>> implements TheoryConstraint {
+public class SymbolEqualityModelCountingConstraint extends LinkedHashMap<Expression, Collection<Expression>> implements TheoryConstraint {
 
-	public SymbolEqualityConstraint() {
+	public SymbolEqualityModelCountingConstraint() {
 		super();
 	}
 
-	public SymbolEqualityConstraint(SymbolEqualityConstraint another) {
+	public SymbolEqualityModelCountingConstraint(SymbolEqualityModelCountingConstraint another) {
 		super(another);
 	}
 
-	public SymbolEqualityConstraint(Expression atomsConjunction, Collection<Expression> indices, RewritingProcess process) {
-		if ( ! atomsConjunction.equals(Expressions.TRUE) && ! atomsConjunction.equals(Expressions.FALSE)) {
+	public SymbolEqualityModelCountingConstraint(Expression atomsConjunction, Collection<Expression> indices, RewritingProcess process) {
+		if (atomsConjunction.equals(Expressions.FALSE)) {
+			throw new Error("Cannot create a SymbolEqualityModelCountingConstraint from a false constraint");
+		}
+
+		if ( ! atomsConjunction.equals(Expressions.TRUE)) {
 
 			List<Expression> conjuncts = And.getConjuncts(atomsConjunction);
 
 			for (Expression disequalityConjunct : conjuncts) {
 				Expression term1 = disequalityConjunct.get(0);
 				Expression term2 = disequalityConjunct.get(1);
-				if (process.isVariable(term1) && firstTermAlreadyDefinedWhenChoosingValueForSecondOne(term2, term1, indices, process)) {
+				if (process.isVariable(term1) && whenChoosingValueForVariableOtherTermIsAlreadyDefined(term1, term2, indices, process)) {
 					Util.addToCollectionValuePossiblyCreatingIt(this, term1, term2, LinkedHashSet.class);
 				}
-				if (process.isVariable(term2) && firstTermAlreadyDefinedWhenChoosingValueForSecondOne(term1, term2, indices, process)) {
+				if (process.isVariable(term2) && whenChoosingValueForVariableOtherTermIsAlreadyDefined(term2, term1, indices, process)) {
 					Util.addToCollectionValuePossiblyCreatingIt(this, term2, term1, LinkedHashSet.class);
 				}
 			}
@@ -101,12 +104,11 @@ public class SymbolEqualityConstraint extends LinkedHashMap<Expression, Collecti
 	}
 
 	@Override
-	public Expression pickAtom(RewritingProcess process) {
-		Expression result = null;
-		
-		for (Map.Entry<Expression, Collection<Expression>> entryForVariable1 : entrySet()) {
+	public Expression pickAtom(Collection<Expression> indices, RewritingProcess process) {
+
+		for (Expression index : indices) {
 			
-			Collection<Expression> distinctPredefinedTermsForVariable1 = entryForVariable1.getValue();
+			Collection<Expression> distinctPredefinedTermsForVariable1 = getDistinctPredefinedTermsFrom(index, this);
 			
 			for (Expression distinctPredefinedVariable2 : distinctPredefinedTermsForVariable1) {
 				if (process.isVariable(distinctPredefinedVariable2)) {
@@ -117,15 +119,20 @@ public class SymbolEqualityConstraint extends LinkedHashMap<Expression, Collecti
 							getDistinctPredefinedTermForVariable1ThatIsNotVariable2AndIsNotDistinctFromVariable2(
 									distinctPredefinedTermsForVariable1, distinctPredefinedTermsForVariable2, distinctPredefinedVariable2, this);
 					if (distinctPredefinedTermForVariable1ThatIsNotVariable2AndIsNotDistinctPredefinedForVariable2 != null) {
-						Expression atom = Equality.make(
-								distinctPredefinedVariable2, distinctPredefinedTermForVariable1ThatIsNotVariable2AndIsNotDistinctPredefinedForVariable2);
+						
+						Expression atom =
+								PlainCardinalityDPLLWithFreeVariables
+								.makeSplitterWithIndexIfAnyComingFirst(
+										distinctPredefinedVariable2,
+										distinctPredefinedTermForVariable1ThatIsNotVariable2AndIsNotDistinctPredefinedForVariable2, indices);
+
 						return atom;
 					}
 				}
 			}
 		}
 		
-		return result;
+		return null;
 	}
 
 	@Override
@@ -144,44 +151,36 @@ public class SymbolEqualityConstraint extends LinkedHashMap<Expression, Collecti
 	}
 
 	@Override
-	public TheoryConstraint applyEquality(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
+	public TheoryConstraint applySplitter(Expression splitter, Collection<Expression> indices, RewritingProcess process) {
 		
+		Expression variable  = splitter.get(0);
+		Expression otherTerm = splitter.get(1);
+
 		if (equalityIsInconsistentWithConstraintMap(variable, otherTerm, this)) {
 			return null;
 		}
 		
-		TheoryConstraint newConstraint = new SymbolEqualityConstraint();
-		addAllDisequalitiesFromVariableToOtherTermInNewConstraintMap(variable, otherTerm, newConstraint, this, indices, process);
-		for (Map.Entry<Expression, Collection<Expression>> entry : entrySet()) {
-			if ( ! entry.getKey().equals(variable) && ! entry.getKey().equals(otherTerm)) {
-				if (entry.getValue().contains(variable)) {
-					Set<Expression> newDistinctFromKey = new LinkedHashSet<Expression>(entry.getValue());
-					((SymbolEqualityConstraint)newConstraint).put(entry.getKey(), newDistinctFromKey); // puts same disequalities in new map, but this incorrectly includes 'variable'
-					newDistinctFromKey.remove(variable); // so we remove it from the set (it is already in 'newConstraintMap')
-					addDisequalityToConstraintMapDestructively(entry.getKey(), otherTerm, newConstraint, indices, process); // add 'otherTerm' wherever appropriate.
-				}
-				else {
-					((SymbolEqualityConstraint)newConstraint).put(entry.getKey(), entry.getValue()); // shares sets between constraint maps
-				}
-			}
-		}
+		TheoryConstraint newConstraint = new SymbolEqualityModelCountingConstraint();
+		addAllDisequalitiesFromVariableToDisequalitiesToOtherTermInNewConstraint(variable, otherTerm, newConstraint, this, indices, process);
+		copyEntriesForAllKeysThatAreNotVariableOrOtherTermWhileReplacingVariableByOtherTermIfNeeded(newConstraint, variable, otherTerm, indices, process);
 		
 		return newConstraint;
 	}
 
 	@Override
-	public TheoryConstraint applyDisequality(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
+	public TheoryConstraint applySplitterNegation(Expression splitter, Collection<Expression> indices, RewritingProcess process) {
 		
-		TheoryConstraint result = new SymbolEqualityConstraint(this);
-		if (firstTermAlreadyDefinedWhenChoosingValueForSecondOne(otherTerm, variable, indices, process)) {
-			addSetOfDistinctTermsForTerm1OnConstraintMapBasedOnOldConstraintMapAndIncludingDisequalityFromTerm2(
-					result, variable, otherTerm, this);
+		Expression variable  = splitter.get(0);
+		Expression otherTerm = splitter.get(1);
+
+		TheoryConstraint newConstraint = new SymbolEqualityModelCountingConstraint(this);
+		if (whenChoosingValueForVariableOtherTermIsAlreadyDefined(variable, otherTerm, indices, process)) {
+			copySetOfDistinctTermsForTerm1AndAddDisequalityFromTerm2(newConstraint, variable, otherTerm, this);
 		}
 		else {
-			addSetOfDistinctTermsForTerm1OnConstraintMapBasedOnOldConstraintMapAndIncludingDisequalityFromTerm2(
-					result, otherTerm, variable, this);
+			copySetOfDistinctTermsForTerm1AndAddDisequalityFromTerm2(newConstraint, otherTerm, variable, this);
 		}
-		return result;
+		return newConstraint;
 	}
 
 	private static long getDomainSize(Expression variable, RewritingProcess process) {
@@ -227,20 +226,37 @@ public class SymbolEqualityConstraint extends LinkedHashMap<Expression, Collecti
 	}
 
 	private static Collection<Expression> getDistinctPredefinedTermsFrom(Expression variable, TheoryConstraint constraint) {
-		return Util.getOrUseDefault(((SymbolEqualityConstraint)constraint), variable, Collections.<Expression> emptyList());
+		return Util.getOrUseDefault(((SymbolEqualityModelCountingConstraint)constraint), variable, Collections.<Expression> emptyList());
 	}
 
-	private static void addAllDisequalitiesFromVariableToOtherTermInNewConstraintMap(Expression variable, Expression otherTerm, TheoryConstraint newConstraintMap, TheoryConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
+	private static void addAllDisequalitiesFromVariableToDisequalitiesToOtherTermInNewConstraint(Expression variable, Expression otherTerm, TheoryConstraint newConstraint, TheoryConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
 		Collection<Expression> distinctOnesFromVariable = getDistinctPredefinedTermsFrom(variable, constraint);
 		for (Expression distinctFromVariable : distinctOnesFromVariable) {
-			addDisequalityToConstraintMapDestructively(otherTerm, distinctFromVariable, newConstraintMap, indices, process);
+			addDisequalityToConstraintDestructively(otherTerm, distinctFromVariable, newConstraint, indices, process);
+		}
+	}
+
+	private void copyEntriesForAllKeysThatAreNotVariableOrOtherTermWhileReplacingVariableByOtherTermIfNeeded(TheoryConstraint newConstraint, Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
+		for (Map.Entry<Expression, Collection<Expression>> entry : entrySet()) {
+			if ( ! entry.getKey().equals(variable) && ! entry.getKey().equals(otherTerm)) {
+				if (entry.getValue().contains(variable)) { // for those keys that are are constrained to be distinct from variable
+					// we will create a new set of constraints, put it under the key in the new constraint map, remove variable, and add other term instead
+					Set<Expression> newDistinctFromKey = new LinkedHashSet<Expression>(entry.getValue());
+					((SymbolEqualityModelCountingConstraint)newConstraint).put(entry.getKey(), newDistinctFromKey); // puts same disequalities in new constraints, but this incorrectly includes 'variable'
+					newDistinctFromKey.remove(variable); // so we remove it from the set (it is already in 'newConstraint')
+					addDisequalityToConstraintDestructively(entry.getKey(), otherTerm, newConstraint, indices, process); // add 'otherTerm' wherever appropriate.
+				}
+				else { // for those not constrained to be different from variable, we simply re-use the set of constraints in new constraint map
+					((SymbolEqualityModelCountingConstraint)newConstraint).put(entry.getKey(), entry.getValue()); // shares sets between constraint maps
+				}
+			}
 		}
 	}
 
 	/** Assumes at least one of the two terms is a variable. */
-	private static void addDisequalityToConstraintMapDestructively(
+	private static void addDisequalityToConstraintDestructively(
 			Expression term1, Expression term2, TheoryConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
-		if (firstTermAlreadyDefinedWhenChoosingValueForSecondOne(term2, term1, indices, process)) {
+		if (whenChoosingValueForVariableOtherTermIsAlreadyDefined(term1, term2, indices, process)) {
 			addFirstTermToDistinctTermsFromSecondTermDestructively(term1, term2, constraint);
 		}
 		else {
@@ -249,19 +265,19 @@ public class SymbolEqualityConstraint extends LinkedHashMap<Expression, Collecti
 	}
 
 	private static void addFirstTermToDistinctTermsFromSecondTermDestructively(Expression term1, Expression term2, TheoryConstraint constraint) {
-		Set<Expression> distinctFromTerm1 = (Set<Expression>) Util.getValuePossiblyCreatingIt(((SymbolEqualityConstraint)constraint), term1, LinkedHashSet.class);
+		Set<Expression> distinctFromTerm1 = (Set<Expression>) Util.getValuePossiblyCreatingIt(((SymbolEqualityModelCountingConstraint)constraint), term1, LinkedHashSet.class);
 		distinctFromTerm1.add(term2);
 	}
 
-	private static void addSetOfDistinctTermsForTerm1OnConstraintMapBasedOnOldConstraintMapAndIncludingDisequalityFromTerm2(
+	private static void copySetOfDistinctTermsForTerm1AndAddDisequalityFromTerm2(
 			TheoryConstraint newConstraint, Expression term1, Expression term2, TheoryConstraint oldConstraintMap) {
 		Set<Expression> distinctTermsFromTerm1 = new LinkedHashSet<Expression>(getDistinctPredefinedTermsFrom(term1, oldConstraintMap));
 		distinctTermsFromTerm1.add(term2);
-		((SymbolEqualityConstraint)newConstraint).put(term1, distinctTermsFromTerm1);
+		((SymbolEqualityModelCountingConstraint)newConstraint).put(term1, distinctTermsFromTerm1);
 	}
 
-	private static boolean firstTermAlreadyDefinedWhenChoosingValueForSecondOne(Expression term, Expression variable, Collection<Expression> indices, RewritingProcess process) {
-		boolean result = process.isConstant(term) || variablePrecedesAnother(term, variable, indices);
+	private static boolean whenChoosingValueForVariableOtherTermIsAlreadyDefined(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
+		boolean result = process.isConstant(otherTerm) || variablePrecedesAnother(otherTerm, variable, indices);
 		return result;
 	}
 

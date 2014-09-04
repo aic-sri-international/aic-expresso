@@ -74,7 +74,7 @@ public class PlainCardinalityDPLLWithFreeVariablesStressTest {
 	public int     getMinimumSize()              { return 2;     }
 	public int     getMaximumSize()              { return 7;     }
 	public int     getNumberOfRunsForAveraging() { return 10;    }
-	public boolean isConsoleOutput()             { return false; }
+	public boolean isConsoleOutput()             { return true;  }
 
 	@Before
 	public void ignoreTest() {

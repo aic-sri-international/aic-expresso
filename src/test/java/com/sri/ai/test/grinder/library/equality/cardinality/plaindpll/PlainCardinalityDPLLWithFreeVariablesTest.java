@@ -67,6 +67,17 @@ public class PlainCardinalityDPLLWithFreeVariablesTest {
 		
 		GrinderUtil.setMinimumOutputForProfiling();
 		
+//		// tests answer completeness
+//		expression  = Expressions.parse("(Y = a and X = T) or (Y != a and X = T1 and T = T1)");
+//		indices     = Util.list("Y");
+//		// original algorithm provided this incomplete solution due to incomplete condition-applying-on-solution algorithm used in externalization
+//		// expected = Expressions.parse("if X = T then if T = T1 then if T = T1 then 10 else 1 else 1 else (if X = T1 then if T = T1 then 9 else 0 else 0)");
+//		expected    = Expressions.parse("if X = T then if T = T1 then 10 else 1 else (if X = T1 then 9 else 0)");
+//		runTest(expression, indices, expected);
+		
+		
+		
+		
 		expression = Expressions.parse("X != Y");
 		indices    = Util.list("X");
 		expected   = Expressions.parse("9");
