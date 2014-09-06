@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.library;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -134,6 +135,19 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 		return FUNCTOR;
 	}
 	
+	/**
+	 * Given a two-argument equality with at least one variable argument,
+	 * returns an equivalent equality with first argument guaranteed not to be a constant,
+	 * guaranteeing that original instance is returned if both arguments are variables.
+	 */
+	public static Expression makeSureFirstArgumentIsNotAConstant(Expression twoArgumentEquality, RewritingProcess process) {
+		Expression result = twoArgumentEquality;
+		if (process.isConstant(twoArgumentEquality.get(0))) {
+			result = make(twoArgumentEquality.get(1), twoArgumentEquality.get(0));
+		}
+		return result;
+	}
+
 	public static Expression conditionForSubExpressionsEquality(Expression expression1, Expression expression2) {
 		List<Expression> conditionsForSubExpressionsToBeEqual = listOfEqualitiesOfSubExpressions(
 				expression1, expression2);
@@ -166,10 +180,77 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 		return Expressions.apply("=", expressions);
 	}
 
-	/** Make equality of two terms, simplifying if possible, taking into account that constants are uniquely named. */
-	public static Expression makeWithConstantSimplification(Expression term1, Expression term2, RewritingProcess process) {
-		Expression equality = make(term1, term2);
-		Expression result = equalityResultIfItIsKnown(equality, process);
+	/**
+	 * Makes an equality application while removing duplicates,
+	 * returning {@link Expressions.FALSE} if there is more than one uniquely named constant in arguments,
+	 * and returning {@link Expressions.TRUE} if all arguments are identical.
+	 */
+	public static Expression makeWithConstantSimplification(Expression equality, RewritingProcess process) {
+		
+		Collection<Expression> arguments = equality.getArguments();
+		
+		Expression result = null;
+
+		LinkedHashSet<Expression> newArguments = new LinkedHashSet<Expression>();
+		Expression constant = null;
+		
+		for (Expression argument : arguments) {
+			if (process.isConstant(argument)) {
+				if (constant == null) {
+					constant = argument;
+				}
+				else if (! argument.equals(constant)){
+					result = Expressions.FALSE;
+					break;
+				}
+			}
+			else {
+				newArguments.add(argument);
+			}
+		}
+		
+		if (result == null) {
+			if (constant != null) {
+				newArguments.add(constant);
+			}
+
+			if (newArguments.size() == 1) {
+				result = Expressions.TRUE;
+			}
+		}
+
+		if (result == null) {
+			if (arguments.size() == newArguments.size()) {
+				result = equality;
+			}
+			else {
+				result = Expressions.apply(FunctorConstants.EQUALITY, newArguments.toArray());
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Returns TRUE if given equality has all-equal arguments, FALSE if they contain distinct constants,
+	 * and the equality itself otherwise.
+	 * Note that this is much faster than eliminating duplicates as well, which requires constructing another equality.
+	 */
+	public static Expression checkForTrivialEqualityCases(Expression equality, RewritingProcess process) {
+		Expression result;
+		if (Util.allEqual(equality.getArguments())) {
+			result = Expressions.TRUE;
+		}
+		else {
+			Set<Expression> constants = new LinkedHashSet<Expression>();
+			Util.collect(equality.getArguments(), constants, process.getIsConstantPredicate());
+			if (constants.size() > 1) {
+				result = Expressions.FALSE;
+			}
+			else {
+				result = equality;
+			}
+		}
 		return result;
 	}
 

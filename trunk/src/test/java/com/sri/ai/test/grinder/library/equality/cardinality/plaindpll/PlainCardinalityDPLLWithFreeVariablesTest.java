@@ -67,13 +67,13 @@ public class PlainCardinalityDPLLWithFreeVariablesTest {
 		
 		GrinderUtil.setMinimumOutputForProfiling();
 		
-//		// tests answer completeness
-//		expression  = Expressions.parse("(Y = a and X = T) or (Y != a and X = T1 and T = T1)");
-//		indices     = Util.list("Y");
-//		// original algorithm provided this incomplete solution due to incomplete condition-applying-on-solution algorithm used in externalization
-//		// expected = Expressions.parse("if X = T then if T = T1 then if T = T1 then 10 else 1 else 1 else (if X = T1 then if T = T1 then 9 else 0 else 0)");
-//		expected    = Expressions.parse("if X = T then if T = T1 then 10 else 1 else (if X = T1 then 9 else 0)");
-//		runTest(expression, indices, expected);
+		// tests answer completeness
+		expression  = Expressions.parse("(Y = a and X = T) or (Y != a and X = T1 and T = T1)");
+		indices     = Util.list("Y");
+		// original algorithm provided this incomplete solution due to incomplete condition-applying-on-solution algorithm used in externalization
+		// expected = Expressions.parse("if X = T then if T = T1 then if T = T1 then 10 else 1 else 1 else (if X = T1 then if T = T1 then 9 else 0 else 0)");
+		expected    = Expressions.parse("if X = T then if T = T1 then 10 else 1 else (if X = T1 then 0 else 0)");
+		runTest(expression, indices, expected);
 		
 		
 		
@@ -191,6 +191,7 @@ public class PlainCardinalityDPLLWithFreeVariablesTest {
 		Rewriter cardinalityRewriter = new PlainCardinalityDPLLWithFreeVariables(countsDeclaration);
 		Expression set = IntensionalSet.makeMultiSetFromIndexExpressionsList(new ArrayList<Expression>(indices), Expressions.ONE, expression);
 		Expression cardinalityProblem = Expressions.apply(FunctorConstants.CARDINALITY, set);
+		System.out.println("Problem: " + cardinalityProblem);	
 		Expression actual = cardinalityRewriter.rewrite(cardinalityProblem, process);
 		Assert.assertEquals(expected, actual);
 	}

@@ -89,6 +89,24 @@ public class IfThenElse extends AbstractRewriter {
 		return expression;
 	}
 	
+	/**
+	 * Given an original if then else expression and a condition, then-branch and else-branch,
+	 * makes and returns a new if then else expression with these components only if at least one of them is a different instance from
+	 * the arguments of the original one, or returns the original otherwise.
+	 * This is useful if the arguments of the original expression have been through some potential transformation
+	 * and we want to return a new if then else that is nonetheless guaranteed to be the same instance if no transformation actually took place.
+	 */
+	public static Expression makeIfDistinctFrom(Expression original, Expression newCondition, Expression newThenBranch, Expression newElseBranch) {
+		Expression result;
+		if (newCondition != getCondition(original) || newThenBranch != getThenBranch(original) || newElseBranch != getElseBranch(original)) {
+			result = make(newCondition, newThenBranch, newElseBranch);
+		}
+		else {
+			result = original;
+		}
+		return result;
+	}
+
 	public static Expression flipBranchesWithThisCondition(Expression ifThenElse, Expression newCondition) {
 		Expression thenBranch = getThenBranch(ifThenElse);
 		Expression elseBranch = getElseBranch(ifThenElse);
