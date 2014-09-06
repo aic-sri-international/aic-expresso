@@ -37,7 +37,9 @@
  */
 package com.sri.ai.grinder.library;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -82,6 +84,28 @@ public class Disequality extends AbstractRewriterDefiningSymmetricFunction {
 
 	public Expression getFunctor() {
 		return FUNCTOR;
+	}
+
+	/**
+	 * Returns FALSE if given disequality has equal arguments, TRUE if they contain distinct constants,
+	 * and the disequality itself otherwise.
+	 */
+	public static Expression checkForTrivialDisequalityCases(Expression disequality, RewritingProcess process) {
+		Expression result;
+		if (disequality.get(0).equals(disequality.get(1))) {
+			result = Expressions.FALSE;
+		}
+		else {
+			Set<Expression> constants = new LinkedHashSet<Expression>();
+			Util.collect(disequality.getArguments(), constants, process.getIsConstantPredicate());
+			if (constants.size() > 1) {
+				result = Expressions.TRUE;
+			}
+			else {
+				result = disequality;
+			}
+		}
+		return result;
 	}
 
 	public static Expression conditionForSubExpressionsDisequality(

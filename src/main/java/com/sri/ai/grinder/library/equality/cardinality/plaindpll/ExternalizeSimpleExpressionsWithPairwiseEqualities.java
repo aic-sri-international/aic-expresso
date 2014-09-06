@@ -125,7 +125,7 @@ public class ExternalizeSimpleExpressionsWithPairwiseEqualities {
 			resultThenBranch = resultThenBranch.set(firstConditionalArgumentIndex, conditionalArgumentThenBranch);
 			for (int i = 0; i != expression.numberOfArguments(); i++) {
 				if (i != firstConditionalArgumentIndex) {
-					Expression simplifiedIthArgument = SimplifyFormula.applyEqualityTo(resultThenBranch.get(i), conditionalArgumentCondition, process);
+					Expression simplifiedIthArgument = SimplifyFormula.simplifyGivenEquality(resultThenBranch.get(i), conditionalArgumentCondition, process);
 					resultThenBranch = resultThenBranch.set(i, simplifiedIthArgument);
 				}
 			}
@@ -140,7 +140,7 @@ public class ExternalizeSimpleExpressionsWithPairwiseEqualities {
 			resultElseBranch = resultElseBranch.set(firstConditionalArgumentIndex, conditionalArgumentElseBranch);
 			for (int i = 0; i != expression.numberOfArguments(); i++) {
 				if (i != firstConditionalArgumentIndex) {
-					Expression simplifiedIthArgument = SimplifyFormula.applyDisequalityTo(resultElseBranch.get(i), conditionalArgumentCondition, process);
+					Expression simplifiedIthArgument = SimplifyFormula.simplifyGivenDisequality(resultElseBranch.get(i), conditionalArgumentCondition, process);
 					resultElseBranch = resultElseBranch.set(i, simplifiedIthArgument);
 				}
 			}

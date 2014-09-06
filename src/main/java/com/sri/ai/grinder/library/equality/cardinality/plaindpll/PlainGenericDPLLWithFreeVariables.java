@@ -154,6 +154,10 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 	 */
 	protected abstract Expression applySplitterNegationTo(Expression formula, Expression splitter, RewritingProcess process);
 
+	protected abstract Expression completeSimplifySolutionGivenSplitter(Expression solution, Expression splitter, RewritingProcess process);
+
+	protected abstract Expression completeSimplifySolutionGivenSplitterNegation(Expression solution, Expression splitter, RewritingProcess process);
+
 	/**
 	 * Returns indices to be used given splitter.
 	 */
@@ -280,8 +284,8 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 			Expression condition  = IfThenElse.getCondition(solution1);
 			Expression thenBranch = IfThenElse.getThenBranch(solution1);
 			Expression elseBranch = IfThenElse.getElseBranch(solution1);
-			Expression solution2UnderCondition    = applySplitterTo        (solution2, condition, process);
-			Expression solution2UnderNotCondition = applySplitterNegationTo(solution2, condition, process);
+			Expression solution2UnderCondition    = completeSimplifySolutionGivenSplitter        (solution2, condition, process);
+			Expression solution2UnderNotCondition = completeSimplifySolutionGivenSplitterNegation(solution2, condition, process);
 			Expression newThenBranch = combineSymbolicResults(thenBranch, solution2UnderCondition,    process);
 			Expression newElseBranch = combineSymbolicResults(elseBranch, solution2UnderNotCondition, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
@@ -290,8 +294,8 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 			Expression condition  = IfThenElse.getCondition(solution2);
 			Expression thenBranch = IfThenElse.getThenBranch(solution2);
 			Expression elseBranch = IfThenElse.getElseBranch(solution2);
-			Expression solution1UnderCondition    = applySplitterTo        (solution1, condition, process);
-			Expression solution1UnderNotCondition = applySplitterNegationTo(solution1, condition, process);
+			Expression solution1UnderCondition    = completeSimplifySolutionGivenSplitter        (solution1, condition, process);
+			Expression solution1UnderNotCondition = completeSimplifySolutionGivenSplitterNegation(solution1, condition, process);
 			Expression newThenBranch = combineSymbolicResults(solution1UnderCondition,    thenBranch, process);
 			Expression newElseBranch = combineSymbolicResults(solution1UnderNotCondition, elseBranch, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch);

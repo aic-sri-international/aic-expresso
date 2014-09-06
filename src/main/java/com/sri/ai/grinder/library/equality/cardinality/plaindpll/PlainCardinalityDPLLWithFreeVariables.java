@@ -137,13 +137,25 @@ public class PlainCardinalityDPLLWithFreeVariables extends PlainGenericDPLLWithF
 
 	@Override
 	protected Expression applySplitterTo(Expression formula, Expression splitter, RewritingProcess process) {
-		Expression result = SimplifyFormula.applyEqualityTo(formula, splitter, process);
+		Expression result = SimplifyFormula.simplifyGivenEquality(formula, splitter, process);
 		return result;
 	}
 
 	@Override
 	protected Expression applySplitterNegationTo(Expression formula, Expression splitter, RewritingProcess process) {
-		Expression result = SimplifyFormula.applyDisequalityTo(formula, splitter, process);
+		Expression result = SimplifyFormula.simplifyGivenDisequality(formula, splitter, process);
+		return result;
+	}
+
+	@Override
+	protected Expression completeSimplifySolutionGivenSplitter(Expression solution, Expression splitter, RewritingProcess process) {
+		Expression result = SimplifyFormula.completeSimplifySolutionGivenEquality(solution, splitter, process);
+		return result;
+	}
+
+	@Override
+	protected Expression completeSimplifySolutionGivenSplitterNegation(Expression solution, Expression splitter, RewritingProcess process) {
+		Expression result = SimplifyFormula.completeSimplifySolutionGivenEqualityNegation(solution, splitter, process);
 		return result;
 	}
 
