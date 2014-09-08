@@ -124,19 +124,19 @@ public class DirectCardinalityComputationFactory {
 	public static RewritingProcess newCardinalityProcess(Expression rootExpression, CardinalityConfiguration configuration, RewritingProcess parentProcess) {
 		DefaultRewriterLookup cardinalityRewriterLookup = new DefaultRewriterLookup(getCardinalityRewritersMap(configuration));
 		
-		Map<Expression, Expression> contextualVariablesAndDomains = null;
+		Map<Expression, Expression> contextualSymbolsAndTypes = null;
 		Expression contextualConstraint                           = null;
 		Predicate<Expression> isConstantPredicate                 = null;
 		Map<Object, Object>   globalObjects                       = null;
 		
 		if (parentProcess != null) {
-			contextualVariablesAndDomains = parentProcess.getContextualVariablesAndDomains();
+			contextualSymbolsAndTypes = parentProcess.getContextualSymbolsAndTypes();
 			contextualConstraint          = parentProcess.getContextualConstraint();
 			isConstantPredicate           = parentProcess.getIsConstantPredicate();
 			globalObjects                 = parentProcess.getGlobalObjects();
 		}
 		else {
-			contextualVariablesAndDomains = new LinkedHashMap<Expression, Expression>();
+			contextualSymbolsAndTypes = new LinkedHashMap<Expression, Expression>();
 			contextualConstraint          = Expressions.TRUE;
 			isConstantPredicate           = new PrologConstantPredicate();
 			globalObjects                 = new LinkedHashMap<Object, Object>();
@@ -146,7 +146,7 @@ public class DirectCardinalityComputationFactory {
 				rootExpression,
 				getRootRewriter(),
 				cardinalityRewriterLookup,
-				contextualVariablesAndDomains,
+				contextualSymbolsAndTypes,
 				contextualConstraint,
 				isConstantPredicate,
 				globalObjects);

@@ -39,28 +39,28 @@ package com.sri.ai.grinder.demo.model;
 
 public class Options {
 	
-	private boolean isDomainSizeKnown = true;
-	private Integer domainSize = new Integer(10);
+	private boolean isTypeSizeKnown = true;
+	private Integer typeSize = new Integer(10);
 	private boolean isAssumeDomainsAlwaysLarge = false;
 	
 	public Options() {
 		
 	}
 
-	public boolean isDomainSizeKnown() {
-		return isDomainSizeKnown;
+	public boolean isTypeSizeKnown() {
+		return isTypeSizeKnown;
 	}
 
-	public void setDomainSizeKnown(boolean isDomainSizeKnown) {
-		this.isDomainSizeKnown = isDomainSizeKnown;
+	public void setTypeSizeKnown(boolean isTypeSizeKnown) {
+		this.isTypeSizeKnown = isTypeSizeKnown;
 	}
 
-	public Integer getDomainSize() {
-		return domainSize;
+	public Integer getTypeSize() {
+		return typeSize;
 	}
 
-	public void setDomainSize(Integer domainSize) {
-		this.domainSize = domainSize;
+	public void setTypeSize(Integer typeSize) {
+		this.typeSize = typeSize;
 	}
 
 	public boolean isAssumeDomainsAlwaysLarge() {

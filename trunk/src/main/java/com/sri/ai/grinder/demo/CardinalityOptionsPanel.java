@@ -57,9 +57,9 @@ public class CardinalityOptionsPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	//
 	private Options options = null;
-	private JCheckBox knownDomainSizeCheckBox;
+	private JCheckBox knownTypeSizeCheckBox;
 	private JCheckBox assumeDomainAlwaysLargeCheckBox;
-	private JFormattedTextField domainSizeTextField;
+	private JFormattedTextField typeSizeTextField;
 	/**
 	 * Create the panel.
 	 */
@@ -74,35 +74,35 @@ public class CardinalityOptionsPanel extends JPanel {
 		panel.add(panel_1, BorderLayout.NORTH);
 		panel_1.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		
-		knownDomainSizeCheckBox = new JCheckBox("Known Domain Size");
-		knownDomainSizeCheckBox.addActionListener(new ActionListener() {
+		knownTypeSizeCheckBox = new JCheckBox("Known Domain Size");
+		knownTypeSizeCheckBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				getOptions().setDomainSizeKnown(knownDomainSizeCheckBox.isSelected());
+				getOptions().setTypeSizeKnown(knownTypeSizeCheckBox.isSelected());
 			}
 		});
-		panel_1.add(knownDomainSizeCheckBox);
-		knownDomainSizeCheckBox.setSelected(true);
+		panel_1.add(knownTypeSizeCheckBox);
+		knownTypeSizeCheckBox.setSelected(true);
 		
-		domainSizeTextField = new JFormattedTextField(NumberFormat.getIntegerInstance());
-		domainSizeTextField.addFocusListener(new FocusAdapter() {
+		typeSizeTextField = new JFormattedTextField(NumberFormat.getIntegerInstance());
+		typeSizeTextField.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
 				Integer size = new Integer(10);
 				try {
-					size = new Integer(domainSizeTextField.getText());
+					size = new Integer(typeSizeTextField.getText());
 					if (size < 1) {
 						size = 1;
-						domainSizeTextField.setValue(size);
+						typeSizeTextField.setValue(size);
 					}
 				} catch (NumberFormatException nfe) {
-					domainSizeTextField.setValue(size);
+					typeSizeTextField.setValue(size);
 				}
-				getOptions().setDomainSize(size);
+				getOptions().setTypeSize(size);
 			}
 		});
-		panel_1.add(domainSizeTextField);
-		domainSizeTextField.setPreferredSize(new Dimension(80, 25));
-		domainSizeTextField.setValue(new Integer(10));
+		panel_1.add(typeSizeTextField);
+		typeSizeTextField.setPreferredSize(new Dimension(80, 25));
+		typeSizeTextField.setValue(new Integer(10));
 		
 		JPanel panel_2 = new JPanel();
 		panel.add(panel_2, BorderLayout.CENTER);
@@ -129,8 +129,8 @@ public class CardinalityOptionsPanel extends JPanel {
 	
 	public void setOptions(Options options) {
 		this.options = options;
-		this.options.setDomainSizeKnown(knownDomainSizeCheckBox.isSelected());
-		this.options.setDomainSize(new Integer(domainSizeTextField.getText()));
+		this.options.setTypeSizeKnown(knownTypeSizeCheckBox.isSelected());
+		this.options.setTypeSize(new Integer(typeSizeTextField.getText()));
 		this.options.setAssumeDomainsAlwaysLarge(assumeDomainAlwaysLargeCheckBox.isSelected());
 	}
 }

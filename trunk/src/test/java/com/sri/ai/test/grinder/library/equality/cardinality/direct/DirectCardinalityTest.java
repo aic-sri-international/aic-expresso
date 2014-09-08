@@ -3419,7 +3419,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					new CountsDeclaration(10),
 					"1000"),
 			//
-			// Basic: cases where variables have different domains/counts.
+			// Basic: cases where variables have different types/counts.
 			new EqualityInConjunctionData(false,
 					"| {(on X, Y) tuple(X, Y) | X = a and Y = b} |",
 					new CountsDeclaration("X", "10", "Y", "15"),

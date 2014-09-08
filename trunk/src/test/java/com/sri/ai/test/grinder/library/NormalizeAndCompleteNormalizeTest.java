@@ -542,7 +542,7 @@ public class NormalizeAndCompleteNormalizeTest extends AbstractGrinderTest {
 	//
 	// PRIVATE METHODS
 	//
-	class NormalizeTestData extends TestData implements CardinalityTypeOfLogicalVariable.DomainSizeOfLogicalVariable {
+	class NormalizeTestData extends TestData implements CardinalityTypeOfLogicalVariable.TypeSizeOfLogicalVariable {
 		private String expressionString; 
 		private Expression expression;
 		
@@ -552,12 +552,12 @@ public class NormalizeAndCompleteNormalizeTest extends AbstractGrinderTest {
 		};
 		
 		//
-		// START-DomainSizeOfLogicalVariable
+		// START-TypeSizeOfLogicalVariable
 		@Override
 		public Integer size(Expression logicalVariable, RewritingProcess process) {
 			return 100; // Default to this
 		}
-		// END-DomainSizeOfLogicalVariable
+		// END-TypeSizeOfLogicalVariable
 		//
 		
 		@Override
@@ -569,8 +569,8 @@ public class NormalizeAndCompleteNormalizeTest extends AbstractGrinderTest {
 		@Override
 		public Expression callRewrite(RewritingProcess process) {
 			
-			// Ensure explicit counts added for all variable domains.
-			CardinalityTypeOfLogicalVariable.registerDomainSizeOfLogicalVariableWithProcess(this, process);
+			// Ensure explicit counts added for all variable types.
+			CardinalityTypeOfLogicalVariable.registerTypeSizeOfLogicalVariableWithProcess(this, process);
 				
 			Expression result = DirectCardinalityComputationFactory.newCardinalityProcess(expression, process).rewrite(getNormalizeName(), expression);
 			
@@ -600,17 +600,17 @@ public class NormalizeAndCompleteNormalizeTest extends AbstractGrinderTest {
 	class CompleteNormalizeTestDataWithContext extends CompleteNormalizeTestData {
 		
 		private Expression context;
-		private Map<Expression, Expression> contextualVariablesAndDomains;
+		private Map<Expression, Expression> contextualSymbolsAndTypes;
 
-		public CompleteNormalizeTestDataWithContext(Map<Expression, Expression> contextualVariablesAndDomains, String context, String expressionString, String expected) {
+		public CompleteNormalizeTestDataWithContext(Map<Expression, Expression> contextualSymbolsAndTypes, String context, String expressionString, String expected) {
 			super(expressionString, expected);
-			this.contextualVariablesAndDomains = contextualVariablesAndDomains;
+			this.contextualSymbolsAndTypes = contextualSymbolsAndTypes;
 			this.context = parse(context);
 		};
 		
 		@Override
 		public Expression callRewrite(RewritingProcess process) {
-			process = GrinderUtil.extendContextualVariablesAndConstraint(contextualVariablesAndDomains, context, process);
+			process = GrinderUtil.extendContextualSymbolsAndConstraint(contextualSymbolsAndTypes, context, process);
 			return super.callRewrite(process);
 		}
 	};

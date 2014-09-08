@@ -28,7 +28,7 @@ with no free variables.
 2) Converting the cardinality problem to a propositional problem: Assume we are
    trying to solve "| { (on X1, X2) (X1, X2) | X1=X2 or X1!=a1 } |" where 
    |type(X1)|=|type(X2)|=3. So, F is "X1=X2 or X1!=a1". First, we name the 
-   other two elements in the domain as a2 and a3. Then, we define the 
+   other two elements in the type as a2 and a3. Then, we define the 
    following propositional variables:
    
 	v1: X1 = a1
@@ -56,7 +56,7 @@ with no free variables.
 	-v4 or -v6	; or simply: -4 -6 0
 	-v5 or -v6	; or simply: -5 -6 0
 
-   So far, we have only described the domain. Now we need to describe the 
+   So far, we have only described the type. Now we need to describe the 
    formula F. First, let us take a look at literals of the form 
    "X=Y" or "X!=Y" which are considered as "hard literals" and need be expanded. 
    For instance, the literal "X1=X2" need be defined using the propositional 
@@ -91,7 +91,7 @@ with no free variables.
 
    Putting all together, the input for sharpSAT is:
 
-     c Solving "| { (on X1, X2) (X1, X2) | X1=X2 or X1!=a1 } |" with domain size=3
+     c Solving "| { (on X1, X2) (X1, X2) | X1=X2 or X1!=a1 } |" with type size=3
      c We have 6 propositional variables, and 12 clauses. So:
      p cnf 6 12
      1 2 3 0

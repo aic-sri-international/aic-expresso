@@ -150,7 +150,7 @@ public class GetConditionsForTest {
 		for (int i = 0; i != NUMBER_OF_RUNS; i++) {
 			process = DirectCardinalityComputationFactory.newCardinalityProcess();
 			RewritingProcess subProcess =
-					GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(
+					GrinderUtil.extendContextualSymbolsWithFreeVariablesInExpressionwithUnknownTypeForSetUpPurposesOnly(
 							expression, process);
 			actual = GetConditionsFor.getConditionsForVariable(variable, expression, subProcess);
 		}
@@ -219,7 +219,7 @@ public class GetConditionsForTest {
 		for (int i = 0; i != NUMBER_OF_RUNS; i++) {
 			process = DirectCardinalityComputationFactory.newCardinalityProcess();
 			RewritingProcess subProcess =
-					GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(
+					GrinderUtil.extendContextualSymbolsWithFreeVariablesInExpressionwithUnknownTypeForSetUpPurposesOnly(
 							expression, process);
 			actual = GetConditionsFor.getBDDOfQuantifierFreeFormula(expression, subProcess);
 		}
@@ -327,7 +327,7 @@ public class GetConditionsForTest {
 		for (int i = 0; i != NUMBER_OF_RUNS; i++) {
 			process = DirectCardinalityComputationFactory.newCardinalityProcess();
 			RewritingProcess subProcess =
-					GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(
+					GrinderUtil.extendContextualSymbolsWithFreeVariablesInExpressionwithUnknownTypeForSetUpPurposesOnly(
 							expression, process);
 			bdd = GetConditionsFor.getBDDOfQuantifierFreeFormula(expression, subProcess);
 			actual = GetConditionsFor.getImpliedValueFromBDD(variable, bdd, subProcess);

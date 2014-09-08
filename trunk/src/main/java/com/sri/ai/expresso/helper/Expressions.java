@@ -876,7 +876,7 @@ public class Expressions {
 	private static void freeVariables(Expression expression, Set<Expression> freeVariables, Set<Expression> quantifiedVariables, RewritingProcess process) {
 		// Note: this used to be duplicating Expression.replace a bit, although in a lighter-weight, more efficient manner.
 		// However, since the changes that include a check against unregistered variables during contextual expansion
-		// (that is, constraints expanding the contextual expansion cannot contains variables that are not already in the contextual variables),
+		// (that is, constraints expanding the contextual expansion cannot contains variables that are not already in the contextual symbols),
 		// this method became more fundamentally distinct since Expression.replace uses contextual expansion and therefore these checks,
 		// while this method here does not perform such checks.
 		

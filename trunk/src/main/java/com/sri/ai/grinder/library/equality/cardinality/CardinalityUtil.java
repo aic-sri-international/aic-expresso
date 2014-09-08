@@ -238,7 +238,7 @@ public class CardinalityUtil {
 	 * assuming Di to be "type(Xi)" if the index expression is Xi alone.
 	 */
 	public static Expression makeCardinalityOfIndexExpressions(List<Expression> indexExpressions) {
-		// TODO: When ALBP-119 is resolved, we will be able to take the domain of the variable from the quantified expression.
+		// TODO: When ALBP-119 is resolved, we will be able to take the type of the variable from the quantified expression.
 		Expression result = Expressions.ONE;
 		if ( indexExpressions.size() > 0 ) {
 			ArrayList<Expression> cardinalities = new ArrayList<Expression>();

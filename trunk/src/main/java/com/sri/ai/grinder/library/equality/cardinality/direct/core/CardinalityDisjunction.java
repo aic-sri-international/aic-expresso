@@ -112,7 +112,7 @@ public class CardinalityDisjunction extends AbstractCardinalityRewriter {
 		List<Expression> indices          = IntensionalSet.getIndexExpressions(intensionalSet);
 		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
 		Expression[]     indexExpressionsAsArray   = indices.toArray(new Expression[indices.size()]);
-		RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(intensionalSet, process);
+		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 		
 		CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
 		if (quantification == null) {

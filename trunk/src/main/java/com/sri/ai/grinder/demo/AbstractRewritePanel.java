@@ -475,19 +475,19 @@ public class AbstractRewritePanel extends JPanel {
 					outputPrefix = "// WARNING: Input Context is not a Formula (defaulting to true).\n";
 			}
 			
-			process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(Tuple.make(input, inputContext), process);
+			process = GrinderUtil.extendContextualSymbolsWithFreeVariablesInExpressionwithUnknownTypeForSetUpPurposesOnly(Tuple.make(input, inputContext), process);
 			process = GrinderUtil.extendContextualConstraint(inputContext, process);
 			
 			if (isCardinalityRewriterLookupNeeded(rewriters)) {
 				((DefaultRewritingProcess)process).setRewriterLookup(new DefaultRewriterLookup(DirectCardinalityComputationFactory.getCardinalityRewritersMap()));
 			}
 			GrinderConfiguration.setProperty(GrinderConfiguration.KEY_ASSUME_DOMAIN_ALWAYS_LARGE, ""+getOptions().isAssumeDomainsAlwaysLarge());
-			CardinalityTypeOfLogicalVariable.registerDomainSizeOfLogicalVariableWithProcess(new CardinalityTypeOfLogicalVariable.DomainSizeOfLogicalVariable() {
+			CardinalityTypeOfLogicalVariable.registerTypeSizeOfLogicalVariableWithProcess(new CardinalityTypeOfLogicalVariable.TypeSizeOfLogicalVariable() {
 				@Override
 				public Integer size(Expression logicalVariable, RewritingProcess process) {
 					Integer result = null; // unknown by default
-					if (getOptions().isDomainSizeKnown()) {
-						result = getOptions().getDomainSize();
+					if (getOptions().isTypeSizeKnown()) {
+						result = getOptions().getTypeSize();
 					}
 					return result;
 				}

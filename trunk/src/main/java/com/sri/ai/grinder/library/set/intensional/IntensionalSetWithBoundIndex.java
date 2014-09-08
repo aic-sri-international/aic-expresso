@@ -76,8 +76,8 @@ public class IntensionalSetWithBoundIndex extends AbstractRewriter {
 			Expression head = IntensionalSet.getHead(expression);
 			Expression condition = IntensionalSet.getCondition(expression);
 
-			RewritingProcess subProcessForHead      = GrinderUtil.extendContextualVariablesAndConstraintWithIntensionalSet(expression, process);
-			RewritingProcess subProcessForCondition = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(expression, process);
+			RewritingProcess subProcessForHead      = GrinderUtil.extendContextualSymbolsAndConstraintWithIntensionalSet(expression, process);
+			RewritingProcess subProcessForCondition = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(expression, process);
 			
 			List<Expression> newIndexExpressions = boundIndexInformation.indexExpressionsWithoutBoundIndex;
 			Expression       newHead             = SemanticSubstitute.replace(head,      index, value, subProcessForHead);

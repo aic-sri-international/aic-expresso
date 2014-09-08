@@ -67,7 +67,7 @@ public class StandardizedApartFrom {
 	 */
 	public static Expression standardizedApartFrom(Expression expression1, Expression expression2, RewritingProcess process) {		
 		Collection<Expression> variablesThatCannotBeScopingInExpression = new LinkedHashSet<Expression>();
-		variablesThatCannotBeScopingInExpression.addAll(process.getContextualVariables());
+		variablesThatCannotBeScopingInExpression.addAll(process.getContextualSymbols());
 		variablesThatCannotBeScopingInExpression.addAll(Expressions.getVariables(expression2, process));
 		
 		ReplacementFunctionWithContextuallyUpdatedProcess standardizer = new Standardizer(variablesThatCannotBeScopingInExpression);

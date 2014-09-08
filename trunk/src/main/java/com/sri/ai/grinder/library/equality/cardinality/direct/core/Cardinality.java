@@ -182,7 +182,7 @@ public class Cardinality extends AbstractCardinalityRewriter {
 			Trace.log("if F is True");
 			Trace.log("    return R_normalize(||X||)");
 			Expression cardIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressions);
-			RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(intensionalSet, process);
+			RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 			result = subProcess.rewrite(CardinalityRewriter.R_normalize, cardIndices);
 		}
 		else if (f.equals(Expressions.FALSE)) {
@@ -195,7 +195,7 @@ public class Cardinality extends AbstractCardinalityRewriter {
 			Trace.log("    return R_normalize(if F then ||X|| else 0)");
 			Expression cardIndexX = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressions);
 			Expression ifThenElse = IfThenElse.make(f, cardIndexX, Expressions.ZERO);
-			RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(intensionalSet, process);
+			RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 			result = subProcess.rewrite(CardinalityRewriter.R_normalize, ifThenElse);
 		}
 		else if (CardinalityUtil.isConjunctionOrImpliedConjunction(f, process)) {
@@ -215,7 +215,7 @@ public class Cardinality extends AbstractCardinalityRewriter {
 		else if (f.hasFunctor(FunctorConstants.NOT) && f.numberOfArguments() == 1) {
 			Trace.log("if F is \"not G\"");
 			Trace.log("    F' <- R_top_simplify(R_move_not_in(F))");
-			RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(intensionalSet, process);
+			RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 			Expression fPrime = subProcess.rewrite(CardinalityRewriter.R_top_simplify, process.rewrite(CardinalityRewriter.R_move_not_in, f));
 			Trace.log("    return R_card(|F'|_X, quantification)");
 			Expression cardFPrimeIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(fPrime, indexExpressionsAsArray);
@@ -240,7 +240,7 @@ public class Cardinality extends AbstractCardinalityRewriter {
 		else if (ForAll.isForAll(f) || ThereExists.isThereExists(f)) {
 			Trace.log("if F is Q y : G");
 			Trace.log("    return R_card( | R_top_quantifier_elimination(Q y : G) |_X, quantification)");
-			RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(intensionalSet, process);
+			RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 			Expression quantifierEliminated               = subProcess.rewrite(CardinalityRewriter.R_top_quantifier_elimination, f);
 			Expression cardQuantifierEliminatedIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(quantifierEliminated, indexExpressionsAsArray);
 			

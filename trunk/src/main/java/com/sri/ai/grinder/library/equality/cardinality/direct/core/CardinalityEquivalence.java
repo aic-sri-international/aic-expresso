@@ -104,7 +104,7 @@ public class CardinalityEquivalence extends AbstractCardinalityRewriter {
 		Expression       f                       = IntensionalSet.getCondition(intensionalSet);
 		List<Expression> indexExpressions        = IntensionalSet.getIndexExpressions(intensionalSet);
 		Expression[]     indexExpressionsAsArray = indexExpressions.toArray(new Expression[indexExpressions.size()]);
-		RewritingProcess subProcess              = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(intensionalSet, process);
+		RewritingProcess subProcess              = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 		
 		CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
 		if (quantification == null) {

@@ -100,7 +100,7 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractCardinalityR
 		Expression       intensionalSet   = cardinalityOfIndexedFormulaExpression.get(0);
 		Expression       f                = IntensionalSet.getCondition(intensionalSet);
 		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
-		RewritingProcess subProcess       = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(intensionalSet, process);
+		RewritingProcess subProcess       = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 		
 		CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
 		if (quantification == null) {

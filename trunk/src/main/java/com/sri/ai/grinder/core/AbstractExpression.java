@@ -241,7 +241,7 @@ public abstract class AbstractExpression implements Expression {
 
 				RewritingProcess subProcess;
 				if (replacementFunction instanceof ReplacementFunctionWithContextuallyUpdatedProcess) {
-					subProcess = GrinderUtil.extendContextualVariablesAndConstraint(subExpressionAndContext, process);
+					subProcess = GrinderUtil.extendContextualSymbolsAndConstraint(subExpressionAndContext, process);
 				}
 				else {
 					subProcess = process;

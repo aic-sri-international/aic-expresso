@@ -269,23 +269,23 @@ public class DirectSimplifyStressIT extends AbstractGrinderTest {
 		return sb.toString();
 	}
 	
-	private class CountsDeclaration implements CardinalityTypeOfLogicalVariable.DomainSizeOfLogicalVariable {
+	private class CountsDeclaration implements CardinalityTypeOfLogicalVariable.TypeSizeOfLogicalVariable {
 		private Integer  allCounts          = null;
 		public CountsDeclaration(int allCounts) {
 			this.allCounts = allCounts;
 		}
 		
 		//
-		// START-DomainSizeOfLogicalVariable
+		// START-TypeSizeOfLogicalVariable
 		@Override
 		public Integer size(Expression logicalVariable, RewritingProcess process) {
 			return allCounts;
 		}
-		// END-DomainSizeOfLogicalVariable
+		// END-TypeSizeOfLogicalVariable
 		//
 		
 		public void setup(RewritingProcess process) {
-			CardinalityTypeOfLogicalVariable.registerDomainSizeOfLogicalVariableWithProcess(this, process);
+			CardinalityTypeOfLogicalVariable.registerTypeSizeOfLogicalVariableWithProcess(this, process);
 		}
 	}
 	

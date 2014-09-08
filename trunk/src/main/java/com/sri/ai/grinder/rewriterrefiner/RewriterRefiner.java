@@ -181,14 +181,14 @@ public abstract class RewriterRefiner extends AbstractFunctionalRefiner<Expressi
 		private String childRewriterName;
 		private Expression arguments;
 		private Expression contextualConstraint;
-		private Set<Expression> contextualVariables;
+		private Set<Expression> contextualSymbols;
 		
 		public ChildRewriterInvocation(String rewriterName, Expression arguments, RewritingProcess process) {
 			super();
 			this.childRewriterName    = rewriterName;
 			this.arguments            = arguments;
 			this.contextualConstraint = process.getContextualConstraint();
-			this.contextualVariables  = process.getContextualVariables();
+			this.contextualSymbols  = process.getContextualSymbols();
 		}
 	
 		@Override
@@ -198,7 +198,7 @@ public abstract class RewriterRefiner extends AbstractFunctionalRefiner<Expressi
 					childRewriterName.equals(anotherChildRewriterInvocation.childRewriterName) && // this is why we cannot just use a list and equals()
 					arguments.equals(anotherChildRewriterInvocation.arguments) &&
 					contextualConstraint.equals(anotherChildRewriterInvocation.contextualConstraint) &&
-					contextualVariables.equals(anotherChildRewriterInvocation.contextualVariables);
+					contextualSymbols.equals(anotherChildRewriterInvocation.contextualSymbols);
 			return result;
 		}
 	
@@ -208,7 +208,7 @@ public abstract class RewriterRefiner extends AbstractFunctionalRefiner<Expressi
 					childRewriterName.hashCode() +
 					arguments.hashCode() +
 					contextualConstraint.hashCode() +
-					contextualVariables.hashCode(); // is there a better way for combining hash codes?
+					contextualSymbols.hashCode(); // is there a better way for combining hash codes?
 			
 			return result;
 		}

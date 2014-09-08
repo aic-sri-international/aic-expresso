@@ -94,7 +94,7 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 	 * Now,
 	 * solution = 1
 	 * For each variable V according to the total ordering
-	 *     solution *= ( |domain(V)| - |diseq(V)| )
+	 *     solution *= ( |type(V)| - |diseq(V)| )
 	 * return solution
 	 * 
 	 * Free variables require a few additions.
