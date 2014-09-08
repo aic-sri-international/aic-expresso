@@ -86,7 +86,7 @@ public class PickSingleElement {
 			
 			Trace.log("value = pick_value(SomeIndex, R', C)");
 			Expression formulaC   = IntensionalSet.getCondition(intensionalSet);
-			RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIntensionalSetIndices(intensionalSet, process);
+			RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 			Expression value = pickValue(someIndex, indexExpressionsRPrime, formulaC, subProcess);
 			Trace.log("// value = {}", value);
 			

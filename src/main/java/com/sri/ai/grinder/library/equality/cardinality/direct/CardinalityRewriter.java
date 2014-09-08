@@ -62,7 +62,7 @@ import com.sri.ai.grinder.api.Rewriter;
  * x1,...,xn.</li>
  * </ul>
  * For a set of index variables X, ||X|| denotes the product of the
- * cardinalities of domain sizes of index variables in X. For instance, if X =
+ * cardinalities of type sizes of index variables in X. For instance, if X =
  * {x, y}, then ||X|| = |type(x)| * |type(y)|
  * 
  * @author oreilly

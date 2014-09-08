@@ -184,28 +184,28 @@ def formatFormulaAsOurAlgorithm(index):
 
 def execute():
     global sizes, formulas, usingCNFFormulas, IGNORE, maxTime, table
-    for domainSize in sizes:
+    for typeSize in sizes:
         for i in range(len(formulas)):
             gc.collect()
             if usingCNFFormulas:
-                filename = "cnf%s-s%s.cnf"%(i+1,  domainSize)
+                filename = "cnf%s-s%s.cnf"%(i+1,  typeSize)
             else:
-                filename = "dnf%s-s%s.cnf"%(i+1,  domainSize)
+                filename = "dnf%s-s%s.cnf"%(i+1,  typeSize)
             if (not ignoreExistingFile) and os.path.exists(filename):
                 print "%s already exists. Skipping..."%filename
                 continue
             formula = formulas[i]
             if formula in IGNORE:
                 print "Ignoring f%s..."%(i+1)
-                table.append([domainSize, None,  None,  None,  None])
+                table.append([typeSize, None,  None,  None,  None])
                 continue
             theFormula = convertIt(formula)
             vs, cs = getVariablesAndConstants(theFormula)
-            if domainSize < len(cs):
+            if typeSize < len(cs):
                 raise Exception("Formula %s has %s many constants"%(i+1,  len(cs)))
             indices = len(vs)
             print "Formula: %s"%theFormula
-            timeToMakeFile,  shouldSubstract, numberOfClauses = makefile(theFormula,  domainSize,  filename)
+            timeToMakeFile,  shouldSubstract, numberOfClauses = makefile(theFormula,  typeSize,  filename)
             if timeToMakeFile > maxTime:
                 print "It took too long to generate CNF, skipping the remaining cases for formula %s"%(i+1)
                 IGNORE.append(formula)
@@ -214,11 +214,11 @@ def execute():
             if runSharpSAT:
                 (timeToRunSharpSAT,  solution) = executeSharpSAT(filename)
                 if timeToRunSharpSAT > -1:
-                    sharpSATFinalSolution = int(math.pow(domainSize,  indices) - solution) if shouldSubstract else solution
+                    sharpSATFinalSolution = int(math.pow(typeSize,  indices) - solution) if shouldSubstract else solution
                     
-                    table.append([name, domainSize, timeToMakeFile, timeToRunSharpSAT, timeToMakeFile+timeToRunSharpSAT, sharpSATFinalSolution, numberOfClauses])
+                    table.append([name, typeSize, timeToMakeFile, timeToRunSharpSAT, timeToMakeFile+timeToRunSharpSAT, sharpSATFinalSolution, numberOfClauses])
             else:
-                table.append([name, domainSize, timeToMakeFile, numberOfClauses])
+                table.append([name, typeSize, timeToMakeFile, numberOfClauses])
             print
     print "____________________________________________"
     

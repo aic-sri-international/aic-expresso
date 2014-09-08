@@ -48,62 +48,62 @@ import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
  * A rewriter for replacing cardinality expressions on the type of a logical
- * variable with the size of the domain that the logical variable belongs to.
- * For e.g. if the domain size of X is 100 it would do the following:
+ * variable with the size of that type.
+ * For e.g. if the type size of X is 100 it would do the following:
  * 
  * <pre>
  * | type(X) | -> 100
  * </pre>
  * 
- * or if a Logical Variable representing a domain is used:
+ * or if a Logical Variable representing a type is used:
  * 
  * <pre>
  * | People | -> 100
  * </pre>
  * 
  * This rewriter does not maintain the sizes associated with individual logical
- * variables. Instead it delegates to a DomainSizeOfLogicalVariable interface,
+ * variables. Instead it delegates to a TypeSizeOfLogicalVariable interface,
  * which it looks for on the current process in order to determine the size of
- * the domain the logical variable belongs to.
+ * the type the logical variable belongs to.
  * 
  * @author oreilly
  * 
  */
 @Beta
 public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
-	// The key for looking up the domain size of logical variables interface
+	// The key for looking up the type size of logical variables interface
 	// on the process's global objects map.
-	public final static String PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_LOGICAL_VARIABLE = "domain size of logical variable";
+	public final static String PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_LOGICAL_VARIABLE = "type size of logical variable";
 
 	public final static String TYPE_LABEL = "type";
 
 	/**
 	 * Interface to be implemented by a source that is able to determine the
-	 * domain sizes of the logical variables passed to it.
+	 * type sizes of the logical variables passed to it.
 	 * 
 	 * @author oreilly
 	 * 
 	 */
-	public interface DomainSizeOfLogicalVariable {
+	public interface TypeSizeOfLogicalVariable {
 		/**
-		 * Get the size of the logical variable's domain.
+		 * Get the size of the logical variable's type.
 		 * 
 		 * @param logicalVariable
-		 *            the logical variable whose domain size is to be looked up.
+		 *            the logical variable whose type size is to be looked up.
 		 * @param process
 		 *            the rewriting process in which the look up is being
 		 *            performed.
-		 * @return null if the domain size is unknown, otherwise its size.
+		 * @return null if the type size is unknown, otherwise its size.
 		 */
 		Integer size(Expression logicalVariable, RewritingProcess process);
 	}
 
-	public static void registerDomainSizeOfLogicalVariableWithProcess(
-			DomainSizeOfLogicalVariable domainSizeOfLogicalVariable,
+	public static void registerTypeSizeOfLogicalVariableWithProcess(
+			TypeSizeOfLogicalVariable typeSizeOfLogicalVariable,
 			RewritingProcess process) {
 		process.putGlobalObject(
 				PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_LOGICAL_VARIABLE,
-				domainSizeOfLogicalVariable);
+				typeSizeOfLogicalVariable);
 	}
 	
 	public CardinalityTypeOfLogicalVariable() {
@@ -137,10 +137,10 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 		}
 		
 		if (logicalVariable != null) {
-			DomainSizeOfLogicalVariable domainSizeOfLogicalVariable = (DomainSizeOfLogicalVariable) process
+			TypeSizeOfLogicalVariable typeSizeOfLogicalVariable = (TypeSizeOfLogicalVariable) process
 					.getGlobalObject(PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_LOGICAL_VARIABLE);
-			if (domainSizeOfLogicalVariable != null) {
-				Integer size = domainSizeOfLogicalVariable.size(logicalVariable, process);
+			if (typeSizeOfLogicalVariable != null) {
+				Integer size = typeSizeOfLogicalVariable.size(logicalVariable, process);
 				if (size != null) {
 					result = Expressions.makeSymbol(size);
 				}

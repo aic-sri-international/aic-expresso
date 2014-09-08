@@ -141,26 +141,26 @@ public interface RewritingProcess {
 	Expression rewrite(String rewriterName, Expression expression, ChildRewriterCallIntercepter childCallIntercepter);
 	
 	/**
-	 * @return the set of logical variables that should be considered free in
+	 * @return the set of symbols that should be considered free in
 	 *         this specific context.
 	 */
-	Set<Expression> getContextualVariables();
+	Set<Expression> getContextualSymbols();
 	
 	/**
-	 * @return the domains of all contextual variables.
+	 * @return the types of all contextual symbols.
 	 */
-	Map<Expression, Expression> getContextualVariablesAndDomains();
+	Map<Expression, Expression> getContextualSymbolsAndTypes();
 	
 	/**
-	 * @return the domains of a contextual variable.
+	 * @return the type of a contextual symbol.
 	 */
-	Expression getContextualVariableDomain(Expression variable);
+	Expression getContextualSymbolType(Expression symbol);
 	
 	/**
 	 * 
 	 * @return the process's current contextual constraint. This is a constraint
 	 *         on the values of the free variables for expressions being passed
-	 *         to rewriters, which is a subset of the contextual variables
+	 *         to rewriters, which is a subset of the contextual symbols
 	 *         associated with the process (i.e. not all these variables need
 	 *         necessarily be constrained).
 	 */
@@ -170,7 +170,7 @@ public interface RewritingProcess {
 	 * Create a new sub-rewriting process with it own context.
 	 */
 	RewritingProcess newSubProcessWithContext(
-			Map<Expression, Expression> subProcessContextualVariablesAndDomains,
+			Map<Expression, Expression> subProcessContextualSymbolsAndTypes,
 			Expression contextualConstraint);
 
 	/**

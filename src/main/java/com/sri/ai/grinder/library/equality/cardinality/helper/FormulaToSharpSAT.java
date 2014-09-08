@@ -61,12 +61,12 @@ public class FormulaToSharpSAT {
 	
 	public static void convertToSharpSAT(Expression formula, RewritingProcess process, PropositionalCNFListener conversionListener) {
 		Expression cnfFormula = FormulaToCNF.convertToExponentialCNF(formula, process);
-		int minimumDomainSize = FormulaUtil.getConstants(cnfFormula, process).size() + Expressions.getVariables(cnfFormula, process).size();
+		int minimumTypeSize = FormulaUtil.getConstants(cnfFormula, process).size() + Expressions.getVariables(cnfFormula, process).size();
 		
-		convertToSharpSAT(cnfFormula, minimumDomainSize, process, conversionListener);
+		convertToSharpSAT(cnfFormula, minimumTypeSize, process, conversionListener);
 	}
 	
-	public static void convertToSharpSAT(Expression formula, int domainSize, RewritingProcess process, PropositionalCNFListener conversionListener) {
+	public static void convertToSharpSAT(Expression formula, int typeSize, RewritingProcess process, PropositionalCNFListener conversionListener) {
 		boolean stopConversion = false;
 		Expression cnfFormula = FormulaToCNF.convertToExponentialCNF(formula, process);
 		
@@ -83,7 +83,7 @@ public class FormulaToSharpSAT {
 			// Converting the problem to a propositional problem: Assume we are
 			// X1=X2 or X1!=a1 where |type(X1)|=|type(X2)|=3. 
 			// So, F is "X1=X2 or X1!=a1". First, we name the 
-			// other two elements in the domain as a2 and a3. 
+			// other two elements in the type as a2 and a3. 
 			// Then, we define the following propositional variables: 
 			//	v1: X1 = a1
 			//	v2: X1 = a2
@@ -92,13 +92,13 @@ public class FormulaToSharpSAT {
 			//	v5: X2 = a2
 			//	v6: X2 = a3
 			
-			if (constIds.size() > domainSize) {
+			if (constIds.size() > typeSize) {
 				throw new IllegalArgumentException("Domain size too small to represent constants : "+constIds.keySet());
 			}
-			else if (constIds.size() < domainSize) {
-				// Extend with additional constants to represent the full domain size
+			else if (constIds.size() < typeSize) {
+				// Extend with additional constants to represent the full type size
 				int id = 1;
-				while (constIds.size() < domainSize) {
+				while (constIds.size() < typeSize) {
 					Expression newConstant = Expressions.makeSymbol("a" + id);
 					if (!constIds.containsKey(newConstant)) {
 						constIds.put(newConstant, constIds.size()+1);
@@ -107,18 +107,18 @@ public class FormulaToSharpSAT {
 				}
 			}
 			
-			conversionListener.start(varIds.size() * domainSize);
+			conversionListener.start(varIds.size() * typeSize);
 	
 			//
-			// Describe the domain
-			stopConversion = describeDomain(conversionListener, varIds.size(), domainSize);
+			// Describe the type
+			stopConversion = describeType(conversionListener, varIds.size(), typeSize);
 			
 			if (!stopConversion) {
 				//
 				// Describe the formula
 				for (Expression fClause : cnfFormula.getArguments()) {
 					
-					Expression propEquivFormula    = expandHardLiterals(fClause, constIds.keySet(), domainSize, process);
+					Expression propEquivFormula    = expandHardLiterals(fClause, constIds.keySet(), typeSize, process);
 					// Ensure expansion in CNF form so we can just read off the clauses.
 					Expression cnfPropEquivFormula = FormulaToCNF.convertToExponentialCNF(propEquivFormula, process);
 					
@@ -130,7 +130,7 @@ public class FormulaToSharpSAT {
 							int varId   = varIds.get(literal.get(0));
 							int constId = constIds.get(literal.get(1));					
 							
-							clause[current] = getPropVarId(varId, constId, domainSize) * sign;
+							clause[current] = getPropVarId(varId, constId, typeSize) * sign;
 		
 							current++;
 						}
@@ -178,7 +178,7 @@ public class FormulaToSharpSAT {
 		return varIds;
 	}
 	
-	private static boolean describeDomain(PropositionalCNFListener conversionListener, int numVars, int domainSize) {
+	private static boolean describeType(PropositionalCNFListener conversionListener, int numVars, int typeSize) {
 		boolean stopConversion = false;
 		// The first series of clauses should determine that 
 		// "X1 equals to a1 or a2 or a3". Similarly, we have to specify that 
@@ -186,9 +186,9 @@ public class FormulaToSharpSAT {
 		// v1 or v2 or v3	
 		// v4 or v5 or v6
 		for (int v = 0; v < numVars && !stopConversion; v++) {
-			int[] clause = new int[domainSize];
-			for (int i = 0; i < domainSize; i++) {
-				clause[i] = (v*domainSize) + i + 1;
+			int[] clause = new int[typeSize];
+			for (int i = 0; i < typeSize; i++) {
+				clause[i] = (v*typeSize) + i + 1;
 			}
 			if (!conversionListener.processClauseAndContinue(clause)) {
 				stopConversion = true;
@@ -204,10 +204,10 @@ public class FormulaToSharpSAT {
 		// -v4 or -v5	
 		// -v4 or -v6	
 		// -v5 or -v6
-		for (int b = 0; b < (numVars*domainSize) && !stopConversion; b += domainSize) {
-			for (int d = 0; d < domainSize && !stopConversion; d++) {
+		for (int b = 0; b < (numVars*typeSize) && !stopConversion; b += typeSize) {
+			for (int d = 0; d < typeSize && !stopConversion; d++) {
 				int svidx = b + d + 1;
-				for (int i = d+1; i < domainSize && !stopConversion; i++) {
+				for (int i = d+1; i < typeSize && !stopConversion; i++) {
 					int[] clause = new int[2];
 					clause[0] = 0 - svidx;
 					clause[1] = 0 - svidx - (i-d);
@@ -230,7 +230,7 @@ public class FormulaToSharpSAT {
 	 * Similarly "X1!=X2" is equivalent to:
 	 * "(X1=a1 and X2!=a1) or (X1=a2 and X2!=a2) or (X1=a3 and X2!=a3)".
 	 */
-	private static Expression expandHardLiterals(Expression clause, Set<Expression> consts, int domainSize, RewritingProcess process) {
+	private static Expression expandHardLiterals(Expression clause, Set<Expression> consts, int typeSize, RewritingProcess process) {
 		Expression result = clause;
 		
 		List<Expression> disjuncts = new ArrayList<Expression>();
@@ -261,7 +261,7 @@ public class FormulaToSharpSAT {
 		return result;
 	}
 	
-	private static int getPropVarId(int varId, int constId, int domainSize) {
-		return (((varId-1) * domainSize) + constId);
+	private static int getPropVarId(int varId, int constId, int typeSize) {
+		return (((varId-1) * typeSize) + constId);
 	}
 }

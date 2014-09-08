@@ -51,7 +51,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable.DomainSizeOfLogicalVariable;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable.TypeSizeOfLogicalVariable;
 import com.sri.ai.util.Util;
 
 @SuppressWarnings("serial")
@@ -63,7 +63,7 @@ import com.sri.ai.util.Util;
  * used for counting the number of solutions.
  * The ordering chosen is the String order for the String representation of the terms.
  * This is useful because we use the Counting Principle for each variable in the total ordering chosen.
- * For each variable, we have N - D options, where N is its domain size and D is the number of values it must be distinct from.
+ * For each variable, we have N - D options, where N is its type size and D is the number of values it must be distinct from.
  * These values are the constants it is constrained to be distinct from, and variables that have their <i>already chosen</i>
  * (coming in the ordering first), assuming that their values do not overlap.
  * This counting will only be correct, however, if there is a guarantee that these predefined distinct terms are constrained to be distinct from each
@@ -141,10 +141,10 @@ public class SymbolEqualityModelCountingConstraint extends LinkedHashMap<Express
 		long resultValue = 1;
 		
 		for (Expression index : indices) {
-			long domainSize = getDomainSize(index, process);
+			long typeSize = getTypeSize(index, process);
 			Collection<Expression> setOfDistinctTerms = get(index);
 			long numberOfNonAvailableValues = setOfDistinctTerms == null? 0 : (long) setOfDistinctTerms.size();
-			resultValue *= domainSize - numberOfNonAvailableValues;
+			resultValue *= typeSize - numberOfNonAvailableValues;
 		}
 		
 		return Expressions.makeSymbol(resultValue);
@@ -183,11 +183,11 @@ public class SymbolEqualityModelCountingConstraint extends LinkedHashMap<Express
 		return newConstraint;
 	}
 
-	private static long getDomainSize(Expression variable, RewritingProcess process) {
-		DomainSizeOfLogicalVariable domainSizes = (DomainSizeOfLogicalVariable) process
+	private static long getTypeSize(Expression variable, RewritingProcess process) {
+		TypeSizeOfLogicalVariable typeSizes = (TypeSizeOfLogicalVariable) process
 				.getGlobalObject(CardinalityTypeOfLogicalVariable.PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_LOGICAL_VARIABLE);
-		long domainSize = domainSizes.size(variable, process);
-		return domainSize;
+		long typeSize = typeSizes.size(variable, process);
+		return typeSize;
 	}
 
 	private static Expression getDistinctPredefinedTermForVariable1ThatIsNotVariable2AndIsNotDistinctFromVariable2(

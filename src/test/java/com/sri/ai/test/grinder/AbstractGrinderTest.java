@@ -191,7 +191,7 @@ abstract public class AbstractGrinderTest {
 
 		process.getGlobalObjects().putAll(globalObjects);
 		
-		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(expression, process);
+		process = GrinderUtil.extendContextualSymbolsWithFreeVariablesInExpressionwithUnknownTypeForSetUpPurposesOnly(expression, process);
 		// the above would have to include the contextual constraint (say, in a Tuple with expression), if it were not known to be "true".
 		
 		Stopwatch stopwatch = Stopwatch.createStarted();
@@ -246,7 +246,7 @@ abstract public class AbstractGrinderTest {
 			topExpression = tests[i].getTopExpression();
 			process = makeRewritingProcess(topExpression);
 
-			process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(
+			process = GrinderUtil.extendContextualSymbolsWithFreeVariablesInExpressionwithUnknownTypeForSetUpPurposesOnly(
 					Tuple.make(topExpression, tests[i].contextualConstraint),
 					process);
 			

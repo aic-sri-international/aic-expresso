@@ -122,7 +122,7 @@ public class EqualityInConjunction extends AbstractCardinalityRewriter {
 				Trace.log("return R_card(| R_normalize(Phi[x_i / t]) |_X\\{xi}, quantification) // Phi={}, x_i={}, t={}", equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t);
 				Expression phiXiReplacedWithT           = SemanticSubstitute.replace(equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t, process);
 
-				RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIndexExpressions(newIndexExpressions, process);
+				RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpressions(newIndexExpressions, process);
 				Expression simplifiedPhiXiReplacedWithT = subProcess.rewrite(R_normalize, phiXiReplacedWithT);
 				
 				Expression cardPhiXiReplacedWithTIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(simplifiedPhiXiReplacedWithT, newIndexExpressions.toArray(new Expression[newIndexExpressions.size()]));

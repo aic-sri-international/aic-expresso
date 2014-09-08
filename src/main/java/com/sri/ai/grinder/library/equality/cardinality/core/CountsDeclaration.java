@@ -45,10 +45,10 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 
-public class CountsDeclaration implements CardinalityTypeOfLogicalVariable.DomainSizeOfLogicalVariable {
+public class CountsDeclaration implements CardinalityTypeOfLogicalVariable.TypeSizeOfLogicalVariable {
 	private Integer  allCounts          = null;
 	private String[] variableCountPairs = null;
-	private Map<Expression, Integer> variableDomainSizes = new LinkedHashMap<Expression, Integer>();
+	private Map<Expression, Integer> variableTypeSizes = new LinkedHashMap<Expression, Integer>();
 	private Parser parser;
 	
 	public CountsDeclaration(int allCounts) {
@@ -67,7 +67,7 @@ public class CountsDeclaration implements CardinalityTypeOfLogicalVariable.Domai
 	}
 	
 	//
-	// START-DomainSizeOfLogicalVariable
+	// START-TypeSizeOfLogicalVariable
 	@Override
 	public Integer size(Expression logicalVariable, RewritingProcess process) {
 		Integer result = null;
@@ -75,11 +75,11 @@ public class CountsDeclaration implements CardinalityTypeOfLogicalVariable.Domai
 			result = allCounts;
 		} 
 		else {
-			result = variableDomainSizes.get(logicalVariable);
+			result = variableTypeSizes.get(logicalVariable);
 		}
 		return result;
 	}
-	// END-DomainSizeOfLogicalVariable
+	// END-TypeSizeOfLogicalVariable
 	//
 	
 	public void setup(RewritingProcess process) {			
@@ -87,10 +87,10 @@ public class CountsDeclaration implements CardinalityTypeOfLogicalVariable.Domai
 			for (int i = 0; i < variableCountPairs.length; i += 2) {
 				Expression var  = parser.parse(variableCountPairs[i]);
 				Integer    size = new Integer(variableCountPairs[i+1]);
-				variableDomainSizes.put(var, size);
+				variableTypeSizes.put(var, size);
 			}
 		}
-		CardinalityTypeOfLogicalVariable.registerDomainSizeOfLogicalVariableWithProcess(this, process);
+		CardinalityTypeOfLogicalVariable.registerTypeSizeOfLogicalVariableWithProcess(this, process);
 	} 
 }
 

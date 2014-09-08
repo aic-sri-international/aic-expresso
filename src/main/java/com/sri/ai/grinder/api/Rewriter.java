@@ -122,7 +122,7 @@ public interface Rewriter {
 	Expression rewrite(Expression expression);
 
 	/**
-	 * Makes a brand new rewriting process with contextual variables and constraint
+	 * Makes a brand new rewriting process with contextual symbols and constraint
 	 * initialized from the given expression.
 	 * Default implementation creates a {@link DefaultRewritingProcess},
 	 * but implementations of certain rewriters may choose to instantiate

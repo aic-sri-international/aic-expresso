@@ -22,13 +22,13 @@ import com.sri.ai.util.base.Pair;
 /**
  * Provides multiple utility methods for manipulating <i>index expressions</i>.
  * An index is either a symbol or a function application of a function other than "in".
- * An index expression is either an index, or a function application of "in" to an index and a set (known as "domain" of the index expression).
+ * An index expression is either an index, or a function application of "in" to an index and a set (known as "type" of the index expression).
  * An index expression is meant to be used as an index declaration in expressions like
  * intensional sets, lambda expressions, and quantified expressions.
  * Examples are
  * <ul>
  * <li> The <code>X</code> in the expression <code>there exists X : p(X)</code>
- * <li> The <code>X in Domain</code> in the expression <code>there exists X in Domain : p(X)</code>
+ * <li> The <code>X in Type</code> in the expression <code>there exists X in Type : p(X)</code>
  * <li> The <code>q(X)</code> in the expression <code>there exists q(X) : p(q(X))</code>
  * <li> The <code>q(X) in {1,2,3}</code> in the expression <code>there exists q(X) in {1,2,3} : p(q(X))</code>
  * <li> The <code>q(X) in {1,2,3}</code> in the expression <code>{ (on q(X) in {1,2,3}) q(X) + 2 | q(X) != 2 }</code>
@@ -39,7 +39,7 @@ import com.sri.ai.util.base.Pair;
  */
 public class IndexExpressions {
 
-	public static LinkedHashMap<Expression, Expression> getIndexToDomainMapWithDefaultNull(Collection<Expression> indexExpressions) {
+	public static LinkedHashMap<Expression, Expression> getIndexToTypeMapWithDefaultNull(Collection<Expression> indexExpressions) {
 		LinkedHashMap<Expression, Expression> result =
 			Expressions.getRelationalMap(
 					indexExpressions,
@@ -49,7 +49,7 @@ public class IndexExpressions {
 	}
 
 	public static LinkedHashMap<Expression, Expression>
-	getIndexToDomainMapWithDefaultTypeOfIndex(List<Expression> indexExpressions) {
+	getIndexToTypeMapWithDefaultTypeOfIndex(List<Expression> indexExpressions) {
 		LinkedHashMap<Expression, Expression> result =
 			Expressions.getRelationalMap(
 					indexExpressions,
@@ -163,10 +163,10 @@ public class IndexExpressions {
 	}
 
 	/**
-	 * Makes an index expression for variable and domain (the latter being possibly <code>null</code> indicating unknown domain).
+	 * Makes an index expression for variable and type (the latter being possibly <code>null</code> indicating unknown type).
 	 */
-	public static Expression makeIndexExpression(Expression index, Expression domain) {
-		Expression result = domain == null? index : Expressions.apply("in", index, domain);
+	public static Expression makeIndexExpression(Expression index, Expression type) {
+		Expression result = type == null? index : Expressions.apply("in", index, type);
 		return result;
 	}
 
@@ -196,7 +196,7 @@ public class IndexExpressions {
 		return indexExpression;
 	}
 
-	public static Expression getDomain(Expression indexExpression) {
+	public static Expression getType(Expression indexExpression) {
 		Pair<Expression, Expression> indexAndDomain = getIndexAndDomain(indexExpression);
 		return indexAndDomain.second;
 	}
@@ -222,7 +222,7 @@ public class IndexExpressions {
 		return result;
 	}
 
-	public static List<Expression> getIndexExpressionsFromVariablesAndDomains(Map<Expression, Expression> variablesAndDomains) {
+	public static List<Expression> getIndexExpressionsFromSymbolsAndTypes(Map<Expression, Expression> variablesAndDomains) {
 		List<Expression> result = new LinkedList<Expression>();
 		for (Map.Entry<Expression, Expression> entry : variablesAndDomains.entrySet()) {
 			if (entry.getValue() == null) {
@@ -235,9 +235,9 @@ public class IndexExpressions {
 		return result;
 	}
 
-	public static Expression getIndexExpressionForVariableFromContextualVariablesAndDomains(Expression expression, RewritingProcess process) {
-		Expression domain = process.getContextualVariableDomain(expression);
-		Expression indexExpression = makeIndexExpression(expression, domain);
+	public static Expression getIndexExpressionForVariableFromcontextualSymbolsAndTypes(Expression expression, RewritingProcess process) {
+		Expression type = process.getContextualSymbolType(expression);
+		Expression indexExpression = makeIndexExpression(expression, type);
 		return indexExpression;
 	}
 	

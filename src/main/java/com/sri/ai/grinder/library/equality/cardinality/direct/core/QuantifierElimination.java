@@ -89,15 +89,15 @@ public class QuantifierElimination extends AbstractCardinalityRewriter {
 			Expression indexExpression = ForAll.getIndexExpression(expressionF);
 			Expression body = ForAll.getBody(expressionF);
 			
-			RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIndexExpression(indexExpression, process);
+			RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpression(indexExpression, process);
 			body = subProcess.rewrite(R_top_simplify, body);
 			
 			Expression numberOfSolutionsOfBodyInIndexProblem     = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(body, indexExpression);
 			Expression numberOfSolutionsOfBodyInIndexSolution    = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(numberOfSolutionsOfBodyInIndexProblem, CardinalityRewriter.Quantification.FOR_ALL));
-			Expression indexDomainSize                           = CardinalityUtil.makeCardinalityOfIndexExpressions(Util.list(indexExpression));
-			Expression numberOfSolutionsAndDomainSizeMustBeEqual = Equality.make(numberOfSolutionsOfBodyInIndexSolution, indexDomainSize);
+			Expression indexTypeSize                           = CardinalityUtil.makeCardinalityOfIndexExpressions(Util.list(indexExpression));
+			Expression numberOfSolutionsAndTypeSizeMustBeEqual = Equality.make(numberOfSolutionsOfBodyInIndexSolution, indexTypeSize);
 			
-			result = process.rewrite(R_normalize, numberOfSolutionsAndDomainSizeMustBeEqual);
+			result = process.rewrite(R_normalize, numberOfSolutionsAndTypeSizeMustBeEqual);
 		} 
 		else if (expressionF.hasFunctor(FunctorConstants.THERE_EXISTS)) {
 			Trace.log("if F is \"there exists x: Y\"");
@@ -106,7 +106,7 @@ public class QuantifierElimination extends AbstractCardinalityRewriter {
 			Expression indexExpression = ThereExists.getIndexExpression(expressionF);
 			Expression body = ThereExists.getBody(expressionF);
 			
-			RewritingProcess subProcess = GrinderUtil.extendContextualVariablesWithIndexExpression(indexExpression, process);
+			RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpression(indexExpression, process);
 			body = subProcess.rewrite(R_top_simplify, body);
 			
 			Expression numberOfSolutionsOfBodyInIndexProblem  = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(body, indexExpression);

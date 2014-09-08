@@ -80,7 +80,7 @@ import com.sri.ai.util.collect.FunctionIterator;
  * <li>The first one is a <i>scoping syntax tree</i>, a syntax tree with label
  * {@link #SCOPED_VARIABLES_LABEL} on a list of sub-trees <i>index
  * expressions</i>, each of them an application of <code>in</code> to a variable
- * (a parameter) and a domain set.
+ * (a parameter) and a type.
  * <li>The second one is the head expression
  * <li>The third one is an application of {@link #CONDITION_LABEL} to the the
  * condition that needs to be satisfied for a particular parameter assignment
@@ -148,7 +148,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 				SemanticSubstitute.replace(IntensionalSet.getCondition(intensionalSet), indexValueExpression, value, process);
 		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSet);
 		indexExpressions = Util.listCopyWithoutSatisfyingElementOrNull(indexExpressions, new IndexExpressions.HasIndex(indexValueExpression));
-		// at some point we should look for occurrences of the index in the domain of the other indices.
+		// at some point we should look for occurrences of the index in the type of the other indices.
 		Expression result1 =
 				IntensionalSet.makeSetFromIndexExpressionsList(Sets.getLabel(intensionalSet), indexExpressions, newHead, conditionToUseAfterSubstitution);
 		Expression result = result1;
@@ -164,7 +164,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	public static Collection<Expression> getScopedVariables(Expression expression) {
 		if (Sets.isIntensionalSet(expression)) {
 			Collection<Expression> result =
-				IntensionalSet.getIndexToDomainMapWithDefaultNull(expression).keySet();
+				IntensionalSet.getIndexToTypeMapWithDefaultNull(expression).keySet();
 			return result;
 		}
 		return null;
@@ -172,7 +172,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 
 	public static Collection<Expression> getIndexDomains(Expression expression) {
 		if (Sets.isIntensionalSet(expression)) {
-			Collection<Expression> result = IntensionalSet.getIndexToDomainMapWithDefaultTypeOfIndex(expression).values();
+			Collection<Expression> result = IntensionalSet.getIndexToTypeMapWithDefaultTypeOfIndex(expression).values();
 			return result;
 		}
 		return null;
@@ -314,14 +314,14 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		return result;
 	}
 
-	public static LinkedHashMap<Expression, Expression> getIndexToDomainMapWithDefaultNull(Expression intensionalSetExpression) {
+	public static LinkedHashMap<Expression, Expression> getIndexToTypeMapWithDefaultNull(Expression intensionalSetExpression) {
 		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSetExpression);
-		return IndexExpressions.getIndexToDomainMapWithDefaultNull(indexExpressions);
+		return IndexExpressions.getIndexToTypeMapWithDefaultNull(indexExpressions);
 	}
 
-	public static LinkedHashMap<Expression, Expression> getIndexToDomainMapWithDefaultTypeOfIndex(Expression intensionalSetExpression) {
+	public static LinkedHashMap<Expression, Expression> getIndexToTypeMapWithDefaultTypeOfIndex(Expression intensionalSetExpression) {
 		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(intensionalSetExpression);
-		return IndexExpressions.getIndexToDomainMapWithDefaultTypeOfIndex(indexExpressions);
+		return IndexExpressions.getIndexToTypeMapWithDefaultTypeOfIndex(indexExpressions);
 	}
 
 	/**

@@ -103,11 +103,11 @@ public class StandardizeVariablesApart {
 			
 			if (index != null) {
 				if (seenIndices.containsKey(index)) {
-					RewritingProcess saProcess = GrinderUtil.extendContextualVariables(seenIndices, process);
+					RewritingProcess saProcess = GrinderUtil.extendContextualSymbols(seenIndices, process);
 					result = StandardizedApartFrom.standardizedApartFrom(expression, expression, saProcess);
 				}
 				else {
-					seenIndices.put(index, null); // we do not need the domains for standardization apart purposes
+					seenIndices.put(index, null); // we do not need the types for standardization apart purposes
 				}
 			}
 			

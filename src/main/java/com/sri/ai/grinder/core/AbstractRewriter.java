@@ -159,7 +159,7 @@ public abstract class AbstractRewriter implements Rewriter {
 		
 		if (isTraceInAndOutOfRewriter()) {
 			if (Trace.isEnabled()) {
-				Trace.in("+"+getName()+"({}) - under context variables = {}, constrained by {}", expression, process.getContextualVariables(), process.getContextualConstraint());
+				Trace.in("+"+getName()+"({}) - under context variables = {}, constrained by {}", expression, process.getContextualSymbols(), process.getContextualConstraint());
 			}
 		}
 		
@@ -212,7 +212,7 @@ public abstract class AbstractRewriter implements Rewriter {
 	@Override
 	public Expression rewrite(Expression expression) {
 		RewritingProcess process = makeRewritingProcess(expression);
-		process = GrinderUtil.extendContextualVariablesWithFreeVariablesInExpressionWithUnknownDomainForSetUpPurposesOnly(expression, process);
+		process = GrinderUtil.extendContextualSymbolsWithFreeVariablesInExpressionwithUnknownTypeForSetUpPurposesOnly(expression, process);
 		return rewrite(expression, process);
 	}
 
