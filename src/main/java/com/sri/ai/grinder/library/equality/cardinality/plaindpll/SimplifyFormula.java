@@ -39,7 +39,6 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
@@ -83,71 +82,83 @@ public class SimplifyFormula {
 			result = Disequality.checkForTrivialDisequalityCases(formula, process);
 		}
 		else if (formula.hasFunctor(FunctorConstants.AND)) {
-			if (formula.getArguments().contains(Expressions.FALSE)) {
-				result = Expressions.FALSE;
-			}
-			else {
-				Not<Expression> notEqualToTrue = Not.make(Equals.make(Expressions.TRUE));
-				Set<Expression> distinctArgumentsNotEqualToTrue = new LinkedHashSet<Expression>();
-				Util.collect(formula.getArguments(), distinctArgumentsNotEqualToTrue, notEqualToTrue);
-				if (distinctArgumentsNotEqualToTrue.size() != formula.getArguments().size()) {
-					if (distinctArgumentsNotEqualToTrue.size() == 0) {
-						result = Expressions.TRUE;
-					}
-					else if (distinctArgumentsNotEqualToTrue.size() == 1) {
-						result = Util.getFirst(distinctArgumentsNotEqualToTrue);
-					}
-					else {
-						result = Expressions.apply(FunctorConstants.AND, distinctArgumentsNotEqualToTrue);
-					}
-				}
-				else {
-					result = formula;
-				}
-			}
+			result = eliminateBooleanConstantsInConjunction(formula);
 		}
 		else if (formula.hasFunctor(FunctorConstants.OR)) {
-			if (formula.getArguments().contains(Expressions.TRUE)) {
-				result = Expressions.TRUE;
-			}
-			else {
-				Not<Expression> notEqualToFalse = Not.make(Equals.make(Expressions.FALSE));
-				Set<Expression> distinctArgumentsNotEqualToTrue = new LinkedHashSet<Expression>();
-				Util.collect(formula.getArguments(), distinctArgumentsNotEqualToTrue, notEqualToFalse);
-				if (distinctArgumentsNotEqualToTrue.size() != formula.getArguments().size()) {
-					if (distinctArgumentsNotEqualToTrue.size() == 0) {
-						result = Expressions.FALSE;
-					}
-					else if (distinctArgumentsNotEqualToTrue.size() == 1) {
-						result = Util.getFirst(distinctArgumentsNotEqualToTrue);
-					}
-					else {
-						result = Expressions.apply(FunctorConstants.OR, distinctArgumentsNotEqualToTrue);
-					}
-				}
-				else {
-					result = formula;
-				}
-			}
+			result = eliminateBooleanConstantsInDisjunction(formula);
 		}
 		else if (formula.hasFunctor(FunctorConstants.NOT)) {
-			if (formula.get(0).equals(Expressions.TRUE)) {
-				result = Expressions.FALSE;
-			}
-			else if (formula.get(0).equals(Expressions.FALSE)) {
-				result = Expressions.TRUE;
-			}
-			else if (formula.get(0).hasFunctor(FunctorConstants.NOT)) {
-				result = formula.get(0).get(0);
-			}
-			else {
-				result = formula;
-			}
+			result = eliminateBooleanConstantsInNegation(formula);
 		}
 		else if (formula.hasFunctor(FunctorConstants.IF_THEN_ELSE)) {
 			result = IfThenElse.simplify(formula);
 		}
 		
+		return result;
+	}
+
+	public static Expression eliminateBooleanConstantsInConjunction(Expression conjunction) {
+		Expression result = conjunction;
+		if (conjunction.getArguments().contains(Expressions.FALSE)) {
+			result = Expressions.FALSE;
+		}
+		else {
+			Not<Expression> notEqualToTrue = Not.make(Equals.make(Expressions.TRUE));
+			LinkedHashSet<Expression> distinctArgumentsNotEqualToTrue = new LinkedHashSet<Expression>();
+			Util.collect(conjunction.getArguments(), distinctArgumentsNotEqualToTrue, notEqualToTrue);
+			if (distinctArgumentsNotEqualToTrue.size() != conjunction.getArguments().size()) {
+				if (distinctArgumentsNotEqualToTrue.size() == 0) {
+					result = Expressions.TRUE;
+				}
+				else if (distinctArgumentsNotEqualToTrue.size() == 1) {
+					result = Util.getFirst(distinctArgumentsNotEqualToTrue);
+				}
+				else if (distinctArgumentsNotEqualToTrue.size() != conjunction.numberOfArguments()) {
+					result = Expressions.apply(FunctorConstants.AND, distinctArgumentsNotEqualToTrue);
+				}
+			}
+		}
+		return result;
+	}
+
+	public static Expression eliminateBooleanConstantsInDisjunction(Expression disjunction) {
+		Expression result = disjunction;
+		if (disjunction.getArguments().contains(Expressions.TRUE)) {
+			result = Expressions.TRUE;
+		}
+		else {
+			Not<Expression> notEqualToFalse = Not.make(Equals.make(Expressions.FALSE));
+			LinkedHashSet<Expression> distinctArgumentsNotEqualToFalse = new LinkedHashSet<Expression>();
+			Util.collect(disjunction.getArguments(), distinctArgumentsNotEqualToFalse, notEqualToFalse);
+			if (distinctArgumentsNotEqualToFalse.size() != disjunction.getArguments().size()) {
+				if (distinctArgumentsNotEqualToFalse.size() == 0) {
+					result = Expressions.FALSE;
+				}
+				else if (distinctArgumentsNotEqualToFalse.size() == 1) {
+					result = Util.getFirst(distinctArgumentsNotEqualToFalse);
+				}
+				else if (distinctArgumentsNotEqualToFalse.size() != disjunction.numberOfArguments()) {
+					result = Expressions.apply(FunctorConstants.OR, distinctArgumentsNotEqualToFalse);
+				}
+			}
+		}
+		return result;
+	}
+
+	public static Expression eliminateBooleanConstantsInNegation(Expression formula) {
+		Expression result;
+		if (formula.get(0).equals(Expressions.TRUE)) {
+			result = Expressions.FALSE;
+		}
+		else if (formula.get(0).equals(Expressions.FALSE)) {
+			result = Expressions.TRUE;
+		}
+		else if (formula.get(0).hasFunctor(FunctorConstants.NOT)) {
+			result = formula.get(0).get(0);
+		}
+		else {
+			result = formula;
+		}
 		return result;
 	}
 
