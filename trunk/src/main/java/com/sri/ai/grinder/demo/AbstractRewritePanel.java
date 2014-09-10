@@ -475,7 +475,7 @@ public class AbstractRewritePanel extends JPanel {
 					outputPrefix = "// WARNING: Input Context is not a Formula (defaulting to true).\n";
 			}
 			
-			process = GrinderUtil.extendContextualSymbolsWithFreeVariablesInExpressionwithUnknownTypeForSetUpPurposesOnly(Tuple.make(input, inputContext), process);
+			process = GrinderUtil.extendContextualSymbolsWithFreeSymbolsInExpressionwithUnknownTypeForSetUpPurposesOnly(Tuple.make(input, inputContext), process);
 			process = GrinderUtil.extendContextualConstraint(inputContext, process);
 			
 			if (isCardinalityRewriterLookupNeeded(rewriters)) {

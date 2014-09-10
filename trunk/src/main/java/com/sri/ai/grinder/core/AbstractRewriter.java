@@ -212,7 +212,7 @@ public abstract class AbstractRewriter implements Rewriter {
 	@Override
 	public Expression rewrite(Expression expression) {
 		RewritingProcess process = makeRewritingProcess(expression);
-		process = GrinderUtil.extendContextualSymbolsWithFreeVariablesInExpressionwithUnknownTypeForSetUpPurposesOnly(expression, process);
+		process = GrinderUtil.extendContextualSymbolsWithFreeSymbolsInExpressionwithUnknownTypeForSetUpPurposesOnly(expression, process);
 		return rewrite(expression, process);
 	}
 

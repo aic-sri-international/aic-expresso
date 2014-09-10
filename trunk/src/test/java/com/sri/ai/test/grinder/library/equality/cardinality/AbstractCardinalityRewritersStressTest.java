@@ -65,7 +65,7 @@ public abstract class AbstractCardinalityRewritersStressTest extends AbstractRew
 	public RewritingProcess makeRewritingProcessFor(Rewriter rewriter, Expression problemExpression) {
 		RewritingProcess process = rewriter.makeRewritingProcess(problemExpression);
 		countsDeclaration.setup(process);
-		process = GrinderUtil.extendContextualSymbolsWithFreeVariablesInExpressionwithUnknownTypeForSetUpPurposesOnly(problemExpression, process);
+		process = GrinderUtil.extendContextualSymbolsWithFreeSymbolsInExpressionwithUnknownTypeForSetUpPurposesOnly(problemExpression, process);
 		return process;
 	}
 
