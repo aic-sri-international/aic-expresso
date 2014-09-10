@@ -96,7 +96,7 @@ public class GrinderUtil {
 	 * (that is, that are not in the contextual symbols).
 	 * This is used for when global free variables are being determined. It should not be used in normal circumstances.
 	 */
-	public static final String DO_NOT_REQUIRE_ADDED_CONTEXTUAL_CONSTRAINT_FREE_VARIABLES_TO_BE_IN_CONTEXTUAL_VARIABLES = "Do not require added contextual constraint free variables to be in contextual symbols";
+	public static final String DO_NOT_REQUIRE_ADDED_CONTEXTUAL_CONSTRAINT_FREE_SYMBOLS_TO_BE_IN_CONTEXTUAL_VARIABLES = "Do not require added contextual constraint free variables to be in contextual symbols";
 
 	/**
 	 * Takes an expression and, if it is an if then else, rearranges it so that
@@ -514,8 +514,7 @@ public class GrinderUtil {
 	}
 
 	/**
-	 * Same as {@link #extendContextualSymbolsAndConstraintWithIntensionalSetInferringDomainsFromUsageInRandomVariables(Expression, RewritingProcess)},
-	 * but only for the indices (that is, it does not extend the contextual constraint with the intensional set's condition).
+	 * Returns a rewriting process with contextual symbols extended by an intensional set's indices.
 	 */
 	public static RewritingProcess extendContextualSymbolsWithIntensionalSetIndices(Expression intensionalSet, RewritingProcess process) {
 		Map<Expression, Expression> quantifiedSymbolsAndTypes = IntensionalSet.getIndexToTypeMapWithDefaultNull(intensionalSet);
@@ -524,8 +523,7 @@ public class GrinderUtil {
 	}
 
 	/**
-	 * Same as {@link #extendContextualSymbolsAndConstraintWithIntensionalSetInferringDomainsFromUsageInRandomVariables(Expression, RewritingProcess)},
-	 * but given the index expressions only.
+	 * Returns a rewriting process with contextual symbols extended by a list of index expressions.
 	 */
 	public static RewritingProcess extendContextualSymbolsWithIndexExpressions(Collection<Expression> indexExpressions, RewritingProcess process) {
 		Map<Expression, Expression> quantifiedSymbolsAndTypes = IndexExpressions.getIndexToTypeMapWithDefaultNull(indexExpressions);
@@ -562,9 +560,7 @@ public class GrinderUtil {
 
 	/**
 	 * Extend the rewriting processes's contextual constraint by an additional
-	 * context. This creates a new expression which is a conjunction
-	 * of both constraints and then performs R_formula_simplification on the
-	 * conjunction before setting it as the processes new contextual constraint.
+	 * constraint.
 	 * 
 	 * @param additionalConstraints
 	 *            additional context to extend the contextual constraint by.
@@ -586,7 +582,7 @@ public class GrinderUtil {
 	 * Extend the rewriting processes's contextual symbols and constraints.
 	 * 
 	 * @param expressionAndContext
-	 *            an expression that possibly contains free variables that
+	 *            an expression that possibly scopes new symbols that
 	 *            should be added to the a new sub-process of the process passed
 	 *            in, with a context that encodes a condition on that context.
 	 * @param process
@@ -598,9 +594,9 @@ public class GrinderUtil {
 	public static RewritingProcess extendContextualSymbolsAndConstraint(
 			ExpressionAndContext expressionAndContext, 
 			RewritingProcess process) {
-		Map<Expression, Expression> quantifiedVariablesDomains = IndexExpressions.getIndexToTypeMapWithDefaultNull(expressionAndContext.getIndexExpressions());
-		Expression                  conditionOnExpression      = expressionAndContext.getConstrainingCondition();
-		RewritingProcess result = extendContextualSymbolsAndConstraint(quantifiedVariablesDomains, conditionOnExpression, process);
+		Map<Expression, Expression> fromIndexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(expressionAndContext.getIndexExpressions());
+		Expression conditionOnExpression = expressionAndContext.getConstrainingCondition();
+		RewritingProcess result = extendContextualSymbolsAndConstraint(fromIndexToTypeMap, conditionOnExpression, process);
 		return result;
 	}
 	
@@ -614,13 +610,14 @@ public class GrinderUtil {
 	 * and each extension will shadow the previous ones.
 	 * Instead, one must create a tuple of expressions and extend the context with them all at the same time.
 	 */
-	public static RewritingProcess extendContextualSymbolsWithFreeVariablesInExpressionwithUnknownTypeForSetUpPurposesOnly(Expression expression, RewritingProcess process) {
-		Set<Expression> freeVariables = Expressions.freeVariables(expression, process);
-		Map<Expression, Expression> fromVariableToDomain = new LinkedHashMap<Expression, Expression>();
-		for (Expression variable : freeVariables) {
-			fromVariableToDomain.put(variable, null);
+	public static RewritingProcess extendContextualSymbolsWithFreeSymbolsInExpressionwithUnknownTypeForSetUpPurposesOnly(Expression expression, RewritingProcess process) {
+		// NOT FREE Set<Expression> freeSymbols = Expressions.freeVariables(expression, process);
+		Set<Expression> freeSymbols = Expressions.freeSymbols(expression, process);
+		Map<Expression, Expression> fromSymbolToType = new LinkedHashMap<Expression, Expression>();
+		for (Expression symbol : freeSymbols) {
+			fromSymbolToType.put(symbol, null);
 		}
-		RewritingProcess result = extendContextualSymbols(fromVariableToDomain, process);
+		RewritingProcess result = extendContextualSymbols(fromSymbolToType, process);
 		return result;
 	}
 
@@ -633,11 +630,35 @@ public class GrinderUtil {
 		return result;
 	}
 
+	// FREE
+//	public static Map<Expression, Expression> obtainTypesOfIndicesFunctors(Map<Expression, Expression> fromIndicesToType, RewritingProcess process) {
+//		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
+//		for (Map.Entry<Expression, Expression> entry : fromIndicesToType.entrySet()) {
+//			Expression functor = entry.getKey().getFunctor();
+//			Expression typeOfFunctor = getType(functor, process);
+//			result.put(functor, typeOfFunctor);
+//		}
+//		return result;
+//	}
+//	
+//	public static getType(Expression expression, RewritingProcess process) {
+//		Expression result;
+//		if (expression.getSyntacticFormType().equals("Symbol")) {
+//			result = process.getContextualSymbolType(expression);
+//		}
+//		else if (expression.getSyntacticFormType().equals("Function application")) {
+//			List<Expression> argumentTypes = Util.mapIntoArrayList(expression.getArguments(), GET_TYPE);
+//			Expression argumentTypesTuple = Tuple.make(argumentTypes);
+//			result = Expressions.apply("->", argumentTypesTuple);
+//		}
+//		return result;
+//	}
+	
 	/**
 	 * Extend the rewriting processes's contextual symbols and constraints.
 	 * Returns the same process instance if there are no changes.
 	 * 
-	 * @param extendingcontextualSymbolsAndTypes
+	 * @param extendingContextualSymbolsAndTypes
 	 *            a map from variables to their types that
 	 *            should be added to the a new sub-process of the process passed
 	 *            in.
@@ -652,24 +673,24 @@ public class GrinderUtil {
 	 *         possibly the same as input process if no changes are made.
 	 */
 	public static RewritingProcess extendContextualSymbolsAndConstraint(
-			Map<Expression, Expression> extendingcontextualSymbolsAndTypes,
+			Map<Expression, Expression> extendingContextualSymbolsAndTypes,
 			Expression additionalConstraints, 
 			RewritingProcess process) {
 		
-		if (extendingcontextualSymbolsAndTypes.isEmpty() && additionalConstraints.equals(Expressions.TRUE)) { // nothing to do
+		if (extendingContextualSymbolsAndTypes.isEmpty() && additionalConstraints.equals(Expressions.TRUE)) { // nothing to do
 			return process;
 		}
 		
-		doNotAcceptDomainsContainingTypeOfVariable(extendingcontextualSymbolsAndTypes);
+		doNotAcceptTypesContainingTypeExpression(extendingContextualSymbolsAndTypes);
 		
-		process = renameExistingContextualSymbolsIfThereAreCollisions(extendingcontextualSymbolsAndTypes, process);
+		process = renameExistingContextualSymbolsIfThereAreCollisions(extendingContextualSymbolsAndTypes, process);
 		
-		StackedHashMap<Expression, Expression> newMapOfcontextualSymbolsAndTypes = createNewMapOfcontextualSymbolsAndTypes(extendingcontextualSymbolsAndTypes, process);
+		StackedHashMap<Expression, Expression> newMapOfContextualSymbolsAndTypes = createNewMapOfContextualSymbolsAndTypes(extendingContextualSymbolsAndTypes, process);
 		// Note: StackedHashMap shares original entries with the original process's map
 		
-		Expression newContextualConstraint = checkAndAddNewConstraints(additionalConstraints, newMapOfcontextualSymbolsAndTypes, process);
+		Expression newContextualConstraint = checkAndAddNewConstraints(additionalConstraints, newMapOfContextualSymbolsAndTypes, process);
 		
-		RewritingProcess subRewritingProcess = process.newSubProcessWithContext(newMapOfcontextualSymbolsAndTypes, newContextualConstraint);
+		RewritingProcess subRewritingProcess = process.newSubProcessWithContext(newMapOfContextualSymbolsAndTypes, newContextualConstraint);
 		
 		return subRewritingProcess;
 	}
@@ -699,11 +720,11 @@ public class GrinderUtil {
 			Expression type = someContextualSymbolAndType.getValue();
 			if (type != null) {
 				Expression someContextualSymbol = someContextualSymbolAndType.getKey();
-				Expression newDomain =
+				Expression newType =
 						Expressions.makeFromSyntaxTree(
 								type.getSyntaxTree().replaceSubTreesAllOccurrences(contextualSymbol.getSyntaxTree(),newContextualSymbol.getSyntaxTree()));
-				if (newDomain != type) {
-					newcontextualSymbolsAndTypes.put(someContextualSymbol, newDomain);
+				if (newType != type) {
+					newcontextualSymbolsAndTypes.put(someContextualSymbol, newType);
 				}
 			}
 		}
@@ -724,7 +745,7 @@ public class GrinderUtil {
 		return newProcess;
 	}
 
-	private static void doNotAcceptDomainsContainingTypeOfVariable(Map<Expression, Expression> extendingcontextualSymbolsAndTypes) throws Error {
+	private static void doNotAcceptTypesContainingTypeExpression(Map<Expression, Expression> extendingcontextualSymbolsAndTypes) throws Error {
 		for (Map.Entry entry : extendingcontextualSymbolsAndTypes.entrySet()) {
 			if (entry.getValue() != null && ((Expression)entry.getValue()).hasFunctor("type")) {
 				throw new Error("'type' occurring in types extending context: " + entry);
@@ -732,11 +753,13 @@ public class GrinderUtil {
 		}
 	}
 
-	private static StackedHashMap<Expression, Expression> createNewMapOfcontextualSymbolsAndTypes(Map<Expression, Expression> extendingcontextualSymbolsAndTypes, RewritingProcess process) {
+	private static StackedHashMap<Expression, Expression> createNewMapOfContextualSymbolsAndTypes(Map<Expression, Expression> extendingcontextualSymbolsAndTypes, RewritingProcess process) {
 		StackedHashMap<Expression, Expression> newMapOfcontextualSymbolsAndTypes = new StackedHashMap<Expression, Expression>(process.getContextualSymbolsAndTypes());
 		if (extendingcontextualSymbolsAndTypes != null) {
 			// we take only the logical variables; this is a current limitation of the system and should eventually be removed.
 			Collection<Expression> newFreeVariablesWhichAreLogicalVariables = Util.filter(extendingcontextualSymbolsAndTypes.keySet(), new IsVariable(process));
+			// FREE
+			//Collection<Expression> newFreeVariablesWhichAreLogicalVariables = extendingcontextualSymbolsAndTypes.keySet();
 			for (Expression newLogicalFreeVariable : newFreeVariablesWhichAreLogicalVariables) {
 				newMapOfcontextualSymbolsAndTypes.put(newLogicalFreeVariable, extendingcontextualSymbolsAndTypes.get(newLogicalFreeVariable));
 			}
@@ -748,7 +771,7 @@ public class GrinderUtil {
 		Expression newContextualConstraint = process.getContextualConstraint();
 		// Only extend the contextual constraint with formulas
 		if (!additionalConstraints.equals(Expressions.TRUE) && FormulaUtil.isFormula(additionalConstraints, process)) {
-			checkThatAllFreeVariablesInAdditionalConstraintsAreInContext(additionalConstraints, newMapOfcontextualSymbolsAndTypes, process);
+			checkThatAllFreeSymbolsInAdditionalConstraintsAreInContext(additionalConstraints, newMapOfcontextualSymbolsAndTypes, process);
 			// Construct a conjunct of contextual constraints extended by the additional context
 			newContextualConstraint = CardinalityUtil.makeAnd(newContextualConstraint, additionalConstraints);
 		} 
@@ -759,14 +782,29 @@ public class GrinderUtil {
 		return newContextualConstraint;
 	}
 
-	private static void checkThatAllFreeVariablesInAdditionalConstraintsAreInContext(Expression additionalConstraints, Map<Expression, Expression> newMapOfcontextualSymbolsAndTypes, RewritingProcess process) throws Error {
-		Set<Expression> freeVariablesInAdditionalConstraints = Expressions.freeVariables(additionalConstraints, process);
-		if ( ! newMapOfcontextualSymbolsAndTypes.keySet().containsAll(freeVariablesInAdditionalConstraints) &&
-				! process.containsGlobalObjectKey(DO_NOT_REQUIRE_ADDED_CONTEXTUAL_CONSTRAINT_FREE_VARIABLES_TO_BE_IN_CONTEXTUAL_VARIABLES)) {
+	private static void checkThatAllFreeSymbolsInAdditionalConstraintsAreInContext(Expression additionalConstraints, Map<Expression, Expression> newMapOfContextualSymbolsAndTypes, RewritingProcess process) throws Error {
+		Set<Expression> freeSymbolsInAdditionalConstraints = Expressions.freeVariables(additionalConstraints, process);
+// FREE
+//		FREE Set<Expression> freeSymbolsInAdditionalConstraints = Expressions.freeSymbols(additionalConstraints, process);
+//		
+//		// The following checks that free symbols are either already in context, or are logical connectives
+//		// This is hard-coded for equality formula constraints and will need to be abstracted someday. 
+//		Expression freeSymbolNotInContextualSymbols = null;
+//		for (Expression freeSymbol : freeSymbolsInAdditionalConstraints) {
+//			if (! FormulaUtil.EQUALITY_FORMULAS_PRIMITIVE_SYMBOLS.contains(freeSymbol) &&
+//					! newMapOfContextualSymbolsAndTypes.keySet().contains(freeSymbol)) {
+//				freeSymbolNotInContextualSymbols = freeSymbol;
+//				break;
+//			}
+//		}
+//		if ( freeSymbolNotInContextualSymbols != null &&
+		if ( ! newMapOfContextualSymbolsAndTypes.keySet().containsAll(freeSymbolsInAdditionalConstraints) &&
+				! process.containsGlobalObjectKey(DO_NOT_REQUIRE_ADDED_CONTEXTUAL_CONSTRAINT_FREE_SYMBOLS_TO_BE_IN_CONTEXTUAL_VARIABLES)) {
 			String message =
-					"Extending contextual constraint " + additionalConstraints +
-					" containing unknown variables {" + Util.join(Util.subtract(freeVariablesInAdditionalConstraints, newMapOfcontextualSymbolsAndTypes.keySet())) + 
-					"} (current contextual symbols are {" + Util.join(newMapOfcontextualSymbolsAndTypes.keySet()) + "})";
+					"Extending contextual constraint with additional constraint <" + additionalConstraints +
+// FREE					"> containing unknown free symbol " + freeSymbolNotInContextualSymbols + 
+					"> containing unknown free symbol " + Util.join(Util.subtract(freeSymbolsInAdditionalConstraints, newMapOfContextualSymbolsAndTypes.keySet())) + 
+					" (current contextual symbols are {" + Util.join(newMapOfContextualSymbolsAndTypes.keySet()) + "})";
 			throw new Error(message);
 		}
 		// The check above ensures that the additional constraints only use variables that are already known.
@@ -830,14 +868,14 @@ public class GrinderUtil {
 	 */
 	public static List<Expression> getIndexExpressionsOfFreeVariablesIn(Expression expression, RewritingProcess process) {
 		Set<Expression> freeVariables = Expressions.freeVariables(expression, process);
-		List<Expression> result = makeIndexExpressionsForIndicesInListAndDomainsInContext(freeVariables, process);
+		List<Expression> result = makeIndexExpressionsForIndicesInListAndTypesInContext(freeVariables, process);
 		return result;
 	}
 
 	/**
 	 * Returns a list of index expressions corresponding to the given indices and their types per the context, if any.
 	 */
-	public static List<Expression> makeIndexExpressionsForIndicesInListAndDomainsInContext(Collection<Expression> indices, RewritingProcess process) {
+	public static List<Expression> makeIndexExpressionsForIndicesInListAndTypesInContext(Collection<Expression> indices, RewritingProcess process) {
 		List<Expression> result = new LinkedList<Expression>();
 		for (Expression index : indices) {
 			Expression type = process.getContextualSymbolType(index);

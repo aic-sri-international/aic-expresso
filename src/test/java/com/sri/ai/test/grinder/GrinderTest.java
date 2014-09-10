@@ -138,7 +138,7 @@ public class GrinderTest extends AbstractGrinderTest {
 	@Override
 	public RewritingProcess makeRewritingProcess(Expression topExpression) {
 		RewritingProcess process = new DefaultRewritingProcess(topExpression, new Basic());
-		process = GrinderUtil.extendContextualSymbolsWithFreeVariablesInExpressionwithUnknownTypeForSetUpPurposesOnly(topExpression, process);
+		process = GrinderUtil.extendContextualSymbolsWithFreeSymbolsInExpressionwithUnknownTypeForSetUpPurposesOnly(topExpression, process);
 		return process;
 	}
 
@@ -1011,7 +1011,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		}
 		topExpressions.add(expected);
 		Expression topExpressionsTuple = Tuple.make(topExpressions);
-		RewritingProcess result = GrinderUtil.extendContextualSymbolsWithFreeVariablesInExpressionwithUnknownTypeForSetUpPurposesOnly(topExpressionsTuple, process);
+		RewritingProcess result = GrinderUtil.extendContextualSymbolsWithFreeSymbolsInExpressionwithUnknownTypeForSetUpPurposesOnly(topExpressionsTuple, process);
 		return result;
 	}
 
@@ -1474,7 +1474,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		Expression result;
 		RewritingProcess process = new DefaultRewritingProcess(expression1, evaluator);
 		Expression topExpressions = Tuple.make(expression1, expression2);
-		process = GrinderUtil.extendContextualSymbolsWithFreeVariablesInExpressionwithUnknownTypeForSetUpPurposesOnly(topExpressions, process);
+		process = GrinderUtil.extendContextualSymbolsWithFreeSymbolsInExpressionwithUnknownTypeForSetUpPurposesOnly(topExpressions, process);
 		result = StandardizedApartFrom.standardizedApartFrom(expression1, expression2, process);
 		System.out.println("Standardization apart of " + expression1 + "  wrt " + expression2 + " (not assuming implicit quantification):\n                         " + result + "\n               Expected: " + expected);
 		assertEquals(result, expected);

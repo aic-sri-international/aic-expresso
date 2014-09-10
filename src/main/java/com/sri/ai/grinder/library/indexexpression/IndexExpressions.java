@@ -129,6 +129,8 @@ public class IndexExpressions {
 			return getIndex(indexExpression);
 		}
 	}
+	
+	public static GetIndex GET_INDEX = new GetIndex();
 
 	public static class IsIndexIn implements Predicate<Expression> {
 		private List<Expression> indexExpressions;

@@ -502,6 +502,15 @@ public class FormulaUtil {
 			Expressions.makeSymbol(FunctorConstants.IMPLIED),     Expressions.makeSymbol(FunctorConstants.IMPLICATION),
 			Expressions.makeSymbol(FunctorConstants.EQUIVALENCE));
 
+	final public static Set<Expression> EQUALITY_FORMULAS_PRIMITIVE_SYMBOLS =
+	Util.set(
+			Expressions.TRUE,                                     Expressions.FALSE,
+			Expressions.makeSymbol(FunctorConstants.EQUALITY),    Expressions.makeSymbol(FunctorConstants.DISEQUALITY),
+			Expressions.makeSymbol(FunctorConstants.NOT),         Expressions.makeSymbol(FunctorConstants.IF_THEN_ELSE),
+			Expressions.makeSymbol(FunctorConstants.AND),         Expressions.makeSymbol(FunctorConstants.OR),
+			Expressions.makeSymbol(FunctorConstants.IMPLIED),     Expressions.makeSymbol(FunctorConstants.IMPLICATION),
+			Expressions.makeSymbol(FunctorConstants.EQUIVALENCE));
+
 	/**
 	 * Indicates whether an expression is a compound boolean formula, including if then else
 	 * (does not check sub-expressions).

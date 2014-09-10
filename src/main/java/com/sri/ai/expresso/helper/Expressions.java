@@ -48,6 +48,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
@@ -457,10 +458,10 @@ public class Expressions {
 		return expression.getValue();
 	}
 	
-	public static final Function GET_FUNCTOR_OR_SYMBOL = new Function() {
+	public static final Function<Expression, Expression> GET_FUNCTOR_OR_SYMBOL = new Function<Expression, Expression>() {
 
 		@Override
-		public Object apply(Object object) {
+		public Expression apply(Expression object) {
 			Expression expression = (Expression) object;
 			return expression.getFunctorOrSymbol();
 		}
@@ -862,8 +863,8 @@ public class Expressions {
 
 	/** Returns the set of free symbols in an expression, according to a given process. */
 	public static Set<Expression> freeSymbols(Expression expression, RewritingProcess process) {
-		Set<Expression> freeSymbols       = new LinkedHashSet<Expression>(); 
-		Set<Expression> quantifiedSymbols = new LinkedHashSet<Expression>();
+		Set<Expression> freeSymbols = new LinkedHashSet<Expression>(); 
+		Stack<Expression> quantifiedSymbols = new Stack<Expression>();
 		
 		Expressions.freeSymbols(expression, freeSymbols, quantifiedSymbols, process);
 		
@@ -919,10 +920,9 @@ public class Expressions {
 		return;
 	}
 
-	private static void freeSymbols(Expression expression, Set<Expression> freeSymbols, Set<Expression> quantifiedSymbols, RewritingProcess process) {
-		// Note: this is a slight modification of freeVariables. I am adding (*) near the modified bits.
+	private static void freeSymbols(Expression expression, Set<Expression> freeSymbols, Stack<Expression> quantifiedSymbols, RewritingProcess process) {
 		
-		if (expression.getSyntacticFormType().equals("Symbol")) { // (*) no check for being a variable
+		if (expression.getSyntacticFormType().equals("Symbol")) {
 			if (!quantifiedSymbols.contains(expression)) {
 				freeSymbols.add(expression);
 			}
@@ -930,29 +930,16 @@ public class Expressions {
 		else {
 			Iterator<ExpressionAndContext> subExpressionAndContextsIterator = expression.getImmediateSubExpressionsAndContextsIterator(process);
 			
-			Set<Expression> newLocalQuantifiedSymbols = null;
 			while (subExpressionAndContextsIterator.hasNext()) {
 				ExpressionAndContext subExpressionAndContext = subExpressionAndContextsIterator.next();
 				
-				// initialize newLocalQuantifiedSymbols with an empty collection
-				if (newLocalQuantifiedSymbols == null) {
-					// For efficiency, only instantiate once
-					newLocalQuantifiedSymbols = new LinkedHashSet<Expression>();
-				}
-				else {
-					newLocalQuantifiedSymbols.clear();
-				}
+				List<Expression> indexExpressions = subExpressionAndContext.getIndexExpressions();
+				List<Expression> newQuantifiedSymbols = Util.mapIntoList(indexExpressions, IndexExpressions.GET_INDEX);
+				int numberOfPushed = Util.pushAll(quantifiedSymbols, newQuantifiedSymbols);
 				
-				for (Expression localSymbol : ScopedVariables.getLocallyScopedSymbols(subExpressionAndContext.getExpression(), process)) { // (*)
-					if (quantifiedSymbols.add(localSymbol)) {
-						newLocalQuantifiedSymbols.add(localSymbol);
-					}
-				}
-	
 				freeSymbols(subExpressionAndContext.getExpression(), freeSymbols, quantifiedSymbols, process);
 				
-				// Backtrack to what quantifiedVariables was at the beginning of this call; perhaps it would be more efficient to keep this on a stack?
-				quantifiedSymbols.removeAll(newLocalQuantifiedSymbols);
+				Util.popAll(quantifiedSymbols, numberOfPushed);
 			}
 		}
 	

@@ -164,7 +164,7 @@ public class PickSingleElement {
 			}
 		}
 	
-		List<Expression> indexExpressions = GrinderUtil.makeIndexExpressionsForIndicesInListAndDomainsInContext(variablesIPrime, process);
+		List<Expression> indexExpressions = GrinderUtil.makeIndexExpressionsForIndicesInListAndTypesInContext(variablesIPrime, process);
 	
 		Expression thereExists = ThereExists.make(indexExpressions, formulaC);
 		Expression formulaOnX  = process.rewrite(CardinalityRewriter.R_normalize, thereExists);
