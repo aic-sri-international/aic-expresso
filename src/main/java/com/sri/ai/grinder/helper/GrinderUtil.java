@@ -851,10 +851,11 @@ public class GrinderUtil {
 	}
 
 	private static void checkThatAllFreeSymbolsInAdditionalConstraintsAreInContext(Expression additionalConstraints, Map<Expression, Expression> newMapOfContextualSymbolsAndTypes, RewritingProcess process) throws Error {
+		// NOT FREE
 		Set<Expression> freeSymbolsInAdditionalConstraints = Expressions.freeVariables(additionalConstraints, process);
-// FREE
-//		FREE Set<Expression> freeSymbolsInAdditionalConstraints = Expressions.freeSymbols(additionalConstraints, process);
-//		
+
+		// FREE
+//		Set<Expression> freeSymbolsInAdditionalConstraints = Expressions.freeSymbols(additionalConstraints, process);
 //		// The following checks that free symbols are either already in context, or are logical connectives
 //		// This is hard-coded for equality formula constraints and will need to be abstracted someday. 
 //		Expression freeSymbolNotInContextualSymbols = null;
@@ -865,12 +866,19 @@ public class GrinderUtil {
 //				break;
 //			}
 //		}
-//		if ( freeSymbolNotInContextualSymbols != null &&
-		if ( ! newMapOfContextualSymbolsAndTypes.keySet().containsAll(freeSymbolsInAdditionalConstraints) &&
+// NOT FREE
+		if (! newMapOfContextualSymbolsAndTypes.keySet().containsAll(freeSymbolsInAdditionalConstraints) &&
 				! process.containsGlobalObjectKey(DO_NOT_REQUIRE_ADDED_CONTEXTUAL_CONSTRAINT_FREE_SYMBOLS_TO_BE_IN_CONTEXTUAL_VARIABLES)) {
+		// FREE
+//		if ( freeSymbolNotInContextualSymbols != null &&
+//		! newMapOfContextualSymbolsAndTypes.keySet().containsAll(freeSymbolsInAdditionalConstraints) &&
+//				! process.containsGlobalObjectKey(DO_NOT_REQUIRE_ADDED_CONTEXTUAL_CONSTRAINT_FREE_SYMBOLS_TO_BE_IN_CONTEXTUAL_VARIABLES)) {
+
 			String message =
 					"Extending contextual constraint with additional constraint <" + additionalConstraints +
-// FREE					"> containing unknown free symbol " + freeSymbolNotInContextualSymbols + 
+// FREE
+// 					"> containing unknown free symbol " + freeSymbolNotInContextualSymbols + 
+// NOT FREE 
 					"> containing unknown free symbol " + Util.join(Util.subtract(freeSymbolsInAdditionalConstraints, newMapOfContextualSymbolsAndTypes.keySet())) + 
 					" (current contextual symbols are {" + Util.join(newMapOfContextualSymbolsAndTypes.keySet()) + "})";
 			throw new Error(message);
