@@ -50,7 +50,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.HasFunctor;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.function.AbstractRewriterDefiningSymmetricFunction;
 import com.sri.ai.util.Util;
@@ -123,7 +122,7 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 			return true; // both are the same expression
 		}
 		else if ( process.isVariable(expression1) && process.isVariable(expression2) &&
-				Util.notNullAndDistinct(GrinderUtil.getType(expression1, process), GrinderUtil.getType(expression2, process))){
+				Util.notNullAndDistinct(process.getContextualSymbolType(expression1), process.getContextualSymbolType(expression2))){
 			return false; // distinct variables with different types, so not equal under current assumption that types do not overlap (which will probably be removed in the future).
 		}
 		else {

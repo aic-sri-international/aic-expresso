@@ -73,6 +73,7 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.function.InjectiveModule;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
+import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.ui.TreeUtil;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.Util;
@@ -517,8 +518,8 @@ public class GrinderUtil {
 	 * Returns a rewriting process with contextual symbols extended by an intensional set's indices.
 	 */
 	public static RewritingProcess extendContextualSymbolsWithIntensionalSetIndices(Expression intensionalSet, RewritingProcess process) {
-		Map<Expression, Expression> quantifiedSymbolsAndTypes = IntensionalSet.getIndexToTypeMapWithDefaultNull(intensionalSet);
-		RewritingProcess result = GrinderUtil.extendContextualSymbolsAndConstraint(quantifiedSymbolsAndTypes, Expressions.TRUE, process);
+		Map<Expression, Expression> indexToTypeMap = IntensionalSet.getIndexToTypeMapWithDefaultNull(intensionalSet);
+		RewritingProcess result = GrinderUtil.extendContextualSymbolsAndConstraint(indexToTypeMap, Expressions.TRUE, process);
 		return result;
 	}
 
@@ -526,8 +527,8 @@ public class GrinderUtil {
 	 * Returns a rewriting process with contextual symbols extended by a list of index expressions.
 	 */
 	public static RewritingProcess extendContextualSymbolsWithIndexExpressions(Collection<Expression> indexExpressions, RewritingProcess process) {
-		Map<Expression, Expression> quantifiedSymbolsAndTypes = IndexExpressions.getIndexToTypeMapWithDefaultNull(indexExpressions);
-		RewritingProcess result = GrinderUtil.extendContextualSymbolsAndConstraint(quantifiedSymbolsAndTypes, Expressions.TRUE, process);
+		Map<Expression, Expression> indexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(indexExpressions);
+		RewritingProcess result = GrinderUtil.extendContextualSymbolsAndConstraint(indexToTypeMap, Expressions.TRUE, process);
 		return result;
 	}
 
@@ -552,9 +553,9 @@ public class GrinderUtil {
 	 */
 	public static RewritingProcess extendContextualSymbolsAndConstraintWithIntensionalSet(
 			Expression intensionalSet, RewritingProcess process) {
-		Map<Expression, Expression> quantifiedSymbolsAndTypes = IntensionalSet.getIndexToTypeMapWithDefaultNull(intensionalSet);
+		Map<Expression, Expression> indexToTypeMap = IntensionalSet.getIndexToTypeMapWithDefaultNull(intensionalSet);
 		Expression conditionOnExpansion = IntensionalSet.getCondition(intensionalSet);
-		RewritingProcess result = GrinderUtil.extendContextualSymbolsAndConstraint(quantifiedSymbolsAndTypes, conditionOnExpansion, process);
+		RewritingProcess result = GrinderUtil.extendContextualSymbolsAndConstraint(indexToTypeMap, conditionOnExpansion, process);
 		return result;
 	}
 
@@ -630,30 +631,91 @@ public class GrinderUtil {
 		return result;
 	}
 
-	// FREE
-//	public static Map<Expression, Expression> obtainTypesOfIndicesFunctors(Map<Expression, Expression> fromIndicesToType, RewritingProcess process) {
-//		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
-//		for (Map.Entry<Expression, Expression> entry : fromIndicesToType.entrySet()) {
-//			Expression functor = entry.getKey().getFunctor();
-//			Expression typeOfFunctor = getType(functor, process);
-//			result.put(functor, typeOfFunctor);
-//		}
-//		return result;
-//	}
-//	
-//	public static getType(Expression expression, RewritingProcess process) {
-//		Expression result;
-//		if (expression.getSyntacticFormType().equals("Symbol")) {
-//			result = process.getContextualSymbolType(expression);
-//		}
-//		else if (expression.getSyntacticFormType().equals("Function application")) {
-//			List<Expression> argumentTypes = Util.mapIntoArrayList(expression.getArguments(), GET_TYPE);
-//			Expression argumentTypesTuple = Tuple.make(argumentTypes);
-//			result = Expressions.apply("->", argumentTypesTuple);
-//		}
-//		return result;
-//	}
+	/**
+	 * Gets a map from indices to their types and returns a map from their functors-or-symbols
+	 * (that is, their functors if they are function application, and themselves if they are symbols)
+	 * to their types.
+	 * A function has a type of the form <code>'->'('x'(T1, ..., Tn), R)</code>, where <code>T1,...,Tn</code>
+	 * are the types of their arguments and <code>R</code> are their co-domain.
+	 */
+	public static Map<Expression, Expression> getTypesOfIndicesFunctorsOrSymbols(Map<Expression, Expression> fromIndicesToType, RewritingProcess process) {
+		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
+		for (Map.Entry<Expression, Expression> entry : fromIndicesToType.entrySet()) {
+			Expression index     = entry.getKey();
+			Expression indexType = entry.getValue();
+			if (index.getSyntacticFormType().equals("Symbol")) {
+				result.put(index, indexType);
+			}
+			else if (index.getSyntacticFormType().equals("Function application")) {
+				Expression typeOfFunctor = getTypeOfFunctor(index, indexType, process);
+				result.put(index.getFunctorOrSymbol(), typeOfFunctor);
+			}
+			else {
+				throw new Error("getTypesOfIndicesFunctorsOrSymbols not supported for expressions other than symbols and function applications, but invoked on " + index);
+			}
+		}
+		return result;
+	}
 	
+	/**
+	 * Gets a function application and its type <code>T</code>, and returns the inferred type of its functor,
+	 * which is <code>'->'('x'(T1, ..., Tn), T)</code>, where <code>T1,...,Tn</code> are the types.
+	 */
+	public static Expression getTypeOfFunctor(Expression functionApplication, Expression functionApplicationType, RewritingProcess process) {
+		Expression result;
+		if (functionApplication.getSyntacticFormType().equals("Function application")) {
+			List<Expression> argumentTypes = Util.mapIntoArrayList(functionApplication.getArguments(), new GetType(process));
+			if (argumentTypes.contains(null)) {
+				result = null; // unknown type
+			}
+			else {
+				Expression argumentTypesTuple = Tuple.make(argumentTypes);
+				result = Expressions.apply("->", argumentTypesTuple, functionApplication);
+			}
+		}
+		else {
+			throw new Error("getTypeOfFunctor applicable to function applications only, but invoked on " + functionApplication);
+		}
+		return result;
+	}
+
+	/**
+	 * Returns the type of given expression according to process.
+	 */
+	public static Expression getType(Expression expression, RewritingProcess process) {
+		Expression result;
+		if (expression.getSyntacticFormType().equals("Symbol")) {
+			result = process.getContextualSymbolType(expression);
+		}
+		else if (expression.getSyntacticFormType().equals("Function application")) {
+			Expression functionType = getType(expression.getFunctor(), process);
+			 // functionType is of the form '->'(ArgumentsTypeTuple, CoDomain)
+			Expression argumentTypesTuple = functionType.get(0);
+			Expression coDomain           = functionType.get(1);
+			assert Util.mapIntoList(expression.getArguments(), new GetType(process)).equals(argumentTypesTuple) : "Function " + expression.getFunctor() + " is of type " + functionType + " but is applied to " + expression.getArguments() + " which are of types " + argumentTypesTuple;
+			result = coDomain;
+		}
+		else {
+			throw new Error("Type implemented only for symbols and function applications, but attempted on " + expression);
+		}
+		return result;
+	}
+
+	/**
+	 * Returns type of a variable in the context.
+	 * So far, it does not work for non-symbols, or constants, throwing exceptions in these cases, but it will be extended in the direction in the future.
+	 */
+	public static Object getTypeOld(Expression expression, RewritingProcess process) {
+		if ( ! (expression.getSyntacticFormType().equals("Symbol"))) {
+			throw new Error("GrinderUtil.getType() not implemented for non-symbol expressions at this point, but invoked with " + expression);
+		}
+		if (process.isConstant(expression)) {
+			throw new Error("GrinderUtil.getType() not implemented for constants at this point, but invoked with " + expression);
+		}
+		Expression result = process.getContextualSymbolType(expression);
+		return result;
+	}
+
 	/**
 	 * Extend the rewriting processes's contextual symbols and constraints.
 	 * Returns the same process instance if there are no changes.
@@ -690,9 +752,9 @@ public class GrinderUtil {
 		
 		Expression newContextualConstraint = checkAndAddNewConstraints(additionalConstraints, newMapOfContextualSymbolsAndTypes, process);
 		
-		RewritingProcess subRewritingProcess = process.newSubProcessWithContext(newMapOfContextualSymbolsAndTypes, newContextualConstraint);
-		
-		return subRewritingProcess;
+		RewritingProcess result = process.newSubProcessWithContext(newMapOfContextualSymbolsAndTypes, newContextualConstraint);
+
+		return result;
 	}
 
 	private static RewritingProcess renameExistingContextualSymbolsIfThereAreCollisions(Map<Expression, Expression> extendingcontextualSymbolsAndTypes, RewritingProcess process) {
@@ -753,18 +815,24 @@ public class GrinderUtil {
 		}
 	}
 
-	private static StackedHashMap<Expression, Expression> createNewMapOfContextualSymbolsAndTypes(Map<Expression, Expression> extendingcontextualSymbolsAndTypes, RewritingProcess process) {
-		StackedHashMap<Expression, Expression> newMapOfcontextualSymbolsAndTypes = new StackedHashMap<Expression, Expression>(process.getContextualSymbolsAndTypes());
-		if (extendingcontextualSymbolsAndTypes != null) {
-			// we take only the logical variables; this is a current limitation of the system and should eventually be removed.
-			Collection<Expression> newFreeVariablesWhichAreLogicalVariables = Util.filter(extendingcontextualSymbolsAndTypes.keySet(), new IsVariable(process));
+	private static StackedHashMap<Expression, Expression> createNewMapOfContextualSymbolsAndTypes(Map<Expression, Expression> indexToTypeMap, RewritingProcess process) {
+		StackedHashMap<Expression, Expression> newMapOfContextualSymbolsAndTypes = new StackedHashMap<Expression, Expression>(process.getContextualSymbolsAndTypes());
+		if (indexToTypeMap != null) {
+			
+			// NOT FREE
+//			Map<Expression, Expression> symbolsToTypeMap = indexToTypeMap;
+//			// we take only the logical variables; this is a current limitation of the system and should eventually be removed.
+//			Collection<Expression> keysToBeIncluded = Util.filter(symbolsToTypeMap.keySet(), new IsVariable(process));
+//			for (Expression newLogicalFreeVariable : keysToBeIncluded) {
+//				newMapOfContextualSymbolsAndTypes.put(newLogicalFreeVariable, indexToTypeMap.get(newLogicalFreeVariable));
+//			}
+
 			// FREE
-			//Collection<Expression> newFreeVariablesWhichAreLogicalVariables = extendingcontextualSymbolsAndTypes.keySet();
-			for (Expression newLogicalFreeVariable : newFreeVariablesWhichAreLogicalVariables) {
-				newMapOfcontextualSymbolsAndTypes.put(newLogicalFreeVariable, extendingcontextualSymbolsAndTypes.get(newLogicalFreeVariable));
-			}
+			Map<Expression, Expression> symbolsToTypeMap2 = getTypesOfIndicesFunctorsOrSymbols(indexToTypeMap, process);
+			//System.out.println("Symbols to type: " + symbolsToTypeMap2);	
+			newMapOfContextualSymbolsAndTypes.putAll(symbolsToTypeMap2);
 		}
-		return newMapOfcontextualSymbolsAndTypes;
+		return newMapOfContextualSymbolsAndTypes;
 	}
 
 	private static Expression checkAndAddNewConstraints(Expression additionalConstraints, StackedHashMap<Expression, Expression> newMapOfcontextualSymbolsAndTypes, RewritingProcess process) throws Error {
@@ -882,21 +950,6 @@ public class GrinderUtil {
 			Expression indexExpression = IndexExpressions.makeIndexExpression(index, type);
 			result.add(indexExpression);
 		}
-		return result;
-	}
-
-	/**
-	 * Returns type of a variable in the context.
-	 * So far, it does not work for non-symbols, or constants, throwing exceptions in these cases, but it will be extended in the direction in the future.
-	 */
-	public static Object getType(Expression expression, RewritingProcess process) {
-		if ( ! (expression.getSyntacticFormType().equals("Symbol"))) {
-			throw new Error("GrinderUtil.getType() not implemented for non-symbol expressions at this point, but invoked with " + expression);
-		}
-		if (process.isConstant(expression)) {
-			throw new Error("GrinderUtil.getType() not implemented for constants at this point, but invoked with " + expression);
-		}
-		Expression result = process.getContextualSymbolType(expression);
 		return result;
 	}
 
