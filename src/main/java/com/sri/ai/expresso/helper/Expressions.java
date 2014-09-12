@@ -71,7 +71,6 @@ import com.sri.ai.grinder.helper.RewriterFunction;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.IsVariable;
-import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
