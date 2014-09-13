@@ -68,7 +68,7 @@ public class DefaultCardinalityStressTest extends AbstractCardinalityRewritersSt
 		result.add(new GivenCardinalityStressTestData("Expected", new String[][] {
 				// Cardinality Expression, Expected Result
 				{"|{{(on X, Y) tuple(X, Y) | not (X=Y=Z) }}|",            "99"},
-				{"|{{(on X) tuple(X) | Z = a or (Y != a and X != a) }}|", "if Z = a then 10 else (if Y != a then 9 else 0)"}
+				{"|{{(on X) tuple(X) | Z = a or (Y != a and X != a) }}|", "if Z = a then 10 else (if Y = a then 0 else 9)"}
 		}));
 
 		// Note: An example of using expected on a Parametric Stress Test

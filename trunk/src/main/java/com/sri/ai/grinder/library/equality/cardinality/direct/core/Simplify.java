@@ -66,6 +66,7 @@ import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExistsSubExpressionsAndScopedVariablesProvider;
+import com.sri.ai.grinder.library.controlflow.DisequalityToEqualityInIfThenElseCondition;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.controlflow.IfThenElseBranchesAreBooleanConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch;
@@ -210,7 +211,7 @@ public class Simplify extends AbstractCardinalityRewriter {
 						new IntensionalUniSetWithIndicesNotUsedInHead(),
 						
 						new IfThenElseIrrelevantCondition(),
-						// new DisequalityToEqualityInIfThenElseCondition(),
+						new DisequalityToEqualityInIfThenElseCondition(),
 						new IfThenElseBranchesAreBooleanConstants(),
 						new IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch(),
 						
