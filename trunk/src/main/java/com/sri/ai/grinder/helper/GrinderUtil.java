@@ -612,7 +612,6 @@ public class GrinderUtil {
 	 * Instead, one must create a tuple of expressions and extend the context with them all at the same time.
 	 */
 	public static RewritingProcess extendContextualSymbolsWithFreeSymbolsInExpressionwithUnknownTypeForSetUpPurposesOnly(Expression expression, RewritingProcess process) {
-		// NOT FREE Set<Expression> freeSymbols = Expressions.freeVariables(expression, process);
 		Set<Expression> freeSymbols = Expressions.freeSymbols(expression, process);
 		Map<Expression, Expression> fromSymbolToType = new LinkedHashMap<Expression, Expression>();
 		for (Expression symbol : freeSymbols) {
@@ -818,16 +817,6 @@ public class GrinderUtil {
 	private static StackedHashMap<Expression, Expression> createNewMapOfContextualSymbolsAndTypes(Map<Expression, Expression> indexToTypeMap, RewritingProcess process) {
 		StackedHashMap<Expression, Expression> newMapOfContextualSymbolsAndTypes = new StackedHashMap<Expression, Expression>(process.getContextualSymbolsAndTypes());
 		if (indexToTypeMap != null) {
-			
-			// NOT FREE
-//			Map<Expression, Expression> symbolsToTypeMap = indexToTypeMap;
-//			// we take only the logical variables; this is a current limitation of the system and should eventually be removed.
-//			Collection<Expression> keysToBeIncluded = Util.filter(symbolsToTypeMap.keySet(), new IsVariable(process));
-//			for (Expression newLogicalFreeVariable : keysToBeIncluded) {
-//				newMapOfContextualSymbolsAndTypes.put(newLogicalFreeVariable, indexToTypeMap.get(newLogicalFreeVariable));
-//			}
-
-			// FREE
 			Map<Expression, Expression> symbolsToTypeMap2 = getTypesOfIndicesFunctorsOrSymbols(indexToTypeMap, process);
 			//System.out.println("Symbols to type: " + symbolsToTypeMap2);	
 			newMapOfContextualSymbolsAndTypes.putAll(symbolsToTypeMap2);
@@ -851,34 +840,18 @@ public class GrinderUtil {
 	}
 
 	private static void checkThatAllFreeSymbolsInAdditionalConstraintsAreInContext(Expression additionalConstraints, Map<Expression, Expression> newMapOfContextualSymbolsAndTypes, RewritingProcess process) throws Error {
-		// NOT FREE
-		Set<Expression> freeSymbolsInAdditionalConstraints = Expressions.freeVariables(additionalConstraints, process);
+		
+		// For now, we are only adding the free variables (rather than free symbols as indicated by the method's name)
+		// because we want to have the flexibility of manipulating constants without them having to have been added to context in advance,
+		// which requires primitive constants registration, user constant registration/declaration, and either type declaration or inference,
+		// all of these things being either burdensome or yet to be implemented.
 
-		// FREE
-//		Set<Expression> freeSymbolsInAdditionalConstraints = Expressions.freeSymbols(additionalConstraints, process);
-//		// The following checks that free symbols are either already in context, or are logical connectives
-//		// This is hard-coded for equality formula constraints and will need to be abstracted someday. 
-//		Expression freeSymbolNotInContextualSymbols = null;
-//		for (Expression freeSymbol : freeSymbolsInAdditionalConstraints) {
-//			if (! FormulaUtil.EQUALITY_FORMULAS_PRIMITIVE_SYMBOLS.contains(freeSymbol) &&
-//					! newMapOfContextualSymbolsAndTypes.keySet().contains(freeSymbol)) {
-//				freeSymbolNotInContextualSymbols = freeSymbol;
-//				break;
-//			}
-//		}
-// NOT FREE
+		Set<Expression> freeSymbolsInAdditionalConstraints = Expressions.freeVariables(additionalConstraints, process);
 		if (! newMapOfContextualSymbolsAndTypes.keySet().containsAll(freeSymbolsInAdditionalConstraints) &&
 				! process.containsGlobalObjectKey(DO_NOT_REQUIRE_ADDED_CONTEXTUAL_CONSTRAINT_FREE_SYMBOLS_TO_BE_IN_CONTEXTUAL_VARIABLES)) {
-		// FREE
-//		if ( freeSymbolNotInContextualSymbols != null &&
-//		! newMapOfContextualSymbolsAndTypes.keySet().containsAll(freeSymbolsInAdditionalConstraints) &&
-//				! process.containsGlobalObjectKey(DO_NOT_REQUIRE_ADDED_CONTEXTUAL_CONSTRAINT_FREE_SYMBOLS_TO_BE_IN_CONTEXTUAL_VARIABLES)) {
 
 			String message =
 					"Extending contextual constraint with additional constraint <" + additionalConstraints +
-// FREE
-// 					"> containing unknown free symbol " + freeSymbolNotInContextualSymbols + 
-// NOT FREE 
 					"> containing unknown free symbol " + Util.join(Util.subtract(freeSymbolsInAdditionalConstraints, newMapOfContextualSymbolsAndTypes.keySet())) + 
 					" (current contextual symbols are {" + Util.join(newMapOfContextualSymbolsAndTypes.keySet()) + "})";
 			throw new Error(message);
@@ -887,7 +860,7 @@ public class GrinderUtil {
 		// When this fails, the cause is a failure in the code somewhere to extend the process with scoping variables.
 		// The easiest way to debug this is to place a breakpoint at the line above and, when it is reached, inspect the stack,
 		// looking for the point in which the expression being process involves variables not in the process contextual symbols.
-		// This point will be the spot where the process should have been extended.
+		// That point will be the spot where the process should have been extended.
 	}
 
 	public static Expression currentContextBranchReachable(String rewriterNameToCheckBranchReachable, RewritingProcess parentProcess, RewritingProcess childProcess) {
