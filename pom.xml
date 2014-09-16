@@ -38,7 +38,7 @@
 	</parent>
 
 	<packaging>jar</packaging>
-	<description>SRI International's AIC Symbolic Manipulation and Evaluation Library (for Java 1.6+)</description>
+	<description>SRI International's AIC Symbolic Manipulation and Evaluation Library (for Java 1.8+)</description>
 	<url>http://code.google.com/p/aic-expresso/</url>
 	<licenses>
 		<license>
@@ -66,8 +66,8 @@
 	</developers>
 
 	<properties>
-		<target.jdk.version>1.6</target.jdk.version>
-		<targetJdk>1.6</targetJdk>
+		<target.jdk.version>1.8</target.jdk.version>
+		<targetJdk>1.8</targetJdk>
 		<aic.util.version>1.0.1-SNAPSHOT</aic.util.version>
 		<antlr.version>4.3</antlr.version>
 		<sat4j.version>2.3.5</sat4j.version>
@@ -180,6 +180,16 @@
 					<redirectTestOutputToFile>true</redirectTestOutputToFile>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+      			<groupId>org.apache.maven.plugins</groupId>
+      			<artifactId>maven-javadoc-plugin</artifactId>
+      			<version>2.9.1</version>
+      			<configuration>
+      				<failOnError>false</failOnError>
+        			<additionalparam>-Xdoclint:none</additionalparam>
+      			</configuration>
+    		</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
