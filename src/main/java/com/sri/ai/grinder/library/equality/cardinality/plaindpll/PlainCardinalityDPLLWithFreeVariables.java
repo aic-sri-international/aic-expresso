@@ -73,9 +73,7 @@ public class PlainCardinalityDPLLWithFreeVariables extends PlainGenericDPLLWithF
 	}
 
 	@Override
-	protected Pair<Expression, List<Expression>> getFormulaAndIndicesFromRewriterProblemArgument(Expression problem, RewritingProcess process) {
-		// rewriter gets | { (on I) ... | formula } |
-		Expression set = problem.get(0);
+	protected Pair<Expression, List<Expression>> getFormulaAndIndicesFromRewriterProblemArgument(Expression set, RewritingProcess process) {
 		List<Expression> indices = IntensionalSet.getIndices(set);
 		Expression formula = SimplifyFormula.simplify(IntensionalSet.getCondition(set), process);
 		Pair<Expression, List<Expression>> formulaAndIndices = Pair.make(formula, indices);

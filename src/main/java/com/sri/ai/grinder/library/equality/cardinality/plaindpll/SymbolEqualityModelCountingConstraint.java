@@ -49,6 +49,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable.TypeSizeOfLogicalVariable;
@@ -184,6 +185,19 @@ public class SymbolEqualityModelCountingConstraint extends LinkedHashMap<Express
 	}
 
 	private static long getTypeSize(Expression variable, RewritingProcess process) {
+		// TO BE TESTED
+//		Expression variableType = process.getContextualSymbolType(variable);
+//		if (variableType == null) {
+//			throw new Error("Type of " + variable + " needs to be defined but it is not.");
+//		}
+//		Expression typeCardinality = Expressions.apply(FunctorConstants.CARDINALITY, variableType);
+//		Expression typeCardinalityValue = (Expression) process.getGlobalObject(typeCardinality);
+//		if (typeCardinalityValue == null) {
+//			throw new Error("Cardinality of type " + typeCardinality + " of " + variable + " needs to be defined in global objects of rewriting process as |" + typeCardinality + "| mapping to a numeric expression with its value.");
+//		}
+//		long result = typeCardinalityValue.intValueExact();
+//		return result;
+		
 		TypeSizeOfLogicalVariable typeSizes = (TypeSizeOfLogicalVariable) process
 				.getGlobalObject(CardinalityTypeOfLogicalVariable.PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_LOGICAL_VARIABLE);
 		long typeSize = typeSizes.size(variable, process);
