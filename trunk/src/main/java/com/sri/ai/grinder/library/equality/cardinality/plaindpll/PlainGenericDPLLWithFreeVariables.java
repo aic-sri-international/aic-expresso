@@ -46,6 +46,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.base.Pair;
 
@@ -112,9 +113,9 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 	///////////////////////////// BEGINNING OF ABSTRACT METHODS //////////////////////////////////////
 
 	/**
-	 * Derives formula and indices to be used from expression passed to rewriter as argument.
+	 * Derives formula and indices to be used from intensional set passed to rewriter as argument.
 	 */
-	abstract protected Pair<Expression, List<Expression>> getFormulaAndIndicesFromRewriterProblemArgument(Expression problem, RewritingProcess process);
+	abstract protected Pair<Expression, List<Expression>> getFormulaAndIndicesFromRewriterProblemArgument(Expression set, RewritingProcess process);
 
 	/**
 	 * Defines the solution the combination of which with any other solution S produces S itself (for example, 0 in model counting and false in satisfiability).
@@ -176,8 +177,12 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Pair<Expression, List<Expression>> formulaAndIndices = getFormulaAndIndicesFromRewriterProblemArgument(expression, process);
-		Expression result = solve(formulaAndIndices.first, Expressions.TRUE, formulaAndIndices.second, process);
+		// rewriter gets | { (on I) ... | formula } |
+		Expression set = expression.get(0);
+		Pair<Expression, List<Expression>> formulaAndIndices = getFormulaAndIndicesFromRewriterProblemArgument(set, process);
+//		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsAndConstraintWithIntensionalSet(set, process);
+		RewritingProcess subProcess = process;
+		Expression result = solve(formulaAndIndices.first, Expressions.TRUE, formulaAndIndices.second, subProcess);
 		return result;
 	}
 
