@@ -51,5 +51,6 @@ import com.google.common.annotations.Beta;
 public interface SubExpressionAddress  {
 	
 	/** Temporary method for converting it to List<Integer> during code transition from List<Integer> -> SubExpressionAddress. */
+	@Deprecated
 	List<Integer> getList();
 }
