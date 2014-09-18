@@ -39,10 +39,11 @@ package com.sri.ai.grinder.library.controlflow;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.SubExpressionAddress;
+import com.sri.ai.expresso.core.DefaultSubExpressionAddress;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -67,10 +68,10 @@ public class IfThenElse extends AbstractRewriter {
 
 	private static final Expression NOT_FUNCTOR = Expressions.makeSymbol(FunctorConstants.NOT);
 	//
-	private static final List<Integer> _pathToFunctor   = Collections.unmodifiableList(Arrays.asList(FunctionApplicationProvider.INDEX_OF_FUNCTOR_IN_FUNCTION_APPLICATIONS));
-	private static final List<Integer> _pathToCondition = Collections.unmodifiableList(Arrays.asList(0));
-	private static final List<Integer> _pathToThen      = Collections.unmodifiableList(Arrays.asList(1));
-	private static final List<Integer> _pathToElse      = Collections.unmodifiableList(Arrays.asList(2));
+	private static final SubExpressionAddress _pathToFunctor   = DefaultSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(FunctionApplicationProvider.INDEX_OF_FUNCTOR_IN_FUNCTION_APPLICATIONS)));
+	private static final SubExpressionAddress _pathToCondition = DefaultSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(0)));
+	private static final SubExpressionAddress _pathToThen      = DefaultSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(1)));
+	private static final SubExpressionAddress _pathToElse      = DefaultSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(2)));
 
 	public IfThenElse() {
 		this.setReifiedTests(new HasFunctor(FunctorConstants.IF_THEN_ELSE));
@@ -123,19 +124,19 @@ public class IfThenElse extends AbstractRewriter {
 		return equivalent;
 	}
 
-	public static List<Integer> getPathToFunctor() {
+	public static SubExpressionAddress getPathToFunctor() {
 		return _pathToFunctor;
 	}
 	
-	public static List<Integer> getPathToCondition() {
+	public static SubExpressionAddress getPathToCondition() {
 		return _pathToCondition;
 	}
 	
-	public static List<Integer> getPathToThen() {
+	public static SubExpressionAddress getPathToThen() {
 		return _pathToThen;
 	}
 	
-	public static List<Integer> getPathToElse() {
+	public static SubExpressionAddress getPathToElse() {
 		return _pathToElse;
 	}
 

@@ -66,6 +66,7 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	
 	private Expression                expression;
 	private List<Integer>             path;
+	private SubExpressionAddress      address;
 	private ImmutableList<Expression> indexExpressions;
 	private Expression                constrainingCondition;
 	
@@ -77,15 +78,34 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	
 	public DefaultExpressionAndContext(Expression expression, List<Integer> path) {
 		this(expression, path, new LinkedList<Expression>(), Expressions.TRUE);
+		// DELETE
+	}
+	
+	public DefaultExpressionAndContext(Expression expression, SubExpressionAddress path) {
+		this(expression, path, new LinkedList<Expression>(), Expressions.TRUE);
+		// SUB_EXPRESSION_ADDRESS
 	}
 	
 	public DefaultExpressionAndContext(Expression expression, List<Integer> path, List<Expression> indexExpressions, Expression constrainingCondition) {
 		this.expression            = expression;
 		this.path                  = path;
+		this.address               = DefaultSubExpressionAddress.get(this.path);
 		this.indexExpressions      = ImmutableList.<Expression>builder().addAll(indexExpressions).build();
 		this.constrainingCondition = constrainingCondition;
 
 		this.cachedIndices         = null;
+		// DELETE
+	}
+	
+	public DefaultExpressionAndContext(Expression expression, SubExpressionAddress address, List<Expression> indexExpressions, Expression constrainingCondition) {
+		this.expression            = expression;
+		this.path                  = address.getList();
+		this.address               = address;
+		this.indexExpressions      = ImmutableList.<Expression>builder().addAll(indexExpressions).build();
+		this.constrainingCondition = constrainingCondition;
+
+		this.cachedIndices         = null;
+		// SUB_EXPRESSION_ADDRESS
 	}
 	
 	//
@@ -98,19 +118,13 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	
 	@Override
 	public ExpressionAndContext setExpression(Expression expression) {
-		DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, getPath(), getIndexExpressions(), getConstrainingCondition());
+		DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, getAddress(), getIndexExpressions(), getConstrainingCondition());
 		return result;
 	}
 
 	@Override
-	public List<Integer> getPath() {
-		return path;
-	}
-	
-	@Override
 	public SubExpressionAddress getAddress() {
-		// TODO Auto-generated method stub
-		return null;
+		return address;
 	}
 
 	@Override
@@ -137,7 +151,7 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	//
 
 	public String toString() {
-		return getExpression() + " at " + getPath() + " with quantified variables " + getIndices() + " and constraining condition " + getConstrainingCondition();
+		return getExpression() + " at " + getAddress() + " with quantified variables " + getIndices() + " and constraining condition " + getConstrainingCondition();
 	}
 	
 	public static FunctionIterator<Pair<Expression, List<Integer>>, ExpressionAndContext> makeExpressionAndContextIteratorFromPairs(

@@ -93,13 +93,6 @@ public interface ExpressionAndContext extends Serializable {
 
 	/**
 	 * 
-	 * @return the path to the sub-expression from the parent expression.
-	 */
-	@Deprecated
-	List<Integer> getPath();
-
-	/**
-	 * 
 	 * @return the address of the sub-expression in the parent expression.
 	 */
 	SubExpressionAddress getAddress();

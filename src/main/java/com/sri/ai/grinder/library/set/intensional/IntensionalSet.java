@@ -52,7 +52,9 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.core.DefaultSubExpressionAddress;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -101,10 +103,10 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	public static final SyntaxTree EMPTY_SCOPING_SYNTAX_TREE = makeScopingSyntaxTree(new ArrayList<Expression>());
 	
 	//
-	private static final List<Integer> _pathToHead      = Collections.unmodifiableList(Arrays.asList(new Integer(1)));
-	private static final List<Integer> _pathToCondition = Collections.unmodifiableList(Arrays.asList(new Integer(2), new Integer(0)));
-	private static final List<Integer> _pathZero        = Collections.unmodifiableList(Arrays.asList(new Integer(0)));
-	private static final List<Integer> _pathZeroZero    = Collections.unmodifiableList(Arrays.asList(new Integer(0), new Integer(0)));
+	private static final SubExpressionAddress _pathToHead      = DefaultSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(new Integer(1))));
+	private static final SubExpressionAddress _pathToCondition = DefaultSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(new Integer(2), new Integer(0))));
+	private static final SubExpressionAddress _pathZero        = DefaultSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(new Integer(0))));
+	private static final SubExpressionAddress _pathZeroZero    = DefaultSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(new Integer(0), new Integer(0))));
 	
 	public IntensionalSet() {
 		this.setReifiedTests(new DefaultRewriterTest(KindAttribute.INSTANCE, KindAttribute.VALUE_INTENSIONAL_SET));
@@ -183,7 +185,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		 // does need to be sub tree
 	}
 
-	public static List<Integer> getPathToHead() {
+	public static SubExpressionAddress getPathToHead() {
 		return IntensionalSet._pathToHead;
 	}
 
@@ -196,7 +198,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 		 // does need to be sub tree
 	}
 
-	public static List<Integer> getPathToCondition() {
+	public static SubExpressionAddress getPathToCondition() {
 		return IntensionalSet._pathToCondition;
 	}
 
@@ -373,11 +375,11 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	public static Iterator<Pair<Expression, List<Integer>>> getSubExpressionsAndPathsFromIndexExpressionsIterator(List<Expression> indexExpressions) {
 		List<Integer> basePath;
 		if (indexExpressions.size() == 1) { // no kleene list operator, so base path is the one taking us to the 'on' operator.
-			basePath = IntensionalSet._pathZero;
+			basePath = IntensionalSet._pathZero.getList();
 		}
 		else {
 			// there is a kleene list operator, so base path is the one taking us to the 'on' operator and then to the kleene list operator.
-			basePath = IntensionalSet._pathZeroZero;
+			basePath = IntensionalSet._pathZeroZero.getList();
 		}
 		return IntensionalSet.getSubExpressionsAndPathsFromIndexExpressionsFromBasePathIterator(indexExpressions, basePath);
 	}
