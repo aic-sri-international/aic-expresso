@@ -46,6 +46,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
@@ -106,6 +107,12 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 		return path;
 	}
 	
+	@Override
+	public SubExpressionAddress getAddress() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	@Override
 	public List<Expression> getIndexExpressions() {
 		return indexExpressions;
