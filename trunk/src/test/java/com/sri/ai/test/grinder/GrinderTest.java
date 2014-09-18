@@ -1181,16 +1181,16 @@ public class GrinderTest extends AbstractGrinderTest {
 		Assert.assertNotNull(conditions);
 		Assert.assertEquals(2, conditions.size());
 		Assert.assertEquals("A = B", conditions.get(0).first.toString());
-		Assert.assertEquals(IfThenElse.getPathToThen(), conditions.get(0).second);
+		Assert.assertEquals(IfThenElse.getPathToThen().getList(), conditions.get(0).second);
 		Assert.assertEquals("not (A = B)", conditions.get(1).first.toString());
-		Assert.assertEquals(IfThenElse.getPathToElse(), conditions.get(1).second);
+		Assert.assertEquals(IfThenElse.getPathToElse().getList(), conditions.get(1).second);
 		
 		expression = parse("{(on X) X | X != a}");
 		conditions = ImposedConditionsModule.get(expression, process);
 		Assert.assertNotNull(conditions);
 		Assert.assertEquals(1, conditions.size());
 		Assert.assertEquals("X != a", conditions.get(0).first.toString());
-		Assert.assertEquals(IntensionalSet.getPathToHead(), conditions.get(0).second);
+		Assert.assertEquals(IntensionalSet.getPathToHead().getList(), conditions.get(0).second);
 	}
 	
 	@Test
@@ -1212,29 +1212,29 @@ public class GrinderTest extends AbstractGrinderTest {
 		//
 		Assert.assertEquals("'if . then . else .'", expressionsAndContext.get(0).getExpression().toString());
 		Assert.assertEquals("true", expressionsAndContext.get(0).getConstrainingCondition().toString());
-		Assert.assertEquals(IfThenElse.getPathToFunctor(), expressionsAndContext.get(0).getPath());
+		Assert.assertEquals(IfThenElse.getPathToFunctor(), expressionsAndContext.get(0).getAddress());
 		//
 		Assert.assertEquals("A = B", expressionsAndContext.get(1).getExpression().toString());
 		Assert.assertEquals("true", expressionsAndContext.get(1).getConstrainingCondition().toString());
-		Assert.assertEquals(IfThenElse.getPathToCondition(), expressionsAndContext.get(1).getPath());
+		Assert.assertEquals(IfThenElse.getPathToCondition(), expressionsAndContext.get(1).getAddress());
 		//
 		Assert.assertEquals("aAndBEqual", expressionsAndContext.get(2).getExpression().toString());
 		Assert.assertEquals("A = B", expressionsAndContext.get(2).getConstrainingCondition().toString());
-		Assert.assertEquals(IfThenElse.getPathToThen(), expressionsAndContext.get(2).getPath());
+		Assert.assertEquals(IfThenElse.getPathToThen(), expressionsAndContext.get(2).getAddress());
 		//
 		Assert.assertEquals("aAndBNotEqual", expressionsAndContext.get(3).getExpression().toString());
 		Assert.assertEquals("not (A = B)", expressionsAndContext.get(3).getConstrainingCondition().toString());
-		Assert.assertEquals(IfThenElse.getPathToElse(), expressionsAndContext.get(3).getPath());
+		Assert.assertEquals(IfThenElse.getPathToElse(), expressionsAndContext.get(3).getAddress());
 		
 		expression = parse("{(on X) X | X != a}");
 		expressionsAndContext = Util.listFrom(expression.getImmediateSubExpressionsAndContextsIterator(process));
 		Assert.assertEquals(2, expressionsAndContext.size());
 		Assert.assertEquals("X", expressionsAndContext.get(0).getExpression().toString());
 		Assert.assertEquals("X != a", expressionsAndContext.get(0).getConstrainingCondition().toString());
-		Assert.assertEquals(IntensionalSet.getPathToHead(), expressionsAndContext.get(0).getPath());
+		Assert.assertEquals(IntensionalSet.getPathToHead(), expressionsAndContext.get(0).getAddress());
 		Assert.assertEquals("X != a", expressionsAndContext.get(1).getExpression().toString());
 		Assert.assertEquals("true", expressionsAndContext.get(1).getConstrainingCondition().toString());
-		Assert.assertEquals(IntensionalSet.getPathToCondition(), expressionsAndContext.get(1).getPath());
+		Assert.assertEquals(IntensionalSet.getPathToCondition(), expressionsAndContext.get(1).getAddress());
 	}
 	
 	@Test

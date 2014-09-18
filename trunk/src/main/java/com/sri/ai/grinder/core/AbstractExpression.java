@@ -56,8 +56,10 @@ import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
+import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.core.DefaultSubExpressionAddress;
 import com.sri.ai.expresso.core.ExpressionSyntaxTreeToStringFunction;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
@@ -79,7 +81,7 @@ public abstract class AbstractExpression implements Expression {
 	//
 	private static final long serialVersionUID = 3L; // Note: Increment this when you want to ensure any parsing caches are invalidated 
 	
-	private static final List<Integer> FUNCTOR_PATH = Util.list(-1);
+	private static final SubExpressionAddress FUNCTOR_PATH = DefaultSubExpressionAddress.get(Util.list(-1));
 
 	protected SyntaxTree syntaxTree;
 	
@@ -295,8 +297,9 @@ public abstract class AbstractExpression implements Expression {
 	 * This is important because the original expression may be an instance of an Expression extension,
 	 * whereas the normal sub-expression mechanism always produces DefaultCompoundSyntaxTree or DefaultSymbols.
 	 */
-	protected Map<List<Integer>, Expression> originalExpressionsByPath =
-			new LinkedHashMap<List<Integer>, Expression>();
+	protected Map<SubExpressionAddress, Expression> originalExpressionsByPath =
+			new LinkedHashMap<SubExpressionAddress, Expression>();
+	// SUB_EXPRESSION_ADDRESS
 	
 	@Override
 	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(RewritingProcess process) {
@@ -330,7 +333,7 @@ public abstract class AbstractExpression implements Expression {
 		@Override
 		public ExpressionAndContext apply(ExpressionAndContext input) {
 			ExpressionAndContext result = input;
-			List<Integer> path = input.getPath();
+			SubExpressionAddress path = input.getAddress();
 			Expression original = originalExpressionsByPath.get(path);
 			if (original != null) {
 				result = input.setExpression(original);
@@ -442,7 +445,7 @@ public abstract class AbstractExpression implements Expression {
 
 	@Override
 	public Expression replace(ExpressionAndContext replacementAndContext) {
-		List<Integer> path = replacementAndContext.getPath();
+		SubExpressionAddress path = replacementAndContext.getAddress();
 		Expression expressionReplacement = Expressions.replaceAtPath(this, path, replacementAndContext.getExpression());
 		return expressionReplacement;
 	}

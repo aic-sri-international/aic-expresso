@@ -37,7 +37,9 @@
  */
 package com.sri.ai.expresso.core;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.ExpressionAndContext;
@@ -51,14 +53,44 @@ import com.sri.ai.expresso.api.SubExpressionAddress;
 @Beta
 public class DefaultSubExpressionAddress implements SubExpressionAddress {
 
+	private static Map<List<Integer>, SubExpressionAddress> fromListToAddress = new LinkedHashMap<List<Integer>, SubExpressionAddress>();
 	private List<Integer> list;
 	
-	public DefaultSubExpressionAddress(List<Integer> list) {
+	private DefaultSubExpressionAddress(List<Integer> list) {
 		this.list = list;
+	}
+	
+	public static SubExpressionAddress get(List<Integer> list) {
+		SubExpressionAddress result = fromListToAddress.get(list);
+		if (result == null) {
+			result = new DefaultSubExpressionAddress(list);
+			fromListToAddress.put(list, result);
+		}
+		return result;
 	}
 	
 	@Override
 	public List<Integer> getList() {
 		return list;
+	}
+	
+	@Override
+	public boolean equals(Object another) {
+		if (another instanceof SubExpressionAddress) {
+			return getList().equals(((SubExpressionAddress)another).getList());
+		}
+		else {
+			throw new Error("SubExpressionAddress " + this + " being compared to non-SubExpressionAddress " + another + " of class " + another.getClass());
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return getList().hashCode();
+	}
+	
+	@Override
+	public String toString() {
+		return getList().toString();
 	}
 }

@@ -107,8 +107,8 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 					Expression elseBranch = IfThenElse.getElseBranch(conditionalSubExpression);
 
 					// Create two expressions, one in which the "then branch" replaces the conditional sub-expression, and another in which the "else branch" does that.
-					Expression newThenBranch = Expressions.replaceAtPath(expression, conditionalSubExpressionAndContext.getPath(), thenBranch);
-					Expression newElseBranch = Expressions.replaceAtPath(expression, conditionalSubExpressionAndContext.getPath(), elseBranch);
+					Expression newThenBranch = Expressions.replaceAtPath(expression, conditionalSubExpressionAndContext.getAddress(), thenBranch);
+					Expression newElseBranch = Expressions.replaceAtPath(expression, conditionalSubExpressionAndContext.getAddress(), elseBranch);
 
 					// Make sure the *new* subexpressions are normalized themselves, even though the original ones already were.
 					// If they are not normalized, the unnormalized part must be on their top expression only,

@@ -88,8 +88,8 @@ public class IfThenElseExternalization extends AbstractRewriter {
 		Expression elseBranch = ifThenElse.get(2);
 		
 		// Create two expressions, one in which the "then branch" replaces the "if then else", and another in which the "else branch" does that.
-		Expression newThenBranch = Expressions.replaceAtPath(expression, ifThenElseSubExpressionAndContext.getPath(), thenBranch);
-		Expression newElseBranch = Expressions.replaceAtPath(expression, ifThenElseSubExpressionAndContext.getPath(), elseBranch);
+		Expression newThenBranch = Expressions.replaceAtPath(expression, ifThenElseSubExpressionAndContext.getAddress(), thenBranch);
+		Expression newElseBranch = Expressions.replaceAtPath(expression, ifThenElseSubExpressionAndContext.getAddress(), elseBranch);
 		
 		Expression result = IfThenElse.make(condition, newThenBranch, newElseBranch);
 		return result;

@@ -43,6 +43,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
@@ -78,8 +79,7 @@ public class ExpressionOnCompoundSyntaxTree extends AbstractExpression {
 	public ExpressionOnCompoundSyntaxTree(Object label, Object ... subTrees) {
 
 		if (label instanceof Expression) {
-			List<Integer> path = Util.list(-1);
-			originalExpressionsByPath.put(path, (Expression) label);
+			storeOriginalExpressionForFunctor(label);
 		}
 
 		if (subTrees.length == 1 && subTrees[0] instanceof Collection) {
@@ -88,12 +88,23 @@ public class ExpressionOnCompoundSyntaxTree extends AbstractExpression {
 		for (int i = 0; i != subTrees.length; i++) {
 			Object subTreeObject = subTrees[i];
 			if (subTreeObject instanceof Expression) {
-				List<Integer> path = Util.list(i);
-				originalExpressionsByPath.put(path, (Expression) subTreeObject);
+				storeOriginalExpressionForArgument(i, subTreeObject);
 			}
 		}
 
 		syntaxTree = SyntaxTrees.makeCompoundSyntaxTree(label, subTrees);
+	}
+
+	public void storeOriginalExpressionForFunctor(Object label) {
+		SubExpressionAddress path = DefaultSubExpressionAddress.get(Util.list(-1));
+		originalExpressionsByPath.put(path, (Expression) label);
+		// SUB_EXPRESSION_ADDRESS
+	}
+
+	public void storeOriginalExpressionForArgument(int i, Object subTreeObject) {
+		SubExpressionAddress path = DefaultSubExpressionAddress.get(Util.list(i));
+		originalExpressionsByPath.put(path, (Expression) subTreeObject);
+		// SUB_EXPRESSION_ADDRESS
 	}
 
 	@Override

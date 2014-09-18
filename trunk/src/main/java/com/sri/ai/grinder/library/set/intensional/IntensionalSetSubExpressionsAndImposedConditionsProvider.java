@@ -122,7 +122,7 @@ ImposedConditionsModule.Provider
 		if (knowledgeApplies(expression)) {
 			result = new ArrayList<Pair<Expression, List<Integer>>>();
 			result.add(new Pair<Expression, List<Integer>>(IntensionalSet.getCondition(expression), 
-					IntensionalSet.getPathToHead()));
+					IntensionalSet.getPathToHead().getList()));
 		}
 		
 		return result;
