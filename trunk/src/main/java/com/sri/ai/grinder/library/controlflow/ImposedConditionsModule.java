@@ -41,6 +41,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.core.AbstractModuleNoOpRewriter;
 import com.sri.ai.grinder.api.Module;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -90,7 +91,7 @@ public class ImposedConditionsModule extends AbstractModuleNoOpRewriter {
 		 *         of the same parent expression twice, and it can even get
 		 *         different conditions in different positions.
 		 */
-		List<Pair<Expression, List<Integer>>> getConditionsExpressionImposesOnSubExpressions(
+		List<Pair<Expression, SubExpressionAddress>> getConditionsExpressionImposesOnSubExpressions(
 				Expression expression, RewritingProcess process);
 	}
 
@@ -113,9 +114,9 @@ public class ImposedConditionsModule extends AbstractModuleNoOpRewriter {
 	 * 
 	 * @see Provider#getConditionsExpressionImposesOnSubExpressions
 	 */
-	public List<Pair<Expression, List<Integer>>> getConditionsExpressionImposesOnSubExpressions(
+	public List<Pair<Expression, SubExpressionAddress>> getConditionsExpressionImposesOnSubExpressions(
 			Expression expression, RewritingProcess process) {
-		List<Pair<Expression, List<Integer>>> result = null;
+		List<Pair<Expression, SubExpressionAddress>> result = null;
 
 		for (Module.Provider moduleProvider : providers.keySet()) {
 			Provider provider = (Provider) moduleProvider;
@@ -133,7 +134,7 @@ public class ImposedConditionsModule extends AbstractModuleNoOpRewriter {
 	 * 
 	 * @see Provider#getConditionsExpressionImposesOnSubExpressions
 	 */
-	public static List<Pair<Expression, List<Integer>>> get(
+	public static List<Pair<Expression, SubExpressionAddress>> get(
 			Expression expression, RewritingProcess process) {
 
 		ImposedConditionsModule module = (ImposedConditionsModule) process
@@ -142,7 +143,7 @@ public class ImposedConditionsModule extends AbstractModuleNoOpRewriter {
 			throw new Error("ImposedConditionsModule module not found");
 		}
 
-		List<Pair<Expression, List<Integer>>> result = module
+		List<Pair<Expression, SubExpressionAddress>> result = module
 				.getConditionsExpressionImposesOnSubExpressions(expression,
 						process);
 

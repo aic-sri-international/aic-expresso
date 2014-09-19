@@ -46,6 +46,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
@@ -90,9 +91,7 @@ ImposedConditionsModule.Provider
 			}
 
 			Iterator<ExpressionAndContext> subExpressionsAndContextsFromIndexExpressionsIterator =
-				new FunctionIterator<Pair<Expression, List<Integer>>, ExpressionAndContext>(
-						IntensionalSet.getSubExpressionsAndPathsFromIndexExpressionsIterator(expression),
-						new DefaultExpressionAndContext.MakerFromExpressionAndPathPair(new ArrayList<Expression>()));
+				getExpressionsAndContextsFromIndexExpressionsIterator(expression);
 			
 			List<ExpressionAndContext> fromIndexExpressions = Util.listFrom(subExpressionsAndContextsFromIndexExpressionsIterator);
 
@@ -101,6 +100,13 @@ ImposedConditionsModule.Provider
 			return result;
 		}
 		return null;
+	}
+
+	public FunctionIterator<Pair<Expression, List<Integer>>, ExpressionAndContext> getExpressionsAndContextsFromIndexExpressionsIterator(Expression expression) {
+		// SUB_EXPRESSION_ADDRESS
+		return new FunctionIterator<Pair<Expression, List<Integer>>, ExpressionAndContext>(
+				IntensionalSet.getSubExpressionsAndPathsFromIndexExpressionsIterator(expression),
+				new DefaultExpressionAndContext.MakerFromExpressionAndPathPair(new ArrayList<Expression>()));
 	}
 
 	@Override
@@ -116,13 +122,12 @@ ImposedConditionsModule.Provider
 	//
 	// START-ImposedConditionsModule.Provider 
 	@Override
-	public List<Pair<Expression, List<Integer>>> getConditionsExpressionImposesOnSubExpressions(Expression expression, RewritingProcess process) {
-		List<Pair<Expression, List<Integer>>> result = null;
+	public List<Pair<Expression, SubExpressionAddress>> getConditionsExpressionImposesOnSubExpressions(Expression expression, RewritingProcess process) {
+		List<Pair<Expression, SubExpressionAddress>> result = null;
 		
 		if (knowledgeApplies(expression)) {
-			result = new ArrayList<Pair<Expression, List<Integer>>>();
-			result.add(new Pair<Expression, List<Integer>>(IntensionalSet.getCondition(expression), 
-					IntensionalSet.getPathToHead().getList()));
+			result = new ArrayList<Pair<Expression, SubExpressionAddress>>();
+			result.add(Pair.make(IntensionalSet.getCondition(expression), IntensionalSet.getPathToHead()));
 		}
 		
 		return result;

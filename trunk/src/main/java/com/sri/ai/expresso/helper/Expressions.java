@@ -370,57 +370,6 @@ public class Expressions {
 		return subExpression;
 	}
 
-	/**
-	 * Makes a new Expression identical to given expression in all respects but with the expression at the end of given path
-	 * (over syntax tree) equal to given subExpression (including a guarantee that it will be the same object instance).
-	 * The path is a list of indices indicating a path in the expression's syntax tree.
-	 * If there are no indices to be followed (path is empty), the subExpression itself is returned.
-	 * The method assumes the path describes an existing sub-syntax tree in the expression's syntax tree.
-	 */
-	public static Expression replaceAtPath(Expression expression, List<Integer> path, Expression subExpression) {
-		Expression result = replaceAtPath(expression.getSyntaxTree(), path, 0, subExpression);
-		return result;
-		// DELETE
-	}
-
-	/**
-	 * Makes a new Expression based on a syntax tree, but with the sub-expression at the end of given path (from the ith step on)
-	 * (over syntax tree) equal to given subExpression (including a guarantee that it will be the same object instance).
-	 * The path is a list of indices indicating a path in the expression tree.
-	 * The path-i-sub-expression is the expression obtained by following the path from the position i on.
-	 * If there are no indices to be followed (i is equal to the path's length), the sub-expression is returned.
-	 * The method assumes the path describes an existing path-i-sub-expression.
-	 */
-	private static Expression replaceAtPath(SyntaxTree syntaxTree, List<Integer> path, int i, Expression subExpression) {
-		// DELETE
-		// This method is subtle; follow explanations below carefully.
-		if (i != path.size()) {
-
-			Object rootTreeOrExpression = syntaxTree.getRootTree();
-			List<SyntaxTree> subTrees = syntaxTree.getImmediateSubTrees();
-			Object[] subTreesOrSubExpressions = Arrays.copyOf(syntaxTree.getImmediateSubTrees().toArray(), subTrees.size());
-
-			int index = path.get(i);
-			// at this point, (rootTreeOrExpression, subTreesOrSubExpressions) contains only syntax trees, the sub-trees of syntaxTree.
-			if (index == -1) { // replace the root tree
-				rootTreeOrExpression = subExpression;
-			}
-			else {         // replace a sub-tree
-				Expression subExpressionAtI = replaceAtPath((SyntaxTree) subTreesOrSubExpressions[index], path, i + 1, subExpression);
-				// by recursion, subExpressionAtI is guaranteed to be based on the sub-tree on index with subExpression instance placed at the end of path.
-				subTreesOrSubExpressions[index] = subExpressionAtI;
-			}
-			// now (rootTreeOrExpression, subTreesOrSubExpressions) contains an Expression, and not only SyntaxTrees.
-
-			Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(rootTreeOrExpression, subTreesOrSubExpressions);
-			// remember that constructors for expressions receive the *syntax tree* components, but when they receive Expressions,
-			// they keep them around to make sure the corresponding sub-expressions use the same Expression instance.
-			// This only holds for immediate sub-expressions, but the recursive class to replaceAtPath took care of the deeper ones.
-			return result;
-		}
-		return subExpression;
-	}
-
 	public static boolean isSubExpressionOf(Expression searched, Expression expression) {
 		boolean result = Util.thereExists(new SubExpressionsDepthFirstIterator(expression), new Equals<Expression>(searched));
 		return result;
