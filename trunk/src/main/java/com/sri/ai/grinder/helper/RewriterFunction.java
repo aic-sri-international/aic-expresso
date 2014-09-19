@@ -57,6 +57,7 @@ public class RewriterFunction implements Function<Expression, Expression> {
 		this.process = process;
 	}
 
+	@Override
 	public Expression apply(Expression expression) {
 		return rewriter.rewrite(expression, process);
 	}

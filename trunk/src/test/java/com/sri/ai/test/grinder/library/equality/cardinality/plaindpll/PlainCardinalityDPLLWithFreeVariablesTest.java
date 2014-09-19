@@ -38,10 +38,8 @@
 package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.expresso.helper.Expressions.freeSymbols;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.helper.GrinderUtil.extendContextualSymbols;
 import static com.sri.ai.grinder.helper.GrinderUtil.getAllVariables;
 import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.makeIndexExpression;
@@ -51,10 +49,7 @@ import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.toArrayList;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -66,13 +61,9 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainCardinalityDPLLWithFreeVariables;
-import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
-import com.sri.ai.util.Util;
 
 @Beta
 public class PlainCardinalityDPLLWithFreeVariablesTest {

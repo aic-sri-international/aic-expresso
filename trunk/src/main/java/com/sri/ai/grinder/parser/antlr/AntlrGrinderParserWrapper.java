@@ -82,7 +82,7 @@ public class AntlrGrinderParserWrapper implements Parser {
 			
 			ParseTree tree = parser.expression();
 			
-			boolean eof = parser.getInputStream().LA(1) == AntlrGrinderParser.EOF;
+			boolean eof = parser.getInputStream().LA(1) == Recognizer.EOF;
 			
 			if (!lexerErrorListener.errorsDetected && !parseErrorListener.errorsDetected) {
 				if (!eof) {

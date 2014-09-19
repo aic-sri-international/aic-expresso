@@ -76,6 +76,7 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.WorstCaseNumb
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 import com.sri.ai.test.grinder.TestData;
+import com.sri.ai.util.Configuration;
 import com.sri.ai.util.base.Pair;
 
 public class DirectCardinalityTest extends AbstractGrinderTest {
@@ -3566,20 +3567,20 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 				Expression result1, result2;
 				try {
 					// Result 1 with ASSUME_DOMAIN_ALWAYS_LARGE set to true and no counts declarations made
-					GrinderConfiguration.setProperty(GrinderConfiguration.KEY_ASSUME_DOMAIN_ALWAYS_LARGE, "true");	
+					Configuration.setProperty(GrinderConfiguration.KEY_ASSUME_DOMAIN_ALWAYS_LARGE, "true");	
 					RewritingProcess cardinalityProcess = DirectCardinalityComputationFactory.newCardinalityProcess(exprE, process);
 					result1 = cardinalityProcess.rewrite(CardinalityRewriter.R_card, exprE);
 					
 					// Result 2 with ASSUME_DOMAIN_ALWAYS_LARGE set to false and counts declarations made
 					countsDeclaration.setup(process);
-					GrinderConfiguration.setProperty(GrinderConfiguration.KEY_ASSUME_DOMAIN_ALWAYS_LARGE, "false");	
+					Configuration.setProperty(GrinderConfiguration.KEY_ASSUME_DOMAIN_ALWAYS_LARGE, "false");	
 					cardinalityProcess = DirectCardinalityComputationFactory.newCardinalityProcess(exprE, process);
 					result2 = cardinalityProcess.rewrite(CardinalityRewriter.R_card, exprE);
 				} catch (IllegalArgumentException iae) {
 					throw iae;
 				} finally {
 					// Reset the default.
-					GrinderConfiguration.setProperty(GrinderConfiguration.KEY_ASSUME_DOMAIN_ALWAYS_LARGE, defaultAssumeDomainAlwaysLarge);
+					Configuration.setProperty(GrinderConfiguration.KEY_ASSUME_DOMAIN_ALWAYS_LARGE, defaultAssumeDomainAlwaysLarge);
 				}
 				return Tuple.make(result1, result2);
 			}

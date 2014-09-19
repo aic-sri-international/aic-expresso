@@ -114,9 +114,9 @@ public abstract class AbstractRewriter implements Rewriter {
 			@SuppressWarnings("unchecked")
 			List<Expression> arguments =
 					Util.addAllToANewList(
-							(Collection<Expression>) slices.first,
-							(Collection<Expression>) Lists.newArrayList(operationResult),
-							(Collection<Expression>) slices.second);
+							slices.first,
+							Lists.newArrayList(operationResult),
+							slices.second);
 
 			if (noUnaryApplication && arguments.size() == 1) {
 				return arguments.get(0);

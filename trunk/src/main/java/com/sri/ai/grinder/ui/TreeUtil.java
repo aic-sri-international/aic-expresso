@@ -49,6 +49,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import javax.swing.WindowConstants;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -164,7 +165,7 @@ public class TreeUtil {
 		frame = new JFrame("Expression Trees");
 
 		// 2. Optional: What happens when the frame closes?
-		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE); // .EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE); // .EXIT_ON_CLOSE);
 		frame.setPreferredSize(new Dimension(800, 800));
 		frame.getContentPane().add(createToolbar(), BorderLayout.NORTH);
 
@@ -284,6 +285,7 @@ public class TreeUtil {
 	public static void addJustification(Object obj) {
 		activeJustificationNode.add(obj);
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				treeJustificationModel.reload();
 				jJustificationTree.restoreExpandedPaths();
@@ -316,6 +318,7 @@ public class TreeUtil {
 	public static void addTrace(Object obj) {
 		activeTraceNode.add(obj);
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				treeTraceModel.reload();
 				jTraceTree.restoreExpandedPaths();

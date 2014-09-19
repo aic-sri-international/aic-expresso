@@ -287,6 +287,7 @@ public class DefaultParsingProcess implements ParsingProcess {
 		popLevel();
 	}
 	
+	@Override
 	public Set<String> getCloserTokensOf(String token) {
 		return closersOfAToken.get(token);
 	}
@@ -529,6 +530,7 @@ public class DefaultParsingProcess implements ParsingProcess {
 		return getGrammar().get(nonTerminalName).parsingResult(this);
 	}
 
+	@Override
 	public ParsingExpression getParent() {
 		if (stackOfParsingExpressions.size() < 2) {
 			return null;
@@ -539,32 +541,38 @@ public class DefaultParsingProcess implements ParsingProcess {
 		return parent;
 	}
 	
+	@Override
 	public void pushParsingExpression(ParsingExpression parent) {
 		stackOfParsingExpressions.push(parent);
 	}
 	
+	@Override
 	public ParsingExpression popParsingExpressions() {
 		return stackOfParsingExpressions.pop();
 	}
 	
+	@Override
 	public void log(Object object) {
 		if (ParserFlags.logIsOn) {
 			log.print(Util.times(getLevel(), "*") + object);
 		}
 	}
 
+	@Override
 	public void logln(Object object) {
 		if (ParserFlags.logIsOn) {
 			log(object + "\n");		
 		}
 	}
 
+	@Override
 	public void conditionalLogln(boolean condition, Object object) {
 		if (condition && ParserFlags.logIsOn) {
 				log(object + "\n");
 		}
 	}
 	
+	@Override
 	public void logrestln(Object object) {
 		if (ParserFlags.logIsOn) {
 			log.println(object);
@@ -589,6 +597,7 @@ public class DefaultParsingProcess implements ParsingProcess {
 		}
 	}
 
+	@Override
 	public void pushPrecedenceConditionToCurrentConjunctionOnFirstParse(Expression condition) {
 		addConditionToNormalizedConjunctionOnTopOfStack(condition, precedenceConditionConjunctionsOnFirstParseStack);
 	}
@@ -662,6 +671,7 @@ public class DefaultParsingProcess implements ParsingProcess {
 		return new GreaterThanOrUnrelated((ParsingExpression)maxDisjunct, (ParsingExpression) disjunction);
 	}
 	
+	@Override
 	public void popPrecedenceConditionFromCurrentConjunctionOnFirstParse() {
 		precedenceConditionConjunctionsOnFirstParseStack.pop();
 	}
@@ -785,6 +795,7 @@ public class DefaultParsingProcess implements ParsingProcess {
 		return -1;
 	}
 
+	@Override
 	public boolean currentConjunctionOfPrecedenceConditionsOnFirstParseIsSatisfiedBy(ParsingExpression parsingExpression) {
 		Collection<Expression> set = precedenceConditionConjunctionsOnFirstParseStack.peek();
 		return satisfiesSetOfPrecedenceConditions(parsingExpression, set);
@@ -795,6 +806,7 @@ public class DefaultParsingProcess implements ParsingProcess {
 		return precedenceConditions.containsAll(precedenceConditionConjunctionsOnFirstParseStack.peek());
 	}
 
+	@Override
 	public boolean currentConjunctionOfPrecedenceConditionsOnFirstParseIsEquivalentTo(
 			Collection<Expression> precedenceConditions) {
 		return equivalent(precedenceConditions, precedenceConditionConjunctionsOnFirstParseStack.peek());
@@ -807,6 +819,7 @@ public class DefaultParsingProcess implements ParsingProcess {
 		return new HashSet<Expression>(precedenceConditions).equals(new HashSet<Expression>(conjunction));
 	}
 
+	@Override
 	public boolean currentConjunctionOfPrecedenceConditionsOnFirstParseIsSatisfiedBy(
 			Collection<Expression> precedenceConditions) {
 		return topOfStackIsSatisfiedBy(precedenceConditions, precedenceConditionConjunctionsOnFirstParseStack);
@@ -863,27 +876,33 @@ public class DefaultParsingProcess implements ParsingProcess {
 		return false;
 	}
 
+	@Override
 	public void pushNewConjunctionOfPrecedenceConditionsOnFirstParse() {
 		precedenceConditionConjunctionsOnFirstParseStack.push(new LinkedList<Expression>());
 	}
 
+	@Override
 	public void popConjunctionOfPrecedenceConditionsOnFirstParse() {
 		precedenceConditionConjunctionsOnFirstParseStack.pop();
 	}
 	
+	@Override
 	public void pushPrecedenceConditionToCurrentConjunctionsOnLastParse(Expression condition) {
 		addConditionToNormalizedConjunctionOnTopOfStack(condition, precedenceConditionConjunctionsOnLastParseStack);
 	}
 	
+	@Override
 	public void popPrecedenceConditionFromCurrentConjunctionOnLastParse() {
 		precedenceConditionConjunctionsOnLastParseStack.pop();	
 	}
 
+	@Override
 	public boolean currentConjunctionOfPrecedenceConditionsOnLastParseIsSatisfiedBy(ParsingExpression parsingExpression) {
 		Collection<Expression> set = precedenceConditionConjunctionsOnLastParseStack.peek();
 		return satisfiesSetOfPrecedenceConditions(parsingExpression, set);
 	}
 
+	@Override
 	public boolean currentConjunctionOfPrecedenceConditionsOnLastParseIsEquivalentTo(
 			Collection<Expression> precedenceConditions) {
 		return equivalent(precedenceConditions, precedenceConditionConjunctionsOnLastParseStack.peek());
@@ -895,10 +914,12 @@ public class DefaultParsingProcess implements ParsingProcess {
 		return topOfStackIsSatisfiedBy(precedenceConditions, precedenceConditionConjunctionsOnLastParseStack);
 	}
 
+	@Override
 	public void pushNewConjunctionOfPrecedenceConditionsOnLastParse() {
 		precedenceConditionConjunctionsOnLastParseStack.push(new LinkedList<Expression>());
 	}
 
+	@Override
 	public void popConjunctionOfPrecedenceConditionsOnLastParse() {
 		precedenceConditionConjunctionsOnLastParseStack.pop();
 	}
@@ -912,6 +933,7 @@ public class DefaultParsingProcess implements ParsingProcess {
 		currentConjunctionOfPrecedenceConditionsOnLastParseIsSatisfiedBy(parsingExpression);
 	}
 
+	@Override
 	public Map<String, ParsingExpression> getGrammar() {
 		return grammar;
 	}
@@ -946,6 +968,7 @@ public class DefaultParsingProcess implements ParsingProcess {
 		cache.putCacheItem(cacheItem, this);
 	}
 
+	@Override
 	public CacheItem getCacheItemOrNull(ParsingExpression parsingExpression) {
 		return cache.tryToUseCache(parsingExpression, this);
 	}

@@ -130,6 +130,7 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 		}
 	}
 
+	@Override
 	public Expression getFunctor() {
 		return FUNCTOR;
 	}

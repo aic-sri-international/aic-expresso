@@ -173,6 +173,7 @@ public class InjectiveModule extends AbstractModuleNoOpRewriter {
 			this.process = process;
 		}
 
+		@Override
 		public Expression apply(Expression expression) {
 			if (process.isVariable(expression) || process.isConstant(expression)) {
 				Expression parameter = Expressions.makeSymbol("X" + counter.value++);

@@ -257,7 +257,7 @@ public class TokenIterator extends EZIterator<String> {
 	}
 	
 	private FunctionIterator iteratorOverCharactersAsStringsFromNextToRead() {
-		List<Object> base = Util.list((Object)Util.list(next), readIterator);
+		List<Object> base = Util.list(Util.list(next), readIterator);
 		return new FunctionIterator<Integer, String>(
 				codePointToString,
 				new NestedIterator<Integer>(base)
@@ -327,6 +327,7 @@ public class TokenIterator extends EZIterator<String> {
 		return result;
 	}
 	
+	@Override
 	public boolean hasNext() {
 		boolean hasNextTokenInPutBackTokens = hasPutBackTokens();
 		boolean hasNextTokenFromIterator = super.hasNext();
@@ -334,6 +335,7 @@ public class TokenIterator extends EZIterator<String> {
 		return result;
 	}
 	
+	@Override
 	public String next() {
 		String token;
 //		System.out.println("Position: " + getPosition());
@@ -407,6 +409,7 @@ public class TokenIterator extends EZIterator<String> {
 	////////////////////////////////////////// READ AND POSITION
 	
 	private static class CodePointToString implements Function<Integer, String> {
+		@Override
 		public String apply(Integer codePoint) {
 			return codePointToString(codePoint.intValue());
 		}

@@ -77,6 +77,7 @@ public abstract class AbstractParsingExpression extends ExpressionOnCompoundSynt
 		super(functor, args);
 	}
 	
+	@Override
 	public ParsingExpression equivalentSimplerParsingExpression(ParsingProcess process) {
 		return this;
 	}
@@ -229,6 +230,7 @@ public abstract class AbstractParsingExpression extends ExpressionOnCompoundSynt
 	}
 	
 	/** Returns parsing expression we arrive to by following {@link #equivalentSimplerParsingExpression()}. */
+	@Override
 	public ParsingExpression ultimateEquivalence(ParsingProcess process) {
 		ParsingExpression current = this;
 		ParsingExpression next;

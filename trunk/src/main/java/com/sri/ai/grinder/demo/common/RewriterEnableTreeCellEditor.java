@@ -82,6 +82,7 @@ public class RewriterEnableTreeCellEditor extends DefaultTreeCellEditor {
 		return editable;
 	}
 	
+	@Override
 	public Component getTreeCellEditorComponent(JTree tree,
             Object value,
             boolean sel,

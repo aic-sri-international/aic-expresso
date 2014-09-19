@@ -308,6 +308,7 @@ public class ExpressionNode implements TreeNode {
 		}
 	}
 	
+	@Override
 	public String toString() {
 		return toolTipText;
 	}

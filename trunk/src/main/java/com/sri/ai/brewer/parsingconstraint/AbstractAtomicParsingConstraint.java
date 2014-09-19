@@ -132,6 +132,7 @@ public abstract class AbstractAtomicParsingConstraint extends ExpressionOnCompou
 	}
 	
 	public static class GetIndex implements Function<AbstractAtomicParsingConstraint, Integer> {
+		@Override
 		public Integer apply(AbstractAtomicParsingConstraint conjunctObj) {
 			return conjunctObj.getIndexOfDisjunctInDisjunction();
 		}

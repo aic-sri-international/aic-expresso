@@ -154,6 +154,7 @@ public abstract class AbstractSyntaxTree implements SyntaxTree {
 	}
 
 	/** Makes a shallow copy of this tree. */
+	@Override
 	abstract public Object clone() throws CloneNotSupportedException;
 	
 	@Override

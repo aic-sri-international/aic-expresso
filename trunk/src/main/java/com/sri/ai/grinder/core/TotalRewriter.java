@@ -378,6 +378,7 @@ public class TotalRewriter extends AbstractRewriter {
 			return result;
 		}
 
+		@Override
 		public PruningPredicate apply(Expression expression,
 				PruningPredicate pruningPredicate,
 				ExpressionAndContext subExpressionAndContext) {
@@ -390,6 +391,7 @@ public class TotalRewriter extends AbstractRewriter {
 	}
 	
 	class ChildPruningPredicate implements PruningPredicate {		
+		@Override
 		public boolean apply(Expression expression, Function<Expression, Expression> replacementFunction, RewritingProcess process) {
 			return deadEndPruner.apply(expression, replacementFunction, process);
 		}		
@@ -462,7 +464,7 @@ public class TotalRewriter extends AbstractRewriter {
 	@SuppressWarnings("unchecked")
 	private static ExpressionCache getEquivalencyCache(RewritingProcess process) {
 		ExpressionCache result =
-				(ExpressionCache) Util.getValuePossiblyCreatingIt( (Map) process.getGlobalObjects(), EQUIVALENCY_CACHE_GLOBAL_OBJECTS_KEY, EQUIVALENCY_CACHE_MAKER);
+				Util.getValuePossiblyCreatingIt( (Map) process.getGlobalObjects(), EQUIVALENCY_CACHE_GLOBAL_OBJECTS_KEY, EQUIVALENCY_CACHE_MAKER);
 		return result;
 	}
 	

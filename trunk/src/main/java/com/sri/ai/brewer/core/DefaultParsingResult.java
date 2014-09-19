@@ -77,10 +77,12 @@ public class DefaultParsingResult implements ParsingResult {
 		this.tokenPositionLimitInfluencedResult = tokenPositionLimitInfluencedResult;
 	}
 
+	@Override
 	public ParsingExpression getParsingExpression() {
 		return parsingExpression;
 	}
 
+	@Override
 	public Expression getParse() {
 		return parse;
 	}
@@ -90,16 +92,19 @@ public class DefaultParsingResult implements ParsingResult {
 		parse = newParse;
 	}
 
+	@Override
 	public List<String> getTokens() {
 		return tokens;
 	}
 	
+	@Override
 	public void putBack(ParsingProcess process) {
 		for (int i = tokens.size(); i != 0; i--) {
 			process.putBack(tokens.get(i - 1));
 		}
 	}
 	
+	@Override
 	public String toString() {
 		return parse + " for " + parsingExpression;
 	}

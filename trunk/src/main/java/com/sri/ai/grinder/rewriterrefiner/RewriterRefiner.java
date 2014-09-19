@@ -95,6 +95,7 @@ public abstract class RewriterRefiner extends AbstractFunctionalRefiner<Expressi
 		super(initialValue);
 	}
 
+	@Override
 	protected Expression computeFunction() {		
 		if (isRootRefiner) {
 			// This is the root refiner, therefore increment the timestep.

@@ -64,6 +64,7 @@ public class ExpressionNodeRenderer extends DefaultTreeCellRenderer {
 	    setLeafIcon(null);
 	}
 	  
+	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
 		ExpressionNode node = (ExpressionNode) value;
 		Object valueToDisplay = node;

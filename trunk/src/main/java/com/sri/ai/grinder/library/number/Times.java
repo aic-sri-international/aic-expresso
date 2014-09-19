@@ -63,6 +63,7 @@ public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly {
 	private final static Expression            absorbingElement            = Expressions.makeSymbol(0);
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);
 
+	@Override
 	public Object getFunctor() {
 		return "*";
 	}
@@ -77,6 +78,7 @@ public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly {
 		return absorbingElement;
 	}
 	
+	@Override
 	protected Predicate<Expression> getIsOperableArgumentSyntaxTreePredicate() {
 		return isOperableArgumentPredicate;
 	}
@@ -84,21 +86,21 @@ public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly {
 	@Override
 	@SuppressWarnings("unchecked")
 	protected Object operationOnOperableValues(List listOfConstants) {
-		return Util.productArbitraryPrecision((List<Number>)listOfConstants);
+		return Util.productArbitraryPrecision(listOfConstants);
 	}
 	
 	/**
 	 * Makes a product, automatically accounting for neutral element occurrences.
 	 */
 	public static Expression make(List<Expression> arguments) {
-		return CommutativeAssociativeWithOperationOnConstantsOnly.make("*", arguments, Expressions.ONE);
+		return CommutativeAssociative.make("*", arguments, Expressions.ONE);
 	}
 
 	/**
 	 * Makes a product, automatically accounting for neutral element occurrences.
 	 */
 	public static Expression makeExpression(List<Expression> arguments) {
-		return CommutativeAssociativeWithOperationOnConstantsOnly.makeExpression("*", arguments, Expressions.ONE);
+		return CommutativeAssociative.makeExpression("*", arguments, Expressions.ONE);
 	}
 
 	/**

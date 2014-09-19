@@ -65,6 +65,7 @@ public class RewriterWithinProcessFunction implements Function<Expression, Expre
 		return rewriter.rewrite(expression, process);
 	}
 	
+	@Override
 	public String toString() {
 		return "Applier of " + rewriter;
 	}

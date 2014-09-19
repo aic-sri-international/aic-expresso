@@ -43,7 +43,7 @@ import java.util.Collections;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SubExpressionAddress;
-import com.sri.ai.expresso.core.DefaultSubExpressionAddress;
+import com.sri.ai.expresso.core.SyntaxTreeBasedSubExpressionAddress;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -68,10 +68,10 @@ public class IfThenElse extends AbstractRewriter {
 
 	private static final Expression NOT_FUNCTOR = Expressions.makeSymbol(FunctorConstants.NOT);
 	//
-	private static final SubExpressionAddress _pathToFunctor   = DefaultSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(FunctionApplicationProvider.INDEX_OF_FUNCTOR_IN_FUNCTION_APPLICATIONS)));
-	private static final SubExpressionAddress _pathToCondition = DefaultSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(0)));
-	private static final SubExpressionAddress _pathToThen      = DefaultSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(1)));
-	private static final SubExpressionAddress _pathToElse      = DefaultSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(2)));
+	private static final SubExpressionAddress _pathToFunctor   = SyntaxTreeBasedSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(FunctionApplicationProvider.INDEX_OF_FUNCTOR_IN_FUNCTION_APPLICATIONS)));
+	private static final SubExpressionAddress _pathToCondition = SyntaxTreeBasedSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(0)));
+	private static final SubExpressionAddress _pathToThen      = SyntaxTreeBasedSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(1)));
+	private static final SubExpressionAddress _pathToElse      = SyntaxTreeBasedSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(2)));
 
 	public IfThenElse() {
 		this.setReifiedTests(new HasFunctor(FunctorConstants.IF_THEN_ELSE));

@@ -59,13 +59,14 @@ import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.DefaultSubExpressionAddress;
+import com.sri.ai.expresso.core.SyntaxTreeBasedSubExpressionAddress;
 import com.sri.ai.expresso.core.ExpressionSyntaxTreeToStringFunction;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.util.Configuration;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.ReplaceByIfEqualTo;
 import com.sri.ai.util.base.TernaryProcedure;
@@ -81,7 +82,7 @@ public abstract class AbstractExpression implements Expression {
 	//
 	private static final long serialVersionUID = 3L; // Note: Increment this when you want to ensure any parsing caches are invalidated 
 	
-	private static final SubExpressionAddress FUNCTOR_PATH = DefaultSubExpressionAddress.get(Util.list(-1));
+	private static final SubExpressionAddress FUNCTOR_PATH = SyntaxTreeBasedSubExpressionAddress.get(Util.list(-1));
 
 	protected SyntaxTree syntaxTree;
 	
@@ -399,6 +400,7 @@ public abstract class AbstractExpression implements Expression {
 		return result;
 	}
 
+	@Override
 	abstract public Expression clone();
 	
 	/**
@@ -446,7 +448,8 @@ public abstract class AbstractExpression implements Expression {
 	@Override
 	public Expression replace(ExpressionAndContext replacementAndContext) {
 		SubExpressionAddress path = replacementAndContext.getAddress();
-		Expression expressionReplacement = Expressions.replaceAtPath(this, path, replacementAndContext.getExpression());
+		Expression result = path.replace(this, replacementAndContext.getExpression());
+		Expression expressionReplacement = result;
 		return expressionReplacement;
 	}
 
@@ -621,7 +624,7 @@ public abstract class AbstractExpression implements Expression {
 			threadToString.put(Thread.currentThread(), new ExpressionSyntaxTreeToStringFunction());
 			
 			// Now assign the configured object.
-			result = ExpressoConfiguration.newConfiguredInstance(ExpressoConfiguration.getDefaultSyntaxToStringUnaryFunctionClass());
+			result = Configuration.newConfiguredInstance(ExpressoConfiguration.getDefaultSyntaxToStringUnaryFunctionClass());
 			threadToString.put(Thread.currentThread(), result);
 		}
 		

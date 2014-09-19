@@ -41,7 +41,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.library.ScopedVariables;
@@ -86,10 +85,12 @@ public class IfThenElseExternalization extends AbstractRewriter {
 		
 		Expression thenBranch = ifThenElse.get(1);
 		Expression elseBranch = ifThenElse.get(2);
+		Expression result1 = ifThenElseSubExpressionAndContext.getAddress().replace(expression, thenBranch);
 		
 		// Create two expressions, one in which the "then branch" replaces the "if then else", and another in which the "else branch" does that.
-		Expression newThenBranch = Expressions.replaceAtPath(expression, ifThenElseSubExpressionAndContext.getAddress(), thenBranch);
-		Expression newElseBranch = Expressions.replaceAtPath(expression, ifThenElseSubExpressionAndContext.getAddress(), elseBranch);
+		Expression newThenBranch = result1;
+		Expression result2 = ifThenElseSubExpressionAndContext.getAddress().replace(expression, elseBranch);
+		Expression newElseBranch = result2;
 		
 		Expression result = IfThenElse.make(condition, newThenBranch, newElseBranch);
 		return result;
@@ -104,6 +105,7 @@ public class IfThenElseExternalization extends AbstractRewriter {
 	}
 
 	private final static class IsIfThenElseSubExpression implements Predicate<ExpressionAndContext> {
+		@Override
 		public boolean apply(ExpressionAndContext subExpressionAndContext) {
 			Expression expression = subExpressionAndContext.getExpression();
 			boolean result = expression != null && IfThenElse.isIfThenElse(expression);

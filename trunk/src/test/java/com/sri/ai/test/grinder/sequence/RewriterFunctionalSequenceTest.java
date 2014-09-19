@@ -59,6 +59,7 @@ import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.Basic;
 import com.sri.ai.grinder.sequence.RewriterFunctionalSequence;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
+import com.sri.ai.util.Configuration;
 import com.sri.ai.util.Util;
 
 public class RewriterFunctionalSequenceTest extends AbstractGrinderTest {
@@ -73,11 +74,12 @@ public class RewriterFunctionalSequenceTest extends AbstractGrinderTest {
 		return new DefaultRewritingProcess(topExpression, new Basic());
 	}
 
+	@Override
 	@Before
 	public void setUp() {
 		super.setUp();
 // TODO-remove the need for this once the Refine API is in place.
-		GrinderConfiguration.setProperty(GrinderConfiguration.KEY_REWRITING_PROCESS_CACHE_MAXIMUM_SIZE, "0");
+		Configuration.setProperty(GrinderConfiguration.KEY_REWRITING_PROCESS_CACHE_MAXIMUM_SIZE, "0");
 	}
 	
 	@Test
@@ -181,6 +183,7 @@ public class RewriterFunctionalSequenceTest extends AbstractGrinderTest {
 			super(rewriterName, arguments, process, sharedRewriterFunctionalSequences);
 		}
 		
+		@Override
 		protected RewriterFunctionalSequence newInstance(String childRewriterName, Expression childCallExpression, RewritingProcess childCallProcess) {
 			RewriterFunctionalSequence result = new HalfTheAverageRewriterFunctionalSequence(
 														childRewriterName,
@@ -245,6 +248,7 @@ public class RewriterFunctionalSequenceTest extends AbstractGrinderTest {
 			return ((Number) numericSymbol.getValue()).doubleValue();
 		}
 		
+		@Override
 		protected boolean isTraceInAndOutOfRewriter() {
 			return true;
 		}

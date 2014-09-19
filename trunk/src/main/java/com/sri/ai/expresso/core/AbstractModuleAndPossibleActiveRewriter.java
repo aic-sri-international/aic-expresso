@@ -46,6 +46,7 @@ public abstract class AbstractModuleAndPossibleActiveRewriter extends AbstractRe
 // this test is too strict as some providers are useful for other things and may be used when the respective module is not present.		
 	}
 
+	@Override
 	public void register(Module.Provider provider) {
 		if ( ! providers.contains(provider)) {
 			providers.put(provider, provider);

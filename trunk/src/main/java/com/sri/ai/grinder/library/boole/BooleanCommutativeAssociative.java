@@ -55,6 +55,7 @@ import com.sri.ai.util.Util;
 @Beta
 public abstract class BooleanCommutativeAssociative extends CommutativeAssociativeWithOperationOnConstantsOnly {
 
+	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expression result = super.rewriteAfterBookkeeping(expression, process);
 		if (result.hasFunctor(getFunctor())) {

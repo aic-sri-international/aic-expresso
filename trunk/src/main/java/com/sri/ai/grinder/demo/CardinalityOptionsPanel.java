@@ -76,6 +76,7 @@ public class CardinalityOptionsPanel extends JPanel {
 		
 		knownTypeSizeCheckBox = new JCheckBox("Known Domain Size");
 		knownTypeSizeCheckBox.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				getOptions().setTypeSizeKnown(knownTypeSizeCheckBox.isSelected());
 			}
@@ -115,6 +116,7 @@ public class CardinalityOptionsPanel extends JPanel {
 		
 		assumeDomainAlwaysLargeCheckBox = new JCheckBox("Assume Domains Always Large");
 		assumeDomainAlwaysLargeCheckBox.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				getOptions().setAssumeDomainsAlwaysLarge(assumeDomainAlwaysLargeCheckBox.isSelected());
 			}

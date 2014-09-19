@@ -60,6 +60,7 @@ import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
+import com.sri.ai.util.Configuration;
 
 /**
  * A simple formula generator that creates random CNF and DNF formulas with
@@ -84,7 +85,7 @@ public class SimpleFormulaGenerator {
 	
 	public static void main(String[] args) {
 		Grammar grammar = new CommonGrammar();
-		BrewerConfiguration.setProperty(BrewerConfiguration.KEY_DEFAULT_GRAMMAR_CLASS, grammar.getClass().getName());
+		Configuration.setProperty(BrewerConfiguration.KEY_DEFAULT_GRAMMAR_CLASS, grammar.getClass().getName());
 		Writer writer = DefaultWriter.newDefaultConfiguredWriter();
 		
 		SimpleFormulaGenerator gn = new SimpleFormulaGenerator(20, 20);

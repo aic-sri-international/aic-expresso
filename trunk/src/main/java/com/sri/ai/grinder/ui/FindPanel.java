@@ -57,6 +57,7 @@ public class FindPanel extends JPanel {
 		
 		textFieldFindWhat = new JTextField();
 		textFieldFindWhat.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (expressionTreeView != null) {
 					notifyFindOutcome(expressionTreeView.findNext(textFieldFindWhat.getText(), chckbxRegularExpressions.isSelected()));
@@ -72,6 +73,7 @@ public class FindPanel extends JPanel {
 		
 		JButton btnNext = new JButton("Next");
 		btnNext.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if (expressionTreeView != null) {
 					notifyFindOutcome(expressionTreeView.findNext(textFieldFindWhat.getText(), chckbxRegularExpressions.isSelected()));
@@ -82,6 +84,7 @@ public class FindPanel extends JPanel {
 		
 		JButton btnPrevious = new JButton("Previous");
 		btnPrevious.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (expressionTreeView != null) {
 					notifyFindOutcome(expressionTreeView.findPrevious(textFieldFindWhat.getText(), chckbxRegularExpressions.isSelected()));
@@ -92,6 +95,7 @@ public class FindPanel extends JPanel {
 		
 		JButton btnCLose = new JButton("Close");
 		btnCLose.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				FindPanel.this.setVisible(false);
 				FindPanel.this.invalidate();

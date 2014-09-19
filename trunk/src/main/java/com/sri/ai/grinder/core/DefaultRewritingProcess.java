@@ -154,6 +154,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			key = rewriter.getName();
 			// key = new IdentityWrapper(rewriter); // does get much slower.
 		}
+		@Override
 		public boolean equals(Object another) {
 			boolean result;
 			if (another instanceof RewriterKey) {
@@ -164,10 +165,12 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			}
 			return result;
 		}
+		@Override
 		public int hashCode() {
 			int result = key.hashCode();
 			return result;
 		}
+		@Override
 		public String toString() {
 			return key.toString();
 		}
@@ -269,6 +272,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		return id;
 	}
 	
+	@Override
 	public RewriterLookup getRewriterLookup() {
 		return rewriterLookup;
 	}
@@ -768,6 +772,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		}
 	}
 	
+	@Override
 	public String toString() {
 		return "Rewriting process with context " + getContextualSymbolsAndTypes() + ", " + getContextualConstraint();
 	}

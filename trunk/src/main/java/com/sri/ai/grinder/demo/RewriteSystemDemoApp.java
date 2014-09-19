@@ -41,6 +41,7 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
@@ -55,6 +56,7 @@ import com.sri.ai.brewer.BrewerConfiguration;
 import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.demo.model.Options;
+import com.sri.ai.util.Configuration;
 
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
@@ -88,9 +90,10 @@ public class RewriteSystemDemoApp {
 	 */
 	public static void main(String[] args) {
 		// Ensure the grammar class passed in is used where necessary.
-		BrewerConfiguration.setProperty(BrewerConfiguration.KEY_DEFAULT_GRAMMAR_CLASS, CommonGrammar.class.getName());
+		Configuration.setProperty(BrewerConfiguration.KEY_DEFAULT_GRAMMAR_CLASS, CommonGrammar.class.getName());
 
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {				
 				try {
 					String configuredLookAndFeel = GrinderConfiguration.getDemoAppDefaultLookAndFeel();
@@ -135,8 +138,9 @@ public class RewriteSystemDemoApp {
 		frmGrinderRewriteSystem.getContentPane().add(backgroundPanel, BorderLayout.CENTER);
 		backgroundPanel.setLayout(new BorderLayout(0, 0));
 		
-		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane = new JTabbedPane(SwingConstants.TOP);
 		tabbedPane.addChangeListener(new ChangeListener() {
+			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				// Ensure the standard output is set correctly based on the current tab.
 				Component selectedTab = tabbedPane.getSelectedComponent();
