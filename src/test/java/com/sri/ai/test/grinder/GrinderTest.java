@@ -53,6 +53,7 @@ import org.junit.Test;
 import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
@@ -1172,8 +1173,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		Expression expression = parse("aConstantSymbol");
 		RewritingProcess process = new DefaultRewritingProcess(expression, evaluator);
 		
-		List<Pair<Expression, List<Integer>>> conditions = ImposedConditionsModule.get(expression, 
-				process);
+		List<Pair<Expression, SubExpressionAddress>> conditions = ImposedConditionsModule.get(expression, process);
 		Assert.assertNull(conditions);
 		
 		expression = parse("if A = B then aAndBEqual else aAndBNotEqual");
@@ -1181,16 +1181,16 @@ public class GrinderTest extends AbstractGrinderTest {
 		Assert.assertNotNull(conditions);
 		Assert.assertEquals(2, conditions.size());
 		Assert.assertEquals("A = B", conditions.get(0).first.toString());
-		Assert.assertEquals(IfThenElse.getPathToThen().getList(), conditions.get(0).second);
+		Assert.assertEquals(IfThenElse.getPathToThen(), conditions.get(0).second);
 		Assert.assertEquals("not (A = B)", conditions.get(1).first.toString());
-		Assert.assertEquals(IfThenElse.getPathToElse().getList(), conditions.get(1).second);
+		Assert.assertEquals(IfThenElse.getPathToElse(), conditions.get(1).second);
 		
 		expression = parse("{(on X) X | X != a}");
 		conditions = ImposedConditionsModule.get(expression, process);
 		Assert.assertNotNull(conditions);
 		Assert.assertEquals(1, conditions.size());
 		Assert.assertEquals("X != a", conditions.get(0).first.toString());
-		Assert.assertEquals(IntensionalSet.getPathToHead().getList(), conditions.get(0).second);
+		Assert.assertEquals(IntensionalSet.getPathToHead(), conditions.get(0).second);
 	}
 	
 	@Test

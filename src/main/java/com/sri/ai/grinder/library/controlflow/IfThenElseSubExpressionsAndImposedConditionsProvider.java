@@ -45,6 +45,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
@@ -114,15 +115,13 @@ ImposedConditionsModule.Provider
 	//
 	// START-ImposedConditionsModule.Provider 
 	@Override
-	public List<Pair<Expression, List<Integer>>> getConditionsExpressionImposesOnSubExpressions(Expression expression, RewritingProcess process) {
-		List<Pair<Expression, List<Integer>>> result = null;
+	public List<Pair<Expression, SubExpressionAddress>> getConditionsExpressionImposesOnSubExpressions(Expression expression, RewritingProcess process) {
+		List<Pair<Expression, SubExpressionAddress>> result = null;
 		
 		if (IfThenElse.isIfThenElse(expression)) {
-			result = new ArrayList<Pair<Expression, List<Integer>>>();
-			result.add(new Pair<Expression, List<Integer>>(IfThenElse.getCondition(expression), 
-					IfThenElse.getPathToThen().getList()));
-			result.add(new Pair<Expression, List<Integer>>(Not.make(IfThenElse.getCondition(expression)), 
-					IfThenElse.getPathToElse().getList()));
+			result = new ArrayList<Pair<Expression, SubExpressionAddress>>();
+			result.add(Pair.make(IfThenElse.getCondition(expression), IfThenElse.getPathToThen()));
+			result.add(Pair.make(Not.make(IfThenElse.getCondition(expression)), IfThenElse.getPathToElse()));
 		}
 		
 		return result;
