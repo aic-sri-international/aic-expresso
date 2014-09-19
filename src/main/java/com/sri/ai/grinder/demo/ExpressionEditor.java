@@ -67,6 +67,7 @@ import javax.swing.text.StyledDocument;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.Token;
 
 import com.google.common.annotations.Beta;
@@ -216,6 +217,7 @@ public class ExpressionEditor extends JPanel {
 		textPane.setEditable(editable);
 	}
 	
+	@Override
 	public void addFocusListener(FocusListener l) {
 		textPane.addFocusListener(l);
 	}
@@ -399,7 +401,7 @@ public class ExpressionEditor extends JPanel {
 	    		} catch (RuntimeException ex) {
 	    			lexerFailed = true;
 	    		}
-	    		while (!lexerFailed && token.getType() != AntlrGrinderLexer.EOF) {   			
+	    		while (!lexerFailed && token.getType() != Recognizer.EOF) {   			
 	    			offset = lineOffsets.get(token.getLine()-1) + token.getCharPositionInLine();
 	    			int length = token.getText().length();
 	    			Style style  = styledDocument.getStyle(STYLE_REGULAR);

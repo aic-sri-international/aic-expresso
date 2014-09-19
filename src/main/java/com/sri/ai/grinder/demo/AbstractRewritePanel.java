@@ -114,6 +114,7 @@ import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
+import com.sri.ai.util.Configuration;
 
 @Beta
 public class AbstractRewritePanel extends JPanel {
@@ -198,6 +199,7 @@ public class AbstractRewritePanel extends JPanel {
 		btnUndoToInitialStep.setEnabled(false);
 		actionButtonsPanel.add(btnUndoToInitialStep);
 		btnUndoToInitialStep.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				handleUndo(true);
 			}
@@ -210,6 +212,7 @@ public class AbstractRewritePanel extends JPanel {
 		btnUndoSingleStep.setEnabled(false);
 		actionButtonsPanel.add(btnUndoSingleStep);
 		btnUndoSingleStep.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				handleUndo(false);
 			}
@@ -221,6 +224,7 @@ public class AbstractRewritePanel extends JPanel {
 		JButton btnRewriteSingle = new JButton("| >");
 		actionButtonsPanel.add(btnRewriteSingle);
 		btnRewriteSingle.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				performRewrite(false);
 			}
@@ -232,6 +236,7 @@ public class AbstractRewritePanel extends JPanel {
 		JButton btnRewriteExhaustive = new JButton("->");
 		actionButtonsPanel.add(btnRewriteExhaustive);
 		btnRewriteExhaustive.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				performRewrite(true);
 			}
@@ -243,6 +248,7 @@ public class AbstractRewritePanel extends JPanel {
 		JButton btnClear = new JButton("Clear");
 		actionButtonsPanel.add(btnClear);
 		btnClear.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				outputPanel.clearAllOutputs();
 			}
@@ -261,6 +267,7 @@ public class AbstractRewritePanel extends JPanel {
 		exampleSelectionPanel.add(exampleComboBox);
 		exampleComboBox.setPreferredSize(new Dimension(214, 25));
 		exampleComboBox.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				ExampleRewrite eg = (ExampleRewrite) exampleComboBox.getItemAt(exampleComboBox.getSelectedIndex());
 				if (eg != null) {
@@ -481,7 +488,7 @@ public class AbstractRewritePanel extends JPanel {
 			if (isCardinalityRewriterLookupNeeded(rewriters)) {
 				((DefaultRewritingProcess)process).setRewriterLookup(new DefaultRewriterLookup(DirectCardinalityComputationFactory.getCardinalityRewritersMap()));
 			}
-			GrinderConfiguration.setProperty(GrinderConfiguration.KEY_ASSUME_DOMAIN_ALWAYS_LARGE, ""+getOptions().isAssumeDomainsAlwaysLarge());
+			Configuration.setProperty(GrinderConfiguration.KEY_ASSUME_DOMAIN_ALWAYS_LARGE, ""+getOptions().isAssumeDomainsAlwaysLarge());
 			CardinalityTypeOfLogicalVariable.registerTypeSizeOfLogicalVariableWithProcess(new CardinalityTypeOfLogicalVariable.TypeSizeOfLogicalVariable() {
 				@Override
 				public Integer size(Expression logicalVariable, RewritingProcess process) {

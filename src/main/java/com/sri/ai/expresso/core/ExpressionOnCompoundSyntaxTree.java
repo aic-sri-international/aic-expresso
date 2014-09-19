@@ -96,13 +96,13 @@ public class ExpressionOnCompoundSyntaxTree extends AbstractExpression {
 	}
 
 	public void storeOriginalExpressionForFunctor(Object label) {
-		SubExpressionAddress path = DefaultSubExpressionAddress.get(Util.list(-1));
+		SubExpressionAddress path = SyntaxTreeBasedSubExpressionAddress.get(Util.list(-1));
 		originalExpressionsByPath.put(path, (Expression) label);
 		// SUB_EXPRESSION_ADDRESS
 	}
 
 	public void storeOriginalExpressionForArgument(int i, Object subTreeObject) {
-		SubExpressionAddress path = DefaultSubExpressionAddress.get(Util.list(i));
+		SubExpressionAddress path = SyntaxTreeBasedSubExpressionAddress.get(Util.list(i));
 		originalExpressionsByPath.put(path, (Expression) subTreeObject);
 		// SUB_EXPRESSION_ADDRESS
 	}
@@ -112,6 +112,7 @@ public class ExpressionOnCompoundSyntaxTree extends AbstractExpression {
 		return null;
 	}
 
+	@Override
 	public int hashCode() {
 		if (hashCode == -1) {
 			SyntaxTree rootTree = getSyntaxTree().getRootTree();
@@ -124,6 +125,7 @@ public class ExpressionOnCompoundSyntaxTree extends AbstractExpression {
 		return hashCode;
 	}
 
+	@Override
 	public boolean equals(Object anotherObject) {
 		
 		if (this == anotherObject) {
@@ -154,6 +156,7 @@ public class ExpressionOnCompoundSyntaxTree extends AbstractExpression {
 		return result;
 	}
 
+	@Override
 	public Expression clone() {
 		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(getSyntaxTree().getRootTree(), getSyntaxTree().getImmediateSubTrees());
 		// it is best to use the field 'arguments' instead of method 'getArguments'

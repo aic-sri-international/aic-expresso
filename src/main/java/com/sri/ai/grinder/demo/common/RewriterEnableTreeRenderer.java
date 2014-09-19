@@ -58,6 +58,7 @@ public class RewriterEnableTreeRenderer extends DefaultTreeCellRenderer {
 	public RewriterEnableTreeRenderer() {
 	}
 
+	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
 		super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 		
@@ -83,6 +84,7 @@ public class RewriterEnableTreeRenderer extends DefaultTreeCellRenderer {
 			checkBox.setSelected(item.isEnabled());
 			checkBox.setFocusable(true);
 			checkBox.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent actionEvent) {
 					JCheckBox checkBox = (JCheckBox) actionEvent.getSource();						
 					item.setEnabled(checkBox.isSelected());

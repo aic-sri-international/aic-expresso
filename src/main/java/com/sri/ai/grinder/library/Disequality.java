@@ -82,6 +82,7 @@ public class Disequality extends AbstractRewriterDefiningSymmetricFunction {
 		return expression;
 	}
 
+	@Override
 	public Expression getFunctor() {
 		return FUNCTOR;
 	}

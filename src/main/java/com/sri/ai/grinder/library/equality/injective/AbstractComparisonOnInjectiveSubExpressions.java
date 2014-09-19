@@ -64,6 +64,7 @@ AbstractRewriter {
 
 	abstract protected Expression conditionForComparisonOfSubExpressions(Expression syntaxTree1, Expression syntaxTree2);
 
+	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 
 		Expression expression1 = expression.get(0);

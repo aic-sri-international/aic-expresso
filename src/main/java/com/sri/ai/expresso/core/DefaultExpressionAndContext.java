@@ -65,7 +65,6 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	private static final long serialVersionUID = 1L;
 	
 	private Expression                expression;
-	private List<Integer>             path;
 	private SubExpressionAddress      address;
 	private ImmutableList<Expression> indexExpressions;
 	private Expression                constrainingCondition;
@@ -88,8 +87,7 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	
 	public DefaultExpressionAndContext(Expression expression, List<Integer> path, List<Expression> indexExpressions, Expression constrainingCondition) {
 		this.expression            = expression;
-		this.path                  = path;
-		this.address               = DefaultSubExpressionAddress.get(this.path);
+		this.address               = SyntaxTreeBasedSubExpressionAddress.get(path);
 		this.indexExpressions      = ImmutableList.<Expression>builder().addAll(indexExpressions).build();
 		this.constrainingCondition = constrainingCondition;
 
@@ -99,7 +97,6 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	
 	public DefaultExpressionAndContext(Expression expression, SubExpressionAddress address, List<Expression> indexExpressions, Expression constrainingCondition) {
 		this.expression            = expression;
-		this.path                  = address.getList();
 		this.address               = address;
 		this.indexExpressions      = ImmutableList.<Expression>builder().addAll(indexExpressions).build();
 		this.constrainingCondition = constrainingCondition;
@@ -150,6 +147,7 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	// END-ExpressionAndContext
 	//
 
+	@Override
 	public String toString() {
 		return getExpression() + " at " + getAddress() + " with quantified variables " + getIndices() + " and constraining condition " + getConstrainingCondition();
 	}

@@ -87,6 +87,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		// Note: We can have nulls, therefore cannot use ImmutableList directly.
 	}
 
+	@Override
 	public Object getValue() {
 		return null;
 	}
@@ -131,6 +132,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 
 	public static final boolean useOrderNormalization = false;
 	
+	@Override
 	public int hashCode() {
 		if (hashCode == -1) {
 			SyntaxTree rootTree = getRootTree();
@@ -143,6 +145,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		return hashCode;
 	}
 
+	@Override
 	public boolean equals(Object anotherObject) {
 		boolean result;
 		
@@ -186,6 +189,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		return result;
 	}
 
+	@Override
 	public String toStringWithoutCaching() {
 		String rootTreeString = getRootTree().toString();
 		if ( ! (getRootTree() instanceof Symbol)) {
@@ -309,6 +313,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 		return this;
 	}
 	
+	@Override
 	public SyntaxTree clone() {
 		return SyntaxTrees.makeCompoundSyntaxTree(getRootTree(), subTrees);
 		// it is best to use the field 'arguments' instead of method 'getArguments'

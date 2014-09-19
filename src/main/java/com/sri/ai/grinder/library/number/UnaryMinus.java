@@ -60,6 +60,7 @@ public class UnaryMinus extends AbstractRewriter {
 				             new HasNumberOfArguments(1));
 	}
 
+	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		if (expression.get(0).getValue() instanceof Number) {
 			return Expressions.makeSymbol(expression.get(0).rationalValue().negate());

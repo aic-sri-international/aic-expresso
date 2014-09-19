@@ -46,6 +46,7 @@ import com.sri.ai.brewer.api.Grammar;
 import com.sri.ai.brewer.api.Writer;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.util.Configuration;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.FunctionIterator;
 
@@ -71,7 +72,7 @@ public class DefaultWriter implements Writer {
 	 *         class corresponding to the name must have a default constructor.
 	 */
 	public static Writer newDefaultConfiguredWriter() {
-		Grammar grammar = BrewerConfiguration.newConfiguredInstance(BrewerConfiguration.getDefaultGrammarClass());
+		Grammar grammar = Configuration.newConfiguredInstance(BrewerConfiguration.getDefaultGrammarClass());
 		Writer  result = new DefaultWriter(grammar);
 		return result;
 	}
@@ -142,6 +143,7 @@ public class DefaultWriter implements Writer {
 					new FunctionIterator<SyntaxTree, String>(
 							syntaxTree.getImmediateSubTrees(),
 							new Function<SyntaxTree, String>() {
+								@Override
 								public String apply(SyntaxTree syntaxTree) {
 									return DefaultWriter.this.toString(syntaxTree);
 								}

@@ -44,6 +44,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
+import com.sri.ai.grinder.library.CommutativeAssociative;
 import com.sri.ai.grinder.library.CommutativeAssociativeWithOperationOnConstantsOnly;
 import com.sri.ai.util.Util;
 
@@ -59,6 +60,7 @@ public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly {
 	private final static Expression            neutralElement              = Expressions.makeSymbol(0);
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);
 
+	@Override
 	public Object getFunctor() {
 		return "+";
 	}
@@ -73,6 +75,7 @@ public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly {
 		return null; // no absorbing element
 	}
 	
+	@Override
 	protected Predicate<Expression> getIsOperableArgumentSyntaxTreePredicate() {
 		return isOperableArgumentPredicate;
 	}
@@ -80,14 +83,14 @@ public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly {
 	@Override
 	@SuppressWarnings("unchecked")
 	protected Object operationOnOperableValues(List listOfConstants) {
-		return Util.sumArbitraryPrecision((List<Number>)listOfConstants);
+		return Util.sumArbitraryPrecision(listOfConstants);
 	}
 
 	/**
 	 * Makes an addition, automatically accounting for neutral element occurrences.
 	 */
 	public static Expression make(List<Expression> arguments) {
-		return CommutativeAssociativeWithOperationOnConstantsOnly.make("+", arguments, Expressions.ZERO);
+		return CommutativeAssociative.make("+", arguments, Expressions.ZERO);
 	}
 
 }

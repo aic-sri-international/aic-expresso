@@ -389,12 +389,16 @@ public class Sequence extends AbstractParsingExpression implements BasicParsingE
 		for (
 				end = rootTreeName.length();
 				end != 0 && isSpace(rootTreeName, end - 1);
-				end--);
+				end--) {
+			;
+		}
 
 		for (
 				begin = 0;
 				begin != rootTreeName.length() && isSpace(rootTreeName, begin);
-				begin++);
+				begin++) {
+			;
+		}
 
 		if (begin >= end) {
 			return "";

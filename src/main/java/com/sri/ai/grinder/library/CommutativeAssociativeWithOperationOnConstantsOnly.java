@@ -56,6 +56,7 @@ public abstract class CommutativeAssociativeWithOperationOnConstantsOnly extends
 
 	protected abstract Object operationOnOperableValues(List<? extends Object> listOfOperableArguments);
 
+	@Override
 	public Expression operationOnOperables(LinkedList<Expression> operableArguments) {
 		List<Object> operableArgumentValues = Util.mapIntoList(operableArguments.iterator(), GetValue.INSTANCE);
 		Object resultOnOperableArguments = operationOnOperableValues(operableArgumentValues);
@@ -63,6 +64,7 @@ public abstract class CommutativeAssociativeWithOperationOnConstantsOnly extends
 		return resultOnOperableArgumentsExpression;
 	}
 
+	@Override
 	public Expression operationOnExpressionOperables(LinkedList<Expression> operableArguments) {
 		List<Object> operableArgumentValues = Util.mapIntoList(operableArguments.iterator(), GetValue.INSTANCE);
 		Object resultOnOperableArguments = operationOnOperableValues(operableArgumentValues);

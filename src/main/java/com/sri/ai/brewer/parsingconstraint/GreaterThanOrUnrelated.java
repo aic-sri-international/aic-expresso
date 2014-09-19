@@ -72,6 +72,7 @@ public class GreaterThanOrUnrelated extends AbstractAtomicParsingConstraint {
 		getIndexOf(parsingExpression) > indexOfDisjunctInDisjunction;
 	}
 	
+	@Override
 	public String toString() {
 		return "> " + disjunct /*+ " in " + disjunction + " or unrelated"*/;
 	}

@@ -125,9 +125,13 @@ public class BooleanUtil {
 				boolean conjunction = true;
 				for (Expression term2: literal2.getArguments()) {
 					conjunction = conjunction && term1.equals(term2);
-					if ( !conjunction ) break;
+					if ( !conjunction ) {
+						break;
+					}
 				}
-				if ( conjunction ) return true;
+				if ( conjunction ) {
+					return true;
+				}
 			}
 			//return pairwiseEquivalent(literal1.get(0), literal1.get(1), literal2.get(0), literal2.get(1));
 		}

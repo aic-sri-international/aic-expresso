@@ -41,7 +41,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
@@ -105,10 +104,11 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 					Expression condition  = IfThenElse.getCondition(conditionalSubExpression);
 					Expression thenBranch = IfThenElse.getThenBranch(conditionalSubExpression);
 					Expression elseBranch = IfThenElse.getElseBranch(conditionalSubExpression);
+					Expression result = conditionalSubExpressionAndContext.getAddress().replace(expression, thenBranch);
 
 					// Create two expressions, one in which the "then branch" replaces the conditional sub-expression, and another in which the "else branch" does that.
-					Expression newThenBranch = Expressions.replaceAtPath(expression, conditionalSubExpressionAndContext.getAddress(), thenBranch);
-					Expression newElseBranch = Expressions.replaceAtPath(expression, conditionalSubExpressionAndContext.getAddress(), elseBranch);
+					Expression newThenBranch = result;
+					Expression newElseBranch = conditionalSubExpressionAndContext.getAddress().replace(expression, elseBranch);
 
 					// Make sure the *new* subexpressions are normalized themselves, even though the original ones already were.
 					// If they are not normalized, the unnormalized part must be on their top expression only,
@@ -142,6 +142,7 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 	}
 
 	private final static class IsConditionalSubExpression implements Predicate<ExpressionAndContext> {
+		@Override
 		public boolean apply(ExpressionAndContext subExpressionAndContext) {
 			Expression expression = subExpressionAndContext.getExpression();
 			boolean result = expression != null && IfThenElse.isIfThenElse(expression);

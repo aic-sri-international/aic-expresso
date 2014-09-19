@@ -88,6 +88,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
 	
+	@Override
 	public Object getValue() {
 		return valueOrRootSyntaxTree;
 	}
@@ -409,6 +410,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		return this;
 	}
 
+	@Override
 	public SyntaxTree clone() {
 		return DefaultSymbol.createSymbol(getValue());
 	}
@@ -445,8 +447,9 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		}
 
 		if (value instanceof Expression) {
-			if (dontAcceptSymbolValueToBeExpression)
-				throw new Error("Symbol received an expression: " + value);	
+			if (dontAcceptSymbolValueToBeExpression) {
+				throw new Error("Symbol received an expression: " + value);
+			}	
 		}
 		
 		this.valueOrRootSyntaxTree = value;

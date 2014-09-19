@@ -234,8 +234,9 @@ public class SymbolicInjectiveLookUp {
 			Iterator<Expression> argumentsFromExpressionIterator         = symbols.first.iterator();
 			Iterator<Expression> argumentsFromIntensionalSetHeadIterator = symbols.second.iterator();
 			while (argumentsFromIntensionalSetHeadIterator.hasNext()) {
-				if ( ! argumentsFromExpressionIterator.hasNext())
+				if ( ! argumentsFromExpressionIterator.hasNext()) {
 					throw new Error("Iterators over arguments have ranges of difference lengths even though injective tokens were equal: " + intensionalSet + " and " + expression);
+				}
 
 				Expression argumentFromExpression = argumentsFromIntensionalSetHeadIterator.next();
 				Expression argumentFromIntensionalSetHead = argumentsFromExpressionIterator.next();

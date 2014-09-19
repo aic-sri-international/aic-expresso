@@ -37,8 +37,6 @@
  */
 package com.sri.ai.expresso.api;
 
-import java.util.List;
-
 import com.google.common.annotations.Beta;
 
 /**
@@ -50,6 +48,11 @@ import com.google.common.annotations.Beta;
 @Beta
 public interface SubExpressionAddress  {
 	
-	/** Temporary method for converting it to List<Integer> during code transition from List<Integer> -> SubExpressionAddress. */
-	List<Integer> getList();
+	/**
+	 * Replaces the sub-expression with this {@link SubExpressionAddress} by a given new sub-expression.
+	 * @param expression
+	 * @param newSubExpression
+	 * @return the result of replacing expression's sub-expression with this address by a new sub-expression.
+	 */
+	Expression replace(Expression expression, Expression newSubExpression);
 }

@@ -296,6 +296,7 @@ public class CallRewriterDecisionTree {
 		
 		// if count(A) = 0 for all a
 		boolean countA_allZeros = countA.size() == 0 || Util.forAll(countA.values(), new Predicate<Double>() {
+			@Override
 			public boolean apply(Double d) {
 				return d.intValue() == 0;
 			}
@@ -370,6 +371,7 @@ public class CallRewriterDecisionTree {
 			this.tests.addAll(tests);
 		}
 		
+		@Override
 		public String toString() {
 			String result = "RewriterWithReifiedTests on " + rewriter;
 			return result;

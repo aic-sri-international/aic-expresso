@@ -80,6 +80,7 @@ public class Equivalence extends AbstractRewriterDefiningSymmetricFunction {
 		return result;
 	}
 
+	@Override
 	public Expression getFunctor() {
 		return FUNCTOR;
 	}

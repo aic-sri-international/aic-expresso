@@ -89,6 +89,7 @@ public class ListOfDisjointIntensionalSetsForSymbolicInjectiveLookUp {
 		return result;
 	}
 	
+	@Override
 	public boolean equals(Object another) {
 		boolean result = false;;
 		if (another instanceof ListOfDisjointIntensionalSetsForSymbolicInjectiveLookUp) {

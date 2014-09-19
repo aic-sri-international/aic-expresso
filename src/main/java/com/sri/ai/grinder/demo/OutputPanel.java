@@ -46,6 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -197,7 +198,7 @@ public class OutputPanel extends JPanel {
 	//
 	private void initialize() {
 		setLayout(new BorderLayout(0, 0));
-		JTabbedPane outputPane = new JTabbedPane(JTabbedPane.TOP);
+		JTabbedPane outputPane = new JTabbedPane(SwingConstants.TOP);
 		add(outputPane);
 		
 		JPanel consolePanel = new JPanel();
@@ -264,6 +265,7 @@ public class OutputPanel extends JPanel {
 	private void addTrace(Object obj) {
 		activeTraceNode.add(obj);
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				treeTraceModel.reload();
 				traceTree.restoreExpandedPaths();

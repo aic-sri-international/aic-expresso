@@ -76,6 +76,7 @@ public class Conjunction extends HashSet<ParsingConstraint> implements ParsingCo
 		return true;
 	}
 	
+	@Override
 	public boolean add(ParsingConstraint condition) {
 		if (condition instanceof Conjunction) {
 			boolean result = false;

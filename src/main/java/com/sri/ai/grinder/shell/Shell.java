@@ -48,6 +48,7 @@ import com.sri.ai.grinder.api.Library;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.core.ExhaustiveRewriter;
 import com.sri.ai.grinder.library.CommonLibrary;
+import com.sri.ai.util.Configuration;
 import com.sri.ai.util.collect.ConsoleIterator;
 
 /**
@@ -64,7 +65,7 @@ public class Shell {
 
 	public static void run(Grammar grammar, Library library) {
 		// Ensure the grammar class passed in is used where necessary.
-		BrewerConfiguration.setProperty(BrewerConfiguration.KEY_DEFAULT_GRAMMAR_CLASS, grammar.getClass().getName());
+		Configuration.setProperty(BrewerConfiguration.KEY_DEFAULT_GRAMMAR_CLASS, grammar.getClass().getName());
 		
 		Writer writer = DefaultWriter.newDefaultConfiguredWriter();
 		Rewriter evaluator = new ExhaustiveRewriter(library);

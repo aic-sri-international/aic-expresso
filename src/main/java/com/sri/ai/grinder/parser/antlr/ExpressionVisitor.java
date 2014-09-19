@@ -84,6 +84,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	
 	// an expression symbol, e.g.:<X + Y>
 	// '<' expr '>' #expressionSymbol
+	@Override
 	public Expression visitExpressionSymbol(
 			AntlrGrinderParser.ExpressionSymbolContext ctx) {
 		Expression expr   = visit(ctx.expr());

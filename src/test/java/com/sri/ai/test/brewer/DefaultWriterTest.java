@@ -60,6 +60,7 @@ import com.sri.ai.brewer.parsingexpression.helper.AssociativeSequence;
 import com.sri.ai.brewer.parsingexpression.helper.ParenthesizedNonTerminal;
 import com.sri.ai.brewer.parsingexpression.helper.ParsingExpressionForFunctionApplications;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.util.Configuration;
 
 public class DefaultWriterTest {
 
@@ -183,7 +184,7 @@ public class DefaultWriterTest {
 	
 	private void test(String originalString, Grammar grammar) {		
 		// Ensure the grammar class passed in is used where necessary.
-		BrewerConfiguration.setProperty(BrewerConfiguration.KEY_DEFAULT_GRAMMAR_CLASS, grammar.getClass().getName());
+		Configuration.setProperty(BrewerConfiguration.KEY_DEFAULT_GRAMMAR_CLASS, grammar.getClass().getName());
 		Writer writer = new DefaultWriter(grammar);
 		
 		Expression expression = Brewer.parse(originalString, grammar, "Expression");

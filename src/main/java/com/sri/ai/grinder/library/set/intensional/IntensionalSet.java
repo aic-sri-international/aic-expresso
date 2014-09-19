@@ -54,7 +54,7 @@ import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.DefaultSubExpressionAddress;
+import com.sri.ai.expresso.core.SyntaxTreeBasedSubExpressionAddress;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -189,7 +189,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 
 	public static SubExpressionAddress getPathToHead() {
 		// SUB_EXPRESSION_ADDRESS
-		return DefaultSubExpressionAddress.get(IntensionalSet._pathToHead);
+		return SyntaxTreeBasedSubExpressionAddress.get(IntensionalSet._pathToHead);
 	}
 
 	/**
@@ -203,7 +203,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 
 	public static SubExpressionAddress getPathToCondition() {
 		// SUB_EXPRESSION_ADDRESS
-		return DefaultSubExpressionAddress.get(IntensionalSet._pathToCondition);
+		return SyntaxTreeBasedSubExpressionAddress.get(IntensionalSet._pathToCondition);
 	}
 
 	private static Expression makeUniSet(SyntaxTree scopingSyntaxTree, Expression head, Expression condition) {

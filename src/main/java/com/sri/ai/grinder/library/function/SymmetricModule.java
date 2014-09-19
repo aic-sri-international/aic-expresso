@@ -89,6 +89,7 @@ public class SymmetricModule extends AbstractModuleNoOpRewriter {
 	private Set<Expression> cachedFunctors = new LinkedHashSet<Expression>();
 	private boolean notAllProvidersHaveFixedFunctor = false;
 	
+	@Override
 	public void register(Module.Provider moduleProvider) {
 		Provider provider = (Provider) moduleProvider;
 		Expression functor = Expressions.wrap(provider.getFunctor());

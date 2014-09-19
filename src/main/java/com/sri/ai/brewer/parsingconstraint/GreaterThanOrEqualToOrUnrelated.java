@@ -71,6 +71,7 @@ public class GreaterThanOrEqualToOrUnrelated extends AbstractAtomicParsingConstr
 		getIndexOf(parsingExpression) >= indexOfDisjunctInDisjunction;
 	}
 	
+	@Override
 	public String toString() {
 		return ">= " + disjunct + (getSide() != null? " on " + getSide() : "")/*+ " in " + disjunction + " or unrelated"*/;
 	}

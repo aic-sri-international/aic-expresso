@@ -90,6 +90,7 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 		init(keepExpandedNodesOpen);
 	}	
 	
+	@Override
 	public String getToolTipText(MouseEvent evt) {
         if (getRowForLocation(evt.getX(), evt.getY()) == -1) {
           return null;
@@ -364,11 +365,13 @@ public class ExpressionTreeView extends JTree implements TreeExpansionListener {
 	}
 	
 	class PopupListener extends MouseAdapter {
-	    public void mousePressed(MouseEvent e) {
+	    @Override
+		public void mousePressed(MouseEvent e) {
 	        maybeShowPopup(e);
 	    }
 
-	    public void mouseReleased(MouseEvent e) {
+	    @Override
+		public void mouseReleased(MouseEvent e) {
 	        maybeShowPopup(e);
 	    }
 

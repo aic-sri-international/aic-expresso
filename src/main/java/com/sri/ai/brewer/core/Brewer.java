@@ -132,17 +132,20 @@ public class Brewer {
 	public static void generateFunctionApplicationString(StringBuffer sb, SyntaxTree syntaxTree, int tabLevel, boolean forceSymbolPrint) {
 		if (syntaxTree instanceof CompoundSyntaxTree) {
 			sb.append("\n");
-			for (int i = 0; i < tabLevel; i++)
+			for (int i = 0; i < tabLevel; i++) {
 				sb.append("\t");
+			}
 			sb.append("Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(");
 
 			boolean firstChild = true;
 			List<SyntaxTree> subTrees = syntaxTree.getImmediateSubTrees();
 			for (SyntaxTree subTree : subTrees) {
-				if (firstChild)
+				if (firstChild) {
 					firstChild = false;
-				else
+				}
+				else {
 					sb.append(", ");
+				}
 				generateFunctionApplicationString(sb, subTree, tabLevel + 2);
 
 			}
@@ -153,8 +156,9 @@ public class Brewer {
 			Object label = symbol.getValue();
 			if (label instanceof Expression) {
 				sb.append("\n");
-				for (int i = 0; i < tabLevel; i++)
+				for (int i = 0; i < tabLevel; i++) {
 					sb.append("\t");
+				}
 				sb.append("Expressions.createSymbol(");
 				generateFunctionApplicationString(sb, ((Expression) label).getSyntaxTree(), tabLevel + 2, true);
 				sb.append(")");
@@ -165,8 +169,9 @@ public class Brewer {
 				}
 				sb.append("\"");
 				String string = syntaxTree.toString();
-				if (string.startsWith("'"))
+				if (string.startsWith("'")) {
 					string = string.substring(1, string.length()-1);
+				}
 				sb.append(string);
 				sb.append("\"");
 				if (forceSymbolPrint) {

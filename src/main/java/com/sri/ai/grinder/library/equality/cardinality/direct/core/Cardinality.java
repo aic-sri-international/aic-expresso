@@ -85,6 +85,7 @@ public class Cardinality extends AbstractCardinalityRewriter {
 	/**
 	 * @see CardinalityRewriter#R_card
 	 */
+	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expression result = null;
 		

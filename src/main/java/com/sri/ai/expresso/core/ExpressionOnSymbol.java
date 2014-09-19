@@ -114,6 +114,7 @@ public class ExpressionOnSymbol extends AbstractExpression {
 		syntaxTree = DefaultSymbol.createSymbol(value);
 	}
 
+	@Override
 	public Object getValue() {
 		return getSyntaxTree().getValue();
 	}
@@ -197,6 +198,7 @@ public class ExpressionOnSymbol extends AbstractExpression {
 		throw new Error("Expression.rationalValue() invoked on " + this + ", which is not a number.");
 	}
 
+	@Override
 	public Expression clone() {
 		return Expressions.makeSymbol(getValue());
 	}

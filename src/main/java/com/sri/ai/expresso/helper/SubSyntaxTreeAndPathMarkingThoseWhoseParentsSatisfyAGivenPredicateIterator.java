@@ -88,6 +88,7 @@ public class SubSyntaxTreeAndPathMarkingThoseWhoseParentsSatisfyAGivenPredicateI
 	 * This is necessary because the constructors of this class take the <code>parentCondition</code> parameter as well as
 	 * the object, so the default implementation does not work.
 	 */
+	@Override
 	protected DepthFirstIterator<Pair<Expression, List<Integer>>>  makeDepthFirstIteratorOfCurrentExtendingClass(Pair<Expression, List<Integer>> object)
 	throws InstantiationException, IllegalAccessException,
 	InvocationTargetException {
@@ -118,6 +119,7 @@ public class SubSyntaxTreeAndPathMarkingThoseWhoseParentsSatisfyAGivenPredicateI
 			this.iterator = subExpressionsAndPathsIterator;
 		}
 	
+		@Override
 		public boolean apply(Pair<Expression, List<Integer>> expressionAndPath) {
 			return iterator.isMarked(expressionAndPath);
 		}

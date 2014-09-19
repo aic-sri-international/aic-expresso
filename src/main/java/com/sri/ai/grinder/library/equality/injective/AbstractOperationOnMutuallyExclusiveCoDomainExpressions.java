@@ -63,6 +63,7 @@ public abstract class AbstractOperationOnMutuallyExclusiveCoDomainExpressions
 	protected abstract Expression getResult();
 	protected abstract Expression getResultExpression();
 
+	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 
 		Expression expression1 = expression.get(0);

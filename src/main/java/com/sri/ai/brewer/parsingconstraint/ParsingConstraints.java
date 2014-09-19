@@ -71,6 +71,7 @@ public class ParsingConstraints {
 			this.side = side;
 		}
 		
+		@Override
 		public boolean apply(AbstractAtomicParsingConstraint constraint) {
 			return constraint instanceof AbstractAtomicParsingConstraint && constraint.getSide() == side;
 		}

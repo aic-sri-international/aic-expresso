@@ -105,7 +105,7 @@ abstract public class AbstractGrinderTest {
 		//System.out.println("Creating grammar...");
 		grammar = makeGrammar();
 		// Ensure the grammar class passed in is used where necessary.
-		BrewerConfiguration.setProperty(BrewerConfiguration.KEY_DEFAULT_GRAMMAR_CLASS, grammar.getClass().getName());
+		Configuration.setProperty(BrewerConfiguration.KEY_DEFAULT_GRAMMAR_CLASS, grammar.getClass().getName());
 		
 		//System.out.println("Creating parser...");
 		parser = makeParser();
@@ -370,6 +370,7 @@ abstract public class AbstractGrinderTest {
 	/**
 	 * @deprecated Use {@link GrinderUtil#doTreeUtilWaitUntilClosed()} instead
 	 */
+	@Deprecated
 	public static void doTreeUtilWaitUnilClosed() {
 		GrinderUtil.doTreeUtilWaitUntilClosed();
 	}

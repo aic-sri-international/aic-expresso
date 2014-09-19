@@ -76,6 +76,7 @@ import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.ui.TreeUtil;
 import com.sri.ai.util.AICUtilConfiguration;
+import com.sri.ai.util.Configuration;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.NotContainedBy;
 import com.sri.ai.util.base.Pair;
@@ -1004,13 +1005,13 @@ public class GrinderUtil {
 		// -Djustification.level=off
 		// -Dsriutil.branch.and.merge.threading.enabled=false
 		// Setting here explicitly so its not forgotten.
-		GrinderConfiguration.setProperty(GrinderConfiguration.KEY_DISPLAY_TREE_UTIL_UI, "false");
+		Configuration.setProperty(GrinderConfiguration.KEY_DISPLAY_TREE_UTIL_UI, "false");
 		GrinderConfiguration.disableTrace();
 		GrinderConfiguration.disableJustification();
-		AICUtilConfiguration.setProperty(AICUtilConfiguration.KEY_BRANCH_AND_MERGE_THREADING_ENABLED, "false");
+		Configuration.setProperty(AICUtilConfiguration.KEY_BRANCH_AND_MERGE_THREADING_ENABLED, "false");
 		BranchAndMerge.reset();
 		// For convenience
-		BrewerConfiguration.setProperty(BrewerConfiguration.KEY_OUTPUT_PARSING_TIME_INFO, "false");
+		Configuration.setProperty(BrewerConfiguration.KEY_OUTPUT_PARSING_TIME_INFO, "false");
 	}
 
 	/**

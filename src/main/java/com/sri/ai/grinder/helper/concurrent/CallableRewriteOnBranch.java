@@ -46,6 +46,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.util.Configuration;
 
 /**
  * Base class for calling RewriteOnBranch objects within a concurrent (i.e.
@@ -124,7 +125,7 @@ public class CallableRewriteOnBranch implements CallableRewriter {
 		// to be setup and configured on the worker thread.
 		if (parentThread != Thread.currentThread()) {
 			// Ensure configuration information is inherited by the working thread
-			GrinderConfiguration.inheritConfiguration(parentThread, Thread.currentThread());
+			Configuration.inheritConfiguration(parentThread, Thread.currentThread());
 			// Ensure the Trace and Justification APIs are setup to
 			// run correctly on this worker thread.
 			MDC.setContextMap(mdcParentContextMap);

@@ -114,6 +114,7 @@ public class CacheItem {
 		return position + getParsingResult().getTokens().size();
 	}
 
+	@Override
 	public String toString() {
 		return "Cached item at position " + position + ": " + parsingResult + " with conditions " + Util.join(precedenceConditionsOnFirstParse) + " on first parse and " + Util.join(precedenceConditionsOnLastParse) + " on last parse and token position limit " + tokenPositionLimit;
 	}
