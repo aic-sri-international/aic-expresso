@@ -42,7 +42,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
@@ -51,15 +51,15 @@ import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.math.Rational;
 
 /**
- * An Expression based on {@link Symbol} syntax trees.
+ * An Expression based on {@link SyntaxLeaf} syntax trees.
  * 
  * @author braz
  */
 @Beta
-public class ExpressionOnSymbol extends AbstractSyntaxTreeBasedExpression {
+public class ExpressionOnSyntaxLeaf extends AbstractSyntaxTreeBasedExpression {
 	private static final long serialVersionUID = 1L;
 	
-	public ExpressionOnSymbol(SyntaxTree syntaxTree) {
+	public ExpressionOnSyntaxLeaf(SyntaxTree syntaxTree) {
 		this.syntaxTree = syntaxTree;
 	}
 	
@@ -74,14 +74,14 @@ public class ExpressionOnSymbol extends AbstractSyntaxTreeBasedExpression {
 			
 			result = _globalSymbolTable.getIfPresent(value);
 			if (result == null) {
-				result = new ExpressionOnSymbol(value);
+				result = new ExpressionOnSyntaxLeaf(value);
 				if (!(!_cacheNumericSymbols && result.getValue() instanceof Number)) {
 					_globalSymbolTable.put(value, result);
 				}
 			}
 		} 
 		else {
-			result = new ExpressionOnSymbol(value);
+			result = new ExpressionOnSyntaxLeaf(value);
 		}
 		
 		return result;
@@ -91,7 +91,7 @@ public class ExpressionOnSymbol extends AbstractSyntaxTreeBasedExpression {
 	// PRIVATE METHODS
 	//
 	// Note: Can only instantiate Symbols via the factory method.
-	private ExpressionOnSymbol(Object value) {
+	private ExpressionOnSyntaxLeaf(Object value) {
 		
 		if (value instanceof Number && !(value instanceof Rational)) {
 			value = new Rational(((Number)value).doubleValue());
@@ -111,7 +111,7 @@ public class ExpressionOnSymbol extends AbstractSyntaxTreeBasedExpression {
 			}
 		}
 	
-		syntaxTree = DefaultSymbol.createSymbol(value);
+		syntaxTree = DefaultSyntaxLeaf.createSymbol(value);
 	}
 
 	@Override

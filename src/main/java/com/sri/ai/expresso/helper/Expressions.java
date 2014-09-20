@@ -58,11 +58,11 @@ import com.sri.ai.brewer.api.Parser;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.core.ExpressionOnCompoundSyntaxTree;
-import com.sri.ai.expresso.core.ExpressionOnSymbol;
+import com.sri.ai.expresso.core.ExpressionOnSyntaxLeaf;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
@@ -105,14 +105,18 @@ public class Expressions {
 	//
 	private static final SingletonListMaker<Integer> INTEGER_SINGLETON_LIST_MAKER = new SingletonListMaker<Integer>();
 	
-	/** Returns an expression represented by a given syntax tree. */
+	/**
+	 * Returns an expression represented by a given syntax tree.
+	 * Scheduled to be removed once expressions are no longer based on syntax trees.
+	 */
+	@Deprecated
 	public static Expression makeFromSyntaxTree(SyntaxTree syntaxTree) {
 		if (syntaxTree instanceof CompoundSyntaxTree) {
 			Expression result = new ExpressionOnCompoundSyntaxTree(syntaxTree);
 			return result;
 		}
-		if (syntaxTree instanceof Symbol) {
-			Expression result = new ExpressionOnSymbol(syntaxTree);
+		if (syntaxTree instanceof SyntaxLeaf) {
+			Expression result = new ExpressionOnSyntaxLeaf(syntaxTree);
 			return result;
 		}
 		throw new Error("Syntax tree " + syntaxTree + " should be either a CompoundSyntaxTree or a Symbol");
@@ -139,7 +143,7 @@ public class Expressions {
 	 * Makes an expression based on a symbol with given value.
 	 */
 	public static Expression makeSymbol(Object object) {
-		return ExpressionOnSymbol.createSymbol(object);
+		return ExpressionOnSyntaxLeaf.createSymbol(object);
 	}
 	
 	static private Parser parser = new AntlrGrinderParserWrapper();
@@ -277,7 +281,7 @@ public class Expressions {
 	
 	/** Assumes the expression is a Symbol and returns its value as Number. */
 	public static Number asNumber(Expression expression) {
-		return (Number) ((Symbol) expression.getSyntaxTree()).getValue();
+		return (Number) ((SyntaxLeaf) expression.getSyntaxTree()).getValue();
 	}
 
 	/** Gets an object and returns it if it is an expression, or an atomic expression containing it as value. */
@@ -942,7 +946,7 @@ public class Expressions {
 	}
 
 	public static Object makeSureItIsSyntaxTreeOrNonExpressionObject(Object input) {
-		if (input instanceof ExpressionOnSymbol || input instanceof ExpressionOnCompoundSyntaxTree) {
+		if (input instanceof ExpressionOnSyntaxLeaf || input instanceof ExpressionOnCompoundSyntaxTree) {
 			input = ((Expression)input).getSyntaxTree();
 		}
 		return input;

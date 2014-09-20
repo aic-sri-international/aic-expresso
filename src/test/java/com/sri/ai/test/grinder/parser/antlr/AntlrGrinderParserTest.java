@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.core.DefaultSyntaxLeaf;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
@@ -562,7 +562,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	public void testExpressionSymbol () {
 		String string;
 		
-		boolean oldValue = DefaultSymbol.setDontAcceptSymbolValueToBeExpression(false);
+		boolean oldValue = DefaultSyntaxLeaf.setDontAcceptSymbolValueToBeExpression(false);
 
 		string = "<x>";
 		test(string, Expressions.makeSymbol(Expressions.makeSymbol("x")));
@@ -614,7 +614,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = " x >";
 		testFail(string);
 
-		DefaultSymbol.setDontAcceptSymbolValueToBeExpression(oldValue);
+		DefaultSyntaxLeaf.setDontAcceptSymbolValueToBeExpression(oldValue);
 	}
 
 	@Test
@@ -3896,7 +3896,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), "2"), null));
 
-			boolean oldValue = DefaultSymbol.setDontAcceptSymbolValueToBeExpression(false);
+			boolean oldValue = DefaultSyntaxLeaf.setDontAcceptSymbolValueToBeExpression(false);
 			expression = "if V = (<X>) then {(on X) p(X,Y) + 2} else 0";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "V", 
@@ -3905,7 +3905,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "X"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), "2"), null), "0"));
-			DefaultSymbol.setDontAcceptSymbolValueToBeExpression(oldValue);
+			DefaultSyntaxLeaf.setDontAcceptSymbolValueToBeExpression(oldValue);
 
 			expression = "{(on X, Y in {1,2,3}) p(X,Y) + 2}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
@@ -3949,7 +3949,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), "2"), null));
 
-			oldValue = DefaultSymbol.setDontAcceptSymbolValueToBeExpression(false);
+			oldValue = DefaultSyntaxLeaf.setDontAcceptSymbolValueToBeExpression(false);
 			expression = "if V = (<X>) then {(on X, Y in {1,2,3}) p(X,Y) + 2} else 0";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "V", 
@@ -3962,7 +3962,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3"))))), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), "2"), null), "0"));
-			DefaultSymbol.setDontAcceptSymbolValueToBeExpression(oldValue);
+			DefaultSyntaxLeaf.setDontAcceptSymbolValueToBeExpression(oldValue);
 
 			expression = "{(on X,Y) f(X) | Z = X}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 

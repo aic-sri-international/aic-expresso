@@ -51,7 +51,7 @@ import com.sri.ai.brewer.parsingexpression.core.Sequence;
 import com.sri.ai.brewer.parsingexpression.helper.AssociativeSequence;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
@@ -76,7 +76,7 @@ public class ExpressionNode implements TreeNode {
 	public ExpressionNode(SyntaxTree syntaxTree, NodeType type, ExpressionNode parent) {
 		this(syntaxTree);
 		this.parent = parent;
-		if ( syntaxTree instanceof Symbol ) {
+		if ( syntaxTree instanceof SyntaxLeaf ) {
 			if ( type == NodeType.INROOT_TREE ) {
 				this.type = NodeType.TERMINAL;
 			} 
@@ -190,7 +190,7 @@ public class ExpressionNode implements TreeNode {
 	protected Vector<ExpressionNode> getChildren() {
 		Vector<ExpressionNode> result = new Vector<ExpressionNode>();
 		if ( !(userObject instanceof SyntaxTree) ||  
-			  (userObject instanceof Symbol))  {
+			  (userObject instanceof SyntaxLeaf))  {
 			return result;
 		}
 		

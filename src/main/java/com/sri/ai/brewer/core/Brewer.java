@@ -44,7 +44,7 @@ import com.sri.ai.brewer.api.Grammar;
 import com.sri.ai.brewer.api.ParsingProcess;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 
 /**
@@ -151,8 +151,8 @@ public class Brewer {
 			}
 			sb.append(")");
 		}
-		else if (syntaxTree instanceof Symbol) {
-			Symbol symbol = (Symbol) syntaxTree;
+		else if (syntaxTree instanceof SyntaxLeaf) {
+			SyntaxLeaf symbol = (SyntaxLeaf) syntaxTree;
 			Object label = symbol.getValue();
 			if (label instanceof Expression) {
 				sb.append("\n");

@@ -50,7 +50,7 @@ import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.SubExpressionAddress;
-import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.SyntaxTreeBasedSubExpressionAddress;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
@@ -164,7 +164,7 @@ public abstract class AbstractSyntaxTreeBasedExpression extends AbstractExpressi
 						if (getSyntaxTree() instanceof CompoundSyntaxTree) {
 							cachedSyntacticFormType = "Function application";
 						}
-						else if (getSyntaxTree() instanceof Symbol) {
+						else if (getSyntaxTree() instanceof SyntaxLeaf) {
 							cachedSyntacticFormType = "Symbol";
 						}
 					}
@@ -182,6 +182,11 @@ public abstract class AbstractSyntaxTreeBasedExpression extends AbstractExpressi
 		return syntaxTree;
 	}
 	
+	@Override
+	public Expression renameSymbol(Expression symbol, Expression newSymbol) {
+		return Expressions.makeFromSyntaxTree(getSyntaxTree().replaceSubTreesAllOccurrences(symbol.getSyntaxTree(), newSymbol.getSyntaxTree()));
+	}
+
 	///////////////////////// FUNCTION APPLICATION METHODS //////////////////////
 
 	private static final SubExpressionAddress FUNCTOR_PATH = SyntaxTreeBasedSubExpressionAddress.get(Util.list(-1));

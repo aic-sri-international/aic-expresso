@@ -363,11 +363,6 @@ public abstract class AbstractExpression implements Expression {
 		return result;
 	}
 
-	@Override
-	public Expression renameSymbol(Expression symbol, Expression newSymbol) {
-		return Expressions.makeFromSyntaxTree(getSyntaxTree().replaceSubTreesAllOccurrences(symbol.getSyntaxTree(), newSymbol.getSyntaxTree()));
-	}
-
 	///////////////////////// FUNCTION APPLICATION METHODS //////////////////////
 
 	@Override

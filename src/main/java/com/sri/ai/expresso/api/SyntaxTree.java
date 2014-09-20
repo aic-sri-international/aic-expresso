@@ -48,7 +48,7 @@ import com.sri.ai.util.base.BinaryProcedure;
 /**
  * A Syntax tree (also known as syntactic tree).
  * 
- * A syntax tree is either a {@link Symbol}, or a {@link CompoundSyntaxTree}.
+ * A syntax tree is either a {@link SyntaxLeaf}, or a {@link CompoundSyntaxTree}.
  * It has the following properties:
  * <ul>
  * <li>value: a non-null Object in the case of Symbols and null in the case of CompoundSyntaxTree.

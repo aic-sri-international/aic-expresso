@@ -58,7 +58,7 @@ import com.sri.ai.brewer.api.Writer;
 import com.sri.ai.brewer.core.DefaultWriter;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.GrinderConfiguration;
@@ -330,8 +330,8 @@ abstract public class AbstractGrinderTest {
 		else if ( syntaxTree2 != null && syntaxTree2.getLabel().equals(ANY_OF) ) {
 			succeeded = isEqualToAny(syntaxTree1, syntaxTree2.getImmediateSubTrees());
 		}
-		else if ( syntaxTree1 instanceof Symbol && syntaxTree2 instanceof Symbol ) {
-			succeeded = ((Symbol)syntaxTree1).getValue().equals(((Symbol)syntaxTree2).getValue());
+		else if ( syntaxTree1 instanceof SyntaxLeaf && syntaxTree2 instanceof SyntaxLeaf ) {
+			succeeded = ((SyntaxLeaf)syntaxTree1).getValue().equals(((SyntaxLeaf)syntaxTree2).getValue());
 		}
 		else if ( syntaxTree1 instanceof CompoundSyntaxTree && syntaxTree2 instanceof CompoundSyntaxTree ) {
 			CompoundSyntaxTree e1fa = (CompoundSyntaxTree) syntaxTree1;
