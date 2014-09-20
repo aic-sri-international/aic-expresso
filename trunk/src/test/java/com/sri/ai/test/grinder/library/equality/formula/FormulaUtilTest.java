@@ -43,7 +43,7 @@ import org.junit.Test;
 import com.sri.ai.brewer.api.Grammar;
 import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.core.DefaultSyntaxLeaf;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
@@ -75,9 +75,9 @@ public class FormulaUtilTest extends AbstractGrinderTest {
 		Assert.assertTrue(FormulaUtil.isLegalFormulaConstant(Expressions.TRUE, process));
 		Assert.assertTrue(FormulaUtil.isLegalFormulaConstant(parse("1"), process));
 		Assert.assertTrue(FormulaUtil.isLegalFormulaConstant(parse("3.14"), process));
-		boolean oldValue = DefaultSymbol.setDontAcceptSymbolValueToBeExpression(false);
+		boolean oldValue = DefaultSyntaxLeaf.setDontAcceptSymbolValueToBeExpression(false);
 		Assert.assertTrue(FormulaUtil.isLegalFormulaConstant(parse("<a>"), process));
-		DefaultSymbol.setDontAcceptSymbolValueToBeExpression(oldValue);
+		DefaultSyntaxLeaf.setDontAcceptSymbolValueToBeExpression(oldValue);
 		Assert.assertFalse(FormulaUtil.isLegalFormulaConstant(parse("a = b"), process));
 	}
 	
@@ -91,9 +91,9 @@ public class FormulaUtilTest extends AbstractGrinderTest {
 		Assert.assertTrue(FormulaUtil.isFiniteConstant(Expressions.FALSE, process));
 		Assert.assertTrue(FormulaUtil.isFiniteConstant(Expressions.TRUE, process));
 		
-		boolean oldValue = DefaultSymbol.setDontAcceptSymbolValueToBeExpression(false);
+		boolean oldValue = DefaultSyntaxLeaf.setDontAcceptSymbolValueToBeExpression(false);
 		Assert.assertFalse(FormulaUtil.isFiniteConstant(parse("<a>"), process));
-		DefaultSymbol.setDontAcceptSymbolValueToBeExpression(oldValue);
+		DefaultSyntaxLeaf.setDontAcceptSymbolValueToBeExpression(oldValue);
 		Assert.assertFalse(FormulaUtil.isFiniteConstant(parse("1"), process));
 		Assert.assertFalse(FormulaUtil.isFiniteConstant(parse("3.14"), process));
 		Assert.assertFalse(FormulaUtil.isFiniteConstant(parse("a = b"), process));

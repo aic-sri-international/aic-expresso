@@ -43,7 +43,7 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.HasFunctor;
@@ -73,7 +73,7 @@ public class Disequality extends AbstractRewriterDefiningSymmetricFunction {
 	
 		Expression equals = Equality.equalityResultIfItIsKnown(expression, process);
 		if (equals != expression) {
-			Symbol equalsResult = (Symbol) equals.getSyntaxTree();
+			SyntaxLeaf equalsResult = (SyntaxLeaf) equals.getSyntaxTree();
 			Boolean booleanObject = (Boolean) equalsResult.getValue();
 			boolean booleanValue = booleanObject.booleanValue();
 			return Expressions.makeSymbol(!booleanValue);

@@ -47,7 +47,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
-import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
@@ -192,7 +192,7 @@ public class DefaultCompoundSyntaxTree extends AbstractSyntaxTree implements Com
 	@Override
 	public String toStringWithoutCaching() {
 		String rootTreeString = getRootTree().toString();
-		if ( ! (getRootTree() instanceof Symbol)) {
+		if ( ! (getRootTree() instanceof SyntaxLeaf)) {
 			rootTreeString = "(" + rootTreeString + ")";
 		}
 		Iterator stringOfSubTrees =

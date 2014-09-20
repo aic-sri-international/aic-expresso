@@ -51,7 +51,7 @@ import com.google.common.cache.CacheBuilder;
 import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.util.AICUtilConfiguration;
@@ -83,7 +83,7 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
+public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf  {
 	
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
@@ -149,8 +149,8 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		return oldValue;
 	}
 	
-	public static Symbol createSymbol(Object value) {
-		Symbol result = null;
+	public static SyntaxLeaf createSymbol(Object value) {
+		SyntaxLeaf result = null;
 		// If global symbol table to be used and the symbol's value is not
 		// an expression - i.e. quoted expressions of the form:
 		// <X>
@@ -161,14 +161,14 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 			
 			result = _globalSymbolTable.getIfPresent(value);
 			if (result == null) {
-				result = new DefaultSymbol(value);
+				result = new DefaultSyntaxLeaf(value);
 				if (!(!_cacheNumericSymbols && result.getValue() instanceof Number)) {
 					_globalSymbolTable.put(value, result);
 				}
 			}
 		} 
 		else {
-			result = new DefaultSymbol(value);
+			result = new DefaultSyntaxLeaf(value);
 		}
 		
 		return result;
@@ -282,9 +282,9 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 			return false;
 		}
 		
-		Symbol anotherSymbol = null;
-		if (another instanceof Symbol) {
-			anotherSymbol = (Symbol) another;
+		SyntaxLeaf anotherSymbol = null;
+		if (another instanceof SyntaxLeaf) {
+			anotherSymbol = (SyntaxLeaf) another;
 		} 
 		else {
 			anotherSymbol = createSymbol(another);
@@ -315,9 +315,9 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 			return -1; // Symbols come first
 		}
 		
-		Symbol anotherSymbol = null;
-		if (another instanceof Symbol) {
-			anotherSymbol = (Symbol) another;
+		SyntaxLeaf anotherSymbol = null;
+		if (another instanceof SyntaxLeaf) {
+			anotherSymbol = (SyntaxLeaf) another;
 		} 
 		else {
 			anotherSymbol = createSymbol(another);
@@ -412,7 +412,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 
 	@Override
 	public SyntaxTree clone() {
-		return DefaultSymbol.createSymbol(getValue());
+		return DefaultSyntaxLeaf.createSymbol(getValue());
 	}
 
 	private static boolean dontAcceptSymbolValueToBeExpression = true;
@@ -426,7 +426,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 	// PRIVATE METHODS
 	//
 	// Note: Can only instantiate Symbols via the factory method.
-	private DefaultSymbol(Object value) {
+	private DefaultSyntaxLeaf(Object value) {
 		
 		if (value instanceof Number && !(value instanceof Rational)) {
 			value = new Rational(((Number)value).doubleValue());
@@ -572,7 +572,7 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 		_globalSymbolTable.put(new Rational(9), SYMBOL_9);
 	}
 
-	private static Cache<Object, Symbol> newSymbolTable() {
+	private static Cache<Object, SyntaxLeaf> newSymbolTable() {
 		CacheBuilder<Object, Object> cb = CacheBuilder.newBuilder();
 		
 		long maximumSize = ExpressoConfiguration.getGlobalSymbolTableMaximumSize();
@@ -587,29 +587,29 @@ public class DefaultSymbol extends AbstractSyntaxTree implements Symbol  {
 			cb.recordStats();
 		}
 		
-		Cache<Object, Symbol> result = cb.build();
+		Cache<Object, SyntaxLeaf> result = cb.build();
 		
 		return result;
 	}
 
 	//
 	// Well known static Symbols
-	private static final Symbol SYMBOL_TRUE  = SyntaxTrees.makeSymbol(true);
-	private static final Symbol SYMBOL_FALSE = SyntaxTrees.makeSymbol(false);
-	private static final Symbol SYMBOL_0     = SyntaxTrees.makeSymbol(new Rational(0));
-	private static final Symbol SYMBOL_1     = SyntaxTrees.makeSymbol(new Rational(1));
-	private static final Symbol SYMBOL_2     = SyntaxTrees.makeSymbol(new Rational(2));
-	private static final Symbol SYMBOL_3     = SyntaxTrees.makeSymbol(new Rational(3));
-	private static final Symbol SYMBOL_4     = SyntaxTrees.makeSymbol(new Rational(4));
-	private static final Symbol SYMBOL_5     = SyntaxTrees.makeSymbol(new Rational(5));
-	private static final Symbol SYMBOL_6     = SyntaxTrees.makeSymbol(new Rational(6));
-	private static final Symbol SYMBOL_7     = SyntaxTrees.makeSymbol(new Rational(7));
-	private static final Symbol SYMBOL_8     = SyntaxTrees.makeSymbol(new Rational(8));
-	private static final Symbol SYMBOL_9     = SyntaxTrees.makeSymbol(new Rational(9));
+	private static final SyntaxLeaf SYMBOL_TRUE  = SyntaxTrees.makeSymbol(true);
+	private static final SyntaxLeaf SYMBOL_FALSE = SyntaxTrees.makeSymbol(false);
+	private static final SyntaxLeaf SYMBOL_0     = SyntaxTrees.makeSymbol(new Rational(0));
+	private static final SyntaxLeaf SYMBOL_1     = SyntaxTrees.makeSymbol(new Rational(1));
+	private static final SyntaxLeaf SYMBOL_2     = SyntaxTrees.makeSymbol(new Rational(2));
+	private static final SyntaxLeaf SYMBOL_3     = SyntaxTrees.makeSymbol(new Rational(3));
+	private static final SyntaxLeaf SYMBOL_4     = SyntaxTrees.makeSymbol(new Rational(4));
+	private static final SyntaxLeaf SYMBOL_5     = SyntaxTrees.makeSymbol(new Rational(5));
+	private static final SyntaxLeaf SYMBOL_6     = SyntaxTrees.makeSymbol(new Rational(6));
+	private static final SyntaxLeaf SYMBOL_7     = SyntaxTrees.makeSymbol(new Rational(7));
+	private static final SyntaxLeaf SYMBOL_8     = SyntaxTrees.makeSymbol(new Rational(8));
+	private static final SyntaxLeaf SYMBOL_9     = SyntaxTrees.makeSymbol(new Rational(9));
 	//
 	private static boolean                      _useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
 	private static boolean                      _cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
-	private static Cache<Object, Symbol>        _globalSymbolTable    = newSymbolTable();
+	private static Cache<Object, SyntaxLeaf>        _globalSymbolTable    = newSymbolTable();
 
 	static {
 		flushGlobalSymbolTable();

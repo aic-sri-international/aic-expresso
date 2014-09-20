@@ -45,7 +45,7 @@ import com.google.common.annotations.Beta;
  * @author braz
  */
 @Beta
-public interface Symbol extends SyntaxTree {
+public interface SyntaxLeaf extends SyntaxTree {
 
 	String getValueType();
 }

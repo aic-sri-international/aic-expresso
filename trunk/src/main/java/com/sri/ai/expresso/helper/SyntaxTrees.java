@@ -48,11 +48,11 @@ import com.google.common.collect.Lists;
 import com.sri.ai.brewer.api.Parser;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
-import com.sri.ai.expresso.core.DefaultSymbol;
-import com.sri.ai.expresso.core.ExpressionOnSymbol;
+import com.sri.ai.expresso.core.DefaultSyntaxLeaf;
+import com.sri.ai.expresso.core.ExpressionOnSyntaxLeaf;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.FunctionIterator;
@@ -64,7 +64,7 @@ import com.sri.ai.util.collect.FunctionIterator;
  */
 @Beta
 public class SyntaxTrees {
-	/** Gets an object and returns it if it is an syntax tree, or a {@link Symbol} containing it as value. */
+	/** Gets an object and returns it if it is an syntax tree, or a {@link SyntaxLeaf} containing it as value. */
 	public static SyntaxTree wrap(Object object) {
 		if (object == null || object instanceof SyntaxTree) {
 			return (SyntaxTree) object;
@@ -101,8 +101,8 @@ public class SyntaxTrees {
 		return result;
 	}
 	
-	public static Symbol makeSymbol(Object value) {
-		Symbol result = DefaultSymbol.createSymbol(value);
+	public static SyntaxLeaf makeSymbol(Object value) {
+		SyntaxLeaf result = DefaultSyntaxLeaf.createSymbol(value);
 		return result;
 	}
 
@@ -131,7 +131,7 @@ public class SyntaxTrees {
 	}
 
 	public static String makeStringValuedSymbolParseSafe(String string) {
-		return DefaultSymbol.makeStringValuedSymbolParseSafe(string);
+		return DefaultSyntaxLeaf.makeStringValuedSymbolParseSafe(string);
 	}
 
 	static private Parser parser = new AntlrGrinderParserWrapper();
@@ -147,7 +147,7 @@ public class SyntaxTrees {
 	}
 	
 	public static void flushGlobalSymbolTable() {
-		ExpressionOnSymbol.flushGlobalSymbolTable();
+		ExpressionOnSyntaxLeaf.flushGlobalSymbolTable();
 	}
 
 	/**
@@ -158,9 +158,9 @@ public class SyntaxTrees {
 	 * @return the value previously used before being set here.
 	 */
 	public static int setDisplayScientificGreaterNIntegerPlaces(int numIntegerPlaces) {
-		int oldValue = DefaultSymbol._displayScientificGreaterNIntegerPlaces;
+		int oldValue = DefaultSyntaxLeaf._displayScientificGreaterNIntegerPlaces;
 		
-		DefaultSymbol._displayScientificGreaterNIntegerPlaces = numIntegerPlaces;
+		DefaultSyntaxLeaf._displayScientificGreaterNIntegerPlaces = numIntegerPlaces;
 				
 		return oldValue;
 	}
@@ -173,9 +173,9 @@ public class SyntaxTrees {
 	 * @return the value previously used before being set here.
 	 */
 	public static int setDisplayScientificAfterNDecimalPlaces(int numDecimalPlaces) {
-		int oldValue = DefaultSymbol._displayScientificAfterNDecimalPlaces;
+		int oldValue = DefaultSyntaxLeaf._displayScientificAfterNDecimalPlaces;
 		
-		DefaultSymbol._displayScientificAfterNDecimalPlaces = numDecimalPlaces;
+		DefaultSyntaxLeaf._displayScientificAfterNDecimalPlaces = numDecimalPlaces;
 				
 		return oldValue;
 	}
@@ -189,9 +189,9 @@ public class SyntaxTrees {
 	 * @return the old numeric display precision;
 	 */
 	public static int setNumericDisplayPrecision(int precision) {
-		int oldPrecision = DefaultSymbol._displayNumericPrecision;
+		int oldPrecision = DefaultSyntaxLeaf._displayNumericPrecision;
 		
-		DefaultSymbol._displayNumericPrecision = precision;
+		DefaultSyntaxLeaf._displayNumericPrecision = precision;
 		
 		return oldPrecision;
 	}

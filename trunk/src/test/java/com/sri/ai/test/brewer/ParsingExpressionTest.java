@@ -66,7 +66,7 @@ import com.sri.ai.brewer.parsingexpression.helper.AssociativeSequence;
 import com.sri.ai.brewer.parsingexpression.helper.ParenthesizedNonTerminal;
 import com.sri.ai.brewer.parsingexpression.helper.ParsingExpressionForFunctionApplications;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.core.DefaultSyntaxLeaf;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.util.Util;
@@ -672,7 +672,7 @@ public class ParsingExpressionTest {
 	public void testQuotedTerms() throws IOException {
 		grammar = new CommonGrammar();
 
-		boolean oldValue = DefaultSymbol.setDontAcceptSymbolValueToBeExpression(false);
+		boolean oldValue = DefaultSyntaxLeaf.setDontAcceptSymbolValueToBeExpression(false);
 		
 		parsingExpression = new NonTerminal("Expression");
 		string = "<x>";
@@ -686,7 +686,7 @@ public class ParsingExpressionTest {
 		string = "(<x>) < (<y>)";
 		test(parsingExpression, string, Expressions.apply("<", Expressions.makeSymbol(Expressions.makeSymbol("x")), Expressions.makeSymbol(Expressions.makeSymbol("y"))));
 
-		DefaultSymbol.setDontAcceptSymbolValueToBeExpression(oldValue);
+		DefaultSyntaxLeaf.setDontAcceptSymbolValueToBeExpression(oldValue);
 	}
 	
 	private void test(ParsingExpression parsingExpression, String string, Expression expectedParse)
