@@ -77,12 +77,11 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	
 	public DefaultExpressionAndContext(Expression expression, List<Integer> path) {
 		this(expression, path, new LinkedList<Expression>(), Expressions.TRUE);
-		// DELETE
+		// DELETE WHEN SYNTAX-TREE-BASED EXPRESSIONS ARE DISCARDED
 	}
 	
 	public DefaultExpressionAndContext(Expression expression, SubExpressionAddress path) {
 		this(expression, path, new LinkedList<Expression>(), Expressions.TRUE);
-		// SUB_EXPRESSION_ADDRESS
 	}
 	
 	public DefaultExpressionAndContext(Expression expression, List<Integer> path, List<Expression> indexExpressions, Expression constrainingCondition) {
@@ -92,7 +91,7 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 		this.constrainingCondition = constrainingCondition;
 
 		this.cachedIndices         = null;
-		// DELETE
+		// DELETE WHEN SYNTAX-TREE-BASED EXPRESSIONS ARE DISCARDED
 	}
 	
 	public DefaultExpressionAndContext(Expression expression, SubExpressionAddress address, List<Expression> indexExpressions, Expression constrainingCondition) {
@@ -102,7 +101,6 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 		this.constrainingCondition = constrainingCondition;
 
 		this.cachedIndices         = null;
-		// SUB_EXPRESSION_ADDRESS
 	}
 	
 	//

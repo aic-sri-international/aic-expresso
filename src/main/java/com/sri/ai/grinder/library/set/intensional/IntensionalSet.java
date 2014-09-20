@@ -103,7 +103,6 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	public static final SyntaxTree EMPTY_SCOPING_SYNTAX_TREE = makeScopingSyntaxTree(new ArrayList<Expression>());
 	
 	//
-	// SUB_EXPRESSION_ADDRESS
 	private static final List<Integer> _pathToHead      = Collections.unmodifiableList(Arrays.asList(new Integer(1)));
 	private static final List<Integer> _pathToCondition = Collections.unmodifiableList(Arrays.asList(new Integer(2), new Integer(0)));
 	
@@ -188,7 +187,6 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	}
 
 	public static SubExpressionAddress getPathToHead() {
-		// SUB_EXPRESSION_ADDRESS
 		return SyntaxTreeBasedSubExpressionAddress.get(IntensionalSet._pathToHead);
 	}
 
@@ -202,7 +200,6 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	}
 
 	public static SubExpressionAddress getPathToCondition() {
-		// SUB_EXPRESSION_ADDRESS
 		return SyntaxTreeBasedSubExpressionAddress.get(IntensionalSet._pathToCondition);
 	}
 

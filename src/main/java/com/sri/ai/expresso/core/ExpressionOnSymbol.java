@@ -46,7 +46,7 @@ import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.core.AbstractExpression;
+import com.sri.ai.grinder.core.AbstractSyntaxTreeBasedExpression;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.math.Rational;
 
@@ -56,7 +56,7 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class ExpressionOnSymbol extends AbstractExpression {
+public class ExpressionOnSymbol extends AbstractSyntaxTreeBasedExpression {
 	private static final long serialVersionUID = 1L;
 	
 	public ExpressionOnSymbol(SyntaxTree syntaxTree) {
