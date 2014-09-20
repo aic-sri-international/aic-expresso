@@ -149,7 +149,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		return oldValue;
 	}
 	
-	public static SyntaxLeaf createSymbol(Object value) {
+	public static SyntaxLeaf createSyntaxLeaf(Object value) {
 		SyntaxLeaf result = null;
 		// If global symbol table to be used and the symbol's value is not
 		// an expression - i.e. quoted expressions of the form:
@@ -287,7 +287,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 			anotherSymbol = (SyntaxLeaf) another;
 		} 
 		else {
-			anotherSymbol = createSymbol(another);
+			anotherSymbol = createSyntaxLeaf(another);
 			// Test again, as may have had self returned from the symbol table.
 			if (this == anotherSymbol) {
 				return true;
@@ -320,7 +320,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 			anotherSymbol = (SyntaxLeaf) another;
 		} 
 		else {
-			anotherSymbol = createSymbol(another);
+			anotherSymbol = createSyntaxLeaf(another);
 			// Test again, as may have had self returned from the symbol table.
 			if (this == anotherSymbol) {
 				return 0;
@@ -412,7 +412,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 
 	@Override
 	public SyntaxTree clone() {
-		return DefaultSyntaxLeaf.createSymbol(getValue());
+		return DefaultSyntaxLeaf.createSyntaxLeaf(getValue());
 	}
 
 	private static boolean dontAcceptSymbolValueToBeExpression = true;
@@ -448,7 +448,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 
 		if (value instanceof Expression) {
 			if (dontAcceptSymbolValueToBeExpression) {
-				throw new Error("Symbol received an expression: " + value);
+				throw new Error("DefaultSyntaxLeaf received an expression: " + value);
 			}	
 		}
 		
@@ -594,18 +594,18 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 
 	//
 	// Well known static Symbols
-	private static final SyntaxLeaf SYMBOL_TRUE  = SyntaxTrees.makeSymbol(true);
-	private static final SyntaxLeaf SYMBOL_FALSE = SyntaxTrees.makeSymbol(false);
-	private static final SyntaxLeaf SYMBOL_0     = SyntaxTrees.makeSymbol(new Rational(0));
-	private static final SyntaxLeaf SYMBOL_1     = SyntaxTrees.makeSymbol(new Rational(1));
-	private static final SyntaxLeaf SYMBOL_2     = SyntaxTrees.makeSymbol(new Rational(2));
-	private static final SyntaxLeaf SYMBOL_3     = SyntaxTrees.makeSymbol(new Rational(3));
-	private static final SyntaxLeaf SYMBOL_4     = SyntaxTrees.makeSymbol(new Rational(4));
-	private static final SyntaxLeaf SYMBOL_5     = SyntaxTrees.makeSymbol(new Rational(5));
-	private static final SyntaxLeaf SYMBOL_6     = SyntaxTrees.makeSymbol(new Rational(6));
-	private static final SyntaxLeaf SYMBOL_7     = SyntaxTrees.makeSymbol(new Rational(7));
-	private static final SyntaxLeaf SYMBOL_8     = SyntaxTrees.makeSymbol(new Rational(8));
-	private static final SyntaxLeaf SYMBOL_9     = SyntaxTrees.makeSymbol(new Rational(9));
+	private static final SyntaxLeaf SYMBOL_TRUE  = SyntaxTrees.makeSyntaxLeaf(true);
+	private static final SyntaxLeaf SYMBOL_FALSE = SyntaxTrees.makeSyntaxLeaf(false);
+	private static final SyntaxLeaf SYMBOL_0     = SyntaxTrees.makeSyntaxLeaf(new Rational(0));
+	private static final SyntaxLeaf SYMBOL_1     = SyntaxTrees.makeSyntaxLeaf(new Rational(1));
+	private static final SyntaxLeaf SYMBOL_2     = SyntaxTrees.makeSyntaxLeaf(new Rational(2));
+	private static final SyntaxLeaf SYMBOL_3     = SyntaxTrees.makeSyntaxLeaf(new Rational(3));
+	private static final SyntaxLeaf SYMBOL_4     = SyntaxTrees.makeSyntaxLeaf(new Rational(4));
+	private static final SyntaxLeaf SYMBOL_5     = SyntaxTrees.makeSyntaxLeaf(new Rational(5));
+	private static final SyntaxLeaf SYMBOL_6     = SyntaxTrees.makeSyntaxLeaf(new Rational(6));
+	private static final SyntaxLeaf SYMBOL_7     = SyntaxTrees.makeSyntaxLeaf(new Rational(7));
+	private static final SyntaxLeaf SYMBOL_8     = SyntaxTrees.makeSyntaxLeaf(new Rational(8));
+	private static final SyntaxLeaf SYMBOL_9     = SyntaxTrees.makeSyntaxLeaf(new Rational(9));
 	//
 	private static boolean                      _useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
 	private static boolean                      _cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();

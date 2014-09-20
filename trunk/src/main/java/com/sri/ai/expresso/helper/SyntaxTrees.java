@@ -69,7 +69,7 @@ public class SyntaxTrees {
 		if (object == null || object instanceof SyntaxTree) {
 			return (SyntaxTree) object;
 		}
-		return makeSymbol(object);
+		return makeSyntaxLeaf(object);
 	}
 
 	/** The array version of {@link #wrap(Object)}. */
@@ -101,8 +101,8 @@ public class SyntaxTrees {
 		return result;
 	}
 	
-	public static SyntaxLeaf makeSymbol(Object value) {
-		SyntaxLeaf result = DefaultSyntaxLeaf.createSymbol(value);
+	public static SyntaxLeaf makeSyntaxLeaf(Object value) {
+		SyntaxLeaf result = DefaultSyntaxLeaf.createSyntaxLeaf(value);
 		return result;
 	}
 
@@ -147,7 +147,7 @@ public class SyntaxTrees {
 	}
 	
 	public static void flushGlobalSymbolTable() {
-		ExpressionOnSyntaxLeaf.flushGlobalSymbolTable();
+		DefaultSyntaxLeaf.flushGlobalSymbolTable();
 	}
 
 	/**

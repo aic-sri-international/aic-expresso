@@ -54,7 +54,7 @@ import com.sri.ai.brewer.parsingexpression.core.NonTerminal;
 import com.sri.ai.brewer.parsingexpression.core.Null;
 import com.sri.ai.brewer.parsingexpression.core.Optional;
 import com.sri.ai.brewer.parsingexpression.core.Sequence;
-import com.sri.ai.brewer.parsingexpression.core.Symbol;
+import com.sri.ai.brewer.parsingexpression.core.ParsingSymbol;
 import com.sri.ai.brewer.parsingexpression.core.Terminal;
 import com.sri.ai.brewer.parsingexpression.helper.AssociativeSequence;
 import com.sri.ai.brewer.parsingexpression.helper.ParenthesizedNonTerminal;
@@ -146,7 +146,7 @@ public class DefaultWriterTest {
 						new Sequence(new Terminal("blah"), new NonTerminal("Expression"), new Terminal("blih")),
 						new ParsingExpressionForFunctionApplications(new NonTerminal("Expression")),
 						new ParenthesizedNonTerminal("Expression"),
-						new Symbol("Expression")));
+						new ParsingSymbol("Expression")));
 	
 		String testCase;
 		
@@ -165,7 +165,7 @@ public class DefaultWriterTest {
 						new Sequence(new Terminal("blah"), new Optional(new Terminal("bleh")), new Terminal("blih")),
 						new ParsingExpressionForFunctionApplications(new NonTerminal("Expression")),
 						new Null(),
-						new Symbol("Expression")));
+						new ParsingSymbol("Expression")));
 		// we need the last three parsing expressions so the grammar can parse the prefix form,
 		// which includes function application with parentheses, with a (quoted) symbol, and null.
 	

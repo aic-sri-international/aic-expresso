@@ -63,6 +63,7 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.core.ExpressionOnCompoundSyntaxTree;
 import com.sri.ai.expresso.core.ExpressionOnSyntaxLeaf;
+import com.sri.ai.expresso.core.Symbol;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
@@ -116,7 +117,8 @@ public class Expressions {
 			return result;
 		}
 		if (syntaxTree instanceof SyntaxLeaf) {
-			Expression result = new ExpressionOnSyntaxLeaf(syntaxTree);
+			Expression result = Expressions.makeSymbol(syntaxTree.getValue());
+//			Expression result = new ExpressionOnSyntaxLeaf(syntaxTree);
 			return result;
 		}
 		throw new Error("Syntax tree " + syntaxTree + " should be either a CompoundSyntaxTree or a Symbol");
@@ -143,7 +145,8 @@ public class Expressions {
 	 * Makes an expression based on a symbol with given value.
 	 */
 	public static Expression makeSymbol(Object object) {
-		return ExpressionOnSyntaxLeaf.createSymbol(object);
+		return Symbol.createSymbol(object);
+//		return ExpressionOnSyntaxLeaf.createSymbol(object);
 	}
 	
 	static private Parser parser = new AntlrGrinderParserWrapper();
@@ -946,7 +949,7 @@ public class Expressions {
 	}
 
 	public static Object makeSureItIsSyntaxTreeOrNonExpressionObject(Object input) {
-		if (input instanceof ExpressionOnSyntaxLeaf || input instanceof ExpressionOnCompoundSyntaxTree) {
+		if (input instanceof Expression) {
 			input = ((Expression)input).getSyntaxTree();
 		}
 		return input;
