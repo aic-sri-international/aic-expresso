@@ -159,7 +159,7 @@ public abstract class AbstractRewriter implements Rewriter {
 		
 		if (isTraceInAndOutOfRewriter()) {
 			if (Trace.isEnabled()) {
-				Trace.in("+"+getName()+"({}) - under context variables = {}, constrained by {}", expression, process.getContextualSymbols(), process.getContextualConstraint());
+				Trace.in("+" + getName() + "({}) - under context variables = {}, constrained by {}", expression, process.getContextualSymbols(), process.getContextualConstraint());
 			}
 		}
 		

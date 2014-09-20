@@ -96,12 +96,7 @@ public class ScopedVariables extends AbstractModuleAndPossibleActiveRewriter {
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (isScopedVariables(expression)) {
-			return getScopedVariables(
-					Expressions.makeFromSyntaxTree(expression.getSyntaxTree().getSubTree(0)), // does need to be sub-tree because 'scoped variables' is a syntactic function.
-					process);
-		}
-		return expression;
+		throw new Error("'scoped variables' discontinued as a syntactic function.");
 	}
 
 	public static boolean isScopedVariables(Expression expression) {

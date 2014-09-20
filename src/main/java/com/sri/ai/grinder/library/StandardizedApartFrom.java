@@ -120,14 +120,12 @@ public class StandardizedApartFrom {
 		Expression result = expression;
 		for (Expression variableToBeRenamed : variablesToBeRenamed) {
 			Expression replacement = Expressions.primedUntilUnique(variableToBeRenamed, isNovel);
-			result = Expressions.makeFromSyntaxTree(result.getSyntaxTree().replaceSubTreesAllOccurrences(variableToBeRenamed.getSyntaxTree(), replacement.getSyntaxTree()));
-			// needs to be syntax tree because the symbol needs to be replaced even where it is not a part of a sub-expression, as in index expressions.
-			// note that scoping does not matter. The semantics is not changed from "for X : for X : f(X)" to "for X' : for X' : f(X)".
+			result = result.renameSymbol(variableToBeRenamed, replacement);
 			forbiddenVariables.add(replacement); // note that this affects the isNovel predicate!
 		}
 		return result;
 	}
-	
+
 	public static class StandardizingApartOnScopingFunctionApplicationsNotSupported extends Error {
 		private static final long serialVersionUID = 1L;
 		//

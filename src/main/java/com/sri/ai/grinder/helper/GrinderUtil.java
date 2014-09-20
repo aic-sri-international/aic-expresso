@@ -782,9 +782,7 @@ public class GrinderUtil {
 			Expression type = someContextualSymbolAndType.getValue();
 			if (type != null) {
 				Expression someContextualSymbol = someContextualSymbolAndType.getKey();
-				Expression newType =
-						Expressions.makeFromSyntaxTree(
-								type.getSyntaxTree().replaceSubTreesAllOccurrences(contextualSymbol.getSyntaxTree(),newContextualSymbol.getSyntaxTree()));
+				Expression newType = type.replaceAllOccurrences(contextualSymbol, newContextualSymbol, process);
 				if (newType != type) {
 					newcontextualSymbolsAndTypes.put(someContextualSymbol, newType);
 				}
@@ -796,10 +794,7 @@ public class GrinderUtil {
 		newcontextualSymbolsAndTypes.remove(contextualSymbol);
 		
 		// replaces contextualSymbol in the constraint
-		Expression newContextualConstraint =
-				Expressions.makeFromSyntaxTree(
-						process.getContextualConstraint().getSyntaxTree().replaceSubTreesAllOccurrences(
-								contextualSymbol.getSyntaxTree(), newContextualSymbol.getSyntaxTree()));
+		Expression newContextualConstraint = process.getContextualConstraint().replaceAllOccurrences(contextualSymbol, newContextualSymbol, process);
 		
 		// assembles new process
 		RewritingProcess newProcess = process.newSubProcessWithContext(newcontextualSymbolsAndTypes, newContextualConstraint);

@@ -581,6 +581,12 @@ public abstract class AbstractExpression implements Expression {
 		int result = getSyntaxTree().compareTo(anotherSyntaxTree);
 		return result;
 	}
+	
+	@Override
+	public Expression renameSymbol(Expression symbol, Expression newSymbol) {
+		return Expressions.makeFromSyntaxTree(getSyntaxTree().replaceSubTreesAllOccurrences(symbol.getSyntaxTree(), newSymbol.getSyntaxTree()));
+	}
+	
 
 	@Override
 	public String toString() {

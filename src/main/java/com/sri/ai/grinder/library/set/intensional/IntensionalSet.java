@@ -340,7 +340,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 				List<SyntaxTree> indexExpressionsSyntaxTrees =
 						SyntaxTrees.ensureListFromKleeneList(scopingSyntaxTree.getSubTree(0));
 				List<Expression> indexExpressions =
-						Collections.unmodifiableList(Expressions.makeListOfExpressions(indexExpressionsSyntaxTrees));
+						Collections.unmodifiableList(Util.mapIntoArrayList(indexExpressionsSyntaxTrees, Expressions.SYNTAX_TREE_TO_EXPRESSION));
 				return indexExpressions;
 			}
 		}
