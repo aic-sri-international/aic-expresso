@@ -84,7 +84,6 @@ public class SyntaxTreeBasedSubExpressionAddress implements SubExpressionAddress
 	 * The method assumes the path describes an existing path-i-sub-expression.
 	 */
 	private Expression replaceAtPath(SyntaxTree syntaxTree, int i, Expression subExpression) {
-		// SUB_EXPRESSION_ADDRESS
 
 		// This method is subtle; follow explanations below carefully.
 		if (i != getPath().size()) {

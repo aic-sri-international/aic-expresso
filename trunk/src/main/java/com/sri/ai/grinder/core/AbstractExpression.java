@@ -39,9 +39,7 @@ package com.sri.ai.grinder.core;
 
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -52,16 +50,12 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.sri.ai.expresso.ExpressoConfiguration;
-import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.expresso.api.SubExpressionAddress;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.SyntaxTreeBasedSubExpressionAddress;
 import com.sri.ai.expresso.core.ExpressionSyntaxTreeToStringFunction;
-import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -80,14 +74,18 @@ import com.sri.ai.util.collect.FunctionIterator;
 @Beta
 public abstract class AbstractExpression implements Expression {
 	//
-	private static final long serialVersionUID = 3L; // Note: Increment this when you want to ensure any parsing caches are invalidated 
+	protected static final long serialVersionUID = 3L; // Note: Increment this when you want to ensure any parsing caches are invalidated 
 	
-	private static final SubExpressionAddress FUNCTOR_PATH = SyntaxTreeBasedSubExpressionAddress.get(Util.list(-1));
-
-	protected SyntaxTree syntaxTree;
+	protected static Cache<Thread, Function<Expression, String>> threadToString = newThreadToStringCache();
+	protected String                             cachedToString                      = null;
+	protected volatile Object                    cachedSyntacticFormType             = null;
+	protected Lock                               lazyInitCachedSyntacticFormTypeLock = new ReentrantLock();
+	protected volatile ImmutableList<Expression> cachedArguments                     = null;
+	protected Lock                               lazyInitCachedArgumentsLock         = new ReentrantLock();
+	protected Expression                         cachedFunctor                       = null;
 	
-	private volatile transient ImmutableList<ExpressionAndContext> cachedImmediateSubExpressionsAndContexts;
-	private Lock               lazyInitCachedImmediateSubExpressionsAndContextsLock = new ReentrantLock();
+	protected volatile transient ImmutableList<ExpressionAndContext> cachedImmediateSubExpressionsAndContexts;
+	protected Lock               lazyInitCachedImmediateSubExpressionsAndContextsLock = new ReentrantLock();
 	
 	@Override
 	public Expression replaceFirstOccurrence(Expression replaced, Expression replacement, RewritingProcess process) {
@@ -288,104 +286,9 @@ public abstract class AbstractExpression implements Expression {
 		else {
 			result = replacementFunction.apply(expression);
 		}
-		// System.out.println("Replacement function on " + expression + " ----> " + result);
 		return result;
 	}
 	
-	/**
-	 * When arguments to constructor are Expressions, store them, indexing them by their path in the syntax tree.
-	 * When a sub-expression is determined with the same path, it gets replaced by the original one.
-	 * This is important because the original expression may be an instance of an Expression extension,
-	 * whereas the normal sub-expression mechanism always produces DefaultCompoundSyntaxTree or DefaultSymbols.
-	 */
-	protected Map<SubExpressionAddress, Expression> originalExpressionsByPath =
-			new LinkedHashMap<SubExpressionAddress, Expression>();
-	// SUB_EXPRESSION_ADDRESS
-	
-	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(RewritingProcess process) {
-		if (cachedImmediateSubExpressionsAndContexts == null) {
-			lazyInitCachedImmediateSubExpressionsAndContextsLock.lock();
-			try {
-				// Note: Ensure still null when acquire the lock
-				if (cachedImmediateSubExpressionsAndContexts == null) { 
-					Iterator<? extends ExpressionAndContext> iterator = getImmediateSubExpressionsAndContextsIteratorFromExpressionKnowledgeModule(process);
-					
-					@SuppressWarnings("unchecked")
-					List<ExpressionAndContext> expressionAndContexts = (List<ExpressionAndContext>) Util.listFrom(iterator);
-					expressionAndContexts =
-							Util.replaceElementsNonDestructively(
-									expressionAndContexts,
-									new ReplaceExpressionByOriginalOneIndexedByPath());
-					// the above is a bit of a hack to ensure Expressions provided at construction are re-used as sub-expressions.
-					
-					// Ensure they cannot be mutated by accident.
-					cachedImmediateSubExpressionsAndContexts = ImmutableList.copyOf(expressionAndContexts);
-				}
-			} finally {
-				lazyInitCachedImmediateSubExpressionsAndContextsLock.unlock();
-			}
-		}
-		return cachedImmediateSubExpressionsAndContexts.iterator();
-	}
-
-	
-	private class ReplaceExpressionByOriginalOneIndexedByPath implements Function<ExpressionAndContext, ExpressionAndContext> {
-		@Override
-		public ExpressionAndContext apply(ExpressionAndContext input) {
-			ExpressionAndContext result = input;
-			SubExpressionAddress path = input.getAddress();
-			Expression original = originalExpressionsByPath.get(path);
-			if (original != null) {
-				result = input.setExpression(original);
-			}
-			return result;
-		}
-	};
-	
-	private Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIteratorFromExpressionKnowledgeModule(RewritingProcess process) {
-		Iterator<ExpressionAndContext> result = null;
-		
-		ExpressionKnowledgeModule knowledgeBasedExpressionModule = Expressions.getKnowledgeBasedExpressionModule();
-		
-		if (knowledgeBasedExpressionModule != null) {
-			result = knowledgeBasedExpressionModule.getImmediateSubExpressionsIterator(this, process);
-		}
-		
-		if (result == null) { // because no provider knows about this expression, we use the default method:
-			if (this.getSyntaxTree() instanceof CompoundSyntaxTree) {
-				result = FunctionApplicationProvider.getImmediateSubExpressionsAndContextsIteratorFromFunctionApplication(
-						this, process);
-			}
-			else {
-				List<ExpressionAndContext> emptyList = Collections.emptyList();
-				result = emptyList.iterator();
-			}
-		}
-		
-		return result;
-	}
-
-	public static final Function<Object, SyntaxTree> wrapper = new Function<Object, SyntaxTree>() {
-		@Override
-		public SyntaxTree apply(Object object) {
-			return SyntaxTrees.wrap(object);
-		}
-	};
-
-	private static Cache<Thread, Function<Expression, String>> threadToString = newThreadToStringCache();
-	//
-	private String                             cachedToString                      = null;
-	private volatile Object                    cachedSyntacticFormType             = null;
-	private Lock                               lazyInitCachedSyntacticFormTypeLock = new ReentrantLock();
-	private volatile ImmutableList<Expression> cachedArguments                     = null;
-	private Lock                               lazyInitCachedArgumentsLock         = new ReentrantLock();
-	private Expression                         cachedFunctor                       = null;
-	
-	public static Map<SyntaxTree, SyntaxTree> wrapAsMap(Object... pairs) {
-		return Util.map(Expressions.wrap(pairs).toArray());
-	}
-
 	@Override
 	public List<Expression> getSubExpressions() {
 		List<Expression> result = null;
@@ -403,52 +306,11 @@ public abstract class AbstractExpression implements Expression {
 	@Override
 	abstract public Expression clone();
 	
-	/**
-	 * Indicates what syntactic form type the expression is.
-	 * Syntactic forms are the primitive types of expressions in a logic.
-	 * For example, in FOL we have the forms: term, predicate, simple formula, quantified formula, etc.
-	 * HOL typically has function applications and lambda expressions as its basic syntactic forms.
-	 * Many types can be introduced: intensional and extensional sets, for example, and even application-specific types.
-	 */
-	@Override
-	public Object getSyntacticFormType() {
-		if (cachedSyntacticFormType == null) {
-			lazyInitCachedSyntacticFormTypeLock.lock();
-			try {
-				// Note: Ensure still null when acquire the lock
-				if (cachedSyntacticFormType == null) {
-					ExpressionKnowledgeModule knowledgeBasedExpressionModule = Expressions.getKnowledgeBasedExpressionModule();
-		
-					if (knowledgeBasedExpressionModule != null) {
-						cachedSyntacticFormType = knowledgeBasedExpressionModule.getSyntacticFormType(this, Expressions.getProcess());
-					}
-		
-					if (cachedSyntacticFormType == null) { // no one knows about this expression, we use the default.
-						if (getSyntaxTree() instanceof CompoundSyntaxTree) {
-							cachedSyntacticFormType = "Function application";
-						}
-						else if (getSyntaxTree() instanceof Symbol) {
-							cachedSyntacticFormType = "Symbol";
-						}
-					}
-				}
-			} finally {
-				lazyInitCachedSyntacticFormTypeLock.unlock();
-			}
-		}
-		
-		return cachedSyntacticFormType;
-	}
-
-	@Override
-	public SyntaxTree getSyntaxTree() {
-		return syntaxTree;
-	}
-
+	
 	@Override
 	public Expression replace(ExpressionAndContext replacementAndContext) {
-		SubExpressionAddress path = replacementAndContext.getAddress();
-		Expression result = path.replace(this, replacementAndContext.getExpression());
+		SubExpressionAddress address = replacementAndContext.getAddress();
+		Expression result = address.replace(this, replacementAndContext.getExpression());
 		Expression expressionReplacement = result;
 		return expressionReplacement;
 	}
@@ -466,21 +328,47 @@ public abstract class AbstractExpression implements Expression {
 				ExpressionAndContext.GET_EXPRESSION);
 	}
 
-	///////////////////////// FUNCTION APPLICATION METHODS //////////////////////
+
+	private static Cache<Thread, Function<Expression, String>> newThreadToStringCache() {
+		Cache<Thread, Function<Expression, String>> result = CacheBuilder.newBuilder()
+				.expireAfterAccess(ExpressoConfiguration.getSyntaxToStringThreadCacheTimeoutInSeconds(), TimeUnit.SECONDS)
+				// Don't hold onto old threads unnecessarily
+				.weakKeys()
+				.build();
+		
+		return result;
+	}
+
+	/**
+	 * 
+	 * @return the default configured to string unary function for the current
+	 *         thread. The instance to use is determined by the configuration
+	 *         settings for
+	 *         {@link ExpressoConfiguration#KEY_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS}
+	 *         .
+	 */
+	protected static Function<Expression, String> getToString() {
+		Function<Expression, String> result = threadToString.getIfPresent(Thread.currentThread());
+		if (result == null) {
+			// Initialize with a function that generates the string from the syntax tree only,
+			// as other methods can rely on Grammar instances that can cause recursive calls.
+			// This prevents such recursion from occurring.
+			threadToString.put(Thread.currentThread(), new ExpressionSyntaxTreeToStringFunction());
+			
+			// Now assign the configured object.
+			result = Configuration.newConfiguredInstance(ExpressoConfiguration.getDefaultSyntaxToStringUnaryFunctionClass());
+			threadToString.put(Thread.currentThread(), result);
+		}
+		
+		return result;
+	}
 
 	@Override
-	public Expression getFunctor() {
-		if (cachedFunctor == null) {
-			Expression possibleOriginalFunctorExpression = originalExpressionsByPath.get(FUNCTOR_PATH);
-			if (possibleOriginalFunctorExpression != null) {
-				cachedFunctor = possibleOriginalFunctorExpression;
-			}
-			else {
-				cachedFunctor = FunctionApplicationProvider.getFunctor(this);
-			}
-		}
-		return cachedFunctor;
+	public Expression renameSymbol(Expression symbol, Expression newSymbol) {
+		return Expressions.makeFromSyntaxTree(getSyntaxTree().replaceSubTreesAllOccurrences(symbol.getSyntaxTree(), newSymbol.getSyntaxTree()));
 	}
+
+	///////////////////////// FUNCTION APPLICATION METHODS //////////////////////
 
 	@Override
 	public Expression getFunctorOrSymbol() {
@@ -543,25 +431,6 @@ public abstract class AbstractExpression implements Expression {
 	}
 
 	@Override
-	public Expression set(int index, Expression newIthArgument) {
-		if (getSyntacticFormType().equals("Function application")) {
-			Expression oldArgument = get(index);
-			if (newIthArgument == oldArgument) {
-				return this;
-			}
-			// Used to be the following line, but that creates a symbol around newIthArgument.
-			// Expression result = Expressions.makeFromSyntaxTree(getSyntaxTree().setImmediateSubTree(index, newIthArgument));
-			Object root = getSyntaxTree().getRootTree();
-			Object[] subTrees = getSyntaxTree().getImmediateSubTrees().toArray();
-			subTrees[index] = newIthArgument;
-			Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(root, subTrees);
-			return result;
-		}
-		Util.fatalError("set can only be invoked for Expressions of function application syntactic form, but was invoked for " + this);
-		return null;
-	}
-	
-	@Override
 	/** Expressions are compared in the same way their respective syntax trees are. */
 	public int compareTo(Object anotherObject) {
 		
@@ -583,12 +452,6 @@ public abstract class AbstractExpression implements Expression {
 	}
 	
 	@Override
-	public Expression renameSymbol(Expression symbol, Expression newSymbol) {
-		return Expressions.makeFromSyntaxTree(getSyntaxTree().replaceSubTreesAllOccurrences(symbol.getSyntaxTree(), newSymbol.getSyntaxTree()));
-	}
-	
-
-	@Override
 	public String toString() {
 		if (cachedToString == null) {
 			Function<Expression, String> toString = getToString();
@@ -601,39 +464,5 @@ public abstract class AbstractExpression implements Expression {
 			}
 		}
 		return cachedToString;
-	}
-	
-	private static Cache<Thread, Function<Expression, String>> newThreadToStringCache() {
-		Cache<Thread, Function<Expression, String>> result = CacheBuilder.newBuilder()
-				.expireAfterAccess(ExpressoConfiguration.getSyntaxToStringThreadCacheTimeoutInSeconds(), TimeUnit.SECONDS)
-				// Don't hold onto old threads unnecessarily
-				.weakKeys()
-				.build();
-		
-		return result;
-	}
-	
-	/**
-	 * 
-	 * @return the default configured to string unary function for the current
-	 *         thread. The instance to use is determined by the configuration
-	 *         settings for
-	 *         {@link ExpressoConfiguration#KEY_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS}
-	 *         .
-	 */
-	private static Function<Expression, String> getToString() {
-		Function<Expression, String> result = threadToString.getIfPresent(Thread.currentThread());
-		if (result == null) {
-//			// Initialize with a function that generates the string from the syntax tree only,
-//          // as other methods can rely on Grammar instances that can cause recursive calls.
-//			// This prevents such recursion from occurring.
-			threadToString.put(Thread.currentThread(), new ExpressionSyntaxTreeToStringFunction());
-			
-			// Now assign the configured object.
-			result = Configuration.newConfiguredInstance(ExpressoConfiguration.getDefaultSyntaxToStringUnaryFunctionClass());
-			threadToString.put(Thread.currentThread(), result);
-		}
-		
-		return result;
 	}
 }

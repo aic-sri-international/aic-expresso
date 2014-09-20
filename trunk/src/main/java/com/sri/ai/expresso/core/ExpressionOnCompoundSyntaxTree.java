@@ -47,7 +47,7 @@ import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.core.AbstractExpression;
+import com.sri.ai.grinder.core.AbstractSyntaxTreeBasedExpression;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.math.Rational;
 
@@ -57,7 +57,7 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class ExpressionOnCompoundSyntaxTree extends AbstractExpression {
+public class ExpressionOnCompoundSyntaxTree extends AbstractSyntaxTreeBasedExpression {
 	private static final long serialVersionUID = 1L;
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
@@ -98,13 +98,11 @@ public class ExpressionOnCompoundSyntaxTree extends AbstractExpression {
 	public void storeOriginalExpressionForFunctor(Object label) {
 		SubExpressionAddress path = SyntaxTreeBasedSubExpressionAddress.get(Util.list(-1));
 		originalExpressionsByPath.put(path, (Expression) label);
-		// SUB_EXPRESSION_ADDRESS
 	}
 
 	public void storeOriginalExpressionForArgument(int i, Object subTreeObject) {
 		SubExpressionAddress path = SyntaxTreeBasedSubExpressionAddress.get(Util.list(i));
 		originalExpressionsByPath.put(path, (Expression) subTreeObject);
-		// SUB_EXPRESSION_ADDRESS
 	}
 
 	@Override

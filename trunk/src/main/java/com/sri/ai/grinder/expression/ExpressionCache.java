@@ -74,14 +74,13 @@ public class ExpressionCache extends DefaultCacheMap<ExpressionCacheKey, Express
 		Iterator<ExpressionCacheKey> result = null;
 		
 		List<ExpressionCacheKey> expressionKeys = new ArrayList<ExpressionCacheKey>();
-		List<Integer> emptyPath                 = Collections.emptyList();
 		//
-		ExpressionAndContext rootExpressionAndContext      = new DefaultExpressionAndContext(rootExpression, emptyPath);
-		ExpressionAndContextDepthFirstIterator eacIterator = new ExpressionAndContextDepthFirstIterator(rootExpressionAndContext, process);
+		ExpressionAndContext rootExpressionAndContext                       = new DefaultExpressionAndContext(rootExpression);
+		ExpressionAndContextDepthFirstIterator expressionAndContextIterator = new ExpressionAndContextDepthFirstIterator(rootExpressionAndContext, process);
 		
-		while (eacIterator.hasNext()) {
-			ExpressionAndContext eac = eacIterator.next();
-			expressionKeys.add(new ExpressionCacheKey(eac.getExpression(), eac.getConstrainingCondition()));
+		while (expressionAndContextIterator.hasNext()) {
+			ExpressionAndContext expressionAndContext = expressionAndContextIterator.next();
+			expressionKeys.add(new ExpressionCacheKey(expressionAndContext.getExpression(), expressionAndContext.getConstrainingCondition()));
 		}
 		
 		result = expressionKeys.iterator();
