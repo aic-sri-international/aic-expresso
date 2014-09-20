@@ -59,7 +59,7 @@ import com.sri.ai.util.Util;
  * @author braz
  */
 @Beta
-public class Symbol extends AbstractParsingExpression {
+public class ParsingSymbol extends AbstractParsingExpression {
 	private static final long serialVersionUID = 1L;
 
 	private static final Set<String> exceptions = Util.set("(", ")", "[", "]", "{", "}", ",");
@@ -70,11 +70,11 @@ public class Symbol extends AbstractParsingExpression {
 			quotedNonTerminalName == null
 			? null : new Sequence(new Terminal("<"), new NonTerminal(getQuotedNonTerminalName()), new Terminal(">"));
 
-	public Symbol() {
+	public ParsingSymbol() {
 		super("symbol");
 	}
 
-	public Symbol(String quotedNonTerminalName) {
+	public ParsingSymbol(String quotedNonTerminalName) {
 		super("symbol", quotedNonTerminalName);
 	}
 	

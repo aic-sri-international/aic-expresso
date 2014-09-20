@@ -37,86 +37,65 @@
  */
 package com.sri.ai.expresso.core;
 
+import java.util.Iterator;
+
+import com.google.common.annotations.Beta;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
-import com.sri.ai.grinder.core.AbstractSyntaxTreeBasedExpression;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.AbstractExpression;
 import com.sri.ai.util.AICUtilConfiguration;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.math.Rational;
 
 /**
- * An Expression based on {@link SyntaxLeaf} syntax trees.
- * Superseded by {@link Symbol}, which is not based on a syntax tree.
+ * An (atomic) Expression representing a symbol.
  * 
  * @author braz
  */
-@Deprecated
-public class ExpressionOnSyntaxLeaf extends AbstractSyntaxTreeBasedExpression {
+@Beta
+public class Symbol extends AbstractExpression {
 	private static final long serialVersionUID = 1L;
 	
-	public ExpressionOnSyntaxLeaf(SyntaxTree syntaxTree) {
-		this.syntaxTree = syntaxTree;
-	}
+	private Object value;
 	
-	public static Expression createSymbol(Object value) {
-		Expression result = null;
-		// If global symbol table to be used and the symbol's value is not
-		// an expression - i.e. quoted expressions of the form:
-		// <X>
-		// as these need to be instantiated each time in order to be
-		// parsed correctly.
-		if (_useGlobalSymbolTable && !(value instanceof Expression)) {
-			
-			result = _globalSymbolTable.getIfPresent(value);
-			if (result == null) {
-				result = new ExpressionOnSyntaxLeaf(value);
-				if (!(!_cacheNumericSymbols && result.getValue() instanceof Number)) {
-					_globalSymbolTable.put(value, result);
-				}
-			}
-		} 
-		else {
-			result = new ExpressionOnSyntaxLeaf(value);
-		}
-		
-		return result;
-	}
-
-	//
-	// PRIVATE METHODS
-	//
-	// Note: Can only instantiate Symbols via the factory method.
-	private ExpressionOnSyntaxLeaf(Object value) {
-		
-		if (value instanceof Number && !(value instanceof Rational)) {
-			value = new Rational(((Number)value).doubleValue());
-		} 
-		else if (value.equals("true")) {
-			value = Boolean.TRUE;
-		} 
-		else if (value.equals("false")) {
-			value = Boolean.FALSE;
-		} 
-		else if (value instanceof String) {
-			try {
-				value = new Rational((String)value);
-			}
-			catch (NumberFormatException e) {
-				// ignore
-			}
-		}
-	
-		syntaxTree = DefaultSyntaxLeaf.createSyntaxLeaf(value);
-	}
+	// this field is merely a cache; this Expression class is not based on syntax trees like previous ones did; it merely provides a syntax tree when requested.
+	private SyntaxLeaf cachedSyntaxTree;
 
 	@Override
 	public Object getValue() {
-		return getSyntaxTree().getValue();
+		return value;
+	}
+
+	@Override
+	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(RewritingProcess process) {
+		return Util.iterator();
+	}
+
+	@Override
+	public Object getSyntacticFormType() {
+		return "Symbol";
+	}
+
+	@Override
+	public SyntaxTree getSyntaxTree() {
+		return cachedSyntaxTree;
+	}
+
+	@Override
+	public Expression renameSymbol(Expression symbol, Expression newSymbol) {
+		Expression result = this;
+		if (this.equals(symbol)) {
+			result = newSymbol;
+		}
+		return result;
 	}
 
 	//
@@ -129,7 +108,7 @@ public class ExpressionOnSyntaxLeaf extends AbstractSyntaxTreeBasedExpression {
 		}
 		return hashCode;
 	}
-	
+
 	/**
 	 * The semantics of comparison of expressions based on Symbols 
 	 * is the comparison of the underlying syntax trees.
@@ -141,7 +120,7 @@ public class ExpressionOnSyntaxLeaf extends AbstractSyntaxTreeBasedExpression {
 		if (this == another) {
 			return true;
 		}
-
+	
 		SyntaxTree anotherSyntaxTree;
 		
 		if (another instanceof SyntaxTree) {
@@ -156,6 +135,11 @@ public class ExpressionOnSyntaxLeaf extends AbstractSyntaxTreeBasedExpression {
 		
 		boolean result = getSyntaxTree().equals(anotherSyntaxTree);
 		return result;
+	}
+
+	@Override
+	public Expression clone() {
+		return Expressions.makeSymbol(getValue());
 	}
 
 	@Override
@@ -198,62 +182,116 @@ public class ExpressionOnSyntaxLeaf extends AbstractSyntaxTreeBasedExpression {
 		throw new Error("Expression.rationalValue() invoked on " + this + ", which is not a number.");
 	}
 
+	public static Expression createSymbol(Object value) {
+		Expression result = null;
+		// If global symbol table to be used and the symbol's value is not
+		// an expression - i.e. quoted expressions of the form:
+		// <X>
+		// as these need to be instantiated each time in order to be
+		// parsed correctly.
+		if (useGlobalSymbolTable && !(value instanceof Expression)) {
+			
+			result = globalSymbolTable.getIfPresent(value);
+			if (result == null) {
+				result = new Symbol(value);
+				if (!(!cacheNumericSymbols && result.getValue() instanceof Number)) {
+					globalSymbolTable.put(value, result);
+				}
+			}
+		} 
+		else {
+			result = new Symbol(value);
+		}
+		
+		return result;
+	}
+
 	@Override
-	public Expression clone() {
-		return Expressions.makeSymbol(getValue());
+	public Expression getFunctor() {
+		return null;
+	}
+
+	@Override
+	public Expression set(int i, Expression newIthArgument) {
+		throw new Error("set(int i) applies only to function applications, but it was invoked for Symbol " + this);
+	}
+
+	// Note: End users can only instantiate Symbols via the factory method.
+	private Symbol(Object value) {
+		
+		if (value instanceof Number && !(value instanceof Rational)) {
+			value = new Rational(((Number)value).doubleValue());
+		} 
+		else if (value.equals("true")) {
+			value = Boolean.TRUE;
+		} 
+		else if (value.equals("false")) {
+			value = Boolean.FALSE;
+		} 
+		else if (value instanceof String) {
+			try {
+				value = new Rational((String)value);
+			}
+			catch (NumberFormatException e) {
+				// ignore
+			}
+		}
+	
+		cachedSyntaxTree = DefaultSyntaxLeaf.createSyntaxLeaf(value);
+		this.value = value;
 	}
 
 	public static void flushGlobalSymbolTable() {
 		if (AICUtilConfiguration.isRecordCacheStatistics()) {
-			System.out.println("Global Symbol Table Cache Stats="+_globalSymbolTable.stats());
+			System.out.println("Global Symbol Table Cache Stats="+globalSymbolTable.stats());
 		}
 		// Causes relevant flags to be reset.
-		_useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
-		_cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
+		useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
+		cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
 		
-		if (_globalSymbolTable != null) {
-			_globalSymbolTable.invalidateAll();
+		if (globalSymbolTable != null) {
+			globalSymbolTable.invalidateAll();
 		}
-		_globalSymbolTable = newSymbolTable();
+		globalSymbolTable = newSymbolTable();
 		// Add well known symbols to the table
 		// The Booleans.
-		_globalSymbolTable.put(true,          SYMBOL_TRUE);
-		_globalSymbolTable.put(Boolean.TRUE,  SYMBOL_TRUE);
-		_globalSymbolTable.put("true",        SYMBOL_TRUE);
-		_globalSymbolTable.put(false,         SYMBOL_FALSE);
-		_globalSymbolTable.put(Boolean.FALSE, SYMBOL_FALSE);
-		_globalSymbolTable.put("false",       SYMBOL_FALSE);
+		globalSymbolTable.put(true,          SYMBOL_TRUE);
+		globalSymbolTable.put(Boolean.TRUE,  SYMBOL_TRUE);
+		globalSymbolTable.put("true",        SYMBOL_TRUE);
+		globalSymbolTable.put(false,         SYMBOL_FALSE);
+		globalSymbolTable.put(Boolean.FALSE, SYMBOL_FALSE);
+		globalSymbolTable.put("false",       SYMBOL_FALSE);
 		// Common Numbers
-		_globalSymbolTable.put("0",             SYMBOL_0);
-		_globalSymbolTable.put(new Integer(0),  SYMBOL_0);
-		_globalSymbolTable.put(new Rational(0), SYMBOL_0);
-		_globalSymbolTable.put("1",             SYMBOL_1);
-		_globalSymbolTable.put(new Integer(1),  SYMBOL_1);
-		_globalSymbolTable.put(new Rational(1), SYMBOL_1);
-		_globalSymbolTable.put("2",             SYMBOL_2);
-		_globalSymbolTable.put(new Integer(2),  SYMBOL_2);
-		_globalSymbolTable.put(new Rational(2), SYMBOL_2);
-		_globalSymbolTable.put("3",             SYMBOL_3);
-		_globalSymbolTable.put(new Integer(3),  SYMBOL_3);
-		_globalSymbolTable.put(new Rational(3), SYMBOL_3);
-		_globalSymbolTable.put("4",             SYMBOL_4);
-		_globalSymbolTable.put(new Integer(4),  SYMBOL_4);
-		_globalSymbolTable.put(new Rational(4), SYMBOL_4);
-		_globalSymbolTable.put("5",             SYMBOL_5);
-		_globalSymbolTable.put(new Integer(5),  SYMBOL_5);
-		_globalSymbolTable.put(new Rational(5), SYMBOL_5);
-		_globalSymbolTable.put("6",             SYMBOL_6);
-		_globalSymbolTable.put(new Integer(6),  SYMBOL_6);
-		_globalSymbolTable.put(new Rational(6), SYMBOL_6);
-		_globalSymbolTable.put("7",             SYMBOL_7);
-		_globalSymbolTable.put(new Integer(7),  SYMBOL_7);
-		_globalSymbolTable.put(new Rational(7), SYMBOL_7);
-		_globalSymbolTable.put("8",             SYMBOL_8);
-		_globalSymbolTable.put(new Integer(8),  SYMBOL_8);
-		_globalSymbolTable.put(new Rational(8), SYMBOL_8);
-		_globalSymbolTable.put("9",             SYMBOL_9);
-		_globalSymbolTable.put(new Integer(9),  SYMBOL_9);
-		_globalSymbolTable.put(new Rational(9), SYMBOL_9);
+		globalSymbolTable.put("0",             SYMBOL_0);
+		globalSymbolTable.put(new Integer(0),  SYMBOL_0);
+		globalSymbolTable.put(new Rational(0), SYMBOL_0);
+		globalSymbolTable.put("1",             SYMBOL_1);
+		globalSymbolTable.put(new Integer(1),  SYMBOL_1);
+		globalSymbolTable.put(new Rational(1), SYMBOL_1);
+		globalSymbolTable.put("2",             SYMBOL_2);
+		globalSymbolTable.put(new Integer(2),  SYMBOL_2);
+		globalSymbolTable.put(new Rational(2), SYMBOL_2);
+		globalSymbolTable.put("3",             SYMBOL_3);
+		globalSymbolTable.put(new Integer(3),  SYMBOL_3);
+		globalSymbolTable.put(new Rational(3), SYMBOL_3);
+		globalSymbolTable.put("4",             SYMBOL_4);
+		globalSymbolTable.put(new Integer(4),  SYMBOL_4);
+		globalSymbolTable.put(new Rational(4), SYMBOL_4);
+		globalSymbolTable.put("5",             SYMBOL_5);
+		globalSymbolTable.put(new Integer(5),  SYMBOL_5);
+		globalSymbolTable.put(new Rational(5), SYMBOL_5);
+		globalSymbolTable.put("6",             SYMBOL_6);
+		globalSymbolTable.put(new Integer(6),  SYMBOL_6);
+		globalSymbolTable.put(new Rational(6), SYMBOL_6);
+		globalSymbolTable.put("7",             SYMBOL_7);
+		globalSymbolTable.put(new Integer(7),  SYMBOL_7);
+		globalSymbolTable.put(new Rational(7), SYMBOL_7);
+		globalSymbolTable.put("8",             SYMBOL_8);
+		globalSymbolTable.put(new Integer(8),  SYMBOL_8);
+		globalSymbolTable.put(new Rational(8), SYMBOL_8);
+		globalSymbolTable.put("9",             SYMBOL_9);
+		globalSymbolTable.put(new Integer(9),  SYMBOL_9);
+		globalSymbolTable.put(new Rational(9), SYMBOL_9);
 	}
 
 	private static Cache<Object, Expression> newSymbolTable() {
@@ -303,13 +341,14 @@ public class ExpressionOnSyntaxLeaf extends AbstractSyntaxTreeBasedExpression {
 	private static final Expression SYMBOL_9     = Expressions.makeSymbol(new Rational(9));
 
 	//
-	private static boolean                      _useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
+	private static boolean                      useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
 
-	private static boolean                      _cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
+	private static boolean                      cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
 
-	private static Cache<Object, Expression>    _globalSymbolTable    = newSymbolTable();
+	private static Cache<Object, Expression>    globalSymbolTable    = newSymbolTable();
 
 	static {
 		flushGlobalSymbolTable();
 	}
+
 }

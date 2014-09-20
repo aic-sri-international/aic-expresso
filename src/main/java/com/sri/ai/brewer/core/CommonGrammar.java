@@ -43,7 +43,7 @@ import com.sri.ai.brewer.parsingexpression.core.Kleene;
 import com.sri.ai.brewer.parsingexpression.core.NonTerminal;
 import com.sri.ai.brewer.parsingexpression.core.Optional;
 import com.sri.ai.brewer.parsingexpression.core.Sequence;
-import com.sri.ai.brewer.parsingexpression.core.Symbol;
+import com.sri.ai.brewer.parsingexpression.core.ParsingSymbol;
 import com.sri.ai.brewer.parsingexpression.core.Terminal;
 import com.sri.ai.brewer.parsingexpression.helper.AssociativeSequence;
 import com.sri.ai.brewer.parsingexpression.helper.ParenthesizedNonTerminal;
@@ -115,7 +115,7 @@ public class CommonGrammar extends DefaultGrammar {
 				new Sequence(new Terminal("("), new Kleene(new NonTerminal("Expression"), new Terminal(","), 2), new Terminal(")")),
 				new ParsingExpressionForFunctionApplications(new NonTerminal("Expression")),
 				new ParenthesizedNonTerminal("Expression"),
-				new Symbol("Expression")
+				new ParsingSymbol("Expression")
 		));
 
 		if (previousProcess != null) {

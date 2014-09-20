@@ -132,8 +132,7 @@ public abstract class AbstractSyntaxTreeBasedExpression extends AbstractExpressi
 						this, process);
 			}
 			else {
-				List<ExpressionAndContext> emptyList = Collections.emptyList();
-				result = emptyList.iterator();
+				result = Collections.<ExpressionAndContext>emptyList().iterator();
 			}
 		}
 		

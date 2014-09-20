@@ -161,7 +161,7 @@ public class DefaultGrammar extends HashMap<String, ParsingExpression> implement
 	}
 
 	private Pair<SyntaxTree, Integer> makeRootTreeAndArityPair(BasicParsingExpression basicParsingExpression) {
-		SyntaxTree rootTree = SyntaxTrees.makeSymbol(basicParsingExpression.getRootTreeName());
+		SyntaxTree rootTree = SyntaxTrees.makeSyntaxLeaf(basicParsingExpression.getRootTreeName());
 		Pair<SyntaxTree, Integer> pair = Pair.make(rootTree, basicParsingExpression.getArity());
 		return pair;
 	}

@@ -237,7 +237,7 @@ public class ExpressionEditor extends JPanel {
 	protected boolean isNumber(Token t) {
 		boolean result = false;
 		if (isSymbol(t)) {
-			SyntaxLeaf s = SyntaxTrees.makeSymbol(t.getText());
+			SyntaxLeaf s = SyntaxTrees.makeSyntaxLeaf(t.getText());
 			if (s.getValue() instanceof Number) {
 				result = true;
 			}
