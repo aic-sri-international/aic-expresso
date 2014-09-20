@@ -47,7 +47,6 @@ import com.sri.ai.brewer.core.DefaultWriter;
 import com.sri.ai.brewer.parsingexpression.core.Sequence;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.library.Associative;
 import com.sri.ai.util.Util;
@@ -89,7 +88,7 @@ public class AssociativeSequence extends Sequence {
 		StringBuffer result = new StringBuffer();
 		String separator = " ";
 		SyntaxTree rootTree = syntaxTree.getRootTree();
-		String rootTreeString = writer.toString(Expressions.makeFromSyntaxTree(rootTree));
+		String rootTreeString = writer.toString(rootTree);
 		
 		if (rootTree.numberOfImmediateSubTrees() > 0) {
 			rootTreeString = "(" + rootTreeString + ")";

@@ -123,7 +123,7 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	 * @param makeSpecificSubExpressionAndContextPrunePredicate Takes the current expression, the current replacement function and the sub-expression and its context about to be processed (the top one inclusive), and returns the pruning predicate to be used for that specific sub-expression.
 	 * @param replaceOnChildrenBeforeTopExpression TODO
 	 * 
-	 * @param replacementFunction: takes a expression and returns a new expression, or itself in case no replacement is warranted.
+	 * @param replacementFunction: takes a expression and returns a new expression, or itself in case no replacement is warranted. Make it an instance of {@link ReplacementFunctionWithContextuallyUpdatedProcess} if it uses the contextual symbols and variables, so that the process gets properly extended.
 	 * @param makeSpecificSubExpressionAndContextReplacementFunction: Takes the current expression, the current replacement function and the sub-expression and its context about to be processed (the top one inclusive), and returns the replacement function to be used for that specific sub-expression.
 	 * @param prunePredicate: a predicate evaluating as true for sub-expressions that should be pruned (that is, ignored).
 	 * @param makeSpecificSubExpressionAndContextPrunePredicate: Takes the current prune predicate and the sub-expression and its context about to be processed (the top one inclusive), and returns the prune predicate to be used for that specific sub-expression.
@@ -162,6 +162,17 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 		}
 	};
 
+	/**
+	 * Renames all occurrences of a symbol, including when it is declared.
+	 * For example, renaming <code>p</code> by <code>q</code> in <code>for all p(X) in People : happy(p(X))</code>
+	 * results in <code>for all q(X) in People : happy(q(X))</code>.
+	 * @param expression
+	 * @param symbol
+	 * @param newSymbol
+	 * @return the result of renaming <code>symbol</code> as <code>newSymbol</code> everywhere in <code>expression</code>.
+	 */
+	public Expression renameSymbol(Expression symbol, Expression newSymbol);
+	
 	public Object clone() throws CloneNotSupportedException;
 	
 	///////////////////////// FUNCTION APPLICATION METHODS //////////////////////

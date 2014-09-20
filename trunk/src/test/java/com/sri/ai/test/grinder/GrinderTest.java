@@ -1137,30 +1137,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	}
 	
 	@Test
-	public void testScopedVariables() {
-		Library library = new DefaultLibrary(
-				new ExpressionKnowledgeModule(),
-				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new IntensionalSetSubExpressionsAndImposedConditionsProvider(),
-				new IntensionalSet(),
-				new ScopedVariables());
-		
-		evaluator = new ExhaustiveRewriter(library);
-
-		expressionString = "'scoped variables'({(on X) p(X) | X != a})";
-		expected = parse("list(X)");
-		evaluationTest();
-
-		expressionString = "'scoped variables'({(on X,Y) p(X,Y) | X != a})";
-		expected = parse("list(X,Y)");
-		evaluationTest();
-
-		expressionString = "'scoped variables'(f(X,Y))";
-		expected = parse("list()");
-		evaluationTest();
-	}
-	
-	@Test
 	public void testConditionsThatExpressionImposesModule() {
 		Library library = new DefaultLibrary(
 				new ImposedConditionsModule(),
@@ -1868,14 +1844,6 @@ public class GrinderTest extends AbstractGrinderTest {
 
 		expressionString = "if Z = a then f(lambda Z : g(Z)) else 0";
 		expected = parse("if Z = a then f(lambda Z : g(Z)) else 0");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-		
-		expressionString = "'scoped variables'(lambda Z : Z)";
-		expected = parse("list(Z)");
-		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
-		
-		expressionString = "'scoped variables'(lambda f(X) : f(X))";
-		expected = parse("list(f(X))");
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
 		
 		expressionString = "if X = a then lambda f(X) : f(X) else 1";

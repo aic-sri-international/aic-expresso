@@ -99,7 +99,8 @@ public class ExpressionNode implements TreeNode {
 	
 	public ExpressionNode(Object object, ExpressionNode parent) {
 		if (object instanceof SyntaxTree) {
-			object = Expressions.makeFromSyntaxTree((SyntaxTree) object);
+			throw new Error("Object being passed to UI is a syntax tree instead of expression: " + object + " but this is now deprecated.");
+			// object = Expressions.makeFromSyntaxTree((SyntaxTree) object);
 		}
 		writer = TreeUtil.getWriter();
 		type = (object instanceof String)? NodeType.STRING: null;
@@ -301,7 +302,7 @@ public class ExpressionNode implements TreeNode {
 			children.add(new ExpressionNode((SyntaxTree)object, null, this));
 		} 
 		else if ( object instanceof Expression ) {
-			children.add(new ExpressionNode(((Expression)object).getSyntaxTree(), this));
+			children.add(new ExpressionNode(object, this));
 		} 
 		else {
 			children.add(new ExpressionNode(object, this));

@@ -118,6 +118,13 @@ public class Expressions {
 		throw new Error("Syntax tree " + syntaxTree + " should be either a CompoundSyntaxTree or a Symbol");
 	}
 
+	public static final Function<SyntaxTree, Expression> SYNTAX_TREE_TO_EXPRESSION = new Function<SyntaxTree, Expression>() {
+		@Override
+		public Expression apply(SyntaxTree input) {
+			Expression result = makeFromSyntaxTree(input);
+			return result;
+		}
+	};
 	
 	/**
 	 * Makes Expression based on a syntax tree with given label and sub-trees.
@@ -128,14 +135,6 @@ public class Expressions {
 	}
 
 
-	public static final Function<SyntaxTree, Expression> SYNTAX_TREE_TO_EXPRESSION = new Function<SyntaxTree, Expression>() {
-		@Override
-		public Expression apply(SyntaxTree input) {
-			Expression result = makeFromSyntaxTree(input);
-			return result;
-		}
-	};
-	
 	/**
 	 * Makes an expression based on a symbol with given value.
 	 */
@@ -539,50 +538,6 @@ public class Expressions {
 				}
 	};
 	
-	/**
-	 * Replaces all numeric symbols in expressions by  a rounded value according to a precision (a number of significant digits to be kept). 
-	 * <p>
-	 * Left here as a remnant of syntax tree-based rounding for debugging purposes.
-	 */
-	@Deprecated
-	public static Expression roundToAGivenPrecision(Expression expression, final int precision) {
-		Function<SyntaxTree, SyntaxTree> rounder = new Function<SyntaxTree, SyntaxTree>() {
-			
-			@Override
-			public SyntaxTree apply(SyntaxTree subSyntaxTree) {
-				SyntaxTree result = Expressions.round(subSyntaxTree, precision);
-				return result;
-			}
-		};
-		
-		Expression result = Expressions.makeFromSyntaxTree(expression.getSyntaxTree().replaceSubTreesAllOccurrences(rounder));
-		return result;
-	}
-
-	/**
-	 * Takes a syntax tree and, if it is numeric symbol,
-	 * replaces all numeric symbols in expressions by  a rounded value according to a precision (a number of significant digits to be kept); 
-	 * otherwise, return the symbol itself.
-	 * <p>
-	 * Left here as a remnant of syntax tree-based rounding for debugging purposes.
-	 */
-	@Deprecated
-	public  static SyntaxTree round(SyntaxTree syntaxTree, int precision) {
-		Expression expression = Expressions.makeFromSyntaxTree(syntaxTree);
-		if (syntaxTree instanceof Symbol && Expressions.isNumber(expression)) {
-			Rational value = expression.rationalValue();
-			String rounded = "";
-			if (value.isInteger()) {
-				rounded = value.toString();
-			} 
-			else {
-				rounded = value.toStringDotRelative(precision);
-			}
-			return SyntaxTrees.makeSymbol(rounded);
-		}
-		return syntaxTree;
-	}
-
 	/**
 	 * Replaces all numeric symbols in expressions by  a rounded value according to a precision (a number of significant digits to be kept). 
 	 */
