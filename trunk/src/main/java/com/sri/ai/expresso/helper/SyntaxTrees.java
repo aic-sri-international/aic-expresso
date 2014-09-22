@@ -52,7 +52,6 @@ import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultSyntaxLeaf;
-import com.sri.ai.expresso.core.ExpressionOnSyntaxLeaf;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.FunctionIterator;

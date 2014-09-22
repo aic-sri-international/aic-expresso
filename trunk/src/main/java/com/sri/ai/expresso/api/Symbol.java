@@ -39,12 +39,16 @@ package com.sri.ai.expresso.api;
 
 import com.google.common.annotations.Beta;
 
-/** 
- * A SyntaxTree with no children.
+/**
+ * An {@link Expression} that represents a symbol.
  * 
  * @author braz
  */
 @Beta
-public interface SyntaxLeaf extends SyntaxTree {
-	String getValueType();
+public interface Symbol extends Expression {
+	
+	/**
+	 * Returns the value of an expression if it is based on a symbol.
+	 */
+	public Object getValue();
 }

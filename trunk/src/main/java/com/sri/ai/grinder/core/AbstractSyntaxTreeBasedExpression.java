@@ -49,7 +49,9 @@ import com.google.common.collect.ImmutableList;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.api.SubExpressionAddress;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.SyntaxTreeBasedSubExpressionAddress;
@@ -64,7 +66,7 @@ import com.sri.ai.util.Util;
  * @author braz
  */
 @Beta
-public abstract class AbstractSyntaxTreeBasedExpression extends AbstractExpression {
+public abstract class AbstractSyntaxTreeBasedExpression extends AbstractExpression implements Symbol, FunctionApplication {
 
 	private static final long serialVersionUID = 1L;
 
@@ -182,7 +184,7 @@ public abstract class AbstractSyntaxTreeBasedExpression extends AbstractExpressi
 	}
 	
 	@Override
-	public Expression renameSymbol(Expression symbol, Expression newSymbol) {
+	public Expression renameSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
 		return Expressions.makeFromSyntaxTree(getSyntaxTree().replaceSubTreesAllOccurrences(symbol.getSyntaxTree(), newSymbol.getSyntaxTree()));
 	}
 

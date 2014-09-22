@@ -171,6 +171,10 @@ public class DefaultWriterTest {
 	
 		String testCase;
 		
+		// REPEAT FOR DEBUGGING
+		testCase = "blah blih";
+		test(testCase, myGrammar);
+
 		testCase = "blah bleh blih";
 		test(testCase, myGrammar);
 		

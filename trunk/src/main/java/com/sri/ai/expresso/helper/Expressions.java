@@ -58,12 +58,13 @@ import com.sri.ai.brewer.api.Parser;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
+import com.sri.ai.expresso.core.DefaultFunctionApplication;
+import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.ExpressionOnCompoundSyntaxTree;
-import com.sri.ai.expresso.core.ExpressionOnSyntaxLeaf;
-import com.sri.ai.expresso.core.Symbol;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
@@ -73,7 +74,14 @@ import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.ForAll;
+import com.sri.ai.grinder.library.boole.ThereExists;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.library.lambda.Lambda;
+import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
+import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
@@ -95,7 +103,11 @@ import com.sri.ai.util.math.Rational;
 @Beta
 public class Expressions {
 	
-	public static final Expression EMPTY_LIST      = Expressions.makeSymbol("list");
+	/**
+	 * An unmodifiable empty list of expressions.
+	 */
+	public static final List<Expression> EMPTY_LIST = Collections.unmodifiableList(new ArrayList<Expression>());
+	
 	public static final Expression TRUE            = Expressions.makeSymbol("true");
 	public static final Expression FALSE           = Expressions.makeSymbol("false");
 	public static final Expression ZERO            = Expressions.makeSymbol(0);
@@ -133,19 +145,62 @@ public class Expressions {
 	};
 	
 	/**
-	 * Makes Expression based on a syntax tree with given label and sub-trees.
+	 * Makes Expression based on a syntax tree with given label and sub-trees, or {@link Expression}s from whose syntax trees must be used.
 	 */
 	public static Expression makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Object label, Object... subTreeObjects) {
-		Expression result = new ExpressionOnCompoundSyntaxTree(label, subTreeObjects);
+		Expression result;
+		boolean old = false;
+		if (old || labelsUsingExpressionOnCompoundSyntaxTree.contains(label)) {
+			result = new ExpressionOnCompoundSyntaxTree(label, subTreeObjects);
+		}
+		else {
+			result = makeDefaultFunctionApplicationFromLabelAndSubTrees(label, subTreeObjects);
+		}
+		return result;
+	}
+	
+	private static Collection<String> labelsUsingExpressionOnCompoundSyntaxTree =
+	Util.list(IntensionalSet.UNI_SET_LABEL, IntensionalSet.MULTI_SET_LABEL,
+			ExtensionalSet.UNI_SET_LABEL, ExtensionalSet.MULTI_SET_LABEL,
+			Lambda.ROOT, ForAll.LABEL, ThereExists.LABEL, Tuple.TUPLE_LABEL, "tuple", "scoped variables", CardinalityTypeOfLogicalVariable.TYPE_LABEL,
+			"[ . ]" // BracketedExpressionSubExpressionsProvider.SYNTAX_TREE_LABEL);
+			);
+
+	private static Expression makeDefaultFunctionApplicationFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
+		if (subTreeObjects.length == 1 && subTreeObjects[0] instanceof Collection) {
+			subTreeObjects = ((Collection) subTreeObjects[0]).toArray();
+		}
+		Expression labelExpression = makeFromObject(label);
+		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
+		Expression result = new DefaultFunctionApplication(labelExpression, subTreeExpressions);
 		return result;
 	}
 
+	/**
+	 * @param object
+	 */
+	public static Expression makeFromObject(Object object) {
+		Expression result;
+		if (object == null) { // this is here for backwards compatibility with syntax-tree-based expressions, should be gone when they are.
+			result = null;
+		}
+		else if (object instanceof SyntaxTree) {
+			result = makeFromSyntaxTree((SyntaxTree) object);
+		}
+		else if (object instanceof Expression) {
+			result = (Expression) object;
+		}
+		else {
+			result = DefaultSymbol.createSymbol(object);
+		}
+		return result;
+	}
 
 	/**
 	 * Makes an expression based on a symbol with given value.
 	 */
-	public static Expression makeSymbol(Object object) {
-		return Symbol.createSymbol(object);
+	public static Symbol makeSymbol(Object object) {
+		return DefaultSymbol.createSymbol(object);
 //		return ExpressionOnSyntaxLeaf.createSymbol(object);
 	}
 	
@@ -278,7 +333,7 @@ public class Expressions {
 	/** Indicates whether an expression is a Symbol representing a numeric constant. */
 	public static boolean isNumber(Expression expression) {
 		boolean result = expression.getSyntacticFormType().equals("Symbol") &&
-				expression.getValue() instanceof Number;
+				((Symbol) expression).getValue() instanceof Number;
 		return result;
 	}
 	
@@ -404,14 +459,6 @@ public class Expressions {
 			expression.getSyntacticFormType().equals("Function application") &&
 			expression.numberOfArguments() > 0;
 		return result;
-	}
-	
-	/**
-	 * Returns the value of the expression if it is a symbol expression (per {@link {{@link #isSymbol(Expression)},
-	 * or <null> otherwise.
-	 */
-	public static Object value(Expression expression) {
-		return expression.getValue();
 	}
 	
 	public static final Function<Expression, Expression> GET_FUNCTOR_OR_SYMBOL = new Function<Expression, Expression>() {
