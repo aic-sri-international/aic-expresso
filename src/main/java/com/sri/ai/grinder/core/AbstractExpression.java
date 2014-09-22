@@ -65,6 +65,7 @@ import com.sri.ai.util.Util;
 import com.sri.ai.util.base.ReplaceByIfEqualTo;
 import com.sri.ai.util.base.TernaryProcedure;
 import com.sri.ai.util.collect.FunctionIterator;
+import com.sri.ai.util.math.Rational;
 
 /**
  * A basic, default implementation of some of the {@link Expression} methods.
@@ -304,10 +305,6 @@ public abstract class AbstractExpression implements Expression {
 	}
 
 	@Override
-	abstract public Expression clone();
-	
-	
-	@Override
 	public Expression replace(ExpressionAndContext replacementAndContext) {
 		SubExpressionAddress address = replacementAndContext.getAddress();
 		Expression result = address.replace(this, replacementAndContext.getExpression());
@@ -425,6 +422,8 @@ public abstract class AbstractExpression implements Expression {
 		return arguments.get(index);
 	}
 
+	////// OBJECT
+	
 	@Override
 	/** Expressions are compared in the same way their respective syntax trees are. */
 	public int compareTo(Object anotherObject) {
@@ -460,4 +459,42 @@ public abstract class AbstractExpression implements Expression {
 		}
 		return cachedToString;
 	}
+	
+	/////// DEFAULT SYMBOL-SPECIFIC METHODS (ONLY SYMBOLS NEED TO OVERRIDE THESE)
+	
+	@Override
+	abstract public Expression clone();
+
+	@Override
+	public Object getValue() {
+		return null;
+	}
+
+	@Override
+	public boolean booleanValue() {
+		return false;
+	}
+
+	@Override
+	public int intValue() {
+		return 0;
+	}
+
+	@Override
+	public int intValueExact() throws ArithmeticException {
+		return 0;
+	}
+
+	@Override
+	public double doubleValue() {
+		return 0;
+	}
+
+	@Override
+	public Rational rationalValue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
 }

@@ -37,14 +37,20 @@
  */
 package com.sri.ai.expresso.api;
 
+import java.util.List;
+
 import com.google.common.annotations.Beta;
 
-/** 
- * A SyntaxTree with no children.
+/**
+ * An {@link Expression} that represents a lambda expression.
  * 
  * @author braz
  */
 @Beta
-public interface SyntaxLeaf extends SyntaxTree {
-	String getValueType();
+public interface LambdaExpression extends QuantifiedExpression {
+
+	public List<Expression> getIndexExpressions();
+	
+	public Expression getBody();
+	
 }

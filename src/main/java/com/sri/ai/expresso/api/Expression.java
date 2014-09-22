@@ -166,12 +166,13 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	 * Renames all occurrences of a symbol, including when it is declared.
 	 * For example, renaming <code>p</code> by <code>q</code> in <code>for all p(X) in People : happy(p(X))</code>
 	 * results in <code>for all q(X) in People : happy(q(X))</code>.
-	 * @param expression
 	 * @param symbol
 	 * @param newSymbol
+	 * @param process TODO
+	 * @param expression
 	 * @return the result of renaming <code>symbol</code> as <code>newSymbol</code> everywhere in <code>expression</code>.
 	 */
-	public Expression renameSymbol(Expression symbol, Expression newSymbol);
+	public Expression renameSymbol(Expression symbol, Expression newSymbol, RewritingProcess process);
 	
 	public Object clone() throws CloneNotSupportedException;
 	
@@ -221,7 +222,10 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	///////////////////////// SYMBOL METHODS //////////////////////
 
 	/**
-	 * Returns the value of an expression if it is based on a symbol.
+	 * Returns the value of an expression if it is a {@Symbol},
+	 * and <code>null</code> otherwise.
+	 * The reason it is available at the {@link Expression} is
+	 * that is it a very commonly used method and casting makes the code harder to read.
 	 */
 	public Object getValue();
 

@@ -51,7 +51,7 @@ import com.sri.ai.util.math.Rational;
 
 /**
  * An Expression based on {@link SyntaxLeaf} syntax trees.
- * Superseded by {@link Symbol}, which is not based on a syntax tree.
+ * Superseded by {@link DefaultSymbol}, which is not based on a syntax tree.
  * 
  * @author braz
  */

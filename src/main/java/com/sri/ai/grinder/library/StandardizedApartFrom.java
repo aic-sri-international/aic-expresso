@@ -120,7 +120,7 @@ public class StandardizedApartFrom {
 		Expression result = expression;
 		for (Expression variableToBeRenamed : variablesToBeRenamed) {
 			Expression replacement = Expressions.primedUntilUnique(variableToBeRenamed, isNovel);
-			result = result.renameSymbol(variableToBeRenamed, replacement);
+			result = result.renameSymbol(variableToBeRenamed, replacement, process);
 			forbiddenVariables.add(replacement); // note that this affects the isNovel predicate!
 		}
 		return result;

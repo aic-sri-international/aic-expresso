@@ -69,8 +69,7 @@ public class NormalizeExtensionalUniSet extends AbstractRewriter {
 	}
 
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression,
-			RewritingProcess process) {
+	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expression result = expression;
 		if (Sets.isExtensionalUniSet(expression) && ExtensionalSet.cardinality(expression) > 1) {
 

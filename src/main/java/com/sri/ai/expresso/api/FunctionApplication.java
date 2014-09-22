@@ -37,14 +37,44 @@
  */
 package com.sri.ai.expresso.api;
 
+import java.util.List;
+
 import com.google.common.annotations.Beta;
 
-/** 
- * A SyntaxTree with no children.
+/**
+ * An {@link Expression} that represents a function application.
  * 
  * @author braz
  */
 @Beta
-public interface SyntaxLeaf extends SyntaxTree {
-	String getValueType();
+public interface FunctionApplication extends Expression {
+	
+	/** Returns the functor if the expression is a function application, or <code>null</code> otherwise. */
+	public Expression getFunctor();
+	
+	/** Indicates whether expression is a function application with given functor. */
+	public boolean hasFunctor(Object functor);
+	
+	/**
+	 * Returns the arguments of a function application expression if this is one.
+	 */
+	public List<Expression> getArguments();
+	
+	/**
+	 * Same as {@link #getArguments()}<code>.size()</code>, but potentially more efficient.
+	 */
+	public int numberOfArguments();
+	
+	/**
+	 * Same as {@link #getArguments()}<code>.get(i)</code>, but potentially more efficient.
+	 */
+	public Expression get(int i);
+	
+	/**
+	 * If this is a function application,
+	 * returns an expression equal to this one, but for replacing the i-th argument by the given one.
+	 * Generates an error otherwise.
+	 */
+	Expression set(int i, Expression newIthArgument);
+	
 }

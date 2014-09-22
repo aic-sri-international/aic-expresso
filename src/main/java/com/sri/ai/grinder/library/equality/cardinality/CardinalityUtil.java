@@ -48,6 +48,7 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -924,7 +925,7 @@ public class CardinalityUtil {
 			result = everyLeafIsConstantGreaterThanZero(IfThenElse.getThenBranch(expression)) && everyLeafIsConstantGreaterThanZero(IfThenElse.getElseBranch(expression));
 		}
 		else if (expression.getSyntacticFormType().equals("Symbol")) {
-			if (expression.getValue() instanceof Number) {
+			if (((Symbol)expression).getValue() instanceof Number) {
 				if (expression.rationalValue().isPositive()) {
 					result = true;
 				}

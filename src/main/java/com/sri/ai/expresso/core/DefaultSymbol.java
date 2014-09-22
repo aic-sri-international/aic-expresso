@@ -45,6 +45,7 @@ import com.google.common.cache.CacheBuilder;
 import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
@@ -56,12 +57,12 @@ import com.sri.ai.util.Util;
 import com.sri.ai.util.math.Rational;
 
 /**
- * An (atomic) Expression representing a symbol.
+ * An (atomic) {@link Expression} representing a symbol.
  * 
  * @author braz
  */
 @Beta
-public class Symbol extends AbstractExpression {
+public class DefaultSymbol extends AbstractExpression implements Symbol {
 	private static final long serialVersionUID = 1L;
 	
 	private Object value;
@@ -90,7 +91,7 @@ public class Symbol extends AbstractExpression {
 	}
 
 	@Override
-	public Expression renameSymbol(Expression symbol, Expression newSymbol) {
+	public Expression renameSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
 		Expression result = this;
 		if (this.equals(symbol)) {
 			result = newSymbol;
@@ -182,8 +183,8 @@ public class Symbol extends AbstractExpression {
 		throw new Error("Expression.rationalValue() invoked on " + this + ", which is not a number.");
 	}
 
-	public static Expression createSymbol(Object value) {
-		Expression result = null;
+	public static Symbol createSymbol(Object value) {
+		Symbol result = null;
 		// If global symbol table to be used and the symbol's value is not
 		// an expression - i.e. quoted expressions of the form:
 		// <X>
@@ -193,14 +194,14 @@ public class Symbol extends AbstractExpression {
 			
 			result = globalSymbolTable.getIfPresent(value);
 			if (result == null) {
-				result = new Symbol(value);
+				result = new DefaultSymbol(value);
 				if (!(!cacheNumericSymbols && result.getValue() instanceof Number)) {
 					globalSymbolTable.put(value, result);
 				}
 			}
 		} 
 		else {
-			result = new Symbol(value);
+			result = new DefaultSymbol(value);
 		}
 		
 		return result;
@@ -217,7 +218,7 @@ public class Symbol extends AbstractExpression {
 	}
 
 	// Note: End users can only instantiate Symbols via the factory method.
-	private Symbol(Object value) {
+	private DefaultSymbol(Object value) {
 		
 		if (value instanceof Number && !(value instanceof Rational)) {
 			value = new Rational(((Number)value).doubleValue());
@@ -294,7 +295,7 @@ public class Symbol extends AbstractExpression {
 		globalSymbolTable.put(new Rational(9), SYMBOL_9);
 	}
 
-	private static Cache<Object, Expression> newSymbolTable() {
+	private static Cache<Object, Symbol> newSymbolTable() {
 		CacheBuilder<Object, Object> cb = CacheBuilder.newBuilder();
 		
 		long maximumSize = ExpressoConfiguration.getGlobalSymbolTableMaximumSize();
@@ -309,43 +310,43 @@ public class Symbol extends AbstractExpression {
 			cb.recordStats();
 		}
 		
-		Cache<Object, Expression> result = cb.build();
+		Cache<Object, Symbol> result = cb.build();
 		
 		return result;
 	}
 
 	//
 	// Commonly used symbol expressions
-	private static final Expression SYMBOL_TRUE  = Expressions.makeSymbol(true);
+	private static final Symbol SYMBOL_TRUE  = Expressions.makeSymbol(true);
 
-	private static final Expression SYMBOL_FALSE = Expressions.makeSymbol(false);
+	private static final Symbol SYMBOL_FALSE = Expressions.makeSymbol(false);
 
-	private static final Expression SYMBOL_0     = Expressions.makeSymbol(new Rational(0));
+	private static final Symbol SYMBOL_0     = Expressions.makeSymbol(new Rational(0));
 
-	private static final Expression SYMBOL_1     = Expressions.makeSymbol(new Rational(1));
+	private static final Symbol SYMBOL_1     = Expressions.makeSymbol(new Rational(1));
 
-	private static final Expression SYMBOL_2     = Expressions.makeSymbol(new Rational(2));
+	private static final Symbol SYMBOL_2     = Expressions.makeSymbol(new Rational(2));
 
-	private static final Expression SYMBOL_3     = Expressions.makeSymbol(new Rational(3));
+	private static final Symbol SYMBOL_3     = Expressions.makeSymbol(new Rational(3));
 
-	private static final Expression SYMBOL_4     = Expressions.makeSymbol(new Rational(4));
+	private static final Symbol SYMBOL_4     = Expressions.makeSymbol(new Rational(4));
 
-	private static final Expression SYMBOL_5     = Expressions.makeSymbol(new Rational(5));
+	private static final Symbol SYMBOL_5     = Expressions.makeSymbol(new Rational(5));
 
-	private static final Expression SYMBOL_6     = Expressions.makeSymbol(new Rational(6));
+	private static final Symbol SYMBOL_6     = Expressions.makeSymbol(new Rational(6));
 
-	private static final Expression SYMBOL_7     = Expressions.makeSymbol(new Rational(7));
+	private static final Symbol SYMBOL_7     = Expressions.makeSymbol(new Rational(7));
 
-	private static final Expression SYMBOL_8     = Expressions.makeSymbol(new Rational(8));
+	private static final Symbol SYMBOL_8     = Expressions.makeSymbol(new Rational(8));
 
-	private static final Expression SYMBOL_9     = Expressions.makeSymbol(new Rational(9));
+	private static final Symbol SYMBOL_9     = Expressions.makeSymbol(new Rational(9));
 
 	//
 	private static boolean                      useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
 
 	private static boolean                      cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
 
-	private static Cache<Object, Expression>    globalSymbolTable    = newSymbolTable();
+	private static Cache<Object, Symbol>        globalSymbolTable    = newSymbolTable();
 
 	static {
 		flushGlobalSymbolTable();

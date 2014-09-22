@@ -37,14 +37,21 @@
  */
 package com.sri.ai.expresso.api;
 
+import java.util.List;
+
 import com.google.common.annotations.Beta;
 
-/** 
- * A SyntaxTree with no children.
+/**
+ * An {@link Expression} that represents a quantified expression, that is, an expression introducing new variables,
+ * such as universal and existential quantified expressions, intensional sets, and lambda expressions.
  * 
  * @author braz
  */
 @Beta
-public interface SyntaxLeaf extends SyntaxTree {
-	String getValueType();
+public interface QuantifiedExpression extends Expression {
+
+	public List<Expression> getIndexExpressions();
+	
+	public Expression getBody();
+	
 }
