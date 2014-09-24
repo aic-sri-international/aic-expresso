@@ -60,12 +60,12 @@ import com.sri.ai.util.Util;
  * Abstract class implementing the functionality shared by most types of parsing
  * expression, particularly that concerning bookkeeping such as nesting level
  * and the use of equivalent functions. Extenders should define either
- * {@link #equivalentSimplerParsingExpression()} or
+ * {@link #equivalentSimplerParsingExpression(ParsingProcess)} or
  * {@link #parsingResultAfterBookkeeping(ParsingProcess)} for its specific
  * functionality. It also defines some helper methods useful in extender
  * implementations.
  * 
- * @braz
+ * @author braz
  */
 @Beta
 public abstract class AbstractParsingExpression extends ExpressionOnCompoundSyntaxTree implements ParsingExpression {
@@ -229,7 +229,7 @@ public abstract class AbstractParsingExpression extends ExpressionOnCompoundSynt
 		return (List) getArguments();
 	}
 	
-	/** Returns parsing expression we arrive to by following {@link #equivalentSimplerParsingExpression()}. */
+	/** Returns parsing expression we arrive to by following {@link #equivalentSimplerParsingExpression(ParsingProcess)}. */
 	@Override
 	public ParsingExpression ultimateEquivalence(ParsingProcess process) {
 		ParsingExpression current = this;

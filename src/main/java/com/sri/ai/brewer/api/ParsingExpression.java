@@ -73,7 +73,7 @@ public interface ParsingExpression extends Expression {
 	 */
 	Collection<ParsingExpression> parsingExpressionsToBeRegistered(ParsingProcess process);
 	
-	/** Returns parsing expression we arrive to by following {@link #equivalentSimplerParsingExpression()}. */
+	/** Returns parsing expression we arrive to by following {@link #equivalentSimplerParsingExpression(ParsingProcess)}. */
 	ParsingExpression ultimateEquivalence(ParsingProcess process);
 
 	/**
