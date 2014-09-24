@@ -48,7 +48,7 @@ import com.sri.ai.expresso.helper.SyntaxTrees;
  * than or equal to the original disjunct in that disjunction, or is not in the
  * disjunction at all.
  * 
- * @braz
+ * @author braz
  */
 @Beta
 public class GreaterThanOrEqualToOrUnrelated extends AbstractAtomicParsingConstraint {

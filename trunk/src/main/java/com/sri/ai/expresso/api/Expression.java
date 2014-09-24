@@ -222,7 +222,7 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	///////////////////////// SYMBOL METHODS //////////////////////
 
 	/**
-	 * Returns the value of an expression if it is a {@Symbol},
+	 * Returns the value of an expression if it is a {@link Symbol},
 	 * and <code>null</code> otherwise.
 	 * The reason it is available at the {@link Expression} is
 	 * that is it a very commonly used method and casting makes the code harder to read.

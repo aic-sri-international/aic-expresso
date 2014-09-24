@@ -53,7 +53,7 @@ import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 /**
  * A class providing basic methods for the manipulation of lambda expressions.
  * 
- * @braz
+ * @author braz
  */
 @Beta
 public class Lambda extends QuantifierSubExpressionAndScopedVariableProvider {
