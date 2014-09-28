@@ -50,6 +50,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.sri.ai.expresso.ExpressoConfiguration;
+import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
@@ -445,6 +446,52 @@ public abstract class AbstractExpression implements Expression {
 		return result;
 	}
 	
+
+	private int hashCode = -1;
+	@Override
+	public int hashCode() {
+		if (hashCode == -1) {
+			SyntaxTree rootTree = getSyntaxTree().getRootTree();
+			int rootHashCode = rootTree.hashCode();
+			List<SyntaxTree> immediateSubTrees = getSyntaxTree().getImmediateSubTrees();
+			int subTreesHashCode = immediateSubTrees.hashCode();
+			hashCode = rootHashCode + subTreesHashCode;
+		}
+		
+		return hashCode;
+	}
+
+	@Override
+	public boolean equals(Object anotherObject) {
+		
+		if (this == anotherObject) {
+			return true;
+		}
+		
+		boolean result = false;
+		
+		boolean anotherObjectiIsExpressionDefinedOnCompoundSyntaxTree =
+				anotherObject instanceof Expression &&
+				((Expression) anotherObject).getSyntaxTree() instanceof CompoundSyntaxTree;
+		
+		if (anotherObjectiIsExpressionDefinedOnCompoundSyntaxTree) {
+			
+			Expression anotherCompoundSyntaxTree = (Expression) anotherObject;
+			
+			if (this.hashCode() == anotherCompoundSyntaxTree.hashCode()) {
+				
+				SyntaxTree       thisRootTree    = this.getSyntaxTree().getRootTree();
+				SyntaxTree       anotherRootTree = anotherCompoundSyntaxTree.getSyntaxTree().getRootTree();
+				
+				List<SyntaxTree> thisSubTrees    = this.getSyntaxTree().getImmediateSubTrees();
+				List<SyntaxTree> anotherSubTrees = anotherCompoundSyntaxTree.getSyntaxTree().getImmediateSubTrees();
+
+				result = thisRootTree.equals(anotherRootTree) && thisSubTrees.equals(anotherSubTrees);
+			}
+		}
+		return result;
+	}
+
 	@Override
 	public String toString() {
 		if (cachedToString == null) {

@@ -67,9 +67,8 @@ public class Lambda extends QuantifierSubExpressionAndScopedVariableProvider {
 	}
 
 	public static boolean isLambdaExpression(Expression expression) {
-		return expression != null &&
-		expression.getSyntaxTree().getRootTree() != null &&
-		expression.getSyntaxTree().getRootTree().equals(ROOT);
+		boolean result = expression != null && expression.getSyntacticFormType().equals(SYNTACTIC_FORM_TYPE);
+		return result;
 	}
 
 	public static List<Expression> getParameters(Expression expression) {

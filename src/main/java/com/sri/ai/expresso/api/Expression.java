@@ -174,7 +174,7 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	 */
 	public Expression renameSymbol(Expression symbol, Expression newSymbol, RewritingProcess process);
 	
-	public Object clone() throws CloneNotSupportedException;
+	// Object clone() throws CloneNotSupportedException;
 	
 	///////////////////////// FUNCTION APPLICATION METHODS //////////////////////
 	// The following methods are only valid for function applications.

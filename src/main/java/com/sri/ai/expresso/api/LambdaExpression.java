@@ -37,8 +37,6 @@
  */
 package com.sri.ai.expresso.api;
 
-import java.util.List;
-
 import com.google.common.annotations.Beta;
 
 /**
@@ -47,10 +45,6 @@ import com.google.common.annotations.Beta;
  * @author braz
  */
 @Beta
-public interface LambdaExpression extends QuantifiedExpression {
+public interface LambdaExpression extends QuantifiedExpressionWithABody {
 
-	public List<Expression> getIndexExpressions();
-	
-	public Expression getBody();
-	
 }

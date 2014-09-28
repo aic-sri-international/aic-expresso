@@ -171,6 +171,34 @@ public class IndexExpressions {
 		Expression result = type == null? index : Expressions.apply("in", index, type);
 		return result;
 	}
+	
+	public static Expression replaceOrAddType(Expression indexExpression, Expression newType) {
+		Pair<Expression, Expression> indexAndType = getIndexAndDomain(indexExpression);
+		Expression result;
+		if (newType.equals(indexAndType.second)) {
+			result = indexExpression;
+		}
+		else {
+			result = makeIndexExpression(indexAndType.first, newType);
+		}
+		return result;
+	}
+
+	public static Expression replaceArgument(Expression indexExpression, int argumentIndex, Expression newArgument) {
+		Pair<Expression, Expression> indexAndType = getIndexAndDomain(indexExpression);
+		Expression index = indexAndType.first;
+		Expression type  = indexAndType.second;
+		Expression argument = index.get(argumentIndex);
+		Expression result;
+		if (newArgument.equals(argument)) {
+			result = indexExpression;
+		}
+		else {
+			Expression newIndex = index.set(argumentIndex, newArgument);
+			result = makeIndexExpression(newIndex, type);
+		}
+		return result;
+	}
 
 	public static Pair<Expression, Expression> getIndexAndDomain(Expression indexExpression) {
 		boolean bothIndexAndDomain = indexExpression.hasFunctor("in") && indexExpression.numberOfArguments() == 2;
@@ -242,5 +270,24 @@ public class IndexExpressions {
 		Expression indexExpression = makeIndexExpression(expression, type);
 		return indexExpression;
 	}
-	
+
+	public static Expression renameSymbol(Expression indexExpression, Expression symbol, Expression newSymbol, RewritingProcess process) {
+		Expression result;
+		Expression index = getIndex(indexExpression);
+		if (indexExpression.hasFunctor(FunctorConstants.IN)) {
+			Expression type = getType(indexExpression);
+			Expression newIndex = index.renameSymbol(symbol, newSymbol, process);
+			Expression newType  =  type.renameSymbol(symbol, newSymbol, process);
+			if (newIndex != index || newType != type) {
+				result = makeIndexExpression(newIndex, newType);
+			}
+			else {
+				result = indexExpression;
+			}
+		}
+		else {
+			result = index.renameSymbol(symbol, newSymbol, process);
+		}
+		return result;
+	}
 }

@@ -37,22 +37,21 @@
  */
 package com.sri.ai.expresso.core;
 
-import static com.sri.ai.util.Util.mapIntoArray;
+import static com.sri.ai.expresso.helper.SyntaxTrees.makeCompoundSyntaxTree;
+import static com.sri.ai.util.Util.mapIntoArrayList;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.api.LambdaExpression;
-import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractExpression;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.library.lambda.Lambda;
 
 /**
  * A default implementation of a {@link LambdaExpression}.
@@ -60,62 +59,82 @@ import com.sri.ai.grinder.core.AbstractExpression;
  * @author braz
  */
 @Beta
-public class DefaultLambdaExpression extends AbstractExpression implements LambdaExpression {
+public class DefaultLambdaExpression extends AbstractQuantifiedExpressionWithABody implements LambdaExpression {
 
 	private static final long serialVersionUID = 1L;
+	
+	private SyntaxTree cachedSyntaxTree;
 
-	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(RewritingProcess process) {
-		// TODO Auto-generated method stub
-		return null;
+	public DefaultLambdaExpression(List<Expression> indexExpressions, Expression body) {
+		super(indexExpressions, body);
+		cachedSyntaxTree = makeSyntaxTree();
 	}
 
 	@Override
 	public Object getSyntacticFormType() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Lambda expression";
 	}
 
 	@Override
 	public SyntaxTree getSyntaxTree() {
-		// TODO Auto-generated method stub
-		return null;
+		return cachedSyntaxTree;
+	}
+	
+	private SyntaxTree makeSyntaxTree() {
+		List<SyntaxTree> indexExpressionsSyntaxTrees = mapIntoArrayList(getIndexExpressions(), Expression::getSyntaxTree);
+		SyntaxTree parameterList = SyntaxTrees.makeKleeneListIfNeeded(indexExpressionsSyntaxTrees);
+		SyntaxTree result = makeCompoundSyntaxTree(Lambda.ROOT, parameterList, getBody().getSyntaxTree());
+		return result;
+	}
+
+	@Override
+	public DefaultLambdaExpression setIndexExpressions(List<Expression> newIndexExpressions) {
+		DefaultLambdaExpression result;
+		if (newIndexExpressions != getIndexExpressions()) {
+			result = new DefaultLambdaExpression(newIndexExpressions, getBody());
+		}
+		else {
+			result = this;
+		}
+		return result;
+	}
+
+	@Override
+	public DefaultLambdaExpression setBody(Expression newBody) {
+		DefaultLambdaExpression result;
+		if (newBody != getBody()) {
+			result = new DefaultLambdaExpression(getIndexExpressions(), newBody);
+		}
+		else {
+			result = this;
+		}
+		return result;
 	}
 
 	@Override
 	public Expression renameSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
-		// TODO Auto-generated method stub
-		return null;
+		DefaultLambdaExpression result = this;
+		
+		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, process);
+		ArrayList<Expression> newIndexExpression = mapIntoArrayList(getIndexExpressions(), renameSymbol);
+		
+		Expression newBody = getBody().renameSymbol(symbol, newSymbol, process);
+		
+		result = replaceIfNeeded(result, newIndexExpression, newBody);
+
+		return result;
 	}
 
-	@Override
-	public Expression getFunctor() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression set(int i, Expression newIthArgument) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<Expression> getIndexExpressions() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression getBody() {
-		// TODO Auto-generated method stub
-		return null;
+	private DefaultLambdaExpression replaceIfNeeded(DefaultLambdaExpression lambdaExpression, ArrayList<Expression> newIndexExpression, Expression newBody) {
+		if (newIndexExpression != getIndexExpressions() || newBody != getBody()) {
+			lambdaExpression = new DefaultLambdaExpression(newIndexExpression, newBody);
+		}
+		return lambdaExpression;
 	}
 
 	@Override
 	public Expression clone() {
-		// TODO Auto-generated method stub
-		return null;
+		DefaultLambdaExpression result = new DefaultLambdaExpression(getIndexExpressions(), getBody());
+		return result;
 	}
-
 }
