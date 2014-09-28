@@ -1858,6 +1858,10 @@ public class GrinderTest extends AbstractGrinderTest {
 
 		evaluator = new ExhaustiveRewriter(rewriters);
 
+		expressionString = "lambda f(X) : 2 + f(X)";
+		expected = parse("lambda f(X) : 2 + f(X)");
+		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));
+
 		expressionString = "if Z = a then f(lambda Z : g(Z)) else 0";
 		expected = parse("if Z = a then f(lambda Z : g(Z)) else 0");
 		evaluationTest(newRewritingProcessWithCardinalityAndCounts(evaluator));

@@ -156,7 +156,8 @@ public class SemanticSubstitute {
 		@Override
 		public Expression apply(Expression expression, RewritingProcess process) {
 			Expression result = expression;
-			if (expression.getFunctorOrSymbol().equals(replaced.getFunctorOrSymbol())) {
+			Expression functorOrSymbol = expression.getFunctorOrSymbol();
+			if (functorOrSymbol != null && functorOrSymbol.equals(replaced.getFunctorOrSymbol())) {
 				Expression argumentsAreTheSame = Equality.makePairwiseEquality(expression.getArguments(), replaced.getArguments());
 				Expression argumentsAreTheSameAndConstraintOnReplaced = And.make(constraintOnReplaced, argumentsAreTheSame);
 				Expression conditionForExpressionToMatchReplaced = process.rewrite(CardinalityRewriter.R_complete_normalize, argumentsAreTheSameAndConstraintOnReplaced);

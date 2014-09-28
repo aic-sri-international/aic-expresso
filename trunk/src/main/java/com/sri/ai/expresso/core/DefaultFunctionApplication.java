@@ -45,7 +45,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.FunctionApplication;
@@ -58,7 +57,7 @@ import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.Not;
 
 /**
- * A default implementation of a {@link FunctionApplication}..
+ * A default implementation of a {@link FunctionApplication}.
  * 
  * @author braz
  */
@@ -198,50 +197,5 @@ public class DefaultFunctionApplication extends AbstractExpression implements Fu
 			Expression result = expression.set(this.index, newSubExpression);
 			return result;
 		}
-	}
-
-	private int hashCode = -1;
-	@Override
-	public int hashCode() {
-		if (hashCode == -1) {
-			SyntaxTree rootTree = getSyntaxTree().getRootTree();
-			int rootHashCode = rootTree.hashCode();
-			List<SyntaxTree> immediateSubTrees = getSyntaxTree().getImmediateSubTrees();
-			int subTreesHashCode = immediateSubTrees.hashCode();
-			hashCode = rootHashCode + subTreesHashCode;
-		}
-		
-		return hashCode;
-	}
-
-	@Override
-	public boolean equals(Object anotherObject) {
-		
-		if (this == anotherObject) {
-			return true;
-		}
-		
-		boolean result = false;
-		
-		boolean anotherObjectiIsExpressionDefinedOnCompoundSyntaxTree =
-				anotherObject instanceof Expression &&
-				((Expression) anotherObject).getSyntaxTree() instanceof CompoundSyntaxTree;
-		
-		if (anotherObjectiIsExpressionDefinedOnCompoundSyntaxTree) {
-			
-			Expression anotherCompoundSyntaxTree = (Expression) anotherObject;
-			
-			if (this.hashCode() == anotherCompoundSyntaxTree.hashCode()) {
-				
-				SyntaxTree       thisRootTree    = this.getSyntaxTree().getRootTree();
-				SyntaxTree       anotherRootTree = anotherCompoundSyntaxTree.getSyntaxTree().getRootTree();
-				
-				List<SyntaxTree> thisSubTrees    = this.getSyntaxTree().getImmediateSubTrees();
-				List<SyntaxTree> anotherSubTrees = anotherCompoundSyntaxTree.getSyntaxTree().getImmediateSubTrees();
-
-				result = thisRootTree.equals(anotherRootTree) && thisSubTrees.equals(anotherSubTrees);
-			}
-		}
-		return result;
 	}
 }

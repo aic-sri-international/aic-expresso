@@ -107,7 +107,7 @@ public class StandardizedApartFrom {
 	private static Expression standardizeTopExpressionScopedVariablesApartFrom(
 			Expression expression, Collection<Expression> variablesThatCannotBeScopingInExpression, RewritingProcess process) {
 		List<Expression> scopedVariables1 = ScopedVariables.get(expression, process);
-		List<SyntaxTree> scopedVariables1SyntaxTrees = Util.mapIntoArrayList(scopedVariables1, Expressions.GET_SYNTAX_TREE);
+		List<SyntaxTree> scopedVariables1SyntaxTrees = Util.mapIntoArrayList(scopedVariables1, Expression::getSyntaxTree);
 		if (Util.thereExists(scopedVariables1SyntaxTrees, new IsInstanceOf<SyntaxTree>(CompoundSyntaxTree.class))) {
 			throw new StandardizingApartOnScopingFunctionApplicationsNotSupported(expression);
 		}

@@ -37,54 +37,18 @@
  */
 package com.sri.ai.expresso.api;
 
-import static com.sri.ai.util.Util.replaceElementNonDestructively;
-
-import java.util.List;
-
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
 
 /**
- * An {@link Expression} that represents a quantified expression, that is, an expression introducing new variables,
- * such as universal and existential quantified expressions, intensional sets, and lambda expressions.
+ * An {@link QuantifiedExpression} of the form <code>IDENTIFIER <index expressions> : <body></code>.
+ * Meant as a base interface for quantified formulas and lambda expressions.
  * 
  * @author braz
  */
 @Beta
-public interface QuantifiedExpression extends Expression {
+public interface QuantifiedExpressionWithABody extends QuantifiedExpression {
 
+	public Expression getBody();
 	
-	public List<Expression>     getIndexExpressions();
-	public QuantifiedExpression setIndexExpressions(List<Expression> newIndexExpressions);
-
-	/**
-	 * Returns a new {@link QuantifiedExpression} with the {@param indexExpressionIndex}-th index expression
-	 * replaced by the given replacement function,
-	 * or this same instance if the replacement function maps the index expression to itself.
-	 * @param indexExpressionIndex
-	 * @param replacementFunction
-	 * @return a {@link QuantifiedExpression} with the replaced index expression (or this same instance if replacement is the same).
-	 */
-	public default Expression replaceIndexExpression(int indexExpressionIndex, Function<Expression, Expression> replacementFunction) {
-		List<Expression> newIndexExpressions =
-				replaceElementNonDestructively(getIndexExpressions(), indexExpressionIndex, replacementFunction);
-		Expression result = setIndexExpressions(newIndexExpressions);
-		return result;
-	}
-
-	/**
-	 * This this is not a {@link FunctionApplication}, returns <code>null</code>.
-	 */
-	@Override
-	public default Expression getFunctor() {
-		return null;
-	}
-
-	/**
-	 * This this is not a {@link FunctionApplication}, returns <code>null</code>.
-	 */
-	@Override
-	public default Expression set(int i, Expression newIthArgument) {
-		return null;
-	}
+	public QuantifiedExpressionWithABody setBody(Expression newBody);
 }
