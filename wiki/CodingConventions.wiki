@@ -1,6 +1,16 @@
 #summary Coding Conventions
 
-Most multi-programmer projects have coding standards to keep them uniform. So we ask you to please follow the project coding conventions below, as well as fix violations when you see them: 
+Most multi-programmer projects have coding standards to keep them uniform. So we ask you to please follow the project coding conventions below, as well as fix violations when you see them:
+  * Do not hard-code class names in strings and comments, because they change and refactoring tools will not identify them. When referring to a class in a javadoc comment, always use the `{@link ...}` tag, and when adding a class name in a String, use
+{{{
+String message = "Object of class '" + SomeClass.class.getSimpleName() +
+                 "' expected but was a " + object.getClass().getSimpleName() + " instead";
+}}}
+instead of
+{{{
+String message = "Object of class 'SomeClass' expected but was a " + object.getClass().getSimpleName() + " instead";
+}}}
+You may want to omit `getSimpleName()` if you need full class names.
   * Code blocks (in `while` and `if` statements, for instance) should be surrounded by curly braces (`{}`), even if they are a single statement. This makes it easier to add and remove statements, since one does not need to be concerned with the braces. The initial curly brace should be at the end of the line preceding the block (`while (...) {`).
   * `else` should be placed in a new line from the braces of the previous then block. The reason is that this form allows for quick commenting out of conditions and their blocks, for example: 
 {{{
