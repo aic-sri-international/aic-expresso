@@ -45,7 +45,6 @@ import com.sri.ai.grinder.api.RewriterTest;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasFormula;
-import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -66,7 +65,7 @@ public class QuantifierEliminationWrapper extends AbstractRewriter {
 	private Object kind;
 	
 	public QuantifierEliminationWrapper(Object kindValue) {
-		// ISSUE: reifying kind test was not working, so I am storing it here and testing it normally later.
+		// TODO: Issue #45: reifying kind test was not working, so I am storing it here and testing it normally later.
 		kind = kindValue;
 		
 		// Set the name based on the quantifier this is specific to.
