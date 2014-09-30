@@ -41,7 +41,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -56,7 +56,7 @@ import com.sri.ai.grinder.library.FunctorConstants;
 public class NormalizeDisequalities extends AbstractRewriter {
 
 	public NormalizeDisequalities() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.INEQUALITY),
+		this.setReifiedTests(new HasKind(FunctorConstants.INEQUALITY),
 				             new HasNumberOfArguments(2));
 	}
 	

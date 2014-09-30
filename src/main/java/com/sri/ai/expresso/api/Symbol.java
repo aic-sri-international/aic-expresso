@@ -50,5 +50,6 @@ public interface Symbol extends Expression {
 	/**
 	 * Returns the value of an expression if it is based on a symbol.
 	 */
+	@Override
 	public Object getValue();
 }

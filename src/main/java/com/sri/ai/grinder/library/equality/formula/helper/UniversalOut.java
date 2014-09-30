@@ -44,9 +44,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
+import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.core.TotalRewriter;
-import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.ForAll;
 
 /**
@@ -59,7 +59,8 @@ import com.sri.ai.grinder.library.boole.ForAll;
 public class UniversalOut extends AbstractRewriter {
 	
 	public UniversalOut() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.FOR_ALL));
+//		this.setReifiedTests(new HasKind(KindAttribute.VALUE_FOR_ALL));
+		// TODO: Reification not working for VALUE_THERE_EXISTS and VALUE_FOR_ALL -- see QuantifierEliminationWrapper
 	}
 	
 	public static Expression universalsOut(Expression formula, RewritingProcess process) {
@@ -75,8 +76,10 @@ public class UniversalOut extends AbstractRewriter {
 	public Expression rewriteAfterBookkeeping(Expression expression,
 			RewritingProcess process) {
 		Expression result = expression;
-		
-		result = ForAll.getBody(expression);
+
+		if (ForAll.isForAll(expression)) {
+			result = ForAll.getBody(expression);
+		}
 		
 		return result;
 	}

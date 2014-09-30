@@ -136,11 +136,15 @@ public class WorstCaseNumberOfDisjuncts {
 			}
 		}
 
-		if (expression.hasFunctor(FunctorConstants.THERE_EXISTS)) {
+		if (expression.getSyntacticFormType().equals(ThereExists.SYNTACTIC_FORM_TYPE)
+				||
+				expression.hasFunctor(FunctorConstants.THERE_EXISTS)) {
 			return get(ThereExists.getBody(expression), sign);
 		}
 
-		if (expression.hasFunctor(FunctorConstants.FOR_ALL)) {
+		if (expression.getSyntacticFormType().equals(ForAll.SYNTACTIC_FORM_TYPE)
+				||
+				expression.hasFunctor(FunctorConstants.FOR_ALL)) {
 			return get(ForAll.getBody(expression), sign);
 		}
 

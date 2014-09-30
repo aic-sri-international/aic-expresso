@@ -42,7 +42,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 
@@ -58,7 +58,7 @@ import com.sri.ai.grinder.library.FunctorConstants;
 public class NormalizeDisequalityLiteral extends AbstractRewriter {
 	
 	public NormalizeDisequalityLiteral() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.INEQUALITY));
+		this.setReifiedTests(new HasKind(FunctorConstants.INEQUALITY));
 	}
 	
 	@Override

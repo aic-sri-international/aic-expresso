@@ -82,7 +82,9 @@ public class QuantifierElimination extends AbstractCardinalityRewriter {
 			throw new IllegalArgumentException("QuantifierElimination received non-formula " + expressionF);
 		}
 				
-		if (expressionF.hasFunctor(FunctorConstants.FOR_ALL)) {
+		if (expressionF.getSyntacticFormType().equals(ForAll.SYNTACTIC_FORM_TYPE)
+				||
+				expressionF.hasFunctor(FunctorConstants.FOR_ALL)) {
 			Trace.log("if F is \"for all x: Y\"");
 			Trace.log("    return R_normalize(R_card(|R_top_simplify(Y)|_x, \"for all\") = |type(x)| )");
 			
@@ -99,7 +101,9 @@ public class QuantifierElimination extends AbstractCardinalityRewriter {
 			
 			result = process.rewrite(R_normalize, numberOfSolutionsAndTypeSizeMustBeEqual);
 		} 
-		else if (expressionF.hasFunctor(FunctorConstants.THERE_EXISTS)) {
+		else if (expressionF.getSyntacticFormType().equals(ThereExists.SYNTACTIC_FORM_TYPE)
+				||
+				expressionF.hasFunctor(FunctorConstants.THERE_EXISTS)) {
 			Trace.log("if F is \"there exists x: Y\"");
 			Trace.log("    return R_normalize(R_card(|R_top_simplify(Y)|_x, \"there exists\") > 0)");
 			

@@ -44,7 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
@@ -60,7 +60,7 @@ import com.sri.ai.grinder.library.boole.Or;
 public class EquivalenceOut extends AbstractRewriter {
 	
 	public EquivalenceOut() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.EQUIVALENCE));
+		this.setReifiedTests(new HasKind(FunctorConstants.EQUIVALENCE));
 	}
 	
 	public static Expression equivalencesOut(Expression formula, RewritingProcess process) {

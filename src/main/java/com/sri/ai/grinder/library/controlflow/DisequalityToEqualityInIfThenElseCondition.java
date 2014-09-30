@@ -41,7 +41,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -57,7 +57,7 @@ import com.sri.ai.grinder.library.FunctorConstants;
 public class DisequalityToEqualityInIfThenElseCondition extends AbstractRewriter {
 	
 	public DisequalityToEqualityInIfThenElseCondition() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.IF_THEN_ELSE));
+		this.setReifiedTests(new HasKind(FunctorConstants.IF_THEN_ELSE));
 	}
 
 	@Override

@@ -46,6 +46,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.core.OpenInterpretationModule;
 import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.helper.Justification;
@@ -200,8 +201,8 @@ public class Simplify extends AbstractCardinalityRewriter {
 						// there exists X : a = X             -> true
 						// there exists X: (X = a) => (X = b) -> true
 						// there exists X: X != a and X = Y   -> Y != a
-						new QuantifierEliminationWrapper(FunctorConstants.FOR_ALL),
-						new QuantifierEliminationWrapper(FunctorConstants.THERE_EXISTS),
+						new QuantifierEliminationWrapper(KindAttribute.VALUE_FOR_ALL),
+						new QuantifierEliminationWrapper(KindAttribute.VALUE_THERE_EXISTS),
 						new QuantifierEliminationWrapper(FunctorConstants.NOT),
 						new QuantifierEliminationWrapper(FunctorConstants.IMPLICATION),
 						new QuantifierEliminationWrapper(FunctorConstants.EQUIVALENCE),

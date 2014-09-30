@@ -44,6 +44,7 @@ import org.junit.Test;
 
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.core.CallRewriterDecisionTree;
+import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
 import com.sri.ai.grinder.library.Disequality;
@@ -139,8 +140,8 @@ public class CallRewriterDecisionTreeTest {
 					// e.g.:
 					// there exists X : a = X             -> true
 					// there exists X: (X = a) => (X = b) -> true
-					new QuantifierEliminationWrapper(FunctorConstants.FOR_ALL),
-					new QuantifierEliminationWrapper(FunctorConstants.THERE_EXISTS),
+					new QuantifierEliminationWrapper(KindAttribute.VALUE_FOR_ALL),
+					new QuantifierEliminationWrapper(KindAttribute.VALUE_THERE_EXISTS),
 					new QuantifierEliminationWrapper(FunctorConstants.NOT),
 					new QuantifierEliminationWrapper(FunctorConstants.IMPLICATION),
 					new QuantifierEliminationWrapper(FunctorConstants.EQUIVALENCE),

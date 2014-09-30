@@ -43,7 +43,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.Util;
@@ -59,7 +59,7 @@ import com.sri.ai.util.math.Rational;
 public class Division extends AbstractRewriter {
 	
 	public Division() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.DIVISION),
+		this.setReifiedTests(new HasKind(FunctorConstants.DIVISION),
 						     new HasNumberOfArguments(2));
 	}
 

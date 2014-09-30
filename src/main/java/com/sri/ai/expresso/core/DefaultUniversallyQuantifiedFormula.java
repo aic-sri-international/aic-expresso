@@ -35,37 +35,42 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.equality;
+package com.sri.ai.expresso.core;
+
+import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasKind;
-import com.sri.ai.grinder.core.HasNumberOfArguments;
-import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.expresso.api.UniversallyQuantifiedFormula;
+import com.sri.ai.grinder.library.boole.ForAll;
 
 /**
+ * A default implementation of a {@link UniversallyQuantifiedFormula}.
  * 
  * @author braz
- *
  */
 @Beta
-public class NotOnDisequality extends AbstractRewriter {
+public class DefaultUniversallyQuantifiedFormula extends AbstractQuantifiedExpressionWithABody implements UniversallyQuantifiedFormula {
+
+	private static final long serialVersionUID = 1L;
 	
-	public NotOnDisequality() {
-		this.setReifiedTests(new HasKind(FunctorConstants.NOT),
-	             			 new HasNumberOfArguments(1));
+	public DefaultUniversallyQuantifiedFormula(List<Expression> indexExpressions, Expression body) {
+		super(indexExpressions, body);
 	}
 
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (expression.get(0).hasFunctor("!=") &&
-			expression.get(0).numberOfArguments() == 2) {
-			return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(
-					"=", expression.get(0).get(0), expression.get(0).get(1));
-		}
-		return expression;
+	public Object getSyntacticFormType() {
+		return ForAll.SYNTACTIC_FORM_TYPE;
+	}
+
+	@Override
+	public String getSyntaxTreeLabel() {
+		return ForAll.LABEL;
+	}
+
+	@Override
+	public AbstractQuantifiedExpressionWithABody make(List<Expression> indexExpressions, Expression body) {
+		AbstractQuantifiedExpressionWithABody result = new DefaultUniversallyQuantifiedFormula(indexExpressions, body);
+		return result;
 	}
 }

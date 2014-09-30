@@ -53,6 +53,7 @@ import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.ExhaustiveRewriter;
+import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
@@ -1369,8 +1370,8 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 				
 				TotalRewriter quantifierEliminationWrappers =
 						new TotalRewriter(
-								new QuantifierEliminationWrapper(FunctorConstants.THERE_EXISTS),
-								new QuantifierEliminationWrapper(FunctorConstants.FOR_ALL),
+								new QuantifierEliminationWrapper(KindAttribute.VALUE_THERE_EXISTS),
+								new QuantifierEliminationWrapper(KindAttribute.VALUE_FOR_ALL),
 								new QuantifierEliminationWrapper(FunctorConstants.AND),
 								new QuantifierEliminationWrapper(FunctorConstants.OR),
 								new QuantifierEliminationWrapper(FunctorConstants.NOT),

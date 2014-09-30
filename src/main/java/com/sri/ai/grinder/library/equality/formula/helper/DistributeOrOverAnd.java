@@ -44,7 +44,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Or;
@@ -60,7 +60,7 @@ import com.sri.ai.grinder.library.boole.Or;
 public class DistributeOrOverAnd extends AbstractRewriter {
 	
 	public DistributeOrOverAnd() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.OR));
+		this.setReifiedTests(new HasKind(FunctorConstants.OR));
 	}
 	
 	@Override

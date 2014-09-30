@@ -47,7 +47,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
@@ -66,7 +66,7 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 public class NormalizeOr extends AbstractRewriter {
 		
 	public NormalizeOr() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.OR));
+		this.setReifiedTests(new HasKind(FunctorConstants.OR));
 	}
 	
 	@Override

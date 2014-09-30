@@ -47,7 +47,7 @@ import com.google.common.base.Predicates;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.library.function.AbstractRewriterDefiningSymmetricFunction;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
@@ -70,7 +70,7 @@ import com.sri.ai.util.base.Equals;
 public abstract class CommutativeAssociative extends AbstractRewriterDefiningSymmetricFunction {
 	
 	public CommutativeAssociative() {
-		this.setReifiedTests(new HasFunctor(getFunctor()));
+		this.setReifiedTests(new HasKind(getFunctor()));
 	}
 
 	@Override

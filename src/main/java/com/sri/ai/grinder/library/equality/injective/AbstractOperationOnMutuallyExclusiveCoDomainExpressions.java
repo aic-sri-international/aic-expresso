@@ -41,7 +41,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.function.MutuallyExclusiveCoDomainsModule;
 
@@ -55,7 +55,7 @@ public abstract class AbstractOperationOnMutuallyExclusiveCoDomainExpressions
 		extends AbstractRewriter {
 	
 	public AbstractOperationOnMutuallyExclusiveCoDomainExpressions() {
-		this.setReifiedTests(new HasFunctor(getFunctor()),
+		this.setReifiedTests(new HasKind(getFunctor()),
 				             new HasNumberOfArguments(2));
 	}
 

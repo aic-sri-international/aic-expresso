@@ -50,24 +50,29 @@ import com.google.common.annotations.Beta;
 public interface FunctionApplication extends Expression {
 	
 	/** Returns the functor if the expression is a function application, or <code>null</code> otherwise. */
+	@Override
 	public Expression getFunctor();
 	
 	/** Indicates whether expression is a function application with given functor. */
+	@Override
 	public boolean hasFunctor(Object functor);
 	
 	/**
 	 * Returns the arguments of a function application expression if this is one.
 	 */
+	@Override
 	public List<Expression> getArguments();
 	
 	/**
 	 * Same as {@link #getArguments()}<code>.size()</code>, but potentially more efficient.
 	 */
+	@Override
 	public int numberOfArguments();
 	
 	/**
 	 * Same as {@link #getArguments()}<code>.get(i)</code>, but potentially more efficient.
 	 */
+	@Override
 	public Expression get(int i);
 	
 	/**
@@ -75,6 +80,7 @@ public interface FunctionApplication extends Expression {
 	 * returns an expression equal to this one, but for replacing the i-th argument by the given one.
 	 * Generates an error otherwise.
 	 */
+	@Override
 	Expression set(int i, Expression newIthArgument);
 	
 }

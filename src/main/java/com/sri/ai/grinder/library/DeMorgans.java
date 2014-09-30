@@ -48,7 +48,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.DefaultRewriterTest;
 import com.sri.ai.grinder.core.HasFormula;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.util.Util;
@@ -63,7 +63,7 @@ public class DeMorgans extends AbstractRewriter {
 		// Set up the relevant reified tests
 		List<DefaultRewriterTest> reifiedTests =
 				Util.list(
-						new HasFunctor(FunctorConstants.NOT),
+						new HasKind(FunctorConstants.NOT),
 						new HasNumberOfArguments(1),
 						new HasFormula());
 		this.setReifiedTests(reifiedTests.toArray(new RewriterTest[reifiedTests.size()]));

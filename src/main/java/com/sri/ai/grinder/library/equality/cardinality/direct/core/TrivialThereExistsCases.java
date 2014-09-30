@@ -42,8 +42,8 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
-import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.core.HasKind;
+import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.library.boole.ThereExists;
 
 /**
@@ -56,7 +56,7 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 public class TrivialThereExistsCases extends AbstractRewriter {
 	
 	public TrivialThereExistsCases() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.THERE_EXISTS));
+		this.setReifiedTests(new HasKind(KindAttribute.VALUE_THERE_EXISTS));
 	}
 	
 	@Override

@@ -42,6 +42,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.demo.model.EnableItem;
 import com.sri.ai.grinder.demo.model.ExampleRewrite;
 import com.sri.ai.grinder.demo.model.GroupEnableItem;
@@ -127,8 +128,8 @@ public class AllRewritePanel extends AbstractRewritePanel {
 		allRewriters.add(new LeafEnableItem<Rewriter>("Trivial For All Cases",  new TrivialForAllCases()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Trivial There Exists Cases",  new TrivialThereExistsCases()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Top Simplify",  new TopSimplifyWrapper()));
-		allRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.FOR_ALL,  new QuantifierEliminationWrapper(FunctorConstants.FOR_ALL)));
-		allRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.THERE_EXISTS,  new QuantifierEliminationWrapper(FunctorConstants.THERE_EXISTS)));
+		allRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.FOR_ALL,  new QuantifierEliminationWrapper(KindAttribute.VALUE_FOR_ALL)));
+		allRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.THERE_EXISTS,  new QuantifierEliminationWrapper(KindAttribute.VALUE_THERE_EXISTS)));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.NOT,  new QuantifierEliminationWrapper(FunctorConstants.NOT)));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.IMPLICATION,  new QuantifierEliminationWrapper(FunctorConstants.IMPLICATION)));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Quantifier Elimination "+FunctorConstants.EQUIVALENCE,  new QuantifierEliminationWrapper(FunctorConstants.EQUIVALENCE)));
