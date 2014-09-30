@@ -58,7 +58,7 @@ import com.sri.ai.expresso.core.SyntaxTreeBasedSubExpressionAddress;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.DefaultRewriterTest;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.SemanticSubstitute;
@@ -110,7 +110,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	private static final List<Integer> _pathZeroZero    = Collections.unmodifiableList(Arrays.asList(new Integer(0), new Integer(0)));
 	
 	public IntensionalSet() {
-		this.setReifiedTests(new DefaultRewriterTest(KindAttribute.INSTANCE, KindAttribute.VALUE_INTENSIONAL_SET));
+		this.setReifiedTests(new HasKind(KindAttribute.VALUE_INTENSIONAL_SET));
 	}
 
 	public static boolean isIntensionalSet(Expression expression) {

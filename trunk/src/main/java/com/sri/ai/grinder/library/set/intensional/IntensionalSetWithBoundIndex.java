@@ -44,7 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.DefaultRewriterTest;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.SemanticSubstitute;
@@ -59,7 +59,7 @@ import com.sri.ai.grinder.library.set.Sets;
 public class IntensionalSetWithBoundIndex extends AbstractRewriter {
 	
 	public IntensionalSetWithBoundIndex() {
-		this.setReifiedTests(new DefaultRewriterTest(KindAttribute.INSTANCE, KindAttribute.VALUE_INTENSIONAL_SET));
+		this.setReifiedTests(new HasKind(KindAttribute.VALUE_INTENSIONAL_SET));
 	}
 	
 	@Override
