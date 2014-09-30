@@ -35,25 +35,16 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core;
+package com.sri.ai.expresso.api;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
 
+/**
+ * An {@link Expression} that represents a universally quantified formula.
+ * 
+ * @author braz
+ */
 @Beta
-public class HasFunctor extends DefaultRewriterTest {
+public interface UniversallyQuantifiedFormula extends QuantifiedExpressionWithABody {
 
-	/**
-	 * Constructor. Create a RewriterTest with
-	 * (attribute=kind,value=aGivenFunctor).
-	 * 
-	 * @param functorValue
-	 */
-	public HasFunctor(Object functorValue) {
-		// Note: for safety ensure we always compare expressions.
-		super(KindAttribute.INSTANCE,
-				functorValue instanceof Expression ? functorValue
-						: Expressions.makeSymbol(functorValue));
-	}
 }

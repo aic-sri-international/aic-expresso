@@ -38,7 +38,6 @@
 package com.sri.ai.grinder.expression;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 

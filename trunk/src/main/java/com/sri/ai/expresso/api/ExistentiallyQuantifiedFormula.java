@@ -35,37 +35,16 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.equality;
+package com.sri.ai.expresso.api;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasKind;
-import com.sri.ai.grinder.core.HasNumberOfArguments;
-import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
+ * An {@link Expression} that represents an existentially quantified formula.
  * 
  * @author braz
- *
  */
 @Beta
-public class NotOnDisequality extends AbstractRewriter {
-	
-	public NotOnDisequality() {
-		this.setReifiedTests(new HasKind(FunctorConstants.NOT),
-	             			 new HasNumberOfArguments(1));
-	}
+public interface ExistentiallyQuantifiedFormula extends QuantifiedExpressionWithABody {
 
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		if (expression.get(0).hasFunctor("!=") &&
-			expression.get(0).numberOfArguments() == 2) {
-			return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(
-					"=", expression.get(0).get(0), expression.get(0).get(1));
-		}
-		return expression;
-	}
 }

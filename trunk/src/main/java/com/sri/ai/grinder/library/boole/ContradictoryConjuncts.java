@@ -44,7 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.helper.IsApplicationOf;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.Util;
@@ -65,7 +65,7 @@ public class ContradictoryConjuncts extends AbstractRewriter {
 	private Predicate<Expression> isNotAnApplicationOfNot = Predicates.not(isApplicationOfNot);
 	
 	public ContradictoryConjuncts() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.AND));
+		this.setReifiedTests(new HasKind(FunctorConstants.AND));
 	}
 	
 	

@@ -61,10 +61,12 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.core.DefaultLambdaExpression;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.core.ExpressionOnCompoundSyntaxTree;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -154,6 +156,12 @@ public class Expressions {
 		if (old || labelsUsingExpressionOnCompoundSyntaxTree.contains(label)) {
 			result = new ExpressionOnCompoundSyntaxTree(label, subTreeObjects);
 		}
+		else if (label.equals(ForAll.LABEL)) {
+			result = makeDefaultUniversallyQuantifiedFormulaFromLabelAndSubTrees(label, subTreeObjects);
+		}
+		else if (label.equals(ThereExists.LABEL)) {
+			result = makeDefaultExistentiallyQuantifiedFormulaFromLabelAndSubTrees(label, subTreeObjects);
+		}
 		else if (label.equals(Lambda.ROOT)) {
 			result = makeDefaultLambdaExpressionFromLabelAndSubTrees(label, subTreeObjects);
 		}
@@ -166,7 +174,10 @@ public class Expressions {
 	private static Collection<String> labelsUsingExpressionOnCompoundSyntaxTree =
 	Util.list(IntensionalSet.UNI_SET_LABEL, IntensionalSet.MULTI_SET_LABEL,
 			ExtensionalSet.UNI_SET_LABEL, ExtensionalSet.MULTI_SET_LABEL,
-			/* Lambda.ROOT, */ ForAll.LABEL, ThereExists.LABEL, Tuple.TUPLE_LABEL, "tuple", "scoped variables", CardinalityTypeOfLogicalVariable.TYPE_LABEL,
+			/* Lambda.ROOT, */
+//			ForAll.LABEL,
+//			ThereExists.LABEL,
+			Tuple.TUPLE_LABEL, "tuple", "scoped variables", CardinalityTypeOfLogicalVariable.TYPE_LABEL,
 			"[ . ]" // BracketedExpressionSubExpressionsProvider.SYNTAX_TREE_LABEL);
 			);
 
@@ -176,6 +187,24 @@ public class Expressions {
 		List<Expression> indexExpressions = ensureListFromKleeneList(indexExpressionsKleeneList);
 		Expression body = subTreeExpressions.get(1);
 		Expression result = new DefaultLambdaExpression(indexExpressions, body);
+		return result;
+	}
+
+	private static Expression makeDefaultUniversallyQuantifiedFormulaFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
+		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
+		Expression indexExpressionsKleeneList = subTreeExpressions.get(0);
+		List<Expression> indexExpressions = ensureListFromKleeneList(indexExpressionsKleeneList);
+		Expression body = subTreeExpressions.get(1);
+		Expression result = new DefaultUniversallyQuantifiedFormula(indexExpressions, body);
+		return result;
+	}
+
+	private static Expression makeDefaultExistentiallyQuantifiedFormulaFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
+		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
+		Expression indexExpressionsKleeneList = subTreeExpressions.get(0);
+		List<Expression> indexExpressions = ensureListFromKleeneList(indexExpressionsKleeneList);
+		Expression body = subTreeExpressions.get(1);
+		Expression result = new DefaultExistentiallyQuantifiedFormula(indexExpressions, body);
 		return result;
 	}
 

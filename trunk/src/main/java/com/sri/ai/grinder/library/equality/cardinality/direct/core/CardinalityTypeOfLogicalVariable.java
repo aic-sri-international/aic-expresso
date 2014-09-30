@@ -42,7 +42,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.FunctorConstants;
 
@@ -107,7 +107,7 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 	}
 	
 	public CardinalityTypeOfLogicalVariable() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.CARDINALITY), new HasNumberOfArguments(1));
+		this.setReifiedTests(new HasKind(FunctorConstants.CARDINALITY), new HasNumberOfArguments(1));
 	}
 
 	@Override

@@ -42,7 +42,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.SyntacticSubstitute;
 
@@ -61,14 +61,14 @@ public class IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch extends A
 	 * Constructor setting a flag authorizing simplifications of the type "if C then true else false -> C" to occur.
 	 */
 	public IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.IF_THEN_ELSE));
+		this.setReifiedTests(new HasKind(FunctorConstants.IF_THEN_ELSE));
 	}
 	
 	/**
 	 * Constructor taking a flag authorizing simplifications of the type "if C then true else false -> C" to occur.
 	 */
 	public IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch(boolean simplifyToConditionIfPossible) {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.IF_THEN_ELSE));
+		this.setReifiedTests(new HasKind(FunctorConstants.IF_THEN_ELSE));
 		this.simplifyToConditionIfPossible = simplifyToConditionIfPossible;
 	}
 	

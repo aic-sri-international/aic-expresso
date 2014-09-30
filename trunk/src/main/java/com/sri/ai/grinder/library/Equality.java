@@ -49,7 +49,7 @@ import com.google.common.base.Predicates;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.function.AbstractRewriterDefiningSymmetricFunction;
 import com.sri.ai.util.Util;
@@ -67,7 +67,7 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 	public static final Expression FUNCTOR = Expressions.makeSymbol("=");
 	
 	public Equality() {
-		this.setReifiedTests(new HasFunctor(FUNCTOR));
+		this.setReifiedTests(new HasKind(FUNCTOR));
 	}
 
 	@Override

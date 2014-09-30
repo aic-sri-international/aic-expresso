@@ -121,11 +121,15 @@ public class FormulaUtil {
 			result = isFormula(expression.get(0), process) && isFormula(expression.get(1), process);
 		}
 		// if phi is a formula, then 'exists x phi' is a formula
-		else if (expression.hasFunctor(FunctorConstants.THERE_EXISTS)) {
+		else if (expression.getSyntacticFormType().equals(ThereExists.SYNTACTIC_FORM_TYPE)
+				||
+				expression.hasFunctor(FunctorConstants.THERE_EXISTS)) {
 			result = isFormula(ThereExists.getBody(expression), process);
 		}
 		// if phi is a formula, then 'for all x phi' is a formula
-		else if (expression.hasFunctor(FunctorConstants.FOR_ALL)) {
+		else if (expression.getSyntacticFormType().equals(ForAll.SYNTACTIC_FORM_TYPE)
+				||
+				expression.hasFunctor(FunctorConstants.FOR_ALL)) {
 			result = isFormula(ForAll.getBody(expression), process);
 		}
 		// if phi1, phi2 and phi3 are formulas, then 'if ph1 then ph2 else ph3' is a formula

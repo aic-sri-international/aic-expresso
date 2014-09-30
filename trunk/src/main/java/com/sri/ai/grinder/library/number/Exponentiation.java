@@ -42,7 +42,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.math.Rational;
@@ -75,7 +75,7 @@ public class Exponentiation extends AbstractRewriter {
 	}
 	
 	public Exponentiation() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.EXPONENTIATION),
+		this.setReifiedTests(new HasKind(FunctorConstants.EXPONENTIATION),
 				             new HasNumberOfArguments(2));
 	}
 

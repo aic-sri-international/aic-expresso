@@ -42,8 +42,8 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
-import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.core.HasKind;
+import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.library.boole.ForAll;
 
 /**
@@ -56,7 +56,7 @@ import com.sri.ai.grinder.library.boole.ForAll;
 public class TrivialForAllCases extends AbstractRewriter {
 	
 	public TrivialForAllCases() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.FOR_ALL));
+		this.setReifiedTests(new HasKind(KindAttribute.VALUE_FOR_ALL));
 	}
 	
 	@Override

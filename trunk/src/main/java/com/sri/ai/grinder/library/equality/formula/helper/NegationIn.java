@@ -47,7 +47,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
@@ -75,7 +75,7 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 public class NegationIn extends AbstractRewriter {
 	
 	public NegationIn() {
-		this.setReifiedTests(new HasFunctor(FunctorConstants.NOT));
+		this.setReifiedTests(new HasKind(FunctorConstants.NOT));
 	}
 	
 	public static Expression negationsIn(Expression formula, RewritingProcess process) {

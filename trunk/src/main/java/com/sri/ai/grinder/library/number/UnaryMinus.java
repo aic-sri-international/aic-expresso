@@ -42,7 +42,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
 
 /**
@@ -56,7 +56,7 @@ public class UnaryMinus extends AbstractRewriter {
 	private static final Expression MINUS = Expressions.makeSymbol("-");
 	
 	public UnaryMinus() {
-		this.setReifiedTests(new HasFunctor(MINUS),
+		this.setReifiedTests(new HasKind(MINUS),
 				             new HasNumberOfArguments(1));
 	}
 

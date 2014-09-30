@@ -50,7 +50,6 @@ import com.sri.ai.brewer.parsingexpression.core.AbstractParsingExpression;
 import com.sri.ai.brewer.parsingexpression.core.NonTerminal;
 import com.sri.ai.brewer.parsingexpression.core.Sequence;
 import com.sri.ai.brewer.parsingexpression.core.Terminal;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.Util;
 
 /**

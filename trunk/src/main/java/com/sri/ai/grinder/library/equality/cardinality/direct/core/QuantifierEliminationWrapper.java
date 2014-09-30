@@ -45,12 +45,17 @@ import com.sri.ai.grinder.api.RewriterTest;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasFormula;
-import com.sri.ai.grinder.core.HasFunctor;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
+import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 
 /**
+ * A wrapper around {@link QuantifierElimination} for expressions of a particular kind
+ * (as defined by {@link KindAttribute}).
+ * Creating wrappers for specific kinds allows applications of multiple rewriters to be optimized.
+ * 
  * Note: This wrapper is required as the default implementation throws an
  * assertion exception if the input arguments are not what is expected.
  * 
@@ -58,18 +63,23 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewrite
  */
 public class QuantifierEliminationWrapper extends AbstractRewriter {	
 
-	public QuantifierEliminationWrapper(String forFunctor) {
+	private Object kind;
+	
+	public QuantifierEliminationWrapper(Object kindValue) {
+		// ISSUE: reifying kind test was not working, so I am storing it here and testing it normally later.
+		kind = kindValue;
+		
 		// Set the name based on the quantifier this is specific to.
-		this.setName("Quantifier Elimination Wrapper for " + forFunctor + " expressions");
+		this.setName("Quantifier Elimination Wrapper for " + kindValue + " expressions");
 		
 		// Set up the relevant reified tests
 		List<RewriterTest> reifiedTests = new ArrayList<RewriterTest>();
-		reifiedTests.add(new HasFunctor(forFunctor));
-		if (forFunctor.equals(FunctorConstants.NOT)) {
+		//reifiedTests.add(new HasKind(kindValue));
+		if (kindValue.equals(FunctorConstants.NOT)) {
 			reifiedTests.add(new HasNumberOfArguments(1));
 		}
-		else if (forFunctor.equals(FunctorConstants.IMPLICATION) ||
-				 forFunctor.equals(FunctorConstants.EQUIVALENCE)) {
+		else if (kindValue.equals(FunctorConstants.IMPLICATION) ||
+				 kindValue.equals(FunctorConstants.EQUIVALENCE)) {
 			reifiedTests.add(new HasNumberOfArguments(2));
 		}
 		reifiedTests.add(new HasFormula());
@@ -81,11 +91,13 @@ public class QuantifierEliminationWrapper extends AbstractRewriter {
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expression result = expression;
 
-		result = process.rewrite(CardinalityRewriter.R_quantifier_elimination, expression);
-		if (result.equals(expression)) {
-			result = expression;
+		if (KindAttribute.INSTANCE.getValue(expression, process).equals(kind)) {
+			result = process.rewrite(CardinalityRewriter.R_quantifier_elimination, expression);
+			if (result.equals(expression)) {
+				result = expression;
+			}
 		}
-
+		
 		return result;
 	}	
 }

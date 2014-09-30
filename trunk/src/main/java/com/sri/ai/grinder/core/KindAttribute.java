@@ -42,11 +42,16 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewriterTestAttribute;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.ScopedVariables;
+import com.sri.ai.grinder.library.boole.ForAll;
+import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.set.Sets;
 
 /**
  * A RewriterTestAttribute used to represent the kind of an expression.
+ * The kind of an expression is one of the constants defined in this class,
+ * or the functor of the expression otherwise.
  * 
  * @author braz
  * @author oreilly
@@ -73,6 +78,38 @@ public class KindAttribute implements RewriterTestAttribute {
 		}
 	};
 	
+	public static final Predicate<Expression> VALUE_FOR_ALL = new Predicate<Expression>() {
+		@Override
+		public boolean apply(Expression e) {
+			boolean result =
+					e.getSyntacticFormType().equals(ForAll.SYNTACTIC_FORM_TYPE)
+					||
+					e.hasFunctor(FunctorConstants.FOR_ALL);
+			return result;
+		}
+		
+		@Override
+		public String toString() {
+			return ForAll.SYNTACTIC_FORM_TYPE;
+		}
+	};
+	//
+	public static final Predicate<Expression> VALUE_THERE_EXISTS = new Predicate<Expression>() {
+		@Override
+		public boolean apply(Expression e) {
+			boolean result =
+					e.getSyntacticFormType().equals(ThereExists.SYNTACTIC_FORM_TYPE)
+					||
+					e.hasFunctor(FunctorConstants.THERE_EXISTS);
+			return result;
+		}
+		
+		@Override
+		public String toString() {
+			return ThereExists.SYNTACTIC_FORM_TYPE;
+		}
+	};
+	//
 	public static final Predicate<Expression> VALUE_EXTENSIONAL_SET = new Predicate<Expression>() {
 		@Override
 		public boolean apply(Expression e) {
@@ -125,11 +162,17 @@ public class KindAttribute implements RewriterTestAttribute {
 		else if (VALUE_INTENSIONAL_SET.apply(expression)) {
 			result = VALUE_INTENSIONAL_SET;
 		}
+		else if (VALUE_FOR_ALL.apply(expression)) {
+			result = VALUE_FOR_ALL;
+		}
+		else if (VALUE_THERE_EXISTS.apply(expression)) {
+			result = VALUE_THERE_EXISTS;
+		}
 		else if (VALUE_SCOPED_VARIABLES.apply(expression)) {
 			result = VALUE_SCOPED_VARIABLES;
 		}
 		else if ((result = expression.getFunctor()) != null) {
-			// We have a functor.
+			// We have a functor, so we will return null and the functor will be used later.
 		}
 		else {
 			// i.e. indicate the expression does not have a value for this attribute.
