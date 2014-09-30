@@ -59,8 +59,7 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 public class ExistentialOut extends AbstractRewriter {
 	
 	public ExistentialOut() {
-		//this.setReifiedTests(new HasKind(KindAttribute.VALUE_THERE_EXISTS));
-		// TODO: Reification not working for VALUE_THERE_EXISTS and VALUE_FOR_ALL -- see QuantifierEliminationWrapper
+		this.setReifiedTests(new HasKind(KindAttribute.VALUE_THERE_EXISTS));
 	}
 	
 	public static Expression existentialsOut(Expression formula, RewritingProcess process) {
@@ -84,12 +83,8 @@ public class ExistentialOut extends AbstractRewriter {
 	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression result = expression;
-		
-		if (ThereExists.isThereExists(expression)) {
-			result = ThereExists.getBody(expression);
-		}
-		
+		Expression result = ThereExists.getBody(expression);
+				
 		return result;
 	}
 }

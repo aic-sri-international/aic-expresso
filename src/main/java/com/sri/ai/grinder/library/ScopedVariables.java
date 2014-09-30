@@ -50,7 +50,7 @@ import com.sri.ai.expresso.helper.IsApplicationOf;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.Module;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.DefaultRewriterTest;
+import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.util.Util;
 
@@ -65,7 +65,7 @@ public class ScopedVariables extends AbstractModuleAndPossibleActiveRewriter {
 	private static final Expression _emptyScope = Expressions.apply("list");
 	//
 	public ScopedVariables() {
-		this.setReifiedTests(new DefaultRewriterTest(KindAttribute.INSTANCE, KindAttribute.VALUE_SCOPED_VARIABLES));
+		this.setReifiedTests(new HasKind(KindAttribute.VALUE_SCOPED_VARIABLES));
 	}
 	
 	/**

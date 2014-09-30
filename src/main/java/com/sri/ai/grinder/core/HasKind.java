@@ -56,9 +56,8 @@ public class HasKind extends DefaultRewriterTest {
 	 * @param kindValue
 	 */
 	public HasKind(Object kindValue) {
-		// Note: for safety ensure we always compare expressions.
+		// Note: for safety ensure we always compare expressions (as long as the value is not a kind predicate).
 		super(KindAttribute.INSTANCE,
-				kindValue instanceof Expression ? kindValue
-						: Expressions.makeSymbol(kindValue));
+				kindValue instanceof Expression || KindAttribute.isKindPredicate(kindValue) ? kindValue : Expressions.makeSymbol(kindValue));
 	}
 }

@@ -63,21 +63,7 @@ public class KindAttribute implements RewriterTestAttribute {
 	public static final KindAttribute INSTANCE = new KindAttribute();
 	
 	//
-	// ALLOWED KNOWN KIND VALUES IN ADVANCE (i.e. functors are determined at runtime).
-	
-	// i.e. used when the given expression does not have the attribute
-	public static final Object VALUE_NONE = new Object() {
-		@Override
-		public boolean equals(Object o) {
-			return this == o; 
-		}
-		
-		@Override
-		public String toString() {
-			return "none";
-		}
-	};
-	
+	// ALLOWED KNOWN KIND VALUES IN ADVANCE (i.e. functors are determined at runtime).	
 	public static final Predicate<Expression> VALUE_FOR_ALL = new Predicate<Expression>() {
 		@Override
 		public boolean apply(Expression e) {
@@ -149,6 +135,16 @@ public class KindAttribute implements RewriterTestAttribute {
 		}
 	};
 	
+	public static boolean isKindPredicate(Object kindValue) {
+		boolean result = 
+			kindValue == VALUE_FOR_ALL         || 
+			kindValue == VALUE_THERE_EXISTS    || 
+			kindValue == VALUE_EXTENSIONAL_SET ||
+			kindValue == VALUE_INTENSIONAL_SET ||
+			kindValue == VALUE_SCOPED_VARIABLES;
+		return result;
+	}
+	
 	//
 	// START-RewriterTestAttribute
 	@Override
@@ -172,7 +168,8 @@ public class KindAttribute implements RewriterTestAttribute {
 			result = VALUE_SCOPED_VARIABLES;
 		}
 		else if ((result = expression.getFunctor()) != null) {
-			// We have a functor, so we will return null and the functor will be used later.
+			// We have a functor, so we will return it as the result as it will be used for the comparison
+			// by the caller of this method.
 		}
 		else {
 			// i.e. indicate the expression does not have a value for this attribute.
@@ -198,4 +195,17 @@ public class KindAttribute implements RewriterTestAttribute {
 	private KindAttribute() {
 		
 	}
+	
+	// i.e. used when the given expression does not have the attribute
+	private static final Object VALUE_NONE = new Object() {
+		@Override
+		public boolean equals(Object o) {
+			return this == o; 
+		}
+		
+		@Override
+		public String toString() {
+			return "none";
+		}
+	};
 }

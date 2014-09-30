@@ -264,7 +264,7 @@ public abstract class AbstractRewriter implements Rewriter {
 	
 	protected boolean runReifiedTests(final Expression expression, final RewritingProcess process) {		
 		// Note: intentionally not using Util.forAll as this is a heavily
-		// used routine I don't won't to have the overhead of creating
+		// used routine I don't want to have the overhead of creating
 		// iterators.
 		int numTests = reifiedTests.size();
 		for (int i = 0; i < numTests; i++) {
