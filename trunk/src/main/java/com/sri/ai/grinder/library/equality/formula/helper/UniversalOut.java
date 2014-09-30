@@ -44,8 +44,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasKind;
-import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.boole.ForAll;
 
@@ -60,7 +58,7 @@ public class UniversalOut extends AbstractRewriter {
 	
 	public UniversalOut() {
 //		this.setReifiedTests(new HasKind(KindAttribute.VALUE_FOR_ALL));
-		// TODO: Reification not working for VALUE_THERE_EXISTS and VALUE_FOR_ALL -- see QuantifierEliminationWrapper
+		// TODO: Issue #45: Reification not working for VALUE_THERE_EXISTS and VALUE_FOR_ALL -- see QuantifierEliminationWrapper
 	}
 	
 	public static Expression universalsOut(Expression formula, RewritingProcess process) {
