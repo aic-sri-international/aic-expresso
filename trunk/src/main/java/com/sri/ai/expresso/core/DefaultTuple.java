@@ -37,8 +37,6 @@
  */
 package com.sri.ai.expresso.core;
 
-import static com.sri.ai.util.Util.mapIntoArray;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -47,69 +45,53 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.api.TupleInterface;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractExpression;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.library.set.tuple.Tuple;
+import com.sri.ai.util.Util;
 
 /**
- * A default implementation of a {@link FunctionApplication}.
+ * A default implementation of a {@link TupleInterface}.
  * 
  * @author braz
  */
 @Beta
-public class DefaultFunctionApplication extends AbstractExpression implements FunctionApplication {
+public class DefaultTuple extends AbstractExpression implements TupleInterface {
 
 	private static final long serialVersionUID = 1L;
 	
-	private Expression                 functor;
 	private ArrayList<Expression>      arguments;
 	private SyntaxTree                 syntaxTree;
 	private List<ExpressionAndContext> expressionAndContexts;
 	
-	public DefaultFunctionApplication(Expression functor, ArrayList<Expression> arguments) {
+	public DefaultTuple(ArrayList<Expression> arguments) {
 		super();
-		this.functor   = functor;
 		this.arguments = arguments;
 		
-		this.syntaxTree = new DefaultCompoundSyntaxTree(functor.getSyntaxTree(), mapIntoArray(arguments, e -> e == null? null : e.getSyntaxTree()));
+		this.syntaxTree = makeSyntaxTree(arguments);
 		
 		expressionAndContexts = new LinkedList<ExpressionAndContext>();
-		expressionAndContexts.add(new DefaultExpressionAndContext(functor, new IndexAddress(-1)));
 		int i = 0;
 		for (Expression argument : arguments) {
-			Expression conditioningConstraint = getConditioningConstraint(argument, i);
-			expressionAndContexts.add(new DefaultExpressionAndContext(argument, new IndexAddress(i++), Expressions.EMPTY_LIST, conditioningConstraint));
+			expressionAndContexts.add(new DefaultExpressionAndContext(argument, new IndexAddress(i++)));
 		}
 	}
 
-	/**
-	 * A method determining the conditioning constraint of an argument.
-	 * For now, it only returns something different from {@link Expressions#TRUE} when the functor is {@link FunctorConstants#IF_THEN_ELSE}.
-	 * New functions will require changing this code.
-	 * TODO: make it extensible by end user code, without the need to change the method directly.
-	 * @param argument the argument for which to determine the conditioning constraint
-	 * @param argumentIndex the index of the argument
-	 * @return the conditioning constraint
-	 */
-	private Expression getConditioningConstraint(Expression argument, int argumentIndex) {
-		Expression conditioningConstraint;
-		if (functor.equals(FunctorConstants.IF_THEN_ELSE)) { // hard-coded for now
-			conditioningConstraint = argumentIndex == 1? arguments.get(0) : argumentIndex == 2? Not.make(arguments.get(0)) : Expressions.TRUE;
+	private DefaultCompoundSyntaxTree makeSyntaxTree(ArrayList<Expression> arguments) {
+		DefaultCompoundSyntaxTree result;
+		if (arguments.size() == 1) {
+			result = new DefaultCompoundSyntaxTree("tuple", arguments.get(0));
 		}
 		else {
-			conditioningConstraint = Expressions.TRUE;
+			ArrayList<SyntaxTree> argumentsSyntaxTrees = Util.mapIntoArrayList(arguments, e -> e == null? null : e.getSyntaxTree());
+			SyntaxTree kleeneList = SyntaxTrees.makeKleeneListIfNeeded(argumentsSyntaxTrees);
+			result = new DefaultCompoundSyntaxTree(Tuple.TUPLE_LABEL, kleeneList);
 		}
-		return conditioningConstraint;
-	}
-
-	@Override
-	public Expression getFunctor() {
-		return functor;
+		return result;
 	}
 
 	@Override
@@ -124,28 +106,20 @@ public class DefaultFunctionApplication extends AbstractExpression implements Fu
 
 	@Override
 	public Expression get(int index) {
-		if (index == -1) {
-			return functor;
-		}
 		return arguments.get(index);
 	}
 
 	@Override
 	public Expression set(int i, Expression newIthArgument) {
-		FunctionApplication result;
+		TupleInterface result;
 		
 		if (get(i) == newIthArgument) {
 			result = this;
 		}
 		else {
-			if (i == -1) {
-				result = new DefaultFunctionApplication(newIthArgument, arguments);
-			}
-			else {
-				ArrayList<Expression> newArguments = new ArrayList<Expression>(arguments);
-				newArguments.set(i, newIthArgument);
-				result = new DefaultFunctionApplication(functor, newArguments);
-			}
+			ArrayList<Expression> newArguments = new ArrayList<Expression>(arguments);
+			newArguments.set(i, newIthArgument);
+			result = new DefaultTuple(newArguments);
 		}
 		
 		return result;
@@ -158,7 +132,7 @@ public class DefaultFunctionApplication extends AbstractExpression implements Fu
 
 	@Override
 	public Object getSyntacticFormType() {
-		return "Function application";
+		return "Tuple";
 	}
 
 	@Override
@@ -174,13 +148,8 @@ public class DefaultFunctionApplication extends AbstractExpression implements Fu
 	}
 
 	@Override
-	public Expression getFunctorOrSymbol() {
-		return getFunctor();
-	}
-
-	@Override
 	public Expression clone() {
-		return new DefaultFunctionApplication(getFunctor(), (ArrayList<Expression>) getArguments());
+		return new DefaultTuple((ArrayList<Expression>) getArguments());
 	}
 	
 	private static class IndexAddress implements SubExpressionAddress {
@@ -194,7 +163,7 @@ public class DefaultFunctionApplication extends AbstractExpression implements Fu
 
 		@Override
 		public Expression replace(Expression expression, Expression newSubExpression) {
-			assert expression instanceof DefaultFunctionApplication : DefaultFunctionApplication.class.getSimpleName() + ".IndexAddress applied to expression " + expression + " of class " + expression.getClass();
+			assert expression instanceof DefaultTuple : DefaultTuple.class.getSimpleName() + ".IndexAddress applied to expression " + expression + " of class " + expression.getClass();
 			Expression result = expression.set(this.index, newSubExpression);
 			return result;
 		}

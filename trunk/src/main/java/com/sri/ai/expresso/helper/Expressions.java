@@ -66,6 +66,7 @@ import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.core.DefaultLambdaExpression;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.core.DefaultTuple;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.core.ExpressionOnCompoundSyntaxTree;
 import com.sri.ai.grinder.api.Rewriter;
@@ -165,6 +166,9 @@ public class Expressions {
 		else if (label.equals(Lambda.ROOT)) {
 			result = makeDefaultLambdaExpressionFromLabelAndSubTrees(label, subTreeObjects);
 		}
+		else if (label.equals(Tuple.TUPLE_LABEL) || label.equals("tuple")) {
+			result = makeDefaultTupleFromLabelAndSubTrees(label, subTreeObjects);
+		}
 		else {
 			result = makeDefaultFunctionApplicationFromLabelAndSubTrees(label, subTreeObjects);
 		}
@@ -172,12 +176,15 @@ public class Expressions {
 	}
 	
 	private static Collection<String> labelsUsingExpressionOnCompoundSyntaxTree =
-	Util.list(IntensionalSet.UNI_SET_LABEL, IntensionalSet.MULTI_SET_LABEL,
+	Util.list(
+			IntensionalSet.UNI_SET_LABEL, IntensionalSet.MULTI_SET_LABEL,
 			ExtensionalSet.UNI_SET_LABEL, ExtensionalSet.MULTI_SET_LABEL,
-			/* Lambda.ROOT, */
+//			Lambda.ROOT,
 //			ForAll.LABEL,
 //			ThereExists.LABEL,
-			Tuple.TUPLE_LABEL, "tuple", "scoped variables", CardinalityTypeOfLogicalVariable.TYPE_LABEL,
+//			Tuple.TUPLE_LABEL, "tuple",
+			"scoped variables",
+			CardinalityTypeOfLogicalVariable.TYPE_LABEL,
 			"[ . ]" // BracketedExpressionSubExpressionsProvider.SYNTAX_TREE_LABEL);
 			);
 
@@ -215,6 +222,18 @@ public class Expressions {
 		Expression labelExpression = makeFromObject(label);
 		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
 		Expression result = new DefaultFunctionApplication(labelExpression, subTreeExpressions);
+		return result;
+	}
+
+	private static Expression makeDefaultTupleFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
+		if (subTreeObjects.length == 1 && subTreeObjects[0] instanceof Collection) {
+			subTreeObjects = ((Collection) subTreeObjects[0]).toArray();
+		}
+		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
+		if (subTreeExpressions.size() == 1) {
+			subTreeExpressions = new ArrayList<Expression>(Expressions.ensureListFromKleeneList(subTreeExpressions.get(0)));
+		}
+		Expression result = new DefaultTuple(subTreeExpressions);
 		return result;
 	}
 
@@ -262,8 +281,8 @@ public class Expressions {
 	 */
 	public
 	static List<Expression> ensureListFromKleeneList(Expression listOrSingleElementOfList) {
-		boolean isListName = listOrSingleElementOfList != null && listOrSingleElementOfList.hasFunctor("kleene list");
-		return (isListName ? listOrSingleElementOfList.getArguments() : Lists.newArrayList(listOrSingleElementOfList));
+		boolean isKleeneList = listOrSingleElementOfList != null && listOrSingleElementOfList.hasFunctor("kleene list");
+		return (isKleeneList ? listOrSingleElementOfList.getArguments() : Lists.newArrayList(listOrSingleElementOfList));
 	}
 
 	/**
