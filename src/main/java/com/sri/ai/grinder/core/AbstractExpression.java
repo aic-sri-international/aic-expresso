@@ -373,6 +373,11 @@ public abstract class AbstractExpression implements Expression {
 	}
 
 	@Override
+	public Expression getFunctor() {
+		return null;
+	}
+
+	@Override
 	public boolean hasFunctor(Object functor) {
 		return Util.notNullAndEquals(getFunctor(), functor);
 	}
