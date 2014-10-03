@@ -183,7 +183,6 @@ public class Expressions {
 //			ForAll.LABEL,
 //			ThereExists.LABEL,
 //			Tuple.TUPLE_LABEL, "tuple",
-			"scoped variables",
 			CardinalityTypeOfLogicalVariable.TYPE_LABEL,
 			"[ . ]" // BracketedExpressionSubExpressionsProvider.SYNTAX_TREE_LABEL);
 			);

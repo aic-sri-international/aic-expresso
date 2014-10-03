@@ -2647,32 +2647,11 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("not", "z"),
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("not", "w"))));
 
-			expression = "'scoped variables'({(on X) p(X) | X != a})";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("scoped variables",
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "X"),
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"),
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|",
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a")))));
-
 			expression = "list(X)";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("list", "X"));
 
-			expression = "'scoped variables'({(on X,Y) p(X,Y) | X != a})";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("scoped variables",
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")),
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"),
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|",
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a")))));
-
 			expression = "list(X, Y)";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("list", "X", "Y"));
-
-			expression = "'scoped variables'(f(X,Y))";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("scoped variables",
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", "Y")));
 
 			expression = "list()";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("list"));
@@ -5004,18 +4983,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("lambda . : .", "Z", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("g", "Z"))), "0"));
 
-			expression = "'scoped variables'(lambda Z : Z)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("scoped variables", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("lambda . : .", "Z", "Z")));
-
 			expression = "list(Z)";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("list", "Z"));
-
-			expression = "'scoped variables'(lambda f(X) : f(X))";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("scoped variables", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("lambda . : .", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X"), 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X"))));
 
 			expression = "list(f(X))";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("list", 

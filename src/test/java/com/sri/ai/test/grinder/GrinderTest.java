@@ -836,15 +836,12 @@ public class GrinderTest extends AbstractGrinderTest {
 		Library library = new DefaultLibrary(
 				new ScopedVariables(),
 				new ExpressionKnowledgeModule(),
-				new SyntacticFunctionsSubExpressionsProvider("type", "scoped variables")
+				new SyntacticFunctionsSubExpressionsProvider("type")
 				);
 		evaluator = new ExhaustiveRewriter(library);
 
 		@SuppressWarnings("unused") // it is needed for keeping module and registering provider.
 		RewritingProcess process = newRewritingProcessWithCardinalityAndCounts(evaluator);
-		
-		expression   = parse("'scoped variables'({{ (on X) X }})");
-		assertEquals("Syntactic function", expression.getSyntacticFormType());
 		
 		expression   = parse("f(x)");
 		assertEquals("Function application", expression.getSyntacticFormType());
