@@ -119,7 +119,6 @@ expr returns [Expression value]
     | ^(NEIGHBORSOF a=expr b=expr)                        { $value = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("neighbors of . from .", a, b); }
     | ^(NEIGHBORSOFVARIABLE a=expr)                       { $value = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("neighbors of variable", a); }
     | ^(NEIGHBORSOFFACTOR a=expr)                         { $value = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("neighbors of factor", a); }
-    | ^(VALUEOF a=expr)                                   { $value = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("value of", a); }
     | ^(SQUAREBRACKET a=expr)                             { $value = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("[ . ]", a); }
     | ^(SET a=expr)                                       { $value = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("{ . }", a); }
     | ^(SETCOMPREHENSION1 a=expr b=expr)                  { $value = Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", a, b, null); }

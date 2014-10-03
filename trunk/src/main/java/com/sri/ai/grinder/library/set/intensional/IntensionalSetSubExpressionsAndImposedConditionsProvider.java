@@ -76,8 +76,6 @@ ImposedConditionsModule.Provider
 	@Override
 	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(Expression expression, final RewritingProcess process) {
 		if (knowledgeApplies(expression)) {
-			// sub-expressions are indices (when preceded by "value of"), types of indices, head, and condition.
-			
 			Collection<ExpressionAndContext> subExpressionsAndContexts = new LinkedList<ExpressionAndContext>();
 
 			Expression condition = IntensionalSet.getCondition(expression);

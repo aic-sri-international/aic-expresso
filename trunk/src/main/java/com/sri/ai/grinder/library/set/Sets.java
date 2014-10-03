@@ -213,9 +213,9 @@ public class Sets {
 		@Override
 		public boolean apply(Object object) {
 			Expression indexExpression = (Expression) object;
-			if (indexExpression.hasFunctor("value of")) {
-				return true;
-			}
+//			if (indexExpression.hasFunctor("value of")) {
+//				return true;
+//			}
 			Expression index = IndexExpressions.getIndex(indexExpression);
 			if (Expressions.isSymbolOrFunctionApplication(index)) {
 				return true;
