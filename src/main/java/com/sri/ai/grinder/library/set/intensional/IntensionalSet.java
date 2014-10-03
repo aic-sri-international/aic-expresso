@@ -408,16 +408,10 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 				index = indexExpression;
 				pathToIndex = basePathPlusIndexExpressionIndex;
 			}
-			
-			// Add index to sub-expressions, if it is to be evaluated
-			if (index.hasFunctor("value of")) {
-				IndexExpressions.addSubTreeWithIndexAndBasePathPlusArgumentIndex(index, 0, pathToIndex, subTreesAndPaths);
-			}
-			else {
-				// else, at least the index arguments (if it is a function application index like f(x)) need to be evaluated
-				for (int i = 0; i != index.numberOfArguments(); i++) {
-					IndexExpressions.addSubTreeWithIndexAndBasePathPlusArgumentIndex(index, i, pathToIndex, subTreesAndPaths);
-				}
+
+			// arguments of function application indices are sub-expressions
+			for (int i = 0; i != index.numberOfArguments(); i++) {
+				IndexExpressions.addSubTreeWithIndexAndBasePathPlusArgumentIndex(index, i, pathToIndex, subTreesAndPaths);
 			}
 			
 			// Add the type, if present.

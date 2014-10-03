@@ -153,7 +153,7 @@ public class Expressions {
 	 */
 	public static Expression makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Object label, Object... subTreeObjects) {
 		Expression result;
-		boolean old = false;
+		boolean old = true;
 		if (old || labelsUsingExpressionOnCompoundSyntaxTree.contains(label)) {
 			result = new ExpressionOnCompoundSyntaxTree(label, subTreeObjects);
 		}

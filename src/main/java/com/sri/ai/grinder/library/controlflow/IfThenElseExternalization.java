@@ -72,12 +72,7 @@ public class IfThenElseExternalization extends AbstractRewriter {
 
 		Expression ifThenElse = ifThenElseSubExpressionAndContext.getExpression();
 		Expression condition = ifThenElse.get(0);
-		boolean conditionIsSurelyIndependentOnScopedVariables =
-			(
-					ScopedVariables.scopingVariablesAreDefined(expression, process)
-					&&
-					(ScopedVariables.isKnownToBeIndependentOfScopeIn(condition, expression, process))
-			);
+		boolean conditionIsSurelyIndependentOnScopedVariables = ScopedVariables.isKnownToBeIndependentOfScopeIn(condition, expression, process);
 		
 		if ( ! conditionIsSurelyIndependentOnScopedVariables) {
 			return expression;

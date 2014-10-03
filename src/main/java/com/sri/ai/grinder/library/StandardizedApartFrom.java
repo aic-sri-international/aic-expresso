@@ -106,12 +106,12 @@ public class StandardizedApartFrom {
 	 */
 	private static Expression standardizeTopExpressionScopedVariablesApartFrom(
 			Expression expression, Collection<Expression> variablesThatCannotBeScopingInExpression, RewritingProcess process) {
-		List<Expression> scopedVariables1 = ScopedVariables.get(expression, process);
-		List<SyntaxTree> scopedVariables1SyntaxTrees = Util.mapIntoArrayList(scopedVariables1, Expression::getSyntaxTree);
+		List<Expression> scopedVariables = ScopedVariables.get(expression, process);
+		List<SyntaxTree> scopedVariables1SyntaxTrees = Util.mapIntoArrayList(scopedVariables, Expression::getSyntaxTree);
 		if (Util.thereExists(scopedVariables1SyntaxTrees, new IsInstanceOf<SyntaxTree>(CompoundSyntaxTree.class))) {
 			throw new StandardizingApartOnScopingFunctionApplicationsNotSupported(expression);
 		}
-		Collection<Expression> variablesToBeRenamed  = Util.intersection(scopedVariables1, variablesThatCannotBeScopingInExpression);
+		Collection<Expression> variablesToBeRenamed  = Util.intersection(scopedVariables, variablesThatCannotBeScopingInExpression);
 		Collection<Expression> variablesInExpression = Expressions.getVariables(expression, process);
 		Collection<Expression> forbiddenVariables    = new LinkedHashSet<Expression>();
 		forbiddenVariables.addAll(variablesInExpression);

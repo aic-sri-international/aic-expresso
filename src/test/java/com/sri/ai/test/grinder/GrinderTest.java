@@ -1599,7 +1599,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(setExpression);
 		try {
 			indexExpressions.remove(0);
-			Assert.fail("An exception should have thrown");
+			Assert.fail("An exception should have been thrown");
 		} catch (Exception ex) {
 			// Expected
 		}

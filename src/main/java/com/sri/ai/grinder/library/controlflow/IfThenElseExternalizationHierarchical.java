@@ -152,10 +152,7 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 
 	private boolean decideWhetherThereAreNoScopingRestrictions(Expression expression, Expression conditionalSubExpression, RewritingProcess process) {
 		Expression condition  = IfThenElse.getCondition(conditionalSubExpression);
-		boolean conditionIsSurelyIndependentOnScopedVariables =
-				ScopedVariables.scopingVariablesAreDefined(expression, process)
-				&&
-				(ScopedVariables.isKnownToBeIndependentOfScopeIn(condition, expression, process));
-		return conditionIsSurelyIndependentOnScopedVariables;
+		boolean result = ScopedVariables.isKnownToBeIndependentOfScopeIn(condition, expression, process);
+		return result;
 	}
 }

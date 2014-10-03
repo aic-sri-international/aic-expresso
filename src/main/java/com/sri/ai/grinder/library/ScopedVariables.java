@@ -46,7 +46,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.AbstractModuleAndPossibleActiveRewriter;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.GetFunctorOrSymbol;
-import com.sri.ai.expresso.helper.IsApplicationOf;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.Module;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -105,18 +104,6 @@ public class ScopedVariables extends AbstractModuleAndPossibleActiveRewriter {
 		expression.getSyntaxTree().numberOfImmediateSubTrees() == 1; // does need to be sub-tree because 'scoped variables' is a syntactic form.
 	}
 
-	public Expression getScopedVariables(Expression expression, RewritingProcess process) {
-		for (Module.Provider moduleProvider : providers.keySet()) {
-			Provider provider = (Provider) moduleProvider;
-			Expression scopedVariablesAccordingToThisProvider =
-				provider.getScopedVariablesAsExpression(expression, process);
-			if (scopedVariablesAccordingToThisProvider != null) {
-				return scopedVariablesAccordingToThisProvider;
-			}
-		}
-		return _emptyScope;
-	}
-
 	/**
 	 * A static method finding a ScopedVariables rewriter in a process,
 	 * and using it to return a list of scoped variables in a given expression.
@@ -131,6 +118,18 @@ public class ScopedVariables extends AbstractModuleAndPossibleActiveRewriter {
 		return result;
 	}
 	
+	private Expression getScopedVariables(Expression expression, RewritingProcess process) {
+		for (Module.Provider moduleProvider : providers.keySet()) {
+			Provider provider = (Provider) moduleProvider;
+			Expression scopedVariablesAccordingToThisProvider =
+				provider.getScopedVariablesAsExpression(expression, process);
+			if (scopedVariablesAccordingToThisProvider != null) {
+				return scopedVariablesAccordingToThisProvider;
+			}
+		}
+		return _emptyScope;
+	}
+
 	/**
 	 * Returns a list of symbols locally scoped by this expression.
 	 * This is different from the scoped variables in that the arguments of scoped function applications are
@@ -140,12 +139,6 @@ public class ScopedVariables extends AbstractModuleAndPossibleActiveRewriter {
 	public static List<Expression> getLocallyScopedSymbols(Expression expression, RewritingProcess process) {
 		List<Expression> scopedVariables = get(expression, process);
 		List<Expression> result = Util.mapIntoList(scopedVariables, new GetFunctorOrSymbol());
-		return result;
-	}
-	
-	public static boolean scopingVariablesAreDefined(Expression scopingExpression, RewritingProcess process) {
-		List<Expression> variablesScopedByExpression = ScopedVariables.get(scopingExpression, process);
-		boolean result = ! Util.thereExists(variablesScopedByExpression, new IsApplicationOf("value of"));
 		return result;
 	}
 	
@@ -177,9 +170,6 @@ public class ScopedVariables extends AbstractModuleAndPossibleActiveRewriter {
 	}
 
 	private static boolean isKnownToBeIndependentOfIndex(Expression expression, Expression index, RewritingProcess process) {
-		if (index.hasFunctor("value of")) {
-			return false;
-		}
 		Iterator<Expression> subExpressionsIterator = new SubExpressionsDepthFirstIterator(expression);
 		while (subExpressionsIterator.hasNext()) {
 			Expression subExpression = subExpressionsIterator.next();
