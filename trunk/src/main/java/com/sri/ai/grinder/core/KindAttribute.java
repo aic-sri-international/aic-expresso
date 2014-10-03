@@ -121,27 +121,13 @@ public class KindAttribute implements RewriterTestAttribute {
 			return "intensional set";
 		}
 	};
-	//
-	public static final Predicate<Expression> VALUE_SCOPED_VARIABLES = new Predicate<Expression>() {
-		@Override
-		public boolean apply(Expression e) {
-			boolean result = ScopedVariables.isScopedVariables(e);
-			return result;
-		}
-		
-		@Override
-		public String toString() {
-			return "scoped variables";
-		}
-	};
 	
 	public static boolean isKindPredicate(Object kindValue) {
 		boolean result = 
 			kindValue == VALUE_FOR_ALL         || 
 			kindValue == VALUE_THERE_EXISTS    || 
 			kindValue == VALUE_EXTENSIONAL_SET ||
-			kindValue == VALUE_INTENSIONAL_SET ||
-			kindValue == VALUE_SCOPED_VARIABLES;
+			kindValue == VALUE_INTENSIONAL_SET;
 		return result;
 	}
 	
@@ -163,9 +149,6 @@ public class KindAttribute implements RewriterTestAttribute {
 		}
 		else if (VALUE_THERE_EXISTS.apply(expression)) {
 			result = VALUE_THERE_EXISTS;
-		}
-		else if (VALUE_SCOPED_VARIABLES.apply(expression)) {
-			result = VALUE_SCOPED_VARIABLES;
 		}
 		else if ((result = expression.getFunctor()) != null) {
 			// We have a functor, so we will return it as the result as it will be used for the comparison

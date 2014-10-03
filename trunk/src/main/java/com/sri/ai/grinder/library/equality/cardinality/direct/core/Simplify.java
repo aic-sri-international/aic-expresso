@@ -230,7 +230,7 @@ public class Simplify extends AbstractCardinalityRewriter {
 						new ForAllSubExpressionsAndScopedVariablesProvider(),
 						new ThereExistsSubExpressionsAndScopedVariablesProvider(),
 						new IntensionalSet(), // Note: This is just a provider for scoped variables and not a rewriter.
-						new SyntacticFunctionsSubExpressionsProvider("type", "scoped variables"),
+						new SyntacticFunctionsSubExpressionsProvider("type"),
 						new OpenInterpretationModule() }));
 	}
 }

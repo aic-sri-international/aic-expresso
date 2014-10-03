@@ -140,7 +140,7 @@ public class CommonLibrary extends DefaultLibrary {
 				new ExtensionalSetSubExpressionsProvider(),
 				new ForAllSubExpressionsAndScopedVariablesProvider(),
 				new ThereExistsSubExpressionsAndScopedVariablesProvider(),
-				new SyntacticFunctionsSubExpressionsProvider("type", "scoped variables"),
+				new SyntacticFunctionsSubExpressionsProvider("type"),
 				new OpenInterpretationModule()
 		));
 	}

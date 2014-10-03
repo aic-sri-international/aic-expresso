@@ -49,8 +49,6 @@ import com.sri.ai.expresso.helper.GetFunctorOrSymbol;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.Module;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.HasKind;
-import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.util.Util;
 
 /**
@@ -63,9 +61,6 @@ public class ScopedVariables extends AbstractModuleAndPossibleActiveRewriter {
 
 	private static final Expression _emptyScope = Expressions.apply("list");
 	//
-	public ScopedVariables() {
-		this.setReifiedTests(new HasKind(KindAttribute.VALUE_SCOPED_VARIABLES));
-	}
 	
 	/**
 	 * An interface for objects that know how to determine the set of variables scoped
@@ -95,13 +90,7 @@ public class ScopedVariables extends AbstractModuleAndPossibleActiveRewriter {
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		throw new Error("'scoped variables' discontinued as a syntactic function.");
-	}
-
-	public static boolean isScopedVariables(Expression expression) {
-		return
-		expression.getSyntaxTree().getLabel().equals("scoped variables") &&
-		expression.getSyntaxTree().numberOfImmediateSubTrees() == 1; // does need to be sub-tree because 'scoped variables' is a syntactic form.
+		return expression;
 	}
 
 	public Expression getScopedVariables(Expression expression, RewritingProcess process) {
