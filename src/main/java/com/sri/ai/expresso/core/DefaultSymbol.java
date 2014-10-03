@@ -51,7 +51,7 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractExpression;
+import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.math.Rational;
@@ -62,7 +62,7 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class DefaultSymbol extends AbstractExpression implements Symbol {
+public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Symbol {
 	private static final long serialVersionUID = 1L;
 	
 	private Object value;

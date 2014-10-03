@@ -68,6 +68,12 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	
 	List<Expression> getSubExpressions();
 	
+	/**
+	 * Returns scoped expressions (that is, indices and quantified variables) introduced by this expression
+	 * according to given process.
+	 */
+	List<Expression> getScopedExpressions(RewritingProcess process);
+	
 	Expression replaceFirstOccurrence(Expression replaced, Expression replacement, RewritingProcess process);
 	Expression replaceAllOccurrences(Expression replaced, Expression replacement, RewritingProcess process);
 	Expression replaceFirstOccurrence(Expression replaced, Expression replacement, PruningPredicate prunePredicate, RewritingProcess process);
@@ -87,6 +93,7 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	Expression replaceFirstOccurrence(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
 	Expression replaceAllOccurrences(Function<Expression, Expression> replacementFunction, PruningPredicate prunePredicate, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
 	Expression replace(Function<Expression, Expression> replacementFunction, boolean onlyTheFirstOne, PruningPredicate prunePredicate, boolean ignoreTopExpression, TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
+	
 	/**
 	 * Returns the result of replacing one or all sub-expressions of this expression
 	 * according to a replacement function.
@@ -121,26 +128,26 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	 * 
 	 * We can provide a listener procedure that gets notified of every replacement.
 	 * @param makeSpecificSubExpressionAndContextPrunePredicate Takes the current expression, the current replacement function and the sub-expression and its context about to be processed (the top one inclusive), and returns the pruning predicate to be used for that specific sub-expression.
-	 * @param replaceOnChildrenBeforeTopExpression TODO
-	 * 
-	 * @param replacementFunction: takes a expression and returns a new expression, or itself in case no replacement is warranted. Make it an instance of {@link ReplacementFunctionWithContextuallyUpdatedProcess} if it uses the contextual symbols and variables, so that the process gets properly extended.
+	 * @param replaceOnChildrenBeforeTopExpression indicate whether to replace in sub-expression before replacing top expression.
+	 * @param replacementFunction takes a expression and returns a new expression, or itself in case no replacement is warranted. Make it an instance of {@link ReplacementFunctionWithContextuallyUpdatedProcess} if it uses the contextual symbols and variables, so that the process gets properly extended.
 	 * @param makeSpecificSubExpressionAndContextReplacementFunction: Takes the current expression, the current replacement function and the sub-expression and its context about to be processed (the top one inclusive), and returns the replacement function to be used for that specific sub-expression.
-	 * @param prunePredicate: a predicate evaluating as true for sub-expressions that should be pruned (that is, ignored).
+	 * @param prunePredicate a predicate evaluating as true for sub-expressions that should be pruned (that is, ignored).
 	 * @param makeSpecificSubExpressionAndContextPrunePredicate: Takes the current prune predicate and the sub-expression and its context about to be processed (the top one inclusive), and returns the prune predicate to be used for that specific sub-expression.
-	 * @param onlyTheFirstOne: if true, replaces at most one sub-expression.
-	 * @param ignoreTopExpression: does not try to replace this expression as a whole; examines sub-expressions only.
-	 * @param replaceOnChildrenBeforeTopExpression: recurse replacement function on sub-expressions before using it on top expression.
-	 * @param listener: binary procedure receiving original and replacement expression every time such a replacement occurs. If a sub-expression is replaced, it is invoked for that sub-expression as well as for all its "super-expressions", since they are all being replaced by a new expression.
-	 * @param process: the rewriting process, used here for defining what is a sub-expression of what.
+	 * @param onlyTheFirstOne if true, replaces at most one sub-expression.
+	 * @param ignoreTopExpression does not try to replace this expression as a whole; examines sub-expressions only.
+	 * @param replaceOnChildrenBeforeTopExpression recurse replacement function on sub-expressions before using it on top expression.
+	 * @param listener binary procedure receiving original and replacement expression every time such a replacement occurs. If a sub-expression is replaced, it is invoked for that sub-expression as well as for all its "super-expressions", since they are all being replaced by a new expression.
+	 * @param process the rewriting process, used here for defining what is a sub-expression of what.
 	 */
-	Expression replace(Function<Expression, Expression> replacementFunction, 
+	Expression replace(Function<Expression, Expression> replacementFunction,
 			           ReplacementFunctionMaker makeSpecificSubExpressionAndContextReplacementFunction, 
-			           PruningPredicate prunePredicate, 
+			           PruningPredicate prunePredicate,
 			           PruningPredicateMaker makeSpecificSubExpressionAndContextPrunePredicate, 
-			           boolean onlyTheFirstOne, 
-			           boolean ignoreTopExpression, 
-			           boolean replaceOnChildrenBeforeTopExpression, 
-			           TernaryProcedure<Expression, Expression, RewritingProcess> listener, RewritingProcess process);
+			           boolean onlyTheFirstOne,
+			           boolean ignoreTopExpression,
+			           boolean replaceOnChildrenBeforeTopExpression,
+			           TernaryProcedure<Expression, Expression, RewritingProcess> listener,
+			           RewritingProcess process);
 
 	/**
 	 * Indicates what syntactic form the expression is.
@@ -155,26 +162,16 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator();
 	public Iterator<Expression> getImmediateSubExpressionsIterator();
 	
-	public static final Function<Expression, Expression> GET_SYNTAX_TREE = new Function<Expression, Expression>() {
-		@Override
-		public Expression apply(Expression expression) {
-			return expression;
-		}
-	};
-
 	/**
 	 * Renames all occurrences of a symbol, including when it is declared.
 	 * For example, renaming <code>p</code> by <code>q</code> in <code>for all p(X) in People : happy(p(X))</code>
 	 * results in <code>for all q(X) in People : happy(q(X))</code>.
 	 * @param symbol
 	 * @param newSymbol
-	 * @param process TODO
-	 * @param expression
+	 * @param process
 	 * @return the result of renaming <code>symbol</code> as <code>newSymbol</code> everywhere in <code>expression</code>.
 	 */
 	public Expression renameSymbol(Expression symbol, Expression newSymbol, RewritingProcess process);
-	
-	// Object clone() throws CloneNotSupportedException;
 	
 	///////////////////////// FUNCTION APPLICATION METHODS //////////////////////
 	// The following methods are only valid for function applications.

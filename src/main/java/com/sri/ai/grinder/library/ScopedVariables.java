@@ -104,21 +104,7 @@ public class ScopedVariables extends AbstractModuleAndPossibleActiveRewriter {
 		expression.getSyntaxTree().numberOfImmediateSubTrees() == 1; // does need to be sub-tree because 'scoped variables' is a syntactic form.
 	}
 
-	/**
-	 * A static method finding a ScopedVariables rewriter in a process,
-	 * and using it to return a list of scoped variables in a given expression.
-	 */
-	public static List<Expression> get(Expression expression, RewritingProcess process) {
-		ScopedVariables scopedVariables = (ScopedVariables) process.findModule(ScopedVariables.class);
-		if (scopedVariables == null) {
-			throw new Error("ScopedVariables module not found");
-		}
-		Expression scopedVariablesExpression = scopedVariables.getScopedVariables(expression, process);
-		List<Expression> result = scopedVariablesExpression.getArguments();
-		return result;
-	}
-	
-	private Expression getScopedVariables(Expression expression, RewritingProcess process) {
+	public Expression getScopedVariables(Expression expression, RewritingProcess process) {
 		for (Module.Provider moduleProvider : providers.keySet()) {
 			Provider provider = (Provider) moduleProvider;
 			Expression scopedVariablesAccordingToThisProvider =
@@ -137,7 +123,7 @@ public class ScopedVariables extends AbstractModuleAndPossibleActiveRewriter {
 	 * has scoped variable <code>p(X)</code> but only <code>p</code> is a locally scoped symbol.
 	 */
 	public static List<Expression> getLocallyScopedSymbols(Expression expression, RewritingProcess process) {
-		List<Expression> scopedVariables = get(expression, process);
+		List<Expression> scopedVariables = expression.getScopedExpressions(process);
 		List<Expression> result = Util.mapIntoList(scopedVariables, new GetFunctorOrSymbol());
 		return result;
 	}
@@ -154,7 +140,7 @@ public class ScopedVariables extends AbstractModuleAndPossibleActiveRewriter {
 	 * Therefore, a return value of <code>false</code> does not imply dependence.
 	 */
 	public static boolean isKnownToBeIndependentOfScopeIn(Expression expression, Expression scopingExpression, RewritingProcess process) {
-		List<Expression> indices = ScopedVariables.get(scopingExpression, process);
+		List<Expression> indices = scopingExpression.getScopedExpressions(process);
 		boolean result = isKnownToBeIndependentOfIndices(expression, indices, process);
 		return result;
 	}
