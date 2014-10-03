@@ -74,18 +74,30 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 	private Expression body;
 	private List<ExpressionAndContext> cachedSubExpressionsAndContext;
 	private SyntaxTree cachedSyntaxTree;
+	private List<Expression> cachedScopedExpressions;
 
 	public AbstractQuantifiedExpressionWithABody(List<Expression> indexExpressions, Expression body) {
 		super(indexExpressions);
 		this.body = body;
 		cachedSyntaxTree = makeSyntaxTree();
 		makeImmediateSubExpressionsAndContexts();
+		cachedScopedExpressions = makeScopedExpressions();
 	}
 
 	public abstract AbstractQuantifiedExpressionWithABody make(List<Expression> indexExpressions, Expression body);
 
 	public abstract String getSyntaxTreeLabel();
 
+	@Override
+	public List<Expression> getScopedExpressions(RewritingProcess process) {
+		return cachedScopedExpressions;
+	}
+	
+	private List<Expression> makeScopedExpressions() {
+		List<Expression> result = IndexExpressions.getIndices(getIndexExpressions());
+		return result;
+	}
+	
 	@Override
 	public Expression getBody() {
 		return body;

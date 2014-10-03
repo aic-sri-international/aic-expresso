@@ -35,69 +35,29 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.set.extensional;
+package com.sri.ai.grinder.core;
 
-import java.util.LinkedList;
+import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.library.CommutativeAssociative;
-import com.sri.ai.grinder.library.set.Sets;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.util.Util;
 
 /**
+ * A basic, default implementation of some of the {@link Expression} methods.
  * 
  * @author braz
- *
  */
 @Beta
-public class UnionOnExtensionalSets extends CommutativeAssociative {
-
-	private final static Expression            neutralElement              = ExtensionalSet.makeEmptySet();
-	private final static Predicate<Expression> isOperableArgumentPredicate = new Sets.IsExtensionalSet();
-
-	@Override
-	public Object getFunctor() {
-		return "union";
-	}
+public abstract class AbstractNonQuantifiedExpression extends AbstractExpression {
 	
-	@Override
-	protected Expression getNeutralElement() {
-		return neutralElement;
-	}
-	
-	@Override
-	protected Expression getAbsorbingElement() {
-		return null; // no absorbing element
-	}
-	
-	@Override
-	protected Predicate<Expression> getIsOperableArgumentSyntaxTreePredicate() {
-		return isOperableArgumentPredicate;
-	}
+	private static final long serialVersionUID = 1L;
 
 	@Override
-	protected Expression operationOnOperables(LinkedList<Expression> operableArguments) {
-		LinkedList<Expression> elements = new LinkedList<Expression>();
-		boolean multiset = false;
-		for (Expression extensionalSet : operableArguments) {
-			elements.addAll(ExtensionalSet.getElements(extensionalSet));
-			multiset = multiset || Sets.isExtensionalMultiSet(extensionalSet);
-		}
-		String label = multiset? ExtensionalSet.MULTI_SET_LABEL : ExtensionalSet.UNI_SET_LABEL;
-		return ExtensionalSet.make(label, elements);
-	}
-
-	@Override
-	protected Expression operationOnExpressionOperables(LinkedList<Expression> operableArguments) {
-		LinkedList<Expression> elements = new LinkedList<Expression>();
-		boolean multiset = false;
-		for (Expression extensionalSet : operableArguments) {
-			elements.addAll(ExtensionalSet.getElements(extensionalSet));
-			multiset = multiset || Sets.isExtensionalMultiSet(extensionalSet);
-		}
-		String functor = multiset? ExtensionalSet.MULTI_SET_LABEL : ExtensionalSet.UNI_SET_LABEL;
-		Expression result = ExtensionalSet.make(functor, elements);
+	public List<Expression> getScopedExpressions(RewritingProcess process) {
+		List<Expression> result = Util.list();
 		return result;
 	}
+	
 }

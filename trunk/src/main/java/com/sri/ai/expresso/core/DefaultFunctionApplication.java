@@ -53,6 +53,7 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractExpression;
+import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.Not;
 
@@ -62,7 +63,7 @@ import com.sri.ai.grinder.library.boole.Not;
  * @author braz
  */
 @Beta
-public class DefaultFunctionApplication extends AbstractExpression implements FunctionApplication {
+public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression implements FunctionApplication {
 
 	private static final long serialVersionUID = 1L;
 	

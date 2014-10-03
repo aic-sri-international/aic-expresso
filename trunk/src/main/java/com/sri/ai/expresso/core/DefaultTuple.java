@@ -51,6 +51,7 @@ import com.sri.ai.expresso.api.TupleInterface;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractExpression;
+import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.util.Util;
 
@@ -60,7 +61,7 @@ import com.sri.ai.util.Util;
  * @author braz
  */
 @Beta
-public class DefaultTuple extends AbstractExpression implements TupleInterface {
+public class DefaultTuple extends AbstractNonQuantifiedExpression implements TupleInterface {
 
 	private static final long serialVersionUID = 1L;
 	

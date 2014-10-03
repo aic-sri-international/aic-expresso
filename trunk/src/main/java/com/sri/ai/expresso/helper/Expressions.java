@@ -153,7 +153,7 @@ public class Expressions {
 	 */
 	public static Expression makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Object label, Object... subTreeObjects) {
 		Expression result;
-		boolean old = true;
+		boolean old = false;
 		if (old || labelsUsingExpressionOnCompoundSyntaxTree.contains(label)) {
 			result = new ExpressionOnCompoundSyntaxTree(label, subTreeObjects);
 		}
@@ -472,35 +472,6 @@ public class Expressions {
 		return result;
 	}
 
-	public static List<Expression> getSyntaxTreesOfSubExpressions(Expression syntaxTree) {
-		Expression expression = syntaxTree;
-		List<Expression> result =
-			getSyntaxTreesOfExpressions(expression.getImmediateSubExpressionsIterator());
-		return result;
-	}
-
-	/**
-	 * Returns a list of the syntax trees coming from an iterator of expressions.
-	 */
-	public static List<Expression> getSyntaxTreesOfExpressions(Iterator<Expression> expressions) {
-		List<Expression> result = Util.listFrom(
-				new FunctionIterator<Expression, Expression>(
-						expressions,
-						Expression.GET_SYNTAX_TREE));
-		return result;
-	}
-
-	/**
-	 * Returns a list of the syntax trees coming from a list of expressions.
-	 */
-	public static List<Expression> getSyntaxTreesOfExpressions(List<Expression> expressions) {
-		List<Expression> result = Util.listFrom(
-				new FunctionIterator<Expression, Expression>(
-						expressions,
-						Expression.GET_SYNTAX_TREE));
-		return result;
-	}
-	
 	/**
 	 * Indicates whether this expression is a symbol, which is the same thing as a function application with no arguments.
 	 */

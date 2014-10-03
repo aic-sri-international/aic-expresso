@@ -39,7 +39,6 @@ package com.sri.ai.grinder.library.set.extensional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
@@ -127,12 +126,6 @@ public class ExtensionalSet {
 					Util.removeNonDestructively(
 							getElements(set), index));
 		return set1WithoutElement;
-	}
-
-	public static Expression makeExpression(String functor, LinkedList<Expression> elements) {
-		List<Expression> syntaxTrees = Util.mapIntoList(elements, Expression.GET_SYNTAX_TREE);
-		Expression result = make(functor, syntaxTrees);
-		return result;
 	}
 
 	public static boolean isExtensionalSet(Expression expression) {

@@ -58,6 +58,7 @@ import com.sri.ai.expresso.core.SyntaxTreeBasedSubExpressionAddress;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.util.Util;
 
 /**
@@ -78,6 +79,17 @@ public abstract class AbstractSyntaxTreeBasedExpression extends AbstractExpressi
 	 * This is important because code may expect to find sub-expressions being the same instances used for construction.
 	 */
 	protected Map<SubExpressionAddress, Expression> originalExpressionsByPath = new LinkedHashMap<SubExpressionAddress, Expression>();
+	
+	@Override
+	public List<Expression> getScopedExpressions(RewritingProcess process) {
+		ScopedVariables scopedVariables = (ScopedVariables) process.findModule(ScopedVariables.class);
+		if (scopedVariables == null) {
+			throw new Error("ScopedVariables module not found");
+		}
+		Expression scopedVariablesExpression = scopedVariables.getScopedVariables(this, process);
+		List<Expression> result = scopedVariablesExpression.getArguments();
+		return result;
+	}
 	
 	@Override
 	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(RewritingProcess process) {
