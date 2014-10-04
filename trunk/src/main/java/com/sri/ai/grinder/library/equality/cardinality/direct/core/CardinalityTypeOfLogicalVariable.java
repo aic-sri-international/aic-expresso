@@ -45,6 +45,7 @@ import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.SyntacticFunctionsSubExpressionsProvider;
 
 /**
  * A rewriter for replacing cardinality expressions on the type of a logical
@@ -128,7 +129,7 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 			// (if they were, we would be able to rewrite type(X) to type(10) when X = 10,
 			// and this would be incorrect.
 			// In order to access their "argument", we must use their syntax tree.
-			if (cardinalityArgument.hasFunctor(TYPE_LABEL)
+			if (isTypeSyntacticFunctionApplication(cardinalityArgument)
 					&& cardinalityArgument.getSyntaxTree().numberOfImmediateSubTrees() == 1
 					&& process.isVariable(Expressions.makeFromSyntaxTree(cardinalityArgument.getSyntaxTree().getImmediateSubTrees().get(0)))) {
 				
@@ -147,6 +148,13 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 			}
 		} 
 
+		return result;
+	}
+
+	public static boolean isTypeSyntacticFunctionApplication(Expression expression) {
+		boolean result =
+				expression.getSyntacticFormType().equals("Syntactic function") &&
+				SyntacticFunctionsSubExpressionsProvider.getSyntacticFunctor(expression).equals(CardinalityTypeOfLogicalVariable.TYPE_LABEL);
 		return result;
 	}
 }
