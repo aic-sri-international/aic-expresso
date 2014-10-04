@@ -66,6 +66,7 @@ import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.core.DefaultLambdaExpression;
 import com.sri.ai.expresso.core.DefaultSymbol;
+import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.expresso.core.DefaultTuple;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.core.ExpressionOnCompoundSyntaxTree;
@@ -169,6 +170,9 @@ public class Expressions {
 		else if (label.equals(Tuple.TUPLE_LABEL) || label.equals("tuple")) {
 			result = makeDefaultTupleFromLabelAndSubTrees(label, subTreeObjects);
 		}
+		else if (label.equals(CardinalityTypeOfLogicalVariable.TYPE_LABEL)) {
+			result = makeDefaultSyntacticFunctionApplicationFromLabelAndSubTrees(label, subTreeObjects);
+		}
 		else {
 			result = makeDefaultFunctionApplicationFromLabelAndSubTrees(label, subTreeObjects);
 		}
@@ -183,7 +187,7 @@ public class Expressions {
 //			ForAll.LABEL,
 //			ThereExists.LABEL,
 //			Tuple.TUPLE_LABEL, "tuple",
-			CardinalityTypeOfLogicalVariable.TYPE_LABEL,
+//			CardinalityTypeOfLogicalVariable.TYPE_LABEL,
 			"[ . ]" // BracketedExpressionSubExpressionsProvider.SYNTAX_TREE_LABEL);
 			);
 
@@ -221,6 +225,16 @@ public class Expressions {
 		Expression labelExpression = makeFromObject(label);
 		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
 		Expression result = new DefaultFunctionApplication(labelExpression, subTreeExpressions);
+		return result;
+	}
+
+	private static Expression makeDefaultSyntacticFunctionApplicationFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
+		if (subTreeObjects.length == 1 && subTreeObjects[0] instanceof Collection) {
+			subTreeObjects = ((Collection) subTreeObjects[0]).toArray();
+		}
+		Expression labelExpression = makeFromObject(label);
+		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
+		Expression result = new DefaultSyntacticFunctionApplication(labelExpression, subTreeExpressions);
 		return result;
 	}
 

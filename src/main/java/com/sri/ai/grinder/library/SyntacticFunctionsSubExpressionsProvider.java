@@ -48,6 +48,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -107,5 +108,9 @@ implements NoOpRewriter, ExpressionKnowledgeModule.Provider
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
 		ExpressionKnowledgeModule.register(this, process);
+	}
+
+	public static Object getSyntacticFunctor(Expression expression) {
+		return Expressions.wrap(expression.getSyntaxTree().getLabel());
 	}
 }

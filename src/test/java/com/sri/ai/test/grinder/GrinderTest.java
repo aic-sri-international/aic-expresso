@@ -857,6 +857,8 @@ public class GrinderTest extends AbstractGrinderTest {
 				new IntensionalSet(),
 				new ExpressionKnowledgeModule(),
 				new ImposedConditionsModule(),
+				new Tuple(),
+				new SyntacticFunctionsSubExpressionsProvider("type"),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
 				new CompleteNormalize(),
 				new IntensionalSetSubExpressionsAndImposedConditionsProvider());
@@ -870,7 +872,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		//
 		// IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch failure condition (i.e. keeps expanding else branch in the manner below), 
 		// when calling NewSubstitute.
-		expression   = parse("if false then false else 10 = | type(X) |");
+		expression   = parse("if false then false else 10 = | type(X) |"); // note: | type(.) | is replaced by 10 according to newRewritingProcessWithCardinalityAndCounts above.
 		replacements = Util.map(parse("W = 10"), parse("false"));
 		expected     = parse("if false then false else (if W = 10 then false else 10 = | type(X) |)");
 		testSemanticSubstitute(replacements, process);
