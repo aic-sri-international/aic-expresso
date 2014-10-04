@@ -50,7 +50,6 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.api.TupleInterface;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractExpression;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.util.Util;
@@ -73,7 +72,7 @@ public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tup
 		super();
 		this.arguments = arguments;
 		
-		this.syntaxTree = makeSyntaxTree(arguments);
+		this.syntaxTree = makeSyntaxTree();
 		
 		expressionAndContexts = new LinkedList<ExpressionAndContext>();
 		int i = 0;
@@ -82,7 +81,7 @@ public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tup
 		}
 	}
 
-	private DefaultCompoundSyntaxTree makeSyntaxTree(ArrayList<Expression> arguments) {
+	private DefaultCompoundSyntaxTree makeSyntaxTree() {
 		DefaultCompoundSyntaxTree result;
 		if (arguments.size() == 1) {
 			result = new DefaultCompoundSyntaxTree("tuple", arguments.get(0));

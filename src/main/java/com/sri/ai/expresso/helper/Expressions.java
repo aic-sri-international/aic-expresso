@@ -63,6 +63,8 @@ import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
+import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
+import com.sri.ai.expresso.core.DefaultExtensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.core.DefaultLambdaExpression;
 import com.sri.ai.expresso.core.DefaultSymbol;
@@ -170,6 +172,12 @@ public class Expressions {
 		else if (label.equals(Tuple.TUPLE_LABEL) || label.equals("tuple")) {
 			result = makeDefaultTupleFromLabelAndSubTrees(label, subTreeObjects);
 		}
+		else if (label.equals(ExtensionalSet.UNI_SET_LABEL)) {
+			result = makeDefaultExtensionalUniSetFromLabelAndSubTrees(label, subTreeObjects);
+		}
+		else if (label.equals(ExtensionalSet.MULTI_SET_LABEL)) {
+			result = makeDefaultExtensionalMultiSetFromLabelAndSubTrees(label, subTreeObjects);
+		}
 		else if (label.equals(CardinalityTypeOfLogicalVariable.TYPE_LABEL)) {
 			result = makeDefaultSyntacticFunctionApplicationFromLabelAndSubTrees(label, subTreeObjects);
 		}
@@ -181,8 +189,10 @@ public class Expressions {
 	
 	private static Collection<String> labelsUsingExpressionOnCompoundSyntaxTree =
 	Util.list(
-			IntensionalSet.UNI_SET_LABEL, IntensionalSet.MULTI_SET_LABEL,
-			ExtensionalSet.UNI_SET_LABEL, ExtensionalSet.MULTI_SET_LABEL,
+			IntensionalSet.UNI_SET_LABEL,
+			IntensionalSet.MULTI_SET_LABEL,
+//			ExtensionalSet.UNI_SET_LABEL,
+//			ExtensionalSet.MULTI_SET_LABEL,
 //			Lambda.ROOT,
 //			ForAll.LABEL,
 //			ThereExists.LABEL,
@@ -247,6 +257,30 @@ public class Expressions {
 			subTreeExpressions = new ArrayList<Expression>(Expressions.ensureListFromKleeneList(subTreeExpressions.get(0)));
 		}
 		Expression result = new DefaultTuple(subTreeExpressions);
+		return result;
+	}
+
+	private static Expression makeDefaultExtensionalUniSetFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
+		if (subTreeObjects.length == 1 && subTreeObjects[0] instanceof Collection) {
+			subTreeObjects = ((Collection) subTreeObjects[0]).toArray();
+		}
+		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
+		if (subTreeExpressions.size() == 1) {
+			subTreeExpressions = new ArrayList<Expression>(Expressions.ensureListFromKleeneList(subTreeExpressions.get(0)));
+		}
+		Expression result = new DefaultExtensionalUniSet(subTreeExpressions);
+		return result;
+	}
+
+	private static Expression makeDefaultExtensionalMultiSetFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
+		if (subTreeObjects.length == 1 && subTreeObjects[0] instanceof Collection) {
+			subTreeObjects = ((Collection) subTreeObjects[0]).toArray();
+		}
+		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
+		if (subTreeExpressions.size() == 1) {
+			subTreeExpressions = new ArrayList<Expression>(Expressions.ensureListFromKleeneList(subTreeExpressions.get(0)));
+		}
+		Expression result = new DefaultExtensionalMultiSet(subTreeExpressions);
 		return result;
 	}
 
