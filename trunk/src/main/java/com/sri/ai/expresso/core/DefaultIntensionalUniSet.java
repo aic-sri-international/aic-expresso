@@ -35,53 +35,45 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.expresso.api;
+package com.sri.ai.expresso.core;
 
 import java.util.List;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSetInterface;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 
 /**
- * An {@link Expression} that represents an extensionally defined set.
- * <p>
- * Currently named {@link ExtensionalSetInterface} in order not to be confused with {@link ExtensionalSet},
- * which will be phased out in time.
+ * A default implementation of a {@link IntensionalSetInterface} for unisets.
  * 
  * @author braz
  */
 @Beta
-public interface ExtensionalSetInterface extends Expression {
+public class DefaultIntensionalUniSet extends AbstractIntensionalSet implements IntensionalSetInterface {
+
+	private static final long serialVersionUID = 1L;
 	
-	/**
-	 * Indicates whether the set is a uniset.
-	 */
-	public boolean isUniSet();
-	
-	/**
-	 * Indicates whether the set is a multiset.
-	 */
-	public boolean isMultiSet();
-	
-	/**
-	 * Returns the expressions describing the elements in the set.
-	 * The method is named {@link #getElementsDefinitions()} instead of simply <code>getElements</code>
-	 * to stress the distinctions about the sub-expressions defining the elements of set, and the elements themselves.
-	 * For example, the extensionally defined set expression <code>{ X, X, a, a }</code> has <i>four</i> element definitions,
-	 * but has two or perhaps even only one element (depending on whether the value of <code>X</code> is <code>a</code>).
-	 */
-	default public List<Expression> getElementsDefinitions() {
-		return getSubExpressions();
+	public DefaultIntensionalUniSet(List<Expression> indexExpressions, Expression head, Expression condition) {
+		super(indexExpressions, head, condition);
 	}
 
-	/**
-	 * Returns the i-th element definition.
-	 */
-	default public Expression getElementDefinition(int i) {
-		return getSubExpressions().get(i);
+	@Override
+	public String getSyntaxTreeLabel() {
+		return IntensionalSet.UNI_SET_LABEL;
 	}
 
-	/**
-	 * Returns a new instance equivalent to this one but for the i-th element definition, which is replaced by the given one.
-	 */
-	public Expression setElementDefinition(int i, Expression newIthElementDefinition);
+	@Override
+	public boolean isUniSet() {
+		return true;
+	}
+
+	@Override
+	public boolean isMultiSet() {
+		return false;
+	}
+
+	public DefaultIntensionalUniSet make(List<Expression> indexExpressions, Expression head, Expression condition) {
+		return new DefaultIntensionalUniSet(indexExpressions, head, condition);
+	}
 }

@@ -37,20 +37,24 @@
  */
 package com.sri.ai.expresso.api;
 
-import java.util.List;
-
 import com.google.common.annotations.Beta;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 
 /**
- * An {@link Expression} that represents an extensionally defined set.
+ * An {@link Expression} that represents an intensionally defined set.
  * <p>
- * Currently named {@link ExtensionalSetInterface} in order not to be confused with {@link ExtensionalSet},
+ * An object <code>E</code> belongs to an intensionally defined set <code>{ (on I) H | C }</code>
+ * if and only if there is a value <code>I'</code> for the index expressions <code>I</code> such that <code>I'</code>
+ * satisfies <code>C</code> and <code>E = H(I')</code>, where <code>H(I')</code> is the result of
+ * replacing <code>I</code> by <code>I'</code> in <code>H</code>.
+ * <p> 
+ * Currently named {@link IntensionalSetInterface} in order not to be confused with {@link IntensionalSet},
  * which will be phased out in time.
  * 
  * @author braz
  */
 @Beta
-public interface ExtensionalSetInterface extends Expression {
+public interface IntensionalSetInterface extends QuantifiedExpression {
 	
 	/**
 	 * Indicates whether the set is a uniset.
@@ -61,27 +65,24 @@ public interface ExtensionalSetInterface extends Expression {
 	 * Indicates whether the set is a multiset.
 	 */
 	public boolean isMultiSet();
-	
-	/**
-	 * Returns the expressions describing the elements in the set.
-	 * The method is named {@link #getElementsDefinitions()} instead of simply <code>getElements</code>
-	 * to stress the distinctions about the sub-expressions defining the elements of set, and the elements themselves.
-	 * For example, the extensionally defined set expression <code>{ X, X, a, a }</code> has <i>four</i> element definitions,
-	 * but has two or perhaps even only one element (depending on whether the value of <code>X</code> is <code>a</code>).
-	 */
-	default public List<Expression> getElementsDefinitions() {
-		return getSubExpressions();
-	}
 
 	/**
-	 * Returns the i-th element definition.
+	 * Returns the head <code>H</code> of the set <code>{ (on I) H | C }</code>
 	 */
-	default public Expression getElementDefinition(int i) {
-		return getSubExpressions().get(i);
-	}
+	public Expression getHead();
 
 	/**
-	 * Returns a new instance equivalent to this one but for the i-th element definition, which is replaced by the given one.
+	 * Returns the condition <code>C</code> of the set <code>{ (on I) H | C }</code>
 	 */
-	public Expression setElementDefinition(int i, Expression newIthElementDefinition);
+	public Expression getCondition();
+
+	/**
+	 * Returns a new instance with the head replaced by given new one.
+	 */
+	public Expression setHead(Expression newHead);
+
+	/**
+	 * Returns a new instance with the condition replaced by given new one.
+	 */
+	public Expression setCondition(Expression newCondition);
 }

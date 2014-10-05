@@ -66,6 +66,8 @@ import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.expresso.core.DefaultExtensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
+import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
+import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
 import com.sri.ai.expresso.core.DefaultLambdaExpression;
 import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
@@ -178,6 +180,12 @@ public class Expressions {
 		else if (label.equals(ExtensionalSet.MULTI_SET_LABEL)) {
 			result = makeDefaultExtensionalMultiSetFromLabelAndSubTrees(label, subTreeObjects);
 		}
+		else if (label.equals(IntensionalSet.UNI_SET_LABEL)) {
+			result = makeDefaultIntensionalUniSetFromLabelAndSubTrees(label, subTreeObjects);
+		}
+		else if (label.equals(IntensionalSet.MULTI_SET_LABEL)) {
+			result = makeDefaultIntensionalMultiSetFromLabelAndSubTrees(label, subTreeObjects);
+		}
 		else if (label.equals(CardinalityTypeOfLogicalVariable.TYPE_LABEL)) {
 			result = makeDefaultSyntacticFunctionApplicationFromLabelAndSubTrees(label, subTreeObjects);
 		}
@@ -189,8 +197,8 @@ public class Expressions {
 	
 	private static Collection<String> labelsUsingExpressionOnCompoundSyntaxTree =
 	Util.list(
-			IntensionalSet.UNI_SET_LABEL,
-			IntensionalSet.MULTI_SET_LABEL,
+//			IntensionalSet.UNI_SET_LABEL,
+//			IntensionalSet.MULTI_SET_LABEL,
 //			ExtensionalSet.UNI_SET_LABEL,
 //			ExtensionalSet.MULTI_SET_LABEL,
 //			Lambda.ROOT,
@@ -281,6 +289,50 @@ public class Expressions {
 			subTreeExpressions = new ArrayList<Expression>(Expressions.ensureListFromKleeneList(subTreeExpressions.get(0)));
 		}
 		Expression result = new DefaultExtensionalMultiSet(subTreeExpressions);
+		return result;
+	}
+
+	private static Expression makeDefaultIntensionalUniSetFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
+		if (subTreeObjects.length == 1 && subTreeObjects[0] instanceof Collection) {
+			subTreeObjects = ((Collection) subTreeObjects[0]).toArray();
+		}
+		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
+		if (subTreeExpressions.size() == 1) {
+			subTreeExpressions = new ArrayList<Expression>(Expressions.ensureListFromKleeneList(subTreeExpressions.get(0)));
+		}
+		
+		Expression scopingExpression = subTreeExpressions.get(0);
+		List<Expression> indexExpressions =
+				(scopingExpression == null || scopingExpression.numberOfArguments() == 0)?
+						Util.list()
+						: new ArrayList<Expression>(Expressions.ensureListFromKleeneList(scopingExpression.get(0)));
+		
+		Expression conditioningSyntaxTree = subTreeExpressions.get(2);
+		Expression condition = conditioningSyntaxTree == null? Expressions.TRUE : conditioningSyntaxTree.get(0);
+		
+		Expression result = new DefaultIntensionalUniSet(indexExpressions, subTreeExpressions.get(1), condition);
+		return result;
+	}
+
+	private static Expression makeDefaultIntensionalMultiSetFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
+		if (subTreeObjects.length == 1 && subTreeObjects[0] instanceof Collection) {
+			subTreeObjects = ((Collection) subTreeObjects[0]).toArray();
+		}
+		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
+		if (subTreeExpressions.size() == 1) {
+			subTreeExpressions = new ArrayList<Expression>(Expressions.ensureListFromKleeneList(subTreeExpressions.get(0)));
+		}
+		
+		Expression scopingExpression = subTreeExpressions.get(0);
+		List<Expression> indexExpressions =
+				(scopingExpression == null || scopingExpression.numberOfArguments() == 0)?
+						Util.list()
+						: new ArrayList<Expression>(Expressions.ensureListFromKleeneList(scopingExpression.get(0)));
+		
+		Expression conditioningSyntaxTree = subTreeExpressions.get(2);
+		Expression condition = conditioningSyntaxTree == null? Expressions.TRUE : conditioningSyntaxTree.get(0);
+		
+		Expression result = new DefaultIntensionalMultiSet(indexExpressions, subTreeExpressions.get(1), condition);
 		return result;
 	}
 
