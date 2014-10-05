@@ -40,8 +40,8 @@ package com.sri.ai.expresso.core;
 import static com.sri.ai.expresso.helper.SyntaxTrees.makeCompoundSyntaxTree;
 import static com.sri.ai.util.Util.castOrThrowError;
 import static com.sri.ai.util.Util.mapIntoArrayList;
+import static com.sri.ai.util.Util.replaceElementsNonDestructively;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -72,32 +72,20 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 	private static final long serialVersionUID = 1L;
 
 	private Expression body;
-	private List<ExpressionAndContext> cachedSubExpressionsAndContext;
 	private SyntaxTree cachedSyntaxTree;
-	private List<Expression> cachedScopedExpressions;
+	private List<ExpressionAndContext> cachedSubExpressionsAndContext;
 
 	public AbstractQuantifiedExpressionWithABody(List<Expression> indexExpressions, Expression body) {
 		super(indexExpressions);
 		this.body = body;
+		cachedSubExpressionsAndContext = makeImmediateSubExpressionsAndContexts();
 		cachedSyntaxTree = makeSyntaxTree();
-		makeImmediateSubExpressionsAndContexts();
-		cachedScopedExpressions = makeScopedExpressions();
 	}
 
 	public abstract AbstractQuantifiedExpressionWithABody make(List<Expression> indexExpressions, Expression body);
 
 	public abstract String getSyntaxTreeLabel();
 
-	@Override
-	public List<Expression> getScopedExpressions(RewritingProcess process) {
-		return cachedScopedExpressions;
-	}
-	
-	private List<Expression> makeScopedExpressions() {
-		List<Expression> result = IndexExpressions.getIndices(getIndexExpressions());
-		return result;
-	}
-	
 	@Override
 	public Expression getBody() {
 		return body;
@@ -117,10 +105,11 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 		return cachedSubExpressionsAndContext.iterator();
 	}
 
-	private void makeImmediateSubExpressionsAndContexts() {
+	protected List<ExpressionAndContext> makeImmediateSubExpressionsAndContexts() {
 		cachedSubExpressionsAndContext = new LinkedList<ExpressionAndContext>();
 		makeIndexExpressionSubExpressionsAndContext(cachedSubExpressionsAndContext);
 		cachedSubExpressionsAndContext.add(new DefaultExpressionAndContext(getBody(), new BodyAddress(), getIndexExpressions(), Expressions.TRUE));
+		return cachedSubExpressionsAndContext;
 	}
 	
 	@Override
@@ -136,8 +125,8 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 	}
 
 	@Override
-	public AbstractQuantifiedExpressionWithABody setIndexExpressions(List<Expression> newIndexExpressions) {
-		AbstractQuantifiedExpressionWithABody result;
+	public AbstractQuantifiedExpression setIndexExpressions(List<Expression> newIndexExpressions) {
+		AbstractQuantifiedExpression result;
 		if (newIndexExpressions != getIndexExpressions()) {
 			result = make(newIndexExpressions, getBody());
 		}
@@ -161,23 +150,24 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 
 	@Override
 	public Expression renameSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
-		AbstractQuantifiedExpressionWithABody result = this;
+		AbstractQuantifiedExpression result = this;
 		
 		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, process);
-		ArrayList<Expression> newIndexExpression = mapIntoArrayList(getIndexExpressions(), renameSymbol);
+		List<Expression> newIndexExpressions = replaceElementsNonDestructively(getIndexExpressions(), renameSymbol);
 		
 		Expression newBody = getBody().renameSymbol(symbol, newSymbol, process);
 		
-		result = replaceIfNeeded(result, newIndexExpression, newBody);
+		result = replaceIfNeeded(newIndexExpressions, newBody);
 
 		return result;
 	}
 
-	private AbstractQuantifiedExpressionWithABody replaceIfNeeded(AbstractQuantifiedExpressionWithABody expression, ArrayList<Expression> newIndexExpression, Expression newBody) {
+	private AbstractQuantifiedExpression replaceIfNeeded(List<Expression> newIndexExpression, Expression newBody) {
+		AbstractQuantifiedExpression result = this;
 		if (newIndexExpression != getIndexExpressions() || newBody != getBody()) {
-			expression = make(newIndexExpression, newBody);
+			result = make(newIndexExpression, newBody);
 		}
-		return expression;
+		return result;
 	}
 
 	@Override

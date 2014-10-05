@@ -41,15 +41,19 @@ import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.replac
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.replaceOrAddType;
 import static com.sri.ai.util.Util.castOrThrowError;
 
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.SubExpressionAddress;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractExpression;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 
 /**
@@ -61,12 +65,36 @@ import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 @Beta
 public abstract class AbstractQuantifiedExpression extends AbstractExpression implements QuantifiedExpression {
 
-	private List<Expression> indexExpressions;
+	private List<Expression>             indexExpressions;
+	protected List<Expression>           cachedScopedExpressions;
+	protected SyntaxTree                 cachedSyntaxTree;
+	protected List<ExpressionAndContext> cachedSubExpressionsAndContext;
 	
 	public AbstractQuantifiedExpression(List<Expression> indexExpressions) {
 		this.indexExpressions = indexExpressions;
+		cachedScopedExpressions = makeScopedExpressions();
 	}
 	
+	@Override
+	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(RewritingProcess process) {
+		return cachedSubExpressionsAndContext.iterator();
+	}
+
+	@Override
+	public SyntaxTree getSyntaxTree() {
+		return cachedSyntaxTree;
+	}
+
+	@Override
+	public List<Expression> getScopedExpressions(RewritingProcess process) {
+		return cachedScopedExpressions;
+	}
+
+	protected List<Expression> makeScopedExpressions() {
+		List<Expression> result = IndexExpressions.getIndices(getIndexExpressions());
+		return result;
+	}
+
 	@Override
 	public List<Expression> getIndexExpressions() {
 		return indexExpressions;
@@ -90,7 +118,7 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 				result.add(expressionAndContext);
 			}
 			Expression type = IndexExpressions.getType(indexExpression);
-			if (type != null) {
+			if (indexExpression.hasFunctor(FunctorConstants.IN)) {
 				ExpressionAndContext expressionAndContext = makeAddressForIndexType(indexExpressionIndex, type);
 				result.add(expressionAndContext);
 			}
