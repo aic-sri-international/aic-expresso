@@ -37,7 +37,10 @@
  */
 package com.sri.ai.expresso.core;
 
+import static java.util.Collections.emptyList;
+
 import java.util.Iterator;
+import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.google.common.cache.Cache;
@@ -73,6 +76,18 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 	@Override
 	public Object getValue() {
 		return value;
+	}
+
+	/**
+	 * Even though {@link Symbol} is not a {@link FunctionApplication} and does not have arguments,
+	 * we offer this method (returning an empty list) for convenience,
+	 * because it is often the case that we want to treat function applications and symbols uniformly
+	 * and talk about their arguments,
+	 * and testing every time whether an expression is a symbol becomes cumbersome.
+	 */
+	@Override
+	public List<Expression> getArguments() {
+		return emptyList();
 	}
 
 	@Override

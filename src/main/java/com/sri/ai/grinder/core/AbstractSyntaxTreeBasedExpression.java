@@ -60,6 +60,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.util.Util;
+import com.sri.ai.util.collect.FunctionIterator;
 
 /**
  * A basic, default implementation of some of the {@link Expression} methods.
@@ -233,5 +234,39 @@ public abstract class AbstractSyntaxTreeBasedExpression extends AbstractExpressi
 		}
 		Util.fatalError("set can only be invoked for Expressions of function application syntactic form, but was invoked for " + this);
 		return null;
+	}
+
+	@Override
+	public List<Expression> getArguments() {
+		if (cachedArguments == null) {
+			lazyInitCachedArgumentsLock.lock();
+			try {
+				// Note: Ensure still null when acquire the lock
+				if (cachedArguments == null) {
+					if (getSyntacticFormType().equals("Symbol")) {
+						return Collections.emptyList();
+					}
+		
+					Iterator<ExpressionAndContext> immediateSubExpressionsAndContextsIterator = getImmediateSubExpressionsAndContextsIterator();
+
+					Iterator<Expression> resultIterator =
+						new FunctionIterator<ExpressionAndContext, Expression>(
+								immediateSubExpressionsAndContextsIterator,
+								ExpressionAndContext.GET_EXPRESSION);
+		
+					// eventually we want this condition to be moved out right below the Symbol test
+					if (getSyntacticFormType().equals("Function application")) {
+						resultIterator = Util.removeFirst(resultIterator); // functor does not count as an argument for function applications
+					}
+					
+					// Ensure they cannot be mutated by accident.
+					cachedArguments = ImmutableList.copyOf(resultIterator);
+				}
+			} finally {
+				lazyInitCachedArgumentsLock.unlock();
+			}
+		}
+
+		return cachedArguments;
 	}
 }
