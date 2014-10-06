@@ -37,7 +37,8 @@
  */
 package com.sri.ai.grinder.core;
 
-import java.util.Collections;
+import static java.util.Collections.emptyList;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -390,36 +391,10 @@ public abstract class AbstractExpression implements Expression {
 	
 	@Override
 	public List<Expression> getArguments() {
-		if (cachedArguments == null) {
-			lazyInitCachedArgumentsLock.lock();
-			try {
-				// Note: Ensure still null when acquire the lock
-				if (cachedArguments == null) {
-					if (getSyntacticFormType().equals("Symbol")) {
-						return Collections.emptyList();
-					}
-		
-					Iterator<ExpressionAndContext> immediateSubExpressionsAndContextsIterator = getImmediateSubExpressionsAndContextsIterator();
-
-					Iterator<Expression> resultIterator =
-						new FunctionIterator<ExpressionAndContext, Expression>(
-								immediateSubExpressionsAndContextsIterator,
-								ExpressionAndContext.GET_EXPRESSION);
-		
-					// eventually we want this condition to be moved out right below the Symbol test
-					if (getSyntacticFormType().equals("Function application")) {
-						resultIterator = Util.removeFirst(resultIterator); // functor does not count as an argument for function applications
-					}
-					
-					// Ensure they cannot be mutated by accident.
-					cachedArguments = ImmutableList.copyOf(resultIterator);
-				}
-			} finally {
-				lazyInitCachedArgumentsLock.unlock();
-			}
-		}
-
-		return cachedArguments;
+		// throw new Error("Expression.getArguments() undefined for instances of class " + getClass().getSimpleName());
+		 return emptyList();
+		 // Leaving this implementation because we often enquire about the number of arguments of an expression of unknown type,
+		 // and assume that non-function-application ones will have zero arguments.
 	}
 
 	@Override

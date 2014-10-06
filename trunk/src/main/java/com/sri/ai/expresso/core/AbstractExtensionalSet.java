@@ -114,7 +114,12 @@ public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpres
 
 	@Override
 	public Expression set(int i, Expression newIthArgument) {
-		throw new Error("Expression.set(int, Expression) undefined for " + getClass().getSimpleName());
+		Expression result = setElementDefinition(i, newIthArgument);
+		return result;
 	}
-
+	
+	@Override
+	public List<Expression> getArguments() {
+		return getElementsDefinitions();
+	}
 }

@@ -113,9 +113,11 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 		for (int indexExpressionIndex = 0; indexExpressionIndex != getIndexExpressions().size(); indexExpressionIndex++) {
 			Expression indexExpression = getIndexExpressions().get(indexExpressionIndex);
 			Expression index = IndexExpressions.getIndex(indexExpression);
-			for (int argumentIndex = 0; argumentIndex != index.numberOfArguments(); argumentIndex++) {
-				ExpressionAndContext expressionAndContext = makeAddressForIndexArgument(indexExpressionIndex, index, argumentIndex);
-				result.add(expressionAndContext);
+			if (index.getSyntacticFormType().equals("Function application")) {
+				for (int argumentIndex = 0; argumentIndex != index.numberOfArguments(); argumentIndex++) {
+					ExpressionAndContext expressionAndContext = makeAddressForIndexArgument(indexExpressionIndex, index, argumentIndex);
+					result.add(expressionAndContext);
+				}
 			}
 			Expression type = IndexExpressions.getType(indexExpression);
 			if (indexExpression.hasFunctor(FunctorConstants.IN)) {
