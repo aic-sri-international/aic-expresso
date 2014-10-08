@@ -222,16 +222,6 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 		return result;
 	}
 
-	@Override
-	public Expression getFunctor() {
-		return null;
-	}
-
-	@Override
-	public Expression set(int i, Expression newIthArgument) {
-		throw new Error("set(int i) applies only to function applications, but it was invoked for Symbol " + this);
-	}
-
 	// Note: End users can only instantiate Symbols via the factory method.
 	private DefaultSymbol(Object value) {
 		

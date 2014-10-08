@@ -61,10 +61,11 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.core.DefaultBracketedExpression;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
-import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.expresso.core.DefaultExtensionalMultiSet;
+import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
@@ -78,6 +79,7 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.PruningPredicate;
+import com.sri.ai.grinder.helper.FunctionSignature;
 import com.sri.ai.grinder.helper.RewriterFunction;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -134,7 +136,8 @@ public class Expressions {
 	@Deprecated
 	public static Expression makeFromSyntaxTree(SyntaxTree syntaxTree) {
 		if (syntaxTree instanceof CompoundSyntaxTree) {
-			Expression result = new ExpressionOnCompoundSyntaxTree(syntaxTree);
+			Expression result = makeExpressionOnSyntaxTreeWithLabelAndSubTrees(syntaxTree.getLabel(), syntaxTree.getImmediateSubTrees().toArray());
+//			Expression result = new ExpressionOnCompoundSyntaxTree(syntaxTree);
 			return result;
 		}
 		if (syntaxTree instanceof SyntaxLeaf) {
@@ -153,14 +156,36 @@ public class Expressions {
 		}
 	};
 	
+	private static boolean oldImplementations = false;
+	private static Collection<String> labelsUsingExpressionOnCompoundSyntaxTree =
+	Util.list(
+//			IntensionalSet.UNI_SET_LABEL,
+//			IntensionalSet.MULTI_SET_LABEL,
+//			ExtensionalSet.UNI_SET_LABEL,
+//			ExtensionalSet.MULTI_SET_LABEL,
+//			Lambda.ROOT,
+//			ForAll.LABEL,
+//			ThereExists.LABEL,
+//			Tuple.TUPLE_LABEL, "tuple",
+//			CardinalityTypeOfLogicalVariable.TYPE_LABEL,
+			"[ . ]" // BracketedExpressionSubExpressionsProvider.SYNTAX_TREE_LABEL);
+			);
+
+	
 	/**
 	 * Makes Expression based on a syntax tree with given label and sub-trees, or {@link Expression}s from whose syntax trees must be used.
 	 */
 	public static Expression makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Object label, Object... subTreeObjects) {
+		return makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(null, label, subTreeObjects);
+	}
+
+	public static Expression makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(Collection<FunctionSignature> randomPredicatesSignatures, Object label, Object... subTreeObjects) {
 		Expression result;
-		boolean old = false;
-		if (old || labelsUsingExpressionOnCompoundSyntaxTree.contains(label)) {
+		if (oldImplementations || labelsUsingExpressionOnCompoundSyntaxTree.contains(label)) {
 			result = new ExpressionOnCompoundSyntaxTree(label, subTreeObjects);
+		}
+		else if (label.equals("[ . ]")) {
+			result = makeDefaultBracketedExpressionFromLabelAndSubTrees(randomPredicatesSignatures, label, subTreeObjects);
 		}
 		else if (label.equals(ForAll.LABEL)) {
 			result = makeDefaultUniversallyQuantifiedFormulaFromLabelAndSubTrees(label, subTreeObjects);
@@ -195,19 +220,22 @@ public class Expressions {
 		return result;
 	}
 	
-	private static Collection<String> labelsUsingExpressionOnCompoundSyntaxTree =
-	Util.list(
-//			IntensionalSet.UNI_SET_LABEL,
-//			IntensionalSet.MULTI_SET_LABEL,
-//			ExtensionalSet.UNI_SET_LABEL,
-//			ExtensionalSet.MULTI_SET_LABEL,
-//			Lambda.ROOT,
-//			ForAll.LABEL,
-//			ThereExists.LABEL,
-//			Tuple.TUPLE_LABEL, "tuple",
-//			CardinalityTypeOfLogicalVariable.TYPE_LABEL,
-			"[ . ]" // BracketedExpressionSubExpressionsProvider.SYNTAX_TREE_LABEL);
-			);
+	/**
+	 * Makes Expression based on a syntax tree with given label and sub-trees, or {@link Expression}s from whose syntax trees must be used.
+	 */
+	public static Expression makeDefaultBracketedExpressionFromLabelAndSubTrees(Collection<FunctionSignature> randomPredicatesSignatures, Object label, Object... subTreeObjects) {
+		if (randomPredicatesSignatures == null) {
+			throw new Error("Making bracketed expression without providing random predicates");
+		}
+		
+		Expression result;
+		if (subTreeObjects.length == 1 && subTreeObjects[0] instanceof Collection) {
+			subTreeObjects = ((Collection) subTreeObjects[0]).toArray();
+		}
+		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
+		result = new DefaultBracketedExpression(subTreeExpressions.get(0), randomPredicatesSignatures);
+		return result;
+	}
 
 	private static Expression makeDefaultLambdaExpressionFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
 		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);

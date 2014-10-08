@@ -37,6 +37,9 @@
  */
 package com.sri.ai.grinder.parser.antlr;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -47,6 +50,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import com.google.common.annotations.Beta;
 import com.sri.ai.brewer.api.Parser;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.helper.FunctionSignature;
 
 /**
  * An implementation of the {@link Parser} interface that uses Antlr as the
@@ -58,10 +62,25 @@ import com.sri.ai.expresso.api.Expression;
 @Beta
 public class AntlrGrinderParserWrapper implements Parser {
 
-	public AntlrGrinderParserWrapper() {
+	private Collection<FunctionSignature> randomPredicatesSignatures;
 
+	public AntlrGrinderParserWrapper() {
+		this.randomPredicatesSignatures = null;
 	}
 
+	public AntlrGrinderParserWrapper(Collection<FunctionSignature> randomPredicatesSignatures) {
+		setRandomPredicatesSignatures(randomPredicatesSignatures);
+	}
+
+	public Collection<FunctionSignature> setRandomPredicatesSignatures(Collection<FunctionSignature> randomPredicatesSignatures) {
+		this.randomPredicatesSignatures = randomPredicatesSignatures == null? null : Collections.unmodifiableCollection(randomPredicatesSignatures);
+		return this.randomPredicatesSignatures;
+	}
+
+	public Collection<FunctionSignature> getRandomPredicatesSignatures() {
+		return randomPredicatesSignatures;
+	}
+	
 	@Override
 	public Expression parse(String string) {
 		Expression result = null;
@@ -91,7 +110,7 @@ public class AntlrGrinderParserWrapper implements Parser {
 				else {
 					lexer.removeErrorListeners();
 					parser.removeErrorListeners();
-					ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+					ExpressionVisitor expressionVisitor = new ExpressionVisitor(getRandomPredicatesSignatures());
 					result = expressionVisitor.visit(tree);
 				}
 			}

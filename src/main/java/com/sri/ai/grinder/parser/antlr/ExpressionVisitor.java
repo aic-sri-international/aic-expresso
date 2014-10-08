@@ -39,6 +39,7 @@ package com.sri.ai.grinder.parser.antlr;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.helper.FunctionSignature;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ForAll;
@@ -64,9 +66,16 @@ import com.sri.ai.grinder.library.set.tuple.Tuple;
 @Beta
 public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	
+	private Collection<FunctionSignature> randomPredicatesSignatures;
+	
 	// Note track bracketed expressions based on identity to ensure no accidental overal by value.
 	private Map<Expression, Expression> parenthesizedExpressions = new IdentityHashMap<Expression, Expression>(); 
 	
+	public ExpressionVisitor(Collection<FunctionSignature> randomPredicateSignatures) {
+		super();
+		this.randomPredicatesSignatures = randomPredicateSignatures;
+	}
+
 	// parenthesis, e.g.:(1+2)
 	// '(' expr ')' #parenthesesAroundExpression
 	@Override 
@@ -157,7 +166,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override
 	public Expression visitBracketedExpression(
 			AntlrGrinderParser.BracketedExpressionContext ctx) {
-		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.LEFT_DOT_RIGHT, visit(ctx.expr()));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(randomPredicatesSignatures, FunctorConstants.LEFT_DOT_RIGHT, visit(ctx.expr()));
 		return result;
 	}
 	

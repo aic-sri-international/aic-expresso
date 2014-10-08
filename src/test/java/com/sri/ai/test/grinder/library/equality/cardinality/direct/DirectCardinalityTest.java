@@ -1388,10 +1388,10 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 		TestData[] tests = new TestData[] {
 			//
 			new QuantifierEliminationWrapperData(false,
-					"there exists People : (there exists X in People : X' != Y and (X' != dave and Y = dave or Y = dave and X' != dave) and not (X' = bob) and X'' != Y' and (X' = X'' and Y = Y' or X' = Y' and Y = X'') and (X'' != X' or Y' != Y))",
+					"there exists X in People : X' != Y and (X' != dave and Y = dave or Y = dave and X' != dave) and not (X' = bob) and X'' != Y' and (X' = X'' and Y = Y' or X' = Y' and Y = X'') and (X'' != X' or Y' != Y)",
 					new CountsDeclaration("X", "10"),
 					/* order normalization: */
-					"if Y = dave and X' != dave and X' != bob and X'' != Y' and (X' = X'' and Y' = dave or X' = Y' and X'' = dave) and (X'' != X' or Y' != dave) then if | People | > 0 then | type(People) | > 0 else false else false"),
+					"if Y = dave and X' != dave and X' != bob and X'' != Y' and (X' = X'' and Y' = dave or X' = Y' and X'' = dave) and (X'' != X' or Y' != dave) then | People | > 0 else false"),
 					/* without order normalization: */
 					// "if X' != Y and (X' != dave and Y = dave or Y = dave and X' != dave) and X' != bob and X'' != Y' and (X' = X'' and Y = Y' or X' = Y' and Y = X'') and (X'' != X' or Y' != Y) then if | People | > 0 then | type(People) | > 0 else false else false"),
 		};
