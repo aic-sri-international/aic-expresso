@@ -105,13 +105,13 @@ MutuallyExclusiveCoDomainsModule.Provider {
 		boolean result =
 				expression.getSyntaxTree().getLabel().equals(TUPLE_LABEL)
 				||
-				expression.hasFunctor("tuple");
+				expression.getSyntaxTree().getLabel().equals("tuple");
 		return result;
 	}
 	
 	public static List<Expression> getElements(Expression expression) {
 		List<Expression> elements;
-		if (expression.hasFunctor("tuple")) {
+		if (expression.getSyntaxTree().getLabel().equals("tuple")) {
 			elements = expression.getArguments();
 			// this is incorrect because it is treating tuples as function applications, but they are not;
 			// their syntactic form type is "Tuple", not "Function application".
@@ -217,7 +217,7 @@ MutuallyExclusiveCoDomainsModule.Provider {
 	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(
 			Expression expression, RewritingProcess process) {
 		if (isTuple(expression)) {
-			if (expression.hasFunctor("tuple")) {
+			if (expression.getSyntaxTree().getLabel().equals("tuple")) {
 				return Expressions.getSubExpressionsAndContextsIteratorFromImmediateSubTrees(expression, process);
 			}
 			else {

@@ -212,14 +212,4 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 			super(indexExpressionIndex, newType -> (indexExpression -> replaceOrAddType(indexExpression, newType)));
 		}
 	}
-
-	@Override
-	public Expression getFunctor() {
-		return null;
-	}
-
-	@Override
-	public Expression set(int i, Expression newIthArgument) {
-		return null;
-	}
 }

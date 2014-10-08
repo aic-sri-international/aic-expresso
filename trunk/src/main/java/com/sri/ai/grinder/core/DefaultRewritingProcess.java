@@ -687,7 +687,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		return result;
 	}
 	
-	/** A copy constructor with clean context and clean caches. */
+	/** A copy constructor with clean contextual constraint and clean caches. */
 	private DefaultRewritingProcess(RewritingProcess process) {
 		initialize(
 				null, // parentProcess,
@@ -695,7 +695,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				process.getRootRewriter(),
 				process.getRewriterLookup(),
 				process.getChildCallIntercepter(),
-				new LinkedHashMap<Expression, Expression>(),
+				process.getContextualSymbolsAndTypes(),
 				Expressions.TRUE,
 				process.getIsConstantPredicate(),
 				process.getGlobalObjects(),
@@ -775,5 +775,11 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	@Override
 	public String toString() {
 		return "Rewriting process with context " + getContextualSymbolsAndTypes() + ", " + getContextualConstraint();
+	}
+
+	@Override
+	public RewritingProcess setContextualConstraint(Expression newContextualConstraint) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

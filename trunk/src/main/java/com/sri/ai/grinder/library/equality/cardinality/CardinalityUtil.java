@@ -229,7 +229,7 @@ public class CardinalityUtil {
 	 */
 	public static void assertIsCardinalityOfIndexedFormulaExpression(Expression expression) {
 		if (!isCardinalityOfIndexedFormulaExpression(expression)) {
-			throw new IllegalArgumentException("Argument is not a legal cardinality of indexed formula expression:"+expression);
+			throw new IllegalArgumentException("Argument is not a legal cardinality of indexed formula expression: " + expression);
 		}
 	}
 		

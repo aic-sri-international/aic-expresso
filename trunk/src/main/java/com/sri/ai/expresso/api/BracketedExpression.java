@@ -37,38 +37,33 @@
  */
 package com.sri.ai.expresso.api;
 
-import static com.sri.ai.util.Util.replaceElementNonDestructively;
-
-import java.util.List;
+import java.util.Collection;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
+import com.sri.ai.grinder.helper.FunctionSignature;
 
 /**
- * An {@link Expression} that represents a quantified expression, that is, an expression introducing new variables,
- * such as universal and existential quantified expressions, intensional sets, and lambda expressions.
+ * An {@link Expression} that represents a bracketed expression.
+ * Given an expression <code>E</code>
+ * and a set <code>R</code> of strings in the format <code>p/n</code>
+ * representing that function symbol <code>p</code> with unary <code>n</code>
+ * is a random function,
+ * a bracketed expression <code>[ E ]</code> has sub-expressions corresponding to the arguments
+ * of applications of functions in <code>R</code>.
+ * <p>
+ * This is meant to represent factors and random variables in praise, but is temporarily placed
+ * in expresso because at this point all expressions need to be instantiated in Expressions.
+ * This will change in time.
  * 
  * @author braz
  */
 @Beta
-public interface QuantifiedExpression extends Expression {
-
-	
-	public List<Expression>     getIndexExpressions();
-	public QuantifiedExpression setIndexExpressions(List<Expression> newIndexExpressions);
+public interface BracketedExpression extends Expression {
 
 	/**
-	 * Returns a new {@link QuantifiedExpression} with the {@param indexExpressionIndex}-th index expression
-	 * replaced by the given replacement function,
-	 * or this same instance if the replacement function maps the index expression to itself.
-	 * @param indexExpressionIndex
-	 * @param replacementFunction
-	 * @return a {@link QuantifiedExpression} with the replaced index expression (or this same instance if replacement is the same).
+	 * If this is <code>[ E ]</code>, returns <code>E</code>.
 	 */
-	public default Expression replaceIndexExpression(int indexExpressionIndex, Function<Expression, Expression> replacementFunction) {
-		List<Expression> newIndexExpressions =
-				replaceElementNonDestructively(getIndexExpressions(), indexExpressionIndex, replacementFunction);
-		Expression result = setIndexExpressions(newIndexExpressions);
-		return result;
-	}
+	Expression getInnerExpression();
+	
+	Collection<FunctionSignature> getRandomPredicates();
 }
