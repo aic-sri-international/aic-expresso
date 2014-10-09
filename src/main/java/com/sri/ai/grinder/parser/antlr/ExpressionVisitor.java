@@ -71,9 +71,9 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// Note track bracketed expressions based on identity to ensure no accidental overal by value.
 	private Map<Expression, Expression> parenthesizedExpressions = new IdentityHashMap<Expression, Expression>(); 
 	
-	public ExpressionVisitor(Collection<FunctionSignature> randomPredicateSignatures) {
+	public ExpressionVisitor(Collection<FunctionSignature> randomPredicatesSignatures) {
 		super();
-		this.randomPredicatesSignatures = randomPredicateSignatures;
+		this.randomPredicatesSignatures = randomPredicatesSignatures;
 	}
 
 	// parenthesis, e.g.:(1+2)
@@ -106,7 +106,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override 
 	public Expression visitFunctionApplication(
 			AntlrGrinderParser.FunctionApplicationContext ctx) {
-		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(visit(ctx.functor), expressions(ctx.args));
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(randomPredicatesSignatures, visit(ctx.functor), expressions(ctx.args));
 		
 		return result;
 	}

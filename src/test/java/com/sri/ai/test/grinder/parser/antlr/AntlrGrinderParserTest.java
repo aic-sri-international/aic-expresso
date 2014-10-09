@@ -37,24 +37,47 @@
  */
 package com.sri.ai.test.grinder.parser.antlr;
 
+import static com.sri.ai.util.Util.list;
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSyntaxLeaf;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.helper.FunctionSignature;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 import com.sri.ai.test.grinder.AbstractParserTest;
+import com.sri.ai.util.Util;
 
 public class AntlrGrinderParserTest extends AbstractParserTest {
+
+	private Collection<FunctionSignature> oldParserFunctionSignatures;
 
 	public AntlrGrinderParserTest () {
 		parser = new AntlrGrinderParserWrapper();
 	}
 	
+	/**
+	 * 
+	 */
+	protected void popParserFunctionSignatures() {
+		((AntlrGrinderParserWrapper) parser).setRandomPredicatesSignatures(oldParserFunctionSignatures);
+	}
+
+	/**
+	 * @param newParserFunctionSignatures
+	 */
+	protected void pushParserFunctionSignatures(List<FunctionSignature> newParserFunctionSignatures) {
+		oldParserFunctionSignatures = ((AntlrGrinderParserWrapper) parser).getRandomPredicatesSignatures();
+		((AntlrGrinderParserWrapper) parser).setRandomPredicatesSignatures(newParserFunctionSignatures);
+	}
+
 	@Test
 	public void testSymbol () {
 		String string;
@@ -666,11 +689,16 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 	@Test
 	public void testMultiset () {
+		List<FunctionSignature> functionSignatures = list();
+		pushParserFunctionSignatures(functionSignatures);
+		
 		String string;
 		
 		string = "{{ ( on ) ([ if X then 1 else 0 ]) }}";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", IntensionalSet.makeScopingSyntaxTree(new ArrayList<Expression>()), 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("[ . ]",
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(
+						functionSignatures,
+						"[ . ]",
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", "X", "1", "0")), null));
 		
 		string = "{{ foo }}";
@@ -696,7 +724,9 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		
 		string = "{{ [if p(a) then 1 else 0] | true }}";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", null, 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("[ . ]", 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(
+						functionSignatures,
+						"[ . ]", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
 								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "a"), "1", "0")), 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", "true")));
@@ -756,6 +786,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "{{ 1 }} 2";
 		testFail(string);
 
+		popParserFunctionSignatures();
 	}
 
 	@Test
@@ -794,12 +825,17 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X"), 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", "false")));
 		
+		List<FunctionSignature> functionSignatures = list(new FunctionSignature("p/1"));
+		pushParserFunctionSignatures(functionSignatures);
 		string = "{ [if p(a) then 1 else 0] | true }";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", null, 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("[ . ]", 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(
+						functionSignatures,
+						"[ . ]", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
 								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "a"), "1", "0")), 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", "true")));
+		popParserFunctionSignatures();
 
 		string = "{ (on foo, fooz) bar }";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
@@ -856,27 +892,43 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	
 	@Test
 	public void testSquareBracket () {
+
+		List<FunctionSignature> functionSignatures = list();
+		pushParserFunctionSignatures(functionSignatures);
+
 		String string;
 		string = "[ x in y ]";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("[ . ]", 
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(
+				functionSignatures,
+				"[ . ]", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "x", "y")));
 
 		string = "[ x+1 ]";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("[ . ]", 
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(
+				functionSignatures,
+				"[ . ]", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "x", 1)));
 
 		string = "[ (x, y) ]";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("[ . ]", Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(
+				functionSignatures,
+				"[ . ]", Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y"))));
 
-		string = "'[ . ]'()";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("[ . ]"));
+		// The "function application" forms of bracketed expressions below are a relic of the time when
+		// there was confusion between syntax trees and function applications,
+		// and which AntlrGrinderParserWrapper still uses.
+		// In time, this should not be valid anymore.
 
 		string = "'[ . ]'(a)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("[ . ]", "a"));
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(
+				functionSignatures,
+				"[ . ]", "a"));
 
 		string = "'[ . ]'(a, b, c)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("[ . ]", "a", "b", "c"));
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(
+				functionSignatures,
+				"[ . ]", "a", "b", "c"));
 
 		// Testing illegal strings.
 		string = "[]";
@@ -890,6 +942,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 		string = "[ x, y ]";
 		testFail(string);
+
+		popParserFunctionSignatures();
 	}
 
 	@Test
@@ -898,9 +952,14 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "neighbors of factor x";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of factor", "x"));
 
+		List<FunctionSignature> functionSignatures = list();
+		pushParserFunctionSignatures(functionSignatures);
 		string = "neighbors of factor [x]";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of factor", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("[ . ]", "x")));
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(
+						functionSignatures,
+						"[ . ]", "x")));
+		popParserFunctionSignatures();
 
 		string = "neighbors of factor {x}";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of factor", 
@@ -924,9 +983,15 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "neighbors of variable x";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of variable", "x"));
 
+		List<FunctionSignature> functionSignatures = list(new FunctionSignature("x/0"));
+		pushParserFunctionSignatures(functionSignatures);
 		string = "neighbors of variable [x]";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of variable", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("[ . ]", "x")));
+		test(string,
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(
+						"neighbors of variable", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(
+								functionSignatures, "[ . ]", "x")));
+		popParserFunctionSignatures();
 
 		string = "neighbors of variable {x}";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of variable", 
@@ -943,16 +1008,19 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of variable", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of variable", "x")));
 	}
-	
+
 	@Test
 	public void testNeighborOf () {
 		String string;
 		string = "neighbors of x from y";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of . from .", "x", "y"));
 
+		List<FunctionSignature> functionSignatures = list(new FunctionSignature("x/0"));
+		pushParserFunctionSignatures(functionSignatures);
 		string = "neighbors of [x] from y";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of . from .", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("[ . ]", "x"), "y"));
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(functionSignatures, "[ . ]", "x"), "y"));
+		popParserFunctionSignatures();
 
 		string = "neighbors of {x} from y";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of . from .", 
