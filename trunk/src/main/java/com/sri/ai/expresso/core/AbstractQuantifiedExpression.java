@@ -141,9 +141,9 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 		return expressionAndContext;
 	}
 
-	protected static class IndexExpressionSubExpressionAddress implements SubExpressionAddress {
+	protected static abstract class IndexExpressionSubExpressionAddress implements SubExpressionAddress {
 		
-		private int indexExpressionIndex;
+		protected int indexExpressionIndex;
 		Function<Expression, Function<Expression, Expression>> functionFromNewSubExpressionToSubExpressionReplacementFunction;
 		
 		public IndexExpressionSubExpressionAddress(
@@ -160,6 +160,9 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 			Expression result = quantifiedExpression.replaceIndexExpression(indexExpressionIndex, subExpressionReplacementFunction);
 			return result;
 		}
+
+		@Override
+		abstract public Expression getSubExpressionOf(Expression expression);
 	}
 
 	/**
@@ -182,8 +185,21 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 	 *
 	 */
 	protected static class IndexExpressionArgumentSubExpressionAddress extends IndexExpressionSubExpressionAddress {
+		
+		protected int argumentIndex;
+		
 		public IndexExpressionArgumentSubExpressionAddress(int indexExpressionIndex, int argumentIndex) {
 			super(indexExpressionIndex, newArgument -> (indexExpression -> replaceArgument(indexExpression, argumentIndex, newArgument)));
+			this.argumentIndex = argumentIndex;
+		}
+
+		@Override
+		public Expression getSubExpressionOf(Expression expression) {
+			QuantifiedExpression quantifiedExpression = castOrThrowError(QuantifiedExpression.class, expression, "Attempt at obtaining index expression argument of %s which should be an instance of %s but is an instance of %s");
+			Expression indexExpression = quantifiedExpression.getIndexExpressions().get(indexExpressionIndex);
+			Expression index = IndexExpressions.getIndex(indexExpression);
+			Expression result = index.get(argumentIndex);
+			return result;
 		}
 	}
 
@@ -210,6 +226,23 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 	protected static class IndexExpressionTypeSubExpressionAddress extends IndexExpressionSubExpressionAddress {
 		public IndexExpressionTypeSubExpressionAddress(int indexExpressionIndex) {
 			super(indexExpressionIndex, newType -> (indexExpression -> replaceOrAddType(indexExpression, newType)));
+		}
+
+		@Override
+		public Expression getSubExpressionOf(Expression expression) {
+			QuantifiedExpression quantifiedExpression = castOrThrowError(QuantifiedExpression.class, expression, "Attempt at obtaining index expression argument of %s which should be an instance of %s but is an instance of %s");
+			if (indexExpressionIndex >= quantifiedExpression.getIndexExpressions().size()) {
+				throw new Error("Attempt to obtain " + indexExpressionIndex + "-th index expression of " + expression + " but it does not have one.");
+			}
+			Expression indexExpression = quantifiedExpression.getIndexExpressions().get(indexExpressionIndex);
+			Expression result;
+			if (indexExpression.hasFunctor(FunctorConstants.IN)){ 
+				result = IndexExpressions.getType(indexExpression);
+			}
+			else {
+				throw new Error("Attempt to obtain type for " + indexExpressionIndex + "-th index expression of " + expression + " but it does not have a type.");
+			}
+			return result;
 		}
 	}
 }

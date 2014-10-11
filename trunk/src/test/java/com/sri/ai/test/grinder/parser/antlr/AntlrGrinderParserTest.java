@@ -53,7 +53,6 @@ import com.sri.ai.grinder.helper.FunctionSignature;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 import com.sri.ai.test.grinder.AbstractParserTest;
-import com.sri.ai.util.Util;
 
 public class AntlrGrinderParserTest extends AbstractParserTest {
 

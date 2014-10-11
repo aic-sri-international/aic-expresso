@@ -73,6 +73,7 @@ public class DefaultIntensionalUniSet extends AbstractIntensionalSet implements 
 		return false;
 	}
 
+	@Override
 	public DefaultIntensionalUniSet make(List<Expression> indexExpressions, Expression head, Expression condition) {
 		return new DefaultIntensionalUniSet(indexExpressions, head, condition);
 	}

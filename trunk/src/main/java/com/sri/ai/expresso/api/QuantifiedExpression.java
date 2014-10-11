@@ -59,7 +59,8 @@ public interface QuantifiedExpression extends Expression {
 
 	/**
 	 * Returns a new {@link QuantifiedExpression} with the {@param indexExpressionIndex}-th index expression
-	 * replaced by the given replacement function,
+	 * replaced by the result of applying the given replacement function to
+	 * the index expression of given index,
 	 * or this same instance if the replacement function maps the index expression to itself.
 	 * @param indexExpressionIndex
 	 * @param replacementFunction

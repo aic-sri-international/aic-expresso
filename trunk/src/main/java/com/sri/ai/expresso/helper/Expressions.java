@@ -157,6 +157,7 @@ public class Expressions {
 	};
 	
 	private static boolean oldImplementations = false;
+	
 	private static Collection<String> labelsUsingExpressionOnCompoundSyntaxTree =
 	Util.list(
 //			IntensionalSet.UNI_SET_LABEL,
@@ -168,7 +169,7 @@ public class Expressions {
 //			ThereExists.LABEL,
 //			Tuple.TUPLE_LABEL, "tuple",
 //			CardinalityTypeOfLogicalVariable.TYPE_LABEL,
-			"[ . ]" // BracketedExpressionSubExpressionsProvider.SYNTAX_TREE_LABEL);
+//			"[ . ]" // BracketedExpressionSubExpressionsProvider.SYNTAX_TREE_LABEL);
 			);
 
 	
@@ -224,9 +225,13 @@ public class Expressions {
 	 * Makes Expression based on a syntax tree with given label and sub-trees, or {@link Expression}s from whose syntax trees must be used.
 	 */
 	public static Expression makeDefaultBracketedExpressionFromLabelAndSubTrees(Collection<FunctionSignature> randomPredicatesSignatures, Object label, Object... subTreeObjects) {
-		if (randomPredicatesSignatures == null) {
-			throw new Error("Making bracketed expression without providing random predicates");
-		}
+//		if (randomPredicatesSignatures == null) {
+//			randomPredicatesSignatures = DefaultBracketedExpression.defaultPredicateSignatures;
+//		}
+//
+//		if (randomPredicatesSignatures == null) {
+//			throw new Error("Making bracketed expression without providing random predicates");
+//		}
 		
 		Expression result;
 		if (subTreeObjects.length == 1 && subTreeObjects[0] instanceof Collection) {

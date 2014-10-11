@@ -73,6 +73,7 @@ public class DefaultIntensionalMultiSet extends AbstractIntensionalSet implement
 		return true;
 	}
 
+	@Override
 	public DefaultIntensionalMultiSet make(List<Expression> indexExpressions, Expression head, Expression condition) {
 		return new DefaultIntensionalMultiSet(indexExpressions, head, condition);
 	}

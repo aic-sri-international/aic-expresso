@@ -98,6 +98,13 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 			Expression result = quantifiedExpression.setBody(newBody);
 			return result;
 		}
+
+		@Override
+		public Expression getSubExpressionOf(Expression expression) {
+			QuantifiedExpressionWithABody quantifiedExpressionWithABody = castOrThrowError(QuantifiedExpressionWithABody.class, expression, "Attempt at replacing body expression of %s which should be an instance of %s but is an instance of %s");
+			Expression result = quantifiedExpressionWithABody.getBody();
+			return result;
+		}
 	}
 	
 	@Override

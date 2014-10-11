@@ -43,7 +43,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.BracketedExpression;
 import com.sri.ai.expresso.api.Expression;
@@ -53,6 +52,7 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
 import com.sri.ai.grinder.helper.FunctionSignature;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.util.Util;
 
 /**
@@ -69,6 +69,12 @@ public class DefaultBracketedExpression extends AbstractNonQuantifiedExpression 
 	private Collection<FunctionSignature> randomPredicates;
 	private SyntaxTree cachedSyntaxTree;
 	private List<ExpressionAndContext> cachedExpressionsAndContexts;
+
+	/**
+	 * TODO: Temporary field until syntax-tree-based expressions are removed
+	 */
+	public static Collection<FunctionSignature> defaultPredicateSignatures = null;
+
 
 	public DefaultBracketedExpression(Expression innerExpression, Collection<FunctionSignature> randomPredicates) {
 		super();
@@ -159,7 +165,11 @@ public class DefaultBracketedExpression extends AbstractNonQuantifiedExpression 
 		boolean result =
 				innerExpression.getSyntacticFormType().equals("Function application")
 				&&
-				randomPredicates.contains(new FunctionSignature(innerExpression.getFunctor(), innerExpression.numberOfArguments()));
+				! FormulaUtil.functorIsAnEqualityLogicalConnectiveIncludingConditionals(innerExpression);
+//		boolean result =
+//				innerExpression.getSyntacticFormType().equals("Function application")
+//				&&
+//				randomPredicates.contains(new FunctionSignature(innerExpression.getFunctor(), innerExpression.numberOfArguments()));
 		return result;
 	}
 
@@ -182,25 +192,46 @@ public class DefaultBracketedExpression extends AbstractNonQuantifiedExpression 
 		}
 
 		@Override
-		public Expression replace(Expression expression, Expression newSubExpression) {
+		public Expression replace(Expression expression, Expression newFinalSubExpression) {
 			BracketedExpression bracketedExpression = Util.castOrThrowError(BracketedExpression.class, expression, "Expecting " + BracketedExpression.class + " instance but got instance of " + expression.getClass());
 			Expression innerExpression = bracketedExpression.getInnerExpression();
-			Expression newInnerExpression = replaceFromIthPathPosition(innerExpression, 0, newSubExpression);
+			Expression newInnerExpression = replaceFromIthPathPosition(innerExpression, 0, newFinalSubExpression);
 			Expression result = new DefaultBracketedExpression(newInnerExpression, bracketedExpression.getRandomPredicates());
 			return result;
 		}
 
-		private Expression replaceFromIthPathPosition(Expression currentExpression, int i, Expression newSubExpression) {
+		private Expression replaceFromIthPathPosition(Expression currentExpression, int i, Expression newFinalSubExpression) {
 			Expression result;
 			if (i == path.size()) { // no path to follow, just replace argument
-				result = currentExpression.set(argumentIndex, newSubExpression);
+				result = currentExpression.set(argumentIndex, newFinalSubExpression);
 			}
 			else { // need to take the next step down the path
-				ExpressionAndContext nextExpressionAndContext = path.get(i);
-				Expression nextExpression = nextExpressionAndContext.getExpression();
-				Expression newNextExpression = replaceFromIthPathPosition(nextExpression, i + 1, newSubExpression);
-				nextExpressionAndContext.setExpression(newNextExpression);
-				result = currentExpression.replace(nextExpressionAndContext);
+				ExpressionAndContext nextOriginalExpressionAndContext = path.get(i);
+				SubExpressionAddress subExpressionAddress = nextOriginalExpressionAndContext.getAddress();
+				Expression subExpression = subExpressionAddress.getSubExpressionOf(currentExpression);
+				Expression newSubExpression = replaceFromIthPathPosition(subExpression, i + 1, newFinalSubExpression);
+				result = subExpressionAddress.replace(currentExpression, newSubExpression);
+			}
+			return result;
+		}
+
+		@Override
+		public Expression getSubExpressionOf(Expression expression) {
+			BracketedExpression bracketedExpression = Util.castOrThrowError(BracketedExpression.class, expression, "Expecting " + BracketedExpression.class + " instance but got instance of " + expression.getClass());
+			Expression innerExpression = bracketedExpression.getInnerExpression();
+			Expression result = getSubExpressionFromIthPathPosition(innerExpression, 0);
+			return result;
+		}
+
+		private Expression getSubExpressionFromIthPathPosition(Expression currentExpression, int i) {
+			Expression result;
+			if (i == path.size()) { // no path to follow, just get argument
+				result = currentExpression.get(argumentIndex);
+			}
+			else { // need to take the next step down the path
+				ExpressionAndContext nextOriginalExpressionAndContext = path.get(i);
+				Expression nextExpression = nextOriginalExpressionAndContext.getAddress().getSubExpressionOf(currentExpression);
+				result = getSubExpressionFromIthPathPosition(nextExpression, i + 1);
 			}
 			return result;
 		}
