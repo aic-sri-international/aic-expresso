@@ -37,6 +37,8 @@
  */
 package com.sri.ai.expresso.core;
 
+import static com.sri.ai.util.Util.castOrThrowError;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -165,6 +167,13 @@ public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tup
 		public Expression replace(Expression expression, Expression newSubExpression) {
 			assert expression instanceof DefaultTuple : DefaultTuple.class.getSimpleName() + ".IndexAddress applied to expression " + expression + " of class " + expression.getClass();
 			Expression result = expression.set(this.index, newSubExpression);
+			return result;
+		}
+
+		@Override
+		public Expression getSubExpressionOf(Expression expression) {
+			TupleInterface tuple = castOrThrowError(TupleInterface.class, expression, "Attempt at obtaining " + index + "-th component expression of %s which should be an instance of %s but is an instance of %s");
+			Expression result = tuple.get(index);
 			return result;
 		}
 	}

@@ -516,11 +516,20 @@ public class FormulaUtil {
 			Expressions.makeSymbol(FunctorConstants.EQUIVALENCE));
 
 	/**
-	 * Indicates whether an expression is a compound boolean formula, including if then else
+	 * Indicates whether an expression is logical connective application, including if then else
 	 * (does not check sub-expressions).
 	 */
 	public static boolean functorIsALogicalConnectiveIncludingConditionals(Expression formula) {
 		boolean result = LOGICAL_CONNECTIVES_INCLUDING_CONDITIONALS.contains(formula.getFunctor());
+		return result;
+	}
+
+	/**
+	 * Indicates whether an expression is an equality logical connective application, including if then else
+	 * (does not check sub-expressions).
+	 */
+	public static boolean functorIsAnEqualityLogicalConnectiveIncludingConditionals(Expression formula) {
+		boolean result = EQUALITY_FORMULAS_PRIMITIVE_SYMBOLS.contains(formula.getFunctor());
 		return result;
 	}
 

@@ -181,13 +181,27 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 			Expression result = intensionalUniSet.setHead(newHead);
 			return result;
 		}
+
+		@Override
+		public Expression getSubExpressionOf(Expression expression) {
+			IntensionalSetInterface intensionalUniSet = castOrThrowError(IntensionalSetInterface.class, expression, "Attempt at replacing head expression of %s which should be an instance of %s but is an instance of %s");
+			Expression result = intensionalUniSet.getHead();
+			return result;
+		}
 	}
 	
 	protected static class ConditionAddress implements SubExpressionAddress {
 		@Override
 		public Expression replace(Expression expression, Expression newCondition) {
-			IntensionalSetInterface intensionalSet = castOrThrowError(IntensionalSetInterface.class, expression, "Attempt at replacing condition expression of %s which should be an instance of %s but is an instance of %s");
+			IntensionalSetInterface intensionalSet = castOrThrowError(IntensionalSetInterface.class, expression, "Attempt at obtaining head expression of %s which should be an instance of %s but is an instance of %s");
 			Expression result = intensionalSet.setCondition(newCondition);
+			return result;
+		}
+
+		@Override
+		public Expression getSubExpressionOf(Expression expression) {
+			IntensionalSetInterface intensionalUniSet = castOrThrowError(IntensionalSetInterface.class, expression, "Attempt at obtaining condition expression of %s which should be an instance of %s but is an instance of %s");
+			Expression result = intensionalUniSet.getCondition();
 			return result;
 		}
 	}

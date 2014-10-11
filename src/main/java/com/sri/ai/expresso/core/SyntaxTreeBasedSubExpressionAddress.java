@@ -133,4 +133,9 @@ public class SyntaxTreeBasedSubExpressionAddress implements SubExpressionAddress
 	public String toString() {
 		return getPath().toString();
 	}
+
+	@Override
+	public Expression getSubExpressionOf(Expression expression) {
+		throw new Error("Do need to implement this");
+	}
 }

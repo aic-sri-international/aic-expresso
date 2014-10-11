@@ -55,6 +55,13 @@ public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpres
 				Expression result = ((ExtensionalSetInterface)expression).setElementDefinition(this.index, newSubExpression);
 				return result;
 			}
+
+			@Override
+			public Expression getSubExpressionOf(Expression expression) {
+				assert expression instanceof AbstractExtensionalSet : getClass().getSimpleName() + ".IndexAddress applied to expression " + expression + " of class " + expression.getClass();
+				Expression result = ((AbstractExtensionalSet) expression).getElementDefinition(index);
+				return result;
+			}
 		}
 
 	protected DefaultCompoundSyntaxTree makeSyntaxTree() {
@@ -86,6 +93,7 @@ public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpres
 		return result;
 	}
 
+	@Override
 	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(RewritingProcess process) {
 		return expressionAndContexts.iterator();
 	}

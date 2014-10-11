@@ -55,4 +55,11 @@ public interface SubExpressionAddress  {
 	 * @return the result of replacing expression's sub-expression with this address by a new sub-expression.
 	 */
 	Expression replace(Expression expression, Expression newSubExpression);
+	
+	/**
+	 * Returns the sub-expression of given expression with respect to this address.
+	 * @param expression
+	 * @return the sub-expression of given expression with this address.
+	 */
+	Expression getSubExpressionOf(Expression expression);
 }

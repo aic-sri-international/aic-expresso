@@ -37,6 +37,7 @@
  */
 package com.sri.ai.expresso.core;
 
+import static com.sri.ai.util.Util.castOrThrowError;
 import static com.sri.ai.util.Util.mapIntoArray;
 
 import java.util.ArrayList;
@@ -52,7 +53,6 @@ import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractExpression;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.Not;
@@ -197,6 +197,13 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 		public Expression replace(Expression expression, Expression newSubExpression) {
 			assert expression instanceof DefaultFunctionApplication : DefaultFunctionApplication.class.getSimpleName() + ".IndexAddress applied to expression " + expression + " of class " + expression.getClass();
 			Expression result = expression.set(this.index, newSubExpression);
+			return result;
+		}
+
+		@Override
+		public Expression getSubExpressionOf(Expression expression) {
+			FunctionApplication functionApplication = castOrThrowError(FunctionApplication.class, expression, "Attempt at obtaining " + index + "-th argument expression of %s which should be an instance of %s but is an instance of %s");
+			Expression result = functionApplication.get(index);
 			return result;
 		}
 	}
