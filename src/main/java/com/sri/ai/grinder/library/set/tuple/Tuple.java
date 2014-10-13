@@ -46,7 +46,6 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
-import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.NoOpRewriter;
@@ -70,7 +69,6 @@ import com.sri.ai.util.collect.PairIterator;
 public class Tuple extends AbstractRewriter
 implements
 NoOpRewriter,
-ExpressionKnowledgeModule.Provider,
 CheapDisequalityModule.Provider,
 InjectiveModule.Provider,
 MutuallyExclusiveCoDomainsModule.Provider {
@@ -184,56 +182,8 @@ MutuallyExclusiveCoDomainsModule.Provider {
 
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		ExpressionKnowledgeModule.register(this, process);
-		
 		CheapDisequalityModule.register(this, process);
-//		CheapDisequalityModule cheapDisequalityModule = (CheapDisequalityModule) process.findModule(CheapDisequalityModule.class);
-//		if (cheapDisequalityModule != null) {
-//			cheapDisequalityModule.register(this);
-//		}
-
 		InjectiveModule.register(this, process);
-//		InjectiveModule injectiveModuleModule = (InjectiveModule) process.findModule(InjectiveModule.class);
-//		if (injectiveModuleModule != null) {
-//			injectiveModuleModule.register(this);
-//		}
-
 		MutuallyExclusiveCoDomainsModule.register(this, process);
-//		MutuallyExclusiveCoDomainsModule mutuallyExclusiveCoDomainsModule = (MutuallyExclusiveCoDomainsModule) process.findModule(MutuallyExclusiveCoDomainsModule.class);
-//		if (mutuallyExclusiveCoDomainsModule != null) {
-//			mutuallyExclusiveCoDomainsModule.register(this);
-//		}
-	}
-
-	@Override
-	public Object getSyntacticFormType(Expression expression, RewritingProcess process) {
-		if (isTuple(expression)) {
-			return "Tuple";
-		}
-		return null;
-	}
-
-	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(
-			Expression expression, RewritingProcess process) {
-		if (isTuple(expression)) {
-			if (expression.getSyntaxTree().getLabel().equals("tuple")) {
-				return Expressions.getSubExpressionsAndContextsIteratorFromImmediateSubTrees(expression, process);
-			}
-			else {
-				List<Expression> elements = getElements(expression);
-				List<Integer> basePath = _pathZero;
-				if (size(expression) == 1) { // when there is a single element, there is no kleene list in the representation, and the single element is the only argument.
-					return Util.iterator((ExpressionAndContext) new DefaultExpressionAndContext(elements.get(0), basePath));
-				}
-
-				PairIterator<Expression, List<Integer>> expressionAndPathPairsIterator = new PairIterator<Expression, List<Integer>>(
-						elements.iterator(),
-						new BasePathIterator(basePath, 0, size(expression)));
-				Iterator<ExpressionAndContext> result = DefaultExpressionAndContext.makeExpressionAndContextIteratorFromPairs(expressionAndPathPairsIterator);
-				return result;
-			}
-		}
-		return null;
 	}
 }

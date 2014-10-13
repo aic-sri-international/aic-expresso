@@ -42,6 +42,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 
 /**
  * An <b>ExpressionAndContext</b> encapsulates information about a sub-expression

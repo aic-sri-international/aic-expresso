@@ -43,7 +43,6 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.KindAttribute;
@@ -218,7 +217,6 @@ public class Simplify extends AbstractCardinalityRewriter {
 						// only modules from here on: they don't actually
 						// rewrite anything, so why test them sooner than
 						// needed?
-						new ExpressionKnowledgeModule(),
 						new ImposedConditionsModule(),
 						new CheapDisequalityModule(),
 						new IfThenElseSubExpressionsAndImposedConditionsProvider(),

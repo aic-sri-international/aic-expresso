@@ -48,7 +48,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
-import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -73,42 +72,10 @@ import com.sri.ai.util.collect.NestedIterator;
 @Beta
 public abstract class QuantifierSubExpressionAndScopedVariableProvider
 extends AbstractRewriter
-implements ExpressionKnowledgeModule.Provider, ScopedVariables.Provider, NoOpRewriter
+implements ScopedVariables.Provider, NoOpRewriter
 {
-	private static final List<Integer> _pathZero = Collections.unmodifiableList(Arrays.asList(new Integer(0)));
-	private static final List<Integer> _pathOne  = Collections.unmodifiableList(Arrays.asList(new Integer(1)));
-
-
 	public QuantifierSubExpressionAndScopedVariableProvider() {
 		super();
-	}
-
-	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(Expression expression, final RewritingProcess process) {
-		if (knowledgeApplies(expression)) {
-			
-			// get the body of the expression
-			ExpressionAndContext bodyExpressionAndContext =
-				new DefaultExpressionAndContext(
-						Expressions.makeFromSyntaxTree(expression.getSyntaxTree().getSubTree(1)),
-						_pathOne,
-						getIndexExpressions(expression),
-						Expressions.TRUE);
-			
-			// get arguments of index, for example the X and Y in there exists p(X,Y) : ...
-			List<Integer> indexBasePath = _pathZero; // path to get to index; this is the base for paths to arguments of the index, which are also sub-expressions.
-			SyntaxTree indexExpression = expression.getSyntaxTree().getSubTree(0); // remember that the index expression is not a sub-expression, only a sub-syntax tree
-			Expression index = Expressions.makeFromSyntaxTree(indexExpression.getLabel().equals(FunctorConstants.IN)? indexExpression.getSubTree(0) : indexExpression);
-			Iterator<ExpressionAndContext> indexArgumentsAndContextsIterator =
-				new FunctionIterator<Expression, ExpressionAndContext>(
-						index.getArguments(),
-						new DefaultExpressionAndContext.
-						MakerFromExpressionAndSuccessivePathsFormedFromABasePath(indexBasePath));
-			
-			return new NestedIterator<ExpressionAndContext>(bodyExpressionAndContext, indexArgumentsAndContextsIterator);
-			
-		}
-		return null;
 	}
 
 	private boolean knowledgeApplies(Expression expression) {
@@ -117,21 +84,12 @@ implements ExpressionKnowledgeModule.Provider, ScopedVariables.Provider, NoOpRew
 		expression.getSyntaxTree().getRootTree().equals(getRootTreeString());
 	}
 
-	@Override
-	public Object getSyntacticFormType(Expression expression, RewritingProcess process) {
-		if (knowledgeApplies(expression)) {
-			return getSyntacticFormType();
-		}
-		return null;
-	}
-
 	protected abstract String getRootTreeString();
 	
 	protected abstract String getSyntacticFormType();
 	
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		ExpressionKnowledgeModule.register(this, process);
 		ScopedVariables.register(this, process);
 	}
 

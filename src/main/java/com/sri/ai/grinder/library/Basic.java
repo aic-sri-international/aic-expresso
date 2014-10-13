@@ -42,7 +42,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.core.OpenInterpretationModule;
 import com.sri.ai.grinder.core.TotalRewriter;
@@ -181,7 +180,6 @@ public class Basic extends TotalRewriter {
 						// rewrite anything, so why test them sooner than
 						// needed?
 						new ScopedVariables(),
-						new ExpressionKnowledgeModule(),
 						new ImposedConditionsModule(),
 						new InjectiveModule(),
 						new SymmetricModule(),

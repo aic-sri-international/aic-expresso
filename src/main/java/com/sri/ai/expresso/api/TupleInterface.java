@@ -40,6 +40,7 @@ package com.sri.ai.expresso.api;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.grinder.library.set.tuple.Tuple;
 
 /**
  * An {@link Expression} that represents a tuple of sub-expressions.

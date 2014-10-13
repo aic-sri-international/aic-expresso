@@ -45,7 +45,6 @@ import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -60,27 +59,9 @@ import com.sri.ai.util.collect.FunctionIterator;
 @Beta
 public class FunctionApplicationProvider extends AbstractRewriter
 implements
-NoOpRewriter,
-ExpressionKnowledgeModule.Provider
+NoOpRewriter
 {
 	public static final int INDEX_OF_FUNCTOR_IN_FUNCTION_APPLICATIONS = -1;
-	
-	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(Expression expression, final RewritingProcess process) {
-		if (knowledgeApplies(expression)) {
-			Iterator<SyntaxTree> subTreesAndRootTreeIterator = expression.getSyntaxTree().getImmediateSubTreesIncludingRootOneIterator();
-			FunctionIterator<Integer, List<Integer>> pathsIterator =
-				Expressions.makeSingleIndexPathsIteratorFromTo(
-						-1, expression.getSyntaxTree().numberOfImmediateSubTrees() - 1);
-			
-			Iterator<ExpressionAndContext> result =
-				Expressions.makeIteratorOfSubExpressionsAndContextsFromIteratorsOnSubTreesAndPathsWithGivenQuantifiedVariables(
-						subTreesAndRootTreeIterator, pathsIterator, process); // by default, no quantified variables
-		
-			return result;
-		}
-		return null;
-	}
 	
 	public static Expression getFunctor(Expression expression) {
 		if (knowledgeApplies(expression)) {
@@ -94,16 +75,7 @@ ExpressionKnowledgeModule.Provider
 	}
 
 	@Override
-	public Object getSyntacticFormType(Expression expression, RewritingProcess process) {
-		if (knowledgeApplies(expression)) {
-			return "Function application";
-		}
-		return null;
-	}
-
-	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		ExpressionKnowledgeModule.register(this, process);
 	}
 
 	@Override

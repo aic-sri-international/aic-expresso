@@ -47,7 +47,6 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.NoOpRewriter;
@@ -65,7 +64,7 @@ import com.sri.ai.grinder.core.AbstractRewriter;
  */
 @Beta
 public class SyntacticFunctionsSubExpressionsProvider extends AbstractRewriter
-implements NoOpRewriter, ExpressionKnowledgeModule.Provider
+implements NoOpRewriter
 {
 	private Set<SyntaxTree> syntacticFunctionLabels;
 
@@ -79,24 +78,6 @@ implements NoOpRewriter, ExpressionKnowledgeModule.Provider
 		return expression; // this method should be eliminated as some point because this is not really a rewriter.
 	}
 
-	@Override
-	public Object getSyntacticFormType(Expression expression, RewritingProcess process) {
-		if (knowledgeApplies(expression)) {
-			return "Syntactic function";
-		}
-		return null;
-	}
-
-	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(
-			Expression expression, RewritingProcess process) {
-		if (knowledgeApplies(expression)) {
-			List<ExpressionAndContext> emptyList = Collections.emptyList();
-			return emptyList.iterator(); // no subexpressions because the queried expression is a syntactic parameter
-		}
-		return null;
-	}
-
 	private boolean knowledgeApplies(Expression expression) {
 		boolean result =
 			expression.getSyntaxTree().getRootTree() != null &&
@@ -107,7 +88,6 @@ implements NoOpRewriter, ExpressionKnowledgeModule.Provider
 
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		ExpressionKnowledgeModule.register(this, process);
 	}
 
 	public static Object getSyntacticFunctor(Expression expression) {
