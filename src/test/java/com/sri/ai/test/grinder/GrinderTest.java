@@ -85,10 +85,8 @@ import com.sri.ai.grinder.library.SyntacticSubstitute;
 import com.sri.ai.grinder.library.Unification;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ContradictoryConjuncts;
-import com.sri.ai.grinder.library.boole.ForAllSubExpressionsAndScopedVariablesProvider;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
-import com.sri.ai.grinder.library.boole.ThereExistsSubExpressionsAndScopedVariablesProvider;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.controlflow.IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch;
 import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
@@ -1004,8 +1002,7 @@ public class GrinderTest extends AbstractGrinderTest {
 
 	@Test
 	public void testSyntacticSubstitute() {
-		Library library = new DefaultLibrary(
-				new ForAllSubExpressionsAndScopedVariablesProvider());
+		Library library = new DefaultLibrary();
 		evaluator = new ExhaustiveRewriter(library);
 		RewritingProcess process = newRewritingProcessWithCardinalityAndCounts(evaluator);
 
@@ -1472,7 +1469,6 @@ public class GrinderTest extends AbstractGrinderTest {
 		Library library = new DefaultLibrary(
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
 				new IntensionalSet(),
-				new ThereExistsSubExpressionsAndScopedVariablesProvider(),
 				new IntensionalUniSetWithIndicesNotUsedInHead());
 		
 		evaluator = new ExhaustiveRewriter(library);

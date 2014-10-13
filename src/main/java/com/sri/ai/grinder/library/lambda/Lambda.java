@@ -45,9 +45,10 @@ import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.library.SemanticSubstitute;
-import com.sri.ai.grinder.library.boole.QuantifierSubExpressionAndScopedVariableProvider;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 
 /**
@@ -56,7 +57,7 @@ import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
  * @author braz
  */
 @Beta
-public class Lambda extends QuantifierSubExpressionAndScopedVariableProvider {
+public class Lambda extends AbstractRewriter implements NoOpRewriter {
 
 	public static final String ROOT = "lambda . : .";
 	public static final String SYNTACTIC_FORM_TYPE = "Lambda expression";
@@ -131,15 +132,5 @@ public class Lambda extends QuantifierSubExpressionAndScopedVariableProvider {
 		// We still need to take into account the situation in which a variable appears in different positions,
 		// such as lambda X,Y ... and lambda Y,Z ...
 		// This requires standardizing apart.
-	}
-
-	@Override
-	protected String getRootTreeString() {
-		return ROOT;
-	}
-
-	@Override
-	protected String getSyntacticFormType() {
-		return SYNTACTIC_FORM_TYPE;
 	}
 }

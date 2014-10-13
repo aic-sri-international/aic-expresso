@@ -48,11 +48,9 @@ import com.sri.ai.grinder.core.OpenInterpretationModule;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ContradictoryConjuncts;
 import com.sri.ai.grinder.library.boole.Equivalence;
-import com.sri.ai.grinder.library.boole.ForAllSubExpressionsAndScopedVariablesProvider;
 import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
-import com.sri.ai.grinder.library.boole.ThereExistsSubExpressionsAndScopedVariablesProvider;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.controlflow.IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch;
 import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
@@ -130,8 +128,6 @@ public class CommonLibrary extends DefaultLibrary {
 				// only modules from here on: they don't actually rewrite anything, so why test them sooner than needed?
 				new ImposedConditionsModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new ForAllSubExpressionsAndScopedVariablesProvider(),
-				new ThereExistsSubExpressionsAndScopedVariablesProvider(),
 				new SyntacticFunctionsSubExpressionsProvider("type"),
 				new OpenInterpretationModule()
 		));
