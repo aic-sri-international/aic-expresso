@@ -50,6 +50,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.core.DefaultLambdaExpression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.FunctionSignature;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -58,7 +59,6 @@ import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
-import com.sri.ai.grinder.library.lambda.Lambda;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
@@ -299,7 +299,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	@Override
 	public Expression visitLamda(
 			AntlrGrinderParser.LamdaContext ctx) {
-		Expression result = Lambda.make(expressionsList(ctx.parameters), visit(ctx.body));
+		Expression result = new DefaultLambdaExpression(expressionsList(ctx.parameters), visit(ctx.body));
 		return result;
 	}
 

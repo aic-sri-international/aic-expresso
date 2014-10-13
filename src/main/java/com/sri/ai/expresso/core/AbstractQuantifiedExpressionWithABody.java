@@ -110,7 +110,7 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 	}
 	
 	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(RewritingProcess process) {
+	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator() {
 		return cachedSubExpressionsAndContext.iterator();
 	}
 

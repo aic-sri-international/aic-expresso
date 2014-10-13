@@ -70,7 +70,7 @@ public class ExpressionDepthFirstIterator extends com.sri.ai.util.collect.DepthF
 
 	@Override
 	public Iterator<Expression> getChildrenIterator(Expression expression) {
-		Iterator<ExpressionAndContext> expressionsAndContextsIterator = expression.getImmediateSubExpressionsAndContextsIterator(process);
+		Iterator<ExpressionAndContext> expressionsAndContextsIterator = expression.getImmediateSubExpressionsAndContextsIterator();
 		Iterator<Expression> result = new FunctionIterator<ExpressionAndContext, Expression>(expressionsAndContextsIterator, ExpressionAndContext.GET_EXPRESSION);
 		return result;
 	}

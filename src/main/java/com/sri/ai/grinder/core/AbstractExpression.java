@@ -214,7 +214,7 @@ public abstract class AbstractExpression implements Expression {
 		}
 
 		if (result == this) { // if no change in top expression, or need to change children first:
-			Iterator<ExpressionAndContext> subExpressionsAndContextsIterator = getImmediateSubExpressionsAndContextsIterator(process);
+			Iterator<ExpressionAndContext> subExpressionsAndContextsIterator = getImmediateSubExpressionsAndContextsIterator();
 			while (subExpressionsAndContextsIterator.hasNext()) {
 				ExpressionAndContext subExpressionAndContext = subExpressionsAndContextsIterator.next();
 				Expression           originalSubExpression   = subExpressionAndContext.getExpression();
@@ -310,11 +310,6 @@ public abstract class AbstractExpression implements Expression {
 		Expression result = address.replace(this, replacementAndContext.getExpression());
 		Expression expressionReplacement = result;
 		return expressionReplacement;
-	}
-
-	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator() {
-		return getImmediateSubExpressionsAndContextsIterator(Expressions.getProcess());
 	}
 
 	@Override

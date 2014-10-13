@@ -94,7 +94,7 @@ public class IfThenElseExternalization extends AbstractRewriter {
 	private static ExpressionAndContext findIfThenElseSubExpressionAndContext(Expression expression, RewritingProcess process) {
 		ExpressionAndContext result = 
 		Util.getFirstSatisfyingPredicateOrNull(
-				expression.getImmediateSubExpressionsAndContextsIterator(process),
+				expression.getImmediateSubExpressionsAndContextsIterator(),
 				new IsIfThenElseSubExpression());
 		return result;
 	}
