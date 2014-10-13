@@ -43,19 +43,20 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.getAllVariables;
 import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.makeIndexExpression;
-import static com.sri.ai.grinder.library.set.intensional.IntensionalSet.makeMultiSetFromIndexExpressionsList;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.toArrayList;
 
 import java.util.Collection;
 import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -217,7 +218,7 @@ public class PlainCardinalityDPLLWithFreeVariablesTest {
 				.collect(toArrayList(indices.size()));
 		
 		Rewriter cardinalityRewriter = new PlainCardinalityDPLLWithFreeVariables(countsDeclaration);
-		Expression set = makeMultiSetFromIndexExpressionsList(indexExpressions, Expressions.ONE, expression);
+		Expression set = new DefaultIntensionalMultiSet(indexExpressions, Expressions.ONE, expression);
 		Expression cardinalityProblem = apply(FunctorConstants.CARDINALITY, set);
 		System.out.println("Problem: " + cardinalityProblem);
 //		RewritingProcess subProcess = extendContextualSymbols(fromFreeSymbolsToEverything(cardinalityProblem, process), process);

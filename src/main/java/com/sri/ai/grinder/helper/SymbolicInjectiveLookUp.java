@@ -47,6 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSetInterface;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Equality;
@@ -54,6 +55,7 @@ import com.sri.ai.grinder.library.StandardizedApartFrom;
 import com.sri.ai.grinder.library.SyntacticSubstitute;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
@@ -163,9 +165,9 @@ public class SymbolicInjectiveLookUp {
 	}
 
 	private Expression lookUpExpressionWithAlreadyCalculatedKey(Expression expression, Expression expressionKey, Expression intensionalSet, RewritingProcess process) {
-		Expression head = IntensionalSet.getHead(intensionalSet);
+		Expression head = ((IntensionalSetInterface) intensionalSet).getHead();
 		Expression key = fromIntensionalSetHeadToKey.apply(head);
-		Expression intensionalSetWithKeyAsHead = IntensionalSet.copyWithNewHead(intensionalSet, key);
+		Expression intensionalSetWithKeyAsHead = ((IntensionalSetInterface) intensionalSet).setHead(key);
 		UnificationToIntensionalSetResult unificationResult = unifyToIntensionalSetAssumingInjectiveExpressions(expressionKey, intensionalSetWithKeyAsHead, completeNormalizerName, process);
 
 		Expression result;
@@ -219,7 +221,7 @@ public class SymbolicInjectiveLookUp {
 			Expression originalIntensionalSet = intensionalSet;
 			intensionalSet = StandardizedApartFrom.standardizedApartFrom(originalIntensionalSet, expression, process);
 
-			Expression intensionalSetHead = IntensionalSet.getHead(intensionalSet);
+			Expression intensionalSetHead = ((IntensionalSetInterface) intensionalSet).getHead();
 
 			Pair<List<Expression>, List<Expression>> symbols = GrinderUtil.getListsOfElementsToBeUnifiedInInjectiveExpressions(expression, intensionalSetHead, process);
 			if (symbols == null) {
@@ -263,7 +265,7 @@ public class SymbolicInjectiveLookUp {
 			}
 
 			// Conjoin unification equalities and intensional set condition, translated to logical variables in expression
-			Expression intensionalSetCondition = IntensionalSet.getCondition(intensionalSet);
+			Expression intensionalSetCondition = ((IntensionalSetInterface) intensionalSet).getCondition();
 			Expression intensionalSetConditionInExpressionVariables = SyntacticSubstitute.replaceAll(intensionalSetCondition, result.mapOfUnifiedVariables, process);
 			conjunctsOfConditionOnExpressionVariables.add(intensionalSetConditionInExpressionVariables);
 			Expression unnormalizedCondition = And.make(conjunctsOfConditionOnExpressionVariables);
@@ -280,8 +282,8 @@ public class SymbolicInjectiveLookUp {
 	}
 
 	private Map<Expression, Expression> getMapFromOriginalIndicesToExpressionSymbols(Map<Expression, Expression> fromStandardizedApartIndicesToExpressionSymbols, Expression standardizedApartIntensionalSet, Expression originalIntensionalSet) {
-		List<Expression> standardizedApartIndices = IntensionalSet.getIndices(standardizedApartIntensionalSet);
-		List<Expression> originalIndices          = IntensionalSet.getIndices(originalIntensionalSet);
+		List<Expression> standardizedApartIndices = IndexExpressions.getIndices(((IntensionalSetInterface) standardizedApartIntensionalSet).getIndexExpressions());
+		List<Expression> originalIndices          = IndexExpressions.getIndices(((IntensionalSetInterface) originalIntensionalSet).getIndexExpressions());
 		Map<Expression, Expression> fromOriginalIndicesToStandardizedApartIndices = Util.mapFromListOfKeysAndListOfValues(originalIndices, standardizedApartIndices);
 		
 		Map<Expression, Expression> result = Util.composeMaps(fromOriginalIndicesToStandardizedApartIndices, fromStandardizedApartIndicesToExpressionSymbols);

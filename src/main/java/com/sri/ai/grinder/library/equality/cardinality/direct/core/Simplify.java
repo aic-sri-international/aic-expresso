@@ -91,7 +91,6 @@ import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsProvider;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithBoundIndex;
 import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNotUsedInHead;
 
@@ -223,7 +222,6 @@ public class Simplify extends AbstractCardinalityRewriter {
 						new ImposedConditionsModule(),
 						new CheapDisequalityModule(),
 						new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-						new IntensionalSetSubExpressionsAndImposedConditionsProvider(),
 						new ExtensionalSetSubExpressionsProvider(),
 						new ScopedVariables(),
 						new SymmetricModule(),

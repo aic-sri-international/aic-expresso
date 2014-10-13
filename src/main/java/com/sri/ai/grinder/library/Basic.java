@@ -83,7 +83,6 @@ import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsPr
 import com.sri.ai.grinder.library.set.extensional.ProductOnExtensionalSet;
 import com.sri.ai.grinder.library.set.extensional.UnionOnExtensionalSets;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 
 /**
@@ -188,7 +187,6 @@ public class Basic extends TotalRewriter {
 						new SymmetricModule(),
 						new MutuallyExclusiveCoDomainsModule(),
 						new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-						new IntensionalSetSubExpressionsAndImposedConditionsProvider(),
 						new ExtensionalSetSubExpressionsProvider(),
 						new ForAllSubExpressionsAndScopedVariablesProvider(),
 						new ThereExistsSubExpressionsAndScopedVariablesProvider(),

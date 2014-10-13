@@ -52,6 +52,7 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.IntensionalSetInterface;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.core.SyntaxTreeBasedSubExpressionAddress;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
@@ -121,12 +122,10 @@ import com.sri.ai.grinder.library.set.extensional.NormalizeExtensionalUniSet;
 import com.sri.ai.grinder.library.set.extensional.UnionOnExtensionalSets;
 import com.sri.ai.grinder.library.set.intensional.EqualityOfIntensionalUniSets;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithBoundIndex;
 import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNotUsedInHead;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
 public class GrinderTest extends AbstractGrinderTest {
@@ -854,8 +853,7 @@ public class GrinderTest extends AbstractGrinderTest {
 				new Tuple(),
 				new SyntacticFunctionsSubExpressionsProvider("type"),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new CompleteNormalize(),
-				new IntensionalSetSubExpressionsAndImposedConditionsProvider());
+				new CompleteNormalize());
 		evaluator = new ExhaustiveRewriter(library);
 
 		Expression result;
@@ -1131,44 +1129,10 @@ public class GrinderTest extends AbstractGrinderTest {
 	}
 	
 	@Test
-	public void testConditionsThatExpressionImposesModule() {
-		Library library = new DefaultLibrary(
-				new ImposedConditionsModule(),
-				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new ExpressionKnowledgeModule(),
-				new IntensionalSetSubExpressionsAndImposedConditionsProvider());
-		
-		evaluator = new ExhaustiveRewriter(library);
-		
-		Expression expression = parse("aConstantSymbol");
-		RewritingProcess process = new DefaultRewritingProcess(expression, evaluator);
-		
-		List<Pair<Expression, SubExpressionAddress>> conditions = ImposedConditionsModule.get(expression, process);
-		Assert.assertNull(conditions);
-		
-		expression = parse("if A = B then aAndBEqual else aAndBNotEqual");
-		conditions = ImposedConditionsModule.get(expression, process);
-		Assert.assertNotNull(conditions);
-		Assert.assertEquals(2, conditions.size());
-		Assert.assertEquals("A = B", conditions.get(0).first.toString());
-		Assert.assertEquals(IfThenElse.getPathToThen(), conditions.get(0).second);
-		Assert.assertEquals("not (A = B)", conditions.get(1).first.toString());
-		Assert.assertEquals(IfThenElse.getPathToElse(), conditions.get(1).second);
-		
-		expression = parse("{(on X) X | X != a}");
-		conditions = ImposedConditionsModule.get(expression, process);
-		Assert.assertNotNull(conditions);
-		Assert.assertEquals(1, conditions.size());
-		Assert.assertEquals("X != a", conditions.get(0).first.toString());
-		Assert.assertEquals(IntensionalSet.getPathToHead(), conditions.get(0).second);
-	}
-	
-	@Test
 	public void testConditionsThatExpressionImposesViaExpressionKnowledgeModule() {
 		Library library = new DefaultLibrary(
 				new ExpressionKnowledgeModule(),
-				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new IntensionalSetSubExpressionsAndImposedConditionsProvider());
+				new IfThenElseSubExpressionsAndImposedConditionsProvider());
 		
 		evaluator = new ExhaustiveRewriter(library);
 		
@@ -1182,29 +1146,23 @@ public class GrinderTest extends AbstractGrinderTest {
 		//
 		Assert.assertEquals("'if . then . else .'", expressionsAndContext.get(0).getExpression().toString());
 		Assert.assertEquals("true", expressionsAndContext.get(0).getConstrainingCondition().toString());
-		compareSubExpressionPathIfApplication(IfThenElse.getPathToFunctor(), expressionsAndContext.get(0).getAddress());
 		//
 		Assert.assertEquals("A = B", expressionsAndContext.get(1).getExpression().toString());
 		Assert.assertEquals("true", expressionsAndContext.get(1).getConstrainingCondition().toString());
-		compareSubExpressionPathIfApplication(IfThenElse.getPathToCondition(), expressionsAndContext.get(1).getAddress());
 		//
 		Assert.assertEquals("aAndBEqual", expressionsAndContext.get(2).getExpression().toString());
 		Assert.assertEquals("A = B", expressionsAndContext.get(2).getConstrainingCondition().toString());
-		compareSubExpressionPathIfApplication(IfThenElse.getPathToThen(), expressionsAndContext.get(2).getAddress());
 		//
 		Assert.assertEquals("aAndBNotEqual", expressionsAndContext.get(3).getExpression().toString());
 		Assert.assertEquals("not (A = B)", expressionsAndContext.get(3).getConstrainingCondition().toString());
-		compareSubExpressionPathIfApplication(IfThenElse.getPathToElse(), expressionsAndContext.get(3).getAddress());
 		
 		expression = parse("{(on X) X | X != a}");
 		expressionsAndContext = Util.listFrom(expression.getImmediateSubExpressionsAndContextsIterator(process));
 		Assert.assertEquals(2, expressionsAndContext.size());
 		Assert.assertEquals("X", expressionsAndContext.get(0).getExpression().toString());
 		Assert.assertEquals("X != a", expressionsAndContext.get(0).getConstrainingCondition().toString());
-		compareSubExpressionPathIfApplication(IntensionalSet.getPathToHead(), expressionsAndContext.get(0).getAddress());
 		Assert.assertEquals("X != a", expressionsAndContext.get(1).getExpression().toString());
 		Assert.assertEquals("true", expressionsAndContext.get(1).getConstrainingCondition().toString());
-		compareSubExpressionPathIfApplication(IntensionalSet.getPathToCondition(), expressionsAndContext.get(1).getAddress());
 	}
 
 	/**
@@ -1241,7 +1199,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	public void testIfThenElseExternalization() {
 		Library library = new DefaultLibrary(
 				new ExpressionKnowledgeModule(),
-				new IntensionalSetSubExpressionsAndImposedConditionsProvider(),
 				new IntensionalSet(),
 				new ScopedVariables(),
 				new IfThenElseExternalization());
@@ -1294,8 +1251,7 @@ public class GrinderTest extends AbstractGrinderTest {
 				new IntensionalSet(),
 				new ExpressionKnowledgeModule(),
 				new ImposedConditionsModule(),
-				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new IntensionalSetSubExpressionsAndImposedConditionsProvider());
+				new IfThenElseSubExpressionsAndImposedConditionsProvider());
 		
 		evaluator = new ExhaustiveRewriter(library);
 
@@ -1339,8 +1295,7 @@ public class GrinderTest extends AbstractGrinderTest {
 				new IntensionalSet(),
 				new ExpressionKnowledgeModule(),
 				new ImposedConditionsModule(),
-				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new IntensionalSetSubExpressionsAndImposedConditionsProvider());
+				new IfThenElseSubExpressionsAndImposedConditionsProvider());
 		
 		evaluator = new ExhaustiveRewriter(library);
 		
@@ -1466,7 +1421,6 @@ public class GrinderTest extends AbstractGrinderTest {
 				new ScopedVariables(),
 				new ExpressionKnowledgeModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new IntensionalSetSubExpressionsAndImposedConditionsProvider(),
 				new IntensionalSet(),
 				new UnionOnExtensionalSets(),
 				new Plus(),
@@ -1495,7 +1449,6 @@ public class GrinderTest extends AbstractGrinderTest {
 				new ScopedVariables(),
 				new ExpressionKnowledgeModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new IntensionalSetSubExpressionsAndImposedConditionsProvider(),
 				new IntensionalSet(),
 				new UnionOnExtensionalSets(),
 				new IntensionalSetWithBoundIndex(),
@@ -1539,7 +1492,6 @@ public class GrinderTest extends AbstractGrinderTest {
 				new ScopedVariables(),
 				new ExpressionKnowledgeModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new IntensionalSetSubExpressionsAndImposedConditionsProvider(),
 				new IntensionalSet(),
 				new ThereExistsSubExpressionsAndScopedVariablesProvider(),
 				new IntensionalUniSetWithIndicesNotUsedInHead());
@@ -1577,7 +1529,6 @@ public class GrinderTest extends AbstractGrinderTest {
 				new ScopedVariables(),
 				new ExpressionKnowledgeModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new IntensionalSetSubExpressionsAndImposedConditionsProvider(),
 				new IntensionalSet(),
 				new UnionOnExtensionalSets(),
 				new Plus(),
@@ -1589,7 +1540,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		
 		Expression setExpression = parse("{(on X,Y) f(X) | Z = X}");	
 		String expectedSetString = setExpression.toString();
-		List<Expression> indexExpressions = IntensionalSet.getIndexExpressions(setExpression);
+		List<Expression> indexExpressions = ((IntensionalSetInterface) setExpression).getIndexExpressions();
 		try {
 			indexExpressions.remove(0);
 			Assert.fail("An exception should have been thrown");
@@ -1721,7 +1672,6 @@ public class GrinderTest extends AbstractGrinderTest {
 		Library library = new DefaultLibrary(
 				new EqualityOfIntensionalUniSets(),
 				new IntensionalSet(),
-				new IntensionalSetSubExpressionsAndImposedConditionsProvider(),
 				new ExpressionKnowledgeModule(),
 				new ScopedVariables());
 		

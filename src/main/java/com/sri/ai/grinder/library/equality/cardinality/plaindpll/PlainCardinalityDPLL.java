@@ -48,6 +48,7 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSetInterface;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.Rewriter;
@@ -63,6 +64,7 @@ import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable.TypeSizeOfLogicalVariable;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
@@ -145,8 +147,8 @@ public class PlainCardinalityDPLL extends AbstractHierarchicalRewriter {
 	 */
 	public Expression count(Expression cardinalityProblem, RewritingProcess process) {
 		Expression set = cardinalityProblem.get(0);
-		List<Expression> indices = IntensionalSet.getIndices(set);
-		Expression formula = SimplifyFormula.simplify(IntensionalSet.getCondition(set), process);
+		List<Expression> indices = IndexExpressions.getIndices(((IntensionalSetInterface) set).getIndexExpressions());
+		Expression formula = SimplifyFormula.simplify(((IntensionalSetInterface) set).getCondition(), process);
 		Expression result = count(formula, Expressions.TRUE, indices, process);
 		return result;
 	}

@@ -42,6 +42,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSetInterface;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -51,6 +52,7 @@ import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
@@ -74,8 +76,8 @@ public class PlainCardinalityDPLLWithFreeVariables extends PlainGenericDPLLWithF
 
 	@Override
 	protected Pair<Expression, List<Expression>> getFormulaAndIndicesFromRewriterProblemArgument(Expression set, RewritingProcess process) {
-		List<Expression> indices = IntensionalSet.getIndices(set);
-		Expression formula = SimplifyFormula.simplify(IntensionalSet.getCondition(set), process);
+		List<Expression> indices = IndexExpressions.getIndices(((IntensionalSetInterface) set).getIndexExpressions());
+		Expression formula = SimplifyFormula.simplify(((IntensionalSetInterface) set).getCondition(), process);
 		Pair<Expression, List<Expression>> formulaAndIndices = Pair.make(formula, indices);
 		return formulaAndIndices;
 	}

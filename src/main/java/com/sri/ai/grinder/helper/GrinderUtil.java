@@ -51,6 +51,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Throwables;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.IntensionalSetInterface;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.GrinderConfiguration;
@@ -554,7 +555,7 @@ public class GrinderUtil {
 	public static RewritingProcess extendContextualSymbolsAndConstraintWithIntensionalSet(
 			Expression intensionalSet, RewritingProcess process) {
 		Map<Expression, Expression> indexToTypeMap = IntensionalSet.getIndexToTypeMapWithDefaultNull(intensionalSet);
-		Expression conditionOnExpansion = IntensionalSet.getCondition(intensionalSet);
+		Expression conditionOnExpansion = ((IntensionalSetInterface) intensionalSet).getCondition();
 		RewritingProcess result = GrinderUtil.extendContextualSymbolsAndConstraint(indexToTypeMap, conditionOnExpansion, process);
 		return result;
 	}

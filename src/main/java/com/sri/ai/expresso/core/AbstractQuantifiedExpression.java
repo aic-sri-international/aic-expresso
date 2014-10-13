@@ -41,6 +41,7 @@ import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.replac
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.replaceOrAddType;
 import static com.sri.ai.util.Util.castOrThrowError;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -97,7 +98,7 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 
 	@Override
 	public List<Expression> getIndexExpressions() {
-		return indexExpressions;
+		return Collections.unmodifiableList(indexExpressions);
 	}
 
 	@Override

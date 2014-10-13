@@ -41,6 +41,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSetInterface;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
@@ -85,8 +86,8 @@ public class CardinalityImplication extends AbstractCardinalityRewriter {
 		CardinalityUtil.assertIsCardinalityOfIndexedFormulaExpression(cardinalityOfIndexedFormulaExpression);
 		// | {(on x1,..., xn)(x1, ..., xn) | F} |
 		Expression       intensionalSet          = cardinalityOfIndexedFormulaExpression.get(0);
-		Expression       f                       = IntensionalSet.getCondition(intensionalSet);
-		List<Expression> indexExpressions        = IntensionalSet.getIndexExpressions(intensionalSet);
+		Expression       f                       = ((IntensionalSetInterface) intensionalSet).getCondition();
+		List<Expression> indexExpressions        = ((IntensionalSetInterface) intensionalSet).getIndexExpressions();
 		Expression[]     indexExpressionsAsArray = indexExpressions.toArray(new Expression[indexExpressions.size()]);
 		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 		
