@@ -57,12 +57,10 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.ExpressionSyntaxTreeToStringFunction;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.util.Configuration;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.ReplaceByIfEqualTo;
 import com.sri.ai.util.base.TernaryProcedure;
@@ -334,30 +332,6 @@ public abstract class AbstractExpression implements Expression {
 				// Don't hold onto old threads unnecessarily
 				.weakKeys()
 				.build();
-		
-		return result;
-	}
-
-	/**
-	 * 
-	 * @return the default configured to string unary function for the current
-	 *         thread. The instance to use is determined by the configuration
-	 *         settings for
-	 *         {@link ExpressoConfiguration#KEY_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS}
-	 *         .
-	 */
-	protected static Function<Expression, String> getToString() {
-		Function<Expression, String> result = threadToString.getIfPresent(Thread.currentThread());
-		if (result == null) {
-			// Initialize with a function that generates the string from the syntax tree only,
-			// as other methods can rely on Grammar instances that can cause recursive calls.
-			// This prevents such recursion from occurring.
-			threadToString.put(Thread.currentThread(), new ExpressionSyntaxTreeToStringFunction());
-			
-			// Now assign the configured object.
-			result = Configuration.newConfiguredInstance(ExpressoConfiguration.getDefaultSyntaxToStringUnaryFunctionClass());
-			threadToString.put(Thread.currentThread(), result);
-		}
 		
 		return result;
 	}

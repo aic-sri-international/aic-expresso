@@ -40,8 +40,6 @@
 <preferences EXTERNAL_XML_VERSION="1.0">
   <root type="user">
     <map>
-    	<entry key="expresso.syntax.to.string.unary.function.class" value="com.sri.ai.brewer.core.WriterToStringFunction"/>
-      <entry key="brewer.default.grammar.class" value="com.sri.ai.brewer.core.CommonGrammar"/>
     </map>
   </root>
 </preferences>
