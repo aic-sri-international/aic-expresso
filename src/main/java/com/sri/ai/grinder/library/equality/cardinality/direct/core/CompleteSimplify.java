@@ -42,8 +42,8 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.controlflow.IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch;
+import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.util.base.Pair;
 
@@ -73,7 +73,7 @@ public class CompleteSimplify extends Simplify implements CardinalityRewriter {
 				//
 				// Support for: full satisfiability testing
 				new Pair<Class<?>, Rewriter>(
-						ScopedVariables.class,
+						IfThenElseSubExpressionsAndImposedConditionsProvider.class,
 						new TopImpliedCertainty()),
 				//
 				// Support for: full satisfiability testing

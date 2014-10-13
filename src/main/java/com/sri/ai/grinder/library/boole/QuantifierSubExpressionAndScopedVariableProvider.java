@@ -46,7 +46,6 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 
 /**
@@ -63,7 +62,7 @@ import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 @Beta
 public abstract class QuantifierSubExpressionAndScopedVariableProvider
 extends AbstractRewriter
-implements ScopedVariables.Provider, NoOpRewriter
+implements NoOpRewriter
 {
 	public QuantifierSubExpressionAndScopedVariableProvider() {
 		super();
@@ -81,7 +80,6 @@ implements ScopedVariables.Provider, NoOpRewriter
 	
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		ScopedVariables.register(this, process);
 	}
 
 	@Override
@@ -92,16 +90,5 @@ implements ScopedVariables.Provider, NoOpRewriter
 
 	public static List<Expression> getIndexExpressions(Expression expression) {
 		return Expressions.ensureListFromKleeneList(Expressions.makeFromSyntaxTree(expression.getSyntaxTree().getSubTree(0))); // does need to be sub tree
-	}
-
-	@Override
-	public Expression getScopedVariablesAsExpression(Expression expression, RewritingProcess process) {
-		if (knowledgeApplies(expression)) {
-			List<Expression> indexExpressions = getIndexExpressions(expression);
-			List<Expression> quantifiedVariables = new LinkedList<Expression>(IndexExpressions.getIndexToTypeMapWithDefaultTypeOfIndex(indexExpressions).keySet());
-			Expression result = Expressions.apply("list", quantifiedVariables);
-			return result;
-		}
-		return null;
 	}
 }

@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.library;
 
+import static com.sri.ai.util.Util.mapIntoList;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +47,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.GetFunctorOrSymbol;
 import com.sri.ai.expresso.helper.MapReplacementFunction;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.PruningPredicate;
@@ -124,7 +127,7 @@ public class SyntacticSubstitute {
 		}
 		@Override
 		public boolean apply(Expression expression, Function<Expression, Expression> replacementFunctionFunction, RewritingProcess process) {
-			List<Expression> locallyScopedSymbols = ScopedVariables.getLocallyScopedSymbols(expression, process);
+			List<Expression> locallyScopedSymbols = mapIntoList(expression.getScopedExpressions(process), new GetFunctorOrSymbol());
 			boolean result = Util.intersect(allSymbolsInReplacedAndReplacement, locallyScopedSymbols);
 			return result;
 		}

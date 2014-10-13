@@ -78,7 +78,6 @@ import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Distributive;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.grinder.library.StandardizedApartFrom;
 import com.sri.ai.grinder.library.SyntacticFunctionsSubExpressionsProvider;
@@ -826,7 +825,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	@Test
 	public void testSyntacticFunctionSyntacticForm() {
 		Library library = new DefaultLibrary(
-				new ScopedVariables(),
 				new SyntacticFunctionsSubExpressionsProvider("type")
 				);
 		evaluator = new ExhaustiveRewriter(library);
@@ -844,7 +842,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	@Test
 	public void testSubstitute() {
 		Library library = new DefaultLibrary(
-				new ScopedVariables(),
 				new IntensionalSet(),
 				new ImposedConditionsModule(),
 				new Tuple(),
@@ -1008,7 +1005,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	@Test
 	public void testSyntacticSubstitute() {
 		Library library = new DefaultLibrary(
-				new ScopedVariables(),
 				new ForAllSubExpressionsAndScopedVariablesProvider());
 		evaluator = new ExhaustiveRewriter(library);
 		RewritingProcess process = newRewritingProcessWithCardinalityAndCounts(evaluator);
@@ -1194,7 +1190,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	public void testIfThenElseExternalization() {
 		Library library = new DefaultLibrary(
 				new IntensionalSet(),
-				new ScopedVariables(),
 				new IfThenElseExternalization());
 		
 		evaluator = new ExhaustiveRewriter(library);
@@ -1241,7 +1236,6 @@ public class GrinderTest extends AbstractGrinderTest {
 				new And(),
 				new Or(),
 				// Required Modules
-				new ScopedVariables(),
 				new IntensionalSet(),
 				new ImposedConditionsModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider());
@@ -1284,7 +1278,6 @@ public class GrinderTest extends AbstractGrinderTest {
 				new And(),
 				new Or(),
 				// Required Modules
-				new ScopedVariables(),
 				new IntensionalSet(),
 				new ImposedConditionsModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider());
@@ -1410,7 +1403,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	@Test
 	public void testIntensionalSet() {
 		Library library = new DefaultLibrary(
-				new ScopedVariables(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
 				new IntensionalSet(),
 				new UnionOnExtensionalSets(),
@@ -1437,7 +1429,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	@Test
 	public void testIntensionalSetWithBoundIndex() {
 		Library library = new DefaultLibrary(
-				new ScopedVariables(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
 				new IntensionalSet(),
 				new UnionOnExtensionalSets(),
@@ -1479,7 +1470,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	@Test
 	public void testIntensionalUniSetWithIndicesNotUsedInHead() {
 		Library library = new DefaultLibrary(
-				new ScopedVariables(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
 				new IntensionalSet(),
 				new ThereExistsSubExpressionsAndScopedVariablesProvider(),
@@ -1515,7 +1505,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	@Test
 	public void testCannotIndirectlyMutateExpression() {
 		Library library = new DefaultLibrary(
-				new ScopedVariables(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
 				new IntensionalSet(),
 				new UnionOnExtensionalSets(),
@@ -1659,8 +1648,7 @@ public class GrinderTest extends AbstractGrinderTest {
 	public void testEqualityOfIntensionalSets() {
 		Library library = new DefaultLibrary(
 				new EqualityOfIntensionalUniSets(),
-				new IntensionalSet(),
-				new ScopedVariables());
+				new IntensionalSet());
 		
 		evaluator = new ExhaustiveRewriter(library);
 
@@ -1690,7 +1678,6 @@ public class GrinderTest extends AbstractGrinderTest {
 				
 				new EqualityOnInjectiveSubExpressions(),
 				new DisequalityOnInjectiveSubExpressions(),
-				new ScopedVariables(),
 				new InjectiveModule(),
 				
 				new Tuple()
@@ -1780,8 +1767,7 @@ public class GrinderTest extends AbstractGrinderTest {
 				new Equality(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
 				new Lambda(),
-				new LambdaApplication(),
-				new ScopedVariables()
+				new LambdaApplication()
 		);
 
 		evaluator = new ExhaustiveRewriter(rewriters);

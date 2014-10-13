@@ -52,7 +52,7 @@ import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.KindAttribute;
-import com.sri.ai.grinder.library.ScopedVariables;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
@@ -103,14 +103,6 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 			}
 		}
 		return expression;
-	}
-
-	@Override
-	public Expression getScopedVariablesAsExpression(Expression expression, RewritingProcess process) {
-		if (Sets.isIntensionalSet(expression)) {
-			return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("list", getScopedVariables(expression).toArray());
-		}
-		return null;
 	}
 
 	/** Returns the scoping expression, which is an application of "on" on a list of index expressions. */
@@ -170,7 +162,7 @@ public class IntensionalSet extends AbstractScopedVariablesProviderAndRewriter {
 	}
 
 	public static boolean isScopeIndependent(Expression expression, Expression setExpression, RewritingProcess process) {
-		boolean result = ScopedVariables.isKnownToBeIndependentOfIndices(expression, IntensionalSet.getScopedVariables(setExpression), process);
+		boolean result = GrinderUtil.isKnownToBeIndependentOfIndices(expression, IntensionalSet.getScopedVariables(setExpression), process);
 		return result;
 	}
 
