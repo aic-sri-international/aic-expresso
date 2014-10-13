@@ -236,4 +236,10 @@ public class DefaultBracketedExpression extends AbstractNonQuantifiedExpression 
 			return result;
 		}
 	}
+	
+	@Override
+	public String makeToString() {
+		String result = "[ " + innerExpression + " ]";
+		return result;
+	}
 }

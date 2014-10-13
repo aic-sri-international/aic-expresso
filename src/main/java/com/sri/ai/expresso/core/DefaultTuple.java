@@ -177,4 +177,16 @@ public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tup
 			return result;
 		}
 	}
+
+	@Override
+	public String makeToString() {
+		String result;
+		if (numberOfArguments() == 1) {
+			result = "tuple(" + get(0) + ")";
+		}
+		else {
+			result = "(" + Util.join(", ", getArguments()) + ")";
+		}
+		return result;
+	}
 }

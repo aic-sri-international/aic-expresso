@@ -58,6 +58,7 @@ import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
+import com.sri.ai.util.Util;
 
 /**
  * A default implementation of a {@link IntensionalSetInterface}.
@@ -215,4 +216,15 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 	abstract public boolean isMultiSet();
 
 	abstract public AbstractIntensionalSet make(List<Expression> indexExpressions, Expression head, Expression condition);
+	
+	public String makeToString() {
+		String result;
+		result = getOpeningBrackets() + " ( on " + Util.join(", ", getIndexExpressions()) + " ) " + getHead()
+				+ (getCondition().equals(Expressions.TRUE)? "" : " | " + getCondition() ) + " " + getClosingBrackets(); 
+		return result;
+	}
+
+	abstract protected String getOpeningBrackets();
+
+	abstract protected String getClosingBrackets();
 }

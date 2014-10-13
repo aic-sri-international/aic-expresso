@@ -73,4 +73,9 @@ public class DefaultExistentiallyQuantifiedFormula extends AbstractQuantifiedExp
 		AbstractQuantifiedExpressionWithABody result = new DefaultExistentiallyQuantifiedFormula(indexExpressions, body);
 		return result;
 	}
+
+	@Override
+	protected String getHeadString() {
+		return "there exists";
+	}
 }

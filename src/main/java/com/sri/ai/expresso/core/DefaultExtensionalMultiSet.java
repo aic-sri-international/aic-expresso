@@ -77,4 +77,14 @@ public class DefaultExtensionalMultiSet extends AbstractExtensionalSet {
 	public boolean isMultiSet() {
 		return true;
 	}
+
+	@Override
+	protected String getOpeningBrackets() {
+		return "{{";
+	}
+
+	@Override
+	protected String getClosingBrackets() {
+		return "}}";
+	}
 }

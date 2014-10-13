@@ -77,4 +77,14 @@ public class DefaultIntensionalMultiSet extends AbstractIntensionalSet implement
 	public DefaultIntensionalMultiSet make(List<Expression> indexExpressions, Expression head, Expression condition) {
 		return new DefaultIntensionalMultiSet(indexExpressions, head, condition);
 	}
+
+	@Override
+	protected String getOpeningBrackets() {
+		return "{{";
+	}
+
+	@Override
+	protected String getClosingBrackets() {
+		return "}}";
+	}
 }

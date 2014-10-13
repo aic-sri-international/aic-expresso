@@ -73,4 +73,9 @@ public class DefaultUniversallyQuantifiedFormula extends AbstractQuantifiedExpre
 		AbstractQuantifiedExpressionWithABody result = new DefaultUniversallyQuantifiedFormula(indexExpressions, body);
 		return result;
 	}
+
+	@Override
+	protected String getHeadString() {
+		return "for all";
+	}
 }
