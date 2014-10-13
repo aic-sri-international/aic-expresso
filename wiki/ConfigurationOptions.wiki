@@ -29,10 +29,6 @@ Note: The following options must be set before any [http://code.google.com/p/aic
 
 = Brewer =
 The [http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/brewer/BrewerConfiguration.java Brewer Configuration] options are as follows:
-
-||Name||Default||Description||
-|| brewer.default.grammar.class || `CommonGrammar.class.getName()` || The name of the class for the Grammar to be used by the [http://code.google.com/p/aic-expresso/wiki/BrewerOverview Writer] when outputting String representations of Expression objects. ||
-
 Note: The following options all refer to the original [http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/brewer/api/BrewerParser.java Brewer Parser] implementation, which has been largely replaced by a faster [http://www.antlr.org/ ANTLR-generated parser]:
 ||Name||Default||Description||
 || brewer.use.parsing.cache                                                     || true  ||  ||
