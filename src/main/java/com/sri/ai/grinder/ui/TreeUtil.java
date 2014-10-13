@@ -54,12 +54,9 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.brewer.api.Grammar;
-import com.sri.ai.brewer.api.ParsingProcess;
 import com.sri.ai.brewer.api.Writer;
-import com.sri.ai.brewer.core.DefaultParsingProcess;
-import com.sri.ai.brewer.core.DefaultWriter;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 
 /**
  * 
@@ -94,7 +91,6 @@ public class TreeUtil {
 	
 	// Note: Just for standalone testing.
 	public static void main(String[] args) {
-		TreeUtil.setWriter(DefaultWriter.newDefaultConfiguredWriter());
 		TreeUtil.displayExpressionsTrees();
 		
 		TreeUtil.addTrace("root");
@@ -127,10 +123,10 @@ public class TreeUtil {
 		return writer;
 	}
 
-	public static Expression parse(String expressionString, Grammar grammer) {
-		ParsingProcess process = new DefaultParsingProcess(expressionString,
-				grammer);
-		Expression result = process.parseOfNonTerminal("Expression");
+	private static AntlrGrinderParserWrapper parser = new AntlrGrinderParserWrapper();
+	
+	public static Expression parse(String expressionString) {
+		Expression result = parser.parse(expressionString);
 		return result;
 	}
 
@@ -326,8 +322,8 @@ public class TreeUtil {
 		});
 	}
 
-	public static void addExpressionTrace(String expr) {
-		Expression expression = parse(expr, writer.getGrammar());
+	public static void addExpressionTrace(String expressionString) {
+		Expression expression = parse(expressionString);
 		addTrace(expression);
 	}
 

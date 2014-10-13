@@ -50,12 +50,8 @@ import org.junit.Assert;
 import org.junit.Before;
 
 import com.google.common.base.Stopwatch;
-import com.sri.ai.brewer.BrewerConfiguration;
-import com.sri.ai.brewer.api.BrewerParser;
-import com.sri.ai.brewer.api.Grammar;
 import com.sri.ai.brewer.api.Parser;
 import com.sri.ai.brewer.api.Writer;
-import com.sri.ai.brewer.core.DefaultWriter;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxLeaf;
@@ -85,7 +81,6 @@ abstract public class AbstractGrinderTest {
 	protected Expression expected;
 	protected Expression actual;
 	protected Rewriter evaluator;
-	protected Grammar grammar;
 	protected Parser parser;
 	protected Writer writer;
 	protected Map<Object, Object> globalObjects;
@@ -102,16 +97,8 @@ abstract public class AbstractGrinderTest {
 		SyntaxTrees.flushGlobalSymbolTable();
 		BranchAndMerge.reset();
 		
-		//System.out.println("Creating grammar...");
-		grammar = makeGrammar();
-		// Ensure the grammar class passed in is used where necessary.
-		Configuration.setProperty(BrewerConfiguration.KEY_DEFAULT_GRAMMAR_CLASS, grammar.getClass().getName());
-		
 		//System.out.println("Creating parser...");
 		parser = makeParser();
-		
-		//System.out.println("Creating writer...");				
-		writer = DefaultWriter.newDefaultConfiguredWriter();
 		
 		//System.out.println("Creating global objects...");
 		globalObjects = new LinkedHashMap<Object, Object>();
@@ -133,16 +120,6 @@ abstract public class AbstractGrinderTest {
 		}
 	}
 
-	/**
-	 * A method providing a grammar to be used to create {@link #writer}, as well as used by
-	 * the default implementation of {@link #makeParser()}
-	 * to construct a {@link BrewerParser}.
-	 * If an extending class overrides {@link #makeParser()}, the resulting parser must be compatible
-	 * with the provided grammar, in the sense that the output S of an expression E by {@link #writer}
-	 * should be parsed by the parser as E again.
-	 */
-	abstract public Grammar makeGrammar();
-	
 	/**
 	 * A method providing a rewriting process to be used during the test.
 	 * Rewriting processes created for specific tests will extend this one.

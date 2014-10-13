@@ -40,8 +40,6 @@ package com.sri.ai.test.grinder.library.equality.formula;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.sri.ai.brewer.api.Grammar;
-import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSyntaxLeaf;
 import com.sri.ai.expresso.helper.Expressions;
@@ -53,11 +51,6 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 
 public class FormulaUtilTest extends AbstractGrinderTest {
-	
-	@Override
-	public Grammar makeGrammar() {
-		return new CommonGrammar();
-	}
 	
 	@Override
 	public RewritingProcess makeRewritingProcess(Expression topExpression) {

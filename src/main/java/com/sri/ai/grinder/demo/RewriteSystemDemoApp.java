@@ -37,29 +37,23 @@
  */
 package com.sri.ai.grinder.demo;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.EventQueue;
+import java.io.PrintStream;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
-
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.io.PrintStream;
-
-import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.brewer.BrewerConfiguration;
-import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.demo.model.Options;
-import com.sri.ai.util.Configuration;
-
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
 
 /**
  * 
@@ -89,8 +83,6 @@ public class RewriteSystemDemoApp {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		// Ensure the grammar class passed in is used where necessary.
-		Configuration.setProperty(BrewerConfiguration.KEY_DEFAULT_GRAMMAR_CLASS, CommonGrammar.class.getName());
 
 		EventQueue.invokeLater(new Runnable() {
 			@Override

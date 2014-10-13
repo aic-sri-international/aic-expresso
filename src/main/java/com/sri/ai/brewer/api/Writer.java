@@ -56,8 +56,4 @@ public interface Writer {
 	boolean precedenceLessThan(SyntaxTree expression1, SyntaxTree expression2);
 
 	boolean precedenceLessThanOrEqualTo(SyntaxTree expression1, SyntaxTree expression2);
-
-	public abstract Grammar getGrammar();
-
-	public abstract void setGrammar(Grammar grammar);
 }

@@ -71,7 +71,6 @@ import javax.swing.undo.UndoManager;
 import com.google.common.annotations.Beta;
 import com.sri.ai.brewer.api.Parser;
 import com.sri.ai.brewer.api.Writer;
-import com.sri.ai.brewer.core.DefaultWriter;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
@@ -447,7 +446,6 @@ public class AbstractRewritePanel extends JPanel {
 	
 	private void performRewrite(boolean exhaustiveRewrite) {	
 		Parser parser  = new AntlrGrinderParserWrapper();
-		Writer writer  = DefaultWriter.newDefaultConfiguredWriter();
 		String context = inputContextExpressionEditor.getText();
 		if (context.trim().length() == 0) {
 			// The empty string is considered equivalent to true.
@@ -507,7 +505,7 @@ public class AbstractRewritePanel extends JPanel {
 			do {
 				try {	
 					if (!first) {
-						currentInput = writer.toString(input);
+						currentInput = input.toString();
 						inputExpressionEditor.setText(currentInput);
 						// Note: Re-parsing the writer.toString version of the expression
 						// ensure we process exhaustive steps the same way as single steps
@@ -529,7 +527,7 @@ public class AbstractRewritePanel extends JPanel {
 						System.out.println(NO_FUTHER_SIMPLIFICATION_POSSIBLE);
 					}
 					else {
-						currentOutput = writer.toString(output);
+						currentOutput = output.toString();
 						outputExpressionEditor.setText(currentOutput);
 						
 						trackUndoState(false, currentContext, currentInput, currentOutput);
@@ -543,7 +541,7 @@ public class AbstractRewritePanel extends JPanel {
 						input = output;
 					
 						try {
-							outputExpressionEditor.setText(outputPrefix+writer.toString(output));					
+							outputExpressionEditor.setText(outputPrefix + output);					
 						} catch (RuntimeException ire) {
 							outputExpressionEditor.setText("// ERROR: Rewriting Output - \n"+output);
 							ire.printStackTrace();

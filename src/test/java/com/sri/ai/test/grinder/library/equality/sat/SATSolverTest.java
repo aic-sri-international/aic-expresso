@@ -43,8 +43,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.base.Stopwatch;
-import com.sri.ai.brewer.api.Grammar;
-import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -55,11 +53,6 @@ import com.sri.ai.grinder.library.equality.sat.SATSolver;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 
 public class SATSolverTest extends AbstractGrinderTest {
-	
-	@Override
-	public Grammar makeGrammar() {
-		return new CommonGrammar();
-	}
 	
 	@Override
 	public RewritingProcess makeRewritingProcess(Expression topExpression) {

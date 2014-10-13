@@ -50,7 +50,6 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.SubExpressionAddress;
@@ -132,11 +131,6 @@ import com.sri.ai.util.math.Rational;
 
 public class GrinderTest extends AbstractGrinderTest {
 
-	@Override
-	public CommonGrammar makeGrammar() {
-		return new CommonGrammar();
-	}
-	
 	@Override
 	public RewritingProcess makeRewritingProcess(Expression topExpression) {
 		RewritingProcess process = new DefaultRewritingProcess(topExpression, new Basic());

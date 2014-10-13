@@ -38,17 +38,12 @@
 package com.sri.ai.grinder.shell;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.brewer.BrewerConfiguration;
-import com.sri.ai.brewer.api.Grammar;
-import com.sri.ai.brewer.api.Writer;
-import com.sri.ai.brewer.core.CommonGrammar;
-import com.sri.ai.brewer.core.DefaultWriter;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Library;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.core.ExhaustiveRewriter;
 import com.sri.ai.grinder.library.CommonLibrary;
-import com.sri.ai.util.Configuration;
+import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 import com.sri.ai.util.collect.ConsoleIterator;
 
 /**
@@ -60,22 +55,20 @@ import com.sri.ai.util.collect.ConsoleIterator;
 public class Shell {
 
 	public static void main(String[] args) {
-		run(new CommonGrammar(), new CommonLibrary());
+		run(new CommonLibrary());
 	}
 
-	public static void run(Grammar grammar, Library library) {
-		// Ensure the grammar class passed in is used where necessary.
-		Configuration.setProperty(BrewerConfiguration.KEY_DEFAULT_GRAMMAR_CLASS, grammar.getClass().getName());
-		
-		Writer writer = DefaultWriter.newDefaultConfiguredWriter();
+	private static AntlrGrinderParserWrapper parser = new AntlrGrinderParserWrapper();
+	
+	public static void run(Library library) {
 		Rewriter evaluator = new ExhaustiveRewriter(library);
 		ConsoleIterator consoleIterator = new ConsoleIterator();
 		
 		while (consoleIterator.hasNext()) {
 			String command = consoleIterator.next();
-			Expression parse = grammar.parse(command);
+			Expression parse = parser.parse(command);
 			Expression result = evaluator.rewrite(parse);
-			System.out.println(writer.toString(result.getSyntaxTree()));
+			System.out.println(result);
 		}
 	}
 }

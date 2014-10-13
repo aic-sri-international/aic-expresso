@@ -38,23 +38,17 @@
 package com.sri.ai.grinder.ui;
 
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Vector;
 
 import javax.swing.tree.TreeNode;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.brewer.api.BasicParsingExpression;
-import com.sri.ai.brewer.api.ParsingExpression;
 import com.sri.ai.brewer.api.Writer;
-import com.sri.ai.brewer.parsingexpression.core.Sequence;
-import com.sri.ai.brewer.parsingexpression.helper.AssociativeSequence;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.expresso.helper.SyntaxTrees;
 
 /**
  * 
@@ -195,16 +189,7 @@ public class ExpressionNode implements TreeNode {
 		}
 		
 		SyntaxTree expression = (SyntaxTree)userObject;
-		BasicParsingExpression parsingExpression = writer.getGrammar().getBasicParsingExpressionFor(expression);
-		if (parsingExpression == null) {
-			result = simpleExpressionToTree(expression);
-		} 
-		else if ( parsingExpression instanceof AssociativeSequence ) {
-			result = associateSequenceToTree((AssociativeSequence)parsingExpression, expression);
-		} 
-		else if ( parsingExpression instanceof Sequence ) {
-			result = sequenceToTree((Sequence)parsingExpression, expression);
-		}
+		result = simpleExpressionToTree(expression);
 		
 		return result;
 	}
@@ -235,62 +220,6 @@ public class ExpressionNode implements TreeNode {
 		return result;
 	}
 	
-
-	protected Vector<ExpressionNode> sequenceToTree(Sequence parsingExpression, SyntaxTree expression) {
-		Vector<ExpressionNode> result = new Vector<ExpressionNode>();
-		int argumentIndex = 0;
-		try {
-		for (Expression parsingExpressionSubExpression : parsingExpression.getArguments()) {
-			ParsingExpression subParsingExpression = (ParsingExpression) parsingExpressionSubExpression;
-
-			if (subParsingExpression.hasFunctor("terminal")) {
-				result.add(new ExpressionNode(parsingExpressionSubExpression.get(0).getSyntaxTree(), NodeType.TERMINAL, this));
-			}
-			else if (subParsingExpression.hasFunctor("kleene")) {
-				SyntaxTree kleeneList = expression.getImmediateSubTrees().get(argumentIndex);
-				
-				List<SyntaxTree> listOfSubExpressions = SyntaxTrees.ensureListFromKleeneList(kleeneList);
-				for (SyntaxTree subTree: listOfSubExpressions) {
-					result.add(new ExpressionNode(subTree, NodeType.ARGUMENT, this));
-				}
-			}
-			else if (!(subParsingExpression.hasFunctor("optional") 
-					   && expression.getImmediateSubTrees().get(argumentIndex) == null)) {
-				
-				SyntaxTree subExpression = expression.getImmediateSubTrees().get(argumentIndex);
-				// boolean isIt = neighborsAreTerminals(expression, subParsingExpressionIndex);
-				result.add(new ExpressionNode(subExpression, NodeType.ARGUMENT, this));
-			}
-
-
-			// everything is an argument, but terminals.
-			if ( ! subParsingExpression.hasFunctor("terminal")) {
-				argumentIndex++;
-			}
-		}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return result;
-	}
-	
-	protected Vector<ExpressionNode> associateSequenceToTree(AssociativeSequence parsingExpression, final SyntaxTree syntaxTree) {
-		Vector<ExpressionNode> result = new Vector<ExpressionNode>();
-		SyntaxTree rootTree = syntaxTree.getRootTree();
-		List<SyntaxTree> subTree = syntaxTree.getImmediateSubTrees();
-		
-		if ( !subTree.isEmpty() ) {
-			result.add(new ExpressionNode(subTree.get(0), NodeType.INSUBTREE, this));
-		}
-		
-		for (int i=1; i<subTree.size(); i++) {
-			result.add(new ExpressionNode(rootTree, NodeType.INROOT_TREE, this));
-			result.add(new ExpressionNode(subTree.get(i), NodeType.INSUBTREE, this));			
-		}
-
-		return result;
-	}
-
 	public void setUserObject(Object obj) {
 		userObject = obj;
 	}

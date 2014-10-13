@@ -75,9 +75,6 @@ public class BrewerConfiguration extends Configuration {
 	public static final String  KEY_OUTPUT_PARSING_TIME_INFO                                                        = "brewer.output.parsing.time.info";
 	public static final Boolean DEFAULT_VALUE_OUTPUT_PARSING_TIME_INFO                                              = Boolean.TRUE;
 	//
-	public static final String  KEY_DEFAULT_GRAMMAR_CLASS                                                           = "brewer.default.grammar.class";
-	public static final String  DEFAULT_VALUE_DEFAULT_GRAMMAR_CLASS                                                 = CommonGrammar.class.getName();
-	
 	public static boolean isUseParsingCache() {
 		boolean result = getBoolean(KEY_USE_PARSING_CACHE, DEFAULT_VALUE_USE_PARSING_CACHE);
 		
@@ -123,11 +120,6 @@ public class BrewerConfiguration extends Configuration {
 	public static boolean isOutputParsingTimeInfo() {
 		boolean result = getBoolean(KEY_OUTPUT_PARSING_TIME_INFO, DEFAULT_VALUE_OUTPUT_PARSING_TIME_INFO);
 		
-		return result;
-	}
-	
-	public static String getDefaultGrammarClass() {
-		String result = getString(KEY_DEFAULT_GRAMMAR_CLASS, DEFAULT_VALUE_DEFAULT_GRAMMAR_CLASS);
 		return result;
 	}
 }
