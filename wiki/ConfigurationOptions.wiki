@@ -27,19 +27,6 @@ Note: The following options must be set before any [http://code.google.com/p/aic
 || grinder.rewriting.filter.out.logging.by.rewriters.named || Empty String  || Filter out the trace and justification output for the rewriters listed in a colon separated String of named rewriters. Note: Often set in the appropriate aic-smf configuration file (e.g. aic-smf-configu-test.xml or aic-smf-configu.xml).  ||
 || grinder.demo.ui.default.look.and.feel || Nimbus || The Java Swing default look and feel to set Demo GUI applications to. ||
 
-= Brewer =
-The [http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/brewer/BrewerConfiguration.java Brewer Configuration] options are as follows:
-Note: The following options all refer to the original [http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/brewer/api/BrewerParser.java Brewer Parser] implementation, which has been largely replaced by a faster [http://www.antlr.org/ ANTLR-generated parser]:
-||Name||Default||Description||
-|| brewer.use.parsing.cache                                                     || true  ||  ||
-|| brewer.parser.flag.look.ahead                                                || false ||  ||
-|| brewer.parser.flag.set.limit.based.on.parenthetical.tokens                   || true  ||  ||
-|| brewer.parser.flag.prune.by.length.lower.bound.and.limit                     || true  ||  ||
-|| brewer.parser.flag.log.is.on                                                 || false ||  ||
-|| brewer.parser.flag.log.cache.usage.unless.logging.is.off                     || true  ||  ||
-|| brewer.parser.flag.log.list.of.cache.items.unless.cache.usage.logging.is.off || false ||  ||
-|| brewer.output.parsing.time.info                                              || true  ||  ||
-
 = Expresso =
 The [http://code.google.com/p/aic-expresso/source/browse/trunk/src/main/java/com/sri/ai/expresso/ExpressoConfiguration.java Expresso Configuration] options are as follows:
 
