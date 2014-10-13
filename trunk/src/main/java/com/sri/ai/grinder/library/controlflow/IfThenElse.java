@@ -47,7 +47,6 @@ import com.sri.ai.expresso.core.SyntaxTreeBasedSubExpressionAddress;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.FunctionApplicationProvider;
 import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -68,7 +67,7 @@ public class IfThenElse extends AbstractRewriter {
 
 	private static final Expression NOT_FUNCTOR = Expressions.makeSymbol(FunctorConstants.NOT);
 	//
-	private static final SubExpressionAddress _pathToFunctor   = SyntaxTreeBasedSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(FunctionApplicationProvider.INDEX_OF_FUNCTOR_IN_FUNCTION_APPLICATIONS)));
+	private static final SubExpressionAddress _pathToFunctor   = SyntaxTreeBasedSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(-1)));
 	private static final SubExpressionAddress _pathToCondition = SyntaxTreeBasedSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(0)));
 	private static final SubExpressionAddress _pathToThen      = SyntaxTreeBasedSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(1)));
 	private static final SubExpressionAddress _pathToElse      = SyntaxTreeBasedSubExpressionAddress.get(Collections.unmodifiableList(Arrays.asList(2)));
