@@ -77,7 +77,6 @@ import com.sri.ai.expresso.core.DefaultTuple;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.PruningPredicate;
 import com.sri.ai.grinder.helper.FunctionSignature;
 import com.sri.ai.grinder.helper.RewriterFunction;
@@ -1088,10 +1087,6 @@ public class Expressions {
 			return true;
 		}
 	};
-
-	public static RewritingProcess getProcess() {
-		return DefaultRewritingProcess.getGlobalRewritingProcessForKnowledgeBasedExpressions();
-	}
 
 	public static List<Expression> makeListOfExpressions(List<SyntaxTree> syntaxTrees) {
 		List<Expression> result = Util.mapIntoArrayList(syntaxTrees, SYNTAX_TREE_TO_EXPRESSION);

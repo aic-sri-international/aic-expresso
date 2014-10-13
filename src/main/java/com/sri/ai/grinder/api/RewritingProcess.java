@@ -101,11 +101,6 @@ public interface RewritingProcess {
 	
 	Rewriter setRootRewriter(Rewriter newRootRewriter);
 	
-	/**
-	 * Returns a process identical to this one but for having a new contextual constraint.
-	 */
-	RewritingProcess setContextualConstraint(Expression newContextualConstraint);
-	
 	RewriterLookup getRewriterLookup();
 
 	ChildRewriterCallIntercepter getChildCallIntercepter();

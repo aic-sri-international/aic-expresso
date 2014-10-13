@@ -127,7 +127,7 @@ abstract public class AbstractGrinderTest {
 	 * (the one that specifically created awareness of this problem was {@link Tuple}).
 	 * Even though later rewriting processes created for specific tests were of the right kind and included the necessary providers,
 	 * it would not suffice because the first rewriting process was kept as the global rewriting processes for all
-	 * expressions in this thread (see {@link DefaultRewritingProcess#getGlobalRewritingProcessForKnowledgeBasedExpressions()}),
+	 * expressions in this thread,
 	 * and its modules were the ones used.
 	 * By introducing this abstract method, we give specific tests a chance to create a first rewriting process of the right kind.
 	 * Using a global rewriting process is a temporary hack, and when this is corrected this abstract method

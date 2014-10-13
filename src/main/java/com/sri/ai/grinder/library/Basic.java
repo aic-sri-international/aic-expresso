@@ -64,7 +64,6 @@ import com.sri.ai.grinder.library.equality.injective.EqualityOnInjectiveSubExpre
 import com.sri.ai.grinder.library.equality.injective.EqualityOnMutuallyExclusiveCoDomainExpressions;
 import com.sri.ai.grinder.library.function.InjectiveModule;
 import com.sri.ai.grinder.library.function.MutuallyExclusiveCoDomainsModule;
-import com.sri.ai.grinder.library.function.SymmetricModule;
 import com.sri.ai.grinder.library.number.Division;
 import com.sri.ai.grinder.library.number.Exponentiation;
 import com.sri.ai.grinder.library.number.Minus;
@@ -178,7 +177,6 @@ public class Basic extends TotalRewriter {
 						// needed?
 						new ImposedConditionsModule(),
 						new InjectiveModule(),
-						new SymmetricModule(),
 						new MutuallyExclusiveCoDomainsModule(),
 						new IfThenElseSubExpressionsAndImposedConditionsProvider(),
 						new Tuple(),

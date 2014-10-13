@@ -44,7 +44,6 @@ import org.slf4j.MDC;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.util.Configuration;
 
 /**
@@ -130,7 +129,6 @@ public class CallableRewriteOnBranch implements CallableRewriter {
 			MDC.setContextMap(mdcParentContextMap);
 			// Ensure this information is available to any expressions
 			// within the context of the worker thread.
-			DefaultRewritingProcess.setGlobalRewritingProcessForKnowledgeBasedExpressions(getBranchProcess());
 		}
 	}
 	
