@@ -50,9 +50,9 @@ import org.junit.Assert;
 import org.junit.Before;
 
 import com.google.common.base.Stopwatch;
-import com.sri.ai.brewer.api.Parser;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Parser;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.SyntaxTrees;
