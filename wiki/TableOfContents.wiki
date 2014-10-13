@@ -1,7 +1,6 @@
 #summary Table of Contents
   * [Introduction Introduction]
   * [ExpressoOverview Expresso (Representation)]
-  * [BrewerOverview Brewer (Parsing)]
   * [GrinderOverview Grinder (Rewriting System)]  
     * [GrinderArithmetic Arithmetic]
     * [GrinderSets Sets]
