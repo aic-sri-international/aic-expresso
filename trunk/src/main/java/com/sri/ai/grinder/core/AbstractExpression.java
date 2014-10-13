@@ -477,21 +477,6 @@ public abstract class AbstractExpression implements Expression {
 		return result;
 	}
 
-	@Override
-	public String toString() {
-		if (cachedToString == null) {
-			Function<Expression, String> toString = getToString();
-			if (toString != null) {
-				cachedToString = toString.apply(this);
-			}
-			else 
-			{
-				cachedToString = getSyntaxTree().toString();
-			}
-		}
-		return cachedToString;
-	}
-	
 	/////// DEFAULT SYMBOL-SPECIFIC METHODS (ONLY SYMBOLS NEED TO OVERRIDE THESE)
 	
 	@Override
@@ -528,5 +513,17 @@ public abstract class AbstractExpression implements Expression {
 		return null;
 	}
 
-
+	/**
+	 * Computes the value of {@link Object#toString()},
+	 * which caches it the first time it is invoked for this object.
+	 */
+	abstract public String makeToString();
+	
+	@Override
+	public String toString() {
+		if (cachedToString == null) {
+			cachedToString = makeToString();
+		}
+		return cachedToString;
+	}
 }

@@ -39,7 +39,9 @@ package com.sri.ai.expresso.core;
 
 import static com.sri.ai.expresso.helper.SyntaxTrees.makeCompoundSyntaxTree;
 import static com.sri.ai.util.Util.castOrThrowError;
+import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.mapIntoArrayList;
+import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.replaceElementsNonDestructively;
 
 import java.util.Iterator;
@@ -182,4 +184,20 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 		Expression result = make(getIndexExpressions(), getBody());
 		return result;
 	}
+
+	@Override
+	public String makeToString() {
+		List<String> indexExpressionsStrings = mapIntoList(getIndexExpressions(), Expression::toString);
+		String parametersRepresentation = join(", ", indexExpressionsStrings); 
+		String result = getHeadString() + " " + parametersRepresentation + " : " + getBody();
+		return result;
+	}
+
+	/**
+	 * Provides the <i>head string</i>, which
+	 * is used in the string representation of this type of expression:<br>
+	 * <code>[head string] [index expressions separated by comma] : [body]</code>.
+	 * @return the head string
+	 */
+	protected abstract String getHeadString();
 }

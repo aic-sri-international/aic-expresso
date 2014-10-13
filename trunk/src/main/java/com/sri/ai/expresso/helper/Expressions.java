@@ -74,7 +74,6 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.expresso.core.DefaultTuple;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
-import com.sri.ai.expresso.core.ExpressionOnCompoundSyntaxTree;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
@@ -156,23 +155,6 @@ public class Expressions {
 		}
 	};
 	
-	private static boolean oldImplementations = false;
-	
-	private static Collection<String> labelsUsingExpressionOnCompoundSyntaxTree =
-	Util.list(
-//			IntensionalSet.UNI_SET_LABEL,
-//			IntensionalSet.MULTI_SET_LABEL,
-//			ExtensionalSet.UNI_SET_LABEL,
-//			ExtensionalSet.MULTI_SET_LABEL,
-//			Lambda.ROOT,
-//			ForAll.LABEL,
-//			ThereExists.LABEL,
-//			Tuple.TUPLE_LABEL, "tuple",
-//			CardinalityTypeOfLogicalVariable.TYPE_LABEL,
-//			"[ . ]" // BracketedExpressionSubExpressionsProvider.SYNTAX_TREE_LABEL);
-			);
-
-	
 	/**
 	 * Makes Expression based on a syntax tree with given label and sub-trees, or {@link Expression}s from whose syntax trees must be used.
 	 */
@@ -182,10 +164,7 @@ public class Expressions {
 
 	public static Expression makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(Collection<FunctionSignature> randomPredicatesSignatures, Object label, Object... subTreeObjects) {
 		Expression result;
-		if (oldImplementations || labelsUsingExpressionOnCompoundSyntaxTree.contains(label)) {
-			result = new ExpressionOnCompoundSyntaxTree(label, subTreeObjects);
-		}
-		else if (label.equals("[ . ]")) {
+		if (label.equals("[ . ]")) {
 			result = makeDefaultBracketedExpressionFromLabelAndSubTrees(randomPredicatesSignatures, label, subTreeObjects);
 		}
 		else if (label.equals(ForAll.LABEL)) {

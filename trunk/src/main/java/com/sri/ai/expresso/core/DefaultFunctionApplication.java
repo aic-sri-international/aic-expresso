@@ -39,23 +39,27 @@ package com.sri.ai.expresso.core;
 
 import static com.sri.ai.util.Util.castOrThrowError;
 import static com.sri.ai.util.Util.mapIntoArray;
+import static com.sri.ai.util.Util.mapIntoList;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.api.SubExpressionAddress;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.util.Util;
 
 /**
  * A default implementation of a {@link FunctionApplication}.
@@ -206,5 +210,106 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 			Expression result = functionApplication.get(index);
 			return result;
 		}
+	}
+
+	Set<String> infixFunctionsStrings = Util.set(
+			"+", "-", "*", "/", "^",
+			"and", "or", "<=>", "=>",
+			"=", "!="
+			);
+	
+	@Override
+	public String makeToString() {
+		String result;
+		if (hasFunctor(FunctorConstants.IF_THEN_ELSE)) {
+			result = "if " + get(0) + " then " + get(1) + " else " + get(2);
+		}
+		else if (hasFunctor(FunctorConstants.CARDINALITY) && numberOfArguments() == 1) {
+			result = "| " + get(0) + " |";
+		}
+		else {
+			int precedence = getPrecedence(this);
+			if (hasFunctor(FunctorConstants.MINUS) && numberOfArguments() == 1) {
+				result = "-" + stringAsSubExpression(get(0), precedence);
+			}
+			else if (hasFunctor(FunctorConstants.NOT) && numberOfArguments() == 1) {
+				result = "not " + stringAsSubExpression(get(0), precedence);
+			}
+			else if (infixFunctionsStrings.contains(getFunctor().toString())) {
+				List<String> subExpressionsStrings = mapIntoList(getArguments(), e -> stringAsSubExpression(e, precedence));
+				result = Util.join(" " + getFunctor() + " ", subExpressionsStrings);
+			}
+			else {
+				String functorRepresentation = getFunctor() instanceof Symbol? getFunctor().toString() : "(" + getFunctor() + ")";
+				String argumentsRepresentation = Util.join(", ", getArguments());
+				result = functorRepresentation + "(" + argumentsRepresentation + ")";
+			}
+		}
+		return result;
+	}
+	
+	private static String stringAsSubExpression(Expression expression, int parentPrecedence) {
+		String result = expression.toString();
+		int precedence = getPrecedence(expression);
+		if (parentPrecedence > precedence) {
+			result = "(" + result + ")";
+		}
+		return result;
+	}
+
+	/**
+	 * A method with hard-coded precedence for known operators.
+	 * Needs to be modified when new functions are introduced (applications of unknown functions, or non-function applications, get 100).
+	 * In the future, we may extend this to a soft-coded, extensible mechanism.
+	 */
+	public static int getPrecedence(Expression expression) {
+		int result = 100;
+		if (expression.getSyntacticFormType().equals("Function application")) {
+			if (
+					expression.hasFunctor("=")
+					||
+					expression.hasFunctor("!=")
+					||
+					expression.hasFunctor("<=>")
+					||
+					expression.hasFunctor("=>")
+					)
+			{
+				result = 1;
+			}
+			else if (
+					expression.hasFunctor("+")
+					||
+					expression.hasFunctor("-") && expression.numberOfArguments() == 2
+					||
+					expression.hasFunctor("or")
+					)
+			{
+				result = 2;
+			}
+			else if (
+					expression.hasFunctor("*")
+					||
+					expression.hasFunctor("/")
+					||
+					expression.hasFunctor("and")
+					)
+			{
+				result = 3;
+			}
+			else if (
+					expression.hasFunctor("-")   && expression.numberOfArguments() == 1
+					||
+					expression.hasFunctor("not") && expression.numberOfArguments() == 1
+					)
+			{
+				result = 4;
+			}
+			else if (expression.hasFunctor("^"))
+			{
+				result = 5;
+			}
+		}
+		return result;
 	}
 }

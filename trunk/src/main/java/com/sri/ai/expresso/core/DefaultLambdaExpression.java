@@ -73,4 +73,9 @@ public class DefaultLambdaExpression extends AbstractQuantifiedExpressionWithABo
 		DefaultLambdaExpression result = new DefaultLambdaExpression(indexExpressions, body);
 		return result;
 	}
+
+	@Override
+	protected String getHeadString() {
+		return "lambda";
+	}
 }

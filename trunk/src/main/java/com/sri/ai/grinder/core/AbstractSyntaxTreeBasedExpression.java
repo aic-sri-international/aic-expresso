@@ -269,4 +269,17 @@ public abstract class AbstractSyntaxTreeBasedExpression extends AbstractExpressi
 
 		return cachedArguments;
 	}
+
+	@Override
+	public String makeToString() {
+		String result;
+		Function<Expression, String> toString = getToString();
+		if (toString != null) {
+			result = toString.apply(this);
+		}
+		else {
+			result = getSyntaxTree().toString();
+		}
+		return result;
+	}
 }

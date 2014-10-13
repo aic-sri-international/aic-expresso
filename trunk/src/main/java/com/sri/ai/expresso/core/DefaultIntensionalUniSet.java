@@ -77,4 +77,14 @@ public class DefaultIntensionalUniSet extends AbstractIntensionalSet implements 
 	public DefaultIntensionalUniSet make(List<Expression> indexExpressions, Expression head, Expression condition) {
 		return new DefaultIntensionalUniSet(indexExpressions, head, condition);
 	}
+
+	@Override
+	protected String getOpeningBrackets() {
+		return "{";
+	}
+
+	@Override
+	protected String getClosingBrackets() {
+		return "}";
+	}
 }

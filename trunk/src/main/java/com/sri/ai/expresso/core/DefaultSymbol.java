@@ -357,4 +357,8 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 		flushGlobalSymbolTable();
 	}
 
+	@Override
+	public String makeToString() {
+		return getSyntaxTree().toString();
+	}
 }

@@ -152,4 +152,9 @@ public class DefaultSyntacticFunctionApplication extends AbstractNonQuantifiedEx
 	public Expression set(int i, Expression newIthArgument) {
 		throw new Error("Expression.set(int, Expression) not defined for " + SyntacticFunctionApplication.class.getSimpleName());
 	}
+
+	@Override
+	public String makeToString() {
+		return getSyntaxTree().toString();
+	}
 }

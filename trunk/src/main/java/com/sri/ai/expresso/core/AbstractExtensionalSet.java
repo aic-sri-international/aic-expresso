@@ -130,4 +130,13 @@ public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpres
 	public List<Expression> getArguments() {
 		return getElementsDefinitions();
 	}
+
+	public String makeToString() {
+		String result = getOpeningBrackets() + " " + Util.join(", ", getElementsDefinitions()) + " " + getClosingBrackets();
+		return result;
+	}
+
+	abstract protected String getOpeningBrackets();
+
+	abstract protected String getClosingBrackets();
 }
