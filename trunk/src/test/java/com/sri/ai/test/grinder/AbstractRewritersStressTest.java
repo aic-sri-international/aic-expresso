@@ -47,8 +47,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.brewer.api.Grammar;
-import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -112,11 +110,6 @@ public abstract class AbstractRewritersStressTest extends AbstractGrinderTest {
 	@Before
 	public void setup() {
 		GrinderUtil.setMinimumOutputForProfiling();
-	}
-
-	@Override
-	public Grammar makeGrammar() {
-		return new CommonGrammar();
 	}
 
 	@Test

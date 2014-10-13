@@ -41,7 +41,6 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.sri.ai.brewer.api.Grammar;
 import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -55,11 +54,6 @@ import com.sri.ai.util.Util;
 
 public class NormalizeAndCompleteNormalizeTest extends AbstractGrinderTest {
 	
-	@Override
-	public Grammar makeGrammar() {
-		return new CommonGrammar();
-	}
-
 	@Override
 	public RewritingProcess makeRewritingProcess(Expression topExpression) {
 		return DirectCardinalityComputationFactory.newCardinalityProcess(topExpression);

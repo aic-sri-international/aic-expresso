@@ -58,7 +58,6 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.brewer.core.DefaultWriter;
 import com.sri.ai.grinder.helper.RewriterLoggingNamedRewriterFilter;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.ui.BaseTreeUtilAppender;
@@ -234,7 +233,6 @@ public class OutputPanel extends JPanel {
 		// Configure the output consoled window.
 		consoleOutputTextArea.setFont(new Font(Font.MONOSPACED, consoleOutputTextArea.getFont().getStyle(), 14));
 
-		TreeUtil.setWriter(DefaultWriter.newDefaultConfiguredWriter());
 		clearTraceTree();
 	}
 	

@@ -45,11 +45,6 @@ import java.util.Random;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.brewer.BrewerConfiguration;
-import com.sri.ai.brewer.api.Grammar;
-import com.sri.ai.brewer.api.Writer;
-import com.sri.ai.brewer.core.CommonGrammar;
-import com.sri.ai.brewer.core.DefaultWriter;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.Disequality;
@@ -60,7 +55,6 @@ import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
-import com.sri.ai.util.Configuration;
 
 /**
  * A simple formula generator that creates random CNF and DNF formulas with
@@ -84,27 +78,24 @@ public class SimpleFormulaGenerator {
 	private static final int USE_DNF = 4;
 	
 	public static void main(String[] args) {
-		Grammar grammar = new CommonGrammar();
-		Configuration.setProperty(BrewerConfiguration.KEY_DEFAULT_GRAMMAR_CLASS, grammar.getClass().getName());
-		Writer writer = DefaultWriter.newDefaultConfiguredWriter();
 		
 		SimpleFormulaGenerator gn = new SimpleFormulaGenerator(20, 20);
 		for (int i = 30; i < 90; i += 3) {
 			Expression formula = gn.generateRandomFormulas(i);
 			Expression cardinalityExpression = gn.generateRandomCardinality(formula, false);
-			System.out.println("\"" + writer.toString(cardinalityExpression.getSyntaxTree()) + "\",");
+			System.out.println("\"" + cardinalityExpression + "\",");
 		}
 		System.out.println("\n");
 		for (int i = 20; i<60; i+= 3) {
 			Expression formula = gn.generateConjunctionOfDisequalities(i);
 			Expression cardinalityExpression = gn.generateRandomCardinality(formula, false);
-			System.out.println("\"" + writer.toString(cardinalityExpression.getSyntaxTree()) + "\",");
+			System.out.println("\"" + cardinalityExpression + "\",");
 		}	
 		
 		for (int i = 30; i<60; i+= 3) {
 			Expression formula = gn.generateCNF(i, i);
 			Expression cardinalityExpression = gn.generateRandomCardinality(formula, false);
-			System.out.println("\"" + writer.toString(cardinalityExpression.getSyntaxTree()) + "\",");
+			System.out.println("\"" + cardinalityExpression + "\",");
 		}	
 	}
 	

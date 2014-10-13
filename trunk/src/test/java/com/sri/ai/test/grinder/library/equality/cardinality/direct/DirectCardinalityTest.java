@@ -45,8 +45,6 @@ import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.sri.ai.brewer.api.Grammar;
-import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
@@ -82,11 +80,6 @@ import com.sri.ai.util.base.Pair;
 
 public class DirectCardinalityTest extends AbstractGrinderTest {
 	
-	@Override
-	public Grammar makeGrammar() {
-		return new CommonGrammar();
-	}
-
 	@Override
 	public RewritingProcess makeRewritingProcess(Expression topExpression) {
 		return DirectCardinalityComputationFactory.newCardinalityProcess(topExpression);

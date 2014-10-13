@@ -41,7 +41,6 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.brewer.core.DefaultWriter;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.util.Util;
@@ -81,8 +80,6 @@ public abstract class BaseTreeUtilAppender extends AppenderBase<ILoggingEvent> {
 	protected synchronized static void initialize() {
 		if (!_initialized) {
 			
-			TreeUtil.setWriter(DefaultWriter.newDefaultConfiguredWriter());
-		
 			if (GrinderConfiguration.isDisplayTreeUtilUI()) {
 				TreeUtil.displayExpressionsTrees();
 			}

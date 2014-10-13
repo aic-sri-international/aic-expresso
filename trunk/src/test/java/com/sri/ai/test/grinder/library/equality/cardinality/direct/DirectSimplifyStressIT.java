@@ -46,8 +46,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.sri.ai.brewer.BrewerConfiguration;
-import com.sri.ai.brewer.api.Grammar;
-import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -97,11 +95,6 @@ public class DirectSimplifyStressIT extends AbstractGrinderTest {
 	@Before
 	public void ignoreTest() {
 		Assume.assumeFalse("Stress Tests Ignored.", Boolean.getBoolean("ignore.stress.tests"));
-	}
-	
-	@Override
-	public Grammar makeGrammar() {
-		return new CommonGrammar();
 	}
 	
 	@Override
