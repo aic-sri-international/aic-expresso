@@ -64,7 +64,7 @@ public abstract class BaseTreeUtilAppender extends AppenderBase<ILoggingEvent> {
 		if (args != null && args.length == 1) {
 			String argToString = "";
 			if (args[0] instanceof Expression) {
-				argToString = TreeUtil.getWriter().toString((Expression)args[0]);
+				argToString = ((Expression)args[0]).toString();
 			}
 			else {
 				argToString = Util.toStringOrNull(args[0]);

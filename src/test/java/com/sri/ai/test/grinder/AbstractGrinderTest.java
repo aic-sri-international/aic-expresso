@@ -51,7 +51,6 @@ import org.junit.Before;
 
 import com.google.common.base.Stopwatch;
 import com.sri.ai.brewer.api.Parser;
-import com.sri.ai.brewer.api.Writer;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxLeaf;
@@ -82,7 +81,6 @@ abstract public class AbstractGrinderTest {
 	protected Expression actual;
 	protected Rewriter evaluator;
 	protected Parser parser;
-	protected Writer writer;
 	protected Map<Object, Object> globalObjects;
 	protected int maxCounter = 2;
 
@@ -181,8 +179,8 @@ abstract public class AbstractGrinderTest {
 			System.out.println("Test successful.");
 		} 
 		else {
-			System.out.println("Expected: " + writer.toString(expected));
-			System.out.println("Actual  : " + writer.toString(actual));
+			System.out.println("Expected: " + expected);
+			System.out.println("Actual  : " + actual);
 //			System.out.println("Expected: "
 //					+ writer.toString(DefaultWriter
 //							.getSyntaxTreeOrNullIfNull(expected)));
