@@ -42,8 +42,11 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.LambdaExpression;
+import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.util.Util;
 
@@ -77,7 +80,7 @@ public class LambdaApplication extends AbstractRewriter {
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expression functor = expression.getFunctor();
-		if (Lambda.isLambdaExpression(functor) &&
+		if (functor instanceof LambdaExpression &&
 			performApplication.isApplicationToBePerformed(functor, process)) {
 			expression = performApplication(expression, process);
 		}
@@ -92,11 +95,11 @@ public class LambdaApplication extends AbstractRewriter {
 	}
 
 	public static Expression performApplication(Expression lambdaExpression, List<Expression> arguments, RewritingProcess process) throws Error {
-		List<Expression> parameters = Lambda.getParameters(lambdaExpression);
+		List<Expression> parameters = GrinderUtil.getParameters((QuantifiedExpression) lambdaExpression);
 		if (parameters.size() != arguments.size()) {
 			throw new Error("Lambda application number of parameters and arguments does not match: " + lambdaExpression + "(" + Util.join(arguments) + ")");
 		}
-		Expression body = Lambda.getBody(lambdaExpression);
+		Expression body = ((LambdaExpression) lambdaExpression).getBody();
 		Expression result = performApplication(parameters, body, arguments, process);
 		return result;
 	}

@@ -92,7 +92,7 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 	}
 
 	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(RewritingProcess process) {
+	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator() {
 		return Util.iterator();
 	}
 

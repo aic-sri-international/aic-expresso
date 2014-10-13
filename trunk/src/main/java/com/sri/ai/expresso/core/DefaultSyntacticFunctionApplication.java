@@ -122,7 +122,7 @@ public class DefaultSyntacticFunctionApplication extends AbstractNonQuantifiedEx
 	}
 
 	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(RewritingProcess process) {
+	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator() {
 		return expressionAndContexts.iterator();
 	}
 

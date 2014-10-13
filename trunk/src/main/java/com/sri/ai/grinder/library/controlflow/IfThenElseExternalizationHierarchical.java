@@ -135,7 +135,7 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 	private static ExpressionAndContext findConditionalSubExpressionAndContext(Expression expression, RewritingProcess process) {
 		ExpressionAndContext result = 
 		Util.getFirstSatisfyingPredicateOrNull(
-				expression.getImmediateSubExpressionsAndContextsIterator(process),
+				expression.getImmediateSubExpressionsAndContextsIterator(),
 				new IsConditionalSubExpression());
 		return result;
 	}

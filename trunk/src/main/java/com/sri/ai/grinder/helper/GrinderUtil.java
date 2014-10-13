@@ -52,6 +52,8 @@ import com.google.common.base.Throwables;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.IntensionalSetInterface;
+import com.sri.ai.expresso.api.LambdaExpression;
+import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.GrinderConfiguration;
@@ -64,6 +66,7 @@ import com.sri.ai.grinder.helper.concurrent.CallableRewriteOnConditionedBranch;
 import com.sri.ai.grinder.helper.concurrent.RewriteOnBranch;
 import com.sri.ai.grinder.helper.concurrent.ShortCircuitOnValue;
 import com.sri.ai.grinder.library.IsVariable;
+import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.grinder.library.Unification;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
@@ -1079,5 +1082,46 @@ public class GrinderUtil {
 		Expression condition = Unification.unificationCondition(expression, index, process);
 		boolean result = condition.equals(Expressions.FALSE);
 		return result;
+	}
+
+	public static List<Expression> getParameters(QuantifiedExpression quantifiedExpression) {
+		List<Expression> indexExpressions = quantifiedExpression.getIndexExpressions();
+		List<Expression> result = new LinkedList<Expression>(IndexExpressions.getIndexToTypeMapWithDefaultTypeOfIndex(indexExpressions).keySet());
+		return result;
+	}
+
+	/**
+	 * Checks for equality of two lambda expressions up to renaming of
+	 * single-variable parameters.
+	 */
+	public static boolean lambdasAreKnownToBeEqualUpToParameterRenaming(Expression lambda1, Expression lambda2, RewritingProcess process) {
+		List<Expression> parameters1 = getParameters((QuantifiedExpression) lambda1);
+		List<Expression> parameters2 = getParameters((QuantifiedExpression) lambda2);
+		if (parameters1.size() != parameters2.size()) {
+			return false;
+		}
+		Expression body1 = ((LambdaExpression) lambda1).getBody();
+		Expression body2 = ((LambdaExpression) lambda2).getBody();
+		if ( ! parameters1.equals(parameters2)) {
+			Iterator<Expression> parameter1Iterator = parameters1.iterator();
+			Iterator<Expression> parameter2Iterator = parameters2.iterator();
+			while (parameter1Iterator.hasNext()) {
+				Expression parameter1 = parameter1Iterator.next();
+				Expression parameter2 = parameter2Iterator.next();
+				if ( ! parameter1.equals(parameter2)) {
+					if (parameter1.getSyntacticFormType().equals("Symbol") && parameter2.getSyntacticFormType().equals("Symbol")) {
+						body2 = SemanticSubstitute.replace(body2, parameter2, parameter1, process);
+					}
+					else {
+						return false; // not renaming function applications, so just give up.
+					}
+				}
+			}
+		}
+		boolean result = body1.equals(body2);
+		return result;
+		// We still need to take into account the situation in which a variable appears in different positions,
+		// such as lambda X,Y ... and lambda Y,Z ...
+		// This requires standardizing apart.
 	}
 }

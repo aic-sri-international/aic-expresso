@@ -100,7 +100,6 @@ import com.sri.ai.grinder.library.equality.injective.EqualityOnInjectiveSubExpre
 import com.sri.ai.grinder.library.equality.injective.EqualityOnMutuallyExclusiveCoDomainExpressions;
 import com.sri.ai.grinder.library.function.InjectiveModule;
 import com.sri.ai.grinder.library.function.MutuallyExclusiveCoDomainsModule;
-import com.sri.ai.grinder.library.lambda.Lambda;
 import com.sri.ai.grinder.library.lambda.LambdaApplication;
 import com.sri.ai.grinder.library.number.Division;
 import com.sri.ai.grinder.library.number.Exponentiation;
@@ -1129,7 +1128,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		RewritingProcess process = new DefaultRewritingProcess(expression, evaluator);
 		
 		expression = parse("if A = B then aAndBEqual else aAndBNotEqual");
-		expressionsAndContext = Util.listFrom(expression.getImmediateSubExpressionsAndContextsIterator(process));
+		expressionsAndContext = Util.listFrom(expression.getImmediateSubExpressionsAndContextsIterator());
 		Assert.assertEquals(4, expressionsAndContext.size());
 		//
 		Assert.assertEquals("'if . then . else .'", expressionsAndContext.get(0).getExpression().toString());
@@ -1145,7 +1144,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		Assert.assertEquals("not (A = B)", expressionsAndContext.get(3).getConstrainingCondition().toString());
 		
 		expression = parse("{(on X) X | X != a}");
-		expressionsAndContext = Util.listFrom(expression.getImmediateSubExpressionsAndContextsIterator(process));
+		expressionsAndContext = Util.listFrom(expression.getImmediateSubExpressionsAndContextsIterator());
 		Assert.assertEquals(2, expressionsAndContext.size());
 		Assert.assertEquals("X", expressionsAndContext.get(0).getExpression().toString());
 		Assert.assertEquals("X != a", expressionsAndContext.get(0).getConstrainingCondition().toString());
@@ -1762,7 +1761,6 @@ public class GrinderTest extends AbstractGrinderTest {
 		List<Rewriter> rewriters = new DefaultLibrary(
 				new Equality(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new Lambda(),
 				new LambdaApplication()
 		);
 

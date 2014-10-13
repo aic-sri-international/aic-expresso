@@ -47,4 +47,6 @@ import com.google.common.annotations.Beta;
 @Beta
 public interface LambdaExpression extends QuantifiedExpressionWithABody {
 
+	public static final String ROOT = "lambda . : .";
+
 }

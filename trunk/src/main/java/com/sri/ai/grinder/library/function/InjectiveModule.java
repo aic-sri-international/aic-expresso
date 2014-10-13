@@ -46,11 +46,11 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.AbstractModuleNoOpRewriter;
+import com.sri.ai.expresso.core.DefaultLambdaExpression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Module;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.PruningPredicate;
-import com.sri.ai.grinder.library.lambda.Lambda;
 
 
 /**
@@ -141,7 +141,7 @@ public class InjectiveModule extends AbstractModuleNoOpRewriter {
 		
 		if (expressionsAlreadyKnownToBeInjective || ! ((PruneAtNonInjectiveExpression) pruneAtNonInjectiveExpression).pruned) {
 			ArrayList<Expression> indexExpressions = new ArrayList<Expression>(fromValuesToParameters.values());
-			Expression functor = Lambda.make(indexExpressions, parameterizedVersion);
+			Expression functor = new DefaultLambdaExpression(indexExpressions, parameterizedVersion);
 			List<Expression> arguments = new ArrayList<Expression>(fromValuesToParameters.keySet());
 			result = Expressions.apply(functor, arguments);
 		}

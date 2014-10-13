@@ -57,6 +57,7 @@ import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.LambdaExpression;
 import com.sri.ai.expresso.api.Parser;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxLeaf;
@@ -88,7 +89,6 @@ import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.library.lambda.Lambda;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
@@ -173,7 +173,7 @@ public class Expressions {
 		else if (label.equals(ThereExists.LABEL)) {
 			result = makeDefaultExistentiallyQuantifiedFormulaFromLabelAndSubTrees(label, subTreeObjects);
 		}
-		else if (label.equals(Lambda.ROOT)) {
+		else if (label.equals(LambdaExpression.ROOT)) {
 			result = makeDefaultLambdaExpressionFromLabelAndSubTrees(label, subTreeObjects);
 		}
 		else if (label.equals(Tuple.TUPLE_LABEL) || label.equals("tuple")) {
@@ -983,7 +983,7 @@ public class Expressions {
 			}
 		} 
 		else {
-			Iterator<ExpressionAndContext> subExpressionAndContextsIterator = expression.getImmediateSubExpressionsAndContextsIterator(process);
+			Iterator<ExpressionAndContext> subExpressionAndContextsIterator = expression.getImmediateSubExpressionsAndContextsIterator();
 			
 			Set<Expression> newLocalQuantifiedVariables = null;
 			while (subExpressionAndContextsIterator.hasNext()) {
@@ -1022,7 +1022,7 @@ public class Expressions {
 			}
 		} 
 		else {
-			Iterator<ExpressionAndContext> subExpressionAndContextsIterator = expression.getImmediateSubExpressionsAndContextsIterator(process);
+			Iterator<ExpressionAndContext> subExpressionAndContextsIterator = expression.getImmediateSubExpressionsAndContextsIterator();
 			
 			while (subExpressionAndContextsIterator.hasNext()) {
 				ExpressionAndContext subExpressionAndContext = subExpressionAndContextsIterator.next();

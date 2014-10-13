@@ -42,7 +42,6 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.LambdaExpression;
-import com.sri.ai.grinder.library.lambda.Lambda;
 
 /**
  * A default implementation of a {@link LambdaExpression}.
@@ -65,7 +64,7 @@ public class DefaultLambdaExpression extends AbstractQuantifiedExpressionWithABo
 
 	@Override
 	public String getSyntaxTreeLabel() {
-		return Lambda.ROOT;
+		return LambdaExpression.ROOT;
 	}
 
 	@Override

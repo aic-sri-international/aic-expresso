@@ -96,7 +96,7 @@ public class DefaultBracketedExpression extends AbstractNonQuantifiedExpression 
 	}
 
 	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(RewritingProcess process) {
+	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator() {
 		return cachedExpressionsAndContexts.iterator();
 	}
 

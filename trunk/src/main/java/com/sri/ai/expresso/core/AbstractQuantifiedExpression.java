@@ -77,7 +77,7 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 	}
 	
 	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(RewritingProcess process) {
+	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator() {
 		return cachedSubExpressionsAndContext.iterator();
 	}
 

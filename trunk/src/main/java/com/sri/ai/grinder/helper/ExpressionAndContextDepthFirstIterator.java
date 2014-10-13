@@ -76,7 +76,7 @@ public class ExpressionAndContextDepthFirstIterator extends com.sri.ai.util.coll
 	public Iterator<ExpressionAndContext> getChildrenIterator(ExpressionAndContext expressionAndContext) {
 		Expression expression = expressionAndContext.getExpression();
 
-		Iterator<ExpressionAndContext> result = expression.getImmediateSubExpressionsAndContextsIterator(process);
+		Iterator<ExpressionAndContext> result = expression.getImmediateSubExpressionsAndContextsIterator();
 
 		return result;
 	}

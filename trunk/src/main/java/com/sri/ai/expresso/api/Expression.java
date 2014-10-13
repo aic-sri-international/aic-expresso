@@ -63,7 +63,7 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	 * Provides the sub-expression of this expression.
 	 * They must always be the same objects.
 	 */
-	Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(RewritingProcess process);
+	Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator();
 	Expression replace(ExpressionAndContext replacement);
 	
 	List<Expression> getSubExpressions();
@@ -159,7 +159,6 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 
 	public SyntaxTree getSyntaxTree();
 
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator();
 	public Iterator<Expression> getImmediateSubExpressionsIterator();
 	
 	/**
