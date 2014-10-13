@@ -48,11 +48,9 @@ import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ContradictoryConjuncts;
 import com.sri.ai.grinder.library.boole.Equivalence;
-import com.sri.ai.grinder.library.boole.ForAllSubExpressionsAndScopedVariablesProvider;
 import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
-import com.sri.ai.grinder.library.boole.ThereExistsSubExpressionsAndScopedVariablesProvider;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.controlflow.IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch;
 import com.sri.ai.grinder.library.controlflow.IfThenElseExternalization;
@@ -183,8 +181,6 @@ public class Basic extends TotalRewriter {
 						new SymmetricModule(),
 						new MutuallyExclusiveCoDomainsModule(),
 						new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-						new ForAllSubExpressionsAndScopedVariablesProvider(),
-						new ThereExistsSubExpressionsAndScopedVariablesProvider(),
 						new Tuple(),
 						new SyntacticFunctionsSubExpressionsProvider("type"),
 						new OpenInterpretationModule() }));
