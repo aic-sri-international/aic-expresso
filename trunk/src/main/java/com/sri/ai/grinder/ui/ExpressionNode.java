@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.ui;
 
-import java.io.Writer;
 import java.util.Enumeration;
 import java.util.Vector;
 

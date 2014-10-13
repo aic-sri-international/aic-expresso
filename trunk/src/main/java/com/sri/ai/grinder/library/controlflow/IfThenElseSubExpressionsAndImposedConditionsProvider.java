@@ -48,7 +48,6 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultExpressionAndContext;
-import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -68,50 +67,8 @@ import com.sri.ai.util.base.Pair;
 public class IfThenElseSubExpressionsAndImposedConditionsProvider extends AbstractRewriter
 implements
 NoOpRewriter,
-ExpressionKnowledgeModule.Provider,
 ImposedConditionsModule.Provider
 {
-	//
-	// START-ExpressionKnowledgeModule.Provider
-	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(Expression expression, final RewritingProcess process) {
-		Iterator<ExpressionAndContext> result = null;
-		if (knowledgeApplies(expression)) {
-			Iterator<SyntaxTree> syntaxTreeIterator = expression.getSyntaxTree().getImmediateSubTreesIncludingRootOneIterator();
-			Expression functor    = Expressions.makeFromSyntaxTree(syntaxTreeIterator.next());
-			Expression condition  = Expressions.makeFromSyntaxTree(syntaxTreeIterator.next());
-			Expression thenBranch = Expressions.makeFromSyntaxTree(syntaxTreeIterator.next());
-			Expression elseBranch = Expressions.makeFromSyntaxTree(syntaxTreeIterator.next());
-			List<ExpressionAndContext> expressionAndContexts = new ArrayList<ExpressionAndContext>();
-			Expression thenCondition = condition;
-			Expression elseCondition = Not.make(thenCondition);
-			
-			List<Expression> emptyList = Collections.emptyList();
-			expressionAndContexts.add(new DefaultExpressionAndContext(functor, 
-					IfThenElse.getPathToFunctor()));
-			expressionAndContexts.add(new DefaultExpressionAndContext(condition, 
-					IfThenElse.getPathToCondition()));
-			expressionAndContexts.add(new DefaultExpressionAndContext(thenBranch, 
-					IfThenElse.getPathToThen(), emptyList, thenCondition));
-			expressionAndContexts.add(new DefaultExpressionAndContext(elseBranch, 
-					IfThenElse.getPathToElse(), emptyList, elseCondition));
-			
-			result = expressionAndContexts.iterator();
-		}
-		return result;
-	}
-
-	@Override
-	public Object getSyntacticFormType(Expression expression, RewritingProcess process) {
-		if (knowledgeApplies(expression)) {
-			return "Function application";
-		}
-		return null;
-	}
-	
-	// END-ExpressionKnowledgeModule.Provider
-	//
-	
 	//
 	// START-ImposedConditionsModule.Provider 
 	@Override
@@ -133,7 +90,6 @@ ImposedConditionsModule.Provider
 	// START-Rewriter
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		ExpressionKnowledgeModule.register(this, process);
 		ImposedConditionsModule.register(this, process);
 	}
 	

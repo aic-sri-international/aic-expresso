@@ -37,11 +37,11 @@
  */
 package com.sri.ai.expresso.helper;
 
-import com.sri.ai.expresso.api.Expression;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
+import com.sri.ai.expresso.api.Expression;
 
 /**
  * Replacement function <code>f(x)</code> based on a map <code>m</code> such that <code>f(x) = map.get(x)</code> if the map contains x, or x itself otherwise.

@@ -42,7 +42,6 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Lists;
-import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.core.DefaultLibrary;
 import com.sri.ai.grinder.core.OpenInterpretationModule;
@@ -132,7 +131,6 @@ public class CommonLibrary extends DefaultLibrary {
 				new IfThenElseExternalization(),
 				
 				// only modules from here on: they don't actually rewrite anything, so why test them sooner than needed?
-				new ExpressionKnowledgeModule(),
 				new ImposedConditionsModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
 				new ExtensionalSetSubExpressionsProvider(),

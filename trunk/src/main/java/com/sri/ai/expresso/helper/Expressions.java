@@ -1081,16 +1081,6 @@ public class Expressions {
 		return result;
 	}
 
-	public static ExpressionKnowledgeModule getKnowledgeBasedExpressionModule() {
-		RewritingProcess process = Expressions.getProcess();
-		if (process == null) {
-			return null;
-		}
-		ExpressionKnowledgeModule result = (ExpressionKnowledgeModule) process.findModule(ExpressionKnowledgeModule.class);
-		return result;
-	}
-
-
 	//
 	public static final PruningPredicate TRUE_PRUNING_PREDICATE = new PruningPredicate() {
 		@Override

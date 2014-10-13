@@ -55,7 +55,6 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.IntensionalSetInterface;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.core.SyntaxTreeBasedSubExpressionAddress;
-import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.expresso.helper.SyntaxTrees;
@@ -828,7 +827,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	public void testSyntacticFunctionSyntacticForm() {
 		Library library = new DefaultLibrary(
 				new ScopedVariables(),
-				new ExpressionKnowledgeModule(),
 				new SyntacticFunctionsSubExpressionsProvider("type")
 				);
 		evaluator = new ExhaustiveRewriter(library);
@@ -848,7 +846,6 @@ public class GrinderTest extends AbstractGrinderTest {
 		Library library = new DefaultLibrary(
 				new ScopedVariables(),
 				new IntensionalSet(),
-				new ExpressionKnowledgeModule(),
 				new ImposedConditionsModule(),
 				new Tuple(),
 				new SyntacticFunctionsSubExpressionsProvider("type"),
@@ -1012,8 +1009,7 @@ public class GrinderTest extends AbstractGrinderTest {
 	public void testSyntacticSubstitute() {
 		Library library = new DefaultLibrary(
 				new ScopedVariables(),
-				new ForAllSubExpressionsAndScopedVariablesProvider(),
-				new ExpressionKnowledgeModule());
+				new ForAllSubExpressionsAndScopedVariablesProvider());
 		evaluator = new ExhaustiveRewriter(library);
 		RewritingProcess process = newRewritingProcessWithCardinalityAndCounts(evaluator);
 
@@ -1131,7 +1127,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	@Test
 	public void testConditionsThatExpressionImposesViaExpressionKnowledgeModule() {
 		Library library = new DefaultLibrary(
-				new ExpressionKnowledgeModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider());
 		
 		evaluator = new ExhaustiveRewriter(library);
@@ -1198,7 +1193,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	@Test
 	public void testIfThenElseExternalization() {
 		Library library = new DefaultLibrary(
-				new ExpressionKnowledgeModule(),
 				new IntensionalSet(),
 				new ScopedVariables(),
 				new IfThenElseExternalization());
@@ -1249,7 +1243,6 @@ public class GrinderTest extends AbstractGrinderTest {
 				// Required Modules
 				new ScopedVariables(),
 				new IntensionalSet(),
-				new ExpressionKnowledgeModule(),
 				new ImposedConditionsModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider());
 		
@@ -1293,7 +1286,6 @@ public class GrinderTest extends AbstractGrinderTest {
 				// Required Modules
 				new ScopedVariables(),
 				new IntensionalSet(),
-				new ExpressionKnowledgeModule(),
 				new ImposedConditionsModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider());
 		
@@ -1419,7 +1411,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	public void testIntensionalSet() {
 		Library library = new DefaultLibrary(
 				new ScopedVariables(),
-				new ExpressionKnowledgeModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
 				new IntensionalSet(),
 				new UnionOnExtensionalSets(),
@@ -1447,7 +1438,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	public void testIntensionalSetWithBoundIndex() {
 		Library library = new DefaultLibrary(
 				new ScopedVariables(),
-				new ExpressionKnowledgeModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
 				new IntensionalSet(),
 				new UnionOnExtensionalSets(),
@@ -1490,7 +1480,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	public void testIntensionalUniSetWithIndicesNotUsedInHead() {
 		Library library = new DefaultLibrary(
 				new ScopedVariables(),
-				new ExpressionKnowledgeModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
 				new IntensionalSet(),
 				new ThereExistsSubExpressionsAndScopedVariablesProvider(),
@@ -1527,7 +1516,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	public void testCannotIndirectlyMutateExpression() {
 		Library library = new DefaultLibrary(
 				new ScopedVariables(),
-				new ExpressionKnowledgeModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
 				new IntensionalSet(),
 				new UnionOnExtensionalSets(),
@@ -1672,7 +1660,6 @@ public class GrinderTest extends AbstractGrinderTest {
 		Library library = new DefaultLibrary(
 				new EqualityOfIntensionalUniSets(),
 				new IntensionalSet(),
-				new ExpressionKnowledgeModule(),
 				new ScopedVariables());
 		
 		evaluator = new ExhaustiveRewriter(library);
@@ -1694,7 +1681,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	public void testTuple() {
 		
 		Library library = new DefaultLibrary(
-				new ExpressionKnowledgeModule(),
 				new Equality(),
 				new Disequality(),
 				
@@ -1792,7 +1778,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	public void testLambda() {
 		List<Rewriter> rewriters = new DefaultLibrary(
 				new Equality(),
-				new ExpressionKnowledgeModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
 				new Lambda(),
 				new LambdaApplication(),

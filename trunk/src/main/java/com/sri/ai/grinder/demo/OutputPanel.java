@@ -63,7 +63,6 @@ import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.ui.BaseTreeUtilAppender;
 import com.sri.ai.grinder.ui.ExpressionNode;
 import com.sri.ai.grinder.ui.ExpressionTreeView;
-import com.sri.ai.grinder.ui.TreeUtil;
 import com.sri.ai.util.log.LogX;
 
 @Beta

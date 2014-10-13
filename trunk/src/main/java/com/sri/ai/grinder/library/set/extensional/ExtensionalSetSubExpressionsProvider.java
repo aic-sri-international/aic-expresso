@@ -37,21 +37,11 @@
  */
 package com.sri.ai.grinder.library.set.extensional;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.DefaultExpressionAndContext;
-import com.sri.ai.expresso.helper.ExpressionKnowledgeModule;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.util.collect.FunctionIterator;
 
 /**
  * An (@link ExpressionKnowledgeModule.Provider} for extensional set expressions.
@@ -62,65 +52,13 @@ import com.sri.ai.util.collect.FunctionIterator;
 @Beta
 public class ExtensionalSetSubExpressionsProvider extends AbstractRewriter
 implements
-NoOpRewriter,
-ExpressionKnowledgeModule.Provider
+NoOpRewriter
 {
-	private static final List<Integer> _emptyPath = Collections.emptyList();
-	private static final List<Integer> _pathZero  = Collections.unmodifiableList(Arrays.asList(new Integer(0)));
-
-	@Override
-	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator(Expression expression, final RewritingProcess process) {
-		if (knowledgeApplies(expression)) {
-			List<Expression> arguments   = ExtensionalSet.getElements(expression);
-			List<Integer> pathToElements = null;
-			if (usesKleeneList(expression)) {
-				pathToElements = _pathZero;
-			}
-			else {
-				pathToElements = _emptyPath;
-			}
-			Iterator<ExpressionAndContext> subExpressionsAndContextsIterator =
-				new FunctionIterator<Expression, ExpressionAndContext>(
-						arguments,
-						new DefaultExpressionAndContext.
-						MakerFromExpressionAndSuccessivePathsFormedFromABasePath(pathToElements));
-			return subExpressionsAndContextsIterator;
-		}
-		return null;
-	}
-
-	private boolean usesKleeneList(Expression expression) {
-		boolean hasSubTrees = expression.getSyntaxTree().numberOfImmediateSubTrees() > 0;
-		if (hasSubTrees) {
-			SyntaxTree firstSubTree = expression.getSyntaxTree().getSubTree(0);
-			SyntaxTree rootTree = firstSubTree.getRootTree();
-			if (rootTree == null) {
-				return false;
-			}
-			boolean rootTreeOfFirstSubTreeIsKleeneListString = rootTree.equals("kleene list");
-			return hasSubTrees && rootTreeOfFirstSubTreeIsKleeneListString;
-		}
-		return false;
-	}
-
 	// the methods below seem to be pretty much boilerplate, much shared with, say, BracketedExpression.
 	// We should abstract this.
 	
-	private boolean knowledgeApplies(Expression expression) {
-		return expression != null && ExtensionalSet.isExtensionalSet(expression);
-	}
-
-	@Override
-	public Object getSyntacticFormType(Expression expression, RewritingProcess process) {
-		if (knowledgeApplies(expression)) {
-			return "Extensional set";
-		}
-		return null;
-	}
-
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		ExpressionKnowledgeModule.register(this, process);
 	}
 
 	@Override
