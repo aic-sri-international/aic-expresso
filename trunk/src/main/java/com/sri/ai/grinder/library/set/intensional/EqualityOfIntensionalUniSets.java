@@ -42,6 +42,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSetInterface;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -123,13 +124,13 @@ public class EqualityOfIntensionalUniSets extends AbstractRewriter {
 		// is equivalent to
 		// for all I1 : C1 => there exists I2 : C2 and Head1 = Head2
 		
-		List<Expression> indexExpressions1 = IntensionalSet.getIndexExpressions(set1);
-		Expression head1 = IntensionalSet.getHead(set1);
-		Expression condition1 = IntensionalSet.getCondition(set1);
+		List<Expression> indexExpressions1 = ((IntensionalSetInterface) set1).getIndexExpressions();
+		Expression head1 = ((IntensionalSetInterface) set1).getHead();
+		Expression condition1 = ((IntensionalSetInterface) set1).getCondition();
 
-		List<Expression> indexExpressions2 = IntensionalSet.getIndexExpressions(set2);
-		Expression head2 = IntensionalSet.getHead(set2);
-		Expression condition2 = IntensionalSet.getCondition(set2);
+		List<Expression> indexExpressions2 = ((IntensionalSetInterface) set2).getIndexExpressions();
+		Expression head2 = ((IntensionalSetInterface) set2).getHead();
+		Expression condition2 = ((IntensionalSetInterface) set2).getCondition();
 		
 		Expression equality = Equality.make(head1, head2);
 		Expression conjunction = Expressions.apply(FunctorConstants.AND, condition2, equality);

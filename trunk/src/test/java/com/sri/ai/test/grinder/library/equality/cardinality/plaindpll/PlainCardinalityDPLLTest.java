@@ -46,6 +46,7 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
@@ -155,7 +156,7 @@ public class PlainCardinalityDPLLTest {
 		}
 		
 		Rewriter cardinalityRewriter = new PlainCardinalityDPLL(countsDeclaration);
-		Expression set = IntensionalSet.makeMultiSetFromIndexExpressionsList(new ArrayList<Expression>(indices), Expressions.ONE, expression);
+		Expression set = new DefaultIntensionalMultiSet(new ArrayList<Expression>(indices), Expressions.ONE, expression);
 		Expression cardinalityProblem = Expressions.apply(FunctorConstants.CARDINALITY, set);
 		Expression actual = cardinalityRewriter.rewrite(cardinalityProblem, process);
 		Assert.assertEquals(expected, actual);

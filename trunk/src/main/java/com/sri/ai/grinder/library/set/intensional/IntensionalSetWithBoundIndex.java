@@ -41,6 +41,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSetInterface;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -67,14 +68,14 @@ public class IntensionalSetWithBoundIndex extends AbstractRewriter {
 		Expressions.BoundIndexInformation boundIndexInformation = null;
 		if ((boundIndexInformation
 					= Expressions.getBoundIndexInformation(
-							IntensionalSet.getCondition(expression), IntensionalSet.getIndexExpressions(expression))
+							((IntensionalSetInterface) expression).getCondition(), ((IntensionalSetInterface) expression).getIndexExpressions())
 					)
 					!= null) {
 
 			Expression index = boundIndexInformation.index;
 			Expression value = boundIndexInformation.value;
-			Expression head = IntensionalSet.getHead(expression);
-			Expression condition = IntensionalSet.getCondition(expression);
+			Expression head = ((IntensionalSetInterface) expression).getHead();
+			Expression condition = ((IntensionalSetInterface) expression).getCondition();
 
 			RewritingProcess subProcessForHead      = GrinderUtil.extendContextualSymbolsAndConstraintWithIntensionalSet(expression, process);
 			RewritingProcess subProcessForCondition = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(expression, process);

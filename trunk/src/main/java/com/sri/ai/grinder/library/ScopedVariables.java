@@ -93,18 +93,6 @@ public class ScopedVariables extends AbstractModuleAndPossibleActiveRewriter {
 		return expression;
 	}
 
-	public Expression getScopedVariables(Expression expression, RewritingProcess process) {
-		for (Module.Provider moduleProvider : providers.keySet()) {
-			Provider provider = (Provider) moduleProvider;
-			Expression scopedVariablesAccordingToThisProvider =
-				provider.getScopedVariablesAsExpression(expression, process);
-			if (scopedVariablesAccordingToThisProvider != null) {
-				return scopedVariablesAccordingToThisProvider;
-			}
-		}
-		return _emptyScope;
-	}
-
 	/**
 	 * Returns a list of symbols locally scoped by this expression.
 	 * This is different from the scoped variables in that the arguments of scoped function applications are

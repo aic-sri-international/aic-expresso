@@ -75,7 +75,6 @@ import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsPr
 import com.sri.ai.grinder.library.set.extensional.ProductOnExtensionalSet;
 import com.sri.ai.grinder.library.set.extensional.UnionOnExtensionalSets;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSetSubExpressionsAndImposedConditionsProvider;
 
 /**
  * 
@@ -136,7 +135,6 @@ public class CommonLibrary extends DefaultLibrary {
 				new ExpressionKnowledgeModule(),
 				new ImposedConditionsModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new IntensionalSetSubExpressionsAndImposedConditionsProvider(),
 				new ExtensionalSetSubExpressionsProvider(),
 				new ForAllSubExpressionsAndScopedVariablesProvider(),
 				new ThereExistsSubExpressionsAndScopedVariablesProvider(),

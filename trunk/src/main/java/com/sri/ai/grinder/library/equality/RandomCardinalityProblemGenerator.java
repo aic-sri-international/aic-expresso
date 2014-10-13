@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
@@ -87,7 +88,7 @@ public class RandomCardinalityProblemGenerator extends EZIterator<Expression> {
 		int numberOfIndices      = random.nextInt(numberOfVariables - minimumNumberOfIndices + 1) + minimumNumberOfIndices;
 		List<Expression> indices = randomFormulaGenerator.getVariables().subList(0, numberOfIndices);
 		Expression tuple         = Tuple.make(indices);
-		Expression set           = IntensionalSet.makeMultiSetFromIndexExpressionsList(indices, tuple, formula);
+		Expression set           = new DefaultIntensionalMultiSet(indices, tuple, formula);
 		Expression cardinality   = Expressions.apply(FunctorConstants.CARDINALITY, set);
 		return cardinality;
 	}

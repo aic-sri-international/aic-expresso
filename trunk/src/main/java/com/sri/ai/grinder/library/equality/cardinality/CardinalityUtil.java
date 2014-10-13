@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality;
 
+import static com.sri.ai.util.Util.list;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,7 +50,10 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSetInterface;
 import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
+import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -160,7 +165,7 @@ public class CardinalityUtil {
 		List<Expression> indicesList  = IndexExpressions.getIndices(indexExpressionsList);
 		Expression       indicesTuple = Tuple.make(indicesList);
 		
-		result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.CARDINALITY, IntensionalSet.makeUniSetFromIndexExpressionsList(indexExpressionsList, indicesTuple, formulaF));
+		result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.CARDINALITY, new DefaultIntensionalUniSet(indexExpressionsList, indicesTuple, formulaF));
 		
 		return result;
 	}
@@ -200,9 +205,9 @@ public class CardinalityUtil {
 				// requires an analysis of E to see which instantiations 
 				// turn out to be equal, and  we don't have code to do 
 				// that at this time
-				Expression intensionalSetHead = IntensionalSet.getHead(intensionalSet);
+				Expression intensionalSetHead = ((IntensionalSetInterface) intensionalSet).getHead();
 			    if (Tuple.isTuple(intensionalSetHead)) {	    	
-			    	Set<Expression> intensionalSetIndices = new LinkedHashSet<Expression>(IndexExpressions.getIndices(IntensionalSet.getIndexExpressions(intensionalSet)));
+			    	Set<Expression> intensionalSetIndices = new LinkedHashSet<Expression>(IndexExpressions.getIndices(((IntensionalSetInterface) intensionalSet).getIndexExpressions()));
 			    	Set<Expression> tupleIndices          = new LinkedHashSet<Expression>(Tuple.getElements(intensionalSetHead));
 			    	// The tuple and the indices on the uni-intensional set need to match
 			    	if (intensionalSetIndices.equals(tupleIndices)) {
@@ -274,7 +279,7 @@ public class CardinalityUtil {
 	public static Expression makeSummationExpression(Expression indexX, Expression constraintsOnX, Expression countingSolutionS) {
 		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(
 				FunctorConstants.SUM,
-				IntensionalSet.makeMultiSetWithASingleIndexExpression(indexX, countingSolutionS, constraintsOnX));
+				new DefaultIntensionalMultiSet(list(indexX), countingSolutionS, constraintsOnX));
 		return result;
 	}
 	
@@ -292,7 +297,7 @@ public class CardinalityUtil {
 		if (expression.hasFunctor(FunctorConstants.SUM) &&
 		    expression.numberOfArguments() == 1) {
 			Expression sumArgument = expression.get(0);
-			if (Sets.isIntensionalMultiSet(sumArgument) && IntensionalSet.getIndexExpressions(sumArgument).size() == 1) {
+			if (Sets.isIntensionalMultiSet(sumArgument) && ((IntensionalSetInterface) sumArgument).getIndexExpressions().size() == 1) {
 				result = true;
 			}
 		}
@@ -325,7 +330,7 @@ public class CardinalityUtil {
 	 * @return the index expression x.
 	 */
 	public static Expression getIndexXFromSummation(Expression expression) {
-		Expression result = IntensionalSet.getIndexExpressions(expression.get(0)).get(0);
+		Expression result = ((IntensionalSetInterface) expression.get(0)).getIndexExpressions().get(0);
 		
 		return result;
 	}
@@ -341,7 +346,7 @@ public class CardinalityUtil {
 	 * @return the constraints expression Cx on the index x.
 	 */
 	public static Expression getConstraintsOnXFromSummation(Expression expression) {
-		Expression result = IntensionalSet.getCondition(expression.get(0));
+		Expression result = ((IntensionalSetInterface) expression.get(0)).getCondition();
 		
 		return result;
 	}
@@ -357,7 +362,7 @@ public class CardinalityUtil {
 	 * @return the counting-solution S.
 	 */
 	public static Expression getCountingSolutionSFromSummation(Expression expression) {
-		Expression result = IntensionalSet.getHead(expression.get(0));
+		Expression result = ((IntensionalSetInterface) expression.get(0)).getHead();
 		
 		return result;
 	}
