@@ -39,24 +39,18 @@ package com.sri.ai.grinder.library.set.tuple;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.helper.BasePathIterator;
 import com.sri.ai.grinder.library.equality.CheapDisequalityModule;
 import com.sri.ai.grinder.library.function.InjectiveModule;
 import com.sri.ai.grinder.library.function.MutuallyExclusiveCoDomainsModule;
-import com.sri.ai.util.Util;
-import com.sri.ai.util.collect.PairIterator;
 
 /**
  * API for tuples. Because parsing tuples with single elements is ambiguous with

@@ -38,7 +38,6 @@
 package com.sri.ai.grinder.core;
 
 import java.util.Iterator;
-import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
@@ -48,7 +47,6 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.util.collect.FunctionIterator;
 
 /**
  * A function application provider.
