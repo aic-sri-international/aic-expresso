@@ -41,7 +41,6 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.sri.ai.brewer.core.CommonGrammar;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
