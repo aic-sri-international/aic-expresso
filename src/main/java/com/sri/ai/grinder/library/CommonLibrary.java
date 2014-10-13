@@ -70,7 +70,6 @@ import com.sri.ai.grinder.library.number.NotOnLessThanOrEqualTo;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.library.set.Partition;
-import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsProvider;
 import com.sri.ai.grinder.library.set.extensional.ProductOnExtensionalSet;
 import com.sri.ai.grinder.library.set.extensional.UnionOnExtensionalSets;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
@@ -133,7 +132,6 @@ public class CommonLibrary extends DefaultLibrary {
 				// only modules from here on: they don't actually rewrite anything, so why test them sooner than needed?
 				new ImposedConditionsModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new ExtensionalSetSubExpressionsProvider(),
 				new ForAllSubExpressionsAndScopedVariablesProvider(),
 				new ThereExistsSubExpressionsAndScopedVariablesProvider(),
 				new SyntacticFunctionsSubExpressionsProvider("type"),

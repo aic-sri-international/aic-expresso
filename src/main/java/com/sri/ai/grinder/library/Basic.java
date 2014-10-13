@@ -78,7 +78,6 @@ import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.grinder.library.set.Partition;
-import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsProvider;
 import com.sri.ai.grinder.library.set.extensional.ProductOnExtensionalSet;
 import com.sri.ai.grinder.library.set.extensional.UnionOnExtensionalSets;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
@@ -185,7 +184,6 @@ public class Basic extends TotalRewriter {
 						new SymmetricModule(),
 						new MutuallyExclusiveCoDomainsModule(),
 						new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-						new ExtensionalSetSubExpressionsProvider(),
 						new ForAllSubExpressionsAndScopedVariablesProvider(),
 						new ThereExistsSubExpressionsAndScopedVariablesProvider(),
 						new Tuple(),

@@ -88,7 +88,6 @@ import com.sri.ai.grinder.library.number.NestedArithmeticOperation;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.library.number.UnaryMinus;
-import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsProvider;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithBoundIndex;
 import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNotUsedInHead;
@@ -220,7 +219,6 @@ public class Simplify extends AbstractCardinalityRewriter {
 						new ImposedConditionsModule(),
 						new CheapDisequalityModule(),
 						new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-						new ExtensionalSetSubExpressionsProvider(),
 						new ScopedVariables(),
 						new SymmetricModule(),
 						new ForAllSubExpressionsAndScopedVariablesProvider(),

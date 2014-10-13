@@ -80,7 +80,6 @@ import com.sri.ai.grinder.library.equality.NotOnEquality;
 import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.number.GreaterThan;
-import com.sri.ai.grinder.library.set.extensional.ExtensionalSetSubExpressionsProvider;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 
 /**
@@ -195,7 +194,6 @@ public class FormulaSimplify extends AbstractCardinalityRewriter {
 						new ImposedConditionsModule(),
 						new CheapDisequalityModule(),
 						new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-						new ExtensionalSetSubExpressionsProvider(),
 						new ScopedVariables(),
 						new ForAllSubExpressionsAndScopedVariablesProvider(),
 						new ThereExistsSubExpressionsAndScopedVariablesProvider(),
