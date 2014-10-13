@@ -76,7 +76,6 @@ import com.sri.ai.grinder.library.equality.CheapDisequalityModule;
 import com.sri.ai.grinder.library.equality.NotOnDisequality;
 import com.sri.ai.grinder.library.equality.NotOnEquality;
 import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
-import com.sri.ai.grinder.library.function.SymmetricModule;
 import com.sri.ai.grinder.library.number.Division;
 import com.sri.ai.grinder.library.number.Exponentiation;
 import com.sri.ai.grinder.library.number.GreaterThan;
@@ -216,7 +215,6 @@ public class Simplify extends AbstractCardinalityRewriter {
 						new ImposedConditionsModule(),
 						new CheapDisequalityModule(),
 						new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-						new SymmetricModule(),
 						new IntensionalSet(), // Note: This is just a provider for scoped variables and not a rewriter.
 						new SyntacticFunctionsSubExpressionsProvider("type"),
 						new OpenInterpretationModule() }));

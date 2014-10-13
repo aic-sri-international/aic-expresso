@@ -50,8 +50,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
@@ -118,13 +116,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		}
 	}
 	
-	// TODO: Ideally this should not be tied to the process (Note however: ExpressionKnowledgeModule Provider API
-	// and BracketedExpressionSubExpressionsProvider are dependent on the process, so not sure how to decouple yet).
-	//
-	// Note: Using a weak Keys cache so that any no longer used threads can be cleaned up properly
-	private static Cache<Thread, DefaultRewritingProcess> threadToGlobalRewritingProcessForKnowledgeBasedExpressions = CacheBuilder.newBuilder()
-			.weakKeys()
-			.build();
 	// Used to assign unique ids to rewrite processes.
 	private static final AtomicLong  _uniqueIdGenerator = new AtomicLong(0);
 	//
@@ -281,29 +272,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		this.rewriterLookup = rewriterLookup;
 	}
 	
-	public static RewritingProcess getGlobalRewritingProcessForKnowledgeBasedExpressions() {
-		return threadToGlobalRewritingProcessForKnowledgeBasedExpressions.getIfPresent(Thread.currentThread());
-	}
-	
-	public static void setGlobalRewritingProcessForKnowledgeBasedExpressions(RewritingProcess process) {
-		threadToGlobalRewritingProcessForKnowledgeBasedExpressions.put(Thread.currentThread(), (DefaultRewritingProcess) process);
-	}
-	
-	public static void cleanUpGlobalRewritingProcessForKnowledgeBasedExpressions() {
-		List<Thread> toRemove = new ArrayList<Thread>();
-		for (Thread t : threadToGlobalRewritingProcessForKnowledgeBasedExpressions.asMap().keySet()) {
-			if (!t.isAlive()) {
-				toRemove.add(t);
-			}
-		}
-		if (toRemove.size() > 0) {
-			for (Thread t : toRemove) {				
-				threadToGlobalRewritingProcessForKnowledgeBasedExpressions.invalidate(t);
-			}
-			threadToGlobalRewritingProcessForKnowledgeBasedExpressions.cleanUp();
-		}
-	}
-
 	public void setRecursionLevel(int recursiveLevel) {
 		this.recursionLevel = recursiveLevel;
 	}
@@ -739,7 +707,6 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			// rewriters must have already been notified and been initialized.
 			setRecursionLevel(parentProcess.getRecursionLevel()+1);
 		}
-		setGlobalRewritingProcessForKnowledgeBasedExpressions(this);
 		if (this.isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess) {
 			notifyReadinessOfRewritingProcess();
 		}
@@ -775,11 +742,5 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	@Override
 	public String toString() {
 		return "Rewriting process with context " + getContextualSymbolsAndTypes() + ", " + getContextualConstraint();
-	}
-
-	@Override
-	public RewritingProcess setContextualConstraint(Expression newContextualConstraint) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

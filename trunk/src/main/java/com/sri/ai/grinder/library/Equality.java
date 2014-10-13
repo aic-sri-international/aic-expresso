@@ -49,9 +49,9 @@ import com.google.common.base.Predicates;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.library.function.AbstractRewriterDefiningSymmetricFunction;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.Pair;
@@ -62,7 +62,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  */
 @Beta
-public class Equality extends AbstractRewriterDefiningSymmetricFunction {
+public class Equality extends AbstractRewriter {
 
 	public static final Expression FUNCTOR = Expressions.makeSymbol("=");
 	
@@ -130,11 +130,6 @@ public class Equality extends AbstractRewriterDefiningSymmetricFunction {
 		}
 	}
 
-	@Override
-	public Expression getFunctor() {
-		return FUNCTOR;
-	}
-	
 	/**
 	 * Given a two-argument equality with at least one variable argument,
 	 * returns an equivalent equality with first argument guaranteed not to be a constant,
