@@ -178,7 +178,6 @@ public class Basic extends TotalRewriter {
 						// only modules from here on: they don't actually
 						// rewrite anything, so why test them sooner than
 						// needed?
-						new ScopedVariables(),
 						new ImposedConditionsModule(),
 						new InjectiveModule(),
 						new SymmetricModule(),

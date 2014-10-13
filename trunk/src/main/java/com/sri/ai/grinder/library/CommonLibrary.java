@@ -122,8 +122,6 @@ public class CommonLibrary extends DefaultLibrary {
 				new NotOnLessThanOrEqualTo(),
 				new NotOnGreaterThanOrEqualTo(),
 
-				new ScopedVariables(),
-
 				new IfThenElseIrrelevantCondition(),
 				new IfThenElseConditionIsTrueInThenBranchAndFalseInElseBranch(),
 

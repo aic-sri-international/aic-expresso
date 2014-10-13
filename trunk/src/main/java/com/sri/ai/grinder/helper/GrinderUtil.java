@@ -64,6 +64,7 @@ import com.sri.ai.grinder.helper.concurrent.CallableRewriteOnConditionedBranch;
 import com.sri.ai.grinder.helper.concurrent.RewriteOnBranch;
 import com.sri.ai.grinder.helper.concurrent.ShortCircuitOnValue;
 import com.sri.ai.grinder.library.IsVariable;
+import com.sri.ai.grinder.library.Unification;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
@@ -1013,6 +1014,70 @@ public class GrinderUtil {
 	public static Collection<Expression> getAllVariables(Expression expression, DefaultRewritingProcess process) {
 		Collection<Expression> result = new LinkedHashSet<Expression>();
 		Util.collect(new SubExpressionsDepthFirstIterator(expression), result, new IsVariable(process));
+		return result;
+	}
+
+	/**
+	 * Indicates whether a expression is <i>known</i> (from a syntactic point of view)
+	 * to be independent from all indices of a scoping expression around it.
+	 * Therefore it can detect that <code>j</code> is independent of <code>i</code> in <code>{ (on i) j }</code>,
+	 * for example, and that <code>g(X)</code> is independent of <code>f(X)</code> in <code>{ (on f(X)) g(X) }</code>,
+	 * but will not detect that
+	 * <code>f(a)</code> is independent of <code>f(X)</code> in <code>{ (on f(X)) f(a) | X != a }</code>.
+	 * <p>
+	 * Note that <b>not known</b> to be independent is not the same as dependent!
+	 * Therefore, a return value of <code>false</code> does not imply dependence.
+	 */
+	public static boolean isKnownToBeIndependentOfScopeIn(Expression expression, Expression scopingExpression, RewritingProcess process) {
+		List<Expression> indices = scopingExpression.getScopedExpressions(process);
+		boolean result = isKnownToBeIndependentOfIndices(expression, indices, process);
+		return result;
+	}
+
+	public static boolean isKnownToBeIndependentOfIndices(Expression expression, Collection<Expression> indices, RewritingProcess process) {
+		for (Expression index : indices) {
+			boolean isKnownToBeIndependentOfIndex = isKnownToBeIndependentOfIndex(expression, index, process);
+			if ( ! isKnownToBeIndependentOfIndex) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static boolean isKnownToBeIndependentOfIndex(Expression expression, Expression index, RewritingProcess process) {
+		Iterator<Expression> subExpressionsIterator = new SubExpressionsDepthFirstIterator(expression);
+		while (subExpressionsIterator.hasNext()) {
+			Expression subExpression = subExpressionsIterator.next();
+			boolean subExpressionIsKnownToBeIndependentOfIndex =
+				topExpressionIsKnownToBeIndependentOfIndex(subExpression, index, process);
+			if ( ! subExpressionIsKnownToBeIndependentOfIndex) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static boolean topExpressionIsKnownToBeIndependentOfIndex(Expression expression, Expression index, RewritingProcess process) {
+		// As the index changes its value, the only way an expression can always coincide with it
+		// is by being the index itself; all others will remain with the same value as the index changes,
+		// and will therefore be independent from that change.
+		Expression expressionFunctorOrSymbol = expression.getFunctorOrSymbol();
+		Expression indexFunctorOrSymbol = index.getFunctorOrSymbol();
+		if ( ! expressionFunctorOrSymbol.equals(indexFunctorOrSymbol)) {
+			return true; 
+		}
+		
+		if (expression.numberOfArguments() != index.numberOfArguments()) {
+			return false; // this case actually means that they are dependent for sure, but the method's interface does not allow us to state this, only to state that they are not known to be independent.
+		}
+		
+		// At this point we know the roots are the same and will unify,
+		// so this is really about unifying the arguments.
+		// Two function applications with the same functors will be independent if it is impossible for them to unify.
+		// If it is possible for them to unify (with condition below being TRUE or something not false, and thus possibly satisfiable)
+		// then it is possible that they are dependent.
+		Expression condition = Unification.unificationCondition(expression, index, process);
+		boolean result = condition.equals(Expressions.FALSE);
 		return result;
 	}
 }

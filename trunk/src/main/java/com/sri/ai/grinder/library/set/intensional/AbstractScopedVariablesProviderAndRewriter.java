@@ -40,7 +40,6 @@ package com.sri.ai.grinder.library.set.intensional;
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.library.ScopedVariables;
 
 /**
  * 
@@ -48,10 +47,9 @@ import com.sri.ai.grinder.library.ScopedVariables;
  *
  */
 @Beta
-public abstract class AbstractScopedVariablesProviderAndRewriter extends AbstractRewriter implements ScopedVariables.Provider {
+public abstract class AbstractScopedVariablesProviderAndRewriter extends AbstractRewriter {
 
 	@Override
 	public void rewritingProcessInitiated(RewritingProcess process) {
-		ScopedVariables.register(this, process);
 	}
 }

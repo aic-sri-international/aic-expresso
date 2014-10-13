@@ -46,7 +46,6 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.RewriterReplacementFunction;
-import com.sri.ai.grinder.library.ScopedVariables;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.FormulaSimplify;
 import com.sri.ai.util.Util;
@@ -152,7 +151,7 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 
 	private boolean decideWhetherThereAreNoScopingRestrictions(Expression expression, Expression conditionalSubExpression, RewritingProcess process) {
 		Expression condition  = IfThenElse.getCondition(conditionalSubExpression);
-		boolean result = ScopedVariables.isKnownToBeIndependentOfScopeIn(condition, expression, process);
+		boolean result = GrinderUtil.isKnownToBeIndependentOfScopeIn(condition, expression, process);
 		return result;
 	}
 }
