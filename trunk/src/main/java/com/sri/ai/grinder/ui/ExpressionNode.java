@@ -37,13 +37,13 @@
  */
 package com.sri.ai.grinder.ui;
 
+import java.io.Writer;
 import java.util.Enumeration;
 import java.util.Vector;
 
 import javax.swing.tree.TreeNode;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.brewer.api.Writer;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxLeaf;
@@ -65,7 +65,6 @@ public class ExpressionNode implements TreeNode {
 	protected NodeType type;
 	protected boolean unprocessed = true;
 	protected ExpressionNode parent;
-	protected Writer writer;
 	
 	public ExpressionNode(SyntaxTree syntaxTree, NodeType type, ExpressionNode parent) {
 		this(syntaxTree);
@@ -84,8 +83,7 @@ public class ExpressionNode implements TreeNode {
 	}
 	
 	public ExpressionNode(SyntaxTree syntaxTree) {
-		writer = TreeUtil.getWriter();
-		toolTipText = syntaxTree == null ? "": writer.toString(Expressions.makeFromSyntaxTree(syntaxTree));
+		toolTipText = syntaxTree == null ? "": Expressions.makeFromSyntaxTree(syntaxTree).toString();
 		userObject = syntaxTree;
 		type = null;
 		parent = null;
@@ -96,7 +94,6 @@ public class ExpressionNode implements TreeNode {
 			throw new Error("Object being passed to UI is a syntax tree instead of expression: " + object + " but this is now deprecated.");
 			// object = Expressions.makeFromSyntaxTree((SyntaxTree) object);
 		}
-		writer = TreeUtil.getWriter();
 		type = (object instanceof String)? NodeType.STRING: null;
 		userObject = object;
 		this.parent = parent;

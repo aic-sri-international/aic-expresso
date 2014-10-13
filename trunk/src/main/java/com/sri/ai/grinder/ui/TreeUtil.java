@@ -42,6 +42,7 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Writer;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -54,7 +55,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.brewer.api.Writer;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 
