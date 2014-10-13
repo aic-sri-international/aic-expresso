@@ -49,7 +49,6 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Throwables;
-import com.sri.ai.brewer.BrewerConfiguration;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.helper.Expressions;
@@ -1005,8 +1004,6 @@ public class GrinderUtil {
 		GrinderConfiguration.disableJustification();
 		Configuration.setProperty(AICUtilConfiguration.KEY_BRANCH_AND_MERGE_THREADING_ENABLED, "false");
 		BranchAndMerge.reset();
-		// For convenience
-		Configuration.setProperty(BrewerConfiguration.KEY_OUTPUT_PARSING_TIME_INFO, "false");
 	}
 
 	/**

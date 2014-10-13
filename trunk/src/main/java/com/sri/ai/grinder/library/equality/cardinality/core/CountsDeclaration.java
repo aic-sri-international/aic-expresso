@@ -40,8 +40,8 @@ package com.sri.ai.grinder.library.equality.cardinality.core;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.sri.ai.brewer.api.Parser;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Parser;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 

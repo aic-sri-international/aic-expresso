@@ -45,20 +45,16 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.sri.ai.brewer.BrewerConfiguration;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Basic;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 import com.sri.ai.test.grinder.TestData;
-import com.sri.ai.util.AICUtilConfiguration;
-import com.sri.ai.util.Configuration;
-import com.sri.ai.util.concurrent.BranchAndMerge;
 
 public class DirectSimplifyStressIT extends AbstractGrinderTest {
 	
@@ -74,22 +70,7 @@ public class DirectSimplifyStressIT extends AbstractGrinderTest {
 	
 	@BeforeClass
 	public static void setupForClass() {
-		// NOTE: All Times should be taken with all trace turned off
-		// as this has a huge impact on these tests (due to the amount generated).
-		// In addition, turn concurrency off in order to test the algorithms run synchronously be default.
-		// i.e.:
-		// -Dgrinder.display.tree.util.ui=false
-		// -Dtrace.level=off
-		// -Djustification.level=off
-		// -Dsriutil.branch.and.merge.threading.enabled=false
-		// Setting here explicitly so its not forgotten.
-		Configuration.setProperty(GrinderConfiguration.KEY_DISPLAY_TREE_UTIL_UI, "false");
-		GrinderConfiguration.disableTrace();
-		GrinderConfiguration.disableJustification();
-		Configuration.setProperty(AICUtilConfiguration.KEY_BRANCH_AND_MERGE_THREADING_ENABLED, "false");
-		BranchAndMerge.reset();
-		// For convenience
-		Configuration.setProperty(BrewerConfiguration.KEY_OUTPUT_PARSING_TIME_INFO, "false");
+		GrinderUtil.setMinimumOutputForProfiling();
 	}
 	
 	@Before
