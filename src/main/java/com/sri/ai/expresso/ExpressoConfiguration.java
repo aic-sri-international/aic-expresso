@@ -38,7 +38,6 @@
 package com.sri.ai.expresso;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.core.ExpressionSyntaxTreeToStringFunction;
 import com.sri.ai.util.Configuration;
 import com.sri.ai.util.cache.CacheMap;
 
@@ -68,9 +67,6 @@ public class ExpressoConfiguration extends Configuration {
 	public static final String  KEY_GLOBAL_SYMBOL_TABLE_CACHES_NUMERICS                       = "expresso.global.symbol.table.cache.numerics";
 	public static final Boolean DEFAULT_VALUE_GLOBAL_SYMBOL_TABLE_CACHES_NUMERICS             = Boolean.FALSE;
  	//
-	public static final String KEY_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS              = "expresso.syntax.to.string.unary.function.class";
-	public static final String DEFAULT_VALUE_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS    = ExpressionSyntaxTreeToStringFunction.class.getName();
-	//
 	public static final String KEY_SYNTAX_TO_STRING_THREAD_CACHE_TIMEOUT_IN_SECONDS           = "expresso.syntax.to.string.thread.cache.timeout";
 	public static final Long   DEFAULT_VALUE_SYNTAX_TO_STRING_THREAD_CACHE_TIMEOUT_IN_SECONDS = new Long(60);
 	
@@ -107,12 +103,6 @@ public class ExpressoConfiguration extends Configuration {
 	
 	public static boolean isGlobalSymbolTableToCacheNumerics() {
 		boolean result = getBoolean(KEY_GLOBAL_SYMBOL_TABLE_CACHES_NUMERICS, DEFAULT_VALUE_GLOBAL_SYMBOL_TABLE_CACHES_NUMERICS);
-		
-		return result;
-	}
-	
-	public static String getDefaultSyntaxToStringUnaryFunctionClass() {
-		String result = getString(KEY_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS, DEFAULT_VALUE_DEFAULT_SYNTAX_TO_STRING_UNARY_FUNCTION_CLASS);
 		
 		return result;
 	}
