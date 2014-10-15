@@ -37,19 +37,37 @@
  */
 package com.sri.ai.grinder.library.set.intensional;
 
+
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasKind;
+import com.sri.ai.grinder.core.KindAttribute;
+import com.sri.ai.grinder.library.set.Sets;
+import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 
 /**
+ * Rewrites <code>{ (on I) Head | false }</code> to the empty set.
  * 
  * @author braz
- *
  */
 @Beta
-public abstract class AbstractScopedVariablesProviderAndRewriter extends AbstractRewriter {
+public class IntensionalSetWithFalseConditionIsEmptySet extends AbstractRewriter {
+
+	public IntensionalSetWithFalseConditionIsEmptySet() {
+		this.setReifiedTests(new HasKind(KindAttribute.VALUE_INTENSIONAL_SET));
+	}
 
 	@Override
-	public void rewritingProcessInitiated(RewritingProcess process) {
+	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		if (Sets.isIntensionalSet(expression)) {
+			Expression condition = ((IntensionalSet) expression).getCondition();
+			if (condition.equals("false")) {
+				return ExtensionalSet.makeEmptySetExpression();
+			}
+		}
+		return expression;
 	}
 }

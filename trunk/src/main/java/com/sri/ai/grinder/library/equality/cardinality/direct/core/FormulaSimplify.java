@@ -77,7 +77,7 @@ import com.sri.ai.grinder.library.equality.NotOnEquality;
 import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.number.GreaterThan;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithFalseConditionIsEmptySet;
 
 /**
  * Successively and exhaustively applies simplifications to a formula expression,
@@ -191,7 +191,7 @@ public class FormulaSimplify extends AbstractCardinalityRewriter {
 						new ImposedConditionsModule(),
 						new CheapDisequalityModule(),
 						new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-						new IntensionalSet(), // Note: This is just a provider for scoped variables and not a rewriter.
+						new IntensionalSetWithFalseConditionIsEmptySet(), // Note: This is just a provider for scoped variables and not a rewriter.
 						new SyntacticFunctionsSubExpressionsProvider("type"),
 						new OpenInterpretationModule() }));
 		

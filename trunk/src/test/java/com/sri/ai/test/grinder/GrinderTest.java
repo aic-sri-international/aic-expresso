@@ -52,7 +52,7 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.api.IntensionalSetInterface;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.core.SyntaxTreeBasedSubExpressionAddress;
 import com.sri.ai.expresso.helper.Expressions;
@@ -116,7 +116,7 @@ import com.sri.ai.grinder.library.set.extensional.EqualityOfExtensionalUniSets;
 import com.sri.ai.grinder.library.set.extensional.NormalizeExtensionalUniSet;
 import com.sri.ai.grinder.library.set.extensional.UnionOnExtensionalSets;
 import com.sri.ai.grinder.library.set.intensional.EqualityOfIntensionalUniSets;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithFalseConditionIsEmptySet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithBoundIndex;
 import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNotUsedInHead;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
@@ -839,7 +839,7 @@ public class GrinderTest extends AbstractGrinderTest {
 	@Test
 	public void testSubstitute() {
 		Library library = new DefaultLibrary(
-				new IntensionalSet(),
+				new IntensionalSetWithFalseConditionIsEmptySet(),
 				new ImposedConditionsModule(),
 				new Tuple(),
 				new SyntacticFunctionsSubExpressionsProvider("type"),
@@ -1185,7 +1185,7 @@ public class GrinderTest extends AbstractGrinderTest {
 	@Test
 	public void testIfThenElseExternalization() {
 		Library library = new DefaultLibrary(
-				new IntensionalSet(),
+				new IntensionalSetWithFalseConditionIsEmptySet(),
 				new IfThenElseExternalization());
 		
 		evaluator = new ExhaustiveRewriter(library);
@@ -1232,7 +1232,7 @@ public class GrinderTest extends AbstractGrinderTest {
 				new And(),
 				new Or(),
 				// Required Modules
-				new IntensionalSet(),
+				new IntensionalSetWithFalseConditionIsEmptySet(),
 				new ImposedConditionsModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider());
 		
@@ -1274,7 +1274,7 @@ public class GrinderTest extends AbstractGrinderTest {
 				new And(),
 				new Or(),
 				// Required Modules
-				new IntensionalSet(),
+				new IntensionalSetWithFalseConditionIsEmptySet(),
 				new ImposedConditionsModule(),
 				new IfThenElseSubExpressionsAndImposedConditionsProvider());
 		
@@ -1400,7 +1400,7 @@ public class GrinderTest extends AbstractGrinderTest {
 	public void testIntensionalSet() {
 		Library library = new DefaultLibrary(
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new IntensionalSet(),
+				new IntensionalSetWithFalseConditionIsEmptySet(),
 				new UnionOnExtensionalSets(),
 				new Plus(),
 				new And(),
@@ -1426,7 +1426,7 @@ public class GrinderTest extends AbstractGrinderTest {
 	public void testIntensionalSetWithBoundIndex() {
 		Library library = new DefaultLibrary(
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new IntensionalSet(),
+				new IntensionalSetWithFalseConditionIsEmptySet(),
 				new UnionOnExtensionalSets(),
 				new IntensionalSetWithBoundIndex(),
 				new Plus(),
@@ -1467,7 +1467,7 @@ public class GrinderTest extends AbstractGrinderTest {
 	public void testIntensionalUniSetWithIndicesNotUsedInHead() {
 		Library library = new DefaultLibrary(
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new IntensionalSet(),
+				new IntensionalSetWithFalseConditionIsEmptySet(),
 				new IntensionalUniSetWithIndicesNotUsedInHead());
 		
 		evaluator = new ExhaustiveRewriter(library);
@@ -1501,7 +1501,7 @@ public class GrinderTest extends AbstractGrinderTest {
 	public void testCannotIndirectlyMutateExpression() {
 		Library library = new DefaultLibrary(
 				new IfThenElseSubExpressionsAndImposedConditionsProvider(),
-				new IntensionalSet(),
+				new IntensionalSetWithFalseConditionIsEmptySet(),
 				new UnionOnExtensionalSets(),
 				new Plus(),
 				new And(),
@@ -1512,7 +1512,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		
 		Expression setExpression = parse("{(on X,Y) f(X) | Z = X}");	
 		String expectedSetString = setExpression.toString();
-		List<Expression> indexExpressions = ((IntensionalSetInterface) setExpression).getIndexExpressions();
+		List<Expression> indexExpressions = ((IntensionalSet) setExpression).getIndexExpressions();
 		try {
 			indexExpressions.remove(0);
 			Assert.fail("An exception should have been thrown");
@@ -1643,7 +1643,7 @@ public class GrinderTest extends AbstractGrinderTest {
 	public void testEqualityOfIntensionalSets() {
 		Library library = new DefaultLibrary(
 				new EqualityOfIntensionalUniSets(),
-				new IntensionalSet());
+				new IntensionalSetWithFalseConditionIsEmptySet());
 		
 		evaluator = new ExhaustiveRewriter(library);
 

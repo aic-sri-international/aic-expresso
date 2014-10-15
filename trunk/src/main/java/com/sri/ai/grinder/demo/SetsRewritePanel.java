@@ -48,6 +48,7 @@ import com.sri.ai.grinder.demo.model.GroupEnableItem;
 import com.sri.ai.grinder.demo.model.LeafEnableItem;
 import com.sri.ai.grinder.library.set.extensional.UnionOnExtensionalSets;
 import com.sri.ai.grinder.library.set.intensional.EqualityOfIntensionalUniSets;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithFalseConditionIsEmptySet;
 
 @Beta
 public class SetsRewritePanel extends AbstractRewritePanel {
@@ -73,6 +74,7 @@ public class SetsRewritePanel extends AbstractRewritePanel {
 		
 		List<EnableItem<Rewriter>> intensionalRewriters = new ArrayList<EnableItem<Rewriter>>();
 		intensionalRewriters.add(new LeafEnableItem<Rewriter>("Equality of Intensional Uni-Set",  new EqualityOfIntensionalUniSets()));
+		intensionalRewriters.add(new LeafEnableItem<Rewriter>("Intensional Set with false condition is empty", new IntensionalSetWithFalseConditionIsEmptySet()));
 		GroupEnableItem<Rewriter> intensionalGroup = new GroupEnableItem<Rewriter>("Intensional", intensionalRewriters);
 		
 		List<EnableItem<Rewriter>> groups = new ArrayList<EnableItem<Rewriter>>();

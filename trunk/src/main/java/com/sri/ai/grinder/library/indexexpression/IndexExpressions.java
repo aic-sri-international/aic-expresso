@@ -11,6 +11,7 @@ import java.util.Set;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -289,5 +290,19 @@ public class IndexExpressions {
 			result = index.renameSymbol(symbol, newSymbol, process);
 		}
 		return result;
+	}
+
+	public static LinkedHashMap<Expression, Expression> getIndexToTypeMapWithDefaultTypeOfIndex(Expression quantifiedExpression) {
+		List<Expression> indexExpressions = ((QuantifiedExpression) quantifiedExpression).getIndexExpressions();
+		return getIndexToTypeMapWithDefaultTypeOfIndex(indexExpressions);
+	}
+
+	public static LinkedHashMap<Expression, Expression> getIndexToTypeMapWithDefaultNull(Expression quantifiedExpression) {
+		List<Expression> indexExpressions = ((QuantifiedExpression) quantifiedExpression).getIndexExpressions();
+		return getIndexToTypeMapWithDefaultNull(indexExpressions);
+	}
+
+	public static Collection<Expression> getIndexDomains(Expression quantifiedExpression) {
+		return getIndexToTypeMapWithDefaultTypeOfIndex(quantifiedExpression).values();
 	}
 }

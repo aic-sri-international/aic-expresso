@@ -47,10 +47,12 @@ import java.util.List;
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultSyntaxLeaf;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.helper.FunctionSignature;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 import com.sri.ai.test.grinder.AbstractParserTest;
 
@@ -693,8 +695,12 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		
 		String string;
 		
+		string = "{{ foo | bar }}";
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", null, "foo", 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", "bar")));
+
 		string = "{{ ( on ) ([ if X then 1 else 0 ]) }}";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", IntensionalSet.makeScopingSyntaxTree(new ArrayList<Expression>()), 
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", AntlrGrinderParserTest.makeScopingSyntaxTree(new ArrayList<Expression>()), 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(
 						functionSignatures,
 						"[ . ]",
@@ -793,11 +799,11 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		String string;	
 		
 		string = "{ ( on ) p(X, X) | true }";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", IntensionalSet.makeScopingSyntaxTree(new ArrayList<Expression>()), 
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", AntlrGrinderParserTest.makeScopingSyntaxTree(new ArrayList<Expression>()), 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "X"), Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(IntensionalSet.CONDITION_LABEL, "true")));
 
 		string = "{ ( on ) X | true }";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", IntensionalSet.makeScopingSyntaxTree(new ArrayList<Expression>()),  
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", AntlrGrinderParserTest.makeScopingSyntaxTree(new ArrayList<Expression>()),  
 				"X", Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(IntensionalSet.CONDITION_LABEL, "true")));
 				
 		string = "{ a | true}";
@@ -5368,5 +5374,13 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		String string;
 		string = "{{ X, Y, f(X, Y, Z), g() }}";
 		test(string);
+	}
+
+	/** Makes a scoping expression out of a list of scoping variables. */
+	public static SyntaxTree makeScopingSyntaxTree(List<Expression> indexExpressions) {
+		Expression kleeneListExpression = Expressions.makeKleeneListIfNeeded(indexExpressions);
+		SyntaxTree kleeneListSyntaxTree = kleeneListExpression.getSyntaxTree();
+		SyntaxTree result = SyntaxTrees.makeCompoundSyntaxTree(IntensionalSet.SCOPED_VARIABLES_LABEL, kleeneListSyntaxTree);
+		return result;
 	}
 }

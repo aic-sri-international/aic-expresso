@@ -47,7 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IntensionalSetInterface;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Equality;
@@ -164,9 +164,9 @@ public class SymbolicInjectiveLookUp {
 	}
 
 	private Expression lookUpExpressionWithAlreadyCalculatedKey(Expression expression, Expression expressionKey, Expression intensionalSet, RewritingProcess process) {
-		Expression head = ((IntensionalSetInterface) intensionalSet).getHead();
+		Expression head = ((IntensionalSet) intensionalSet).getHead();
 		Expression key = fromIntensionalSetHeadToKey.apply(head);
-		Expression intensionalSetWithKeyAsHead = ((IntensionalSetInterface) intensionalSet).setHead(key);
+		Expression intensionalSetWithKeyAsHead = ((IntensionalSet) intensionalSet).setHead(key);
 		UnificationToIntensionalSetResult unificationResult = unifyToIntensionalSetAssumingInjectiveExpressions(expressionKey, intensionalSetWithKeyAsHead, completeNormalizerName, process);
 
 		Expression result;
@@ -220,7 +220,7 @@ public class SymbolicInjectiveLookUp {
 			Expression originalIntensionalSet = intensionalSet;
 			intensionalSet = StandardizedApartFrom.standardizedApartFrom(originalIntensionalSet, expression, process);
 
-			Expression intensionalSetHead = ((IntensionalSetInterface) intensionalSet).getHead();
+			Expression intensionalSetHead = ((IntensionalSet) intensionalSet).getHead();
 
 			Pair<List<Expression>, List<Expression>> symbols = GrinderUtil.getListsOfElementsToBeUnifiedInInjectiveExpressions(expression, intensionalSetHead, process);
 			if (symbols == null) {
@@ -264,7 +264,7 @@ public class SymbolicInjectiveLookUp {
 			}
 
 			// Conjoin unification equalities and intensional set condition, translated to logical variables in expression
-			Expression intensionalSetCondition = ((IntensionalSetInterface) intensionalSet).getCondition();
+			Expression intensionalSetCondition = ((IntensionalSet) intensionalSet).getCondition();
 			Expression intensionalSetConditionInExpressionVariables = SyntacticSubstitute.replaceAll(intensionalSetCondition, result.mapOfUnifiedVariables, process);
 			conjunctsOfConditionOnExpressionVariables.add(intensionalSetConditionInExpressionVariables);
 			Expression unnormalizedCondition = And.make(conjunctsOfConditionOnExpressionVariables);
@@ -281,8 +281,8 @@ public class SymbolicInjectiveLookUp {
 	}
 
 	private Map<Expression, Expression> getMapFromOriginalIndicesToExpressionSymbols(Map<Expression, Expression> fromStandardizedApartIndicesToExpressionSymbols, Expression standardizedApartIntensionalSet, Expression originalIntensionalSet) {
-		List<Expression> standardizedApartIndices = IndexExpressions.getIndices(((IntensionalSetInterface) standardizedApartIntensionalSet).getIndexExpressions());
-		List<Expression> originalIndices          = IndexExpressions.getIndices(((IntensionalSetInterface) originalIntensionalSet).getIndexExpressions());
+		List<Expression> standardizedApartIndices = IndexExpressions.getIndices(((IntensionalSet) standardizedApartIntensionalSet).getIndexExpressions());
+		List<Expression> originalIndices          = IndexExpressions.getIndices(((IntensionalSet) originalIntensionalSet).getIndexExpressions());
 		Map<Expression, Expression> fromOriginalIndicesToStandardizedApartIndices = Util.mapFromListOfKeysAndListOfValues(originalIndices, standardizedApartIndices);
 		
 		Map<Expression, Expression> result = Util.composeMaps(fromOriginalIndicesToStandardizedApartIndices, fromStandardizedApartIndicesToExpressionSymbols);

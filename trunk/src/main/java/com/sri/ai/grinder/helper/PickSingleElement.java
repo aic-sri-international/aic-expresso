@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IntensionalSetInterface;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
@@ -61,8 +61,8 @@ public class PickSingleElement {
 		
 		intensionalSet = process.rewrite(eliminatesBoundIndices, intensionalSet);
 		
-		Expression       alpha       = ((IntensionalSetInterface) intensionalSet).getHead();
-		List<Expression> indexExpressions = ((IntensionalSetInterface) intensionalSet).getIndexExpressions();
+		Expression       alpha       = ((IntensionalSet) intensionalSet).getHead();
+		List<Expression> indexExpressions = ((IntensionalSet) intensionalSet).getIndexExpressions();
 		Trace.log("R <- indices in {} that {} depends on", indexExpressions, alpha);
 		Set<Expression>  alphaVars   = Expressions.freeVariables(alpha, process);
 		List<Expression> indicesI    = new ArrayList<Expression>(IndexExpressions.getIndices(indexExpressions));
@@ -86,7 +86,7 @@ public class PickSingleElement {
 			Trace.log("// R' = {}", indexExpressionsRPrime);
 			
 			Trace.log("value = pick_value(SomeIndex, R', C)");
-			Expression formulaC   = ((IntensionalSetInterface) intensionalSet).getCondition();
+			Expression formulaC   = ((IntensionalSet) intensionalSet).getCondition();
 			RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 			Expression value = pickValue(someIndex, indexExpressionsRPrime, formulaC, subProcess);
 			Trace.log("// value = {}", value);

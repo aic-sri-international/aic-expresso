@@ -41,16 +41,15 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IntensionalSetInterface;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
+import com.sri.ai.expresso.api.IntensionalSet;
 
 /**
- * A default implementation of a {@link IntensionalSetInterface} for unisets.
+ * A default implementation of a {@link IntensionalSet} for unisets.
  * 
  * @author braz
  */
 @Beta
-public class DefaultIntensionalUniSet extends AbstractIntensionalSet implements IntensionalSetInterface {
+public class DefaultIntensionalUniSet extends AbstractIntensionalSet implements IntensionalSet {
 
 	private static final long serialVersionUID = 1L;
 	

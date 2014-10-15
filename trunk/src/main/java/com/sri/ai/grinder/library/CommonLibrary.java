@@ -70,7 +70,7 @@ import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.library.set.Partition;
 import com.sri.ai.grinder.library.set.extensional.ProductOnExtensionalSet;
 import com.sri.ai.grinder.library.set.extensional.UnionOnExtensionalSets;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithFalseConditionIsEmptySet;
 
 /**
  * 
@@ -92,7 +92,7 @@ public class CommonLibrary extends DefaultLibrary {
 				new Times(),
 				new IfThenElse(),
 				new ProductOnExtensionalSet(),
-				new IntensionalSet(),
+				new IntensionalSetWithFalseConditionIsEmptySet(),
 				new UnionOnExtensionalSets(),
 				new Partition(),
 

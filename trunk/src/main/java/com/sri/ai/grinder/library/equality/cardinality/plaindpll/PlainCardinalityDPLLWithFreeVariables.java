@@ -42,7 +42,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IntensionalSetInterface;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -75,8 +75,8 @@ public class PlainCardinalityDPLLWithFreeVariables extends PlainGenericDPLLWithF
 
 	@Override
 	protected Pair<Expression, List<Expression>> getFormulaAndIndicesFromRewriterProblemArgument(Expression set, RewritingProcess process) {
-		List<Expression> indices = IndexExpressions.getIndices(((IntensionalSetInterface) set).getIndexExpressions());
-		Expression formula = SimplifyFormula.simplify(((IntensionalSetInterface) set).getCondition(), process);
+		List<Expression> indices = IndexExpressions.getIndices(((IntensionalSet) set).getIndexExpressions());
+		Expression formula = SimplifyFormula.simplify(((IntensionalSet) set).getCondition(), process);
 		Pair<Expression, List<Expression>> formulaAndIndices = Pair.make(formula, indices);
 		return formulaAndIndices;
 	}
