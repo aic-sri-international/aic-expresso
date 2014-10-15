@@ -40,6 +40,7 @@ package com.sri.ai.grinder.parser.antlr;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultLambdaExpression;
 import com.sri.ai.expresso.helper.Expressions;
@@ -60,7 +62,6 @@ import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 
 @Beta
@@ -386,9 +387,9 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	
 	protected Expression makeIntensionalSet(Object label, Token scope, List<AntlrGrinderParser.ExprContext> scopeargs, 
 			AntlrGrinderParser.ExprContext head, AntlrGrinderParser.ExprContext condition) {
-		SyntaxTree scopingSyntaxTree = null;
+		List<Expression> indexExpressions = Collections.emptyList();
 		if (scope != null) {
-			scopingSyntaxTree = IntensionalSet.makeScopingSyntaxTree(expressionsList(scopeargs));
+			indexExpressions = expressionsList(scopeargs);
 		}
 		Expression headExpression      = visit(head);
 		Expression conditionExpression = null;
@@ -407,7 +408,8 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 			}
 		}
 		else {
-			result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(label, scopingSyntaxTree, headExpression, conditionExpression);
+			conditionExpression = conditionExpression == null? Expressions.TRUE : conditionExpression.get(0); // contains the "|";
+			result = IntensionalSet.make(label, indexExpressions, headExpression, conditionExpression);
 		}
 		
 		return result;

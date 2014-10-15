@@ -48,7 +48,7 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IntensionalSetInterface;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.Rewriter;
@@ -146,8 +146,8 @@ public class PlainCardinalityDPLL extends AbstractHierarchicalRewriter {
 	 */
 	public Expression count(Expression cardinalityProblem, RewritingProcess process) {
 		Expression set = cardinalityProblem.get(0);
-		List<Expression> indices = IndexExpressions.getIndices(((IntensionalSetInterface) set).getIndexExpressions());
-		Expression formula = SimplifyFormula.simplify(((IntensionalSetInterface) set).getCondition(), process);
+		List<Expression> indices = IndexExpressions.getIndices(((IntensionalSet) set).getIndexExpressions());
+		Expression formula = SimplifyFormula.simplify(((IntensionalSet) set).getCondition(), process);
 		Expression result = count(formula, Expressions.TRUE, indices, process);
 		return result;
 	}

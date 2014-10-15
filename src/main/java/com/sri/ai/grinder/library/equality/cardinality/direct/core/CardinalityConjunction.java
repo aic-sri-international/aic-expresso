@@ -44,7 +44,7 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IntensionalSetInterface;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -124,8 +124,8 @@ public class CardinalityConjunction extends AbstractCardinalityRewriter {
 		CardinalityUtil.assertIsCardinalityOfIndexedFormulaExpression(cardinalityOfIndexedFormulaExpression);
 		// | {(on I1,..., In)(x1, ..., xn) | F} |, with Ii = "xi", or Ii = "xi in Di"
 		Expression       intensionalSet   = cardinalityOfIndexedFormulaExpression.get(0);
-		Expression       f                = ((IntensionalSetInterface) intensionalSet).getCondition();
-		List<Expression> indexExpressions = ((IntensionalSetInterface) intensionalSet).getIndexExpressions();
+		Expression       f                = ((IntensionalSet) intensionalSet).getCondition();
+		List<Expression> indexExpressions = ((IntensionalSet) intensionalSet).getIndexExpressions();
 		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 		
 		CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
@@ -179,8 +179,8 @@ public class CardinalityConjunction extends AbstractCardinalityRewriter {
 	protected Expression rewriteUnseparableConjunction(Expression cardinalityOfIndexedFormulaExpression, CardinalityRewriter.Quantification quantification, RewritingProcess process) {
 		Expression       result           = null;
 		Expression       intensionalSet   = cardinalityOfIndexedFormulaExpression.get(0);
-		Expression       f                = ((IntensionalSetInterface) intensionalSet).getCondition();
-		List<Expression> indexExpressions = ((IntensionalSetInterface) intensionalSet).getIndexExpressions();
+		Expression       f                = ((IntensionalSet) intensionalSet).getCondition();
+		List<Expression> indexExpressions = ((IntensionalSet) intensionalSet).getIndexExpressions();
 		RewritingProcess subProcess       = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 		
 		Expression[] indexExpressionsAsArray = indexExpressions.toArray(new Expression[indexExpressions.size()]);

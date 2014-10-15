@@ -44,7 +44,7 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IntensionalSetInterface;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
@@ -149,8 +149,8 @@ public class EqualityInConjunction extends AbstractCardinalityRewriter {
 		if (CardinalityUtil.isCardinalityOfIndexedFormulaExpression(expression)) {
 			// | {(on I1,..., In) (x1, ..., xn) | F} |
 			Expression intensionalSet = expression.get(0);
-			Expression constraint     = ((IntensionalSetInterface) intensionalSet).getCondition();
-			List<Expression> indexExpressions = ((IntensionalSetInterface) intensionalSet).getIndexExpressions();
+			Expression constraint     = ((IntensionalSet) intensionalSet).getCondition();
+			List<Expression> indexExpressions = ((IntensionalSet) intensionalSet).getIndexExpressions();
 			if (And.isConjunction(constraint)) {
 				// Note: want to use a set for efficiency but keep the order by using a linked hash set.
 				int index = 0;

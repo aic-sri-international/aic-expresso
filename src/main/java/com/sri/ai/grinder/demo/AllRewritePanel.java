@@ -79,6 +79,7 @@ import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.grinder.library.set.extensional.UnionOnExtensionalSets;
 import com.sri.ai.grinder.library.set.intensional.EqualityOfIntensionalUniSets;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithFalseConditionIsEmptySet;
 
 @Beta
 public class AllRewritePanel extends AbstractRewritePanel {
@@ -115,6 +116,7 @@ public class AllRewritePanel extends AbstractRewritePanel {
 		allRewriters.add(new LeafEnableItem<Rewriter>("Disequality",  new Disequality()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Union on Extensional Sets",  new UnionOnExtensionalSets()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Equality of Intensional Uni-Set",  new EqualityOfIntensionalUniSets()));
+		allRewriters.add(new LeafEnableItem<Rewriter>("Intensional Set with false condition is empty", new IntensionalSetWithFalseConditionIsEmptySet()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Not on Equality",  new NotOnEquality()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("Not on Disequality",  new NotOnDisequality()));
 		allRewriters.add(new LeafEnableItem<Rewriter>("And",  new And()));

@@ -103,7 +103,7 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopImpliedCer
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopSimplify;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.number.Plus;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithFalseConditionIsEmptySet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 import com.sri.ai.util.Configuration;
@@ -669,7 +669,6 @@ public class AbstractRewritePanel extends JPanel {
 			
 		// Providers
 		rewriterEnableList.add(new LeafEnableItem<Rewriter>("if . then . else - subexpression and imposed conditions provider", new IfThenElseSubExpressionsAndImposedConditionsProvider()));
-		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Internsion Set - Scoped Variables provider", new IntensionalSet()));
 		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Syntactic Function - subexpression provider", new SyntacticFunctionsSubExpressionsProvider("type")));
 	}
 	

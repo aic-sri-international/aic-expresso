@@ -51,7 +51,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Throwables;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.api.IntensionalSetInterface;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.LambdaExpression;
 import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.helper.Expressions;
@@ -76,7 +76,6 @@ import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.function.InjectiveModule;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.ui.TreeUtil;
 import com.sri.ai.util.AICUtilConfiguration;
@@ -523,7 +522,7 @@ public class GrinderUtil {
 	 * Returns a rewriting process with contextual symbols extended by an intensional set's indices.
 	 */
 	public static RewritingProcess extendContextualSymbolsWithIntensionalSetIndices(Expression intensionalSet, RewritingProcess process) {
-		Map<Expression, Expression> indexToTypeMap = IntensionalSet.getIndexToTypeMapWithDefaultNull(intensionalSet);
+		Map<Expression, Expression> indexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(intensionalSet);
 		RewritingProcess result = GrinderUtil.extendContextualSymbolsAndConstraint(indexToTypeMap, Expressions.TRUE, process);
 		return result;
 	}
@@ -558,8 +557,8 @@ public class GrinderUtil {
 	 */
 	public static RewritingProcess extendContextualSymbolsAndConstraintWithIntensionalSet(
 			Expression intensionalSet, RewritingProcess process) {
-		Map<Expression, Expression> indexToTypeMap = IntensionalSet.getIndexToTypeMapWithDefaultNull(intensionalSet);
-		Expression conditionOnExpansion = ((IntensionalSetInterface) intensionalSet).getCondition();
+		Map<Expression, Expression> indexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(intensionalSet);
+		Expression conditionOnExpansion = ((IntensionalSet) intensionalSet).getCondition();
 		RewritingProcess result = GrinderUtil.extendContextualSymbolsAndConstraint(indexToTypeMap, conditionOnExpansion, process);
 		return result;
 	}

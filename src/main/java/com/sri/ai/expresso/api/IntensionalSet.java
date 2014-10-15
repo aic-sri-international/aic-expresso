@@ -37,8 +37,11 @@
  */
 package com.sri.ai.expresso.api;
 
+import java.util.List;
+
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
+import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
+import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
 
 /**
  * An {@link Expression} that represents an intensionally defined set.
@@ -48,14 +51,17 @@ import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
  * satisfies <code>C</code> and <code>E = H(I')</code>, where <code>H(I')</code> is the result of
  * replacing <code>I</code> by <code>I'</code> in <code>H</code>.
  * <p> 
- * Currently named {@link IntensionalSetInterface} in order not to be confused with {@link IntensionalSet},
- * which will be phased out in time.
  * 
  * @author braz
  */
 @Beta
-public interface IntensionalSetInterface extends QuantifiedExpression {
+public interface IntensionalSet extends QuantifiedExpression {
 	
+	public static final String UNI_SET_LABEL          = "{ . . . }";
+	public static final String MULTI_SET_LABEL        = "{{ . . . }}";
+	public static final String CONDITION_LABEL        = "|";
+	public static final String SCOPED_VARIABLES_LABEL = "( on . )";
+
 	/**
 	 * Indicates whether the set is a uniset.
 	 */
@@ -85,4 +91,23 @@ public interface IntensionalSetInterface extends QuantifiedExpression {
 	 * Returns a new instance with the condition replaced by given new one.
 	 */
 	public Expression setCondition(Expression newCondition);
+
+	/**
+	 * Returns a new instance with the head and condition replaced by given new ones.
+	 */
+	public Expression setHeadAndCondition(Expression head, Expression newCondition);
+
+	public static Expression make(Object label, List<Expression> indexExpressions, Expression head, Expression condition) {
+		Expression result;
+		if (label.equals(UNI_SET_LABEL)) {
+			result = new DefaultIntensionalUniSet(indexExpressions, head, condition);
+		}
+		else if (label.equals(MULTI_SET_LABEL)){
+			result = new DefaultIntensionalMultiSet(indexExpressions, head, condition);
+		}
+		else {
+			throw new Error("makeSetFromIndexExpressions requires UNI_SET_LABEL or MULTI_SET_LABEL");
+		}
+		return result;
+	}
 }

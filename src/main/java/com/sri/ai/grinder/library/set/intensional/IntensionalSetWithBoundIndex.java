@@ -41,7 +41,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IntensionalSetInterface;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -68,14 +68,14 @@ public class IntensionalSetWithBoundIndex extends AbstractRewriter {
 		Expressions.BoundIndexInformation boundIndexInformation = null;
 		if ((boundIndexInformation
 					= Expressions.getBoundIndexInformation(
-							((IntensionalSetInterface) expression).getCondition(), ((IntensionalSetInterface) expression).getIndexExpressions())
+							((IntensionalSet) expression).getCondition(), ((IntensionalSet) expression).getIndexExpressions())
 					)
 					!= null) {
 
 			Expression index = boundIndexInformation.index;
 			Expression value = boundIndexInformation.value;
-			Expression head = ((IntensionalSetInterface) expression).getHead();
-			Expression condition = ((IntensionalSetInterface) expression).getCondition();
+			Expression head = ((IntensionalSet) expression).getHead();
+			Expression condition = ((IntensionalSet) expression).getCondition();
 
 			RewritingProcess subProcessForHead      = GrinderUtil.extendContextualSymbolsAndConstraintWithIntensionalSet(expression, process);
 			RewritingProcess subProcessForCondition = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(expression, process);
@@ -83,7 +83,7 @@ public class IntensionalSetWithBoundIndex extends AbstractRewriter {
 			List<Expression> newIndexExpressions = boundIndexInformation.indexExpressionsWithoutBoundIndex;
 			Expression       newHead             = SemanticSubstitute.replace(head,      index, value, subProcessForHead);
 			Expression       newCondition        = SemanticSubstitute.replace(condition, index, value, subProcessForCondition);
-			Expression       result              = IntensionalSet.makeSetFromIndexExpressionsList(Sets.getLabel(expression), newIndexExpressions, newHead, newCondition);
+			Expression       result              = IntensionalSet.make(Sets.getLabel(expression), newIndexExpressions, newHead, newCondition);
 			return result;
 		}
 		return expression;

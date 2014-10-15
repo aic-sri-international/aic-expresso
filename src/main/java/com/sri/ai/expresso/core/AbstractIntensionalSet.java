@@ -49,7 +49,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.api.IntensionalSetInterface;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
@@ -57,16 +57,15 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSet;
 import com.sri.ai.util.Util;
 
 /**
- * A default implementation of a {@link IntensionalSetInterface}.
+ * A default implementation of a {@link IntensionalSet}.
  * 
  * @author braz
  */
 @Beta
-public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpression implements IntensionalSetInterface {
+public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpression implements IntensionalSet {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -111,7 +110,7 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 
 	@Override
 	public Expression renameSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
-		IntensionalSetInterface result = this;
+		IntensionalSet result = this;
 		
 		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, process);
 		List<Expression> newIndexExpressions = replaceElementsNonDestructively(getIndexExpressions(), renameSymbol);
@@ -136,7 +135,7 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 	
 	@Override
 	public Expression setHead(Expression newHead) {
-		IntensionalSetInterface result = this;
+		IntensionalSet result = this;
 		if (newHead != getHead()) {
 			result = make(getIndexExpressions(), newHead, getCondition());
 		}
@@ -145,7 +144,7 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 
 	@Override
 	public Expression setCondition(Expression newCondition) {
-		IntensionalSetInterface result = this;
+		IntensionalSet result = this;
 		if (newCondition != getCondition()) {
 			result = make(getIndexExpressions(), getHead(), newCondition);
 		}
@@ -153,16 +152,25 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 	}
 
 	@Override
+	public Expression setHeadAndCondition(Expression newHead, Expression newCondition) {
+		IntensionalSet result = this;
+		if (newHead != getHead() || newCondition != getCondition()) {
+			result = make(getIndexExpressions(), newHead, newCondition);
+		}
+		return result;
+	}
+
+	@Override
 	public QuantifiedExpression setIndexExpressions(List<Expression> newIndexExpressions) {
-		IntensionalSetInterface result = this;
+		IntensionalSet result = this;
 		if (newIndexExpressions != getIndexExpressions()) {
 			result = make(newIndexExpressions, getHead(), getCondition());
 		}
 		return result;
 	}
 
-	public IntensionalSetInterface replaceIfNeeded(List<Expression> newIndexExpressions, Expression newHead, Expression newCondition) {
-		IntensionalSetInterface result = this;
+	public IntensionalSet replaceIfNeeded(List<Expression> newIndexExpressions, Expression newHead, Expression newCondition) {
+		IntensionalSet result = this;
 		if (newIndexExpressions != getIndexExpressions() || newHead != getHead() || newCondition != getCondition()) {
 			result = make(newIndexExpressions, newHead, newCondition);
 		}
@@ -171,21 +179,21 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 	
 	@Override
 	public Expression clone() {
-		IntensionalSetInterface result = make(getIndexExpressions(), getHead(), getCondition());
+		IntensionalSet result = make(getIndexExpressions(), getHead(), getCondition());
 		return result;
 	}
 	
 	protected static class HeadAddress implements SubExpressionAddress {
 		@Override
 		public Expression replace(Expression expression, Expression newHead) {
-			IntensionalSetInterface intensionalUniSet = castOrThrowError(IntensionalSetInterface.class, expression, "Attempt at replacing head expression of %s which should be an instance of %s but is an instance of %s");
+			IntensionalSet intensionalUniSet = castOrThrowError(IntensionalSet.class, expression, "Attempt at replacing head expression of %s which should be an instance of %s but is an instance of %s");
 			Expression result = intensionalUniSet.setHead(newHead);
 			return result;
 		}
 
 		@Override
 		public Expression getSubExpressionOf(Expression expression) {
-			IntensionalSetInterface intensionalUniSet = castOrThrowError(IntensionalSetInterface.class, expression, "Attempt at replacing head expression of %s which should be an instance of %s but is an instance of %s");
+			IntensionalSet intensionalUniSet = castOrThrowError(IntensionalSet.class, expression, "Attempt at replacing head expression of %s which should be an instance of %s but is an instance of %s");
 			Expression result = intensionalUniSet.getHead();
 			return result;
 		}
@@ -194,14 +202,14 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 	protected static class ConditionAddress implements SubExpressionAddress {
 		@Override
 		public Expression replace(Expression expression, Expression newCondition) {
-			IntensionalSetInterface intensionalSet = castOrThrowError(IntensionalSetInterface.class, expression, "Attempt at obtaining head expression of %s which should be an instance of %s but is an instance of %s");
+			IntensionalSet intensionalSet = castOrThrowError(IntensionalSet.class, expression, "Attempt at obtaining head expression of %s which should be an instance of %s but is an instance of %s");
 			Expression result = intensionalSet.setCondition(newCondition);
 			return result;
 		}
 
 		@Override
 		public Expression getSubExpressionOf(Expression expression) {
-			IntensionalSetInterface intensionalUniSet = castOrThrowError(IntensionalSetInterface.class, expression, "Attempt at obtaining condition expression of %s which should be an instance of %s but is an instance of %s");
+			IntensionalSet intensionalUniSet = castOrThrowError(IntensionalSet.class, expression, "Attempt at obtaining condition expression of %s which should be an instance of %s but is an instance of %s");
 			Expression result = intensionalUniSet.getCondition();
 			return result;
 		}
