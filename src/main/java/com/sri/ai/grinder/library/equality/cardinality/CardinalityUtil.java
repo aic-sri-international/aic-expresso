@@ -69,7 +69,7 @@ import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter.Quantification;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.FromConditionalFormulaToFormula;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.SortPair;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
@@ -253,7 +253,7 @@ public class CardinalityUtil {
 					set = indexExpression.get(1);
 				}
 				else {
-					set = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(CardinalityTypeOfLogicalVariable.TYPE_LABEL, indexExpression);
+					set = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(CardinalityOfType.TYPE_LABEL, indexExpression);
 				}
 				Expression cardinality = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.CARDINALITY, set);
 				cardinalities.add(cardinality);

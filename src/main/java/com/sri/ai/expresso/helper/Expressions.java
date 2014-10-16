@@ -87,7 +87,7 @@ import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.ThereExists;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
@@ -190,7 +190,7 @@ public class Expressions {
 		else if (label.equals(IntensionalSet.MULTI_SET_LABEL)) {
 			result = makeDefaultIntensionalMultiSetFromLabelAndSubTrees(label, subTreeObjects);
 		}
-		else if (label.equals(CardinalityTypeOfLogicalVariable.TYPE_LABEL)) {
+		else if (label.equals(CardinalityOfType.TYPE_LABEL)) {
 			result = makeDefaultSyntacticFunctionApplicationFromLabelAndSubTrees(label, subTreeObjects);
 		}
 		else {

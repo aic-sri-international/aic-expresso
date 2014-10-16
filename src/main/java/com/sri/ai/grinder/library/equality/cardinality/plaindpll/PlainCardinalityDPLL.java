@@ -55,14 +55,13 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable.TypeSizeOfLogicalVariable;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
@@ -116,6 +115,9 @@ public class PlainCardinalityDPLL extends AbstractHierarchicalRewriter {
 
 	protected CountsDeclaration countsDeclaration;
 
+	public PlainCardinalityDPLL() {
+	}
+
 	/**
 	 * Builds a rewriter for cardinality computation.
 	 */
@@ -148,7 +150,8 @@ public class PlainCardinalityDPLL extends AbstractHierarchicalRewriter {
 		Expression set = cardinalityProblem.get(0);
 		List<Expression> indices = IndexExpressions.getIndices(((IntensionalSet) set).getIndexExpressions());
 		Expression formula = SimplifyFormula.simplify(((IntensionalSet) set).getCondition(), process);
-		Expression result = count(formula, Expressions.TRUE, indices, process);
+		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsAndConstraintWithIntensionalSet(set, process);
+		Expression result = count(formula, Expressions.TRUE, indices, subProcess);
 		return result;
 	}
 
@@ -274,7 +277,10 @@ public class PlainCardinalityDPLL extends AbstractHierarchicalRewriter {
 		long resultValue = 1;
 		
 		for (Expression index : indices) {
-			long typeSize = getTypeSize(index, process);
+			long typeSize = GrinderUtil.getTypeCardinality(index, process);
+			if (typeSize == -1) {
+				throw new Error("Could not determine cardinality of type of " + index);
+			}
 			Collection<Expression> setOfDistinctTerms = constraintMap.get(index);
 			long numberOfnonAvailableValues = setOfDistinctTerms == null? 0 : (long) setOfDistinctTerms.size();
 			resultValue *= typeSize - numberOfnonAvailableValues;
@@ -283,13 +289,6 @@ public class PlainCardinalityDPLL extends AbstractHierarchicalRewriter {
 		return Expressions.makeSymbol(resultValue);
 	}
 
-	private static long getTypeSize(Expression variable, RewritingProcess process) {
-		TypeSizeOfLogicalVariable typeSizes = (TypeSizeOfLogicalVariable) process
-				.getGlobalObject(CardinalityTypeOfLogicalVariable.PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_LOGICAL_VARIABLE);
-		long typeSize = typeSizes.size(variable, process);
-		return typeSize;
-	}
-	
 	///// CONSTRAINT MAP METHODS
 
 	/**

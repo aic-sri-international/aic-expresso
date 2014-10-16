@@ -95,7 +95,7 @@ import com.sri.ai.grinder.library.PlainSubstitution;
 import com.sri.ai.grinder.library.SyntacticFunctionsSubExpressionsProvider;
 import com.sri.ai.grinder.library.controlflow.IfThenElseSubExpressionsAndImposedConditionsProvider;
 import com.sri.ai.grinder.library.controlflow.ImposedConditionsModule;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityWrapper;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.QuantifierElimination;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.QuantifierEliminationWrapper;
@@ -480,9 +480,9 @@ public class AbstractRewritePanel extends JPanel {
 				((DefaultRewritingProcess)process).setRewriterLookup(new DefaultRewriterLookup(DirectCardinalityComputationFactory.getCardinalityRewritersMap()));
 			}
 			Configuration.setProperty(GrinderConfiguration.KEY_ASSUME_DOMAIN_ALWAYS_LARGE, ""+getOptions().isAssumeDomainsAlwaysLarge());
-			CardinalityTypeOfLogicalVariable.registerTypeSizeOfLogicalVariableWithProcess(new CardinalityTypeOfLogicalVariable.TypeSizeOfLogicalVariable() {
+			CardinalityOfType.registerTypeSizeOfSymbolOrTypeWithProcess(new CardinalityOfType.TypeSizeOfSymbolOrType() {
 				@Override
-				public Integer size(Expression logicalVariable, RewritingProcess process) {
+				public Integer getSize(Expression logicalVariable, RewritingProcess process) {
 					Integer result = null; // unknown by default
 					if (getOptions().isTypeSizeKnown()) {
 						result = getOptions().getTypeSize();
@@ -654,7 +654,7 @@ public class AbstractRewritePanel extends JPanel {
 	private void addModulesAndProviders() {
 		// Important Expected Rewrite Behavior
 		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Plain Substitution",new PlainSubstitution()));
-		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Cardinality Type of Logical Variable", new CardinalityTypeOfLogicalVariable()));
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Cardinality Type of Logical Variable", new CardinalityOfType()));
 		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Absorbing Element", new AbsorbingElement(
 				"and", "false",
 				"or", "true",

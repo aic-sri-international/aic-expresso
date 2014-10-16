@@ -37,8 +37,18 @@
  */
 package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
 
-import java.util.ArrayList;
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.helper.GrinderUtil.getAllVariables;
+import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
+import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.makeIndexExpression;
+import static com.sri.ai.util.Util.mapIntoArrayList;
+import static com.sri.ai.util.Util.toArrayList;
+
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -49,15 +59,18 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainCardinalityDPLL;
 import com.sri.ai.util.Util;
 
 @Beta
 public class PlainCardinalityDPLLTest {
+
+	private final static Expression everythingType        = makeSymbol("Everything");
+	private final static Expression everythingCardinality = apply(CARDINALITY, everythingType);
 
 	@Test
 	public void test() {
@@ -143,24 +156,39 @@ public class PlainCardinalityDPLLTest {
 
 	private void runTest(Expression expression, Collection<String> indicesStrings, Expression expected) {
 		DefaultRewritingProcess process = new DefaultRewritingProcess(expression, null);
-		CountsDeclaration countsDeclaration = new CountsDeclaration(10);
-		countsDeclaration.setup(process);
 		
 		Collection<Expression> indices;
 		if (indicesStrings != null) {
-			indices = Util.mapIntoArrayList(indicesStrings, new Parse());
+			indices = mapIntoArrayList(indicesStrings, new Parse());
 		}
 		else {
-			indices = GrinderUtil.getAllVariables(expression, process);
+			indices = getAllVariables(expression, process);
 		}
 		
-		Rewriter cardinalityRewriter = new PlainCardinalityDPLL(countsDeclaration);
-		Expression set = new DefaultIntensionalMultiSet(new ArrayList<Expression>(indices), Expressions.ONE, expression);
-		Expression cardinalityProblem = Expressions.apply(FunctorConstants.CARDINALITY, set);
-		Expression actual = cardinalityRewriter.rewrite(cardinalityProblem, process);
+		process.putGlobalObject(everythingCardinality, makeSymbol(10));
+		
+		List<Expression> indexExpressions =
+				indices
+				.stream()
+				.map(index -> makeIndexExpression(index, everythingType))
+				.collect(toArrayList(indices.size()));
+		
+		Rewriter cardinalityRewriter = new PlainCardinalityDPLL();
+		Expression set = new DefaultIntensionalMultiSet(indexExpressions, Expressions.ONE, expression);
+		Expression cardinalityProblem = apply(FunctorConstants.CARDINALITY, set);
+		System.out.println("Problem: " + cardinalityProblem);
+		RewritingProcess subProcess = GrinderUtil.extendContextualSymbols(fromFreeSymbolsToEverything(cardinalityProblem, process), process);
+		Expression actual = cardinalityRewriter.rewrite(cardinalityProblem, subProcess);
 		Assert.assertEquals(expected, actual);
 	}
 	
+	private Map<Expression, Expression> fromFreeSymbolsToEverything(Expression expression, RewritingProcess process) {
+		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
+		Collection<Expression> freeSymbols = Expressions.freeSymbols(expression, process);
+		freeSymbols.forEach(freeSymbol -> result.put(freeSymbol, everythingType));
+		return result;
+	}
+
 	private static class Parse implements Function<String, Expression> {
 
 		@Override

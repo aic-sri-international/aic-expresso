@@ -65,6 +65,7 @@ import com.sri.ai.grinder.helper.concurrent.CallableRewriteOnBranch;
 import com.sri.ai.grinder.helper.concurrent.CallableRewriteOnConditionedBranch;
 import com.sri.ai.grinder.helper.concurrent.RewriteOnBranch;
 import com.sri.ai.grinder.helper.concurrent.ShortCircuitOnValue;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.grinder.library.Unification;
@@ -73,6 +74,8 @@ import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType.TypeSizeOfSymbolOrType;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.function.InjectiveModule;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
@@ -1122,5 +1125,46 @@ public class GrinderUtil {
 		// We still need to take into account the situation in which a variable appears in different positions,
 		// such as lambda X,Y ... and lambda Y,Z ...
 		// This requires standardizing apart.
+	}
+
+	/**
+	 * Returns the cardinality of the type of a given variable in the given process,
+	 * trying to find {@link TypeSizeOfSymbolOrType} object in the process global objects
+	 * under key {@link CardinalityOfType#PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_SYMBOL_OR_TYPE}
+	 * or, failing that, to look for <code>| Type |</code>, for <code>Type</code> the type of the variable,
+	 * in the process global objects.
+	 * If the size cannot be determined, returns -1.
+	 * @param symbol a variable
+	 * @param process the rewriting process
+	 * @return the cardinality of the type of the variable according to the process or -1 if it cannot be determined.
+	 */
+	public static long getTypeCardinality(Expression symbol, RewritingProcess process) {
+		long result = -1;
+	
+		// first, we try to determine the cardinality of variable's type from {@link TypeSizeOfLogicalVariable) information.
+		TypeSizeOfSymbolOrType typeSizeOfSymbolOrType =
+				(TypeSizeOfSymbolOrType) process
+				.getGlobalObject(CardinalityOfType.PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_SYMBOL_OR_TYPE);
+		
+		if (typeSizeOfSymbolOrType != null) {
+			Integer size = typeSizeOfSymbolOrType.getSize(symbol, process);
+			if (size != null) {
+				result = size;
+			}
+		}
+	
+		// If that didn't work, we try to find a value for | Type | in the process's global objects.
+		if (result == -1) {
+			Expression variableType = process.getContextualSymbolType(symbol);
+			if (variableType != null) {
+				Expression typeCardinality = Expressions.apply(FunctorConstants.CARDINALITY, variableType);
+				Expression typeCardinalityValue = (Expression) process.getGlobalObject(typeCardinality);
+				if (typeCardinalityValue != null) {
+					result = typeCardinalityValue.intValueExact();
+				}
+			}
+		}
+		
+		return result;
 	}
 }

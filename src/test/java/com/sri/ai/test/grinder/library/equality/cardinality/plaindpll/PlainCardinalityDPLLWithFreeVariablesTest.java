@@ -48,7 +48,9 @@ import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.toArrayList;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -68,14 +70,11 @@ import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainCardinalit
 
 @Beta
 public class PlainCardinalityDPLLWithFreeVariablesTest {
-	// TO BE TESTED
 	private final static Expression everythingType        = makeSymbol("Everything");
 	private final static Expression everythingCardinality = apply(CARDINALITY, everythingType);
 
 	@Test
 	public void test() {
-		
-//		DirectCardinalityComputationFactory.newCardinalityProcess(); // just so the right modules kick in. I am not proud!
 		
 		Expression expression;
 		Expression expected;
@@ -198,8 +197,6 @@ public class PlainCardinalityDPLLWithFreeVariablesTest {
 
 	private void runTest(Expression expression, Collection<String> indicesStrings, Expression expected) {
 		DefaultRewritingProcess process = new DefaultRewritingProcess(expression, null);
-		CountsDeclaration countsDeclaration = new CountsDeclaration(10);
-		countsDeclaration.setup(process);
 		
 		Collection<Expression> indices;
 		if (indicesStrings != null) {
@@ -217,22 +214,21 @@ public class PlainCardinalityDPLLWithFreeVariablesTest {
 				.map(index -> makeIndexExpression(index, everythingType))
 				.collect(toArrayList(indices.size()));
 		
-		Rewriter cardinalityRewriter = new PlainCardinalityDPLLWithFreeVariables(countsDeclaration);
+		Rewriter cardinalityRewriter = new PlainCardinalityDPLLWithFreeVariables();
 		Expression set = new DefaultIntensionalMultiSet(indexExpressions, Expressions.ONE, expression);
 		Expression cardinalityProblem = apply(FunctorConstants.CARDINALITY, set);
 		System.out.println("Problem: " + cardinalityProblem);
-//		RewritingProcess subProcess = extendContextualSymbols(fromFreeSymbolsToEverything(cardinalityProblem, process), process);
-		RewritingProcess subProcess = process;
+		RewritingProcess subProcess = GrinderUtil.extendContextualSymbols(fromFreeSymbolsToEverything(cardinalityProblem, process), process);
 		Expression actual = cardinalityRewriter.rewrite(cardinalityProblem, subProcess);
 		Assert.assertEquals(expected, actual);
 	}
 	
-//	private Map<Expression, Expression> fromFreeSymbolsToEverything(Expression expression, RewritingProcess process) {
-//		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
-//		Collection<Expression> freeSymbols = freeSymbols(expression, process);
-//		freeSymbols.forEach(freeSymbol -> result.put(freeSymbol, everythingType));
-//		return result;
-//	}
+	private Map<Expression, Expression> fromFreeSymbolsToEverything(Expression expression, RewritingProcess process) {
+		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
+		Collection<Expression> freeSymbols = Expressions.freeSymbols(expression, process);
+		freeSymbols.forEach(freeSymbol -> result.put(freeSymbol, everythingType));
+		return result;
+	}
 
 	private static class Parse implements Function<String, Expression> {
 

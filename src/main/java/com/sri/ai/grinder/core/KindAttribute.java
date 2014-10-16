@@ -45,7 +45,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.ThereExists;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType;
 import com.sri.ai.grinder.library.set.Sets;
 
 /**
@@ -126,7 +126,7 @@ public class KindAttribute implements RewriterTestAttribute {
 		@Override
 		public boolean apply(Expression e) {
 			boolean result =
-					CardinalityTypeOfLogicalVariable.isTypeSyntacticFunctionApplication(e);
+					CardinalityOfType.isTypeSyntacticFunctionApplication(e);
 			return result;
 		}
 

@@ -39,6 +39,7 @@ package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.SyntacticFunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -48,15 +49,14 @@ import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.SyntacticFunctionsSubExpressionsProvider;
 
 /**
- * A rewriter for replacing cardinality expressions on the type of a logical
- * variable with the size of that type.
+ * A rewriter for replacing cardinality expressions on the type of a symbol with the size of that type.
  * For e.g. if the type size of X is 100 it would do the following:
  * 
  * <pre>
  * | type(X) | -> 100
  * </pre>
  * 
- * or if a Logical Variable representing a type is used:
+ * or if a symbol representing a type is used:
  * 
  * <pre>
  * | People | -> 100
@@ -71,43 +71,43 @@ import com.sri.ai.grinder.library.SyntacticFunctionsSubExpressionsProvider;
  * 
  */
 @Beta
-public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
-	// The key for looking up the type size of logical variables interface
+public class CardinalityOfType extends AbstractRewriter {
+	// The key for looking up the {@link #TypeSizeOfLogicalVariable} object
 	// on the process's global objects map.
-	public final static String PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_LOGICAL_VARIABLE = "type size of logical variable";
+	public final static String PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_SYMBOL_OR_TYPE = "type size of symbol or type";
 
 	public final static String TYPE_LABEL = "type";
 
 	/**
 	 * Interface to be implemented by a source that is able to determine the
-	 * type sizes of the logical variables passed to it.
+	 * type sizes of the symbol's types, or types themselves, passed to it.
 	 * 
 	 * @author oreilly
 	 * 
 	 */
-	public interface TypeSizeOfLogicalVariable {
+	public interface TypeSizeOfSymbolOrType {
 		/**
-		 * Get the size of the logical variable's type.
+		 * Get the size of a type, or a symbol's type.
 		 * 
-		 * @param logicalVariable
-		 *            the logical variable whose type size is to be looked up.
+		 * @param symbolOrType
+		 *            the symbol whose type, or type itself, the size of which is to be looked up.
 		 * @param process
 		 *            the rewriting process in which the look up is being
 		 *            performed.
 		 * @return null if the type size is unknown, otherwise its size.
 		 */
-		Integer size(Expression logicalVariable, RewritingProcess process);
+		Integer getSize(Expression symbolOrType, RewritingProcess process);
 	}
 
-	public static void registerTypeSizeOfLogicalVariableWithProcess(
-			TypeSizeOfLogicalVariable typeSizeOfLogicalVariable,
+	public static void registerTypeSizeOfSymbolOrTypeWithProcess(
+			TypeSizeOfSymbolOrType typeSizeOfVariableOrType,
 			RewritingProcess process) {
 		process.putGlobalObject(
-				PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_LOGICAL_VARIABLE,
-				typeSizeOfLogicalVariable);
+				PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_SYMBOL_OR_TYPE,
+				typeSizeOfVariableOrType);
 	}
 	
-	public CardinalityTypeOfLogicalVariable() {
+	public CardinalityOfType() {
 		this.setReifiedTests(new HasKind(FunctorConstants.CARDINALITY), new HasNumberOfArguments(1));
 	}
 
@@ -116,32 +116,28 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 		Expression result = expression;
 
 		Expression cardinalityArgument = expression.get(0);
-		Expression logicalVariable = null;
+		Expression symbol = null;
 		
-		if (process.isVariable(cardinalityArgument)) {
-			// | DomainNameLogicalVariable | 
-			logicalVariable = cardinalityArgument;
+		if (cardinalityArgument.getSyntacticFormType().equals("Symbol")) {
+			// | DomainNameSymbol | 
+			symbol = cardinalityArgument;
 		} 
 		else {
-			// | type(LogicalVariableName) |
-			// Note: type(...) expressions are marked as being syntactic functions
-			// and their arguments are not sub-expressions
-			// (if they were, we would be able to rewrite type(X) to type(10) when X = 10,
-			// and this would be incorrect.
-			// In order to access their "argument", we must use their syntax tree.
+			// | type(symbol) |
 			if (isTypeSyntacticFunctionApplication(cardinalityArgument)
-					&& cardinalityArgument.getSyntaxTree().numberOfImmediateSubTrees() == 1
-					&& process.isVariable(Expressions.makeFromSyntaxTree(cardinalityArgument.getSyntaxTree().getImmediateSubTrees().get(0)))) {
+					&&
+					cardinalityArgument.getSyntaxTree().numberOfImmediateSubTrees() == 1) {
 				
-				logicalVariable = Expressions.makeFromSyntaxTree(cardinalityArgument.getSyntaxTree().getImmediateSubTrees().get(0));
+				symbol = ((SyntacticFunctionApplication) cardinalityArgument).getSyntacticArgument(0);//Expressions.makeFromSyntaxTree(cardinalityArgument.getSyntaxTree().getImmediateSubTrees().get(0));
 			}
 		}
 		
-		if (logicalVariable != null) {
-			TypeSizeOfLogicalVariable typeSizeOfLogicalVariable = (TypeSizeOfLogicalVariable) process
-					.getGlobalObject(PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_LOGICAL_VARIABLE);
-			if (typeSizeOfLogicalVariable != null) {
-				Integer size = typeSizeOfLogicalVariable.size(logicalVariable, process);
+		if (symbol != null) {
+			TypeSizeOfSymbolOrType typeSizeOfSymbol =
+					(TypeSizeOfSymbolOrType) process
+					.getGlobalObject(PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_SYMBOL_OR_TYPE);
+			if (typeSizeOfSymbol != null) {
+				Integer size = typeSizeOfSymbol.getSize(symbol, process);
 				if (size != null) {
 					result = Expressions.makeSymbol(size);
 				}
@@ -154,7 +150,7 @@ public class CardinalityTypeOfLogicalVariable extends AbstractRewriter {
 	public static boolean isTypeSyntacticFunctionApplication(Expression expression) {
 		boolean result =
 				expression.getSyntacticFormType().equals("Syntactic function") &&
-				SyntacticFunctionsSubExpressionsProvider.getSyntacticFunctor(expression).equals(CardinalityTypeOfLogicalVariable.TYPE_LABEL);
+				SyntacticFunctionsSubExpressionsProvider.getSyntacticFunctor(expression).equals(CardinalityOfType.TYPE_LABEL);
 		return result;
 	}
 }
