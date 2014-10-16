@@ -142,7 +142,7 @@ public class Simplify extends AbstractCardinalityRewriter {
 				Arrays.asList(new Rewriter[] {
 						// new OrderNormalize(),
 						new PlainSubstitution(),
-						new CardinalityTypeOfLogicalVariable(),
+						new CardinalityOfType(),
 						new Plus(),
 						new Division(),
 						new Minus(),

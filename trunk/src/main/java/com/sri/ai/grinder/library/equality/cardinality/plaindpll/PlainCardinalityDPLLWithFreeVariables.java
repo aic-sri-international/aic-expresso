@@ -69,6 +69,12 @@ public class PlainCardinalityDPLLWithFreeVariables extends PlainGenericDPLLWithF
 	/**
 	 * Builds a rewriter for cardinality computation.
 	 */
+	public PlainCardinalityDPLLWithFreeVariables() {
+	}
+
+	/**
+	 * Builds a rewriter for cardinality computation.
+	 */
 	public PlainCardinalityDPLLWithFreeVariables(CountsDeclaration countsDeclaration) {
 		this.countsDeclaration = countsDeclaration;
 	}

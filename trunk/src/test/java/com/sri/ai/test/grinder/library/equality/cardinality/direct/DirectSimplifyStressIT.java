@@ -52,7 +52,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Basic;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 import com.sri.ai.test.grinder.TestData;
 
@@ -244,7 +244,7 @@ public class DirectSimplifyStressIT extends AbstractGrinderTest {
 		return sb.toString();
 	}
 	
-	private class CountsDeclaration implements CardinalityTypeOfLogicalVariable.TypeSizeOfLogicalVariable {
+	private class CountsDeclaration implements CardinalityOfType.TypeSizeOfSymbolOrType {
 		private Integer  allCounts          = null;
 		public CountsDeclaration(int allCounts) {
 			this.allCounts = allCounts;
@@ -253,14 +253,14 @@ public class DirectSimplifyStressIT extends AbstractGrinderTest {
 		//
 		// START-TypeSizeOfLogicalVariable
 		@Override
-		public Integer size(Expression logicalVariable, RewritingProcess process) {
+		public Integer getSize(Expression logicalVariable, RewritingProcess process) {
 			return allCounts;
 		}
 		// END-TypeSizeOfLogicalVariable
 		//
 		
 		public void setup(RewritingProcess process) {
-			CardinalityTypeOfLogicalVariable.registerTypeSizeOfLogicalVariableWithProcess(this, process);
+			CardinalityOfType.registerTypeSizeOfSymbolOrTypeWithProcess(this, process);
 		}
 	}
 	

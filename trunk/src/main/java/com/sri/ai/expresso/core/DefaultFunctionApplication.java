@@ -215,7 +215,8 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 	Set<String> infixFunctionsStrings = Util.set(
 			"+", "-", "*", "/", "^",
 			"and", "or", "<=>", "=>",
-			"=", "!="
+			"=", "!=",
+			"union", "intersection", "in", "\\"
 			);
 	
 	@Override
@@ -266,6 +267,8 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 		int result = 100;
 		if (expression.getSyntacticFormType().equals("Function application")) {
 			if (
+					expression.hasFunctor("in")
+					||
 					expression.hasFunctor("=")
 					||
 					expression.hasFunctor("!=")
@@ -283,11 +286,15 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 					expression.hasFunctor("-") && expression.numberOfArguments() == 2
 					||
 					expression.hasFunctor("or")
+					||
+					expression.hasFunctor("union")
 					)
 			{
 				result = 2;
 			}
 			else if (
+					expression.hasFunctor("intersection")
+					||
 					expression.hasFunctor("*")
 					||
 					expression.hasFunctor("/")
@@ -298,6 +305,8 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 				result = 3;
 			}
 			else if (
+					expression.hasFunctor("\\")  && expression.numberOfArguments() == 1
+					||
 					expression.hasFunctor("-")   && expression.numberOfArguments() == 1
 					||
 					expression.hasFunctor("not") && expression.numberOfArguments() == 1

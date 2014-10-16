@@ -49,9 +49,8 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable.TypeSizeOfLogicalVariable;
 import com.sri.ai.util.Util;
 
 @SuppressWarnings("serial")
@@ -141,7 +140,10 @@ public class SymbolEqualityModelCountingConstraint extends LinkedHashMap<Express
 		long resultValue = 1;
 		
 		for (Expression index : indices) {
-			long typeSize = getTypeSize(index, process);
+			long typeSize = GrinderUtil.getTypeCardinality(index, process);
+			if (typeSize == -1) {
+				throw new Error("Could not determine cardinality of type of " + index);
+			}
 			Collection<Expression> setOfDistinctTerms = get(index);
 			long numberOfNonAvailableValues = setOfDistinctTerms == null? 0 : (long) setOfDistinctTerms.size();
 			resultValue *= typeSize - numberOfNonAvailableValues;
@@ -181,26 +183,6 @@ public class SymbolEqualityModelCountingConstraint extends LinkedHashMap<Express
 			copySetOfDistinctTermsForTerm1AndAddDisequalityFromTerm2(newConstraint, otherTerm, variable, this);
 		}
 		return newConstraint;
-	}
-
-	private static long getTypeSize(Expression variable, RewritingProcess process) {
-		// TO BE TESTED
-//		Expression variableType = process.getContextualSymbolType(variable);
-//		if (variableType == null) {
-//			throw new Error("Type of " + variable + " needs to be defined but it is not.");
-//		}
-//		Expression typeCardinality = Expressions.apply(FunctorConstants.CARDINALITY, variableType);
-//		Expression typeCardinalityValue = (Expression) process.getGlobalObject(typeCardinality);
-//		if (typeCardinalityValue == null) {
-//			throw new Error("Cardinality of type " + typeCardinality + " of " + variable + " needs to be defined in global objects of rewriting process as |" + typeCardinality + "| mapping to a numeric expression with its value.");
-//		}
-//		long result = typeCardinalityValue.intValueExact();
-//		return result;
-		
-		TypeSizeOfLogicalVariable typeSizes = (TypeSizeOfLogicalVariable) process
-				.getGlobalObject(CardinalityTypeOfLogicalVariable.PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_LOGICAL_VARIABLE);
-		long typeSize = typeSizes.size(variable, process);
-		return typeSize;
 	}
 
 	private static Expression getDistinctPredefinedTermForVariable1ThatIsNotVariable2AndIsNotDistinctFromVariable2(

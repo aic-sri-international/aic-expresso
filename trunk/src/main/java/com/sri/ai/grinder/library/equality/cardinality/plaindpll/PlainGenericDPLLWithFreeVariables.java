@@ -46,6 +46,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.base.Pair;
 
@@ -179,8 +180,7 @@ public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarch
 		// rewriter gets | { (on I) ... | formula } |
 		Expression set = expression.get(0);
 		Pair<Expression, List<Expression>> formulaAndIndices = getFormulaAndIndicesFromRewriterProblemArgument(set, process);
-//		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsAndConstraintWithIntensionalSet(set, process);
-		RewritingProcess subProcess = process;
+		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsAndConstraintWithIntensionalSet(set, process);
 		Expression result = solve(formulaAndIndices.first, Expressions.TRUE, formulaAndIndices.second, subProcess);
 		return result;
 	}

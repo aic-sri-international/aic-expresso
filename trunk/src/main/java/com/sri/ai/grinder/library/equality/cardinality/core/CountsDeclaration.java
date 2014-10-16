@@ -43,9 +43,9 @@ import java.util.Map;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Parser;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType;
 
-public class CountsDeclaration implements CardinalityTypeOfLogicalVariable.TypeSizeOfLogicalVariable {
+public class CountsDeclaration implements CardinalityOfType.TypeSizeOfSymbolOrType {
 	private Integer  allCounts          = null;
 	private String[] variableCountPairs = null;
 	private Map<Expression, Integer> variableTypeSizes = new LinkedHashMap<Expression, Integer>();
@@ -69,7 +69,7 @@ public class CountsDeclaration implements CardinalityTypeOfLogicalVariable.TypeS
 	//
 	// START-TypeSizeOfLogicalVariable
 	@Override
-	public Integer size(Expression logicalVariable, RewritingProcess process) {
+	public Integer getSize(Expression logicalVariable, RewritingProcess process) {
 		Integer result = null;
 		if (allCounts != null) {
 			result = allCounts;
@@ -90,7 +90,7 @@ public class CountsDeclaration implements CardinalityTypeOfLogicalVariable.TypeS
 				variableTypeSizes.put(var, size);
 			}
 		}
-		CardinalityTypeOfLogicalVariable.registerTypeSizeOfLogicalVariableWithProcess(this, process);
+		CardinalityOfType.registerTypeSizeOfSymbolOrTypeWithProcess(this, process);
 	} 
 }
 

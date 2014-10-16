@@ -133,7 +133,7 @@ public class FormulaSimplify extends AbstractCardinalityRewriter {
 		ArrayList<Rewriter> result = new ArrayList<Rewriter>(
 				Arrays.asList(new Rewriter[] {
 						new PlainSubstitution(),
-						new CardinalityTypeOfLogicalVariable(),
+						new CardinalityOfType(),
 						new IfThenElse(),
 
 						new Equality(),

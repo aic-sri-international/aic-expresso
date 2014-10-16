@@ -66,7 +66,7 @@ import com.sri.ai.grinder.library.controlflow.NormalizeDisequalities;
 import com.sri.ai.grinder.library.controlflow.NormalizeEqualities;
 import com.sri.ai.grinder.library.equality.NotOnDisequality;
 import com.sri.ai.grinder.library.equality.NotOnEquality;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.ConjunctsHoldTrueForEachOther;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.FromConditionalFormulaToFormula;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.IncompleteTopImpliedCertainty;
@@ -92,7 +92,7 @@ public class CallRewriterDecisionTreeTest {
 		// These are the list from R_normalize
 		List<Rewriter> rewriters = Arrays.asList((Rewriter) 
 					new PlainSubstitution(),
-					new CardinalityTypeOfLogicalVariable(),
+					new CardinalityOfType(),
 					new Plus(),
 					new Division(),
 					new Minus(),

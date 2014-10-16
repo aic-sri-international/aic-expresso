@@ -46,7 +46,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 import com.sri.ai.test.grinder.TestData;
 import com.sri.ai.util.Util;
@@ -535,7 +535,7 @@ public class NormalizeAndCompleteNormalizeTest extends AbstractGrinderTest {
 	//
 	// PRIVATE METHODS
 	//
-	class NormalizeTestData extends TestData implements CardinalityTypeOfLogicalVariable.TypeSizeOfLogicalVariable {
+	class NormalizeTestData extends TestData implements CardinalityOfType.TypeSizeOfSymbolOrType {
 		private String expressionString; 
 		private Expression expression;
 		
@@ -547,7 +547,7 @@ public class NormalizeAndCompleteNormalizeTest extends AbstractGrinderTest {
 		//
 		// START-TypeSizeOfLogicalVariable
 		@Override
-		public Integer size(Expression logicalVariable, RewritingProcess process) {
+		public Integer getSize(Expression logicalVariable, RewritingProcess process) {
 			return 100; // Default to this
 		}
 		// END-TypeSizeOfLogicalVariable
@@ -563,7 +563,7 @@ public class NormalizeAndCompleteNormalizeTest extends AbstractGrinderTest {
 		public Expression callRewrite(RewritingProcess process) {
 			
 			// Ensure explicit counts added for all variable types.
-			CardinalityTypeOfLogicalVariable.registerTypeSizeOfLogicalVariableWithProcess(this, process);
+			CardinalityOfType.registerTypeSizeOfSymbolOrTypeWithProcess(this, process);
 				
 			Expression result = DirectCardinalityComputationFactory.newCardinalityProcess(expression, process).rewrite(getNormalizeName(), expression);
 			

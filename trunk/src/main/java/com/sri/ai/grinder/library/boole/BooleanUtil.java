@@ -50,7 +50,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityTypeOfLogicalVariable;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.CardinalityOfType;
 
 /**
  * A collection of utility routines related to handling boolean expressions.
@@ -256,7 +256,7 @@ public class BooleanUtil {
 	 * @return |type(X)| if variable is X
 	 */
 	public static Expression sizeof(Expression var, RewritingProcess process) {
-		CardinalityTypeOfLogicalVariable cardLogical = new CardinalityTypeOfLogicalVariable();
+		CardinalityOfType cardLogical = new CardinalityOfType();
 		Expression card = Expressions.apply(FunctorConstants.CARDINALITY, var);
 		Expression result = cardLogical.rewrite(card, process);
 		return result;	
