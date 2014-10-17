@@ -169,7 +169,7 @@ public abstract class PlainGenericDPLL extends AbstractHierarchicalRewriter {
 	 */
 	protected abstract Collection<Expression> getIndicesUnderSplitterNegation(Expression splitter, Collection<Expression> indices);
 	
-	abstract protected boolean splitterIsOnFreeVariablesOnly(Expression splitter, Collection<Expression> indices);
+	abstract protected boolean splitterDoesNotInvolveIndex(Expression splitter, Collection<Expression> indices);
 
 	///////////////////////////// END OF ABSTRACT METHODS //////////////////////////////////////
 
@@ -189,7 +189,7 @@ public abstract class PlainGenericDPLL extends AbstractHierarchicalRewriter {
 	 * Returns the solution of a problem under a given constraint, which must be a conjunction of atoms, or true.
 	 * Assumes it is already simplified with respect to constraint.
 	 */
-	private Expression solve(Expression formula, Expression constraintConjunctionOfAtoms, Collection<Expression> indices, RewritingProcess process) {
+	protected Expression solve(Expression formula, Expression constraintConjunctionOfAtoms, Collection<Expression> indices, RewritingProcess process) {
 		TheoryConstraint constraint = makeConstraint(constraintConjunctionOfAtoms, indices, process);
 		Expression result = solve(formula, constraint, indices, process);
 		return result;
@@ -199,46 +199,79 @@ public abstract class PlainGenericDPLL extends AbstractHierarchicalRewriter {
 	 * Solves a problem for the given formula.
 	 * Assumes it is already simplified with respect to context represented by constraint.
 	 */
-	private Expression solve(Expression formula, TheoryConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
-		
+	protected Expression solve(Expression formula, TheoryConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
 		Expression result = null;
-		
 		if (formula.equals(Expressions.FALSE) || constraint == null) {
 			result = bottomSolution();
 		}
 		else {
-			Expression splitter = pickAtomFromFormula(formula, indices, process);
-			if (splitter == null) { // formula is 'true'
-				// check if we need to split in order for constraint to get ready to yield solution (such as providing number of solutions
-				splitter = constraint.pickAtom(indices, process);
-				// the splitting stops only when the formula has no atoms, *and* when the constraint satisfies some necessary conditions
-				if (splitter == null) {
-					// formula is 'true' and constraint is ready to yield solution
-					result = constraint.solution(indices, process);
-				}
-			}
-	
-			if (splitter != null) { // it is tempting to make this an else to if(splitter == null) but that would not work because it needs to be an else for the inner if as well.
-				Expression solutionUnderSplitter = solveUnderSplitter(splitter, formula, constraint, indices, process);
-	
-				boolean conditionIsOnFreeVariablesOnly = splitterIsOnFreeVariablesOnly(splitter, indices);
-	
-				if ( ! conditionIsOnFreeVariablesOnly && isTopSolution(solutionUnderSplitter)) {
-					result = solutionUnderSplitter;
-				}
-				else {
-					Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, formula, constraint, indices, process);
-	
-					if (conditionIsOnFreeVariablesOnly) {
-						result = IfThenElse.make(splitter, solutionUnderSplitter, solutionUnderSplitterNegation);
-					}
-					else {
-						result = combineSymbolicResults(solutionUnderSplitter, solutionUnderSplitterNegation, process);
-					}
-				}
-			}
+			result = computeSolutionSplittingProblemIfNeeded(formula, indices, constraint, process);
 		}
 		
+		return result;
+	}
+
+	protected Expression computeSolutionSplittingProblemIfNeeded(Expression formula, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
+		Expression splitter = pickSplitter(formula, indices, constraint, process);
+
+		Expression result;
+		if (splitter != null) {
+			result = computeSolutionBasedOnSplittedProblems(splitter, formula, indices, constraint, process);
+		}
+		else {
+			result = constraint.solution(indices, process);
+		}
+		return result;
+	}
+
+	protected Expression pickSplitter(Expression formula, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
+		Expression splitter = pickAtomFromFormula(formula, indices, process);
+		if (splitter == null) { // formula is 'true'
+			splitter = constraint.pickSplitter(indices, process);
+		}
+		return splitter;
+	}
+
+	/**
+	 * Receives formula assumed to not be 'false',
+	 * and returns atom to do next splitting, or null if there is none.
+	 * Since the formula is not 'false', a returned null implies that the formula is 'true'.
+	 */
+	protected Expression pickAtomFromFormula(Expression formula, Collection<Expression> indices, RewritingProcess process) {
+	
+		Expression result = null;
+	
+		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(formula);
+		while (result == null && subExpressionIterator.hasNext()) {
+			Expression subExpression = subExpressionIterator.next();
+			result = expressionIsSplitterCandidate(subExpression, indices, process);
+		}
+	
+		return result;
+	}
+
+	protected Expression computeSolutionBasedOnSplittedProblems(Expression splitter, Expression formula, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
+		Expression result;
+		boolean splitterDoesNotInvolveIndex = splitterDoesNotInvolveIndex(splitter, indices);
+		Expression solutionUnderSplitter = solveUnderSplitter(splitter, formula, constraint, indices, process);
+		if ( ! splitterDoesNotInvolveIndex && isTopSolution(solutionUnderSplitter)) {
+			result = solutionUnderSplitter; // all models are on this side of splitter, no need to look at the other side
+		}
+		else {
+			Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, formula, constraint, indices, process);
+
+			if (splitterDoesNotInvolveIndex) {
+				// solution is <if splitter then solutionUnderSplitter else solutionUnderSplitterNegation>
+				result = IfThenElse.make(splitter, solutionUnderSplitter, solutionUnderSplitterNegation);
+			}
+			else {
+				// splitter is Index = Value
+				// solution is solutionUnderSplitter + solutionUnderSplitterNegation
+				// If unconditional, these solutions need to be combined
+				// If conditional, these solutions need to be merged into a single conditional
+				result = combineSymbolicResults(solutionUnderSplitter, solutionUnderSplitterNegation, process);
+			}
+		}
 		return result;
 	}
 
@@ -259,28 +292,10 @@ public abstract class PlainGenericDPLL extends AbstractHierarchicalRewriter {
 	}
 
 	/**
-	 * Receives formula assumed to not be 'false',
-	 * and returns atom to do next splitting, or null if there is none.
-	 * Since the formula is not 'false', a returned null implies that the formula is 'true'.
-	 */
-	private Expression pickAtomFromFormula(Expression formula, Collection<Expression> indices, RewritingProcess process) {
-
-		Expression result = null;
-
-		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(formula);
-		while (result == null && subExpressionIterator.hasNext()) {
-			Expression subExpression = subExpressionIterator.next();
-			result = expressionIsSplitterCandidate(subExpression, indices, process);
-		}
-
-		return result;
-	}
-
-	/**
 	 * If solutions are unconditional expressions, simply combine them.
 	 * If they are conditional, perform distributive on conditions.
 	 */
-	private Expression combineSymbolicResults(Expression solution1, Expression solution2, RewritingProcess process) {
+	protected Expression combineSymbolicResults(Expression solution1, Expression solution2, RewritingProcess process) {
 
 		Expression result = null;
 

@@ -135,7 +135,7 @@ public class PlainCardinalityDPLL extends PlainGenericDPLL {
 	}
 	
 	@Override
-	protected boolean splitterIsOnFreeVariablesOnly(Expression splitter, Collection<Expression> indices) {
+	protected boolean splitterDoesNotInvolveIndex(Expression splitter, Collection<Expression> indices) {
 		boolean result = ! indices.contains(splitter.get(0));
 		return result;
 	}
