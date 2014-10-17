@@ -59,7 +59,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public abstract class PlainGenericDPLLWithFreeVariables extends AbstractHierarchicalRewriter {
+public abstract class PlainGenericDPLL extends AbstractHierarchicalRewriter {
 
 	/*
 	 * Implementation notes.

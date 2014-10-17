@@ -120,7 +120,7 @@ public class SymbolEqualityModelCountingConstraint extends LinkedHashMap<Express
 					if (distinctPredefinedTermForVariable1ThatIsNotVariable2AndIsNotDistinctPredefinedForVariable2 != null) {
 						
 						Expression atom =
-								PlainCardinalityDPLLWithFreeVariables
+								PlainCardinalityDPLL
 								.makeSplitterWithIndexIfAnyComingFirst(
 										distinctPredefinedVariable2,
 										distinctPredefinedTermForVariable1ThatIsNotVariable2AndIsNotDistinctPredefinedForVariable2, indices);
