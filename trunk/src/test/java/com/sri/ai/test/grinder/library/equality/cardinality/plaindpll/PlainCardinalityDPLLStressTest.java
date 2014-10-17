@@ -51,7 +51,7 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.equality.RandomCardinalityProblemGenerator;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainCardinalityDPLLWithFreeVariables;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainCardinalityDPLL;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.FirstNIterator;
 
@@ -64,7 +64,7 @@ import com.sri.ai.util.collect.FirstNIterator;
  * 
  * @author braz
  */
-public class PlainCardinalityDPLLWithFreeVariablesStressTest {
+public class PlainCardinalityDPLLStressTest {
 
 	// These parameters are in method form so variants can be declared as extending classes.
 	
@@ -86,7 +86,7 @@ public class PlainCardinalityDPLLWithFreeVariablesStressTest {
 		
 		GrinderUtil.setMinimumOutputForProfiling();
 
-		Rewriter rewriter = new PlainCardinalityDPLLWithFreeVariables(new CountsDeclaration(10));
+		Rewriter rewriter = new PlainCardinalityDPLL(new CountsDeclaration(10));
 		
 		long totalStart = System.currentTimeMillis();
 

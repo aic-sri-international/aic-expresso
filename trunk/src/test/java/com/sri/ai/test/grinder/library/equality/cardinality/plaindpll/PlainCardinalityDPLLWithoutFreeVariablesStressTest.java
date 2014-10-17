@@ -40,7 +40,7 @@ package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
 import com.google.common.annotations.Beta;
 
 @Beta
-public class PlainCardinalityDPLLWITHOUTFreeVariablesStressTest extends PlainCardinalityDPLLWithFreeVariablesStressTest {
+public class PlainCardinalityDPLLWithoutFreeVariablesStressTest extends PlainCardinalityDPLLStressTest {
 
 	@Override
 	public boolean useFreeVariables()            { return false;  }
