@@ -56,7 +56,7 @@ public interface TheoryConstraint {
 	 * for which solutions can be computed in polynomial time, or null if it is already in such a state.
 	 * @param indices TODO
 	 */
-	public Expression pickAtom(Collection<Expression> indices, RewritingProcess process);
+	public Expression pickSplitter(Collection<Expression> indices, RewritingProcess process);
 	
 	/**
 	 * Computes solution for constraint in polynomial time.

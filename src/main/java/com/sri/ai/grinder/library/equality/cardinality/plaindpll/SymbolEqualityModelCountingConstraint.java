@@ -103,7 +103,7 @@ public class SymbolEqualityModelCountingConstraint extends LinkedHashMap<Express
 	}
 
 	@Override
-	public Expression pickAtom(Collection<Expression> indices, RewritingProcess process) {
+	public Expression pickSplitter(Collection<Expression> indices, RewritingProcess process) {
 
 		for (Expression index : indices) {
 			
