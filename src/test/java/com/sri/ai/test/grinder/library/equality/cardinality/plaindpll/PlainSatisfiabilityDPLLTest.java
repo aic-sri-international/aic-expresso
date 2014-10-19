@@ -37,7 +37,6 @@
  */
 package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
 
-import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.list;
 
@@ -48,14 +47,12 @@ import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
-import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainCardinalityDPLL;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainSatisfiabilityDPLL;
 
 @Beta
-public class PlainCardinalityDPLLTest extends AbstractPlainDPLLTest {
+public class PlainSatisfiabilityDPLLTest extends AbstractPlainDPLLTest {
 	
 	@Test
 	public void test() {
@@ -66,14 +63,15 @@ public class PlainCardinalityDPLLTest extends AbstractPlainDPLLTest {
 		
 		GrinderUtil.setMinimumOutputForProfiling();
 		
+
 		expression = parse("true");
 		indices    = null; // means all variables
-		expected   = parse("1");
+		expected   = parse("true");
 		runTest(expression, indices, expected);
 
 		expression = parse("false");
 		indices    = null; // means all variables
-		expected   = parse("0");
+		expected   = parse("false");
 		runTest(expression, indices, expected);
 
 		// tests answer completeness
@@ -81,112 +79,109 @@ public class PlainCardinalityDPLLTest extends AbstractPlainDPLLTest {
 		indices     = list("Y");
 		// original algorithm provided this incomplete solution due to incomplete condition-applying-on-solution algorithm used in externalization
 		// expected = parse("if X = T then if T = T1 then if T = T1 then 10 else 1 else 1 else (if X = T1 then if T = T1 then 9 else 0 else 0)");
-		expected    = parse("if X = T then if T = T1 then 10 else 1 else 0");
+		expected    = parse("if X = T then true else false");
 		runTest(expression, indices, expected);
 		
 		
 		expression = parse("X != Y");
 		indices    = list("X");
-		expected   = parse("9");
+		expected   = parse("true");
 		runTest(expression, indices, expected);
 		
 		expression = parse("X != Y and X != a");
 		indices    = list("X");
-		expected   = parse("if Y = a then 9 else 8");
+		expected   = parse("true");
 		runTest(expression, indices, expected);
 		
 		expression = parse("X != Y and X != Z and X != a");
 		indices    = list("X");
-		expected   = parse("if Y = Z then if Z = a then 9 else 8 else (if Y = a then 8 else (if Z = a then 8 else 7))");
+		expected   = parse("true");
 		runTest(expression, indices, expected);
 		
 		expression = parse("Y = a and X != Y and X != a");
 		indices    = list("X");
-		expected   = parse("if Y = a then 9 else 0");
+		expected   = parse("if Y = a then true else false");
 		runTest(expression, indices, expected);
 		
 
 		expression = parse("X1 != X2 and (X2 = X3 or X2 = X4) and X3 = X1 and X4 = X1");
 		indices    = null; // means all variables
-		expected   = parse("0");
+		expected   = parse("false");
 		runTest(expression, indices, expected);
 		
 		expression = parse("X1 != X2 and X2 != X0 and X1 != X0");
 		indices    = null; // means all variables
-		expected   = parse("720");
+		expected   = parse("true");
 		runTest(expression, indices, expected);
 		
 		expression = parse("true");
 		indices    = null; // means all variables
-		expected   = parse("1");
+		expected   = parse("true");
 		runTest(expression, indices, expected);
 		
 		expression = parse("true");
 		indices    = list("X", "Y");
-		expected   = parse("100");
+		expected   = parse("true");
 		runTest(expression, indices, expected);
 		
 		expression = parse("false");
 		indices    = null; // means all variables
-		expected   = parse("0");
+		expected   = parse("false");
 		runTest(expression, indices, expected);
 		
 		expression = parse("false");
 		indices    = list("X", "Y");
-		expected   = parse("0");
+		expected   = parse("false");
 		runTest(expression, indices, expected);
 		
 		
 		expression = parse("X = a");
 		indices    = null; // means all variables
-		expected   = parse("1");
+		expected   = parse("true");
 		runTest(expression, indices, expected);
 		
 		expression = parse("X != a");
 		indices    = null; // means all variables
-		expected   = parse("9");
+		expected   = parse("true");
 		runTest(expression, indices, expected);
 		
 		expression = parse("X = a");
 		indices    = list("X", "Y");
-		expected   = parse("10");
+		expected   = parse("true");
 		runTest(expression, indices, expected);
 		
 		expression = parse("X != a");
 		indices    = list("X", "Y");
-		expected   = parse("90");
+		expected   = parse("true");
 		runTest(expression, indices, expected);
 		
 		expression = parse("X = a and Y != b");
 		indices    = list("X", "Y");
-		expected   = parse("9");
+		expected   = parse("true");
 		runTest(expression, indices, expected);
 		
 		expression = parse("X != a and Y != b");
 		indices    = list("X", "Y");
-		expected   = parse("81");
+		expected   = parse("true");
 		runTest(expression, indices, expected);
 		
 		expression = parse("X != a or Y != b");
 		indices    = list("X", "Y");
-		expected   = parse("99");
+		expected   = parse("true");
 		runTest(expression, indices, expected);
 		
 		expression = parse("X != a and X != Y and Y != a");
 		indices    = null;
-		expected   = parse("72");
+		expected   = parse("true");
 		runTest(expression, indices, expected);
 	}
 
-	@Override
 	protected Expression makeProblem(Expression expression, List<Expression> indexExpressions) {
-		Expression set = new DefaultIntensionalMultiSet(indexExpressions, Expressions.ONE, expression);
-		Expression problem = apply(FunctorConstants.CARDINALITY, set);
+		Expression problem = new DefaultExistentiallyQuantifiedFormula(indexExpressions, expression);
 		return problem;
 	}
 
-	@Override
-	protected PlainCardinalityDPLL makeRewriter() {
-		return new PlainCardinalityDPLL();
+	protected PlainSatisfiabilityDPLL makeRewriter() {
+		return new PlainSatisfiabilityDPLL();
 	}
 }

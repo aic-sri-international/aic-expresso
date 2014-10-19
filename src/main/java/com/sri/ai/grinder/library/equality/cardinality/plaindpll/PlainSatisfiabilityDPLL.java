@@ -35,41 +35,65 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.boole;
+package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.ExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.CommutativeAssociative;
-import com.sri.ai.grinder.library.CommutativeAssociativeWithOperationOnConstantsOnly;
-import com.sri.ai.util.Util;
+import com.sri.ai.grinder.library.boole.Or;
+import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
+import com.sri.ai.util.base.Pair;
 
-/**
- * An abstract rewriter for boolean commutative associative expressions.
- * 
- * @author braz
- *
- */
 @Beta
-public abstract class BooleanCommutativeAssociative extends CommutativeAssociativeWithOperationOnConstantsOnly {
+/** 
+ * A DPLL specialization for satisfiability.
+ */
+public class PlainSatisfiabilityDPLL extends AbstractPlainDPLLForEqualityLogic {
+	
+	/**
+	 * Builds a rewriter for cardinality computation.
+	 */
+	public PlainSatisfiabilityDPLL() {
+	}
+
+	/**
+	 * Builds a rewriter for cardinality computation.
+	 */
+	public PlainSatisfiabilityDPLL(CountsDeclaration countsDeclaration) {
+		super(countsDeclaration);
+	}
 
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression result = super.rewriteAfterBookkeeping(expression, process);
-		if (result.hasFunctor(getFunctor())) {
-			result = processIdempotency(result);
-		}
+	protected Pair<Expression, List<Expression>> getFormulaAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
+		ExistentiallyQuantifiedFormula existential = (ExistentiallyQuantifiedFormula) expression;
+		Pair<Expression, List<Expression>> formulaAndIndices = Pair.make(existential.getBody(), existential.getIndexExpressions());
+		return formulaAndIndices;
+	}
+
+	@Override
+	protected Expression bottomSolution() {
+		return Expressions.FALSE;
+	}
+
+	@Override
+	protected boolean isTopSolution(Expression solutionForSubProblem) {
+		boolean result = solutionForSubProblem.equals(Expressions.TRUE);
 		return result;
 	}
 
-	private Expression processIdempotency(Expression expression) {
-		List<Expression> argumentsReplacement =
-			(List<Expression>) Util.removeRepeatedNonDestructively(expression.getArguments());
-		if (argumentsReplacement.size() != expression.getArguments().size()) {
-			return CommutativeAssociative.make(getFunctor(), argumentsReplacement, getNeutralElementExpression());
-		}
-		return expression;
+	@Override
+	protected Expression combineUnconditionalSolutions(Expression solution1, Expression solution2) {
+		return Or.make(solution1, solution2);
+	}
+
+	@Override
+	protected TheoryConstraint makeConstraint(Expression disequalitiesConjunction, Collection<Expression> indices, RewritingProcess process) {
+		SymbolEqualitySatisfiabilityConstraint result = new SymbolEqualitySatisfiabilityConstraint(disequalitiesConjunction, indices, process);
+		return result;
 	}
 }

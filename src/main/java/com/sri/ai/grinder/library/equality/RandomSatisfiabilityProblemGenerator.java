@@ -41,24 +41,21 @@ import java.util.List;
 import java.util.Random;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.set.tuple.Tuple;
+import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 
 /**
- * An iterator of random cardinality expressions, generated according to certain parameters
- * (see {@link #RandomCardinalityProblemGenerator(Random, int, int, int, int, int)} for their description).
+ * An iterator of random satisfiability expressions, generated according to certain parameters
+ * (see {@link #RandomSatisfiabilityProblemGenerator(Random, int, int, int, int, int)} for their description).
  * 
  * @author braz
  *
  */
-public class RandomCardinalityProblemGenerator extends AbstractRandomDPLLProblemGenerator {
+public class RandomSatisfiabilityProblemGenerator extends AbstractRandomDPLLProblemGenerator {
 	
 	/**
-	 * Creates an iterator over random cardinality expressions.
+	 * Creates an iterator over random satisfiability expressions.
 	 * This is done by sampling a random formula F from {@link RandomEqualityFormulaGenerator},
-	 * picking a random set of indices I, and returning {{ (on I) (I) | F }}.
+	 * picking a random set of indices I, and returning there exists I : F.
 	 * 
 	 * @param random a {@link Random} number generator.
 	 * @param numberOfVariables the (maximum) number of variables in the formula.
@@ -67,21 +64,19 @@ public class RandomCardinalityProblemGenerator extends AbstractRandomDPLLProblem
 	 * @param depth the depth of the formula (all its sub-expressions with have depth equal to <code>depth - 1</code>).
 	 * @param breadth the number of sub-expressions of conjunctions and disjunctions.
 	 */
-	public RandomCardinalityProblemGenerator(Random random, int numberOfVariables, int numberOfConstants, int minimumNumberOfIndices, int depth, int breadth) {
+	public RandomSatisfiabilityProblemGenerator(Random random, int numberOfVariables, int numberOfConstants, int minimumNumberOfIndices, int depth, int breadth) {
 		super(random, numberOfVariables, numberOfConstants, minimumNumberOfIndices, depth, breadth);
 	}
 
 	@Override
 	protected Expression makeProblem(Expression formula, List<Expression> indices) {
-		Expression tuple         = Tuple.make(indices);
-		Expression set           = new DefaultIntensionalMultiSet(indices, tuple, formula);
-		Expression problem       = Expressions.apply(FunctorConstants.CARDINALITY, set);
+		Expression problem = new DefaultExistentiallyQuantifiedFormula(indices, formula);
 		return problem;
 	}
 
-	/** A simple test sampling 10 random cardinality expressions and printing them to the standard output. */
+	/** A simple test sampling 10 random satisfiability expressions and printing them to the standard output. */
 	public static void main(String[] args) {
-		RandomCardinalityProblemGenerator iterator = new RandomCardinalityProblemGenerator(new Random(), 10, 5, 0, 2, 2);
+		RandomSatisfiabilityProblemGenerator iterator = new RandomSatisfiabilityProblemGenerator(new Random(), 10, 5, 0, 2, 2);
 		for (int i = 0; i != 10; i++) {
 			System.out.println(iterator.next());	
 		}

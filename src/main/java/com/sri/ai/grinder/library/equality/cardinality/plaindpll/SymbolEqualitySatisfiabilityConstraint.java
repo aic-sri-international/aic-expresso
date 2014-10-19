@@ -35,41 +35,56 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.boole;
+package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.CommutativeAssociative;
-import com.sri.ai.grinder.library.CommutativeAssociativeWithOperationOnConstantsOnly;
-import com.sri.ai.util.Util;
 
+@SuppressWarnings("serial")
 /**
- * An abstract rewriter for boolean commutative associative expressions.
- * 
- * @author braz
- *
+ * Represents and manipulates constraints in the theory of equalities of symbols (variables and constants) for satisfiability purposes.
  */
 @Beta
-public abstract class BooleanCommutativeAssociative extends CommutativeAssociativeWithOperationOnConstantsOnly {
+public class SymbolEqualitySatisfiabilityConstraint extends AbstractSymbolEqualityConstraint {
 
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression result = super.rewriteAfterBookkeeping(expression, process);
-		if (result.hasFunctor(getFunctor())) {
-			result = processIdempotency(result);
-		}
-		return result;
+	public AbstractSymbolEqualityConstraint make() {
+		return new SymbolEqualitySatisfiabilityConstraint();
 	}
 
-	private Expression processIdempotency(Expression expression) {
-		List<Expression> argumentsReplacement =
-			(List<Expression>) Util.removeRepeatedNonDestructively(expression.getArguments());
-		if (argumentsReplacement.size() != expression.getArguments().size()) {
-			return CommutativeAssociative.make(getFunctor(), argumentsReplacement, getNeutralElementExpression());
-		}
-		return expression;
+	@Override
+	public AbstractSymbolEqualityConstraint make(AbstractSymbolEqualityConstraint another) {
+		return new SymbolEqualitySatisfiabilityConstraint(this);
+	}
+
+	public SymbolEqualitySatisfiabilityConstraint() {
+		super();
+	}
+
+	public SymbolEqualitySatisfiabilityConstraint(SymbolEqualitySatisfiabilityConstraint another) {
+		super(another);
+	}
+
+	public SymbolEqualitySatisfiabilityConstraint(Expression disequalitiesConjunction, Collection<Expression> indices, RewritingProcess process) {
+		super(disequalitiesConjunction, indices, process);
+	}
+
+	@Override
+	public Expression pickSplitter(Collection<Expression> indices, RewritingProcess process) {
+		// there is never the need for a splitter of a {@link SymbolEqualitySatisfiabilityConstraint}
+		// to render it able to produce a satisfiability solution;
+		// it is always ready to provide a solution, as-is, because
+		// if it just got created, it is satisfiable because it is created with a conjunction of satisfiable disequalities, and
+		// if it came from splitting, unsatisfiability is detected then.
+		return null;
+	}
+
+	@Override
+	public Expression solution(Collection<Expression> indices, RewritingProcess process) {
+		return Expressions.TRUE;
 	}
 }

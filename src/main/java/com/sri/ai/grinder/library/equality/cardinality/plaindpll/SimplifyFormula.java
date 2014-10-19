@@ -261,7 +261,7 @@ public class SimplifyFormula {
 					newElseBranch = completeSimplifySolutionGivenEqualityNegation(newElseBranch, newCondition, process);
 				}
 			
-				result = IfThenElse.makeIfDistinctFrom(solution, newCondition, newThenBranch, newElseBranch);
+				result = IfThenElse.makeIfDistinctFrom(solution, newCondition, newThenBranch, newElseBranch, false /* no simplification to condition */);
 			}
 		}
 		
@@ -313,7 +313,7 @@ public class SimplifyFormula {
 				}
 				Expression newElseBranch = completeSimplifySolutionGivenEqualityNegation(elseBranch, equalityOfTwoTerms,                                  process);
 				
-				result = IfThenElse.makeIfDistinctFrom(solution, newCondition, newThenBranch, newElseBranch);
+				result = IfThenElse.makeIfDistinctFrom(solution, newCondition, newThenBranch, newElseBranch, false /* no simplification to condition */);
 			}
 		}
 		
@@ -346,7 +346,7 @@ public class SimplifyFormula {
 /*
  * Some notes written while developing the complete simplification methods.
  * 
- * Given a condition C and a solution S,
+ * Theorem: Given a condition C and a solution S,
 the simplification S[C] does not contain tautological or contradictory conditions.
 
 C is of the form X = T.
@@ -356,29 +356,31 @@ If S is "if C1 then S1 else S2"
         S[C] is if T = T1 then S1[C] else S2[C]
         if T = T1 gets simplified to true or false, theorem holds
         Otherwise, we need to prove that S1[C] is complete
-           under X =T and T = T1, and S2[C] is complete
+           under X = T and T = T1, and S2[C] is complete
            under X = T and T != T1.
         S1[C]: X does not occur in S1, only T1 and possibly T
         Example: S1 is (T = T1), then S1[C] is S1,
-        so S[C] is if T = T1 then T = T1, not complete!
+        so S[C] is if T = T1 then T = T1 then S2[C], not complete!
 
 Counter example then is
 C is X = T
-S is if X = T1 then T = T1 S2
-S[C} thus is if T = T1 then T = T1 else S2[C], not complete.
+S is if X = T1 then T = T1 else S2
+S[C] thus is if T = T1 then T = T1 else S2[C], not complete.
 
-Create test for this:
+Create model counting test for this externalization of the sum of two solutions
 
 (if X = T then 1 else 0) + (if X = T1 then if T = T1 then 1 else 0 else 0)
 
-The above can come from a splitting on an atom, say, Y = a, that works as a selector:
+In model counting, the above can arise from a splitting on an atom, say, Y = a, that works as a selector:
 
 (Y = a and X = T) or (Y != a and X = T1 and T = T1)
 
 Fix:
 create an algorithm for applying condition that takes heed of new created conditions. Still need to prove that applying one condition at a time is enough.
 
-Special case in which we don't need completeness (because, say, we are within DPLL so all conditions will be split anyway) still possibly desirable. Can improve anyway by simplifying during condition application. It could be that simplifying to completeness right away is more efficient anyway. At first I thought that perhaps that simple application is complete when inside DPLL anyway, but that is not true, counter-example above could occur.
+Special case in which we don't need completeness (because, say, we are within DPLL so all conditions will be split anyway) still possibly desirable.
+Can improve anyway by simplifying during condition application. It could be that simplifying to completeness right away is more efficient anyway.
+At first I thought that perhaps that simple application is complete when inside DPLL anyway, but that is not true, counter-example above could occur.
 
 Candidate equality application algorithm:
 Let C be an equality X = T
@@ -405,25 +407,31 @@ Post-conditions:
 - the result is equivalent to S in the C-space. In other words,
 for every model M that satisfies C, S and the result evaluate to the same value in M.
 
-- Every condition in the result that is not 'true' or 'false' is satisfied (and falsified) by some model in its own context, including the top context being the models of C.
+- Every condition in the result that is not 'true' or 'false' is both satisfied by some model in its own context,
+and falsified by some other model in its own context,
+including the top context being the models of C.
 
-It seems hard to prove it because Si could be non-trivial for C, meaning it is true and false for different models of C, and the same for C1', but still not be both true and false for different models of the *intersection* of C and C1'. Perhaps this never happens for equality theory but we would need to take the theory into account to prove that.
+It seems hard to prove it because Si could be non-trivial for C, meaning it is true and false for different models of C,
+and the same for C1', but still not be both true and false for different models of the *intersection* of C and C1'.
+Perhaps this never happens for equality theory but we would need to take the theory into account to prove that.
 
-Another approach is to represent the entire context as a graph of variables and disequalities and go down the formula applying it. The graph is a consolidated representation of context and makes it easy to decide whether any atom is implied or not. Then we have the following algorithm:
+Another approach is to represent the entire context as a graph of variables and disequalities and go down the formula applying it.
+The graph is a consolidated representation of context and makes it easy to decide whether any atom is implied or not.
+Then we have the following algorithm:
 
 Joint application algorithm:
-C is a context graph
+*** NEW *** C is a context graph
 Let S be a complete solution.
 
 if S is a constant
     return S
 else if S is "if C1 then S1 else S2"
     if C1 is true in C
-        S <- apply C to S1
+        S <- apply C to S1     // 10/2014: do we really need to apply C to S1 if S1 was already complete wrt C1?
     else if C1 is false in C
         S <- apply C to S2
     else
-        CC1 <- apply C1 to constraint C
+        CC1 <- apply C1 to constraint C // CC1 is constraint graph
         S1 <- apply CC1 to S1
         CnotC1 <- apply not C1 to constraint C
         S2 <- apply CnotC1 to S2
@@ -431,7 +439,8 @@ else if S is "if C1 then S1 else S2"
 
     return S
 
-This is better but it rebuilds a lot of the context graph that had already been solved when S was built. Can we leverage the fact that we know S is already solved and complete?
+This is better but it rebuilds a lot of the context graph that had already been solved when S was built.
+Can we leverage the fact that we know S is already solved and complete?
 
 Let us consider case by case.
 
@@ -481,7 +490,8 @@ C is X != Y, C1 is Z = X
     apply to else clause keeping C1 negation.
 
 Clearly this is a lot more efficient than the joint application shown above.
-Besides, the joint application requires a constraint map that keeps equalities as well, which we don't have so far (and which would be less efficient as well).
+Besides, the joint application requires a constraint map that keeps equalities as well, which we don't have so far
+(and which would be less efficient as well).
 So this is the way to go.
 This depends on the equalities being such that the first term does not appear in the then clause!
 
