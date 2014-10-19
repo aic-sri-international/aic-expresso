@@ -100,7 +100,7 @@ public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly {
 	 * Makes a product, automatically accounting for neutral element occurrences.
 	 */
 	public static Expression makeExpression(List<Expression> arguments) {
-		return CommutativeAssociative.makeExpression("*", arguments, Expressions.ONE);
+		return CommutativeAssociative.make("*", arguments, Expressions.ONE);
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly {
 	 * but not requiring the parameters already determined for times applications.
 	 */
 	public static Expression make(Iterator<Expression> argumentsIterator) {
-		return CommutativeAssociative.make(argumentsIterator, "*", Expressions.ZERO, Expressions.ONE);
+		return CommutativeAssociative.make("*", argumentsIterator, Expressions.ZERO, Expressions.ONE);
 	}
 
 	/**

@@ -44,10 +44,15 @@ import java.util.List;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
+import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -59,7 +64,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public abstract class PlainGenericDPLL extends AbstractHierarchicalRewriter {
+public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 
 	/*
 	 * Implementation notes.
@@ -115,7 +120,7 @@ public abstract class PlainGenericDPLL extends AbstractHierarchicalRewriter {
 	/**
 	 * Derives formula and indices to be used from intensional set passed to rewriter as argument.
 	 */
-	abstract protected Pair<Expression, List<Expression>> getFormulaAndIndicesFromRewriterProblemArgument(Expression set, RewritingProcess process);
+	abstract protected Pair<Expression, List<Expression>> getFormulaAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process);
 
 	/**
 	 * Defines the solution the combination of which with any other solution S produces S itself (for example, 0 in model counting and false in satisfiability).
@@ -175,13 +180,35 @@ public abstract class PlainGenericDPLL extends AbstractHierarchicalRewriter {
 
 	///////////////////////////// BEGINNING OF FIXED PART OF GENERIC DPLL //////////////////////////////////////
 	
+	protected CountsDeclaration countsDeclaration;
+	
+	public AbstractPlainDPLL() {
+	}
+
+	public AbstractPlainDPLL(CountsDeclaration countsDeclaration) {
+		this.countsDeclaration = countsDeclaration;
+	}
+
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		// rewriter gets | { (on I) ... | formula } |
-		Expression set = expression.get(0);
-		Pair<Expression, List<Expression>> formulaAndIndices = getFormulaAndIndicesFromRewriterProblemArgument(set, process);
-		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsAndConstraintWithIntensionalSet(set, process);
-		Expression result = solve(formulaAndIndices.first, Expressions.TRUE, formulaAndIndices.second, subProcess);
+		Pair<Expression, List<Expression>> formulaAndIndexExpressions = getFormulaAndIndexExpressionsFromRewriterProblemArgument(expression, process);
+		Expression       formula          = formulaAndIndexExpressions.first;
+		List<Expression> indexExpressions = formulaAndIndexExpressions.second;
+		Expression simplifiedFormula = SimplifyFormula.simplify(formula, process);
+		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
+		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
+		Expression result = solve(simplifiedFormula, Expressions.TRUE, indices, subProcess);
+		return result;
+	}
+
+	@Override
+	public RewritingProcess makeRewritingProcess(Expression expression) {
+		Rewriter rewriterWithModules = new Simplify();
+		RewritingProcess result = new DefaultRewritingProcess(expression, rewriterWithModules);
+		result.notifyReadinessOfRewritingProcess();
+		if (countsDeclaration != null) {
+			countsDeclaration.setup(result);
+		}
 		return result;
 	}
 
@@ -262,7 +289,7 @@ public abstract class PlainGenericDPLL extends AbstractHierarchicalRewriter {
 
 			if (splitterDoesNotInvolveIndex) {
 				// solution is <if splitter then solutionUnderSplitter else solutionUnderSplitterNegation>
-				result = IfThenElse.make(splitter, solutionUnderSplitter, solutionUnderSplitterNegation);
+				result = IfThenElse.make(splitter, solutionUnderSplitter, solutionUnderSplitterNegation, false /* no simplification to condition */);
 			}
 			else {
 				// splitter is Index = Value
@@ -307,7 +334,7 @@ public abstract class PlainGenericDPLL extends AbstractHierarchicalRewriter {
 			Expression solution2UnderNotCondition = completeSimplifySolutionGivenSplitterNegation(solution2, condition, process);
 			Expression newThenBranch = combineSymbolicResults(thenBranch, solution2UnderCondition,    process);
 			Expression newElseBranch = combineSymbolicResults(elseBranch, solution2UnderNotCondition, process);
-			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
+			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false /* no simplification to condition */);
 		}
 		else if (IfThenElse.isIfThenElse(solution2)) {
 			Expression condition  = IfThenElse.getCondition(solution2);
@@ -317,7 +344,7 @@ public abstract class PlainGenericDPLL extends AbstractHierarchicalRewriter {
 			Expression solution1UnderNotCondition = completeSimplifySolutionGivenSplitterNegation(solution1, condition, process);
 			Expression newThenBranch = combineSymbolicResults(solution1UnderCondition,    thenBranch, process);
 			Expression newElseBranch = combineSymbolicResults(solution1UnderNotCondition, elseBranch, process);
-			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
+			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false /* no simplification to condition */);
 		}
 		else {
 			result = combineUnconditionalSolutions(solution1, solution2);

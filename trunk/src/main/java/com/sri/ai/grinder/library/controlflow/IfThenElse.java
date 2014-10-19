@@ -96,10 +96,10 @@ public class IfThenElse extends AbstractRewriter {
 	 * This is useful if the arguments of the original expression have been through some potential transformation
 	 * and we want to return a new if then else that is nonetheless guaranteed to be the same instance if no transformation actually took place.
 	 */
-	public static Expression makeIfDistinctFrom(Expression original, Expression newCondition, Expression newThenBranch, Expression newElseBranch) {
+	public static Expression makeIfDistinctFrom(Expression original, Expression newCondition, Expression newThenBranch, Expression newElseBranch, boolean simplifyToConditionIfPossible) {
 		Expression result;
 		if (newCondition != getCondition(original) || newThenBranch != getThenBranch(original) || newElseBranch != getElseBranch(original)) {
-			result = make(newCondition, newThenBranch, newElseBranch);
+			result = make(newCondition, newThenBranch, newElseBranch, simplifyToConditionIfPossible);
 		}
 		else {
 			result = original;
@@ -182,9 +182,9 @@ public class IfThenElse extends AbstractRewriter {
 			//			return Not.make(condition);
 			//		}
 		}
-//		if (thenBranch.equals(elseBranch)) { // breaking some code even though it should not; we want to have it eventually
-//			return thenBranch;
-//		}
+		if (thenBranch.equals(elseBranch)) {
+			return thenBranch;
+		}
 		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, condition, thenBranch, elseBranch);
 		return result;
 	}

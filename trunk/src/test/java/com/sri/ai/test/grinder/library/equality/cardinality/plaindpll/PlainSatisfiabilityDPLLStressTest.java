@@ -35,41 +35,28 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.boole;
+package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
 
-import java.util.List;
+import java.util.Iterator;
+import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.CommutativeAssociative;
-import com.sri.ai.grinder.library.CommutativeAssociativeWithOperationOnConstantsOnly;
-import com.sri.ai.util.Util;
+import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.grinder.library.equality.RandomSatisfiabilityProblemGenerator;
+import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainSatisfiabilityDPLL;
 
-/**
- * An abstract rewriter for boolean commutative associative expressions.
- * 
- * @author braz
- *
- */
 @Beta
-public abstract class BooleanCommutativeAssociative extends CommutativeAssociativeWithOperationOnConstantsOnly {
+public class PlainSatisfiabilityDPLLStressTest extends AbstractPlainDPLLStressTest {
 
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression result = super.rewriteAfterBookkeeping(expression, process);
-		if (result.hasFunctor(getFunctor())) {
-			result = processIdempotency(result);
-		}
-		return result;
+	protected Rewriter makeRewriter() {
+		return new PlainSatisfiabilityDPLL(new CountsDeclaration(10));
 	}
 
-	private Expression processIdempotency(Expression expression) {
-		List<Expression> argumentsReplacement =
-			(List<Expression>) Util.removeRepeatedNonDestructively(expression.getArguments());
-		if (argumentsReplacement.size() != expression.getArguments().size()) {
-			return CommutativeAssociative.make(getFunctor(), argumentsReplacement, getNeutralElementExpression());
-		}
-		return expression;
+	@Override
+	protected Iterator<Expression> makeProblemsIterator(int size, int minimumNumberOfIndices) {
+		return new RandomSatisfiabilityProblemGenerator(new Random(getRandomSeedForProblems()), size, size, minimumNumberOfIndices, size, 3);
 	}
 }

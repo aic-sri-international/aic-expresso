@@ -48,6 +48,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.CommutativeAssociative;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.Util;
 
 /**
@@ -59,7 +60,7 @@ import com.sri.ai.util.Util;
 @Beta
 public class Or extends BooleanCommutativeAssociative {
 
-	public static final Object FUNCTOR = "or";
+	public static final Object FUNCTOR = FunctorConstants.OR;
 	//
 	private final static Expression            neutralElement              = Expressions.makeSymbol(false);
 	private final static Expression            absorbingElement            = Expressions.makeSymbol(true);
@@ -67,7 +68,7 @@ public class Or extends BooleanCommutativeAssociative {
 
 	@Override
 	public Object getFunctor() {
-		return "or";
+		return FunctorConstants.OR;
 	}
 	
 	@Override
@@ -108,7 +109,7 @@ public class Or extends BooleanCommutativeAssociative {
 	 * but not requiring the functor and neutral element.
 	 */
 	public static Expression make(List<Expression> arguments) {
-		return CommutativeAssociative.make("or", arguments, Expressions.FALSE);
+		return CommutativeAssociative.make(FunctorConstants.OR, arguments, Expressions.TRUE, Expressions.FALSE);
 	}
 	
 	/**
@@ -116,6 +117,6 @@ public class Or extends BooleanCommutativeAssociative {
 	 * but not requiring the parameters already determined for or applications.
 	 */
 	public static Expression make(Iterator<Expression> argumentsIterator) {
-		return CommutativeAssociative.make(argumentsIterator, "or", Expressions.TRUE, Expressions.FALSE);
+		return CommutativeAssociative.make(FunctorConstants.OR, argumentsIterator, Expressions.TRUE, Expressions.FALSE);
 	}
 }

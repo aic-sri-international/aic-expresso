@@ -109,7 +109,7 @@ public class And extends BooleanCommutativeAssociative {
 	 * but not requiring the functor and neutral element.
 	 */
 	public static Expression makeExpression(List<Expression> arguments) {
-		return CommutativeAssociative.makeExpression("and", arguments, Expressions.TRUE);
+		return CommutativeAssociative.make("and", arguments, Expressions.TRUE);
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class And extends BooleanCommutativeAssociative {
 	 * but not requiring the parameters already determined for and applications.
 	 */
 	public static Expression make(Iterator<Expression> argumentsIterator) {
-		return CommutativeAssociative.make(argumentsIterator, "and", Expressions.FALSE, Expressions.TRUE);
+		return CommutativeAssociative.make("and", argumentsIterator, Expressions.FALSE, Expressions.TRUE);
 	}
 
 	/**

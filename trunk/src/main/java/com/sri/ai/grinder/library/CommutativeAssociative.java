@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.library;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -174,7 +175,7 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 	 * that uses the current object for obtaining the functor and neutral element.
 	 */
 	public Expression makeExpressionWithSameFunctorAsThis(List<Expression> arguments) {
-		return makeExpression(Expressions.wrap(getFunctor()), arguments, getNeutralElement());
+		return make(Expressions.wrap(getFunctor()), arguments, getNeutralElement());
 	}
 	
 	/**
@@ -193,26 +194,34 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 		if (arguments.size() == 1) {
 			return arguments.get(0);
 		}
-		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Expressions.wrap(functor), arguments);
+		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Expressions.wrap(functor), arguments);
+		return result;
 	}
 
+	public static Expression make(Object functor, Collection<Expression> arguments, Expression absorbingElement, Expression neutralElement) {
+		return make(functor, arguments.iterator(), absorbingElement, neutralElement);
+	}
+	
 	/**
-	 * Similar to {@link Expressions#apply(Object, Object...)},
-	 * but makes a simplified function application of an associative commutative operator,
-	 * that is, its application but for the cases in which there are no arguments, or a single argument.
-	 * When there are no arguments, a given neutral element value is returned.
-	 * When a single argument is provided, it is returned itself.
+	 * Makes a commutative associative application from arguments in an iterator's range.
+	 * This is potentially efficient in that it will stop as soon as the result is determined
+	 * when it finds an absorbing element.
+	 * If the arguments are being computed on the fly (for example, the iterator is a UnaryFunctionIterator),
+	 * this can save a lot of time.
 	 */
-	public static Expression makeExpression(Object functor, List<Expression> arguments, Expression neutralElement) {
-		Predicate<Expression> notEqual = Predicates.not(new Equals<Expression>(neutralElement));
-		arguments = Util.collectToList(arguments, notEqual);
-		if (arguments.isEmpty()) {
-			return Expressions.wrap(neutralElement);
+	public static Expression make(Object functor, Iterator<Expression> argumentsIterator, Expression absorbingElement, Expression neutralElement) {
+		absorbingElement = Expressions.wrap(absorbingElement);
+		List<Expression> arguments = new LinkedList<Expression>();
+		while (argumentsIterator.hasNext()) {
+			Expression argument = argumentsIterator.next();
+			if (argument.equals(absorbingElement)) {
+				return absorbingElement;
+			}
+			if ( ! argument.equals(neutralElement)) {
+				arguments.add(argument);
+			}
 		}
-		if (arguments.size() == 1) {
-			return arguments.get(0);
-		}
-		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Expressions.wrap(functor), arguments);
+		Expression result = make(functor, arguments, neutralElement);
 		return result;
 	}
 
@@ -227,28 +236,5 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 			return expression.getArguments();
 		}
 		return Util.list(expression);
-	}
-	
-	/**
-	 * Makes a commutative associative application from arguments in an iterator's range.
-	 * This is potentially efficient in that it will stop as soon as the result is determined
-	 * when it finds an absorbing element.
-	 * If the arguments are being computed on the fly (for example, the iterator is a UnaryFunctionIterator),
-	 * this can save a lot of time.
-	 */
-	public static Expression make(Iterator<Expression> argumentsIterator, Object functor, Expression absorbingElement, Expression neutralElement) {
-		absorbingElement = Expressions.wrap(absorbingElement);
-		List<Expression> arguments = new LinkedList<Expression>();
-		while (argumentsIterator.hasNext()) {
-			Expression argument = argumentsIterator.next();
-			if (argument.equals(absorbingElement)) {
-				return absorbingElement;
-			}
-			if ( ! argument.equals(neutralElement)) {
-				arguments.add(argument);
-			}
-		}
-		Expression result = make(functor, arguments, neutralElement);
-		return result;
 	}
 }
