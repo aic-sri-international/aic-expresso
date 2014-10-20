@@ -37,9 +37,13 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.util.Util.getOrUseDefault;
 import static java.util.Collections.emptyList;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import com.google.common.annotations.Beta;
@@ -47,6 +51,8 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.library.number.Minus;
+import com.sri.ai.grinder.library.number.Times;
 
 @SuppressWarnings("serial")
 /**
@@ -127,22 +133,38 @@ public class SymbolEqualityModelCountingConstraint extends AbstractSymbolEqualit
 		return result;
 	}
 
+	private static Times timesRewriter = new Times();
+
 	@Override
 	public Expression solution(Collection<Expression> indices, RewritingProcess process) {
 		
-		long resultValue = 1;
+		ArrayList<Expression> indexNumbersOfPossibleValues = new ArrayList<Expression>(indices.size());
 		
 		for (Expression index : indices) {
-			long typeSize = GrinderUtil.getTypeCardinality(index, process);
-			if (typeSize == -1) {
-				throw new Error("Could not determine cardinality of type of " + index);
-			}
 			Collection<Expression> setOfDistinctTerms = get(index);
 			long numberOfNonAvailableValues = setOfDistinctTerms == null? 0 : (long) setOfDistinctTerms.size();
-			resultValue *= typeSize - numberOfNonAvailableValues;
+
+			long typeSize = GrinderUtil.getTypeCardinality(index, process);
+			Expression indexNumberOfPossibleValues;
+			if (typeSize == -1) {
+				Expression indexType = process.getContextualSymbolType(index);
+				if (indexType == null) {
+					throw new Error("Type of " + index + " unknown but needed for symbolic cardinality computation.");
+				}
+				Expression indexTypeCardinality = apply(CARDINALITY, indexType);
+				indexNumberOfPossibleValues = Minus.make(indexTypeCardinality, Expressions.makeSymbol(numberOfNonAvailableValues));
+			}
+			else {
+				indexNumberOfPossibleValues = makeSymbol(typeSize - numberOfNonAvailableValues);
+			}
+			
+			indexNumbersOfPossibleValues.add(indexNumberOfPossibleValues);
 		}
 		
-		return Expressions.makeSymbol(resultValue);
+		Expression result = Times.make(indexNumbersOfPossibleValues);
+		result = timesRewriter.rewrite(result, process);
+		
+		return result;
 	}
 
 	private static Expression getDistinctPredefinedTermForVariable1ThatIsNotVariable2AndIsNotDistinctFromVariable2(

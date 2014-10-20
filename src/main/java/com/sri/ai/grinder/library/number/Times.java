@@ -93,14 +93,7 @@ public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly {
 	 * Makes a product, automatically accounting for neutral element occurrences.
 	 */
 	public static Expression make(List<Expression> arguments) {
-		return CommutativeAssociative.make("*", arguments, Expressions.ONE);
-	}
-
-	/**
-	 * Makes a product, automatically accounting for neutral element occurrences.
-	 */
-	public static Expression makeExpression(List<Expression> arguments) {
-		return CommutativeAssociative.make("*", arguments, Expressions.ONE);
+		return CommutativeAssociative.make("*", arguments, Expressions.ZERO, Expressions.ONE);
 	}
 
 	/**

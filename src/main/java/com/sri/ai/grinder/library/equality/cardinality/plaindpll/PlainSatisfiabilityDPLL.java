@@ -87,7 +87,7 @@ public class PlainSatisfiabilityDPLL extends AbstractPlainDPLLForEqualityLogic {
 	}
 
 	@Override
-	protected Expression combineUnconditionalSolutions(Expression solution1, Expression solution2) {
+	protected Expression combineUnconditionalSolutions(Expression solution1, Expression solution2, RewritingProcess process) {
 		return Or.make(solution1, solution2);
 	}
 

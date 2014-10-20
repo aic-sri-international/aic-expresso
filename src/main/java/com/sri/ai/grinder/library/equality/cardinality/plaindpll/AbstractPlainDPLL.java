@@ -136,8 +136,9 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 	/**
 	 * Combines two unconditional solutions for split sub-problems
 	 * (for example, disjunction of two boolean constants in satisfiability, or addition in model counting).
+	 * @param process TODO
 	 */
-	protected abstract Expression combineUnconditionalSolutions(Expression solution1, Expression solution2);
+	protected abstract Expression combineUnconditionalSolutions(Expression solution1, Expression solution2, RewritingProcess process);
 
 	/**
 	 * Converts a conjunction of atoms into the equivalent {@link #TheoryConstraint} object.
@@ -347,7 +348,7 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false /* no simplification to condition */);
 		}
 		else {
-			result = combineUnconditionalSolutions(solution1, solution2);
+			result = combineUnconditionalSolutions(solution1, solution2, process);
 		}
 
 		// The code below is left to show what I tried when separating externalization from the main algorithm.
