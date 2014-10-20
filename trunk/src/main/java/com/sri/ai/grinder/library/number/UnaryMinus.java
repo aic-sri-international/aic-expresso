@@ -44,6 +44,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
+import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
  * Implements the unary MINUS operation.
@@ -53,10 +54,8 @@ import com.sri.ai.grinder.core.HasNumberOfArguments;
 @Beta
 public class UnaryMinus extends AbstractRewriter {
 
-	private static final Expression MINUS = Expressions.makeSymbol("-");
-	
 	public UnaryMinus() {
-		this.setReifiedTests(new HasKind(MINUS),
+		this.setReifiedTests(new HasKind(FunctorConstants.MINUS),
 				             new HasNumberOfArguments(1));
 	}
 
@@ -66,5 +65,12 @@ public class UnaryMinus extends AbstractRewriter {
 			return Expressions.makeSymbol(expression.get(0).rationalValue().negate());
 		}
 		return expression;
+	}
+	
+	public static Expression make(Expression argument) {
+		if (argument.getValue() instanceof Number) {
+			return Expressions.makeSymbol(argument.rationalValue().negate());
+		}
+		return Expressions.apply(FunctorConstants.MINUS, argument);
 	}
 }

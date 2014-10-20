@@ -18,6 +18,7 @@ import org.junit.Assert;
 
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -26,13 +27,15 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 
 public abstract class AbstractPlainDPLLTest {
 
+	protected static final Symbol DEFAULT_EVERYTHING_CARDINALITY_VALUE = makeSymbol(10);
+
 	protected abstract Rewriter makeRewriter();
 
 	protected abstract Expression makeProblem(Expression expression, List<Expression> indexExpressions);
 
-	private static final Expression everythingType = makeSymbol("Everything");
+	protected static final Expression everythingType = makeSymbol("Everything");
 
-	private static final Expression everythingCardinality = apply(CARDINALITY, everythingType);
+	protected static final Expression everythingCardinality = apply(CARDINALITY, everythingType);
 
 	protected static class Parse implements Function<String, Expression> {
 		@Override
@@ -41,7 +44,11 @@ public abstract class AbstractPlainDPLLTest {
 		}
 	}
 
-	protected void runTest(Expression expression, Collection<String> indicesStrings, Expression expected) {
+	protected void runSymbolicAndNonSymbolicTests(Expression expression, Collection<String> indicesStrings, Expression expected) {
+		runTest(expression, indicesStrings, expected, false);
+	}
+	
+	protected void runTest(Expression expression, Collection<String> indicesStrings, Expression expected, boolean noTypeSize) {
 		DefaultRewritingProcess process = new DefaultRewritingProcess(expression, null);
 		
 		Collection<Expression> indices;
@@ -52,7 +59,9 @@ public abstract class AbstractPlainDPLLTest {
 			indices = getAllVariables(expression, process);
 		}
 		
-		process.putGlobalObject(everythingCardinality, makeSymbol(10));
+		if (! noTypeSize) {
+			process.putGlobalObject(everythingCardinality, DEFAULT_EVERYTHING_CARDINALITY_VALUE);
+		}
 		
 		List<Expression> indexExpressions =
 				indices

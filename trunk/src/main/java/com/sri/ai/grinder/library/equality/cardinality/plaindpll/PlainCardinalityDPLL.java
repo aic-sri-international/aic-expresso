@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import static com.sri.ai.util.Util.arrayList;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -44,8 +46,14 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
+import com.sri.ai.grinder.library.number.FlattenMinusInPlus;
+import com.sri.ai.grinder.library.number.Minus;
+import com.sri.ai.grinder.library.number.Plus;
+import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.util.base.Pair;
 
 @Beta
@@ -84,9 +92,18 @@ public class PlainCardinalityDPLL extends AbstractPlainDPLLForEqualityLogic {
 		return false;
 	}
 
+	private static Rewriter plusAndMinusRewriter = new TotalRewriter(new Plus(), new Minus(), new UnaryMinus(), new FlattenMinusInPlus());
 	@Override
-	protected Expression combineUnconditionalSolutions(Expression solution1, Expression solution2) {
-		return Expressions.makeSymbol(solution1.rationalValue().add(solution2.rationalValue()));
+	protected Expression combineUnconditionalSolutions(Expression solution1, Expression solution2, RewritingProcess process) {
+		Expression result;
+		if (solution1.getValue() instanceof Number && solution2.getValue() instanceof Number) { // not necessary, as else clause is generic enough to deal with this case as well, but hopefully this saves time.
+			result = Expressions.makeSymbol(solution1.rationalValue().add(solution2.rationalValue()));
+		}
+		else {
+			Expression sum = Plus.make(arrayList(solution1, solution2));
+			result = plusAndMinusRewriter.rewrite(sum, process);
+		}
+		return result;
 	}
 
 	@Override

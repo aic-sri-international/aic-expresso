@@ -35,29 +35,55 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library;
+package com.sri.ai.grinder.library.number;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasKind;
+import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
- * Looks up the current expression in the process's global objects and, if it is
- * there, replace it by the corresponding value.
+ * Rewrites
+ * <p>
+ * <code>t + ... + (r - s) + ... + u</code><br>
+ * to<br>
+ * <code>t + ... + r + -s + ... + u</code>
  * 
  * @author braz
+ *
  */
 @Beta
-public class PlainSubstitution extends AbstractRewriter {
+public class FlattenMinusInPlus extends AbstractRewriter {
+
+	public FlattenMinusInPlus() {
+		this.setReifiedTests(new HasKind(FunctorConstants.PLUS));
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Object value;
-		if ((value = process.getGlobalObject(expression)) != null) {
-			return Expressions.wrap(value);
+		
+		List<Expression> newArguments = new LinkedList<Expression>();
+		boolean change = false;
+		for (Expression argument : expression.getArguments()) {
+			if (argument.hasFunctor(FunctorConstants.MINUS) && argument.numberOfArguments() == 2) {
+				newArguments.add(argument.get(0));
+				newArguments.add(UnaryMinus.make(argument.get(1)));
+				change = true;
+			}
+			else {
+				newArguments.add(argument);
+			}
 		}
+
+		if (change) {
+			expression = Plus.make(newArguments);
+		}
+		
 		return expression;
 	}
 }

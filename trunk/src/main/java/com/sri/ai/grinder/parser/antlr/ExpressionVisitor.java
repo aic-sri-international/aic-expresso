@@ -51,7 +51,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultLambdaExpression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.FunctionSignature;
@@ -183,7 +182,14 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// '-' expr #negative
 	@Override
 	public Expression visitNegative(AntlrGrinderParser.NegativeContext ctx) {
-		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.MINUS, visit(ctx.expr()));
+		Expression argument = visit(ctx.expr());
+		Expression result;
+		if (argument.getValue() instanceof Number) {
+			result = Expressions.makeSymbol(argument.rationalValue().negate());
+		}
+		else {
+			result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.MINUS, argument);
+		}
 		return result;
 	}
 	

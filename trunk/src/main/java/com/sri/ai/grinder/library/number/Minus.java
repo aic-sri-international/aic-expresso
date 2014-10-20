@@ -64,6 +64,10 @@ public class Minus extends AbstractRewriter {
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		return staticRewriterAfterBookkeeping(expression);
+	}
+
+	static public Expression staticRewriterAfterBookkeeping(Expression expression) {
 		Expression result = expression;
 		
 		Expression first = expression.get(0);
@@ -87,6 +91,8 @@ public class Minus extends AbstractRewriter {
 	}
 	
 	public static Expression make(Expression e1, Expression e2) {
-		return Expressions.apply(FUNCTOR, e1, e2);
+		Expression result = Expressions.apply(FUNCTOR, e1, e2);
+		result = staticRewriterAfterBookkeeping(result);
+		return result;
 	}	
 }

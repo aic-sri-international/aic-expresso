@@ -1096,25 +1096,25 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		String string;
 		
 		string = "-3";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", "3"));
+		test(string, Expressions.makeSymbol("-3"));
 		
 		string = "-3e7";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 30000000));
+		test(string, Expressions.makeSymbol(-30000000));
 
 		string = "-3e-1";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", "0.30"));
+		test(string, Expressions.makeSymbol("-0.30"));
 
 		string = "-.3e7";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 3000000));
+		test(string, Expressions.makeSymbol("-3000000"));
 
 		string = "-.3e-1";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", "0.030"));
+		test(string, Expressions.makeSymbol("-0.030"));
 
 		string = "-1.3e7";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 13000000));
+		test(string, Expressions.makeSymbol(-13000000));
 
 		string = "-1.3e-1";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", "0.130"));
+		test(string, Expressions.makeSymbol("-0.130"));
 		
 		string = "-x";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", "x"));
@@ -1373,7 +1373,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 		string = "1+-2";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "1", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", "2")));
+				Expressions.makeSymbol("-2")));
 
 		string = "w + x + y + z";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 
@@ -2361,7 +2361,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 0, "X"));
 
 			expression = "-1";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", "1"));
+			test(expression, Expressions.makeSymbol("-1"));
 
 			expression = "-x";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", "x"));

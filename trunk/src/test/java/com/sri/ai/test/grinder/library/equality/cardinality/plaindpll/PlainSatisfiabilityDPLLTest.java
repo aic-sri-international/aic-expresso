@@ -67,12 +67,12 @@ public class PlainSatisfiabilityDPLLTest extends AbstractPlainDPLLTest {
 		expression = parse("true");
 		indices    = null; // means all variables
 		expected   = parse("true");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
 		expression = parse("false");
 		indices    = null; // means all variables
 		expected   = parse("false");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
 		// tests answer completeness
 		expression  = parse("(Y = a and X = T) or (Y != a and X = T1 and T = T1)");
@@ -80,100 +80,100 @@ public class PlainSatisfiabilityDPLLTest extends AbstractPlainDPLLTest {
 		// original algorithm provided this incomplete solution due to incomplete condition-applying-on-solution algorithm used in externalization
 		// expected = parse("if X = T then if T = T1 then if T = T1 then 10 else 1 else 1 else (if X = T1 then if T = T1 then 9 else 0 else 0)");
 		expected    = parse("if X = T then true else false");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		
 		expression = parse("X != Y");
 		indices    = list("X");
 		expected   = parse("true");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != Y and X != a");
 		indices    = list("X");
 		expected   = parse("true");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != Y and X != Z and X != a");
 		indices    = list("X");
 		expected   = parse("true");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("Y = a and X != Y and X != a");
 		indices    = list("X");
 		expected   = parse("if Y = a then true else false");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 
 		expression = parse("X1 != X2 and (X2 = X3 or X2 = X4) and X3 = X1 and X4 = X1");
 		indices    = null; // means all variables
 		expected   = parse("false");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X1 != X2 and X2 != X0 and X1 != X0");
 		indices    = null; // means all variables
 		expected   = parse("true");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("true");
 		indices    = null; // means all variables
 		expected   = parse("true");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("true");
 		indices    = list("X", "Y");
 		expected   = parse("true");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("false");
 		indices    = null; // means all variables
 		expected   = parse("false");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("false");
 		indices    = list("X", "Y");
 		expected   = parse("false");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		
 		expression = parse("X = a");
 		indices    = null; // means all variables
 		expected   = parse("true");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a");
 		indices    = null; // means all variables
 		expected   = parse("true");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X = a");
 		indices    = list("X", "Y");
 		expected   = parse("true");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a");
 		indices    = list("X", "Y");
 		expected   = parse("true");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X = a and Y != b");
 		indices    = list("X", "Y");
 		expected   = parse("true");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a and Y != b");
 		indices    = list("X", "Y");
 		expected   = parse("true");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a or Y != b");
 		indices    = list("X", "Y");
 		expected   = parse("true");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a and X != Y and Y != a");
 		indices    = null;
 		expected   = parse("true");
-		runTest(expression, indices, expected);
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 	}
 
 	protected Expression makeProblem(Expression expression, List<Expression> indexExpressions) {
