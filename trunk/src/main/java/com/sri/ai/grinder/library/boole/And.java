@@ -101,15 +101,7 @@ public class And extends BooleanCommutativeAssociative {
 	 * but not requiring the functor and neutral element.
 	 */
 	public static Expression make(List<Expression> arguments) {
-		return CommutativeAssociative.make("and", arguments, Expressions.TRUE);
-	}
-
-	/**
-	 * Same as {@link CommutativeAssociative#make(Object, List, Object)},
-	 * but not requiring the functor and neutral element.
-	 */
-	public static Expression makeExpression(List<Expression> arguments) {
-		return CommutativeAssociative.make("and", arguments, Expressions.TRUE);
+		return CommutativeAssociative.make("and", arguments, Expressions.FALSE, Expressions.TRUE);
 	}
 
 	/**

@@ -76,6 +76,10 @@ public class MoveNotIn extends AbstractCardinalityRewriter {
 	 */
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		return staticRewrite(expression, process);
+	}
+
+	public static Expression staticRewrite(Expression expression, RewritingProcess process) {
 		Expression result = expression;
 	
 		// Assert input arguments
@@ -117,8 +121,7 @@ public class MoveNotIn extends AbstractCardinalityRewriter {
 				result = Expressions.TRUE;
 			}
 		} 
-		else if (notF.hasFunctor(FunctorConstants.NOT) &&
-				   notF.numberOfArguments() == 1) {
+		else if (notF.hasFunctor(FunctorConstants.NOT) && notF.numberOfArguments() == 1) {
 			Trace.log("F is \"not not G\"");
 			Trace.log("    G <- R_top_simplify(G)");
 			Trace.log("    return G");
