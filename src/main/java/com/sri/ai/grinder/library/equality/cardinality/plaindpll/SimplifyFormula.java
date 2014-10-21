@@ -48,6 +48,8 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.boole.Equivalence;
+import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
@@ -92,6 +94,12 @@ public class SimplifyFormula {
 		}
 		else if (formula.hasFunctor(FunctorConstants.IF_THEN_ELSE)) {
 			result = IfThenElse.simplify(formula);
+		}
+		else if (formula.hasFunctor(FunctorConstants.EQUIVALENCE)) {
+			result = Equivalence.simplify(formula);
+		}
+		else if (formula.hasFunctor(FunctorConstants.IMPLICATION)) {
+			result = Implication.simplify(formula);
 		}
 		
 		return result;

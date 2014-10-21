@@ -195,7 +195,7 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 		Pair<Expression, List<Expression>> formulaAndIndexExpressions = getFormulaAndIndexExpressionsFromRewriterProblemArgument(expression, process);
 		Expression       formula          = formulaAndIndexExpressions.first;
 		List<Expression> indexExpressions = formulaAndIndexExpressions.second;
-		Expression simplifiedFormula = SimplifyFormula.simplify(formula, process);
+		Expression       simplifiedFormula = SimplifyFormula.simplify(formula, process);
 		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 		Expression result = solve(simplifiedFormula, Expressions.TRUE, indices, subProcess);

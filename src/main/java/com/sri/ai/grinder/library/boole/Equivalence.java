@@ -84,4 +84,26 @@ public class Equivalence extends AbstractRewriter {
 		boolean result = expressionF.hasFunctor(FunctorConstants.EQUIVALENCE) && expressionF.numberOfArguments() == 2;
 		return result;
 	}
+
+	public static Expression simplify(Expression expression) {
+		if (expression.get(0).equals(expression.get(1))) {
+			return Expressions.TRUE;
+		}
+		
+		if (expression.get(0).equals(Expressions.TRUE)){
+			return expression.get(1);
+		}
+		else if (expression.get(0).equals(Expressions.FALSE)){
+			return Not.make(expression.get(1));
+		}
+
+		if (expression.get(1).equals(Expressions.TRUE)){
+			return expression.get(0);
+		}
+		else if (expression.get(1).equals(Expressions.FALSE)){
+			return Not.make(expression.get(0));
+		}
+
+		return expression;
+	}
 }
