@@ -255,9 +255,13 @@ public class SimplifyFormula {
 					// For example, X = Z can be simplified by the conjunction (X = Y and Y = Z), even though it cannot be simplified
 					// by either X = Y or by Y = Z, but it can be simplified by X = Z which is a transitive consequence of the two.
 					// However, such transitive consequences are explicitly produced by replacing the first argument of an equality
-					// during the simplification. Replacing X by Y in condition produces a new condition X = Z, which represents
-					// the transitive consequence explicitly and which will simplify whatever conditions depend on it.
-					
+					// during the simplification. Using X = Y to replace all Y by X will replace Y in Y = Z and produce a new condition X = Z,
+					// which represents the transitive consequence explicitly and which will simplify whatever conditions depend on it.
+					//
+					// Another approach is to consider every possible type of condition configuration.
+					// It is more detailed and takes more work to implement, but it would save some unnecessary substitutions.
+					// A schema of these substitutions is described in the file SimplifyFormulacompleteSimplifySolutionGivenEqualitySubstitutionSchemas.jpg
+					// stored in the same directory as this file.
 					newElseBranch = completeSimplifySolutionGivenEqualityNegation(newElseBranch, newCondition, process);
 				}
 			
