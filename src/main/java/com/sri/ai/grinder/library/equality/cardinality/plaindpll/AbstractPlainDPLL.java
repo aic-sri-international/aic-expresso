@@ -123,7 +123,7 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 	abstract protected Pair<Expression, List<Expression>> getFormulaAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process);
 
 	/**
-	 * Defines the solution the combination of which with any other solution S produces S itself (for example, 0 in model counting and false in satisfiability).
+	 * Defines the solution of <code>Aggregator({{ (on ) false | false }})</code>.
 	 */
 	protected abstract Expression bottomSolution();
 

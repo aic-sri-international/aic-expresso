@@ -188,8 +188,11 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 	@Override
 	public String makeToString() {
 		List<String> indexExpressionsStrings = mapIntoList(getIndexExpressions(), Expression::toString);
-		String parametersRepresentation = join(", ", indexExpressionsStrings); 
-		String result = getHeadString() + " " + parametersRepresentation + " : " + getBody();
+		String parametersRepresentation = join(", ", indexExpressionsStrings);
+		if ( ! parametersRepresentation.isEmpty()) {
+			parametersRepresentation = " " + parametersRepresentation;
+		}
+		String result = getHeadString() + parametersRepresentation + " : " + getBody();
 		return result;
 	}
 
