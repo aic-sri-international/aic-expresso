@@ -64,8 +64,12 @@ public class PlainTautologicalityDPLLTest extends AbstractPlainDPLLTest {
 		GrinderUtil.setMinimumOutputForProfiling();
 		
 		
-		expression = parse("(X = Y and Y = X) or (not (X = Y) and not (Y = X))");
-//		expression = parse("X = Y <=> Y = X)");
+		expression = parse("X = Y <=> Y = X");
+		indices    = null;
+		expected   = parse("true");
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+
+		expression = parse("X = Y and Y = Z => X = Z");
 		indices    = null;
 		expected   = parse("true");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
