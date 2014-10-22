@@ -74,6 +74,16 @@ public class PlainTautologicalityDPLLTest extends AbstractPlainDPLLTest {
 		expected   = parse("true");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
+		expression = parse("X = V => for all Y : Y = X => Y = V");
+		indices    = null;
+		expected   = parse("true");
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+
+		expression = parse("X = V => for all Y : Y = X => Y = V and V = a");
+		indices    = list("X"); // V is free
+		expected   = parse("V = a");
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+
 		
 		
 		expression = parse("true");

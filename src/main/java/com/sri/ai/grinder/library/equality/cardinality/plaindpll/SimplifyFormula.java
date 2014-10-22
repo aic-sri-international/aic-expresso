@@ -49,7 +49,9 @@ import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.Equivalence;
+import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.Implication;
+import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
@@ -100,6 +102,12 @@ public class SimplifyFormula {
 		}
 		else if (formula.hasFunctor(FunctorConstants.IMPLICATION)) {
 			result = Implication.simplify(formula);
+		}
+		else if (formula.getSyntacticFormType().equals(ForAll.SYNTACTIC_FORM_TYPE)) {
+			result = (new PlainTautologicalityDPLL()).rewrite(formula, process);
+		}
+		else if (formula.getSyntacticFormType().equals(ThereExists.SYNTACTIC_FORM_TYPE)) {
+			result = (new PlainSatisfiabilityDPLL()).rewrite(formula, process);
 		}
 		
 		return result;
