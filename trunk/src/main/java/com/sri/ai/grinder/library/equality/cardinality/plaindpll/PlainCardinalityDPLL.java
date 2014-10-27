@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.util.Util.arrayList;
 
 import java.util.Collection;
@@ -49,6 +50,8 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.TotalRewriter;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.number.FlattenMinusInPlus;
 import com.sri.ai.grinder.library.number.Minus;
@@ -77,6 +80,7 @@ public class PlainCardinalityDPLL extends AbstractPlainDPLLForEqualityLogic {
 
 	@Override
 	protected Pair<Expression, List<Expression>> getFormulaAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
+		CardinalityUtil.assertIsCardinalityOfIndexedFormulaExpression(expression);
 		IntensionalSet set = (IntensionalSet) expression.get(0);
 		Pair<Expression, List<Expression>> result = Pair.make(set.getCondition(), set.getIndexExpressions());
 		return result;
@@ -94,7 +98,7 @@ public class PlainCardinalityDPLL extends AbstractPlainDPLLForEqualityLogic {
 
 	private static Rewriter plusAndMinusRewriter = new TotalRewriter(new Plus(), new Minus(), new UnaryMinus(), new FlattenMinusInPlus());
 	@Override
-	protected Expression combineUnconditionalSolutions(Expression solution1, Expression solution2, RewritingProcess process) {
+	protected Expression additiveOperationOnUnconditionalSolutions(Expression solution1, Expression solution2, RewritingProcess process) {
 		Expression result;
 		if (solution1.getValue() instanceof Number && solution2.getValue() instanceof Number) { // not necessary, as else clause is generic enough to deal with this case as well, but hopefully this saves time.
 			result = Expressions.makeSymbol(solution1.rationalValue().add(solution2.rationalValue()));
@@ -107,8 +111,20 @@ public class PlainCardinalityDPLL extends AbstractPlainDPLLForEqualityLogic {
 	}
 
 	@Override
+	protected Expression additiveOperationAppliedAnIntegerNumberOfTimes(Expression value, Expression numberOfOccurrences, RewritingProcess process) {
+		Expression result;
+		if (numberOfOccurrences.equals(ZERO)) {
+			result = ZERO;
+		}
+		else {
+			result = IfThenElse.make(value, numberOfOccurrences, ZERO);
+		}
+		return result;
+	}
+
+	@Override
 	protected TheoryConstraint makeConstraint(Expression atomsConjunction, Collection<Expression> indices, RewritingProcess process) {
-		SymbolEqualityModelCountingConstraint result = new SymbolEqualityModelCountingConstraint(atomsConjunction, indices, process);
+		TheoryConstraint result = new SymbolEqualityConstraint(atomsConjunction, indices, process);
 		return result;
 	}
 }

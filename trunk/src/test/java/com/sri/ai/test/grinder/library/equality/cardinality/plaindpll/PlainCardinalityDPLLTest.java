@@ -42,9 +42,7 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.list;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 
@@ -52,37 +50,13 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.Normalize;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainCardinalityDPLL;
 
 @Beta
 public class PlainCardinalityDPLLTest extends AbstractPlainDPLLTest {
 	
-	protected void runSymbolicAndNonSymbolicTests(Expression expression, Collection<String> indicesStrings, Expression expected) {
-		
-		super.runTest(expression, indicesStrings, expected, true /* no type size */);
-		
-		RewritingProcess process = DirectCardinalityComputationFactory.newCardinalityProcess();
-		
-		process.putGlobalObject(everythingCardinality, DEFAULT_EVERYTHING_CARDINALITY_VALUE);
-		
-		Normalize normalizer = new Normalize();
-		
-		Map<Expression, Expression> freeSymbolsAndTypes = new HashMap<Expression, Expression>();
-		for (Expression freeSymbol : Expressions.freeSymbols(expected, process)) {
-			freeSymbolsAndTypes.put(freeSymbol, everythingType);
-		}
-		process = GrinderUtil.extendContextualSymbols(freeSymbolsAndTypes, process);
-				
-		Expression expectedWithTypeSize = normalizer.rewrite(expected, process);
-	
-		super.runTest(expression, indicesStrings, expectedWithTypeSize, false /* use type size */);
-	}
-
 	@Override
 	protected Expression makeProblem(Expression expression, List<Expression> indexExpressions) {
 		Expression set = new DefaultIntensionalMultiSet(indexExpressions, Expressions.ONE, expression);
@@ -103,6 +77,21 @@ public class PlainCardinalityDPLLTest extends AbstractPlainDPLLTest {
 		Collection<String> indices;
 		
 		GrinderUtil.setMinimumOutputForProfiling();
+		
+		// this example tests whether conditioning an index to a value considers previous disequalities on that index,
+		// because X is split on b first, and then the algorithm attempts to condition on X = Y, but that requires Y to be != b.
+		expression = parse("X != b and X = Y");
+		indices    = list("X");
+		expected   = parse("if Y = b then 0 else 1");
+//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+
+		// tests elimination for quantified sub-expressions
+		expression = parse("for all Y: X = Y");
+		indices    = list("X");
+		expected   = parse("if | type(Y) | - 1 <= 0 then | Everything | else 0");
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+
+		
 		
 		expression = parse("true");
 		indices    = null; // means all variables
@@ -136,7 +125,7 @@ public class PlainCardinalityDPLLTest extends AbstractPlainDPLLTest {
 		
 		expression = parse("X != Y and X != Z and X != a");
 		indices    = list("X");
-		expected   = parse("if Y = Z then if Z = a then | Everything | - 1 else | Everything | - 2 else (if Y = a then | Everything | - 2 else (if Z = a then | Everything | - 2 else | Everything | - 3))");
+		expected   = parse("if Z = Y then if Y = a then | Everything | - 1 else | Everything | - 2 else if Z = a then | Everything | - 2 else if Y = a then | Everything | - 2 else | Everything | - 3");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("Y = a and X != Y and X != a");

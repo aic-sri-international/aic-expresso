@@ -1039,6 +1039,24 @@ public class Expressions {
 		return;
 	}
 
+	public static Map<Expression, Expression> freeSymbolsAndTypes(Expression expression, RewritingProcess process) {
+		Set<Expression> freeSymbols = freeSymbols(expression, process);
+		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
+		for (Expression freeSymbol : freeSymbols) {
+			result.put(freeSymbol, process.getContextualSymbolType(freeSymbol));
+		}
+		return result;
+	}
+
+	public static Map<Expression, Expression> freeVariablesAndTypes(Expression expression, RewritingProcess process) {
+		Set<Expression> freeVariables = freeVariables(expression, process);
+		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
+		for (Expression freeVariable : freeVariables) {
+			result.put(freeVariable, process.getContextualSymbolType(freeVariable));
+		}
+		return result;
+	}
+
 	public static Expression opposite(Expression booleanConstant) {
 		Expression result;
 		if (booleanConstant.equals(TRUE)){

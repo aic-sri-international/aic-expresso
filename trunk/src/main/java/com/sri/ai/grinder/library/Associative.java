@@ -76,8 +76,7 @@ public class Associative extends AbstractRewriter {
 	}
 
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression,
-			final RewritingProcess process) {
+	public Expression rewriteAfterBookkeeping(Expression expression, final RewritingProcess process) {
 		Expression functor = expression.getFunctor();
 		if (operators.contains(functor)) {
 			Predicate<Expression> alwaysTrue = Predicates.alwaysTrue();

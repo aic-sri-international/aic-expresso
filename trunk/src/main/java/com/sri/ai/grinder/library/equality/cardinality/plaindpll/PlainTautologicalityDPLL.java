@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import java.util.List;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.UniversallyQuantifiedFormula;
@@ -44,9 +46,12 @@ import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
+import com.sri.ai.util.Util;
 
 @Beta
 /** 
@@ -85,13 +90,20 @@ public class PlainTautologicalityDPLL extends AbstractHierarchicalRewriter {
 		if (IfThenElse.isIfThenElse(solution)) {
 			Expression negatedThenBranch = negateBooleanSolution(IfThenElse.getThenBranch(solution), process);
 			Expression negatedElseBranch = negateBooleanSolution(IfThenElse.getElseBranch(solution), process);
-			result = IfThenElse.make(IfThenElse.getCondition(solution), negatedThenBranch, negatedElseBranch);
+			result = IfThenElse.make(IfThenElse.getCondition(solution), negatedThenBranch, negatedElseBranch, false /* do not simplify to condition */);
 		}
 		else if (solution.equals(Expressions.TRUE)) {
 			result = Expressions.FALSE;
 		}
 		else if (solution.equals(Expressions.FALSE)) {
 			result = Expressions.TRUE;
+		}
+		else if (solution.hasFunctor(FunctorConstants.GREATER_THAN)) {
+			result = Expressions.apply(FunctorConstants.LESS_THAN_OR_EQUAL_TO, solution.get(0), solution.get(1));
+		}
+		else if (solution.hasFunctor(FunctorConstants.OR)) {
+			List<Expression> newArguments = Util.mapIntoArrayList(solution.getArguments(), e -> negateBooleanSolution(e, process));
+			result = And.make(newArguments);
 		}
 		else {
 			throw new Error("Should be boolean solution but it is not: " + solution);

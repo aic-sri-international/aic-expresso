@@ -54,7 +54,7 @@ import com.sri.ai.grinder.library.equality.formula.helper.NormalizeDisequalityLi
 import com.sri.ai.grinder.library.equality.formula.helper.NormalizeEqualityLiteral;
 import com.sri.ai.grinder.library.equality.formula.helper.NormalizeLiteral;
 import com.sri.ai.grinder.library.equality.formula.helper.NormalizeOr;
-import com.sri.ai.grinder.library.equality.formula.helper.StandardizeVariablesApart;
+import com.sri.ai.grinder.library.equality.formula.helper.StandardizeVariablesApartInASingleFormula;
 import com.sri.ai.grinder.library.equality.formula.helper.UniversalOut;
 
 /**
@@ -108,7 +108,7 @@ public class FormulaToNNF {
 		result = NegationIn.negationsIn(result, process);
 		
 		// INS)EA - standardize apart
-		result = StandardizeVariablesApart.standardizeApart(result, process);
+		result = StandardizeVariablesApartInASingleFormula.standardizeApart(result, process);
 		
 		// INSE)A- existentials out
 		result = ExistentialOut.existentialsOut(result, process);

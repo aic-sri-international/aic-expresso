@@ -37,17 +37,23 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.direct.core;
 
+import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
+import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
+
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.StandardizedApartFrom;
 import com.sri.ai.grinder.library.boole.ForAll;
+import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
@@ -56,6 +62,9 @@ import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainCardinalityDPLL;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainTautologicalityDPLL;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SimplifyFormula;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
@@ -70,6 +79,43 @@ import com.sri.ai.grinder.library.set.tuple.Tuple;
 @Beta
 public class Cardinality extends AbstractCardinalityRewriter {
 	
+	private PlainCardinalityDPLL plainCardinality = GrinderUtil.usePlain? new PlainCardinalityDPLL() : null;
+
+	private Expression usePlainCardinality(Expression cardinalityOfIndexedFormulaExpression, RewritingProcess process) {
+
+		Expression newCardinality;
+
+		Expression contextualConstraint = process.getContextualConstraint();
+
+		if (contextualConstraint.equals(Expressions.TRUE)) {
+			newCardinality = cardinalityOfIndexedFormulaExpression;
+		}
+		else {
+			IntensionalSet set = (IntensionalSet) cardinalityOfIndexedFormulaExpression.get(0);
+			set = (IntensionalSet) StandardizedApartFrom.standardizedApartFrom(set, Expressions.TRUE, process); // takes contextual constraint into account
+			Expression formula = set.getCondition();
+
+			List<Expression> contextualIndexExpressions = getIndexExpressionsFromSymbolsAndTypes(freeVariablesAndTypes(contextualConstraint, process));
+
+			Expression contextualConstraintImpliesFormula = Implication.make(contextualConstraint, formula);
+			Expression conditionForNonContextualSymbolsToRenderFormulaTrueUnderAnyAssignmentToContextualSymbols = new DefaultUniversallyQuantifiedFormula(contextualIndexExpressions, contextualConstraintImpliesFormula);
+			Expression formulaSimplifiedByContextualConstraint = (new PlainTautologicalityDPLL()).rewrite(conditionForNonContextualSymbolsToRenderFormulaTrueUnderAnyAssignmentToContextualSymbols, process);
+
+			Expression newSet = set.setCondition(formulaSimplifiedByContextualConstraint);
+			newCardinality = Expressions.apply(FunctorConstants.CARDINALITY, newSet);
+		}
+
+		Expression result = usePlainCardinalityAfterTakingContextualConstraintIntoAccount(newCardinality, process);
+		return result;
+	}
+
+	private Expression usePlainCardinalityAfterTakingContextualConstraintIntoAccount(Expression cardinalityOfIndexedFormulaExpression, RewritingProcess process) {
+		Expression result;
+		result = plainCardinality.rewrite(cardinalityOfIndexedFormulaExpression, process);
+		result = SimplifyFormula.fromSolutionToShorterExpression(result, process);
+		return result;
+	}
+
 	public Cardinality() {
 	}
 	
@@ -94,8 +140,17 @@ public class Cardinality extends AbstractCardinalityRewriter {
 			Expression quantificationSymbol                   = Tuple.get(expression, 1);
 			CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
 			cardinalityOfIndexedFormulaExpression = CardinalityUtil.removeIfThenElsesFromFormula(cardinalityOfIndexedFormulaExpression, process);
-			result = rewrite(cardinalityOfIndexedFormulaExpression, quantification, process);
+			
+			if (GrinderUtil.usePlain) {
+				result = usePlainCardinality(cardinalityOfIndexedFormulaExpression, process);
+			}
+			else {
+				result = rewrite(cardinalityOfIndexedFormulaExpression, quantification, process);
+			}
 		} 
+		else if (GrinderUtil.usePlain) {
+			result = usePlainCardinality(expression, process);
+		}
 		else {
 		
 			expression = CardinalityUtil.removeIfThenElsesFromFormula(expression, process);

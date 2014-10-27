@@ -136,9 +136,16 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 	/**
 	 * Combines two unconditional solutions for split sub-problems
 	 * (for example, disjunction of two boolean constants in satisfiability, or addition in model counting).
-	 * @param process TODO
 	 */
-	protected abstract Expression combineUnconditionalSolutions(Expression solution1, Expression solution2, RewritingProcess process);
+	protected abstract Expression additiveOperationOnUnconditionalSolutions(Expression solution1, Expression solution2, RewritingProcess process);
+
+	/**
+	 * Multiplies the (possibly symbolic) value of an expression to the number of times an expression evaluates to it
+	 * (for example, in summation of numeric expressions this will be the product of two numbers,
+	 * in model counting this will be 0 if value is 'false' and numberOfOccurrences if value is 'true',
+	 * and in satisfiability it will 'false' if value is 'false' and 'true' if value is 'true' and numberOfOccurrences is greater than 0).
+	 */
+	protected abstract Expression additiveOperationAppliedAnIntegerNumberOfTimes(Expression value, Expression numberOfOccurrences, RewritingProcess process);
 
 	/**
 	 * Converts a conjunction of atoms into the equivalent {@link #TheoryConstraint} object.
@@ -149,7 +156,7 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 	 * Returns given subExpression (or an atom equivalent to it) if it is appropriate to be a DPLL splitter atom,
 	 * or <code>null</code> otherwise.
 	 */
-	protected abstract Expression expressionIsSplitterCandidate(Expression subExpression, Collection<Expression> indices, RewritingProcess process);
+	protected abstract Expression makeSplitterIfPossible(Expression subExpression, Collection<Expression> indices, RewritingProcess process);
 	
 	/**
 	 * Returns simplification of formula given splitter.
@@ -228,18 +235,6 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 	 * Assumes it is already simplified with respect to context represented by constraint.
 	 */
 	protected Expression solve(Expression formula, TheoryConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
-		Expression result = null;
-		if (formula.equals(Expressions.FALSE) || constraint == null) {
-			result = bottomSolution();
-		}
-		else {
-			result = computeSolutionSplittingProblemIfNeeded(formula, indices, constraint, process);
-		}
-		
-		return result;
-	}
-
-	protected Expression computeSolutionSplittingProblemIfNeeded(Expression formula, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
 		Expression splitter = pickSplitter(formula, indices, constraint, process);
 
 		Expression result;
@@ -247,15 +242,23 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 			result = computeSolutionBasedOnSplittedProblems(splitter, formula, indices, constraint, process);
 		}
 		else {
-			result = constraint.solution(indices, process);
+			Expression unconditionalFormulaValue = formula;
+			Expression numberOfOccurrences = constraint == null? Expressions.ZERO : constraint.numberOfOccurrences(indices, process);
+			result = additiveOperationAppliedAnIntegerNumberOfTimes(unconditionalFormulaValue, numberOfOccurrences, process);
 		}
 		return result;
 	}
 
 	protected Expression pickSplitter(Expression formula, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
-		Expression splitter = pickAtomFromFormula(formula, indices, process);
-		if (splitter == null) { // formula is 'true'
-			splitter = constraint.pickSplitter(indices, process);
+		Expression splitter;
+		if (constraint == null) {
+			splitter = null;
+		}
+		else {
+			splitter = pickAtomFromFormula(formula, constraint, indices, process);
+			if (splitter == null) { // formula is 'true'
+				splitter = constraint.pickSplitter(indices, process);
+			}
 		}
 		return splitter;
 	}
@@ -265,14 +268,17 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 	 * and returns atom to do next splitting, or null if there is none.
 	 * Since the formula is not 'false', a returned null implies that the formula is 'true'.
 	 */
-	protected Expression pickAtomFromFormula(Expression formula, Collection<Expression> indices, RewritingProcess process) {
+	protected Expression pickAtomFromFormula(Expression formula, TheoryConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
 	
 		Expression result = null;
 	
 		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(formula);
 		while (result == null && subExpressionIterator.hasNext()) {
 			Expression subExpression = subExpressionIterator.next();
-			result = expressionIsSplitterCandidate(subExpression, indices, process);
+			Expression splitterCandidate = makeSplitterIfPossible(subExpression, indices, process);
+			if (splitterCandidate != null) {
+				result = constraint.getFirstRequiredSplitter(splitterCandidate, indices, process);
+			}
 		}
 	
 		return result;
@@ -348,7 +354,7 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false /* no simplification to condition */);
 		}
 		else {
-			result = combineUnconditionalSolutions(solution1, solution2, process);
+			result = additiveOperationOnUnconditionalSolutions(solution1, solution2, process);
 		}
 
 		// The code below is left to show what I tried when separating externalization from the main algorithm.

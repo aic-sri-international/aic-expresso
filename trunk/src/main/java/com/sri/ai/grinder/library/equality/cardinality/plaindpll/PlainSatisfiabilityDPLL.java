@@ -37,6 +37,12 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -44,6 +50,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.ExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
@@ -87,13 +94,31 @@ public class PlainSatisfiabilityDPLL extends AbstractPlainDPLLForEqualityLogic {
 	}
 
 	@Override
-	protected Expression combineUnconditionalSolutions(Expression solution1, Expression solution2, RewritingProcess process) {
+	protected Expression additiveOperationOnUnconditionalSolutions(Expression solution1, Expression solution2, RewritingProcess process) {
 		return Or.make(solution1, solution2);
 	}
 
 	@Override
+	protected Expression additiveOperationAppliedAnIntegerNumberOfTimes(Expression value, Expression numberOfOccurrences, RewritingProcess process) {
+		Expression result;
+		if (value.equals(FALSE) || numberOfOccurrences.equals(ZERO)) {
+			result = FALSE;
+		}
+		else if (numberOfOccurrences.getValue() instanceof Number) { // we already know it is a value greater than zero
+			result = TRUE;
+		}
+		else if (GrinderConfiguration.isAssumeDomainsAlwaysLarge()) { // numberOfOccurrences is a symbolic value, so now it all depends on its being greater than zero
+			result = TRUE;
+		}
+		else {
+			result = apply(GREATER_THAN, numberOfOccurrences, Expressions.ZERO);
+		}
+		return result;
+	}
+
+	@Override
 	protected TheoryConstraint makeConstraint(Expression disequalitiesConjunction, Collection<Expression> indices, RewritingProcess process) {
-		SymbolEqualitySatisfiabilityConstraint result = new SymbolEqualitySatisfiabilityConstraint(disequalitiesConjunction, indices, process);
+		TheoryConstraint result = new SymbolEqualityConstraint(disequalitiesConjunction, indices, process);
 		return result;
 	}
 }

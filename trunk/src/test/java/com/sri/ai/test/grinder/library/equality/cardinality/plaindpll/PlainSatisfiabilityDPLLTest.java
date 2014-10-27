@@ -85,22 +85,22 @@ public class PlainSatisfiabilityDPLLTest extends AbstractPlainDPLLTest {
 		
 		expression = parse("X != Y");
 		indices    = list("X");
-		expected   = parse("true");
+		expected   = parse("| Everything | - 1 > 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != Y and X != a");
 		indices    = list("X");
-		expected   = parse("true");
+		expected   = parse("if Y = a then | Everything | - 1 > 0 else | Everything | - 2 > 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != Y and X != Z and X != a");
 		indices    = list("X");
-		expected   = parse("true");
+		expected   = parse("if Z = Y then if Y = a then | Everything | - 1 > 0 else | Everything | - 2 > 0 else if Z = a then | Everything | - 2 > 0 else if Y = a then | Everything | - 2 > 0 else | Everything | - 3 > 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("Y = a and X != Y and X != a");
 		indices    = list("X");
-		expected   = parse("if Y = a then true else false");
+		expected   = parse("if Y = a then | Everything | - 1 > 0 else false");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 
@@ -111,7 +111,7 @@ public class PlainSatisfiabilityDPLLTest extends AbstractPlainDPLLTest {
 		
 		expression = parse("X1 != X2 and X2 != X0 and X1 != X0");
 		indices    = null; // means all variables
-		expected   = parse("true");
+		expected   = parse("(| Everything | - 1) * | Everything | * (| Everything | - 2) > 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("true");
@@ -121,7 +121,7 @@ public class PlainSatisfiabilityDPLLTest extends AbstractPlainDPLLTest {
 		
 		expression = parse("true");
 		indices    = list("X", "Y");
-		expected   = parse("true");
+		expected   = parse("| Everything |  * | Everything |  > 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("false");
@@ -142,37 +142,37 @@ public class PlainSatisfiabilityDPLLTest extends AbstractPlainDPLLTest {
 		
 		expression = parse("X != a");
 		indices    = null; // means all variables
-		expected   = parse("true");
+		expected   = parse("| Everything | - 1 > 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X = a");
 		indices    = list("X", "Y");
-		expected   = parse("true");
+		expected   = parse("| Everything | > 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a");
 		indices    = list("X", "Y");
-		expected   = parse("true");
+		expected   = parse("(| Everything | - 1) * | Everything |  > 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X = a and Y != b");
 		indices    = list("X", "Y");
-		expected   = parse("true");
+		expected   = parse("| Everything | - 1 > 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a and Y != b");
 		indices    = list("X", "Y");
-		expected   = parse("true");
+		expected   = parse("(| Everything | - 1) * (| Everything | - 1) > 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a or Y != b");
 		indices    = list("X", "Y");
-		expected   = parse("true");
+		expected   = parse("(| Everything | - 1 > 0) or ((| Everything | - 1) * | Everything | > 0)");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a and X != Y and Y != a");
 		indices    = null;
-		expected   = parse("true");
+		expected   = parse("(| Everything | - 2)*(| Everything | - 1) > 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 	}
 

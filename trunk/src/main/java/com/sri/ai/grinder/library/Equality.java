@@ -176,6 +176,23 @@ public class Equality extends AbstractRewriter {
 	}
 
 	/**
+	 * Makes an equality application on two terms possibly simplifying it (taking constants into account).
+	 */
+	public static Expression makeWithConstantSimplification(Expression term1, Expression term2, RewritingProcess process) {
+		Expression result;
+		if (term1.equals(term2)) {
+			result = Expressions.TRUE;
+		}
+		else if (process.isConstant(term1) && process.isConstant(term2)) {
+			result = Expressions.FALSE;
+		}
+		else {
+			result = make(term1, term2);
+		}
+		return result;
+	}
+	
+	/**
 	 * Makes an equality application while removing duplicates,
 	 * returning {@link Expressions.FALSE} if there is more than one uniquely named constant in arguments,
 	 * and returning {@link Expressions.TRUE} if all arguments are identical.

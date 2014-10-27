@@ -242,7 +242,7 @@ abstract public class AbstractGrinderTest {
 			else {
 				System.out.println("tests["+ i +"] rewriting "+topExpression);
 				long startTime = System.currentTimeMillis();
-				actual = tests[i].callRewrite(process);
+ 				actual = tests[i].callRewrite(process);
 				long rewroteIn = System.currentTimeMillis()-startTime;
 				totalRewriteTime += rewroteIn;
 				System.out.println("tests["+ i +" rewrote in "+(rewroteIn)+"ms]:"+topExpression + "\n--->\n" + actual);

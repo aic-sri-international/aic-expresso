@@ -40,6 +40,8 @@ package com.sri.ai.expresso.core;
 import static com.sri.ai.util.Util.mapIntoArray;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,8 +51,10 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.SyntacticFunctionApplication;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
+import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
  * A default implementation of a {@link SyntacticFunctionApplication}.
@@ -67,12 +71,32 @@ public class DefaultSyntacticFunctionApplication extends AbstractNonQuantifiedEx
 	private SyntaxTree                 syntaxTree;
 	private List<ExpressionAndContext> expressionAndContexts;
 	
-	public DefaultSyntacticFunctionApplication(Expression functor, ArrayList<Expression> syntacticArguments) {
+	public DefaultSyntacticFunctionApplication(Object functor, ArrayList<Expression> syntacticArguments) {
 		super();
-		this.syntacticfunctor   = functor;
+		setup(functor, syntacticArguments);
+	}
+
+	@SuppressWarnings("unchecked")
+	public DefaultSyntacticFunctionApplication(Object functor, Expression... syntacticArguments) {
+		if (syntacticArguments.length == 1 && syntacticArguments[0] instanceof ArrayList) {
+			setup(functor, (ArrayList<Expression>) syntacticArguments[0]);
+		}
+		else if (syntacticArguments.length == 1 && syntacticArguments[0] instanceof Collection) {
+			Collection<Expression> collection = (Collection) syntacticArguments[0];
+			Expression[] array = (Expression[]) collection.toArray();
+			List<Expression> list = Arrays.asList(array);
+			setup(functor, new ArrayList<Expression>(list));
+		}
+		else {
+			setup(functor, new ArrayList<Expression>(Arrays.asList(syntacticArguments)));
+		}
+	}
+	
+	private void setup(Object functor, ArrayList<Expression> syntacticArguments) {
+		this.syntacticfunctor   = Expressions.wrap(functor);
 		this.syntacticArguments = syntacticArguments;
 		
-		this.syntaxTree = new DefaultCompoundSyntaxTree(functor.getSyntaxTree(), mapIntoArray(syntacticArguments, e -> e == null? null : e.getSyntaxTree()));
+		this.syntaxTree = new DefaultCompoundSyntaxTree(syntacticfunctor.getSyntaxTree(), mapIntoArray(syntacticArguments, e -> e == null? null : e.getSyntaxTree()));
 		
 		expressionAndContexts = new LinkedList<ExpressionAndContext>();
 	}
@@ -156,5 +180,9 @@ public class DefaultSyntacticFunctionApplication extends AbstractNonQuantifiedEx
 	@Override
 	public String makeToString() {
 		return getSyntaxTree().toString();
+	}
+
+	public static DefaultSyntacticFunctionApplication make(Expression indexType) {
+		return new DefaultSyntacticFunctionApplication(FunctorConstants.TYPE, indexType);
 	}
 }

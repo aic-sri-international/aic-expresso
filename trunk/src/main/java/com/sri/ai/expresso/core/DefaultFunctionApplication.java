@@ -215,7 +215,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 	Set<String> infixFunctionsStrings = Util.set(
 			"+", "-", "*", "/", "^",
 			"and", "or", "<=>", "=>",
-			"=", "!=",
+			"=", "!=", ">", "<", "<=", ">=",
 			"union", "intersection", "in", "\\"
 			);
 	
@@ -272,6 +272,14 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 					expression.hasFunctor("=")
 					||
 					expression.hasFunctor("!=")
+					||
+					expression.hasFunctor("<")
+					||
+					expression.hasFunctor(">")
+					||
+					expression.hasFunctor("<=")
+					||
+					expression.hasFunctor(">=")
 					||
 					expression.hasFunctor("<=>")
 					||

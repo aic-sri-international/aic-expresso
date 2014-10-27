@@ -90,6 +90,14 @@ public class IfThenElse extends AbstractRewriter {
 	}
 	
 	/**
+	 * Same as {@link #makeIfDistinctFrom(Expression, Expression, Expression, Expression, boolean)}
+	 * with last argument equal to to true.
+	 */
+	public static Expression makeIfDistinctFrom(Expression original, Expression newCondition, Expression newThenBranch, Expression newElseBranch) {
+		return makeIfDistinctFrom(original, newCondition, newThenBranch, newElseBranch, true);
+	}
+	
+	/**
 	 * Given an original if then else expression and a condition, then-branch and else-branch,
 	 * makes and returns a new if then else expression with these components only if at least one of them is a different instance from
 	 * the arguments of the original one, or returns the original otherwise.
@@ -304,6 +312,9 @@ public class IfThenElse extends AbstractRewriter {
 		Expression thenBranch = getThenBranch(ifThenElse);
 		Expression elseBranch = getElseBranch(ifThenElse);
 		Expression result = IfThenElse.make(condition, thenBranch, elseBranch);
+		if (ifThenElse.equals(result)) {
+			result = ifThenElse; // make sure to return same instance if there were no changes 
+		}
 		return result;
 	}
 }
