@@ -49,6 +49,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.CommutativeAssociative;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.Util;
 
 /**
@@ -126,7 +127,7 @@ public class And extends BooleanCommutativeAssociative {
 	 * Otherwise, returns singleton list with condition itself.
 	 */
 	public static List<Expression> getConjuncts(Expression condition) {
-		if (condition.hasFunctor("and")) {
+		if (condition.hasFunctor(FunctorConstants.AND)) {
 			return condition.getArguments();
 		}
 		return Util.list(condition);

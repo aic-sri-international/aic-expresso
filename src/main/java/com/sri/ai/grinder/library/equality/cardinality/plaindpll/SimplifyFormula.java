@@ -37,22 +37,28 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import static com.sri.ai.util.Util.mapIntoList;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Equivalence;
 import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.Implication;
+import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.equality.formula.FormulaToDNF;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Equals;
 import com.sri.ai.util.base.Not;
@@ -68,49 +74,59 @@ public class SimplifyFormula {
 		formula = topSimplify(formula, process);
 		if (formula.getSyntacticFormType().equals("Function application")) {
 			ArrayList<Expression> simplifiedArguments =
-					Util.mapIntoArrayList(formula.getArguments(), new SimplifyAsFunction(process));
+					Util.mapIntoArrayList(formula.getArguments(), e -> simplify(e, process));
 			formula = Expressions.apply(formula.getFunctor(), simplifiedArguments);
 			formula = topSimplify(formula, process);
 		}
 		return formula;
 	}
-	
+
+	/**
+	 * Simplifies the top expression until it cannot be simplified anymore.
+	 * Always returns either a symbol or a function application (quantified formulas have their top quantifiers eliminated).
+	 * @param formula
+	 * @param process
+	 * @return
+	 */
 	public static Expression topSimplify(Expression formula, RewritingProcess process) {
 		
-		Expression result = formula;
+		Expression previous;
+		do {
+			previous = formula;
+			
+			if (formula.hasFunctor(FunctorConstants.EQUALITY)) {
+				formula = Equality.checkForTrivialEqualityCases(formula, process);
+			}
+			else if (formula.hasFunctor(FunctorConstants.DISEQUALITY)) {
+				formula = Disequality.checkForTrivialDisequalityCases(formula, process);
+			}
+			else if (formula.hasFunctor(FunctorConstants.AND)) {
+				formula = eliminateBooleanConstantsInConjunction(formula);
+			}
+			else if (formula.hasFunctor(FunctorConstants.OR)) {
+				formula = eliminateBooleanConstantsInDisjunction(formula);
+			}
+			else if (formula.hasFunctor(FunctorConstants.NOT)) {
+				formula = eliminateBooleanConstantsInNegation(formula);
+			}
+			else if (formula.hasFunctor(FunctorConstants.IF_THEN_ELSE)) {
+				formula = IfThenElse.simplify(formula);
+			}
+			else if (formula.hasFunctor(FunctorConstants.EQUIVALENCE)) {
+				formula = Equivalence.simplify(formula);
+			}
+			else if (formula.hasFunctor(FunctorConstants.IMPLICATION)) {
+				formula = Implication.simplify(formula);
+			}
+			else if (formula.getSyntacticFormType().equals(ForAll.SYNTACTIC_FORM_TYPE)) {
+				formula = (new PlainTautologicalityDPLL()).rewrite(formula, process);
+			}
+			else if (formula.getSyntacticFormType().equals(ThereExists.SYNTACTIC_FORM_TYPE)) {
+				formula = (new PlainSatisfiabilityDPLL()).rewrite(formula, process);
+			}
+		} while (formula != previous);
 		
-		if (formula.hasFunctor(FunctorConstants.EQUALITY)) {
-			result = Equality.checkForTrivialEqualityCases(formula, process);
-		}
-		else if (formula.hasFunctor(FunctorConstants.DISEQUALITY)) {
-			result = Disequality.checkForTrivialDisequalityCases(formula, process);
-		}
-		else if (formula.hasFunctor(FunctorConstants.AND)) {
-			result = eliminateBooleanConstantsInConjunction(formula);
-		}
-		else if (formula.hasFunctor(FunctorConstants.OR)) {
-			result = eliminateBooleanConstantsInDisjunction(formula);
-		}
-		else if (formula.hasFunctor(FunctorConstants.NOT)) {
-			result = eliminateBooleanConstantsInNegation(formula);
-		}
-		else if (formula.hasFunctor(FunctorConstants.IF_THEN_ELSE)) {
-			result = IfThenElse.simplify(formula);
-		}
-		else if (formula.hasFunctor(FunctorConstants.EQUIVALENCE)) {
-			result = Equivalence.simplify(formula);
-		}
-		else if (formula.hasFunctor(FunctorConstants.IMPLICATION)) {
-			result = Implication.simplify(formula);
-		}
-		else if (formula.getSyntacticFormType().equals(ForAll.SYNTACTIC_FORM_TYPE)) {
-			result = (new PlainTautologicalityDPLL()).rewrite(formula, process);
-		}
-		else if (formula.getSyntacticFormType().equals(ThereExists.SYNTACTIC_FORM_TYPE)) {
-			result = (new PlainSatisfiabilityDPLL()).rewrite(formula, process);
-		}
-		
-		return result;
+		return formula;
 	}
 
 	public static Expression eliminateBooleanConstantsInConjunction(Expression conjunction) {
@@ -178,21 +194,64 @@ public class SimplifyFormula {
 		return result;
 	}
 
-	private static class SimplifyAsFunction implements Function<Expression, Expression> {
-	
-		RewritingProcess process;
-		
-		public SimplifyAsFunction(RewritingProcess process) {
-			this.process = process;
+	public static Expression fromSolutionToShorterExpression(Expression solution, RewritingProcess process) {
+		Expression result = solution;
+		if (IfThenElse.isIfThenElse(solution)) {
+			Expression splitter = IfThenElse.getCondition(solution);
+			Expression thenBranch = fromSolutionToShorterExpression(IfThenElse.getThenBranch(solution), process);
+			Expression elseBranch = fromSolutionToShorterExpression(IfThenElse.getElseBranch(solution), process);
+			
+			// if C then if C' then A else B else B  --->   if C and C' then A else B
+			if (IfThenElse.isIfThenElse(thenBranch) && IfThenElse.getElseBranch(thenBranch).equals(elseBranch)) {
+				Expression conditionsConjunction = And.make(splitter, IfThenElse.getCondition(thenBranch));
+				result = IfThenElse.make(conditionsConjunction, IfThenElse.getThenBranch(thenBranch), elseBranch);
+			}
+			else {
+				result = IfThenElse.makeIfDistinctFrom(solution, splitter, thenBranch, elseBranch);
+			}
+			
+			result = simplifySolutionIfBranchesAreEqualModuloSplitter(result, process);
+			
+			result = IfThenElse.simplify(result);
 		}
-		
-		@Override
-		public Expression apply(Expression input) {
-			Expression result = simplify(input, process);
-			return result;
-		}
+		return result;
 	}
 
+	public static Expression simplifySolutionIfBranchesAreEqualModuloSplitter(Expression solution, RewritingProcess process) {
+		Expression result = solution;
+		if (IfThenElse.isIfThenElse(solution)) {
+			Expression splitter   = IfThenElse.getCondition(solution);
+			Expression thenBranch = IfThenElse.getThenBranch(solution);
+			Expression elseBranch = IfThenElse.getElseBranch(solution);
+			if (equalModuloSplitter(splitter, thenBranch, elseBranch, process)) {
+				result = elseBranch;
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Decides whether two solutions are equal modulo the splitter's equality.
+	 * This is used to simplify
+	 * <code>if X = a then a else X</code> to <code>X</code>,
+	 * by providing the check that the then branch <code>a</code> is a special case of the else branch <code>X</code>
+	 * and can therefore be replaced by the else branch <code>X</code>,
+	 * after which the entire expression is replaced by <code>X</code>
+	 * @param splitter
+	 * @param solution1
+	 * @param solution2
+	 * @param process TODO
+	 * @return whether the two solutions are equal modulo the splitter equality
+	 */
+	public static boolean equalModuloSplitter(Expression splitter, Expression solution1, Expression solution2, RewritingProcess process) {
+		boolean result = solution1.equals(solution2);
+		if ( ! result) {
+			Expression solution2UnderSplitter = completeSimplifySolutionGivenEquality(solution2, splitter, process);
+			result = solution1.equals(solution2UnderSplitter);
+		}
+		return result;
+	}
+	
 	/**
 	 * Applies an equality between two terms to a formula by replacing the first one by the second everywhere and simplifying the result,
 	 * which is incomplete, that is, may contain tautological or contradictory conditions given their context.
@@ -360,6 +419,30 @@ public class SimplifyFormula {
 		// then the then branch does not contain X, but Y instead which represents X.
 		// We must then apply the disequality Y != a.
 		return equalityTheNegationOfWhichWillBeAppliedToThenBranch;
+	}
+
+	public static Expression simplifyUnderFormula(Expression expression, Expression constraint, RewritingProcess process) {
+		Expression dnf = FormulaToDNF.convertToDNF(constraint, process);
+		List<Expression> conjunctiveClauses = Or.getDisjuncts(dnf);
+		List<Expression> versions =
+				mapIntoList(
+						conjunctiveClauses,
+						conjunctiveClause -> simplifyGivenConjunctiveClause(expression, conjunctiveClause, process));
+		Expression result = Or.make(versions);
+		return result;
+	}
+
+	public static Expression simplifyGivenConjunctiveClause(Expression expression, Expression conjunctiveClause, RewritingProcess process) {
+		List<Expression> literals = And.getConjuncts(conjunctiveClause);
+		List<Expression> versions =
+				mapIntoList(
+						literals,
+						literal -> {
+							Expression splitter = SymbolEqualityConstraint.makeSplitterIfPossible(literal, Collections.emptyList(), process);
+							return simplifyGivenEquality(expression, splitter, process);	
+						});
+		Expression result = And.make(versions);
+		return result;
 	}
 }
 

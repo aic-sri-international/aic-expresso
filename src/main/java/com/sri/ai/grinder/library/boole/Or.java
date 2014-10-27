@@ -119,4 +119,15 @@ public class Or extends BooleanCommutativeAssociative {
 	public static Expression make(Iterator<Expression> argumentsIterator) {
 		return CommutativeAssociative.make(FunctorConstants.OR, argumentsIterator, Expressions.TRUE, Expressions.FALSE);
 	}
+
+	/**
+	 * If given condition is a disjunction, returns list of disjuncts.
+	 * Otherwise, returns singleton list with condition itself.
+	 */
+	public static List<Expression> getDisjuncts(Expression condition) {
+		if (condition.hasFunctor(FunctorConstants.OR)) {
+			return condition.getArguments();
+		}
+		return Util.list(condition);
+	}
 }

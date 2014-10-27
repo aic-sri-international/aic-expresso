@@ -35,51 +35,38 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
+package com.sri.ai.grinder.library.number;
 
-import java.util.Collection;
+import java.util.LinkedHashSet;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.core.HasKind;
+import com.sri.ai.grinder.library.BinaryOperator;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.util.Util;
 
 /**
- * An interface for the theory-specific representation of the current constraint in DPLL.
+ * Implements a rewriter for the less than operation.
  * 
  * @author braz
- *
  */
 @Beta
-public interface TheoryConstraint {
-	/**
-	 * Indicates which atom needs to be split for constraint to become closer to state
-	 * for which solutions can be computed in polynomial time, or null if it is already in such a state.
-	 * @param indices TODO
-	 */
-	public Expression pickSplitter(Collection<Expression> indices, RewritingProcess process);
-	
-	/**
-	 * Computes solution for constraint in polynomial time.
-	 */
-	public Expression numberOfOccurrences(Collection<Expression> indices, RewritingProcess process);
+public class LessThan extends BinaryOperator {
 
-	/**
-	 * Generates new constraint representing conjunction of this constraint and given splitter.
-	 */
-	public TheoryConstraint applySplitter(Expression splitter, Collection<Expression> indices, RewritingProcess process);
-
-	/**
-	 * Generates new constraint representing conjunction of this constraint and the negation of given splitter.
-	 */
-	public TheoryConstraint applySplitterNegation(Expression splitter, Collection<Expression> indices, RewritingProcess process);
-
-	public Collection<Expression> getDistinctPredefinedTermsFrom(Expression distinctPredefinedTermForVariable1);
+	public LessThan() {
+		this.functors = new LinkedHashSet<Expression>(); 
+		this.functors.add(Expressions.makeSymbol(FunctorConstants.LESS_THAN));
+		//
+		this.firstType  = Number.class;
+		this.secondType = Number.class;
+		
+		this.setReifiedTests(new HasKind(FunctorConstants.LESS_THAN));
+	}
 	
-	public boolean termsAreConstrainedToBeDifferent(Expression term1, Expression term2, RewritingProcess process);
-	
-	/**
-	 * A splitter X = T can only be applied if the constraints guarantee that T is distinct from every other term Z that X must be distinct from.
-	 * If that is not the case, then before using X = T we must use the splitter based on T != Z first.
-	 */
-	public Expression getFirstRequiredSplitter(Expression splitterCandidate, Collection<Expression> indices, RewritingProcess process);
+	@Override
+	protected Object operation(Expression expression1, Expression expression2) {
+		return Util.lessThan(expression1.rationalValue(), expression2.rationalValue());
+	}
 }

@@ -10,6 +10,7 @@ import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.toArrayList;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,19 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.library.Associative;
+import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
+import com.sri.ai.grinder.library.PlainSubstitution;
+import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.Or;
+import com.sri.ai.grinder.library.controlflow.IfThenElseBranchesAreIdenticalBooleanConstants;
+import com.sri.ai.grinder.library.number.GreaterThan;
+import com.sri.ai.grinder.library.number.LessThanOrEqualTo;
+import com.sri.ai.grinder.library.number.Minus;
+import com.sri.ai.grinder.library.number.Plus;
+import com.sri.ai.grinder.library.number.Times;
 
 public abstract class AbstractPlainDPLLTest {
 
@@ -45,7 +58,28 @@ public abstract class AbstractPlainDPLLTest {
 	}
 
 	protected void runSymbolicAndNonSymbolicTests(Expression expression, Collection<String> indicesStrings, Expression expected) {
-		runTest(expression, indicesStrings, expected, false);
+		runTest(expression, indicesStrings, expected, true /* no type size */);
+		
+		RewritingProcess process = DirectCardinalityComputationFactory.newCardinalityProcess();
+		
+		process.putGlobalObject(everythingCardinality, DEFAULT_EVERYTHING_CARDINALITY_VALUE);
+		
+		TotalRewriter normalizer = new TotalRewriter(
+				new PlainSubstitution(),
+				new Associative("+"), new Associative("*"), new Associative("and"), new Associative("or"),
+				new Plus(), new Minus(), new Times(), new GreaterThan(), new LessThanOrEqualTo(),
+				new Or(), new And(),
+				new IfThenElseBranchesAreIdenticalBooleanConstants()
+				);
+		
+		Map<Expression, Expression> freeSymbolsAndTypes = new HashMap<Expression, Expression>();
+		for (Expression freeSymbol : Expressions.freeSymbols(expected, process)) {
+			freeSymbolsAndTypes.put(freeSymbol, everythingType);
+		}
+		process = GrinderUtil.extendContextualSymbols(freeSymbolsAndTypes, process);
+				
+		Expression expectedWithTypeSize = normalizer.rewrite(expected, process);
+		runTest(expression, indicesStrings, expectedWithTypeSize, false /* use type size */);
 	}
 	
 	protected void runTest(Expression expression, Collection<String> indicesStrings, Expression expected, boolean noTypeSize) {

@@ -195,6 +195,7 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 			return arguments.get(0);
 		}
 		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(Expressions.wrap(functor), arguments);
+		result = Associative.associateWhenSureOperatorIsAssociative(result);
 		return result;
 	}
 

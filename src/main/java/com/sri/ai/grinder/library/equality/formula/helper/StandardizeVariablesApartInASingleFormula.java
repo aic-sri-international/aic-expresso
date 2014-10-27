@@ -59,7 +59,7 @@ import com.sri.ai.grinder.library.boole.ThereExists;
  * Basically quantifiers in the formula using the same index name are made unique.
  */
 @Beta
-public class StandardizeVariablesApart {
+public class StandardizeVariablesApartInASingleFormula {
 
 	/**
 	 * Standardize the variables in a formula.

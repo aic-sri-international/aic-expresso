@@ -42,13 +42,8 @@ import java.util.Collection;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.Equals;
-import com.sri.ai.util.base.Not;
 
 @Beta
 /** 
@@ -70,20 +65,10 @@ abstract public class AbstractPlainDPLLForEqualityLogic extends AbstractPlainDPL
 	}
 
 	@Override
-	protected Expression expressionIsSplitterCandidate(Expression subExpression, Collection<Expression> indices, RewritingProcess process) {
-		Expression result = null;
-		if (subExpression.hasFunctor(FunctorConstants.EQUALITY) || subExpression.hasFunctor(FunctorConstants.DISEQUALITY)) {
-	
-			Expression variable = Util.getFirstSatisfyingPredicateOrNull(subExpression.getArguments(), new IsVariable(process));
-	
-			Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(
-					subExpression.getArguments(), Not.make(Equals.make(variable)));
-	
-			result = makeSplitterWithIndexIfAnyComingFirst(variable, otherTerm, indices);
-		}
-		return result;
+	protected Expression makeSplitterIfPossible(Expression subExpression, Collection<Expression> indices, RewritingProcess process) {
+		return SymbolEqualityConstraint.makeSplitterIfPossible(subExpression, indices, process);
 	}
-	
+
 	@Override
 	protected boolean splitterDoesNotInvolveIndex(Expression splitter, Collection<Expression> indices) {
 		boolean result = ! indices.contains(splitter.get(0));
@@ -124,18 +109,5 @@ abstract public class AbstractPlainDPLLForEqualityLogic extends AbstractPlainDPL
 	@Override
 	protected Collection<Expression> getIndicesUnderSplitterNegation(Expression splitter, Collection<Expression> indices) {
 		return indices;
-	}
-
-	protected static Expression makeSplitterWithIndexIfAnyComingFirst(Expression variable, Expression otherTerm, Collection<Expression> indices) {
-		Expression result;
-		// if variable is a free variable or constant and other term is an index, we invert them because
-		// the algorithm requires the first term to be an index if there are any indices in the atom.
-		if ( ! indices.contains(variable) && indices.contains(otherTerm) ) {
-			result = Equality.make(otherTerm, variable);
-		}
-		else {
-			result = Equality.make(variable, otherTerm);
-		}
-		return result;
 	}
 }

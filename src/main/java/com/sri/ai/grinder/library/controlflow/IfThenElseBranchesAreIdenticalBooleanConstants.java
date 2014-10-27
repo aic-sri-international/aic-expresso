@@ -35,51 +35,49 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
-
-import java.util.Collection;
+package com.sri.ai.grinder.library.controlflow;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasKind;
+import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
- * An interface for the theory-specific representation of the current constraint in DPLL.
+ * <pre>
+ * Performs two types of rewrites on conditional expressions:
  * 
- * @author braz
+ * 1. 'if F then true else false' becomes 'F'.
+ * 2. 'if F then false else true' becomes 'not(F)'.
+ * 
+ * </pre>
+ * 
+ * @author oreilly
  *
  */
 @Beta
-public interface TheoryConstraint {
-	/**
-	 * Indicates which atom needs to be split for constraint to become closer to state
-	 * for which solutions can be computed in polynomial time, or null if it is already in such a state.
-	 * @param indices TODO
-	 */
-	public Expression pickSplitter(Collection<Expression> indices, RewritingProcess process);
+public class IfThenElseBranchesAreIdenticalBooleanConstants extends AbstractRewriter {
 	
-	/**
-	 * Computes solution for constraint in polynomial time.
-	 */
-	public Expression numberOfOccurrences(Collection<Expression> indices, RewritingProcess process);
+	public IfThenElseBranchesAreIdenticalBooleanConstants() {
+		this.setReifiedTests(new HasKind(FunctorConstants.IF_THEN_ELSE));
+	}
 
-	/**
-	 * Generates new constraint representing conjunction of this constraint and given splitter.
-	 */
-	public TheoryConstraint applySplitter(Expression splitter, Collection<Expression> indices, RewritingProcess process);
-
-	/**
-	 * Generates new constraint representing conjunction of this constraint and the negation of given splitter.
-	 */
-	public TheoryConstraint applySplitterNegation(Expression splitter, Collection<Expression> indices, RewritingProcess process);
-
-	public Collection<Expression> getDistinctPredefinedTermsFrom(Expression distinctPredefinedTermForVariable1);
-	
-	public boolean termsAreConstrainedToBeDifferent(Expression term1, Expression term2, RewritingProcess process);
-	
-	/**
-	 * A splitter X = T can only be applied if the constraints guarantee that T is distinct from every other term Z that X must be distinct from.
-	 * If that is not the case, then before using X = T we must use the splitter based on T != Z first.
-	 */
-	public Expression getFirstRequiredSplitter(Expression splitterCandidate, Collection<Expression> indices, RewritingProcess process);
+	@Override
+	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		Expression result = expression;
+		
+		Expression thenBranch = expression.get(1);
+		Expression elseBranch = expression.get(2);
+		
+		if (Expressions.TRUE.equals(thenBranch) && Expressions.TRUE.equals(elseBranch) ) {
+			result = Expressions.TRUE;
+		}
+		else if (Expressions.FALSE.equals(thenBranch) && Expressions.FALSE.equals(elseBranch)) {
+			result = Expressions.FALSE;
+		}
+		
+		return result;
+	}
 }

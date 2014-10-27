@@ -35,56 +35,34 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
+package com.sri.ai.grinder.library.number;
 
-import java.util.Collection;
+import java.util.LinkedHashSet;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.BinaryOperator;
+import com.sri.ai.util.Util;
 
-@SuppressWarnings("serial")
 /**
- * Represents and manipulates constraints in the theory of equalities of symbols (variables and constants) for satisfiability purposes.
+ * Implements a rewriter for the "less than or equal to" operation.
+ * 
+ * @author braz
  */
 @Beta
-public class SymbolEqualitySatisfiabilityConstraint extends AbstractSymbolEqualityConstraint {
+public class LessThanOrEqualTo extends BinaryOperator {
 
+	public LessThanOrEqualTo() {
+		this.functors = new LinkedHashSet<Expression>();
+		this.functors.add(Expressions.makeSymbol("<="));
+		//
+		this.firstType  = Number.class;
+		this.secondType = Number.class;
+	}
+	
 	@Override
-	public AbstractSymbolEqualityConstraint make() {
-		return new SymbolEqualitySatisfiabilityConstraint();
-	}
-
-	@Override
-	public AbstractSymbolEqualityConstraint make(AbstractSymbolEqualityConstraint another) {
-		return new SymbolEqualitySatisfiabilityConstraint(this);
-	}
-
-	public SymbolEqualitySatisfiabilityConstraint() {
-		super();
-	}
-
-	public SymbolEqualitySatisfiabilityConstraint(SymbolEqualitySatisfiabilityConstraint another) {
-		super(another);
-	}
-
-	public SymbolEqualitySatisfiabilityConstraint(Expression disequalitiesConjunction, Collection<Expression> indices, RewritingProcess process) {
-		super(disequalitiesConjunction, indices, process);
-	}
-
-	@Override
-	public Expression pickSplitter(Collection<Expression> indices, RewritingProcess process) {
-		// there is never the need for a splitter of a {@link SymbolEqualitySatisfiabilityConstraint}
-		// to render it able to produce a satisfiability solution;
-		// it is always ready to provide a solution, as-is, because
-		// if it just got created, it is satisfiable because it is created with a conjunction of satisfiable disequalities, and
-		// if it came from splitting, unsatisfiability is detected then.
-		return null;
-	}
-
-	@Override
-	public Expression solution(Collection<Expression> indices, RewritingProcess process) {
-		return Expressions.TRUE;
+	protected Object operation(Expression expression1, Expression expression2) {
+		return Util.lessThanOrEqualTo(expression1.rationalValue(), expression2.rationalValue());
 	}
 }

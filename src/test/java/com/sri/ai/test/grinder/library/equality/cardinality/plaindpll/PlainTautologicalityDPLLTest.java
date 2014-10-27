@@ -63,7 +63,7 @@ public class PlainTautologicalityDPLLTest extends AbstractPlainDPLLTest {
 		
 		GrinderUtil.setMinimumOutputForProfiling();
 		
-		
+
 		expression = parse("X = Y <=> Y = X");
 		indices    = null;
 		expected   = parse("true");
@@ -81,7 +81,7 @@ public class PlainTautologicalityDPLLTest extends AbstractPlainDPLLTest {
 
 		expression = parse("X = V => for all Y : Y = X => Y = V and V = a");
 		indices    = list("X"); // V is free
-		expected   = parse("V = a");
+		expected   = parse("if V = a then true else false");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
 		
@@ -99,7 +99,7 @@ public class PlainTautologicalityDPLLTest extends AbstractPlainDPLLTest {
 		// tests answer completeness
 		expression  = parse("(Y = a and X = T) or (Y != a and X = T1 and T = T1)");
 		indices     = list("Y");
-		expected    = parse("if X = T then T = T1 else false");
+		expected    = parse("if X = T then if T = T1 then true else | Everything | - 1 <= 0 else false");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		
@@ -120,18 +120,18 @@ public class PlainTautologicalityDPLLTest extends AbstractPlainDPLLTest {
 		
 		expression = parse("Y = a and X != Y and X != a");
 		indices    = list("X");
-		expected   = parse("false");
+		expected   = parse("if Y = a then false else | Everything | <= 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 
 		expression = parse("X1 != X2 and (X2 = X3 or X2 = X4) and X3 = X1 and X4 = X1");
 		indices    = null; // means all variables
-		expected   = parse("false");
+		expected   = parse("(| Everything | * | Everything | * | Everything | <= 0) and ((| Everything | - 1) * | Everything | * | Everything | <= 0) and ((| Everything | - 1) * (| Everything | - 1) * | Everything | <= 0) and ((| Everything | - 1) * | Everything | <= 0) and ((| Everything | - 2) * (| Everything | - 1) * | Everything | <= 0) and ((| Everything | - 1) * (| Everything | - 2) * (| Everything | - 1) * | Everything | <= 0)");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X1 != X2 and X2 != X0 and X1 != X0");
 		indices    = null; // means all variables
-		expected   = parse("false");
+		expected   = parse("(| Everything | * | Everything | <= 0) and (| Everything | * (| Everything | - 1) <= 0) and (| Everything | * (| Everything | - 1) <= 0)");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("true");
@@ -141,13 +141,13 @@ public class PlainTautologicalityDPLLTest extends AbstractPlainDPLLTest {
 		
 		expression = parse("false");
 		indices    = list("X", "Y");
-		expected   = parse("false");
+		expected   = parse("| Everything | * | Everything | <= 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		
 		expression = parse("X = a");
 		indices    = null; // means all variables
-		expected   = parse("false");
+		expected   = parse("| Everything | - 1 <= 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a");
@@ -157,12 +157,12 @@ public class PlainTautologicalityDPLLTest extends AbstractPlainDPLLTest {
 		
 		expression = parse("X = a");
 		indices    = list("X", "Y");
-		expected   = parse("false");
+		expected   = parse("(| Everything | - 1) * | Everything | <= 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a");
 		indices    = list("X", "Y");
-		expected   = parse("false");
+		expected   = parse("| Everything | <= 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X = a and Y != b");
@@ -172,7 +172,7 @@ public class PlainTautologicalityDPLLTest extends AbstractPlainDPLLTest {
 		
 		expression = parse("X != a and Y != b");
 		indices    = list("X", "Y");
-		expected   = parse("false");
+		expected   = parse("(| Everything | <= 0) and (| Everything | - 1 <= 0)");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a or Y != b");
@@ -182,12 +182,12 @@ public class PlainTautologicalityDPLLTest extends AbstractPlainDPLLTest {
 		
 		expression = parse("X != a and X != Y and Y != a");
 		indices    = null;
-		expected   = parse("false");
+		expected   = parse("(| Everything | <= 0) and (| Everything | - 1 <= 0) and (| Everything | - 1 <= 0)");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X = Y and Y = X");
 		indices    = null;
-		expected   = parse("false");
+		expected   = parse("(| Everything | - 1) * | Everything | <= 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 	}
 
