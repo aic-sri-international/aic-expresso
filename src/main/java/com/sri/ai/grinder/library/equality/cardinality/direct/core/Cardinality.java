@@ -84,7 +84,8 @@ public class Cardinality extends AbstractCardinalityRewriter {
 		System.out.println("Problem                  : " + cardinalityOfIndexedFormulaExpression);
 		System.out.println("Constraint               : " + process.getContextualConstraint());
 		System.out.println("Solution                 : " + solution);
-		System.out.println("Solution under constraint: " + simplifiedSolution + "\n");
+		System.out.println("Solution under constraint: " + simplifiedSolution);
+		System.out.println("Shortened solution       : " + result + "\n");
 		
 		return result;
 	}
@@ -119,6 +120,9 @@ public class Cardinality extends AbstractCardinalityRewriter {
 			}
 			else {
 				result = rewrite(cardinalityOfIndexedFormulaExpression, quantification, process);
+				System.out.println("Problem                  : " + cardinalityOfIndexedFormulaExpression);
+				System.out.println("Constraint               : " + process.getContextualConstraint());
+				System.out.println("Solution                 : " + result);
 			}
 		} 
 		else if (GrinderUtil.usePlain) {

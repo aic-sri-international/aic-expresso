@@ -88,11 +88,12 @@ public class SimplifyFormula {
 			List<Expression> originalArguments = result.getArguments();
 			ArrayList<Expression> simplifiedArguments =
 					Util.mapIntoArrayList(originalArguments, e -> simplify(e, topSimplifier, process));
-//			if ( ! Util.sameInstancesInSameIterableOrder(originalArguments, simplifiedArguments)) { // this check speeds cardinality algorithm by about 25%
+			if ( ! Util.sameInstancesInSameIterableOrder(originalArguments, simplifiedArguments)) { // this check speeds cardinality algorithm by about 25%; it is also required for correctness wrt not returning a new instance that is equal to the input.
 				result = Expressions.apply(result.getFunctor(), simplifiedArguments);
-//			}
+			}
 			result = topSimplifier.apply(result, process);
 		}
+
 		return result;
 	}
 
@@ -232,14 +233,20 @@ public class SimplifyFormula {
 			if (IfThenElse.isIfThenElse(thenBranch) && IfThenElse.getElseBranch(thenBranch).equals(elseBranch)) {
 				Expression conditionsConjunction = And.make(splitter, IfThenElse.getCondition(thenBranch));
 				result = IfThenElse.make(conditionsConjunction, IfThenElse.getThenBranch(thenBranch), elseBranch);
+//				System.out.println("Simplified and condensed else branches of: " + solution);	
+//				System.out.println("Condensed else branches to               : " + result);	
 			}
 			else {
 				result = IfThenElse.makeIfDistinctFrom(solution, splitter, thenBranch, elseBranch);
+//				System.out.println("Simplified branches of: " + solution);	
+//				System.out.println("Simplified branches to: " + result);	
 			}
 			
 			result = simplifySolutionIfBranchesAreEqualModuloSplitter(result, process);
+//			System.out.println("After attempt at merging branches: " + result);	
 			
 			result = IfThenElse.simplify(result);
+//			System.out.println("After final simplification: " + result);	
 		}
 		return result;
 	}
@@ -274,7 +281,14 @@ public class SimplifyFormula {
 		boolean result = solution1.equals(solution2);
 		if ( ! result) {
 			Expression solution2UnderSplitter = completeSimplifySolutionGivenEquality(solution2, splitter, process);
+//			System.out.println("Simplifying under splitter: " + solution2);	
+//			System.out.println("splitter                  : " + splitter);	
+//			System.out.println("Simplification            : " + solution2UnderSplitter);	
+//			System.out.println("Comparing to              : " + solution1);	
+
 			result = solution1.equals(solution2UnderSplitter);
+			
+//			System.out.println("result                    : " + result);	
 		}
 		return result;
 	}
@@ -319,6 +333,9 @@ public class SimplifyFormula {
 		
 		if (Equality.isEquality(solution) || Disequality.isDisequality(solution)) {
 			result = SimplifyFormula.simplifyGivenEquality(solution, equalityOfTwoTerms, process);
+//			System.out.println("Simplifying literal     : " + solution);	
+//			System.out.println("by equality of two terms: " + equalityOfTwoTerms);	
+//			System.out.println("and getting             : " + result);	
 		}
 		else if (IfThenElse.isIfThenElse(solution)) {
 	
@@ -327,22 +344,41 @@ public class SimplifyFormula {
 			Expression elseBranch = IfThenElse.getElseBranch(solution);
 	
 			Expression newCondition = simplifyGivenEquality(condition, equalityOfTwoTerms, process);
+//			System.out.println("Simplifying condition   : " + condition);	
+//			System.out.println("by equality of two terms: " + equalityOfTwoTerms);	
+//			System.out.println("and getting             : " + newCondition);	
 			
 			if (newCondition.equals(Expressions.TRUE)) {
 				result = completeSimplifySolutionGivenEquality(thenBranch, equalityOfTwoTerms, process);
+//				System.out.println("Simplifying then branch : " + thenBranch);	
+//				System.out.println("by equality of two terms: " + equalityOfTwoTerms);	
+//				System.out.println("and getting             : " + result);	
 			}
 			else if (newCondition.equals(Expressions.FALSE)) {
 				result = completeSimplifySolutionGivenEquality(elseBranch, equalityOfTwoTerms, process);
+				result = completeSimplifySolutionGivenEquality(elseBranch, equalityOfTwoTerms, process);
+//				System.out.println("Simplifying else branch : " + elseBranch);	
+//				System.out.println("by equality of two terms: " + equalityOfTwoTerms);	
+//				System.out.println("and getting             : " + result);	
 			}
 			else {
 				Expression newThenBranch = completeSimplifySolutionGivenEquality(thenBranch, equalityOfTwoTerms, process);
 				Expression newElseBranch = completeSimplifySolutionGivenEquality(elseBranch, equalityOfTwoTerms, process);
+//				System.out.println("Simplifying both then and else branches:");	
+//				System.out.println("by equality of two terms: " + equalityOfTwoTerms);	
+//				System.out.println("Old then branch: " + thenBranch);	
+//				System.out.println("New then branch: " + newThenBranch);	
+//				System.out.println("Old else branch: " + elseBranch);	
+//				System.out.println("New else branch: " + newElseBranch);	
 				
 				// solutions conditions must always have a variable as first argument
 				newCondition = Equality.makeSureFirstArgumentIsNotAConstant(newCondition, process);
 
-				if (newCondition != condition) {
+				 if (true || newCondition != condition) { // TODO: not sure why this is not enough, but in the quantifier elimination wrapper, this simplifies further.
+//					System.out.println("Condition changed from: " + condition);	
+//					System.out.println("to new condition      : " + newCondition);	
 					newThenBranch = completeSimplifySolutionGivenEquality(newThenBranch, newCondition, process);
+//					System.out.println("New then branch again: " + newThenBranch);	
 					// It is important to realize why this second transformation on the then branch
 					// does not invalidate the guarantees given by the first one,
 					// as well as why individual completeness for equalityOfTwoTerms and newCondition
@@ -365,9 +401,11 @@ public class SimplifyFormula {
 					// A schema of these substitutions is described in the file SimplifyFormulacompleteSimplifySolutionGivenEqualitySubstitutionSchemas.jpg
 					// stored in the same directory as this file.
 					newElseBranch = completeSimplifySolutionGivenEqualityNegation(newElseBranch, newCondition, process);
+//					System.out.println("New else branch again: " + newElseBranch);	
 				}
 			
 				result = IfThenElse.makeIfDistinctFrom(solution, newCondition, newThenBranch, newElseBranch, false /* no simplification to condition */);
+//				System.out.println("Assembled IfThenElse: " + result);	
 			}
 		}
 		

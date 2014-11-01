@@ -54,7 +54,6 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
-import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
  * A default implementation of a {@link SyntacticFunctionApplication}.
@@ -180,9 +179,5 @@ public class DefaultSyntacticFunctionApplication extends AbstractNonQuantifiedEx
 	@Override
 	public String makeToString() {
 		return getSyntaxTree().toString();
-	}
-
-	public static DefaultSyntacticFunctionApplication make(Expression indexType) {
-		return new DefaultSyntacticFunctionApplication(FunctorConstants.TYPE, indexType);
 	}
 }

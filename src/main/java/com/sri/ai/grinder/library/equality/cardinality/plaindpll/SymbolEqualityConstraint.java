@@ -320,7 +320,7 @@ public class SymbolEqualityConstraint extends LinkedHashMap<Expression, Collecti
 				Expression indexType = process.getContextualSymbolType(index);
 				if (indexType == null) {
 					// throw new Error("Type of " + index + " unknown but needed for symbolic cardinality computation.");
-					indexType = DefaultSyntacticFunctionApplication.make(index);
+					indexType = new DefaultSyntacticFunctionApplication(FunctorConstants.TYPE, index);
 				}
 				Expression indexTypeCardinality = apply(CARDINALITY, indexType);
 				indexNumberOfPossibleValues = Minus.make(indexTypeCardinality, Expressions.makeSymbol(numberOfNonAvailableValues));
