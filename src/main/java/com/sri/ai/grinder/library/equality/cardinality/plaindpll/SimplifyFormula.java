@@ -374,35 +374,46 @@ public class SimplifyFormula {
 				// solutions conditions must always have a variable as first argument
 				newCondition = Equality.makeSureFirstArgumentIsNotAConstant(newCondition, process);
 
-				 if (true || newCondition != condition) { // TODO: not sure why this is not enough, but in the quantifier elimination wrapper, this simplifies further.
-//					System.out.println("Condition changed from: " + condition);	
-//					System.out.println("to new condition      : " + newCondition);	
-					newThenBranch = completeSimplifySolutionGivenEquality(newThenBranch, newCondition, process);
-//					System.out.println("New then branch again: " + newThenBranch);	
-					// It is important to realize why this second transformation on the then branch
-					// does not invalidate the guarantees given by the first one,
-					// as well as why individual completeness for equalityOfTwoTerms and newCondition
-					// imply completeness with respect to their *conjunction*.
-					// The guarantees of the first complete simplification given equalityOfTwoTerms are not lost because,
-					// if they were, there would be a condition that could be replaced by true or false given equalityOfTwoTerms.
-					// This however would require the first variable in equalityOfTwoTerms to be present, and it is not
-					// because it was eliminated by the first complete simplification and it does not get re-introduced by the second one.
-					// The completeness with respect to the conjunction comes from the fact that the only possible facts implied
-					// by a conjunction of equalities that could simplify a condition while these individual equalities could not,
-					// would be a consequence of them, and the only consequences of them are transitive consequences.
-					// For example, X = Z can be simplified by the conjunction (X = Y and Y = Z), even though it cannot be simplified
-					// by either X = Y or by Y = Z, but it can be simplified by X = Z which is a transitive consequence of the two.
-					// However, such transitive consequences are explicitly produced by replacing the first argument of an equality
-					// during the simplification. Using X = Y to replace all Y by X will replace Y in Y = Z and produce a new condition X = Z,
-					// which represents the transitive consequence explicitly and which will simplify whatever conditions depend on it.
-					//
-					// Another approach is to consider every possible type of condition configuration.
-					// It is more detailed and takes more work to implement, but it would save some unnecessary substitutions.
-					// A schema of these substitutions is described in the file SimplifyFormulacompleteSimplifySolutionGivenEqualitySubstitutionSchemas.jpg
-					// stored in the same directory as this file.
-					newElseBranch = completeSimplifySolutionGivenEqualityNegation(newElseBranch, newCondition, process);
-//					System.out.println("New else branch again: " + newElseBranch);	
-				}
+				// When first implemented, the next two re-applications of newCondition was only done
+				// if it were distinct from 'condition', under the belief that the simplification guarantees given
+				// by newCondition were the same as the ones given by 'condition', which would not have been destroyed
+				// by the simplification by equalityOfTwoTerms.
+				// However, while it is true that expressions simplified by condition would remain valid,
+				// the simplification by equalityOfTwoTerms could introduce new expressions which would have to be
+				// simplified by newCondition even if it is the same as 'condition'.
+				// For example,
+				// if X = bob then Z = bob and X = Z else false
+				// is simplified by 'condition' X = bob.
+				// Given equalityOfTwoTerms Z = bob, the simplification by equalityOfTwoTerms renders
+				// if X = bob then true and X = bob else false, further simplified to
+				// if X = bob then X = bob else false.
+				// Now, even though newCondition is the same as 'condition', we need to re-apply it and get
+				// if X = bob then true else false.
+				newThenBranch = completeSimplifySolutionGivenEquality(newThenBranch, newCondition, process);
+				//					System.out.println("New then branch again: " + newThenBranch);	
+				// It is important to realize why this second transformation on the then branch
+				// does not invalidate the guarantees given by the first one,
+				// as well as why individual completeness for equalityOfTwoTerms and newCondition
+				// imply completeness with respect to their *conjunction*.
+				// The guarantees of the first complete simplification given equalityOfTwoTerms are not lost because,
+				// if they were, there would be a condition that could be replaced by true or false given equalityOfTwoTerms.
+				// This however would require the first variable in equalityOfTwoTerms to be present, and it is not
+				// because it was eliminated by the first complete simplification and it does not get re-introduced by the second one.
+				// The completeness with respect to the conjunction comes from the fact that the only possible facts implied
+				// by a conjunction of equalities that could simplify a condition while these individual equalities could not,
+				// would be a consequence of them, and the only consequences of them are transitive consequences.
+				// For example, X = Z can be simplified by the conjunction (X = Y and Y = Z), even though it cannot be simplified
+				// by either X = Y or by Y = Z, but it can be simplified by X = Z which is a transitive consequence of the two.
+				// However, such transitive consequences are explicitly produced by replacing the first argument of an equality
+				// during the simplification. Using X = Y to replace all Y by X will replace Y in Y = Z and produce a new condition X = Z,
+				// which represents the transitive consequence explicitly and which will simplify whatever conditions depend on it.
+				//
+				// Another approach is to consider every possible type of condition configuration.
+				// It is more detailed and takes more work to implement, but it would save some unnecessary substitutions.
+				// A schema of these substitutions is described in the file SimplifyFormulacompleteSimplifySolutionGivenEqualitySubstitutionSchemas.jpg
+				// stored in the same directory as this file.
+				newElseBranch = completeSimplifySolutionGivenEqualityNegation(newElseBranch, newCondition, process);
+				//					System.out.println("New else branch again: " + newElseBranch);	
 			
 				result = IfThenElse.makeIfDistinctFrom(solution, newCondition, newThenBranch, newElseBranch, false /* no simplification to condition */);
 //				System.out.println("Assembled IfThenElse: " + result);	
