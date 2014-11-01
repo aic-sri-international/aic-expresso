@@ -37,15 +37,16 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import static com.sri.ai.util.Util.mapIntoList;
+import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
+import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
@@ -55,13 +56,11 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Equivalence;
 import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.Implication;
-import com.sri.ai.grinder.library.boole.Or;
+import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.equality.formula.FormulaToDNF;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.Equals;
-import com.sri.ai.util.base.Not;
+import com.sri.ai.util.base.BinaryFunction;
 
 @Beta
 /** 
@@ -70,25 +69,55 @@ import com.sri.ai.util.base.Not;
  */
 public class SimplifyFormula {
 
-	public static Expression simplify(Expression formula, RewritingProcess process) {
-		formula = topSimplify(formula, process);
-		if (formula.getSyntacticFormType().equals("Function application")) {
+	/**
+	 * Simplifies a formula by exhaustively simplifying its top expression with given top simplifier, then simplifying its sub-expressions,
+	 * and again exhaustively simplifying its top expression.
+	 * @param formula
+	 * @param topSimplifier
+	 * @param process
+	 * @return
+	 */
+	public static Expression simplify(
+			Expression formula, BinaryFunction<Expression,
+			RewritingProcess, Expression> topSimplifier,
+			RewritingProcess process) {
+		
+		Expression result = formula;
+		result = topSimplifier.apply(result, process);
+		if (result.getSyntacticFormType().equals("Function application")) {
+			List<Expression> originalArguments = result.getArguments();
 			ArrayList<Expression> simplifiedArguments =
-					Util.mapIntoArrayList(formula.getArguments(), e -> simplify(e, process));
-			formula = Expressions.apply(formula.getFunctor(), simplifiedArguments);
-			formula = topSimplify(formula, process);
+					Util.mapIntoArrayList(originalArguments, e -> simplify(e, topSimplifier, process));
+//			if ( ! Util.sameInstancesInSameIterableOrder(originalArguments, simplifiedArguments)) { // this check speeds cardinality algorithm by about 25%
+				result = Expressions.apply(result.getFunctor(), simplifiedArguments);
+//			}
+			result = topSimplifier.apply(result, process);
 		}
-		return formula;
+		return result;
 	}
 
 	/**
-	 * Simplifies the top expression until it cannot be simplified anymore.
+	 * Simplifies a formula by exhaustively simplifying its top expression with basic boolean operators in equality logic (including quantifier elimination),
+	 * then simplifying its sub-expressions,
+	 * and again exhaustively simplifying its top expression.
+	 * @param formula
+	 * @param topSimplifier
+	 * @param process
+	 * @return
+	 */
+	public static Expression simplify(Expression formula, RewritingProcess process) {
+		Expression result = simplify(formula, (e, p) -> topSimplifyEqualityLogicFormula(e, p), process);
+		return result;
+	}
+
+	/**
+	 * Simplifies the top expression of an equality-logic-with-quantifiers formula until it cannot be simplified anymore.
 	 * Always returns either a symbol or a function application (quantified formulas have their top quantifiers eliminated).
 	 * @param formula
 	 * @param process
 	 * @return
 	 */
-	public static Expression topSimplify(Expression formula, RewritingProcess process) {
+	public static Expression topSimplifyEqualityLogicFormula(Expression formula, RewritingProcess process) {
 		
 		Expression previous;
 		do {
@@ -135,9 +164,8 @@ public class SimplifyFormula {
 			result = Expressions.FALSE;
 		}
 		else {
-			Not<Expression> notEqualToTrue = Not.make(Equals.make(Expressions.TRUE));
 			LinkedHashSet<Expression> distinctArgumentsNotEqualToTrue = new LinkedHashSet<Expression>();
-			Util.collect(conjunction.getArguments(), distinctArgumentsNotEqualToTrue, notEqualToTrue);
+			Util.collect(conjunction.getArguments(), distinctArgumentsNotEqualToTrue, e -> ! e.equals(Expressions.TRUE));
 			if (distinctArgumentsNotEqualToTrue.size() != conjunction.getArguments().size()) {
 				if (distinctArgumentsNotEqualToTrue.size() == 0) {
 					result = Expressions.TRUE;
@@ -159,9 +187,8 @@ public class SimplifyFormula {
 			result = Expressions.TRUE;
 		}
 		else {
-			Not<Expression> notEqualToFalse = Not.make(Equals.make(Expressions.FALSE));
 			LinkedHashSet<Expression> distinctArgumentsNotEqualToFalse = new LinkedHashSet<Expression>();
-			Util.collect(disjunction.getArguments(), distinctArgumentsNotEqualToFalse, notEqualToFalse);
+			Util.collect(disjunction.getArguments(), distinctArgumentsNotEqualToFalse, e -> ! e.equals(Expressions.FALSE));
 			if (distinctArgumentsNotEqualToFalse.size() != disjunction.getArguments().size()) {
 				if (distinctArgumentsNotEqualToFalse.size() == 0) {
 					result = Expressions.FALSE;
@@ -421,27 +448,74 @@ public class SimplifyFormula {
 		return equalityTheNegationOfWhichWillBeAppliedToThenBranch;
 	}
 
-	public static Expression simplifyUnderFormula(Expression expression, Expression constraint, RewritingProcess process) {
-		Expression dnf = FormulaToDNF.convertToDNF(constraint, process);
-		List<Expression> conjunctiveClauses = Or.getDisjuncts(dnf);
-		List<Expression> versions =
-				mapIntoList(
-						conjunctiveClauses,
-						conjunctiveClause -> simplifyGivenConjunctiveClause(expression, conjunctiveClause, process));
-		Expression result = Or.make(versions);
+	public static Expression simplifySolutionUnderConstraint(Expression solution, Expression constraint, RewritingProcess process) {
+		Expression result = null;
+		
+		if (constraint.equals(Expressions.TRUE)) {
+			result = solution;
+		}
+		else {
+			result = simplifySolutionUnderNonTrivialConstraint(solution, constraint, process);
+		}
+
 		return result;
 	}
+	
+	public static Expression simplifySolutionUnderNonTrivialConstraint(Expression solution, Expression constraint, RewritingProcess process) {
+		Expression result = null;
+		
+		if (IfThenElse.isIfThenElse(solution)) {
+			Expression newCondition = impliesExpressionOrItsNegationOrNeither(IfThenElse.getCondition(solution), constraint, process);
+			if (newCondition.equals(Expressions.TRUE)) {
+				result = simplifySolutionUnderNonTrivialConstraint(IfThenElse.getThenBranch(solution), constraint, process);
+			}
+			else if (newCondition.equals(Expressions.FALSE)) {
+				result = simplifySolutionUnderNonTrivialConstraint(IfThenElse.getElseBranch(solution), constraint, process);
+			}
+			else {
+				Expression newThenBranch = simplifySolutionUnderNonTrivialConstraint(IfThenElse.getThenBranch(solution), constraint, process);
+				Expression newElseBranch = simplifySolutionUnderNonTrivialConstraint(IfThenElse.getElseBranch(solution), constraint, process);
+				result = IfThenElse.makeIfDistinctFrom(solution, newCondition, newThenBranch, newElseBranch, false);
+			}
+		}
+		else {
+			result = solution;
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns 'true' if expression is tautologically implied by constraint,
+	 * 'false' if its negation is tautologically implied by constraint,
+	 * and expression itself otherwise.
+	 * @param expression
+	 * @param constraint
+	 * @param process
+	 * @return
+	 */
+	public static Expression impliesExpressionOrItsNegationOrNeither(Expression expression, Expression constraint, RewritingProcess process) {
+		Expression result = null;
 
-	public static Expression simplifyGivenConjunctiveClause(Expression expression, Expression conjunctiveClause, RewritingProcess process) {
-		List<Expression> literals = And.getConjuncts(conjunctiveClause);
-		List<Expression> versions =
-				mapIntoList(
-						literals,
-						literal -> {
-							Expression splitter = SymbolEqualityConstraint.makeSplitterIfPossible(literal, Collections.emptyList(), process);
-							return simplifyGivenEquality(expression, splitter, process);	
-						});
-		Expression result = And.make(versions);
+		Expression constraintImpliesExpression = Implication.make(constraint, expression);
+		List<Expression> freeVariablesIndexExpressions = getIndexExpressionsFromSymbolsAndTypes(freeVariablesAndTypes(constraintImpliesExpression, process));
+
+		Expression closedConstraintImpliedExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesExpression);
+		Expression alwaysImpliesExpression = (new PlainTautologicalityDPLL()).rewrite(closedConstraintImpliedExpression, process);
+		if (alwaysImpliesExpression.equals(Expressions.TRUE)) {
+			result = Expressions.TRUE;
+		}
+		else {
+			Expression constraintImpliesNegationOfExpression = Implication.make(constraint, Not.make(expression));
+			Expression closedConstraintImpliesNegationOfExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesNegationOfExpression);
+			Expression alwaysImpliesNegationOfExpression = (new PlainTautologicalityDPLL()).rewrite(closedConstraintImpliesNegationOfExpression, process);
+			if (alwaysImpliesNegationOfExpression.equals(Expressions.TRUE)) {
+				result = Expressions.FALSE;
+			}
+			else {
+				result = expression;
+			}
+		}
+
 		return result;
 	}
 }

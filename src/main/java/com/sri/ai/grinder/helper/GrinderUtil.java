@@ -99,7 +99,7 @@ import com.sri.ai.util.concurrent.CancelOutstandingOnSuccess;
 @Beta
 public class GrinderUtil {
 
-	public static boolean usePlain = false;
+	public static boolean usePlain = true;
 
 	/**
 	 * The key of a global object of rewriting processes that prevents the check again free variables in additional constraints
