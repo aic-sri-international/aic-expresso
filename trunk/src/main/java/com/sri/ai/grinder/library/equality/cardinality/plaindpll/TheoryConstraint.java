@@ -81,5 +81,5 @@ public interface TheoryConstraint {
 	 * A splitter X = T can only be applied if the constraints guarantee that T is distinct from every other term Z that X must be distinct from.
 	 * If that is not the case, then before using X = T we must use the splitter based on T != Z first.
 	 */
-	public Expression getFirstRequiredSplitter(Expression splitterCandidate, Collection<Expression> indices, RewritingProcess process);
+	public Expression getMostRequiredSplitter(Expression splitterCandidate, Collection<Expression> indices, RewritingProcess process);
 }

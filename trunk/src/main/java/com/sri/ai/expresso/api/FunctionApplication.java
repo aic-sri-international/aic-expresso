@@ -49,6 +49,8 @@ import com.google.common.annotations.Beta;
 @Beta
 public interface FunctionApplication extends Expression {
 	
+	public final static String SYNTACTIC_FORM_TYPE = "Function application";
+	
 	/** Returns the functor if the expression is a function application, or <code>null</code> otherwise. */
 	@Override
 	public Expression getFunctor();

@@ -251,16 +251,16 @@ public class SymbolEqualityConstraint extends LinkedHashMap<Expression, Collecti
 	}
 
 	@Override
-	public Expression getFirstRequiredSplitter(Expression splitterCandidate, Collection<Expression> indices, RewritingProcess process) {
-		// assume splitterCandidate is of the form X = T
+	public Expression getMostRequiredSplitter(Expression splitterCandidate, Collection<Expression> indices, RewritingProcess process) {
+		// assume splitterCandidate is of the form X = T, for X the index if either of them is
 		Expression termX = splitterCandidate.get(0);
 		Expression termT = splitterCandidate.get(1);
 		Collection<Expression> distinctTermsFromX = getDistinctPredefinedTermsFrom(termX);
 		Expression distinctTermFromXNotConstrainedToBeDistinctFromT =
 				Util.getFirstSatisfyingPredicateOrNull(distinctTermsFromX, term -> ! term.equals(termT) && ! termsAreConstrainedToBeDifferent(term, termT, process));
 		if (distinctTermFromXNotConstrainedToBeDistinctFromT != null) {
-			splitterCandidate = makeSplitterIfPossible(Equality.makeWithConstantSimplification(termT, distinctTermFromXNotConstrainedToBeDistinctFromT, process), indices, process);
-			splitterCandidate = getFirstRequiredSplitter(splitterCandidate, indices, process);
+			splitterCandidate = makeSplitterFromTwoTerms(termT, distinctTermFromXNotConstrainedToBeDistinctFromT, indices, process);
+			splitterCandidate = getMostRequiredSplitter(splitterCandidate, indices, process);
 		}
 		return splitterCandidate;
 	}
@@ -374,13 +374,19 @@ public class SymbolEqualityConstraint extends LinkedHashMap<Expression, Collecti
 		return result;
 	}
 
+	/**
+	 * If expression is a literal with at least one variable, turns it into a valid splitter, or returns null otherwise.
+	 * @param expression
+	 * @param indices
+	 * @param process
+	 * @return
+	 */
 	public static Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		Expression result = null;
 		if (expression.hasFunctor(FunctorConstants.EQUALITY) || expression.hasFunctor(FunctorConstants.DISEQUALITY)) {
-	
+			// remember that equality can have an arbitrary number of terms
 			Expression variable = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), new IsVariable(process));
 			Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), Not.make(Equals.make(variable)));
-	
 			result = makeSplitterWithIndexIfAnyComingFirst(variable, otherTerm, indices);
 		}
 		return result;
@@ -395,6 +401,31 @@ public class SymbolEqualityConstraint extends LinkedHashMap<Expression, Collecti
 		}
 		else {
 			result = Equality.make(variable, otherTerm);
+		}
+		return result;
+	}
+
+	/**
+	 * @param equalityOrDisequality
+	 * @param indices
+	 * @param process
+	 * @return
+	 */
+	public static Expression makeSplitterFromTwoTerms(Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
+		Expression result;
+		// if variable is a free variable or constant and other term is an index, we invert them because
+		// the algorithm requires the first term to be an index if there are any indices in the atom.
+		if (indices.contains(term1)) {
+			result = Equality.make(term1, term2);
+		}
+		else if (indices.contains(term2)) {
+			result = Equality.make(term2, term1);
+		}
+		else if (process.isVariable(term1)) {
+			result = Equality.make(term1, term2);
+		}
+		else {
+			result = Equality.make(term2, term1);
 		}
 		return result;
 	}

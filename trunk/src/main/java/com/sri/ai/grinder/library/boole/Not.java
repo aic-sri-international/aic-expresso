@@ -78,6 +78,23 @@ public class Not extends AbstractRewriter {
 		return expression;
 	}
 
+	public static Expression simplify(Expression formula) {
+		Expression result;
+		if (formula.get(0).equals(Expressions.TRUE)) {
+			result = Expressions.FALSE;
+		}
+		else if (formula.get(0).equals(Expressions.FALSE)) {
+			result = Expressions.TRUE;
+		}
+		else if (formula.get(0).hasFunctor(FunctorConstants.NOT)) {
+			result = formula.get(0).get(0);
+		}
+		else {
+			result = formula;
+		}
+		return result;
+	}
+
 	public static boolean isNegation(Expression expression) {
 		return expression.hasFunctor(FunctorConstants.NOT);
 	}

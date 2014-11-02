@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
@@ -93,6 +94,29 @@ public class And extends BooleanCommutativeAssociative {
 		return Util.and((Collection<Boolean>)listOfOperableArguments);
 	}
 	
+	public static Expression simplify(Expression conjunction) {
+		Expression result = conjunction;
+		if (conjunction.getArguments().contains(Expressions.FALSE)) {
+			result = Expressions.FALSE;
+		}
+		else {
+			LinkedHashSet<Expression> distinctArgumentsNotEqualToTrue = new LinkedHashSet<Expression>();
+			Util.collect(conjunction.getArguments(), distinctArgumentsNotEqualToTrue, e -> ! e.equals(Expressions.TRUE));
+			if (distinctArgumentsNotEqualToTrue.size() != conjunction.getArguments().size()) {
+				if (distinctArgumentsNotEqualToTrue.size() == 0) {
+					result = Expressions.TRUE;
+				}
+				else if (distinctArgumentsNotEqualToTrue.size() == 1) {
+					result = Util.getFirst(distinctArgumentsNotEqualToTrue);
+				}
+				else if (distinctArgumentsNotEqualToTrue.size() != conjunction.numberOfArguments()) {
+					result = Expressions.apply(FunctorConstants.AND, distinctArgumentsNotEqualToTrue);
+				}
+			}
+		}
+		return result;
+	}
+
 	public static boolean isConjunction(Expression expression) {
 		return expression.hasFunctor(FUNCTOR);
 	}

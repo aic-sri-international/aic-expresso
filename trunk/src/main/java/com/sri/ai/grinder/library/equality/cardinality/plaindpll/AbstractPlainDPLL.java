@@ -277,7 +277,7 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 			Expression subExpression = subExpressionIterator.next();
 			Expression splitterCandidate = makeSplitterIfPossible(subExpression, indices, process);
 			if (splitterCandidate != null) {
-				result = constraint.getFirstRequiredSplitter(splitterCandidate, indices, process);
+				result = constraint.getMostRequiredSplitter(splitterCandidate, indices, process);
 			}
 		}
 	

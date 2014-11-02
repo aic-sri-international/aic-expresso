@@ -40,6 +40,7 @@ package com.sri.ai.grinder.library.boole;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
@@ -92,6 +93,29 @@ public class Or extends BooleanCommutativeAssociative {
 		return Util.or((Collection<Boolean>)listOfOperableArguments);
 	}
 	
+	public static Expression simplify(Expression disjunction) {
+		Expression result = disjunction;
+		if (disjunction.getArguments().contains(Expressions.TRUE)) {
+			result = Expressions.TRUE;
+		}
+		else {
+			LinkedHashSet<Expression> distinctArgumentsNotEqualToFalse = new LinkedHashSet<Expression>();
+			Util.collect(disjunction.getArguments(), distinctArgumentsNotEqualToFalse, e -> ! e.equals(Expressions.FALSE));
+			if (distinctArgumentsNotEqualToFalse.size() != disjunction.getArguments().size()) {
+				if (distinctArgumentsNotEqualToFalse.size() == 0) {
+					result = Expressions.FALSE;
+				}
+				else if (distinctArgumentsNotEqualToFalse.size() == 1) {
+					result = Util.getFirst(distinctArgumentsNotEqualToFalse);
+				}
+				else if (distinctArgumentsNotEqualToFalse.size() != disjunction.numberOfArguments()) {
+					result = Expressions.apply(FunctorConstants.OR, distinctArgumentsNotEqualToFalse);
+				}
+			}
+		}
+		return result;
+	}
+
 	public static boolean isDisjunction(Expression expression) {
 		return expression.hasFunctor(FUNCTOR);
 	}	
