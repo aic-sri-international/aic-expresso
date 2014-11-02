@@ -86,7 +86,7 @@ public class Disequality extends AbstractRewriter {
 	 * Returns FALSE if given disequality has equal arguments, TRUE if they contain distinct constants,
 	 * and the disequality itself otherwise.
 	 */
-	public static Expression checkForTrivialDisequalityCases(Expression disequality, RewritingProcess process) {
+	public static Expression simplify(Expression disequality, RewritingProcess process) {
 		Expression result;
 		if (disequality.get(0).equals(disequality.get(1))) {
 			result = Expressions.FALSE;

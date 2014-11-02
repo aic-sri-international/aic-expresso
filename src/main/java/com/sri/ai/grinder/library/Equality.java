@@ -248,7 +248,7 @@ public class Equality extends AbstractRewriter {
 	 * and the equality itself otherwise.
 	 * Note that this is much faster than eliminating duplicates as well, which requires constructing another equality.
 	 */
-	public static Expression checkForTrivialEqualityCases(Expression equality, RewritingProcess process) {
+	public static Expression simplify(Expression equality, RewritingProcess process) {
 		Expression result;
 		if (Util.allEqual(equality.getArguments())) {
 			result = Expressions.TRUE;

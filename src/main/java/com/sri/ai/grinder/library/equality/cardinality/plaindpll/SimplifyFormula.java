@@ -41,11 +41,12 @@ import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -57,10 +58,12 @@ import com.sri.ai.grinder.library.boole.Equivalence;
 import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
+import com.sri.ai.util.base.Pair;
 
 @Beta
 /** 
@@ -84,7 +87,7 @@ public class SimplifyFormula {
 		
 		Expression result = formula;
 		result = topSimplifier.apply(result, process);
-		if (result.getSyntacticFormType().equals("Function application")) {
+		if (result.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 			List<Expression> originalArguments = result.getArguments();
 			ArrayList<Expression> simplifiedArguments =
 					Util.mapIntoArrayList(originalArguments, e -> simplify(e, topSimplifier, process));
@@ -122,105 +125,66 @@ public class SimplifyFormula {
 		
 		Expression previous;
 		do {
-			previous = formula;
-			
-			if (formula.hasFunctor(FunctorConstants.EQUALITY)) {
-				formula = Equality.checkForTrivialEqualityCases(formula, process);
-			}
-			else if (formula.hasFunctor(FunctorConstants.DISEQUALITY)) {
-				formula = Disequality.checkForTrivialDisequalityCases(formula, process);
-			}
-			else if (formula.hasFunctor(FunctorConstants.AND)) {
-				formula = eliminateBooleanConstantsInConjunction(formula);
-			}
-			else if (formula.hasFunctor(FunctorConstants.OR)) {
-				formula = eliminateBooleanConstantsInDisjunction(formula);
-			}
-			else if (formula.hasFunctor(FunctorConstants.NOT)) {
-				formula = eliminateBooleanConstantsInNegation(formula);
-			}
-			else if (formula.hasFunctor(FunctorConstants.IF_THEN_ELSE)) {
-				formula = IfThenElse.simplify(formula);
-			}
-			else if (formula.hasFunctor(FunctorConstants.EQUIVALENCE)) {
-				formula = Equivalence.simplify(formula);
-			}
-			else if (formula.hasFunctor(FunctorConstants.IMPLICATION)) {
-				formula = Implication.simplify(formula);
-			}
-			else if (formula.getSyntacticFormType().equals(ForAll.SYNTACTIC_FORM_TYPE)) {
-				formula = (new PlainTautologicalityDPLL()).rewrite(formula, process);
-			}
-			else if (formula.getSyntacticFormType().equals(ThereExists.SYNTACTIC_FORM_TYPE)) {
-				formula = (new PlainSatisfiabilityDPLL()).rewrite(formula, process);
-			}
+			formula = simplifyOnce(previous = formula, process);
 		} while (formula != previous);
 		
 		return formula;
 	}
 
-	public static Expression eliminateBooleanConstantsInConjunction(Expression conjunction) {
-		Expression result = conjunction;
-		if (conjunction.getArguments().contains(Expressions.FALSE)) {
-			result = Expressions.FALSE;
+	private static Expression simplifyOnce(Expression formula, RewritingProcess process) {
+		BinaryFunction<Expression, RewritingProcess, Expression> simplifier;
+		if (formula.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
+			simplifier = functionApplicationSimplifiers.get(formula.getFunctor().getValue());
 		}
 		else {
-			LinkedHashSet<Expression> distinctArgumentsNotEqualToTrue = new LinkedHashSet<Expression>();
-			Util.collect(conjunction.getArguments(), distinctArgumentsNotEqualToTrue, e -> ! e.equals(Expressions.TRUE));
-			if (distinctArgumentsNotEqualToTrue.size() != conjunction.getArguments().size()) {
-				if (distinctArgumentsNotEqualToTrue.size() == 0) {
-					result = Expressions.TRUE;
-				}
-				else if (distinctArgumentsNotEqualToTrue.size() == 1) {
-					result = Util.getFirst(distinctArgumentsNotEqualToTrue);
-				}
-				else if (distinctArgumentsNotEqualToTrue.size() != conjunction.numberOfArguments()) {
-					result = Expressions.apply(FunctorConstants.AND, distinctArgumentsNotEqualToTrue);
-				}
-			}
+			simplifier = syntacticFormTypeSimplifiers.get(formula.getSyntacticFormType());
 		}
-		return result;
+		
+		if (simplifier != null) {
+			formula = simplifier.apply(formula, process);
+		}
+		
+		return formula;
 	}
+	
+	private static Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers =
+			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
+					FunctorConstants.EQUALITY,       (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Equality.simplify(f, process),
+					
+					FunctorConstants.DISEQUALITY,    (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Disequality.simplify(f, process),
 
-	public static Expression eliminateBooleanConstantsInDisjunction(Expression disjunction) {
-		Expression result = disjunction;
-		if (disjunction.getArguments().contains(Expressions.TRUE)) {
-			result = Expressions.TRUE;
-		}
-		else {
-			LinkedHashSet<Expression> distinctArgumentsNotEqualToFalse = new LinkedHashSet<Expression>();
-			Util.collect(disjunction.getArguments(), distinctArgumentsNotEqualToFalse, e -> ! e.equals(Expressions.FALSE));
-			if (distinctArgumentsNotEqualToFalse.size() != disjunction.getArguments().size()) {
-				if (distinctArgumentsNotEqualToFalse.size() == 0) {
-					result = Expressions.FALSE;
-				}
-				else if (distinctArgumentsNotEqualToFalse.size() == 1) {
-					result = Util.getFirst(distinctArgumentsNotEqualToFalse);
-				}
-				else if (distinctArgumentsNotEqualToFalse.size() != disjunction.numberOfArguments()) {
-					result = Expressions.apply(FunctorConstants.OR, distinctArgumentsNotEqualToFalse);
-				}
-			}
-		}
-		return result;
-	}
+					FunctorConstants.DISEQUALITY,    (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Disequality.simplify(f, process),
 
-	public static Expression eliminateBooleanConstantsInNegation(Expression formula) {
-		Expression result;
-		if (formula.get(0).equals(Expressions.TRUE)) {
-			result = Expressions.FALSE;
-		}
-		else if (formula.get(0).equals(Expressions.FALSE)) {
-			result = Expressions.TRUE;
-		}
-		else if (formula.get(0).hasFunctor(FunctorConstants.NOT)) {
-			result = formula.get(0).get(0);
-		}
-		else {
-			result = formula;
-		}
-		return result;
-	}
+					FunctorConstants.AND,            (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					And.simplify(f),
+
+					FunctorConstants.OR,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Or.simplify(f),
+
+					FunctorConstants.NOT,            (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Not.simplify(f),
+
+					FunctorConstants.IF_THEN_ELSE,   (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					IfThenElse.simplify(f),
+
+					FunctorConstants.EQUIVALENCE,    (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Equivalence.simplify(f),
+
+					FunctorConstants.IMPLICATION,    (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Implication.simplify(f)
+	);
+	
+	private static Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =
+			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
+					ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					(new PlainTautologicalityDPLL()).rewrite(f, process),
+ 
+					ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					(new PlainSatisfiabilityDPLL()).rewrite(f, process)
+	);
 
 	public static Expression fromSolutionToShorterExpression(Expression solution, RewritingProcess process) {
 		Expression result = solution;
