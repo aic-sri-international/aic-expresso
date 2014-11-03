@@ -188,12 +188,16 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 
 	///////////////////////////// BEGINNING OF FIXED PART OF GENERIC DPLL //////////////////////////////////////
 	
+	protected Theory theory;
+	
 	protected CountsDeclaration countsDeclaration;
 	
-	public AbstractPlainDPLL() {
+	public AbstractPlainDPLL(Theory theory) {
+		this.theory = theory;
 	}
 
-	public AbstractPlainDPLL(CountsDeclaration countsDeclaration) {
+	public AbstractPlainDPLL(Theory theory, CountsDeclaration countsDeclaration) {
+		this.theory = theory;
 		this.countsDeclaration = countsDeclaration;
 	}
 
@@ -202,7 +206,7 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 		Pair<Expression, List<Expression>> formulaAndIndexExpressions = getFormulaAndIndexExpressionsFromRewriterProblemArgument(expression, process);
 		Expression       formula          = formulaAndIndexExpressions.first;
 		List<Expression> indexExpressions = formulaAndIndexExpressions.second;
-		Expression       simplifiedFormula = SimplifyFormula.simplify(formula, process);
+		Expression       simplifiedFormula = theory.simplify(formula, process);
 		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 		Expression result = solve(simplifiedFormula, Expressions.TRUE, indices, subProcess);
@@ -249,39 +253,18 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 		return result;
 	}
 
-	protected Expression pickSplitter(Expression formula, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
+	protected Expression pickSplitter(Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
 		Expression splitter;
 		if (constraint == null) {
 			splitter = null;
 		}
 		else {
-			splitter = pickAtomFromFormula(formula, constraint, indices, process);
+			splitter = theory.pickSplitterFromExpression(expression, indices, constraint, process);
 			if (splitter == null) { // formula is 'true'
 				splitter = constraint.pickSplitter(indices, process);
 			}
 		}
 		return splitter;
-	}
-
-	/**
-	 * Receives formula assumed to not be 'false',
-	 * and returns atom to do next splitting, or null if there is none.
-	 * Since the formula is not 'false', a returned null implies that the formula is 'true'.
-	 */
-	protected Expression pickAtomFromFormula(Expression formula, TheoryConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
-	
-		Expression result = null;
-	
-		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(formula);
-		while (result == null && subExpressionIterator.hasNext()) {
-			Expression subExpression = subExpressionIterator.next();
-			Expression splitterCandidate = makeSplitterIfPossible(subExpression, indices, process);
-			if (splitterCandidate != null) {
-				result = constraint.getMostRequiredSplitter(splitterCandidate, indices, process);
-			}
-		}
-	
-		return result;
 	}
 
 	protected Expression computeSolutionBasedOnSplittedProblems(Expression splitter, Expression formula, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {

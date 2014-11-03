@@ -55,18 +55,19 @@ abstract public class AbstractPlainDPLLForEqualityLogic extends AbstractPlainDPL
 	 * Builds a rewriter for cardinality computation.
 	 */
 	public AbstractPlainDPLLForEqualityLogic() {
+		super(new EqualityTheory());
 	}
 
 	/**
 	 * Builds a rewriter for cardinality computation.
 	 */
 	public AbstractPlainDPLLForEqualityLogic(CountsDeclaration countsDeclaration) {
-		super(countsDeclaration);
+		super(new EqualityTheory(), countsDeclaration);
 	}
 
 	@Override
 	protected Expression makeSplitterIfPossible(Expression subExpression, Collection<Expression> indices, RewritingProcess process) {
-		return SymbolEqualityConstraint.makeSplitterIfPossible(subExpression, indices, process);
+		return EqualityTheory.makeSplitterIfPossible(subExpression, indices, process);
 	}
 
 	@Override
@@ -77,25 +78,25 @@ abstract public class AbstractPlainDPLLForEqualityLogic extends AbstractPlainDPL
 
 	@Override
 	protected Expression applySplitterTo(Expression formula, Expression splitter, RewritingProcess process) {
-		Expression result = SimplifyFormula.simplifyGivenEquality(formula, splitter, process);
+		Expression result = theory.applySplitterToExpression(formula, splitter, process);
 		return result;
 	}
 
 	@Override
 	protected Expression applySplitterNegationTo(Expression formula, Expression splitter, RewritingProcess process) {
-		Expression result = SimplifyFormula.simplifyGivenDisequality(formula, splitter, process);
+		Expression result = theory.applySplitterNegationToExpression(splitter, formula, process);
 		return result;
 	}
 
 	@Override
 	protected Expression completeSimplifySolutionGivenSplitter(Expression solution, Expression splitter, RewritingProcess process) {
-		Expression result = SimplifyFormula.completeSimplifySolutionGivenEquality(solution, splitter, process);
+		Expression result = theory.applySplitterToSolution(splitter, solution, process);
 		return result;
 	}
 
 	@Override
 	protected Expression completeSimplifySolutionGivenSplitterNegation(Expression solution, Expression splitter, RewritingProcess process) {
-		Expression result = SimplifyFormula.completeSimplifySolutionGivenEqualityNegation(solution, splitter, process);
+		Expression result = theory.applySplitterNegationToSolution(splitter, solution, process);
 		return result;
 	}
 
