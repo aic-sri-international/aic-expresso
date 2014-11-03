@@ -57,7 +57,7 @@ import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainCardinalityDPLL;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SimplifyFormula;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
@@ -78,8 +78,8 @@ public class Cardinality extends AbstractCardinalityRewriter {
 		Expression result;
 		
 		Expression solution = plainCardinality.rewrite(cardinalityOfIndexedFormulaExpression, process);
-		Expression simplifiedSolution = SimplifyFormula.simplifySolutionUnderConstraint(solution, process.getContextualConstraint(), process);
-		result = SimplifyFormula.fromSolutionToShorterExpression(simplifiedSolution, process);
+		Expression simplifiedSolution = EqualityTheory.simplifySolutionUnderConstraint(solution, process.getContextualConstraint(), process);
+		result = (new EqualityTheory()).fromSolutionToShorterExpression(simplifiedSolution, process);
 		
 		System.out.println("Problem                  : " + cardinalityOfIndexedFormulaExpression);
 		System.out.println("Constraint               : " + process.getContextualConstraint());
