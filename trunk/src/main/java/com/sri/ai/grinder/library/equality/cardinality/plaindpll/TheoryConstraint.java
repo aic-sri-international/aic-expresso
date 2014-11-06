@@ -52,17 +52,11 @@ import com.sri.ai.grinder.api.RewritingProcess;
 @Beta
 public interface TheoryConstraint {
 	/**
-	 * Indicates which atom needs to be split for constraint to become closer to state
+	 * Provides a splitter needed toward state
 	 * for which solutions can be computed in polynomial time, or null if it is already in such a state.
-	 * @param indices TODO
 	 */
 	public Expression pickSplitter(Collection<Expression> indices, RewritingProcess process);
 	
-	/**
-	 * Computes solution for constraint in polynomial time.
-	 */
-	public Expression numberOfOccurrences(Collection<Expression> indices, RewritingProcess process);
-
 	/**
 	 * Generates new constraint representing conjunction of this constraint and given splitter.
 	 */
@@ -73,13 +67,8 @@ public interface TheoryConstraint {
 	 */
 	public TheoryConstraint applySplitterNegation(Expression splitter, Collection<Expression> indices, RewritingProcess process);
 
-	public Collection<Expression> getDistinctPredefinedTermsFrom(Expression distinctPredefinedTermForVariable1);
-	
-	public boolean termsAreConstrainedToBeDifferent(Expression term1, Expression term2, RewritingProcess process);
-	
 	/**
-	 * A splitter X = T can only be applied if the constraints guarantee that T is distinct from every other term Z that X must be distinct from.
-	 * If that is not the case, then before using X = T we must use the splitter based on T != Z first.
+	 * Computes solution for constraint in polynomial time.
 	 */
-	public Expression getMostRequiredSplitter(Expression splitterCandidate, Collection<Expression> indices, RewritingProcess process);
+	public Expression modelCount(Collection<Expression> indices, RewritingProcess process);
 }

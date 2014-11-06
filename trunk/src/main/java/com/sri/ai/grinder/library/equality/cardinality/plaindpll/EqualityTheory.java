@@ -541,7 +541,7 @@ public class EqualityTheory implements Theory {
 			Expression subExpression = subExpressionIterator.next();
 			Expression splitterCandidate = makeSplitterIfPossible(subExpression, indices, process);
 			if (splitterCandidate != null) {
-				result = constraint.getMostRequiredSplitter(splitterCandidate, indices, process);
+				result = ((SymbolEqualityConstraint) constraint).getMostRequiredSplitter(splitterCandidate, indices, process);
 			}
 		}
 	
@@ -574,6 +574,28 @@ public class EqualityTheory implements Theory {
 	public TheoryConstraint makeConstraint() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/**
+	 * Indicates whether variable1 precedes variable2 in the total ordering
+	 */
+	static boolean variablePrecedesAnother(Expression variable1, Expression variable2, Collection<Expression> indices) {
+		boolean result;
+		if (indices.contains(variable1)) { // index
+			if ( ! indices.contains(variable2)) { // free variable
+				result = false; // free variables always precedes indices
+			}
+			else { // both are indices
+				result = variable2.toString().compareTo(variable1.toString()) < 0; // indices are compared alphabetically
+			}
+		}
+		else if (indices.contains(variable2)) { // variable1 is free variable and variable2 is index
+			result = true; // free variable always precedes indices
+		}
+		else { // neither is index
+			result = variable2.toString().compareTo(variable1.toString()) < 0;	// alphabetically		
+		}
+		return result;
 	}
 
 	/**
