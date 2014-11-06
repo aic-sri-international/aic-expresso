@@ -247,7 +247,7 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 		}
 		else {
 			Expression unconditionalFormulaValue = formula;
-			Expression numberOfOccurrences = constraint == null? Expressions.ZERO : constraint.numberOfOccurrences(indices, process);
+			Expression numberOfOccurrences = constraint == null? Expressions.ZERO : constraint.modelCount(indices, process);
 			result = additiveOperationAppliedAnIntegerNumberOfTimes(unconditionalFormulaValue, numberOfOccurrences, process);
 		}
 		return result;
