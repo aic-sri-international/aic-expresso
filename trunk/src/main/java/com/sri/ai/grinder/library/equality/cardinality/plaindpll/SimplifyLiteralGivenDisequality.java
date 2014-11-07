@@ -5,12 +5,12 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 
-class SimplifyAtomGivenDisequality implements Function<Expression, Expression> {
+class SimplifyLiteralGivenDisequality implements Function<Expression, Expression> {
 	
 	private Expression variable;
 	private Expression otherTerm;
 	
-	public SimplifyAtomGivenDisequality(Expression variable, Expression otherTerm) {
+	public SimplifyLiteralGivenDisequality(Expression variable, Expression otherTerm) {
 		super();
 		this.variable = variable;
 		this.otherTerm = otherTerm;

@@ -38,12 +38,10 @@
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
@@ -152,12 +150,6 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 	 */
 	protected abstract TheoryConstraint makeConstraint(Expression atomsConjunction, Collection<Expression> indices, RewritingProcess process);
 
-	/**
-	 * Returns given subExpression (or an atom equivalent to it) if it is appropriate to be a DPLL splitter atom,
-	 * or <code>null</code> otherwise.
-	 */
-	protected abstract Expression makeSplitterIfPossible(Expression subExpression, Collection<Expression> indices, RewritingProcess process);
-	
 	/**
 	 * Returns simplification of formula given splitter.
 	 */
