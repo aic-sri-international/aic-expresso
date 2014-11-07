@@ -123,8 +123,8 @@ public class PlainCardinalityDPLL extends AbstractPlainDPLLForEqualityLogic {
 	}
 
 	@Override
-	protected TheoryConstraint makeConstraint(Expression atomsConjunction, Collection<Expression> indices, RewritingProcess process) {
-		TheoryConstraint result = new SymbolEqualityConstraint(atomsConjunction, indices, process);
+	protected TheoryConstraint makeConstraint(Expression literalsConjunction, Collection<Expression> indices, RewritingProcess process) {
+		TheoryConstraint result = new SymbolEqualityConstraint(literalsConjunction, indices, process);
 		return result;
 	}
 }

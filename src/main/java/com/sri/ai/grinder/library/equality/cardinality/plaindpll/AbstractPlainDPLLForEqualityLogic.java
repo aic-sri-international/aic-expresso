@@ -66,11 +66,6 @@ abstract public class AbstractPlainDPLLForEqualityLogic extends AbstractPlainDPL
 	}
 
 	@Override
-	protected Expression makeSplitterIfPossible(Expression subExpression, Collection<Expression> indices, RewritingProcess process) {
-		return EqualityTheory.makeSplitterIfPossible(subExpression, indices, process);
-	}
-
-	@Override
 	protected boolean splitterDoesNotInvolveIndex(Expression splitter, Collection<Expression> indices) {
 		boolean result = ! indices.contains(splitter.get(0));
 		return result;
@@ -78,7 +73,7 @@ abstract public class AbstractPlainDPLLForEqualityLogic extends AbstractPlainDPL
 
 	@Override
 	protected Expression applySplitterTo(Expression formula, Expression splitter, RewritingProcess process) {
-		Expression result = theory.applySplitterToExpression(formula, splitter, process);
+		Expression result = theory.applySplitterToExpression(splitter, formula, process);
 		return result;
 	}
 

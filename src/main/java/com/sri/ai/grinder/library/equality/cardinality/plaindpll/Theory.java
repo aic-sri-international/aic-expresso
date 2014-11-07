@@ -83,12 +83,12 @@ public interface Theory {
 
 	/**
 	 * Simplifies an expression given the assumption that a splitter is true.
-	 * @param expression
 	 * @param splitter
+	 * @param expression
 	 * @param process
 	 * @return
 	 */
-	Expression applySplitterToExpression(Expression expression, Expression splitter, RewritingProcess process);
+	Expression applySplitterToExpression(Expression splitter, Expression expression, RewritingProcess process);
 
 	/**
 	 * Simplifies an expression given the assumption that a splitter is false.
@@ -123,5 +123,5 @@ public interface Theory {
 	 * Provides a new instance of the corresponding {@link TheoryConstraint}.
 	 * @return
 	 */
-	TheoryConstraint makeConstraint();
+	TheoryConstraint makeConstraint(Expression literalsConjunction, Collection<Expression> indices, RewritingProcess process);
 }

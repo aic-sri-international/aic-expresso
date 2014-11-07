@@ -37,19 +37,12 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
-import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.FunctionApplication;
-import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -73,83 +66,8 @@ import com.sri.ai.util.base.Equals;
 /** 
  * A {@link Theory} for equality literals.
  */
-public class EqualityTheory implements Theory {
+public class EqualityTheory extends AbstractTheory {
 
-	/**
-	 * Simplifies an expression by exhaustively simplifying its top expression with given top simplifier, then simplifying its sub-expressions,
-	 * and again exhaustively simplifying its top expression.
-	 * @param expression
-	 * @param topSimplifier
-	 * @param process
-	 * @return
-	 */
-	private static Expression simplify(
-			Expression expression,
-			BinaryFunction<Expression, RewritingProcess, Expression> topSimplifier,
-			RewritingProcess process) {
-		
-		Expression result = expression;
-		result = topSimplifier.apply(result, process);
-		if (result.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
-			List<Expression> originalArguments = result.getArguments();
-			ArrayList<Expression> simplifiedArguments =
-					Util.mapIntoArrayList(originalArguments, e -> simplify(e, topSimplifier, process));
-			if ( ! Util.sameInstancesInSameIterableOrder(originalArguments, simplifiedArguments)) { // this check speeds cardinality algorithm by about 25%; it is also required for correctness wrt not returning a new instance that is equal to the input.
-				result = Expressions.apply(result.getFunctor(), simplifiedArguments);
-			}
-			result = topSimplifier.apply(result, process);
-		}
-
-		return result;
-	}
-
-	/**
-	 * Simplifies an expression by exhaustively simplifying its top expression with basic boolean operators in equality logic (including quantifier elimination),
-	 * then simplifying its sub-expressions,
-	 * and again exhaustively simplifying its top expression.
-	 * @param expression
-	 * @param topSimplifier
-	 * @param process
-	 * @return
-	 */
-	public Expression simplify(Expression expression, RewritingProcess process) {
-		Expression result = simplify(expression, (e, p) -> topSimplifyExhaustively(e, p), process);
-		return result;
-	}
-
-	/**
-	 * Simplifies the top expression of an equality-logic-with-quantifiers formula until it cannot be simplified anymore.
-	 * Always returns either a symbol or a function application (quantified formulas have their top quantifiers eliminated).
-	 * @param formula
-	 * @param process
-	 * @return
-	 */
-	public Expression topSimplifyExhaustively(Expression formula, RewritingProcess process) {
-		
-		Expression previous;
-		do {
-			formula = topSimplifyOnce(previous = formula, process);
-		} while (formula != previous);
-		
-		return formula;
-	}
-
-	private Expression topSimplifyOnce(Expression formula, RewritingProcess process) {
-		BinaryFunction<Expression, RewritingProcess, Expression> simplifier;
-		if (formula.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
-			simplifier = getFunctionApplicationSimplifiers().get(formula.getFunctor().getValue());
-		}
-		else {
-			simplifier = getSyntacticFormTypeSimplifiers().get(formula.getSyntacticFormType());
-		}
-		
-		if (simplifier != null) {
-			formula = simplifier.apply(formula, process);
-		}
-		
-		return formula;
-	}
-	
 	private static Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
 					FunctorConstants.EQUALITY,       (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
@@ -189,86 +107,37 @@ public class EqualityTheory implements Theory {
 					(new PlainSatisfiabilityDPLL()).rewrite(f, process)
 	);
 
-	public Expression fromSolutionToShorterExpression(Expression solution, RewritingProcess process) {
-		Expression result = solution;
-		if (IfThenElse.isIfThenElse(solution)) {
-			Expression splitter = IfThenElse.getCondition(solution);
-			Expression thenBranch = fromSolutionToShorterExpression(IfThenElse.getThenBranch(solution), process);
-			Expression elseBranch = fromSolutionToShorterExpression(IfThenElse.getElseBranch(solution), process);
-			
-			// if C then if C' then A else B else B  --->   if C and C' then A else B
-			if (IfThenElse.isIfThenElse(thenBranch) && IfThenElse.getElseBranch(thenBranch).equals(elseBranch)) {
-				Expression conditionsConjunction = And.make(splitter, IfThenElse.getCondition(thenBranch));
-				result = IfThenElse.make(conditionsConjunction, IfThenElse.getThenBranch(thenBranch), elseBranch);
-//				System.out.println("Simplified and condensed else branches of: " + solution);	
-//				System.out.println("Condensed else branches to               : " + result);	
-			}
-			else {
-				result = IfThenElse.makeIfDistinctFrom(solution, splitter, thenBranch, elseBranch);
-//				System.out.println("Simplified branches of: " + solution);	
-//				System.out.println("Simplified branches to: " + result);	
-			}
-			
-			result = simplifySolutionIfBranchesAreEqualModuloSplitter(result, process);
-//			System.out.println("After attempt at merging branches: " + result);	
-			
-			result = IfThenElse.simplify(result);
-//			System.out.println("After final simplification: " + result);	
-		}
-		return result;
-	}
-
-	public Expression simplifySolutionIfBranchesAreEqualModuloSplitter(Expression solution, RewritingProcess process) {
-		Expression result = solution;
-		if (IfThenElse.isIfThenElse(solution)) {
-			Expression splitter   = IfThenElse.getCondition(solution);
-			Expression thenBranch = IfThenElse.getThenBranch(solution);
-			Expression elseBranch = IfThenElse.getElseBranch(solution);
-			if (equalModuloSplitter(splitter, thenBranch, elseBranch, process)) {
-				result = elseBranch;
-			}
-		}
-		return result;
-	}
-	
-	/**
-	 * Decides whether two solutions are equal modulo the splitter's equality.
-	 * This is used to simplify
-	 * <code>if X = a then a else X</code> to <code>X</code>,
-	 * by providing the check that the then branch <code>a</code> is a special case of the else branch <code>X</code>
-	 * and can therefore be replaced by the else branch <code>X</code>,
-	 * after which the entire expression is replaced by <code>X</code>
-	 * @param splitter
-	 * @param solution1
-	 * @param solution2
-	 * @param process TODO
-	 * @return whether the two solutions are equal modulo the splitter equality
-	 */
-	public boolean equalModuloSplitter(Expression splitter, Expression solution1, Expression solution2, RewritingProcess process) {
-		boolean result = solution1.equals(solution2);
-		if ( ! result) {
-			Expression solution2UnderSplitter = applySplitterToSolution(splitter, solution2, process);
-//			System.out.println("Simplifying under splitter: " + solution2);	
-//			System.out.println("splitter                  : " + splitter);	
-//			System.out.println("Simplification            : " + solution2UnderSplitter);	
-//			System.out.println("Comparing to              : " + solution1);	
-
-			result = solution1.equals(solution2UnderSplitter);
-			
-//			System.out.println("result                    : " + result);	
-		}
-		return result;
-	}
-	
-	/**
-	 * Applies an equality between two terms to a formula by replacing the first one by the second everywhere and simplifying the result,
-	 * which is incomplete, that is, may contain tautological or contradictory conditions given their context.
-	 */
 	@Override
-	public Expression applySplitterToExpression(Expression formula, Expression equalityOfTwoTerms, RewritingProcess process) {
-		Expression term1 = equalityOfTwoTerms.get(0);
-		Expression term2 = equalityOfTwoTerms.get(1);
-		Expression result = formula.replaceAllOccurrences(term1, term2, process);
+	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers() {
+		return functionApplicationSimplifiers;
+	}
+
+	@Override
+	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
+		return syntacticFormTypeSimplifiers;
+	}
+
+	@Override
+	public Expression pickSplitterFromExpression(Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
+		Expression result = null;
+		
+		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(expression);
+		while (result == null && subExpressionIterator.hasNext()) {
+			Expression subExpression = subExpressionIterator.next();
+			Expression splitterCandidate = makeSplitterIfPossible(subExpression, indices, process);
+			if (splitterCandidate != null) {
+				result = ((SymbolEqualityConstraint) constraint).getMostRequiredSplitter(splitterCandidate, indices, process); // should be generalized to any theory
+			}
+		}
+	
+		return result;
+	}
+
+	@Override
+	public Expression applySplitterToExpression(Expression splitter, Expression expression, RewritingProcess process) {
+		Expression term1 = splitter.get(0);
+		Expression term2 = splitter.get(1);
+		Expression result = expression.replaceAllOccurrences(term1, term2, process);
 		result = simplify(result, process);
 		return result;
 	}
@@ -277,172 +146,76 @@ public class EqualityTheory implements Theory {
 	public Expression applySplitterNegationToExpression(Expression splitter, Expression expression, RewritingProcess process) {
 		Expression term1 = splitter.get(0);
 		Expression term2 = splitter.get(1);
-		Expression result = expression.replaceAllOccurrences(new SimplifyAtomGivenDisequality(term1, term2), process);
+		Expression result = expression.replaceAllOccurrences(new SimplifyLiteralGivenDisequality(term1, term2), process);
 		result = simplify(result, process);
 		return result;
 	}
 
 	/**
-	 * Given a solution (a conditional expression where conditions are always two-argument equalities)
-	 * that is complete (that is, no condition can be equivalently replaced by true or false)
-	 * and an equality,
-	 * finds an equivalent solution that is complete even under a context in which the given equality is true.
-	 * It also guarantees that the first argument of the equality (which must be a variable) does not occur in the returned solution.
+	 * Overridden because in in this theory it is enough just to check that the first argument of the splitter simplification is not a constant.
+	 * @param solutionSplitterSimplification
+	 * @param process
+	 * @return
 	 */
-	public Expression applySplitterToSolution(Expression equalityOfTwoTerms, Expression solution, RewritingProcess process) {
-		// Some notes about the development of this and the next method are at the bottom of the file.
-		// They discuss the main ideas, but the implementation still turned out a little different from them.
-		
-		Expression result = solution;
-		
-		if (Equality.isEquality(solution) || Disequality.isDisequality(solution)) {
-			result = applySplitterToExpression(solution, equalityOfTwoTerms, process);
-//			System.out.println("Simplifying literal     : " + solution);	
-//			System.out.println("by equality of two terms: " + equalityOfTwoTerms);	
-//			System.out.println("and getting             : " + result);	
-		}
-		else if (IfThenElse.isIfThenElse(solution)) {
-	
-			Expression condition  = IfThenElse.getCondition (solution);
-			Expression thenBranch = IfThenElse.getThenBranch(solution);
-			Expression elseBranch = IfThenElse.getElseBranch(solution);
-	
-			Expression newCondition = applySplitterToExpression(condition, equalityOfTwoTerms, process);
-//			System.out.println("Simplifying condition   : " + condition);	
-//			System.out.println("by equality of two terms: " + equalityOfTwoTerms);	
-//			System.out.println("and getting             : " + newCondition);	
-			
-			if (newCondition.equals(Expressions.TRUE)) {
-				result = applySplitterToSolution(equalityOfTwoTerms, thenBranch, process);
-//				System.out.println("Simplifying then branch : " + thenBranch);	
-//				System.out.println("by equality of two terms: " + equalityOfTwoTerms);	
-//				System.out.println("and getting             : " + result);	
-			}
-			else if (newCondition.equals(Expressions.FALSE)) {
-				result = applySplitterToSolution(equalityOfTwoTerms, elseBranch, process);
-				result = applySplitterToSolution(equalityOfTwoTerms, elseBranch, process);
-//				System.out.println("Simplifying else branch : " + elseBranch);	
-//				System.out.println("by equality of two terms: " + equalityOfTwoTerms);	
-//				System.out.println("and getting             : " + result);	
-			}
-			else {
-				Expression newThenBranch = applySplitterToSolution(equalityOfTwoTerms, thenBranch, process);
-				Expression newElseBranch = applySplitterToSolution(equalityOfTwoTerms, elseBranch, process);
-//				System.out.println("Simplifying both then and else branches:");	
-//				System.out.println("by equality of two terms: " + equalityOfTwoTerms);	
-//				System.out.println("Old then branch: " + thenBranch);	
-//				System.out.println("New then branch: " + newThenBranch);	
-//				System.out.println("Old else branch: " + elseBranch);	
-//				System.out.println("New else branch: " + newElseBranch);	
-				
-				// solutions conditions must always have a variable as first argument
-				newCondition = Equality.makeSureFirstArgumentIsNotAConstant(newCondition, process);
-
-				// When first implemented, the next two re-applications of newCondition was only done
-				// if it were distinct from 'condition', under the belief that the simplification guarantees given
-				// by newCondition were the same as the ones given by 'condition', which would not have been destroyed
-				// by the simplification by equalityOfTwoTerms.
-				// However, while it is true that expressions simplified by condition would remain valid,
-				// the simplification by equalityOfTwoTerms could introduce new expressions which would have to be
-				// simplified by newCondition even if it is the same as 'condition'.
-				// For example,
-				// if X = bob then Z = bob and X = Z else false
-				// is simplified by 'condition' X = bob.
-				// Given equalityOfTwoTerms Z = bob, the simplification by equalityOfTwoTerms renders
-				// if X = bob then true and X = bob else false, further simplified to
-				// if X = bob then X = bob else false.
-				// Now, even though newCondition is the same as 'condition', we need to re-apply it and get
-				// if X = bob then true else false.
-				newThenBranch = applySplitterToSolution(newCondition, newThenBranch, process);
-				//					System.out.println("New then branch again: " + newThenBranch);	
-				// It is important to realize why this second transformation on the then branch
-				// does not invalidate the guarantees given by the first one,
-				// as well as why individual completeness for equalityOfTwoTerms and newCondition
-				// imply completeness with respect to their *conjunction*.
-				// The guarantees of the first complete simplification given equalityOfTwoTerms are not lost because,
-				// if they were, there would be a condition that could be replaced by true or false given equalityOfTwoTerms.
-				// This however would require the first variable in equalityOfTwoTerms to be present, and it is not
-				// because it was eliminated by the first complete simplification and it does not get re-introduced by the second one.
-				// The completeness with respect to the conjunction comes from the fact that the only possible facts implied
-				// by a conjunction of equalities that could simplify a condition while these individual equalities could not,
-				// would be a consequence of them, and the only consequences of them are transitive consequences.
-				// For example, X = Z can be simplified by the conjunction (X = Y and Y = Z), even though it cannot be simplified
-				// by either X = Y or by Y = Z, but it can be simplified by X = Z which is a transitive consequence of the two.
-				// However, such transitive consequences are explicitly produced by replacing the first argument of an equality
-				// during the simplification. Using X = Y to replace all Y by X will replace Y in Y = Z and produce a new condition X = Z,
-				// which represents the transitive consequence explicitly and which will simplify whatever conditions depend on it.
-				//
-				// Another approach is to consider every possible type of condition configuration.
-				// It is more detailed and takes more work to implement, but it would save some unnecessary substitutions.
-				// A schema of these substitutions is described in the file SimplifyFormulacompleteSimplifySolutionGivenEqualitySubstitutionSchemas.jpg
-				// stored in the same directory as this file.
-				newElseBranch = applySplitterNegationToSolution(newCondition, newElseBranch, process);
-				//					System.out.println("New else branch again: " + newElseBranch);	
-			
-				result = IfThenElse.makeIfDistinctFrom(solution, newCondition, newThenBranch, newElseBranch, false /* no simplification to condition */);
-//				System.out.println("Assembled IfThenElse: " + result);	
-			}
-		}
-		
-		return result;
+	@Override
+	protected Expression makeSolutionSplitterFromNonTrivialSolutionSplitterSimplificationByAnotherSolutionSplitter(Expression solutionSplitterSimplification, RewritingProcess process) {
+		return Equality.makeSureFirstArgumentIsNotAConstant(solutionSplitterSimplification, process);
 	}
 
 	/**
-	 * Given a solution (a conditional expression where conditions are always two-argument equalities)
-	 * that is complete (that is, no condition can be equivalently replaced by true or false)
-	 * and an equality of two terms,
-	 * finds an equivalent solution that is complete even under a context in which the given equality is false.
+	 * Overridden because in in this theory splitters simplified by splitter negations are either trivial or do not change.
 	 */
-	public Expression applySplitterNegationToSolution(Expression equalityOfTwoTerms, Expression solution, RewritingProcess process) {
+	@Override
+	public Expression applySplitterNegationToSolution(Expression splitter, Expression solution, RewritingProcess process) {
 		Expression result = solution;
 		
-		if (Equality.isEquality(solution) || Disequality.isDisequality(solution)) {
-			result = applySplitterNegationToExpression(equalityOfTwoTerms, solution, process);
-		}
-		else if (IfThenElse.isIfThenElse(solution)) {
+		if (IfThenElse.isIfThenElse(solution)) {
 	
-			Expression condition  = IfThenElse.getCondition(solution);
+			Expression solutionSplitter  = IfThenElse.getCondition(solution);
 			Expression thenBranch = IfThenElse.getThenBranch(solution);
 			Expression elseBranch = IfThenElse.getElseBranch(solution);
 	
-			Expression newCondition = applySplitterNegationToExpression(equalityOfTwoTerms, condition, process);
+			Expression solutionSplitterSimplification = applySplitterNegationToExpression(splitter, solutionSplitter, process);
 			
-			if (newCondition.equals(Expressions.TRUE)) {
-				result = applySplitterNegationToSolution(equalityOfTwoTerms, thenBranch, process);
+			if (solutionSplitterSimplification.equals(Expressions.TRUE)) {
+				result = applySplitterNegationToSolution(splitter, thenBranch, process);
 			}
-			else if (newCondition.equals(Expressions.FALSE)) {
-				result = applySplitterNegationToSolution(equalityOfTwoTerms, elseBranch, process);
+			else if (solutionSplitterSimplification.equals(Expressions.FALSE)) {
+				result = applySplitterNegationToSolution(splitter, elseBranch, process);
 			}
 			else {
-				// Note that, at this point, newCondition is the same as condition because
+				// Note that, at this point, solutionSplitterSimplification is the same as solutionSplitter because
 				// the only simplification that a disequality performs when applied to a condition is to transform it to either true or false,
 				// and this has already been tested to not have occurred.
 				
 				Expression equalityTheNegationOfWhichWillBeAppliedToThenBranch;
-				if (Equality.isEquality(condition)) {
-					equalityTheNegationOfWhichWillBeAppliedToThenBranch = adaptEqualityNegationToEqualityCondition(equalityOfTwoTerms, condition, process);
+				if (Equality.isEquality(solutionSplitter)) {
+					equalityTheNegationOfWhichWillBeAppliedToThenBranch = adaptEqualityNegationToEqualityCondition(splitter, solutionSplitter, process);
 				}
 				else {
-					equalityTheNegationOfWhichWillBeAppliedToThenBranch = equalityOfTwoTerms;
+					equalityTheNegationOfWhichWillBeAppliedToThenBranch = splitter;
 				}
 
 				Expression newThenBranch = thenBranch;
 				if ( ! equalityTheNegationOfWhichWillBeAppliedToThenBranch.equals(Expressions.FALSE)) {
 					       newThenBranch = applySplitterNegationToSolution(equalityTheNegationOfWhichWillBeAppliedToThenBranch, thenBranch, process);
 				}
-				Expression newElseBranch = applySplitterNegationToSolution(equalityOfTwoTerms, elseBranch,                                  process);
+				Expression newElseBranch = applySplitterNegationToSolution(splitter, elseBranch,                                  process);
 				
-				result = IfThenElse.makeIfDistinctFrom(solution, newCondition, newThenBranch, newElseBranch, false /* no simplification to condition */);
+				result = IfThenElse.makeIfDistinctFrom(solution, solutionSplitterSimplification, newThenBranch, newElseBranch, false /* no simplification to condition */);
 			}
 		}
-		
+		else {
+			result = applySplitterNegationToExpression(splitter, solution, process);
+		}
+
 		return result;
 	}
 
 	public Expression adaptEqualityNegationToEqualityCondition(Expression equalityOfTwoTerms, Expression condition, RewritingProcess process) {
 		Expression equalityTheNegationOfWhichWillBeAppliedToThenBranch;
 		Expression disequality = Disequality.make(equalityOfTwoTerms.get(0), equalityOfTwoTerms.get(1));
-		Expression disequalityToBeAppliedToThenBranch = applySplitterToExpression(disequality, condition, process);
+		Expression disequalityToBeAppliedToThenBranch = applySplitterToExpression(condition, disequality, process);
 
 		assert ! disequalityToBeAppliedToThenBranch.equals(Expressions.FALSE): "Disequality cannot be rendered false by condition without newCondition having been computed as false earlier on";
 		
@@ -461,141 +234,9 @@ public class EqualityTheory implements Theory {
 		return equalityTheNegationOfWhichWillBeAppliedToThenBranch;
 	}
 
-	public static Expression simplifySolutionUnderConstraint(Expression solution, Expression constraint, RewritingProcess process) {
-		Expression result = null;
-		
-		if (constraint.equals(Expressions.TRUE)) {
-			result = solution;
-		}
-		else {
-			result = simplifySolutionUnderNonTrivialConstraint(solution, constraint, process);
-		}
-
-		return result;
-	}
-	
-	public static Expression simplifySolutionUnderNonTrivialConstraint(Expression solution, Expression constraint, RewritingProcess process) {
-		Expression result = null;
-		
-		if (IfThenElse.isIfThenElse(solution)) {
-			Expression newCondition = impliesExpressionOrItsNegationOrNeither(IfThenElse.getCondition(solution), constraint, process);
-			if (newCondition.equals(Expressions.TRUE)) {
-				result = simplifySolutionUnderNonTrivialConstraint(IfThenElse.getThenBranch(solution), constraint, process);
-			}
-			else if (newCondition.equals(Expressions.FALSE)) {
-				result = simplifySolutionUnderNonTrivialConstraint(IfThenElse.getElseBranch(solution), constraint, process);
-			}
-			else {
-				Expression newThenBranch = simplifySolutionUnderNonTrivialConstraint(IfThenElse.getThenBranch(solution), constraint, process);
-				Expression newElseBranch = simplifySolutionUnderNonTrivialConstraint(IfThenElse.getElseBranch(solution), constraint, process);
-				result = IfThenElse.makeIfDistinctFrom(solution, newCondition, newThenBranch, newElseBranch, false);
-			}
-		}
-		else {
-			result = solution;
-		}
-		return result;
-	}
-	
-	/**
-	 * Returns 'true' if expression is tautologically implied by constraint,
-	 * 'false' if its negation is tautologically implied by constraint,
-	 * and expression itself otherwise.
-	 * @param expression
-	 * @param constraint
-	 * @param process
-	 * @return
-	 */
-	public static Expression impliesExpressionOrItsNegationOrNeither(Expression expression, Expression constraint, RewritingProcess process) {
-		Expression result = null;
-
-		Expression constraintImpliesExpression = Implication.make(constraint, expression);
-		List<Expression> freeVariablesIndexExpressions = getIndexExpressionsFromSymbolsAndTypes(freeVariablesAndTypes(constraintImpliesExpression, process));
-
-		Expression closedConstraintImpliedExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesExpression);
-		Expression alwaysImpliesExpression = (new PlainTautologicalityDPLL()).rewrite(closedConstraintImpliedExpression, process);
-		if (alwaysImpliesExpression.equals(Expressions.TRUE)) {
-			result = Expressions.TRUE;
-		}
-		else {
-			Expression constraintImpliesNegationOfExpression = Implication.make(constraint, Not.make(expression));
-			Expression closedConstraintImpliesNegationOfExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesNegationOfExpression);
-			Expression alwaysImpliesNegationOfExpression = (new PlainTautologicalityDPLL()).rewrite(closedConstraintImpliesNegationOfExpression, process);
-			if (alwaysImpliesNegationOfExpression.equals(Expressions.TRUE)) {
-				result = Expressions.FALSE;
-			}
-			else {
-				result = expression;
-			}
-		}
-
-		return result;
-	}
-
 	@Override
-	public Expression pickSplitterFromExpression(Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
-		Expression result = null;
-		
-		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(expression);
-		while (result == null && subExpressionIterator.hasNext()) {
-			Expression subExpression = subExpressionIterator.next();
-			Expression splitterCandidate = makeSplitterIfPossible(subExpression, indices, process);
-			if (splitterCandidate != null) {
-				result = ((SymbolEqualityConstraint) constraint).getMostRequiredSplitter(splitterCandidate, indices, process);
-			}
-		}
-	
-		return result;
-	}
-
-	/**
-	 * Provides a map from functors's getValue() values (Strings) to a function mapping a
-	 * function application of that functor and a rewriting process to an equivalent, simplified formula
-	 * according to this theory.
-	 * DPLL will use these simplifiers when a new decision is made and literals are replaced by boolean constants. 
-	 * @return
-	 */
-	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers() {
-		return functionApplicationSimplifiers;
-	}
-
-	/**
-	 * Provides a map from syntactic form types (Strings) to a function mapping a
-	 * function application of that functor and a rewriting process to an equivalent, simplified formula
-	 * according to this theory.
-	 * DPLL will use these simplifiers when a new decision is made and literals are replaced by boolean constants. 
-	 * @return
-	 */
-	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
-		return syntacticFormTypeSimplifiers;
-	}
-
-	@Override
-	public TheoryConstraint makeConstraint() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-	 * Indicates whether variable1 precedes variable2 in the total ordering
-	 */
-	static boolean variablePrecedesAnother(Expression variable1, Expression variable2, Collection<Expression> indices) {
-		boolean result;
-		if (indices.contains(variable1)) { // index
-			if ( ! indices.contains(variable2)) { // free variable
-				result = false; // free variables always precedes indices
-			}
-			else { // both are indices
-				result = variable2.toString().compareTo(variable1.toString()) < 0; // indices are compared alphabetically
-			}
-		}
-		else if (indices.contains(variable2)) { // variable1 is free variable and variable2 is index
-			result = true; // free variable always precedes indices
-		}
-		else { // neither is index
-			result = variable2.toString().compareTo(variable1.toString()) < 0;	// alphabetically		
-		}
-		return result;
+	public TheoryConstraint makeConstraint(Expression literalsConjunction, Collection<Expression> indices, RewritingProcess process) {
+		return new SymbolEqualityConstraint(literalsConjunction, indices, process);
 	}
 
 	/**
@@ -605,7 +246,7 @@ public class EqualityTheory implements Theory {
 	 * @param process
 	 * @return
 	 */
-	public static Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
+	protected Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		Expression result = null;
 		if (expression.hasFunctor(FunctorConstants.EQUALITY) || expression.hasFunctor(FunctorConstants.DISEQUALITY)) {
 			// remember that equality can have an arbitrary number of terms
@@ -635,7 +276,7 @@ public class EqualityTheory implements Theory {
 	 * @param process
 	 * @return
 	 */
-	public static Expression makeSplitterFromTwoTerms(Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
+	protected static Expression makeSplitterFromTwoTerms(Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
 		// if variable is a free variable or constant and other term is an index, we invert them because
 		// the algorithm requires the first term to be an index if there are any indices in the atom.
