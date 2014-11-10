@@ -251,7 +251,7 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 			splitter = null;
 		}
 		else {
-			splitter = theory.pickSplitterFromExpression(expression, indices, constraint, process);
+			splitter = theory.pickSplitterNeededForSolvingGivenExpression(expression, indices, constraint, process);
 			if (splitter == null) { // formula is 'true'
 				splitter = constraint.pickSplitter(indices, process);
 			}
@@ -261,40 +261,55 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 
 	protected Expression computeSolutionBasedOnSplittedProblems(Expression splitter, Expression formula, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
 		Expression result;
-		boolean splitterDoesNotInvolveIndex = splitterDoesNotInvolveIndex(splitter, indices);
-		Expression solutionUnderSplitter = solveUnderSplitter(splitter, formula, constraint, indices, process);
-		if ( ! splitterDoesNotInvolveIndex && isTopSolution(solutionUnderSplitter)) {
-			result = solutionUnderSplitter; // all models are on this side of splitter, no need to look at the other side
-		}
-		else {
-			Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, formula, constraint, indices, process);
 
-			if (splitterDoesNotInvolveIndex) {
-				// solution is <if splitter then solutionUnderSplitter else solutionUnderSplitterNegation>
-				result = IfThenElse.make(splitter, solutionUnderSplitter, solutionUnderSplitterNegation, false /* no simplification to condition */);
+		TheoryConstraint constraintUnderSplitter = constraint.applySplitter(splitter, indices, process);
+		if (constraintUnderSplitter != null) {
+			Expression solutionUnderSplitter = solveUnderSplitter(splitter, formula, constraintUnderSplitter, indices, process);
+
+			boolean splitterDoesNotInvolveIndex = splitterDoesNotInvolveIndex(splitter, indices);
+			if ( ! splitterDoesNotInvolveIndex && isTopSolution(solutionUnderSplitter)) {
+				result = solutionUnderSplitter; // all models are on this side of splitter, no need to look at the other side
 			}
 			else {
-				// splitter is Index = Value
-				// solution is solutionUnderSplitter + solutionUnderSplitterNegation
-				// If unconditional, these solutions need to be combined
-				// If conditional, these solutions need to be merged into a single conditional
-				result = combineSymbolicResults(solutionUnderSplitter, solutionUnderSplitterNegation, process);
+				TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitterNegation(splitter, indices, process);
+
+				if (constraintUnderSplitterNegation != null) {
+					Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, formula, constraintUnderSplitterNegation, indices, process);
+					if (splitterDoesNotInvolveIndex) {
+						// solution is <if splitter then solutionUnderSplitter else solutionUnderSplitterNegation>
+						result = IfThenElse.make(splitter, solutionUnderSplitter, solutionUnderSplitterNegation, false /* no simplification to condition */);
+					}
+					else {
+						// splitter is Index = Value
+						// solution is solutionUnderSplitter + solutionUnderSplitterNegation
+						// If unconditional, these solutions need to be combined
+						// If conditional, these solutions need to be merged into a single conditional
+						result = combineSymbolicResults(solutionUnderSplitter, solutionUnderSplitterNegation, process);
+					}
+				}
+				else { // splitter cannot be false under constraint, so only solution is one under splitter
+					result = solutionUnderSplitter;
+				}
 			}
 		}
+		else { // splitter is false under constraint, so solution is solution under the fact that splitter is false, ignoring possibility splitter is true
+			TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitterNegation(splitter, indices, process);
+			Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, formula, constraintUnderSplitterNegation, indices, process);
+			result = solutionUnderSplitterNegation;
+		}
+		
 		return result;
 	}
 
-	protected Expression solveUnderSplitter(Expression splitter, Expression formula, TheoryConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
+	protected Expression solveUnderSplitter(Expression splitter, Expression formula, TheoryConstraint constraintUnderSplitter, Collection<Expression> indices, RewritingProcess process) {
 		Expression formulaUnderSplitter = applySplitterTo(formula, splitter, process);
-		TheoryConstraint constraintUnderSplitter = constraint.applySplitter(splitter, indices, process);
 		Collection<Expression> indicesUnderSplitter = getIndicesUnderSplitter(splitter, indices);
 		Expression result = solve(formulaUnderSplitter, constraintUnderSplitter, indicesUnderSplitter, process);
 		return result;
 	}
 
-	protected Expression solveUnderSplitterNegation(Expression splitter, Expression formula, TheoryConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
+	protected Expression solveUnderSplitterNegation(Expression splitter, Expression formula, TheoryConstraint constraintUnderSplitterNegation, Collection<Expression> indices, RewritingProcess process) {
 		Expression formulaUnderSplitterNegation = applySplitterNegationTo(formula, splitter, process);
-		TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitterNegation(splitter, indices, process);
 		Collection<Expression> indicesUnderSplitterNegation = getIndicesUnderSplitterNegation(splitter, indices);
 		Expression result = solve(formulaUnderSplitterNegation, constraintUnderSplitterNegation, indicesUnderSplitterNegation, process);
 		return result;

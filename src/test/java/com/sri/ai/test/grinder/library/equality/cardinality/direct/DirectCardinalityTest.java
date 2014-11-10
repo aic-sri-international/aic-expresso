@@ -3723,7 +3723,8 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on Z) tuple(Z) | X != a and X != Y and Z != Y and Z != b } |",
 					new CountsDeclaration("Z", "10", "X", "10", "Y", "10"),
 					// "if X != a and X != Y then if Y = b then | type(Z) - {b} | else | type(Z) - {b,Y} | else 0"
-					GrinderUtil.usePlain? "(if X = a then 0 else if X = Y then 0 else if Y = b then | type(Z) | - 1 else | type(Z) | - 2, if X = a then 0 else if X = Y then 0 else if Y = b then 9 else 8)"
+					GrinderUtil.usePlain?
+							  "(if X = a then 0 else if Y = a then | type(Z) | - 2 else if X = Y then 0 else if Y = b then | type(Z) | - 1 else | type(Z) | - 2, if X = a then 0 else if Y = a then 8 else if X = Y then 0 else if Y = b then 9 else 8)"
 							: "(if (X != a) and (X != Y) then if Y = b then | type(Z) | - 1 else | type(Z) | - 2 else 0, if (X != a) and (X != Y) then if Y = b then 9 else 8 else 0)"),
 			new CardinalityData(false,
 					// "|{{(on Z) 1 | Z != a and X != Z}}|"
@@ -3807,7 +3808,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on Y) tuple(Y) |  X != Y and Y != Z and Y != A } |",
 					new CountsDeclaration(10),
 					GrinderUtil.usePlain?
-							"(if Z = X then if A = X then | type(Y) | - 1 else | type(Y) | - 2 else if A = X then if X = Z then | type(Y) | - 1 else | type(Y) | - 2 else if A = Z then | type(Y) | - 2 else | type(Y) | - 3, if Z = X then if A = X then 9 else 8 else if A = X then if X = Z then 9 else 8 else if A = Z then 8 else 7)"
+							  "(if Z = X then if A = X then | type(Y) | - 1 else | type(Y) | - 2 else if A = X then | type(Y) | - 2 else if A = Z then | type(Y) | - 2 else | type(Y) | - 3, if Z = X then if A = X then 9 else 8 else if A = X then 8 else if A = Z then 8 else 7)"
 							: "(if (X = Z) or (X = A) then if Z = A then | type(Y) | - 1 else | type(Y) | - 2 else if Z = A then | type(Y) | - 2 else | type(Y) | - 3, if (X = Z) or (X = A) then if Z = A then 9 else 8 else if Z = A then 8 else 7)"),
 			new CardinalityData(false,
 					// "| {{ ( on X' in People ) (if epidemic then 0.70 else 0.20) | ((X = mary and X != X') or (X = john and X != X')) and X' != bob and X' != mary and X' != john }} |"
@@ -4066,8 +4067,8 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			new CardinalityData(false,
 					"| {(on X, Y, Z) tuple(X, Y, Z) | X!=a and Y!=b and Z!=W and Y!=X and X!=Z } |",
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain? // TODO: answers are not equivalent, need to check which one is really right.
-							  "(if W = b then (| type(Y) | - 1) * (| type(Z) | - 1) + | type(X) | + -2 + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 4) * (| type(Y) | - 3) * (| type(Z) | - 2) else if W = a then (| type(Y) | - 1) * (| type(Z) | - 2) + | type(X) | + -2 + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 4) * (| type(Y) | - 3) * (| type(Z) | - 2) else if W = a then (| type(Y) | - 1) * (| type(Z) | - 2) + | type(X) | + -4 + (| type(X) | - 3) * (| type(Y) | - 2) + | type(X) | + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Z) | - 3) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 4) * (| type(Y) | - 4) * (| type(Z) | - 3) else (| type(Y) | - 1) * (| type(Z) | - 2) + | type(X) | + -4 + (| type(X) | - 3) * (| type(Y) | - 2) + | type(X) | + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 4) * (| type(Z) | - 3) + (| type(X) | - 3) * (| type(Z) | - 3) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 4) * (| type(Y) | - 4) * (| type(Z) | - 3), if W = b then 593 else if W = a then 584 else if W = a then 606 else 592)"
+					GrinderUtil.usePlain? // TODO: not sure if answers are equivalent
+							  "(if W = b then (| type(Y) | - 1) * (| type(Z) | - 1) + | type(X) | + -2 + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 4) * (| type(Y) | - 3) * (| type(Z) | - 2) else if W = a then (| type(Y) | - 1) * (| type(Z) | - 2) + | type(X) | + -2 + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 4) * (| type(Y) | - 3) * (| type(Z) | - 2) else (| type(Y) | - 1) * (| type(Z) | - 2) + | type(X) | + -4 + (| type(X) | - 3) * (| type(Y) | - 2) + | type(X) | + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 4) * (| type(Z) | - 3) + (| type(X) | - 3) * (| type(Z) | - 3) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 4) * (| type(Y) | - 4) * (| type(Z) | - 3), if W = b then 593 else if W = a then 584 else 592)"
 							: "( (if W = b then (| type(Y) | - 1) * (| type(Z) | - 1) + (| type(X) | - 2) * (| type(Y) | - 2) * (| type(Z) | - 2) else (if W = a then (| type(Y) | - 1) * (| type(Z) | - 2) + (| type(X) | - 2) * (| type(Y) | - 2) * (| type(Z) | - 2) else (| type(Y) | - 2) * (| type(Z) | - 1) + (| type(Y) | - 1) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) * (| type(Z) | - 2))), (if W = b then 593 else (if W = a then 584 else 592)) )"),							
 					
 			new CardinalityData(false,

@@ -71,7 +71,9 @@ public interface Theory {
 
 	/**
 	 * Picks a splitter based on one of the theory's literals in the given expression under given constraint.
-	 * Also gets the indices in case they are helpful.
+	 * The returned splitter must be a splitter that will help solve the current expression;
+	 * it does not need to be equivalent to the given expression.
+	 * Also receives the indices as arguments, in case they are helpful.
 	 * See {@link Theory} documentation for the definition of a splitter.
 	 * @param expression
 	 * @param indices
@@ -79,7 +81,7 @@ public interface Theory {
 	 * @param process
 	 * @return
 	 */
-	Expression pickSplitterFromExpression(Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process);
+	Expression pickSplitterNeededForSolvingGivenExpression(Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process);
 
 	/**
 	 * Simplifies an expression given the assumption that a splitter is true.
