@@ -63,7 +63,43 @@ public class PlainSatisfiabilityDPLLTest extends AbstractPlainDPLLTest {
 		
 		GrinderUtil.setMinimumOutputForProfiling();
 		
+		// tests whether splitter negation, when applied, gets "translated" by inner splitters in then branches.
+		// for example, if I apply X != a to if X = Y then if Y = a then true else false else false,
+		// X != a needs to be translated to Y != a under X = Y, because in that then branch X does not exist,
+		// and X != a is therefore meaningless.
+		expression  = parse("(X != a) and (X = Y and Y != c)");
+		indices     = list();
+		expected    = parse("if X = a then false else if Y = a then false else if X = Y then if Y = c then false else true else false");
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
+		// tests whether splitter negation, when applied, gets "translated" by inner splitters in then branches.
+		// for example, if I apply X != a to if X = Y then if Y = a then true else false else false,
+		// X != a needs to be translated to Y != a under X = Y, because in that then branch X does not exist,
+		// and X != a is therefore meaningless.
+		expression  = parse("(X != a) and (X = Y and Y != a)");
+		indices     = list("Y");
+		expected    = parse("if X = a then false else true");
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+
+		// tests the following:
+		// at some point there will be an externalization of X = a over if X = Y then if W = Y then true else false else false
+		// This tests whether the last Y gets replaced by a, even though the splitter X = a is in X.
+		// This requires the algorithm to realize that X is represented by Y under X = Y.
+		expression  = parse("(if X = a then true else false) and (if X = Y then if W = Y then true else false else false)");
+		indices     = list();
+		expected    = parse("if X = a then if Y = a then if W = a then true else false else false else false");
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+		
+		// tests whether splitter property that then branch does not contain first splitter variable holds
+		// when X = Y is applied to solution under Y = a, algorithm needs to realize that X in W = X under Y = a needs to be replaced by a.
+		// This happens because applying X = Y replaces all X by Y and then Y gets replaced by a.
+		expression  = parse("(if X = Y then true else false) and (if Y = a then if W = X then true else false else false)");
+		indices     = list();
+		expected    = parse("if X = Y then if Y = a then if W = a then true else false else false else false");
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+		
+		
+		
 		expression = parse("true");
 		indices    = null; // means all variables
 		expected   = parse("true");

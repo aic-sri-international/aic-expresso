@@ -135,6 +135,7 @@ public class SymbolEqualityConstraint extends LinkedHashMap<Expression, Collecti
 		}
 		
 		SymbolEqualityConstraint newConstraint = new SymbolEqualityConstraint();
+		copySetOfDistinctTermsFromTermToAnother(otherTerm, newConstraint);
 		addAllDisequalitiesFromVariableToDisequalitiesToOtherTermInNewConstraint(variable, otherTerm, newConstraint, this, indices, process);
 		copyEntriesForAllKeysThatAreNotVariableOrOtherTermWhileReplacingVariableByOtherTermIfNeeded(newConstraint, variable, otherTerm, indices, process);
 		
@@ -149,10 +150,10 @@ public class SymbolEqualityConstraint extends LinkedHashMap<Expression, Collecti
 
 		SymbolEqualityConstraint newConstraint = new SymbolEqualityConstraint(this);
 		if (whenChoosingValueForVariableOtherTermIsAlreadyDefined(variable, otherTerm, indices, process)) {
-			newConstraint.copySetOfDistinctTermsForTerm1AndAddDisequalityFromTerm2FromAnotherConstraint(variable, otherTerm, this);
+			newConstraint.copySetOfDistinctTermsFromTerm1AndAddDisequalityFromTerm2FromAnotherConstraint(variable, otherTerm, this);
 		}
 		else {
-			newConstraint.copySetOfDistinctTermsForTerm1AndAddDisequalityFromTerm2FromAnotherConstraint(otherTerm, variable, this);
+			newConstraint.copySetOfDistinctTermsFromTerm1AndAddDisequalityFromTerm2FromAnotherConstraint(otherTerm, variable, this);
 		}
 		return newConstraint;
 	}
@@ -162,6 +163,11 @@ public class SymbolEqualityConstraint extends LinkedHashMap<Expression, Collecti
 				getDistinctPredefinedTermsFrom(variable).contains(otherTerm) ||
 				getDistinctPredefinedTermsFrom(otherTerm).contains(variable);
 		return result;
+	}
+
+	private void copySetOfDistinctTermsFromTermToAnother(Expression term, SymbolEqualityConstraint newConstraint) {
+		Set<Expression> distinctTermsFromTerm1 = new LinkedHashSet<Expression>(getDistinctPredefinedTermsFrom(term));// OPTIMIZATION: create some kind of wrapper that only makes this copy if really needed (that is, when we try to insert a new value).
+		newConstraint.put(term, distinctTermsFromTerm1);
 	}
 
 	private void addAllDisequalitiesFromVariableToDisequalitiesToOtherTermInNewConstraint(Expression variable, Expression otherTerm, SymbolEqualityConstraint newConstraint, SymbolEqualityConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
@@ -205,7 +211,7 @@ public class SymbolEqualityConstraint extends LinkedHashMap<Expression, Collecti
 		distinctFromTerm1.add(term2);
 	}
 
-	private void copySetOfDistinctTermsForTerm1AndAddDisequalityFromTerm2FromAnotherConstraint(
+	private void copySetOfDistinctTermsFromTerm1AndAddDisequalityFromTerm2FromAnotherConstraint(
 			Expression term1, Expression term2, SymbolEqualityConstraint oldConstraintMap) {
 		
 		Set<Expression> distinctTermsFromTerm1 = new LinkedHashSet<Expression>(oldConstraintMap.getDistinctPredefinedTermsFrom(term1));

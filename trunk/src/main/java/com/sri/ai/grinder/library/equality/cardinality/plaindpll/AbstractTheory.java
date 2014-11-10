@@ -247,7 +247,6 @@ abstract public class AbstractTheory implements Theory {
 			}
 			else if (solutionSplitterSimplification.equals(Expressions.FALSE)) {
 				result = applySplitterToSolution(splitter, elseBranch, process);
-				result = applySplitterToSolution(splitter, elseBranch, process);
 			}
 			else {
 				Expression newThenBranch = applySplitterToSolution(splitter, thenBranch, process);
@@ -256,23 +255,9 @@ abstract public class AbstractTheory implements Theory {
 				// solutions conditions must always have a variable as first argument
 				Expression newSolutionSplitter = makeSolutionSplitterFromNonTrivialSolutionSplitterSimplificationByAnotherSolutionSplitter(solutionSplitterSimplification, process);
 
-				// When first implemented, the next two re-applications of newCondition was only done
-				// if it were distinct from 'condition', under the belief that the simplification guarantees given
-				// by newCondition were the same as the ones given by 'condition', which would not have been destroyed
-				// by the simplification by equalityOfTwoTerms.
-				// However, while it is true that expressions simplified by condition would remain valid,
-				// the simplification by equalityOfTwoTerms could introduce new expressions which would have to be
-				// simplified by newCondition even if it is the same as 'condition'.
-				// For example,
-				// if X = bob then Z = bob and X = Z else false
-				// is simplified by 'condition' X = bob.
-				// Given equalityOfTwoTerms Z = bob, the simplification by equalityOfTwoTerms renders
-				// if X = bob then true and X = bob else false, further simplified to
-				// if X = bob then X = bob else false.
-				// Now, even though newCondition is the same as 'condition', we need to re-apply it and get
-				// if X = bob then true else false.
+				// Simplification may have create opportunities for original splitter (or its simplification, at this point)
+				// to be able to simplify solution even further.
 				newThenBranch = applySplitterToSolution(newSolutionSplitter, newThenBranch, process);
-				//					System.out.println("New then branch again: " + newThenBranch);	
 				// It is important to realize why this second transformation on the then branch
 				// does not invalidate the guarantees given by the first one,
 				// as well as why individual completeness for equalityOfTwoTerms and newCondition
@@ -295,7 +280,6 @@ abstract public class AbstractTheory implements Theory {
 				// A schema of these substitutions is described in the file SimplifyFormulacompleteSimplifySolutionGivenEqualitySubstitutionSchemas.jpg
 				// stored in the same directory as this file.
 				newElseBranch = applySplitterNegationToSolution(newSolutionSplitter, newElseBranch, process);
-				//					System.out.println("New else branch again: " + newElseBranch);	
 			
 				result = IfThenElse.makeIfDistinctFrom(solution, newSolutionSplitter, newThenBranch, newElseBranch, false /* no simplification to condition */);
 			}
@@ -307,5 +291,81 @@ abstract public class AbstractTheory implements Theory {
 		return result;
 	}
 
+	/**
+	 * Takes a non-trivial simplification of a splitter by another splitter and normalize it into a proper splitter if needed.
+	 * @param solutionSplitterSimplification
+	 * @param process
+	 * @return
+	 */
 	abstract protected Expression makeSolutionSplitterFromNonTrivialSolutionSplitterSimplificationByAnotherSolutionSplitter(Expression solutionSplitterSimplification, RewritingProcess process);
+
+	@Override
+	public Expression applySplitterNegationToSolution(Expression splitter, Expression solution, RewritingProcess process) {
+		
+		Expression result = solution;
+		
+		if (IfThenElse.isIfThenElse(solution)) {
+	
+			Expression solutionSplitter = IfThenElse.getCondition (solution);
+			Expression thenBranch = IfThenElse.getThenBranch(solution);
+			Expression elseBranch = IfThenElse.getElseBranch(solution);
+	
+			Expression solutionSplitterSimplification = applySplitterNegationToExpression(splitter /* negation of which is being applied to expression */, solutionSplitter /* expression */, process);
+			
+			if (solutionSplitterSimplification.equals(Expressions.TRUE)) {
+				result = applySplitterNegationToSolution(splitter, thenBranch, process);
+			}
+			else if (solutionSplitterSimplification.equals(Expressions.FALSE)) {
+				result = applySplitterNegationToSolution(splitter, elseBranch, process);
+			}
+			else {
+				Expression newThenBranch = applySplitterNegationToSolution(splitter, thenBranch, process);
+				Expression newElseBranch = applySplitterNegationToSolution(splitter, elseBranch, process);
+				
+				// solutions conditions must always have a variable as first argument
+				Expression newSolutionSplitter = makeSolutionSplitterFromNonTrivialSolutionSplitterSimplificationByAnotherSolutionSplitterNegation(solutionSplitterSimplification, process);
+
+				// Simplification may have create opportunities for original splitter (or its simplification, at this point)
+				// to be able to simplify solution even further.
+				newThenBranch = applySplitterToSolution(newSolutionSplitter, newThenBranch, process);
+				// It is important to realize why this second transformation on the then branch
+				// does not invalidate the guarantees given by the first one,
+				// as well as why individual completeness for equalityOfTwoTerms and newCondition
+				// imply completeness with respect to their *conjunction*.
+				// The guarantees of the first complete simplification given equalityOfTwoTerms are not lost because,
+				// if they were, there would be a condition that could be replaced by true or false given equalityOfTwoTerms.
+				// This however would require the first variable in equalityOfTwoTerms to be present, and it is not
+				// because it was eliminated by the first complete simplification and it does not get re-introduced by the second one.
+				// The completeness with respect to the conjunction comes from the fact that the only possible facts implied
+				// by a conjunction of equalities that could simplify a condition while these individual equalities could not,
+				// would be a consequence of them, and the only consequences of them are transitive consequences.
+				// For example, X = Z can be simplified by the conjunction (X = Y and Y = Z), even though it cannot be simplified
+				// by either X = Y or by Y = Z, but it can be simplified by X = Z which is a transitive consequence of the two.
+				// However, such transitive consequences are explicitly produced by replacing the first argument of an equality
+				// during the simplification. Using X = Y to replace all Y by X will replace Y in Y = Z and produce a new condition X = Z,
+				// which represents the transitive consequence explicitly and which will simplify whatever conditions depend on it.
+				//
+				// Another approach is to consider every possible type of condition configuration.
+				// It is more detailed and takes more work to implement, but it would save some unnecessary substitutions.
+				// A schema of these substitutions is described in the file SimplifyFormulacompleteSimplifySolutionGivenEqualitySubstitutionSchemas.jpg
+				// stored in the same directory as this file.
+				newElseBranch = applySplitterNegationToSolution(newSolutionSplitter, newElseBranch, process);
+			
+				result = IfThenElse.makeIfDistinctFrom(solution, newSolutionSplitter, newThenBranch, newElseBranch, false /* no simplification to condition */);
+			}
+		}
+		else {
+			result = applySplitterNegationToExpression(splitter, solution, process);
+		}
+
+		return result;
+	}
+
+	/**
+	 * Takes a non-trivial simplification of a splitter by another splitter's negation and normalize it into a proper splitter if needed.
+	 * @param solutionSplitterSimplification
+	 * @param process
+	 * @return
+	 */
+	abstract protected Expression makeSolutionSplitterFromNonTrivialSolutionSplitterSimplificationByAnotherSolutionSplitterNegation(Expression solutionSplitterSimplification, RewritingProcess process);
 }

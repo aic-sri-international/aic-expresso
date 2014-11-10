@@ -118,7 +118,7 @@ public class EqualityTheory extends AbstractTheory {
 	}
 
 	@Override
-	public Expression pickSplitterFromExpression(Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
+	public Expression pickSplitterNeededForSolvingGivenExpression(Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
 		Expression result = null;
 		
 		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(expression);
@@ -151,12 +151,6 @@ public class EqualityTheory extends AbstractTheory {
 		return result;
 	}
 
-	/**
-	 * Overridden because in in this theory it is enough just to check that the first argument of the splitter simplification is not a constant.
-	 * @param solutionSplitterSimplification
-	 * @param process
-	 * @return
-	 */
 	@Override
 	protected Expression makeSolutionSplitterFromNonTrivialSolutionSplitterSimplificationByAnotherSolutionSplitter(Expression solutionSplitterSimplification, RewritingProcess process) {
 		return Equality.makeSureFirstArgumentIsNotAConstant(solutionSplitterSimplification, process);
@@ -188,19 +182,14 @@ public class EqualityTheory extends AbstractTheory {
 				// the only simplification that a disequality performs when applied to a condition is to transform it to either true or false,
 				// and this has already been tested to not have occurred.
 				
-				Expression equalityTheNegationOfWhichWillBeAppliedToThenBranch;
-				if (Equality.isEquality(solutionSplitter)) {
-					equalityTheNegationOfWhichWillBeAppliedToThenBranch = adaptEqualityNegationToEqualityCondition(splitter, solutionSplitter, process);
-				}
-				else {
-					equalityTheNegationOfWhichWillBeAppliedToThenBranch = splitter;
-				}
+				Expression splitterUnderSolutionSplitter;
+				splitterUnderSolutionSplitter = adaptSplitterNegationToBeUsedUnderSolutionSplitter(splitter, solutionSplitter, process);
 
 				Expression newThenBranch = thenBranch;
-				if ( ! equalityTheNegationOfWhichWillBeAppliedToThenBranch.equals(Expressions.FALSE)) {
-					       newThenBranch = applySplitterNegationToSolution(equalityTheNegationOfWhichWillBeAppliedToThenBranch, thenBranch, process);
+				if ( ! splitterUnderSolutionSplitter.equals(Expressions.FALSE)) {
+					newThenBranch = applySplitterNegationToSolution(splitterUnderSolutionSplitter, thenBranch, process);
 				}
-				Expression newElseBranch = applySplitterNegationToSolution(splitter, elseBranch,                                  process);
+				Expression newElseBranch = applySplitterNegationToSolution(splitter, elseBranch, process);
 				
 				result = IfThenElse.makeIfDistinctFrom(solution, solutionSplitterSimplification, newThenBranch, newElseBranch, false /* no simplification to condition */);
 			}
@@ -209,29 +198,46 @@ public class EqualityTheory extends AbstractTheory {
 			result = applySplitterNegationToExpression(splitter, solution, process);
 		}
 
+//		Expression superResult = super.applySplitterNegationToSolution(splitter, solution, process);
+//		if ( ! superResult.equals(result)) {
+//			System.out.println("Difference from two versions detected.");
+//		}
+
 		return result;
 	}
 
-	public Expression adaptEqualityNegationToEqualityCondition(Expression equalityOfTwoTerms, Expression condition, RewritingProcess process) {
-		Expression equalityTheNegationOfWhichWillBeAppliedToThenBranch;
-		Expression disequality = Disequality.make(equalityOfTwoTerms.get(0), equalityOfTwoTerms.get(1));
-		Expression disequalityToBeAppliedToThenBranch = applySplitterToExpression(condition, disequality, process);
+	@Override
+	protected Expression makeSolutionSplitterFromNonTrivialSolutionSplitterSimplificationByAnotherSolutionSplitterNegation(Expression solutionSplitterSimplification, RewritingProcess process) {
+		// for this theory, simplification by a splitter negation either trivializes another splitter, or does not change it at all.
+		return solutionSplitterSimplification;
+	}
 
-		assert ! disequalityToBeAppliedToThenBranch.equals(Expressions.FALSE): "Disequality cannot be rendered false by condition without newCondition having been computed as false earlier on";
+	/**
+	 * We need to simplify the disequality with the condition because the first variable in the condition is not present in the then branch;
+	 * therefore, if the disequality is about that first variable, it will be ineffectual as-is and needs to be replaced
+	 * by an disequality that is translated by the term used instead inside the then branch.
+	 * For example, if disequality is X != a and the condition is X = Y,
+	 * then the then branch does not contain X, but Y instead which represents X.
+	 * We must then apply the disequality Y != a.
+	 * @param splitter
+	 * @param solutionSplitter
+	 * @param process
+	 * @return
+	 */
+	private Expression adaptSplitterNegationToBeUsedUnderSolutionSplitter(Expression splitter, Expression solutionSplitter, RewritingProcess process) {
+		Expression splitterNegation = Disequality.make(splitter.get(0), splitter.get(1));
+		Expression splitterNegationUnderSolutionSplitter = applySplitterToExpression(solutionSplitter, splitterNegation, process);
+
+		assert ! splitterNegationUnderSolutionSplitter.equals(Expressions.FALSE): "Splitter negation cannot be false in this function";
 		
-		if (disequalityToBeAppliedToThenBranch.equals(Expressions.TRUE)) {
-			equalityTheNegationOfWhichWillBeAppliedToThenBranch = Expressions.FALSE;
+		Expression splitterUnderSolutionSplitter;
+		if (splitterNegationUnderSolutionSplitter.equals(Expressions.TRUE)) {
+			splitterUnderSolutionSplitter = Expressions.FALSE;
 		}
 		else {
-			equalityTheNegationOfWhichWillBeAppliedToThenBranch = Equality.make(disequalityToBeAppliedToThenBranch.get(0), disequalityToBeAppliedToThenBranch.get(1));
+			splitterUnderSolutionSplitter = Equality.make(splitterNegationUnderSolutionSplitter.get(0), splitterNegationUnderSolutionSplitter.get(1));
 		}
-		// We need to simplify the disequality with the condition because the first variable in the condition is not present in the then branch;
-		// therefore, if the disequality is about that first variable, it will be ineffectual as-is and needs to be replaced
-		// by an disequality that is translated by the term used instead inside the then branch.
-		// For example, if disequality is X != a and the condition is X = Y,
-		// then the then branch does not contain X, but Y instead which represents X.
-		// We must then apply the disequality Y != a.
-		return equalityTheNegationOfWhichWillBeAppliedToThenBranch;
+		return splitterUnderSolutionSplitter;
 	}
 
 	@Override
