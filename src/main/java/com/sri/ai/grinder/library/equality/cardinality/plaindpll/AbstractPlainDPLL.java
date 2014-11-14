@@ -64,55 +64,6 @@ import com.sri.ai.util.base.Pair;
  */
 public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 
-	/*
-	 * Implementation notes.
-	 * 
-	 * Pseudo-code for version without free variables and for model counting
-	 * (actual code allows methods to be overridden for different problems):
-	 * 
-	 * count(F, C, I): // assume F simplified in itself and with respect to C
-	 * 
-	 * if F is false, return 0
-	 *     
-	 * pick atom X = T, T a variable or constant, from formula or constraint  // linear in F size
-	 * if no atom
-	 *     return | C |_I // linear in number of symbols
-	 * else
-	 *     C1 = C[X/T] // linear in F size
-	 *     C2 = C and X != T // amortized constant
-	 *     F'  = simplify(F[X/T])
-	 *     F'' = simplify(F with "X != T" replaced by true and "X = T" replaced by false)
-	 *     return count( F' , C1, I - {X} ) + count( F'', C2 )
-	 * 
-	 * simplify must exploit short circuits and eliminate atoms already determined in the contextual constraint.
-	 * 
-	 * To compute | C |_I
-	 * 
-	 * C is a conjunction of disequalities, but represented in a map data structure for greater efficiency.
-	 * Assume a total ordering of variables (we use alphabetical order)
-	 * C is represented as a map that is null if C is false,
-	 * or that maps each variable V to the set diseq(V) of terms it is constrained to be distinct,
-	 * excluding variables V' > V.
-	 * The idea is that values for variables are picked in a certain order and
-	 * we exclude values already picked for variables constrained to be distinct and constants.
-	 * Now,
-	 * solution = 1
-	 * For each variable V according to the total ordering
-	 *     solution *= ( |type(V)| - |diseq(V)| )
-	 * return solution
-	 * 
-	 * Free variables require a few additions.
-	 * They are assumed to always come before indices in the general ordering,
-	 * because they are assumed to have a fixed (albeit unknown) value.
-	 * If the splitter atom contains a free variable and not an index, we condition on it but combine
-	 * the results in an if-then-else condition, with the splitter as condition.
-	 * Otherwise (the splitter is on an index), the recursive results must be summed.
-	 * However, now the recursive results can be conditional themselves,
-	 * which requires merging their trees.
-	 * When the splitter atom is picked and it contains a free variable and an index (as second argument),
-	 * we invert it to make sure the index (if there is one) is the variable to be eliminated.
-	 */
-	
 	///////////////////////////// BEGINNING OF ABSTRACT METHODS //////////////////////////////////////
 
 	/**
@@ -121,19 +72,16 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 	abstract protected Pair<Expression, List<Expression>> getFormulaAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process);
 
 	/**
-	 * Defines the solution of <code>Aggregator({{ (on ) false | false }})</code>.
-	 */
-	protected abstract Expression bottomSolution();
-
-	/**
 	 * Indicates whether given solution for a sub-problem makes the other sub-problem for an index conditioning irrelevant
-	 * (for example, the solution 'true' in satisfiability, or the total number of possible models, in model counting).
+	 * (for example, the solution 'true' in satisfiability).
+	 * Eventually this will be provided by a semiring parameter.
 	 */
 	protected abstract boolean isTopSolution(Expression solutionForSubProblem);
 	
 	/**
 	 * Combines two unconditional solutions for split sub-problems
 	 * (for example, disjunction of two boolean constants in satisfiability, or addition in model counting).
+	 * Eventually this will be provided by a semiring parameter.
 	 */
 	protected abstract Expression additiveOperationOnUnconditionalSolutions(Expression solution1, Expression solution2, RewritingProcess process);
 
@@ -142,38 +90,31 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 	 * (for example, in summation of numeric expressions this will be the product of two numbers,
 	 * in model counting this will be 0 if value is 'false' and numberOfOccurrences if value is 'true',
 	 * and in satisfiability it will 'false' if value is 'false' and 'true' if value is 'true' and numberOfOccurrences is greater than 0).
+	 * Eventually this will be provided by a semiring parameter.
 	 */
 	protected abstract Expression additiveOperationAppliedAnIntegerNumberOfTimes(Expression value, Expression numberOfOccurrences, RewritingProcess process);
 
 	/**
-	 * Converts a conjunction of atoms into the equivalent {@link #TheoryConstraint} object.
-	 */
-	protected abstract TheoryConstraint makeConstraint(Expression atomsConjunction, Collection<Expression> indices, RewritingProcess process);
-
-	/**
-	 * Returns simplification of formula given splitter.
-	 */
-	protected abstract Expression applySplitterTo(Expression formula, Expression splitter, RewritingProcess process);
-
-	/**
-	 * Returns simplification of formula given splitter negation.
-	 */
-	protected abstract Expression applySplitterNegationTo(Expression formula, Expression splitter, RewritingProcess process);
-
-	protected abstract Expression completeSimplifySolutionGivenSplitter(Expression solution, Expression splitter, RewritingProcess process);
-
-	protected abstract Expression completeSimplifySolutionGivenSplitterNegation(Expression solution, Expression splitter, RewritingProcess process);
-
-	/**
 	 * Returns indices to be used given splitter.
+	 * Needs to be integrated into a more general notion of simplifying a whole problem under a splitter
 	 */
+	@Deprecated
 	protected abstract Collection<Expression> getIndicesUnderSplitter(Expression splitter, Collection<Expression> indices);
 	
 	/**
 	 * Returns indices to be used given splitter negation.
+	 * Needs to be integrated into a more general notion of simplifying a whole problem under a splitter
 	 */
+	@Deprecated
 	protected abstract Collection<Expression> getIndicesUnderSplitterNegation(Expression splitter, Collection<Expression> indices);
 	
+	/**
+	 * Indicates whether a splitter does not pose any constraints on the interpretations of indices
+	 * (typically this just means the splitter is not on an index, or does not involve an index).
+	 * @param splitter
+	 * @param indices
+	 * @return
+	 */
 	abstract protected boolean splitterDoesNotInvolveIndex(Expression splitter, Collection<Expression> indices);
 
 	///////////////////////////// END OF ABSTRACT METHODS //////////////////////////////////////
@@ -182,6 +123,7 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 	
 	protected Theory theory;
 	
+	/** A {@link CountsDeclaration} encapsulating sort size information. */
 	protected CountsDeclaration countsDeclaration;
 	
 	public AbstractPlainDPLL(Theory theory) {
@@ -198,10 +140,10 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 		Pair<Expression, List<Expression>> formulaAndIndexExpressions = getFormulaAndIndexExpressionsFromRewriterProblemArgument(expression, process);
 		Expression       formula          = formulaAndIndexExpressions.first;
 		List<Expression> indexExpressions = formulaAndIndexExpressions.second;
-		Expression       simplifiedFormula = theory.simplify(formula, process);
+		Expression       simplifiedFormula = theory.simplify(formula, process); // eventually this will should not be needed as simplification should be lazy 
 		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
-		Expression result = solve(simplifiedFormula, Expressions.TRUE, indices, subProcess);
+		Expression result = solve(simplifiedFormula, indices, subProcess);
 		return result;
 	}
 
@@ -217,109 +159,111 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 	}
 
 	/**
-	 * Returns the solution of a problem under a given constraint, which must be a conjunction of atoms, or true.
-	 * Assumes it is already simplified with respect to constraint.
+	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
 	 */
-	protected Expression solve(Expression formula, Expression constraintConjunctionOfAtoms, Collection<Expression> indices, RewritingProcess process) {
-		TheoryConstraint constraint = makeConstraint(constraintConjunctionOfAtoms, indices, process);
-		Expression result = solve(formula, constraint, indices, process);
+	protected Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process) {
+		TheoryConstraint constraint = theory.makeConstraint(indices, process);
+		Expression result = solve(expression, constraint, indices, process);
 		return result;
 	}
 
 	/**
-	 * Solves a problem for the given formula.
-	 * Assumes it is already simplified with respect to context represented by constraint.
+	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices under given constraint
+	 * (which may be <code>null</code>, meaning it is unsatisfiable).
 	 */
-	protected Expression solve(Expression formula, TheoryConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
-		Expression splitter = pickSplitter(formula, indices, constraint, process);
-
+	protected Expression solve(Expression expression, TheoryConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
-		if (splitter != null) {
-			result = computeSolutionBasedOnSplittedProblems(splitter, formula, indices, constraint, process);
+		if (constraint != null) {
+			Expression splitter = pickSplitter(expression, indices, constraint, process);
+
+			if (splitter != null) {
+				result = computeSolutionBasedOnSplittedProblems(splitter, expression, indices, constraint, process);
+			}
+			else {
+				Expression unconditionalValue = expression;
+				Expression numberOfOccurrences = constraint == null? Expressions.ZERO : constraint.modelCount(indices, process);
+				result = additiveOperationAppliedAnIntegerNumberOfTimes(unconditionalValue, numberOfOccurrences, process);
+			}
 		}
 		else {
-			Expression unconditionalFormulaValue = formula;
-			Expression numberOfOccurrences = constraint == null? Expressions.ZERO : constraint.modelCount(indices, process);
-			result = additiveOperationAppliedAnIntegerNumberOfTimes(unconditionalFormulaValue, numberOfOccurrences, process);
+			result = Expressions.ZERO;
 		}
 		return result;
 	}
 
+	/** Picks splitter from either expression or constraint; assumes constraint is not <code>null</code>. */
 	protected Expression pickSplitter(Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
 		Expression splitter;
-		if (constraint == null) {
-			splitter = null;
-		}
-		else {
-			splitter = theory.pickSplitterNeededForSolvingGivenExpression(expression, indices, constraint, process);
-			if (splitter == null) { // formula is 'true'
-				splitter = constraint.pickSplitter(indices, process);
-			}
+		splitter = theory.pickSplitterInExpression(expression, indices, constraint, process);
+		if (splitter == null) { // expression is constant value, so it does not have any splitters
+			splitter = constraint.pickSplitter(indices, process);
 		}
 		return splitter;
 	}
 
-	protected Expression computeSolutionBasedOnSplittedProblems(Expression splitter, Expression formula, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
+	protected Expression computeSolutionBasedOnSplittedProblems(Expression splitter, Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
 		Expression result;
 
 		TheoryConstraint constraintUnderSplitter = constraint.applySplitter(splitter, indices, process);
 		if (constraintUnderSplitter != null) {
-			Expression solutionUnderSplitter = solveUnderSplitter(splitter, formula, constraintUnderSplitter, indices, process);
+			Expression solutionUnderSplitter = solveUnderSplitter(splitter, expression, constraintUnderSplitter, indices, process);
 
-			boolean splitterDoesNotInvolveIndex = splitterDoesNotInvolveIndex(splitter, indices);
-			if ( ! splitterDoesNotInvolveIndex && isTopSolution(solutionUnderSplitter)) {
-				result = solutionUnderSplitter; // all models are on this side of splitter, no need to look at the other side
+			boolean solutionIsConditionalOnSplitterOverFreeVariable = splitterDoesNotInvolveIndex(splitter, indices);
+			boolean solutionIsAdditionOfSubSolutions = ! solutionIsConditionalOnSplitterOverFreeVariable;
+			if ( solutionIsAdditionOfSubSolutions && isTopSolution(solutionUnderSplitter)) {
+				result = solutionUnderSplitter; // solution is already maximum, no need to consider the other side of splitter
 			}
 			else {
 				TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitterNegation(splitter, indices, process);
 
 				if (constraintUnderSplitterNegation != null) {
-					Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, formula, constraintUnderSplitterNegation, indices, process);
-					if (splitterDoesNotInvolveIndex) {
+					Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, expression, constraintUnderSplitterNegation, indices, process);
+					if (solutionIsConditionalOnSplitterOverFreeVariable) {
 						// solution is <if splitter then solutionUnderSplitter else solutionUnderSplitterNegation>
 						result = IfThenElse.make(splitter, solutionUnderSplitter, solutionUnderSplitterNegation, false /* no simplification to condition */);
 					}
 					else {
-						// splitter is Index = Value
-						// solution is solutionUnderSplitter + solutionUnderSplitterNegation
+						// splitter is over an index or more,
+						// so solution is solutionUnderSplitter + solutionUnderSplitterNegation
 						// If unconditional, these solutions need to be combined
 						// If conditional, these solutions need to be merged into a single conditional
-						result = combineSymbolicResults(solutionUnderSplitter, solutionUnderSplitterNegation, process);
+						result = addSymbolicResults(solutionUnderSplitter, solutionUnderSplitterNegation, process);
 					}
 				}
-				else { // splitter cannot be false under constraint, so only solution is one under splitter
+				else { // splitter cannot be false under constraint, so it is true under constraint, so final solution is one under splitter
 					result = solutionUnderSplitter;
 				}
 			}
 		}
-		else { // splitter is false under constraint, so solution is solution under the fact that splitter is false, ignoring possibility splitter is true
+		else {
+            // splitter is false under constraint, so final solution is one under splitter negation
 			TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitterNegation(splitter, indices, process);
-			Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, formula, constraintUnderSplitterNegation, indices, process);
+			Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, expression, constraintUnderSplitterNegation, indices, process);
 			result = solutionUnderSplitterNegation;
 		}
 		
 		return result;
 	}
 
-	protected Expression solveUnderSplitter(Expression splitter, Expression formula, TheoryConstraint constraintUnderSplitter, Collection<Expression> indices, RewritingProcess process) {
-		Expression formulaUnderSplitter = applySplitterTo(formula, splitter, process);
+	protected Expression solveUnderSplitter(Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitter, Collection<Expression> indices, RewritingProcess process) {
+		Expression expressionUnderSplitter = theory.applySplitterToExpression(splitter, expression, process);
 		Collection<Expression> indicesUnderSplitter = getIndicesUnderSplitter(splitter, indices);
-		Expression result = solve(formulaUnderSplitter, constraintUnderSplitter, indicesUnderSplitter, process);
+		Expression result = solve(expressionUnderSplitter, constraintUnderSplitter, indicesUnderSplitter, process);
 		return result;
 	}
 
-	protected Expression solveUnderSplitterNegation(Expression splitter, Expression formula, TheoryConstraint constraintUnderSplitterNegation, Collection<Expression> indices, RewritingProcess process) {
-		Expression formulaUnderSplitterNegation = applySplitterNegationTo(formula, splitter, process);
+	protected Expression solveUnderSplitterNegation(Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitterNegation, Collection<Expression> indices, RewritingProcess process) {
+		Expression expressionUnderSplitterNegation = theory.applySplitterNegationToExpression(splitter, expression, process);
 		Collection<Expression> indicesUnderSplitterNegation = getIndicesUnderSplitterNegation(splitter, indices);
-		Expression result = solve(formulaUnderSplitterNegation, constraintUnderSplitterNegation, indicesUnderSplitterNegation, process);
+		Expression result = solve(expressionUnderSplitterNegation, constraintUnderSplitterNegation, indicesUnderSplitterNegation, process);
 		return result;
 	}
 
 	/**
-	 * If solutions are unconditional expressions, simply combine them.
-	 * If they are conditional, perform distributive on conditions.
+	 * If solutions are unconditional expressions, simply add them.
+	 * If they are conditional (symbolic), perform distributive on conditions.
 	 */
-	protected Expression combineSymbolicResults(Expression solution1, Expression solution2, RewritingProcess process) {
+	protected Expression addSymbolicResults(Expression solution1, Expression solution2, RewritingProcess process) {
 
 		Expression result = null;
 
@@ -327,47 +271,25 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 			Expression condition  = IfThenElse.getCondition(solution1);
 			Expression thenBranch = IfThenElse.getThenBranch(solution1);
 			Expression elseBranch = IfThenElse.getElseBranch(solution1);
-			Expression solution2UnderCondition    = completeSimplifySolutionGivenSplitter        (solution2, condition, process);
-			Expression solution2UnderNotCondition = completeSimplifySolutionGivenSplitterNegation(solution2, condition, process);
-			Expression newThenBranch = combineSymbolicResults(thenBranch, solution2UnderCondition,    process);
-			Expression newElseBranch = combineSymbolicResults(elseBranch, solution2UnderNotCondition, process);
+			Expression solution2UnderCondition    = theory.applySplitterToSolution(condition, solution2, process);
+			Expression solution2UnderNotCondition = theory.applySplitterNegationToSolution(condition, solution2, process);
+			Expression newThenBranch = addSymbolicResults(thenBranch, solution2UnderCondition,    process);
+			Expression newElseBranch = addSymbolicResults(elseBranch, solution2UnderNotCondition, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false /* no simplification to condition */);
 		}
 		else if (IfThenElse.isIfThenElse(solution2)) {
 			Expression condition  = IfThenElse.getCondition(solution2);
 			Expression thenBranch = IfThenElse.getThenBranch(solution2);
 			Expression elseBranch = IfThenElse.getElseBranch(solution2);
-			Expression solution1UnderCondition    = completeSimplifySolutionGivenSplitter        (solution1, condition, process);
-			Expression solution1UnderNotCondition = completeSimplifySolutionGivenSplitterNegation(solution1, condition, process);
-			Expression newThenBranch = combineSymbolicResults(solution1UnderCondition,    thenBranch, process);
-			Expression newElseBranch = combineSymbolicResults(solution1UnderNotCondition, elseBranch, process);
+			Expression solution1UnderCondition    = theory.applySplitterToSolution(condition, solution1, process);
+			Expression solution1UnderNotCondition = theory.applySplitterNegationToSolution(condition, solution1, process);
+			Expression newThenBranch = addSymbolicResults(solution1UnderCondition,    thenBranch, process);
+			Expression newElseBranch = addSymbolicResults(solution1UnderNotCondition, elseBranch, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false /* no simplification to condition */);
 		}
 		else {
 			result = additiveOperationOnUnconditionalSolutions(solution1, solution2, process);
 		}
-
-		// The code below is left to show what I tried when separating externalization from the main algorithm.
-		// I would simply sum the counts without trying to externalize, and have a separate counting algorithm-with-externalization
-		// using this non-externalized one and doing the externalization as a post-processing step. It was almost half the speed,
-		// possible because doing the externalization on the fly allows for simplifications to be performed sooner.
-		// I also tried using the code below with general-purpose externalization right after the function application case,
-		// and it was indeed almost as fast as the above, but still about 10% slower, so I decided to stick with the general-purpose case.
-
-		//		if (count1.equals(Expressions.ZERO)) {
-		//			result = count2;
-		//		}
-		//		else if (count2.equals(Expressions.ZERO)) {
-		//			result = count1;
-		//		}
-		//		else if (count1.getSyntacticFormType().equals("Function application") ||
-		//				count2.getSyntacticFormType().equals("Function application")) {
-		//
-		//			result = Expressions.apply(FunctorConstants.PLUS, count1, count2);
-		//		}
-		//		else {
-		//			result = Expressions.makeSymbol(count1.rationalValue().add(count2.rationalValue()));
-		//		}
 
 		return result;
 	}

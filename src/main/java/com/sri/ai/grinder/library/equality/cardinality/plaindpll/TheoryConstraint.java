@@ -71,4 +71,15 @@ public interface TheoryConstraint {
 	 * Computes solution for constraint in polynomial time.
 	 */
 	public Expression modelCount(Collection<Expression> indices, RewritingProcess process);
+
+	/**
+	 * Given a splitter candidate, should return the first splitter needed in order to make the use of the splitter candidate possible.
+	 * This method should soon be made invisible as part of the implementation, not the API.
+	 * @param splitterCandidate
+	 * @param indices
+	 * @param process
+	 * @return
+	 */
+	@Deprecated
+	public Expression getMostRequiredSplitter(Expression splitterCandidate, Collection<Expression> indices, RewritingProcess process);
 }

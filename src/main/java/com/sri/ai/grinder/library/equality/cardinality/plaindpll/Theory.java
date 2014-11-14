@@ -81,7 +81,7 @@ public interface Theory {
 	 * @param process
 	 * @return
 	 */
-	Expression pickSplitterNeededForSolvingGivenExpression(Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process);
+	Expression pickSplitterInExpression(Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process);
 
 	/**
 	 * Simplifies an expression given the assumption that a splitter is true.
@@ -125,5 +125,5 @@ public interface Theory {
 	 * Provides a new instance of the corresponding {@link TheoryConstraint}.
 	 * @return
 	 */
-	TheoryConstraint makeConstraint(Expression literalsConjunction, Collection<Expression> indices, RewritingProcess process);
+	TheoryConstraint makeConstraint(Collection<Expression> indices, RewritingProcess process);
 }

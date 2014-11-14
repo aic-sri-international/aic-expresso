@@ -40,7 +40,6 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.util.Util.arrayList;
 
-import java.util.Collection;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
@@ -87,11 +86,6 @@ public class PlainCardinalityDPLL extends AbstractPlainDPLLForEqualityLogic {
 	}
 
 	@Override
-	protected Expression bottomSolution() {
-		return Expressions.ZERO;
-	}
-
-	@Override
 	protected boolean isTopSolution(Expression solutionForSubProblem) {
 		return false;
 	}
@@ -119,12 +113,6 @@ public class PlainCardinalityDPLL extends AbstractPlainDPLLForEqualityLogic {
 		else {
 			result = IfThenElse.make(value, numberOfOccurrences, ZERO);
 		}
-		return result;
-	}
-
-	@Override
-	protected TheoryConstraint makeConstraint(Expression literalsConjunction, Collection<Expression> indices, RewritingProcess process) {
-		TheoryConstraint result = new SymbolEqualityConstraint(literalsConjunction, indices, process);
 		return result;
 	}
 }
