@@ -43,7 +43,6 @@ import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
 
-import java.util.Collection;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
@@ -83,11 +82,6 @@ public class PlainSatisfiabilityDPLL extends AbstractPlainDPLLForEqualityLogic {
 	}
 
 	@Override
-	protected Expression bottomSolution() {
-		return Expressions.FALSE;
-	}
-
-	@Override
 	protected boolean isTopSolution(Expression solutionForSubProblem) {
 		boolean result = solutionForSubProblem.equals(Expressions.TRUE);
 		return result;
@@ -113,12 +107,6 @@ public class PlainSatisfiabilityDPLL extends AbstractPlainDPLLForEqualityLogic {
 		else {
 			result = apply(GREATER_THAN, numberOfOccurrences, Expressions.ZERO);
 		}
-		return result;
-	}
-
-	@Override
-	protected TheoryConstraint makeConstraint(Expression disequalitiesConjunction, Collection<Expression> indices, RewritingProcess process) {
-		TheoryConstraint result = new SymbolEqualityConstraint(disequalitiesConjunction, indices, process);
 		return result;
 	}
 }

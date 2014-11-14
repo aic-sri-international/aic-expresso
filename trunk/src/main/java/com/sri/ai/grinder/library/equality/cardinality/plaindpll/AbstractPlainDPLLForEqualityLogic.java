@@ -72,30 +72,6 @@ abstract public class AbstractPlainDPLLForEqualityLogic extends AbstractPlainDPL
 	}
 
 	@Override
-	protected Expression applySplitterTo(Expression formula, Expression splitter, RewritingProcess process) {
-		Expression result = theory.applySplitterToExpression(splitter, formula, process);
-		return result;
-	}
-
-	@Override
-	protected Expression applySplitterNegationTo(Expression formula, Expression splitter, RewritingProcess process) {
-		Expression result = theory.applySplitterNegationToExpression(splitter, formula, process);
-		return result;
-	}
-
-	@Override
-	protected Expression completeSimplifySolutionGivenSplitter(Expression solution, Expression splitter, RewritingProcess process) {
-		Expression result = theory.applySplitterToSolution(splitter, solution, process);
-		return result;
-	}
-
-	@Override
-	protected Expression completeSimplifySolutionGivenSplitterNegation(Expression solution, Expression splitter, RewritingProcess process) {
-		Expression result = theory.applySplitterNegationToSolution(splitter, solution, process);
-		return result;
-	}
-
-	@Override
 	protected Collection<Expression> getIndicesUnderSplitter(Expression splitter, Collection<Expression> indices) {
 		Expression variable  = splitter.get(0);
 		Collection<Expression> result = ! indices.contains(variable)? indices : Util.makeSetWithoutExcludedElement(indices, variable);
