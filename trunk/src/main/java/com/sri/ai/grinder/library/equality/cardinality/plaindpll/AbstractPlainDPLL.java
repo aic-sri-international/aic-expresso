@@ -54,7 +54,7 @@ import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.base.Pair;
 
 /**
- * A "plain" implementation of DPLL (without using Grinder-style contexts and simplifications)
+ * A "plain" implementation of symbolic generalized DPLL (without using Grinder-style contexts and simplifications)
  * that is more ad hoc than rewriter-based approaches but also much faster.
  * 
  * This generic skeleton allows the algorithm to be used for different tasks.
@@ -147,8 +147,8 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 	}
 
 	/**
-	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices under given constraint
-	 * (which may be <code>null</code>, meaning it is unsatisfiable).
+	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices under given constraint,
+	 * which must not be <code>null</code> (that is, a contradiction).
 	 */
 	protected Expression solve(Expression expression, TheoryConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
@@ -165,7 +165,7 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 			}
 		}
 		else {
-			result = Expressions.ZERO;
+			throw new Error(this.getClass() + ".solve must not receive a contradiction constraint (a null pointer)");
 		}
 		return result;
 	}
