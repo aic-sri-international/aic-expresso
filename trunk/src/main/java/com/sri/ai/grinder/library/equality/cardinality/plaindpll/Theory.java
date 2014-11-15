@@ -83,6 +83,9 @@ public interface Theory {
 	 */
 	Expression pickSplitterInExpression(Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process);
 
+	/** Indicates whether a splitter interpretation depends on the interpretation of some index. */
+	boolean splitterDoesNotInvolveIndex(Expression splitter, Collection<Expression> indices);
+
 	/**
 	 * Simplifies an expression given the assumption that a splitter is true.
 	 * @param splitter
@@ -100,6 +103,22 @@ public interface Theory {
 	 * @return
 	 */
 	Expression applySplitterNegationToExpression(Expression splitter, Expression expression, RewritingProcess process);
+
+	/**
+	 * Indicates what the indices of a sub-problem under a splitter will be.
+	 * @param splitter
+	 * @param indices
+	 * @return
+	 */
+	Collection<Expression> applyIndicesUnderSplitter(Expression splitter, Collection<Expression> indices);
+
+	/**
+	 * Indicates what the indices of a sub-problem under a splitter negation will be.
+	 * @param splitter
+	 * @param indices
+	 * @return
+	 */
+	Collection<Expression> applyIndicesUnderSplitterNegation(Expression splitter, Collection<Expression> indices);
 
 	/**
 	 * Simplifies a solution given the assumption that a splitter is true,

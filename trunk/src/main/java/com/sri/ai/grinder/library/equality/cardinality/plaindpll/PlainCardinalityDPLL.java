@@ -62,19 +62,20 @@ import com.sri.ai.util.base.Pair;
 /** 
  * A DPLL specialization for model counting.
  */
-public class PlainCardinalityDPLL extends AbstractPlainDPLLForEqualityLogic {
+public class PlainCardinalityDPLL extends AbstractPlainDPLL {
 	
 	/**
 	 * Builds a rewriter for cardinality computation.
 	 */
 	public PlainCardinalityDPLL() {
+		super(new EqualityTheory());
 	}
 
 	/**
 	 * Builds a rewriter for cardinality computation.
 	 */
 	public PlainCardinalityDPLL(CountsDeclaration countsDeclaration) {
-		super(countsDeclaration);
+		super(new EqualityTheory(), countsDeclaration);
 	}
 
 	@Override

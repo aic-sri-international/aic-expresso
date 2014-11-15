@@ -59,19 +59,20 @@ import com.sri.ai.util.base.Pair;
 /** 
  * A DPLL specialization for satisfiability.
  */
-public class PlainSatisfiabilityDPLL extends AbstractPlainDPLLForEqualityLogic {
+public class PlainSatisfiabilityDPLL extends AbstractPlainDPLL {
 	
 	/**
 	 * Builds a rewriter for cardinality computation.
 	 */
 	public PlainSatisfiabilityDPLL() {
+		super(new EqualityTheory());
 	}
 
 	/**
 	 * Builds a rewriter for cardinality computation.
 	 */
 	public PlainSatisfiabilityDPLL(CountsDeclaration countsDeclaration) {
-		super(countsDeclaration);
+		super(new EqualityTheory(), countsDeclaration);
 	}
 
 	@Override
