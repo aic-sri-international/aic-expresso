@@ -94,28 +94,7 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 	 */
 	protected abstract Expression additiveOperationAppliedAnIntegerNumberOfTimes(Expression value, Expression numberOfOccurrences, RewritingProcess process);
 
-	/**
-	 * Returns indices to be used given splitter.
-	 * Needs to be integrated into a more general notion of simplifying a whole problem under a splitter
-	 */
-	@Deprecated
-	protected abstract Collection<Expression> getIndicesUnderSplitter(Expression splitter, Collection<Expression> indices);
 	
-	/**
-	 * Returns indices to be used given splitter negation.
-	 * Needs to be integrated into a more general notion of simplifying a whole problem under a splitter
-	 */
-	@Deprecated
-	protected abstract Collection<Expression> getIndicesUnderSplitterNegation(Expression splitter, Collection<Expression> indices);
-	
-	/**
-	 * Indicates whether a splitter does not pose any constraints on the interpretations of indices
-	 * (typically this just means the splitter is not on an index, or does not involve an index).
-	 * @param splitter
-	 * @param indices
-	 * @return
-	 */
-	abstract protected boolean splitterDoesNotInvolveIndex(Expression splitter, Collection<Expression> indices);
 
 	///////////////////////////// END OF ABSTRACT METHODS //////////////////////////////////////
 
@@ -202,13 +181,32 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 	}
 
 	protected Expression computeSolutionBasedOnSplittedProblems(Expression splitter, Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
+		// There is a subtlety in this method.
+		// The splitter may not be satisfiable under the current constraint.
+		// At first, I thought this would take care of itself because if we proceed with the search under such splitter,
+		// the constraint will eventually become a contradiction anyway, and the result will be zero, as it should.
+		// However, for splitters on free variables, we need to keep the condition on the splitter if the constraint becomes
+		// a contradiction later for other reasons,
+		// and we should *not* keep it in case the splitter is unsatisfiable given the constraint.
+		// For example, in model counting in equality theory,
+		// suppose that X is a free variable, the constraint is X != a and the splitter is X = a.
+		// If the expression is (X = a and Y != b and Y = b) or X != a, for Y an index of type size 10, then the solution should simply be 10,
+		// independent of the value of X. 
+		// If however the constraint is simply "true", the result must be 'if X = a then 0 else 10'.
+		// In other words, the splitter on free variables is kept in the solution if and only if the splitter or its negation do not turn the
+		// constraint into a contradiction, regardless of the result of the sub-problems.
+		// This means that the application of the splitter must be done to the constraint first,
+		// and only if this constraint is not contradicted do we apply it to the expression and indices.
+		// This prevents a more elegant formalization in which the splitter is applied to the three of them,
+		// as if conceptually applied to the whole problem at once.
+		
 		Expression result;
 
 		TheoryConstraint constraintUnderSplitter = constraint.applySplitter(splitter, indices, process);
 		if (constraintUnderSplitter != null) {
 			Expression solutionUnderSplitter = solveUnderSplitter(splitter, expression, constraintUnderSplitter, indices, process);
 
-			boolean solutionIsConditionalOnSplitterOverFreeVariable = splitterDoesNotInvolveIndex(splitter, indices);
+			boolean solutionIsConditionalOnSplitterOverFreeVariable = theory.splitterDoesNotInvolveIndex(splitter, indices);
 			boolean solutionIsAdditionOfSubSolutions = ! solutionIsConditionalOnSplitterOverFreeVariable;
 			if ( solutionIsAdditionOfSubSolutions && isTopSolution(solutionUnderSplitter)) {
 				result = solutionUnderSplitter; // solution is already maximum, no need to consider the other side of splitter
@@ -247,14 +245,14 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 
 	protected Expression solveUnderSplitter(Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitter, Collection<Expression> indices, RewritingProcess process) {
 		Expression expressionUnderSplitter = theory.applySplitterToExpression(splitter, expression, process);
-		Collection<Expression> indicesUnderSplitter = getIndicesUnderSplitter(splitter, indices);
+		Collection<Expression> indicesUnderSplitter = theory.applyIndicesUnderSplitter(splitter, indices);
 		Expression result = solve(expressionUnderSplitter, constraintUnderSplitter, indicesUnderSplitter, process);
 		return result;
 	}
 
 	protected Expression solveUnderSplitterNegation(Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitterNegation, Collection<Expression> indices, RewritingProcess process) {
 		Expression expressionUnderSplitterNegation = theory.applySplitterNegationToExpression(splitter, expression, process);
-		Collection<Expression> indicesUnderSplitterNegation = getIndicesUnderSplitterNegation(splitter, indices);
+		Collection<Expression> indicesUnderSplitterNegation = theory.applyIndicesUnderSplitterNegation(splitter, indices);
 		Expression result = solve(expressionUnderSplitterNegation, constraintUnderSplitterNegation, indicesUnderSplitterNegation, process);
 		return result;
 	}

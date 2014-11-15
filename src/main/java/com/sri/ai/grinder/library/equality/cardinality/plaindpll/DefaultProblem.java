@@ -38,48 +38,56 @@
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.util.Util;
 
-@Beta
-/** 
- * A DPLL partial specialization for equality logic.
+/**
+ * A default implementation of {@link Problem}.
+ *
+ * @author braz
  */
-abstract public class AbstractPlainDPLLForEqualityLogic extends AbstractPlainDPLL {
+@Beta
+public class DefaultProblem implements Problem {
 	
-	/**
-	 * Builds a rewriter for cardinality computation.
-	 */
-	public AbstractPlainDPLLForEqualityLogic() {
-		super(new EqualityTheory());
-	}
+	private Expression expression;
+	private Collection<Expression> indices;
+	private TheoryConstraint constraint;
 
-	/**
-	 * Builds a rewriter for cardinality computation.
-	 */
-	public AbstractPlainDPLLForEqualityLogic(CountsDeclaration countsDeclaration) {
-		super(new EqualityTheory(), countsDeclaration);
+	public DefaultProblem(Expression expression, Collection<Expression> indices, TheoryConstraint constraint) {
+		this.expression = expression;
+		this.indices = indices;
+		this.constraint = constraint;
+	}
+	
+	@Override
+	public Expression getExpression() {
+		return expression;
 	}
 
 	@Override
-	protected boolean splitterDoesNotInvolveIndex(Expression splitter, Collection<Expression> indices) {
-		boolean result = ! indices.contains(splitter.get(0));
-		return result;
+	public Collection<Expression> getIndices() {
+		return Collections.unmodifiableCollection(indices);
 	}
 
 	@Override
-	protected Collection<Expression> getIndicesUnderSplitter(Expression splitter, Collection<Expression> indices) {
-		Expression variable  = splitter.get(0);
-		Collection<Expression> result = ! indices.contains(variable)? indices : Util.makeSetWithoutExcludedElement(indices, variable);
-		return result;
+	public TheoryConstraint getConstraint() {
+		return constraint;
 	}
 
 	@Override
-	protected Collection<Expression> getIndicesUnderSplitterNegation(Expression splitter, Collection<Expression> indices) {
-		return indices;
+	public Problem setExpression(Expression newExpression) {
+		return new DefaultProblem(newExpression, indices, constraint);
+	}
+
+	@Override
+	public Problem setIndices(Collection<Expression> newIndices) {
+		return new DefaultProblem(expression, newIndices, constraint);
+	}
+
+	@Override
+	public Problem setConstraint(TheoryConstraint newConstraint) {
+		return new DefaultProblem(expression, indices, newConstraint);
 	}
 }

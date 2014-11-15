@@ -151,6 +151,24 @@ public class EqualityTheory extends AbstractTheory {
 		return result;
 	}
 
+	@Override
+	public Collection<Expression> applyIndicesUnderSplitter(Expression splitter, Collection<Expression> indices) {
+		Expression variable  = splitter.get(0);
+		Collection<Expression> result = ! indices.contains(variable)? indices : Util.makeSetWithoutExcludedElement(indices, variable);
+		return result;
+	}
+
+	@Override
+	public Collection<Expression> applyIndicesUnderSplitterNegation(Expression splitter, Collection<Expression> indices) {
+		return indices;
+	}
+
+	@Override
+	public boolean splitterDoesNotInvolveIndex(Expression splitter, Collection<Expression> indices) {
+		boolean result = ! indices.contains(splitter.get(0));
+		return result;
+	}
+
 	private boolean generic = false;
 	
 	@Override
