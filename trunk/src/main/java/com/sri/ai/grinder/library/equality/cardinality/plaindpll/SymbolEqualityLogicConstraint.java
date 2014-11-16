@@ -63,10 +63,10 @@ public class SymbolEqualityLogicConstraint extends LinkedHashMap<Expression, Col
 	private Map<Expression, Expression> fromVariableToRepresentative;
 	private SymbolDisequalityConstraint disequalities;
 	
-	public SymbolEqualityLogicConstraint(Collection<Expression> indices, RewritingProcess process) {
+	public SymbolEqualityLogicConstraint() {
 		super();
 		fromVariableToRepresentative = new LinkedHashMap<Expression, Expression>();
-		disequalities = new SymbolDisequalityConstraint(indices, process);
+		disequalities = new SymbolDisequalityConstraint();
 	}
 
 	public SymbolEqualityLogicConstraint(SymbolEqualityLogicConstraint another) {

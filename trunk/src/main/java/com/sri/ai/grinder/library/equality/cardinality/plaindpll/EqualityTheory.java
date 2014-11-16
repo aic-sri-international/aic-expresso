@@ -338,8 +338,8 @@ public class EqualityTheory extends AbstractTheory {
 
 	@Override
 	public TheoryConstraint makeConstraint(Collection<Expression> indices, RewritingProcess process) {
-		return new SymbolEqualityLogicConstraint(indices, process);
-//		return new SymbolDisequalityConstraint(indices, process);
+//		return new SymbolEqualityLogicConstraint();
+		return new SymbolDisequalityConstraint();
 	}
 
 	/**

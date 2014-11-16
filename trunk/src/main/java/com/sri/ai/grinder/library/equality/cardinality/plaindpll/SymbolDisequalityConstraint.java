@@ -47,7 +47,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,7 +57,6 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.util.Util;
@@ -70,18 +68,7 @@ import com.sri.ai.util.Util;
 @Beta
 public class SymbolDisequalityConstraint extends LinkedHashMap<Expression, Collection<Expression>> implements TheoryConstraint {
 
-	/**
-	 * Constructs the theory constraint given a conjunction of disequalities (or a single disequality),
-	 * each of them involving at least one variable (and therefore being satisfiable by themselves),
-	 * a collection of indices, and a rewriting process.
-	 * @param disequalitiesConjunction a conjunction of disequalities, or a single disequality
-	 * @param indices a collection of indices
-	 * @param process a rewriting process
-	 */
-	public SymbolDisequalityConstraint(Collection<Expression> indices, RewritingProcess process) {
-	}
-
-	private SymbolDisequalityConstraint() {
+	SymbolDisequalityConstraint() {
 		super();
 	}
 
@@ -96,7 +83,8 @@ public class SymbolDisequalityConstraint extends LinkedHashMap<Expression, Colle
 		else {
 			Util.addToCollectionValuePossiblyCreatingIt(this, term2, term1, LinkedHashSet.class);
 		}
-		// TODO: we could actually use a simpler ordering here (that does not distinguish between indices and free variables) for the satisfiability case
+		// TODO: we could actually use a simpler ordering here (that does not distinguish between indices and free variables)
+		// for the satisfiability case
 		// but we are re-using code for both model counting and satisfiability.
 		// May be an optimization option in the future.
 	}

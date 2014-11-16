@@ -44,12 +44,12 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 
 
 /**
- * A collection of utility methods for Plain DPLL-related issues.
+ * A collection of utility methods for post-processing {@link AbstractPlainDPLL} solutions.
  * 
  * @author braz
  *
  */
-public class PlainDPLLUtil {
+public class SolutionPostProcessing {
 
 	public static Expression fromSolutionToShorterExpression(Expression solution, Theory theory, RewritingProcess process) {
 		Expression result = solution;
