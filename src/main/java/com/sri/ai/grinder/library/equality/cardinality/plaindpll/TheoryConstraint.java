@@ -73,13 +73,13 @@ public interface TheoryConstraint {
 	public Expression modelCount(Collection<Expression> indices, RewritingProcess process);
 
 	/**
-	 * Given a splitter candidate, should return the first splitter needed in order to make the use of the splitter candidate possible.
-	 * This method should soon be made invisible as part of the implementation, not the API.
+	 * Given a splitter candidate, returns the same, or another, splitter
+	 * guaranteed to be satisfiable under the constraint, no matter what assignment to free variables.
+	 * This is also required to make any splitter candidate have this property itself after a finite number of invocations.
 	 * @param splitterCandidate
 	 * @param indices
 	 * @param process
 	 * @return
 	 */
-	@Deprecated
 	public Expression getMostRequiredSplitter(Expression splitterCandidate, Collection<Expression> indices, RewritingProcess process);
 }
