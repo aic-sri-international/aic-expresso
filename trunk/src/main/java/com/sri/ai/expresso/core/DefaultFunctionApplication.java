@@ -223,7 +223,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 	public String makeToString() {
 		String result;
 		if (hasFunctor(FunctorConstants.IF_THEN_ELSE)) {
-			result = "if " + get(0) + " then " + get(1) + " else " + get(2);
+			result = "if " + get(0) + " then " + get(1) + " else " + stringAsSubExpression(get(2), getPrecedence(this));
 		}
 		else if (hasFunctor(FunctorConstants.CARDINALITY) && numberOfArguments() == 1) {
 			result = "| " + get(0) + " |";
@@ -267,6 +267,8 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 		int result = 100;
 		if (expression.getSyntacticFormType().equals("Function application")) {
 			if (
+					expression.hasFunctor(FunctorConstants.IF_THEN_ELSE)
+					||
 					expression.hasFunctor("in")
 					||
 					expression.hasFunctor("=")

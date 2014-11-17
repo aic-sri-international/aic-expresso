@@ -21,7 +21,7 @@ import com.sri.ai.util.collect.FirstNIterator;
  * 
  * @author braz
  */
-abstract public class AbstractPlainDPLLStressTest {
+abstract public class AbstractSymbolicGenericDPLLStressTest {
 
 	protected abstract Iterator<Expression> makeProblemsIterator(int size, int minimumNumberOfIndices);
 

@@ -35,28 +35,45 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
-
-import java.util.Iterator;
-import java.util.Random;
+package com.sri.ai.grinder.library.controlflow;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.library.equality.RandomCardinalityProblemGenerator;
-import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainCardinalityDPLL;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.HasKind;
+import com.sri.ai.grinder.library.FunctorConstants;
 
+/**
+ * <pre>
+ * Performs two types of rewrites on conditional expressions:
+ * 
+ * 1. 'if F then true else false' becomes 'F'.
+ * 2. 'if F then false else true' becomes 'not(F)'.
+ * 
+ * </pre>
+ * 
+ * @author oreilly
+ *
+ */
 @Beta
-public class PlainCardinalityDPLLStressTest extends AbstractPlainDPLLStressTest {
-
-	@Override
-	protected Rewriter makeRewriter() {
-		return new PlainCardinalityDPLL(new CountsDeclaration(10));
+public class IfThenElseBranchesAreIdentical extends AbstractRewriter {
+	
+	public IfThenElseBranchesAreIdentical() {
+		this.setReifiedTests(new HasKind(FunctorConstants.IF_THEN_ELSE));
 	}
 
 	@Override
-	protected Iterator<Expression> makeProblemsIterator(int size, int minimumNumberOfIndices) {
-		return new RandomCardinalityProblemGenerator(new Random(getRandomSeedForProblems()), size, size, minimumNumberOfIndices, size, 3);
+	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		Expression result = expression;
+		
+		Expression thenBranch = expression.get(1);
+		Expression elseBranch = expression.get(2);
+		
+		if (thenBranch.equals(elseBranch)) {
+			result = thenBranch;
+		}
+		
+		return result;
 	}
 }

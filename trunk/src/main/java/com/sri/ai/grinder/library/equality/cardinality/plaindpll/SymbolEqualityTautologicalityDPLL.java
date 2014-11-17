@@ -57,22 +57,22 @@ import com.sri.ai.util.Util;
 /** 
  * A DPLL specialization for tautologicality.
  */
-public class PlainTautologicalityDPLL extends AbstractHierarchicalRewriter {
+public class SymbolEqualityTautologicalityDPLL extends AbstractHierarchicalRewriter {
 	
-	private PlainSatisfiabilityDPLL satisfiabilitySolver;
+	private SymbolEqualitySatisfiabilityDPLL satisfiabilitySolver;
 	
 	/**
 	 * Builds a rewriter for cardinality computation.
 	 */
-	public PlainTautologicalityDPLL() {
-		satisfiabilitySolver = new PlainSatisfiabilityDPLL();
+	public SymbolEqualityTautologicalityDPLL() {
+		satisfiabilitySolver = new SymbolEqualitySatisfiabilityDPLL();
 	}
 
 	/**
 	 * Builds a rewriter for cardinality computation.
 	 */
-	public PlainTautologicalityDPLL(CountsDeclaration countsDeclaration) {
-		satisfiabilitySolver = new PlainSatisfiabilityDPLL(countsDeclaration);
+	public SymbolEqualityTautologicalityDPLL(CountsDeclaration countsDeclaration) {
+		satisfiabilitySolver = new SymbolEqualitySatisfiabilityDPLL(countsDeclaration);
 	}
 
 	@Override

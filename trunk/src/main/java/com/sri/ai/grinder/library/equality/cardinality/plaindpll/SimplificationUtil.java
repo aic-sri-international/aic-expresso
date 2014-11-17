@@ -190,14 +190,14 @@ public class SimplificationUtil {
 		List<Expression> freeVariablesIndexExpressions = getIndexExpressionsFromSymbolsAndTypes(freeVariablesAndTypes(constraintImpliesExpression, process));
 	
 		Expression closedConstraintImpliedExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesExpression);
-		Expression alwaysImpliesExpression = (new PlainTautologicalityDPLL()).rewrite(closedConstraintImpliedExpression, process);
+		Expression alwaysImpliesExpression = (new SymbolEqualityTautologicalityDPLL()).rewrite(closedConstraintImpliedExpression, process);
 		if (alwaysImpliesExpression.equals(Expressions.TRUE)) {
 			result = Expressions.TRUE;
 		}
 		else {
 			Expression constraintImpliesNegationOfExpression = Implication.make(constraint, Not.make(expression));
 			Expression closedConstraintImpliesNegationOfExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesNegationOfExpression);
-			Expression alwaysImpliesNegationOfExpression = (new PlainTautologicalityDPLL()).rewrite(closedConstraintImpliesNegationOfExpression, process);
+			Expression alwaysImpliesNegationOfExpression = (new SymbolEqualityTautologicalityDPLL()).rewrite(closedConstraintImpliesNegationOfExpression, process);
 			if (alwaysImpliesNegationOfExpression.equals(Expressions.TRUE)) {
 				result = Expressions.FALSE;
 			}

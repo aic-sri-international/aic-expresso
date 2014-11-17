@@ -37,82 +37,77 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.util.Util.arrayList;
 
-import java.util.List;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
-import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.number.FlattenMinusInPlus;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.UnaryMinus;
-import com.sri.ai.util.base.Pair;
 
-@Beta
-/** 
- * A DPLL specialization for model counting.
+/**
+ * Object representing a symbolic numeric semiring (that is, numeric expressions do not need to be constant numbers).
+ * 
+ * @author braz
+ *
  */
-public class PlainCardinalityDPLL extends AbstractPlainDPLL {
+@Beta
+public class SymbolicNumberSemiRing implements SemiRing {
 	
-	/**
-	 * Builds a rewriter for cardinality computation.
-	 */
-	public PlainCardinalityDPLL() {
-		super(new EqualityTheory());
-	}
-
-	/**
-	 * Builds a rewriter for cardinality computation.
-	 */
-	public PlainCardinalityDPLL(CountsDeclaration countsDeclaration) {
-		super(new EqualityTheory(), countsDeclaration);
-	}
-
 	@Override
-	protected Pair<Expression, List<Expression>> getFormulaAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		CardinalityUtil.assertIsCardinalityOfIndexedFormulaExpression(expression);
-		IntensionalSet set = (IntensionalSet) expression.get(0);
-		Pair<Expression, List<Expression>> result = Pair.make(set.getCondition(), set.getIndexExpressions());
-		return result;
-	}
-
-	@Override
-	protected boolean isTopSolution(Expression solutionForSubProblem) {
+	public boolean isMaximum(Expression value) {
 		return false;
 	}
 
-	private static Rewriter plusAndMinusRewriter = new TotalRewriter(new Plus(), new Minus(), new UnaryMinus(), new FlattenMinusInPlus());
 	@Override
-	protected Expression additiveOperationOnUnconditionalSolutions(Expression solution1, Expression solution2, RewritingProcess process) {
+	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
 		Expression result;
-		if (solution1.getValue() instanceof Number && solution2.getValue() instanceof Number) { // not necessary, as else clause is generic enough to deal with this case as well, but hopefully this saves time.
-			result = Expressions.makeSymbol(solution1.rationalValue().add(solution2.rationalValue()));
+		if (value1.getValue() instanceof Number && value2.getValue() instanceof Number) { // not necessary, as else clause is generic enough to deal with this case as well, but hopefully this saves time.
+			result = Expressions.makeSymbol(value1.rationalValue().add(value2.rationalValue()));
 		}
 		else {
-			Expression sum = Plus.make(arrayList(solution1, solution2));
+			Expression sum = Plus.make(arrayList(value1, value2));
 			result = plusAndMinusRewriter.rewrite(sum, process);
 		}
 		return result;
 	}
 
+	private static Rewriter plusAndMinusRewriter = new TotalRewriter(new Plus(), new Minus(), new UnaryMinus(), new FlattenMinusInPlus());
+	
 	@Override
-	protected Expression additiveOperationAppliedAnIntegerNumberOfTimes(Expression value, Expression numberOfOccurrences, RewritingProcess process) {
+	public Expression addNTimes(Expression valueToBeSummed, Expression n, RewritingProcess process) {
 		Expression result;
-		if (numberOfOccurrences.equals(ZERO)) {
+		if (n.equals(ZERO)) {
 			result = ZERO;
 		}
+		else if (IfThenElse.isIfThenElse(valueToBeSummed)) {
+			Expression condition = IfThenElse.getCondition(valueToBeSummed);
+			Expression thenBranch = IfThenElse.getThenBranch(valueToBeSummed);
+			Expression elseBranch = IfThenElse.getElseBranch(valueToBeSummed);
+			
+			Expression newThenBranch = addNTimes(thenBranch, n, process);
+			Expression newElseBranch = addNTimes(elseBranch, n, process);
+			
+			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
+		}
 		else {
-			result = IfThenElse.make(value, numberOfOccurrences, ZERO);
+			if (valueToBeSummed.equals(ZERO)) { // optimization
+				result = ZERO;
+			}
+			else if (valueToBeSummed.equals(ONE)) { // optimization
+				result = n;
+			}
+			else {
+				result = Expressions.makeSymbol(valueToBeSummed.rationalValue().multiply(n.rationalValue()));
+			}
 		}
 		return result;
 	}

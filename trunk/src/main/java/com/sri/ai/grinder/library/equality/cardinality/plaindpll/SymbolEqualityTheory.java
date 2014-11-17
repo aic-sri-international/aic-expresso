@@ -66,7 +66,7 @@ import com.sri.ai.util.base.Equals;
 /** 
  * A {@link Theory} for equality literals.
  */
-public class EqualityTheory extends AbstractTheory {
+public class SymbolEqualityTheory extends AbstractTheory {
 
 	private static Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
@@ -101,10 +101,10 @@ public class EqualityTheory extends AbstractTheory {
 	private static Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
 					ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new PlainTautologicalityDPLL()).rewrite(f, process),
+					(new SymbolEqualityTautologicalityDPLL()).rewrite(f, process),
  
 					ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new PlainSatisfiabilityDPLL()).rewrite(f, process)
+					(new SymbolEqualitySatisfiabilityDPLL()).rewrite(f, process)
 	);
 
 	@Override
@@ -349,7 +349,8 @@ public class EqualityTheory extends AbstractTheory {
 	 * @param process
 	 * @return
 	 */
-	protected Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
+	@Override
+	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		Expression result = null;
 		if (expression.hasFunctor(FunctorConstants.EQUALITY) || expression.hasFunctor(FunctorConstants.DISEQUALITY)) {
 			// remember that equality can have an arbitrary number of terms

@@ -43,70 +43,48 @@ import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
 
-import java.util.List;
-
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.ExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Or;
-import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.util.base.Pair;
 
-@Beta
-/** 
- * A DPLL specialization for satisfiability.
+/**
+ * Object representing a boolean semiring.
+ * 
+ * @author braz
+ *
  */
-public class PlainSatisfiabilityDPLL extends AbstractPlainDPLL {
+@Beta
+public class BooleanSemiRing implements SemiRing {
 	
-	/**
-	 * Builds a rewriter for cardinality computation.
-	 */
-	public PlainSatisfiabilityDPLL() {
-		super(new EqualityTheory());
-	}
-
-	/**
-	 * Builds a rewriter for cardinality computation.
-	 */
-	public PlainSatisfiabilityDPLL(CountsDeclaration countsDeclaration) {
-		super(new EqualityTheory(), countsDeclaration);
-	}
-
 	@Override
-	protected Pair<Expression, List<Expression>> getFormulaAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		ExistentiallyQuantifiedFormula existential = (ExistentiallyQuantifiedFormula) expression;
-		Pair<Expression, List<Expression>> formulaAndIndices = Pair.make(existential.getBody(), existential.getIndexExpressions());
-		return formulaAndIndices;
-	}
-
-	@Override
-	protected boolean isTopSolution(Expression solutionForSubProblem) {
-		boolean result = solutionForSubProblem.equals(Expressions.TRUE);
+	public boolean isMaximum(Expression value) {
+		boolean result = value.equals(Expressions.TRUE);
 		return result;
 	}
 
 	@Override
-	protected Expression additiveOperationOnUnconditionalSolutions(Expression solution1, Expression solution2, RewritingProcess process) {
-		return Or.make(solution1, solution2);
+	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
+		return Or.make(value1, value2);
 	}
 
 	@Override
-	protected Expression additiveOperationAppliedAnIntegerNumberOfTimes(Expression value, Expression numberOfOccurrences, RewritingProcess process) {
+	public Expression addNTimes(Expression value, Expression n, RewritingProcess process) {
 		Expression result;
-		if (value.equals(FALSE) || numberOfOccurrences.equals(ZERO)) {
+		if (value.equals(FALSE) || n.equals(ZERO)) {
 			result = FALSE;
 		}
-		else if (numberOfOccurrences.getValue() instanceof Number) { // we already know it is a value greater than zero
+		else if (n.getValue() instanceof Number) { // we already know it is a value greater than zero from the previous condition having failed
 			result = TRUE;
 		}
-		else if (GrinderConfiguration.isAssumeDomainsAlwaysLarge()) { // numberOfOccurrences is a symbolic value, so now it all depends on its being greater than zero
+		// n is a symbolic value, so now it all depends on its being greater than zero
+		else if (GrinderConfiguration.isAssumeDomainsAlwaysLarge()) { // this flag tells us to always assume type sizes are as large as needed to make n positive.
 			result = TRUE;
 		}
 		else {
-			result = apply(GREATER_THAN, numberOfOccurrences, Expressions.ZERO);
+			result = apply(GREATER_THAN, n, Expressions.ZERO);
 		}
 		return result;
 	}

@@ -37,6 +37,7 @@
  */
 package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.list;
 
@@ -47,13 +48,27 @@ import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
+import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainSatisfiabilityDPLL;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualityModelCountingDPLL;
 
 @Beta
-public class PlainSatisfiabilityDPLLTest extends AbstractPlainDPLLTest {
+public class SymboEqualityModelCountingDPLLTest extends SymbolicGenericDPLLTest {
 	
+	@Override
+	protected Expression makeProblem(Expression expression, List<Expression> indexExpressions) {
+		Expression set = new DefaultIntensionalMultiSet(indexExpressions, Expressions.ONE, expression);
+		Expression problem = apply(FunctorConstants.CARDINALITY, set);
+		return problem;
+	}
+
+	@Override
+	protected SymbolEqualityModelCountingDPLL makeRewriter() {
+		return new SymbolEqualityModelCountingDPLL();
+	}
+
 	@Test
 	public void test() {
 		
@@ -63,51 +78,40 @@ public class PlainSatisfiabilityDPLLTest extends AbstractPlainDPLLTest {
 		
 		GrinderUtil.setMinimumOutputForProfiling();
 		
-		// tests whether splitter negation, when applied, gets "translated" by inner splitters in then branches.
-		// for example, if I apply X != a to if X = Y then if Y = a then true else false else false,
-		// X != a needs to be translated to Y != a under X = Y, because in that then branch X does not exist,
-		// and X != a is therefore meaningless.
-		expression  = parse("(X != a) and (X = Y and Y != c)");
-		indices     = list();
-		expected    = parse("if X = a then false else if Y = a then false else if X = Y then if Y = c then false else true else false");
+		// this example tests whether conditioning an index to a value considers previous disequalities on that index,
+		// because X is split on b first, and then the algorithm attempts to condition on X = Y, but that requires Y to be != b.
+		expression = parse("X != b and X = Y");
+		indices    = list("X");
+		expected   = parse("if Y = b then 0 else 1");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
-		// tests whether splitter negation, when applied, gets "translated" by inner splitters in then branches.
-		// for example, if I apply X != a to if X = Y then if Y = a then true else false else false,
-		// X != a needs to be translated to Y != a under X = Y, because in that then branch X does not exist,
-		// and X != a is therefore meaningless.
-		expression  = parse("(X != a) and (X = Y and Y != a)");
-		indices     = list("Y");
-		expected    = parse("if X = a then false else true");
+		// tests elimination for quantified sub-expressions
+		expression = parse("for all Y : X = Y");
+		indices    = list("X");
+		expected   = parse("if | type(Y) | - 1 <= 0 then | Everything | else 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
-		// tests the following:
-		// at some point there will be an externalization of X = a over if X = Y then if W = Y then true else false else false
-		// This tests whether the last Y gets replaced by a, even though the splitter X = a is in X.
-		// This requires the algorithm to realize that X is represented by Y under X = Y.
-		expression  = parse("(if X = a then true else false) and (if X = Y then if W = Y then true else false else false)");
-		indices     = list();
-		expected    = parse("if X = a then if Y = a then if W = a then true else false else false else false");
+		// tests case in which symbolic solutions with conditions that are not splitters need to be combined
+		// Combination must discriminate between splittes and not splitters.
+		// In this example, we get solutions with a condition on | Everything | - 1 > 0.
+		expression = parse(""
+				+ "(X = a and (Z = a and there exists Y in Everything : Y != b) or (Z != a and there exists Y in Everything : Y != c and Y != d))"
+				+ "or"
+				+ "(X != a and (Z = a and there exists Y in Everything : Y != e and Y != f and Y != g) or (Z != a and there exists Y in Everything : Y != c and Y != d))");
+		indices    = list("X");
+		expected   = parse("if Z = a then (if | Everything | - 1 > 0 then 1 else 0) + if | Everything | - 3 > 0 then | Everything | - 1 else 0 else (if | Everything | - 2 > 0 then 1 else 0) + if | Everything | - 2 > 0 then | Everything | - 1 else 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
-		
-		// tests whether splitter property that then branch does not contain first splitter variable holds
-		// when X = Y is applied to solution under Y = a, algorithm needs to realize that X in W = X under Y = a needs to be replaced by a.
-		// This happens because applying X = Y replaces all X by Y and then Y gets replaced by a.
-		expression  = parse("(if X = Y then true else false) and (if Y = a then if W = X then true else false else false)");
-		indices     = list();
-		expected    = parse("if X = Y then if Y = a then if W = a then true else false else false else false");
-		runSymbolicAndNonSymbolicTests(expression, indices, expected);
-		
+
 		
 		
 		expression = parse("true");
 		indices    = null; // means all variables
-		expected   = parse("true");
+		expected   = parse("1");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
 		expression = parse("false");
 		indices    = null; // means all variables
-		expected   = parse("false");
+		expected   = parse("0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
 		// tests answer completeness
@@ -115,109 +119,101 @@ public class PlainSatisfiabilityDPLLTest extends AbstractPlainDPLLTest {
 		indices     = list("Y");
 		// original algorithm provided this incomplete solution due to incomplete condition-applying-on-solution algorithm used in externalization
 		// expected = parse("if X = T then if T = T1 then if T = T1 then 10 else 1 else 1 else (if X = T1 then if T = T1 then 9 else 0 else 0)");
-		expected    = parse("if X = T then true else false");
+		expected    = parse("if X = T then if T = T1 then | Everything | else 1 else 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+
 		
 		
 		expression = parse("X != Y");
 		indices    = list("X");
-		expected   = parse("| Everything | - 1 > 0");
+		expected   = parse("| Everything | - 1");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != Y and X != a");
 		indices    = list("X");
-		expected   = parse("if Y = a then | Everything | - 1 > 0 else | Everything | - 2 > 0");
+		expected   = parse("if Y = a then | Everything | - 1 else | Everything | - 2");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != Y and X != Z and X != a");
 		indices    = list("X");
-		expected   = parse("if Z = Y then if Y = a then | Everything | - 1 > 0 else | Everything | - 2 > 0 else if Z = a then | Everything | - 2 > 0 else if Y = a then | Everything | - 2 > 0 else | Everything | - 3 > 0");
+		expected   = parse("if Z = Y then if Y = a then | Everything | - 1 else | Everything | - 2 else if Z = a then | Everything | - 2 else if Y = a then | Everything | - 2 else | Everything | - 3");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("Y = a and X != Y and X != a");
 		indices    = list("X");
-		expected   = parse("if Y = a then | Everything | - 1 > 0 else false");
+		expected   = parse("if Y = a then | Everything | - 1 else 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 
 		expression = parse("X1 != X2 and (X2 = X3 or X2 = X4) and X3 = X1 and X4 = X1");
 		indices    = null; // means all variables
-		expected   = parse("false");
+		expected   = parse("0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X1 != X2 and X2 != X0 and X1 != X0");
 		indices    = null; // means all variables
-		expected   = parse("(| Everything | - 1) * | Everything | * (| Everything | - 2) > 0");
+		expected   = parse("(| Everything | - 1) * | Everything | * (| Everything | - 2)");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("true");
 		indices    = null; // means all variables
-		expected   = parse("true");
+		expected   = parse("1");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("true");
 		indices    = list("X", "Y");
-		expected   = parse("| Everything |  * | Everything |  > 0");
+		expected   = parse("| Everything | * | Everything |");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("false");
 		indices    = null; // means all variables
-		expected   = parse("false");
+		expected   = parse("0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("false");
 		indices    = list("X", "Y");
-		expected   = parse("false");
+		expected   = parse("0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		
 		expression = parse("X = a");
 		indices    = null; // means all variables
-		expected   = parse("true");
+		expected   = parse("1");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a");
 		indices    = null; // means all variables
-		expected   = parse("| Everything | - 1 > 0");
+		expected   = parse("| Everything | - 1");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X = a");
 		indices    = list("X", "Y");
-		expected   = parse("| Everything | > 0");
+		expected   = parse("| Everything |");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a");
 		indices    = list("X", "Y");
-		expected   = parse("(| Everything | - 1) * | Everything |  > 0");
+		expected   = parse("(| Everything | - 1)*| Everything |");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X = a and Y != b");
 		indices    = list("X", "Y");
-		expected   = parse("| Everything | - 1 > 0");
+		expected   = parse("| Everything | - 1");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a and Y != b");
 		indices    = list("X", "Y");
-		expected   = parse("(| Everything | - 1) * (| Everything | - 1) > 0");
+		expected   = parse("(| Everything | - 1)*(| Everything | - 1)");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a or Y != b");
 		indices    = list("X", "Y");
-		expected   = parse("(| Everything | - 1 > 0) or ((| Everything | - 1) * | Everything | > 0)");
+		expected   = parse("| Everything | + -1 + (| Everything | - 1) * | Everything |");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X != a and X != Y and Y != a");
 		indices    = null;
-		expected   = parse("(| Everything | - 2)*(| Everything | - 1) > 0");
+		expected   = parse("(| Everything | - 2) * (| Everything | - 1)");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
-	}
-
-	protected Expression makeProblem(Expression expression, List<Expression> indexExpressions) {
-		Expression problem = new DefaultExistentiallyQuantifiedFormula(indexExpressions, expression);
-		return problem;
-	}
-
-	protected PlainSatisfiabilityDPLL makeRewriter() {
-		return new PlainSatisfiabilityDPLL();
-	}
+}
 }
