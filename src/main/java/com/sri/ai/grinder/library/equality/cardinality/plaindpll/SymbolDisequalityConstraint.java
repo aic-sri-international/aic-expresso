@@ -197,7 +197,7 @@ public class SymbolDisequalityConstraint extends LinkedHashMap<Expression, Colle
 		Expression distinctTermFromXNotConstrainedToBeDistinctFromT =
 				Util.getFirstSatisfyingPredicateOrNull(distinctTermsFromX, term -> ! term.equals(termT) && ! termsAreConstrainedToBeDifferent(term, termT, process));
 		if (distinctTermFromXNotConstrainedToBeDistinctFromT != null) {
-			splitterCandidate = EqualityTheory.makeSplitterFromTwoTerms(termT, distinctTermFromXNotConstrainedToBeDistinctFromT, indices, process);
+			splitterCandidate = SymbolEqualityTheory.makeSplitterFromTwoTerms(termT, distinctTermFromXNotConstrainedToBeDistinctFromT, indices, process);
 			splitterCandidate = getMostRequiredSplitter(splitterCandidate, indices, process);
 		}
 		return splitterCandidate;
@@ -219,7 +219,7 @@ public class SymbolDisequalityConstraint extends LinkedHashMap<Expression, Colle
 					if (distinctPredefinedTermForVariable1ThatIsNotVariable2AndIsNotDistinctPredefinedForVariable2 != null) {
 						
 						Expression atom =
-								EqualityTheory
+								SymbolEqualityTheory
 								.makeSplitterWithIndexIfAnyComingFirst(
 										distinctPredefinedVariable2,
 										distinctPredefinedTermForVariable1ThatIsNotVariable2AndIsNotDistinctPredefinedForVariable2, indices);

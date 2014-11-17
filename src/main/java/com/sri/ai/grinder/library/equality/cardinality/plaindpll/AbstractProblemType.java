@@ -35,14 +35,48 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
+package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewritingProcess;
 
-@Beta
-public class PlainSatisfiabilityDPLLWithoutFreeVariablesStressTest extends PlainSatisfiabilityDPLLStressTest {
+/**
+ * Defines basic {@link ProblemType} functionality based on a given semi-ring.
+ * 
+ * @author braz
+ *
+ */
+public abstract class AbstractProblemType implements ProblemType {
 
-	@Override
-	public boolean useFreeVariables()            { return false;  }
+	private SemiRing semiRing;
+	
+	AbstractProblemType(SemiRing semiRing) {
+		this.semiRing = semiRing;
+	}
+	
+	/**
+	 * Performs the semi-ring's additive operation on two values.
+	 */
+	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
+		return semiRing.add(value1, value2, process);
+	}
 
+	/**
+	 * The result of adding a value (constant in the sense of having no background theory literals,
+	 * but possibly symbolic) to itself n times.
+	 */
+	public Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process) {
+		return semiRing.addNTimes(constantValue, n, process);
+	}
+
+	/**
+	 * Indicates whether given value is a maximum value in the semi-ring, that is,
+	 * using the additive operation on it with any other value will produce itself.
+	 */
+	public boolean isMaximum(Expression value) {
+		return semiRing.isMaximum(value);
+	}
+
+	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
+	public abstract Expression fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression expression);
 }

@@ -37,12 +37,26 @@
  */
 package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
 
+import java.util.Iterator;
+import java.util.Random;
+
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.grinder.library.equality.RandomSatisfiabilityProblemGenerator;
+import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualitySatisfiabilityDPLL;
 
 @Beta
-public class PlainCardinalityDPLLWithoutFreeVariablesStressTest extends PlainCardinalityDPLLStressTest {
+public class SymbolEqualitySatisfiabilityDPLLStressTest extends AbstractSymbolicGenericDPLLStressTest {
 
 	@Override
-	public boolean useFreeVariables()            { return false;  }
+	protected Rewriter makeRewriter() {
+		return new SymbolEqualitySatisfiabilityDPLL(new CountsDeclaration(10));
+	}
 
+	@Override
+	protected Iterator<Expression> makeProblemsIterator(int size, int minimumNumberOfIndices) {
+		return new RandomSatisfiabilityProblemGenerator(new Random(getRandomSeedForProblems()), size, size, minimumNumberOfIndices, size, 3);
+	}
 }

@@ -50,7 +50,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
  * It provides all services to DPLL specific to the theory, that is, that require knowledge about the specific subset of interpretations.
  * <p>
  * One of its tasks is to select and manipulate <i>splitters</i>.
- * A splitter is a literal on which DPLL splits the possible interpretations of an expression (see {@link AbstractPlainDPLL}).
+ * A splitter is a literal on which DPLL splits the possible interpretations of an expression (see {@link SymbolicGenericDPLL}).
  * The theory needs to know how to simplify expressions based on the fact that a splitter is true or false,
  * as well as how to simplify a <i>solution</i> based on a splitter's being true or false into a simpler solution.
  * A solution is an if-then-else expression in which all conditions are splitters.
@@ -68,6 +68,15 @@ public interface Theory {
 	 * @return
 	 */
 	Expression simplify(Expression expression, RewritingProcess process);
+
+	/**
+	 * Makes splitter equivalent to given expression if such exists, or null otherwise.
+	 * @param expression
+	 * @param indices
+	 * @param process
+	 * @return
+	 */
+	Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process);
 
 	/**
 	 * Picks a splitter based on one of the theory's literals in the given expression under given constraint.

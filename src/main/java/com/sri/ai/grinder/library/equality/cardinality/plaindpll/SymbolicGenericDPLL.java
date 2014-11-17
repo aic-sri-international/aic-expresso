@@ -50,6 +50,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -61,39 +62,22 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
+public abstract class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 
+	protected ProblemType problemType;
+	
 	///////////////////////////// BEGINNING OF ABSTRACT METHODS //////////////////////////////////////
 
-	/**
-	 * Derives formula and indices to be used from intensional set passed to rewriter as argument.
-	 */
-	abstract protected Pair<Expression, List<Expression>> getFormulaAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process);
-
-	/**
-	 * Indicates whether given solution for a sub-problem makes the other sub-problem for an index conditioning irrelevant
-	 * (for example, the solution 'true' in satisfiability).
-	 * Eventually this will be provided by a semiring parameter.
-	 */
-	protected abstract boolean isTopSolution(Expression solutionForSubProblem);
+	/** Informs which theory a particular extension uses. */
+	abstract Theory makeTheory();
+	
+	/** Informs which problem type this algorithm solves. */
+	abstract ProblemType makeProblemType();
 	
 	/**
-	 * Combines two unconditional solutions for split sub-problems
-	 * (for example, disjunction of two boolean constants in satisfiability, or addition in model counting).
-	 * Eventually this will be provided by a semiring parameter.
+	 * Derives expression and indices to be used from rewriter input (such as intensional set or quantified formula).
 	 */
-	protected abstract Expression additiveOperationOnUnconditionalSolutions(Expression solution1, Expression solution2, RewritingProcess process);
-
-	/**
-	 * Multiplies the (possibly symbolic) value of an expression to the number of times an expression evaluates to it
-	 * (for example, in summation of numeric expressions this will be the product of two numbers,
-	 * in model counting this will be 0 if value is 'false' and numberOfOccurrences if value is 'true',
-	 * and in satisfiability it will 'false' if value is 'false' and 'true' if value is 'true' and numberOfOccurrences is greater than 0).
-	 * Eventually this will be provided by a semiring parameter.
-	 */
-	protected abstract Expression additiveOperationAppliedAnIntegerNumberOfTimes(Expression value, Expression numberOfOccurrences, RewritingProcess process);
-
-	
+	abstract protected Pair<Expression, List<Expression>> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process);
 
 	///////////////////////////// END OF ABSTRACT METHODS //////////////////////////////////////
 
@@ -104,18 +88,19 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 	/** A {@link CountsDeclaration} encapsulating sort size information. */
 	protected CountsDeclaration countsDeclaration;
 	
-	public AbstractPlainDPLL(Theory theory) {
-		this.theory = theory;
+	public SymbolicGenericDPLL() {
+		this(null);
 	}
 
-	public AbstractPlainDPLL(Theory theory, CountsDeclaration countsDeclaration) {
-		this.theory = theory;
+	public SymbolicGenericDPLL(CountsDeclaration countsDeclaration) {
+		this.theory = makeTheory();
+		this.problemType = makeProblemType();
 		this.countsDeclaration = countsDeclaration;
 	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Pair<Expression, List<Expression>> formulaAndIndexExpressions = getFormulaAndIndexExpressionsFromRewriterProblemArgument(expression, process);
+		Pair<Expression, List<Expression>> formulaAndIndexExpressions = getExpressionAndIndexExpressionsFromRewriterProblemArgument(expression, process);
 		Expression       formula          = formulaAndIndexExpressions.first;
 		List<Expression> indexExpressions = formulaAndIndexExpressions.second;
 		Expression       simplifiedFormula = theory.simplify(formula, process); // eventually this will should not be needed as simplification should be lazy 
@@ -160,7 +145,8 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 			else {
 				Expression unconditionalValue = expression;
 				Expression numberOfOccurrences = constraint.modelCount(indices, process);
-				result = additiveOperationAppliedAnIntegerNumberOfTimes(unconditionalValue, numberOfOccurrences, process);
+				Expression valueToBeSummed = problemType.fromExpressionValueWithoutLiteralsToValueToBeSummed(unconditionalValue);
+				result = problemType.addNTimes(valueToBeSummed, numberOfOccurrences, process);
 			}
 		}
 		else {
@@ -201,7 +187,7 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 
 			boolean solutionIsConditionalOnSplitterOverFreeVariable = theory.splitterDoesNotInvolveIndex(splitter, indices);
 			boolean solutionIsAdditionOfSubSolutions = ! solutionIsConditionalOnSplitterOverFreeVariable;
-			if ( solutionIsAdditionOfSubSolutions && isTopSolution(solutionUnderSplitter)) {
+			if ( solutionIsAdditionOfSubSolutions && problemType.isMaximum(solutionUnderSplitter)) {
 				result = solutionUnderSplitter; // solution is already maximum, no need to consider the other side of splitter
 			}
 			else {
@@ -275,7 +261,7 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 
 		Expression result = null;
 
-		if (IfThenElse.isIfThenElse(solution1)) {
+		if (isConditionalSolution(solution1, process)) {
 			Expression condition  = IfThenElse.getCondition(solution1);
 			Expression thenBranch = IfThenElse.getThenBranch(solution1);
 			Expression elseBranch = IfThenElse.getElseBranch(solution1);
@@ -285,7 +271,7 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 			Expression newElseBranch = addSymbolicResults(elseBranch, solution2UnderNotCondition, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false /* no simplification to condition */);
 		}
-		else if (IfThenElse.isIfThenElse(solution2)) {
+		else if (isConditionalSolution(solution2, process)) {
 			Expression condition  = IfThenElse.getCondition(solution2);
 			Expression thenBranch = IfThenElse.getThenBranch(solution2);
 			Expression elseBranch = IfThenElse.getElseBranch(solution2);
@@ -296,9 +282,24 @@ public abstract class AbstractPlainDPLL extends AbstractHierarchicalRewriter {
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false /* no simplification to condition */);
 		}
 		else {
-			result = additiveOperationOnUnconditionalSolutions(solution1, solution2, process);
+			result = problemType.add(solution1, solution2, process);
 		}
 
+		return result;
+	}
+
+	/**
+	 * @param expression
+	 * @param process
+	 * @return
+	 */
+	protected boolean isConditionalSolution(Expression expression, RewritingProcess process) {
+		boolean result = IfThenElse.isIfThenElse(expression) && isSolutionSplitter(IfThenElse.getCondition(expression), process);
+		return result;
+	}
+
+	private boolean isSolutionSplitter(Expression expression, RewritingProcess process) {
+		boolean result = theory.makeSplitterIfPossible(expression, Util.list(), process) != null;
 		return result;
 	}
 

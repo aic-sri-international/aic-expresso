@@ -35,49 +35,47 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.controlflow;
+package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
+
+import java.util.List;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.ExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasKind;
-import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
+import com.sri.ai.util.base.Pair;
 
-/**
- * <pre>
- * Performs two types of rewrites on conditional expressions:
- * 
- * 1. 'if F then true else false' becomes 'F'.
- * 2. 'if F then false else true' becomes 'not(F)'.
- * 
- * </pre>
- * 
- * @author oreilly
- *
- */
 @Beta
-public class IfThenElseBranchesAreIdenticalBooleanConstants extends AbstractRewriter {
+/** 
+ * A DPLL specialization for equality logic satisfiability.
+ */
+public class SymbolEqualitySatisfiabilityDPLL extends SymbolicGenericDPLL {
 	
-	public IfThenElseBranchesAreIdenticalBooleanConstants() {
-		this.setReifiedTests(new HasKind(FunctorConstants.IF_THEN_ELSE));
+	@Override
+	Theory makeTheory()           { return new SymbolEqualityTheory(); }
+
+	@Override
+	ProblemType makeProblemType() { return new SatisfiabilityProblemType(); }
+
+	/**
+	 * Builds solver for equality logic satisfiability.
+	 */
+	public SymbolEqualitySatisfiabilityDPLL() {
+		super();
+	}
+
+	/**
+	 * Builds solver for equality logic satisfiability with given {@link CountsDeclaration}.
+	 */
+	public SymbolEqualitySatisfiabilityDPLL(CountsDeclaration countsDeclaration) {
+		super(countsDeclaration);
 	}
 
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression result = expression;
-		
-		Expression thenBranch = expression.get(1);
-		Expression elseBranch = expression.get(2);
-		
-		if (thenBranch.equals(Expressions.TRUE) && elseBranch.equals(Expressions.TRUE)) {
-			result = Expressions.TRUE;
-		}
-		else if (thenBranch.equals(Expressions.FALSE) && elseBranch.equals(Expressions.FALSE)) {
-			result = Expressions.FALSE;
-		}
-		
-		return result;
+	protected Pair<Expression, List<Expression>> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
+		ExistentiallyQuantifiedFormula existential = (ExistentiallyQuantifiedFormula) expression;
+		Pair<Expression, List<Expression>> formulaAndIndices = Pair.make(existential.getBody(), existential.getIndexExpressions());
+		return formulaAndIndices;
 	}
 }

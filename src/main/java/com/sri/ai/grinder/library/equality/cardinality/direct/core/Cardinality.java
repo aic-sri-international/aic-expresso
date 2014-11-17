@@ -56,8 +56,8 @@ import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainCardinalityDPLL;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualityTheory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualityModelCountingDPLL;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SolutionPostProcessing;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SimplificationUtil;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
@@ -74,14 +74,14 @@ import com.sri.ai.grinder.library.set.tuple.Tuple;
 @Beta
 public class Cardinality extends AbstractCardinalityRewriter {
 	
-	private PlainCardinalityDPLL plainCardinality = GrinderUtil.usePlain? new PlainCardinalityDPLL() : null;
+	private SymbolEqualityModelCountingDPLL plainCardinality = GrinderUtil.usePlain? new SymbolEqualityModelCountingDPLL() : null;
 
 	private Expression usePlainCardinality(Expression cardinalityOfIndexedFormulaExpression, RewritingProcess process) {
 		Expression result;
 		
 		Expression solution = plainCardinality.rewrite(cardinalityOfIndexedFormulaExpression, process);
 		Expression simplifiedSolution = SimplificationUtil.simplifySolutionUnderConstraint(solution, process.getContextualConstraint(), process);
-		result = SolutionPostProcessing.fromSolutionToShorterExpression(simplifiedSolution, new EqualityTheory(), process);
+		result = SolutionPostProcessing.fromSolutionToShorterExpression(simplifiedSolution, new SymbolEqualityTheory(), process);
 		
 		System.out.println("Problem                  : " + cardinalityOfIndexedFormulaExpression);
 		System.out.println("Constraint               : " + process.getContextualConstraint());

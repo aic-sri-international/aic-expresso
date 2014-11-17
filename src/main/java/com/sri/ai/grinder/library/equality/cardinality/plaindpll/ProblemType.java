@@ -35,49 +35,38 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.controlflow;
+package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasKind;
-import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
- * <pre>
- * Performs two types of rewrites on conditional expressions:
+ * Defines a DPLL-type problem by using a semi-ring and a conversion from expression to value to be summed.
+ * For example, satisfiability uses the boolean semi-ring and does not convert expressions ("sums" the expressions themselves, that is, takes their disjunction).
+ * Model counting uses the number semi-ring and converts boolean formula F to 'if F then 1 else 0' to count satisfying models.
  * 
- * 1. 'if F then true else false' becomes 'F'.
- * 2. 'if F then false else true' becomes 'not(F)'.
- * 
- * </pre>
- * 
- * @author oreilly
+ * @author braz
  *
  */
-@Beta
-public class IfThenElseBranchesAreIdenticalBooleanConstants extends AbstractRewriter {
-	
-	public IfThenElseBranchesAreIdenticalBooleanConstants() {
-		this.setReifiedTests(new HasKind(FunctorConstants.IF_THEN_ELSE));
-	}
+public interface ProblemType {
 
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression result = expression;
-		
-		Expression thenBranch = expression.get(1);
-		Expression elseBranch = expression.get(2);
-		
-		if (thenBranch.equals(Expressions.TRUE) && elseBranch.equals(Expressions.TRUE)) {
-			result = Expressions.TRUE;
-		}
-		else if (thenBranch.equals(Expressions.FALSE) && elseBranch.equals(Expressions.FALSE)) {
-			result = Expressions.FALSE;
-		}
-		
-		return result;
-	}
+	/**
+	 * Performs the semi-ring's additive operation on two values.
+	 */
+	Expression add(Expression value1, Expression value2, RewritingProcess process);
+
+	/**
+	 * The result of adding a value (constant in the sense of having no background theory literals,
+	 * but possibly symbolic) to itself n times.
+	 */
+	Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process);
+
+	/**
+	 * Indicates whether given value is a maximum value in the semi-ring, that is,
+	 * using the additive operation on it with any other value will produce itself.
+	 */
+	boolean isMaximum(Expression value);
+
+	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
+	abstract Expression fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression expression);
 }

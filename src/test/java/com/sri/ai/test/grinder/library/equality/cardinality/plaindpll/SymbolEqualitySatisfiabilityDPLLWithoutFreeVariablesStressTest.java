@@ -35,49 +35,14 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.controlflow;
+package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.HasKind;
-import com.sri.ai.grinder.library.FunctorConstants;
 
-/**
- * <pre>
- * Performs two types of rewrites on conditional expressions:
- * 
- * 1. 'if F then true else false' becomes 'F'.
- * 2. 'if F then false else true' becomes 'not(F)'.
- * 
- * </pre>
- * 
- * @author oreilly
- *
- */
 @Beta
-public class IfThenElseBranchesAreIdenticalBooleanConstants extends AbstractRewriter {
-	
-	public IfThenElseBranchesAreIdenticalBooleanConstants() {
-		this.setReifiedTests(new HasKind(FunctorConstants.IF_THEN_ELSE));
-	}
+public class SymbolEqualitySatisfiabilityDPLLWithoutFreeVariablesStressTest extends SymbolEqualitySatisfiabilityDPLLStressTest {
 
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression result = expression;
-		
-		Expression thenBranch = expression.get(1);
-		Expression elseBranch = expression.get(2);
-		
-		if (thenBranch.equals(Expressions.TRUE) && elseBranch.equals(Expressions.TRUE)) {
-			result = Expressions.TRUE;
-		}
-		else if (thenBranch.equals(Expressions.FALSE) && elseBranch.equals(Expressions.FALSE)) {
-			result = Expressions.FALSE;
-		}
-		
-		return result;
-	}
+	public boolean useFreeVariables()            { return false;  }
+
 }

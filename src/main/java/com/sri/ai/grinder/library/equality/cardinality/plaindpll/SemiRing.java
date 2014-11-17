@@ -35,28 +35,35 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
-
-import java.util.Iterator;
-import java.util.Random;
+package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.library.equality.RandomSatisfiabilityProblemGenerator;
-import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PlainSatisfiabilityDPLL;
+import com.sri.ai.grinder.api.RewritingProcess;
 
+/**
+ * Object representing a commutative semiring to be used as value of expression being processed by {@link SymbolicGenericDPLL}.
+ * 
+ * @author braz
+ *
+ */
 @Beta
-public class PlainSatisfiabilityDPLLStressTest extends AbstractPlainDPLLStressTest {
+public interface SemiRing {
+	
+	/**
+	 * Performs the semi-ring's additive operation on two values.
+	 */
+	Expression add(Expression value1, Expression value2, RewritingProcess process);
 
-	@Override
-	protected Rewriter makeRewriter() {
-		return new PlainSatisfiabilityDPLL(new CountsDeclaration(10));
-	}
+	/**
+	 * The result of adding a value (constant in the sense of having no background theory literals,
+	 * but possibly symbolic) to itself n times.
+	 */
+	Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process);
 
-	@Override
-	protected Iterator<Expression> makeProblemsIterator(int size, int minimumNumberOfIndices) {
-		return new RandomSatisfiabilityProblemGenerator(new Random(getRandomSeedForProblems()), size, size, minimumNumberOfIndices, size, 3);
-	}
+	/**
+	 * Indicates whether given value is a maximum value in the semi-ring, that is,
+	 * using the additive operation on it with any other value will produce itself.
+	 */
+	boolean isMaximum(Expression value);
 }
