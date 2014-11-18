@@ -125,6 +125,11 @@ public class PropositionalLogicModelCountingDPLLTest {
 		indices    = list("p", "q");
 		expected   = parse("4");
 		test(expression, expected, indices);
+		
+		expression = parse("p and q and r or not p and q and not r");
+		indices    = list("p");
+		expected   = parse("if q then 1 else 0");
+		test(expression, expected, indices);
 	}
 
 	protected void test(Expression expression, Expression expected, List<String> indicesStrings) {
