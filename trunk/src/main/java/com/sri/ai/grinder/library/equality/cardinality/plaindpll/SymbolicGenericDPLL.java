@@ -50,6 +50,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -216,7 +217,7 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 	 */
 	protected Expression solveUnderSplitter(Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitter, Collection<Expression> indices, RewritingProcess process) {
 		Expression expressionUnderSplitter = theory.applySplitterToExpression(splitter, expression, process);
-		Collection<Expression> indicesUnderSplitter = theory.applyIndicesUnderSplitter(splitter, indices);
+		Collection<Expression> indicesUnderSplitter = applyIndicesUnderSplitter(splitter, indices);
 		Expression result = solve(expressionUnderSplitter, constraintUnderSplitter, indicesUnderSplitter, process);
 		return result;
 	}
@@ -232,8 +233,31 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 	 */
 	protected Expression solveUnderSplitterNegation(Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitterNegation, Collection<Expression> indices, RewritingProcess process) {
 		Expression expressionUnderSplitterNegation = theory.applySplitterNegationToExpression(splitter, expression, process);
-		Collection<Expression> indicesUnderSplitterNegation = theory.applyIndicesUnderSplitterNegation(splitter, indices);
+		Collection<Expression> indicesUnderSplitterNegation = applyIndicesUnderSplitterNegation(splitter, indices);
 		Expression result = solve(expressionUnderSplitterNegation, constraintUnderSplitterNegation, indicesUnderSplitterNegation, process);
+		return result;
+	}
+
+	private Collection<Expression> applyIndicesUnderSplitter(Expression splitter, Collection<Expression> indices) {
+		Expression boundIndex = theory.getIndexBoundBySplitterIfAny(splitter, indices);
+		Collection<Expression> result = getUpdateIndices(indices, boundIndex);
+		return result;
+	}
+
+	private Collection<Expression> applyIndicesUnderSplitterNegation(Expression splitter, Collection<Expression> indices) {
+		Expression boundIndex = theory.getIndexBoundBySplitterNegationIfAny(splitter, indices);
+		Collection<Expression> result = getUpdateIndices(indices, boundIndex);
+		return result;
+	}
+
+	private Collection<Expression> getUpdateIndices(Collection<Expression> indices, Expression boundIndex) {
+		Collection<Expression> result;
+		if (boundIndex != null) {
+			result = Util.copySetWithoutThisElement(indices, boundIndex);
+		}
+		else {
+			result = indices;
+		}
 		return result;
 	}
 

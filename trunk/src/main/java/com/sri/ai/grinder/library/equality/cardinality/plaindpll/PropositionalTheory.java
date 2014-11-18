@@ -100,6 +100,58 @@ public class PropositionalTheory extends AbstractTheory {
 		return syntacticFormTypeSimplifiers;
 	}
 
+	/**
+	 * If expression is a proposition, it is a splitter.
+	 * @param expression
+	 * @param indices
+	 * @param process
+	 * @return
+	 */
+	@Override
+	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
+		Expression result;
+		if (isProposition(expression)) {
+			result = expression;
+		}
+		else {
+			result = null;
+		}
+		return result;
+	}
+
+	/**
+	 * @param expression
+	 * @return
+	 */
+	protected boolean isProposition(Expression expression) {
+		boolean result =
+				expression.getSyntacticFormType().equals("Symbol")
+				&&
+				! FormulaUtil.EQUALITY_FORMULAS_PRIMITIVE_SYMBOLS.contains(expression);
+		return result;
+	}
+
+	@Override
+	public Expression getIndexBoundBySplitterIfAny(Expression splitter, Collection<Expression> indices) {
+		return getIndexBoundByEitherSplitterOrItsNegation(splitter, indices);
+	}
+
+	@Override
+	public Expression getIndexBoundBySplitterNegationIfAny(Expression splitter, Collection<Expression> indices) {
+		return getIndexBoundByEitherSplitterOrItsNegation(splitter, indices);
+	}
+
+	private Expression getIndexBoundByEitherSplitterOrItsNegation(Expression splitter, Collection<Expression> indices) {
+		Expression result;
+		if (indices.contains(splitter)) {
+			result = splitter;
+		}
+		else {
+			result = null;
+		}
+		return result;
+	}
+
 	@Override
 	public Expression applySplitterToExpression(Expression splitter, Expression expression, RewritingProcess process) {
 		Expression result = expression.replaceAllOccurrences(splitter, Expressions.TRUE, process);
@@ -115,18 +167,6 @@ public class PropositionalTheory extends AbstractTheory {
 	}
 
 	@Override
-	public Collection<Expression> applyIndicesUnderSplitter(Expression splitter, Collection<Expression> indices) {
-		Collection<Expression> result = ! indices.contains(splitter)? indices : Util.makeSetWithoutExcludedElement(indices, splitter);
-		return result;
-	}
-
-	@Override
-	public Collection<Expression> applyIndicesUnderSplitterNegation(Expression splitter, Collection<Expression> indices) {
-		Collection<Expression> result = ! indices.contains(splitter)? indices : Util.makeSetWithoutExcludedElement(indices, splitter);
-		return result;
-	}
-
-	@Override
 	public boolean splitterDoesNotInvolveIndex(Expression splitter, Collection<Expression> indices) {
 		boolean result = ! indices.contains(splitter);
 		return result;
@@ -137,41 +177,21 @@ public class PropositionalTheory extends AbstractTheory {
 		return new Constraint(indices);
 	}
 
-	/**
-	 * If expression is a non-numeric symbol, assume it is a proposition, and a splitter.
-	 * @param expression
-	 * @param indices
-	 * @param process
-	 * @return
-	 */
-	@Override
-	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
-		Expression result = null;
-		if (expression.getSyntacticFormType().equals("Symbol") &&
-				! FormulaUtil.EQUALITY_FORMULAS_PRIMITIVE_SYMBOLS.contains(expression)) {
-			result = expression;
-		}
-		return result;
-	}
-	
 	private static class Constraint implements TheoryConstraint {
 
-		private Collection<Expression> indices;
-		private int numberOfUnboundIndices;
-		private Set<Expression> assertedPropositions = new LinkedHashSet<Expression>();
-		private Set<Expression> negatedPropositions  = new LinkedHashSet<Expression>();
+		// Because applying either splitter or splitter negation always binds an index to a value,
+		// we only need to remember asserted and negated free (that is, non-index) propositions.
+		
+		private Set<Expression> assertedFreePropositions = new LinkedHashSet<Expression>();
+		private Set<Expression> negatedFreePropositions  = new LinkedHashSet<Expression>();
 		
 		public Constraint(Collection<Expression> indices) {
-			this.indices = indices;
-			this.numberOfUnboundIndices = indices.size();
 		}
 		
 		public Constraint(Constraint another) {
 			super();
-			this.indices = another.indices;
-			this.numberOfUnboundIndices = another.numberOfUnboundIndices;
-			this.assertedPropositions = new LinkedHashSet<Expression>(another.assertedPropositions); // should be optimized to a copy-as-needed scheme.
-			this.negatedPropositions = new LinkedHashSet<Expression>(another.negatedPropositions);
+			this.assertedFreePropositions = new LinkedHashSet<Expression>(another.assertedFreePropositions); // should be optimized to a copy-as-needed scheme.
+			this.negatedFreePropositions = new LinkedHashSet<Expression>(another.negatedFreePropositions);
 		}
 
 		@Override
@@ -182,14 +202,16 @@ public class PropositionalTheory extends AbstractTheory {
 		@Override
 		public TheoryConstraint applySplitter(Expression splitter, Collection<Expression> indices, RewritingProcess process) {
 			Constraint result;
-			if (negatedPropositions.contains(splitter)) {
-				result = null;
+			if (indices.contains(splitter)) {
+				result = this;
 			}
 			else {
-				result = new Constraint(this);
-				result.assertedPropositions.add(splitter);
-				if (indices.contains(splitter)) {
-					result.numberOfUnboundIndices--;
+				if (negatedFreePropositions.contains(splitter)) {
+					result = null;
+				}
+				else {
+					result = new Constraint(this);
+					result.assertedFreePropositions.add(splitter);
 				}
 			}
 			return result;
@@ -198,14 +220,16 @@ public class PropositionalTheory extends AbstractTheory {
 		@Override
 		public TheoryConstraint applySplitterNegation(Expression splitter, Collection<Expression> indices, RewritingProcess process) {
 			Constraint result;
-			if (assertedPropositions.contains(splitter)) {
-				result = null;
+			if (indices.contains(splitter)) {
+				result = this;
 			}
 			else {
-				result = new Constraint(this);
-				result.negatedPropositions.add(splitter);
-				if (indices.contains(splitter)) {
-					result.numberOfUnboundIndices--;
+				if (assertedFreePropositions.contains(splitter)) {
+					result = null;
+				}
+				else {
+					result = new Constraint(this);
+					result.negatedFreePropositions.add(splitter);
 				}
 			}
 			return result;
@@ -213,7 +237,7 @@ public class PropositionalTheory extends AbstractTheory {
 
 		@Override
 		public Expression modelCount(Collection<Expression> indices, RewritingProcess process) {
-			Expression result = Expressions.makeSymbol(new Rational(2).pow(numberOfUnboundIndices));
+			Expression result = Expressions.makeSymbol(new Rational(2).pow(indices.size()));
 			return result;
 		}
 
@@ -225,13 +249,13 @@ public class PropositionalTheory extends AbstractTheory {
 		@Override
 		public String toString() {
 			ArrayList<String> items = new ArrayList<String>();
-			if ( ! assertedPropositions.isEmpty()) {
-				items.add(Util.join(assertedPropositions) + " are true");
+			if ( ! assertedFreePropositions.isEmpty()) {
+				items.add(Util.join(assertedFreePropositions) + " are true");
 			}
-			if ( ! negatedPropositions.isEmpty()) {
-				items.add(Util.join(negatedPropositions) + " are false");
+			if ( ! negatedFreePropositions.isEmpty()) {
+				items.add(Util.join(negatedFreePropositions) + " are false");
 			}
-			String result = Util.join(items);
+			String result = "Free propositions " + Util.join(items);
 			return result;
 		}
 	}

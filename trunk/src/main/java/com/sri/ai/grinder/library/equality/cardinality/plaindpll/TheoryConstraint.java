@@ -44,7 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 
 /**
- * An interface for the theory-specific representation of the current constraint in DPLL.
+ * An interface for theory-specific representations of the current constraint in DPLL.
  * 
  * @author braz
  *
@@ -53,7 +53,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 public interface TheoryConstraint {
 	/**
 	 * Provides a splitter needed toward state
-	 * for which solutions can be computed in polynomial time, or null if it is already in such a state.
+	 * for which a model count can be computed in polynomial time, or null if it is already in such a state.
 	 */
 	public Expression pickSplitter(Collection<Expression> indices, RewritingProcess process);
 	
@@ -68,7 +68,9 @@ public interface TheoryConstraint {
 	public TheoryConstraint applySplitterNegation(Expression splitter, Collection<Expression> indices, RewritingProcess process);
 
 	/**
-	 * Computes solution for constraint in polynomial time.
+	 * Computes model count for constraint, given a set of indices, in polynomial time.
+	 * Assumes that {@link #pickSplitter(Collection, RewritingProcess)} returns <code>null</code>,
+	 * that is, the constraint is in such a state and context that allows the determination of a unique model count.
 	 */
 	public Expression modelCount(Collection<Expression> indices, RewritingProcess process);
 
