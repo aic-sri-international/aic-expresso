@@ -132,27 +132,6 @@ public class PropositionalTheory extends AbstractTheory {
 	}
 
 	@Override
-	public Expression getIndexBoundBySplitterIfAny(Expression splitter, Collection<Expression> indices) {
-		return getIndexBoundByEitherSplitterOrItsNegation(splitter, indices);
-	}
-
-	@Override
-	public Expression getIndexBoundBySplitterNegationIfAny(Expression splitter, Collection<Expression> indices) {
-		return getIndexBoundByEitherSplitterOrItsNegation(splitter, indices);
-	}
-
-	private Expression getIndexBoundByEitherSplitterOrItsNegation(Expression splitter, Collection<Expression> indices) {
-		Expression result;
-		if (indices.contains(splitter)) {
-			result = splitter;
-		}
-		else {
-			result = null;
-		}
-		return result;
-	}
-
-	@Override
 	public Expression applySplitterToExpression(Expression splitter, Expression expression, RewritingProcess process) {
 		Expression result = expression.replaceAllOccurrences(splitter, Expressions.TRUE, process);
 		result = simplify(result, process);
@@ -173,11 +152,11 @@ public class PropositionalTheory extends AbstractTheory {
 	}
 
 	@Override
-	public TheoryConstraint makeConstraint(Collection<Expression> indices, RewritingProcess process) {
-		return new Constraint(indices);
+	public TheoryConstraint makeConstraint() {
+		return new Constraint();
 	}
 
-	private static class Constraint implements TheoryConstraint {
+	public static class Constraint implements TheoryConstraint {
 
 		// Because applying either splitter or splitter negation always binds an index to a value,
 		// we only need to remember asserted and negated free (that is, non-index) propositions.
@@ -185,7 +164,7 @@ public class PropositionalTheory extends AbstractTheory {
 		private Set<Expression> assertedFreePropositions = new LinkedHashSet<Expression>();
 		private Set<Expression> negatedFreePropositions  = new LinkedHashSet<Expression>();
 		
-		public Constraint(Collection<Expression> indices) {
+		public Constraint() {
 		}
 		
 		public Constraint(Constraint another) {
@@ -231,6 +210,27 @@ public class PropositionalTheory extends AbstractTheory {
 					result = new Constraint(this);
 					result.negatedFreePropositions.add(splitter);
 				}
+			}
+			return result;
+		}
+
+		@Override
+		public Expression getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices) {
+			return getIndexBoundByEitherSplitterOrItsNegation(splitter, indices);
+		}
+
+		@Override
+		public Expression getIndexBoundBySplitterNegationApplicationIfAny(Expression splitter, Collection<Expression> indices) {
+			return getIndexBoundByEitherSplitterOrItsNegation(splitter, indices);
+		}
+
+		private Expression getIndexBoundByEitherSplitterOrItsNegation(Expression splitter, Collection<Expression> indices) {
+			Expression result;
+			if (indices.contains(splitter)) {
+				result = splitter;
+			}
+			else {
+				result = null;
 			}
 			return result;
 		}

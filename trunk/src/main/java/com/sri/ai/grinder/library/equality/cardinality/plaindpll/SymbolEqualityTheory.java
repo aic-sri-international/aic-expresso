@@ -173,24 +173,6 @@ public class SymbolEqualityTheory extends AbstractTheory {
 	}
 
 	@Override
-	public Expression getIndexBoundBySplitterIfAny(Expression splitter, Collection<Expression> indices) {
-		Expression result;
-		Expression variable = splitter.get(0);
-		if (indices.contains(variable)) {
-			result = variable;
-		}
-		else {
-			result = null;
-		}
-		return result;
-	}
-
-	@Override
-	public Expression getIndexBoundBySplitterNegationIfAny(Expression splitter, Collection<Expression> indices) {
-		return null;
-	}
-
-	@Override
 	public Expression applySplitterToExpression(Expression splitter, Expression expression, RewritingProcess process) {
 		Expression term1 = splitter.get(0);
 		Expression term2 = splitter.get(1);
@@ -382,8 +364,7 @@ public class SymbolEqualityTheory extends AbstractTheory {
 	}
 
 	@Override
-	public TheoryConstraint makeConstraint(Collection<Expression> indices, RewritingProcess process) {
-//		return new SymbolEqualityLogicConstraint();
+	public TheoryConstraint makeConstraint() {
 		return new SymbolDisequalityConstraint();
 	}
 }

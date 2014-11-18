@@ -184,6 +184,24 @@ public class SymbolDisequalityConstraint extends LinkedHashMap<Expression, Colle
 		put(term1, distinctTermsFromTerm1);
 	}
 
+	@Override
+	public Expression getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices) {
+		Expression result;
+		Expression variable = splitter.get(0);
+		if (indices.contains(variable)) {
+			result = variable;
+		}
+		else {
+			result = null;
+		}
+		return result;
+	}
+
+	@Override
+	public Expression getIndexBoundBySplitterNegationApplicationIfAny(Expression splitter, Collection<Expression> indices) {
+		return null;
+	}
+
 	public boolean whenChoosingValueForVariableOtherTermIsAlreadyDefined(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
 		boolean result = process.isConstant(otherTerm) || SymbolDisequalityConstraint.variablePrecedesAnother(otherTerm, variable, indices);
 		return result;

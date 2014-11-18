@@ -110,7 +110,7 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
 	 */
 	protected Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process) {
-		TheoryConstraint constraint = theory.makeConstraint(indices, process);
+		TheoryConstraint constraint = theory.makeConstraint();
 		Expression result = solve(expression, constraint, indices, process);
 		return result;
 	}
@@ -217,7 +217,7 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 	 */
 	protected Expression solveUnderSplitter(Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitter, Collection<Expression> indices, RewritingProcess process) {
 		Expression expressionUnderSplitter = theory.applySplitterToExpression(splitter, expression, process);
-		Collection<Expression> indicesUnderSplitter = applyIndicesUnderSplitter(splitter, indices);
+		Collection<Expression> indicesUnderSplitter = getIndicesUnderSplitter(splitter, indices);
 		Expression result = solve(expressionUnderSplitter, constraintUnderSplitter, indicesUnderSplitter, process);
 		return result;
 	}
@@ -233,24 +233,24 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 	 */
 	protected Expression solveUnderSplitterNegation(Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitterNegation, Collection<Expression> indices, RewritingProcess process) {
 		Expression expressionUnderSplitterNegation = theory.applySplitterNegationToExpression(splitter, expression, process);
-		Collection<Expression> indicesUnderSplitterNegation = applyIndicesUnderSplitterNegation(splitter, indices);
+		Collection<Expression> indicesUnderSplitterNegation = getIndicesUnderSplitterNegation(splitter, indices);
 		Expression result = solve(expressionUnderSplitterNegation, constraintUnderSplitterNegation, indicesUnderSplitterNegation, process);
 		return result;
 	}
 
-	private Collection<Expression> applyIndicesUnderSplitter(Expression splitter, Collection<Expression> indices) {
-		Expression boundIndex = theory.getIndexBoundBySplitterIfAny(splitter, indices);
-		Collection<Expression> result = getUpdateIndices(indices, boundIndex);
+	private Collection<Expression> getIndicesUnderSplitter(Expression splitter, Collection<Expression> indices) {
+		Expression boundIndex = DPLLUtil.getIndexBoundBySplitterApplicationIfAny(splitter, indices, theory);
+		Collection<Expression> result = getUpdatedIndices(indices, boundIndex);
 		return result;
 	}
 
-	private Collection<Expression> applyIndicesUnderSplitterNegation(Expression splitter, Collection<Expression> indices) {
-		Expression boundIndex = theory.getIndexBoundBySplitterNegationIfAny(splitter, indices);
-		Collection<Expression> result = getUpdateIndices(indices, boundIndex);
+	private Collection<Expression> getIndicesUnderSplitterNegation(Expression splitter, Collection<Expression> indices) {
+		Expression boundIndex = DPLLUtil.getIndexBoundBySplitterNegationApplicationIfAny(splitter, indices, theory);
+		Collection<Expression> result = getUpdatedIndices(indices, boundIndex);
 		return result;
 	}
 
-	private Collection<Expression> getUpdateIndices(Collection<Expression> indices, Expression boundIndex) {
+	private Collection<Expression> getUpdatedIndices(Collection<Expression> indices, Expression boundIndex) {
 		Collection<Expression> result;
 		if (boundIndex != null) {
 			result = Util.copySetWithoutThisElement(indices, boundIndex);

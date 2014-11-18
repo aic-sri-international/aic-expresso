@@ -104,6 +104,24 @@ public class SymbolEqualityLogicConstraint extends LinkedHashMap<Expression, Col
 	}
 
 	@Override
+	public Expression getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices) {
+		Expression result;
+		Expression variable = splitter.get(0);
+		if (indices.contains(variable)) {
+			result = variable;
+		}
+		else {
+			result = null;
+		}
+		return result;
+	}
+
+	@Override
+	public Expression getIndexBoundBySplitterNegationApplicationIfAny(Expression splitter, Collection<Expression> indices) {
+		return null;
+	}
+
+	@Override
 	public Expression modelCount(Collection<Expression> indices, RewritingProcess process) {
 		Collection<Expression> freeIndices = Util.subtract(indices, fromVariableToRepresentative.keySet()); // here's a reason for keeping indices inside constraints, so that we don't have to do this subtraction everytime.
 		Expression result = disequalities.modelCount(freeIndices, process);
