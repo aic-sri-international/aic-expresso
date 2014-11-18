@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -56,6 +57,23 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 
+/**
+ * Implements utility methods to be used by {@link SymbolicGenericDPLL} and associated classes.
+ * <p>
+ * Several of these methods could be more naturally seen as methods of the interfaces themselves
+ * (for example, {@link DPLLUtil#getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices, Theory theory)}
+ * could be a method in interface {@link Theory}),
+ * but are included here instead because their functionality depends on a more basic method of those interfaces
+ * (in that case, on {@link Theory#makeConstraint()});
+ * including them there would place the burden on users to make sure the implementations of these multiple methods are mutually consistent.
+ * Default interface methods would not be a good solution either because the burden would still be there for the user not to override
+ * the default method, or if they did, to make sure they are consistent (there are no "final default" interface methods).
+ * By placing these methods here, users implementing an interface can more easily simply implement each method as a primitive
+ * consistent with its pre- and post-conditions only, and have those primitive methods be automatically used by the convenience ones here.
+ *   
+ * @author braz
+ *
+ */
 @Beta
 public class DPLLUtil {
 
@@ -222,5 +240,27 @@ public class DPLLUtil {
 	public static boolean isSplitter(Expression literal, Theory theory, RewritingProcess process) {
 		boolean result = theory.makeSplitterIfPossible(literal, Util.list(), process) != null;
 		return result;
+	}
+
+	/**
+	 * Indicates whether and which index is bound by a splitter
+	 * (ultimately depends on theory's constraint {@link TheoryConstraint#getIndexBoundBySplitterApplicationIfAny(Expression, Collection)}.
+	 */
+	public static Expression getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices, Theory theory) {
+		// Having to create a constraint instance below is ugly but this is due to Java's inability to override static methods,
+		// which is what getIndexBoundBySplitterApplicationIfAny should be in TheoryConstraint since it does not depend on the particular
+		// constraint instance, but instead simply informs on the strategy followed by the particular TheoryConstraint implementation.
+		return theory.makeConstraint().getIndexBoundBySplitterApplicationIfAny(splitter, indices);
+	}
+
+	/**
+	 * Indicates whether and which index is bound by a splitter negation
+	 * (ultimately depends on theory's constraint {@link TheoryConstraint#getIndexBoundBySplitterApplicationIfAny(Expression, Collection)}.
+	 */
+	public static Expression getIndexBoundBySplitterNegationApplicationIfAny(Expression splitter, Collection<Expression> indices, Theory theory) {
+		// Having to create a constraint instance below is ugly but this is due to Java's inability to override static methods,
+		// which is what getIndexBoundBySplitterApplicationIfAny should be in TheoryConstraint since it does not depend on the particular
+		// constraint instance, but instead simply informs on the strategy followed by the particular TheoryConstraint implementation.
+		return theory.makeConstraint().getIndexBoundBySplitterNegationApplicationIfAny(splitter, indices);
 	}
 }

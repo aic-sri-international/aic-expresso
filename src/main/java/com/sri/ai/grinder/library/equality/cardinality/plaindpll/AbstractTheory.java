@@ -113,7 +113,7 @@ abstract public class AbstractTheory implements Theory {
 	public Expression applySplitterToSolution(Expression splitter, Expression solution, RewritingProcess process) {
 		Expression result;
 		if (IfThenElse.isIfThenElse(solution)) {
-			TheoryConstraint constraint = makeConstraint(Util.list(), process);
+			TheoryConstraint constraint = this.makeConstraint();
 			constraint = constraint.applySplitter(splitter, Util.list(), process);
 			result = applyConstraintToSolution(constraint, solution, process);
 		}
@@ -127,7 +127,7 @@ abstract public class AbstractTheory implements Theory {
 	public Expression applySplitterNegationToSolution(Expression splitter, Expression solution, RewritingProcess process) {
 		Expression result;
 		if (IfThenElse.isIfThenElse(solution)) {
-			TheoryConstraint constraint = makeConstraint(Util.list(), process);
+			TheoryConstraint constraint = this.makeConstraint();
 			constraint = constraint.applySplitterNegation(splitter, Util.list(), process);
 			result = applyConstraintToSolution(constraint, solution, process);
 		}
