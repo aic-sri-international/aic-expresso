@@ -43,6 +43,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
@@ -56,10 +57,11 @@ import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualityModelCountingDPLL;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ModelCounting;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLUtil;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SolutionPostProcessing;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SimplificationUtil;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualityTheory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolicGenericDPLL;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
@@ -74,13 +76,13 @@ import com.sri.ai.grinder.library.set.tuple.Tuple;
 @Beta
 public class Cardinality extends AbstractCardinalityRewriter {
 	
-	private SymbolEqualityModelCountingDPLL plainCardinality = GrinderUtil.usePlain? new SymbolEqualityModelCountingDPLL() : null;
+	private Rewriter plainCardinality = GrinderUtil.usePlain? new SymbolicGenericDPLL(new SymbolEqualityTheory(), new ModelCounting()) : null;
 
 	private Expression usePlainCardinality(Expression cardinalityOfIndexedFormulaExpression, RewritingProcess process) {
 		Expression result;
 		
 		Expression solution = plainCardinality.rewrite(cardinalityOfIndexedFormulaExpression, process);
-		Expression simplifiedSolution = SimplificationUtil.simplifySolutionUnderConstraint(solution, process.getContextualConstraint(), process);
+		Expression simplifiedSolution = DPLLUtil.simplifySolutionUnderConstraint(solution, process.getContextualConstraint(), process);
 		result = SolutionPostProcessing.fromSolutionToShorterExpression(simplifiedSolution, new SymbolEqualityTheory(), process);
 		
 		System.out.println("Problem                  : " + cardinalityOfIndexedFormulaExpression);

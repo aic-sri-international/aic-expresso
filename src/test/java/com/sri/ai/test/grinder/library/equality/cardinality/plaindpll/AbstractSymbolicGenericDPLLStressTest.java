@@ -23,9 +23,9 @@ import com.sri.ai.util.collect.FirstNIterator;
  */
 abstract public class AbstractSymbolicGenericDPLLStressTest {
 
-	protected abstract Iterator<Expression> makeProblemsIterator(int size, int minimumNumberOfIndices);
-
 	protected abstract Rewriter makeRewriter();
+
+	protected abstract Iterator<Expression> makeProblemsIterator(int size, int minimumNumberOfIndices);
 
 	// These parameters are in method form so variants can be declared as extending classes.
 	public boolean useFreeVariables()            { return true;  }

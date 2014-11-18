@@ -37,8 +37,11 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import java.util.List;
+
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.util.base.Pair;
 
 /**
  * Defines a DPLL-type problem by using a semi-ring and a conversion from expression to value to be summed.
@@ -68,5 +71,15 @@ public interface ProblemType {
 	boolean isMaximum(Expression value);
 
 	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
-	abstract Expression fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression expression);
+	Expression fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression expression);
+
+	/**
+	 * Gets an expression passed to a rewriter solving this type of problem, and returns a pair containing the expression
+	 * and indices for DPLL to solve.
+	 * The index types are assumed to be stored in the rewriting process.
+	 * @param expression
+	 * @param process
+	 * @return
+	 */
+	Pair<Expression, List<Expression>> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process);
 }

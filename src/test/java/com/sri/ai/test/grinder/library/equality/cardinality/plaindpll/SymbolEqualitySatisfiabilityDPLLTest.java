@@ -48,11 +48,14 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
+import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualitySatisfiabilityDPLL;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Satisfiability;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualityTheory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolicGenericDPLL;
 
 @Beta
-public class SymbolEqualitySatisfiabilityDPLLTest extends SymbolicGenericDPLLTest {
+public class SymbolEqualitySatisfiabilityDPLLTest extends SymbolicSymbolEqualityDPLLTest {
 	
 	@Test
 	public void test() {
@@ -217,7 +220,7 @@ public class SymbolEqualitySatisfiabilityDPLLTest extends SymbolicGenericDPLLTes
 		return problem;
 	}
 
-	protected SymbolEqualitySatisfiabilityDPLL makeRewriter() {
-		return new SymbolEqualitySatisfiabilityDPLL();
+	protected Rewriter makeRewriter() {
+		return new SymbolicGenericDPLL(new SymbolEqualityTheory(), new Satisfiability());
 	}
 }
