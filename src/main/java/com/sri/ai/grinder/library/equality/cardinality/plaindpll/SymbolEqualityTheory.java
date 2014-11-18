@@ -115,6 +115,81 @@ public class SymbolEqualityTheory extends AbstractTheory {
 		return syntacticFormTypeSimplifiers;
 	}
 
+	/**
+	 * If expression is a literal with at least one variable, turns it into a valid splitter, or returns null otherwise.
+	 * @param expression
+	 * @param indices
+	 * @param process
+	 * @return
+	 */
+	@Override
+	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
+		Expression result = null;
+		if (expression.hasFunctor(FunctorConstants.EQUALITY) || expression.hasFunctor(FunctorConstants.DISEQUALITY)) {
+			// remember that equality can have an arbitrary number of terms
+			Expression variable = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), new IsVariable(process));
+			Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), com.sri.ai.util.base.Not.make(Equals.make(variable)));
+			result = makeSplitterWithIndexIfAnyComingFirst(variable, otherTerm, indices);
+		}
+		return result;
+	}
+
+	protected static Expression makeSplitterWithIndexIfAnyComingFirst(Expression variable, Expression otherTerm, Collection<Expression> indices) {
+		Expression result;
+		// if variable is a free variable or constant and other term is an index, we invert them because
+		// the algorithm requires the first term to be an index if there are any indices in the atom.
+		if ( ! indices.contains(variable) && indices.contains(otherTerm) ) {
+			result = Equality.make(otherTerm, variable);
+		}
+		else {
+			result = Equality.make(variable, otherTerm);
+		}
+		return result;
+	}
+
+	/**
+	 * @param equalityOrDisequality
+	 * @param indices
+	 * @param process
+	 * @return
+	 */
+	protected static Expression makeSplitterFromTwoTerms(Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
+		Expression result;
+		// if variable is a free variable or constant and other term is an index, we invert them because
+		// the algorithm requires the first term to be an index if there are any indices in the atom.
+		if (indices.contains(term1)) {
+			result = Equality.make(term1, term2);
+		}
+		else if (indices.contains(term2)) {
+			result = Equality.make(term2, term1);
+		}
+		else if (process.isVariable(term1)) {
+			result = Equality.make(term1, term2);
+		}
+		else {
+			result = Equality.make(term2, term1);
+		}
+		return result;
+	}
+
+	@Override
+	public Expression getIndexBoundBySplitterIfAny(Expression splitter, Collection<Expression> indices) {
+		Expression result;
+		Expression variable = splitter.get(0);
+		if (indices.contains(variable)) {
+			result = variable;
+		}
+		else {
+			result = null;
+		}
+		return result;
+	}
+
+	@Override
+	public Expression getIndexBoundBySplitterNegationIfAny(Expression splitter, Collection<Expression> indices) {
+		return null;
+	}
+
 	@Override
 	public Expression applySplitterToExpression(Expression splitter, Expression expression, RewritingProcess process) {
 		Expression term1 = splitter.get(0);
@@ -131,18 +206,6 @@ public class SymbolEqualityTheory extends AbstractTheory {
 		Expression result = expression.replaceAllOccurrences(new SimplifyLiteralGivenDisequality(term1, term2), process);
 		result = simplify(result, process);
 		return result;
-	}
-
-	@Override
-	public Collection<Expression> applyIndicesUnderSplitter(Expression splitter, Collection<Expression> indices) {
-		Expression variable  = splitter.get(0);
-		Collection<Expression> result = ! indices.contains(variable)? indices : Util.makeSetWithoutExcludedElement(indices, variable);
-		return result;
-	}
-
-	@Override
-	public Collection<Expression> applyIndicesUnderSplitterNegation(Expression splitter, Collection<Expression> indices) {
-		return indices;
 	}
 
 	@Override
@@ -322,63 +385,6 @@ public class SymbolEqualityTheory extends AbstractTheory {
 	public TheoryConstraint makeConstraint(Collection<Expression> indices, RewritingProcess process) {
 //		return new SymbolEqualityLogicConstraint();
 		return new SymbolDisequalityConstraint();
-	}
-
-	/**
-	 * If expression is a literal with at least one variable, turns it into a valid splitter, or returns null otherwise.
-	 * @param expression
-	 * @param indices
-	 * @param process
-	 * @return
-	 */
-	@Override
-	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
-		Expression result = null;
-		if (expression.hasFunctor(FunctorConstants.EQUALITY) || expression.hasFunctor(FunctorConstants.DISEQUALITY)) {
-			// remember that equality can have an arbitrary number of terms
-			Expression variable = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), new IsVariable(process));
-			Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), com.sri.ai.util.base.Not.make(Equals.make(variable)));
-			result = makeSplitterWithIndexIfAnyComingFirst(variable, otherTerm, indices);
-		}
-		return result;
-	}
-
-	protected static Expression makeSplitterWithIndexIfAnyComingFirst(Expression variable, Expression otherTerm, Collection<Expression> indices) {
-		Expression result;
-		// if variable is a free variable or constant and other term is an index, we invert them because
-		// the algorithm requires the first term to be an index if there are any indices in the atom.
-		if ( ! indices.contains(variable) && indices.contains(otherTerm) ) {
-			result = Equality.make(otherTerm, variable);
-		}
-		else {
-			result = Equality.make(variable, otherTerm);
-		}
-		return result;
-	}
-
-	/**
-	 * @param equalityOrDisequality
-	 * @param indices
-	 * @param process
-	 * @return
-	 */
-	protected static Expression makeSplitterFromTwoTerms(Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
-		Expression result;
-		// if variable is a free variable or constant and other term is an index, we invert them because
-		// the algorithm requires the first term to be an index if there are any indices in the atom.
-		if (indices.contains(term1)) {
-			result = Equality.make(term1, term2);
-		}
-		else if (indices.contains(term2)) {
-			result = Equality.make(term2, term1);
-		}
-		else if (process.isVariable(term1)) {
-			result = Equality.make(term1, term2);
-		}
-		else {
-			result = Equality.make(term2, term1);
-		}
-		return result;
 	}
 }
 

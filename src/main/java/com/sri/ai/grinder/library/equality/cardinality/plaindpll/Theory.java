@@ -79,6 +79,21 @@ public interface Theory {
 	Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process);
 
 	/**
+	 * Returns which index gets bound by the assertion of a splitter, or <code>null</code> if none.
+	 * @param splitter
+	 * @param indices
+	 * @return
+	 */
+	Expression getIndexBoundBySplitterIfAny(Expression splitter, Collection<Expression> indices);
+	
+	/**
+	 * Returns which index gets bound by the negation of a splitter, or <code>null</code> if none.
+	 * @param splitter
+	 * @return
+	 */
+	Expression getIndexBoundBySplitterNegationIfAny(Expression splitter, Collection<Expression> indices);
+	
+	/**
 	 * Picks a splitter based on one of the theory's literals in the given expression under given constraint.
 	 * The returned splitter must be a splitter that will help solve the current expression;
 	 * it does not need to be equivalent to the given expression.
@@ -112,22 +127,6 @@ public interface Theory {
 	 * @return
 	 */
 	Expression applySplitterNegationToExpression(Expression splitter, Expression expression, RewritingProcess process);
-
-	/**
-	 * Indicates what the indices of a sub-problem under a splitter will be.
-	 * @param splitter
-	 * @param indices
-	 * @return
-	 */
-	Collection<Expression> applyIndicesUnderSplitter(Expression splitter, Collection<Expression> indices);
-
-	/**
-	 * Indicates what the indices of a sub-problem under a splitter negation will be.
-	 * @param splitter
-	 * @param indices
-	 * @return
-	 */
-	Collection<Expression> applyIndicesUnderSplitterNegation(Expression splitter, Collection<Expression> indices);
 
 	/**
 	 * Simplifies a solution given the assumption that a splitter is true,
