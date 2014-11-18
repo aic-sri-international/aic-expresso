@@ -52,7 +52,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualityTautologicalityDPLL;
 
 @Beta
-public class SymbolEqualityTautologicalityDPLLTest extends SymbolicGenericDPLLTest {
+public class SymbolEqualityTautologicalityDPLLTest extends SymbolicSymbolEqualityDPLLTest {
 	
 	@Test
 	public void test() {

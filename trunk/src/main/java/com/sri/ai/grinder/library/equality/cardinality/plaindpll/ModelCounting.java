@@ -40,8 +40,14 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 
+import java.util.List;
+
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
+import com.sri.ai.util.base.Pair;
 
 /**
  * Satisfiability uses the boolean semi-ring and does not boolean formulas
@@ -50,9 +56,9 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
  * @author braz
  *
  */
-public class ModelCountingProblemType extends AbstractProblemType {
+public class ModelCounting extends AbstractProblemType {
 
-	ModelCountingProblemType() {
+	public ModelCounting() {
 		super(new SymbolicNumberSemiRing());
 	}
 	
@@ -60,5 +66,13 @@ public class ModelCountingProblemType extends AbstractProblemType {
 	@Override
 	public Expression fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression expression) {
 		return IfThenElse.make(expression, ONE, ZERO);
+	}
+
+	@Override
+	public Pair<Expression, List<Expression>> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
+		CardinalityUtil.assertIsCardinalityOfIndexedFormulaExpression(expression);
+		IntensionalSet set = (IntensionalSet) expression.get(0);
+		Pair<Expression, List<Expression>> result = Pair.make(set.getCondition(), set.getIndexExpressions());
+		return result;
 	}
 }

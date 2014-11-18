@@ -57,7 +57,7 @@ import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 
 @Beta
-public class SimplificationUtil {
+public class DPLLUtil {
 
 	/**
 	 * Simplifies the top expression of an equality-logic-with-quantifiers formula until it cannot be simplified anymore.
@@ -206,6 +206,21 @@ public class SimplificationUtil {
 			}
 		}
 	
+		return result;
+	}
+
+	/**
+	 * @param solution
+	 * @param process
+	 * @return
+	 */
+	public static boolean isConditionalSolution(Expression solution, Theory theory, RewritingProcess process) {
+		boolean result = IfThenElse.isIfThenElse(solution) && isSplitter(IfThenElse.getCondition(solution), theory, process);
+		return result;
+	}
+
+	public static boolean isSplitter(Expression literal, Theory theory, RewritingProcess process) {
+		boolean result = theory.makeSplitterIfPossible(literal, Util.list(), process) != null;
 		return result;
 	}
 }

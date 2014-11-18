@@ -78,7 +78,7 @@ import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 
 @Beta
-public abstract class SymbolicGenericDPLLTest {
+public abstract class SymbolicSymbolEqualityDPLLTest {
 
 	protected static final Symbol DEFAULT_EVERYTHING_CARDINALITY_VALUE = makeSymbol(10);
 

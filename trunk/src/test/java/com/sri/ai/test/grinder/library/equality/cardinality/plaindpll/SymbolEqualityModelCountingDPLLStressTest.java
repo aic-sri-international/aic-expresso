@@ -45,14 +45,16 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.library.equality.RandomCardinalityProblemGenerator;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualityModelCountingDPLL;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ModelCounting;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualityTheory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolicGenericDPLL;
 
 @Beta
 public class SymbolEqualityModelCountingDPLLStressTest extends AbstractSymbolicGenericDPLLStressTest {
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new SymbolEqualityModelCountingDPLL(new CountsDeclaration(10));
+		return new SymbolicGenericDPLL(new SymbolEqualityTheory(), new ModelCounting(), new CountsDeclaration(10));
 	}
 
 	@Override

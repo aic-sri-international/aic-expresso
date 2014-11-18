@@ -50,7 +50,6 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -62,45 +61,30 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public abstract class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
+public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 
-	protected ProblemType problemType;
-	
-	///////////////////////////// BEGINNING OF ABSTRACT METHODS //////////////////////////////////////
-
-	/** Informs which theory a particular extension uses. */
-	abstract Theory makeTheory();
-	
-	/** Informs which problem type this algorithm solves. */
-	abstract ProblemType makeProblemType();
-	
-	/**
-	 * Derives expression and indices to be used from rewriter input (such as intensional set or quantified formula).
-	 */
-	abstract protected Pair<Expression, List<Expression>> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process);
-
-	///////////////////////////// END OF ABSTRACT METHODS //////////////////////////////////////
-
-	///////////////////////////// BEGINNING OF FIXED PART OF GENERIC DPLL //////////////////////////////////////
-	
+	/** The background theory for the algorithm. */
 	protected Theory theory;
 	
+	/** The problem type being solved. */
+	protected ProblemType problemType;
+
 	/** A {@link CountsDeclaration} encapsulating sort size information. */
 	protected CountsDeclaration countsDeclaration;
 	
-	public SymbolicGenericDPLL() {
-		this(null);
+	public SymbolicGenericDPLL(Theory theory, ProblemType problemType) {
+		this(theory, problemType, null);
 	}
 
-	public SymbolicGenericDPLL(CountsDeclaration countsDeclaration) {
-		this.theory = makeTheory();
-		this.problemType = makeProblemType();
+	public SymbolicGenericDPLL(Theory theory, ProblemType problemType, CountsDeclaration countsDeclaration) {
+		this.theory = theory;
+		this.problemType = problemType;
 		this.countsDeclaration = countsDeclaration;
 	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Pair<Expression, List<Expression>> formulaAndIndexExpressions = getExpressionAndIndexExpressionsFromRewriterProblemArgument(expression, process);
+		Pair<Expression, List<Expression>> formulaAndIndexExpressions = problemType.getExpressionAndIndexExpressionsFromRewriterProblemArgument(expression, process);
 		Expression       formula          = formulaAndIndexExpressions.first;
 		List<Expression> indexExpressions = formulaAndIndexExpressions.second;
 		Expression       simplifiedFormula = theory.simplify(formula, process); // eventually this will should not be needed as simplification should be lazy 
@@ -261,7 +245,7 @@ public abstract class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 
 		Expression result = null;
 
-		if (isConditionalSolution(solution1, process)) {
+		if (DPLLUtil.isConditionalSolution(solution1, theory, process)) {
 			Expression condition  = IfThenElse.getCondition(solution1);
 			Expression thenBranch = IfThenElse.getThenBranch(solution1);
 			Expression elseBranch = IfThenElse.getElseBranch(solution1);
@@ -271,7 +255,7 @@ public abstract class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 			Expression newElseBranch = addSymbolicResults(elseBranch, solution2UnderNotCondition, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false /* no simplification to condition */);
 		}
-		else if (isConditionalSolution(solution2, process)) {
+		else if (DPLLUtil.isConditionalSolution(solution2, theory, process)) {
 			Expression condition  = IfThenElse.getCondition(solution2);
 			Expression thenBranch = IfThenElse.getThenBranch(solution2);
 			Expression elseBranch = IfThenElse.getElseBranch(solution2);
@@ -287,21 +271,4 @@ public abstract class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 
 		return result;
 	}
-
-	/**
-	 * @param expression
-	 * @param process
-	 * @return
-	 */
-	protected boolean isConditionalSolution(Expression expression, RewritingProcess process) {
-		boolean result = IfThenElse.isIfThenElse(expression) && isSolutionSplitter(IfThenElse.getCondition(expression), process);
-		return result;
-	}
-
-	private boolean isSolutionSplitter(Expression expression, RewritingProcess process) {
-		boolean result = theory.makeSplitterIfPossible(expression, Util.list(), process) != null;
-		return result;
-	}
-
-	///////////////////////////// END OF FIXED PART OF GENERIC DPLL //////////////////////////////////////
 }

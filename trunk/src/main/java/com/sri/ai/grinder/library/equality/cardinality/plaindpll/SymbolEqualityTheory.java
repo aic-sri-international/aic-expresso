@@ -38,13 +38,11 @@
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
@@ -104,7 +102,7 @@ public class SymbolEqualityTheory extends AbstractTheory {
 					(new SymbolEqualityTautologicalityDPLL()).rewrite(f, process),
  
 					ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new SymbolEqualitySatisfiabilityDPLL()).rewrite(f, process)
+					(new SymbolicGenericDPLL(new SymbolEqualityTheory(), new Satisfiability())).rewrite(f, process)
 	);
 
 	@Override
@@ -115,22 +113,6 @@ public class SymbolEqualityTheory extends AbstractTheory {
 	@Override
 	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
 		return syntacticFormTypeSimplifiers;
-	}
-
-	@Override
-	public Expression pickSplitterInExpression(Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
-		Expression result = null;
-		
-		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(expression);
-		while (result == null && subExpressionIterator.hasNext()) {
-			Expression subExpression = subExpressionIterator.next();
-			Expression splitterCandidate = makeSplitterIfPossible(subExpression, indices, process);
-			if (splitterCandidate != null) {
-				result = constraint.getMostRequiredSplitter(splitterCandidate, indices, process); // should be generalized to any theory
-			}
-		}
-	
-		return result;
 	}
 
 	@Override

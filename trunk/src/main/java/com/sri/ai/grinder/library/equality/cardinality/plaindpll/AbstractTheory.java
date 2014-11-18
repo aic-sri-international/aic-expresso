@@ -37,10 +37,13 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.Util;
@@ -85,11 +88,26 @@ abstract public class AbstractTheory implements Theory {
 	public Expression simplify(Expression expression, RewritingProcess process) {
 		BinaryFunction<Expression, RewritingProcess, Expression>
 			topExhaustivelySimplifier =
-			(e, p) -> SimplificationUtil.topSimplifyExhaustively(e, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), p);
-		Expression result = SimplificationUtil.simplify(expression, topExhaustivelySimplifier, process);
+			(e, p) -> DPLLUtil.topSimplifyExhaustively(e, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), p);
+		Expression result = DPLLUtil.simplify(expression, topExhaustivelySimplifier, process);
 		return result;
 	}
 
+	@Override
+	public Expression pickSplitterInExpression(Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
+		Expression result = null;
+		
+		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(expression);
+		while (result == null && subExpressionIterator.hasNext()) {
+			Expression subExpression = subExpressionIterator.next();
+			Expression splitterCandidate = makeSplitterIfPossible(subExpression, indices, process);
+			if (splitterCandidate != null) {
+				result = constraint.getMostRequiredSplitter(splitterCandidate, indices, process); // should be generalized to any theory
+			}
+		}
+	
+		return result;
+	}
 
 	@Override
 	public Expression applySplitterToSolution(Expression splitter, Expression solution, RewritingProcess process) {
@@ -122,7 +140,7 @@ abstract public class AbstractTheory implements Theory {
 	private Expression applyConstraintToSolution(TheoryConstraint constraint, Expression solution, RewritingProcess process) {
 		Expression result;
 		
-		if (IfThenElse.isIfThenElse(solution)) {
+		if (DPLLUtil.isConditionalSolution(solution, this, process)) {
 			Expression solutionSplitter = IfThenElse.getCondition(solution);
 			TheoryConstraint constraintUnderSolutionSplitter = constraint.applySplitter(solutionSplitter, Util.list(), process);
 			if (constraintUnderSolutionSplitter != null) {
@@ -148,7 +166,7 @@ abstract public class AbstractTheory implements Theory {
 					result = newElseBranch;
 				}
 				else {
-					throw new Error("Constraint applied to solution should be compatible with the splitter or its negation (otherwise either the constraint is unsatisfiable, or the sub-solution is, and in this case we should not have gotten here).");
+					throw new Error("Constraint applied to solution should be compatible with the solution splitter or its negation (otherwise either the constraint is unsatisfiable, or the sub-solution is, and in this case we should not have gotten here).");
 				}
 			}
 		}

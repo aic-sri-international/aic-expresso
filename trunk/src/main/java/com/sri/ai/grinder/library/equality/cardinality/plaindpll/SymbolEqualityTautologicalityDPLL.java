@@ -44,6 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.UniversallyQuantifiedFormula;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -59,20 +60,20 @@ import com.sri.ai.util.Util;
  */
 public class SymbolEqualityTautologicalityDPLL extends AbstractHierarchicalRewriter {
 	
-	private SymbolEqualitySatisfiabilityDPLL satisfiabilitySolver;
+	private Rewriter satisfiabilitySolver;
 	
 	/**
 	 * Builds a rewriter for cardinality computation.
 	 */
 	public SymbolEqualityTautologicalityDPLL() {
-		satisfiabilitySolver = new SymbolEqualitySatisfiabilityDPLL();
+		satisfiabilitySolver = new SymbolicGenericDPLL(new SymbolEqualityTheory(), new Satisfiability());
 	}
 
 	/**
 	 * Builds a rewriter for cardinality computation.
 	 */
 	public SymbolEqualityTautologicalityDPLL(CountsDeclaration countsDeclaration) {
-		satisfiabilitySolver = new SymbolEqualitySatisfiabilityDPLL(countsDeclaration);
+		satisfiabilitySolver = new SymbolicGenericDPLL(new SymbolEqualityTheory(), new Satisfiability(), countsDeclaration);
 	}
 
 	@Override

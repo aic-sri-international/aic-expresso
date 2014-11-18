@@ -39,41 +39,31 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import java.util.List;
 
-import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.ExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.util.base.Pair;
 
-@Beta
-/** 
- * A DPLL specialization for equality logic satisfiability.
+/**
+ * Model counting uses the number semi-ring and converts boolean formula F to 'if F then 1 else 0' to count satisfying models.
+ * 
+ * @author braz
+ *
  */
-public class SymbolEqualitySatisfiabilityDPLL extends SymbolicGenericDPLL {
+public class Satisfiability extends AbstractProblemType {
+
+	public Satisfiability() {
+		super(new BooleanSemiRing());
+	}
 	
+	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
 	@Override
-	Theory makeTheory()           { return new SymbolEqualityTheory(); }
-
-	@Override
-	ProblemType makeProblemType() { return new SatisfiabilityProblemType(); }
-
-	/**
-	 * Builds solver for equality logic satisfiability.
-	 */
-	public SymbolEqualitySatisfiabilityDPLL() {
-		super();
-	}
-
-	/**
-	 * Builds solver for equality logic satisfiability with given {@link CountsDeclaration}.
-	 */
-	public SymbolEqualitySatisfiabilityDPLL(CountsDeclaration countsDeclaration) {
-		super(countsDeclaration);
+	public Expression fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression expression) {
+		return expression;
 	}
 
 	@Override
-	protected Pair<Expression, List<Expression>> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
+	public Pair<Expression, List<Expression>> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
 		ExistentiallyQuantifiedFormula existential = (ExistentiallyQuantifiedFormula) expression;
 		Pair<Expression, List<Expression>> formulaAndIndices = Pair.make(existential.getBody(), existential.getIndexExpressions());
 		return formulaAndIndices;
