@@ -56,7 +56,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ModelCounting;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PropositionalTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolicGenericDPLL;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
 import com.sri.ai.util.Util;
 
 @Beta
@@ -69,7 +69,7 @@ public class PropositionalLogicModelCountingDPLLTest {
 	}
 
 	protected Rewriter makeRewriter() {
-		return new SymbolicGenericDPLL(new PropositionalTheory(), new ModelCounting());
+		return new DPLLGeneralizedAndSymbolic(new PropositionalTheory(), new ModelCounting());
 	}
 
 	@Test

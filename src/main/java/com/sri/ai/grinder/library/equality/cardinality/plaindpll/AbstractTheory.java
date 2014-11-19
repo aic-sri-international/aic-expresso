@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -94,13 +93,13 @@ abstract public class AbstractTheory implements Theory {
 	}
 
 	@Override
-	public Expression pickSplitterInExpression(Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
+	public Expression pickSplitterInExpression(Expression expression, TheoryConstraint constraint, RewritingProcess process) {
 		Expression result = null;
 		
 		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(expression);
 		while (result == null && subExpressionIterator.hasNext()) {
 			Expression subExpression = subExpressionIterator.next();
-			Expression splitterCandidate = makeSplitterIfPossible(subExpression, indices, process);
+			Expression splitterCandidate = makeSplitterIfPossible(subExpression, constraint.getIndices(), process);
 			if (splitterCandidate != null) {
 				result = constraint.getMostRequiredSplitter(splitterCandidate, process); // should be generalized to any theory
 			}

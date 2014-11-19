@@ -71,24 +71,6 @@ public interface TheoryConstraint {
 	TheoryConstraint applySplitterNegation(Expression splitter, RewritingProcess process);
 
 	/**
-	 * Returns which index gets bound by the assertion of a splitter, or <code>null</code> if none.
-	 * Note: this method is "static in spirit", as it should not depend on the actual state of the instance.
-	 * This is so because static methods cannot be overridden in Java.
-	 * @param splitter
-	 * @return
-	 */
-	Expression getIndexBoundBySplitterIfAny(Expression splitter);
-	
-	/**
-	 * Returns which index gets bound by the negation of a splitter, or <code>null</code> if none.
-	 * Note: this method is "static in spirit", as it should not depend on the actual state of the instance.
-	 * This is so because static methods cannot be overridden in Java.
-	 * @param splitter
-	 * @return
-	 */
-	Expression getIndexBoundBySplitterNegationIfAny(Expression splitter);
-	
-	/**
 	 * Computes model count for constraint, given a set of indices, in polynomial time.
 	 * Assumes that {@link #pickSplitter(RewritingProcess)} returns <code>null</code>,
 	 * that is, the constraint is in such a state and context that allows the determination of a unique model count.

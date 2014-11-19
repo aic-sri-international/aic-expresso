@@ -47,14 +47,14 @@ import com.sri.ai.grinder.library.equality.RandomSatisfiabilityProblemGenerator;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Satisfiability;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolicGenericDPLL;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
 
 @Beta
 public class SymbolEqualitySatisfiabilityDPLLStressTest extends AbstractSymbolicGenericDPLLStressTest {
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new SymbolicGenericDPLL(new SymbolEqualityTheory(), new Satisfiability(), new CountsDeclaration(10));
+		return new DPLLGeneralizedAndSymbolic(new SymbolEqualityTheory(), new Satisfiability(), new CountsDeclaration(10));
 	}
 
 	@Override

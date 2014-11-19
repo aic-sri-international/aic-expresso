@@ -232,24 +232,6 @@ public class EqualityOnSymbolsConstraint extends LinkedHashMap<Expression, Colle
 		newConstraint.put(term1, newTerm1Disequals);
 	}
 
-	@Override
-	public Expression getIndexBoundBySplitterIfAny(Expression splitter) {
-		Expression result;
-		Expression variable = splitter.get(0);
-		if (indices.contains(variable)) {
-			result = variable;
-		}
-		else {
-			result = null;
-		}
-		return result;
-	}
-
-	@Override
-	public Expression getIndexBoundBySplitterNegationIfAny(Expression splitter) {
-		return null;
-	}
-
 	public Expression getMostRequiredSplitter(Expression splitterCandidate, RewritingProcess process) {
 		Expression x = splitterCandidate.get(0);
 		Expression t = splitterCandidate.get(1);

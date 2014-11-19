@@ -42,7 +42,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 
 /**
- * Object representing a commutative semiring to be used as value of expression being processed by {@link SymbolicGenericDPLL}.
+ * Object representing a commutative semiring to be used as value of expression being processed by {@link DPLLGeneralizedAndSymbolic}.
  * 
  * @author braz
  *
