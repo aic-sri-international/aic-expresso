@@ -191,8 +191,8 @@ public class SymbolEqualityTheory extends AbstractTheory {
 	}
 
 	@Override
-	public boolean splitterDoesNotInvolveIndex(Expression splitter, Collection<Expression> indices) {
-		boolean result = ! indices.contains(splitter.get(0));
+	public boolean splitterInvolvesIndex(Expression splitter, Collection<Expression> indices) {
+		boolean result = indices.contains(splitter.get(0));
 		return result;
 	}
 

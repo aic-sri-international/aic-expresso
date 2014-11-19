@@ -75,7 +75,7 @@ public interface TheoryConstraint {
 	 * @param indices
 	 * @return
 	 */
-	Expression getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices);
+	Expression getIndexBoundBySplitterIfAny(Expression splitter, Collection<Expression> indices);
 	
 	/**
 	 * Returns which index gets bound by the negation of a splitter, or <code>null</code> if none.
@@ -84,7 +84,7 @@ public interface TheoryConstraint {
 	 * @param splitter
 	 * @return
 	 */
-	Expression getIndexBoundBySplitterNegationApplicationIfAny(Expression splitter, Collection<Expression> indices);
+	Expression getIndexBoundBySplitterNegationIfAny(Expression splitter, Collection<Expression> indices);
 	
 	/**
 	 * Computes model count for constraint, given a set of indices, in polynomial time.

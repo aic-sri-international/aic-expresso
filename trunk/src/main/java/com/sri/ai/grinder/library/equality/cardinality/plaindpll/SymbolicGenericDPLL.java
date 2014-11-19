@@ -170,9 +170,9 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 		if (constraintUnderSplitter != null) {
 			Expression solutionUnderSplitter = solveUnderSplitter(splitter, expression, constraintUnderSplitter, indices, process);
 
-			boolean solutionIsConditionalOnSplitterOverFreeVariable = theory.splitterDoesNotInvolveIndex(splitter, indices);
-			boolean solutionIsAdditionOfSubSolutions = ! solutionIsConditionalOnSplitterOverFreeVariable;
-			if ( solutionIsAdditionOfSubSolutions && problemType.isMaximum(solutionUnderSplitter)) {
+			boolean splitterDependsOnIndex           = theory.splitterInvolvesIndex(splitter, indices);
+			boolean solutionIsAdditionOfSubSolutions = splitterDependsOnIndex;
+			if (solutionIsAdditionOfSubSolutions && problemType.isMaximum(solutionUnderSplitter)) {
 				result = solutionUnderSplitter; // solution is already maximum, no need to consider the other side of splitter
 			}
 			else {
@@ -180,16 +180,16 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 
 				if (constraintUnderSplitterNegation != null) {
 					Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, expression, constraintUnderSplitterNegation, indices, process);
-					if (solutionIsConditionalOnSplitterOverFreeVariable) {
-						// solution is <if splitter then solutionUnderSplitter else solutionUnderSplitterNegation>
-						result = IfThenElse.make(splitter, solutionUnderSplitter, solutionUnderSplitterNegation, false /* no simplification to condition */);
-					}
-					else {
+					if (splitterDependsOnIndex) {
 						// splitter is over an index or more,
 						// so solution is solutionUnderSplitter + solutionUnderSplitterNegation
 						// If unconditional, these solutions need to be combined
 						// If conditional, these solutions need to be merged into a single conditional
 						result = addSymbolicResults(solutionUnderSplitter, solutionUnderSplitterNegation, process);
+					}
+					else {
+						// solution is <if splitter then solutionUnderSplitter else solutionUnderSplitterNegation>
+						result = IfThenElse.make(splitter, solutionUnderSplitter, solutionUnderSplitterNegation, false /* no simplification to condition */);
 					}
 				}
 				else { // splitter cannot be false under constraint, so it is true under constraint, so final solution is one under splitter
@@ -239,13 +239,13 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 	}
 
 	private Collection<Expression> getIndicesUnderSplitter(Expression splitter, Collection<Expression> indices) {
-		Expression boundIndex = DPLLUtil.getIndexBoundBySplitterApplicationIfAny(splitter, indices, theory);
+		Expression boundIndex = DPLLUtil.getIndexBoundBySplitterIfAny(splitter, indices, theory);
 		Collection<Expression> result = getUpdatedIndices(indices, boundIndex);
 		return result;
 	}
 
 	private Collection<Expression> getIndicesUnderSplitterNegation(Expression splitter, Collection<Expression> indices) {
-		Expression boundIndex = DPLLUtil.getIndexBoundBySplitterNegationApplicationIfAny(splitter, indices, theory);
+		Expression boundIndex = DPLLUtil.getIndexBoundBySplitterNegationIfAny(splitter, indices, theory);
 		Collection<Expression> result = getUpdatedIndices(indices, boundIndex);
 		return result;
 	}

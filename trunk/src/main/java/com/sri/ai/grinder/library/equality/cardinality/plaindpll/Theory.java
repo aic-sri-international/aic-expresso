@@ -92,8 +92,10 @@ public interface Theory {
 	 */
 	Expression pickSplitterInExpression(Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process);
 
-	/** Indicates whether a splitter interpretation depends on the interpretation of some index. */
-	boolean splitterDoesNotInvolveIndex(Expression splitter, Collection<Expression> indices);
+	/**
+	 * Indicates whether a splitter interpretation depends on the interpretation of some index.
+	 */
+	boolean splitterInvolvesIndex(Expression splitter, Collection<Expression> indices);
 
 	/**
 	 * Simplifies an expression given the assumption that a splitter is true.

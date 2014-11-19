@@ -104,7 +104,7 @@ public class SymbolEqualityLogicConstraint extends LinkedHashMap<Expression, Col
 	}
 
 	@Override
-	public Expression getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices) {
+	public Expression getIndexBoundBySplitterIfAny(Expression splitter, Collection<Expression> indices) {
 		Expression result;
 		Expression variable = splitter.get(0);
 		if (indices.contains(variable)) {
@@ -117,7 +117,7 @@ public class SymbolEqualityLogicConstraint extends LinkedHashMap<Expression, Col
 	}
 
 	@Override
-	public Expression getIndexBoundBySplitterNegationApplicationIfAny(Expression splitter, Collection<Expression> indices) {
+	public Expression getIndexBoundBySplitterNegationIfAny(Expression splitter, Collection<Expression> indices) {
 		return null;
 	}
 
