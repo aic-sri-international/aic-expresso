@@ -37,36 +37,55 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import java.util.ArrayList;
+import static com.sri.ai.util.Util.sortPairMakingFirstOneSatisfyPredicateIfPossible;
+
 import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.Disequality;
+import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Equivalence;
+import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
+import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
-import com.sri.ai.util.math.Rational;
+import com.sri.ai.util.base.Equals;
+import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.base.Triple;
+import com.sri.ai.util.collect.EZIterator;
 
-@Beta
-/** 
- * A {@link Theory} for propositional logic.
+/**
+ * 
+ * @author braz
+ *
  */
-public class PropositionalTheory extends AbstractTheory {
+@Beta
+public class NaiveEqualityOnSymbolsTheory extends AbstractTheory {
 
 	private static Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
+					FunctorConstants.EQUALITY,       (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Equality.simplify(f, process),
+					
+					FunctorConstants.DISEQUALITY,    (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Disequality.simplify(f, process),
+
+					FunctorConstants.DISEQUALITY,    (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Disequality.simplify(f, process),
+
 					FunctorConstants.AND,            (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
 					And.simplify(f),
 
@@ -88,6 +107,11 @@ public class PropositionalTheory extends AbstractTheory {
 	
 	private static Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
+					ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					(new SymbolEqualityTautologicalityDPLL()).rewrite(f, process),
+ 
+					ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					(new SymbolicGenericDPLL(new SymbolEqualityTheory(), new Satisfiability())).rewrite(f, process)
 	);
 
 	@Override
@@ -100,18 +124,16 @@ public class PropositionalTheory extends AbstractTheory {
 		return syntacticFormTypeSimplifiers;
 	}
 
-	/**
-	 * If expression is a proposition, it is a splitter.
-	 * @param expression
-	 * @param indices
-	 * @param process
-	 * @return
-	 */
 	@Override
 	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
-		if (isProposition(expression)) {
-			result = expression;
+		expression = Equality.simplifyIfEqualityOrDisequality(expression, process);
+		if (Equality.isEquality(expression) || Disequality.isDisequality(expression)) {
+			// Remember that equality can have an arbitrary number of terms
+			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), new IsVariable(process));
+			Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), com.sri.ai.util.base.Not.make(Equals.make(variable)));
+			Pair<Expression, Expression> terms = sortPairMakingFirstOneSatisfyPredicateIfPossible(variable, otherTerm, t -> indices.contains(t));
+			result = Equality.make(terms.first, terms.second);
 		}
 		else {
 			result = null;
@@ -119,35 +141,27 @@ public class PropositionalTheory extends AbstractTheory {
 		return result;
 	}
 
-	/**
-	 * @param expression
-	 * @return
-	 */
-	protected boolean isProposition(Expression expression) {
-		boolean result =
-				expression.getSyntacticFormType().equals("Symbol")
-				&&
-				! FormulaUtil.EQUALITY_FORMULAS_PRIMITIVE_SYMBOLS.contains(expression);
+	@Override
+	public boolean splitterInvolvesIndex(Expression splitter, Collection<Expression> indices) {
+		boolean result = indices.contains(splitter.get(0));
 		return result;
 	}
 
 	@Override
 	public Expression applySplitterToExpression(Expression splitter, Expression expression, RewritingProcess process) {
-		Expression result = expression.replaceAllOccurrences(splitter, Expressions.TRUE, process);
+		Expression term1 = splitter.get(0);
+		Expression term2 = splitter.get(1);
+		Expression result = expression.replaceAllOccurrences(new SimplifyLiteralGivenEquality(term1, term2), process);
 		result = simplify(result, process);
 		return result;
 	}
 
 	@Override
 	public Expression applySplitterNegationToExpression(Expression splitter, Expression expression, RewritingProcess process) {
-		Expression result = expression.replaceAllOccurrences(splitter, Expressions.FALSE, process);
+		Expression term1 = splitter.get(0);
+		Expression term2 = splitter.get(1);
+		Expression result = expression.replaceAllOccurrences(new SimplifyLiteralGivenDisequality(term1, term2), process);
 		result = simplify(result, process);
-		return result;
-	}
-
-	@Override
-	public boolean splitterInvolvesIndex(Expression splitter, Collection<Expression> indices) {
-		boolean result = indices.contains(splitter);
 		return result;
 	}
 
@@ -155,108 +169,66 @@ public class PropositionalTheory extends AbstractTheory {
 	public TheoryConstraint makeConstraint() {
 		return new Constraint();
 	}
-
-	public static class Constraint implements TheoryConstraint {
-
-		// Because applying either splitter or splitter negation always binds an index to a value,
-		// we only need to remember asserted and negated free (that is, non-index) propositions.
+	
+	private class Constraint implements TheoryConstraint {
 		
-		private Set<Expression> assertedFreePropositions = new LinkedHashSet<Expression>();
-		private Set<Expression> negatedFreePropositions  = new LinkedHashSet<Expression>();
-		
-		public Constraint() {
-		}
-		
-		public Constraint(Constraint another) {
-			super();
-			this.assertedFreePropositions = new LinkedHashSet<Expression>(another.assertedFreePropositions); // should be optimized to a copy-as-needed scheme.
-			this.negatedFreePropositions = new LinkedHashSet<Expression>(another.negatedFreePropositions);
-		}
+		private Map<Expression, Expression>      fromVariableToValue;
+		private Map<Expression, Set<Expression>> fromVariableToDisequals;
 
 		@Override
 		public Expression pickSplitter(Collection<Expression> indices, RewritingProcess process) {
-			return null; // we are always ready to provide a model count, so there is no need for extra splitters
+//			Pair<Expression, Pair<Expression, Expression>> variableWithDisequalsUndeterminedToBeDisequalsThemselves =
+//					Util.getFirstSatisfyingPredicateOrNull(
+//							getVariableAndPairOfDisequalsIterator(),
+//							new DisequalsUndeterminedToBeDisequalsThemselves());
+//			Expression result;
+//			if (variableWithDisequalsUndeterminedToBeDisequalsThemselves != null) {
+//				Expression firstDisequal  = variableWithDisequalsUndeterminedToBeDisequalsThemselves.second.first;
+//				Expression secondDisequal = variableWithDisequalsUndeterminedToBeDisequalsThemselves.second.second;
+//				result = makeSplitterIfPossible(Equality.make(firstDisequal, secondDisequal), indices, process);
+//			}
+//			else {
+//				result = null;
+//			}
+//			return result;
+			return null;
 		}
 
 		@Override
 		public TheoryConstraint applySplitter(Expression splitter, Collection<Expression> indices, RewritingProcess process) {
-			Constraint result;
-			if (indices.contains(splitter)) {
-				result = this;
-			}
-			else {
-				if (negatedFreePropositions.contains(splitter)) {
-					result = null;
-				}
-				else {
-					result = new Constraint(this);
-					result.assertedFreePropositions.add(splitter);
-				}
-			}
-			return result;
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 		@Override
 		public TheoryConstraint applySplitterNegation(Expression splitter, Collection<Expression> indices, RewritingProcess process) {
-			Constraint result;
-			if (indices.contains(splitter)) {
-				result = this;
-			}
-			else {
-				if (assertedFreePropositions.contains(splitter)) {
-					result = null;
-				}
-				else {
-					result = new Constraint(this);
-					result.negatedFreePropositions.add(splitter);
-				}
-			}
-			return result;
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 		@Override
 		public Expression getIndexBoundBySplitterIfAny(Expression splitter, Collection<Expression> indices) {
-			return getIndexBoundByEitherSplitterOrItsNegation(splitter, indices);
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 		@Override
 		public Expression getIndexBoundBySplitterNegationIfAny(Expression splitter, Collection<Expression> indices) {
-			return getIndexBoundByEitherSplitterOrItsNegation(splitter, indices);
-		}
-
-		private Expression getIndexBoundByEitherSplitterOrItsNegation(Expression splitter, Collection<Expression> indices) {
-			Expression result;
-			if (indices.contains(splitter)) {
-				result = splitter;
-			}
-			else {
-				result = null;
-			}
-			return result;
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 		@Override
 		public Expression modelCount(Collection<Expression> indices, RewritingProcess process) {
-			Expression result = Expressions.makeSymbol(new Rational(2).pow(indices.size()));
-			return result;
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 		@Override
 		public Expression getMostRequiredSplitter(Expression splitterCandidate, Collection<Expression> indices, RewritingProcess process) {
-			return splitterCandidate; // a proposition can always be imposed without need for prior assumptions
+			// TODO Auto-generated method stub
+			return null;
 		}
 		
-		@Override
-		public String toString() {
-			ArrayList<String> items = new ArrayList<String>();
-			if ( ! assertedFreePropositions.isEmpty()) {
-				items.add(Util.join(assertedFreePropositions) + " are true");
-			}
-			if ( ! negatedFreePropositions.isEmpty()) {
-				items.add(Util.join(negatedFreePropositions) + " are false");
-			}
-			String result = "Free propositions " + Util.join(items);
-			return result;
-		}
 	}
 }

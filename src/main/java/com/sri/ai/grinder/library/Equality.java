@@ -81,6 +81,25 @@ public class Equality extends AbstractRewriter {
 		}
 	}
 
+	/**
+	 * Checks an expression for equality or disequality (top) simplification.
+	 * @param expression
+	 * @param process
+	 */
+	public static Expression simplifyIfEqualityOrDisequality(Expression expression, RewritingProcess process) {
+		Expression result;
+		if (isEquality(expression)) {
+			result = simplify(expression, process);
+		}
+		else if (Disequality.isDisequality(expression)) {
+			result = Disequality.simplify(expression, process);
+		}
+		else {
+			result = expression;
+		}
+		return result;
+	}
+
 	public static Expression equalityResultIfItIsKnown(Expression expression, RewritingProcess process) {
 		Boolean equalityResult = equalityResultIfItIsKnownOrNull(expression, process.getIsConstantPredicate(), process);
 		if (equalityResult != null) {
@@ -452,6 +471,20 @@ public class Equality extends AbstractRewriter {
 		}
 		else {
 			result = null;
+		}
+		return result;
+	}
+
+	/**
+	 * Returns an expression equivalent to equality (and perhaps simpler) given equality between a variable and another term.
+	 */
+	public static Expression simplifyGivenEquality(Expression equality, Expression variable, Expression otherTerm) {
+		Expression result;
+		if (equality.getArguments().contains(variable) && equality.getArguments().contains(otherTerm)) {
+			result = Expressions.TRUE;
+		}
+		else {
+			result = equality;
 		}
 		return result;
 	}

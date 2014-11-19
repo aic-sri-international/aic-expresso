@@ -161,6 +161,20 @@ public class Disequality extends AbstractRewriter {
 	}
 
 	/**
+	 * Returns an expression equivalent to disequality (and perhaps simpler) given equality between a variable and another term.
+	 */
+	public static Expression simplifyGivenEquality(Expression disequality, Expression variable, Expression otherTerm) {
+		Expression result;
+		if (disequality.getArguments().contains(variable) && disequality.getArguments().contains(otherTerm)) {
+			result = Expressions.FALSE;
+		}
+		else {
+			result = disequality;
+		}
+		return result;
+	}
+
+	/**
 	 * Returns an expression equivalent to disequality (and perhaps simpler) given a disequality.
 	 */
 	public static Expression simplifyGivenDisequality(Expression disequality, Expression variable, Expression otherTerm) {
