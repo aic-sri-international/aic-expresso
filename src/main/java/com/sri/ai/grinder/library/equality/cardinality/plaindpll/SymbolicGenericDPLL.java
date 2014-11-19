@@ -110,7 +110,7 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
 	 */
 	protected Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process) {
-		TheoryConstraint constraint = theory.makeConstraint();
+		TheoryConstraint constraint = theory.makeConstraint(indices);
 		Expression result = solve(expression, constraint, indices, process);
 		return result;
 	}
@@ -129,7 +129,7 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 			}
 			else {
 				Expression unconditionalValue = expression;
-				Expression numberOfOccurrences = constraint.modelCount(indices, process);
+				Expression numberOfOccurrences = constraint.modelCount(process);
 				Expression valueToBeSummed = problemType.fromExpressionValueWithoutLiteralsToValueToBeSummed(unconditionalValue);
 				result = problemType.addNTimes(valueToBeSummed, numberOfOccurrences, process);
 			}
@@ -145,7 +145,7 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 		Expression splitter;
 		splitter = theory.pickSplitterInExpression(expression, indices, constraint, process);
 		if (splitter == null) { // expression is constant value, so it does not have any splitters
-			splitter = constraint.pickSplitter(indices, process);
+			splitter = constraint.pickSplitter(process);
 		}
 		return splitter;
 	}
@@ -166,7 +166,7 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 		
 		Expression result;
 
-		TheoryConstraint constraintUnderSplitter = constraint.applySplitter(splitter, indices, process);
+		TheoryConstraint constraintUnderSplitter = constraint.applySplitter(splitter, process);
 		if (constraintUnderSplitter != null) {
 			Expression solutionUnderSplitter = solveUnderSplitter(splitter, expression, constraintUnderSplitter, indices, process);
 
@@ -176,7 +176,7 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 				result = solutionUnderSplitter; // solution is already maximum, no need to consider the other side of splitter
 			}
 			else {
-				TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitterNegation(splitter, indices, process);
+				TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitterNegation(splitter, process);
 
 				if (constraintUnderSplitterNegation != null) {
 					Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, expression, constraintUnderSplitterNegation, indices, process);
@@ -199,7 +199,7 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 		}
 		else {
             // splitter is false under constraint, so its negation is true, so final solution is one under splitter negation
-			TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitterNegation(splitter, indices, process);
+			TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitterNegation(splitter, process);
 			Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, expression, constraintUnderSplitterNegation, indices, process);
 			result = solutionUnderSplitterNegation;
 		}

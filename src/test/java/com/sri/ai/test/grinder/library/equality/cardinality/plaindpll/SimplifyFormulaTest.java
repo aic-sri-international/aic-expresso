@@ -54,6 +54,10 @@ public class SimplifyFormulaTest {
 		Expression expression;
 		Expression expected;
 		
+		expression = Expressions.parse("there exists X : X = Y and Y = Z");
+		expected   = Expressions.parse("Y = Z");
+		runTest(expression, expected);
+		
 		expression = Expressions.parse("Y != a and (there exists X : X = Y and Y = Z)");
 		expected   = Expressions.parse("Y != a and Y = Z");
 		runTest(expression, expected);

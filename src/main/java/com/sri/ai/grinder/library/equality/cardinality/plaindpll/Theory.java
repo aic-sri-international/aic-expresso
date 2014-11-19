@@ -136,8 +136,8 @@ public interface Theory {
 	Expression applySplitterNegationToSolution(Expression splitter, Expression solution, RewritingProcess process);
 
 	/**
-	 * Make a new empty constraint (equivalent to true) for this theory.
+	 * Make a new constraint for this theory over a set of indices (equivalent to all assignments to those indices).
 	 * @return
 	 */
-	TheoryConstraint makeConstraint();
+	TheoryConstraint makeConstraint(Collection<Expression> indices);
 }

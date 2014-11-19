@@ -66,7 +66,7 @@ import com.sri.ai.util.Util;
  * Represents and manipulates constraints in the theory of disequalities of symbols (variables and constants).
  */
 @Beta
-public class SymbolDisequalityConstraint extends LinkedHashMap<Expression, Collection<Expression>> implements TheoryConstraint {
+public class EqualityOnSymbolsConstraint extends LinkedHashMap<Expression, Collection<Expression>> implements TheoryConstraint {
 
 	// The algorithm is based on the counting principle: to determine the model count, we
 	// analyse how many possible values each index has, in a certain order
@@ -80,16 +80,53 @@ public class SymbolDisequalityConstraint extends LinkedHashMap<Expression, Colle
 	
 	// We use "distinct" to refer to non-equal Java objects (as opposed to terms not being equal on the equality theory level).
 	
-	SymbolDisequalityConstraint() {
+	private Collection<Expression> indices;
+	private Map<Expression, Expression> fromBoundIndexToValue;
+	
+	public EqualityOnSymbolsConstraint(Collection<Expression> indices) {
 		super();
+		this.indices = indices;
+		this.fromBoundIndexToValue = new LinkedHashMap<Expression, Expression>();
 	}
 
-	private SymbolDisequalityConstraint(SymbolDisequalityConstraint another) {
+	private EqualityOnSymbolsConstraint(EqualityOnSymbolsConstraint another) {
 		super(another);
+		this.indices = another.indices;
+		this.fromBoundIndexToValue = new LinkedHashMap<Expression, Expression>(another.fromBoundIndexToValue);
 	}
 
 	@Override
-	public TheoryConstraint applySplitter(Expression splitter, Collection<Expression> indices, RewritingProcess process) {
+	public Collection<Expression> getIndices() {
+		return indices;
+	}
+
+	@Override
+	public Expression pickSplitter(RewritingProcess process) {
+	
+		// if there is an index X such that X has disequals Y and T,
+		// we must know if Y and T are either the same or disequal before we can tell
+		// how many possible values X has.
+	
+		for (Expression x : indices) {
+			if ( ! fromBoundIndexToValue.containsKey(x)) { // optional, but probably more efficient
+				Collection<Expression> disequalsOfX = getDisequals(x);
+				for (Expression y : disequalsOfX) {
+					if (process.isVariable(y)) { // we can restrict y to variables because at least one of y or t must be a variable (otherwise they would be two constants and we already know those are disequal).
+						Expression t = getAnotherTermInCollectionThatIsNotConstrainedToBeDisequalToTerm(disequalsOfX, y, process);
+						if (t != null) {
+							Expression splitter = SymbolEqualityTheory.makeSplitterWithIndexIfAnyComingFirst(y, t, indices);
+							return splitter;
+						}
+					}
+				}
+			}
+		}
+		
+		return null;
+	}
+
+	@Override
+	public TheoryConstraint applySplitter(Expression splitter, RewritingProcess process) {
 		
 		Expression variable  = splitter.get(0);
 		Expression otherTerm = splitter.get(1);
@@ -100,28 +137,31 @@ public class SymbolDisequalityConstraint extends LinkedHashMap<Expression, Colle
 			result = null; // splitter is inconsistent with constraint
 		}
 		else {
-			result = makeNewConstraintWithVariableReplacedByOtherTerm(variable, otherTerm, indices, process);
+			result = makeNewConstraintWithVariableReplacedByOtherTerm(variable, otherTerm, process);
 		}
 		
 		return result;
 	}
 
-	private SymbolDisequalityConstraint makeNewConstraintWithVariableReplacedByOtherTerm(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
-		SymbolDisequalityConstraint newConstraint = new SymbolDisequalityConstraint();
+	private EqualityOnSymbolsConstraint makeNewConstraintWithVariableReplacedByOtherTerm(Expression variable, Expression otherTerm, RewritingProcess process) {
+		EqualityOnSymbolsConstraint newConstraint = new EqualityOnSymbolsConstraint(this);
+		if (indices.contains(variable)) {
+			newConstraint.fromBoundIndexToValue.put(variable, otherTerm);
+		}
 		makeCopyOfDisequalsOfTermInNewConstraint(otherTerm, newConstraint);
-		applyDisequalitiesBetweenAllDisequalsOfVariableAndOtherTermToNewConstraint(variable, otherTerm, newConstraint, indices, process);
-		copyEntriesForAllKeysThatAreNotVariableOrOtherTermWhileReplacingVariableByOtherTermIfNeeded(variable, otherTerm, newConstraint, indices, process);
+		applyDisequalitiesBetweenAllDisequalsOfVariableAndOtherTermToNewConstraint(variable, otherTerm, newConstraint, process);
+		copyEntriesForAllKeysThatAreNotVariableOrOtherTermWhileReplacingVariableByOtherTermIfNeeded(variable, otherTerm, newConstraint, process);
 		return newConstraint;
 	}
 
 	@Override
-	public TheoryConstraint applySplitterNegation(Expression splitter, Collection<Expression> indices, RewritingProcess process) {
+	public TheoryConstraint applySplitterNegation(Expression splitter, RewritingProcess process) {
 		
 		Expression variable  = splitter.get(0);
 		Expression otherTerm = splitter.get(1);
 
-		SymbolDisequalityConstraint newConstraint = new SymbolDisequalityConstraint(this);
-		if (variableIsChosenAfterOtherTerm(variable, otherTerm, indices, process)) {
+		EqualityOnSymbolsConstraint newConstraint = new EqualityOnSymbolsConstraint(this);
+		if (variableIsChosenAfterOtherTerm(variable, otherTerm, process)) {
 			copySetOfDisequalsFromTerm1AndAddTerm2AsDisequalOfTerm1AsWellInNewConstraint(variable, otherTerm, newConstraint);
 		}
 		else {
@@ -137,20 +177,20 @@ public class SymbolDisequalityConstraint extends LinkedHashMap<Expression, Colle
 	 * @param newConstraint
 	 * @return
 	 */
-	private Collection<Expression> makeCopyOfDisequalsOfTermInNewConstraint(Expression term, SymbolDisequalityConstraint newConstraint) {
+	private Collection<Expression> makeCopyOfDisequalsOfTermInNewConstraint(Expression term, EqualityOnSymbolsConstraint newConstraint) {
 		Set<Expression> newTermDisequals = new LinkedHashSet<Expression>(getDisequals(term));// TODO: OPTIMIZATION: create some kind of wrapper that only makes this copy if really needed (that is, when we try to insert a new value).
 		newConstraint.put(term, newTermDisequals);
 		return newTermDisequals;
 	}
 
-	private void applyDisequalitiesBetweenAllDisequalsOfVariableAndOtherTermToNewConstraint(Expression variable, Expression otherTerm, SymbolDisequalityConstraint newConstraint, Collection<Expression> indices, RewritingProcess process) {
+	private void applyDisequalitiesBetweenAllDisequalsOfVariableAndOtherTermToNewConstraint(Expression variable, Expression otherTerm, EqualityOnSymbolsConstraint newConstraint, RewritingProcess process) {
 		Collection<Expression> variableDisequals = getDisequals(variable);
 		for (Expression variableDisequal : variableDisequals) {
-			newConstraint.applyDisequality(otherTerm, variableDisequal, indices, process);
+			newConstraint.applyDisequality(otherTerm, variableDisequal, process);
 		}
 	}
 
-	private void copyEntriesForAllKeysThatAreNotVariableOrOtherTermWhileReplacingVariableByOtherTermIfNeeded(Expression variable, Expression otherTerm, SymbolDisequalityConstraint newConstraint, Collection<Expression> indices, RewritingProcess process) {
+	private void copyEntriesForAllKeysThatAreNotVariableOrOtherTermWhileReplacingVariableByOtherTermIfNeeded(Expression variable, Expression otherTerm, EqualityOnSymbolsConstraint newConstraint, RewritingProcess process) {
 		for (Map.Entry<Expression, Collection<Expression>> entry : entrySet()) {
 			Expression key = entry.getKey();
 			if ( ! key.equals(variable) && ! key.equals(otherTerm)) {
@@ -160,7 +200,7 @@ public class SymbolDisequalityConstraint extends LinkedHashMap<Expression, Colle
 					Set<Expression> newDisequalsOfKey = new LinkedHashSet<Expression>(keyDisequals);
 					newConstraint.put(key, newDisequalsOfKey); // puts same disequals in new constraint, but this incorrectly includes 'variable'
 					newDisequalsOfKey.remove(variable); // so we remove it from the set (which is already in 'newConstraint')
-					newConstraint.applyDisequality(key, otherTerm, indices, process); // add disequality between key and otherTerm (in the disequals set of whichever comes last in choosing order)
+					newConstraint.applyDisequality(key, otherTerm, process); // add disequality between key and otherTerm (in the disequals set of whichever comes last in choosing order)
 				}
 				else { // for those not constrained to be different from variable, we simply re-use the set of constraints in new constraint
 					newConstraint.put(key, keyDisequals); // shares sets between constraint
@@ -170,8 +210,8 @@ public class SymbolDisequalityConstraint extends LinkedHashMap<Expression, Colle
 	}
 
 	/** Assumes at least one of the two terms is a variable. */
-	private void applyDisequality(Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
-		if (process.isVariable(term1) && variableIsChosenAfterOtherTerm(term1, term2, indices, process)) {
+	private void applyDisequality(Expression term1, Expression term2, RewritingProcess process) {
+		if (process.isVariable(term1) && variableIsChosenAfterOtherTerm(term1, term2, process)) {
 				addFirstTermAsDisequalOfSecondTerm(term1, term2);
 		}
 		else { // term2 must be a variable because either term1 is not a variable, or it is but term2 comes later than term1 in ordering, which means it is a variable
@@ -180,12 +220,12 @@ public class SymbolDisequalityConstraint extends LinkedHashMap<Expression, Colle
 	}
 
 	private void addFirstTermAsDisequalOfSecondTerm(Expression term1, Expression term2) {
-		Set<Expression> disequalsOfTerm1 = (Set<Expression>) Util.getValuePossiblyCreatingIt(((SymbolDisequalityConstraint) this), term1, LinkedHashSet.class); // cannot use getDisequals(term1) here because that method does not create a new set if needed, but simply uses a constant empty collection. This prevents unnecessary creation of collections.
+		Set<Expression> disequalsOfTerm1 = (Set<Expression>) Util.getValuePossiblyCreatingIt(((EqualityOnSymbolsConstraint) this), term1, LinkedHashSet.class); // cannot use getDisequals(term1) here because that method does not create a new set if needed, but simply uses a constant empty collection. This prevents unnecessary creation of collections.
 		disequalsOfTerm1.add(term2);
 	}
 
 	private void copySetOfDisequalsFromTerm1AndAddTerm2AsDisequalOfTerm1AsWellInNewConstraint(
-			Expression term1, Expression term2, SymbolDisequalityConstraint newConstraint) {
+			Expression term1, Expression term2, EqualityOnSymbolsConstraint newConstraint) {
 		
 		Collection<Expression> newTerm1Disequals = makeCopyOfDisequalsOfTermInNewConstraint(term1, newConstraint);
 		newTerm1Disequals.add(term2);
@@ -193,7 +233,7 @@ public class SymbolDisequalityConstraint extends LinkedHashMap<Expression, Colle
 	}
 
 	@Override
-	public Expression getIndexBoundBySplitterIfAny(Expression splitter, Collection<Expression> indices) {
+	public Expression getIndexBoundBySplitterIfAny(Expression splitter) {
 		Expression result;
 		Expression variable = splitter.get(0);
 		if (indices.contains(variable)) {
@@ -206,11 +246,11 @@ public class SymbolDisequalityConstraint extends LinkedHashMap<Expression, Colle
 	}
 
 	@Override
-	public Expression getIndexBoundBySplitterNegationIfAny(Expression splitter, Collection<Expression> indices) {
+	public Expression getIndexBoundBySplitterNegationIfAny(Expression splitter) {
 		return null;
 	}
 
-	public Expression getMostRequiredSplitter(Expression splitterCandidate, Collection<Expression> indices, RewritingProcess process) {
+	public Expression getMostRequiredSplitter(Expression splitterCandidate, RewritingProcess process) {
 		Expression x = splitterCandidate.get(0);
 		Expression t = splitterCandidate.get(1);
 		Collection<Expression> xDisequals = getDisequals(x);
@@ -218,32 +258,9 @@ public class SymbolDisequalityConstraint extends LinkedHashMap<Expression, Colle
 				getAnotherTermInCollectionThatIsNotConstrainedToBeDisequalToTerm(xDisequals, t, process);
 		if (xDisequalNotConstrainedToBeDisequalToT != null) {
 			splitterCandidate = SymbolEqualityTheory.makeSplitterFromTwoTerms(t, xDisequalNotConstrainedToBeDisequalToT, indices, process);
-			splitterCandidate = getMostRequiredSplitter(splitterCandidate, indices, process);
+			splitterCandidate = getMostRequiredSplitter(splitterCandidate, process);
 		}
 		return splitterCandidate;
-	}
-
-	@Override
-	public Expression pickSplitter(Collection<Expression> indices, RewritingProcess process) {
-
-		// if there is an index X such that X has disequals Y and T,
-		// we must know if Y and T are either the same or disequal before we can tell
-		// how many possible values X has.
-
-		for (Expression x : indices) {
-			Collection<Expression> disequalsOfX = getDisequals(x);
-			for (Expression y : disequalsOfX) {
-				if (process.isVariable(y)) { // we can restrict y to variables because at least one of y or t must be a variable (otherwise they would be two constants and we already know those are disequal).
-					Expression t = getAnotherTermInCollectionThatIsNotConstrainedToBeDisequalToTerm(disequalsOfX, y, process);
-					if (t != null) {
-						Expression splitter = SymbolEqualityTheory.makeSplitterWithIndexIfAnyComingFirst(y, t, indices);
-						return splitter;
-					}
-				}
-			}
-		}
-		
-		return null;
 	}
 
 	private Expression getAnotherTermInCollectionThatIsNotConstrainedToBeDisequalToTerm(Collection<Expression> terms, Expression term, RewritingProcess process) {
@@ -256,27 +273,29 @@ public class SymbolDisequalityConstraint extends LinkedHashMap<Expression, Colle
 	private static Times timesRewriter = new Times();
 
 	@Override
-	public Expression modelCount(Collection<Expression> indices, RewritingProcess process) {
+	public Expression modelCount(RewritingProcess process) {
 		
-		ArrayList<Expression> numberOfPossibleValuesForIndicesSoFar = new ArrayList<Expression>(indices.size());
+		ArrayList<Expression> numberOfPossibleValuesForIndicesSoFar = new ArrayList<Expression>(indices.size() - fromBoundIndexToValue.size());
 		
 		for (Expression index : indices) {
-			long numberOfNonAvailableValues = getDisequals(index).size();
-			long typeSize = GrinderUtil.getTypeCardinality(index, process);
-			Expression numberOfPossibleValuesForIndex;
-			if (typeSize == -1) {
-				Expression indexType = process.getContextualSymbolType(index);
-				if (indexType == null) {
-					indexType = new DefaultSyntacticFunctionApplication(FunctorConstants.TYPE, index);
+			if ( ! fromBoundIndexToValue.containsKey(index)) {
+				long numberOfNonAvailableValues = getDisequals(index).size();
+				long typeSize = GrinderUtil.getTypeCardinality(index, process);
+				Expression numberOfPossibleValuesForIndex;
+				if (typeSize == -1) {
+					Expression indexType = process.getContextualSymbolType(index);
+					if (indexType == null) {
+						indexType = new DefaultSyntacticFunctionApplication(FunctorConstants.TYPE, index);
+					}
+					Expression indexTypeCardinality = apply(CARDINALITY, indexType);
+					numberOfPossibleValuesForIndex = Minus.make(indexTypeCardinality, Expressions.makeSymbol(numberOfNonAvailableValues));
 				}
-				Expression indexTypeCardinality = apply(CARDINALITY, indexType);
-				numberOfPossibleValuesForIndex = Minus.make(indexTypeCardinality, Expressions.makeSymbol(numberOfNonAvailableValues));
+				else {
+					numberOfPossibleValuesForIndex = makeSymbol(Math.max(0, typeSize - numberOfNonAvailableValues));
+				}
+
+				numberOfPossibleValuesForIndicesSoFar.add(numberOfPossibleValuesForIndex);
 			}
-			else {
-				numberOfPossibleValuesForIndex = makeSymbol(Math.max(0, typeSize - numberOfNonAvailableValues));
-			}
-			
-			numberOfPossibleValuesForIndicesSoFar.add(numberOfPossibleValuesForIndex);
 		}
 		
 		Expression result = Times.make(numberOfPossibleValuesForIndicesSoFar);
@@ -304,15 +323,15 @@ public class SymbolDisequalityConstraint extends LinkedHashMap<Expression, Colle
 		return result;
 	}
 
-	private boolean variableIsChosenAfterOtherTerm(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
-		boolean result = process.isConstant(otherTerm) || SymbolDisequalityConstraint.variableIsChosenAfterOtherVariable(otherTerm, variable, indices);
+	private boolean variableIsChosenAfterOtherTerm(Expression variable, Expression otherTerm, RewritingProcess process) {
+		boolean result = process.isConstant(otherTerm) || variableIsChosenAfterOtherVariable(otherTerm, variable);
 		return result;
 	}
 
 	/**
 	 * Indicates whether variable1 in chosen after variable2 in choosing ordering
 	 */
-	public static boolean variableIsChosenAfterOtherVariable(Expression variable, Expression otherVariable, Collection<Expression> indices) {
+	public boolean variableIsChosenAfterOtherVariable(Expression variable, Expression otherVariable) {
 		boolean result;
 		if (indices.contains(variable)) { // index
 			if ( ! indices.contains(otherVariable)) { // free variable

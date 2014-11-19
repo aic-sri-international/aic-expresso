@@ -244,23 +244,23 @@ public class DPLLUtil {
 
 	/**
 	 * Indicates whether and which index is bound by a splitter
-	 * (ultimately depends on theory's constraint {@link TheoryConstraint#getIndexBoundBySplitterIfAny(Expression, Collection)}.
+	 * (ultimately depends on theory's constraint {@link TheoryConstraint#getIndexBoundBySplitterIfAny(Expression)}.
 	 */
 	public static Expression getIndexBoundBySplitterIfAny(Expression splitter, Collection<Expression> indices, Theory theory) {
 		// Having to create a constraint instance below is ugly but this is due to Java's inability to override static methods,
 		// which is what getIndexBoundBySplitterApplicationIfAny should be in TheoryConstraint since it does not depend on the particular
 		// constraint instance, but instead simply informs on the strategy followed by the particular TheoryConstraint implementation.
-		return theory.makeConstraint().getIndexBoundBySplitterIfAny(splitter, indices);
+		return theory.makeConstraint(indices).getIndexBoundBySplitterIfAny(splitter);
 	}
 
 	/**
 	 * Indicates whether and which index is bound by a splitter negation
-	 * (ultimately depends on theory's constraint {@link TheoryConstraint#getIndexBoundBySplitterIfAny(Expression, Collection)}.
+	 * (ultimately depends on theory's constraint {@link TheoryConstraint#getIndexBoundBySplitterIfAny(Expression)}.
 	 */
 	public static Expression getIndexBoundBySplitterNegationIfAny(Expression splitter, Collection<Expression> indices, Theory theory) {
 		// Having to create a constraint instance below is ugly but this is due to Java's inability to override static methods,
 		// which is what getIndexBoundBySplitterApplicationIfAny should be in TheoryConstraint since it does not depend on the particular
 		// constraint instance, but instead simply informs on the strategy followed by the particular TheoryConstraint implementation.
-		return theory.makeConstraint().getIndexBoundBySplitterNegationIfAny(splitter, indices);
+		return theory.makeConstraint(indices).getIndexBoundBySplitterNegationIfAny(splitter);
 	}
 }

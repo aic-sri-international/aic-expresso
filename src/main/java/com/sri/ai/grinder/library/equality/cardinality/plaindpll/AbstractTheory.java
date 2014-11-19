@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -46,7 +47,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 
 @Beta
@@ -102,7 +102,7 @@ abstract public class AbstractTheory implements Theory {
 			Expression subExpression = subExpressionIterator.next();
 			Expression splitterCandidate = makeSplitterIfPossible(subExpression, indices, process);
 			if (splitterCandidate != null) {
-				result = constraint.getMostRequiredSplitter(splitterCandidate, indices, process); // should be generalized to any theory
+				result = constraint.getMostRequiredSplitter(splitterCandidate, process); // should be generalized to any theory
 			}
 		}
 	
@@ -113,8 +113,8 @@ abstract public class AbstractTheory implements Theory {
 	public Expression applySplitterToSolution(Expression splitter, Expression solution, RewritingProcess process) {
 		Expression result;
 		if (IfThenElse.isIfThenElse(solution)) {
-			TheoryConstraint constraint = this.makeConstraint();
-			constraint = constraint.applySplitter(splitter, Util.list(), process);
+			TheoryConstraint constraint = makeConstraint(Collections.emptyList()); // no indices in solutions
+			constraint = constraint.applySplitter(splitter, process);
 			result = applyConstraintToSolution(constraint, solution, process);
 		}
 		else {
@@ -127,8 +127,8 @@ abstract public class AbstractTheory implements Theory {
 	public Expression applySplitterNegationToSolution(Expression splitter, Expression solution, RewritingProcess process) {
 		Expression result;
 		if (IfThenElse.isIfThenElse(solution)) {
-			TheoryConstraint constraint = this.makeConstraint();
-			constraint = constraint.applySplitterNegation(splitter, Util.list(), process);
+			TheoryConstraint constraint = this.makeConstraint(Collections.emptyList()); // no indices in solutions
+			constraint = constraint.applySplitterNegation(splitter, process);
 			result = applyConstraintToSolution(constraint, solution, process);
 		}
 		else {
@@ -142,9 +142,9 @@ abstract public class AbstractTheory implements Theory {
 		
 		if (DPLLUtil.isConditionalSolution(solution, this, process)) {
 			Expression solutionSplitter = IfThenElse.getCondition(solution);
-			TheoryConstraint constraintUnderSolutionSplitter = constraint.applySplitter(solutionSplitter, Util.list(), process);
+			TheoryConstraint constraintUnderSolutionSplitter = constraint.applySplitter(solutionSplitter, process);
 			if (constraintUnderSolutionSplitter != null) {
-				TheoryConstraint constraintUnderSolutionSplitterNegation = constraint.applySplitterNegation(solutionSplitter, Util.list(), process);
+				TheoryConstraint constraintUnderSolutionSplitterNegation = constraint.applySplitterNegation(solutionSplitter, process);
 				if (constraintUnderSolutionSplitterNegation != null) {
 					Expression thenBranch = IfThenElse.getThenBranch(solution);
 					Expression elseBranch = IfThenElse.getElseBranch(solution);
@@ -159,7 +159,7 @@ abstract public class AbstractTheory implements Theory {
 				}
 			}
 			else {
-				TheoryConstraint constraintUnderSolutionSplitterNegation = constraint.applySplitterNegation(solutionSplitter, Util.list(), process);
+				TheoryConstraint constraintUnderSolutionSplitterNegation = constraint.applySplitterNegation(solutionSplitter, process);
 				if (constraintUnderSolutionSplitterNegation != null) {
 					Expression elseBranch = IfThenElse.getElseBranch(solution);
 					Expression newElseBranch = applyConstraintToSolution(constraintUnderSolutionSplitterNegation, elseBranch, process);
