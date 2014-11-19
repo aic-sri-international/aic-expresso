@@ -364,8 +364,8 @@ public class SymbolEqualityTheory extends AbstractTheory {
 	}
 
 	@Override
-	public TheoryConstraint makeConstraint() {
-		return new SymbolDisequalityConstraint();
+	public TheoryConstraint makeConstraint(Collection<Expression> indices) {
+		return new EqualityOnSymbolsConstraint(indices);
 	}
 }
 

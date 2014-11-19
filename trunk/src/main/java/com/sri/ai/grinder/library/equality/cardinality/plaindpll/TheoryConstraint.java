@@ -51,31 +51,33 @@ import com.sri.ai.grinder.api.RewritingProcess;
  */
 @Beta
 public interface TheoryConstraint {
+	
+	Collection<Expression> getIndices();
+	
 	/**
 	 * Provides a splitter needed toward state
 	 * for which a model count can be computed in polynomial time, or null if it is already in such a state.
 	 */
-	Expression pickSplitter(Collection<Expression> indices, RewritingProcess process);
+	Expression pickSplitter(RewritingProcess process);
 	
 	/**
 	 * Generates new constraint representing conjunction of this constraint and given splitter.
 	 */
-	TheoryConstraint applySplitter(Expression splitter, Collection<Expression> indices, RewritingProcess process);
+	TheoryConstraint applySplitter(Expression splitter, RewritingProcess process);
 
 	/**
 	 * Generates new constraint representing conjunction of this constraint and the negation of given splitter.
 	 */
-	TheoryConstraint applySplitterNegation(Expression splitter, Collection<Expression> indices, RewritingProcess process);
+	TheoryConstraint applySplitterNegation(Expression splitter, RewritingProcess process);
 
 	/**
 	 * Returns which index gets bound by the assertion of a splitter, or <code>null</code> if none.
 	 * Note: this method is "static in spirit", as it should not depend on the actual state of the instance.
 	 * This is so because static methods cannot be overridden in Java.
 	 * @param splitter
-	 * @param indices
 	 * @return
 	 */
-	Expression getIndexBoundBySplitterIfAny(Expression splitter, Collection<Expression> indices);
+	Expression getIndexBoundBySplitterIfAny(Expression splitter);
 	
 	/**
 	 * Returns which index gets bound by the negation of a splitter, or <code>null</code> if none.
@@ -84,23 +86,22 @@ public interface TheoryConstraint {
 	 * @param splitter
 	 * @return
 	 */
-	Expression getIndexBoundBySplitterNegationIfAny(Expression splitter, Collection<Expression> indices);
+	Expression getIndexBoundBySplitterNegationIfAny(Expression splitter);
 	
 	/**
 	 * Computes model count for constraint, given a set of indices, in polynomial time.
-	 * Assumes that {@link #pickSplitter(Collection, RewritingProcess)} returns <code>null</code>,
+	 * Assumes that {@link #pickSplitter(RewritingProcess)} returns <code>null</code>,
 	 * that is, the constraint is in such a state and context that allows the determination of a unique model count.
 	 */
-	Expression modelCount(Collection<Expression> indices, RewritingProcess process);
+	Expression modelCount(RewritingProcess process);
 
 	/**
 	 * Given a splitter candidate, returns the same, or another, splitter
 	 * guaranteed to be satisfiable under the constraint, no matter what assignment to free variables.
 	 * This is also required to make any splitter candidate have this property itself after a finite number of invocations.
 	 * @param splitterCandidate
-	 * @param indices
 	 * @param process
 	 * @return
 	 */
-	Expression getMostRequiredSplitter(Expression splitterCandidate, Collection<Expression> indices, RewritingProcess process);
+	Expression getMostRequiredSplitter(Expression splitterCandidate, RewritingProcess process);
 }
