@@ -102,7 +102,7 @@ public class SymbolEqualityTheory extends AbstractTheory {
 					(new SymbolEqualityTautologicalityDPLL()).rewrite(f, process),
  
 					ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new SymbolicGenericDPLL(new SymbolEqualityTheory(), new Satisfiability())).rewrite(f, process)
+					(new DPLLGeneralizedAndSymbolic(new SymbolEqualityTheory(), new Satisfiability())).rewrite(f, process)
 	);
 
 	@Override

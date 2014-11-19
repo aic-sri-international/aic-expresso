@@ -228,27 +228,6 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 
 		@Override
-		public Expression getIndexBoundBySplitterIfAny(Expression splitter) {
-			return getIndexBoundByEitherSplitterOrItsNegation(splitter, indices);
-		}
-
-		@Override
-		public Expression getIndexBoundBySplitterNegationIfAny(Expression splitter) {
-			return getIndexBoundByEitherSplitterOrItsNegation(splitter, indices);
-		}
-
-		private Expression getIndexBoundByEitherSplitterOrItsNegation(Expression splitter, Collection<Expression> indices) {
-			Expression result;
-			if (indices.contains(splitter)) {
-				result = splitter;
-			}
-			else {
-				result = null;
-			}
-			return result;
-		}
-
-		@Override
 		public Expression modelCount(RewritingProcess process) {
 			Expression result = Expressions.makeSymbol(new Rational(2).pow(indices.size() - numberOfBoundIndices));
 			return result;

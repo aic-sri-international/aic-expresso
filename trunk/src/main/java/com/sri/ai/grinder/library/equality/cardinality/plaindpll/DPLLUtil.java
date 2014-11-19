@@ -41,7 +41,6 @@ import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +49,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
@@ -58,7 +58,7 @@ import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 
 /**
- * Implements utility methods to be used by {@link SymbolicGenericDPLL} and associated classes.
+ * Implements utility methods to be used by {@link DPLLGeneralizedAndSymbolic} and associated classes.
  * <p>
  * Several of these methods could be more naturally seen as methods of the interfaces themselves
  * (for example, {@link DPLLUtil#getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices, Theory theory)}
@@ -240,27 +240,5 @@ public class DPLLUtil {
 	public static boolean isSplitter(Expression literal, Theory theory, RewritingProcess process) {
 		boolean result = theory.makeSplitterIfPossible(literal, Util.list(), process) != null;
 		return result;
-	}
-
-	/**
-	 * Indicates whether and which index is bound by a splitter
-	 * (ultimately depends on theory's constraint {@link TheoryConstraint#getIndexBoundBySplitterIfAny(Expression)}.
-	 */
-	public static Expression getIndexBoundBySplitterIfAny(Expression splitter, Collection<Expression> indices, Theory theory) {
-		// Having to create a constraint instance below is ugly but this is due to Java's inability to override static methods,
-		// which is what getIndexBoundBySplitterApplicationIfAny should be in TheoryConstraint since it does not depend on the particular
-		// constraint instance, but instead simply informs on the strategy followed by the particular TheoryConstraint implementation.
-		return theory.makeConstraint(indices).getIndexBoundBySplitterIfAny(splitter);
-	}
-
-	/**
-	 * Indicates whether and which index is bound by a splitter negation
-	 * (ultimately depends on theory's constraint {@link TheoryConstraint#getIndexBoundBySplitterIfAny(Expression)}.
-	 */
-	public static Expression getIndexBoundBySplitterNegationIfAny(Expression splitter, Collection<Expression> indices, Theory theory) {
-		// Having to create a constraint instance below is ugly but this is due to Java's inability to override static methods,
-		// which is what getIndexBoundBySplitterApplicationIfAny should be in TheoryConstraint since it does not depend on the particular
-		// constraint instance, but instead simply informs on the strategy followed by the particular TheoryConstraint implementation.
-		return theory.makeConstraint(indices).getIndexBoundBySplitterNegationIfAny(splitter);
 	}
 }

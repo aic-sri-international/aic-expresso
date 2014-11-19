@@ -50,7 +50,6 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -62,7 +61,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
+public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 
 	/** The background theory for the algorithm. */
 	protected Theory theory;
@@ -73,11 +72,11 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 	/** A {@link CountsDeclaration} encapsulating sort size information. */
 	protected CountsDeclaration countsDeclaration;
 	
-	public SymbolicGenericDPLL(Theory theory, ProblemType problemType) {
+	public DPLLGeneralizedAndSymbolic(Theory theory, ProblemType problemType) {
 		this(theory, problemType, null);
 	}
 
-	public SymbolicGenericDPLL(Theory theory, ProblemType problemType, CountsDeclaration countsDeclaration) {
+	public DPLLGeneralizedAndSymbolic(Theory theory, ProblemType problemType, CountsDeclaration countsDeclaration) {
 		this.theory = theory;
 		this.problemType = problemType;
 		this.countsDeclaration = countsDeclaration;
@@ -111,7 +110,7 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 	 */
 	protected Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		TheoryConstraint constraint = theory.makeConstraint(indices);
-		Expression result = solve(expression, constraint, indices, process);
+		Expression result = solve(expression, constraint, process);
 		return result;
 	}
 
@@ -119,13 +118,13 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices under given constraint,
 	 * which must not be <code>null</code> (that is, a contradiction).
 	 */
-	protected Expression solve(Expression expression, TheoryConstraint constraint, Collection<Expression> indices, RewritingProcess process) {
+	protected Expression solve(Expression expression, TheoryConstraint constraint, RewritingProcess process) {
 		Expression result;
 		if (constraint != null) {
-			Expression splitter = pickSplitter(expression, indices, constraint, process);
+			Expression splitter = pickSplitter(expression, constraint, process);
 
 			if (splitter != null) {
-				result = computeSolutionBasedOnSplittedProblems(splitter, expression, indices, constraint, process);
+				result = computeSolutionBasedOnSplittedProblems(splitter, expression, constraint, process);
 			}
 			else {
 				Expression unconditionalValue = expression;
@@ -141,16 +140,16 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 	}
 
 	/** Picks splitter from either expression or constraint; assumes constraint is not <code>null</code>. */
-	protected Expression pickSplitter(Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
+	protected Expression pickSplitter(Expression expression, TheoryConstraint constraint, RewritingProcess process) {
 		Expression splitter;
-		splitter = theory.pickSplitterInExpression(expression, indices, constraint, process);
+		splitter = theory.pickSplitterInExpression(expression, constraint, process);
 		if (splitter == null) { // expression is constant value, so it does not have any splitters
 			splitter = constraint.pickSplitter(process);
 		}
 		return splitter;
 	}
 
-	protected Expression computeSolutionBasedOnSplittedProblems(Expression splitter, Expression expression, Collection<Expression> indices, TheoryConstraint constraint, RewritingProcess process) {
+	protected Expression computeSolutionBasedOnSplittedProblems(Expression splitter, Expression expression, TheoryConstraint constraint, RewritingProcess process) {
 		// Keep in mind that splitter may already be implied as true or false by theory constraint.
 		// This should not happen if the theory application of splitters to expressions only replaced them by true or false,
 		// but if it does more than that, those manipulations may create new literals that happen to be implied true or false by constraint.
@@ -168,9 +167,9 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 
 		TheoryConstraint constraintUnderSplitter = constraint.applySplitter(splitter, process);
 		if (constraintUnderSplitter != null) {
-			Expression solutionUnderSplitter = solveUnderSplitter(splitter, expression, constraintUnderSplitter, indices, process);
+			Expression solutionUnderSplitter = solveUnderSplitter(splitter, expression, constraintUnderSplitter, process);
 
-			boolean splitterDependsOnIndex           = theory.splitterInvolvesIndex(splitter, indices);
+			boolean splitterDependsOnIndex           = theory.splitterInvolvesIndex(splitter, constraintUnderSplitter.getIndices());
 			boolean solutionIsAdditionOfSubSolutions = splitterDependsOnIndex;
 			if (solutionIsAdditionOfSubSolutions && problemType.isMaximum(solutionUnderSplitter)) {
 				result = solutionUnderSplitter; // solution is already maximum, no need to consider the other side of splitter
@@ -179,7 +178,7 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 				TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitterNegation(splitter, process);
 
 				if (constraintUnderSplitterNegation != null) {
-					Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, expression, constraintUnderSplitterNegation, indices, process);
+					Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, expression, constraintUnderSplitterNegation, process);
 					if (splitterDependsOnIndex) {
 						// splitter is over an index or more,
 						// so solution is solutionUnderSplitter + solutionUnderSplitterNegation
@@ -200,7 +199,7 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 		else {
             // splitter is false under constraint, so its negation is true, so final solution is one under splitter negation
 			TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitterNegation(splitter, process);
-			Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, expression, constraintUnderSplitterNegation, indices, process);
+			Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, expression, constraintUnderSplitterNegation, process);
 			result = solutionUnderSplitterNegation;
 		}
 		
@@ -211,14 +210,12 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 	 * @param splitter
 	 * @param expression
 	 * @param constraintUnderSplitter must not be <code>null</code>
-	 * @param indices
 	 * @param process
 	 * @return
 	 */
-	protected Expression solveUnderSplitter(Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitter, Collection<Expression> indices, RewritingProcess process) {
+	protected Expression solveUnderSplitter(Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitter, RewritingProcess process) {
 		Expression expressionUnderSplitter = theory.applySplitterToExpression(splitter, expression, process);
-		Collection<Expression> indicesUnderSplitter = getIndicesUnderSplitter(splitter, indices);
-		Expression result = solve(expressionUnderSplitter, constraintUnderSplitter, indicesUnderSplitter, process);
+		Expression result = solve(expressionUnderSplitter, constraintUnderSplitter, process);
 		return result;
 	}
 
@@ -227,37 +224,12 @@ public class SymbolicGenericDPLL extends AbstractHierarchicalRewriter {
 	 * @param splitter
 	 * @param expression
 	 * @param constraintUnderSplitterNegation must not be <code>null</code>
-	 * @param indices
 	 * @param process
 	 * @return
 	 */
-	protected Expression solveUnderSplitterNegation(Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitterNegation, Collection<Expression> indices, RewritingProcess process) {
+	protected Expression solveUnderSplitterNegation(Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitterNegation, RewritingProcess process) {
 		Expression expressionUnderSplitterNegation = theory.applySplitterNegationToExpression(splitter, expression, process);
-		Collection<Expression> indicesUnderSplitterNegation = getIndicesUnderSplitterNegation(splitter, indices);
-		Expression result = solve(expressionUnderSplitterNegation, constraintUnderSplitterNegation, indicesUnderSplitterNegation, process);
-		return result;
-	}
-
-	private Collection<Expression> getIndicesUnderSplitter(Expression splitter, Collection<Expression> indices) {
-		Expression boundIndex = DPLLUtil.getIndexBoundBySplitterIfAny(splitter, indices, theory);
-		Collection<Expression> result = getUpdatedIndices(indices, boundIndex);
-		return result;
-	}
-
-	private Collection<Expression> getIndicesUnderSplitterNegation(Expression splitter, Collection<Expression> indices) {
-		Expression boundIndex = DPLLUtil.getIndexBoundBySplitterNegationIfAny(splitter, indices, theory);
-		Collection<Expression> result = getUpdatedIndices(indices, boundIndex);
-		return result;
-	}
-
-	private Collection<Expression> getUpdatedIndices(Collection<Expression> indices, Expression boundIndex) {
-		Collection<Expression> result;
-		if (boundIndex != null) {
-			result = Util.copySetWithoutThisElement(indices, boundIndex);
-		}
-		else {
-			result = indices;
-		}
+		Expression result = solve(expressionUnderSplitterNegation, constraintUnderSplitterNegation, process);
 		return result;
 	}
 

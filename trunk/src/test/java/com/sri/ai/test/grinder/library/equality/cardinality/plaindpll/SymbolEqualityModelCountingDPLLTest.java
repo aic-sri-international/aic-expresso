@@ -55,7 +55,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ModelCounting;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolicGenericDPLL;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
 
 @Beta
 public class SymbolEqualityModelCountingDPLLTest extends SymbolicSymbolEqualityDPLLTest {
@@ -69,7 +69,7 @@ public class SymbolEqualityModelCountingDPLLTest extends SymbolicSymbolEqualityD
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new SymbolicGenericDPLL(new SymbolEqualityTheory(), new ModelCounting());
+		return new DPLLGeneralizedAndSymbolic(new SymbolEqualityTheory(), new ModelCounting());
 	}
 
 	@Test
