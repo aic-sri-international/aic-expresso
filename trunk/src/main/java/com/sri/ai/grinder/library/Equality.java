@@ -81,25 +81,6 @@ public class Equality extends AbstractRewriter {
 		}
 	}
 
-	/**
-	 * Checks an expression for equality or disequality (top) simplification.
-	 * @param expression
-	 * @param process
-	 */
-	public static Expression simplifyIfEqualityOrDisequality(Expression expression, RewritingProcess process) {
-		Expression result;
-		if (isEquality(expression)) {
-			result = simplify(expression, process);
-		}
-		else if (Disequality.isDisequality(expression)) {
-			result = Disequality.simplify(expression, process);
-		}
-		else {
-			result = expression;
-		}
-		return result;
-	}
-
 	public static Expression equalityResultIfItIsKnown(Expression expression, RewritingProcess process) {
 		Boolean equalityResult = equalityResultIfItIsKnownOrNull(expression, process.getIsConstantPredicate(), process);
 		if (equalityResult != null) {
@@ -259,29 +240,6 @@ public class Equality extends AbstractRewriter {
 			}
 		}
 
-		return result;
-	}
-
-	/**
-	 * Returns TRUE if given equality has all-equal arguments, FALSE if they contain distinct constants,
-	 * and the equality itself otherwise.
-	 * Note that this is much faster than eliminating duplicates as well, which requires constructing another equality.
-	 */
-	public static Expression simplify(Expression equality, RewritingProcess process) {
-		Expression result;
-		if (Util.allEqual(equality.getArguments())) {
-			result = Expressions.TRUE;
-		}
-		else {
-			Set<Expression> constants = new LinkedHashSet<Expression>();
-			Util.collect(equality.getArguments(), constants, process.getIsConstantPredicate());
-			if (constants.size() > 1) {
-				result = Expressions.FALSE;
-			}
-			else {
-				result = equality;
-			}
-		}
 		return result;
 	}
 
@@ -471,6 +429,48 @@ public class Equality extends AbstractRewriter {
 		}
 		else {
 			result = null;
+		}
+		return result;
+	}
+
+	/**
+	 * Checks an expression for equality or disequality (top) simplification.
+	 * @param expression
+	 * @param process
+	 */
+	public static Expression simplifyIfEqualityOrDisequality(Expression expression, RewritingProcess process) {
+		Expression result;
+		if (isEquality(expression)) {
+			result = simplify(expression, process);
+		}
+		else if (Disequality.isDisequality(expression)) {
+			result = Disequality.simplify(expression, process);
+		}
+		else {
+			result = expression;
+		}
+		return result;
+	}
+
+	/**
+	 * Returns TRUE if given equality has all-equal arguments, FALSE if they contain distinct constants,
+	 * and the equality itself otherwise.
+	 * Note that this is much faster than eliminating duplicates as well, which requires constructing another equality.
+	 */
+	public static Expression simplify(Expression equality, RewritingProcess process) {
+		Expression result;
+		if (Util.allEqual(equality.getArguments())) {
+			result = Expressions.TRUE;
+		}
+		else {
+			Set<Expression> constants = new LinkedHashSet<Expression>();
+			Util.collect(equality.getArguments(), constants, process.getIsConstantPredicate());
+			if (constants.size() > 1) {
+				result = Expressions.FALSE;
+			}
+			else {
+				result = equality;
+			}
 		}
 		return result;
 	}

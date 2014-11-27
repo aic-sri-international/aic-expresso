@@ -81,6 +81,12 @@ public class SymbolEqualityModelCountingDPLLTest extends SymbolicSymbolEqualityD
 		
 		GrinderUtil.setMinimumOutputForProfiling();
 		
+		// Repeated:
+		expression = parse("X1 != X2 and (X2 = X3 or X2 = X4) and X3 = X1 and X4 = X1");
+		indices    = null; // means all variables
+		expected   = parse("0");
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+
 		// this example tests whether conditioning an index to a value considers previous disequalities on that index,
 		// because X is split on b first, and then the algorithm attempts to condition on X = Y, but that requires Y to be != b.
 		expression = parse("X != b and X = Y");
