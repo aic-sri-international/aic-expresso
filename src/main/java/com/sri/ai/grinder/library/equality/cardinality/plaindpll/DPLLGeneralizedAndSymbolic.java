@@ -116,7 +116,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices under given constraint,
-	 * which must not be <code>null</code> (that is, a contradiction).
+	 * which is considered a contradiction if it has the value <code>null</code>.
 	 */
 	protected Expression solve(Expression expression, TheoryConstraint constraint, RewritingProcess process) {
 		Expression result;
@@ -215,6 +215,11 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	 */
 	protected Expression solveUnderSplitter(Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitter, RewritingProcess process) {
 		Expression expressionUnderSplitter = theory.applySplitterToExpression(splitter, expression, process);
+//		System.out.println("splitter: " + splitter);
+//		System.out.println("expression: " + expression);
+//		System.out.println("constraintUnderSplitter: " + constraintUnderSplitter);
+//		System.out.println("expressionUnderSplitter: " + expressionUnderSplitter);
+//		System.out.println();
 		Expression result = solve(expressionUnderSplitter, constraintUnderSplitter, process);
 		return result;
 	}

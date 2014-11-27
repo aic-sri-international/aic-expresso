@@ -147,12 +147,6 @@ public class SymbolEqualityTheory extends AbstractTheory {
 		return result;
 	}
 
-	/**
-	 * @param equalityOrDisequality
-	 * @param indices
-	 * @param process
-	 * @return
-	 */
 	protected static Expression makeSplitterFromTwoTerms(Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
 		// if variable is a free variable or constant and other term is an index, we invert them because
