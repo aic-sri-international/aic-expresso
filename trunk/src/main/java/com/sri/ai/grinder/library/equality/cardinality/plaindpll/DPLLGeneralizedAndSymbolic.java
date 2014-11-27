@@ -221,6 +221,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 //		System.out.println("expressionUnderSplitter: " + expressionUnderSplitter);
 //		System.out.println();
 		Expression result = solve(expressionUnderSplitter, constraintUnderSplitter, process);
+		result = theory.applySplitterToSolution(splitter, result, process); // TEMPORARY while we implement conditional cardinality under if then else splitting, which creates redundant solution wrt to the context.
 		return result;
 	}
 
@@ -235,6 +236,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	protected Expression solveUnderSplitterNegation(Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitterNegation, RewritingProcess process) {
 		Expression expressionUnderSplitterNegation = theory.applySplitterNegationToExpression(splitter, expression, process);
 		Expression result = solve(expressionUnderSplitterNegation, constraintUnderSplitterNegation, process);
+		result = theory.applySplitterNegationToSolution(splitter, result, process); // TEMPORARY while we implement conditional cardinality under if then else splitting, which creates redundant solution wrt to the context.
 		return result;
 	}
 
