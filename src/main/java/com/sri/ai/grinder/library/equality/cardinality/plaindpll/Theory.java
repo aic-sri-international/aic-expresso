@@ -97,22 +97,14 @@ public interface Theory {
 	boolean splitterInvolvesIndex(Expression splitter, Collection<Expression> indices);
 
 	/**
-	 * Simplifies an expression given the assumption that a splitter is true.
+	 * Simplifies an expression given the assumption that a splitter is true or false, depending on given sign.
+	 * @param splitterSign
 	 * @param splitter
 	 * @param expression
 	 * @param process
 	 * @return
 	 */
-	Expression applySplitterToExpression(Expression splitter, Expression expression, RewritingProcess process);
-
-	/**
-	 * Simplifies an expression given the assumption that a splitter is false.
-	 * @param splitter
-	 * @param expression
-	 * @param process
-	 * @return
-	 */
-	Expression applySplitterNegationToExpression(Expression splitter, Expression expression, RewritingProcess process);
+	Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process);
 
 	/**
 	 * Simplifies a solution given the assumption that a splitter is true or false (depending on the sign),

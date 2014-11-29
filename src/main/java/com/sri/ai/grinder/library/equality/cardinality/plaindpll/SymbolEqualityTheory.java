@@ -167,7 +167,11 @@ public class SymbolEqualityTheory extends AbstractTheory {
 	}
 
 	@Override
-	public Expression applySplitterToExpression(Expression splitter, Expression expression, RewritingProcess process) {
+	public Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
+		if ( ! splitterSign) {
+			return applySplitterNegationToExpression(splitter, expression, process);
+		}
+		
 		Expression term1 = splitter.get(0);
 		Expression term2 = splitter.get(1);
 		Expression result = expression.replaceAllOccurrences(term1, term2, process);
@@ -175,8 +179,7 @@ public class SymbolEqualityTheory extends AbstractTheory {
 		return result;
 	}
 
-	@Override
-	public Expression applySplitterNegationToExpression(Expression splitter, Expression expression, RewritingProcess process) {
+	private Expression applySplitterNegationToExpression(Expression splitter, Expression expression, RewritingProcess process) {
 		Expression term1 = splitter.get(0);
 		Expression term2 = splitter.get(1);
 		Expression result = expression.replaceAllOccurrences(new SimplifyLiteralGivenDisequality(term1, term2), process);
@@ -213,7 +216,7 @@ public class SymbolEqualityTheory extends AbstractTheory {
 			Expression thenBranch = IfThenElse.getThenBranch(solution);
 			Expression elseBranch = IfThenElse.getElseBranch(solution);
 	
-			Expression solutionSplitterSimplification = applySplitterToExpression(splitter /* being applied to expression */, solutionSplitter /* expression */, process);
+			Expression solutionSplitterSimplification = applySplitterToExpression(true, splitter /* being applied to expression */, solutionSplitter /* expression */, process);
 			
 			if (solutionSplitterSimplification.equals(Expressions.TRUE)) {
 				result = applySplitterToSolution(splitterSign, splitter, thenBranch, process);
@@ -258,7 +261,7 @@ public class SymbolEqualityTheory extends AbstractTheory {
 			}
 		}
 		else {
-			result = applySplitterNegationToExpression(splitter, solution, process);
+			result = applySplitterToExpression(false, splitter, solution, process);
 		}
 
 		return result;
@@ -284,7 +287,7 @@ public class SymbolEqualityTheory extends AbstractTheory {
 			Expression thenBranch = IfThenElse.getThenBranch(solution);
 			Expression elseBranch = IfThenElse.getElseBranch(solution);
 	
-			Expression solutionSplitterSimplification = applySplitterNegationToExpression(splitter, solutionSplitter, process);
+			Expression solutionSplitterSimplification = applySplitterToExpression(false, splitter, solutionSplitter, process);
 			
 			if (solutionSplitterSimplification.equals(Expressions.TRUE)) {
 				result = applySplitterToSolution(false, splitter, thenBranch, process);
@@ -310,7 +313,7 @@ public class SymbolEqualityTheory extends AbstractTheory {
 			}
 		}
 		else {
-			result = applySplitterNegationToExpression(splitter, solution, process);
+			result = applySplitterToExpression(false, splitter, solution, process);
 		}
 
 //		Expression superResult = super.applySplitterNegationToSolution(splitter, solution, process);
@@ -346,7 +349,7 @@ public class SymbolEqualityTheory extends AbstractTheory {
 	 */
 	private Expression adaptSplitterNegationToBeUsedUnderSolutionSplitter(Expression splitter, Expression solutionSplitter, RewritingProcess process) {
 		Expression splitterNegation = Disequality.make(splitter.get(0), splitter.get(1));
-		Expression splitterNegationUnderSolutionSplitter = applySplitterToExpression(solutionSplitter, splitterNegation, process);
+		Expression splitterNegationUnderSolutionSplitter = applySplitterToExpression(true, solutionSplitter, splitterNegation, process);
 
 		assert ! splitterNegationUnderSolutionSplitter.equals(Expressions.FALSE): "Splitter negation cannot be false in this function";
 		
