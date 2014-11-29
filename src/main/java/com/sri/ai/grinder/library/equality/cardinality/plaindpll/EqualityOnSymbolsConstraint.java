@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
@@ -60,6 +61,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.util.Util;
@@ -92,7 +94,7 @@ public class EqualityOnSymbolsConstraint extends LinkedHashMap<Expression, Colle
 	// Each equivalence class is represented *only* by its representative in the disequalities data structure (the map super class).
 	// If an equivalent class contains a constant, that constant must be its representative (because it contains the extra implicit information about its disequality to other constants).
 	// fromBoundIndexToValue maps indices to another term of its equivalence class.
-	// fromBoundFreeVariableToValue does the same thing for free variables.
+	// fromBoundFreeVariableToValue does the same thing for free variables. It always points to either another free variable, or a constant. This derives from the fact that splitters always have index first if there is any, so free variables are only linked to another free variable or a constant (the second term is never an index).
 	
 	// The map (super class) keeps disequals.
 	
@@ -177,6 +179,16 @@ public class EqualityOnSymbolsConstraint extends LinkedHashMap<Expression, Colle
 		return fromBoundIndexToBinding.containsKey(index);
 	}
 
+	/**
+	 * A symbol's representative is itself, if the symbol is a constant,
+	 * the final symbol in the current binding chain, if the symbol is a variable and it has a binding,
+	 * or itself if it is a variable without a binding.
+	 * If the symbol is a variable with a binding, sets its binding to the final symbol in the chain
+	 * for greater efficiency next time the method is invoked.
+	 * @param symbol
+	 * @param process
+	 * @return
+	 */
 	private Expression getRepresentative(Expression symbol, RewritingProcess process) {
 		Expression current = symbol;
 		Expression currentBinding;
@@ -185,12 +197,18 @@ public class EqualityOnSymbolsConstraint extends LinkedHashMap<Expression, Colle
 		}
 		// now, 'current' is in the chain started at symbol,
 		// and it is either a constant or a variable without binding, therefore it is the equivalence class representative.
-		setBinding(symbol, current); // optional recording so that we do not need to traverse the entire chain next time
+		if (process.isVariable(symbol)) {
+			setBinding(symbol, current); // optional recording so that we do not need to traverse the entire chain next time
+		}
 		return current;
 	}
 	
 	@Override
-	public TheoryConstraint applySplitter(Expression splitter, RewritingProcess process) {
+	public TheoryConstraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		if ( ! splitterSign) {
+			return applySplitterNegation(splitter, process);
+		}
+		
 		TheoryConstraint result;
 
 		Expression variable  = splitter.get(0);
@@ -236,21 +254,26 @@ public class EqualityOnSymbolsConstraint extends LinkedHashMap<Expression, Colle
 		
 		newConstraint.setBinding(variable, otherTerm);
 		newConstraint.applyDisequalitiesBetweenAllDisequalsOfVariableAndOtherTerm(variable, otherTerm, process);
-		newConstraint.remove(variable);
+		newConstraint.remove(variable); // remove entry for disequals
 		newConstraint.replaceVariableByOtherTermInAllEntriesButOtherTerms(variable, otherTerm, process);
 		
 		return newConstraint;
 	}
 
-	@Override
-	public TheoryConstraint applySplitterNegation(Expression splitter, RewritingProcess process) {
+	private TheoryConstraint applySplitterNegation(Expression splitter, RewritingProcess process) {
 		
 		Expression variable  = splitter.get(0);
 		Expression otherTerm = splitter.get(1);
 
-		EqualityOnSymbolsConstraint newConstraint = new EqualityOnSymbolsConstraint(this);
-		newConstraint.applyDisequality(variable, otherTerm, process);
-
+		EqualityOnSymbolsConstraint newConstraint;
+		if (termsAreConstrainedToBeEqual(variable, otherTerm, process)) {
+			newConstraint = null; // splitter is inconsistent with constraint
+		}
+		else {
+			newConstraint = new EqualityOnSymbolsConstraint(this);
+			newConstraint.applyDisequality(variable, otherTerm, process);
+		}
+		
 		return newConstraint;
 	}
 
@@ -376,14 +399,54 @@ public class EqualityOnSymbolsConstraint extends LinkedHashMap<Expression, Colle
 			}
 		}
 		
-		Expression result = Times.make(numberOfPossibleValuesForIndicesSoFar);
-		result = timesRewriter.rewrite(result, process);
+		Expression modelCountGivenConditionsOnFreeVariablesAreTrue = Times.make(numberOfPossibleValuesForIndicesSoFar);
+		modelCountGivenConditionsOnFreeVariablesAreTrue = makeModelCountConditionedOnFreeVariables(modelCountGivenConditionsOnFreeVariablesAreTrue, process);
+		Expression result = timesRewriter.rewrite(modelCountGivenConditionsOnFreeVariablesAreTrue, process);
 		
+		return result;
+	}
+
+	/**
+	 * Receives the model count for the case in which conditions on free variables are true,
+	 * and returns conditional model count including the cases in which those conditions are not true
+	 * (which entail model count 0).
+	 * @param modelCountGivenConditionsOnFreeVariablesAreTrue
+	 * @return
+	 */
+	private Expression makeModelCountConditionedOnFreeVariables(Expression modelCountGivenConditionsOnFreeVariablesAreTrue, RewritingProcess process) {
+		Expression result = modelCountGivenConditionsOnFreeVariablesAreTrue;
+		for (Expression splitterToBeNotSatisfied : getSplittersToBeNotSatisfied(process)) {
+			result = IfThenElse.make(splitterToBeNotSatisfied, ZERO, result, false);
+		}
+		for (Expression splitterToBeSatisfied : getSplittersToBeSatisfied(process)) {
+			result = IfThenElse.make(splitterToBeSatisfied, result, ZERO, false);
+		}
+		return result;
+	}
+
+	private Collection<Expression> getSplittersToBeSatisfied(RewritingProcess process) {
+		Collection<Expression> result = new LinkedHashSet<Expression>();
+//		for (Expression freeVariable : fromBoundFreeVariableToBinding.keySet()) {
+//			Expression representative = getRepresentative(freeVariable, process);
+//			if (representative != null) {
+//				result.add(Equality.make(freeVariable, representative));
+//			}
+//		}
+		return result;
+	}
+
+	private Collection<Expression> getSplittersToBeNotSatisfied(RewritingProcess process) {
+		Collection<Expression> result = new LinkedHashSet<Expression>();
 		return result;
 	}
 
 	public Collection<Expression> getDisequals(Expression variable) {
 		Collection<Expression> result = getOrUseDefault(this, variable, emptyList());
+		return result;
+	}
+
+	private boolean termsAreConstrainedToBeEqual(Expression variable, Expression otherTerm, RewritingProcess process) {
+		boolean result = getRepresentative(variable, process).equals(getRepresentative(otherTerm, process));
 		return result;
 	}
 

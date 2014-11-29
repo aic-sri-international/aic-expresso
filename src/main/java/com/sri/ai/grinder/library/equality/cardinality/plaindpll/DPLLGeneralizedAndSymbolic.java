@@ -165,7 +165,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		
 		Expression result;
 
-		TheoryConstraint constraintUnderSplitter = constraint.applySplitter(splitter, process);
+		TheoryConstraint constraintUnderSplitter = constraint.applySplitter(true, splitter, process);
 		if (constraintUnderSplitter != null) {
 			Expression solutionUnderSplitter = solveUnderSplitter(splitter, expression, constraintUnderSplitter, process);
 
@@ -175,7 +175,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 				result = solutionUnderSplitter; // solution is already maximum, no need to consider the other side of splitter
 			}
 			else {
-				TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitterNegation(splitter, process);
+				TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitter(false, splitter, process);
 
 				if (constraintUnderSplitterNegation != null) {
 					Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, expression, constraintUnderSplitterNegation, process);
@@ -198,7 +198,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		}
 		else {
             // splitter is false under constraint, so its negation is true, so final solution is one under splitter negation
-			TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitterNegation(splitter, process);
+			TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitter(false, splitter, process);
 			Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, expression, constraintUnderSplitterNegation, process);
 			result = solutionUnderSplitterNegation;
 		}
@@ -221,7 +221,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 //		System.out.println("expressionUnderSplitter: " + expressionUnderSplitter);
 //		System.out.println();
 		Expression result = solve(expressionUnderSplitter, constraintUnderSplitter, process);
-		result = theory.applySplitterToSolution(splitter, result, process); // TEMPORARY while we implement conditional cardinality under if then else splitting, which creates redundant solution wrt to the context.
+		result = theory.applySplitterToSolution(true, splitter, result, process); // TEMPORARY while we implement conditional cardinality under if then else splitting, which creates redundant solution wrt to the context.
 		return result;
 	}
 
@@ -236,7 +236,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	protected Expression solveUnderSplitterNegation(Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitterNegation, RewritingProcess process) {
 		Expression expressionUnderSplitterNegation = theory.applySplitterNegationToExpression(splitter, expression, process);
 		Expression result = solve(expressionUnderSplitterNegation, constraintUnderSplitterNegation, process);
-		result = theory.applySplitterNegationToSolution(splitter, result, process); // TEMPORARY while we implement conditional cardinality under if then else splitting, which creates redundant solution wrt to the context.
+		result = theory.applySplitterToSolution(false, splitter, result, process); // TEMPORARY while we implement conditional cardinality under if then else splitting, which creates redundant solution wrt to the context.
 		return result;
 	}
 
@@ -252,8 +252,8 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 			Expression condition  = IfThenElse.getCondition(solution1);
 			Expression thenBranch = IfThenElse.getThenBranch(solution1);
 			Expression elseBranch = IfThenElse.getElseBranch(solution1);
-			Expression solution2UnderCondition    = theory.applySplitterToSolution(condition, solution2, process);
-			Expression solution2UnderNotCondition = theory.applySplitterNegationToSolution(condition, solution2, process);
+			Expression solution2UnderCondition    = theory.applySplitterToSolution(true, condition, solution2, process);
+			Expression solution2UnderNotCondition = theory.applySplitterToSolution(false, condition, solution2, process);
 			Expression newThenBranch = addSymbolicResults(thenBranch, solution2UnderCondition,    process);
 			Expression newElseBranch = addSymbolicResults(elseBranch, solution2UnderNotCondition, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false /* no simplification to condition */);
@@ -262,8 +262,8 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 			Expression condition  = IfThenElse.getCondition(solution2);
 			Expression thenBranch = IfThenElse.getThenBranch(solution2);
 			Expression elseBranch = IfThenElse.getElseBranch(solution2);
-			Expression solution1UnderCondition    = theory.applySplitterToSolution(condition, solution1, process);
-			Expression solution1UnderNotCondition = theory.applySplitterNegationToSolution(condition, solution1, process);
+			Expression solution1UnderCondition    = theory.applySplitterToSolution(true, condition, solution1, process);
+			Expression solution1UnderNotCondition = theory.applySplitterToSolution(false, condition, solution1, process);
 			Expression newThenBranch = addSymbolicResults(solution1UnderCondition,    thenBranch, process);
 			Expression newElseBranch = addSymbolicResults(solution1UnderNotCondition, elseBranch, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false /* no simplification to condition */);

@@ -190,7 +190,11 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 
 		@Override
-		public TheoryConstraint applySplitter(Expression splitter, RewritingProcess process) {
+		public TheoryConstraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+			if ( ! splitterSign) {
+				return applySplitterNegation(splitter, process);
+			}
+			
 			Constraint result;
 			if (negatedPropositions.contains(splitter)) {
 				result = null; // contradiction
@@ -208,8 +212,7 @@ public class PropositionalTheory extends AbstractTheory {
 			return result;
 		}
 
-		@Override
-		public TheoryConstraint applySplitterNegation(Expression splitter, RewritingProcess process) {
+		private TheoryConstraint applySplitterNegation(Expression splitter, RewritingProcess process) {
 			Constraint result;
 			if (assertedPropositions.contains(splitter)) {
 				result = null; // contradiction

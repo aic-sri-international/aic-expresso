@@ -61,14 +61,12 @@ public interface TheoryConstraint {
 	Expression pickSplitter(RewritingProcess process);
 	
 	/**
-	 * Generates new constraint representing conjunction of this constraint and given splitter.
+	 * Generates new constraint representing conjunction of this constraint and given splitter (or its negation, depending on the sign).
+	 * @param splitterSign the splitter's sign (true for splitter itself, false for its negation)
+	 * @param splitter the splitter according to this theory's choice
+	 * @param the rewriting process
 	 */
-	TheoryConstraint applySplitter(Expression splitter, RewritingProcess process);
-
-	/**
-	 * Generates new constraint representing conjunction of this constraint and the negation of given splitter.
-	 */
-	TheoryConstraint applySplitterNegation(Expression splitter, RewritingProcess process);
+	TheoryConstraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process);
 
 	/**
 	 * Computes model count for constraint, given a set of indices, in polynomial time.
