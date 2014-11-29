@@ -132,14 +132,17 @@ public class PropositionalTheory extends AbstractTheory {
 	}
 
 	@Override
-	public Expression applySplitterToExpression(Expression splitter, Expression expression, RewritingProcess process) {
+	public Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
+		if ( ! splitterSign) {
+			return applySplitterNegationToExpression(splitter, expression, process);
+		}
+		
 		Expression result = expression.replaceAllOccurrences(splitter, Expressions.TRUE, process);
 		result = simplify(result, process);
 		return result;
 	}
 
-	@Override
-	public Expression applySplitterNegationToExpression(Expression splitter, Expression expression, RewritingProcess process) {
+	private Expression applySplitterNegationToExpression(Expression splitter, Expression expression, RewritingProcess process) {
 		Expression result = expression.replaceAllOccurrences(splitter, Expressions.FALSE, process);
 		result = simplify(result, process);
 		return result;
