@@ -276,7 +276,7 @@ public class SymbolEqualityTheory extends AbstractTheory {
 	 */
 	public Expression applySplitterNegationToSolution(Expression splitter, Expression solution, RewritingProcess process) {
 		if (generic) {
-			return super.applySplitterNegationToSolution(splitter, solution, process);
+			return super.applySplitterToSolution(false, splitter, solution, process);
 		}
 
 		Expression result = solution;
