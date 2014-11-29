@@ -167,7 +167,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 
 		TheoryConstraint constraintUnderSplitter = constraint.applySplitter(true, splitter, process);
 		if (constraintUnderSplitter != null) {
-			Expression solutionUnderSplitter = solveUnderSplitter(splitter, expression, constraintUnderSplitter, process);
+			Expression solutionUnderSplitter = solveUnderSplitter(true, splitter, expression, constraintUnderSplitter, process);
 
 			boolean splitterDependsOnIndex           = theory.splitterInvolvesIndex(splitter, constraintUnderSplitter.getIndices());
 			boolean solutionIsAdditionOfSubSolutions = splitterDependsOnIndex;
@@ -178,7 +178,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 				TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitter(false, splitter, process);
 
 				if (constraintUnderSplitterNegation != null) {
-					Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, expression, constraintUnderSplitterNegation, process);
+					Expression solutionUnderSplitterNegation = solveUnderSplitter(false, splitter, expression, constraintUnderSplitterNegation, process);
 					if (splitterDependsOnIndex) {
 						// splitter is over an index or more,
 						// so solution is solutionUnderSplitter + solutionUnderSplitterNegation
@@ -199,7 +199,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		else {
             // splitter is false under constraint, so its negation is true, so final solution is one under splitter negation
 			TheoryConstraint constraintUnderSplitterNegation = constraint.applySplitter(false, splitter, process);
-			Expression solutionUnderSplitterNegation = solveUnderSplitterNegation(splitter, expression, constraintUnderSplitterNegation, process);
+			Expression solutionUnderSplitterNegation = solveUnderSplitter(false, splitter, expression, constraintUnderSplitterNegation, process);
 			result = solutionUnderSplitterNegation;
 		}
 		
@@ -207,36 +207,17 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	}
 
 	/**
+	 * @param splitterSign TODO
 	 * @param splitter
 	 * @param expression
 	 * @param constraintUnderSplitter must not be <code>null</code>
 	 * @param process
 	 * @return
 	 */
-	protected Expression solveUnderSplitter(Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitter, RewritingProcess process) {
-		Expression expressionUnderSplitter = theory.applySplitterToExpression(true, splitter, expression, process);
-//		System.out.println("splitter: " + splitter);
-//		System.out.println("expression: " + expression);
-//		System.out.println("constraintUnderSplitter: " + constraintUnderSplitter);
-//		System.out.println("expressionUnderSplitter: " + expressionUnderSplitter);
-//		System.out.println();
+	protected Expression solveUnderSplitter(boolean splitterSign, Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitter, RewritingProcess process) {
+		Expression expressionUnderSplitter = theory.applySplitterToExpression(splitterSign, splitter, expression, process);
 		Expression result = solve(expressionUnderSplitter, constraintUnderSplitter, process);
-		result = theory.applySplitterToSolution(true, splitter, result, process); // TEMPORARY while we implement conditional cardinality under if then else splitting, which creates redundant solution wrt to the context.
-		return result;
-	}
-
-	/**
-	 * 
-	 * @param splitter
-	 * @param expression
-	 * @param constraintUnderSplitterNegation must not be <code>null</code>
-	 * @param process
-	 * @return
-	 */
-	protected Expression solveUnderSplitterNegation(Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitterNegation, RewritingProcess process) {
-		Expression expressionUnderSplitterNegation = theory.applySplitterToExpression(false, splitter, expression, process);
-		Expression result = solve(expressionUnderSplitterNegation, constraintUnderSplitterNegation, process);
-		result = theory.applySplitterToSolution(false, splitter, result, process); // TEMPORARY while we implement conditional cardinality under if then else splitting, which creates redundant solution wrt to the context.
+		result = theory.applySplitterToSolution(splitterSign, splitter, result, process); // TEMPORARY while we implement conditional cardinality under if then else splitting, which creates redundant solution wrt to the context.
 		return result;
 	}
 
