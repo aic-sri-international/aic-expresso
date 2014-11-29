@@ -101,7 +101,7 @@ public class SymbolEqualityModelCountingDPLLTest extends SymbolicSymbolEqualityD
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
 		// tests case in which symbolic solutions with conditions that are not splitters need to be combined
-		// Combination must discriminate between splittes and not splitters.
+		// Combination must discriminate between splitters and not splitters.
 		// In this example, we get solutions with a condition on | Everything | - 1 > 0.
 		expression = parse(""
 				+ "(X = a and (Z = a and there exists Y in Everything : Y != b) or (Z != a and there exists Y in Everything : Y != c and Y != d))"

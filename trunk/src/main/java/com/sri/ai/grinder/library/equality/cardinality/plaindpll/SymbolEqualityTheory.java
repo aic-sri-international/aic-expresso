@@ -193,9 +193,13 @@ public class SymbolEqualityTheory extends AbstractTheory {
 	private boolean generic = false;
 	
 	@Override
-	public Expression applySplitterToSolution(Expression splitter, Expression solution, RewritingProcess process) {
+	public Expression applySplitterToSolution(boolean splitterSign, Expression splitter, Expression solution, RewritingProcess process) {
 		if (generic) {
-			return super.applySplitterToSolution(splitter, solution, process);
+			return super.applySplitterToSolution(splitterSign, splitter, solution, process);
+		}
+		
+		if ( ! splitterSign) {
+			return applySplitterNegationToSolution(splitter, solution, process);
 		}
 		
 		// Some notes about the development of this and the next method are at the bottom of the file.
@@ -212,21 +216,21 @@ public class SymbolEqualityTheory extends AbstractTheory {
 			Expression solutionSplitterSimplification = applySplitterToExpression(splitter /* being applied to expression */, solutionSplitter /* expression */, process);
 			
 			if (solutionSplitterSimplification.equals(Expressions.TRUE)) {
-				result = applySplitterToSolution(splitter, thenBranch, process);
+				result = applySplitterToSolution(splitterSign, splitter, thenBranch, process);
 			}
 			else if (solutionSplitterSimplification.equals(Expressions.FALSE)) {
-				result = applySplitterToSolution(splitter, elseBranch, process);
+				result = applySplitterToSolution(splitterSign, splitter, elseBranch, process);
 			}
 			else {
-				Expression newThenBranch = applySplitterToSolution(splitter, thenBranch, process);
-				Expression newElseBranch = applySplitterToSolution(splitter, elseBranch, process);
+				Expression newThenBranch = applySplitterToSolution(splitterSign, splitter, thenBranch, process);
+				Expression newElseBranch = applySplitterToSolution(splitterSign, splitter, elseBranch, process);
 				
 				// solutions conditions must always have a variable as first argument
 				Expression newSolutionSplitter = makeSolutionSplitterFromNonTrivialSolutionSplitterSimplificationByAnotherSolutionSplitter(solutionSplitterSimplification, process);
 
 				// Simplification may have create opportunities for original splitter (or its simplification, at this point)
 				// to be able to simplify solution even further.
-				newThenBranch = applySplitterToSolution(newSolutionSplitter, newThenBranch, process);
+				newThenBranch = applySplitterToSolution(splitterSign, newSolutionSplitter, newThenBranch, process);
 				// It is important to realize why this second transformation on the then branch
 				// does not invalidate the guarantees given by the first one,
 				// as well as why individual completeness for equalityOfTwoTerms and newCondition
@@ -267,7 +271,6 @@ public class SymbolEqualityTheory extends AbstractTheory {
 	/**
 	 * Overridden because in in this theory splitters simplified by splitter negations are either trivial or do not change.
 	 */
-	@Override
 	public Expression applySplitterNegationToSolution(Expression splitter, Expression solution, RewritingProcess process) {
 		if (generic) {
 			return super.applySplitterNegationToSolution(splitter, solution, process);
@@ -284,10 +287,10 @@ public class SymbolEqualityTheory extends AbstractTheory {
 			Expression solutionSplitterSimplification = applySplitterNegationToExpression(splitter, solutionSplitter, process);
 			
 			if (solutionSplitterSimplification.equals(Expressions.TRUE)) {
-				result = applySplitterNegationToSolution(splitter, thenBranch, process);
+				result = applySplitterToSolution(false, splitter, thenBranch, process);
 			}
 			else if (solutionSplitterSimplification.equals(Expressions.FALSE)) {
-				result = applySplitterNegationToSolution(splitter, elseBranch, process);
+				result = applySplitterToSolution(false, splitter, elseBranch, process);
 			}
 			else {
 				// Note that, at this point, solutionSplitterSimplification is the same as solutionSplitter because
@@ -299,9 +302,9 @@ public class SymbolEqualityTheory extends AbstractTheory {
 
 				Expression newThenBranch = thenBranch;
 				if ( ! splitterUnderSolutionSplitter.equals(Expressions.FALSE)) {
-					newThenBranch = applySplitterNegationToSolution(splitterUnderSolutionSplitter, thenBranch, process);
+					newThenBranch = applySplitterToSolution(false, splitterUnderSolutionSplitter, thenBranch, process);
 				}
-				Expression newElseBranch = applySplitterNegationToSolution(splitter, elseBranch, process);
+				Expression newElseBranch = applySplitterToSolution(false, splitter, elseBranch, process);
 				
 				result = IfThenElse.makeIfDistinctFrom(solution, solutionSplitterSimplification, newThenBranch, newElseBranch, false /* no simplification to condition */);
 			}

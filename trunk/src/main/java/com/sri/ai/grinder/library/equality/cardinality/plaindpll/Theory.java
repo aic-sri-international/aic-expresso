@@ -115,24 +115,15 @@ public interface Theory {
 	Expression applySplitterNegationToExpression(Expression splitter, Expression expression, RewritingProcess process);
 
 	/**
-	 * Simplifies a solution given the assumption that a splitter is true,
+	 * Simplifies a solution given the assumption that a splitter is true or false (depending on the sign),
 	 * returning a solution that is equivalent to the given one under that assumption. 
+	 * @param splitterSign
 	 * @param splitter
 	 * @param solution
 	 * @param process
 	 * @return an equivalent solution
 	 */
-	Expression applySplitterToSolution(Expression splitter, Expression solution, RewritingProcess process);
-
-	/**
-	 * Simplifies a solution given the assumption that a splitter is false,
-	 * returning a solution that is equivalent to the given one under that assumption. 
-	 * @param splitter
-	 * @param solution
-	 * @param process
-	 * @return an equivalent solution
-	 */
-	Expression applySplitterNegationToSolution(Expression splitter, Expression solution, RewritingProcess process);
+	Expression applySplitterToSolution(boolean splitterSign, Expression splitter, Expression solution, RewritingProcess process);
 
 	/**
 	 * Make a new constraint for this theory over a set of indices (equivalent to all assignments to those indices).

@@ -48,6 +48,7 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualityTautologicalityDPLL;
 
@@ -63,7 +64,11 @@ public class SymbolEqualityTautologicalityDPLLTest extends SymbolicSymbolEqualit
 		
 		GrinderUtil.setMinimumOutputForProfiling();
 		
-
+		expression = Expressions.parse("(X != Y or X = Y) and Y = Z");
+		indices    = list("X");
+		expected   = Expressions.parse("if Y = Z then true else false");
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+		
 		expression = parse("X = Y <=> Y = X");
 		indices    = null;
 		expected   = parse("true");
