@@ -155,11 +155,11 @@ public class PropositionalTheory extends AbstractTheory {
 	}
 
 	@Override
-	public TheoryConstraint makeConstraint(Collection<Expression> indices) {
+	public Constraint makeConstraint(Collection<Expression> indices) {
 		return new Constraint(indices);
 	}
 
-	public static class Constraint implements TheoryConstraint {
+	public static class Constraint implements Theory.Constraint {
 
 		private Collection<Expression> indices;
 		private int numberOfBoundIndices;
@@ -193,7 +193,7 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 
 		@Override
-		public TheoryConstraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		public Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			if ( ! splitterSign) {
 				return applySplitterNegation(splitter, process);
 			}
@@ -215,7 +215,7 @@ public class PropositionalTheory extends AbstractTheory {
 			return result;
 		}
 
-		private TheoryConstraint applySplitterNegation(Expression splitter, RewritingProcess process) {
+		private Constraint applySplitterNegation(Expression splitter, RewritingProcess process) {
 			Constraint result;
 			if (assertedPropositions.contains(splitter)) {
 				result = null; // contradiction
@@ -240,7 +240,7 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 
 		@Override
-		public Expression normalize(Expression expression) {
+		public Expression normalize(Expression expression, RewritingProcess process) {
 			return expression; // no normalization
 		}
 

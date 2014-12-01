@@ -50,7 +50,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualityTautologicalityDPLL;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnSymbolsTautologicalityDPLL;
 
 @Beta
 public class SymbolEqualityTautologicalityDPLLTest extends SymbolicSymbolEqualityDPLLTest {
@@ -138,7 +138,6 @@ public class SymbolEqualityTautologicalityDPLLTest extends SymbolicSymbolEqualit
 		expression = parse("X1 != X2 and X2 != X0 and X1 != X0");
 		indices    = null; // means all variables
 		expected   = parse("(| Everything | * | Everything | <= 0) and (| Everything | * (| Everything | - 1) <= 0)");
-//		expected   = parse("(| Everything | * | Everything | <= 0) and (| Everything | * (| Everything | - 1) <= 0) and (| Everything | * (| Everything | - 1) <= 0)");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("true");
@@ -190,7 +189,6 @@ public class SymbolEqualityTautologicalityDPLLTest extends SymbolicSymbolEqualit
 		expression = parse("X != a and X != Y and Y != a");
 		indices    = null;
 		expected   = parse("(| Everything | <= 0) and (| Everything | - 1 <= 0)");
-//		expected   = parse("(| Everything | <= 0) and (| Everything | - 1 <= 0) and (| Everything | - 1 <= 0)");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X = Y and Y = X");
@@ -204,7 +202,7 @@ public class SymbolEqualityTautologicalityDPLLTest extends SymbolicSymbolEqualit
 		return problem;
 	}
 
-	protected SymbolEqualityTautologicalityDPLL makeRewriter() {
-		return new SymbolEqualityTautologicalityDPLL();
+	protected EqualityOnSymbolsTautologicalityDPLL makeRewriter() {
+		return new EqualityOnSymbolsTautologicalityDPLL();
 	}
 }
