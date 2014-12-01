@@ -54,7 +54,7 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ModelCounting;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualityTheory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnSymbolsTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
 
 @Beta
@@ -69,7 +69,7 @@ public class SymbolEqualityModelCountingDPLLTest extends SymbolicSymbolEqualityD
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new DPLLGeneralizedAndSymbolic(new SymbolEqualityTheory(), new ModelCounting());
+		return new DPLLGeneralizedAndSymbolic(new EqualityOnSymbolsTheory(), new ModelCounting());
 	}
 
 	@Test
@@ -81,11 +81,17 @@ public class SymbolEqualityModelCountingDPLLTest extends SymbolicSymbolEqualityD
 		
 		GrinderUtil.setMinimumOutputForProfiling();
 		
-		// Repeated:
-		expression = parse("X1 != X2 and (X2 = X3 or X2 = X4) and X3 = X1 and X4 = X1");
-		indices    = null; // means all variables
-		expected   = parse("0");
+		// Repeated for debugging purposes:
+		// tests answer completeness
+		expression  = parse("(Y = a and X = T) or (Y != a and X = T1 and T = T1)");
+		indices     = list("Y");
+		// original algorithm provided this incomplete solution due to incomplete condition-applying-on-solution algorithm used in externalization
+		// expected = parse("if X = T then if T = T1 then if T = T1 then 10 else 1 else 1 else (if X = T1 then if T = T1 then 9 else 0 else 0)");
+		expected    = parse("if X = T then if T = T1 then | Everything | else 1 else 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+		
+		
+		
 
 		// this example tests whether conditioning an index to a value considers previous disequalities on that index,
 		// because X is split on b first, and then the algorithm attempts to condition on X = Y, but that requires Y to be != b.

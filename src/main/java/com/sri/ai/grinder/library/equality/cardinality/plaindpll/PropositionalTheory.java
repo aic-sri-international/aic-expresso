@@ -240,6 +240,11 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 
 		@Override
+		public Expression normalize(Expression expression) {
+			return expression; // no normalization
+		}
+
+		@Override
 		public Expression getMostRequiredSplitter(Expression splitterCandidate, RewritingProcess process) {
 			return splitterCandidate; // a proposition can always be imposed without need for prior assumptions
 		}

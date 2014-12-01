@@ -83,6 +83,11 @@ public class Or extends BooleanCommutativeAssociative {
 	}
 	
 	@Override
+	protected boolean isIdempotent() {
+		return true;
+	}
+
+	@Override
 	protected Predicate<Expression> getIsOperableArgumentSyntaxTreePredicate() {
 		return isOperableArgumentPredicate;
 	}
@@ -121,19 +126,19 @@ public class Or extends BooleanCommutativeAssociative {
 	}	
 
 	/**
-	 * Same as {@link CommutativeAssociative#make(Object, List, Object)},
-	 * but not requiring the functor and neutral element.
+	 * Same as {@link CommutativeAssociative#make(Object, List, Object, boolean)},
+	 * but not requiring the functor, neutral element, absorbing element and idempotency
 	 */
 	public static Expression make(Expression... arguments) {
 		return make(Arrays.asList(arguments));
 	}
 	
 	/**
-	 * Same as {@link CommutativeAssociative#make(Object, List, Object)},
-	 * but not requiring the functor and neutral element.
+	 * Same as {@link CommutativeAssociative#make(Object, List, Object, boolean)},
+	 * but not requiring the functor, neutral element, absorbing element and idempotency.
 	 */
 	public static Expression make(List<Expression> arguments) {
-		return CommutativeAssociative.make(FunctorConstants.OR, arguments, Expressions.TRUE, Expressions.FALSE);
+		return CommutativeAssociative.make(FunctorConstants.OR, arguments, Expressions.TRUE, Expressions.FALSE, true);
 	}
 	
 	/**
@@ -141,7 +146,7 @@ public class Or extends BooleanCommutativeAssociative {
 	 * but not requiring the parameters already determined for or applications.
 	 */
 	public static Expression make(Iterator<Expression> argumentsIterator) {
-		return CommutativeAssociative.make(FunctorConstants.OR, argumentsIterator, Expressions.TRUE, Expressions.FALSE);
+		return CommutativeAssociative.make(FunctorConstants.OR, argumentsIterator, Expressions.TRUE, Expressions.FALSE, true);
 	}
 
 	/**

@@ -113,6 +113,38 @@ public class DPLLUtil {
 	}
 
 	/**
+	 * @param functionApplicationSimplifiers
+	 * @param syntacticFormSimplifiers
+	 * @return
+	 */
+	public static BinaryFunction<Expression, RewritingProcess, Expression> makeTopExhaustiveSimplifier(Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormSimplifiers) {
+		BinaryFunction<Expression, RewritingProcess, Expression>
+			topExhaustivelySimplifier =
+			(e, p) -> topSimplifyExhaustively(e, functionApplicationSimplifiers, syntacticFormSimplifiers, p);
+		return topExhaustivelySimplifier;
+	}
+
+	/**
+	 * Simplifies an expression based on two maps of simplifiers.
+	 * The first map of simplifiers is a map from functor values (Strings) to a binary function taking a function application of that functor and a rewriting process,
+	 * and performing a simplification on it (or returning the same instance).
+	 * The second map of simplifiers is a map from syntactic type forms (Strings) to a binary function taking an expression of that type and a rewriting process,
+	 * and performing a simplification on it (or returning the same instance).
+	 * These two maps are then used to create a top exhaustive simplifier
+	 * (made with {@link #makeTopExhaustiveSimplifier(Map, Map)}) for use with {@link DPLLUtil#simplify(Expression, BinaryFunction, RewritingProcess).
+	 * @param expression
+	 * @param functionApplicationSimplifiers
+	 * @param syntacticFormSimplifiers
+	 * @param process
+	 * @return
+	 */
+	public static Expression simplify(Expression expression, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormSimplifiers, RewritingProcess process) {
+		BinaryFunction<Expression, RewritingProcess, Expression> topExhaustiveSimplifier = makeTopExhaustiveSimplifier(functionApplicationSimplifiers, syntacticFormSimplifiers);
+		Expression result = simplify(expression, topExhaustiveSimplifier, process);
+		return result;
+	}
+
+	/**
 	 * Simplifies an expression by exhaustively simplifying its top expression with given top simplifier, then simplifying its sub-expressions,
 	 * and again exhaustively simplifying its top expression.
 	 * @param expression
@@ -120,7 +152,7 @@ public class DPLLUtil {
 	 * @param process
 	 * @return
 	 */
-	protected static Expression simplify(
+	public static Expression simplify(
 			Expression expression,
 			BinaryFunction<Expression, RewritingProcess, Expression> topSimplifier,
 			RewritingProcess process) {

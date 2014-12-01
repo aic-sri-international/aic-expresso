@@ -51,7 +51,7 @@ import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Satisfiability;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolEqualityTheory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnSymbolsTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
 
 @Beta
@@ -221,6 +221,6 @@ public class SymbolEqualitySatisfiabilityDPLLTest extends SymbolicSymbolEquality
 	}
 
 	protected Rewriter makeRewriter() {
-		return new DPLLGeneralizedAndSymbolic(new SymbolEqualityTheory(), new Satisfiability());
+		return new DPLLGeneralizedAndSymbolic(new EqualityOnSymbolsTheory(), new Satisfiability());
 	}
 }

@@ -37,15 +37,21 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.util.Util.list;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 
 @Beta
@@ -85,11 +91,7 @@ abstract public class AbstractTheory implements Theory {
 	 */
 	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {
-		BinaryFunction<Expression, RewritingProcess, Expression>
-			topExhaustivelySimplifier =
-			(e, p) -> DPLLUtil.topSimplifyExhaustively(e, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), p);
-		Expression result = DPLLUtil.simplify(expression, topExhaustivelySimplifier, process);
-		return result;
+		return DPLLUtil.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), process);
 	}
 
 	@Override
@@ -117,48 +119,148 @@ abstract public class AbstractTheory implements Theory {
 			result = applySplitterToSolution(splitterSign, splitter, constraint, solution, process);
 		}
 		else {
-			result = solution;
+			result = applySplitterToExpression(splitterSign, splitter, solution, process);
+			//result = solution;
 		}
 		return result;
 	}
 	
+//	private Expression applySplitterToSolution(boolean splitterSign, Expression splitter, TheoryConstraint constraintUnderSplitter, Expression solution, RewritingProcess process) {
+//		Expression result;
+//		
+//		if (DPLLUtil.isConditionalSolution(solution, this, process)) {
+//			Expression solutionSplitter = IfThenElse.getCondition(solution);
+//			TheoryConstraint constraintUnderSolutionSplitter = constraintUnderSplitter.applySplitter(true, solutionSplitter, process);
+//			if (constraintUnderSolutionSplitter != null) {
+//				TheoryConstraint constraintUnderSolutionSplitterNegation = constraintUnderSplitter.applySplitter(false, solutionSplitter, process);
+//				if (constraintUnderSolutionSplitterNegation != null) {
+//					Expression thenBranch = IfThenElse.getThenBranch(solution);
+//					Expression elseBranch = IfThenElse.getElseBranch(solution);
+//					Expression newThenBranch = applySplitterToSolution(splitterSign, splitter, constraintUnderSolutionSplitter, thenBranch, process);
+//					Expression newElseBranch = applySplitterToSolution(splitterSign, splitter, constraintUnderSolutionSplitterNegation, elseBranch, process);
+//					result = IfThenElse.makeIfDistinctFrom(solution, solutionSplitter, newThenBranch, newElseBranch, false /* no simplification to condition */);
+//				}
+//				else {
+//					Expression thenBranch = IfThenElse.getThenBranch(solution);
+//					Expression newThenBranch = applySplitterToSolution(splitterSign, splitter, constraintUnderSolutionSplitter, thenBranch, process);
+//					result = newThenBranch;
+//				}
+//			}
+//			else {
+//				TheoryConstraint constraintUnderSolutionSplitterNegation = constraintUnderSplitter.applySplitter(false, solutionSplitter, process);
+//				if (constraintUnderSolutionSplitterNegation != null) {
+//					Expression elseBranch = IfThenElse.getElseBranch(solution);
+//					Expression newElseBranch = applySplitterToSolution(splitterSign, splitter, constraintUnderSolutionSplitterNegation, elseBranch, process);
+//					result = newElseBranch;
+//				}
+//				else {
+//					throw new Error("Constraint applied to solution should be compatible with the solution splitter or its negation (otherwise either the constraint is unsatisfiable, or the sub-solution is, and in this case we should not have gotten here).");
+//				}
+//			}
+//		}
+//		else {
+//			result = applySplitterToExpression(splitterSign, splitter, solution, process);
+//			//result = solution;
+//		}
+//		
+//		return result;
+//	}
+
 	private Expression applySplitterToSolution(boolean splitterSign, Expression splitter, TheoryConstraint constraintUnderSplitter, Expression solution, RewritingProcess process) {
 		Expression result;
 		
 		if (DPLLUtil.isConditionalSolution(solution, this, process)) {
 			Expression solutionSplitter = IfThenElse.getCondition(solution);
-			TheoryConstraint constraintUnderSolutionSplitter = constraintUnderSplitter.applySplitter(true, solutionSplitter, process);
-			if (constraintUnderSolutionSplitter != null) {
-				TheoryConstraint constraintUnderSolutionSplitterNegation = constraintUnderSplitter.applySplitter(false, solutionSplitter, process);
-				if (constraintUnderSolutionSplitterNegation != null) {
-					Expression thenBranch = IfThenElse.getThenBranch(solution);
-					Expression elseBranch = IfThenElse.getElseBranch(solution);
-					Expression newThenBranch = applySplitterToSolution(splitterSign, splitter, constraintUnderSolutionSplitter, thenBranch, process);
-					Expression newElseBranch = applySplitterToSolution(splitterSign, splitter, constraintUnderSolutionSplitterNegation, elseBranch, process);
-					result = IfThenElse.makeIfDistinctFrom(solution, solutionSplitter, newThenBranch, newElseBranch, false /* no simplification to condition */);
-				}
-				else {
-					Expression thenBranch = IfThenElse.getThenBranch(solution);
-					Expression newThenBranch = applySplitterToSolution(splitterSign, splitter, constraintUnderSolutionSplitter, thenBranch, process);
-					result = newThenBranch;
-				}
+			TheoryConstraint constraintUnderSolutionSplitter         = constraintUnderSplitter.applySplitter(true,  solutionSplitter, process);
+			TheoryConstraint constraintUnderSolutionSplitterNegation = constraintUnderSplitter.applySplitter(false, solutionSplitter, process);
+
+			Expression thenBranch = IfThenElse.getThenBranch(solution);
+			Expression elseBranch = IfThenElse.getElseBranch(solution);
+			Expression newCondition;
+			Expression newThenBranch;
+			Expression newElseBranch;
+
+			if (constraintUnderSolutionSplitter == null) {
+				newCondition = FALSE;
+				newThenBranch = Expressions.makeSymbol("whatever");
+				newElseBranch = elseBranch;
+			}
+			else if (constraintUnderSolutionSplitterNegation == null) {
+				newCondition = TRUE;
+				newThenBranch = thenBranch;
+				newElseBranch = Expressions.makeSymbol("whatever");
 			}
 			else {
-				TheoryConstraint constraintUnderSolutionSplitterNegation = constraintUnderSplitter.applySplitter(false, solutionSplitter, process);
-				if (constraintUnderSolutionSplitterNegation != null) {
-					Expression elseBranch = IfThenElse.getElseBranch(solution);
-					Expression newElseBranch = applySplitterToSolution(splitterSign, splitter, constraintUnderSolutionSplitterNegation, elseBranch, process);
-					result = newElseBranch;
-				}
-				else {
-					throw new Error("Constraint applied to solution should be compatible with the solution splitter or its negation (otherwise either the constraint is unsatisfiable, or the sub-solution is, and in this case we should not have gotten here).");
+				newCondition  = applySplitterOrTrueToSplitter(splitterSign, splitter, true, solutionSplitter, process);
+				newThenBranch = applySplitterToSolution(true,  newCondition, thenBranch, process);
+				newElseBranch = applySplitterToSolution(false, newCondition, elseBranch, process);
+			}
+			
+			if ( ! newCondition.equals(FALSE)) {
+				Expression splitterForThenBranch = applySplitterOrTrueToSplitter(true, newCondition, splitterSign, splitter, process);
+				assert ! signedSplitterIsFalse(splitterSign, splitterForThenBranch); // otherwise newCondition would be FALSE
+				if ( ! signedSplitterIsTrue(splitterSign, splitterForThenBranch)) {
+					newThenBranch = applySplitterToSolution(splitterSign, splitterForThenBranch, constraintUnderSolutionSplitter, thenBranch, process);
 				}
 			}
+			if ( ! newCondition.equals(TRUE)) {
+				Expression splitterForElseBranch = applySplitterOrTrueToSplitter(false, newCondition, splitterSign, splitter, process);
+				assert ! signedSplitterIsTrue(splitterSign, splitterForElseBranch); // otherwise newCondition would be FALSE
+				if ( ! signedSplitterIsFalse(splitterSign, splitterForElseBranch)) {
+					newElseBranch = applySplitterToSolution(splitterSign, splitterForElseBranch, constraintUnderSolutionSplitterNegation, elseBranch, process);
+				}
+			}
+			// we assume here that whatever normalizations were re-imposed by newCondition on branches is preserved by the application of splitter to them.
+
+			result = IfThenElse.makeIfDistinctFrom(solution, newCondition, newThenBranch, newElseBranch, false /* no simplification to condition */);
 		}
 		else {
-			result = solution;
+			result = applySplitterToExpression(splitterSign, splitter, solution, process);
+			//result = solution;
 		}
 		
+		return result;
+	}
+
+
+	/**
+	 * @param splitterSign
+	 * @param splitter
+	 * @return
+	 */
+	protected boolean signedSplitterIsTrue(boolean splitterSign, Expression splitter) {
+		return splitterSign == true && splitter.equals(TRUE) || splitterSign == false && splitter.equals(FALSE);
+	}
+
+	/**
+	 * @param splitterSign
+	 * @param splitter
+	 * @return
+	 */
+	protected boolean signedSplitterIsFalse(boolean splitterSign, Expression splitter) {
+		return splitterSign == true && splitter.equals(FALSE) || splitterSign == false && splitter.equals(TRUE);
+	}
+
+	/**
+	 * Applies a splitter to another assuming that they do not trivialize each other.
+	 * This ensures the second one follows normalization properties imposed by the first one.
+	 * @param splitterSign
+	 * @param splitter
+	 * @param anotherSplitter
+	 * @param process
+	 * @return
+	 */
+	private Expression applySplitterOrTrueToSplitter(boolean splitterSign, Expression splitter, boolean anotherSplitterSign, Expression anotherSplitter, RewritingProcess process) {
+		Expression result;
+		if ((splitterSign == true && splitter.equals(TRUE)) || (splitterSign == false && splitter.equals(FALSE))) {
+			result = anotherSplitter;
+		}
+		else {
+			result = applySplitterToExpression(splitterSign, splitter, anotherSplitter, process);
+			if ( ! result.equals(Expressions.TRUE) && ! result.equals(Expressions.FALSE)) {
+				result = makeSplitterIfPossible(result, list(), process);
+			}
+		}
 		return result;
 	}
 }

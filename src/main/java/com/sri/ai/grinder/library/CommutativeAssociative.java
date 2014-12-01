@@ -37,10 +37,13 @@
  */
 package com.sri.ai.grinder.library;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
@@ -77,6 +80,7 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 	public abstract Object getFunctor();
 	protected abstract Expression getNeutralElement();
 	protected abstract Expression getAbsorbingElement();
+	protected abstract boolean isIdempotent();
 	protected abstract Predicate<Expression> getIsOperableArgumentSyntaxTreePredicate();
 	protected abstract Expression operationOnOperables(LinkedList<Expression> operableArguments);
 	protected abstract Expression operationOnExpressionOperables(LinkedList<Expression> operableArguments);
@@ -163,19 +167,19 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 	}
 	
 	/**
-	 * An instance method version of {@link CommutativeAssociative#make(Object, List, Object)}
+	 * An instance method version of {@link CommutativeAssociative#make(Object, List, Object, boolean)}
 	 * that uses the current object for obtaining the functor and neutral element.
 	 */
 	public Expression makeWithSameFunctorAsThis(List<Expression> arguments) {
-		return make(Expressions.wrap(getFunctor()), arguments, getNeutralElement());
+		return make(Expressions.wrap(getFunctor()), arguments, getNeutralElement(), isIdempotent());
 	}
 	
 	/**
-	 * An instance method version of {@link CommutativeAssociative#make(Object, List, Object)}
+	 * An instance method version of {@link CommutativeAssociative#make(Object, List, Object, boolean)}
 	 * that uses the current object for obtaining the functor and neutral element.
 	 */
 	public Expression makeExpressionWithSameFunctorAsThis(List<Expression> arguments) {
-		return make(Expressions.wrap(getFunctor()), arguments, getNeutralElement());
+		return make(Expressions.wrap(getFunctor()), arguments, getNeutralElement(), isIdempotent());
 	}
 	
 	/**
@@ -184,10 +188,15 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 	 * that is, its application but for the cases in which there are no arguments, or a single argument.
 	 * When there are no arguments, a given neutral element value is returned.
 	 * When a single argument is provided, it is returned itself.
+	 * @param isIdempotent TODO
 	 */
-	public static Expression make(Object functor, List<Expression> arguments, Expression neutralElement) {
-		Predicate<Expression> notEqual = Predicates.not(new Equals<Expression>(neutralElement));
-		arguments = Util.collectToList(arguments, notEqual);
+	public static Expression make(Object functor, List<Expression> arguments, Expression neutralElement, boolean isIdempotent) {
+		Predicate<Expression> notEqualToNeutralElement = Predicates.not(new Equals<Expression>(neutralElement));
+		arguments = Util.collectToList(arguments, notEqualToNeutralElement);
+		if (isIdempotent) {
+			Set<Expression> argumentsSet = new LinkedHashSet<Expression>(arguments);
+			arguments = new ArrayList<Expression>(argumentsSet);
+		}
 		if (arguments.isEmpty()) {
 			return Expressions.wrap(neutralElement);
 		}
@@ -199,8 +208,8 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 		return result;
 	}
 
-	public static Expression make(Object functor, Collection<Expression> arguments, Expression absorbingElement, Expression neutralElement) {
-		return make(functor, arguments.iterator(), absorbingElement, neutralElement);
+	public static Expression make(Object functor, Collection<Expression> arguments, Expression absorbingElement, Expression neutralElement, boolean isIdempotent) {
+		return make(functor, arguments.iterator(), absorbingElement, neutralElement, isIdempotent);
 	}
 	
 	/**
@@ -210,7 +219,7 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 	 * If the arguments are being computed on the fly (for example, the iterator is a UnaryFunctionIterator),
 	 * this can save a lot of time.
 	 */
-	public static Expression make(Object functor, Iterator<Expression> argumentsIterator, Expression absorbingElement, Expression neutralElement) {
+	public static Expression make(Object functor, Iterator<Expression> argumentsIterator, Expression absorbingElement, Expression neutralElement, boolean isIdempotent) {
 		absorbingElement = Expressions.wrap(absorbingElement);
 		List<Expression> arguments = new LinkedList<Expression>();
 		while (argumentsIterator.hasNext()) {
@@ -222,7 +231,7 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 				arguments.add(argument);
 			}
 		}
-		Expression result = make(functor, arguments, neutralElement);
+		Expression result = make(functor, arguments, neutralElement, isIdempotent);
 		return result;
 	}
 

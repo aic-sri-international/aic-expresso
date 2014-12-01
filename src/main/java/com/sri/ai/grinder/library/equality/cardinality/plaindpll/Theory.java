@@ -122,4 +122,56 @@ public interface Theory {
 	 * @return
 	 */
 	TheoryConstraint makeConstraint(Collection<Expression> indices);
+
+	/**
+	 * An interface for theory-specific representations of the current constraint in DPLL.
+	 * 
+	 * @author braz
+	 *
+	 */
+	@Beta
+	public interface TheoryConstraint {
+		
+		Collection<Expression> getIndices();
+		
+		/**
+		 * Provides a splitter needed toward state
+		 * for which a model count can be computed in polynomial time, or null if it is already in such a state.
+		 */
+		Expression pickSplitter(RewritingProcess process);
+		
+		/**
+		 * Generates new constraint representing conjunction of this constraint and given splitter (or its negation, depending on the sign).
+		 * @param splitterSign the splitter's sign (true for splitter itself, false for its negation)
+		 * @param splitter the splitter according to this theory's choice
+		 * @param the rewriting process
+		 */
+		TheoryConstraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process);
+
+		/**
+		 * Computes model count for constraint, given a set of indices, in polynomial time.
+		 * Assumes that {@link #pickSplitter(RewritingProcess)} returns <code>null</code>,
+		 * that is, the constraint is in such a state and context that allows the determination of a unique model count.
+		 */
+		Expression modelCount(RewritingProcess process);
+		
+		/**
+		 * Receives an expression and returns an equivalent one according to some normalization property.
+		 * For example, an implementation involving equality may choose to always represent all symbols in an equality cluster
+		 * by the same symbol. 
+		 * @param expression
+		 * @return
+		 */
+		Expression normalize(Expression expression);
+
+		/**
+		 * Given a splitter candidate, returns the same, or another, splitter
+		 * guaranteed to be satisfiable under the constraint, no matter what assignment to free variables.
+		 * This is also required to make any splitter candidate have this property itself after a finite number of invocations.
+		 * @param splitterCandidate
+		 * @param process
+		 * @return
+		 */
+		Expression getMostRequiredSplitter(Expression splitterCandidate, RewritingProcess process);
+	}
 }

@@ -49,6 +49,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.TheoryConstraint;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.base.Pair;
 
@@ -217,7 +218,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	protected Expression solveUnderSplitter(boolean splitterSign, Expression splitter, Expression expression, TheoryConstraint constraintUnderSplitter, RewritingProcess process) {
 		Expression expressionUnderSplitter = theory.applySplitterToExpression(splitterSign, splitter, expression, process);
 		Expression result = solve(expressionUnderSplitter, constraintUnderSplitter, process);
-		result = theory.applySplitterToSolution(splitterSign, splitter, result, process); // TEMPORARY while we implement conditional cardinality under if then else splitting, which creates redundant solution wrt to the context.
+		//result = theory.applySplitterToSolution(splitterSign, splitter, result, process); // TEMPORARY while we implement conditional cardinality under if then else splitting, which creates redundant solution wrt to the context.
 		return result;
 	}
 
