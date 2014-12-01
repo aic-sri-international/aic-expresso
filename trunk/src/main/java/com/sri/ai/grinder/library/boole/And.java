@@ -84,6 +84,11 @@ public class And extends BooleanCommutativeAssociative {
 	}
 	
 	@Override
+	protected boolean isIdempotent() {
+		return true;
+	}
+
+	@Override
 	protected Predicate<Expression> getIsOperableArgumentSyntaxTreePredicate() {
 		return isOperableArgumentPredicate;
 	}
@@ -122,15 +127,15 @@ public class And extends BooleanCommutativeAssociative {
 	}
 
 	/**
-	 * Same as {@link CommutativeAssociative#make(Object, List, Object)},
-	 * but not requiring the functor and neutral element.
+	 * Same as {@link CommutativeAssociative#make(Object, List, Object, boolean)},
+	 * but not requiring the functor, neutral element, absorbing element, and idempotency.
 	 */
 	public static Expression make(List<Expression> arguments) {
-		return CommutativeAssociative.make("and", arguments, Expressions.FALSE, Expressions.TRUE);
+		return CommutativeAssociative.make("and", arguments, Expressions.FALSE, Expressions.TRUE, true);
 	}
 
 	/**
-	 * Same as {@link CommutativeAssociative#make(Object, List, Object)},
+	 * Same as {@link CommutativeAssociative#make(Object, List, Object, boolean)},
 	 * but not requiring the functor and neutral element,
 	 * and not requiring a list, using varargs instead.
 	 */
@@ -143,7 +148,7 @@ public class And extends BooleanCommutativeAssociative {
 	 * but not requiring the parameters already determined for and applications.
 	 */
 	public static Expression make(Iterator<Expression> argumentsIterator) {
-		return CommutativeAssociative.make("and", argumentsIterator, Expressions.FALSE, Expressions.TRUE);
+		return CommutativeAssociative.make("and", argumentsIterator, Expressions.FALSE, Expressions.TRUE, true);
 	}
 
 	/**

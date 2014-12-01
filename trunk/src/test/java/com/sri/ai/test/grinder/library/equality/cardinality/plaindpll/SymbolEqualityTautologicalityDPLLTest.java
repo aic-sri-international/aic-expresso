@@ -138,6 +138,7 @@ public class SymbolEqualityTautologicalityDPLLTest extends SymbolicSymbolEqualit
 		expression = parse("X1 != X2 and X2 != X0 and X1 != X0");
 		indices    = null; // means all variables
 		expected   = parse("(| Everything | * | Everything | <= 0) and (| Everything | * (| Everything | - 1) <= 0)");
+//		expected   = parse("(| Everything | * | Everything | <= 0) and (| Everything | * (| Everything | - 1) <= 0) and (| Everything | * (| Everything | - 1) <= 0)");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("true");
@@ -189,6 +190,7 @@ public class SymbolEqualityTautologicalityDPLLTest extends SymbolicSymbolEqualit
 		expression = parse("X != a and X != Y and Y != a");
 		indices    = null;
 		expected   = parse("(| Everything | <= 0) and (| Everything | - 1 <= 0)");
+//		expected   = parse("(| Everything | <= 0) and (| Everything | - 1 <= 0) and (| Everything | - 1 <= 0)");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("X = Y and Y = X");

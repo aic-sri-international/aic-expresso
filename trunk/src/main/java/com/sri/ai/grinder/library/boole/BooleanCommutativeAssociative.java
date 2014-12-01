@@ -68,7 +68,8 @@ public abstract class BooleanCommutativeAssociative extends CommutativeAssociati
 		List<Expression> argumentsReplacement =
 			(List<Expression>) Util.removeRepeatedNonDestructively(expression.getArguments());
 		if (argumentsReplacement.size() != expression.getArguments().size()) {
-			return CommutativeAssociative.make(getFunctor(), argumentsReplacement, getNeutralElementExpression());
+			boolean useIdempotency = false; // no need to use it anymore
+			return CommutativeAssociative.make(getFunctor(), argumentsReplacement, getNeutralElementExpression(), useIdempotency);
 		}
 		return expression;
 	}

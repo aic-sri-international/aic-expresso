@@ -68,7 +68,7 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public class NestedArithmeticOperation  extends AbstractRewriter {
+public class NestedArithmeticOperation extends AbstractRewriter {
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expression result = expression;
@@ -117,8 +117,8 @@ public class NestedArithmeticOperation  extends AbstractRewriter {
 					for (Expression dup: duplicateArguments) {
 						rightArguments.remove(dup);
 					}
-					Expression newFirst = CommutativeAssociative.make(inverseFunctor, leftArguments, identity);
-					Expression newSecond = CommutativeAssociative.make(inverseFunctor, rightArguments, identity);
+					Expression newFirst = CommutativeAssociative.make(inverseFunctor, leftArguments, identity, false);
+					Expression newSecond = CommutativeAssociative.make(inverseFunctor, rightArguments, identity, false);
 					result = Expressions.apply(functor, newFirst, newSecond);
 				}
 			}
@@ -140,8 +140,8 @@ public class NestedArithmeticOperation  extends AbstractRewriter {
 				}
 			}
 			if ( !rightArguments.isEmpty() ) { // expression is of the form (A + ... + (C-D) + ... + E)
-				Expression newFirst = CommutativeAssociative.make(functor, leftArguments, identity);
-				Expression newSecond = CommutativeAssociative.make(functor, rightArguments, identity);
+				Expression newFirst = CommutativeAssociative.make(functor, leftArguments, identity, false);
+				Expression newSecond = CommutativeAssociative.make(functor, rightArguments, identity, false);
 				result = Expressions.apply(inverseFunctor, newFirst, newSecond);				
 			}
 		}

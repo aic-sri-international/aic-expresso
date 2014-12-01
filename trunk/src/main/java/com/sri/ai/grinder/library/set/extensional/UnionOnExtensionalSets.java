@@ -72,6 +72,11 @@ public class UnionOnExtensionalSets extends CommutativeAssociative {
 	}
 	
 	@Override
+	protected boolean isIdempotent() {
+		return false; // not idempotent in general since it accepts multisets
+	}
+
+	@Override
 	protected Predicate<Expression> getIsOperableArgumentSyntaxTreePredicate() {
 		return isOperableArgumentPredicate;
 	}

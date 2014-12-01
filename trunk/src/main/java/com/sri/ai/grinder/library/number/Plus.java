@@ -76,6 +76,11 @@ public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly {
 	}
 	
 	@Override
+	protected boolean isIdempotent() {
+		return false;
+	}
+
+	@Override
 	protected Predicate<Expression> getIsOperableArgumentSyntaxTreePredicate() {
 		return isOperableArgumentPredicate;
 	}
@@ -90,7 +95,7 @@ public class Plus extends CommutativeAssociativeWithOperationOnConstantsOnly {
 	 * Makes an addition, automatically accounting for neutral element occurrences.
 	 */
 	public static Expression make(List<Expression> arguments) {
-		return CommutativeAssociative.make("+", arguments, Expressions.ZERO);
+		return CommutativeAssociative.make("+", arguments, Expressions.ZERO, false);
 	}
 
 }

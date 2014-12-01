@@ -54,9 +54,11 @@ public class SolutionPostProcessing {
 	public static Expression fromSolutionToShorterExpression(Expression solution, Theory theory, RewritingProcess process) {
 		Expression result = solution;
 		if (IfThenElse.isIfThenElse(solution)) {
-			Expression splitter = IfThenElse.getCondition(solution);
-			Expression thenBranch = fromSolutionToShorterExpression(IfThenElse.getThenBranch(solution), theory, process);
-			Expression elseBranch = fromSolutionToShorterExpression(IfThenElse.getElseBranch(solution), theory, process);
+			result = simplifySolutionIfBranchesAreEqualModuloSplitter(result, theory, process);
+			
+			Expression splitter   = IfThenElse.getCondition(result);
+			Expression thenBranch = fromSolutionToShorterExpression(IfThenElse.getThenBranch(result), theory, process);
+			Expression elseBranch = fromSolutionToShorterExpression(IfThenElse.getElseBranch(result), theory, process);
 			
 			// if C then if C' then A else B else B  --->   if C and C' then A else B
 			if (IfThenElse.isIfThenElse(thenBranch) && IfThenElse.getElseBranch(thenBranch).equals(elseBranch)) {
@@ -64,10 +66,8 @@ public class SolutionPostProcessing {
 				result = IfThenElse.make(conditionsConjunction, IfThenElse.getThenBranch(thenBranch), elseBranch);
 			}
 			else {
-				result = IfThenElse.makeIfDistinctFrom(solution, splitter, thenBranch, elseBranch);
+				result = IfThenElse.makeIfDistinctFrom(result, splitter, thenBranch, elseBranch);
 			}
-			
-			result = simplifySolutionIfBranchesAreEqualModuloSplitter(result, theory, process);
 			
 			result = IfThenElse.simplify(result);
 		}
