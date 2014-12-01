@@ -240,14 +240,14 @@ public class DPLLUtil {
 		List<Expression> freeVariablesIndexExpressions = getIndexExpressionsFromSymbolsAndTypes(freeVariablesAndTypes(constraintImpliesExpression, process));
 	
 		Expression closedConstraintImpliedExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesExpression);
-		Expression alwaysImpliesExpression = (new SymbolEqualityTautologicalityDPLL()).rewrite(closedConstraintImpliedExpression, process);
+		Expression alwaysImpliesExpression = (new EqualityOnSymbolsTautologicalityDPLL()).rewrite(closedConstraintImpliedExpression, process);
 		if (alwaysImpliesExpression.equals(Expressions.TRUE)) {
 			result = Expressions.TRUE;
 		}
 		else {
 			Expression constraintImpliesNegationOfExpression = Implication.make(constraint, Not.make(expression));
 			Expression closedConstraintImpliesNegationOfExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesNegationOfExpression);
-			Expression alwaysImpliesNegationOfExpression = (new SymbolEqualityTautologicalityDPLL()).rewrite(closedConstraintImpliesNegationOfExpression, process);
+			Expression alwaysImpliesNegationOfExpression = (new EqualityOnSymbolsTautologicalityDPLL()).rewrite(closedConstraintImpliesNegationOfExpression, process);
 			if (alwaysImpliesNegationOfExpression.equals(Expressions.TRUE)) {
 				result = Expressions.FALSE;
 			}
@@ -271,6 +271,20 @@ public class DPLLUtil {
 
 	public static boolean isSplitter(Expression literal, Theory theory, RewritingProcess process) {
 		boolean result = theory.makeSplitterIfPossible(literal, Util.list(), process) != null;
+		return result;
+	}
+
+	/**
+	 * Given a splitter, a theory and a constraint, returns an equivalent splitter normalized by constraint.
+	 * @param splitter
+	 * @param theory
+	 * @param constraint
+	 * @param process
+	 * @return
+	 */
+	public static Expression normalizeSplitter(Expression splitter, Theory theory, Theory.Constraint constraint, RewritingProcess process) {
+		Expression normalizedSplitter = constraint.normalize(splitter, process);
+		Expression result = normalizedSplitter == splitter? splitter : theory.makeSplitterIfPossible(normalizedSplitter, constraint.getIndices(), process);
 		return result;
 	}
 }

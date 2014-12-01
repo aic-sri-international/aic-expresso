@@ -42,7 +42,7 @@ import java.util.Collections;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.TheoryConstraint;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.Constraint;
 
 /**
  * A default implementation of {@link Problem}.
@@ -54,9 +54,9 @@ public class DefaultProblem implements Problem {
 	
 	private Expression expression;
 	private Collection<Expression> indices;
-	private TheoryConstraint constraint;
+	private Constraint constraint;
 
-	public DefaultProblem(Expression expression, Collection<Expression> indices, TheoryConstraint constraint) {
+	public DefaultProblem(Expression expression, Collection<Expression> indices, Constraint constraint) {
 		this.expression = expression;
 		this.indices = indices;
 		this.constraint = constraint;
@@ -73,7 +73,7 @@ public class DefaultProblem implements Problem {
 	}
 
 	@Override
-	public TheoryConstraint getConstraint() {
+	public Constraint getConstraint() {
 		return constraint;
 	}
 
@@ -88,7 +88,7 @@ public class DefaultProblem implements Problem {
 	}
 
 	@Override
-	public Problem setConstraint(TheoryConstraint newConstraint) {
+	public Problem setConstraint(Constraint newConstraint) {
 		return new DefaultProblem(expression, indices, newConstraint);
 	}
 }

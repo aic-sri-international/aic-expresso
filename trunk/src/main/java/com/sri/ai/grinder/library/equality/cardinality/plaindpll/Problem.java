@@ -41,7 +41,7 @@ import java.util.Collection;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.TheoryConstraint;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.Constraint;
 
 /**
  * A symbolic generalized DPLL (@link {AbstractPlainDPLL}) problem of the form sum_{I : C} E.
@@ -54,9 +54,9 @@ import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.TheoryCo
 public interface Problem {
 	Expression getExpression();
 	Collection<Expression> getIndices();
-	TheoryConstraint getConstraint();
+	Constraint getConstraint();
 	
 	Problem setExpression(Expression newExpression);
-	Problem setConstraint(TheoryConstraint newConstraint);
+	Problem setConstraint(Constraint newConstraint);
 	Problem setIndices(Collection<Expression> newIndices);
 }

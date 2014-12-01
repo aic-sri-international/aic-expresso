@@ -89,7 +89,7 @@ public interface Theory {
 	 * @param process
 	 * @return
 	 */
-	Expression pickSplitterInExpression(Expression expression, TheoryConstraint constraint, RewritingProcess process);
+	Expression pickSplitterInExpression(Expression expression, Constraint constraint, RewritingProcess process);
 
 	/**
 	 * Indicates whether a splitter interpretation depends on the interpretation of some index.
@@ -121,7 +121,7 @@ public interface Theory {
 	 * Make a new constraint for this theory over a set of indices (equivalent to all assignments to those indices).
 	 * @return
 	 */
-	TheoryConstraint makeConstraint(Collection<Expression> indices);
+	Constraint makeConstraint(Collection<Expression> indices);
 
 	/**
 	 * An interface for theory-specific representations of the current constraint in DPLL.
@@ -130,7 +130,7 @@ public interface Theory {
 	 *
 	 */
 	@Beta
-	public interface TheoryConstraint {
+	public interface Constraint {
 		
 		Collection<Expression> getIndices();
 		
@@ -146,7 +146,7 @@ public interface Theory {
 		 * @param splitter the splitter according to this theory's choice
 		 * @param the rewriting process
 		 */
-		TheoryConstraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process);
+		Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process);
 
 		/**
 		 * Computes model count for constraint, given a set of indices, in polynomial time.
@@ -160,9 +160,10 @@ public interface Theory {
 		 * For example, an implementation involving equality may choose to always represent all symbols in an equality cluster
 		 * by the same symbol. 
 		 * @param expression
+		 * @param process TODO
 		 * @return
 		 */
-		Expression normalize(Expression expression);
+		Expression normalize(Expression expression, RewritingProcess process);
 
 		/**
 		 * Given a splitter candidate, returns the same, or another, splitter
