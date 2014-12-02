@@ -79,7 +79,8 @@ public class SymbolEqualitySatisfiabilityDPLLTest extends SymbolicSymbolEquality
 		// and X != a is therefore meaningless.
 		expression  = parse("(X != a) and (X = Y and Y != c)");
 		indices     = list();
-		expected    = parse("if X = a then false else if Y = a then false else if X = Y then if Y = c then false else true else false");
+		expected    = parse("if X = a then false else if X = Y then if Y = c then false else true else false");
+//		expected    = parse("if X = a then false else if Y = a then false else if X = Y then if Y = c then false else true else false");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
 		// tests whether splitter negation, when applied, gets "translated" by inner splitters in then branches.
@@ -141,7 +142,8 @@ public class SymbolEqualitySatisfiabilityDPLLTest extends SymbolicSymbolEquality
 		
 		expression = parse("X != Y and X != Z and X != a");
 		indices    = list("X");
-		expected   = parse("if Z = Y then if Y = a then | Everything | - 1 > 0 else | Everything | - 2 > 0 else if Z = a then | Everything | - 2 > 0 else if Y = a then | Everything | - 2 > 0 else | Everything | - 3 > 0");
+		expected   = parse("if Y = Z then if Z = a then | Everything | - 1 > 0 else | Everything | - 2 > 0 else if Y = a then | Everything | - 2 > 0 else if Z = a then | Everything | - 2 > 0 else | Everything | - 3 > 0");
+//		expected   = parse("if Z = Y then if Y = a then | Everything | - 1 > 0 else | Everything | - 2 > 0 else if Z = a then | Everything | - 2 > 0 else if Y = a then | Everything | - 2 > 0 else | Everything | - 3 > 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("Y = a and X != Y and X != a");

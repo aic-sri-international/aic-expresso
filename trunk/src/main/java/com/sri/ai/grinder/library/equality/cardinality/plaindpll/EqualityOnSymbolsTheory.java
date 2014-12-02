@@ -143,27 +143,52 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		Expression result = null;
 		if (expression.hasFunctor(FunctorConstants.EQUALITY) || expression.hasFunctor(FunctorConstants.DISEQUALITY)) {
 			// remember that equality can have an arbitrary number of terms
-			Expression variable = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), new IsVariable(process));
+			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), new IsVariable(process));
 			Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), com.sri.ai.util.base.Not.make(Equals.make(variable)));
-			result = makeSplitterWithIndexIfAnyComingFirst(variable, otherTerm, indices);
+			result = makeSplitterVariableAndAnotherTerm(variable, otherTerm, indices, process);
 		}
 		return result;
 	}
 
-	protected static Expression makeSplitterWithIndexIfAnyComingFirst(Expression variable, Expression otherTerm, Collection<Expression> indices) {
-		Expression result;
-		// if variable is a free variable or constant and other term is an index, we invert them because
-		// the algorithm requires the first term to be an index if there are any indices in the atom.
-		if ( ! indices.contains(variable) && indices.contains(otherTerm) ) {
-			result = Equality.make(otherTerm, variable);
-		}
-		else {
-			result = Equality.make(variable, otherTerm);
-		}
-		return result;
+	/**
+	 * Assumes equality between terms is not trivial.
+	 * @param variable
+	 * @param otherTerm
+	 * @param indices
+	 * @return
+	 */
+	protected static Expression makeSplitterVariableAndAnotherTerm(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
+//		Expression result;
+//		// if variable is a free variable or constant and other term is an index, we invert them because
+//		// the algorithm requires the first term to be an index if there are any indices in the atom.
+//		if ( ! indices.contains(variable) && indices.contains(otherTerm) ) {
+//			result = Equality.make(otherTerm, variable);
+//		}
+//		else {
+//			result = Equality.make(variable, otherTerm);
+//		}
+//		return result;
+		return makeSplitterFromTwoTerms(variable, otherTerm, indices, process);
 	}
 
+	/**
+	 * Assumes equality between terms is not trivial.
+	 * @param term1
+	 * @param term2
+	 * @param indices
+	 * @param process
+	 * @return
+	 */
 	protected static Expression makeSplitterFromTwoTerms(Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
+//		Expression result;
+//		if (process.isVariable(term1) && variableIsChosenAfterOtherTerm(term1, term2, indices, process)) {
+//			result = Equality.make(term1, term2);
+//		}
+//		else {
+//			result = Equality.make(term2, term1); // term2 is a variable because we can assume equality is not trivial, and two constants would have a trivial equality.
+//		}
+//		return result;
+
 		Expression result;
 		// if variable is a free variable or constant and other term is an index, we invert them because
 		// the algorithm requires the first term to be an index if there are any indices in the atom.
@@ -225,6 +250,36 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		return new Constraint(indices);
 	}
 	
+	/**
+	 * Indicates whether variable in chosen after otherTerm in choosing ordering.
+	 */
+	private static boolean variableIsChosenAfterOtherTerm(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
+		boolean result = process.isConstant(otherTerm) || variableIsChosenAfterOtherVariable(otherTerm, variable, indices);
+		return result;
+	}
+
+	/**
+	 * Indicates whether variable in chosen after otherVariable in choosing ordering.
+	 */
+	private static boolean variableIsChosenAfterOtherVariable(Expression variable, Expression otherVariable, Collection<Expression> indices) {
+		boolean result;
+		if (indices.contains(variable)) { // index
+			if ( ! indices.contains(otherVariable)) { // free variable
+				result = false; // free variables always precedes indices
+			}
+			else { // both are indices
+				result = otherVariable.toString().compareTo(variable.toString()) < 0; // indices are compared alphabetically
+			}
+		}
+		else if (indices.contains(otherVariable)) { // variable is free variable and otherVariable is index
+			result = true; // free variable always precedes indices
+		}
+		else { // neither is index
+			result = otherVariable.toString().compareTo(variable.toString()) < 0;	// alphabetically		
+		}
+		return result;
+	}
+
 	private static final Times timesRewriter = new Times(); // for use in the class below
 
 	@SuppressWarnings("serial")
@@ -300,7 +355,7 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 							if (process.isVariable(y)) { // we can restrict y to variables because at least one of y or t must be a variable (otherwise they would be two constants and we already know those are disequal).
 								Expression t = getAnotherTermInCollectionThatIsNotConstrainedToBeDisequalToTerm(disequalsOfX, y, process);
 								if (t != null) {
-									Expression splitter = EqualityOnSymbolsTheory.makeSplitterWithIndexIfAnyComingFirst(y, t, indices);
+									Expression splitter = EqualityOnSymbolsTheory.makeSplitterVariableAndAnotherTerm(y, t, indices, process);
 									return splitter;
 								}
 							}
@@ -439,7 +494,7 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		}
 
 		protected void addOneTermToTheOthersDisequalsInNewConstraintAccordingToChoosingOrder(Expression variable, Expression otherTerm, Constraint newConstraint, RewritingProcess process) {
-			if (variableIsChosenAfterOtherTerm(variable, otherTerm, process)) {
+			if (variableIsChosenAfterOtherTerm(variable, otherTerm, indices, process)) {
 				copySetOfDisequalsFromTerm1AndAddTerm2AsDisequalOfTerm1AsWellInNewConstraint(variable, otherTerm, newConstraint);
 			}
 			else {
@@ -500,7 +555,7 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		/** Assumes disequality does not turn constraint into contradiction */
 		private void applyDisequality(Expression term1, Expression term2, RewritingProcess process) {
 			if (process.isVariable(term1) || process.isVariable(term2)) {
-				if (process.isVariable(term1) && variableIsChosenAfterOtherTerm(term1, term2, process)) {
+				if (process.isVariable(term1) && variableIsChosenAfterOtherTerm(term1, term2, indices, process)) {
 					addFirstTermAsDisequalOfSecondTerm(term1, term2);
 				}
 				else { // term2 must be a variable because either term1 is not a variable, or it is but term2 comes later than term1 in ordering, which means it is a variable
@@ -513,19 +568,6 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		private void addFirstTermAsDisequalOfSecondTerm(Expression term1, Expression term2) {
 			Set<Expression> disequalsOfTerm1 = (Set<Expression>) Util.getValuePossiblyCreatingIt(((Constraint) this), term1, LinkedHashSet.class); // cannot use getDisequals(term1) here because that method does not create a new set if needed, but simply uses a constant empty collection. This prevents unnecessary creation of collections.
 			disequalsOfTerm1.add(term2);
-		}
-
-		public Expression getMostRequiredSplitter(Expression splitterCandidate, RewritingProcess process) {
-			Expression x = splitterCandidate.get(0);
-			Expression t = splitterCandidate.get(1);
-			Collection<Expression> xDisequals = getDisequals(x);
-			Expression xDisequalNotConstrainedToBeDisequalToT =
-					getAnotherTermInCollectionThatIsNotConstrainedToBeDisequalToTerm(xDisequals, t, process);
-			if (xDisequalNotConstrainedToBeDisequalToT != null) {
-				splitterCandidate = EqualityOnSymbolsTheory.makeSplitterFromTwoTerms(t, xDisequalNotConstrainedToBeDisequalToT, indices, process);
-				splitterCandidate = getMostRequiredSplitter(splitterCandidate, process);
-			}
-			return splitterCandidate;
 		}
 
 		private Expression getAnotherTermInCollectionThatIsNotConstrainedToBeDisequalToTerm(Collection<Expression> terms, Expression term, RewritingProcess process) {
@@ -642,33 +684,6 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 			return result;
 		}
 
-		private boolean variableIsChosenAfterOtherTerm(Expression variable, Expression otherTerm, RewritingProcess process) {
-			boolean result = process.isConstant(otherTerm) || variableIsChosenAfterOtherVariable(otherTerm, variable);
-			return result;
-		}
-
-		/**
-		 * Indicates whether variable1 in chosen after variable2 in choosing ordering
-		 */
-		public boolean variableIsChosenAfterOtherVariable(Expression variable, Expression otherVariable) {
-			boolean result;
-			if (indices.contains(variable)) { // index
-				if ( ! indices.contains(otherVariable)) { // free variable
-					result = false; // free variables always precedes indices
-				}
-				else { // both are indices
-					result = otherVariable.toString().compareTo(variable.toString()) < 0; // indices are compared alphabetically
-				}
-			}
-			else if (indices.contains(otherVariable)) { // variable is free variable and otherVariable is index
-				result = true; // free variable always precedes indices
-			}
-			else { // neither is index
-				result = otherVariable.toString().compareTo(variable.toString()) < 0;	// alphabetically		
-			}
-			return result;
-		}
-		
 		@Override
 		public String toString() {
 			String result =
