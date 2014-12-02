@@ -66,6 +66,13 @@ public class SymbolEqualitySatisfiabilityDPLLTest extends SymbolicSymbolEquality
 		
 		GrinderUtil.setMinimumOutputForProfiling();
 		
+		// Repeated for debugging purposes
+		expression = parse("X != Y");
+		indices    = list("X");
+		expected   = parse("| Everything | - 1 > 0");
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+
+		
 		// tests whether splitter negation, when applied, gets "translated" by inner splitters in then branches.
 		// for example, if I apply X != a to if X = Y then if Y = a then true else false else false,
 		// X != a needs to be translated to Y != a under X = Y, because in that then branch X does not exist,

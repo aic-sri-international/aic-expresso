@@ -155,6 +155,11 @@ public class PropositionalTheory extends AbstractTheory {
 	}
 
 	@Override
+	public boolean applicationOfConstraintOnSplitterEitherTrivializesItOrEffectsNoChangeAtAll() {
+		return true; // a proposition or its negation is either implied by a constraint, or not altered at all.
+	}
+
+	@Override
 	public Constraint makeConstraint(Collection<Expression> indices) {
 		return new Constraint(indices);
 	}
@@ -241,7 +246,19 @@ public class PropositionalTheory extends AbstractTheory {
 
 		@Override
 		public Expression normalize(Expression expression, RewritingProcess process) {
-			return expression; // no normalization
+			String syntacticTypeForm = "Symbol";
+			BinaryFunction<Expression, RewritingProcess, Expression> simplifier =
+					(BinaryFunction<Expression, RewritingProcess, Expression>)
+					(s, p) -> assertedPropositions.contains(s)? Expressions.TRUE : negatedPropositions.contains(s)? Expressions.FALSE : s;
+
+			Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifier(
+					expression,
+					PropositionalTheory.functionApplicationSimplifiers,
+					PropositionalTheory.syntacticFormTypeSimplifiers,
+					syntacticTypeForm, simplifier,
+					process);
+			
+			return result;
 		}
 
 		@Override
