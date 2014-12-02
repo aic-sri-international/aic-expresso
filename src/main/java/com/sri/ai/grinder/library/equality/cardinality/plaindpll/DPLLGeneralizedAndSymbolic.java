@@ -51,6 +51,7 @@ import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.Constraint;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -112,6 +113,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	protected Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		Constraint constraint = theory.makeConstraint(indices);
 		Expression result = solve(expression, constraint, process);
+		result = ((AbstractTheory)theory).applyConstraintToSolution(theory.makeConstraint(Util.list()), result, process); // TEMPORARY; also, make applyConstraintToSolution private
 		return result;
 	}
 

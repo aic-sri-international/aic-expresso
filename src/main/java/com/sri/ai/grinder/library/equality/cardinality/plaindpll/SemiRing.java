@@ -57,7 +57,7 @@ public interface SemiRing {
 
 	/**
 	 * The result of adding a value (constant in the sense of having no background theory literals,
-	 * but possibly symbolic) to itself n times.
+	 * but possibly symbolic) to itself n times (which can itself be symbolic, that is, conditional).
 	 */
 	Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process);
 

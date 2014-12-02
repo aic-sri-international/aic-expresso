@@ -216,6 +216,11 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 	}
 
 	@Override
+	public boolean applicationOfConstraintOnSplitterEitherTrivializesItOrEffectsNoChangeAtAll() {
+		return false;
+	}
+
+	@Override
 	public Constraint makeConstraint(Collection<Expression> indices) {
 		return new Constraint(indices);
 	}
@@ -556,9 +561,9 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 				}
 			}
 			
-			Expression modelCountGivenConditionsOnFreeVariablesAreTrue = Times.make(numberOfPossibleValuesForIndicesSoFar);
-			modelCountGivenConditionsOnFreeVariablesAreTrue = makeModelCountConditionedOnFreeVariables(modelCountGivenConditionsOnFreeVariablesAreTrue, process);
-			Expression result = timesRewriter.rewrite(modelCountGivenConditionsOnFreeVariablesAreTrue, process);
+			Expression result = Times.make(numberOfPossibleValuesForIndicesSoFar);
+			result = timesRewriter.rewrite(result, process);
+			result = makeModelCountConditionedOnFreeVariables(result, process);
 			
 			return result;
 		}
@@ -583,17 +588,33 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 
 		private Collection<Expression> getSplittersToBeSatisfied(RewritingProcess process) {
 			Collection<Expression> result = new LinkedHashSet<Expression>();
-//			for (Expression freeVariable : fromBoundFreeVariableToBinding.keySet()) {
-//				Expression representative = getRepresentative(freeVariable, process);
-//				if (representative != null) {
-//					result.add(Equality.make(freeVariable, representative));
-//				}
-//			}
+			for (Expression freeVariable : fromBoundFreeVariableToBinding.keySet()) {
+				Expression representative = getRepresentative(freeVariable, process);
+				// Note that a free variable's representative is never an index, because
+				// in splitters indices always come before free variables,
+				// and that is the order of the binding.
+				// A splitter with a free variable as the first term will always have another free variable
+				// or a constant on the right-hand side.
+				// This matters because the conditional model count has to be in terms of
+				// free variables and constants only, never indices.
+				if ( ! representative.equals(freeVariable)) {
+					result.add(Equality.make(freeVariable, representative));
+				}
+			}
 			return result;
 		}
 
 		private Collection<Expression> getSplittersToBeNotSatisfied(RewritingProcess process) {
 			Collection<Expression> result = new LinkedHashSet<Expression>();
+			for (java.util.Map.Entry<Expression, Collection<Expression>> entry : entrySet()) {
+				assert process.isVariable(entry.getKey());
+				Expression variable = entry.getKey();
+				if ( ! indices.contains(variable)) { // if variable is free
+					for (Expression disequal : entry.getValue()) {
+						result.add(Expressions.apply(FunctorConstants.EQUALITY, variable, disequal)); // making it with apply instead of Disequality.make sidesteps simplifications, which will not occur in this case
+					}
+				}
+			}
 			return result;
 		}
 
@@ -657,20 +678,19 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 			return result; 
 		}
 
-				
 		@Override
 		public Expression normalize(Expression expression, RewritingProcess process) {
-			// Uses the theory simplifiers:
-			Map<String, BinaryFunction<Expression, RewritingProcess, Expression>>
-			mySyntacticFormTypeSimplifiers = new LinkedHashMap<String, BinaryFunction<Expression, RewritingProcess, Expression>>(
-					EqualityOnSymbolsTheory.syntacticFormTypeSimplifiers);
+			String syntacticTypeForm = "Symbol";
+			BinaryFunction<Expression, RewritingProcess, Expression> simplifier =
+					(BinaryFunction<Expression, RewritingProcess, Expression>) (s, p) -> getRepresentative(s, p);
+
+			Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifier(
+					expression,
+					EqualityOnSymbolsTheory.functionApplicationSimplifiers,
+					EqualityOnSymbolsTheory.syntacticFormTypeSimplifiers,
+					syntacticTypeForm, simplifier,
+					process);
 			
-			// Use an extra simplifier replacing symbols by their representatives per the constraint
-			mySyntacticFormTypeSimplifiers.put(
-					"Symbol",
-					(BinaryFunction<Expression, RewritingProcess, Expression>) (s, p) -> getRepresentative(s, p));
-			
-			Expression result = DPLLUtil.simplify(expression, EqualityOnSymbolsTheory.functionApplicationSimplifiers, mySyntacticFormTypeSimplifiers, process);
 			return result;
 		}
 	}

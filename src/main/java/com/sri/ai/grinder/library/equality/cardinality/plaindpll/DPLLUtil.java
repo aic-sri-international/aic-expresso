@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -277,14 +278,47 @@ public class DPLLUtil {
 	/**
 	 * Given a splitter, a theory and a constraint, returns an equivalent splitter normalized by constraint.
 	 * @param splitter
-	 * @param theory
 	 * @param constraint
+	 * @param theory
 	 * @param process
 	 * @return
 	 */
-	public static Expression normalizeSplitter(Expression splitter, Theory theory, Theory.Constraint constraint, RewritingProcess process) {
-		Expression normalizedSplitter = constraint.normalize(splitter, process);
-		Expression result = normalizedSplitter == splitter? splitter : theory.makeSplitterIfPossible(normalizedSplitter, constraint.getIndices(), process);
+	public static Expression normalizeSplitter(Expression splitter, Theory.Constraint constraint, Theory theory, RewritingProcess process) {
+		Expression result;
+		if (theory.applicationOfConstraintOnSplitterEitherTrivializesItOrEffectsNoChangeAtAll()) {
+			result = splitter;
+		}
+		else {
+			Expression normalizedSplitter = constraint.normalize(splitter, process);
+			result = normalizedSplitter == splitter? splitter : theory.makeSplitterIfPossible(normalizedSplitter, constraint.getIndices(), process);
+		}
+		return result;
+	}
+
+	/**
+	 * Simplify an expression given maps of function application and syntactic form type simplifiers,
+	 * and an extra simplifier for a given syntactic form type.
+	 * @param expression
+	 * @param functionApplicationSimplifiers
+	 * @param syntacticFormTypeSimplifiers
+	 * @param syntacticTypeForm
+	 * @param simplifier
+	 * @param process
+	 * @return
+	 */
+	public static Expression simplifyWithExtraSyntacticFormTypeSimplifier(
+			Expression expression,
+			Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers,
+			String syntacticTypeForm,
+			BinaryFunction<Expression, RewritingProcess, Expression> simplifier,
+			RewritingProcess process) {
+		Map<String, BinaryFunction<Expression, RewritingProcess, Expression>>
+		mySyntacticFormTypeSimplifiers = new LinkedHashMap<String, BinaryFunction<Expression, RewritingProcess, Expression>>(syntacticFormTypeSimplifiers);
+		
+		// Use an extra simplifier replacing symbols by their representatives per the constraint
+		mySyntacticFormTypeSimplifiers.put(syntacticTypeForm, simplifier);
+		
+		Expression result = simplify(expression, functionApplicationSimplifiers, mySyntacticFormTypeSimplifiers, process);
 		return result;
 	}
 }

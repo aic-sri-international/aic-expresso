@@ -49,6 +49,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Or;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
 
 /**
  * Object representing a boolean semiring.
@@ -82,6 +83,14 @@ public class BooleanSemiRing implements SemiRing {
 		// n is a symbolic value, so now it all depends on its being greater than zero
 		else if (GrinderConfiguration.isAssumeDomainsAlwaysLarge()) { // this flag tells us to always assume type sizes are as large as needed to make n positive.
 			result = TRUE;
+		}
+		else if (IfThenElse.isIfThenElse(n)) {
+			Expression condition  = IfThenElse.getCondition(n);
+			Expression thenBranch = IfThenElse.getThenBranch(n);
+			Expression elseBranch = IfThenElse.getElseBranch(n);
+			Expression newThenBranch = addNTimes(value, thenBranch, process);
+			Expression newElseBranch = addNTimes(value, elseBranch, process);
+			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false); // do not simplify to condition so it is a DPLL solution
 		}
 		else {
 			result = apply(GREATER_THAN, n, Expressions.ZERO);

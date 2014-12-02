@@ -116,6 +116,13 @@ public interface Theory {
 	 * @return an equivalent solution
 	 */
 	Expression applySplitterToSolution(boolean splitterSign, Expression splitter, Expression solution, RewritingProcess process);
+	
+	/**
+	 * Indicates whether the application of a constraint on a splitter can result in true, false, or the splitter itself;
+	 * this is used to optimize applications of constraints on solutions.
+	 * @return whether the application of a constraint on a splitter can result in true, false, or the splitter itself.
+	 */
+	boolean applicationOfConstraintOnSplitterEitherTrivializesItOrEffectsNoChangeAtAll();
 
 	/**
 	 * Make a new constraint for this theory over a set of indices (equivalent to all assignments to those indices).

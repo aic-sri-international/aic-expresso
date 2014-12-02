@@ -88,6 +88,14 @@ public class SymbolicNumberSemiRing implements SemiRing {
 		if (n.equals(ZERO)) {
 			result = ZERO;
 		}
+		else if (IfThenElse.isIfThenElse(n)) { // it is important that this condition is tested before the next, because n can be conditional on splitters while valueToBeSummed can be conditioned on conditions in the unconditional solution language (such as | Everything | - 1 > 0), and we want splitters to be over non-splitter conditions
+			Expression condition  = IfThenElse.getCondition(n);
+			Expression thenBranch = IfThenElse.getThenBranch(n);
+			Expression elseBranch = IfThenElse.getElseBranch(n);
+			Expression newThenBranch = addNTimes(valueToBeSummed, thenBranch, process);
+			Expression newElseBranch = addNTimes(valueToBeSummed, elseBranch, process);
+			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false); // do not simplify to condition so it is a DPLL solution
+		}
 		else if (IfThenElse.isIfThenElse(valueToBeSummed)) {
 			Expression condition = IfThenElse.getCondition(valueToBeSummed);
 			Expression thenBranch = IfThenElse.getThenBranch(valueToBeSummed);
