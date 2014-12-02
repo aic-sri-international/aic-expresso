@@ -96,10 +96,7 @@ abstract public class AbstractTheory implements Theory {
 		while (result == null && subExpressionIterator.hasNext()) {
 			Expression subExpression = subExpressionIterator.next();
 			Expression splitterCandidate = makeSplitterIfPossible(subExpression, constraint.getIndices(), process);
-			if (splitterCandidate != null) {
-				result = constraint.getMostRequiredSplitter(splitterCandidate, process); // should be generalized to any theory
-			}
-//			result = splitterCandidate;
+			result = splitterCandidate;
 		}
 	
 		return result;

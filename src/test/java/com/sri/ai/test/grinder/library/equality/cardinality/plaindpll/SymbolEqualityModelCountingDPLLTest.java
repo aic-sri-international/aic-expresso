@@ -151,7 +151,8 @@ public class SymbolEqualityModelCountingDPLLTest extends SymbolicSymbolEqualityD
 		
 		expression = parse("X != Y and X != Z and X != a");
 		indices    = list("X");
-		expected   = parse("if Z = Y then if Y = a then | Everything | - 1 else | Everything | - 2 else if Z = a then | Everything | - 2 else if Y = a then | Everything | - 2 else | Everything | - 3");
+//		expected   = parse("if Z = Y then if Y = a then | Everything | - 1 else | Everything | - 2 else if Z = a then | Everything | - 2 else if Y = a then | Everything | - 2 else | Everything | - 3");
+		expected   = parse("if Y = Z then if Z = a then | Everything | - 1 else | Everything | - 2 else if Y = a then | Everything | - 2 else if Z = a then | Everything | - 2 else | Everything | - 3");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("Y = a and X != Y and X != a");

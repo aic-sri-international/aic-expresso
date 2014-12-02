@@ -262,11 +262,6 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 
 		@Override
-		public Expression getMostRequiredSplitter(Expression splitterCandidate, RewritingProcess process) {
-			return splitterCandidate; // a proposition can always be imposed without need for prior assumptions
-		}
-		
-		@Override
 		public String toString() {
 			ArrayList<String> items = new ArrayList<String>();
 			items.add("Indices " + Util.join(indices));

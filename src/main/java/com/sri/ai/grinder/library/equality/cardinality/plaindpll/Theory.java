@@ -171,15 +171,5 @@ public interface Theory {
 		 * @return
 		 */
 		Expression normalize(Expression expression, RewritingProcess process);
-
-		/**
-		 * Given a splitter candidate, returns the same, or another, splitter
-		 * guaranteed to be satisfiable under the constraint, no matter what assignment to free variables.
-		 * This is also required to make any splitter candidate have this property itself after a finite number of invocations.
-		 * @param splitterCandidate
-		 * @param process
-		 * @return
-		 */
-		Expression getMostRequiredSplitter(Expression splitterCandidate, RewritingProcess process);
 	}
 }
