@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -103,14 +102,6 @@ abstract public class AbstractTheory implements Theory {
 	}
 
 	@Override
-	public Expression applySplitterToSolution(boolean splitterSign, Expression splitter, Expression solution, RewritingProcess process) {
-		Constraint constraint = makeConstraint(Collections.emptyList()); // no indices in solutions
-		constraint = constraint.applySplitter(splitterSign, splitter, process);
-		Expression result = applyConstraintToSolution(constraint, solution, process);
-		return result;
-	}
-
-	// Temporarily public, will be private
 	public Expression applyConstraintToSolution(Constraint constraint, Expression solution, RewritingProcess process) {
 		Expression result;
 		

@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.Constraint;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 
@@ -319,6 +321,23 @@ public class DPLLUtil {
 		mySyntacticFormTypeSimplifiers.put(syntacticTypeForm, simplifier);
 		
 		Expression result = simplify(expression, functionApplicationSimplifiers, mySyntacticFormTypeSimplifiers, process);
+		return result;
+	}
+
+	/**
+	 * Applies a constraint equivalent to given signed splitter using
+	 * {@link Theory#applyConstraintToSolution(com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.Constraint, Expression, RewritingProcess)}.
+	 * @param splitterSign
+	 * @param splitter
+	 * @param solution
+	 * @param theory
+	 * @param process
+	 * @return an equivalent solution
+	 */
+	public static Expression applySplitterToSolution(boolean splitterSign, Expression splitter, Expression solution, Theory theory, RewritingProcess process) {
+		Constraint constraint = theory.makeConstraint(Collections.emptyList()); // no indices in solutions
+		constraint = constraint.applySplitter(splitterSign, splitter, process);
+		Expression result = theory.applyConstraintToSolution(constraint, solution, process);
 		return result;
 	}
 }

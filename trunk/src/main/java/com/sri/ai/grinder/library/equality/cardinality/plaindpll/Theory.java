@@ -107,16 +107,15 @@ public interface Theory {
 	Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process);
 
 	/**
-	 * Simplifies a solution given the assumption that a splitter is true or false (depending on the sign),
-	 * returning a solution that is equivalent to the given one under that assumption. 
-	 * @param splitterSign
-	 * @param splitter
+	 * Simplifies solution under constraint, by eliminating trivialized splitters
+	 * and normalizing remaining splitters and leaf expressions according to theory normalization properties.
+	 * @param constraint
 	 * @param solution
 	 * @param process
-	 * @return an equivalent solution
+	 * @return
 	 */
-	Expression applySplitterToSolution(boolean splitterSign, Expression splitter, Expression solution, RewritingProcess process);
-	
+	Expression applyConstraintToSolution(Constraint constraint, Expression solution, RewritingProcess process);
+
 	/**
 	 * Indicates whether the application of a constraint on a splitter can result in true, false, or the splitter itself;
 	 * this is used to optimize applications of constraints on solutions.

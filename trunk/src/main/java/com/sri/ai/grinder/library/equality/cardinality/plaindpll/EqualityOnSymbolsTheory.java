@@ -235,12 +235,6 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 	}
 
 	@Override
-	public Expression applySplitterToSolution(boolean splitterSign, Expression splitter, Expression solution, RewritingProcess process) {
-		Expression result = super.applySplitterToSolution(splitterSign, splitter, solution, process);
-		return result;
-	}
-
-	@Override
 	public boolean applicationOfConstraintOnSplitterEitherTrivializesItOrEffectsNoChangeAtAll() {
 		return false;
 	}
