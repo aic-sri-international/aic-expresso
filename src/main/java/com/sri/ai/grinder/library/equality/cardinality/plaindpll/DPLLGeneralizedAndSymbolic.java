@@ -235,8 +235,8 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 			Expression condition  = IfThenElse.getCondition(solution1);
 			Expression thenBranch = IfThenElse.getThenBranch(solution1);
 			Expression elseBranch = IfThenElse.getElseBranch(solution1);
-			Expression solution2UnderCondition    = theory.applySplitterToSolution(true, condition, solution2, process);
-			Expression solution2UnderNotCondition = theory.applySplitterToSolution(false, condition, solution2, process);
+			Expression solution2UnderCondition    = DPLLUtil.applySplitterToSolution(true, condition, solution2, theory, process);
+			Expression solution2UnderNotCondition = DPLLUtil.applySplitterToSolution(false, condition, solution2, theory, process);
 			Expression newThenBranch = addSymbolicResults(thenBranch, solution2UnderCondition,    process);
 			Expression newElseBranch = addSymbolicResults(elseBranch, solution2UnderNotCondition, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false /* no simplification to condition */);
@@ -245,8 +245,8 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 			Expression condition  = IfThenElse.getCondition(solution2);
 			Expression thenBranch = IfThenElse.getThenBranch(solution2);
 			Expression elseBranch = IfThenElse.getElseBranch(solution2);
-			Expression solution1UnderCondition    = theory.applySplitterToSolution(true, condition, solution1, process);
-			Expression solution1UnderNotCondition = theory.applySplitterToSolution(false, condition, solution1, process);
+			Expression solution1UnderCondition    = DPLLUtil.applySplitterToSolution(true, condition, solution1, theory, process);
+			Expression solution1UnderNotCondition = DPLLUtil.applySplitterToSolution(false, condition, solution1, theory, process);
 			Expression newThenBranch = addSymbolicResults(solution1UnderCondition,    thenBranch, process);
 			Expression newElseBranch = addSymbolicResults(solution1UnderNotCondition, elseBranch, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false /* no simplification to condition */);

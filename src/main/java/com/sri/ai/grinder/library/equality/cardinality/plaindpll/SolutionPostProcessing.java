@@ -104,7 +104,7 @@ public class SolutionPostProcessing {
 	public static boolean equalModuloSplitter(Expression splitter, Expression solution1, Expression solution2, Theory theory, RewritingProcess process) {
 		boolean result = solution1.equals(solution2);
 		if ( ! result) {
-			Expression solution2UnderSplitter = theory.applySplitterToSolution(true, splitter, solution2, process);
+			Expression solution2UnderSplitter = DPLLUtil.applySplitterToSolution(true, splitter, solution2, theory, process);
 			result = solution1.equals(solution2UnderSplitter);
 		}
 		return result;
