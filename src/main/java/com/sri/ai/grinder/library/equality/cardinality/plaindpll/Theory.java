@@ -94,7 +94,7 @@ public interface Theory {
 	/**
 	 * Indicates whether a splitter interpretation depends on the interpretation of some index.
 	 */
-	boolean splitterInvolvesIndex(Expression splitter, Collection<Expression> indices);
+	boolean splitterDependsOnIndex(Expression splitter, Collection<Expression> indices);
 
 	/**
 	 * Simplifies an expression given the assumption that a splitter is true or false, depending on given sign.
@@ -105,7 +105,8 @@ public interface Theory {
 	 * @return
 	 */
 	Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process);
-
+	// Perhaps this should be merged to applyConstraintToSolution.
+	
 	/**
 	 * Simplifies solution under constraint, by eliminating trivialized splitters
 	 * and normalizing remaining splitters and leaf expressions according to theory normalization properties.
@@ -121,7 +122,7 @@ public interface Theory {
 	 * this is used to optimize applications of constraints on solutions.
 	 * @return whether the application of a constraint on a splitter can result in true, false, or the splitter itself.
 	 */
-	boolean applicationOfConstraintOnSplitterEitherTrivializesItOrEffectsNoChangeAtAll();
+	boolean applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll();
 
 	/**
 	 * Make a new constraint for this theory over a set of indices (equivalent to all assignments to those indices).
@@ -147,26 +148,39 @@ public interface Theory {
 		Expression pickSplitter(RewritingProcess process);
 		
 		/**
+		 * Receives a splitter and returns TRUE if it is implied by the constraint,
+		 * FALSE if its negation is, or the splitter itself otherwise.
+		 * @param splitter
+		 * @param process
+		 * @return
+		 */
+		Expression checkIfSplitterOrItsNegationIsImplied(Expression splitter, RewritingProcess process);
+		
+		/**
 		 * Generates new constraint representing conjunction of this constraint and given splitter (or its negation, depending on the sign).
 		 * @param splitterSign the splitter's sign (true for splitter itself, false for its negation)
 		 * @param splitter the splitter according to this theory's choice
-		 * @param the rewriting process
+		 * @param guaranteed indicates whether signed splitter is known to be true
+		 * @param process the rewriting process
 		 */
-		Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process);
+		Constraint applySplitter(boolean splitterSign, Expression splitter, boolean guaranteed, RewritingProcess process);
 
 		/**
 		 * Computes model count for constraint, given a set of indices, in polynomial time.
 		 * Assumes that {@link #pickSplitter(RewritingProcess)} returns <code>null</code>,
 		 * that is, the constraint is in such a state and context that allows the determination of a unique model count.
+		 * The model count is expected to be complete with respect to guaranteed splitters.
 		 */
 		Expression modelCount(RewritingProcess process);
 		
 		/**
-		 * Receives an expression and returns an equivalent one according to some normalization property.
+		 * Receives an expression and returns an equivalent one according to some normalization property
 		 * For example, an implementation involving equality may choose to always represent all symbols in an equality cluster
 		 * by the same symbol. 
+		 * This method is not required to perform complete inference (that is, to return some minimal representation
+		 * of the expression).
 		 * @param expression
-		 * @param process TODO
+		 * @param process
 		 * @return
 		 */
 		Expression normalize(Expression expression, RewritingProcess process);

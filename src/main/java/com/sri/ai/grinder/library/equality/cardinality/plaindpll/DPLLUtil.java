@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
 
@@ -278,16 +280,41 @@ public class DPLLUtil {
 	}
 
 	/**
-	 * Given a splitter, a theory and a constraint, returns an equivalent splitter normalized by constraint.
+	 * Given a splitter, a theory and a constraint,
+	 * returns either true, false, or an equivalent splitter normalized by the constraint.
+	 * This is similar to {@link #normalizeNonTrivialSplitter(Expression, Constraint, Theory, RewritingProcess)},
+	 * but accepts the case of a splitter trivialized by the constraint.
 	 * @param splitter
 	 * @param constraint
 	 * @param theory
 	 * @param process
 	 * @return
 	 */
-	public static Expression normalizeSplitter(Expression splitter, Theory.Constraint constraint, Theory theory, RewritingProcess process) {
+	public static Expression trivializeOrNormalizeSplitter(Expression splitter, Theory.Constraint constraint, Theory theory, RewritingProcess process) {
 		Expression result;
-		if (theory.applicationOfConstraintOnSplitterEitherTrivializesItOrEffectsNoChangeAtAll()) {
+		Expression trivializedSplitter = constraint.checkIfSplitterOrItsNegationIsImplied(splitter, process);
+		if (trivializedSplitter.equals(TRUE) || trivializedSplitter.equals(FALSE)) {
+			result = trivializedSplitter;
+		}
+		else {
+			result = normalizeNonTrivialSplitter(splitter, constraint, theory, process);
+		}
+		return result;
+	}
+
+	/**
+	 * Given a splitter, a theory and a constraint,
+	 * and assuming that the splitter is not trivialized by the constraint,
+	 * returns an equivalent splitter normalized by the constraint.
+	 * @param splitter
+	 * @param constraint
+	 * @param theory
+	 * @param process
+	 * @return
+	 */
+	public static Expression normalizeNonTrivialSplitter(Expression splitter, Theory.Constraint constraint, Theory theory, RewritingProcess process) {
+		Expression result;
+		if (theory.applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll()) {
 			result = splitter;
 		}
 		else {
@@ -336,7 +363,7 @@ public class DPLLUtil {
 	 */
 	public static Expression applySplitterToSolution(boolean splitterSign, Expression splitter, Expression solution, Theory theory, RewritingProcess process) {
 		Constraint constraint = theory.makeConstraint(Collections.emptyList()); // no indices in solutions
-		constraint = constraint.applySplitter(splitterSign, splitter, process);
+		constraint = constraint.applySplitter(splitterSign, splitter, false, process);
 		Expression result = theory.applyConstraintToSolution(constraint, solution, process);
 		return result;
 	}

@@ -149,13 +149,13 @@ public class PropositionalTheory extends AbstractTheory {
 	}
 
 	@Override
-	public boolean splitterInvolvesIndex(Expression splitter, Collection<Expression> indices) {
+	public boolean splitterDependsOnIndex(Expression splitter, Collection<Expression> indices) {
 		boolean result = indices.contains(splitter);
 		return result;
 	}
 
 	@Override
-	public boolean applicationOfConstraintOnSplitterEitherTrivializesItOrEffectsNoChangeAtAll() {
+	public boolean applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll() {
 		return true; // a proposition or its negation is either implied by a constraint, or not altered at all.
 	}
 
@@ -198,7 +198,18 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 
 		@Override
-		public Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		public Expression checkIfSplitterOrItsNegationIsImplied(Expression splitter, RewritingProcess process) {
+			if (assertedPropositions.contains(splitter)) {
+				return Expressions.TRUE;
+			}
+			if (negatedPropositions.contains(splitter)) {
+				return Expressions.FALSE;
+			}
+			return splitter;
+		}
+
+		@Override
+		public Constraint applySplitter(boolean splitterSign, Expression splitter, boolean guaranteed, RewritingProcess process) {
 			if ( ! splitterSign) {
 				return applySplitterNegation(splitter, process);
 			}

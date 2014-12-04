@@ -53,6 +53,7 @@ import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.Constrai
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.base.QuarternaryFunction;
 
 /**
  * A "plain" implementation of symbolic generalized DPLL (without using Grinder-style contexts and simplifications)
@@ -64,6 +65,39 @@ import com.sri.ai.util.base.Pair;
  *
  */
 public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
+	
+	/**
+	 * A standard version of the algorithm picks a splitter,
+	 * splits the problem according to it into two sub-problems,
+	 * and adds their sub-solutions.
+	 * When splitting on non-index (free) variables,
+	 * this introduces, in the sub-problems, conditions on free variables
+	 * that will be part of the eventual model count in the leaf (which will be conditional on them).
+	 * After that, those conditions will need to be externalized, which can be expensive.
+	 * The following flag optimizes this a bit.
+	 * When splitting on free variables, it combines the sub-solutions not by adding them,
+	 * but by making then the then- and else-branches in an if-then-else expression.
+	 * In other words, it externalizes the condition early, instead of leaving it to be
+	 * externalized later all the way from the leaf solution.
+	 * It is important to notice, however, that the sub-problems still contain this condition
+	 * (or its negation) and the final leaf model count will still be conditional on them,
+	 * in spite of being in a branch that has that conditional already determined.
+	 * If left alone, these leaf-level conditions will need to be externalized all the same
+	 * (even though they will eventually be cancelled out by the fact of being already
+	 * trivialized in that branch), and there will be no efficiency gain.
+	 * Therefore, in order to truly benefit from this early externalization,
+	 * it is also important give the sub-problems information about which conditions
+	 * are already guaranteed by the path so far, so that it can be used to "nip conditions in the bud",
+	 * right at the leaf level, before needing to externalize them.
+	 */
+	public final static boolean earlyExternalizationOfFreeVariableSplittersOptimization = true; // IMPORTANT: unit tests will break if set to false. However DPLL stresst tests can still be used. As of this writing (12/4/2014) the false setting was slightly slower.
+	
+	/**
+	 * The following flag is only used if {@link #earlyExternalizationOfFreeVariableSplittersOptimization} is true.
+	 * It chooses between keeping guaranteed splitters to simplify conditional model counts,
+	 * or to run a complete simplification of the solution after it's computed.
+	 */
+	public final static boolean keepGuaranteedSplittersInsteadOfPostSimplifyingSolutions = false; // not sure yet which setting is faster
 
 	/** The background theory for the algorithm. */
 	protected Theory theory;
@@ -113,7 +147,9 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	protected Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		Constraint constraint = theory.makeConstraint(indices);
 		Expression result = solve(expression, constraint, process);
-		result = ((AbstractTheory)theory).applyConstraintToSolution(theory.makeConstraint(Util.list()), result, process); // TEMPORARY; also, make applyConstraintToSolution private
+		if ( ! keepGuaranteedSplittersInsteadOfPostSimplifyingSolutions) {
+			result = theory.applyConstraintToSolution(theory.makeConstraint(Util.list()), result, process);
+		}
 		return result;
 	}
 
@@ -127,7 +163,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 			Expression splitter = pickSplitter(expression, constraint, process);
 
 			if (splitter != null) {
-				result = computeSolutionBasedOnSplittedProblems(splitter, expression, constraint, process);
+				result = computeSolutionBasedOnSplitterProblems(splitter, expression, constraint, process);
 			}
 			else {
 				Expression unconditionalValue = expression;
@@ -152,7 +188,8 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		return splitter;
 	}
 
-	protected Expression computeSolutionBasedOnSplittedProblems(Expression splitter, Expression expression, Constraint constraint, RewritingProcess process) {
+	private Expression computeSolutionBasedOnSplitterProblems(Expression splitter, Expression expression, Constraint constraint, RewritingProcess process) {
+		
 		// Keep in mind that splitter may already be implied as true or false by theory constraint.
 		// This should not happen if the theory application of splitters to expressions only replaced them by true or false,
 		// but if it does more than that, those manipulations may create new literals that happen to be implied true or false by constraint.
@@ -166,33 +203,40 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		// This prevents a more elegant formalization in which the splitter is applied to the three of them,
 		// as if conceptually applied to the whole problem at once.
 		
-		Expression result;
+		QuarternaryFunction<Expression, Expression, Expression, RewritingProcess, Expression> conditionalCombiner
+		= (s, solution1, solution2, p) -> IfThenElse.make(s, solution1, solution2, false /* no simplification to condition */);
 
-		Constraint constraintUnderSplitter = constraint.applySplitter(true, splitter, process);
+		QuarternaryFunction<Expression, Expression, Expression, RewritingProcess, Expression> additionCombiner
+		= (s, solution1, solution2, p) -> addSymbolicResults(solution1, solution2, p);
+
+		boolean splitterDependsOnFreeVariablesOnly = ! theory.splitterDependsOnIndex(splitter, constraint.getIndices());
+		
+		QuarternaryFunction<Expression, Expression, Expression, RewritingProcess, Expression> combiner;
+		boolean guaranteedSplitter;
+		if (earlyExternalizationOfFreeVariableSplittersOptimization && splitterDependsOnFreeVariablesOnly) {
+			combiner = conditionalCombiner;
+			guaranteedSplitter = keepGuaranteedSplittersInsteadOfPostSimplifyingSolutions;
+		}
+		else { // default, generic procedure
+			combiner = additionCombiner;
+			guaranteedSplitter = false;
+		}
+
+		Expression result;
+		Constraint constraintUnderSplitter = constraint.applySplitter(true, splitter, guaranteedSplitter, process);
+		
 		if (constraintUnderSplitter != null) {
 			Expression solutionUnderSplitter = solveUnderSplitter(true, splitter, expression, constraintUnderSplitter, process);
 
-			boolean splitterDependsOnIndex           = theory.splitterInvolvesIndex(splitter, constraintUnderSplitter.getIndices());
-			boolean solutionIsAdditionOfSubSolutions = splitterDependsOnIndex;
-			if (solutionIsAdditionOfSubSolutions && problemType.isMaximum(solutionUnderSplitter)) {
-				result = solutionUnderSplitter; // solution is already maximum, no need to consider the other side of splitter
+			if (combiner == additionCombiner && problemType.isMaximum(solutionUnderSplitter)) {
+				result = solutionUnderSplitter; // solution is already maximum, no need to consider the sub-problem under the splitter negation
 			}
 			else {
-				Constraint constraintUnderSplitterNegation = constraint.applySplitter(false, splitter, process);
+				Constraint constraintUnderSplitterNegation = constraint.applySplitter(false, splitter, guaranteedSplitter, process);
 
 				if (constraintUnderSplitterNegation != null) {
 					Expression solutionUnderSplitterNegation = solveUnderSplitter(false, splitter, expression, constraintUnderSplitterNegation, process);
-					if (splitterDependsOnIndex) {
-						// splitter is over an index or more,
-						// so solution is solutionUnderSplitter + solutionUnderSplitterNegation
-						// If unconditional, these solutions need to be combined
-						// If conditional, these solutions need to be merged into a single conditional
-						result = addSymbolicResults(solutionUnderSplitter, solutionUnderSplitterNegation, process);
-					}
-					else {
-						// solution is <if splitter then solutionUnderSplitter else solutionUnderSplitterNegation>
-						result = IfThenElse.make(splitter, solutionUnderSplitter, solutionUnderSplitterNegation, false /* no simplification to condition */);
-					}
+					result = combiner.apply(splitter, solutionUnderSplitter, solutionUnderSplitterNegation, process);
 				}
 				else { // splitter cannot be false under constraint, so it is true under constraint, so final solution is one under splitter
 					result = solutionUnderSplitter;
@@ -201,7 +245,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		}
 		else {
             // splitter is false under constraint, so its negation is true, so final solution is one under splitter negation
-			Constraint constraintUnderSplitterNegation = constraint.applySplitter(false, splitter, process);
+			Constraint constraintUnderSplitterNegation = constraint.applySplitter(false, splitter, guaranteedSplitter, process);
 			Expression solutionUnderSplitterNegation = solveUnderSplitter(false, splitter, expression, constraintUnderSplitterNegation, process);
 			result = solutionUnderSplitterNegation;
 		}

@@ -67,9 +67,9 @@ public class SymbolEqualitySatisfiabilityDPLLTest extends SymbolicSymbolEquality
 		GrinderUtil.setMinimumOutputForProfiling();
 		
 		// Repeated for debugging purposes
-		expression = parse("X != Y");
-		indices    = list("X");
-		expected   = parse("| Everything | - 1 > 0");
+		expression  = parse("(X != a) and (X = Y and Y != c)");
+		indices     = list();
+		expected    = parse("if X = a then false else if X = Y then if Y = c then false else true else false");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
 		

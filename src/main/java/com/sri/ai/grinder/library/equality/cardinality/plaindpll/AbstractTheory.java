@@ -107,11 +107,11 @@ abstract public class AbstractTheory implements Theory {
 		
 		if (DPLLUtil.isConditionalSolution(solution, this, process)) {
 			Expression solutionSplitter = IfThenElse.getCondition(solution);
-			Constraint constraintUnderSolutionSplitter = constraint.applySplitter(true, solutionSplitter, process);
+			Constraint constraintUnderSolutionSplitter = constraint.applySplitter(true, solutionSplitter, false, process);
 			if (constraintUnderSolutionSplitter != null) {
-				Constraint constraintUnderSolutionSplitterNegation = constraint.applySplitter(false, solutionSplitter, process);
+				Constraint constraintUnderSolutionSplitterNegation = constraint.applySplitter(false, solutionSplitter, false, process);
 				if (constraintUnderSolutionSplitterNegation != null) {
-					Expression newSolutionSplitter = DPLLUtil.normalizeSplitter(solutionSplitter, constraint, this, process);
+					Expression newSolutionSplitter = DPLLUtil.normalizeNonTrivialSplitter(solutionSplitter, constraint, this, process);
 					Expression thenBranch = IfThenElse.getThenBranch(solution);
 					Expression elseBranch = IfThenElse.getElseBranch(solution);
 					Expression newThenBranch = applyConstraintToSolution(constraintUnderSolutionSplitter, thenBranch, process);
@@ -125,7 +125,7 @@ abstract public class AbstractTheory implements Theory {
 				}
 			}
 			else {
-				Constraint constraintUnderSolutionSplitterNegation = constraint.applySplitter(false, solutionSplitter, process);
+				Constraint constraintUnderSolutionSplitterNegation = constraint.applySplitter(false, solutionSplitter, false, process);
 				if (constraintUnderSolutionSplitterNegation != null) {
 					Expression elseBranch = IfThenElse.getElseBranch(solution);
 					Expression newElseBranch = applyConstraintToSolution(constraintUnderSolutionSplitterNegation, elseBranch, process);
