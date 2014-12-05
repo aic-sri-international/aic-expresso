@@ -143,13 +143,16 @@ public interface Theory {
 		
 		/**
 		 * Provides a splitter needed toward state
-		 * for which a model count can be computed in polynomial time, or null if it is already in such a state.
+		 * for which a complete with respect to the contextual constraint, possibly conditional,
+		 * model count can be computed in polynomial time, or null if it is already in such a state.
 		 */
 		Expression pickSplitter(RewritingProcess process);
 		
 		/**
 		 * Receives a splitter and returns TRUE if it is implied by the constraint,
 		 * FALSE if its negation is, or the splitter itself otherwise.
+		 * This could be done using {@link #applySplitter(boolean, Expression, RewritingProcess)}
+		 * but can be often implemented in a faster manner that does not require constructing an entire new constraint.
 		 * @param splitter
 		 * @param process
 		 * @return

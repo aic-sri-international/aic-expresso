@@ -260,15 +260,20 @@ public class PropositionalTheory extends AbstractTheory {
 		@Override
 		public Expression normalize(Expression expression, RewritingProcess process) {
 			String syntacticTypeForm = "Symbol";
-			BinaryFunction<Expression, RewritingProcess, Expression> simplifier =
+			BinaryFunction<Expression, RewritingProcess, Expression> valueReplacer =
 					(BinaryFunction<Expression, RewritingProcess, Expression>)
-					(s, p) -> assertedPropositions.contains(s)? Expressions.TRUE : negatedPropositions.contains(s)? Expressions.FALSE : s;
+					(s, p) ->
+			assertedPropositions.contains(s)?
+					Expressions.TRUE
+					: negatedPropositions.contains(s)?
+							Expressions.FALSE
+							: s;
 
 			Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifier(
 					expression,
 					PropositionalTheory.functionApplicationSimplifiers,
 					PropositionalTheory.syntacticFormTypeSimplifiers,
-					syntacticTypeForm, simplifier,
+					syntacticTypeForm, valueReplacer,
 					process);
 			
 			return result;
