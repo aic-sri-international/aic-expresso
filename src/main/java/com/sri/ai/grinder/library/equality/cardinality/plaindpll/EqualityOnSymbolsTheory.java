@@ -670,14 +670,14 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		@Override
 		public Expression normalize(Expression expression, RewritingProcess process) {
 			String syntacticTypeForm = "Symbol";
-			BinaryFunction<Expression, RewritingProcess, Expression> simplifier =
+			BinaryFunction<Expression, RewritingProcess, Expression> representativeReplacer =
 					(BinaryFunction<Expression, RewritingProcess, Expression>) (s, p) -> getRepresentative(s, p);
 		
 			Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifier(
 					expression,
 					EqualityOnSymbolsTheory.functionApplicationSimplifiers,
 					EqualityOnSymbolsTheory.syntacticFormTypeSimplifiers,
-					syntacticTypeForm, simplifier,
+					syntacticTypeForm, representativeReplacer,
 					process);
 			
 			return result;
