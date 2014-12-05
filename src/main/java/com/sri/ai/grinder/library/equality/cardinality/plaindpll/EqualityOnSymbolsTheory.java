@@ -143,30 +143,9 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 			// remember that equality can have an arbitrary number of terms
 			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), new IsVariable(process));
 			Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), com.sri.ai.util.base.Not.make(Equals.make(variable)));
-			result = makeSplitterVariableAndAnotherTerm(variable, otherTerm, indices, process);
+			result = makeSplitterFromTwoTerms(variable, otherTerm, indices, process);
 		}
 		return result;
-	}
-
-	/**
-	 * Assumes equality between terms is not trivial.
-	 * @param variable
-	 * @param otherTerm
-	 * @param indices
-	 * @return
-	 */
-	protected static Expression makeSplitterVariableAndAnotherTerm(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
-//		Expression result;
-//		// if variable is a free variable or constant and other term is an index, we invert them because
-//		// the algorithm requires the first term to be an index if there are any indices in the atom.
-//		if ( ! indices.contains(variable) && indices.contains(otherTerm) ) {
-//			result = Equality.make(otherTerm, variable);
-//		}
-//		else {
-//			result = Equality.make(variable, otherTerm);
-//		}
-//		return result;
-		return makeSplitterFromTwoTerms(variable, otherTerm, indices, process);
 	}
 
 	/**
@@ -178,15 +157,6 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 	 * @return
 	 */
 	protected static Expression makeSplitterFromTwoTerms(Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
-//		Expression result;
-//		if (process.isVariable(term1) && variableIsChosenAfterOtherTerm(term1, term2, indices, process)) {
-//			result = Equality.make(term1, term2);
-//		}
-//		else {
-//			result = Equality.make(term2, term1); // term2 is a variable because we can assume equality is not trivial, and two constants would have a trivial equality.
-//		}
-//		return result;
-
 		Expression result;
 		// if variable is a free variable or constant and other term is an index, we invert them because
 		// the algorithm requires the first term to be an index if there are any indices in the atom.
@@ -309,23 +279,12 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		private Collection<Expression> indices;
 		private Map<Expression, Expression> fromBoundIndexToBinding;
 		private Map<Expression, Expression> fromBoundFreeVariableToBinding;
-		private Constraint guaranteedConstraint;
 		
-		public Constraint(Collection<Expression> indices, boolean guaranteedConstraintEnabled) {
+		public Constraint(Collection<Expression> indices) {
 			super();
 			this.indices = indices;
 			this.fromBoundIndexToBinding        = new LinkedHashMap<Expression, Expression>();
 			this.fromBoundFreeVariableToBinding = new LinkedHashMap<Expression, Expression>();
-			if (guaranteedConstraintEnabled && DPLLGeneralizedAndSymbolic.earlyExternalizationOfFreeVariableSplittersOptimization && DPLLGeneralizedAndSymbolic.keepGuaranteedSplittersInsteadOfPostSimplifyingSolutions) {
-				this.guaranteedConstraint = new Constraint(indices, false);
-			}
-			else {
-				this.guaranteedConstraint = null;
-			}
-		}
-
-		public Constraint(Collection<Expression> indices) {
-			this(indices, true);
 		}
 
 		private Constraint(Constraint another) {
@@ -336,22 +295,11 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 			this.indices = another.indices;
 			this.fromBoundIndexToBinding        = new LinkedHashMap<Expression, Expression>(another.fromBoundIndexToBinding);
 			this.fromBoundFreeVariableToBinding = new LinkedHashMap<Expression, Expression>(another.fromBoundFreeVariableToBinding);
-			this.guaranteedConstraint           = another.guaranteedConstraint;
 		}
 
 		@Override
 		public Collection<Expression> getIndices() {
 			return indices;
-		}
-
-		@Override
-		public Constraint getGuaranteedConstraint() {
-			return guaranteedConstraint;
-		}
-
-		@Override
-		public void setGuaranteedConstraint(Theory.Constraint guaranteedConstraint) {
-			this.guaranteedConstraint = (Constraint) guaranteedConstraint;
 		}
 
 		@Override
@@ -369,7 +317,7 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 							if (process.isVariable(y)) { // we can restrict y to variables because at least one of y or t must be a variable (otherwise they would be two constants and we already know those are disequal).
 								Expression t = getAnotherTermInCollectionThatIsNotConstrainedToBeDisequalToTerm(disequalsOfX, y, process);
 								if (t != null) {
-									Expression splitter = EqualityOnSymbolsTheory.makeSplitterVariableAndAnotherTerm(y, t, indices, process);
+									Expression splitter = EqualityOnSymbolsTheory.makeSplitterFromTwoTerms(y, t, indices, process);
 									return splitter;
 								}
 							}
@@ -464,7 +412,7 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		}
 		
 		@Override
-		public Constraint applySplitter(boolean splitterSign, Expression splitter, boolean guaranteed, RewritingProcess process) {
+		public Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			Constraint result;
 
 			Expression representative1 = getRepresentative(splitter.get(0), process);
@@ -486,7 +434,6 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 				else {
 					result = applySplitterNegationDefinedOnEquivalentClassRepresentatives(splitterOnEquivalentClassRepresentatives, process);
 				}
-				DPLLUtil.keepGuaranteedSplitterIfNeeded(result, splitterSign, splitterOnEquivalentClassRepresentatives, guaranteed, process);
 			}
 
 			return result;
@@ -643,8 +590,8 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 			result = DPLLUtil.makeModelCountConditionedOnUndeterminedSplitters(
 					result,
 					getSplittersToBeSatisfied(process), getSplittersToBeNotSatisfied(process),
-					process.getDPLLContextualConstraint(),
-					EqualityOnSymbolsTheory.this, process);
+					EqualityOnSymbolsTheory.this,
+					process);
 			
 			return result;
 		}
@@ -742,9 +689,6 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 					"Index bindings: " + fromBoundIndexToBinding
 					+ ", free variables bindings: " + fromBoundFreeVariableToBinding
 					+ ", disequals map: " + super.toString();
-			if (getGuaranteedConstraint() != null) {
-				result = result + " (under guaranteed " + getGuaranteedConstraint() + ")";
-			}
 			return result; 
 		}
 	}

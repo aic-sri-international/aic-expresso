@@ -160,16 +160,15 @@ public interface Theory {
 		 * Generates new constraint representing conjunction of this constraint and given splitter (or its negation, depending on the sign).
 		 * @param splitterSign the splitter's sign (true for splitter itself, false for its negation)
 		 * @param splitter the splitter according to this theory's choice
-		 * @param guaranteed indicates whether signed splitter is known to be true
 		 * @param process the rewriting process
 		 */
-		Constraint applySplitter(boolean splitterSign, Expression splitter, boolean guaranteed, RewritingProcess process);
+		Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process);
 
 		/**
 		 * Computes model count for constraint, given a set of indices, in polynomial time.
 		 * Assumes that {@link #pickSplitter(RewritingProcess)} returns <code>null</code>,
 		 * that is, the constraint is in such a state and context that allows the determination of a unique model count.
-		 * The model count is expected to be complete with respect to guaranteed splitters.
+		 * The model count is expected to be complete with respect to the contextual constraint.
 		 */
 		Expression modelCount(RewritingProcess process);
 		
@@ -184,9 +183,5 @@ public interface Theory {
 		 * @return
 		 */
 		Expression normalize(Expression expression, RewritingProcess process);
-
-		Constraint getGuaranteedConstraint();
-
-		void setGuaranteedConstraint(Constraint guaranteedConstraint);
 	}
 }
