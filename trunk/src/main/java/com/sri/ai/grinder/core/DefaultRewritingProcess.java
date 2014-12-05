@@ -763,7 +763,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		DefaultRewritingProcess result = new DefaultRewritingProcess(this);
 		Constraint constraint = getDPLLContextualConstraint();
 		if (constraint != null) {
-			Constraint newConstraint = constraint.applySplitter(splitterSign, splitter, false, this);
+			Constraint newConstraint = constraint.applySplitter(splitterSign, splitter, this);
 			if (newConstraint != null) {
 				result.dpllConstraint = newConstraint;
 			}
