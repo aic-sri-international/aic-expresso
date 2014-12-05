@@ -82,9 +82,9 @@ public class SymbolEqualityModelCountingDPLLTest extends SymbolicSymbolEqualityD
 		GrinderUtil.setMinimumOutputForProfiling();
 		
 		// Repeated for debugging purposes:
-		expression = parse("X != Y and X != Z and X != a");
+		expression = parse("X != b and X = Y");
 		indices    = list("X");
-		expected   = parse("if Y = Z then if Z = a then | Everything | - 1 else | Everything | - 2 else if Y = a then | Everything | - 2 else if Z = a then | Everything | - 2 else | Everything | - 3");
+		expected   = parse("if Y = b then 0 else 1");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		
