@@ -37,9 +37,6 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
@@ -348,6 +345,16 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		}
 
 		@Override
+		public Constraint getGuaranteedConstraint() {
+			return guaranteedConstraint;
+		}
+
+		@Override
+		public void setGuaranteedConstraint(Theory.Constraint guaranteedConstraint) {
+			this.guaranteedConstraint = (Constraint) guaranteedConstraint;
+		}
+
+		@Override
 		public Expression pickSplitter(RewritingProcess process) {
 		
 			// if there is an index X such that X has disequals Y and T,
@@ -430,35 +437,26 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		public Constraint applySplitter(boolean splitterSign, Expression splitter, boolean guaranteed, RewritingProcess process) {
 			Constraint result;
 
-			if ( ! splitterSign) {
-				result = applySplitterNegation(splitter, process);
+			Expression representative1 = getRepresentative(splitter.get(0), process);
+			Expression representative2 = getRepresentative(splitter.get(1), process);
+
+			Expression representativesEquality = Equality.makeWithConstantSimplification(representative1, representative2, process);
+
+			if (representativesEquality.equals(splitterSign)) {
+				result = this; // splitter is redundant with respect to this constraint, nothing to do.
+			}
+			else if (representativesEquality.equals( ! splitterSign)) {
+				result = null; // splitter is contradiction with respect to this constraint, return null
 			}
 			else {
-				Expression variable  = splitter.get(0);
-				Expression otherTerm = splitter.get(1);
-
-				Expression representative1 = getRepresentative(variable, process);
-				Expression representative2 = getRepresentative(otherTerm, process);
-
-				Expression representativesEquality = Equality.makeWithConstantSimplification(representative1, representative2, process);
-
-				if (representativesEquality.equals(TRUE)) {
-					result = this; // splitter is redundant with respect to this constraint, nothing to do.
-				}
-				else if (representativesEquality.equals(Expressions.FALSE)) {
-					result = null; // splitter is contradiction with respect to this constraint, return null
-				}
-				else {
-					Expression splitterOnEquivalentClassRepresentatives = makeSplitterFromTwoTerms(representative1, representative2, indices, process);
+				Expression splitterOnEquivalentClassRepresentatives = makeSplitterFromTwoTerms(representative1, representative2, indices, process);
+				if (splitterSign) {
 					result = applySplitterDefinedOnEquivalentClassRepresentatives(splitterOnEquivalentClassRepresentatives, process);
 				}
-			}
-			
-			if (result != null && guaranteed && DPLLGeneralizedAndSymbolic.earlyExternalizationOfFreeVariableSplittersOptimization) {
-				if (result.guaranteedConstraint == null) {
-					throw new Error("Guaranteed splitter provided to constraint without enabled guaranteed constraint");
+				else {
+					result = applySplitterNegationDefinedOnEquivalentClassRepresentatives(splitterOnEquivalentClassRepresentatives, process);
 				}
-				result.guaranteedConstraint = result.guaranteedConstraint.applySplitter(splitterSign, splitter, false /* splitter is *not* guaranteed from the guaranteed constraint point of view. */, process);
+				DPLLUtil.keepGuaranteedSplitterIfNeeded(result, splitterSign, splitterOnEquivalentClassRepresentatives, guaranteed, process);
 			}
 
 			return result;
@@ -480,6 +478,15 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 			return result;
 		}
 
+		private Constraint applySplitterNegationDefinedOnEquivalentClassRepresentatives(Expression splitter, RewritingProcess process) {
+			Expression variable  = splitter.get(0);
+			Expression otherTerm = splitter.get(1);
+			Constraint result;
+			result = new Constraint(this);
+			result.applyDisequality(variable, otherTerm, process);
+			return result;
+		}
+
 		private Constraint makeNewConstraintWithVariableReplacedByOtherTerm(Expression variable, Expression otherTerm, RewritingProcess process) {
 			Constraint newConstraint = new Constraint(this);
 			
@@ -487,23 +494,6 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 			newConstraint.applyDisequalitiesBetweenAllDisequalsOfVariableAndOtherTerm(variable, otherTerm, process);
 			newConstraint.remove(variable); // remove entry for disequals
 			newConstraint.replaceVariableByOtherTermInAllEntriesButOtherTerms(variable, otherTerm, process);
-			
-			return newConstraint;
-		}
-
-		private Constraint applySplitterNegation(Expression splitter, RewritingProcess process) {
-			
-			Expression variable  = splitter.get(0);
-			Expression otherTerm = splitter.get(1);
-
-			Constraint newConstraint;
-			if (termsAreConstrainedToBeEqual(variable, otherTerm, process)) {
-				newConstraint = null; // splitter is inconsistent with constraint
-			}
-			else {
-				newConstraint = new Constraint(this);
-				newConstraint.applyDisequality(variable, otherTerm, process);
-			}
 			
 			return newConstraint;
 		}
@@ -620,26 +610,12 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 			
 			Expression result = Times.make(numberOfPossibleValuesForIndicesSoFar);
 			result = timesRewriter.rewrite(result, process);
-			result = makeModelCountConditionedOnFreeVariables(result, process);
+			result = DPLLUtil.makeModelCountConditionedOnUndeterminedSplitters(
+					result,
+					getSplittersToBeSatisfied(process), getSplittersToBeNotSatisfied(process),
+					getGuaranteedConstraint(),
+					EqualityOnSymbolsTheory.this, process);
 			
-			return result;
-		}
-
-		/**
-		 * Receives the model count for the case in which conditions on free variables are true,
-		 * and returns conditional model count including the cases in which those conditions are not true
-		 * (which entail model count 0).
-		 * @param modelCountGivenConditionsOnFreeVariablesAreTrue
-		 * @return
-		 */
-		private Expression makeModelCountConditionedOnFreeVariables(Expression modelCountGivenConditionsOnFreeVariablesAreTrue, RewritingProcess process) {
-			Expression result = modelCountGivenConditionsOnFreeVariablesAreTrue;
-			for (Expression splitterToBeNotSatisfied : getSplittersToBeNotSatisfied(process)) {
-				result = IfThenElse.make(splitterToBeNotSatisfied, ZERO, result, false);
-			}
-			for (Expression splitterToBeSatisfied : getSplittersToBeSatisfied(process)) {
-				result = IfThenElse.make(splitterToBeSatisfied, result, ZERO, false);
-			}
 			return result;
 		}
 
@@ -656,16 +632,7 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 				// free variables and constants only, never indices.
 				if ( ! representative.equals(freeVariable)) {
 					Expression splitter = Expressions.apply(FunctorConstants.EQUALITY, freeVariable, representative); // making it with apply instead of Disequality.make sidesteps simplifications, which will not occur in this case because otherwise this condition would have either rendered the constraint a contradiction, or would have been eliminated from it
-					if (DPLLGeneralizedAndSymbolic.earlyExternalizationOfFreeVariableSplittersOptimization && DPLLGeneralizedAndSymbolic.keepGuaranteedSplittersInsteadOfPostSimplifyingSolutions) {
-						Expression splitterNormalizedByGuaranteedConstraint = DPLLUtil.trivializeOrNormalizeSplitter(splitter, guaranteedConstraint, EqualityOnSymbolsTheory.this, process);
-						assert ! splitterNormalizedByGuaranteedConstraint.equals(FALSE); // required splitter must be satisfiable under guaranteedConstraint, otherwise there is a bug somewhere
-						if ( ! splitterNormalizedByGuaranteedConstraint.equals(TRUE)) {  // if splitter is implied TRUE by guaranteedConstraint, it is superfluous
-							result.add(splitter);
-						}
-					}
-					else {
-						result.add(splitter);
-					}
+					result.add(splitter);
 				}
 			}
 			return result;
@@ -679,16 +646,7 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 				if ( ! indices.contains(variable)) { // if variable is free
 					for (Expression disequal : entry.getValue()) {
 						Expression splitter = Expressions.apply(FunctorConstants.EQUALITY, variable, disequal); // making it with apply instead of Disequality.make sidesteps simplifications, which will not occur in this case because otherwise this condition would have either rendered the constraint a contradiction, or would have been eliminated from it
-						if (DPLLGeneralizedAndSymbolic.earlyExternalizationOfFreeVariableSplittersOptimization && DPLLGeneralizedAndSymbolic.keepGuaranteedSplittersInsteadOfPostSimplifyingSolutions) {
-							Expression splitterNormalizedByGuaranteedConstraint = DPLLUtil.trivializeOrNormalizeSplitter(splitter, guaranteedConstraint, EqualityOnSymbolsTheory.this, process);
-							assert ! splitterNormalizedByGuaranteedConstraint.equals(TRUE); // splitter whose negation is required must be satisfiable under guaranteedConstraint, otherwise there is a bug somewhere
-							if ( ! splitterNormalizedByGuaranteedConstraint.equals(FALSE)) {  // if splitter whose negation is required is implied FALSE by guaranteedConstraint, it is superfluous
-								result.add(splitter);
-							}
-						}
-						else {
-							result.add(splitter);
-						}
+						result.add(splitter);
 					}
 				}
 			}
@@ -752,8 +710,8 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 					"Index bindings: " + fromBoundIndexToBinding
 					+ ", free variables bindings: " + fromBoundFreeVariableToBinding
 					+ ", disequals map: " + super.toString();
-			if (guaranteedConstraint != null) {
-				result = result + " (under guaranteed " + guaranteedConstraint + ")";
+			if (getGuaranteedConstraint() != null) {
+				result = result + " (under guaranteed " + getGuaranteedConstraint() + ")";
 			}
 			return result; 
 		}

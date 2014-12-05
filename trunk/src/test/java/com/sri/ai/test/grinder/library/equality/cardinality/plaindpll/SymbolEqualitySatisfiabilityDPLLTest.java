@@ -67,10 +67,10 @@ public class SymbolEqualitySatisfiabilityDPLLTest extends SymbolicSymbolEquality
 		GrinderUtil.setMinimumOutputForProfiling();
 		
 		// Repeated for debugging purposes
-		expression  = parse("(X != a) and (X = Y and Y != c)");
-		indices     = list();
-		expected    = parse("if X = a then false else if X = Y then if Y = c then false else true else false");
-		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+//		expression  = parse("(X != a) and (X = Y and Y != c)");
+//		indices     = list();
+//		expected    = parse("if X = a then false else if X = Y then if Y = c then false else true else false");
+//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
 		
 		// tests whether splitter negation, when applied, gets "translated" by inner splitters in then branches.

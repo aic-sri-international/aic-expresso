@@ -39,16 +39,19 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
@@ -365,6 +368,83 @@ public class DPLLUtil {
 		Constraint constraint = theory.makeConstraint(Collections.emptyList()); // no indices in solutions
 		constraint = constraint.applySplitter(splitterSign, splitter, false, process);
 		Expression result = theory.applyConstraintToSolution(constraint, solution, process);
+		return result;
+	}
+
+	@SuppressWarnings("unused")
+	public static boolean splitterIsNotSatisfiedFromGuaranteedConstraintAlready(Expression splitter, Constraint guaranteedConstraint, Theory theory, RewritingProcess process) {
+		boolean result;
+		if (DPLLGeneralizedAndSymbolic.earlyExternalizationOfFreeVariableSplittersOptimization && DPLLGeneralizedAndSymbolic.keepGuaranteedSplittersInsteadOfPostSimplifyingSolutions) {
+			Expression splitterNormalizedByGuaranteedConstraint = trivializeOrNormalizeSplitter(splitter, guaranteedConstraint, theory, process);
+			assert ! splitterNormalizedByGuaranteedConstraint.equals(FALSE); // required splitter must be satisfiable under guaranteedConstraint, otherwise there is a bug somewhere
+			result = ! splitterNormalizedByGuaranteedConstraint.equals(TRUE); // if splitter is implied TRUE by guaranteedConstraint, it is superfluous
+		}
+		else {
+			result = true;
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unused")
+	public static boolean splitterNegationIsNotSatisfiedFromGuaranteedConstraintAlready(Expression splitter, Constraint guaranteedConstraint, Theory theory, RewritingProcess process) {
+		boolean result;
+		if (DPLLGeneralizedAndSymbolic.earlyExternalizationOfFreeVariableSplittersOptimization && DPLLGeneralizedAndSymbolic.keepGuaranteedSplittersInsteadOfPostSimplifyingSolutions) {
+			Expression splitterNormalizedByGuaranteedConstraint = trivializeOrNormalizeSplitter(splitter, guaranteedConstraint, theory, process);
+			assert ! splitterNormalizedByGuaranteedConstraint.equals(TRUE); // splitter whose negation is required must be satisfiable under guaranteedConstraint, otherwise there is a bug somewhere
+			result = ! splitterNormalizedByGuaranteedConstraint.equals(FALSE); // if splitter whose negation is required is implied FALSE by guaranteedConstraint, it is superfluous
+		}
+		else {
+			result = true;
+		}
+		return result;
+	}
+
+	public static void keepGuaranteedSplitterIfNeeded(Constraint result, boolean splitterSign, Expression splitter, boolean guaranteed, RewritingProcess process) {
+		if (result != null && guaranteed && DPLLGeneralizedAndSymbolic.earlyExternalizationOfFreeVariableSplittersOptimization && DPLLGeneralizedAndSymbolic.keepGuaranteedSplittersInsteadOfPostSimplifyingSolutions) {
+			assert result.getGuaranteedConstraint() != null : "Guaranteed splitter provided to constraint without enabled guaranteed constraint";
+			result.setGuaranteedConstraint(result.getGuaranteedConstraint().applySplitter(splitterSign, splitter, false /* splitter is *not* guaranteed from the guaranteed constraint point of view. */, process));
+		}
+	}
+
+	/**
+	 * Receives a model count and two sets of splitters, ones that must be true, and others that must be false,
+	 * and returns conditional model count including the cases in which those conditions are not true
+	 * (which entail model count 0).
+	 * @param modelCountGivenUndedeterminedSplitters
+	 * @return
+	 */
+	public static Expression makeModelCountConditionedOnUndeterminedSplitters(Expression modelCountGivenUndedeterminedSplitters, Collection<Expression> undeterminedSplittersThatNeedToBeTrue, Collection<Expression> undeterminedSplittersThatNeedToBeFalse) {
+		Expression result = modelCountGivenUndedeterminedSplitters;
+		for (Expression splitterToBeSatisfied : undeterminedSplittersThatNeedToBeTrue) {
+			result = IfThenElse.make(splitterToBeSatisfied, result, ZERO, false);
+		}
+		for (Expression splitterToBeNotSatisfied : undeterminedSplittersThatNeedToBeFalse) {
+			result = IfThenElse.make(splitterToBeNotSatisfied, ZERO, result, false);
+		}
+		return result;
+	}
+
+	/**
+	 * Receives the model count for the case in which a certain set of splitter is satisfied, and another is unsatisfied,
+	 * and returns conditional model count including the cases in which those conditions are not true
+	 * (which entail model count 0),
+	 * taking into account the constraints already guaranteed by the context.
+	 */
+	public static Expression makeModelCountConditionedOnUndeterminedSplitters(
+			Expression modelCountGivenUndeterminedSplitters,
+			Collection<Expression> splittersToBeSatisfied,
+			Collection<Expression> splittersToBeUnsatisfied,
+			Theory.Constraint guaranteedConstraint,
+			Theory theory,
+			RewritingProcess process) {
+		
+		Predicate<Expression> keepUnsatisfiedSplitters         = s -> splitterIsNotSatisfiedFromGuaranteedConstraintAlready        (s, guaranteedConstraint, theory, process);
+		Predicate<Expression> keepUnsatisfiedSplitterNegations = s -> splitterNegationIsNotSatisfiedFromGuaranteedConstraintAlready(s, guaranteedConstraint, theory, process);
+	
+		Collection<Expression> undeterminedSplittersThatNeedToBeTrue  = Util.filter(splittersToBeSatisfied,    keepUnsatisfiedSplitters);
+		Collection<Expression> undeterminedSplittersThatNeedToBeFalse = Util.filter(splittersToBeUnsatisfied, keepUnsatisfiedSplitterNegations);
+		
+		Expression result = makeModelCountConditionedOnUndeterminedSplitters(modelCountGivenUndeterminedSplitters, undeterminedSplittersThatNeedToBeTrue, undeterminedSplittersThatNeedToBeFalse);
 		return result;
 	}
 }

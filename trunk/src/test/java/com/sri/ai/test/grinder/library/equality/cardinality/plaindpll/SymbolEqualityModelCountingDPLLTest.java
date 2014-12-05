@@ -82,12 +82,9 @@ public class SymbolEqualityModelCountingDPLLTest extends SymbolicSymbolEqualityD
 		GrinderUtil.setMinimumOutputForProfiling();
 		
 		// Repeated for debugging purposes:
-		// tests answer completeness
-		expression  = parse("(Y = a and X = T) or (Y != a and X = T1 and T = T1)");
-		indices     = list("Y");
-		// original algorithm provided this incomplete solution due to incomplete condition-applying-on-solution algorithm used in externalization
-		// expected = parse("if X = T then if T = T1 then if T = T1 then 10 else 1 else 1 else (if X = T1 then if T = T1 then 9 else 0 else 0)");
-		expected    = parse("if X = T then if T = T1 then | Everything | else 1 else 0");
+		expression = parse("X != Y and X != Z and X != a");
+		indices    = list("X");
+		expected   = parse("if Y = Z then if Z = a then | Everything | - 1 else | Everything | - 2 else if Y = a then | Everything | - 2 else if Z = a then | Everything | - 2 else | Everything | - 3");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		
