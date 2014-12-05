@@ -1385,7 +1385,8 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					new CountsDeclaration("X", "10"),
 					/* order normalization: */
 					GrinderUtil.usePlain?
-							"(X' != dave) and (Y = dave) and (X' != bob) and (Y' != dave) and (X' = Y') and (X'' = dave)"
+							"(X' != dave) and (Y = dave) and (X' != bob) and (X' = Y') and (X'' = dave)"
+//							"(X' != dave) and (Y = dave) and (X' != bob) and (Y' != dave) and (X' = Y') and (X'' = dave)"
 //							"(Y = dave) and (Y' != dave) and (Y' != bob) and (X' = Y') and (X'' = dave)"
 							: "if (Y = dave) and (X' != dave) and (X' != bob) and (X'' != Y') and ((X' = X'') and (Y' = dave) or (X' = Y') and (X'' = dave)) and ((X'' != X') or (Y' != dave)) then | People | > 0 else false"),
 					/* without order normalization: */

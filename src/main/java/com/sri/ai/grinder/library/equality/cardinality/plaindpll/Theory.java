@@ -184,5 +184,9 @@ public interface Theory {
 		 * @return
 		 */
 		Expression normalize(Expression expression, RewritingProcess process);
+
+		Constraint getGuaranteedConstraint();
+
+		void setGuaranteedConstraint(Constraint guaranteedConstraint);
 	}
 }

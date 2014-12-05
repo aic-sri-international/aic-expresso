@@ -81,6 +81,12 @@ public class PropositionalLogicModelCountingDPLLTest {
 		
 		GrinderUtil.setMinimumOutputForProfiling();
 		
+		// DEBUG
+		expression = parse("p or q");
+		indices    = list();
+		expected   = parse("if p then 1 else if q then 1 else 0");
+		test(expression, expected, indices);
+
 		expression = parse("true");
 		indices    = list("p");
 		expected   = parse("2");
@@ -132,6 +138,11 @@ public class PropositionalLogicModelCountingDPLLTest {
 		test(expression, expected, indices);
 		
 		expression = parse("(p and r) or (not p and r)"); // this will involve the symbolic combination of two conditional (in r) solutions
+		indices    = list("p");
+		expected   = parse("if r then 2 else 0");
+		test(expression, expected, indices);
+
+		expression = parse("r"); // test early externalization on r and that the model count (conditional on r from the constraint) will be simplified by the context.
 		indices    = list("p");
 		expected   = parse("if r then 2 else 0");
 		test(expression, expected, indices);

@@ -40,6 +40,7 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -164,7 +165,7 @@ public class PropositionalTheory extends AbstractTheory {
 		return new Constraint(indices);
 	}
 
-	public static class Constraint implements Theory.Constraint {
+	public class Constraint implements Theory.Constraint {
 
 		private Collection<Expression> indices;
 		private int numberOfBoundIndices;
@@ -172,24 +173,47 @@ public class PropositionalTheory extends AbstractTheory {
 		private Set<Expression> assertedPropositions;
 		private Set<Expression> negatedPropositions;
 		
-		public Constraint(Collection<Expression> indices) {
+		private Constraint guaranteedConstraint;
+		
+		public Constraint(Collection<Expression> indices, boolean guaranteedConstraintEnabled) {
 			this.indices = indices;
 			this.numberOfBoundIndices = 0;
-			assertedPropositions = new LinkedHashSet<Expression>();
-			negatedPropositions  = new LinkedHashSet<Expression>();
+			this.assertedPropositions = new LinkedHashSet<Expression>();
+			this.negatedPropositions  = new LinkedHashSet<Expression>();
+			if (guaranteedConstraintEnabled && DPLLGeneralizedAndSymbolic.earlyExternalizationOfFreeVariableSplittersOptimization && DPLLGeneralizedAndSymbolic.keepGuaranteedSplittersInsteadOfPostSimplifyingSolutions) {
+				this.guaranteedConstraint = new Constraint(indices, false);
+			}
+			else {
+				this.guaranteedConstraint = null;
+			}
 		}
 		
+		public Constraint(Collection<Expression> indices) {
+			this(indices, true);
+		}
+
 		public Constraint(Constraint another) {
 			super();
 			this.indices = another.indices;
 			this.numberOfBoundIndices = another.numberOfBoundIndices;
 			this.assertedPropositions = new LinkedHashSet<Expression>(another.assertedPropositions); // should be optimized to a copy-as-needed scheme.
 			this.negatedPropositions = new LinkedHashSet<Expression>(another.negatedPropositions);
+			this.guaranteedConstraint = another.guaranteedConstraint;
 		}
 
 		@Override
 		public Collection<Expression> getIndices() {
 			return indices;
+		}
+
+		@Override
+		public Constraint getGuaranteedConstraint() {
+			return guaranteedConstraint;
+		}
+
+		@Override
+		public void setGuaranteedConstraint(Theory.Constraint guaranteedConstraint) {
+			this.guaranteedConstraint = (Constraint) guaranteedConstraint;
 		}
 
 		@Override
@@ -210,48 +234,50 @@ public class PropositionalTheory extends AbstractTheory {
 
 		@Override
 		public Constraint applySplitter(boolean splitterSign, Expression splitter, boolean guaranteed, RewritingProcess process) {
-			if ( ! splitterSign) {
-				return applySplitterNegation(splitter, process);
-			}
-			
+			Set<Expression> propositionsAssertedWithSameSign     = splitterSign? assertedPropositions : negatedPropositions;
+			Set<Expression> propositionsAssertedWithOppositeSign = splitterSign? negatedPropositions  : assertedPropositions;
+
 			Constraint result;
-			if (negatedPropositions.contains(splitter)) {
+			if (propositionsAssertedWithOppositeSign.contains(splitter)) {
 				result = null; // contradiction
 			}
-			else if (assertedPropositions.contains(splitter)) {
+			else if (propositionsAssertedWithSameSign.contains(splitter)) {
 				result = this; // redundant
 			}
 			else {
-				result = new Constraint(this);
-				result.assertedPropositions.add(splitter);
-				if (indices.contains(splitter)) {
-					result.numberOfBoundIndices++;
-				}
+				result = assertInNewCopy(splitterSign, splitter, guaranteed, process);
 			}
+
 			return result;
 		}
 
-		private Constraint applySplitterNegation(Expression splitter, RewritingProcess process) {
+		private Constraint assertInNewCopy(boolean splitterSign, Expression splitter, boolean guaranteed, RewritingProcess process) {
 			Constraint result;
-			if (assertedPropositions.contains(splitter)) {
-				result = null; // contradiction
-			}
-			else if (negatedPropositions.contains(splitter)) {
-				result = this; // redundant
+			result = new Constraint(this);
+			if (splitterSign) {
+				result.assertedPropositions.add(splitter);
 			}
 			else {
-				result = new Constraint(this);
 				result.negatedPropositions.add(splitter);
-				if (indices.contains(splitter)) {
-					result.numberOfBoundIndices++;
-				}
 			}
+			if (indices.contains(splitter)) {
+				result.numberOfBoundIndices++;
+			}
+			DPLLUtil.keepGuaranteedSplitterIfNeeded(result, splitterSign, splitter, guaranteed, process);
 			return result;
 		}
 
 		@Override
 		public Expression modelCount(RewritingProcess process) {
 			Expression result = Expressions.makeSymbol(new Rational(2).pow(indices.size() - numberOfBoundIndices));
+			List<Expression> assertedFreePropositions = Util.subtract(assertedPropositions, indices);
+			List<Expression> negatedFreePropositions = Util.subtract(negatedPropositions, indices);
+			result = DPLLUtil.makeModelCountConditionedOnUndeterminedSplitters(
+					result,
+					assertedFreePropositions,
+					negatedFreePropositions,
+					getGuaranteedConstraint(),
+					PropositionalTheory.this, process);
 			return result;
 		}
 
@@ -283,6 +309,9 @@ public class PropositionalTheory extends AbstractTheory {
 				items.add("negated: " + Util.join(negatedPropositions));
 			}
 			String result = Util.join(items);
+			if (getGuaranteedConstraint() != null) {
+				result = result + " (under guaranteed " + getGuaranteedConstraint() + ")";
+			}
 			return result;
 		}
 	}
