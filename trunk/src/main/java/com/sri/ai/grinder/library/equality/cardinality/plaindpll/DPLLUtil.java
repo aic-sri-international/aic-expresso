@@ -293,7 +293,7 @@ public class DPLLUtil {
 	 * @param process
 	 * @return
 	 */
-	public static Expression trivializeOrNormalizeSplitter(Expression splitter, Theory.Constraint constraint, Theory theory, RewritingProcess process) {
+	public static Expression normalizeOrTrivializedSplitter(Expression splitter, Theory.Constraint constraint, Theory theory, RewritingProcess process) {
 		Expression result;
 		Expression trivializedSplitter = constraint.checkIfSplitterOrItsNegationIsImplied(splitter, process);
 		if (trivializedSplitter.equals(TRUE) || trivializedSplitter.equals(FALSE)) {
@@ -375,7 +375,7 @@ public class DPLLUtil {
 	public static boolean splitterIsNotSatisfiedFromGuaranteedConstraintAlready(Expression splitter, Constraint guaranteedConstraint, Theory theory, RewritingProcess process) {
 		boolean result;
 		if (DPLLGeneralizedAndSymbolic.earlyExternalizationOfFreeVariableSplittersOptimization && DPLLGeneralizedAndSymbolic.keepGuaranteedSplittersInsteadOfPostSimplifyingSolutions) {
-			Expression splitterNormalizedByGuaranteedConstraint = trivializeOrNormalizeSplitter(splitter, guaranteedConstraint, theory, process);
+			Expression splitterNormalizedByGuaranteedConstraint = normalizeOrTrivializedSplitter(splitter, guaranteedConstraint, theory, process);
 			assert ! splitterNormalizedByGuaranteedConstraint.equals(FALSE); // required splitter must be satisfiable under guaranteedConstraint, otherwise there is a bug somewhere
 			result = ! splitterNormalizedByGuaranteedConstraint.equals(TRUE); // if splitter is implied TRUE by guaranteedConstraint, it is superfluous
 		}
@@ -389,7 +389,7 @@ public class DPLLUtil {
 	public static boolean splitterNegationIsNotSatisfiedFromGuaranteedConstraintAlready(Expression splitter, Constraint guaranteedConstraint, Theory theory, RewritingProcess process) {
 		boolean result;
 		if (DPLLGeneralizedAndSymbolic.earlyExternalizationOfFreeVariableSplittersOptimization && DPLLGeneralizedAndSymbolic.keepGuaranteedSplittersInsteadOfPostSimplifyingSolutions) {
-			Expression splitterNormalizedByGuaranteedConstraint = trivializeOrNormalizeSplitter(splitter, guaranteedConstraint, theory, process);
+			Expression splitterNormalizedByGuaranteedConstraint = normalizeOrTrivializedSplitter(splitter, guaranteedConstraint, theory, process);
 			assert ! splitterNormalizedByGuaranteedConstraint.equals(TRUE); // splitter whose negation is required must be satisfiable under guaranteedConstraint, otherwise there is a bug somewhere
 			result = ! splitterNormalizedByGuaranteedConstraint.equals(FALSE); // if splitter whose negation is required is implied FALSE by guaranteedConstraint, it is superfluous
 		}
