@@ -70,7 +70,7 @@ public class RandomCardinalityExpressionsExperiment {
 	public static int SEED = 1;
 	public static int sizeOfDataset = 50;
 	public static int minimumSize = 2;
-	public static int maximumSize = 4;
+	public static int maximumSize = 9;
 	public static int numberOfRunsForAveraging = 10;
 	public static boolean useFreeVariables = false;
 	
@@ -84,8 +84,9 @@ public class RandomCardinalityExpressionsExperiment {
 		Experiment.experiment(
 				new Dimension("algorithm",
 						Util.list(
-								new DPLLGeneralizedAndSymbolic(new EqualityOnSymbolsTheory(), new ModelCounting(), new CountsDeclaration(10)),
-								new Cardinality(new CountsDeclaration(10))
+								new DPLLGeneralizedAndSymbolic(new EqualityOnSymbolsTheory(), new ModelCounting(), new CountsDeclaration(10))
+								//,
+								//new Cardinality(new CountsDeclaration(10))
 								)),
 				
 				"ylabel", "Average time per problem (ms)",

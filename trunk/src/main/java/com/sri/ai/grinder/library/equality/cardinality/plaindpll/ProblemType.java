@@ -53,6 +53,9 @@ import com.sri.ai.util.base.Pair;
  */
 public interface ProblemType {
 
+	/** The semi-ring identity element. */
+	Expression additiveIdentityElement();
+
 	/**
 	 * Performs the semi-ring's additive operation on two values.
 	 */
@@ -72,6 +75,9 @@ public interface ProblemType {
 
 	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
 	Expression fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression expression);
+
+	/** The expression value that gets evaluated to the semi-ring identity element by {@link #fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression)}. */
+	Expression expressionValueLeadingToAdditiveIdentityElement();
 
 	/**
 	 * Gets an expression passed to a rewriter solving this type of problem, and returns a pair containing the expression

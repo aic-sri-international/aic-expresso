@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 
@@ -66,6 +67,11 @@ public class ModelCounting extends AbstractProblemType {
 	@Override
 	public Expression fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression expression) {
 		return IfThenElse.make(expression, ONE, ZERO);
+	}
+
+	@Override
+	public Expression expressionValueLeadingToAdditiveIdentityElement() {
+		return FALSE;
 	}
 
 	@Override

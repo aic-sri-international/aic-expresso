@@ -54,9 +54,15 @@ public abstract class AbstractProblemType implements ProblemType {
 		this.semiRing = semiRing;
 	}
 	
+	@Override
+	public Expression additiveIdentityElement() {
+		return semiRing.additiveIdentityElement();
+	}
+
 	/**
 	 * Performs the semi-ring's additive operation on two values.
 	 */
+	@Override
 	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
 		return semiRing.add(value1, value2, process);
 	}
@@ -65,6 +71,7 @@ public abstract class AbstractProblemType implements ProblemType {
 	 * The result of adding a value (constant in the sense of having no background theory literals,
 	 * but possibly symbolic) to itself n times.
 	 */
+	@Override
 	public Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process) {
 		return semiRing.addNTimes(constantValue, n, process);
 	}
@@ -73,10 +80,8 @@ public abstract class AbstractProblemType implements ProblemType {
 	 * Indicates whether given value is a maximum value in the semi-ring, that is,
 	 * using the additive operation on it with any other value will produce itself.
 	 */
+	@Override
 	public boolean isMaximum(Expression value) {
 		return semiRing.isMaximum(value);
 	}
-
-	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
-	public abstract Expression fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression expression);
 }

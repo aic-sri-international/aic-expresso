@@ -61,6 +61,11 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 public class BooleanSemiRing implements SemiRing {
 	
 	@Override
+	public Expression additiveIdentityElement() {
+		return FALSE;
+	}
+
+	@Override
 	public boolean isMaximum(Expression value) {
 		boolean result = value.equals(Expressions.TRUE);
 		return result;
