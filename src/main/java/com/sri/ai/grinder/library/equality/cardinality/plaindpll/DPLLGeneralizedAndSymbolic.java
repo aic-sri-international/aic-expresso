@@ -158,7 +158,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		Expression splitter = pickSplitter(expression, constraint, process);
 
 		if (splitter != null) {
-			result = computeSolutionBasedOnSplitterProblems(splitter, expression, constraint, process);
+			result = solveBasedOnSplitting(splitter, expression, constraint, process);
 		}
 		else {
 			Expression unconditionalValue = expression;
@@ -180,7 +180,12 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		return splitter;
 	}
 
-	private Expression computeSolutionBasedOnSplitterProblems(Expression splitter, Expression expression, Constraint constraint, RewritingProcess process) {
+	/**
+	 * Interface for functions combining two sub-solutions from a single splitting.
+	 */
+	private static interface Combiner extends QuarternaryFunction<Expression, Expression, Expression, RewritingProcess, Expression> {};
+
+	private Expression solveBasedOnSplitting(Expression splitter, Expression expression, Constraint constraint, RewritingProcess process) {
 		
 		// Keep in mind that splitter may already be implied as true or false by theory constraint.
 		// This should not happen if the theory application of splitters to expressions only replaced them by true or false,
@@ -195,67 +200,82 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		// This prevents a more elegant formalization in which the splitter is applied to the three of them,
 		// as if conceptually applied to the whole problem at once.
 		
-		QuarternaryFunction<Expression, Expression, Expression, RewritingProcess, Expression> conditionalCombiner
-		= (s, solution1, solution2, p) -> IfThenElse.make(s, solution1, solution2, false /* no simplification to condition */);
-
-		QuarternaryFunction<Expression, Expression, Expression, RewritingProcess, Expression> additionCombiner
-		= (s, solution1, solution2, p) -> addSymbolicResults(solution1, solution2, p);
+		Combiner conditionalCombiner = (s, solution1, solution2, p) -> IfThenElse.make(s, solution1, solution2, false /* no simplification to condition */);
+		Combiner additionCombiner    = (s, solution1, solution2, p) -> addSymbolicResults(solution1, solution2, p);
+		
+		Combiner combiner;
+		boolean splitterMustBeInContextualConstraint;
 
 		boolean splitterDependsOnFreeVariablesOnly = ! theory.splitterDependsOnIndex(splitter, constraint.getIndices());
-		
-		QuarternaryFunction<Expression, Expression, Expression, RewritingProcess, Expression> combiner;
 		if (earlyExternalizationOfFreeVariableSplittersOptimization && splitterDependsOnFreeVariablesOnly) {
 			combiner = conditionalCombiner;
+			splitterMustBeInContextualConstraint = true;
 		}
 		else { // default, generic procedure
 			combiner = additionCombiner;
+			splitterMustBeInContextualConstraint = false;
 		}
 
-		Expression result;
-		Constraint constraintUnderSplitter = constraint.applySplitter(true, splitter, process);
-		RewritingProcess processUnderSplitter = combiner == conditionalCombiner? process.extendDPLLContextualConstraint(true, splitter) : process;
+		Expression solutionUnderSplitter = solveUnderSplitter(true, splitter, expression, constraint, splitterMustBeInContextualConstraint, process);
+		boolean noNeedToComputeNegation  = solutionUnderSplitter != null && combiner == additionCombiner && problemType.isMaximum(solutionUnderSplitter);
+		Expression solutionUnderSplitterNegation = 
+				noNeedToComputeNegation? null : solveUnderSplitter(false, splitter, expression, constraint, splitterMustBeInContextualConstraint, process);
+		Expression result = combine(combiner, splitter, solutionUnderSplitter, solutionUnderSplitterNegation, process);
 		
-		if (constraintUnderSplitter != null) {
-			Expression solutionUnderSplitter = solveUnderSplitter(true, splitter, expression, constraintUnderSplitter, processUnderSplitter);
-
-			if (combiner == additionCombiner && problemType.isMaximum(solutionUnderSplitter)) {
-				result = solutionUnderSplitter; // solution is already maximum, no need to consider the sub-problem under the splitter negation
-			}
-			else {
-				Constraint constraintUnderSplitterNegation = constraint.applySplitter(false, splitter, process);
-				RewritingProcess processUnderSplitterNegation = combiner == conditionalCombiner? process.extendDPLLContextualConstraint(false, splitter) : process;
-
-				if (constraintUnderSplitterNegation != null) {
-					Expression solutionUnderSplitterNegation = solveUnderSplitter(false, splitter, expression, constraintUnderSplitterNegation, processUnderSplitterNegation);
-					result = combiner.apply(splitter, solutionUnderSplitter, solutionUnderSplitterNegation, process);
-				}
-				else { // splitter cannot be false under constraint, so it is true under constraint, so final solution is one under splitter
-					result = solutionUnderSplitter;
-				}
-			}
-		}
-		else {
-            // splitter is false under constraint, so its negation is true, so final solution is one under splitter negation
-			Constraint constraintUnderSplitterNegation = constraint.applySplitter(false, splitter, process);
-			RewritingProcess processUnderSplitterNegation = combiner == conditionalCombiner? process.extendDPLLContextualConstraint(false, splitter) : process;
-			Expression solutionUnderSplitterNegation = solveUnderSplitter(false, splitter, expression, constraintUnderSplitterNegation, processUnderSplitterNegation);
+		return result;
+	}
+	
+	/**
+	 * Combines two sub-solutions under a splitter and its negation, where a null sub-solution means the respective splitter or negation cannot be true,
+	 * in which case the combination is simply the other sub-solution.
+	 * @param combiner
+	 * @param splitter
+	 * @param solutionUnderSplitter
+	 * @param solutionUnderSplitterNegation
+	 * @param process
+	 * @return
+	 */
+	private Expression combine(Combiner combiner, Expression splitter, Expression solutionUnderSplitter, Expression solutionUnderSplitterNegation, RewritingProcess process) {
+		Expression result;
+		if (solutionUnderSplitter == null) {
 			result = solutionUnderSplitterNegation;
 		}
-		
+		else if (solutionUnderSplitterNegation == null) {
+			result = solutionUnderSplitter;
+		}
+		else {
+			result = combiner.apply(splitter, solutionUnderSplitter, solutionUnderSplitterNegation, process);
+		}
 		return result;
 	}
 
 	/**
+	 * Solves under splitter, returning null if the splitter is contradictory with the constraint.
 	 * @param splitterSign
 	 * @param splitter
 	 * @param expression
-	 * @param constraintUnderSplitter must not be <code>null</code>
+	 * @param constraint
+	 * @param splitterInContextualConstraint
 	 * @param process
 	 * @return
 	 */
-	protected Expression solveUnderSplitter(boolean splitterSign, Expression splitter, Expression expression, Constraint constraintUnderSplitter, RewritingProcess process) {
-		Expression expressionUnderSplitter = theory.applySplitterToExpression(splitterSign, splitter, expression, process);
-		Expression result = solve(expressionUnderSplitter, constraintUnderSplitter, process);
+	private Expression solveUnderSplitter(boolean splitterSign, Expression splitter, Expression expression, Constraint constraint, boolean splitterInContextualConstraint, RewritingProcess process) {
+		Expression result;
+		Constraint constraintUnderSplitter = constraint.applySplitter(splitterSign, splitter, process);
+		if (constraintUnderSplitter == null) {
+			result = null;
+		}
+		else {
+			Expression expressionUnderSplitter = theory.applySplitterToExpression(splitterSign, splitter, expression, process);
+			boolean rendersAdditiveIdentitySolution = expressionUnderSplitter.equals(problemType.expressionValueLeadingToAdditiveIdentityElement());
+			if (rendersAdditiveIdentitySolution) {
+				result = problemType.additiveIdentityElement();
+			}
+			else {
+				RewritingProcess processUnderSplitter = splitterInContextualConstraint? process.extendDPLLContextualConstraint(splitterSign, splitter) : process;
+				result = solve(expressionUnderSplitter, constraintUnderSplitter, processUnderSplitter);
+			}
+		}
 		return result;
 	}
 
@@ -267,14 +287,20 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 
 		Expression result = null;
 
-		if (DPLLUtil.isConditionalSolution(solution1, theory, process)) {
+		if (solution1.equals(problemType.additiveIdentityElement())) {
+			result = theory.applyConstraintToSolution(process.getDPLLContextualConstraint(), solution2, process);
+		}
+		else if (solution2.equals(problemType.additiveIdentityElement())) {
+			result = theory.applyConstraintToSolution(process.getDPLLContextualConstraint(), solution1, process);
+		}
+		else if (DPLLUtil.isConditionalSolution(solution1, theory, process)) {
 			Expression splitter   = IfThenElse.getCondition (solution1);
 			Expression thenBranch = IfThenElse.getThenBranch(solution1);
 			Expression elseBranch = IfThenElse.getElseBranch(solution1);
-			
+
 			Constraint constraint = process.getDPLLContextualConstraint();
 			Expression normalizedSplitter = DPLLUtil.normalizeOrTrivializedSplitter(splitter, constraint, theory, process);
-			
+
 			if (normalizedSplitter.equals(TRUE)) {
 				result = addSymbolicResults(thenBranch, solution2, process);
 			}
@@ -293,10 +319,10 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 			Expression splitter   = IfThenElse.getCondition (solution2);
 			Expression thenBranch = IfThenElse.getThenBranch(solution2);
 			Expression elseBranch = IfThenElse.getElseBranch(solution2);
-			
+
 			Constraint constraint = process.getDPLLContextualConstraint();
 			Expression normalizedSplitter = DPLLUtil.normalizeOrTrivializedSplitter(splitter, constraint, theory, process);
-			
+
 			if (normalizedSplitter.equals(TRUE)) {
 				result = addSymbolicResults(solution1, thenBranch, process);
 			}
@@ -314,7 +340,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		else {
 			result = problemType.add(solution1, solution2, process);
 		}
-
+	
 		return result;
 	}
 }

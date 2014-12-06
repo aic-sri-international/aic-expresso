@@ -63,6 +63,11 @@ import com.sri.ai.grinder.library.number.UnaryMinus;
 public class SymbolicNumberSemiRing implements SemiRing {
 	
 	@Override
+	public Expression additiveIdentityElement() {
+		return ZERO;
+	}
+
+	@Override
 	public boolean isMaximum(Expression value) {
 		return false;
 	}

@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+
 import java.util.List;
 
 import com.sri.ai.expresso.api.ExistentiallyQuantifiedFormula;
@@ -60,6 +62,11 @@ public class Satisfiability extends AbstractProblemType {
 	@Override
 	public Expression fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression expression) {
 		return expression;
+	}
+
+	@Override
+	public Expression expressionValueLeadingToAdditiveIdentityElement() {
+		return FALSE;
 	}
 
 	@Override
