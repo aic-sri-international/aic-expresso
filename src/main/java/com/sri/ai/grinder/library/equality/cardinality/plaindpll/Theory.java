@@ -142,7 +142,7 @@ public interface Theory {
 		Collection<Expression> getIndices();
 		
 		/**
-		 * Provides a splitter needed toward state
+		 * Provides a splitter needed toward state, and not already implied by the constraint,
 		 * for which a complete with respect to the contextual constraint, possibly conditional,
 		 * model count can be computed in polynomial time, or null if it is already in such a state.
 		 */

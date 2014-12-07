@@ -337,36 +337,6 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 				}
 			}
 
-// Disabled right now because splitters picked this way don't erase the condition when applied back to the constraint,
-// creating an infinite loop
-// may be interesting to try later			
-//			// if a free variable Y is bound to another free variable or constant, this equality is necessary to unconditionally determine the model count
-//			for (Expression freeVariable : fromBoundFreeVariableToBinding.keySet()) {
-//				Expression representative = getRepresentative(freeVariable, process);
-//				// Note that a free variable's representative is never an index, because
-//				// in splitters indices always come before free variables,
-//				// and that is the order of the binding.
-//				// A splitter with a free variable as the first term will always have another free variable
-//				// or a constant on the right-hand side.
-//				// This matters because the conditional model count has to be in terms of
-//				// free variables and constants only, never indices.
-//				if ( ! representative.equals(freeVariable)) {
-//					Expression splitter = Expressions.apply(FunctorConstants.EQUALITY, freeVariable, representative); // making it with apply instead of Disequality.make sidesteps simplifications, which will not occur in this case because otherwise this condition would have either rendered the constraint a contradiction, or would have been eliminated from it
-//					return splitter;
-//				}
-//			}
-//
-//			for (Map.Entry<Expression, Collection<Expression>> entry : entrySet()) {
-//				assert process.isVariable(entry.getKey());
-//				Expression variable = entry.getKey();
-//				if ( ! indices.contains(variable)) { // if variable is free
-//					for (Expression disequal : entry.getValue()) {
-//						Expression splitter = Expressions.apply(FunctorConstants.EQUALITY, variable, disequal); // making it with apply instead of Disequality.make sidesteps simplifications, which will not occur in this case because otherwise this condition would have either rendered the constraint a contradiction, or would have been eliminated from it
-//						return splitter;
-//					}
-//				}
-//			}
-
 			return null;
 		}
 
