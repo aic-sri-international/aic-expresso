@@ -44,7 +44,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnSymbolsTheory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnTermsTheory;
 
 @Beta
 public class SimplifyFormulaTest {
@@ -149,7 +149,7 @@ public class SimplifyFormulaTest {
 
 	private void runTest(Expression expression, Expression expected) {
 		Expression actual;
-		actual = (new EqualityOnSymbolsTheory()).simplify(expression, new DefaultRewritingProcess(expression, null));
+		actual = (new EqualityOnTermsTheory()).simplify(expression, new DefaultRewritingProcess(expression, null));
 		Assert.assertEquals(expected, actual);
 	}
 

@@ -66,14 +66,14 @@ public class EqualityOnSymbolsTautologicalityDPLL extends AbstractHierarchicalRe
 	 * Builds a rewriter for cardinality computation.
 	 */
 	public EqualityOnSymbolsTautologicalityDPLL() {
-		satisfiabilitySolver = new DPLLGeneralizedAndSymbolic(new EqualityOnSymbolsTheory(), new Satisfiability());
+		satisfiabilitySolver = new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(), new Satisfiability());
 	}
 
 	/**
 	 * Builds a rewriter for cardinality computation.
 	 */
 	public EqualityOnSymbolsTautologicalityDPLL(CountsDeclaration countsDeclaration) {
-		satisfiabilitySolver = new DPLLGeneralizedAndSymbolic(new EqualityOnSymbolsTheory(), new Satisfiability(), countsDeclaration);
+		satisfiabilitySolver = new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(), new Satisfiability(), countsDeclaration);
 	}
 
 	@Override
