@@ -37,36 +37,42 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import com.google.common.annotations.Beta;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
+
+import java.util.List;
+
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.UniversallyQuantifiedFormula;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.util.base.Pair;
 
 /**
- * Object representing a commutative semi-ring to be used as value of expression being processed by {@link DPLLGeneralizedAndSymbolic}.
+ * Model counting uses the number semi-ring and converts boolean formula F to 'if F then 1 else 0' to count satisfying models.
  * 
  * @author braz
  *
  */
-@Beta
-public interface SemiRing {
-	
-	/** The semi-ring identity element. */
-	Expression additiveIdentityElement();
-	
-	/**
-	 * Performs the semi-ring's additive operation on two values.
-	 */
-	Expression add(Expression value1, Expression value2, RewritingProcess process);
+public class Tautologicality extends AbstractProblemType {
 
-	/**
-	 * The result of adding a value (constant in the sense of having no background theory literals,
-	 * but possibly symbolic) to itself n times (which can itself be symbolic, that is, conditional).
-	 */
-	Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process);
+	public Tautologicality() {
+		super(new ConjunctiveBooleanSemiRing());
+	}
+	
+	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
+	@Override
+	public Expression fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression expression) {
+		return expression;
+	}
 
-	/**
-	 * Indicates whether given value is an absorbing element of the semi-ring's additive operation,
-	 * that is, using the additive operation on it with any other value will produce itself.
-	 */
-	boolean isAbsorbingElement(Expression value);
+	@Override
+	public Expression expressionValueLeadingToAdditiveIdentityElement() {
+		return TRUE;
+	}
+
+	@Override
+	public Pair<Expression, List<Expression>> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
+		UniversallyQuantifiedFormula universal = (UniversallyQuantifiedFormula) expression;
+		Pair<Expression, List<Expression>> formulaAndIndices = Pair.make(universal.getBody(), universal.getIndexExpressions());
+		return formulaAndIndices;
+	}
 }

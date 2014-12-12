@@ -58,57 +58,62 @@ import com.sri.ai.util.Util;
 /** 
  * A DPLL specialization for tautologicality.
  */
-public class EqualityOnSymbolsTautologicalityDPLL extends AbstractHierarchicalRewriter {
+public class EqualityOnSymbolsTautologicalityDPLL extends DPLLGeneralizedAndSymbolic {
+//	public class EqualityOnSymbolsTautologicalityDPLL extends AbstractHierarchicalRewriter {
 	
-	private Rewriter satisfiabilitySolver;
+public EqualityOnSymbolsTautologicalityDPLL() {
+		super(new EqualityOnSymbolsTheory(), new Tautologicality());
+	}
 	
-	/**
-	 * Builds a rewriter for cardinality computation.
-	 */
-	public EqualityOnSymbolsTautologicalityDPLL() {
-		satisfiabilitySolver = new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(), new Satisfiability());
-	}
-
-	/**
-	 * Builds a rewriter for cardinality computation.
-	 */
-	public EqualityOnSymbolsTautologicalityDPLL(CountsDeclaration countsDeclaration) {
-		satisfiabilitySolver = new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(), new Satisfiability(), countsDeclaration);
-	}
-
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		UniversallyQuantifiedFormula universal = (UniversallyQuantifiedFormula) expression;
-		Expression satisfiabilityFormula = Not.make(universal.getBody());
-		Expression existential = new DefaultExistentiallyQuantifiedFormula(universal.getIndexExpressions(), satisfiabilityFormula);
-		Expression satisfiable = satisfiabilitySolver.rewrite(existential, process);
-		Expression result = negateBooleanSolution(satisfiable, process);
-		return result;
-	}
-
-	private static Expression negateBooleanSolution(Expression solution, RewritingProcess process) {
-		Expression result;
-		if (IfThenElse.isIfThenElse(solution)) {
-			Expression negatedThenBranch = negateBooleanSolution(IfThenElse.getThenBranch(solution), process);
-			Expression negatedElseBranch = negateBooleanSolution(IfThenElse.getElseBranch(solution), process);
-			result = IfThenElse.make(IfThenElse.getCondition(solution), negatedThenBranch, negatedElseBranch, false /* do not simplify to condition */);
-		}
-		else if (solution.equals(Expressions.TRUE)) {
-			result = Expressions.FALSE;
-		}
-		else if (solution.equals(Expressions.FALSE)) {
-			result = Expressions.TRUE;
-		}
-		else if (solution.hasFunctor(FunctorConstants.GREATER_THAN)) {
-			result = Expressions.apply(FunctorConstants.LESS_THAN_OR_EQUAL_TO, solution.get(0), solution.get(1));
-		}
-		else if (solution.hasFunctor(FunctorConstants.OR)) {
-			List<Expression> newArguments = Util.mapIntoArrayList(solution.getArguments(), e -> negateBooleanSolution(e, process));
-			result = And.make(newArguments);
-		}
-		else {
-			throw new Error("Should be boolean solution but it is not: " + solution);
-		}
-		return result;
-	}
+//	private Rewriter satisfiabilitySolver;
+//	
+//	/**
+//	 * Builds a rewriter for cardinality computation.
+//	 */
+//	public EqualityOnSymbolsTautologicalityDPLL() {
+//		satisfiabilitySolver = new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(), new Satisfiability());
+//	}
+//
+//	/**
+//	 * Builds a rewriter for cardinality computation.
+//	 */
+//	public EqualityOnSymbolsTautologicalityDPLL(CountsDeclaration countsDeclaration) {
+//		satisfiabilitySolver = new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(), new Satisfiability(), countsDeclaration);
+//	}
+//
+//	@Override
+//	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+//		UniversallyQuantifiedFormula universal = (UniversallyQuantifiedFormula) expression;
+//		Expression satisfiabilityFormula = Not.make(universal.getBody());
+//		Expression existential = new DefaultExistentiallyQuantifiedFormula(universal.getIndexExpressions(), satisfiabilityFormula);
+//		Expression satisfiable = satisfiabilitySolver.rewrite(existential, process);
+//		Expression result = negateBooleanSolution(satisfiable, process);
+//		return result;
+//	}
+//
+//	private static Expression negateBooleanSolution(Expression solution, RewritingProcess process) {
+//		Expression result;
+//		if (IfThenElse.isIfThenElse(solution)) {
+//			Expression negatedThenBranch = negateBooleanSolution(IfThenElse.getThenBranch(solution), process);
+//			Expression negatedElseBranch = negateBooleanSolution(IfThenElse.getElseBranch(solution), process);
+//			result = IfThenElse.make(IfThenElse.getCondition(solution), negatedThenBranch, negatedElseBranch, false /* do not simplify to condition */);
+//		}
+//		else if (solution.equals(Expressions.TRUE)) {
+//			result = Expressions.FALSE;
+//		}
+//		else if (solution.equals(Expressions.FALSE)) {
+//			result = Expressions.TRUE;
+//		}
+//		else if (solution.hasFunctor(FunctorConstants.GREATER_THAN)) {
+//			result = Expressions.apply(FunctorConstants.LESS_THAN_OR_EQUAL_TO, solution.get(0), solution.get(1));
+//		}
+//		else if (solution.hasFunctor(FunctorConstants.OR)) {
+//			List<Expression> newArguments = Util.mapIntoArrayList(solution.getArguments(), e -> negateBooleanSolution(e, process));
+//			result = And.make(newArguments);
+//		}
+//		else {
+//			throw new Error("Should be boolean solution but it is not: " + solution);
+//		}
+//		return result;
+//	}
 }

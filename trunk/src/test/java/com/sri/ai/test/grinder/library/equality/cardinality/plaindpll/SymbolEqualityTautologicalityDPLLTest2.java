@@ -49,13 +49,14 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnTermsTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Tautologicality;
 
 @Beta
-public class SymbolEqualityTautologicalityDPLLTest extends AbstractSymbolicSymbolEqualityDPLLTest {
+public class SymbolEqualityTautologicalityDPLLTest2 extends AbstractSymbolicSymbolEqualityDPLLTest {
 	
 	@Test
 	public void test() {
@@ -204,7 +205,7 @@ public class SymbolEqualityTautologicalityDPLLTest extends AbstractSymbolicSymbo
 		return problem;
 	}
 
-	protected DPLLGeneralizedAndSymbolic makeRewriter() {
+	protected Rewriter makeRewriter() {
 		return new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(), new Tautologicality());
 	}
 }

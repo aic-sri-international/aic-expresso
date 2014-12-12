@@ -55,7 +55,7 @@ import com.sri.ai.util.base.Pair;
 public class Satisfiability extends AbstractProblemType {
 
 	public Satisfiability() {
-		super(new BooleanSemiRing());
+		super(new DisjunctiveBooleanSemiRing());
 	}
 	
 	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */

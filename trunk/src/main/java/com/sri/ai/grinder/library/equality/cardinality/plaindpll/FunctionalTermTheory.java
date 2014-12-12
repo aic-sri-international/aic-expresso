@@ -37,36 +37,56 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import java.util.Iterator;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnTermsTheory.Constraint;
 
-/**
- * Object representing a commutative semi-ring to be used as value of expression being processed by {@link DPLLGeneralizedAndSymbolic}.
- * 
- * @author braz
- *
- */
 @Beta
-public interface SemiRing {
-	
-	/** The semi-ring identity element. */
-	Expression additiveIdentityElement();
-	
-	/**
-	 * Performs the semi-ring's additive operation on two values.
-	 */
-	Expression add(Expression value1, Expression value2, RewritingProcess process);
+/** 
+ * A {@link TermTheory} for functional terms (including symbol terms).
+ */
+public class FunctionalTermTheory implements TermTheory {
 
-	/**
-	 * The result of adding a value (constant in the sense of having no background theory literals,
-	 * but possibly symbolic) to itself n times (which can itself be symbolic, that is, conditional).
-	 */
-	Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process);
+	@Override
+	public boolean isVariable(Expression term, RewritingProcess process) {
+		boolean result = process.isVariable(term) || term.getSyntacticFormType().equals("Function application");
+		return result;
+	}
 
-	/**
-	 * Indicates whether given value is an absorbing element of the semi-ring's additive operation,
-	 * that is, using the additive operation on it with any other value will produce itself.
-	 */
-	boolean isAbsorbingElement(Expression value);
+	@Override
+	public Expression getSplitterTowardDisunifyingDistinctTerms(Expression term, Expression anotherTerm, RewritingProcess process) {
+		Expression result = null;
+		if (term.getSyntacticFormType().equals("Function application") &&
+				anotherTerm.getSyntacticFormType().equals("Function application") &&
+				term.numberOfArguments() == anotherTerm.numberOfArguments() &&
+				term.getFunctor().equals(anotherTerm.getFunctor())) {
+			
+			Iterator<Expression> argument1Iterator =        term.getArguments().iterator();
+			Iterator<Expression> argument2Iterator = anotherTerm.getArguments().iterator();
+			result = null;
+			while (result == null && argument1Iterator.hasNext()) {
+				Expression argument1 = argument1Iterator.next();
+				Expression argument2 = argument2Iterator.next();
+				result = getSplitterTowardDisunifyingDistinctTerms(argument1, argument2, process);
+			}
+		}
+		// now it is either null, or a splitter for disunifying arguments
+		return result;
+	}
+
+	@Override
+	public Expression normalizeTermUpToVariable(Expression term, Constraint constraint, RewritingProcess process) {
+		Expression result = Expressions.replaceImmediateSubexpressions(term, t -> constraint.getRepresentative(t, process));
+		return result;
+	}
+
+	@Override
+	public boolean normalizationUpToVariableIsIdentity() {
+		return false;
+	}
+
 }

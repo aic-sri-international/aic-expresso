@@ -41,32 +41,31 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 
-/**
- * Object representing a commutative semi-ring to be used as value of expression being processed by {@link DPLLGeneralizedAndSymbolic}.
- * 
- * @author braz
- *
- */
 @Beta
-public interface SemiRing {
+public interface TermTheory {
 	
-	/** The semi-ring identity element. */
-	Expression additiveIdentityElement();
+	boolean isVariable(Expression term, RewritingProcess process);
+	
+	Expression getSplitterTowardDisunifyingDistinctTerms(Expression term, Expression anotherTerm, RewritingProcess process);
 	
 	/**
-	 * Performs the semi-ring's additive operation on two values.
+	 * Determines a unique representation for the variable represented by term.
+	 * This is distinct from normalizing a term to its representative.
+	 * For example, consider a constraint binding p(Y) to 10 and X to Y.
+	 * Then normalizing p(X) to its representative renders 10,
+	 * whereas normalizing it "up to variable" renders p(Y),
+	 * which is the generalized variable representative of p(X).
+	 * @param term
+	 * @param constraint
+	 * @param process
+	 * @return
 	 */
-	Expression add(Expression value1, Expression value2, RewritingProcess process);
+	Expression normalizeTermUpToVariable(Expression term, EqualityOnTermsTheory.Constraint constraint, RewritingProcess process);
 
 	/**
-	 * The result of adding a value (constant in the sense of having no background theory literals,
-	 * but possibly symbolic) to itself n times (which can itself be symbolic, that is, conditional).
+	 * Indicates whether the normalizeTermUpToVariable is simply the identity function.
+	 * This permits some optimization.
+	 * @return
 	 */
-	Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process);
-
-	/**
-	 * Indicates whether given value is an absorbing element of the semi-ring's additive operation,
-	 * that is, using the additive operation on it with any other value will produce itself.
-	 */
-	boolean isAbsorbingElement(Expression value);
+	boolean normalizationUpToVariableIsIdentity();
 }

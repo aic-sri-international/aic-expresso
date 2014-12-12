@@ -100,7 +100,7 @@ public class SymbolEqualityModelCountingDPLLTest extends AbstractSymbolicSymbolE
 		// tests elimination for quantified sub-expressions
 		expression = parse("for all Y : X = Y");
 		indices    = list("X");
-		expected   = parse("if | type(Y) | - 1 <= 0 then | Everything | else 0");
+		expected   = parse("if | type(Y) | - 1 = 0 then | Everything | else 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
 		// tests case in which symbolic solutions with conditions that are not splitters need to be combined

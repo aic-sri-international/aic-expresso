@@ -82,6 +82,6 @@ public abstract class AbstractProblemType implements ProblemType {
 	 */
 	@Override
 	public boolean isMaximum(Expression value) {
-		return semiRing.isMaximum(value);
+		return semiRing.isAbsorbingElement(value);
 	}
 }
