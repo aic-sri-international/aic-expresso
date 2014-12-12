@@ -37,90 +37,68 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import static com.sri.ai.expresso.helper.Expressions.ONE;
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
-import static com.sri.ai.util.Util.arrayList;
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.TotalRewriter;
+import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.number.FlattenMinusInPlus;
-import com.sri.ai.grinder.library.number.Minus;
-import com.sri.ai.grinder.library.number.Plus;
-import com.sri.ai.grinder.library.number.UnaryMinus;
 
 /**
- * Object representing a symbolic numeric semiring (that is, numeric expressions do not need to be constant numbers).
+ * Object representing a boolean semiring with the or operation as its additive operation.
  * 
  * @author braz
  *
  */
 @Beta
-public class SymbolicNumberSemiRing implements SemiRing {
+public class DisjunctiveBooleanSemiRing implements SemiRing {
 	
 	@Override
 	public Expression additiveIdentityElement() {
-		return ZERO;
+		return FALSE;
 	}
 
 	@Override
 	public boolean isAbsorbingElement(Expression value) {
-		return false;
+		boolean result = value.equals(Expressions.TRUE);
+		return result;
 	}
 
 	@Override
 	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
-		Expression result;
-		if (value1.getValue() instanceof Number && value2.getValue() instanceof Number) { // not necessary, as else clause is generic enough to deal with this case as well, but hopefully this saves time.
-			result = Expressions.makeSymbol(value1.rationalValue().add(value2.rationalValue()));
-		}
-		else {
-			Expression sum = Plus.make(arrayList(value1, value2));
-			result = plusAndMinusRewriter.rewrite(sum, process);
-		}
-		return result;
+		return Or.make(value1, value2);
 	}
 
-	private static Rewriter plusAndMinusRewriter = new TotalRewriter(new Plus(), new Minus(), new UnaryMinus(), new FlattenMinusInPlus());
-	
 	@Override
-	public Expression addNTimes(Expression valueToBeSummed, Expression n, RewritingProcess process) {
+	public Expression addNTimes(Expression value, Expression n, RewritingProcess process) {
 		Expression result;
-		if (n.equals(ZERO)) {
-			result = ZERO;
+		if (value.equals(FALSE) || n.equals(ZERO)) {
+			result = FALSE;
 		}
-		else if (IfThenElse.isIfThenElse(n)) { // it is important that this condition is tested before the next, because n can be conditional on splitters while valueToBeSummed can be conditioned on conditions in the unconditional solution language (such as | Everything | - 1 > 0), and we want splitters to be over non-splitter conditions
+		else if (n.getValue() instanceof Number) { // we already know value is not false and n is greater than zero from the previous condition having failed
+			result = TRUE;
+		}
+		// n is a symbolic value, so now it all depends on its being greater than zero
+		else if (GrinderConfiguration.isAssumeDomainsAlwaysLarge()) { // this flag tells us to always assume type sizes are as large as needed to make n positive.
+			result = TRUE;
+		}
+		else if (IfThenElse.isIfThenElse(n)) {
 			Expression condition  = IfThenElse.getCondition(n);
 			Expression thenBranch = IfThenElse.getThenBranch(n);
 			Expression elseBranch = IfThenElse.getElseBranch(n);
-			Expression newThenBranch = addNTimes(valueToBeSummed, thenBranch, process);
-			Expression newElseBranch = addNTimes(valueToBeSummed, elseBranch, process);
+			Expression newThenBranch = addNTimes(value, thenBranch, process);
+			Expression newElseBranch = addNTimes(value, elseBranch, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false); // do not simplify to condition so it is a DPLL solution
 		}
-		else if (IfThenElse.isIfThenElse(valueToBeSummed)) {
-			Expression condition = IfThenElse.getCondition(valueToBeSummed);
-			Expression thenBranch = IfThenElse.getThenBranch(valueToBeSummed);
-			Expression elseBranch = IfThenElse.getElseBranch(valueToBeSummed);
-			
-			Expression newThenBranch = addNTimes(thenBranch, n, process);
-			Expression newElseBranch = addNTimes(elseBranch, n, process);
-			
-			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
-		}
 		else {
-			if (valueToBeSummed.equals(ZERO)) { // optimization
-				result = ZERO;
-			}
-			else if (valueToBeSummed.equals(ONE)) { // optimization
-				result = n;
-			}
-			else {
-				result = Expressions.makeSymbol(valueToBeSummed.rationalValue().multiply(n.rationalValue()));
-			}
+			result = apply(GREATER_THAN, n, Expressions.ZERO);
 		}
 		return result;
 	}

@@ -142,7 +142,7 @@ public interface Theory {
 		Collection<Expression> getIndices();
 		
 		/**
-		 * Provides a splitter needed toward state, and not already implied by the constraint,
+		 * Provides a splitter needed toward state, and not already explicitly represented by the constraint,
 		 * for which a complete with respect to the contextual constraint, possibly conditional,
 		 * model count can be computed in polynomial time, or null if it is already in such a state.
 		 */
@@ -160,7 +160,8 @@ public interface Theory {
 		Expression checkIfSplitterOrItsNegationIsImplied(Expression splitter, RewritingProcess process);
 		
 		/**
-		 * Generates new constraint representing conjunction of this constraint and given splitter (or its negation, depending on the sign).
+		 * Generates new constraint representing conjunction of this constraint and given splitter
+		 * (or its negation, depending on the sign).
 		 * @param splitterSign the splitter's sign (true for splitter itself, false for its negation)
 		 * @param splitter the splitter according to this theory's choice
 		 * @param process the rewriting process

@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.util.Util.getOrUseDefault;
+import static com.sri.ai.util.Util.mapIntoSet;
 import static java.util.Collections.emptyList;
 
 import java.util.ArrayList;
@@ -79,10 +80,33 @@ import com.sri.ai.util.base.Equals;
  */
 public class EqualityOnTermsTheory extends AbstractTheory {
 	
+//	private TermTheory termTheory = new SymbolTermTheory();
+	private TermTheory termTheory = new FunctionalTermTheory();
+	
 	// Important:
 	// this class generalizes the notion of a variable to a "generalized variable" (simply referred by as "variable"),
 	// which is either a variable symbol, or an uninterpreted function application such as p(a, b, X).
 	// It can also be seen as an indexed variable (typically represented as x_i, y_i,j etc).
+	
+	// I coined the phrase "normalize up to variable" to differentiate between replacing an expression by its
+	// representative, and replacing it by the generalized variable it represents.
+	// For example, if X is bound to Y, and p(Y) is bound to q(Z),
+	// the normalization of p(X) is q(Z) (via the binding p(X) -> p(Y)), whereas the
+	// normalization of p(X) "up to variable" is simply p(Y).
+	// This concept is important for the following reason.
+	// Suppose we have the following binding chains:
+	// p(X) -> q(Z)
+	// p(Y) -> 10
+	// and we learn that X = Y, so now we have
+	// p(X) -> q(Z)
+	// p(Y) -> 10
+	// X -> Y
+	// Now p(X) and p(Y) around bound via X -> Y, but they are not in the same chain.
+	// This is a problem because if we bind q(Z) = 11, we won't be able to tell the contradiction.
+	// We need to normalize each term "up to the variable" it represents.
+	// In this case, p(X) is normalized up-to-variable p(Y), which allows us to detect the unification.
+	// More specifically, we link p(X)'s representative q(Z) to its normalized-up-to-variable p(Y),
+	// which merges the chains.
 
 	private static Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
@@ -117,7 +141,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 	private static Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
 					ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new EqualityOnSymbolsTautologicalityDPLL()).rewrite(f, process),
+					(new DPLLGeneralizedAndSymbolic(new EqualityOnSymbolsTheory(), new Tautologicality())).rewrite(f, process),
  
 					ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
 					(new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(), new Satisfiability())).rewrite(f, process)
@@ -145,18 +169,13 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		Expression result = null;
 		if (expression.hasFunctor(FunctorConstants.EQUALITY) || expression.hasFunctor(FunctorConstants.DISEQUALITY)) {
 			// remember that equality can have an arbitrary number of terms
-			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), e -> isVariable(e, process));
+			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), e -> termTheory.isVariable(e, process));
 			Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), com.sri.ai.util.base.Not.make(Equals.make(variable)));
 			result = makeSplitterFromTwoTerms(variable, otherTerm, indices, process);
 		}
 		return result;
 	}
 	
-	private static boolean isVariable(Expression expression, RewritingProcess process) { 
-		boolean result = process.isVariable(expression) || expression.getSyntacticFormType().equals("Function application");
-		return result;
-	}
-
 	/**
 	 * Assumes equality between terms is not trivial.
 	 * @param term1
@@ -165,7 +184,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 	 * @param process
 	 * @return
 	 */
-	protected static Expression makeSplitterFromTwoTerms(Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
+	protected Expression makeSplitterFromTwoTerms(Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
 		// Places index or variable before constants.
 		if (indices.contains(term1)) {
@@ -174,7 +193,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		else if (indices.contains(term2)) {
 			result = Equality.make(term2, term1);
 		}
-		else if (isVariable(term1, process)) {
+		else if (termTheory.isVariable(term1, process)) {
 			result = Equality.make(term1, term2);
 		}
 		else {
@@ -324,19 +343,43 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 				if (indices.contains(x)) {
 					if ( ! indexIsBound(x)) { // optional, but more efficient
 						Collection<Expression> disequalsOfX = getDisequals(x);
-						for (Expression y : disequalsOfX) {
-							if (isVariable(y, process)) { // we can restrict y to variables because at least one of y or t must be a variable (otherwise they would be two constants and we already know those are disequal).
-								Expression t = getAnotherTermInCollectionThatIsNotConstrainedToBeDisequalToTerm(disequalsOfX, y, process);
-								if (t != null) {
-									Expression splitter = EqualityOnTermsTheory.makeSplitterFromTwoTerms(y, t, indices, process);
-									return splitter;
-								}
-							}
+						Expression splitter = getSplitterTowardsEnsuringTotalDisequalityOfTermsInCollection(disequalsOfX, process);
+						if (splitter != null) {
+							return splitter;
 						}
 					}
 				}
 			}
 
+			return null;
+		}
+
+		private Expression getSplitterTowardsEnsuringTotalDisequalityOfTermsInCollection(Collection<Expression> terms, RewritingProcess process) {
+			for (Expression y : terms) {
+				if (termTheory.isVariable(y, process)) { // we can restrict y to variables because at least one of y or t must be a variable (otherwise they would be two constants and we already know those are disequal).
+					Expression splitter = getSplitterTowardsEnsuringVariableIsDisequalFromAllOtherTermsInCollection(y, terms, process); // TODO: search from y's position only
+					if (splitter != null) {
+						return splitter;
+					}
+				}
+			}
+			
+			return null;
+		}
+
+		private Expression getSplitterTowardsEnsuringVariableIsDisequalFromAllOtherTermsInCollection(Expression term, Collection<Expression> terms, RewritingProcess process) {
+			for (Expression anotherTerm : terms) {
+				if ( ! anotherTerm.equals(term)) {
+					Expression splitter = termTheory.getSplitterTowardDisunifyingDistinctTerms(term, anotherTerm, process);
+					if (splitter != null) {
+						return splitter; // need to disunify first
+					}
+					else if ( ! termsAreConstrainedToBeDisequal(term, anotherTerm, process)) { // already disunified
+						splitter = makeSplitterFromTwoTerms(term, anotherTerm, indices, process);
+						return splitter;
+					}
+				}
+			}
 			return null;
 		}
 
@@ -349,7 +392,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 			return result;
 		}
 
-		private void setBinding(Expression variable, Expression binding) {
+		private void setBinding(Expression variable, Expression binding, RewritingProcess process) {
 			if ( ! variable.equals(binding)) {
 				if (indices.contains(variable)) {
 					fromBoundIndexToBinding.put(variable, binding);
@@ -369,29 +412,34 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		}
 
 		/**
-		 * A symbol's representative is itself, if the symbol is a constant,
-		 * the final symbol in the current binding chain, if the symbol is a variable and it has a binding,
+		 * A normalized term's representative is itself, if the term is a constant,
+		 * the final term in the current binding chain, if the term is a variable and it has a binding,
 		 * or itself if it is a variable without a binding.
-		 * If the symbol is a variable with a binding, sets its binding to the final symbol in the chain
+		 * If the term is a variable with a binding,
+		 * this method sets its binding to the final term in the chain
 		 * for greater efficiency next time the method is invoked.
-		 * @param symbol
+		 * @param term
 		 * @param process
 		 * @return
 		 */
-		private Expression getRepresentative(Expression symbol, RewritingProcess process) {
-			Expression current = symbol;
+		Expression getRepresentative(Expression term, RewritingProcess process) {
+			// replace arguments of function applications by their own representatives
+			// to ensure all equalities are detected
+			term = termTheory.normalizeTermUpToVariable(term, this, process);
+			
+			Expression current = term;
 			Expression currentBinding;
-			while (isVariable(current, process) && (currentBinding = getBinding(current)) != null) {
+			while (termTheory.isVariable(current, process) && (currentBinding = getBinding(current)) != null) {
 				current = currentBinding;
 			}
-			// now, 'current' is in the chain started at symbol,
+			// now, 'current' is in the chain started at term,
 			// and it is either a constant or a variable without binding, therefore it is the equivalence class representative.
-			if (isVariable(symbol, process)) {
-				setBinding(symbol, current); // optional recording so that we do not need to traverse the entire chain next time
+			if (termTheory.isVariable(term, process)) {
+				setBinding(term, current, process); // optional recording so that we do not need to traverse the entire chain next time
 			}
 			return current;
 		}
-		
+
 		@Override
 		public Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			Constraint result;
@@ -439,21 +487,64 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		private Constraint applySplitterNegationDefinedOnEquivalentClassRepresentatives(Expression splitter, RewritingProcess process) {
 			Expression variable  = splitter.get(0);
 			Expression otherTerm = splitter.get(1);
-			Constraint result;
-			result = new Constraint(this);
-			result.applyDisequality(variable, otherTerm, process);
-			return result;
+			Constraint newConstraint = new Constraint(this);
+			newConstraint.applyDisequality(variable, otherTerm, process);
+			return newConstraint;
 		}
 
 		private Constraint makeNewConstraintWithVariableReplacedByOtherTerm(Expression variable, Expression otherTerm, RewritingProcess process) {
 			Constraint newConstraint = new Constraint(this);
 			
-			newConstraint.setBinding(variable, otherTerm);
+			newConstraint.setBinding(variable, otherTerm, process);
+			newConstraint.reNormalizeDataStructuresUpToVariablesGivenNewBinding(process);
 			newConstraint.applyDisequalitiesBetweenAllDisequalsOfVariableAndOtherTerm(variable, otherTerm, process);
 			newConstraint.remove(variable); // remove entry for disequals
 			newConstraint.replaceVariableByOtherTermInAllEntriesButOtherTerms(variable, otherTerm, process);
 			
 			return newConstraint;
+		}
+
+		private void reNormalizeDataStructuresUpToVariablesGivenNewBinding(RewritingProcess process) {
+			if (termTheory.normalizationUpToVariableIsIdentity()) {
+				// no need to re-normalize
+			}
+			else {
+				fromBoundIndexToBinding        = reNormalizeBindingMapUpToVariables(fromBoundIndexToBinding,        process);
+				fromBoundFreeVariableToBinding = reNormalizeBindingMapUpToVariables(fromBoundFreeVariableToBinding, process);
+				reNormalizeDisequalsMapUpToVariables(process);
+			}
+		}
+
+		private Map<Expression, Expression> reNormalizeBindingMapUpToVariables(Map<Expression, Expression> oldBindingMap, RewritingProcess process) {
+			Map<Expression, Expression> newBindingMap = new LinkedHashMap<Expression, Expression>();
+			boolean change = false;
+			for (Map.Entry<Expression, Expression> entry : oldBindingMap.entrySet()) {
+				Expression newKey   = termTheory.normalizeTermUpToVariable(entry.getKey(), this, process);
+				Expression newValue = termTheory.normalizeTermUpToVariable(entry.getValue(), this, process);
+				change = newKey != entry.getKey() || newValue != entry.getValue();
+				newBindingMap.put(newKey, newValue);
+			}
+			
+			Map<Expression, Expression> result = change? newBindingMap : oldBindingMap;
+			
+			return result;
+		}
+
+		private void reNormalizeDisequalsMapUpToVariables(RewritingProcess process) {
+			Map<Expression, Collection<Expression>> newDisequalsMap = new LinkedHashMap<Expression, Collection<Expression>>();
+			boolean change = false;
+			for (Map.Entry<Expression, Collection<Expression>> entry : entrySet()) {
+				Expression newKey = termTheory.normalizeTermUpToVariable(entry.getKey(), this, process);
+				Collection<Expression> newValue = mapIntoSet(entry.getValue(), e -> termTheory.normalizeTermUpToVariable(e, this, process));
+				change = newKey != entry.getKey() || newValue != entry.getValue();
+				newDisequalsMap.put(newKey, newValue);
+				newDisequalsMap.put(newKey, newValue);
+			}
+		
+			if (change) {
+				clear();
+				putAll(newDisequalsMap); // TODO: optimization: make disequals map a field so that it does not need to be copied here
+			}
 		}
 
 		protected void addOneTermToTheOthersDisequalsInNewConstraintAccordingToChoosingOrder(Expression variable, Expression otherTerm, Constraint newConstraint, RewritingProcess process) {
@@ -517,8 +608,8 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 
 		/** Assumes disequality does not turn constraint into contradiction */
 		private void applyDisequality(Expression term1, Expression term2, RewritingProcess process) {
-			if (isVariable(term1, process) || isVariable(term2, process)) {
-				if (isVariable(term1, process) && variableIsChosenAfterOtherTerm(term1, term2, indices, process)) {
+			if (termTheory.isVariable(term1, process) || termTheory.isVariable(term2, process)) {
+				if (termTheory.isVariable(term1, process) && variableIsChosenAfterOtherTerm(term1, term2, indices, process)) {
 					addFirstTermAsDisequalOfSecondTerm(term1, term2);
 				}
 				else { // term2 must be a variable because either term1 is not a variable, or it is but term2 comes later than term1 in ordering, which means it is a variable
@@ -531,13 +622,6 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		private void addFirstTermAsDisequalOfSecondTerm(Expression term1, Expression term2) {
 			Set<Expression> disequalsOfTerm1 = (Set<Expression>) Util.getValuePossiblyCreatingIt(((Constraint) this), term1, LinkedHashSet.class); // cannot use getDisequals(term1) here because that method does not create a new set if needed, but simply uses a constant empty collection. This prevents unnecessary creation of collections.
 			disequalsOfTerm1.add(term2);
-		}
-
-		private Expression getAnotherTermInCollectionThatIsNotConstrainedToBeDisequalToTerm(Collection<Expression> terms, Expression term, RewritingProcess process) {
-			Expression result = Util.getFirstSatisfyingPredicateOrNull(
-					terms,
-					anotherTerm -> ! anotherTerm.equals(term) && ! termsAreConstrainedToBeDisequal(anotherTerm, term, process));
-			return result;
 		}
 
 		@Override
@@ -599,7 +683,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		private Collection<Expression> getSplittersToBeNotSatisfied(RewritingProcess process) {
 			Collection<Expression> result = new LinkedHashSet<Expression>();
 			for (Map.Entry<Expression, Collection<Expression>> entry : entrySet()) {
-				assert isVariable(entry.getKey(), process);
+				assert termTheory.isVariable(entry.getKey(), process);
 				Expression variable = entry.getKey();
 				if ( ! indices.contains(variable)) { // if variable is free
 					for (Expression disequal : entry.getValue()) {

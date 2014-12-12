@@ -66,6 +66,7 @@ import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Associative;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
+import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.PlainSubstitution;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Or;
@@ -107,7 +108,7 @@ public abstract class AbstractSymbolicSymbolEqualityDPLLTest {
 		TotalRewriter normalizer = new TotalRewriter(
 				new PlainSubstitution(),
 				new Associative("+"), new Associative("*"), new Associative("and"), new Associative("or"),
-				new Plus(), new Minus(), new Times(), new GreaterThan(), new LessThanOrEqualTo(),
+				new Plus(), new Minus(), new Times(), new GreaterThan(), new LessThanOrEqualTo(), new Equality(),
 				new Or(), new And(),
 				new IfThenElse(),
 				new IfThenElseBranchesAreIdentical()
