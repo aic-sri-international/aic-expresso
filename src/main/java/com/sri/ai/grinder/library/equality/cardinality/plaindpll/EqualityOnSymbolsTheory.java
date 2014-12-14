@@ -112,10 +112,10 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 	
 	private static Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
-					ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					ForAll.SYNTACTIC_FORM_TYPE,      (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
 					(new DPLLGeneralizedAndSymbolic(new EqualityOnSymbolsTheory(), new Tautologicality())).rewrite(f, process),
  
-					ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					ThereExists.SYNTACTIC_FORM_TYPE, (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
 					(new DPLLGeneralizedAndSymbolic(new EqualityOnSymbolsTheory(), new Satisfiability())).rewrite(f, process)
 	);
 

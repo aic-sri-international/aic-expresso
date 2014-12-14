@@ -71,7 +71,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	/**
 	 * A standard version of the algorithm picks a splitter,
 	 * splits the problem according to it into two sub-problems,
-	 * and adds their sub-solutions.
+	 * and combines their sub-solutions.
 	 * When splitting on non-index (free) variables,
 	 * this introduces, in the sub-problems, conditions on free variables
 	 * that will be part of the eventual model count in the leaf (which will be conditional on them).

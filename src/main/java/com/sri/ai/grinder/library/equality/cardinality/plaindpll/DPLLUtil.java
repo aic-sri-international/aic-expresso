@@ -89,8 +89,8 @@ public class DPLLUtil {
 	 * Simplifies the top expression of an equality-logic-with-quantifiers formula until it cannot be simplified anymore.
 	 * Always returns either a symbol or a function application (quantified formulas have their top quantifiers eliminated).
 	 * @param expression
-	 * @param functionApplicationSimplifiers TODO
-	 * @param syntacticFormTypeSimplifiers TODO
+	 * @param functionApplicationSimplifiers
+	 * @param syntacticFormTypeSimplifiers
 	 * @param process
 	 * @return
 	 */

@@ -240,7 +240,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 	}
 	
 	/**
-	 * Indicates whether variable in chosen after otherTerm in model counting choosing ordering.
+	 * Indicates whether variable is chosen after otherTerm in model counting choosing ordering.
 	 */
 	private static boolean variableIsChosenAfterOtherTerm(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
 		boolean result = process.isConstant(otherTerm) || variableIsChosenAfterOtherVariable(otherTerm, variable, indices);
@@ -456,32 +456,35 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 				result = null; // splitter is contradiction with respect to this constraint, return null
 			}
 			else {
-				Expression splitterOnEquivalentClassRepresentatives = makeSplitterFromTwoTerms(representative1, representative2, indices, process);
-				if (splitterSign) {
-					result = applySplitterDefinedOnEquivalentClassRepresentatives(splitterOnEquivalentClassRepresentatives, process);
+				boolean representativesDisequality = representativesAreConstrainedToBeDisequal(representative1, representative2, process);
+				if (representativesDisequality) { // they are constrained to be disequal
+					if (splitterSign) { // splitter is an equality between them
+						result = null; // so, there is a contradiction
+					}
+					else { // splitter says they must be disequal
+						result = this; // redundancy
+					}
 				}
-				else {
-					result = applySplitterNegationDefinedOnEquivalentClassRepresentatives(splitterOnEquivalentClassRepresentatives, process);
+				else { // they are not constrained to be disequal and, from above tests, not equal either
+					Expression splitterOnEquivalentClassRepresentatives = makeSplitterFromTwoTerms(representative1, representative2, indices, process);
+					if (splitterSign) {
+						result = applySplitterDefinedOnEquivalentClassRepresentatives(splitterOnEquivalentClassRepresentatives, process);
+					}
+					else {
+						result = applySplitterNegationDefinedOnEquivalentClassRepresentatives(splitterOnEquivalentClassRepresentatives, process);
+					}
 				}
 			}
-
+			
 			return result;
 		}
 
 		private Constraint applySplitterDefinedOnEquivalentClassRepresentatives(Expression splitter, RewritingProcess process) {
 			Expression variable  = splitter.get(0);
 			Expression otherTerm = splitter.get(1);
-
-			Constraint result;
-			
-			if (termsAreConstrainedToBeDisequal(variable, otherTerm, process)) {
-				result = null; // splitter is inconsistent with constraint
-			}
-			else {
-				result = makeNewConstraintWithVariableReplacedByOtherTerm(variable, otherTerm, process);
-			}
-			
-			return result;
+			Constraint newConstraint;
+			newConstraint = makeNewConstraintWithVariableReplacedByOtherTerm(variable, otherTerm, process);
+			return newConstraint;
 		}
 
 		private Constraint applySplitterNegationDefinedOnEquivalentClassRepresentatives(Expression splitter, RewritingProcess process) {
@@ -706,16 +709,27 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		}
 
 		private boolean termsAreConstrainedToBeDisequal(Expression term1, Expression term2, RewritingProcess process) {
-			term1 = getRepresentative(term1, process);
-			term2 = getRepresentative(term2, process);
+			Expression representative1 = getRepresentative(term1, process);
+			Expression representative2 = getRepresentative(term2, process);
+			boolean result = representativesAreConstrainedToBeDisequal(representative1, representative2, process);
+			return result;
+		}
+
+		/**
+		 * @param representative1
+		 * @param representative2
+		 * @param process
+		 * @return
+		 */
+		private boolean representativesAreConstrainedToBeDisequal(Expression representative1, Expression representative2, RewritingProcess process) {
 			boolean result = false;
-			if (process.isConstant(term1) && process.isConstant(term2)) {
-				result = ! term1.equals(term2);
+			if (process.isConstant(representative1) && process.isConstant(representative2)) {
+				result = ! representative1.equals(representative2);
 			}
-			else if (getDisequals(term1).contains(term2)) {
+			else if (getDisequals(representative1).contains(representative2)) {
 				result = true;
 			}
-			else if (getDisequals(term2).contains(term1)) {
+			else if (getDisequals(representative2).contains(representative1)) {
 				result = true;
 			}
 			return result;

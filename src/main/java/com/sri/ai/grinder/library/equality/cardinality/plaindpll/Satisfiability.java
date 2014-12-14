@@ -47,7 +47,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.util.base.Pair;
 
 /**
- * Model counting uses the number semi-ring and converts boolean formula F to 'if F then 1 else 0' to count satisfying models.
+ * Declares the problem type of determining whether a formula has a model.
  * 
  * @author braz
  *
