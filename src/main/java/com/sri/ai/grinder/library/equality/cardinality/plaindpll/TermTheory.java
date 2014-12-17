@@ -60,12 +60,12 @@ public interface TermTheory {
 	 * @param process
 	 * @return
 	 */
-	Expression normalizeTermUpToVariable(Expression term, EqualityOnTermsTheory.Constraint constraint, RewritingProcess process);
+	Expression normalizeArguments(Expression term, EqualityOnTermsTheory.Constraint constraint, RewritingProcess process);
 
 	/**
-	 * Indicates whether the normalizeTermUpToVariable is simply the identity function.
-	 * This permits some optimization.
+	 * Indicates whether terms have no arguments.
+	 * This permits skipping the updating of representatives in bindings maps.
 	 * @return
 	 */
-	boolean normalizationUpToVariableIsIdentity();
+	boolean termsHaveNoArguments();
 }

@@ -79,13 +79,13 @@ public class FunctionalTermTheory implements TermTheory {
 	}
 
 	@Override
-	public Expression normalizeTermUpToVariable(Expression term, Constraint constraint, RewritingProcess process) {
+	public Expression normalizeArguments(Expression term, Constraint constraint, RewritingProcess process) {
 		Expression result = Expressions.replaceImmediateSubexpressions(term, t -> constraint.getRepresentative(t, process));
 		return result;
 	}
 
 	@Override
-	public boolean normalizationUpToVariableIsIdentity() {
+	public boolean termsHaveNoArguments() {
 		return false;
 	}
 
