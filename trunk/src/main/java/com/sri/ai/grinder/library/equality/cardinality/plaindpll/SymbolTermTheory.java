@@ -59,12 +59,12 @@ public class SymbolTermTheory implements TermTheory {
 	}
 
 	@Override
-	public Expression normalizeTermUpToVariable(Expression term, Constraint constraint, RewritingProcess process) {
+	public Expression normalizeArguments(Expression term, Constraint constraint, RewritingProcess process) {
 		return term;
 	}
 
 	@Override
-	public boolean normalizationUpToVariableIsIdentity() {
+	public boolean termsHaveNoArguments() {
 		return true;
 	}
 
