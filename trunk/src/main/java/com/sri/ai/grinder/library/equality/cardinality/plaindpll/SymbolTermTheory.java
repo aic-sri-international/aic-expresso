@@ -54,6 +54,16 @@ public class SymbolTermTheory implements TermTheory {
 	}
 
 	@Override
+	public boolean equalityBetweenTermsImpliesFurtherFacts() {
+		return false;
+	}
+
+	@Override
+	public boolean disequalityBetweenTermsImpliesFurtherFacts() {
+		return false;
+	}
+
+	@Override
 	public Expression getSplitterTowardDisunifyingDistinctTerms(Expression term, Expression anotherTerm, RewritingProcess process) {
 		return null; // if two symbols are distinct, then they are disunified.
 	}
@@ -67,5 +77,4 @@ public class SymbolTermTheory implements TermTheory {
 	public boolean termsHaveNoArguments() {
 		return true;
 	}
-
 }
