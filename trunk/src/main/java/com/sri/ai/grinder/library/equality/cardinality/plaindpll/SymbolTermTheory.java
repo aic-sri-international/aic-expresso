@@ -69,7 +69,7 @@ public class SymbolTermTheory implements TermTheory {
 	}
 
 	@Override
-	public Expression normalizeArguments(Expression term, Constraint constraint, RewritingProcess process) {
+	public Expression normalizeTermInEquality(Expression term, Constraint constraint, RewritingProcess process) {
 		return term;
 	}
 

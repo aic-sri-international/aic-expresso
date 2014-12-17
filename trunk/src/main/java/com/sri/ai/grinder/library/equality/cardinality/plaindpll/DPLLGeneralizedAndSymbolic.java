@@ -151,6 +151,13 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	 * which is considered a contradiction if it has the value <code>null</code>.
 	 */
 	protected Expression solve(Expression expression, Constraint constraint, RewritingProcess process) {
+		
+//		System.out.println("Solving");
+//		System.out.println("expression           : " + expression);
+//		System.out.println("constraint           : " + constraint);
+//		System.out.println("contextual constraint: " + process.getDPLLContextualConstraint());
+//		System.out.println("\n");
+		
 		Expression result;
 		
 		assert constraint != null : this.getClass() + ".solve must not receive a contradiction constraint (a null pointer)";
@@ -167,6 +174,13 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 			result = problemType.addNTimes(valueToBeSummed, numberOfOccurrences, process);
 		}
 
+//		System.out.println("Solved");
+//		System.out.println("expression           : " + expression);
+//		System.out.println("constraint           : " + constraint);
+//		System.out.println("contextual constraint: " + process.getDPLLContextualConstraint());
+//		System.out.println("result               : " + result);
+//		System.out.println("\n");
+		
 		return result;
 	}
 

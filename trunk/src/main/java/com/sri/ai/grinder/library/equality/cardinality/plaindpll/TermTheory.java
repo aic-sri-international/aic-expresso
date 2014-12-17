@@ -59,18 +59,16 @@ public interface TermTheory {
 	Expression getSplitterTowardDisunifyingDistinctTerms(Expression term, Expression anotherTerm, RewritingProcess process);
 	
 	/**
-	 * Determines a unique representation for the variable represented by term.
-	 * This is distinct from normalizing a term to its representative.
-	 * For example, consider a constraint binding p(Y) to 10 and X to Y.
-	 * Then normalizing p(X) to its representative renders 10,
-	 * whereas normalizing it "up to variable" renders p(Y),
-	 * which is the generalized variable representative of p(X).
+	 * Rewrites a term used in an equality so that it uses only equality equivalence class representatives when possible.
+	 * For example, if a constraint involves X = Y and p(X) = q(X) and p(Y) = c
+	 * we want to normalize it to X = Y and q(Y) = p(Y) = c.
+	 * X is replaced by its representative in p(X) and q(X), but not in X = Y itself since that would incorrectly remove the equality X = Y.
 	 * @param term
 	 * @param constraint
 	 * @param process
 	 * @return
 	 */
-	Expression normalizeArguments(Expression term, EqualityOnTermsTheory.Constraint constraint, RewritingProcess process);
+	Expression normalizeTermInEquality(Expression term, EqualityOnTermsTheory.Constraint constraint, RewritingProcess process);
 
 	/**
 	 * Indicates whether terms have no arguments.
