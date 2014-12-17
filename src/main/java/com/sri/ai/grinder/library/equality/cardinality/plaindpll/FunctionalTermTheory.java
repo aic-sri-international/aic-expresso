@@ -58,6 +58,16 @@ public class FunctionalTermTheory implements TermTheory {
 	}
 
 	@Override
+	public boolean equalityBetweenTermsImpliesFurtherFacts() {
+		return true; // yes, X = Y => p(X) = p(Y), for example
+	}
+
+	@Override
+	public boolean disequalityBetweenTermsImpliesFurtherFacts() {
+		return true; // yes, p(X) != p(Y) => X != Y, for example
+	}
+
+	@Override
 	public Expression getSplitterTowardDisunifyingDistinctTerms(Expression term, Expression anotherTerm, RewritingProcess process) {
 		Expression result = null;
 		if (term.getSyntacticFormType().equals("Function application") &&

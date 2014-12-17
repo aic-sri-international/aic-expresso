@@ -293,7 +293,7 @@ public class DPLLUtil {
 	 * @param process
 	 * @return
 	 */
-	public static Expression normalizeOrTrivializedSplitter(Expression splitter, Theory.Constraint constraint, Theory theory, RewritingProcess process) {
+	public static Expression normalizeOrTrivializeSplitter(Expression splitter, Theory.Constraint constraint, Theory theory, RewritingProcess process) {
 		Expression result;
 		Expression trivializedSplitter = constraint.checkIfSplitterOrItsNegationIsImplied(splitter, process);
 		if (trivializedSplitter.equals(TRUE) || trivializedSplitter.equals(FALSE)) {
@@ -373,7 +373,7 @@ public class DPLLUtil {
 
 	public static boolean splitterIsNotSatisfiedFromContextualConstraintAlready(boolean splitterSign, Expression splitter, Theory theory, RewritingProcess process) {
 		boolean result;
-		Expression splitterNormalizedByContextualConstraint = normalizeOrTrivializedSplitter(splitter, process.getDPLLContextualConstraint(), theory, process);
+		Expression splitterNormalizedByContextualConstraint = normalizeOrTrivializeSplitter(splitter, process.getDPLLContextualConstraint(), theory, process);
 		assert ! splitterNormalizedByContextualConstraint.equals( ! splitterSign); // required splitter must be satisfiable under contextual constraint, otherwise there is a bug somewhere
 		result = ! splitterNormalizedByContextualConstraint.equals(splitterSign); // if splitter is implied TRUE by contextual constraint, it is superfluous
 		return result;

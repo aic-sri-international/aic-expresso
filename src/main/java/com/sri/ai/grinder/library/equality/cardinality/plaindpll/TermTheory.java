@@ -46,6 +46,16 @@ public interface TermTheory {
 	
 	boolean isVariable(Expression term, RewritingProcess process);
 	
+	/**
+	 * Indicates whether equalities between two terms may imply further facts in this theory.
+	 */
+	boolean equalityBetweenTermsImpliesFurtherFacts();
+	
+	/**
+	 * Indicates whether disequalities between two terms may imply further facts in this theory.
+	 */
+	boolean disequalityBetweenTermsImpliesFurtherFacts();
+	
 	Expression getSplitterTowardDisunifyingDistinctTerms(Expression term, Expression anotherTerm, RewritingProcess process);
 	
 	/**

@@ -362,7 +362,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 					if (splitter != null) {
 						return splitter; // need to disunify first
 					}
-					else if ( ! termsAreConstrainedToBeDisequal(term, anotherTerm, process)) { // already disunified
+					else if ( ! termsAreExplicitlyConstrainedToBeDisequal(term, anotherTerm, process)) { // already disunified
 						splitter = makeSplitterFromTwoTerms(term, anotherTerm, indices, process);
 						return splitter;
 					}
@@ -448,7 +448,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 				result = null; // splitter is contradiction in itself, or with respect to this constraint's equalitiesMap, so return null
 			}
 			else {
-				boolean representativesAreConstrainedToBeDisequal = representativesAreConstrainedToBeDisequal(representative1, representative2, process);
+				boolean representativesAreConstrainedToBeDisequal = representativesAreExplicitlyConstrainedToBeDisequal(representative1, representative2, process);
 				if (representativesAreConstrainedToBeDisequal) { // they are constrained to be disequal
 					if (splitterSign) { // splitter is an equality between them
 						result = null; // so, there is a contradiction
@@ -711,25 +711,19 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 			return result;
 		}
 
-		private boolean termsAreConstrainedToBeEqual(Expression variable, Expression otherTerm, RewritingProcess process) {
+		private boolean termsAreExplicitlyConstrainedToBeEqual(Expression variable, Expression otherTerm, RewritingProcess process) {
 			boolean result = getRepresentative(variable, process).equals(getRepresentative(otherTerm, process));
 			return result;
 		}
 
-		private boolean termsAreConstrainedToBeDisequal(Expression term1, Expression term2, RewritingProcess process) {
+		private boolean termsAreExplicitlyConstrainedToBeDisequal(Expression term1, Expression term2, RewritingProcess process) {
 			Expression representative1 = getRepresentative(term1, process);
 			Expression representative2 = getRepresentative(term2, process);
-			boolean result = representativesAreConstrainedToBeDisequal(representative1, representative2, process);
+			boolean result = representativesAreExplicitlyConstrainedToBeDisequal(representative1, representative2, process);
 			return result;
 		}
 
-		/**
-		 * @param representative1
-		 * @param representative2
-		 * @param process
-		 * @return
-		 */
-		private boolean representativesAreConstrainedToBeDisequal(Expression representative1, Expression representative2, RewritingProcess process) {
+		private boolean representativesAreExplicitlyConstrainedToBeDisequal(Expression representative1, Expression representative2, RewritingProcess process) {
 			boolean result = false;
 			if (process.isConstant(representative1) && process.isConstant(representative2)) {
 				result = ! representative1.equals(representative2);
@@ -745,13 +739,33 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 
 		@Override
 		public Expression checkIfSplitterOrItsNegationIsImplied(Expression splitter, RewritingProcess process) {
-			if (termsAreConstrainedToBeEqual(splitter.get(0), splitter.get(1), process)) {
-				return Expressions.TRUE;
+			if (termsAreExplicitlyConstrainedToBeEqual(splitter.get(0), splitter.get(1), process)) {
+				// algorithm keeps all implied equalities represented, so we can conclude 'true' here.
+				return TRUE;
 			}
-			if (termsAreConstrainedToBeDisequal(splitter.get(0), splitter.get(1), process)) {
-				return Expressions.FALSE;
+			
+			if (algorithmKeepsAllDisequalitiesRepresented()) {
+				if (termsAreExplicitlyConstrainedToBeDisequal(splitter.get(0), splitter.get(1), process)) {
+					return FALSE;
+				}
 			}
+			else {
+				Constraint underSplitter = this.applySplitter(true, splitter, process);
+				if (underSplitter == null) {
+					return FALSE; // if equality is incompatible with constraint, the constraint implies the disequality
+					// TODO: can we keep and use the computation performed here?
+				}
+			}
+			
 			return splitter;
+		}
+		
+		private boolean algorithmKeepsAllDisequalitiesRepresented() {
+			// the current algorithm does not try to propagate the consequences of disequalities,
+			// so if the particular term theory disequalities implies further facts,
+			// the algorithm does not represent all disequalities at all times.
+			boolean result = ! termTheory.disequalityBetweenTermsImpliesFurtherFacts();
+			return result;
 		}
 
 		@Override

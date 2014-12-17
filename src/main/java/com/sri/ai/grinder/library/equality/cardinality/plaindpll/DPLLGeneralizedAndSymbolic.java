@@ -299,7 +299,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 			Expression elseBranch = IfThenElse.getElseBranch(solution1);
 
 			Constraint constraint = process.getDPLLContextualConstraint();
-			Expression normalizedSplitter = DPLLUtil.normalizeOrTrivializedSplitter(splitter, constraint, theory, process);
+			Expression normalizedSplitter = DPLLUtil.normalizeOrTrivializeSplitter(splitter, constraint, theory, process);
 
 			if (normalizedSplitter.equals(TRUE)) {
 				result = addSymbolicResults(thenBranch, solution2, process);
@@ -321,7 +321,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 			Expression elseBranch = IfThenElse.getElseBranch(solution2);
 
 			Constraint constraint = process.getDPLLContextualConstraint();
-			Expression normalizedSplitter = DPLLUtil.normalizeOrTrivializedSplitter(splitter, constraint, theory, process);
+			Expression normalizedSplitter = DPLLUtil.normalizeOrTrivializeSplitter(splitter, constraint, theory, process);
 
 			if (normalizedSplitter.equals(TRUE)) {
 				result = addSymbolicResults(solution1, thenBranch, process);
