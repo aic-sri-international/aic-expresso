@@ -382,6 +382,12 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 			}
 		}
 
+		private void setBinding(Map<Expression, Expression> equalitiesMap, Expression variable, Expression binding) {
+			if ( ! variable.equals(binding)) {
+				equalitiesMap.put(variable, binding);
+			}
+		}
+
 		private boolean indexIsBound(Expression index) {
 			return equalitiesMap.containsKey(index);
 		}
@@ -413,10 +419,6 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		 * @return
 		 */
 		Expression getRepresentative(Expression term, boolean recordDirectBindingToRepresentative, RewritingProcess process) {
-			// replace arguments of function applications by their own representatives
-			// to ensure all equalitiesMap are detected
-			term = termTheory.normalizeArguments(term, this, process);
-			
 			Expression current = term;
 			Expression currentBinding;
 			while (termTheory.isVariable(current, process) && (currentBinding = getBinding(current)) != null) {
@@ -539,7 +541,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 					Map<Expression, Expression> newEqualitiesMap = new LinkedHashMap<Expression, Expression>();
 					for (Expression variable : equalitiesMap.keySet()) {
 						Expression oldRepresentative = getRepresentative(variable, false /* do not update map as we are iterating over it */, process);
-						Expression newVariable = termTheory.normalizeArguments(variable, this, process);
+						Expression newVariable = termTheory.normalizeTermInEquality(variable, this, process);
 
 						Expression newRepresentative;
 						Expression representativesEquality;
@@ -556,12 +558,12 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 						}
 
 						if (representativesEquality.equals(TRUE)) {
-							newEqualitiesMap.put(newVariable, newRepresentative);
+							setBinding(newEqualitiesMap, newVariable, newRepresentative);
 						}
 						else {
 							representativesWereUpdated = true;
-							newEqualitiesMap.put(newVariable, newRepresentative);
-							newEqualitiesMap.put(representativesEquality.get(0), representativesEquality.get(1));
+							setBinding(newEqualitiesMap, newVariable, newRepresentative);
+							setBinding(newEqualitiesMap, representativesEquality.get(0), representativesEquality.get(1));
 						}
 					}
 					equalitiesMap = representativesWereUpdated? newEqualitiesMap : equalitiesMap;
