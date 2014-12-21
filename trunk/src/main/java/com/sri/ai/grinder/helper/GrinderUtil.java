@@ -710,21 +710,6 @@ public class GrinderUtil {
 	}
 
 	/**
-	 * Returns type of a variable in the context.
-	 * So far, it does not work for non-symbols, or constants, throwing exceptions in these cases, but it will be extended in the direction in the future.
-	 */
-	public static Object getTypeOld(Expression expression, RewritingProcess process) {
-		if ( ! (expression.getSyntacticFormType().equals("Symbol"))) {
-			throw new Error("GrinderUtil.getType() not implemented for non-symbol expressions at this point, but invoked with " + expression);
-		}
-		if (process.isConstant(expression)) {
-			throw new Error("GrinderUtil.getType() not implemented for constants at this point, but invoked with " + expression);
-		}
-		Expression result = process.getContextualSymbolType(expression);
-		return result;
-	}
-
-	/**
 	 * Extend the rewriting processes's contextual symbols and constraints.
 	 * Returns the same process instance if there are no changes.
 	 * 

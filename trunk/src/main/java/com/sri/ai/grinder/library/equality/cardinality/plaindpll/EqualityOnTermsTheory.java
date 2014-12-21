@@ -75,7 +75,6 @@ import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
-import com.sri.ai.util.base.Equals;
 
 @Beta
 /** 
@@ -83,14 +82,18 @@ import com.sri.ai.util.base.Equals;
  */
 public class EqualityOnTermsTheory extends AbstractTheory {
 	
-//	private TermTheory termTheory = new SymbolTermTheory();
-	private TermTheory termTheory = new FunctionalTermTheory();
+	private TermTheory termTheory;
 	
 	// Important:
 	// this class generalizes the notion of a variable to a "generalized variable" (simply referred by as "variable"),
 	// which is either a variable symbol, or an uninterpreted function application such as p(a, b, X).
 	// It can also be seen as an indexed variable (typically represented as x_i, y_i,j etc).
 	
+	public EqualityOnTermsTheory(TermTheory termTheory) {
+		super();
+		this.termTheory = termTheory;
+	}
+
 	private static Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
 					FunctorConstants.EQUALITY,       (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
@@ -121,13 +124,13 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 					Implication.simplify(f)
 	);
 	
-	private static Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =
+	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
 					ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new DPLLGeneralizedAndSymbolic(new EqualityOnSymbolsTheory(), new Tautologicality())).rewrite(f, process),
+					(new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(termTheory), new Tautologicality())).rewrite(f, process),
  
 					ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(), new Satisfiability())).rewrite(f, process)
+					(new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(termTheory), new Satisfiability())).rewrite(f, process)
 	);
 
 	@Override
@@ -149,12 +152,15 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 	 */
 	@Override
 	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
+		// TODO: this method should defer to the term theory.
 		Expression result = null;
 		if (expression.hasFunctor(FunctorConstants.EQUALITY) || expression.hasFunctor(FunctorConstants.DISEQUALITY)) {
 			// remember that equality can have an arbitrary number of terms
 			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), e -> termTheory.isVariable(e, process));
-			Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), com.sri.ai.util.base.Not.make(Equals.make(variable)));
-			result = makeSplitterFromTwoTerms(variable, otherTerm, indices, process);
+			if (variable != null) {
+				Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), e -> ! e.equals(variable));
+				result = makeSplitterFromTwoTerms(variable, otherTerm, indices, process);
+			}
 		}
 		return result;
 	}
@@ -778,8 +784,8 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		
 			Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifier(
 					expression,
-					EqualityOnTermsTheory.functionApplicationSimplifiers,
-					EqualityOnTermsTheory.syntacticFormTypeSimplifiers,
+					functionApplicationSimplifiers,
+					syntacticFormTypeSimplifiers,
 					syntacticTypeForm, representativeReplacer,
 					process);
 			
