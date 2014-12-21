@@ -62,6 +62,7 @@ import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLUtil;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SolutionPostProcessing;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnTermsTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolTermTheory;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
@@ -76,14 +77,14 @@ import com.sri.ai.grinder.library.set.tuple.Tuple;
 @Beta
 public class Cardinality extends AbstractCardinalityRewriter {
 	
-	private Rewriter plainCardinality = GrinderUtil.usePlain? new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(), new ModelCounting()) : null;
+	private Rewriter plainCardinality = GrinderUtil.usePlain? new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(new SymbolTermTheory()), new ModelCounting()) : null;
 
 	private Expression usePlainCardinality(Expression cardinalityOfIndexedFormulaExpression, RewritingProcess process) {
 		Expression result;
 		
 		Expression solution = plainCardinality.rewrite(cardinalityOfIndexedFormulaExpression, process);
 		Expression simplifiedSolution = DPLLUtil.simplifySolutionUnderConstraint(solution, process.getContextualConstraint(), process);
-		result = SolutionPostProcessing.fromSolutionToShorterExpression(simplifiedSolution, new EqualityOnTermsTheory(), process);
+		result = SolutionPostProcessing.fromSolutionToShorterExpression(simplifiedSolution, new EqualityOnTermsTheory(new SymbolTermTheory()), process);
 		
 //		System.out.println("Problem                  : " + cardinalityOfIndexedFormulaExpression);
 //		System.out.println("Constraint               : " + process.getContextualConstraint());

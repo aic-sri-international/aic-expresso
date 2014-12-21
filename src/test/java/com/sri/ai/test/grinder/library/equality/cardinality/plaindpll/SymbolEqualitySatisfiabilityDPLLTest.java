@@ -53,6 +53,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Satisfiability;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnTermsTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolTermTheory;
 
 @Beta
 public class SymbolEqualitySatisfiabilityDPLLTest extends AbstractSymbolicSymbolEqualityDPLLTest {
@@ -230,6 +231,6 @@ public class SymbolEqualitySatisfiabilityDPLLTest extends AbstractSymbolicSymbol
 	}
 
 	protected Rewriter makeRewriter() {
-		return new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(), new Satisfiability());
+		return new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(new SymbolTermTheory()), new Satisfiability());
 	}
 }
