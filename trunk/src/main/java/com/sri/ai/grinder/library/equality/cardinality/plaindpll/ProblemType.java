@@ -62,7 +62,7 @@ public interface ProblemType {
 	Expression add(Expression value1, Expression value2, RewritingProcess process);
 
 	/**
-	 * The result of adding a value (constant in the sense of having no background theory literals,
+	 * The result of adding a value (constant in the sense of having no background equalityTheory literals,
 	 * but possibly symbolic) to itself n times.
 	 */
 	Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process);

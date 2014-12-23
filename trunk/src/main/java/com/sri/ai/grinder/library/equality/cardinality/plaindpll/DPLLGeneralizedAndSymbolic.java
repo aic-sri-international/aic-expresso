@@ -94,7 +94,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	 */
 	public final static boolean earlyExternalizationOfFreeVariableSplittersOptimization = true; // IMPORTANT: unit tests will break if set to false. However DPLL stress tests can still be used. As of this writing (12/4/2014) the false setting was slightly slower.
 	
-	/** The background theory for the algorithm. */
+	/** The background equalityTheory for the algorithm. */
 	protected Theory theory;
 	
 	/** The problem type being solved. */
@@ -201,8 +201,8 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 
 	private Expression solveBasedOnSplitting(Expression splitter, Expression expression, Constraint constraint, RewritingProcess process) {
 		
-		// Keep in mind that splitter may already be implied as true or false by theory constraint.
-		// This should not happen if the theory application of splitters to expressions only replaced them by true or false,
+		// Keep in mind that splitter may already be implied as true or false by equalityTheory constraint.
+		// This should not happen if the equalityTheory application of splitters to expressions only replaced them by true or false,
 		// but if it does more than that, those manipulations may create new literals that happen to be implied true or false by constraint.
 		// This is verified at this point by applying the splitter to the constraint and checking if it is does not render it unsatisfiable.
 		// If it does, only the solution under the splitter's negation is considered.

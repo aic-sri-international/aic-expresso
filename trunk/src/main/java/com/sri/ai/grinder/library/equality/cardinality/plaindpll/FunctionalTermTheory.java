@@ -43,7 +43,9 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnTermsTheory.Constraint;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 
 @Beta
 /** 
@@ -53,7 +55,20 @@ public class FunctionalTermTheory implements TermTheory {
 
 	@Override
 	public boolean isVariable(Expression term, RewritingProcess process) {
-		boolean result = process.isVariable(term) || term.getSyntacticFormType().equals("Function application");
+		boolean result = process.isVariable(term) ||
+				(
+						term.getSyntacticFormType().equals("Function application")
+						&&
+						 ! FormulaUtil.functorIsAnEqualityLogicalConnectiveIncludingConditionals(term)
+						 &&
+						 ! term.hasFunctor(FunctorConstants.CARDINALITY) // TODO: make this less hard-coded
+						 &&
+						 ! term.hasFunctor(FunctorConstants.PLUS)
+						 &&
+						 ! term.hasFunctor(FunctorConstants.TIMES)
+						 &&
+						 ! term.hasFunctor(FunctorConstants.MINUS)
+						);
 		return result;
 	}
 

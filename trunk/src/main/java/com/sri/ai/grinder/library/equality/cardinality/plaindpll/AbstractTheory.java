@@ -56,7 +56,7 @@ abstract public class AbstractTheory implements Theory {
 	/**
 	 * Provides a map from functors's getValue() values (Strings) to a function mapping a
 	 * function application of that functor and a rewriting process to an equivalent, simplified formula
-	 * according to this theory.
+	 * according to this equalityTheory.
 	 * DPLL will use these simplifiers when a new decision is made and literals are replaced by boolean constants. 
 	 * @return
 	 */
@@ -66,7 +66,7 @@ abstract public class AbstractTheory implements Theory {
 	/**
 	 * Provides a map from syntactic form types (Strings) to a function mapping a
 	 * function application of that functor and a rewriting process to an equivalent, simplified formula
-	 * according to this theory.
+	 * according to this equalityTheory.
 	 * DPLL will use these simplifiers when a new decision is made and literals are replaced by boolean constants. 
 	 * @return
 	 */

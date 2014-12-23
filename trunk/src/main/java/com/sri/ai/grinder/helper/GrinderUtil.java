@@ -697,10 +697,11 @@ public class GrinderUtil {
 		}
 		else if (expression.getSyntacticFormType().equals("Function application")) {
 			Expression functionType = getType(expression.getFunctor(), process);
-			 // functionType is of the form '->'(ArgumentsTypeTuple, CoDomain)
+			assert functionType.hasFunctor("->") : "Functor " + expression.getFunctor() + " in expression " + expression + " should have functional type be an expression with functor '->', but has type instead equal to " + functionType;
 			Expression argumentTypesTuple = functionType.get(0);
+			assert Tuple.isTuple(argumentTypesTuple) : "Function types must be an application of '->' over two arguments: the first is a tuple of the input types, and the second is the co-domain type. However, the first argument of functional type " + functionType + " is not a tuple, but " + functionType.get(0);
 			Expression coDomain           = functionType.get(1);
-			assert Util.mapIntoList(expression.getArguments(), new GetType(process)).equals(argumentTypesTuple) : "Function " + expression.getFunctor() + " is of type " + functionType + " but is applied to " + expression.getArguments() + " which are of types " + argumentTypesTuple;
+			assert Util.mapIntoList(expression.getArguments(), new GetType(process)).equals(argumentTypesTuple.getArguments()) : "Function " + expression.getFunctor() + " is of type " + functionType + " but is applied to " + expression.getArguments() + " which are of types " + Util.mapIntoList(expression.getArguments(), new GetType(process));
 			result = coDomain;
 		}
 		else {
@@ -874,9 +875,9 @@ public class GrinderUtil {
 	}
 
 	public static List<Rewriter> addRewritersBefore(List<Rewriter> rewriters,
-			Pair<Class<?>, Rewriter>... rwsBefore) {
-		for (int i = 0; i < rwsBefore.length; i++) {
-			addRewriterBefore(rewriters, rwsBefore[i].first, rwsBefore[i].second);
+			Pair<Class<?>, Rewriter>... rewritersBefore) {
+		for (int i = 0; i < rewritersBefore.length; i++) {
+			addRewriterBefore(rewriters, rewritersBefore[i].first, rewritersBefore[i].second);
 		}
 		return rewriters;
 	}
