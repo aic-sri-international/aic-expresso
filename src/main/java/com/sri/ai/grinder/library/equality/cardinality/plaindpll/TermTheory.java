@@ -47,12 +47,12 @@ public interface TermTheory {
 	boolean isVariable(Expression term, RewritingProcess process);
 	
 	/**
-	 * Indicates whether equalities between two terms may imply further facts in this theory.
+	 * Indicates whether equalities between two terms may imply further facts in this equalityTheory.
 	 */
 	boolean equalityBetweenTermsImpliesFurtherFacts();
 	
 	/**
-	 * Indicates whether disequalities between two terms may imply further facts in this theory.
+	 * Indicates whether disequalities between two terms may imply further facts in this equalityTheory.
 	 */
 	boolean disequalityBetweenTermsImpliesFurtherFacts();
 	

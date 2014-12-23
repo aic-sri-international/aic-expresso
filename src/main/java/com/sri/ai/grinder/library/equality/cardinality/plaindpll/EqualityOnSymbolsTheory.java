@@ -246,7 +246,7 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 
 	@SuppressWarnings("serial")
 	/**
-	 * Represents and manipulates constraints in the theory of disequalities of symbols (variables and constants).
+	 * Represents and manipulates constraints in the equalityTheory of disequalities of symbols (variables and constants).
 	 */
 	@Beta
 	public class Constraint extends LinkedHashMap<Expression, Collection<Expression>> implements Theory.Constraint {
@@ -261,11 +261,11 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		
 		// The "disequal" of a variable V is a term T that comes *before* V in the choosing order.
 		// This means that this word is being used in a non-symmetric way.
-		// When we mean "equal according to the theory", we say "constrained to be disequal".
+		// When we mean "equal according to the equalityTheory", we say "constrained to be disequal".
 
 		// We map each variable equivalent class representative (including free ones) to its set of disequals.
 		
-		// We use "distinct" to refer to non-equal Java objects (as opposed to terms not being equal on the equality theory level).
+		// We use "distinct" to refer to non-equal Java objects (as opposed to terms not being equal on the equality equalityTheory level).
 		
 		// Invariants:
 		// Symbols belong to equivalence classes depending on what equality splitters have been applied before.

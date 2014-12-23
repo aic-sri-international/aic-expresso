@@ -69,7 +69,7 @@ import com.sri.ai.util.base.BinaryFunction;
  * Implements utility methods to be used by {@link DPLLGeneralizedAndSymbolic} and associated classes.
  * <p>
  * Several of these methods could be more naturally seen as methods of the interfaces themselves
- * (for example, {@link DPLLUtil#getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices, Theory theory)}
+ * (for example, {@link DPLLUtil#getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices, Theory equalityTheory)}
  * could be a method in interface {@link Theory}),
  * but are included here instead because their functionality depends on a more basic method of those interfaces
  * (in that case, on {@link Theory#makeConstraint()});
@@ -283,13 +283,13 @@ public class DPLLUtil {
 	}
 
 	/**
-	 * Given a splitter, a theory and a constraint,
+	 * Given a splitter, a equalityTheory and a constraint,
 	 * returns either true, false, or an equivalent splitter normalized by the constraint.
 	 * This is similar to {@link #normalizeNonTrivialSplitter(Expression, Constraint, Theory, RewritingProcess)},
 	 * but accepts the case of a splitter trivialized by the constraint.
 	 * @param splitter
 	 * @param constraint
-	 * @param theory
+	 * @param equalityTheory
 	 * @param process
 	 * @return
 	 */
@@ -306,12 +306,12 @@ public class DPLLUtil {
 	}
 
 	/**
-	 * Given a splitter, a theory and a constraint,
+	 * Given a splitter, a equalityTheory and a constraint,
 	 * and assuming that the splitter is not trivialized by the constraint,
 	 * returns an equivalent splitter normalized by the constraint.
 	 * @param splitter
 	 * @param constraint
-	 * @param theory
+	 * @param equalityTheory
 	 * @param process
 	 * @return
 	 */
@@ -360,7 +360,7 @@ public class DPLLUtil {
 	 * @param splitterSign
 	 * @param splitter
 	 * @param solution
-	 * @param theory
+	 * @param equalityTheory
 	 * @param process
 	 * @return an equivalent solution
 	 */

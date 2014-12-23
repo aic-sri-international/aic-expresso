@@ -43,6 +43,7 @@ import static com.sri.ai.util.Util.list;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -53,13 +54,15 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.AtomsAndEqualityOnTermsTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnTermsTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.FunctionalTermTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ModelCounting;
+import com.sri.ai.util.Util;
 
 @Beta
-public class EqualityOnTermsModelCountingDPLLTest extends AbstractSymbolicSymbolEqualityDPLLTest {
+public class AtomsAndEqualityOnTermsModelCountingDPLLTest extends AbstractSymbolicSymbolEqualityDPLLTest {
 	
 	@Override
 	protected Expression makeProblem(Expression expression, List<Expression> indexExpressions) {
@@ -70,7 +73,7 @@ public class EqualityOnTermsModelCountingDPLLTest extends AbstractSymbolicSymbol
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(new FunctionalTermTheory()), new ModelCounting());
+		return new DPLLGeneralizedAndSymbolic(new AtomsAndEqualityOnTermsTheory(new EqualityOnTermsTheory(new FunctionalTermTheory())), new ModelCounting());
 	}
 
 	@Test
@@ -79,9 +82,71 @@ public class EqualityOnTermsModelCountingDPLLTest extends AbstractSymbolicSymbol
 		Expression expression;
 		Expression expected;
 		Collection<String> indices;
+		Map<Expression, Expression> freeSymbolsAndTypes;
 		
 		GrinderUtil.setMinimumOutputForProfiling();
 
+		expression = parse("atom(X) or not atom(X)");
+		indices    = list();
+		expected   = parse("1");
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(tuple(Everything), Boolean)"));
+		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+
+		expression = parse("atom(X) or not atom(Y)");
+		indices    = list();
+		expected   = parse("if atom(X) then 1 else if atom(Y) then 0 else 1");
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(tuple(Everything), Boolean)"));
+		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+
+		expression = parse("X = Y and (atom(X) or not atom(Y))");
+		indices    = list();
+		expected   = parse("if X = Y then 1 else 0");
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(tuple(Everything), Boolean)"));
+		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+
+		expression = parse("X = Y => (atom(X) or not atom(Y))");
+		indices    = list();
+		expected   = parse("1");
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(tuple(Everything), Boolean)"));
+		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+
+		// tests whether equalities on boolean atoms still work; it sort of does, but equality theory doesn't know that atoms can have only two values, so we get this 
+		expression = parse("X = Y => (atom(X) = true or atom(Y) = false)");
+		indices    = list();
+		expected   = parse("if X = Y then if atom(Y) = true then 1 else if atom(Y) = false then 1 else 0 else 1");
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(tuple(Everything), Boolean)"));
+		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+
+		// tests whether equalities on boolean atoms work while mixed with regular atom use 
+		expression = parse("X = Y => (atom(X) or atom(Y) = false)");
+		indices    = list();
+		expected   = parse("1");
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(tuple(Everything), Boolean)"));
+		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+
+		// binary atom
+		expression = parse("atom(X,Y) or not atom(X,Y)");
+		indices    = list();
+		expected   = parse("1");
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'((Everything, Everything), Boolean)"));
+		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+
+		// simplification
+		expression = parse("if atom(X,Y) then atom(Y,X) else atom(X,Y)");
+		indices    = list();
+		expected   = parse("if atom(X, Y) then if atom(Y, X) then 1 else 0 else 0");
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'((Everything, Everything), Boolean)"));
+		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+
+		// mixing functions and atoms (predicates)
+		expression = parse("p(X) = a => (atom(p(X), b) <=> atom(a, b))");
+		indices    = list();
+		expected   = parse("1");
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'((Everything, Everything), Boolean)"));
+		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+
+		// FROM HERE ON: tests repeated from EqualityOnTermsModelCountingDPLLTest, which should still be solved by this generalization
+		
 		// tests the most important property in the equalityTheory, that of functional congruence.
 		expression = parse("p(X) = a and p(Y) = b and X = Y");
 		indices    = list();

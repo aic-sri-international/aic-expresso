@@ -82,7 +82,7 @@ import com.sri.ai.util.base.BinaryFunction;
  */
 public class EqualityOnTermsTheory extends AbstractTheory {
 	
-	private TermTheory termTheory;
+	public TermTheory termTheory;
 	
 	// Important:
 	// this class generalizes the notion of a variable to a "generalized variable" (simply referred by as "variable"),
@@ -152,7 +152,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 	 */
 	@Override
 	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
-		// TODO: this method should defer to the term theory.
+		// TODO: this method should defer to the term equalityTheory.
 		Expression result = null;
 		if (expression.hasFunctor(FunctorConstants.EQUALITY) || expression.hasFunctor(FunctorConstants.DISEQUALITY)) {
 			// remember that equality can have an arbitrary number of terms
@@ -270,7 +270,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 
 	@SuppressWarnings("serial")
 	/**
-	 * Represents and manipulates constraints in the theory of disequalities of terms (variables and constants).
+	 * Represents and manipulates constraints in the equalityTheory of disequalities of terms (variables and constants).
 	 */
 	@Beta
 	public class Constraint extends LinkedHashMap<Expression, Collection<Expression>> implements Theory.Constraint {
@@ -285,13 +285,13 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		
 		// A "disequal" of a variable V is a term T that comes *before* V in the choosing order.
 		// This means that this word is being used in a non-symmetric way.
-		// When we mean the symmetric sense of it, that is, "disequal according to the theory",
+		// When we mean the symmetric sense of it, that is, "disequal according to the equalityTheory",
 		// we say "constrained to be disequal".
 
 		// We map each variable equivalent class representative (including free ones) to its set of disequals.
 		
 		// We use "distinct" to refer to non-equal Java objects
-		// (as opposed to terms not being equal on the equality theory level).
+		// (as opposed to terms not being equal on the equality equalityTheory level).
 		
 		// Invariants:
 		// Terms belong to equivalence classes depending on what equality splitters have been applied before.
@@ -770,7 +770,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		
 		private boolean algorithmKeepsAllDisequalitiesRepresented() {
 			// the current algorithm does not try to propagate the consequences of disequalities,
-			// so if the particular term theory disequalities implies further facts,
+			// so if the particular term equalityTheory disequalities implies further facts,
 			// the algorithm does not represent all disequalities at all times.
 			boolean result = ! termTheory.disequalityBetweenTermsImpliesFurtherFacts();
 			return result;

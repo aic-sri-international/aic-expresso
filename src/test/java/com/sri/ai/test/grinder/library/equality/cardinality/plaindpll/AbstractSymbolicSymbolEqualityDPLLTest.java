@@ -99,7 +99,16 @@ public abstract class AbstractSymbolicSymbolEqualityDPLLTest {
 	}
 
 	protected void runSymbolicAndNonSymbolicTests(Expression expression, Collection<String> indicesStrings, Expression expected) {
-		runTest(expression, indicesStrings, expected, true /* no type size */);
+		runSymbolicAndNonSymbolicTests(expression, indicesStrings, new HashMap<Expression, Expression>(), expected);
+	}
+	
+	protected void runSymbolicAndNonSymbolicTests(
+			Expression expression,
+			Collection<String> indicesStrings,
+			Map<Expression, Expression> providedFreeSymbolsTypes,
+			Expression expected) {
+		
+		runTest(expression, indicesStrings, providedFreeSymbolsTypes, expected, true /* no type size */);
 		
 		RewritingProcess process = DirectCardinalityComputationFactory.newCardinalityProcess();
 		
@@ -114,17 +123,30 @@ public abstract class AbstractSymbolicSymbolEqualityDPLLTest {
 				new IfThenElseBranchesAreIdentical()
 				);
 		
-		Map<Expression, Expression> freeSymbolsAndTypes = new HashMap<Expression, Expression>();
-		for (Expression freeSymbol : Expressions.freeSymbols(expected, process)) {
-			freeSymbolsAndTypes.put(freeSymbol, everythingType);
+		RewritingProcess subProcess = extendProcessWithProvidedTypesAndTypeEverythingForUnspecifiedFreeSymbols(expected, providedFreeSymbolsTypes, process);
+		Expression expectedWithTypeSize = normalizer.rewrite(expected, subProcess);
+		
+		runTest(expression, indicesStrings, providedFreeSymbolsTypes, expectedWithTypeSize, false /* use type size */);
+	}
+
+	private RewritingProcess extendProcessWithProvidedTypesAndTypeEverythingForUnspecifiedFreeSymbols(Expression expression, Map<Expression, Expression> providedFreeSymbolsTypes, RewritingProcess process) {
+		Map<Expression, Expression> freeSymbolsTypes = new LinkedHashMap<Expression, Expression>(providedFreeSymbolsTypes);
+		for (Expression freeSymbol : Expressions.freeSymbols(expression, process)) {
+			if ( ! freeSymbolsTypes.containsKey(freeSymbol)) {
+				freeSymbolsTypes.put(freeSymbol, everythingType);
+			}
 		}
-		process = GrinderUtil.extendContextualSymbols(freeSymbolsAndTypes, process);
-				
-		Expression expectedWithTypeSize = normalizer.rewrite(expected, process);
-		runTest(expression, indicesStrings, expectedWithTypeSize, false /* use type size */);
+		process = GrinderUtil.extendContextualSymbols(freeSymbolsTypes, process);
+		return process;
 	}
 	
-	protected void runTest(Expression expression, Collection<String> indicesStrings, Expression expected, boolean noTypeSize) {
+	protected void runTest(
+			Expression expression,
+			Collection<String> indicesStrings,
+			Map<Expression, Expression> providedFreeSymbolsTypes,
+			Expression expected,
+			boolean noTypeSize) {
+		
 		DefaultRewritingProcess process = new DefaultRewritingProcess(expression, null);
 		
 		Collection<Expression> indices;
@@ -148,17 +170,11 @@ public abstract class AbstractSymbolicSymbolEqualityDPLLTest {
 		Rewriter rewriter = makeRewriter();
 		Expression problem = makeProblem(expression, indexExpressions);
 		System.out.println("Problem: " + problem);
-		RewritingProcess subProcess = GrinderUtil.extendContextualSymbols(fromFreeSymbolsToEverything(problem, process), process);
+		RewritingProcess subProcess = extendProcessWithProvidedTypesAndTypeEverythingForUnspecifiedFreeSymbols(problem, providedFreeSymbolsTypes, process);
+
 		Expression actual = rewriter.rewrite(problem, subProcess);
 		System.out.println("Solution: " + actual);
 		System.out.println("Expected: " + expected + "\n");
 		Assert.assertEquals(expected, actual);
-	}
-
-	private Map<Expression, Expression> fromFreeSymbolsToEverything(Expression expression, RewritingProcess process) {
-		Map<Expression, Expression> result = new LinkedHashMap<Expression, Expression>();
-		Collection<Expression> freeSymbols = Expressions.freeSymbols(expression, process);
-		freeSymbols.forEach(freeSymbol -> result.put(freeSymbol, everythingType));
-		return result;
 	}
 }

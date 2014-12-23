@@ -46,12 +46,12 @@ import com.sri.ai.grinder.api.RewritingProcess;
 /**
  * An interface for theories to be plugged into DPLL.
  * <p>
- * A theory represents a subset of all possible interpretations of a let of literals in its language.
- * It provides all services to DPLL specific to the theory, that is, that require knowledge about the specific subset of interpretations.
+ * A equalityTheory represents a subset of all possible interpretations of a let of literals in its language.
+ * It provides all services to DPLL specific to the equalityTheory, that is, that require knowledge about the specific subset of interpretations.
  * <p>
  * One of its tasks is to select and manipulate <i>splitters</i>.
  * A splitter is a literal on which DPLL splits the possible interpretations of an expression (see {@link DPLLGeneralizedAndSymbolic}).
- * The theory needs to know how to simplify expressions based on the fact that a splitter is true or false,
+ * The equalityTheory needs to know how to simplify expressions based on the fact that a splitter is true or false,
  * as well as how to simplify a <i>solution</i> based on a splitter's being true or false into a simpler solution.
  * A solution is an if-then-else expression in which all conditions are splitters.
  * 
@@ -62,7 +62,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 public interface Theory {
 	
 	/**
-	 * Simplifies expression given theory.
+	 * Simplifies expression given equalityTheory.
 	 * @param expression
 	 * @param process
 	 * @return
@@ -79,7 +79,7 @@ public interface Theory {
 	Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process);
 
 	/**
-	 * Picks a splitter based on one of the theory's literals in the given expression under given constraint.
+	 * Picks a splitter based on one of the equalityTheory's literals in the given expression under given constraint.
 	 * The returned splitter must be a splitter that will help solve the current expression;
 	 * it does not need to be equivalent to the given expression.
 	 * Also receives the indices as arguments, in case they are helpful.
@@ -109,7 +109,7 @@ public interface Theory {
 	
 	/**
 	 * Simplifies solution under constraint, by eliminating trivialized splitters
-	 * and normalizing remaining splitters and leaf expressions according to theory normalization properties.
+	 * and normalizing remaining splitters and leaf expressions according to equalityTheory normalization properties.
 	 * @param constraint
 	 * @param solution
 	 * @param process
@@ -125,13 +125,13 @@ public interface Theory {
 	boolean applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll();
 
 	/**
-	 * Make a new constraint for this theory over a set of indices (equivalent to all assignments to those indices).
+	 * Make a new constraint for this equalityTheory over a set of indices (equivalent to all assignments to those indices).
 	 * @return
 	 */
 	Constraint makeConstraint(Collection<Expression> indices);
 
 	/**
-	 * An interface for theory-specific representations of the current constraint in DPLL.
+	 * An interface for equalityTheory-specific representations of the current constraint in DPLL.
 	 * 
 	 * @author braz
 	 *
@@ -163,7 +163,7 @@ public interface Theory {
 		 * Generates new constraint representing conjunction of this constraint and given splitter
 		 * (or its negation, depending on the sign).
 		 * @param splitterSign the splitter's sign (true for splitter itself, false for its negation)
-		 * @param splitter the splitter according to this theory's choice
+		 * @param splitter the splitter according to this equalityTheory's choice
 		 * @param process the rewriting process
 		 */
 		Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process);
