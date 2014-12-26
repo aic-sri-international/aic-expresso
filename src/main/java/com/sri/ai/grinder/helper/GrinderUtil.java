@@ -37,6 +37,9 @@
  */
 package com.sri.ai.grinder.helper;
 
+import static com.sri.ai.grinder.library.FunctorConstants.CARTESIAN_PRODUCT;
+import static com.sri.ai.util.Util.list;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -698,10 +701,11 @@ public class GrinderUtil {
 		else if (expression.getSyntacticFormType().equals("Function application")) {
 			Expression functionType = getType(expression.getFunctor(), process);
 			assert functionType.hasFunctor("->") : "Functor " + expression.getFunctor() + " in expression " + expression + " should have functional type be an expression with functor '->', but has type instead equal to " + functionType;
-			Expression argumentTypesTuple = functionType.get(0);
-			assert Tuple.isTuple(argumentTypesTuple) : "Function types must be an application of '->' over two arguments: the first is a tuple of the input types, and the second is the co-domain type. However, the first argument of functional type " + functionType + " is not a tuple, but " + functionType.get(0);
-			Expression coDomain           = functionType.get(1);
-			assert Util.mapIntoList(expression.getArguments(), new GetType(process)).equals(argumentTypesTuple.getArguments()) : "Function " + expression.getFunctor() + " is of type " + functionType + " but is applied to " + expression.getArguments() + " which are of types " + Util.mapIntoList(expression.getArguments(), new GetType(process));
+			Expression argumentsType = functionType.get(0);
+			boolean multipleArguments = argumentsType.hasFunctor(CARTESIAN_PRODUCT);
+			List<Expression> argumentsTypesList = multipleArguments? argumentsType.getArguments() : list(argumentsType);
+			assert Util.mapIntoList(expression.getArguments(), new GetType(process)).equals(argumentsTypesList) : "Function " + expression.getFunctor() + " is of type " + functionType + " but is applied to " + expression.getArguments() + " which are of types " + Util.mapIntoList(expression.getArguments(), new GetType(process));
+			Expression coDomain = functionType.get(1);
 			result = coDomain;
 		}
 		else {
@@ -984,11 +988,12 @@ public class GrinderUtil {
 		return result;
 	}
 
-	public static void setMinimumOutputForProfiling() {
-		// NOTE: All Times should be taken with all trace turned off
-		// as this has a huge impact on these tests (due to the amount generated).
-		// In addition, turn concurrency off in order to test the algorithms run synchronously be default.
-		// i.e.:
+	/**
+	 * Disables tracing and justification output, and turned concurrency off.
+	 * This is useful for running tests.
+	 */
+	public static void setTraceAndJustificationOffAndTurnOffConcurrency() {
+		// This is equivalent to using command line options:
 		// -Dgrinder.display.tree.util.ui=false
 		// -Dtrace.level=off
 		// -Djustification.level=off

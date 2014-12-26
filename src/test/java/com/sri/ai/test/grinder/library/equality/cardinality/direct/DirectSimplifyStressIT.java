@@ -70,7 +70,7 @@ public class DirectSimplifyStressIT extends AbstractGrinderTest {
 	
 	@BeforeClass
 	public static void setupForClass() {
-		GrinderUtil.setMinimumOutputForProfiling();
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 	}
 	
 	@Before

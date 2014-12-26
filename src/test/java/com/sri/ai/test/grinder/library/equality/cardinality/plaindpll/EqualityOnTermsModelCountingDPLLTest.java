@@ -80,7 +80,7 @@ public class EqualityOnTermsModelCountingDPLLTest extends AbstractSymbolicSymbol
 		Expression expected;
 		Collection<String> indices;
 		
-		GrinderUtil.setMinimumOutputForProfiling();
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 
 		// tests the most important property in the equalityTheory, that of functional congruence.
 		expression = parse("p(X) = a and p(Y) = b and X = Y");

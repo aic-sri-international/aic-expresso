@@ -68,10 +68,9 @@ public interface ProblemType {
 	Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process);
 
 	/**
-	 * Indicates whether given value is a maximum value in the semi-ring, that is,
-	 * using the additive operation on it with any other value will produce itself.
+	 * Indicates whether given value is semi-ring's additive absorbing element.
 	 */
-	boolean isMaximum(Expression value);
+	boolean isAbsorbingElement(Expression value);
 
 	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
 	Expression fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression expression);

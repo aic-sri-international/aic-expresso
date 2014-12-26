@@ -58,6 +58,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Disequality;
@@ -72,6 +73,7 @@ import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.number.Minus;
+import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
@@ -94,6 +96,9 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		this.termTheory = termTheory;
 	}
 
+	private static Rewriter plus  = new Plus();
+	private static Rewriter times = new Times();
+	
 	private static Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
 					FunctorConstants.EQUALITY,       (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
@@ -121,7 +126,13 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 					Equivalence.simplify(f),
 
 					FunctorConstants.IMPLICATION,    (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					Implication.simplify(f)
+					Implication.simplify(f),
+
+					FunctorConstants.TIMES,          (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					times.rewrite(f, process),
+
+					FunctorConstants.PLUS,           (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					plus.rewrite(f, process)
 	);
 	
 	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =

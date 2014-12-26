@@ -234,7 +234,7 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 		Expression result = make(functor, arguments, neutralElement, isIdempotent);
 		return result;
 	}
-
+	
 	/**
 	 * If expression is an application of functor, returns its arguments.
 	 * If not, assumes that it is equivalent to <code>functor(expression)</code>

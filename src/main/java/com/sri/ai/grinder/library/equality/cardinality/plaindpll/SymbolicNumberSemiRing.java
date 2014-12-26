@@ -52,6 +52,7 @@ import com.sri.ai.grinder.library.number.FlattenMinusInPlus;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.UnaryMinus;
+import com.sri.ai.util.math.Rational;
 
 /**
  * Object representing a symbolic numeric semiring (that is, numeric expressions do not need to be constant numbers).
@@ -119,7 +120,9 @@ public class SymbolicNumberSemiRing implements SemiRing {
 				result = n;
 			}
 			else {
-				result = Expressions.makeSymbol(valueToBeSummed.rationalValue().multiply(n.rationalValue()));
+				Rational rationalValue = valueToBeSummed.rationalValue();
+				assert rationalValue != null: "Expected a constant numeric expression but got " + valueToBeSummed;
+				result = Expressions.makeSymbol(rationalValue.multiply(n.rationalValue()));
 			}
 		}
 		return result;

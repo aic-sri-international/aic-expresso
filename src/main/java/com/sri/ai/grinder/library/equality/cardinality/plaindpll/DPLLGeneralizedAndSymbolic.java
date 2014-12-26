@@ -231,7 +231,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		}
 
 		Expression solutionUnderSplitter = solveUnderSplitter(true, splitter, expression, constraint, splitterMustBeInContextualConstraint, process);
-		boolean noNeedToComputeNegation  = solutionUnderSplitter != null && combiner == additionCombiner && problemType.isMaximum(solutionUnderSplitter);
+		boolean noNeedToComputeNegation  = solutionUnderSplitter != null && combiner == additionCombiner && problemType.isAbsorbingElement(solutionUnderSplitter);
 		Expression solutionUnderSplitterNegation = 
 				noNeedToComputeNegation? null : solveUnderSplitter(false, splitter, expression, constraint, splitterMustBeInContextualConstraint, process);
 		Expression result = combine(combiner, splitter, solutionUnderSplitter, solutionUnderSplitterNegation, process);

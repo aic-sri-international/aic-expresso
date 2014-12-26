@@ -79,7 +79,7 @@ public class PropositionalLogicModelCountingDPLLTest {
 		Expression expected;
 		List<String> indices;
 		
-		GrinderUtil.setMinimumOutputForProfiling();
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
 		// DEBUG
 		expression = parse("p or q");
