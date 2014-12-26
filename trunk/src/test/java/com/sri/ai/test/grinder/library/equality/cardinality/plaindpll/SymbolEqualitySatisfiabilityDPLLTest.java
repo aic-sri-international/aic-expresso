@@ -65,7 +65,7 @@ public class SymbolEqualitySatisfiabilityDPLLTest extends AbstractSymbolicSymbol
 		Expression expected;
 		Collection<String> indices;
 		
-		GrinderUtil.setMinimumOutputForProfiling();
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
 		// Repeated for debugging purposes
 //		expression  = parse("(X != a) and (X = Y and Y != c)");

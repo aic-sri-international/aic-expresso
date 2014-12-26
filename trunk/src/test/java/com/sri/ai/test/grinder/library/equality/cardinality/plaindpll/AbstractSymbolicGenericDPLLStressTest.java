@@ -44,7 +44,7 @@ abstract public class AbstractSymbolicGenericDPLLStressTest {
 	@Test
 	public void test() {
 		
-		GrinderUtil.setMinimumOutputForProfiling();
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 	
 		Rewriter rewriter = makeRewriter();
 		

@@ -65,7 +65,7 @@ public class SymbolEqualityTautologicalityDPLLTest extends AbstractSymbolicSymbo
 		Expression expected;
 		Collection<String> indices;
 		
-		GrinderUtil.setMinimumOutputForProfiling();
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
 		expression = Expressions.parse("(X != Y or X = Y) and Y = Z");
 		indices    = list("X");

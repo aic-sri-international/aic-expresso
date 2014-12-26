@@ -78,7 +78,7 @@ public class RandomCardinalityExpressionsExperiment {
 	@SuppressWarnings("unchecked")
 	public static void performanceByNumberOfVariables() {
 		
-		GrinderUtil.setMinimumOutputForProfiling();
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
 		long start = System.currentTimeMillis();
 		

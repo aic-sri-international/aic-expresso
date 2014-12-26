@@ -80,7 +80,7 @@ public class SymbolEqualityModelCountingDPLLTest extends AbstractSymbolicSymbolE
 		Expression expected;
 		Collection<String> indices;
 		
-		GrinderUtil.setMinimumOutputForProfiling();
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
 		// Repeated for debugging purposes:
 		expression = parse("X != b and X = Y");

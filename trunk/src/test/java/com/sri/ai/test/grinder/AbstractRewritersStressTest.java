@@ -109,7 +109,7 @@ public abstract class AbstractRewritersStressTest extends AbstractGrinderTest {
 
 	@Before
 	public void setup() {
-		GrinderUtil.setMinimumOutputForProfiling();
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 	}
 
 	@Test

@@ -37,40 +37,46 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
+
+import java.util.List;
+
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.util.base.Pair;
 
 /**
- * Defines basic {@link ProblemType} functionality based on a given semi-ring.
+ * Satisfiability uses the boolean semi-ring and does not boolean formulas
+ * (applies the semi-ring additive operation, disjunction, directly on them).
  * 
  * @author braz
  *
  */
-public abstract class AbstractProblemType implements ProblemType {
+public class Sum extends AbstractProblemType {
 
-	private SemiRing semiRing;
-	
-	AbstractProblemType(SemiRing semiRing) {
-		this.semiRing = semiRing;
+	public Sum() {
+		super(new SymbolicNumberSemiRing());
 	}
 	
+	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
 	@Override
-	public Expression additiveIdentityElement() {
-		return semiRing.additiveIdentityElement();
+	public Expression fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression expression) {
+		return expression;
 	}
 
 	@Override
-	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
-		return semiRing.add(value1, value2, process);
+	public Expression expressionValueLeadingToAdditiveIdentityElement() {
+		return ZERO;
 	}
 
 	@Override
-	public Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process) {
-		return semiRing.addNTimes(constantValue, n, process);
-	}
-
-	@Override
-	public boolean isAbsorbingElement(Expression value) {
-		return semiRing.isAbsorbingElement(value);
+	public Pair<Expression, List<Expression>> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
+		assert expression.hasFunctor(FunctorConstants.SUM);
+		IntensionalSet set = (IntensionalSet) expression.get(0);
+		Pair<Expression, List<Expression>> result = Pair.make(IfThenElse.make(set.getCondition(), set.getHead(), ZERO), set.getIndexExpressions());
+		return result;
 	}
 }
