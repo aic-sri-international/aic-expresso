@@ -121,7 +121,6 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		Expression       simplifiedFormula = theory.simplify(formula, process); // eventually this will should not be needed as simplification should be lazy 
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
-		subProcess.initializeDPLLContextualConstraint(theory, indices);
 		Expression result = solve(simplifiedFormula, indices, subProcess);
 		return result;
 	}
@@ -142,7 +141,11 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	 */
 	protected Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		Constraint constraint = theory.makeConstraint(indices);
+		// TODO: should replace this oldConstraint by a copy constructor creating a sub-process, but surprisingly there is no complete copy constructor available in DefaultRewritingProcess.
+		Theory.Constraint oldConstraint = process.getDPLLContextualConstraint();
+		process.initializeDPLLContextualConstraint(constraint);
 		Expression result = solve(expression, constraint, process);
+		process.initializeDPLLContextualConstraint(oldConstraint);
 		return result;
 	}
 
@@ -168,7 +171,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 			result = solveBasedOnSplitting(splitter, expression, constraint, process);
 		}
 		else {
-			Expression unconditionalValue = expression;
+			Expression unconditionalValue = normalizeUnconditionalExpression(expression, process);
 			Expression numberOfOccurrences = constraint.modelCount(process);
 			Expression valueToBeSummed = problemType.fromExpressionValueWithoutLiteralsToValueToBeSummed(unconditionalValue);
 			result = problemType.addNTimes(valueToBeSummed, numberOfOccurrences, process);
@@ -182,6 +185,17 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 //		System.out.println("\n");
 		
 		return result;
+	}
+
+	/**
+	 * Method used to normalize unconditional expressions to some normal form chosen by extending classes
+	 * (default is identity).
+	 * @param expression
+	 * @param process
+	 * @return
+	 */
+	public Expression normalizeUnconditionalExpression(Expression expression, RewritingProcess process) {
+		return expression;
 	}
 
 	/** Picks splitter from either expression or constraint; assumes constraint is not <code>null</code>. */

@@ -71,6 +71,7 @@ public interface Theory {
 
 	/**
 	 * Makes splitter equivalent to given expression if such exists, or null otherwise.
+	 * Every decision as to whether an expression is a splitter or equivalent to a splitter must go through this method.
 	 * @param expression
 	 * @param indices
 	 * @param process

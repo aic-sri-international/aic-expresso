@@ -52,14 +52,12 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.AtomsAndEqualityOnTermsTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnTermsTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.FunctionalTermTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ProblemType;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Sum;
 import com.sri.ai.util.Util;
 
@@ -273,35 +271,6 @@ public class AtomsAndEqualityOnTermsSumDPLLTest extends AbstractSymbolicSymbolEq
 ////		indices    = list();
 ////		expected   = parse("1");
 ////		runSymbolicAndNonSymbolicTests(expression, indices, expected);
-	}
-
-	public static void main(String[] args) {
-		
-		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-
-		EqualityOnTermsTheory equalityOnFunctionalTermsTheory = new EqualityOnTermsTheory(new FunctionalTermTheory());
-		AtomsAndEqualityOnTermsTheory atomsAndEqualityOnFunctionalTermsTheory = new AtomsAndEqualityOnTermsTheory(equalityOnFunctionalTermsTheory);
-		ProblemType problemType = new Sum();
-		Rewriter algorithm = new DPLLGeneralizedAndSymbolic(atomsAndEqualityOnFunctionalTermsTheory, problemType);
-
-		Expression problem = parse("sum({{ (on ) (if atom(X,Y) then 0.3 else 0.7) + (if not atom(X,Y) then 0.2 else 0.8) }})");
-		// note the "not" before the second atom.
-
-		RewritingProcess process = algorithm.makeRewritingProcess(problem);
-		
-		// declares X and Y to be of type Everything and
-		// atom to be a binary function of type Everything x Everything -> Boolean
-		process = GrinderUtil.extendContextualSymbols(
-				Util.map(
-						parse("X"), parse("Everything"),
-						parse("Y"), parse("Everything"),
-						parse("atom"), parse("'->'(x(Everything, Everything), Boolean)")
-						),
-						process);
-		
-		Expression result = process.rewrite(algorithm, problem);
-		System.out.println("problem: " + problem);	
-		System.out.println("result : " + result);	
 	}
 }
 
