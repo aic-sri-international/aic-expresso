@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.api;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -257,7 +258,7 @@ public interface RewritingProcess {
 	 */
 	void interrupt();
 
-	void initializeDPLLContextualConstraint(Theory theory, List<Expression> indices);
+	void initializeDPLLContextualConstraint(Theory.Constraint constraint);
 
 	Theory.Constraint getDPLLContextualConstraint();
 

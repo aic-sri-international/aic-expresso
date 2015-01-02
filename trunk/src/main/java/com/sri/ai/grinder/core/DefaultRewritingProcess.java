@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -749,8 +750,8 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	Theory.Constraint dpllConstraint;
 	
 	@Override
-	public void initializeDPLLContextualConstraint(Theory theory, List<Expression> indices) {
-		dpllConstraint = theory.makeConstraint(indices);
+	public void initializeDPLLContextualConstraint(Constraint constraint) {
+		dpllConstraint = constraint;
 	}
 
 	@Override
