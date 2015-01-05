@@ -156,7 +156,7 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 	 * @param process
 	 * @return
 	 */
-	protected static Expression makeSplitterFromTwoTerms(Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
+	private static Expression makeSplitterFromTwoTerms(Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
 		// if variable is a free variable or constant and other term is an index, we invert them because
 		// the algorithm requires the first term to be an index if there are any indices in the atom.
@@ -212,36 +212,6 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		return new Constraint(indices);
 	}
 	
-	/**
-	 * Indicates whether variable in chosen after otherTerm in choosing ordering.
-	 */
-	private static boolean variableIsChosenAfterOtherTerm(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
-		boolean result = process.isConstant(otherTerm) || variableIsChosenAfterOtherVariable(otherTerm, variable, indices);
-		return result;
-	}
-
-	/**
-	 * Indicates whether variable in chosen after otherVariable in choosing ordering.
-	 */
-	private static boolean variableIsChosenAfterOtherVariable(Expression variable, Expression otherVariable, Collection<Expression> indices) {
-		boolean result;
-		if (indices.contains(variable)) { // index
-			if ( ! indices.contains(otherVariable)) { // free variable
-				result = false; // free variables always precedes indices
-			}
-			else { // both are indices
-				result = otherVariable.toString().compareTo(variable.toString()) < 0; // indices are compared alphabetically
-			}
-		}
-		else if (indices.contains(otherVariable)) { // variable is free variable and otherVariable is index
-			result = true; // free variable always precedes indices
-		}
-		else { // neither is index
-			result = otherVariable.toString().compareTo(variable.toString()) < 0;	// alphabetically		
-		}
-		return result;
-	}
-
 	private static final Times timesRewriter = new Times(); // for use in the class below
 
 	@SuppressWarnings("serial")
@@ -277,14 +247,14 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		// The map (super class) keeps disequals.
 		
 		private Collection<Expression> indices;
-		private Map<Expression, Expression> fromBoundIndexToBinding;
-		private Map<Expression, Expression> fromBoundFreeVariableToBinding;
+		private Map<Expression, Expression> fromBoundVariableToBinding;
+//		private Map<Expression, Expression> fromBoundIndexToBinding;
+//		private Map<Expression, Expression> fromBoundFreeVariableToBinding;
 		
 		public Constraint(Collection<Expression> indices) {
 			super();
 			this.indices = indices;
-			this.fromBoundIndexToBinding        = new LinkedHashMap<Expression, Expression>();
-			this.fromBoundFreeVariableToBinding = new LinkedHashMap<Expression, Expression>();
+			this.fromBoundVariableToBinding     = new LinkedHashMap<Expression, Expression>();
 		}
 
 		private Constraint(Constraint another) {
@@ -293,8 +263,7 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 				this.put(entry.getKey(), new LinkedHashSet<Expression>(entry.getValue())); // must copy sets to avoid interference. OPTIMIZATION: use a copy-as-needed implementation of set later.
 			}
 			this.indices = another.indices;
-			this.fromBoundIndexToBinding        = new LinkedHashMap<Expression, Expression>(another.fromBoundIndexToBinding);
-			this.fromBoundFreeVariableToBinding = new LinkedHashMap<Expression, Expression>(another.fromBoundFreeVariableToBinding);
+			this.fromBoundVariableToBinding     = new LinkedHashMap<Expression, Expression>(another.fromBoundVariableToBinding);
 		}
 
 		@Override
@@ -311,7 +280,7 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		
 			for (Expression x : keySet()) {
 				if (indices.contains(x)) {
-					if ( ! indexIsBound(x)) { // optional, but more efficient
+					if ( ! variableIsBound(x)) { // optional, but more efficient
 						Collection<Expression> disequalsOfX = getDisequals(x);
 						for (Expression y : disequalsOfX) {
 							if (process.isVariable(y)) { // we can restrict y to variables because at least one of y or t must be a variable (otherwise they would be two constants and we already know those are disequal).
@@ -331,30 +300,24 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 
 		private Expression getBinding(Expression variable) {
 			Expression result;
-			result = fromBoundIndexToBinding.get(variable);
-			if (result == null) {
-				result = fromBoundFreeVariableToBinding.get(variable);
-			}
+			result = fromBoundVariableToBinding.get(variable);
 			return result;
 		}
 
 		private void setBinding(Expression variable, Expression binding) {
 			if ( ! variable.equals(binding)) {
-				if (indices.contains(variable)) {
-					fromBoundIndexToBinding.put(variable, binding);
-				}
-				else {
-					fromBoundFreeVariableToBinding.put(variable, binding);
-				}
+				fromBoundVariableToBinding.put(variable, binding);
 			}
 		}
 
-		private int numberOfBoundIndices() {
-			return fromBoundIndexToBinding.size();
+		private int numberOfBoundIndices(Collection<Expression> indices) {
+			int result = Util.count(indices, this::variableIsBound);
+			return result;
 		}
 
-		private boolean indexIsBound(Expression index) {
-			return fromBoundIndexToBinding.containsKey(index);
+		private boolean variableIsBound(Expression variable) {
+			boolean result = getBinding(variable) != null;
+			return result;
 		}
 
 		/**
@@ -532,10 +495,10 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		@Override
 		public Expression modelCount(RewritingProcess process) {
 			
-			ArrayList<Expression> numberOfPossibleValuesForIndicesSoFar = new ArrayList<Expression>(indices.size() - numberOfBoundIndices());
+			ArrayList<Expression> numberOfPossibleValuesForIndicesSoFar = new ArrayList<Expression>(indices.size() - numberOfBoundIndices(indices));
 			
 			for (Expression index : indices) {
-				if ( ! indexIsBound(index)) {
+				if ( ! variableIsBound(index)) {
 					long numberOfNonAvailableValues = getDisequals(index).size();
 					long typeSize = GrinderUtil.getTypeCardinality(index, process);
 					Expression numberOfPossibleValuesForIndex;
@@ -559,27 +522,29 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 			result = timesRewriter.rewrite(result, process);
 			result = DPLLUtil.makeModelCountConditionedOnUndeterminedSplitters(
 					result,
-					getSplittersToBeSatisfied(process), getSplittersToBeNotSatisfied(process),
+					getSplittersToBeSatisfied(indices, process), getSplittersToBeNotSatisfied(process),
 					EqualityOnSymbolsTheory.this,
 					process);
 			
 			return result;
 		}
 
-		private Collection<Expression> getSplittersToBeSatisfied(RewritingProcess process) {
+		private Collection<Expression> getSplittersToBeSatisfied(Collection<Expression> indices, RewritingProcess process) {
 			Collection<Expression> result = new LinkedHashSet<Expression>();
-			for (Expression freeVariable : fromBoundFreeVariableToBinding.keySet()) {
-				Expression representative = getRepresentative(freeVariable, process);
-				// Note that a free variable's representative is never an index, because
-				// in splitters indices always come before free variables,
-				// and that is the order of the binding.
-				// A splitter with a free variable as the first term will always have another free variable
-				// or a constant on the right-hand side.
-				// This matters because the conditional model count has to be in terms of
-				// free variables and constants only, never indices.
-				if ( ! representative.equals(freeVariable)) {
-					Expression splitter = Expressions.apply(FunctorConstants.EQUALITY, freeVariable, representative); // making it with apply instead of Disequality.make sidesteps simplifications, which will not occur in this case because otherwise this condition would have either rendered the constraint a contradiction, or would have been eliminated from it
-					result.add(splitter);
+			for (Expression freeVariable : fromBoundVariableToBinding.keySet()) {
+				if ( ! indices.contains(freeVariable)) {
+					Expression representative = getRepresentative(freeVariable, process);
+					// Note that a free variable's representative is never an index, because
+					// in splitters indices always come before free variables,
+					// and that is the order of the binding.
+					// A splitter with a free variable as the first term will always have another free variable
+					// or a constant on the right-hand side.
+					// This matters because the conditional model count has to be in terms of
+					// free variables and constants only, never indices.
+					if ( ! representative.equals(freeVariable)) {
+						Expression splitter = Expressions.apply(FunctorConstants.EQUALITY, freeVariable, representative); // making it with apply instead of Disequality.make sidesteps simplifications, which will not occur in this case because otherwise this condition would have either rendered the constraint a contradiction, or would have been eliminated from it
+						result.add(splitter);
+					}
 				}
 			}
 			return result;
@@ -626,6 +591,36 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 			return result;
 		}
 
+		/**
+		 * Indicates whether variable is chosen after otherTerm in choosing ordering.
+		 */
+		private boolean variableIsChosenAfterOtherTerm(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
+			boolean result = process.isConstant(otherTerm) || variableIsChosenAfterOtherVariable(otherTerm, variable, indices);
+			return result;
+		}
+
+		/**
+		 * Indicates whether variable in chosen after otherVariable in choosing ordering.
+		 */
+		private boolean variableIsChosenAfterOtherVariable(Expression variable, Expression otherVariable, Collection<Expression> indices) {
+			boolean result;
+			if (indices.contains(variable)) { // index
+				if ( ! indices.contains(otherVariable)) { // free variable
+					result = false; // free variables always precedes indices
+				}
+				else { // both are indices
+					result = otherVariable.toString().compareTo(variable.toString()) < 0; // indices are compared alphabetically
+				}
+			}
+			else if (indices.contains(otherVariable)) { // variable is free variable and otherVariable is index
+				result = true; // free variable always precedes indices
+			}
+			else { // neither is index
+				result = otherVariable.toString().compareTo(variable.toString()) < 0;	// alphabetically		
+			}
+			return result;
+		}
+
 		@Override
 		public Expression checkIfSplitterOrItsNegationIsImplied(Expression splitter, RewritingProcess process) {
 			if (termsAreConstrainedToBeEqual(splitter.get(0), splitter.get(1), process)) {
@@ -656,9 +651,8 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		@Override
 		public String toString() {
 			String result =
-					"Index bindings: " + fromBoundIndexToBinding
-					+ ", free variables bindings: " + fromBoundFreeVariableToBinding
-					+ ", disequals map: " + super.toString();
+					"Bindings: " + fromBoundVariableToBinding
+					+ ", disequalities: " + super.toString();
 			return result; 
 		}
 	}
