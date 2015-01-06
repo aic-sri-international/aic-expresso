@@ -48,9 +48,17 @@ import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnTerms
  */
 public class SymbolTermTheory implements TermTheory {
 
+
 	@Override
-	public boolean isVariable(Expression term, RewritingProcess process) {
-		return process.isVariable(term);
+	public boolean isTerm(Expression expression, RewritingProcess process) {
+		boolean result = expression.getSyntacticFormType().equals("Symbol");
+		return result;
+	}
+
+	@Override
+	public boolean isVariableTerm(Expression expression, RewritingProcess process) {
+		boolean result = isTerm(expression, process) && process.isVariable(expression);
+		return result;
 	}
 
 	@Override

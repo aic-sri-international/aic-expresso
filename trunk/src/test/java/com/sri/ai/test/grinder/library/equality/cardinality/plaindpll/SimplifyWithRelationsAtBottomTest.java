@@ -58,10 +58,27 @@ public class SimplifyWithRelationsAtBottomTest {
 		Expression expression;
 		Expression expected;
 		Expression result;
-
+		RewritingProcess process;
+		
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
-		RewritingProcess process = new DefaultRewritingProcess(null);
+//		// repeated for debugging
+//		process = new DefaultRewritingProcess(null);
+//		process = GrinderUtil.extendContextualSymbols(
+//				Util.map(
+//						parse("Earthquake"), parse("Boolean"),
+//						parse("Burglary"), parse("Boolean")
+//						),
+//						process);
+//		expression = parse("if Earthquake = Burglary then 1 else 0");
+//		expected   = parse("if Earthquake then if Burglary then 1 else 0 else if Burglary then 0 else 1");
+//		result = SimplifyWithRelationsAtBottom.simplify(expression, parse("Burglary"), process);
+//		assertEquals(expected, result);
+
+		
+		
+		
+		process = new DefaultRewritingProcess(null);
 		process = GrinderUtil.extendContextualSymbols(
 				Util.map(
 						parse("X"), parse("Everything"),
@@ -70,7 +87,7 @@ public class SimplifyWithRelationsAtBottomTest {
 						parse("target"), parse("'->'(Everything,Boolean)")
 						),
 						process);
-		
+
 		expression = parse("if X = Y then 2 else 3");
 		expected   = parse("if X = Y then 2 else 3");
 		result = SimplifyWithRelationsAtBottom.simplify(expression, parse("target"), process);
@@ -101,5 +118,25 @@ public class SimplifyWithRelationsAtBottomTest {
 		expected   = parse("if X = Y then if condition(Y) then if target(Y) then 1.1 else 0.7 else if target(Y) then 1.1 else 1.3 else if condition(X) then if target(X) then 1.5 else 0.7 else if target(X) then 1.5 else 1.3");
 		result = SimplifyWithRelationsAtBottom.simplify(expression, parse("target"), process);
 		assertEquals(expected, result);
+
+		// tests equality between atoms
+		expression = parse("if target(X) = condition(X) then 1 else 0");
+		expected   = parse("if condition(X) then if target(X) then 1 else 0 else if target(X) then 0 else 1");
+		result = SimplifyWithRelationsAtBottom.simplify(expression, parse("target"), process);
+		assertEquals(expected, result);
+
+		// Need to clean up distinction between propositions and constants
+//		// tests equality between propositions
+//		process = new DefaultRewritingProcess(null);
+//		process = GrinderUtil.extendContextualSymbols(
+//				Util.map(
+//						parse("earthquake"), parse("Boolean"),
+//						parse("burglary"), parse("Boolean")
+//						),
+//						process);
+//		expression = parse("if earthquake = burglary then 1 else 0");
+//		expected   = parse("if earthquake then if burglary then 1 else 0 else if eurglary then 0 else 1");
+//		result = SimplifyWithRelationsAtBottom.simplify(expression, parse("burglary"), process);
+//		assertEquals(expected, result);
 	}
 }

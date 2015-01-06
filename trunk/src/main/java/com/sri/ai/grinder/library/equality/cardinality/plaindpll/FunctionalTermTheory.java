@@ -53,22 +53,39 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
  */
 public class FunctionalTermTheory implements TermTheory {
 
+
 	@Override
-	public boolean isVariable(Expression term, RewritingProcess process) {
-		boolean result = process.isVariable(term) ||
-				(
-						term.getSyntacticFormType().equals("Function application")
-						&&
-						 ! FormulaUtil.functorIsAnEqualityLogicalConnectiveIncludingConditionals(term)
-						 &&
-						 ! term.hasFunctor(FunctorConstants.CARDINALITY) // TODO: make this less hard-coded
-						 &&
-						 ! term.hasFunctor(FunctorConstants.PLUS)
-						 &&
-						 ! term.hasFunctor(FunctorConstants.TIMES)
-						 &&
-						 ! term.hasFunctor(FunctorConstants.MINUS)
-						);
+	public boolean isTerm(Expression expression, RewritingProcess process) {
+		boolean result = process.isConstant(expression) || isVariableOrFunctionApplication(expression, process);
+		return result;
+	}
+
+	private boolean isVariableOrFunctionApplication(Expression expression, RewritingProcess process) {
+		boolean result =
+				process.isVariable(expression)
+		||
+		(
+				expression.getSyntacticFormType().equals("Function application")
+				&&
+				! FormulaUtil.functorIsAnEqualityLogicalConnectiveIncludingConditionals(expression)
+				&&
+				! expression.hasFunctor(FunctorConstants.CARDINALITY) // TODO: make this less hard-coded
+				&&
+				! expression.hasFunctor(FunctorConstants.PLUS)
+				&&
+				! expression.hasFunctor(FunctorConstants.TIMES)
+				&&
+				! expression.hasFunctor(FunctorConstants.MINUS)
+				);
+		return result;
+	}
+
+	@Override
+	public boolean isVariableTerm(Expression expression, RewritingProcess process) {
+		boolean result =
+				isTerm(expression, process)
+				&&
+				! process.isConstant(expression);
 		return result;
 	}
 
@@ -113,5 +130,4 @@ public class FunctionalTermTheory implements TermTheory {
 	public boolean termsHaveNoArguments() {
 		return false;
 	}
-
 }

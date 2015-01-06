@@ -110,10 +110,10 @@ public class AtomsAndEqualityOnTermsModelCountingDPLLTest extends AbstractSymbol
 		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
 		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 
-		// tests whether equalities on boolean atoms still work; it sort of does, but equality theory doesn't know that atoms can have only two values, so we get this 
+		// tests whether equalities on boolean atoms still work; 
 		expression = parse("X = Y => (atom(X) = true or atom(Y) = false)");
 		indices    = list();
-		expected   = parse("if X = Y then if atom(Y) = true then 1 else if atom(Y) = false then 1 else 0 else 1");
+		expected   = parse("1");
 		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
 		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 
