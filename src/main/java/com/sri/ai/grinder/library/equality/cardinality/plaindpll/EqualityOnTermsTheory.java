@@ -155,7 +155,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 	}
 
 	/**
-	 * If expression is a literal with at least one variable, turns it into a valid splitter, or returns null otherwise.
+	 * If expression is an equality literal with at least one variable, turns it into a valid splitter, or returns null otherwise.
 	 * @param expression
 	 * @param indices
 	 * @param process
@@ -163,14 +163,15 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 	 */
 	@Override
 	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
-		// TODO: this method should defer to the term equalityTheory.
 		Expression result = null;
 		if (expression.hasFunctor(FunctorConstants.EQUALITY) || expression.hasFunctor(FunctorConstants.DISEQUALITY)) {
 			// remember that equality can have an arbitrary number of terms
-			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), e -> termTheory.isVariable(e, process));
+			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), e -> termTheory.isVariableTerm(e, process));
 			if (variable != null) {
-				Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), e -> ! e.equals(variable));
-				result = makeSplitterFromTwoTerms(variable, otherTerm, indices, process);
+				Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), e -> ! e.equals(variable) && termTheory.isTerm(e, process));
+				if (otherTerm != null) {
+					result = makeSplitterFromTwoTerms(variable, otherTerm, indices, process);
+				}
 			}
 		}
 		return result;
@@ -201,7 +202,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		else if (indices.contains(term2)) {
 			result = Equality.make(term2, term1);
 		}
-		else if (termTheory.isVariable(term1, process)) {
+		else if (termTheory.isVariableTerm(term1, process)) {
 			result = Equality.make(term1, term2);
 		}
 		else {
@@ -361,7 +362,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 
 		private Expression getSplitterTowardsEnsuringTotalDisequalityOfTermsInCollection(Collection<Expression> terms, RewritingProcess process) {
 			for (Expression y : terms) {
-				if (termTheory.isVariable(y, process)) { // we can restrict y to variables because at least one of y or t must be a variable (otherwise they would be two constants and we already know those are disequal).
+				if (termTheory.isVariableTerm(y, process)) { // we can restrict y to variables because at least one of y or t must be a variable (otherwise they would be two constants and we already know those are disequal).
 					Expression splitter = getSplitterTowardsEnsuringVariableIsDisequalFromAllOtherTermsInCollection(y, terms, process); // TODO: search from y's position only
 					if (splitter != null) {
 						return splitter;
@@ -438,12 +439,12 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		Expression getRepresentative(Expression term, boolean recordDirectBindingToRepresentative, RewritingProcess process) {
 			Expression current = term;
 			Expression currentBinding;
-			while (termTheory.isVariable(current, process) && (currentBinding = getBinding(current)) != null) {
+			while (termTheory.isVariableTerm(current, process) && (currentBinding = getBinding(current)) != null) {
 				current = currentBinding;
 			}
 			// now, 'current' is in the chain started at term,
 			// and it is either a constant or a variable without binding, therefore it is the equivalence class representative.
-			if (recordDirectBindingToRepresentative && termTheory.isVariable(term, process)) {
+			if (recordDirectBindingToRepresentative && termTheory.isVariableTerm(term, process)) {
 				setBinding(term, current, process); // optional recording so that we do not need to traverse the entire chain next time
 			}
 			return current;
@@ -636,8 +637,8 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 
 		/** Assumes disequality does not turn constraint into contradiction */
 		private void applyDisequality(Expression term1, Expression term2, RewritingProcess process) {
-			if (termTheory.isVariable(term1, process) || termTheory.isVariable(term2, process)) {
-				if (termTheory.isVariable(term1, process) && variableIsChosenAfterOtherTerm(term1, term2, indices, process)) {
+			if (termTheory.isVariableTerm(term1, process) || termTheory.isVariableTerm(term2, process)) {
+				if (termTheory.isVariableTerm(term1, process) && variableIsChosenAfterOtherTerm(term1, term2, indices, process)) {
 					addFirstTermAsDisequalOfSecondTerm(term1, term2);
 				}
 				else { // term2 must be a variable because either term1 is not a variable, or it is but term2 comes later than term1 in ordering, which means it is a variable
@@ -713,7 +714,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		private Collection<Expression> getSplittersToBeNotSatisfied(RewritingProcess process) {
 			Collection<Expression> result = new LinkedHashSet<Expression>();
 			for (Map.Entry<Expression, Collection<Expression>> entry : entrySet()) {
-				assert termTheory.isVariable(entry.getKey(), process);
+				assert termTheory.isVariableTerm(entry.getKey(), process);
 				Expression variable = entry.getKey();
 				if ( ! indices.contains(variable)) { // if variable is free
 					for (Expression disequal : entry.getValue()) {

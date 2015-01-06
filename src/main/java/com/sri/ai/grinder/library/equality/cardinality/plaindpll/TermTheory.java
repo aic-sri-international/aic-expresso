@@ -44,7 +44,21 @@ import com.sri.ai.grinder.api.RewritingProcess;
 @Beta
 public interface TermTheory {
 	
-	boolean isVariable(Expression term, RewritingProcess process);
+	/**
+	 * Indicates whether expression is a term according to this term theory.
+	 * @param expression
+	 * @param process
+	 * @return
+	 */
+	boolean isTerm(Expression expression, RewritingProcess process);
+	
+	/**
+	 * Indicates whether expression is a generalized variable term according to this term theory.
+	 * @param expression
+	 * @param process
+	 * @return
+	 */
+	boolean isVariableTerm(Expression expression, RewritingProcess process);
 	
 	/**
 	 * Indicates whether equalities between two terms may imply further facts in this equalityTheory.

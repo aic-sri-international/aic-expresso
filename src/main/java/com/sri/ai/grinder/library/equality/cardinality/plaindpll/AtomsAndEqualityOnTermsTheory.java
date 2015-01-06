@@ -79,7 +79,7 @@ public class AtomsAndEqualityOnTermsTheory extends AbstractTheory {
 	@Override
 	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
-		if (equalityTheory.termTheory.isVariable(expression, process) &&
+		if (equalityTheory.termTheory.isVariableTerm(expression, process) &&
 				GrinderUtil.getType(expression, process).equals("Boolean")) {
 			result = expression;
 		}

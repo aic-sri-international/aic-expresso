@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.library;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,6 +50,8 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
 import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
+import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
@@ -93,9 +96,17 @@ public class Disequality extends AbstractRewriter {
 		}
 		else {
 			Set<Expression> constants = new LinkedHashSet<Expression>();
-			Util.collect(disequality.getArguments(), constants, process.getIsConstantPredicate());
+			Set<Expression> nonConstants = new LinkedHashSet<Expression>();
+			Util.collect(disequality.getArguments(), constants, process.getIsConstantPredicate(), nonConstants);
 			if (constants.size() > 1) {
 				result = Expressions.TRUE;
+			}
+			else if (constants.size() == 1 && constants.contains(Expressions.FALSE)) {
+				result = And.make(new ArrayList<Expression>(nonConstants));
+			}
+			else if (constants.size() == 1 && constants.contains(Expressions.TRUE)) {
+				ArrayList<Expression> negatedNonConstants = Util.mapIntoArrayList(nonConstants, e -> Not.make(e));
+				result = And.make(new ArrayList<Expression>(negatedNonConstants));
 			}
 			else {
 				result = disequality;
