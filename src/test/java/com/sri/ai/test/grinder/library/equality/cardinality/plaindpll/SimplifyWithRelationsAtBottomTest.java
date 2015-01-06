@@ -83,8 +83,8 @@ public class SimplifyWithRelationsAtBottomTest {
 				Util.map(
 						parse("X"), parse("Everything"),
 						parse("Y"), parse("Everything"),
-						parse("condition"), parse("'->'(Everything,Boolean)"),
-						parse("target"), parse("'->'(Everything,Boolean)")
+						parse("condition"), parse("Everything -> Boolean"),
+						parse("target"), parse("Everything -> Boolean")
 						),
 						process);
 

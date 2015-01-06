@@ -258,6 +258,33 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	}
 	
 	@Test
+	public void testCartesianProduct() {
+		String string;
+		string = "A x B";
+		test(string, Expressions.apply("x", "A", "B"));
+		
+		string = "A x B x C";
+		test(string, Expressions.apply("x", "A", "B", "C"));
+
+		string = "A x x";
+		testFail(string);
+	}
+	
+	@Test
+	public void testFunctionType() {
+		String string;
+		string = "A -> B";
+		test(string, Expressions.apply("->", "A", "B"));
+		
+		string = "A x B -> C";
+		test(string, Expressions.apply("->", "A", "B", "C"));
+
+		string = "A -> B x C";
+		testFail(string);
+	}
+	
+	
+	@Test
 	public void testFunction () {
 		String string;
 		string = "foo()";

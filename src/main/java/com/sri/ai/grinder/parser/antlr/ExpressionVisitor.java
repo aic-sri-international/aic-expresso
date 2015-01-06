@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.misc.NotNull;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.google.common.annotations.Beta;
@@ -108,6 +109,28 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 			AntlrGrinderParser.FunctionApplicationContext ctx) {
 		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(randomPredicatesSignatures, visit(ctx.functor), expressions(ctx.args));
 		
+		return result;
+	}
+	
+	@Override 
+	public Expression visitCartesianProduct(@NotNull AntlrGrinderParser.CartesianProductContext ctx) { 
+		Object[] arguments = new Object[1+ctx.additionalargs.size()];
+		arguments[0] = newSymbol(ctx.firstarg.getText());
+		for (int i = 0; i < ctx.additionalargs.size(); i++) {
+			arguments[i+1] = newSymbol(ctx.additionalargs.get(i).getText());
+		}
+		Expression result = Expressions.apply(FunctorConstants.CARTESIAN_PRODUCT, arguments);
+		return result;
+	}
+	
+	@Override 
+	public Expression visitFunctionType(@NotNull AntlrGrinderParser.FunctionTypeContext ctx) { 
+		Object[] arguments = new Object[ctx.domaintypes.size()+1];
+		for (int i = 0; i < ctx.domaintypes.size(); i++) {
+			arguments[i] = newSymbol(ctx.domaintypes.get(i).getText());
+		}
+		arguments[arguments.length-1] = newSymbol(ctx.rangetype.getText());
+		Expression result = Expressions.apply(FunctorConstants.FUNCTION_TYPE, arguments);
 		return result;
 	}
 	

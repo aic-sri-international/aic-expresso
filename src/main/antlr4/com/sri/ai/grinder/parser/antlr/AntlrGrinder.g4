@@ -69,6 +69,10 @@ expr :
      | FOR ALL index=expr ':' body=expr #forAll
        // existential quantification, e.g.: there exists X : X = a
      | THERE EXISTS index=expr ':' body=expr #thereExists
+       // cartesian product
+     | firstarg=SYMBOLIC_NAME (CARTESIAN_PRODUCT additionalargs+=SYMBOLIC_NAME)+ #cartesianProduct
+       // function type
+     | domaintypes+=SYMBOLIC_NAME (CARTESIAN_PRODUCT domaintypes+=SYMBOLIC_NAME)* FUNCTION_TYPE rangetype=SYMBOLIC_NAME #functionType
        // a symbol
        // NOTE: even though the SYMBOLIC_NAME pattern should match these keywords
        // ANTLR excludes the set of keywords/tokens that are used from matching
@@ -80,11 +84,16 @@ expr :
         | INTERSECTION | UNION
         | ON | IN | VALUE | OF
         | PREVIOUS | MESSAGE | NEIGHBORS | VARIABLE | FACTOR | TO | FROM
+        | CARTESIAN_PRODUCT | FUNCTION_TYPE
         | IMPLICATION | BICONDITIONAL // Logic Operators
         | EXPONENTIATION | DIVIDE | TIMES | PLUS | SUBTRACT // Arithmetic
         | LESS_THAN_EQUAL | EQUAL | NOT_EQUAL | GREATER_THAN_EQUAL // Comparison, Note: We intentionally exclude '<' and '>' as these can affect parsing of an expression symbol
         | COLON | VERT_BAR | UNDERSCORE | PERIOD // Misc
         | RATIONAL | SYMBOLIC_NAME) #symbol
+     ;
+     
+cartesian_product_expr :
+     
      ;
 
 /*
@@ -125,6 +134,9 @@ VARIABLE                : 'variable' ;
 FACTOR                  : 'factor' ;
 TO                      : 'to' ;
 FROM                    : 'from' ;
+// Special Functions
+CARTESIAN_PRODUCT       : 'x' ;
+FUNCTION_TYPE           : '->' ;
 // Logic Operators
 IMPLICATION             : '=>' ;
 BICONDITIONAL           : '<=>' ;
