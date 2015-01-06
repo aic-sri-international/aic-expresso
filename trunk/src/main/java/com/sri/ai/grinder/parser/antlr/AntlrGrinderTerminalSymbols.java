@@ -75,6 +75,9 @@ public class AntlrGrinderTerminalSymbols {
 		terminalSymbols.add("factor");
 		terminalSymbols.add("to");
 		terminalSymbols.add("from");
+		// Special Functions
+		terminalSymbols.add("x");
+		terminalSymbols.add("->");
 		// Logic Operators
 		terminalSymbols.add("=>");
 		terminalSymbols.add("<=>");
