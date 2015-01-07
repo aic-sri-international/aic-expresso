@@ -39,6 +39,7 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -79,8 +80,14 @@ public class AtomsAndEqualityOnTermsTheory extends AbstractTheory {
 	@Override
 	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
-		if (equalityTheory.termTheory.isVariableTerm(expression, process) &&
-				GrinderUtil.getType(expression, process).equals("Boolean")) {
+		if (equalityTheory.termTheory.isVariableTerm(expression, process)
+				&&
+				(
+						GrinderUtil.getType(expression, process).equals(parse("Boolean"))
+						||
+						GrinderUtil.getType(expression, process).equals(parse("'->'(Boolean)"))
+						)
+				) {
 			result = expression;
 		}
 		else {
