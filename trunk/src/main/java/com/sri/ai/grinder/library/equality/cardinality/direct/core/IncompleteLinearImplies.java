@@ -154,7 +154,7 @@ public class IncompleteLinearImplies {
 			Set<Expression> gConstants = new LinkedHashSet<Expression>();
 			Set<Expression> gVariables = new LinkedHashSet<Expression>();
 			for (Expression gArg : g.getArguments()) {
-				if (process.isConstant(gArg)) {
+				if (process.isUniquelyNamedConstant(gArg)) {
 					gConstants.add(gArg);
 				} 
 				else {
@@ -176,7 +176,7 @@ public class IncompleteLinearImplies {
 				}
 				
 				for (Expression hArg : hArgs) {
-					if (process.isConstant(hArg)) {
+					if (process.isUniquelyNamedConstant(hArg)) {
 						hConstants.add(hArg);
 					} 
 					else {

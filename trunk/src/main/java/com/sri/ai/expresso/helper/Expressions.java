@@ -437,7 +437,7 @@ public class Expressions {
 	 * to make it unique in a given expression.
 	 */
 	public static Expression primedUntilUnique(Expression symbol, Expression expression, RewritingProcess process) {
-		LinkedHashSet<Expression> variables = Expressions.getVariables(expression, process.getIsConstantPredicate());
+		LinkedHashSet<Expression> variables = Expressions.getVariables(expression, process.getIsUniquelyNamedConstantPredicate());
 		Predicate<Expression> isUnique = new NotContainedBy<Expression>(variables);
 		Expression result = Expressions.primedUntilUnique(symbol, isUnique);
 		return result;
@@ -932,8 +932,8 @@ public class Expressions {
 	 * A static method returning the variables
 	 * in a given expression, for a certain predicate indicating constants.
 	 */
-	public static LinkedHashSet<Expression> getVariables(Expression argument, Predicate<Expression> isConstantPredicate) {
-		return Expressions.getSubExpressionsSatisfying(argument, new IsVariable(isConstantPredicate));
+	public static LinkedHashSet<Expression> getVariables(Expression argument, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		return Expressions.getSubExpressionsSatisfying(argument, new IsVariable(isUniquelyNamedConstantPredicate));
 	}
 
 	/**
@@ -941,7 +941,7 @@ public class Expressions {
 	 * in a given expression, in a certain process.
 	 */
 	public static LinkedHashSet<Expression> getVariables(Expression argument, RewritingProcess process) {
-		return getVariables(argument, process.getIsConstantPredicate());
+		return getVariables(argument, process.getIsUniquelyNamedConstantPredicate());
 	}
 
 	/** Returns the set of free variables in an expression, according to a given process. */

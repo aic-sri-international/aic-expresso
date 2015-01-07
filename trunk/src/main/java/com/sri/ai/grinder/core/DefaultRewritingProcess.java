@@ -130,7 +130,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	private ChildRewriterCallIntercepter childCallIntercepter                                                  = null;
 	private Map<Expression, Expression>  contextualSymbolsAndTypes                                         = null;
 	private Expression                   contextualConstraint                                                  = Expressions.TRUE;
-	private Predicate<Expression>        isConstantPredicate                                                   = null;
+	private Predicate<Expression>        isUniquelyNamedConstantPredicate                                                   = null;
 	private boolean                      isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess = true;
 	private int                          recursionLevel                                                        = 0;
 	private boolean                      interrupted                                                           = false;
@@ -211,15 +211,15 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 
 	public DefaultRewritingProcess(Expression rootExpression,
-			Rewriter rootRewriter, Map<Expression, Expression> contextualSymbolsAndTypes, Predicate<Expression> isConstantPredicate,
+			Rewriter rootRewriter, Map<Expression, Expression> contextualSymbolsAndTypes, Predicate<Expression> isUniquelyNamedConstantPredicate,
 			Map<Object, Object> globalObjects) {
-		this(rootExpression, rootRewriter, null, contextualSymbolsAndTypes, isConstantPredicate, globalObjects);
+		this(rootExpression, rootRewriter, null, contextualSymbolsAndTypes, isUniquelyNamedConstantPredicate, globalObjects);
 	}
 	
 	public DefaultRewritingProcess(Expression rootExpression,
 			Rewriter rootRewriter, RewriterLookup rewriterLookup,
 			Map<Expression, Expression> contextualSymbolsAndTypes,
-			Predicate<Expression> isConstantPredicate,
+			Predicate<Expression> isUniquelyNamedConstantPredicate,
 			Map<Object, Object> globalObjects) {
 		
 		initialize(null,
@@ -229,7 +229,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				null,
 				contextualSymbolsAndTypes,
 				Expressions.TRUE,
-				isConstantPredicate, 
+				isUniquelyNamedConstantPredicate, 
 				new ConcurrentHashMap<Object, Object>(globalObjects), 
 				new ConcurrentHashMap<RewriterKey, ExpressionCache>(),
 				new ConcurrentHashMap<Class<?>, Rewriter>(),
@@ -241,7 +241,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			Rewriter rootRewriter, RewriterLookup rewriterLookup,
 			Map<Expression, Expression> contextualSymbolsAndTypes,
 			Expression contextualConstraint,
-			Predicate<Expression> isConstantPredicate,
+			Predicate<Expression> isUniquelyNamedConstantPredicate,
 			Map<Object, Object> globalObjects) {
 		
 		initialize(null,
@@ -251,7 +251,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				null,
 				contextualSymbolsAndTypes,
 				contextualConstraint,
-				isConstantPredicate, 
+				isUniquelyNamedConstantPredicate, 
 				new ConcurrentHashMap<Object, Object>(globalObjects), 
 				new ConcurrentHashMap<RewriterKey, ExpressionCache>(),
 				new ConcurrentHashMap<Class<?>, Rewriter>(),
@@ -282,25 +282,25 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	//
 	// START-RewritingProcess
 	@Override
-	public boolean isConstant(Expression expression) {
-		return getIsConstantPredicate().apply(expression);
+	public boolean isUniquelyNamedConstant(Expression expression) {
+		return getIsUniquelyNamedConstantPredicate().apply(expression);
 	}
 	
 	@Override
 	public boolean isVariable(Expression expression) {
 		boolean result = IsVariable.isVariable(expression,
-				isConstantPredicate);
+				isUniquelyNamedConstantPredicate);
 		return result;
 	}
 
 	@Override
-	public Predicate<Expression> getIsConstantPredicate() {
-		return isConstantPredicate;
+	public Predicate<Expression> getIsUniquelyNamedConstantPredicate() {
+		return isUniquelyNamedConstantPredicate;
 	}
 
 	@Override
-	public void setIsConstantPredicate(Predicate<Expression> isConstantPredicate) {
-		this.isConstantPredicate = isConstantPredicate;
+	public void setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		this.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
 	}
 
 	@Override
@@ -643,7 +643,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				childCallIntercepter,
 				contextualSymbolsAndTypes,
 				contextualConstraint,
-				parentProcess.isConstantPredicate, 
+				parentProcess.isUniquelyNamedConstantPredicate, 
 				parentProcess.globalObjects,
 				parentProcess.rewriterCaches,
 				parentProcess.lookedUpModuleCache,
@@ -668,7 +668,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				process.getChildCallIntercepter(),
 				process.getContextualSymbolsAndTypes(),
 				Expressions.TRUE,
-				process.getIsConstantPredicate(),
+				process.getIsUniquelyNamedConstantPredicate(),
 				process.getGlobalObjects(),
 				new ConcurrentHashMap<RewriterKey, ExpressionCache>(),
 				new ConcurrentHashMap<Class<?>, Rewriter>(),
@@ -683,7 +683,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			ChildRewriterCallIntercepter childCallIntercepter,
 			Map<Expression, Expression> contextualSymbolsAndTypes,
 			Expression contextualConstraint,
-			Predicate<Expression> isConstantPredicate,
+			Predicate<Expression> isUniquelyNamedConstantPredicate,
 			ConcurrentHashMap<Object, Object> globalObjects,
 			ConcurrentHashMap<RewriterKey, ExpressionCache> rewriterCaches,
 			ConcurrentHashMap<Class<?>, Rewriter> lookedUpModuleCache,
@@ -698,7 +698,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		//
 		this.contextualSymbolsAndTypes = contextualSymbolsAndTypes;
 		this.contextualConstraint          = contextualConstraint;
-		this.isConstantPredicate           = isConstantPredicate;
+		this.isUniquelyNamedConstantPredicate           = isUniquelyNamedConstantPredicate;
 		//
 		this.globalObjects        = globalObjects;
 		this.rewriterCaches       = rewriterCaches;

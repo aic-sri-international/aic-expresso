@@ -84,7 +84,7 @@ public class NormalizeDisequalityLiteral extends AbstractRewriter {
 			}
 			else {
 				// a != b -> true
-				if (process.isConstant(expression.get(0)) && process.isConstant(expression.get(1))) {
+				if (process.isUniquelyNamedConstant(expression.get(0)) && process.isUniquelyNamedConstant(expression.get(1))) {
 					result = Expressions.TRUE;
 				}
 			}

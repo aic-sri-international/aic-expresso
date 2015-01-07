@@ -88,7 +88,7 @@ public class CardinalityExtensionalSet extends AbstractCardinalityRewriter {
 			Set<Expression> constantElements = new LinkedHashSet<Expression>();
 			Set<Expression> variableElements = new LinkedHashSet<Expression>();
 			for (Expression element : ExtensionalSet.getElements(extensionalSet)) {
-				if (process.isConstant(element)) {
+				if (process.isUniquelyNamedConstant(element)) {
 					constantElements.add(element);
 				} 
 				else {

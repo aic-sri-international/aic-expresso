@@ -175,7 +175,7 @@ public class InjectiveModule extends AbstractModuleNoOpRewriter {
 
 		@Override
 		public Expression apply(Expression expression) {
-			if (process.isVariable(expression) || process.isConstant(expression)) {
+			if (process.isVariable(expression) || process.isUniquelyNamedConstant(expression)) {
 				Expression parameter = Expressions.makeSymbol("X" + counter.value++);
 				fromValuesToParameters.put(expression, parameter);
 				expression = parameter;
@@ -195,7 +195,7 @@ public class InjectiveModule extends AbstractModuleNoOpRewriter {
 
 		@Override
 		public boolean apply(Expression expression, Function<Expression, Expression> replacementFunction, RewritingProcess process) {
-			if (process.isVariable(expression) || process.isConstant(expression)) {
+			if (process.isVariable(expression) || process.isUniquelyNamedConstant(expression)) {
 				pruned = false; // symbols are considered injective expressions, so don't prune
 			}
 			else {

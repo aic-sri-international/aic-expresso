@@ -62,9 +62,9 @@ public class VariablesAndThenConstantsExpressionsComparator implements Comparato
 
 	@Override
 	public int compare(Expression o1, Expression o2) {
-		Predicate<Expression> isConstantPredicate = process.getIsConstantPredicate();
-		int c1 = isConstantPredicate.apply(o1)? 1 : 0;
-		int c2 = isConstantPredicate.apply(o2)? 1 : 0;
+		Predicate<Expression> isUniquelyNamedConstantPredicate = process.getIsUniquelyNamedConstantPredicate();
+		int c1 = isUniquelyNamedConstantPredicate.apply(o1)? 1 : 0;
+		int c2 = isUniquelyNamedConstantPredicate.apply(o2)? 1 : 0;
 		return c1 - c2;
 	}
 }

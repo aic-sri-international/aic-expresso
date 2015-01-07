@@ -579,7 +579,7 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 			term1 = getRepresentative(term1, process);
 			term2 = getRepresentative(term2, process);
 			boolean result = false;
-			if (process.isConstant(term1) && process.isConstant(term2)) {
+			if (process.isUniquelyNamedConstant(term1) && process.isUniquelyNamedConstant(term2)) {
 				result = ! term1.equals(term2);
 			}
 			else if (getDisequals(term1).contains(term2)) {
@@ -595,7 +595,7 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		 * Indicates whether variable is chosen after otherTerm in choosing ordering.
 		 */
 		private boolean variableIsChosenAfterOtherTerm(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
-			boolean result = process.isConstant(otherTerm) || variableIsChosenAfterOtherVariable(otherTerm, variable, indices);
+			boolean result = process.isUniquelyNamedConstant(otherTerm) || variableIsChosenAfterOtherVariable(otherTerm, variable, indices);
 			return result;
 		}
 
