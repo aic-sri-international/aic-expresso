@@ -173,21 +173,21 @@ public class AtomsAndEqualityOnTermsSumDPLLTest extends AbstractSymbolicSymbolEq
 //		expression = parse("atom(X,Y) or not atom(X,Y)");
 //		indices    = list();
 //		expected   = parse("1");
-//		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'((Everything, Everything), Boolean)"));
+//		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(x(Everything, Everything), Boolean)"));
 //		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 //
 //		// simplification
 //		expression = parse("if atom(X,Y) then atom(Y,X) else atom(X,Y)");
 //		indices    = list();
 //		expected   = parse("if atom(X, Y) then if atom(Y, X) then 1 else 0 else 0");
-//		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'((Everything, Everything), Boolean)"));
+//		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(x(Everything, Everything), Boolean)"));
 //		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 //
 //		// mixing functions and atoms (predicates)
 //		expression = parse("p(X) = a => (atom(p(X), b) <=> atom(a, b))");
 //		indices    = list();
 //		expected   = parse("1");
-//		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'((Everything, Everything), Boolean)"));
+//		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(x(Everything, Everything), Boolean)"));
 //		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 //
 //		// FROM HERE ON: tests repeated from EqualityOnTermsModelCountingDPLLTest, which should still be solved by this generalization
