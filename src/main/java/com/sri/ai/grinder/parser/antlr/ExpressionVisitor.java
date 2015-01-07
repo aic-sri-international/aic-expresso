@@ -125,11 +125,18 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	
 	@Override 
 	public Expression visitFunctionType(@NotNull AntlrGrinderParser.FunctionTypeContext ctx) { 
-		Object[] arguments = new Object[ctx.domaintypes.size()+1];
-		for (int i = 0; i < ctx.domaintypes.size(); i++) {
-			arguments[i] = newSymbol(ctx.domaintypes.get(i).getText());
+		Object[] arguments  = new Object[2];
+		if (ctx.domaintypes.size() == 1) {
+			arguments[0] = newSymbol(ctx.domaintypes.get(0).getText());
 		}
-		arguments[arguments.length-1] = newSymbol(ctx.rangetype.getText());
+		else {
+			Object[] domainArgs = new Object[ctx.domaintypes.size()];
+			for (int i = 0; i < ctx.domaintypes.size(); i++) {
+				domainArgs[i] = newSymbol(ctx.domaintypes.get(i).getText());
+			}
+			arguments[0] = Expressions.apply(FunctorConstants.CARTESIAN_PRODUCT, domainArgs);
+		}
+		arguments[1] = newSymbol(ctx.rangetype.getText());
 		Expression result = Expressions.apply(FunctorConstants.FUNCTION_TYPE, arguments);
 		return result;
 	}
