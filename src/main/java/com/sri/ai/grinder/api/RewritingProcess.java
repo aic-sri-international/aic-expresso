@@ -70,22 +70,21 @@ import com.sri.ai.util.base.Pair;
 @Beta
 public interface RewritingProcess {
 	
-	/** Indicates whether a given expression is a constant. */
-	boolean isConstant(Expression expression);
+	/** Indicates whether a given expression is a uniquely named constant (assumed to be distinct from all other uniquely named constants). */
+	boolean isUniquelyNamedConstant(Expression expression);
 
-	/** Indicates whether a given expression is a constant. */
+	/** Indicates whether a given expression is not a variable. */
 	boolean isVariable(Expression expression);
-	// the two above are Expression-specific, should be moved to ExpressionRewritingProcess
 
 	/**
-	 * Returns the predicate indicating constants.
+	 * Returns the predicate indicating uniquely named constants.
 	 */
-	Predicate<Expression> getIsConstantPredicate();
+	Predicate<Expression> getIsUniquelyNamedConstantPredicate();
 	
 	/**
-	 * Sets the predicate indicating constants.
+	 * Sets the predicate indicating uniquely named constants.
 	 */
-	void setIsConstantPredicate(Predicate<Expression> isConstantPredicate);
+	void setIsUniquelyNamedConstantPredicate(Predicate<Expression> isUniquelyNamedConstantPredicate);
 	
 	/**
 	 * Returns the root expression being rewritten by this process.

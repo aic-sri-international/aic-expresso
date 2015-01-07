@@ -51,23 +51,23 @@ import com.sri.ai.grinder.api.RewritingProcess;
 @Beta
 public class IsVariable implements Predicate<Expression> {
 	
-	private Predicate<Expression> isConstantPredicate;
+	private Predicate<Expression> isUniquelyNamedConstantPredicate;
 	
-	public IsVariable(Predicate<Expression> isConstantPredicate) {
-		this.isConstantPredicate = isConstantPredicate;
+	public IsVariable(Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		this.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
 	}
 
 	public IsVariable(RewritingProcess process) {
-		this(process.getIsConstantPredicate());
+		this(process.getIsUniquelyNamedConstantPredicate());
 	}
 
 	@Override
 	public boolean apply(Expression expression) {
-		boolean result = isVariable(expression, isConstantPredicate);
+		boolean result = isVariable(expression, isUniquelyNamedConstantPredicate);
 		return result;
 	}
 
-	public static boolean isVariable(Expression expression, Predicate<Expression> isConstantPredicate) {
-		return expression.getSyntacticFormType().equals("Symbol") && !isConstantPredicate.apply(expression);
+	public static boolean isVariable(Expression expression, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		return expression.getSyntacticFormType().equals("Symbol") && !isUniquelyNamedConstantPredicate.apply(expression);
 	}
 }

@@ -84,19 +84,19 @@ public class Equality extends AbstractRewriter {
 	}
 
 	public static Expression equalityResultIfItIsKnown(Expression expression, RewritingProcess process) {
-		Boolean equalityResult = equalityResultIfItIsKnownOrNull(expression, process.getIsConstantPredicate(), process);
+		Boolean equalityResult = equalityResultIfItIsKnownOrNull(expression, process.getIsUniquelyNamedConstantPredicate(), process);
 		if (equalityResult != null) {
 			return Expressions.makeSymbol(equalityResult);
 		}
 		return expression;
 	}
 
-	private static Boolean equalityResultIfItIsKnownOrNull(Expression expression, Predicate<Expression> isConstantPredicate, RewritingProcess process) {
+	private static Boolean equalityResultIfItIsKnownOrNull(Expression expression, Predicate<Expression> isUniquelyNamedConstantPredicate, RewritingProcess process) {
 		int maxIndex = expression.numberOfArguments() - 1;
 		for (int i = 0; i != maxIndex; i++) {
 			Boolean equalityOfPair =
 				equalityOfPairIfItIsKnownOrNull(
-						expression.get(i), expression.get(i+1), isConstantPredicate, process);
+						expression.get(i), expression.get(i+1), isUniquelyNamedConstantPredicate, process);
 			if (equalityOfPair == null) {
 				return null;
 			}
@@ -108,16 +108,16 @@ public class Equality extends AbstractRewriter {
 	}
 
 	private static Boolean equalityOfPairIfItIsKnownOrNull(
-			Expression expression1, Expression expression2, Predicate<Expression> isConstantPredicate, RewritingProcess process) {
-		if (isConstantPredicate.apply(expression1)) {
-			if (isConstantPredicate.apply(expression2)) {
+			Expression expression1, Expression expression2, Predicate<Expression> isUniquelyNamedConstantPredicate, RewritingProcess process) {
+		if (isUniquelyNamedConstantPredicate.apply(expression1)) {
+			if (isUniquelyNamedConstantPredicate.apply(expression2)) {
 				return expression1.equals(expression2); // two constants; true if they are equal, false if they are distinct
 			}
 			else {
 				return null;  // non-constant and constant; we don't know
 			}
 		}
-		else if (isConstantPredicate.apply(expression2)) {
+		else if (isUniquelyNamedConstantPredicate.apply(expression2)) {
 			return null; // non-constant and constant; we don't know
 		}
 		else if (expression1.equals(expression2)) {
@@ -139,7 +139,7 @@ public class Equality extends AbstractRewriter {
 	 */
 	public static Expression makeSureFirstArgumentIsNotAConstant(Expression twoArgumentEquality, RewritingProcess process) {
 		Expression result = twoArgumentEquality;
-		if (process.isConstant(twoArgumentEquality.get(0))) {
+		if (process.isUniquelyNamedConstant(twoArgumentEquality.get(0))) {
 			result = make(twoArgumentEquality.get(1), twoArgumentEquality.get(0));
 		}
 		return result;
@@ -185,7 +185,7 @@ public class Equality extends AbstractRewriter {
 		if (term1.equals(term2)) {
 			result = Expressions.TRUE;
 		}
-		else if (process.isConstant(term1) && process.isConstant(term2)) {
+		else if (process.isUniquelyNamedConstant(term1) && process.isUniquelyNamedConstant(term2)) {
 			result = Expressions.FALSE;
 		}
 		else {
@@ -209,7 +209,7 @@ public class Equality extends AbstractRewriter {
 		Expression constant = null;
 		
 		for (Expression argument : arguments) {
-			if (process.isConstant(argument)) {
+			if (process.isUniquelyNamedConstant(argument)) {
 				if (constant == null) {
 					constant = argument;
 				}
@@ -280,11 +280,11 @@ public class Equality extends AbstractRewriter {
 		Pair<List<Expression>, Expression> result;
 		List<Expression> variables = new LinkedList<Expression>();
 		List<Expression> constants = new LinkedList<Expression>();
-		Predicate<Expression> notIsConstant = Predicates.not(process.getIsConstantPredicate());
+		Predicate<Expression> notIsConstant = Predicates.not(process.getIsUniquelyNamedConstantPredicate());
 		Util.collectOrReturnFalseIfElementDoesNotFitEither(
 				equality.getArguments(),
 				variables, notIsConstant,
-				constants, process.getIsConstantPredicate());
+				constants, process.getIsUniquelyNamedConstantPredicate());
 		if (constants.isEmpty()) {
 			result = null;
 		}
@@ -303,11 +303,11 @@ public class Equality extends AbstractRewriter {
 		Pair<Set<Expression>, Set<Expression>> result;
 		Set<Expression> variables = new LinkedHashSet<Expression>();
 		Set<Expression> constants = new LinkedHashSet<Expression>();
-		Predicate<Expression> notIsConstant = Predicates.not(process.getIsConstantPredicate());
+		Predicate<Expression> notIsConstant = Predicates.not(process.getIsUniquelyNamedConstantPredicate());
 		Util.collectOrReturnFalseIfElementDoesNotFitEither(
 				equality.getArguments(),
 				variables, notIsConstant,
-				constants, process.getIsConstantPredicate());
+				constants, process.getIsUniquelyNamedConstantPredicate());
 		result = Pair.make(variables, constants);
 		return result;
 	}
@@ -338,8 +338,8 @@ public class Equality extends AbstractRewriter {
 	 */
 	public static Expression normalize(Expression expression, RewritingProcess process) {
 		if (expression.numberOfArguments() == 2
-				&& process.isConstant(expression.get(0))) {
-			if ( ! process.isConstant(expression.get(1))) {
+				&& process.isUniquelyNamedConstant(expression.get(0))) {
+			if ( ! process.isUniquelyNamedConstant(expression.get(1))) {
 				Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), expression.get(1), expression.get(0));
 				return result;
 			}
@@ -467,7 +467,7 @@ public class Equality extends AbstractRewriter {
 		else {
 			Set<Expression> constants = new LinkedHashSet<Expression>();
 			Set<Expression> nonConstants = new LinkedHashSet<Expression>();
-			Util.collect(equality.getArguments(), constants, process.getIsConstantPredicate(), nonConstants);
+			Util.collect(equality.getArguments(), constants, process.getIsUniquelyNamedConstantPredicate(), nonConstants);
 			if (constants.size() > 1) {
 				result = Expressions.FALSE;
 			}

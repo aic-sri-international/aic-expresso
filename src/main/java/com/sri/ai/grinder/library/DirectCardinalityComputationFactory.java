@@ -126,19 +126,19 @@ public class DirectCardinalityComputationFactory {
 		
 		Map<Expression, Expression> contextualSymbolsAndTypes = null;
 		Expression contextualConstraint                           = null;
-		Predicate<Expression> isConstantPredicate                 = null;
+		Predicate<Expression> isUniquelyNamedConstantPredicate                 = null;
 		Map<Object, Object>   globalObjects                       = null;
 		
 		if (parentProcess != null) {
 			contextualSymbolsAndTypes = parentProcess.getContextualSymbolsAndTypes();
 			contextualConstraint          = parentProcess.getContextualConstraint();
-			isConstantPredicate           = parentProcess.getIsConstantPredicate();
+			isUniquelyNamedConstantPredicate           = parentProcess.getIsUniquelyNamedConstantPredicate();
 			globalObjects                 = parentProcess.getGlobalObjects();
 		}
 		else {
 			contextualSymbolsAndTypes = new LinkedHashMap<Expression, Expression>();
 			contextualConstraint          = Expressions.TRUE;
-			isConstantPredicate           = new PrologConstantPredicate();
+			isUniquelyNamedConstantPredicate           = new PrologConstantPredicate();
 			globalObjects                 = new LinkedHashMap<Object, Object>();
 		}
 		
@@ -148,7 +148,7 @@ public class DirectCardinalityComputationFactory {
 				cardinalityRewriterLookup,
 				contextualSymbolsAndTypes,
 				contextualConstraint,
-				isConstantPredicate,
+				isUniquelyNamedConstantPredicate,
 				globalObjects);
 
 		return cardinalityProcess;

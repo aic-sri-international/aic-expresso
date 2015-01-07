@@ -253,7 +253,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 	 * Indicates whether variable is chosen after otherTerm in model counting choosing ordering.
 	 */
 	private static boolean variableIsChosenAfterOtherTerm(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
-		boolean result = process.isConstant(otherTerm) || variableIsChosenAfterOtherVariable(otherTerm, variable, indices);
+		boolean result = process.isUniquelyNamedConstant(otherTerm) || variableIsChosenAfterOtherVariable(otherTerm, variable, indices);
 		return result;
 	}
 
@@ -746,7 +746,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 
 		private boolean representativesAreExplicitlyConstrainedToBeDisequal(Expression representative1, Expression representative2, RewritingProcess process) {
 			boolean result = false;
-			if (process.isConstant(representative1) && process.isConstant(representative2)) {
+			if (process.isUniquelyNamedConstant(representative1) && process.isUniquelyNamedConstant(representative2)) {
 				result = ! representative1.equals(representative2);
 			}
 			else if (getDisequals(representative1).contains(representative2)) {

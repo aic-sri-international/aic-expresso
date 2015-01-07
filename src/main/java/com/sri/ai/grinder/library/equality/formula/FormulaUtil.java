@@ -183,7 +183,7 @@ public class FormulaUtil {
 		
 		// Note: the corresponding paper describes a legal constant as being finite but in the
 		// implementation we will allow all constants (including numbers).
-		if (process.isConstant(expression)) {
+		if (process.isUniquelyNamedConstant(expression)) {
 			result = true;
 		}
 		
@@ -202,7 +202,7 @@ public class FormulaUtil {
 	public static boolean isFiniteConstant(Expression expression, RewritingProcess process) {
 		boolean result = false;
 		
-		if (process.isConstant(expression)) {
+		if (process.isUniquelyNamedConstant(expression)) {
 			// if a constant we know its a symbol at least
 			Object value = expression.getValue();
 			// We only consider string or boolean values to be finite.
@@ -237,7 +237,7 @@ public class FormulaUtil {
 			Expression expression = subExpressionsIterator.next();
 			if (Equality.isEquality(expression) || Disequality.isDisequality(expression)) {
 				for (Expression term : expression.getArguments()) {
-					if (process.isConstant(term)) {
+					if (process.isUniquelyNamedConstant(term)) {
 						consts.add(term);
 					}
 				}

@@ -70,8 +70,8 @@ public class Unification {
 		
 		Expression functorOrSymbol1 = expression1.getFunctorOrSymbol();
 		Expression functorOrSymbol2 = expression2.getFunctorOrSymbol();
-		boolean functorOrSymbol1IsConstant = process.isConstant(functorOrSymbol1);
-		boolean functorOrSymbol2IsConstant = process.isConstant(functorOrSymbol2);
+		boolean functorOrSymbol1IsConstant = process.isUniquelyNamedConstant(functorOrSymbol1);
+		boolean functorOrSymbol2IsConstant = process.isUniquelyNamedConstant(functorOrSymbol2);
 		List<Expression> conjuncts = new LinkedList<Expression>();
 		// If they are the same, the functor constraint is just true, 
 		// so does not need to be taken.

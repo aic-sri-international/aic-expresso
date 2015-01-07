@@ -97,7 +97,7 @@ public class Disequality extends AbstractRewriter {
 		else {
 			Set<Expression> constants = new LinkedHashSet<Expression>();
 			Set<Expression> nonConstants = new LinkedHashSet<Expression>();
-			Util.collect(disequality.getArguments(), constants, process.getIsConstantPredicate(), nonConstants);
+			Util.collect(disequality.getArguments(), constants, process.getIsUniquelyNamedConstantPredicate(), nonConstants);
 			if (constants.size() > 1) {
 				result = Expressions.TRUE;
 			}
@@ -162,8 +162,8 @@ public class Disequality extends AbstractRewriter {
 	 * Returns X != c, if 'expression' is c != X, for X a variable and c a constant, or 'expression' otherwise. 
 	 */
 	public static Expression normalize(Expression expression, RewritingProcess process) {
-		if (process.isConstant(expression.get(0))) {
-			if ( ! process.isConstant(expression.get(1))) {
+		if (process.isUniquelyNamedConstant(expression.get(0))) {
+			if ( ! process.isUniquelyNamedConstant(expression.get(1))) {
 				Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(expression.getFunctor(), expression.get(1), expression.get(0));
 				return result;
 			}

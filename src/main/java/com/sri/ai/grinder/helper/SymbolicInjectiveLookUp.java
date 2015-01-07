@@ -242,8 +242,8 @@ public class SymbolicInjectiveLookUp {
 				Expression argumentFromExpression = argumentsFromIntensionalSetHeadIterator.next();
 				Expression argumentFromIntensionalSetHead = argumentsFromExpressionIterator.next();
 
-				if (process.isConstant(argumentFromExpression)) {
-					if (process.isConstant(argumentFromIntensionalSetHead)) {
+				if (process.isUniquelyNamedConstant(argumentFromExpression)) {
+					if (process.isUniquelyNamedConstant(argumentFromIntensionalSetHead)) {
 						if ( ! argumentFromExpression.equals(argumentFromIntensionalSetHead)) {
 							return result; // two distinct constants, no possible match
 						}

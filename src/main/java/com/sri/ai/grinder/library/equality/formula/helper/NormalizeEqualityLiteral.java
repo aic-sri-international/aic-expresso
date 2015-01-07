@@ -99,7 +99,7 @@ public class NormalizeEqualityLiteral extends AbstractRewriter {
 				}
 				else {
 					// a = b  -> false
-					if (process.isConstant(expression.get(0)) && process.isConstant(expression.get(1))) {
+					if (process.isUniquelyNamedConstant(expression.get(0)) && process.isUniquelyNamedConstant(expression.get(1))) {
 						result = Expressions.FALSE;
 					}
 				}

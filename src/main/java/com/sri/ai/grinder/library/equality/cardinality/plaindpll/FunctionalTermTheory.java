@@ -56,7 +56,7 @@ public class FunctionalTermTheory implements TermTheory {
 
 	@Override
 	public boolean isTerm(Expression expression, RewritingProcess process) {
-		boolean result = process.isConstant(expression) || isVariableOrFunctionApplication(expression, process);
+		boolean result = process.isUniquelyNamedConstant(expression) || isVariableOrFunctionApplication(expression, process);
 		return result;
 	}
 
@@ -85,7 +85,7 @@ public class FunctionalTermTheory implements TermTheory {
 		boolean result =
 				isTerm(expression, process)
 				&&
-				! process.isConstant(expression);
+				! process.isUniquelyNamedConstant(expression);
 		return result;
 	}
 

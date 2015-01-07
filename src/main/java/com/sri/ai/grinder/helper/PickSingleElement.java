@@ -358,7 +358,7 @@ public class PickSingleElement {
 		Expression result = null;
 		
 		for (Expression possibleValue : extractPossibleValuesForXFromFormula(variableX, formula, process)) {
-			if (process.isConstant(possibleValue)) {
+			if (process.isUniquelyNamedConstant(possibleValue)) {
 				result = possibleValue;
 			} 
 			else {
