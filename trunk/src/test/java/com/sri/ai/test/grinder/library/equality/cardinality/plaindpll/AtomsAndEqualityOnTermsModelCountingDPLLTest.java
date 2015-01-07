@@ -89,39 +89,39 @@ public class AtomsAndEqualityOnTermsModelCountingDPLLTest extends AbstractSymbol
 		expression = parse("atom(X) or not atom(X)");
 		indices    = list();
 		expected   = parse("1");
-		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("Everything -> Boolean"));
 		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 
 		expression = parse("atom(X) or not atom(Y)");
 		indices    = list();
 		expected   = parse("if atom(X) then 1 else if atom(Y) then 0 else 1");
-		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("Everything -> Boolean"));
 		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 
 		expression = parse("X = Y and (atom(X) or not atom(Y))");
 		indices    = list();
 		expected   = parse("if X = Y then 1 else 0");
-		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("Everything -> Boolean"));
 		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 
 		expression = parse("X = Y => (atom(X) or not atom(Y))");
 		indices    = list();
 		expected   = parse("1");
-		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("Everything -> Boolean"));
 		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 
 		// tests whether equalities on boolean atoms still work; 
 		expression = parse("X = Y => (atom(X) = true or atom(Y) = false)");
 		indices    = list();
 		expected   = parse("1");
-		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("Everything -> Boolean"));
 		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 
 		// tests whether equalities on boolean atoms work while mixed with regular atom use 
 		expression = parse("X = Y => (atom(X) or atom(Y) = false)");
 		indices    = list();
 		expected   = parse("1");
-		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("Everything -> Boolean"));
 		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 
 		// binary atom
