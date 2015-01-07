@@ -166,7 +166,8 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		Expression result = null;
 		if (expression.hasFunctor(FunctorConstants.EQUALITY) || expression.hasFunctor(FunctorConstants.DISEQUALITY)) {
 			// remember that equality can have an arbitrary number of terms
-			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), e -> termTheory.isVariableTerm(e, process));
+			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), 
+					e -> termTheory.isVariableTerm(e, process));
 			if (variable != null) {
 				Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), e -> ! e.equals(variable) && termTheory.isTerm(e, process));
 				if (otherTerm != null) {

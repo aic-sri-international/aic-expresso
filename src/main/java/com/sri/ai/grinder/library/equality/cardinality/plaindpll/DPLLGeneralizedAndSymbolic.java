@@ -139,7 +139,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
 	 */
-	protected Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process) {
+	public Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		Constraint constraint = theory.makeConstraint(indices);
 		// TODO: should replace this oldConstraint by a copy constructor creating a sub-process, but surprisingly there is no complete copy constructor available in DefaultRewritingProcess.
 		Theory.Constraint oldConstraint = process.getDPLLContextualConstraint();
