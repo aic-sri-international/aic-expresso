@@ -72,26 +72,11 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	private ImmutableList<Expression> cachedIndices;
 
 	public DefaultExpressionAndContext(Expression expression) {
-		this(expression, Util.<Integer>list());
-	}
-	
-	public DefaultExpressionAndContext(Expression expression, List<Integer> path) {
-		this(expression, path, new DefaultIndexExpressionsSet(Collections.emptyList()), Expressions.TRUE);
-		// DELETE WHEN SYNTAX-TREE-BASED EXPRESSIONS ARE DISCARDED
+		this(expression, SyntaxTreeBasedSubExpressionAddress.get(Util.<Integer>list()));
 	}
 	
 	public DefaultExpressionAndContext(Expression expression, SubExpressionAddress path) {
 		this(expression, path, new DefaultIndexExpressionsSet(Collections.emptyList()), Expressions.TRUE);
-	}
-	
-	public DefaultExpressionAndContext(Expression expression, List<Integer> path, IndexExpressionsSet indexExpressions, Expression constrainingCondition) {
-		this.expression            = expression;
-		this.address               = SyntaxTreeBasedSubExpressionAddress.get(path);
-		this.indexExpressions      = new DefaultIndexExpressionsSet(indexExpressions);
-		this.constrainingCondition = constrainingCondition;
-
-		this.cachedIndices         = null;
-		// DELETE WHEN SYNTAX-TREE-BASED EXPRESSIONS ARE DISCARDED
 	}
 	
 	public DefaultExpressionAndContext(Expression expression, SubExpressionAddress address, IndexExpressionsSet indexExpressions, Expression constrainingCondition) {
@@ -148,75 +133,5 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	@Override
 	public String toString() {
 		return getExpression() + " at " + getAddress() + " with quantified variables " + getIndices() + " and constraining condition " + getConstrainingCondition();
-	}
-	
-	public static FunctionIterator<Pair<Expression, List<Integer>>, ExpressionAndContext> makeExpressionAndContextIteratorFromPairs(
-			PairIterator<Expression, List<Integer>> expressionAndPathPairsIterator) {
-		return new FunctionIterator<Pair<Expression, List<Integer>>, ExpressionAndContext>(
-				new MakerFromExpressionAndPathPair(new DefaultIndexExpressionsSet(Collections.emptyList())),
-				expressionAndPathPairsIterator);
-	}
-
-	/**
-	 * A function mapping lists of two elements, an expression and a path,
-	 * to the corresponding knowledge-based sub-expression.
-	 */
-	public static class MakerFromExpressionAndPathList implements Function<List<Object>, ExpressionAndContext> {
-		private IndexExpressionsSet indexExpressions;
-		
-		public MakerFromExpressionAndPathList(IndexExpressionsSet indexExpressions) {
-			this.indexExpressions    = indexExpressions;
-		}
-		
-		@Override
-		public ExpressionAndContext apply(List<Object> expressionAndPath) {
-			Expression expression = (Expression) expressionAndPath.get(0);
-			@SuppressWarnings("unchecked")
-			List<Integer> path    = (List<Integer>) expressionAndPath.get(1);
-			DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, path, indexExpressions, Expressions.TRUE);
-			return result;
-		}
-	}
-	
-	/**
-	 * A function mapping lists of two elements, a syntax tree and a path,
-	 * to the corresponding knowledge-based sub-expression.
-	 */
-	public static class MakerFromSyntaxTreeAndPathList implements Function<List<Object>, ExpressionAndContext> {
-		private IndexExpressionsSet indexExpressions;
-		
-		public MakerFromSyntaxTreeAndPathList(IndexExpressionsSet indexExpressions) {
-			this.indexExpressions    = indexExpressions;
-		}
-		
-		@Override
-		public ExpressionAndContext apply(List<Object> syntaxTreeAndPath) {
-			SyntaxTree syntaxTree = (SyntaxTree) syntaxTreeAndPath.get(0);
-			Expression expression = Expressions.makeFromSyntaxTree(syntaxTree);
-			@SuppressWarnings("unchecked")
-			List<Integer> path    = (List<Integer>) syntaxTreeAndPath.get(1);
-			DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, path, indexExpressions, Expressions.TRUE);
-			return result;
-		}
-	}
-	
-	/**
-	 * A function mapping pairs of expression and path
-	 * to the corresponding knowledge-based sub-expression.
-	 */
-	public static class MakerFromExpressionAndPathPair implements Function<Pair<Expression, List<Integer>>, ExpressionAndContext> {
-		private IndexExpressionsSet       indexExpressions;
-		
-		public MakerFromExpressionAndPathPair(IndexExpressionsSet indexExpressions) {
-			this.indexExpressions    = indexExpressions;
-		}
-		
-		@Override
-		public ExpressionAndContext apply(Pair<Expression, List<Integer>> expressionAndPath) {
-			Expression    expression = expressionAndPath.first;
-			List<Integer> path       = expressionAndPath.second;
-			DefaultExpressionAndContext result = new DefaultExpressionAndContext(expression, path, indexExpressions, Expressions.TRUE);
-			return result;
-		}
 	}
 }
