@@ -52,6 +52,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
@@ -77,14 +78,14 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 	private SyntaxTree cachedSyntaxTree;
 	private List<ExpressionAndContext> cachedSubExpressionsAndContext;
 
-	public AbstractQuantifiedExpressionWithABody(List<Expression> indexExpressions, Expression body) {
+	public AbstractQuantifiedExpressionWithABody(IndexExpressionsSet indexExpressions, Expression body) {
 		super(indexExpressions);
 		this.body = body;
 		cachedSubExpressionsAndContext = makeImmediateSubExpressionsAndContexts();
 		cachedSyntaxTree = makeSyntaxTree();
 	}
 
-	public abstract AbstractQuantifiedExpressionWithABody make(List<Expression> indexExpressions, Expression body);
+	public abstract AbstractQuantifiedExpressionWithABody make(IndexExpressionsSet indexExpressions, Expression body);
 
 	public abstract String getSyntaxTreeLabel();
 
@@ -134,7 +135,7 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 	}
 
 	@Override
-	public AbstractQuantifiedExpression setIndexExpressions(List<Expression> newIndexExpressions) {
+	public AbstractQuantifiedExpression setIndexExpressions(IndexExpressionsSet newIndexExpressions) {
 		AbstractQuantifiedExpression result;
 		if (newIndexExpressions != getIndexExpressions()) {
 			result = make(newIndexExpressions, getBody());
@@ -145,6 +146,11 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 		return result;
 	}
 
+	@Override
+	public AbstractQuantifiedExpression setIndexExpressions(List<Expression> newIndexExpressions) {
+		return setIndexExpressions(new DefaultIndexExpressionsSet(newIndexExpressions));
+	}
+	
 	@Override
 	public AbstractQuantifiedExpressionWithABody setBody(Expression newBody) {
 		AbstractQuantifiedExpressionWithABody result;
@@ -162,7 +168,7 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 		AbstractQuantifiedExpression result = this;
 		
 		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, process);
-		List<Expression> newIndexExpressions = replaceElementsNonDestructively(getIndexExpressions(), renameSymbol);
+		IndexExpressionsSet newIndexExpressions = new DefaultIndexExpressionsSet(replaceElementsNonDestructively(getIndexExpressions(), renameSymbol));
 		
 		Expression newBody = getBody().renameSymbol(symbol, newSymbol, process);
 		
@@ -171,7 +177,7 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 		return result;
 	}
 
-	private AbstractQuantifiedExpression replaceIfNeeded(List<Expression> newIndexExpression, Expression newBody) {
+	private AbstractQuantifiedExpression replaceIfNeeded(IndexExpressionsSet newIndexExpression, Expression newBody) {
 		AbstractQuantifiedExpression result = this;
 		if (newIndexExpression != getIndexExpressions() || newBody != getBody()) {
 			result = make(newIndexExpression, newBody);

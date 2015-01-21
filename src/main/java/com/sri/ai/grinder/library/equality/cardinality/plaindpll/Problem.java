@@ -46,7 +46,7 @@ import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.Constrai
 /**
  * A symbolic generalized DPLL (@link {AbstractPlainDPLL}) problem of the form sum_{I : C} E.
  * Instances must be immutable.
- * Indices types are supposed to be available at the {@link RewritingProcess} at solving time.
+ * IndexExpressionsSet types are supposed to be available at the {@link RewritingProcess} at solving time.
  *
  * @author braz
  */

@@ -51,7 +51,9 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultLambdaExpression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.FunctionSignature;
@@ -423,7 +425,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	
 	protected Expression makeIntensionalSet(Object label, Token scope, List<AntlrGrinderParser.ExprContext> scopeargs, 
 			AntlrGrinderParser.ExprContext head, AntlrGrinderParser.ExprContext condition) {
-		List<Expression> indexExpressions = Collections.emptyList();
+		IndexExpressionsSet indexExpressions = new DefaultIndexExpressionsSet(Collections.emptyList());
 		if (scope != null) {
 			indexExpressions = expressionsList(scopeargs);
 		}
@@ -459,12 +461,12 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		return result.toArray();
 	}
 	
-	protected List<Expression> expressionsList(List<AntlrGrinderParser.ExprContext> exprContexts) {
-		List<Expression> result = new ArrayList<Expression>();
+	protected IndexExpressionsSet expressionsList(List<AntlrGrinderParser.ExprContext> exprContexts) {
+		List<Expression> indexExpressions = new ArrayList<Expression>();
 		for (AntlrGrinderParser.ExprContext exprContext : exprContexts) {
-			result.add(visit(exprContext));
+			indexExpressions.add(visit(exprContext));
 		}
-		return result;
+		return new DefaultIndexExpressionsSet(indexExpressions);
 	}
 	
 	protected Expression possiblyFlatten(Expression expression) {

@@ -41,6 +41,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 
 /**
@@ -53,8 +54,12 @@ public class DefaultIntensionalUniSet extends AbstractIntensionalSet implements 
 
 	private static final long serialVersionUID = 1L;
 	
-	public DefaultIntensionalUniSet(List<Expression> indexExpressions, Expression head, Expression condition) {
+	public DefaultIntensionalUniSet(IndexExpressionsSet indexExpressions, Expression head, Expression condition) {
 		super(indexExpressions, head, condition);
+	}
+
+	public DefaultIntensionalUniSet(List<Expression> indexExpressionsList, Expression head, Expression condition) {
+		this(new DefaultIndexExpressionsSet(indexExpressionsList), head, condition);
 	}
 
 	@Override
@@ -73,7 +78,7 @@ public class DefaultIntensionalUniSet extends AbstractIntensionalSet implements 
 	}
 
 	@Override
-	public DefaultIntensionalUniSet make(List<Expression> indexExpressions, Expression head, Expression condition) {
+	public DefaultIntensionalUniSet make(IndexExpressionsSet indexExpressions, Expression head, Expression condition) {
 		return new DefaultIntensionalUniSet(indexExpressions, head, condition);
 	}
 

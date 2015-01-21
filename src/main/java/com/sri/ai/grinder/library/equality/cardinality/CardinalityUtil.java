@@ -50,8 +50,10 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
 import com.sri.ai.expresso.helper.Expressions;
@@ -159,7 +161,7 @@ public class CardinalityUtil {
 	public static Expression makeCardinalityOfIndexedFormulaExpression(Expression formulaF, Expression... indexExpressions) {
 		Expression result = null;
 		
-		List<Expression> indexExpressionsList  = Arrays.asList(indexExpressions);
+		IndexExpressionsSet indexExpressionsList  = new DefaultIndexExpressionsSet(Arrays.asList(indexExpressions));
 		
 		List<Expression> indicesList  = IndexExpressions.getIndices(indexExpressionsList);
 		Expression       indicesTuple = Tuple.make(indicesList);
@@ -242,7 +244,7 @@ public class CardinalityUtil {
 	 * makes expression of the form | D1 | * ... * | Dn |,
 	 * assuming Di to be "type(Xi)" if the index expression is Xi alone.
 	 */
-	public static Expression makeCardinalityOfIndexExpressions(List<Expression> indexExpressions) {
+	public static Expression makeCardinalityOfIndexExpressions(IndexExpressionsSet indexExpressions) {
 		// TODO: When ALBP-119 is resolved, we will be able to take the type of the variable from the quantified expression.
 		Expression result = Expressions.ONE;
 		if ( indexExpressions.size() > 0 ) {
@@ -263,6 +265,10 @@ public class CardinalityUtil {
 		return result;
 	}
 	
+	public static Expression makeCardinalityOfIndexExpressions(List<Expression> indexExpressions) {
+		return makeCardinalityOfIndexExpressions(new DefaultIndexExpressionsSet(indexExpressions));
+	}
+	
 	/**
 	 * Make an expression of the form: sum_{x: Cx} S.
 	 * 
@@ -278,7 +284,7 @@ public class CardinalityUtil {
 	public static Expression makeSummationExpression(Expression indexX, Expression constraintsOnX, Expression countingSolutionS) {
 		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(
 				FunctorConstants.SUM,
-				new DefaultIntensionalMultiSet(list(indexX), countingSolutionS, constraintsOnX));
+				new DefaultIntensionalMultiSet(new DefaultIndexExpressionsSet(list(indexX)), countingSolutionS, constraintsOnX));
 		return result;
 	}
 	
@@ -525,7 +531,7 @@ public class CardinalityUtil {
 	 *         from F that are partitioned by these indices. Note: if there
 	 *         are no independent problems an empty list will be returned.
 	 */
-	public static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblemsInConjunction(Expression f, List<Expression> indexExpressions, RewritingProcess process) {
+	public static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblemsInConjunction(Expression f, IndexExpressionsSet indexExpressions, RewritingProcess process) {
 		List<Pair<Set<Expression>, List<Expression>>> result = null;
 		if ( isConjunctionOrImpliedConjunction(f, process) ) {
 			List<Expression> conjuncts = And.getConjuncts(f);
@@ -535,6 +541,10 @@ public class CardinalityUtil {
 			result = new ArrayList<Pair<Set<Expression>, List<Expression>>>(); // FIXME: wouldn't it more efficient just to return null? Why construct a list?
 		}
 		return result;
+	}
+	
+	public static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblemsInConjunction(Expression f, List<Expression> indexExpressions, RewritingProcess process) {
+		return findIndependentProblemsInConjunction(f, new DefaultIndexExpressionsSet(indexExpressions), process);
 	}
 	
 	/**
@@ -572,7 +582,7 @@ public class CardinalityUtil {
 	 *         the first partition may be one with no indices. If the first partition
 	 *         has no indices, then there will be at most 2 other partitions with indices.
 	 */
-	public static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblemsInDisjunction(Expression f, List<Expression> indexExpressions, RewritingProcess process) {
+	public static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblemsInDisjunction(Expression f, IndexExpressionsSet indexExpressions, RewritingProcess process) {
 		List<Pair<Set<Expression>, List<Expression>>> result = null;
 		if ( Or.isDisjunction(f) ) {
 			List<Expression> subFormulas = new ArrayList<Expression>();
@@ -632,6 +642,10 @@ public class CardinalityUtil {
 			result = new ArrayList<Pair<Set<Expression>, List<Expression>>>();
 		}
 		return result;
+	}
+	
+	public static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblemsInDisjunction(Expression f, List<Expression> indexExpressions, RewritingProcess process) {
+		return findIndependentProblemsInDisjunction(f, new DefaultIndexExpressionsSet(indexExpressions), process);
 	}
 	
 	/**
@@ -899,7 +913,7 @@ public class CardinalityUtil {
 		if (quantification == Quantification.THERE_EXISTS && everyLeafIsConstantGreaterThanZero(n1)) {
 			Trace.log("if quantification is \"there exists\" and every leaf of N1 is a numeric constant > 0 // same as R_normalize(N1 > 0) is \"true\"");
 			Trace.log("    return || X ||");
-			result = process.rewrite(CardinalityRewriter.R_normalize, CardinalityUtil.makeCardinalityOfIndexExpressions(Arrays.asList(indicesX)));
+			result = process.rewrite(CardinalityRewriter.R_normalize, CardinalityUtil.makeCardinalityOfIndexExpressions(new DefaultIndexExpressionsSet(Arrays.asList(indicesX))));
 		}
 		else {
 			Trace.log("N2 <- R_card(| G2 |_X, quantification)");
@@ -908,7 +922,7 @@ public class CardinalityUtil {
 			if (quantification == Quantification.THERE_EXISTS && everyLeafIsConstantGreaterThanZero(n2)) {
 				Trace.log("if quantification is \"there exists\" and every leaf of N2 is a numeric constant > 0 // same as R_normalize(N2 > 0) is \"true\"");
 				Trace.log("    return || X ||");
-				result = process.rewrite(CardinalityRewriter.R_normalize, CardinalityUtil.makeCardinalityOfIndexExpressions(Arrays.asList(indicesX)));
+				result = process.rewrite(CardinalityRewriter.R_normalize, CardinalityUtil.makeCardinalityOfIndexExpressions(new DefaultIndexExpressionsSet(Arrays.asList(indicesX))));
 			}
 			else {
 				Trace.log("return R_normalize(N1 + N2)");
@@ -1005,7 +1019,7 @@ public class CardinalityUtil {
 	//
 	// PRIVATE
 	//
-	protected  static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblems(List<Expression> conjuncts, List<Expression> indexExpressions, RewritingProcess process) {
+	protected  static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblems(List<Expression> conjuncts, IndexExpressionsSet indexExpressions, RewritingProcess process) {
 		// indices and corresponding conjuncts
 		List<Pair<Set<Expression>, List<Expression>>> result = new ArrayList<Pair<Set<Expression>, List<Expression>>>();
 		

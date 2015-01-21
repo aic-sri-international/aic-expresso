@@ -35,49 +35,19 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
+package com.sri.ai.expresso.api;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.ONE;
-import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import java.util.List;
 
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
-import com.sri.ai.util.base.Pair;
+import com.google.common.annotations.Beta;
 
 /**
- * Satisfiability uses the boolean semi-ring and does not boolean formulas
- * (applies the semi-ring additive operation, disjunction, directly on them).
+ * Represents an immutable set of index expressions of a {@link QuantifiedExpression}.
+ * The representation may be either extensional or intensional or a mix (by using a union of sets).
  * 
  * @author braz
- *
  */
-public class ModelCounting extends AbstractProblemType {
+@Beta
+public interface IndexExpressionsSet extends List<Expression> {
 
-	public ModelCounting() {
-		super(new SymbolicNumberSemiRing());
-	}
-	
-	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
-	@Override
-	public Expression fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression expression) {
-		return IfThenElse.make(expression, ONE, ZERO);
-	}
-
-	@Override
-	public Expression expressionValueLeadingToAdditiveIdentityElement() {
-		return FALSE;
-	}
-
-	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		CardinalityUtil.assertIsCardinalityOfIndexedFormulaExpression(expression);
-		IntensionalSet set = (IntensionalSet) expression.get(0);
-		Pair<Expression, IndexExpressionsSet> result = Pair.make(set.getCondition(), set.getIndexExpressions());
-		return result;
-	}
 }

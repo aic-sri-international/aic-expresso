@@ -41,6 +41,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.UniversallyQuantifiedFormula;
 import com.sri.ai.grinder.library.boole.ForAll;
 
@@ -54,8 +55,12 @@ public class DefaultUniversallyQuantifiedFormula extends AbstractQuantifiedExpre
 
 	private static final long serialVersionUID = 1L;
 	
-	public DefaultUniversallyQuantifiedFormula(List<Expression> indexExpressions, Expression body) {
+	public DefaultUniversallyQuantifiedFormula(IndexExpressionsSet indexExpressions, Expression body) {
 		super(indexExpressions, body);
+	}
+
+	public DefaultUniversallyQuantifiedFormula(List<Expression> indexExpressions, Expression body) {
+		this(new DefaultIndexExpressionsSet(indexExpressions), body);
 	}
 
 	@Override
@@ -69,7 +74,7 @@ public class DefaultUniversallyQuantifiedFormula extends AbstractQuantifiedExpre
 	}
 
 	@Override
-	public AbstractQuantifiedExpressionWithABody make(List<Expression> indexExpressions, Expression body) {
+	public AbstractQuantifiedExpressionWithABody make(IndexExpressionsSet indexExpressions, Expression body) {
 		AbstractQuantifiedExpressionWithABody result = new DefaultUniversallyQuantifiedFormula(indexExpressions, body);
 		return result;
 	}

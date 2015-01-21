@@ -81,7 +81,7 @@ public class ExpressionsTest extends AbstractGrinderTest {
 		expression = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(functor, 1, 2, 3);
 		assertSame(functor, expression.getFunctor());
 //		
-//		List<Expression> indexExpressions = Util.list(Expressions.apply(FunctorConstants.IN, "X", "Domain"), Expressions.apply(FunctorConstants.IN, "Y", "Domain"));
+//		IndexExpressionsSet indexExpressions = Util.list(Expressions.apply(FunctorConstants.IN, "X", "Domain"), Expressions.apply(FunctorConstants.IN, "Y", "Domain"));
 //		Expression body = Equality.make("X", "Y");
 //		expression = ThereExists.make(indexExpressions, body);
 //		// multiple index expressions create nested "there exists" expressions

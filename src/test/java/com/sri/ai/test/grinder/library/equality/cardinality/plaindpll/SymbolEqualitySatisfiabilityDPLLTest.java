@@ -47,6 +47,7 @@ import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -225,7 +226,7 @@ public class SymbolEqualitySatisfiabilityDPLLTest extends AbstractSymbolicSymbol
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 	}
 
-	protected Expression makeProblem(Expression expression, List<Expression> indexExpressions) {
+	protected Expression makeProblem(Expression expression, IndexExpressionsSet indexExpressions) {
 		Expression problem = new DefaultExistentiallyQuantifiedFormula(indexExpressions, expression);
 		return problem;
 	}

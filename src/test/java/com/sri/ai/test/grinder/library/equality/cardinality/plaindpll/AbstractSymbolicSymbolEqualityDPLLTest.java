@@ -57,7 +57,9 @@ import org.junit.Assert;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -85,7 +87,7 @@ public abstract class AbstractSymbolicSymbolEqualityDPLLTest {
 
 	protected abstract Rewriter makeRewriter();
 
-	protected abstract Expression makeProblem(Expression expression, List<Expression> indexExpressions);
+	protected abstract Expression makeProblem(Expression expression, IndexExpressionsSet indexExpressions);
 
 	protected static final Expression everythingType = makeSymbol("Everything");
 
@@ -161,11 +163,12 @@ public abstract class AbstractSymbolicSymbolEqualityDPLLTest {
 			process.putGlobalObject(everythingCardinality, DEFAULT_EVERYTHING_CARDINALITY_VALUE);
 		}
 		
-		List<Expression> indexExpressions =
+		IndexExpressionsSet indexExpressions =
+				new DefaultIndexExpressionsSet(
 				indices
 				.stream()
 				.map(index -> makeIndexExpression(index, everythingType))
-				.collect(toArrayList(indices.size()));
+				.collect(toArrayList(indices.size())));
 		
 		Rewriter rewriter = makeRewriter();
 		Expression problem = makeProblem(expression, indexExpressions);

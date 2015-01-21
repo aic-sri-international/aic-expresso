@@ -97,7 +97,7 @@ public interface IntensionalSet extends QuantifiedExpression {
 	 */
 	public Expression setHeadAndCondition(Expression head, Expression newCondition);
 
-	public static Expression make(Object label, List<Expression> indexExpressions, Expression head, Expression condition) {
+	public static Expression make(Object label, IndexExpressionsSet indexExpressions, Expression head, Expression condition) {
 		Expression result;
 		if (label.equals(UNI_SET_LABEL)) {
 			result = new DefaultIntensionalUniSet(indexExpressions, head, condition);

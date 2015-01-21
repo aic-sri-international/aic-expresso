@@ -44,6 +44,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
@@ -115,9 +116,9 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Pair<Expression, List<Expression>> formulaAndIndexExpressions = problemType.getExpressionAndIndexExpressionsFromRewriterProblemArgument(expression, process);
+		Pair<Expression, IndexExpressionsSet> formulaAndIndexExpressions = problemType.getExpressionAndIndexExpressionsFromRewriterProblemArgument(expression, process);
 		Expression       formula          = formulaAndIndexExpressions.first;
-		List<Expression> indexExpressions = formulaAndIndexExpressions.second;
+		IndexExpressionsSet indexExpressions = formulaAndIndexExpressions.second;
 		Expression       simplifiedFormula = theory.simplify(formula, process); // eventually this will should not be needed as simplification should be lazy 
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);

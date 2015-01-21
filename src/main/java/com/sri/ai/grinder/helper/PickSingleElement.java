@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
@@ -62,10 +64,11 @@ public class PickSingleElement {
 		intensionalSet = process.rewrite(eliminatesBoundIndices, intensionalSet);
 		
 		Expression       alpha       = ((IntensionalSet) intensionalSet).getHead();
-		List<Expression> indexExpressions = ((IntensionalSet) intensionalSet).getIndexExpressions();
+		IndexExpressionsSet indexExpressionsSet = ((IntensionalSet) intensionalSet).getIndexExpressions();
+		List<Expression> indexExpressions = new ArrayList<Expression>(indexExpressionsSet);
 		Trace.log("R <- indices in {} that {} depends on", indexExpressions, alpha);
 		Set<Expression>  alphaVars   = Expressions.freeVariables(alpha, process);
-		List<Expression> indicesI    = new ArrayList<Expression>(IndexExpressions.getIndices(indexExpressions));
+		List<Expression> indicesI    = new ArrayList<Expression>(IndexExpressions.getIndices(indexExpressionsSet));
 		Set<Expression>  tempIndices = new LinkedHashSet<Expression>(indicesI);
 		tempIndices.retainAll(alphaVars);
 		List<Expression> indicesR  = new ArrayList<Expression>(tempIndices);
@@ -165,7 +168,7 @@ public class PickSingleElement {
 			}
 		}
 	
-		List<Expression> indexExpressions = GrinderUtil.makeIndexExpressionsForIndicesInListAndTypesInContext(variablesIPrime, process);
+		IndexExpressionsSet indexExpressions = GrinderUtil.makeIndexExpressionsForIndicesInListAndTypesInContext(variablesIPrime, process);
 	
 		Expression thereExists = ThereExists.make(indexExpressions, formulaC);
 		Expression formulaOnX  = process.rewrite(CardinalityRewriter.R_normalize, thereExists);

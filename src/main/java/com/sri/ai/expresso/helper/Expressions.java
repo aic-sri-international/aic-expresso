@@ -57,6 +57,7 @@ import com.google.common.collect.Lists;
 import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.LambdaExpression;
 import com.sri.ai.expresso.api.Parser;
@@ -69,6 +70,7 @@ import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.core.DefaultExtensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
+import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
 import com.sri.ai.expresso.core.DefaultLambdaExpression;
@@ -223,7 +225,7 @@ public class Expressions {
 	private static Expression makeDefaultLambdaExpressionFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
 		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
 		Expression indexExpressionsKleeneList = subTreeExpressions.get(0);
-		List<Expression> indexExpressions = ensureListFromKleeneList(indexExpressionsKleeneList);
+		IndexExpressionsSet indexExpressions = new DefaultIndexExpressionsSet(ensureListFromKleeneList(indexExpressionsKleeneList));
 		Expression body = subTreeExpressions.get(1);
 		Expression result = new DefaultLambdaExpression(indexExpressions, body);
 		return result;
@@ -232,7 +234,7 @@ public class Expressions {
 	private static Expression makeDefaultUniversallyQuantifiedFormulaFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
 		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
 		Expression indexExpressionsKleeneList = subTreeExpressions.get(0);
-		List<Expression> indexExpressions = ensureListFromKleeneList(indexExpressionsKleeneList);
+		IndexExpressionsSet indexExpressions = new DefaultIndexExpressionsSet(ensureListFromKleeneList(indexExpressionsKleeneList));
 		Expression body = subTreeExpressions.get(1);
 		Expression result = new DefaultUniversallyQuantifiedFormula(indexExpressions, body);
 		return result;
@@ -241,7 +243,7 @@ public class Expressions {
 	private static Expression makeDefaultExistentiallyQuantifiedFormulaFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
 		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
 		Expression indexExpressionsKleeneList = subTreeExpressions.get(0);
-		List<Expression> indexExpressions = ensureListFromKleeneList(indexExpressionsKleeneList);
+		IndexExpressionsSet indexExpressions = new DefaultIndexExpressionsSet(ensureListFromKleeneList(indexExpressionsKleeneList));
 		Expression body = subTreeExpressions.get(1);
 		Expression result = new DefaultExistentiallyQuantifiedFormula(indexExpressions, body);
 		return result;
@@ -313,10 +315,10 @@ public class Expressions {
 		}
 		
 		Expression scopingExpression = subTreeExpressions.get(0);
-		List<Expression> indexExpressions =
+		IndexExpressionsSet indexExpressions = new DefaultIndexExpressionsSet(
 				(scopingExpression == null || scopingExpression.numberOfArguments() == 0)?
 						Util.list()
-						: new ArrayList<Expression>(Expressions.ensureListFromKleeneList(scopingExpression.get(0)));
+						: new ArrayList<Expression>(Expressions.ensureListFromKleeneList(scopingExpression.get(0))));
 		
 		Expression conditioningSyntaxTree = subTreeExpressions.get(2);
 		Expression condition = conditioningSyntaxTree == null? Expressions.TRUE : conditioningSyntaxTree.get(0);
@@ -335,10 +337,10 @@ public class Expressions {
 		}
 		
 		Expression scopingExpression = subTreeExpressions.get(0);
-		List<Expression> indexExpressions =
+		IndexExpressionsSet indexExpressions = new DefaultIndexExpressionsSet(
 				(scopingExpression == null || scopingExpression.numberOfArguments() == 0)?
 						Util.list()
-						: new ArrayList<Expression>(Expressions.ensureListFromKleeneList(scopingExpression.get(0)));
+						: new ArrayList<Expression>(Expressions.ensureListFromKleeneList(scopingExpression.get(0))));
 		
 		Expression conditioningSyntaxTree = subTreeExpressions.get(2);
 		Expression condition = conditioningSyntaxTree == null? Expressions.TRUE : conditioningSyntaxTree.get(0);
@@ -823,7 +825,7 @@ public class Expressions {
 		Iterator<ExpressionAndContext> result =
 			new FunctionIterator<List<Object>, ExpressionAndContext>(
 					new ZipIterator(subTreesIterator, pathsIterator),
-					new DefaultExpressionAndContext.MakerFromSyntaxTreeAndPathList(Collections.<Expression> emptyList()));
+					new DefaultExpressionAndContext.MakerFromSyntaxTreeAndPathList(new DefaultIndexExpressionsSet(Collections.emptyList())));
 	
 		return result;
 	}
@@ -884,14 +886,14 @@ public class Expressions {
 		public Expression value;
 		
 		/** The index expressions minus the one on the bound index. */
-		public List<Expression> indexExpressionsWithoutBoundIndex;
+		public IndexExpressionsSet indexExpressionsWithoutBoundIndex;
 	}
 
 	/**
 	 * Returns a {@link BoundIndexInformation} object for the first index (among those defined in indexExpressions)
 	 * bound in a given formula.
 	 */
-	public static BoundIndexInformation getBoundIndexInformation(Expression formula, List<Expression> indexExpressions) {
+	public static BoundIndexInformation getBoundIndexInformation(Expression formula, IndexExpressionsSet indexExpressions) {
 		BoundIndexInformation result = null;
 		for (Expression conjunct : And.getConjuncts(formula)) {
 			if (Equality.isEquality(conjunct)) {
@@ -910,8 +912,9 @@ public class Expressions {
 					result.index = Util.getFirst(indexOrNothing);
 					result.value = Util.getFirst(remaining);
 					result.indexExpressionsWithoutBoundIndex =
-							Util.removeNonDestructively(
-									indexExpressions, new IndexExpressions.HasIndex(result.index));
+							new DefaultIndexExpressionsSet(
+									Util.removeNonDestructively(
+									indexExpressions, new IndexExpressions.HasIndex(result.index)));
 					break;
 				}
 			}
@@ -1026,7 +1029,7 @@ public class Expressions {
 			while (subExpressionAndContextsIterator.hasNext()) {
 				ExpressionAndContext subExpressionAndContext = subExpressionAndContextsIterator.next();
 				
-				List<Expression> indexExpressions = subExpressionAndContext.getIndexExpressions();
+				IndexExpressionsSet indexExpressions = subExpressionAndContext.getIndexExpressions();
 				List<Expression> newQuantifiedSymbols = Util.mapIntoList(indexExpressions, IndexExpressions.GET_INDEX);
 				int numberOfPushed = Util.pushAll(quantifiedSymbols, newQuantifiedSymbols);
 				
