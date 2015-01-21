@@ -46,7 +46,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -111,9 +111,9 @@ public class CardinalityDisjunction extends AbstractCardinalityRewriter {
 		// | {(on x1,..., xn)(x1, ..., xn) | F} |
 		Expression       intensionalSet   = cardinalityOfIndexedFormulaExpression.get(0);
 		Expression       f                = ((IntensionalSet) intensionalSet).getCondition();
-		List<Expression> indices          = ((IntensionalSet) intensionalSet).getIndexExpressions();
 		IndexExpressionsSet indexExpressions = ((IntensionalSet) intensionalSet).getIndexExpressions();
-		Expression[]     indexExpressionsAsArray   = indices.toArray(new Expression[indices.size()]);
+		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
+		Expression[]     indexExpressionsAsArray   = indexExpressionsList.toArray(new Expression[indexExpressionsList.size()]);
 		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 		
 		CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
@@ -184,10 +184,10 @@ public class CardinalityDisjunction extends AbstractCardinalityRewriter {
 			} 
 			else {
 				Trace.log("    // I_1 and I_2 are two partitions of X, and D_1 and D_2 are two partitions of the disjuncts in F, and the index variables in D_1 and D_2 are I_1 and I_2 respectively.");
-				Expression firstIndexCard = CardinalityUtil.makeCardinalityOfIndexExpressions(new DefaultIndexExpressionsSet(new LinkedList<Expression>(firstProblem.first)));
+				Expression firstIndexCard = CardinalityUtil.makeCardinalityOfIndexExpressions(new ExtensionalIndexExpressionsSet(new LinkedList<Expression>(firstProblem.first)));
 
 				Pair<Set<Expression>, List<Expression>> secondProblem = independentProblems.get(1);
-				Expression secondIndexCard               = CardinalityUtil.makeCardinalityOfIndexExpressions(new DefaultIndexExpressionsSet(new LinkedList<Expression>(secondProblem.first)));
+				Expression secondIndexCard               = CardinalityUtil.makeCardinalityOfIndexExpressions(new ExtensionalIndexExpressionsSet(new LinkedList<Expression>(secondProblem.first)));
 				Expression secondDisjunction             = Or.make(secondProblem.second);	
 				Trace.log("    D_2 = R_top_simplify(D_2)");
 				secondDisjunction                        = process.rewrite(R_top_simplify, secondDisjunction);
@@ -222,7 +222,7 @@ public class CardinalityDisjunction extends AbstractCardinalityRewriter {
 	
 	private Expression rewriteDisjunctionIndexInAllDisjuncts(Expression f, Expression[] indexExpressions, CardinalityRewriter.Quantification quantification, RewritingProcess process) {
 		Expression result = null;
-		Expression cardinalityOfIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(new DefaultIndexExpressionsSet(Arrays.asList(indexExpressions)));
+		Expression cardinalityOfIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(new ExtensionalIndexExpressionsSet(Arrays.asList(indexExpressions)));
 		
 		Trace.log("F1 <- first disjunct in F");
 		Expression f1 = CardinalityUtil.getF1FromDisjunction(f);

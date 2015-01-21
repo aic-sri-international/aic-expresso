@@ -41,6 +41,7 @@ import java.util.Collection;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.Constraint;
 
 /**

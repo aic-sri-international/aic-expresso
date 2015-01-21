@@ -41,19 +41,14 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.SubExpressionAddress;
-import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.Pair;
-import com.sri.ai.util.collect.FunctionIterator;
-import com.sri.ai.util.collect.PairIterator;
 
 /**
  * A default implementation of {@link ExpressionAndContext}.
@@ -76,13 +71,13 @@ public class DefaultExpressionAndContext implements ExpressionAndContext {
 	}
 	
 	public DefaultExpressionAndContext(Expression expression, SubExpressionAddress path) {
-		this(expression, path, new DefaultIndexExpressionsSet(Collections.emptyList()), Expressions.TRUE);
+		this(expression, path, new ExtensionalIndexExpressionsSet(Collections.emptyList()), Expressions.TRUE);
 	}
 	
 	public DefaultExpressionAndContext(Expression expression, SubExpressionAddress address, IndexExpressionsSet indexExpressions, Expression constrainingCondition) {
 		this.expression            = expression;
 		this.address               = address;
-		this.indexExpressions      = new DefaultIndexExpressionsSet(indexExpressions);
+		this.indexExpressions      = indexExpressions;
 		this.constrainingCondition = constrainingCondition;
 
 		this.cachedIndices         = null;

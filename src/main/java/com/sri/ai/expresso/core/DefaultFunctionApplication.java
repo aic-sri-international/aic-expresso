@@ -89,7 +89,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 		int i = 0;
 		for (Expression argument : arguments) {
 			Expression conditioningConstraint = getConditioningConstraint(argument, i);
-			expressionAndContexts.add(new DefaultExpressionAndContext(argument, new IndexAddress(i++), new DefaultIndexExpressionsSet(Collections.emptyList()), conditioningConstraint));
+			expressionAndContexts.add(new DefaultExpressionAndContext(argument, new IndexAddress(i++), new ExtensionalIndexExpressionsSet(Collections.emptyList()), conditioningConstraint));
 		}
 	}
 

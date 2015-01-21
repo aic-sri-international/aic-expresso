@@ -46,7 +46,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -116,11 +116,12 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractCardinalityR
 	// This is based on the new idea: We delay using SumOverOneVariable up to this point.
 	protected Expression rewriteCardinalityOfDisequalities(Expression conjunction, IndexExpressionsSet indexExpressions, CardinalityRewriter.Quantification quantification, RewritingProcess process) {
 		Expression result = null;
-		if ( indexExpressions.size() == 1 ) {
+		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
+		if (indexExpressionsList.size() == 1 ) {
 			Trace.log("if X = {x}");
-			Expression indexExpressionX = indexExpressions.get(0);
+			Expression indexExpressionX = indexExpressionsList.get(0);
 			Expression indexX      = IndexExpressions.getIndex(indexExpressionX);
-			Expression cardIndex   = CardinalityUtil.makeCardinalityOfIndexExpressions(new DefaultIndexExpressionsSet(Util.list(indexExpressionX)));
+			Expression cardIndex   = CardinalityUtil.makeCardinalityOfIndexExpressions(new ExtensionalIndexExpressionsSet(Util.list(indexExpressionX)));
 			Set<Expression> t1ToTk = extractT1ToTk(conjunction, indexX, process);
 			if ( t1ToTk.contains(indexX) ) { // There has been a conjunct of the form X!=X 
 				result = Expressions.ZERO;
@@ -162,7 +163,7 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractCardinalityR
 //				Trace.log("    // Z is the set containing any new index variable Y'");
 //				result = eliminateIndex(conjunction, indices, pair.first, pair.second, quantification, process);
 			Trace.log("if X = {x1, ..., xn}");
-			result = rewriteUsingSumOverOneVariable(conjunction, indexExpressions, quantification, process);
+			result = rewriteUsingSumOverOneVariable(conjunction, indexExpressionsList, quantification, process);
 			//result = rewriteByConvertingOneDisequalityToEquality(conjunction, indices, quantification, process);
 		}
 		return result;

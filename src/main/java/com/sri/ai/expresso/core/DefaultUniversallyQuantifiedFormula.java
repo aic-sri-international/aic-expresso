@@ -60,7 +60,7 @@ public class DefaultUniversallyQuantifiedFormula extends AbstractQuantifiedExpre
 	}
 
 	public DefaultUniversallyQuantifiedFormula(List<Expression> indexExpressions, Expression body) {
-		this(new DefaultIndexExpressionsSet(indexExpressions), body);
+		this(new ExtensionalIndexExpressionsSet(indexExpressions), body);
 	}
 
 	@Override

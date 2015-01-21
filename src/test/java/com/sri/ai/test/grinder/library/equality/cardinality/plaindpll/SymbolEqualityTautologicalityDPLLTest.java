@@ -41,7 +41,6 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.list;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.junit.Test;
 

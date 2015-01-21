@@ -9,8 +9,8 @@ import java.util.Set;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -65,7 +65,8 @@ public class PickSingleElement {
 		
 		Expression       alpha       = ((IntensionalSet) intensionalSet).getHead();
 		IndexExpressionsSet indexExpressionsSet = ((IntensionalSet) intensionalSet).getIndexExpressions();
-		List<Expression> indexExpressions = new ArrayList<Expression>(indexExpressionsSet);
+		assert indexExpressionsSet instanceof ExtensionalIndexExpressionsSet : "PickSingleElement not implemented for intensional sets with non-extensional index expressions"; 
+		List<Expression> indexExpressions = new ArrayList<Expression>(((ExtensionalIndexExpressionsSet) indexExpressionsSet).getList());
 		Trace.log("R <- indices in {} that {} depends on", indexExpressions, alpha);
 		Set<Expression>  alphaVars   = Expressions.freeVariables(alpha, process);
 		List<Expression> indicesI    = new ArrayList<Expression>(IndexExpressions.getIndices(indexExpressionsSet));

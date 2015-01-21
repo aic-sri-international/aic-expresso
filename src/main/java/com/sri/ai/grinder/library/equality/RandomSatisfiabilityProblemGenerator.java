@@ -42,7 +42,7 @@ import java.util.Random;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
-import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 
 /**
  * An iterator of random satisfiability expressions, generated according to certain parameters
@@ -71,7 +71,7 @@ public class RandomSatisfiabilityProblemGenerator extends AbstractRandomDPLLProb
 
 	@Override
 	protected Expression makeProblem(Expression formula, List<Expression> indices) {
-		Expression problem = new DefaultExistentiallyQuantifiedFormula(new DefaultIndexExpressionsSet(indices), formula);
+		Expression problem = new DefaultExistentiallyQuantifiedFormula(new ExtensionalIndexExpressionsSet(indices), formula);
 		return problem;
 	}
 

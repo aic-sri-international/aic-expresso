@@ -45,9 +45,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.library.equality.RandomCardinalityProblemGenerator;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ModelCounting;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnTermsTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnTermsTheory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ModelCounting;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolTermTheory;
 
 @Beta

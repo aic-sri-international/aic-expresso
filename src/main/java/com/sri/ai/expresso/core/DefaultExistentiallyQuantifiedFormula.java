@@ -37,8 +37,6 @@
  */
 package com.sri.ai.expresso.core;
 
-import java.util.List;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.ExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.api.Expression;

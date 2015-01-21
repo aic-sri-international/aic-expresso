@@ -66,11 +66,9 @@ import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultBracketedExpression;
 import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
-import com.sri.ai.expresso.core.DefaultExpressionAndContext;
 import com.sri.ai.expresso.core.DefaultExtensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultExtensionalUniSet;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
-import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
 import com.sri.ai.expresso.core.DefaultLambdaExpression;
@@ -78,6 +76,7 @@ import com.sri.ai.expresso.core.DefaultSymbol;
 import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.expresso.core.DefaultTuple;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.PruningPredicate;
@@ -103,7 +102,6 @@ import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.SingletonListMaker;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.IntegerIterator;
-import com.sri.ai.util.collect.ZipIterator;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -225,7 +223,7 @@ public class Expressions {
 	private static Expression makeDefaultLambdaExpressionFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
 		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
 		Expression indexExpressionsKleeneList = subTreeExpressions.get(0);
-		IndexExpressionsSet indexExpressions = new DefaultIndexExpressionsSet(ensureListFromKleeneList(indexExpressionsKleeneList));
+		IndexExpressionsSet indexExpressions = new ExtensionalIndexExpressionsSet(ensureListFromKleeneList(indexExpressionsKleeneList));
 		Expression body = subTreeExpressions.get(1);
 		Expression result = new DefaultLambdaExpression(indexExpressions, body);
 		return result;
@@ -234,7 +232,7 @@ public class Expressions {
 	private static Expression makeDefaultUniversallyQuantifiedFormulaFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
 		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
 		Expression indexExpressionsKleeneList = subTreeExpressions.get(0);
-		IndexExpressionsSet indexExpressions = new DefaultIndexExpressionsSet(ensureListFromKleeneList(indexExpressionsKleeneList));
+		IndexExpressionsSet indexExpressions = new ExtensionalIndexExpressionsSet(ensureListFromKleeneList(indexExpressionsKleeneList));
 		Expression body = subTreeExpressions.get(1);
 		Expression result = new DefaultUniversallyQuantifiedFormula(indexExpressions, body);
 		return result;
@@ -243,7 +241,7 @@ public class Expressions {
 	private static Expression makeDefaultExistentiallyQuantifiedFormulaFromLabelAndSubTrees(Object label, Object[] subTreeObjects) {
 		ArrayList<Expression> subTreeExpressions = Util.mapIntoArrayList(subTreeObjects, Expressions::makeFromObject);
 		Expression indexExpressionsKleeneList = subTreeExpressions.get(0);
-		IndexExpressionsSet indexExpressions = new DefaultIndexExpressionsSet(ensureListFromKleeneList(indexExpressionsKleeneList));
+		IndexExpressionsSet indexExpressions = new ExtensionalIndexExpressionsSet(ensureListFromKleeneList(indexExpressionsKleeneList));
 		Expression body = subTreeExpressions.get(1);
 		Expression result = new DefaultExistentiallyQuantifiedFormula(indexExpressions, body);
 		return result;
@@ -315,7 +313,7 @@ public class Expressions {
 		}
 		
 		Expression scopingExpression = subTreeExpressions.get(0);
-		IndexExpressionsSet indexExpressions = new DefaultIndexExpressionsSet(
+		IndexExpressionsSet indexExpressions = new ExtensionalIndexExpressionsSet(
 				(scopingExpression == null || scopingExpression.numberOfArguments() == 0)?
 						Util.list()
 						: new ArrayList<Expression>(Expressions.ensureListFromKleeneList(scopingExpression.get(0))));
@@ -337,7 +335,7 @@ public class Expressions {
 		}
 		
 		Expression scopingExpression = subTreeExpressions.get(0);
-		IndexExpressionsSet indexExpressions = new DefaultIndexExpressionsSet(
+		IndexExpressionsSet indexExpressions = new ExtensionalIndexExpressionsSet(
 				(scopingExpression == null || scopingExpression.numberOfArguments() == 0)?
 						Util.list()
 						: new ArrayList<Expression>(Expressions.ensureListFromKleeneList(scopingExpression.get(0))));
@@ -852,14 +850,15 @@ public class Expressions {
 						indexOrNothing,
 						remaining);
 				
+				List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
 				if (indexOrNothing.size() == 1) {
 					result = new BoundIndexInformation();
 					result.index = Util.getFirst(indexOrNothing);
 					result.value = Util.getFirst(remaining);
 					result.indexExpressionsWithoutBoundIndex =
-							new DefaultIndexExpressionsSet(
+							new ExtensionalIndexExpressionsSet(
 									Util.removeNonDestructively(
-									indexExpressions, new IndexExpressions.HasIndex(result.index)));
+									indexExpressionsList, new IndexExpressions.HasIndex(result.index)));
 					break;
 				}
 			}
@@ -975,7 +974,8 @@ public class Expressions {
 				ExpressionAndContext subExpressionAndContext = subExpressionAndContextsIterator.next();
 				
 				IndexExpressionsSet indexExpressions = subExpressionAndContext.getIndexExpressions();
-				List<Expression> newQuantifiedSymbols = Util.mapIntoList(indexExpressions, IndexExpressions.GET_INDEX);
+				List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
+				List<Expression> newQuantifiedSymbols = Util.mapIntoList(indexExpressionsList, IndexExpressions.GET_INDEX);
 				int numberOfPushed = Util.pushAll(quantifiedSymbols, newQuantifiedSymbols);
 				
 				freeSymbols(subExpressionAndContext.getExpression(), freeSymbols, quantifiedSymbols, process);

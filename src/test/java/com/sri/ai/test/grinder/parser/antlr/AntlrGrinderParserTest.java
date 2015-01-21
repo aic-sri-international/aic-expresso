@@ -50,8 +50,8 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.SyntaxTree;
-import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultSyntaxLeaf;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.helper.FunctionSignature;
@@ -5407,13 +5407,14 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 	/** Makes a scoping expression out of a list of scoping variables. */
 	public static SyntaxTree makeScopingSyntaxTree(IndexExpressionsSet indexExpressions) {
-		Expression kleeneListExpression = Expressions.makeKleeneListIfNeeded(indexExpressions);
+		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
+		Expression kleeneListExpression = Expressions.makeKleeneListIfNeeded(indexExpressionsList);
 		SyntaxTree kleeneListSyntaxTree = kleeneListExpression.getSyntaxTree();
 		SyntaxTree result = SyntaxTrees.makeCompoundSyntaxTree(IntensionalSet.SCOPED_VARIABLES_LABEL, kleeneListSyntaxTree);
 		return result;
 	}
 
 	public static SyntaxTree makeScopingSyntaxTree(List<Expression> indexExpressions) {
-		return makeScopingSyntaxTree(new DefaultIndexExpressionsSet(indexExpressions));
+		return makeScopingSyntaxTree(new ExtensionalIndexExpressionsSet(indexExpressions));
 	}
 }

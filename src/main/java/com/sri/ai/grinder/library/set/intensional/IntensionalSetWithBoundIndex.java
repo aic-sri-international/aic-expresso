@@ -37,8 +37,6 @@
  */
 package com.sri.ai.grinder.library.set.intensional;
 
-import java.util.List;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;

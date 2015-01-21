@@ -49,16 +49,16 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ModelCounting;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.PropositionalTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
 import com.sri.ai.util.Util;
 
 @Beta
@@ -152,7 +152,7 @@ public class PropositionalLogicModelCountingDPLLTest {
 
 	protected void test(Expression expression, Expression expected, List<String> indicesStrings) {
 		Rewriter rewriter = makeRewriter();
-		IndexExpressionsSet indexExpressions = new DefaultIndexExpressionsSet(Util.mapIntoList(indicesStrings, string -> Expressions.makeSymbol(string)));
+		IndexExpressionsSet indexExpressions = new ExtensionalIndexExpressionsSet(Util.mapIntoList(indicesStrings, string -> Expressions.makeSymbol(string)));
 		Expression actual = rewriter.rewrite(makeProblem(expression, indexExpressions), new DefaultRewritingProcess(rewriter));
 		assertEquals(expected, actual);
 	}

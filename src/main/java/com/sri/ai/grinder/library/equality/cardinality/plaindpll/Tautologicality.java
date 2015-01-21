@@ -39,8 +39,6 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 
-import java.util.List;
-
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.UniversallyQuantifiedFormula;

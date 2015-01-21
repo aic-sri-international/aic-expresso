@@ -46,6 +46,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -182,9 +183,10 @@ public class CardinalityConjunction extends AbstractCardinalityRewriter {
 		Expression       intensionalSet   = cardinalityOfIndexedFormulaExpression.get(0);
 		Expression       f                = ((IntensionalSet) intensionalSet).getCondition();
 		IndexExpressionsSet indexExpressions = ((IntensionalSet) intensionalSet).getIndexExpressions();
+		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
 		RewritingProcess subProcess       = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 		
-		Expression[] indexExpressionsAsArray = indexExpressions.toArray(new Expression[indexExpressions.size()]);
+		Expression[] indexExpressionsAsArray = indexExpressionsList.toArray(new Expression[indexExpressionsList.size()]);
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 		Pair<Expression, Expression> independentAndDependentConjuncts = CardinalityUtil.separateIndependentAndDependent(f, indices, Expressions.TRUE, subProcess);
 		//
@@ -195,7 +197,7 @@ public class CardinalityConjunction extends AbstractCardinalityRewriter {
 			(And.isConjunction(f) && f.numberOfArguments() == 0)) {
 			Trace.log("if F is True or empty conjunction");
 			Trace.log("    return ||X||");
-			Expression cardinalityValueOfIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressions);
+			Expression cardinalityValueOfIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressionsList);
 			// Need to do this to get | type(X) | converted to its known value, e.g.: 10
 			cardinalityValueOfIndices = process.rewrite(R_normalize, cardinalityValueOfIndices);
 			result = cardinalityValueOfIndices;
