@@ -765,42 +765,6 @@ public class Expressions {
 		return expression;
 	}
 
-	public
-	static Iterator<ExpressionAndContext> getSubExpressionsAndContextsIteratorFromImmediateSubTrees(
-			Expression expression, RewritingProcess process) {
-		if (expression == null) {
-			List<ExpressionAndContext> emptyList = Collections.emptyList();
-			return emptyList.iterator();
-		}
-	
-		Iterator<? extends SyntaxTree> subTreesIterator = expression.getSyntaxTree().getImmediateSubTreesIterator();
-		FunctionIterator<Integer, List<Integer>> pathsIterator = Expressions.makeSingleIndexPathsIteratorFromTo(0, expression.getSyntaxTree().numberOfImmediateSubTrees());
-		
-		Iterator<ExpressionAndContext> result =
-				Expressions.makeIteratorOfSubExpressionsAndContextsFromIteratorsOnSubTreesAndPathsWithGivenQuantifiedVariables(
-						subTreesIterator, pathsIterator, process);
-	
-		return result;
-	}
-
-	public
-	static Iterator<ExpressionAndContext> getSubExpressionsAndContextsIteratorFromImmediateSubTreesIncludingRootOne(
-			Expression expression, RewritingProcess process) {
-		if (expression == null) {
-			List<ExpressionAndContext> emptyList = Collections.emptyList();
-			return emptyList.iterator();
-		}
-	
-		Iterator<? extends SyntaxTree> subTreesIterator = expression.getSyntaxTree().getImmediateSubTreesIncludingRootOneIterator();
-		// does need to be sub tree
-		FunctionIterator<Integer, List<Integer>> pathsIterator = Expressions.makeSingleIndexPathsIterator(expression);
-		
-		Iterator<ExpressionAndContext> result = Expressions.makeIteratorOfSubExpressionsAndContextsFromIteratorsOnSubTreesAndPathsWithGivenQuantifiedVariables(
-				subTreesIterator, pathsIterator, process);
-	
-		return result;
-	}
-
 	/**
 	 * A static method returning selected sub-expressions
 	 * in a given expressions, according to a given predicate.
@@ -809,25 +773,6 @@ public class Expressions {
 		LinkedHashSet<Expression> results = new LinkedHashSet<Expression>();
 		Util.collect(new SubExpressionsDepthFirstIterator(expression), results, predicate);
 		return results;
-	}
-
-	/**
-	 * Makes an iterator of sub-expressions and their contexts built from two iterators,
-	 * one on the sub-trees and another on their paths, with no index expressions.
-	 * The quantified variables of the sub expressions will be the one provided as argument.
-	 */
-	public
-	static Iterator<ExpressionAndContext> makeIteratorOfSubExpressionsAndContextsFromIteratorsOnSubTreesAndPathsWithGivenQuantifiedVariables(
-			Iterator<? extends SyntaxTree> subTreesIterator, 
-			FunctionIterator<Integer, List<Integer>> pathsIterator,
-			RewritingProcess process) {
-		
-		Iterator<ExpressionAndContext> result =
-			new FunctionIterator<List<Object>, ExpressionAndContext>(
-					new ZipIterator(subTreesIterator, pathsIterator),
-					new DefaultExpressionAndContext.MakerFromSyntaxTreeAndPathList(new DefaultIndexExpressionsSet(Collections.emptyList())));
-	
-		return result;
 	}
 
 	public static FunctionIterator<Integer, List<Integer>> makeSingleIndexPathsIterator(Expression expression) {
