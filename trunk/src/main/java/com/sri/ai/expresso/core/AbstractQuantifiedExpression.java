@@ -49,6 +49,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.api.SyntaxTree;
@@ -66,12 +67,12 @@ import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 @Beta
 public abstract class AbstractQuantifiedExpression extends AbstractExpression implements QuantifiedExpression {
 
-	private List<Expression>             indexExpressions;
+	private   IndexExpressionsSet                    indexExpressions;
 	protected List<Expression>           cachedScopedExpressions;
 	protected SyntaxTree                 cachedSyntaxTree;
 	protected List<ExpressionAndContext> cachedSubExpressionsAndContext;
 	
-	public AbstractQuantifiedExpression(List<Expression> indexExpressions) {
+	public AbstractQuantifiedExpression(IndexExpressionsSet indexExpressions) {
 		this.indexExpressions = indexExpressions;
 		cachedScopedExpressions = makeScopedExpressions();
 	}
@@ -97,9 +98,12 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 	}
 
 	@Override
-	public List<Expression> getIndexExpressions() {
-		return Collections.unmodifiableList(indexExpressions);
+	public IndexExpressionsSet getIndexExpressions() {
+		return indexExpressions;
 	}
+
+	@Override
+	public abstract QuantifiedExpression setIndexExpressions(IndexExpressionsSet newIndexExpressions);
 
 	@Override
 	public abstract QuantifiedExpression setIndexExpressions(List<Expression> newIndexExpressions);

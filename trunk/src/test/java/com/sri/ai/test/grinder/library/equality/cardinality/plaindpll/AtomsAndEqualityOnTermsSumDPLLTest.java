@@ -50,6 +50,7 @@ import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -65,7 +66,7 @@ import com.sri.ai.util.Util;
 public class AtomsAndEqualityOnTermsSumDPLLTest extends AbstractSymbolicSymbolEqualityDPLLTest {
 	
 	@Override
-	protected Expression makeProblem(Expression expression, List<Expression> indexExpressions) {
+	protected Expression makeProblem(Expression expression, IndexExpressionsSet indexExpressions) {
 		Expression set = new DefaultIntensionalMultiSet(indexExpressions, expression, TRUE);
 		Expression problem = apply(FunctorConstants.SUM, set);
 		return problem;

@@ -44,7 +44,9 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -99,7 +101,7 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractCardinalityR
 		// | {(on x1,..., xn)(x1, ..., xn) | F} |
 		Expression       intensionalSet   = cardinalityOfIndexedFormulaExpression.get(0);
 		Expression       f                = ((IntensionalSet) intensionalSet).getCondition();
-		List<Expression> indexExpressions = ((IntensionalSet) intensionalSet).getIndexExpressions();
+		IndexExpressionsSet indexExpressions = ((IntensionalSet) intensionalSet).getIndexExpressions();
 		RewritingProcess subProcess       = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 		
 		CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
@@ -112,13 +114,13 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractCardinalityR
 	
 	
 	// This is based on the new idea: We delay using SumOverOneVariable up to this point.
-	protected Expression rewriteCardinalityOfDisequalities(Expression conjunction, List<Expression> indexExpressions, CardinalityRewriter.Quantification quantification, RewritingProcess process) {
+	protected Expression rewriteCardinalityOfDisequalities(Expression conjunction, IndexExpressionsSet indexExpressions, CardinalityRewriter.Quantification quantification, RewritingProcess process) {
 		Expression result = null;
 		if ( indexExpressions.size() == 1 ) {
 			Trace.log("if X = {x}");
 			Expression indexExpressionX = indexExpressions.get(0);
 			Expression indexX      = IndexExpressions.getIndex(indexExpressionX);
-			Expression cardIndex   = CardinalityUtil.makeCardinalityOfIndexExpressions(Util.list(indexExpressionX));
+			Expression cardIndex   = CardinalityUtil.makeCardinalityOfIndexExpressions(new DefaultIndexExpressionsSet(Util.list(indexExpressionX)));
 			Set<Expression> t1ToTk = extractT1ToTk(conjunction, indexX, process);
 			if ( t1ToTk.contains(indexX) ) { // There has been a conjunct of the form X!=X 
 				result = Expressions.ZERO;

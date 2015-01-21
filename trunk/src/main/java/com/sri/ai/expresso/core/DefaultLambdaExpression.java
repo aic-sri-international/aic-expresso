@@ -37,10 +37,12 @@
  */
 package com.sri.ai.expresso.core;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.LambdaExpression;
 
 /**
@@ -53,8 +55,12 @@ public class DefaultLambdaExpression extends AbstractQuantifiedExpressionWithABo
 
 	private static final long serialVersionUID = 1L;
 	
-	public DefaultLambdaExpression(List<Expression> indexExpressions, Expression body) {
+	public DefaultLambdaExpression(IndexExpressionsSet indexExpressions, Expression body) {
 		super(indexExpressions, body);
+	}
+
+	public DefaultLambdaExpression(List<Expression> arrayList, Expression body) {
+		this(new DefaultIndexExpressionsSet(arrayList), body);
 	}
 
 	@Override
@@ -68,7 +74,7 @@ public class DefaultLambdaExpression extends AbstractQuantifiedExpressionWithABo
 	}
 
 	@Override
-	public DefaultLambdaExpression make(List<Expression> indexExpressions, Expression body) {
+	public DefaultLambdaExpression make(IndexExpressionsSet indexExpressions, Expression body) {
 		DefaultLambdaExpression result = new DefaultLambdaExpression(indexExpressions, body);
 		return result;
 	}

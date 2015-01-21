@@ -11,8 +11,10 @@ import java.util.Set;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -40,7 +42,7 @@ import com.sri.ai.util.base.Pair;
  */
 public class IndexExpressions {
 
-	public static LinkedHashMap<Expression, Expression> getIndexToTypeMapWithDefaultNull(Collection<Expression> indexExpressions) {
+	public static LinkedHashMap<Expression, Expression> getIndexToTypeMapWithDefaultNull(IndexExpressionsSet indexExpressions) {
 		LinkedHashMap<Expression, Expression> result =
 			Expressions.getRelationalMap(
 					indexExpressions,
@@ -50,7 +52,7 @@ public class IndexExpressions {
 	}
 
 	public static LinkedHashMap<Expression, Expression>
-	getIndexToTypeMapWithDefaultTypeOfIndex(List<Expression> indexExpressions) {
+	getIndexToTypeMapWithDefaultTypeOfIndex(IndexExpressionsSet indexExpressions) {
 		LinkedHashMap<Expression, Expression> result =
 			Expressions.getRelationalMap(
 					indexExpressions,
@@ -73,12 +75,12 @@ public class IndexExpressions {
 		return indexExpression;
 	}
 
-	public static boolean indexExpressionsContainIndex(Collection<Expression> indexExpressions, Expression index) {
+	public static boolean indexExpressionsContainIndex(IndexExpressionsSet indexExpressions, Expression index) {
 		boolean result = Util.findFirst(indexExpressions, new HasIndex(index)) != null;
 		return result;
 	}
 	
-	public static List<Expression> getIndexExpressionsWithType(List<Expression> indexExpressions) {
+	public static List<Expression> getIndexExpressionsWithType(IndexExpressionsSet indexExpressions) {
 		List<Expression> result = Util.replaceElementsNonDestructively(indexExpressions, IndexExpressions.getMakeIndexExpressionWithType());
 		return result;
 	}
@@ -134,9 +136,9 @@ public class IndexExpressions {
 	public static GetIndex GET_INDEX = new GetIndex();
 
 	public static class IsIndexIn implements Predicate<Expression> {
-		private List<Expression> indexExpressions;
+		private IndexExpressionsSet indexExpressions;
 		
-		public IsIndexIn(List<Expression> indexExpressions) {
+		public IsIndexIn(IndexExpressionsSet indexExpressions) {
 			super();
 			this.indexExpressions = indexExpressions;
 		}
@@ -242,7 +244,7 @@ public class IndexExpressions {
 	}
 
 	/** Return a list of indexes from a list of index expressions. */
-	public static List<Expression> getIndices(List<Expression> indexExpressions) {
+	public static List<Expression> getIndices(IndexExpressionsSet indexExpressions) {
 		List<Expression> result = Util.mapIntoList(indexExpressions, new GetIndex());
 		return result;
 	}
@@ -253,17 +255,17 @@ public class IndexExpressions {
 		return result;
 	}
 
-	public static List<Expression> getIndexExpressionsFromSymbolsAndTypes(Map<Expression, Expression> variablesAndDomains) {
-		List<Expression> result = new LinkedList<Expression>();
+	public static IndexExpressionsSet getIndexExpressionsFromSymbolsAndTypes(Map<Expression, Expression> variablesAndDomains) {
+		List<Expression> indexExpressions = new LinkedList<Expression>();
 		for (Map.Entry<Expression, Expression> entry : variablesAndDomains.entrySet()) {
 			if (entry.getValue() == null) {
-				result.add(entry.getKey());
+				indexExpressions.add(entry.getKey());
 			}
 			else {
-				result.add(Expressions.apply(FunctorConstants.IN, entry.getKey(), entry.getValue()));
+				indexExpressions.add(Expressions.apply(FunctorConstants.IN, entry.getKey(), entry.getValue()));
 			}
 		}
-		return result;
+		return new DefaultIndexExpressionsSet(indexExpressions);
 	}
 
 	public static Expression getIndexExpressionForVariableFromcontextualSymbolsAndTypes(Expression expression, RewritingProcess process) {
@@ -293,12 +295,12 @@ public class IndexExpressions {
 	}
 
 	public static LinkedHashMap<Expression, Expression> getIndexToTypeMapWithDefaultTypeOfIndex(Expression quantifiedExpression) {
-		List<Expression> indexExpressions = ((QuantifiedExpression) quantifiedExpression).getIndexExpressions();
+		IndexExpressionsSet indexExpressions = ((QuantifiedExpression) quantifiedExpression).getIndexExpressions();
 		return getIndexToTypeMapWithDefaultTypeOfIndex(indexExpressions);
 	}
 
 	public static LinkedHashMap<Expression, Expression> getIndexToTypeMapWithDefaultNull(Expression quantifiedExpression) {
-		List<Expression> indexExpressions = ((QuantifiedExpression) quantifiedExpression).getIndexExpressions();
+		IndexExpressionsSet indexExpressions = ((QuantifiedExpression) quantifiedExpression).getIndexExpressions();
 		return getIndexToTypeMapWithDefaultNull(indexExpressions);
 	}
 

@@ -41,6 +41,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
@@ -151,7 +152,7 @@ public class Cardinality extends AbstractCardinalityRewriter {
 				// | {(on x1,..., xn) (x1, ..., xn) | F} |
 				Expression       intensionalSet   = expression.get(0);
 				Expression       f                = ((IntensionalSet) intensionalSet).getCondition();
-				List<Expression> indexExpressions = ((IntensionalSet) intensionalSet).getIndexExpressions();
+				IndexExpressionsSet indexExpressions = ((IntensionalSet) intensionalSet).getIndexExpressions();
 				
 				Trace.log("F <- R_top_simplify(F)");
 				f = process.rewrite(CardinalityRewriter.R_top_simplify, f);
@@ -212,7 +213,7 @@ public class Cardinality extends AbstractCardinalityRewriter {
 		// | {(on x1,..., xn) (x1, ..., xn) | F} |
 		Expression       intensionalSet   = cardinalityOfIndexedFormulaExpression.get(0);
 		Expression       f                = ((IntensionalSet) intensionalSet).getCondition();
-		List<Expression> indexExpressions = ((IntensionalSet) intensionalSet).getIndexExpressions();
+		IndexExpressionsSet indexExpressions = ((IntensionalSet) intensionalSet).getIndexExpressions();
 		List<Expression> indices          = IndexExpressions.getIndices(indexExpressions);
 		Expression[]     indexExpressionsAsArray = indexExpressions.toArray(new Expression[indexExpressions.size()]);
 

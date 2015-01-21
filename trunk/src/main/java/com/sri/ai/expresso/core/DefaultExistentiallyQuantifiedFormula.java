@@ -42,6 +42,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.ExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.grinder.library.boole.ThereExists;
 
 /**
@@ -54,7 +55,7 @@ public class DefaultExistentiallyQuantifiedFormula extends AbstractQuantifiedExp
 
 	private static final long serialVersionUID = 1L;
 	
-	public DefaultExistentiallyQuantifiedFormula(List<Expression> indexExpressions, Expression body) {
+	public DefaultExistentiallyQuantifiedFormula(IndexExpressionsSet indexExpressions, Expression body) {
 		super(indexExpressions, body);
 	}
 
@@ -69,7 +70,7 @@ public class DefaultExistentiallyQuantifiedFormula extends AbstractQuantifiedExp
 	}
 
 	@Override
-	public AbstractQuantifiedExpressionWithABody make(List<Expression> indexExpressions, Expression body) {
+	public AbstractQuantifiedExpressionWithABody make(IndexExpressionsSet indexExpressions, Expression body) {
 		AbstractQuantifiedExpressionWithABody result = new DefaultExistentiallyQuantifiedFormula(indexExpressions, body);
 		return result;
 	}

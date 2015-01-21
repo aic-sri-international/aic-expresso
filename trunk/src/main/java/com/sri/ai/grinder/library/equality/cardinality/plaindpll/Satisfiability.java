@@ -39,10 +39,9 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 
-import java.util.List;
-
 import com.sri.ai.expresso.api.ExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.util.base.Pair;
 
@@ -70,9 +69,9 @@ public class Satisfiability extends AbstractProblemType {
 	}
 
 	@Override
-	public Pair<Expression, List<Expression>> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
+	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
 		ExistentiallyQuantifiedFormula existential = (ExistentiallyQuantifiedFormula) expression;
-		Pair<Expression, List<Expression>> formulaAndIndices = Pair.make(existential.getBody(), existential.getIndexExpressions());
+		Pair<Expression, IndexExpressionsSet> formulaAndIndices = Pair.make(existential.getBody(), existential.getIndexExpressions());
 		return formulaAndIndices;
 	}
 }

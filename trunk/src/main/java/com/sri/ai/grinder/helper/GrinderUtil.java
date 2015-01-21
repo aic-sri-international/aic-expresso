@@ -54,9 +54,11 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Throwables;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.LambdaExpression;
 import com.sri.ai.expresso.api.QuantifiedExpression;
+import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.GrinderConfiguration;
@@ -538,10 +540,17 @@ public class GrinderUtil {
 	/**
 	 * Returns a rewriting process with contextual symbols extended by a list of index expressions.
 	 */
-	public static RewritingProcess extendContextualSymbolsWithIndexExpressions(Collection<Expression> indexExpressions, RewritingProcess process) {
+	public static RewritingProcess extendContextualSymbolsWithIndexExpressions(IndexExpressionsSet indexExpressions, RewritingProcess process) {
 		Map<Expression, Expression> indexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(indexExpressions);
 		RewritingProcess result = GrinderUtil.extendContextualSymbolsAndConstraint(indexToTypeMap, Expressions.TRUE, process);
 		return result;
+	}
+
+	/**
+	 * Returns a rewriting process with contextual symbols extended by a list of index expressions.
+	 */
+	public static RewritingProcess extendContextualSymbolsWithIndexExpressions(List<Expression> indexExpressions, RewritingProcess process) {
+		return extendContextualSymbolsWithIndexExpressions(new DefaultIndexExpressionsSet(indexExpressions), process);
 	}
 
 	/**
@@ -919,23 +928,23 @@ public class GrinderUtil {
 	/**
 	 * Returns a list of index expressions corresponding to the free variables in an expressions and their types per the context, if any.
 	 */
-	public static List<Expression> getIndexExpressionsOfFreeVariablesIn(Expression expression, RewritingProcess process) {
+	public static IndexExpressionsSet getIndexExpressionsOfFreeVariablesIn(Expression expression, RewritingProcess process) {
 		Set<Expression> freeVariables = Expressions.freeVariables(expression, process);
-		List<Expression> result = makeIndexExpressionsForIndicesInListAndTypesInContext(freeVariables, process);
+		IndexExpressionsSet result = makeIndexExpressionsForIndicesInListAndTypesInContext(freeVariables, process);
 		return result;
 	}
 
 	/**
 	 * Returns a list of index expressions corresponding to the given indices and their types per the context, if any.
 	 */
-	public static List<Expression> makeIndexExpressionsForIndicesInListAndTypesInContext(Collection<Expression> indices, RewritingProcess process) {
-		List<Expression> result = new LinkedList<Expression>();
+	public static IndexExpressionsSet makeIndexExpressionsForIndicesInListAndTypesInContext(Collection<Expression> indices, RewritingProcess process) {
+		List<Expression> indexExpressions = new LinkedList<Expression>();
 		for (Expression index : indices) {
 			Expression type = process.getContextualSymbolType(index);
 			Expression indexExpression = IndexExpressions.makeIndexExpression(index, type);
-			result.add(indexExpression);
+			indexExpressions.add(indexExpression);
 		}
-		return result;
+		return new DefaultIndexExpressionsSet(indexExpressions);
 	}
 
 	public static void doTreeUtilWaitUntilClosed() {
@@ -1090,7 +1099,7 @@ public class GrinderUtil {
 	}
 
 	public static List<Expression> getParameters(QuantifiedExpression quantifiedExpression) {
-		List<Expression> indexExpressions = quantifiedExpression.getIndexExpressions();
+		IndexExpressionsSet indexExpressions = quantifiedExpression.getIndexExpressions();
 		List<Expression> result = new LinkedList<Expression>(IndexExpressions.getIndexToTypeMapWithDefaultTypeOfIndex(indexExpressions).keySet());
 		return result;
 	}

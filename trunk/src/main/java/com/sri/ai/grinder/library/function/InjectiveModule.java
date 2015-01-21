@@ -45,7 +45,9 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.core.AbstractModuleNoOpRewriter;
+import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultLambdaExpression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Module;
@@ -140,7 +142,7 @@ public class InjectiveModule extends AbstractModuleNoOpRewriter {
 		Expression parameterizedVersion = expression.replaceAllOccurrences(replaceSymbolByParameter,pruneAtNonInjectiveExpression,process);
 		
 		if (expressionsAlreadyKnownToBeInjective || ! ((PruneAtNonInjectiveExpression) pruneAtNonInjectiveExpression).pruned) {
-			ArrayList<Expression> indexExpressions = new ArrayList<Expression>(fromValuesToParameters.values());
+			IndexExpressionsSet indexExpressions = new DefaultIndexExpressionsSet(new ArrayList<Expression>(fromValuesToParameters.values()));
 			Expression functor = new DefaultLambdaExpression(indexExpressions, parameterizedVersion);
 			List<Expression> arguments = new ArrayList<Expression>(fromValuesToParameters.keySet());
 			result = Expressions.apply(functor, arguments);

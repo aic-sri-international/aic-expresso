@@ -52,6 +52,7 @@ import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.SubExpressionAddress;
 import com.sri.ai.expresso.core.SyntaxTreeBasedSubExpressionAddress;
@@ -1512,7 +1513,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		
 		Expression setExpression = parse("{(on X,Y) f(X) | Z = X}");	
 		String expectedSetString = setExpression.toString();
-		List<Expression> indexExpressions = ((IntensionalSet) setExpression).getIndexExpressions();
+		IndexExpressionsSet indexExpressions = ((IntensionalSet) setExpression).getIndexExpressions();
 		try {
 			indexExpressions.remove(0);
 			Assert.fail("An exception should have been thrown");

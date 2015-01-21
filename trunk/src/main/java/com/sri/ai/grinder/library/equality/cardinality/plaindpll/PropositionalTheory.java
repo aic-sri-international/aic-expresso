@@ -282,7 +282,7 @@ public class PropositionalTheory extends AbstractTheory {
 		@Override
 		public String toString() {
 			ArrayList<String> items = new ArrayList<String>();
-			items.add("Indices " + Util.join(indices));
+			items.add("IndexExpressionsSet " + Util.join(indices));
 			if ( ! assertedPropositions.isEmpty()) {
 				items.add("asserted: " + Util.join(assertedPropositions));
 			}

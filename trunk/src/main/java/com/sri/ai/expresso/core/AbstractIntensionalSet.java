@@ -49,6 +49,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.SubExpressionAddress;
@@ -72,7 +73,7 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 	private Expression head;
 	private Expression condition;
 	
-	public AbstractIntensionalSet(List<Expression> indexExpressions, Expression head, Expression condition) {
+	public AbstractIntensionalSet(IndexExpressionsSet indexExpressions, Expression head, Expression condition) {
 		super(indexExpressions);
 		this.head      = head;
 		this.condition = condition;
@@ -113,7 +114,7 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 		IntensionalSet result = this;
 		
 		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, process);
-		List<Expression> newIndexExpressions = replaceElementsNonDestructively(getIndexExpressions(), renameSymbol);
+		IndexExpressionsSet newIndexExpressions = new DefaultIndexExpressionsSet(replaceElementsNonDestructively(getIndexExpressions(), renameSymbol));
 		
 		Expression newHead      = getHead().renameSymbol(symbol, newSymbol, process);
 		Expression newCondition = getCondition().renameSymbol(symbol, newSymbol, process);
@@ -161,7 +162,7 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 	}
 
 	@Override
-	public QuantifiedExpression setIndexExpressions(List<Expression> newIndexExpressions) {
+	public QuantifiedExpression setIndexExpressions(IndexExpressionsSet newIndexExpressions) {
 		IntensionalSet result = this;
 		if (newIndexExpressions != getIndexExpressions()) {
 			result = make(newIndexExpressions, getHead(), getCondition());
@@ -169,7 +170,12 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 		return result;
 	}
 
-	public IntensionalSet replaceIfNeeded(List<Expression> newIndexExpressions, Expression newHead, Expression newCondition) {
+	@Override
+	public QuantifiedExpression setIndexExpressions(List<Expression> newIndexExpressions) {
+		return setIndexExpressions(new DefaultIndexExpressionsSet(newIndexExpressions));
+	}
+	
+	public IntensionalSet replaceIfNeeded(IndexExpressionsSet newIndexExpressions, Expression newHead, Expression newCondition) {
 		IntensionalSet result = this;
 		if (newIndexExpressions != getIndexExpressions() || newHead != getHead() || newCondition != getCondition()) {
 			result = make(newIndexExpressions, newHead, newCondition);
@@ -223,7 +229,7 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 	@Override
 	abstract public boolean isMultiSet();
 
-	abstract public AbstractIntensionalSet make(List<Expression> indexExpressions, Expression head, Expression condition);
+	abstract public AbstractIntensionalSet make(IndexExpressionsSet indexExpressions, Expression head, Expression condition);
 	
 	public String makeToString() {
 		String result;

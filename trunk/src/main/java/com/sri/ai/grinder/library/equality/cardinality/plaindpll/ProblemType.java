@@ -40,6 +40,7 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.util.base.Pair;
 
@@ -86,5 +87,5 @@ public interface ProblemType {
 	 * @param process
 	 * @return
 	 */
-	Pair<Expression, List<Expression>> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process);
+	Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process);
 }

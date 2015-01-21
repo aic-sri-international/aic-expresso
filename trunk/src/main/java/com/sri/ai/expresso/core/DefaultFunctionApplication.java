@@ -42,6 +42,7 @@ import static com.sri.ai.util.Util.mapIntoArray;
 import static com.sri.ai.util.Util.mapIntoList;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -88,7 +89,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 		int i = 0;
 		for (Expression argument : arguments) {
 			Expression conditioningConstraint = getConditioningConstraint(argument, i);
-			expressionAndContexts.add(new DefaultExpressionAndContext(argument, new IndexAddress(i++), Expressions.EMPTY_LIST, conditioningConstraint));
+			expressionAndContexts.add(new DefaultExpressionAndContext(argument, new IndexAddress(i++), new DefaultIndexExpressionsSet(Collections.emptyList()), conditioningConstraint));
 		}
 	}
 

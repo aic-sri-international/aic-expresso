@@ -42,6 +42,7 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.UniversallyQuantifiedFormula;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.util.base.Pair;
@@ -70,9 +71,9 @@ public class Tautologicality extends AbstractProblemType {
 	}
 
 	@Override
-	public Pair<Expression, List<Expression>> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
+	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
 		UniversallyQuantifiedFormula universal = (UniversallyQuantifiedFormula) expression;
-		Pair<Expression, List<Expression>> formulaAndIndices = Pair.make(universal.getBody(), universal.getIndexExpressions());
+		Pair<Expression, IndexExpressionsSet> formulaAndIndices = Pair.make(universal.getBody(), universal.getIndexExpressions());
 		return formulaAndIndices;
 	}
 }

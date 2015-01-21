@@ -44,7 +44,9 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
@@ -118,7 +120,7 @@ public class EqualityInConjunction extends AbstractCardinalityRewriter {
 			else {
 				Expression t = equalityOnIndexInformation.valuesEquatedToIndex.iterator().next();
 				// i.e {x \ xi}
-				List<Expression> newIndexExpressions = Util.removeNonDestructively(equalityOnIndexInformation.indexExpressions, new IndexExpressions.HasIndex(equalityOnIndexInformation.index));
+				IndexExpressionsSet newIndexExpressions = new DefaultIndexExpressionsSet(Util.removeNonDestructively(equalityOnIndexInformation.indexExpressions, new IndexExpressions.HasIndex(equalityOnIndexInformation.index)));
 				Trace.log("return R_card(| R_normalize(Phi[x_i / t]) |_X\\{xi}, quantification) // Phi={}, x_i={}, t={}", equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t);
 				Expression phiXiReplacedWithT           = SemanticSubstitute.replace(equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t, process);
 
@@ -140,7 +142,7 @@ public class EqualityInConjunction extends AbstractCardinalityRewriter {
 		public Expression index;
 		public Set<Expression> valuesEquatedToIndex = new LinkedHashSet<Expression>();
 		public Expression phi;
-		public List<Expression> indexExpressions;
+		public IndexExpressionsSet indexExpressions;
 	}
 	
 	private static EqualityOnIndexInformation getFirstEqualityOnIndexInformation(Expression expression) {
@@ -150,7 +152,7 @@ public class EqualityInConjunction extends AbstractCardinalityRewriter {
 			// | {(on I1,..., In) (x1, ..., xn) | F} |
 			Expression intensionalSet = expression.get(0);
 			Expression constraint     = ((IntensionalSet) intensionalSet).getCondition();
-			List<Expression> indexExpressions = ((IntensionalSet) intensionalSet).getIndexExpressions();
+			IndexExpressionsSet indexExpressions = ((IntensionalSet) intensionalSet).getIndexExpressions();
 			if (And.isConjunction(constraint)) {
 				// Note: want to use a set for efficiency but keep the order by using a linked hash set.
 				int index = 0;
@@ -174,7 +176,7 @@ public class EqualityInConjunction extends AbstractCardinalityRewriter {
 		return result;
 	}
 	
-	private static EqualityOnIndexInformation getEqualityOnIndexInformation(Expression formula, Expression equality, List<Expression> indexExpressions, int indexIndex) {
+	private static EqualityOnIndexInformation getEqualityOnIndexInformation(Expression formula, Expression equality, IndexExpressionsSet indexExpressions, int indexIndex) {
 		EqualityOnIndexInformation result = null;
 		for (Expression equalityArgument : equality.getArguments()) {
 			if (Util.findFirst(indexExpressions, new IndexExpressions.HasIndex(equalityArgument)) != null) {

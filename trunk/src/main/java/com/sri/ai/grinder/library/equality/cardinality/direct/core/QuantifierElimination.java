@@ -94,8 +94,8 @@ public class QuantifierElimination extends AbstractCardinalityRewriter {
 			RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpression(indexExpression, process);
 			body = subProcess.rewrite(R_top_simplify, body);
 			
-			Expression numberOfSolutionsOfBodyInIndexProblem     = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(body, indexExpression);
-			Expression numberOfSolutionsOfBodyInIndexSolution    = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(numberOfSolutionsOfBodyInIndexProblem, CardinalityRewriter.Quantification.FOR_ALL));
+			Expression numberOfSolutionsOfBodyInIndexProblem   = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(body, indexExpression);
+			Expression numberOfSolutionsOfBodyInIndexSolution  = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(numberOfSolutionsOfBodyInIndexProblem, CardinalityRewriter.Quantification.FOR_ALL));
 			Expression indexTypeSize                           = CardinalityUtil.makeCardinalityOfIndexExpressions(Util.list(indexExpression));
 			Expression numberOfSolutionsAndTypeSizeMustBeEqual = Equality.make(numberOfSolutionsOfBodyInIndexSolution, indexTypeSize);
 			

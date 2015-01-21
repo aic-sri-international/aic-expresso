@@ -41,6 +41,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -81,7 +82,7 @@ public class IsTautology {
 			throw new IllegalArgumentException("F is not a formula:"+expressionF);
 		}
 		
-		List<Expression> indexExpressionsOfFreeVariablesInF =
+		IndexExpressionsSet indexExpressionsOfFreeVariablesInF =
 				GrinderUtil.getIndexExpressionsOfFreeVariablesIn(expressionF, process);
 
 		// let x1, ..., xn be the free variables in F
