@@ -49,7 +49,6 @@ import static com.sri.ai.util.Util.toArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -59,7 +58,7 @@ import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -164,7 +163,7 @@ public abstract class AbstractSymbolicSymbolEqualityDPLLTest {
 		}
 		
 		IndexExpressionsSet indexExpressions =
-				new DefaultIndexExpressionsSet(
+				new ExtensionalIndexExpressionsSet(
 				indices
 				.stream()
 				.map(index -> makeIndexExpression(index, everythingType))

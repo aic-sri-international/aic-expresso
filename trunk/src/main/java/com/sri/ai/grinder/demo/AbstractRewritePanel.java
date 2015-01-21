@@ -103,7 +103,6 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopImpliedCer
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopSimplify;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.number.Plus;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithFalseConditionIsEmptySet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 import com.sri.ai.util.Configuration;

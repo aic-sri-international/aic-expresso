@@ -37,8 +37,6 @@
  */
 package com.sri.ai.expresso.api;
 
-import java.util.List;
-
 import com.google.common.annotations.Beta;
 
 /**
@@ -48,6 +46,6 @@ import com.google.common.annotations.Beta;
  * @author braz
  */
 @Beta
-public interface IndexExpressionsSet extends List<Expression> {
+public interface IndexExpressionsSet {
 
 }

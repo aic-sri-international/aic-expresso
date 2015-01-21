@@ -43,7 +43,7 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
-import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 
 /**
  * An {@link Expression} that represents a quantified expression, that is, an expression introducing new variables,
@@ -68,8 +68,9 @@ public interface QuantifiedExpression extends Expression {
 	 * @return a {@link QuantifiedExpression} with the replaced index expression (or this same instance if replacement is the same).
 	 */
 	public default Expression replaceIndexExpression(int indexExpressionIndex, Function<Expression, Expression> replacementFunction) {
+		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) getIndexExpressions()).getList();
 		IndexExpressionsSet newIndexExpressions =
-				new DefaultIndexExpressionsSet(replaceElementNonDestructively(getIndexExpressions(), indexExpressionIndex, replacementFunction));
+				new ExtensionalIndexExpressionsSet(replaceElementNonDestructively(indexExpressionsList, indexExpressionIndex, replacementFunction));
 		Expression result = setIndexExpressions(newIndexExpressions);
 		return result;
 	}

@@ -42,6 +42,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 
@@ -60,12 +61,17 @@ public class ThereExists {
 
 	public static Expression make(IndexExpressionsSet indexExpressions, Expression body) {
 		Expression current = body;
-		for (int i = indexExpressions.size() - 1; i >= 0; i--) {
-			current = make(indexExpressions.get(i), current);
+		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
+		for (int i = indexExpressionsList.size() - 1; i >= 0; i--) {
+			current = make(indexExpressionsList.get(i), current);
 		}
 		return current;
 	}
 
+	public static Expression make(List<Expression> indexExpressions, Expression body) {
+		return make(new ExtensionalIndexExpressionsSet(indexExpressions), body);
+	}
+	
 	public static Expression make(Expression indexExpression, Expression body) {
 		Expression current = Expressions.apply(LABEL, indexExpression, body);
 		return current;

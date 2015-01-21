@@ -43,6 +43,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -58,11 +59,11 @@ import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ModelCounting;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLUtil;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SolutionPostProcessing;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnTermsTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLUtil;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnTermsTheory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ModelCounting;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SolutionPostProcessing;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolTermTheory;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.Sets;
@@ -153,11 +154,12 @@ public class Cardinality extends AbstractCardinalityRewriter {
 				Expression       intensionalSet   = expression.get(0);
 				Expression       f                = ((IntensionalSet) intensionalSet).getCondition();
 				IndexExpressionsSet indexExpressions = ((IntensionalSet) intensionalSet).getIndexExpressions();
+				List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
 				
 				Trace.log("F <- R_top_simplify(F)");
 				f = process.rewrite(CardinalityRewriter.R_top_simplify, f);
 			
-				if (indexExpressions.size() == 0) {
+				if (indexExpressionsList.size() == 0) {
 					Trace.log("if n = 0");
 					Trace.log("    return R_normalize(if F then 1 else 0)");
 					Expression ifThenElse = IfThenElse.make(f, Expressions.ONE, Expressions.ZERO);
@@ -169,8 +171,8 @@ public class Cardinality extends AbstractCardinalityRewriter {
 					if ( negationHasLessNumberOfDisjuncts(f) ) {
 						Trace.log("    if negationHasLessNumberOfDisjuncts(F):");
 						Trace.log("        return R_normalize(||X|| - R_card( | not F |_X, \"none\" ) ) ");
-						Expression[] indexExpressionsAsArray = indexExpressions.toArray(new Expression[indexExpressions.size()]);
-						Expression cardIndexX          = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressions);
+						Expression[] indexExpressionsAsArray = indexExpressionsList.toArray(new Expression[indexExpressionsList.size()]);
+						Expression cardIndexX          = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressionsList);
 						Expression negationCardinality = process.rewrite(R_card,
 									CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(
 										CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(Not.make(f), indexExpressionsAsArray), 
@@ -214,8 +216,9 @@ public class Cardinality extends AbstractCardinalityRewriter {
 		Expression       intensionalSet   = cardinalityOfIndexedFormulaExpression.get(0);
 		Expression       f                = ((IntensionalSet) intensionalSet).getCondition();
 		IndexExpressionsSet indexExpressions = ((IntensionalSet) intensionalSet).getIndexExpressions();
+		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
 		List<Expression> indices          = IndexExpressions.getIndices(indexExpressions);
-		Expression[]     indexExpressionsAsArray = indexExpressions.toArray(new Expression[indexExpressions.size()]);
+		Expression[]     indexExpressionsAsArray = indexExpressionsList.toArray(new Expression[indexExpressionsList.size()]);
 
 		if (quantification == null) {
 			throw new IllegalArgumentException("Invalid quantification symbol: " + quantification);
@@ -224,7 +227,7 @@ public class Cardinality extends AbstractCardinalityRewriter {
 		if (f.equals(Expressions.TRUE)) {
 			Trace.log("if F is True");
 			Trace.log("    return R_normalize(||X||)");
-			Expression cardIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressions);
+			Expression cardIndices = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressionsList);
 			RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 			result = subProcess.rewrite(CardinalityRewriter.R_normalize, cardIndices);
 		}
@@ -236,7 +239,7 @@ public class Cardinality extends AbstractCardinalityRewriter {
 		else if (Expressions.expressionsDoNotOccurInAnotherExpressionAsFreeVariables(indices, f, process)) {
 			Trace.log("if x does not occur in F for any x in X");
 			Trace.log("    return R_normalize(if F then ||X|| else 0)");
-			Expression cardIndexX = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressions);
+			Expression cardIndexX = CardinalityUtil.makeCardinalityOfIndexExpressions(indexExpressionsList);
 			Expression ifThenElse = IfThenElse.make(f, cardIndexX, Expressions.ZERO);
 			RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 			result = subProcess.rewrite(CardinalityRewriter.R_normalize, ifThenElse);

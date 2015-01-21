@@ -46,7 +46,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
@@ -111,23 +111,27 @@ public class EqualityInConjunction extends AbstractCardinalityRewriter {
 			throw new IllegalArgumentException("Invalid input argument expression, cannot be optimized:"+cardinalityOfIndexedFormulaExpression);
 		} 
 		else {
+			IndexExpressionsSet indexExpressions = equalityOnIndexInformation.indexExpressions;
+			List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
 			if (equalityOnIndexInformation.valuesEquatedToIndex.size() == 0) {
 				Trace.log("if t is the same expression as x_i");
 				Trace.log("    return R_card(| Phi |_X, quantification)");
-				Expression cardinalityWithPhiIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(equalityOnIndexInformation.phi, equalityOnIndexInformation.indexExpressions.toArray(new Expression[equalityOnIndexInformation.indexExpressions.size()]));
+				Expression cardinalityWithPhiIndexedByX =
+						CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(equalityOnIndexInformation.phi,
+								indexExpressionsList.toArray(new Expression[indexExpressionsList.size()]));
 				result = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardinalityWithPhiIndexedByX, quantification));
 			} 
 			else {
 				Expression t = equalityOnIndexInformation.valuesEquatedToIndex.iterator().next();
 				// i.e {x \ xi}
-				IndexExpressionsSet newIndexExpressions = new DefaultIndexExpressionsSet(Util.removeNonDestructively(equalityOnIndexInformation.indexExpressions, new IndexExpressions.HasIndex(equalityOnIndexInformation.index)));
+				List<Expression> newIndexExpressionsList = Util.removeNonDestructively(indexExpressionsList, new IndexExpressions.HasIndex(equalityOnIndexInformation.index));
 				Trace.log("return R_card(| R_normalize(Phi[x_i / t]) |_X\\{xi}, quantification) // Phi={}, x_i={}, t={}", equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t);
 				Expression phiXiReplacedWithT           = SemanticSubstitute.replace(equalityOnIndexInformation.phi, equalityOnIndexInformation.index, t, process);
 
-				RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpressions(newIndexExpressions, process);
+				RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpressions(newIndexExpressionsList, process);
 				Expression simplifiedPhiXiReplacedWithT = subProcess.rewrite(R_normalize, phiXiReplacedWithT);
 				
-				Expression cardPhiXiReplacedWithTIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(simplifiedPhiXiReplacedWithT, newIndexExpressions.toArray(new Expression[newIndexExpressions.size()]));
+				Expression cardPhiXiReplacedWithTIndexedByX = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(simplifiedPhiXiReplacedWithT, newIndexExpressionsList.toArray(new Expression[newIndexExpressionsList.size()]));
 				result = process.rewrite(R_card, CardinalityUtil.argForCardinalityWithQuantifierSpecifiedCall(cardPhiXiReplacedWithTIndexedByX, quantification));
 			}
 		}
@@ -178,8 +182,9 @@ public class EqualityInConjunction extends AbstractCardinalityRewriter {
 	
 	private static EqualityOnIndexInformation getEqualityOnIndexInformation(Expression formula, Expression equality, IndexExpressionsSet indexExpressions, int indexIndex) {
 		EqualityOnIndexInformation result = null;
+		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
 		for (Expression equalityArgument : equality.getArguments()) {
-			if (Util.findFirst(indexExpressions, new IndexExpressions.HasIndex(equalityArgument)) != null) {
+			if (Util.findFirst(indexExpressionsList, new IndexExpressions.HasIndex(equalityArgument)) != null) {
 				result = new EqualityOnIndexInformation();
 				result.index = equalityArgument;
 				result.valuesEquatedToIndex.addAll(equality.getArguments());

@@ -40,7 +40,6 @@ package com.sri.ai.grinder.parser.antlr;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,10 +50,9 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultLambdaExpression;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.FunctionSignature;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -65,6 +63,7 @@ import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.set.extensional.ExtensionalSet;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
+import com.sri.ai.util.Util;
 
 @Beta
 public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
@@ -425,9 +424,9 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	
 	protected Expression makeIntensionalSet(Object label, Token scope, List<AntlrGrinderParser.ExprContext> scopeargs, 
 			AntlrGrinderParser.ExprContext head, AntlrGrinderParser.ExprContext condition) {
-		IndexExpressionsSet indexExpressions = new DefaultIndexExpressionsSet(Collections.emptyList());
+		List<Expression> indexExpressionsList = Util.list();
 		if (scope != null) {
-			indexExpressions = expressionsList(scopeargs);
+			indexExpressionsList = expressionsList(scopeargs);
 		}
 		Expression headExpression      = visit(head);
 		Expression conditionExpression = null;
@@ -447,7 +446,7 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		}
 		else {
 			conditionExpression = conditionExpression == null? Expressions.TRUE : conditionExpression.get(0); // contains the "|";
-			result = IntensionalSet.make(label, indexExpressions, headExpression, conditionExpression);
+			result = IntensionalSet.make(label, new ExtensionalIndexExpressionsSet(indexExpressionsList), headExpression, conditionExpression);
 		}
 		
 		return result;
@@ -461,12 +460,12 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 		return result.toArray();
 	}
 	
-	protected IndexExpressionsSet expressionsList(List<AntlrGrinderParser.ExprContext> exprContexts) {
-		List<Expression> indexExpressions = new ArrayList<Expression>();
+	protected List<Expression> expressionsList(List<AntlrGrinderParser.ExprContext> exprContexts) {
+		List<Expression> indexExpressionsList = new ArrayList<Expression>();
 		for (AntlrGrinderParser.ExprContext exprContext : exprContexts) {
-			indexExpressions.add(visit(exprContext));
+			indexExpressionsList.add(visit(exprContext));
 		}
-		return new DefaultIndexExpressionsSet(indexExpressions);
+		return indexExpressionsList;
 	}
 	
 	protected Expression possiblyFlatten(Expression expression) {

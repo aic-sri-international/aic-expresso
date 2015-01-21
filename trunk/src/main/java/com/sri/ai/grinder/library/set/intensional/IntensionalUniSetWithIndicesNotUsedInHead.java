@@ -44,8 +44,8 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -85,9 +85,10 @@ public class IntensionalUniSetWithIndicesNotUsedInHead extends AbstractRewriter 
 			Expression head = ((IntensionalSet) expression).getHead();
 			Set<Expression> freeSymbolsInHead = Expressions.freeVariables(head, process);
 			IndexExpressionsSet indexExpressions = ((IntensionalSet) expression).getIndexExpressions();
-			IndexExpressionsSet indexExpressionsWhoseIndexIsNotInHead = new DefaultIndexExpressionsSet(Util.removeNonDestructively(indexExpressions, new IndexExpressions.IndexExpressionHasIndexIn(freeSymbolsInHead)));
+			List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
+			List<Expression> indexExpressionsWhoseIndexIsNotInHead = Util.removeNonDestructively(indexExpressionsList, new IndexExpressions.IndexExpressionHasIndexIn(freeSymbolsInHead));
 			if ( ! indexExpressionsWhoseIndexIsNotInHead.isEmpty()) {
-				IndexExpressionsSet indexExpressionsWhoseIndexIsInHead = new DefaultIndexExpressionsSet(Util.subtract(indexExpressions, indexExpressionsWhoseIndexIsNotInHead));
+				IndexExpressionsSet indexExpressionsWhoseIndexIsInHead = new ExtensionalIndexExpressionsSet(Util.subtract(indexExpressionsList, indexExpressionsWhoseIndexIsNotInHead));
 				Expression newCondition = ThereExists.make(indexExpressionsWhoseIndexIsNotInHead, ((IntensionalSet) expression).getCondition());
 				Expression result = new DefaultIntensionalUniSet(indexExpressionsWhoseIndexIsInHead, head, newCondition);
 				return result;

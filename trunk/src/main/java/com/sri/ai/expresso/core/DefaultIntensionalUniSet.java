@@ -59,7 +59,7 @@ public class DefaultIntensionalUniSet extends AbstractIntensionalSet implements 
 	}
 
 	public DefaultIntensionalUniSet(List<Expression> indexExpressionsList, Expression head, Expression condition) {
-		this(new DefaultIndexExpressionsSet(indexExpressionsList), head, condition);
+		this(new ExtensionalIndexExpressionsSet(indexExpressionsList), head, condition);
 	}
 
 	@Override

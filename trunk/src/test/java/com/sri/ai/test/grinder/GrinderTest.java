@@ -55,6 +55,7 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.SubExpressionAddress;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.core.SyntaxTreeBasedSubExpressionAddress;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
@@ -117,8 +118,8 @@ import com.sri.ai.grinder.library.set.extensional.EqualityOfExtensionalUniSets;
 import com.sri.ai.grinder.library.set.extensional.NormalizeExtensionalUniSet;
 import com.sri.ai.grinder.library.set.extensional.UnionOnExtensionalSets;
 import com.sri.ai.grinder.library.set.intensional.EqualityOfIntensionalUniSets;
-import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithFalseConditionIsEmptySet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithBoundIndex;
+import com.sri.ai.grinder.library.set.intensional.IntensionalSetWithFalseConditionIsEmptySet;
 import com.sri.ai.grinder.library.set.intensional.IntensionalUniSetWithIndicesNotUsedInHead;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.util.Util;
@@ -1514,8 +1515,9 @@ public class GrinderTest extends AbstractGrinderTest {
 		Expression setExpression = parse("{(on X,Y) f(X) | Z = X}");	
 		String expectedSetString = setExpression.toString();
 		IndexExpressionsSet indexExpressions = ((IntensionalSet) setExpression).getIndexExpressions();
+		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
 		try {
-			indexExpressions.remove(0);
+			indexExpressionsList.remove(0);
 			Assert.fail("An exception should have been thrown");
 		} catch (Exception ex) {
 			// Expected

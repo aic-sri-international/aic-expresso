@@ -128,7 +128,9 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 	}
 	
 	private SyntaxTree makeSyntaxTree() {
-		List<SyntaxTree> indexExpressionsSyntaxTrees = mapIntoArrayList(getIndexExpressions(), Expression::getSyntaxTree);
+		IndexExpressionsSet indexExpressions = getIndexExpressions();
+		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
+		List<SyntaxTree> indexExpressionsSyntaxTrees = mapIntoArrayList(indexExpressionsList, Expression::getSyntaxTree);
 		SyntaxTree parameterList = SyntaxTrees.makeKleeneListIfNeeded(indexExpressionsSyntaxTrees);
 		SyntaxTree result = makeCompoundSyntaxTree(getSyntaxTreeLabel(), parameterList, getBody().getSyntaxTree());
 		return result;
@@ -148,7 +150,7 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 
 	@Override
 	public AbstractQuantifiedExpression setIndexExpressions(List<Expression> newIndexExpressions) {
-		return setIndexExpressions(new DefaultIndexExpressionsSet(newIndexExpressions));
+		return setIndexExpressions(new ExtensionalIndexExpressionsSet(newIndexExpressions));
 	}
 	
 	@Override
@@ -168,7 +170,8 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 		AbstractQuantifiedExpression result = this;
 		
 		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, process);
-		IndexExpressionsSet newIndexExpressions = new DefaultIndexExpressionsSet(replaceElementsNonDestructively(getIndexExpressions(), renameSymbol));
+		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) getIndexExpressions()).getList();
+		IndexExpressionsSet newIndexExpressions = new ExtensionalIndexExpressionsSet(replaceElementsNonDestructively(indexExpressionsList, renameSymbol));
 		
 		Expression newBody = getBody().renameSymbol(symbol, newSymbol, process);
 		
@@ -193,7 +196,9 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 
 	@Override
 	public String makeToString() {
-		List<String> indexExpressionsStrings = mapIntoList(getIndexExpressions(), Expression::toString);
+		IndexExpressionsSet indexExpressions = getIndexExpressions();
+		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
+		List<String> indexExpressionsStrings = mapIntoList(indexExpressionsList, Expression::toString);
 		String parametersRepresentation = join(", ", indexExpressionsStrings);
 		if ( ! parametersRepresentation.isEmpty()) {
 			parametersRepresentation = " " + parametersRepresentation;

@@ -58,7 +58,7 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.LambdaExpression;
 import com.sri.ai.expresso.api.QuantifiedExpression;
-import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.GrinderConfiguration;
@@ -550,7 +550,7 @@ public class GrinderUtil {
 	 * Returns a rewriting process with contextual symbols extended by a list of index expressions.
 	 */
 	public static RewritingProcess extendContextualSymbolsWithIndexExpressions(List<Expression> indexExpressions, RewritingProcess process) {
-		return extendContextualSymbolsWithIndexExpressions(new DefaultIndexExpressionsSet(indexExpressions), process);
+		return extendContextualSymbolsWithIndexExpressions(new ExtensionalIndexExpressionsSet(indexExpressions), process);
 	}
 
 	/**
@@ -944,7 +944,7 @@ public class GrinderUtil {
 			Expression indexExpression = IndexExpressions.makeIndexExpression(index, type);
 			indexExpressions.add(indexExpression);
 		}
-		return new DefaultIndexExpressionsSet(indexExpressions);
+		return new ExtensionalIndexExpressionsSet(indexExpressions);
 	}
 
 	public static void doTreeUtilWaitUntilClosed() {

@@ -37,8 +37,6 @@
  */
 package com.sri.ai.expresso.api;
 
-import java.util.List;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultIntensionalUniSet;

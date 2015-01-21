@@ -59,7 +59,7 @@ public class DefaultIntensionalMultiSet extends AbstractIntensionalSet implement
 	}
 
 	public DefaultIntensionalMultiSet(List<Expression> indexExpressionsList, Expression head, Expression condition) {
-		this(new DefaultIndexExpressionsSet(indexExpressionsList), head, condition);
+		this(new ExtensionalIndexExpressionsSet(indexExpressionsList), head, condition);
 	}
 
 	@Override

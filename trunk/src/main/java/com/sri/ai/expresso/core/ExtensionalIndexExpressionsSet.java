@@ -37,49 +37,30 @@
  */
 package com.sri.ai.expresso.core;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.LambdaExpression;
 
 /**
- * A default implementation of a {@link LambdaExpression}.
+ * A default implementation of a {@link IndexExpressionsSet}.
  * 
  * @author braz
  */
 @Beta
-public class DefaultLambdaExpression extends AbstractQuantifiedExpressionWithABody implements LambdaExpression {
+public class ExtensionalIndexExpressionsSet implements IndexExpressionsSet {
 
-	private static final long serialVersionUID = 1L;
+	private List<Expression> list;
 	
-	public DefaultLambdaExpression(IndexExpressionsSet indexExpressions, Expression body) {
-		super(indexExpressions, body);
+	public ExtensionalIndexExpressionsSet(List<Expression> indexExpressions) {
+		super();
+		list = new ArrayList<Expression>(indexExpressions);
 	}
-
-	public DefaultLambdaExpression(List<Expression> arrayList, Expression body) {
-		this(new ExtensionalIndexExpressionsSet(arrayList), body);
-	}
-
-	@Override
-	public Object getSyntacticFormType() {
-		return "Lambda expression";
-	}
-
-	@Override
-	public String getSyntaxTreeLabel() {
-		return LambdaExpression.ROOT;
-	}
-
-	@Override
-	public DefaultLambdaExpression make(IndexExpressionsSet indexExpressions, Expression body) {
-		DefaultLambdaExpression result = new DefaultLambdaExpression(indexExpressions, body);
-		return result;
-	}
-
-	@Override
-	protected String getHeadString() {
-		return "lambda";
+	
+	public List<Expression> getList() {
+		return Collections.unmodifiableList(list);
 	}
 }

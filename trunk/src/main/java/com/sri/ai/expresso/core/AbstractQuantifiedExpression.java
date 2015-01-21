@@ -41,7 +41,6 @@ import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.replac
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.replaceOrAddType;
 import static com.sri.ai.util.Util.castOrThrowError;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -115,8 +114,9 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 	 */
 	protected List<ExpressionAndContext> makeIndexExpressionSubExpressionsAndContext(List<ExpressionAndContext> result) {
 		
-		for (int indexExpressionIndex = 0; indexExpressionIndex != getIndexExpressions().size(); indexExpressionIndex++) {
-			Expression indexExpression = getIndexExpressions().get(indexExpressionIndex);
+		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet)getIndexExpressions()).getList();
+		for (int indexExpressionIndex = 0; indexExpressionIndex != indexExpressionsList.size(); indexExpressionIndex++) {
+			Expression indexExpression = indexExpressionsList.get(indexExpressionIndex);
 			Expression index = IndexExpressions.getIndex(indexExpression);
 			if (index.getSyntacticFormType().equals("Function application")) {
 				for (int argumentIndex = 0; argumentIndex != index.numberOfArguments(); argumentIndex++) {
@@ -201,7 +201,7 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 		@Override
 		public Expression getSubExpressionOf(Expression expression) {
 			QuantifiedExpression quantifiedExpression = castOrThrowError(QuantifiedExpression.class, expression, "Attempt at obtaining index expression argument of %s which should be an instance of %s but is an instance of %s");
-			Expression indexExpression = quantifiedExpression.getIndexExpressions().get(indexExpressionIndex);
+			Expression indexExpression = ((ExtensionalIndexExpressionsSet) quantifiedExpression.getIndexExpressions()).getList().get(indexExpressionIndex);
 			Expression index = IndexExpressions.getIndex(indexExpression);
 			Expression result = index.get(argumentIndex);
 			return result;
@@ -236,10 +236,11 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 		@Override
 		public Expression getSubExpressionOf(Expression expression) {
 			QuantifiedExpression quantifiedExpression = castOrThrowError(QuantifiedExpression.class, expression, "Attempt at obtaining index expression argument of %s which should be an instance of %s but is an instance of %s");
-			if (indexExpressionIndex >= quantifiedExpression.getIndexExpressions().size()) {
+			List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) quantifiedExpression.getIndexExpressions()).getList();
+			if (indexExpressionIndex >= indexExpressionsList.size()) {
 				throw new Error("Attempt to obtain " + indexExpressionIndex + "-th index expression of " + expression + " but it does not have one.");
 			}
-			Expression indexExpression = quantifiedExpression.getIndexExpressions().get(indexExpressionIndex);
+			Expression indexExpression = indexExpressionsList.get(indexExpressionIndex);
 			Expression result;
 			if (indexExpression.hasFunctor(FunctorConstants.IN)){ 
 				result = IndexExpressions.getType(indexExpression);

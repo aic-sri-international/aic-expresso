@@ -53,9 +53,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.core.DefaultIndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.DefaultIntensionalUniSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -161,7 +161,7 @@ public class CardinalityUtil {
 	public static Expression makeCardinalityOfIndexedFormulaExpression(Expression formulaF, Expression... indexExpressions) {
 		Expression result = null;
 		
-		IndexExpressionsSet indexExpressionsList  = new DefaultIndexExpressionsSet(Arrays.asList(indexExpressions));
+		IndexExpressionsSet indexExpressionsList  = new ExtensionalIndexExpressionsSet(Arrays.asList(indexExpressions));
 		
 		List<Expression> indicesList  = IndexExpressions.getIndices(indexExpressionsList);
 		Expression       indicesTuple = Tuple.make(indicesList);
@@ -247,9 +247,10 @@ public class CardinalityUtil {
 	public static Expression makeCardinalityOfIndexExpressions(IndexExpressionsSet indexExpressions) {
 		// TODO: When ALBP-119 is resolved, we will be able to take the type of the variable from the quantified expression.
 		Expression result = Expressions.ONE;
-		if ( indexExpressions.size() > 0 ) {
+		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
+		if ( indexExpressionsList.size() > 0 ) {
 			ArrayList<Expression> cardinalities = new ArrayList<Expression>();
-			for (Expression indexExpression: indexExpressions) {
+			for (Expression indexExpression: indexExpressionsList) {
 				Expression set;
 				if (indexExpression.hasFunctor(FunctorConstants.IN)){
 					set = indexExpression.get(1);
@@ -266,7 +267,7 @@ public class CardinalityUtil {
 	}
 	
 	public static Expression makeCardinalityOfIndexExpressions(List<Expression> indexExpressions) {
-		return makeCardinalityOfIndexExpressions(new DefaultIndexExpressionsSet(indexExpressions));
+		return makeCardinalityOfIndexExpressions(new ExtensionalIndexExpressionsSet(indexExpressions));
 	}
 	
 	/**
@@ -284,7 +285,7 @@ public class CardinalityUtil {
 	public static Expression makeSummationExpression(Expression indexX, Expression constraintsOnX, Expression countingSolutionS) {
 		Expression result = Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(
 				FunctorConstants.SUM,
-				new DefaultIntensionalMultiSet(new DefaultIndexExpressionsSet(list(indexX)), countingSolutionS, constraintsOnX));
+				new DefaultIntensionalMultiSet(new ExtensionalIndexExpressionsSet(list(indexX)), countingSolutionS, constraintsOnX));
 		return result;
 	}
 	
@@ -302,7 +303,9 @@ public class CardinalityUtil {
 		if (expression.hasFunctor(FunctorConstants.SUM) &&
 		    expression.numberOfArguments() == 1) {
 			Expression sumArgument = expression.get(0);
-			if (Sets.isIntensionalMultiSet(sumArgument) && ((IntensionalSet) sumArgument).getIndexExpressions().size() == 1) {
+			IndexExpressionsSet indexExpressions = ((IntensionalSet) sumArgument).getIndexExpressions();
+			List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
+			if (Sets.isIntensionalMultiSet(sumArgument) && indexExpressionsList.size() == 1) {
 				result = true;
 			}
 		}
@@ -335,8 +338,9 @@ public class CardinalityUtil {
 	 * @return the index expression x.
 	 */
 	public static Expression getIndexXFromSummation(Expression expression) {
-		Expression result = ((IntensionalSet) expression.get(0)).getIndexExpressions().get(0);
-		
+		IndexExpressionsSet indexExpressions = ((IntensionalSet) expression.get(0)).getIndexExpressions();
+		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
+		Expression result = indexExpressionsList.get(0);
 		return result;
 	}
 	
@@ -544,7 +548,7 @@ public class CardinalityUtil {
 	}
 	
 	public static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblemsInConjunction(Expression f, List<Expression> indexExpressions, RewritingProcess process) {
-		return findIndependentProblemsInConjunction(f, new DefaultIndexExpressionsSet(indexExpressions), process);
+		return findIndependentProblemsInConjunction(f, new ExtensionalIndexExpressionsSet(indexExpressions), process);
 	}
 	
 	/**
@@ -645,7 +649,7 @@ public class CardinalityUtil {
 	}
 	
 	public static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblemsInDisjunction(Expression f, List<Expression> indexExpressions, RewritingProcess process) {
-		return findIndependentProblemsInDisjunction(f, new DefaultIndexExpressionsSet(indexExpressions), process);
+		return findIndependentProblemsInDisjunction(f, new ExtensionalIndexExpressionsSet(indexExpressions), process);
 	}
 	
 	/**
@@ -913,7 +917,7 @@ public class CardinalityUtil {
 		if (quantification == Quantification.THERE_EXISTS && everyLeafIsConstantGreaterThanZero(n1)) {
 			Trace.log("if quantification is \"there exists\" and every leaf of N1 is a numeric constant > 0 // same as R_normalize(N1 > 0) is \"true\"");
 			Trace.log("    return || X ||");
-			result = process.rewrite(CardinalityRewriter.R_normalize, CardinalityUtil.makeCardinalityOfIndexExpressions(new DefaultIndexExpressionsSet(Arrays.asList(indicesX))));
+			result = process.rewrite(CardinalityRewriter.R_normalize, CardinalityUtil.makeCardinalityOfIndexExpressions(new ExtensionalIndexExpressionsSet(Arrays.asList(indicesX))));
 		}
 		else {
 			Trace.log("N2 <- R_card(| G2 |_X, quantification)");
@@ -922,7 +926,7 @@ public class CardinalityUtil {
 			if (quantification == Quantification.THERE_EXISTS && everyLeafIsConstantGreaterThanZero(n2)) {
 				Trace.log("if quantification is \"there exists\" and every leaf of N2 is a numeric constant > 0 // same as R_normalize(N2 > 0) is \"true\"");
 				Trace.log("    return || X ||");
-				result = process.rewrite(CardinalityRewriter.R_normalize, CardinalityUtil.makeCardinalityOfIndexExpressions(new DefaultIndexExpressionsSet(Arrays.asList(indicesX))));
+				result = process.rewrite(CardinalityRewriter.R_normalize, CardinalityUtil.makeCardinalityOfIndexExpressions(new ExtensionalIndexExpressionsSet(Arrays.asList(indicesX))));
 			}
 			else {
 				Trace.log("return R_normalize(N1 + N2)");

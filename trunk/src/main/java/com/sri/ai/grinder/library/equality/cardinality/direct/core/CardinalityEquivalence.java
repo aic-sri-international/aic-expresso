@@ -43,6 +43,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
@@ -103,8 +104,9 @@ public class CardinalityEquivalence extends AbstractCardinalityRewriter {
 		// | {(on x1,..., xn)(x1, ..., xn) | F} |
 		Expression       intensionalSet          = cardinalityOfIndexedFormulaExpression.get(0);
 		Expression       f                       = ((IntensionalSet) intensionalSet).getCondition();
-		IndexExpressionsSet indexExpressions        = ((IntensionalSet) intensionalSet).getIndexExpressions();
-		Expression[]     indexExpressionsAsArray = indexExpressions.toArray(new Expression[indexExpressions.size()]);
+		IndexExpressionsSet indexExpressions     = ((IntensionalSet) intensionalSet).getIndexExpressions();
+		List<Expression> indexExpressionsList    = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
+		Expression[]     indexExpressionsAsArray = indexExpressionsList.toArray(new Expression[indexExpressionsList.size()]);
 		RewritingProcess subProcess              = GrinderUtil.extendContextualSymbolsWithIntensionalSetIndices(intensionalSet, process);
 		
 		CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
