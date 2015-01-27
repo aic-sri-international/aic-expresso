@@ -173,7 +173,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 	}
 
 	@Override
-	public Expression renameSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
 		// TODO: incorrect! Must replace quantified symbols in sub-expressions too, this won't do it.
 		Expression result = replaceAllOccurrences(symbol, newSymbol, process);
 		return result;

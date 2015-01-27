@@ -285,8 +285,8 @@ public class IndexExpressions {
 		Expression index = getIndex(indexExpression);
 		if (indexExpression.hasFunctor(FunctorConstants.IN)) {
 			Expression type = getType(indexExpression);
-			Expression newIndex = index.renameSymbol(symbol, newSymbol, process);
-			Expression newType  =  type.renameSymbol(symbol, newSymbol, process);
+			Expression newIndex = index.replaceSymbol(symbol, newSymbol, process);
+			Expression newType  =  type.replaceSymbol(symbol, newSymbol, process);
 			if (newIndex != index || newType != type) {
 				result = makeIndexExpression(newIndex, newType);
 			}
@@ -295,7 +295,7 @@ public class IndexExpressions {
 			}
 		}
 		else {
-			result = index.renameSymbol(symbol, newSymbol, process);
+			result = index.replaceSymbol(symbol, newSymbol, process);
 		}
 		return result;
 	}
