@@ -39,7 +39,6 @@ package com.sri.ai.expresso.core;
 
 import static com.sri.ai.expresso.helper.SyntaxTrees.makeCompoundSyntaxTree;
 import static com.sri.ai.util.Util.castOrThrowError;
-import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.replaceElementsNonDestructively;
 
 import java.util.LinkedList;
@@ -83,10 +82,9 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 
 	private SyntaxTree makeSyntaxTree() {
 		IndexExpressionsSet indexExpressions = getIndexExpressions();
-		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
-		List<SyntaxTree> indexExpressionsSyntaxTrees = mapIntoArrayList(indexExpressionsList, Expression::getSyntaxTree);
-		SyntaxTree parameterList       = SyntaxTrees.makeKleeneListIfNeeded(indexExpressionsSyntaxTrees);
-		SyntaxTree scopingSyntaxTree   = new DefaultCompoundSyntaxTree(IntensionalSet.SCOPED_VARIABLES_LABEL, parameterList);
+		SyntaxTree parametersSyntaxTree = indexExpressions.getSubSyntaxTree();
+		
+		SyntaxTree scopingSyntaxTree   = new DefaultCompoundSyntaxTree(IntensionalSet.SCOPED_VARIABLES_LABEL, parametersSyntaxTree);
 		SyntaxTree headSyntaxTree      = getHead().getSyntaxTree();
 		SyntaxTree conditionSyntaxTree =
 				(getCondition() == null || getCondition().equals("true"))?
@@ -112,16 +110,12 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 	}
 
 	@Override
-	public Expression renameSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
 		IntensionalSet result = this;
 		
-		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, process);
-		IndexExpressionsSet indexExpressions = getIndexExpressions();
-		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
-		IndexExpressionsSet newIndexExpressions = new ExtensionalIndexExpressionsSet(replaceElementsNonDestructively(indexExpressionsList, renameSymbol));
-		
-		Expression newHead      = getHead().renameSymbol(symbol, newSymbol, process);
-		Expression newCondition = getCondition().renameSymbol(symbol, newSymbol, process);
+		IndexExpressionsSet newIndexExpressions = getIndexExpressions().replaceSymbol(symbol, newSymbol, process);
+		Expression newHead                      = getHead().replaceSymbol(symbol, newSymbol, process);
+		Expression newCondition                 = getCondition().replaceSymbol(symbol, newSymbol, process);
 		
 		result = replaceIfNeeded(newIndexExpressions, newHead, newCondition);
 
@@ -237,9 +231,7 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 	
 	public String makeToString() {
 		String result;
-		IndexExpressionsSet indexExpressions = getIndexExpressions();
-		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) indexExpressions).getList();
-		result = getOpeningBrackets() + " ( on " + Util.join(", ", indexExpressionsList) + " ) " + getHead()
+		result = getOpeningBrackets() + " ( on " + getIndexExpressions().getSubExpressionString() + " ) " + getHead()
 				+ (getCondition().equals(Expressions.TRUE)? "" : " | " + getCondition() ) + " " + getClosingBrackets(); 
 		return result;
 	}

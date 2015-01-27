@@ -38,6 +38,7 @@
 package com.sri.ai.expresso.api;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.grinder.api.RewritingProcess;
 
 /**
  * Represents an immutable set of index expressions of a {@link QuantifiedExpression}.
@@ -47,5 +48,36 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 public interface IndexExpressionsSet {
+	
+	/**
+	 * Provides the syntax-tree to be plugged into syntax trees of expressions with these indices;
+	 * the particular syntax tree must be the same understood by {@link #makeFromSubSyntaxTree(SyntaxTree)}.
+	 * @return
+	 */
+	SyntaxTree getSubSyntaxTree();
 
+	/**
+	 * Returns a {@link IndexExpressionsSet} corresponding to the sub-syntax-tree of an index expression,
+	 * as produced by {@link #getSubSyntaxTree()}.
+	 * @return
+	 */
+	static IndexExpressionsSet makeFromSubSyntaxTree(SyntaxTree syntaxTree) {
+		return null;
+	}
+
+	/**
+	 * Provides the string that represents these indices in the string of expressions with these indices;
+	 * this must be consistent with whatever parser is being used.
+	 * @return
+	 */
+	String getSubExpressionString();
+
+	/**
+	 * Returns a new {@link IndexExpressionsSet} (or the same, if no changes occurred),
+	 * with a given symbol replaced by another.
+	 * @param symbol
+	 * @param newSymbol
+	 * @return
+	 */
+	IndexExpressionsSet replaceSymbol(Expression symbol, Expression newSymbol, RewritingProcess process);
 }

@@ -37,13 +37,22 @@
  */
 package com.sri.ai.expresso.core;
 
+import static com.sri.ai.util.Util.mapIntoArrayList;
+import static com.sri.ai.util.Util.replaceElementsNonDestructively;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.helper.SyntaxTrees;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.util.Util;
 
 /**
  * A default implementation of a {@link IndexExpressionsSet}.
@@ -62,5 +71,32 @@ public class ExtensionalIndexExpressionsSet implements IndexExpressionsSet {
 	
 	public List<Expression> getList() {
 		return Collections.unmodifiableList(list);
+	}
+
+	@Override
+	public SyntaxTree getSubSyntaxTree() {
+		List<SyntaxTree> indexExpressionsSyntaxTrees = mapIntoArrayList(getList(), Expression::getSyntaxTree);
+		SyntaxTree result = SyntaxTrees.makeKleeneListIfNeeded(indexExpressionsSyntaxTrees);
+		return result;
+	}
+
+	@Override
+	public String getSubExpressionString() {
+		String result = Util.join(", ", getList()); 
+		return result;
+	}
+
+	@Override
+	public IndexExpressionsSet replaceSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
+		Function<Expression, Expression> renameSymbol = e -> IndexExpressions.renameSymbol(e, symbol, newSymbol, process);
+		List<Expression> newList = replaceElementsNonDestructively(getList(), renameSymbol);
+		IndexExpressionsSet newIndexExpressions;
+		if (newList != getList()) {
+			newIndexExpressions = new ExtensionalIndexExpressionsSet(newList);
+		}
+		else {
+			newIndexExpressions = this;
+		}
+		return newIndexExpressions;
 	}
 }

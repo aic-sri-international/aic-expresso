@@ -170,7 +170,7 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	 * @param process
 	 * @return the result of renaming <code>symbol</code> as <code>newSymbol</code> everywhere in <code>expression</code>.
 	 */
-	public Expression renameSymbol(Expression symbol, Expression newSymbol, RewritingProcess process);
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, RewritingProcess process);
 	
 	///////////////////////// FUNCTION APPLICATION METHODS //////////////////////
 	// The following methods are only valid for function applications.

@@ -116,9 +116,9 @@ public class DefaultBracketedExpression extends AbstractNonQuantifiedExpression 
 	}
 
 	@Override
-	public Expression renameSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
+	public Expression replaceSymbol(Expression symbol, Expression newSymbol, RewritingProcess process) {
 		Expression result = this;
-		Expression newInnerExpression = getInnerExpression().renameSymbol(symbol, newSymbol, process);
+		Expression newInnerExpression = getInnerExpression().replaceSymbol(symbol, newSymbol, process);
 		if (newInnerExpression != getInnerExpression()) {
 			result = new DefaultBracketedExpression(newInnerExpression, getRandomPredicates());
 		}

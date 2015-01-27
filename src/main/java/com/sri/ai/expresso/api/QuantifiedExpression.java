@@ -59,7 +59,8 @@ public interface QuantifiedExpression extends Expression {
 	public QuantifiedExpression setIndexExpressions(List<Expression> newIndexExpressions);
 
 	/**
-	 * Returns a new {@link QuantifiedExpression} with the {@param indexExpressionIndex}-th index expression
+	 * Assumes quantified expression contains an extensional set of index expressions,
+	 * and returns a new {@link QuantifiedExpression} with the {@param indexExpressionIndex}-th index expression
 	 * replaced by the result of applying the given replacement function to
 	 * the index expression of given index,
 	 * or this same instance if the replacement function maps the index expression to itself.
@@ -68,6 +69,7 @@ public interface QuantifiedExpression extends Expression {
 	 * @return a {@link QuantifiedExpression} with the replaced index expression (or this same instance if replacement is the same).
 	 */
 	public default Expression replaceIndexExpression(int indexExpressionIndex, Function<Expression, Expression> replacementFunction) {
+		assert getIndexExpressions() instanceof ExtensionalIndexExpressionsSet : this.getClass().getSimpleName() + ".replaceIndexExpression assumes extensional set of index expressions but " + this + " has a non-extensional index expression set";
 		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) getIndexExpressions()).getList();
 		IndexExpressionsSet newIndexExpressions =
 				new ExtensionalIndexExpressionsSet(replaceElementNonDestructively(indexExpressionsList, indexExpressionIndex, replacementFunction));
