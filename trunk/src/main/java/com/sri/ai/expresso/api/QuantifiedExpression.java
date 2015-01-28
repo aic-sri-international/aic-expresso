@@ -37,13 +37,9 @@
  */
 package com.sri.ai.expresso.api;
 
-import static com.sri.ai.util.Util.replaceElementNonDestructively;
-
 import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
-import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 
 /**
  * An {@link Expression} that represents a quantified expression, that is, an expression introducing new variables,
@@ -56,24 +52,4 @@ public interface QuantifiedExpression extends Expression {
 
 	public IndexExpressionsSet getIndexExpressions();
 	public QuantifiedExpression setIndexExpressions(IndexExpressionsSet newIndexExpressions);
-	public QuantifiedExpression setIndexExpressions(List<Expression> newIndexExpressions);
-
-	/**
-	 * Assumes quantified expression contains an extensional set of index expressions,
-	 * and returns a new {@link QuantifiedExpression} with the {@param indexExpressionIndex}-th index expression
-	 * replaced by the result of applying the given replacement function to
-	 * the index expression of given index,
-	 * or this same instance if the replacement function maps the index expression to itself.
-	 * @param indexExpressionIndex
-	 * @param replacementFunction
-	 * @return a {@link QuantifiedExpression} with the replaced index expression (or this same instance if replacement is the same).
-	 */
-	public default Expression replaceIndexExpression(int indexExpressionIndex, Function<Expression, Expression> replacementFunction) {
-		assert getIndexExpressions() instanceof ExtensionalIndexExpressionsSet : this.getClass().getSimpleName() + ".replaceIndexExpression assumes extensional set of index expressions but " + this + " has a non-extensional index expression set";
-		List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) getIndexExpressions()).getList();
-		IndexExpressionsSet newIndexExpressions =
-				new ExtensionalIndexExpressionsSet(replaceElementNonDestructively(indexExpressionsList, indexExpressionIndex, replacementFunction));
-		Expression result = setIndexExpressions(newIndexExpressions);
-		return result;
-	}
 }

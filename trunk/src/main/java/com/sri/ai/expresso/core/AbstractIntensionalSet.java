@@ -168,11 +168,6 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 		return result;
 	}
 
-	@Override
-	public QuantifiedExpression setIndexExpressions(List<Expression> newIndexExpressions) {
-		return setIndexExpressions(new ExtensionalIndexExpressionsSet(newIndexExpressions));
-	}
-	
 	public IntensionalSet replaceIfNeeded(IndexExpressionsSet newIndexExpressions, Expression newHead, Expression newCondition) {
 		IntensionalSet result = this;
 		if (newIndexExpressions != getIndexExpressions() || newHead != getHead() || newCondition != getCondition()) {

@@ -149,11 +149,6 @@ public abstract class AbstractQuantifiedExpressionWithABody extends AbstractQuan
 	}
 
 	@Override
-	public AbstractQuantifiedExpression setIndexExpressions(List<Expression> newIndexExpressions) {
-		return setIndexExpressions(new ExtensionalIndexExpressionsSet(newIndexExpressions));
-	}
-	
-	@Override
 	public AbstractQuantifiedExpressionWithABody setBody(Expression newBody) {
 		AbstractQuantifiedExpressionWithABody result;
 		if (newBody != getBody()) {
