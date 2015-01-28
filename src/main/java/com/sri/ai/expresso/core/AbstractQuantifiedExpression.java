@@ -40,12 +40,12 @@ package com.sri.ai.expresso.core;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.replaceArgument;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.replaceOrAddType;
 import static com.sri.ai.util.Util.castOrThrowError;
+import static com.sri.ai.util.Util.replaceElementNonDestructively;
 
 import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
@@ -104,9 +104,6 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 	@Override
 	public abstract QuantifiedExpression setIndexExpressions(IndexExpressionsSet newIndexExpressions);
 
-	@Override
-	public abstract QuantifiedExpression setIndexExpressions(List<Expression> newIndexExpressions);
-
 	/**
 	 * A convenience method (for extensions' benefit) generating the {@link ExpressionAndContext} objects with respect to the index expressions.
 	 * Extensions of {@link AbstractQuantifiedExpression} will still need to generate the {@link ExpressionAndContext} objects
@@ -146,26 +143,55 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 		return expressionAndContext;
 	}
 
+	/**
+	 * Abstract class responsible for keeping the address of an index expression's sub-expression S,
+	 * and allowing new sub-expressions S' to replace it.
+	 * It records the index expression's index I and relies
+	 * on its abstract method {@link #replaceAddressedSubExpressionInIndexExpressionByNewSubExpression(Expression, Expression)}
+	 * to replace S by S' in the I-th index expression.
+	 * @author braz
+	 *
+	 */
 	protected static abstract class IndexExpressionSubExpressionAddress implements SubExpressionAddress {
 		
 		protected int indexExpressionIndex;
-		Function<Expression, Function<Expression, Expression>> functionFromNewSubExpressionToSubExpressionReplacementFunction;
 		
-		public IndexExpressionSubExpressionAddress(
-				int indexExpressionIndex, Function<Expression, Function<Expression, Expression>> functionFromNewSubExpressionToSubExpressionReplacementFunction) {
+		public IndexExpressionSubExpressionAddress(int indexExpressionIndex) {
 			super();
 			this.indexExpressionIndex = indexExpressionIndex;
-			this.functionFromNewSubExpressionToSubExpressionReplacementFunction = functionFromNewSubExpressionToSubExpressionReplacementFunction;
 		}
 
 		@Override
 		public Expression replace(Expression expression, Expression newSubExpression) {
 			AbstractQuantifiedExpression quantifiedExpression = castOrThrowError(AbstractQuantifiedExpression.class, expression, "Attempt to use " + IndexExpressionTypeSubExpressionAddress.class.getSimpleName() + " to replace sub-expression " + newSubExpression + " in %s, but the latter should have been an instance of %s but is instead an instance of %s");
-			Function<Expression, Expression> subExpressionReplacementFunction = functionFromNewSubExpressionToSubExpressionReplacementFunction.apply(newSubExpression);
-			Expression result = quantifiedExpression.replaceIndexExpression(indexExpressionIndex, subExpressionReplacementFunction);
+			assert quantifiedExpression.getIndexExpressions() instanceof ExtensionalIndexExpressionsSet : quantifiedExpression.getClass().getSimpleName() + ".replaceIndexExpression assumes extensional set of index expressions but " + quantifiedExpression + " has a non-extensional index expression set";
+
+			List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) quantifiedExpression.getIndexExpressions()).getList();
+			List<Expression> newIndexExpressionsList =
+					replaceElementNonDestructively(indexExpressionsList, indexExpressionIndex,
+							ie -> replaceAddressedSubExpressionInIndexExpressionByNewSubExpression(ie, newSubExpression));
+
+			Expression result;
+			if (newIndexExpressionsList != indexExpressionsList) {
+				IndexExpressionsSet newIndexExpressions = new ExtensionalIndexExpressionsSet(newIndexExpressionsList);
+				result = quantifiedExpression.setIndexExpressions(newIndexExpressions);
+			}
+			else {
+				result = quantifiedExpression;
+			}
+			
 			return result;
 		}
 
+		/**
+		 * Implementations must override this method to specify how a new sub-expression is to replace the one addressed by this {@link IndexExpressionSubExpressionAddress}.
+		 * As usual, they must return the same instance if the sub-expressions are the same.
+		 * @param indexExpression
+		 * @param newSubExpression
+		 * @return
+		 */
+		abstract protected Expression replaceAddressedSubExpressionInIndexExpressionByNewSubExpression(Expression indexExpression, Expression newSubExpression);
+		
 		@Override
 		abstract public Expression getSubExpressionOf(Expression expression);
 	}
@@ -194,7 +220,7 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 		protected int argumentIndex;
 		
 		public IndexExpressionArgumentSubExpressionAddress(int indexExpressionIndex, int argumentIndex) {
-			super(indexExpressionIndex, newArgument -> (indexExpression -> replaceArgument(indexExpression, argumentIndex, newArgument)));
+			super(indexExpressionIndex);
 			this.argumentIndex = argumentIndex;
 		}
 
@@ -204,6 +230,12 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 			Expression indexExpression = ((ExtensionalIndexExpressionsSet) quantifiedExpression.getIndexExpressions()).getList().get(indexExpressionIndex);
 			Expression index = IndexExpressions.getIndex(indexExpression);
 			Expression result = index.get(argumentIndex);
+			return result;
+		}
+
+		@Override
+		protected Expression replaceAddressedSubExpressionInIndexExpressionByNewSubExpression(Expression indexExpression, Expression newSubExpression) {
+			Expression result = replaceArgument(indexExpression, argumentIndex, newSubExpression);
 			return result;
 		}
 	}
@@ -230,7 +262,7 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 	 */
 	protected static class IndexExpressionTypeSubExpressionAddress extends IndexExpressionSubExpressionAddress {
 		public IndexExpressionTypeSubExpressionAddress(int indexExpressionIndex) {
-			super(indexExpressionIndex, newType -> (indexExpression -> replaceOrAddType(indexExpression, newType)));
+			super(indexExpressionIndex);
 		}
 
 		@Override
@@ -248,6 +280,12 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 			else {
 				throw new Error("Attempt to obtain type for " + indexExpressionIndex + "-th index expression of " + expression + " but it does not have a type.");
 			}
+			return result;
+		}
+
+		@Override
+		protected Expression replaceAddressedSubExpressionInIndexExpressionByNewSubExpression(Expression indexExpression, Expression newSubExpression) {
+			Expression result = replaceOrAddType(indexExpression, newSubExpression);
 			return result;
 		}
 	}
