@@ -58,17 +58,22 @@ public class HelloWorlds {
 		 */
 		Theory theory = new EqualityOnSymbolsTheory();
 
-		/* The problem type, a sum. Could be Max or other commutative associative operators. */
-		ProblemType problemType = new Sum();
-//		ProblemType problemType = new Max();
+		/* 
+		 * The problem type, a sum. Could be Max or other commutative associative operators.
+		 */
+//		ProblemType problemType = new Sum();
+		ProblemType problemType = new Max();
 
-		/* The expression to be summed (or whatever other operation'ed) - can use equality on symbols (capitalized ones are variables, other uniquely named constants),
+		/* 
+		 * The expression to be summed (or whatever other operation'ed) - can use equality on symbols (capitalized ones are variables, other uniquely named constants),
 		 * boolean connectives, if then else expressions, and numbers.
 		 */
 		Expression expression  = Expressions.parse("if X = Y or Y = Z then 1 else if Y != a then 2 else 3");
 		
-		/* the variables to be summed out (or maxed out, etc, depending on the problem type). 
-		 * Could be just one of them, or all of them, or none of them */
+		/* 
+		 * The variables to be summed out (or maxed out, etc, depending on the problem type). 
+		 * Could be just one of them, or all of them, or none of them
+		 */
 		Collection<Expression> indices = Util.list(Expressions.parse("X"), Expressions.parse("Y"));
 //		Collection<Expression> indices = Util.list(Expressions.parse("X"));
 //		Collection<Expression> indices = Util.list(); // result is a compilation of the original expression in this case

@@ -67,7 +67,7 @@ public class Max extends AbstractProblemType {
 
 	@Override
 	public Expression expressionValueLeadingToAdditiveIdentityElement() {
-		return Expressions.parse("-infinity");
+		return Expressions.MINUS_INFINITY;
 	}
 
 	@Override

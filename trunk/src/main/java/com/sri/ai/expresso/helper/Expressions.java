@@ -1174,4 +1174,8 @@ public class Expressions {
 		}
 		return expression;
 	}
+
+	public static final Expression MINUS_INFINITY = parse("-infinity");
+
+	public static final Expression INFINITY = parse("infinity");
 }

@@ -37,14 +37,14 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import static com.sri.ai.expresso.helper.Expressions.INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -54,10 +54,8 @@ import com.sri.ai.util.math.Rational;
  *
  */
 @Beta
-public class SymbolicNumberSemiRingWithMax implements SemiRing {
+public class SymbolicNumberSemiRingWithMax extends AbstractSymbolicNumberSemiRing {
 	
-	private static final Expression MINUS_INFINITY = Expressions.parse("-infinity");
-
 	@Override
 	public Expression additiveIdentityElement() {
 		return MINUS_INFINITY;
@@ -65,7 +63,8 @@ public class SymbolicNumberSemiRingWithMax implements SemiRing {
 
 	@Override
 	public boolean isAbsorbingElement(Expression value) {
-		return false;
+		boolean result = value.equals(INFINITY);
+		return result;
 	}
 
 	@Override
@@ -81,6 +80,15 @@ public class SymbolicNumberSemiRingWithMax implements SemiRing {
 				result = value2;
 			}
 		}
+		else if (value1.equals(INFINITY) || value2.equals(INFINITY)) {
+			result = INFINITY;
+		}
+		else if (value1.equals(MINUS_INFINITY)) {
+			result = value2;
+		}
+		else if (value2.equals(MINUS_INFINITY)) {
+			result = value1;
+		}
 		else {
 			result = Expressions.apply(FunctorConstants.MAX, value1, value2);
 		}
@@ -88,32 +96,7 @@ public class SymbolicNumberSemiRingWithMax implements SemiRing {
 	}
 
 	@Override
-	public Expression addNTimes(Expression valueToBeAdded, Expression n, RewritingProcess process) {
-		Expression result;
-		if (n.equals(ZERO)) {
-			result = additiveIdentityElement();
-		}
-		else if (IfThenElse.isIfThenElse(n)) { // it is important that this condition is tested before the next, because n can be conditional on splitters while valueToBeSummed can be conditioned on conditions in the unconditional solution language (such as | Everything | - 1 > 0), and we want splitters to be over non-splitter conditions
-			Expression condition  = IfThenElse.getCondition(n);
-			Expression thenBranch = IfThenElse.getThenBranch(n);
-			Expression elseBranch = IfThenElse.getElseBranch(n);
-			Expression newThenBranch = addNTimes(valueToBeAdded, thenBranch, process);
-			Expression newElseBranch = addNTimes(valueToBeAdded, elseBranch, process);
-			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false); // do not simplify to condition so it is a DPLL solution
-		}
-		else if (IfThenElse.isIfThenElse(valueToBeAdded)) {
-			Expression condition = IfThenElse.getCondition(valueToBeAdded);
-			Expression thenBranch = IfThenElse.getThenBranch(valueToBeAdded);
-			Expression elseBranch = IfThenElse.getElseBranch(valueToBeAdded);
-			
-			Expression newThenBranch = addNTimes(thenBranch, n, process);
-			Expression newElseBranch = addNTimes(elseBranch, n, process);
-			
-			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
-		}
-		else {
-			result = valueToBeAdded;
-		}
-		return result;
+	protected Expression addNTimesWithUnconditionalValueAndNAndNDistinctFromZero(Expression valueToBeAdded, Expression n) {
+		return valueToBeAdded;
 	}
 }

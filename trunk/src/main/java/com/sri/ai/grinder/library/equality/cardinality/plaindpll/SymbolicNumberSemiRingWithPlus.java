@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.util.Util.arrayList;
@@ -47,7 +48,6 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.TotalRewriter;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.number.FlattenMinusInPlus;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.number.Plus;
@@ -61,7 +61,7 @@ import com.sri.ai.util.math.Rational;
  *
  */
 @Beta
-public class SymbolicNumberSemiRingWithPlus implements SemiRing {
+public class SymbolicNumberSemiRingWithPlus extends AbstractSymbolicNumberSemiRing {
 	
 	@Override
 	public Expression additiveIdentityElement() {
@@ -70,7 +70,8 @@ public class SymbolicNumberSemiRingWithPlus implements SemiRing {
 
 	@Override
 	public boolean isAbsorbingElement(Expression value) {
-		return false;
+		boolean result = value.equals(INFINITY);
+		return result;
 	}
 
 	@Override
@@ -89,41 +90,18 @@ public class SymbolicNumberSemiRingWithPlus implements SemiRing {
 	private static Rewriter plusAndMinusRewriter = new TotalRewriter(new Plus(), new Minus(), new UnaryMinus(), new FlattenMinusInPlus());
 	
 	@Override
-	public Expression addNTimes(Expression valueToBeSummed, Expression n, RewritingProcess process) {
+	protected Expression addNTimesWithUnconditionalValueAndNAndNDistinctFromZero(Expression valueToBeAdded, Expression n) {
 		Expression result;
-		if (n.equals(ZERO)) {
+		if (valueToBeAdded.equals(ZERO)) { // optimization
 			result = ZERO;
 		}
-		else if (IfThenElse.isIfThenElse(n)) { // it is important that this condition is tested before the next, because n can be conditional on splitters while valueToBeSummed can be conditioned on conditions in the unconditional solution language (such as | Everything | - 1 > 0), and we want splitters to be over non-splitter conditions
-			Expression condition  = IfThenElse.getCondition(n);
-			Expression thenBranch = IfThenElse.getThenBranch(n);
-			Expression elseBranch = IfThenElse.getElseBranch(n);
-			Expression newThenBranch = addNTimes(valueToBeSummed, thenBranch, process);
-			Expression newElseBranch = addNTimes(valueToBeSummed, elseBranch, process);
-			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false); // do not simplify to condition so it is a DPLL solution
-		}
-		else if (IfThenElse.isIfThenElse(valueToBeSummed)) {
-			Expression condition = IfThenElse.getCondition(valueToBeSummed);
-			Expression thenBranch = IfThenElse.getThenBranch(valueToBeSummed);
-			Expression elseBranch = IfThenElse.getElseBranch(valueToBeSummed);
-			
-			Expression newThenBranch = addNTimes(thenBranch, n, process);
-			Expression newElseBranch = addNTimes(elseBranch, n, process);
-			
-			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
+		else if (valueToBeAdded.equals(ONE)) { // optimization
+			result = n;
 		}
 		else {
-			if (valueToBeSummed.equals(ZERO)) { // optimization
-				result = ZERO;
-			}
-			else if (valueToBeSummed.equals(ONE)) { // optimization
-				result = n;
-			}
-			else {
-				Rational rationalValue = valueToBeSummed.rationalValue();
-				assert rationalValue != null: "Expected a constant numeric expression but got " + valueToBeSummed;
-				result = Expressions.makeSymbol(rationalValue.multiply(n.rationalValue()));
-			}
+			Rational rationalValue = valueToBeAdded.rationalValue();
+			assert rationalValue != null: "Expected a constant numeric expression but got " + valueToBeAdded;
+			result = Expressions.makeSymbol(rationalValue.multiply(n.rationalValue()));
 		}
 		return result;
 	}
