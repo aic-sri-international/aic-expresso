@@ -37,35 +37,30 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
-import static com.sri.ai.util.Util.arrayList;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.TotalRewriter;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.number.FlattenMinusInPlus;
-import com.sri.ai.grinder.library.number.Minus;
-import com.sri.ai.grinder.library.number.Plus;
-import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.util.math.Rational;
 
 /**
- * Object representing a symbolic numeric semiring (that is, numeric expressions do not need to be constant numbers).
+ * Object representing a symbolic numeric semiring (that is, numeric expressions do not need to be constant numbers) with the maximization operation.
  * 
  * @author braz
  *
  */
 @Beta
-public class SymbolicNumberSemiRing implements SemiRing {
+public class SymbolicNumberSemiRingWithMax implements SemiRing {
 	
+	private static final Expression MINUS_INFINITY = Expressions.parse("-infinity");
+
 	@Override
 	public Expression additiveIdentityElement() {
-		return ZERO;
+		return MINUS_INFINITY;
 	}
 
 	@Override
@@ -76,36 +71,40 @@ public class SymbolicNumberSemiRing implements SemiRing {
 	@Override
 	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
 		Expression result;
-		if (value1.getValue() instanceof Number && value2.getValue() instanceof Number) { // not necessary, as else clause is generic enough to deal with this case as well, but hopefully this saves time.
-			result = Expressions.makeSymbol(value1.rationalValue().add(value2.rationalValue()));
+		if (value1.getValue() instanceof Number && value2.getValue() instanceof Number) {
+			Rational rationalValue1 = value1.rationalValue();
+			Rational rationalValue2 = value2.rationalValue();
+			if (rationalValue1.compareTo(rationalValue2) > 0) {
+				result = value1;
+			}
+			else {
+				result = value2;
+			}
 		}
 		else {
-			Expression sum = Plus.make(arrayList(value1, value2));
-			result = plusAndMinusRewriter.rewrite(sum, process);
+			result = Expressions.apply(FunctorConstants.MAX, value1, value2);
 		}
 		return result;
 	}
 
-	private static Rewriter plusAndMinusRewriter = new TotalRewriter(new Plus(), new Minus(), new UnaryMinus(), new FlattenMinusInPlus());
-	
 	@Override
-	public Expression addNTimes(Expression valueToBeSummed, Expression n, RewritingProcess process) {
+	public Expression addNTimes(Expression valueToBeAdded, Expression n, RewritingProcess process) {
 		Expression result;
 		if (n.equals(ZERO)) {
-			result = ZERO;
+			result = additiveIdentityElement();
 		}
 		else if (IfThenElse.isIfThenElse(n)) { // it is important that this condition is tested before the next, because n can be conditional on splitters while valueToBeSummed can be conditioned on conditions in the unconditional solution language (such as | Everything | - 1 > 0), and we want splitters to be over non-splitter conditions
 			Expression condition  = IfThenElse.getCondition(n);
 			Expression thenBranch = IfThenElse.getThenBranch(n);
 			Expression elseBranch = IfThenElse.getElseBranch(n);
-			Expression newThenBranch = addNTimes(valueToBeSummed, thenBranch, process);
-			Expression newElseBranch = addNTimes(valueToBeSummed, elseBranch, process);
+			Expression newThenBranch = addNTimes(valueToBeAdded, thenBranch, process);
+			Expression newElseBranch = addNTimes(valueToBeAdded, elseBranch, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false); // do not simplify to condition so it is a DPLL solution
 		}
-		else if (IfThenElse.isIfThenElse(valueToBeSummed)) {
-			Expression condition = IfThenElse.getCondition(valueToBeSummed);
-			Expression thenBranch = IfThenElse.getThenBranch(valueToBeSummed);
-			Expression elseBranch = IfThenElse.getElseBranch(valueToBeSummed);
+		else if (IfThenElse.isIfThenElse(valueToBeAdded)) {
+			Expression condition = IfThenElse.getCondition(valueToBeAdded);
+			Expression thenBranch = IfThenElse.getThenBranch(valueToBeAdded);
+			Expression elseBranch = IfThenElse.getElseBranch(valueToBeAdded);
 			
 			Expression newThenBranch = addNTimes(thenBranch, n, process);
 			Expression newElseBranch = addNTimes(elseBranch, n, process);
@@ -113,17 +112,7 @@ public class SymbolicNumberSemiRing implements SemiRing {
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
 		}
 		else {
-			if (valueToBeSummed.equals(ZERO)) { // optimization
-				result = ZERO;
-			}
-			else if (valueToBeSummed.equals(ONE)) { // optimization
-				result = n;
-			}
-			else {
-				Rational rationalValue = valueToBeSummed.rationalValue();
-				assert rationalValue != null: "Expected a constant numeric expression but got " + valueToBeSummed;
-				result = Expressions.makeSymbol(rationalValue.multiply(n.rationalValue()));
-			}
+			result = valueToBeAdded;
 		}
 		return result;
 	}

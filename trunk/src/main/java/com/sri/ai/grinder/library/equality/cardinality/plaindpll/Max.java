@@ -37,27 +37,29 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
 
-import com.sri.ai.expresso.api.ExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.base.Pair;
 
 /**
- * Declares the problem type of determining whether a formula has a model.
+ * The maximization problem type.
  * 
  * @author braz
  *
  */
-public class Satisfiability extends AbstractProblemType {
+public class Max extends AbstractProblemType {
 
-	public Satisfiability() {
-		super(new DisjunctiveBooleanSemiRing());
+	public Max() {
+		super(new SymbolicNumberSemiRingWithMax());
 	}
 	
-	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
 	@Override
 	public Expression fromExpressionValueWithoutLiteralsToValueToBeAdded(Expression expression) {
 		return expression;
@@ -65,13 +67,14 @@ public class Satisfiability extends AbstractProblemType {
 
 	@Override
 	public Expression expressionValueLeadingToAdditiveIdentityElement() {
-		return FALSE;
+		return Expressions.parse("-infinity");
 	}
 
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		ExistentiallyQuantifiedFormula existential = (ExistentiallyQuantifiedFormula) expression;
-		Pair<Expression, IndexExpressionsSet> formulaAndIndices = Pair.make(existential.getBody(), existential.getIndexExpressions());
-		return formulaAndIndices;
+		assert expression.hasFunctor(FunctorConstants.MAX);
+		IntensionalSet set = (IntensionalSet) expression.get(0);
+		Pair<Expression, IndexExpressionsSet> result = Pair.make(IfThenElse.make(set.getCondition(), set.getHead(), ZERO), set.getIndexExpressions());
+		return result;
 	}
 }

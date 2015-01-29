@@ -71,10 +71,13 @@ public interface ProblemType {
 	 */
 	boolean isAbsorbingElement(Expression value);
 
-	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
-	Expression fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression expression);
+	/** Converts expression value without literals to the value to be added (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
+	Expression fromExpressionValueWithoutLiteralsToValueToBeAdded(Expression expression);
 
-	/** The expression value that gets evaluated to the semi-ring identity element by {@link #fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression)}. */
+	/**
+	 * The expression value that gets evaluated to the semi-ring identity element by {@link #fromExpressionValueWithoutLiteralsToValueToBeAdded(Expression)};
+	 * in other words, the expression E such that {@link #fromExpressionValueWithoutLiteralsToValueToBeAdded(Expression)}(E) is the additive neutral element of the semi-ring.
+	 */
 	Expression expressionValueLeadingToAdditiveIdentityElement();
 
 	/**
