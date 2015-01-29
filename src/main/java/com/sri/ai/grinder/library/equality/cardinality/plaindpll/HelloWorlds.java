@@ -58,11 +58,9 @@ public class HelloWorlds {
 		 */
 		Theory theory = new EqualityOnSymbolsTheory();
 
-		/* The problem type, a sum. Could be Max, too. */
-		ProblemType problemType = new Sum();
-		String problemTypeName = "Sum";
-//		ProblemType problemType = new Max();
-//		String problemTypeName = "Max";
+		/* The problem type, a sum. Could be Max or other commutative associative operators. */
+//		ProblemType problemType = new Sum();
+		ProblemType problemType = new Max();
 
 		/* The expression to be summed (or whatever other operation'ed) - can use equality on symbols (capitalized ones are variables, other uniquely named constants),
 		 * boolean connectives, if then else expressions, and numbers.
@@ -72,9 +70,9 @@ public class HelloWorlds {
 		/* the variables to be summed out (or maxed out, etc, depending on the problem type). 
 		 * Could be just one of them, or all of them, or none of them */
 		Collection<Expression> indices = Util.list(Expressions.parse("X"), Expressions.parse("Y"));
-		// Collection<Expression> indices = Util.list(Expressions.parse("X"));
-		// Collection<Expression> indices = Util.list(); // result is a compilation of the original expression in this case
-		// Collection<Expression> indices = Util.list(Expressions.parse("X"), Expressions.parse("Y"), Expressions.parse("Z")); // sum is just a number in this case
+//		Collection<Expression> indices = Util.list(Expressions.parse("X"));
+//		Collection<Expression> indices = Util.list(); // result is a compilation of the original expression in this case
+//		Collection<Expression> indices = Util.list(Expressions.parse("X"), Expressions.parse("Y"), Expressions.parse("Z")); // sum is just a number in this case
 
 		/* The definitions of variables, types, and type sizes. */
 		Map<String, String> mapFromTypeNameToSizeString   = Util.map("Everything", "10000");
@@ -86,7 +84,7 @@ public class HelloWorlds {
 		/* Solve the problem. */
 		Expression result = solver.solve(expression, indices, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString);
 
-		System.out.println(problemTypeName + " of\n" + expression + "\nover assignments to variables\n" + Util.join(indices) + "\nis\n" + result);	
+		System.out.println(problemType.getClass().getSimpleName() + " of\n" + expression + "\nover assignments to variables\n" + Util.join(indices) + "\nis\n" + result);	
 	}
 
 }
