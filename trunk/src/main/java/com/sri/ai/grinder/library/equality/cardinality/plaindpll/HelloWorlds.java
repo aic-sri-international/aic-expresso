@@ -59,8 +59,8 @@ public class HelloWorlds {
 		Theory theory = new EqualityOnSymbolsTheory();
 
 		/* The problem type, a sum. Could be Max or other commutative associative operators. */
-//		ProblemType problemType = new Sum();
-		ProblemType problemType = new Max();
+		ProblemType problemType = new Sum();
+//		ProblemType problemType = new Max();
 
 		/* The expression to be summed (or whatever other operation'ed) - can use equality on symbols (capitalized ones are variables, other uniquely named constants),
 		 * boolean connectives, if then else expressions, and numbers.
