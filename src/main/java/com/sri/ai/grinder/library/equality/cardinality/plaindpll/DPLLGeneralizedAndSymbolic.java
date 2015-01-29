@@ -42,9 +42,11 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
@@ -138,6 +140,25 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	}
 
 	/**
+	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
+	 */
+	public Expression solve(Expression expression, Collection<Expression> indices, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
+		RewritingProcess process = new DefaultRewritingProcess(this);
+		for (Map.Entry<String, String> variableNameAndTypeName : mapFromVariableNameToTypeName.entrySet()) {
+			String variableName = variableNameAndTypeName.getKey();
+			String typeName     = variableNameAndTypeName.getValue();
+			process = GrinderUtil.extendContextualSymbolsWithIndexExpression(Expressions.parse(variableName + " in " + typeName), process);
+		}
+		for (Map.Entry<String, String> typeNameAndSizeString : mapFromTypeNameToSizeString.entrySet()) {
+			String typeName   = typeNameAndSizeString.getKey();
+			String sizeString = typeNameAndSizeString.getValue();
+			process.putGlobalObject(Expressions.parse("|" + typeName + "|"), Expressions.parse(sizeString));
+		}
+		Expression result = solve(expression, indices, process);
+		return result;
+	}
+
+	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
 	 */
 	public Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process) {
@@ -174,7 +195,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		else {
 			Expression unconditionalValue = normalizeUnconditionalExpression(expression, process);
 			Expression numberOfOccurrences = constraint.modelCount(process);
-			Expression valueToBeSummed = problemType.fromExpressionValueWithoutLiteralsToValueToBeSummed(unconditionalValue);
+			Expression valueToBeSummed = problemType.fromExpressionValueWithoutLiteralsToValueToBeAdded(unconditionalValue);
 			result = problemType.addNTimes(valueToBeSummed, numberOfOccurrences, process);
 		}
 

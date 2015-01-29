@@ -59,7 +59,7 @@ public class Tautologicality extends AbstractProblemType {
 	
 	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
 	@Override
-	public Expression fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression expression) {
+	public Expression fromExpressionValueWithoutLiteralsToValueToBeAdded(Expression expression) {
 		return expression;
 	}
 

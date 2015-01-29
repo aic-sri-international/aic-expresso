@@ -48,8 +48,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.base.Pair;
 
 /**
- * Satisfiability uses the boolean semi-ring and does not boolean formulas
- * (applies the semi-ring additive operation, disjunction, directly on them).
+ * The sum problem type.
  * 
  * @author braz
  *
@@ -57,12 +56,11 @@ import com.sri.ai.util.base.Pair;
 public class Sum extends AbstractProblemType {
 
 	public Sum() {
-		super(new SymbolicNumberSemiRing());
+		super(new SymbolicNumberSemiRingWithPlus());
 	}
 	
-	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
 	@Override
-	public Expression fromExpressionValueWithoutLiteralsToValueToBeSummed(Expression expression) {
+	public Expression fromExpressionValueWithoutLiteralsToValueToBeAdded(Expression expression) {
 		return expression;
 	}
 
