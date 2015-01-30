@@ -71,7 +71,7 @@ public class Sum extends AbstractProblemType {
 
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		assert expression.hasFunctor(FunctorConstants.SUM);
+		assert expression.hasFunctor(FunctorConstants.SUM) : "Expression expected to be application of " + FunctorConstants.SUM + " but is " + expression;
 		IntensionalSet set = (IntensionalSet) expression.get(0);
 		Pair<Expression, IndexExpressionsSet> result = Pair.make(IfThenElse.make(set.getCondition(), set.getHead(), ZERO), set.getIndexExpressions());
 		return result;
