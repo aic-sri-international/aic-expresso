@@ -37,8 +37,6 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import static com.sri.ai.expresso.helper.Expressions.ZERO;
-
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
@@ -72,9 +70,9 @@ public class Max extends AbstractProblemType {
 
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		assert expression.hasFunctor(FunctorConstants.MAX);
+		assert expression.hasFunctor(FunctorConstants.MAX) : "Expression expected to be application of " + FunctorConstants.MAX + " but is " + expression;
 		IntensionalSet set = (IntensionalSet) expression.get(0);
-		Pair<Expression, IndexExpressionsSet> result = Pair.make(IfThenElse.make(set.getCondition(), set.getHead(), ZERO), set.getIndexExpressions());
+		Pair<Expression, IndexExpressionsSet> result = Pair.make(IfThenElse.make(set.getCondition(), set.getHead(), Expressions.MINUS_INFINITY), set.getIndexExpressions());
 		return result;
 	}
 }
