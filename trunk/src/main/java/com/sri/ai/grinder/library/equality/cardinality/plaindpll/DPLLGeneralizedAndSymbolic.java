@@ -57,6 +57,7 @@ import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.Constraint;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.QuarternaryFunction;
 
@@ -162,11 +163,14 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
 	 */
 	public Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process) {
-		Constraint constraint = theory.makeConstraint(indices);
 		// TODO: should replace this oldConstraint by a copy constructor creating a sub-process, but surprisingly there is no complete copy constructor available in DefaultRewritingProcess.
 		Theory.Constraint oldConstraint = process.getDPLLContextualConstraint();
-		process.initializeDPLLContextualConstraint(constraint);
+		Constraint contextualConstraint = theory.makeConstraint(Util.list()); // contextual constraint does not involve any indices -- defined on free variables only
+		process.initializeDPLLContextualConstraint(contextualConstraint);
+
+		Constraint constraint = theory.makeConstraint(indices);
 		Expression result = solve(expression, constraint, process);
+		
 		process.initializeDPLLContextualConstraint(oldConstraint);
 		return result;
 	}
