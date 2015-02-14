@@ -44,7 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 
 /**
- * An interface for theories to be plugged into DPLL.
+ * An interface for theories to be plugged into SGDPLL(T).
  * <p>
  * A equalityTheory represents a subset of all possible interpretations of a let of literals in its language.
  * It provides all services to DPLL specific to the equalityTheory, that is, that require knowledge about the specific subset of interpretations.
@@ -83,7 +83,6 @@ public interface Theory {
 	 * Picks a splitter based on one of the equalityTheory's literals in the given expression under given constraint.
 	 * The returned splitter must be a splitter that will help solve the current expression;
 	 * it does not need to be equivalent to the given expression.
-	 * Also receives the indices as arguments, in case they are helpful.
 	 * See {@link Theory} documentation for the definition of a splitter.
 	 * @param expression
 	 * @param constraint
