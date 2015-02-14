@@ -154,89 +154,71 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		return syntacticFormTypeSimplifiers;
 	}
 
+	///////////// MAKE ABSTRACT IN NEW CLASS
+	
 	/**
-	 * If expression is an equality literal with at least one variable, turns it into a valid splitter, or returns null otherwise.
+	 * If expression can generate a splitter, returns the appropriate splitter's functor;
+	 * otherwise, returns <code>null</code>.
 	 * @param expression
-	 * @param indices
-	 * @param process
 	 * @return
 	 */
-	@Override
-	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
-		Expression result = null;
+	protected String getCorrespondingSplitterFunctorOrNull(Expression expression) {
+		String result;
 		if (expression.hasFunctor(FunctorConstants.EQUALITY) || expression.hasFunctor(FunctorConstants.DISEQUALITY)) {
-			// remember that equality can have an arbitrary number of terms
-			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), 
-					e -> termTheory.isVariableTerm(e, process));
-			if (variable != null) {
-				Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), e -> ! e.equals(variable) && termTheory.isTerm(e, process));
-				if (otherTerm != null) {
-					result = makeSplitterFromTwoTerms(variable, otherTerm, indices, process);
-				}
-			}
+			result = FunctorConstants.EQUALITY;
+		}
+		else {
+			result = null;
 		}
 		return result;
 	}
 	
-	protected Expression makeTrueFalseOrSplitterFromTwoTerms(Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
-		Expression result = Equality.makeWithConstantSimplification(term1, term2, process);
-		if ( ! result.getSyntacticFormType().equals("Symbol")) {
-			result = makeSplitterFromTwoTerms(term1, term2, indices, process);
-		}
-		return result;
-	}
-
 	/**
-	 * Assumes equality between terms is not trivial.
-	 * @param term1
-	 * @param term2
-	 * @param indices
-	 * @param process
+	 * @param splitterFunctor
 	 * @return
 	 */
-	protected Expression makeSplitterFromTwoTerms(Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
-		Expression result;
-		// Places index or variable before constants.
-		if (indices.contains(term1)) {
-			result = Equality.make(term1, term2);
-		}
-		else if (indices.contains(term2)) {
-			result = Equality.make(term2, term1);
-		}
-		else if (termTheory.isVariableTerm(term1, process)) {
-			result = Equality.make(term1, term2);
-		}
-		else {
-			result = Equality.make(term2, term1);
-		}
+	private BinaryFunction<Expression, Expression, Expression> getSplitterMaker(String splitterFunctor) {
+		BinaryFunction<Expression, Expression, Expression> result =
+				splitterFunctor.equals(FunctorConstants.EQUALITY)? (t1, t2) -> Equality.make(t1, t2) : null;
 		return result;
 	}
 
-	@Override
-	public Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
-		if ( ! splitterSign) {
-			return applySplitterNegationToExpression(splitter, expression, process);
+	protected BinaryFunction<Expression, RewritingProcess, Expression>
+	
+	getSplitterApplier(Expression splitter) {
+
+		BinaryFunction<Expression, RewritingProcess, Expression> applier = null;
+
+		if (splitter.hasFunctor(FunctorConstants.EQUALITY)) { // TODO: make this if then else into a map from functors for efficiency
+			applier = (Expression expression, RewritingProcess process) -> {
+				Expression term1 = splitter.get(0);
+				Expression term2 = splitter.get(1);
+				Expression result = expression.replaceAllOccurrences(term1, term2, process);
+				result = simplify(result, process);
+				return result;
+			};
 		}
-		
-		Expression term1 = splitter.get(0);
-		Expression term2 = splitter.get(1);
-		Expression result = expression.replaceAllOccurrences(term1, term2, process);
-		result = simplify(result, process);
-		return result;
+
+		return applier;
 	}
 
-	private Expression applySplitterNegationToExpression(Expression splitter, Expression expression, RewritingProcess process) {
-		Expression term1 = splitter.get(0);
-		Expression term2 = splitter.get(1);
-		Expression result = expression.replaceAllOccurrences(new SimplifyLiteralGivenDisequality(term1, term2), process);
-		result = simplify(result, process);
-		return result;
-	}
+	protected BinaryFunction<Expression, RewritingProcess, Expression>
+	
+	getSplitterNegationApplier(Expression splitter) {
+	
+		BinaryFunction<Expression, RewritingProcess, Expression> applier = null;
 
-	@Override
-	public boolean splitterDependsOnIndex(Expression splitter, Collection<Expression> indices) {
-		boolean result = indices.contains(splitter.get(0));
-		return result;
+		if (splitter.hasFunctor(FunctorConstants.EQUALITY)) { // TODO: make this if then else into a map from functors for efficiency
+			applier = (Expression expression, RewritingProcess process) -> {
+				Expression term1 = splitter.get(0);
+				Expression term2 = splitter.get(1);
+				Expression result = expression.replaceAllOccurrences(new SimplifyLiteralGivenDisequality(term1, term2), process);
+				result = simplify(result, process);
+				return result;
+			};
+		}
+
+		return applier;
 	}
 
 	@Override
@@ -249,6 +231,98 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		return new Constraint(indices);
 	}
 	
+	///////////// END OF MAKE ABSTRACT IN NEW CLASS
+
+	// FROM NOW ON CODE MUST BE GENERIC
+	
+	/**
+	 * If expression can originate a splitter and has at least one variable argument, returns the splitter by making it in the following way:
+	 * obtain the appropriate splitter functor from {@link #getCorrespondingSplitterFunctorOrNull(Expression)}
+	 * and create splitter by getting expression's first variable argument, V, and expression's first argument distinct from V.
+	 * Otherwise, returns <code>null</code>.
+	 * @param expression
+	 * @param indices
+	 * @param process
+	 * @return
+	 */
+	@Override
+	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
+		Expression result = null;
+		String splitterFunctor = getCorrespondingSplitterFunctorOrNull(expression);
+		if (splitterFunctor != null) {
+			// remember that equality can have an arbitrary number of terms
+			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), 
+					e -> termTheory.isVariableTerm(e, process));
+			if (variable != null) {
+				Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(
+						expression.getArguments(),
+						e -> ! e.equals(variable) && termTheory.isTerm(e, process));
+				if (otherTerm != null) {
+					result = makeSplitterFromFunctorAndTwoTerms(splitterFunctor, variable, otherTerm, indices, process);
+				}
+			}
+		}
+		return result;
+	}
+
+	protected Expression makeTrueFalseOrSplitterFromTwoTerms(String splitterFunctor, Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
+		Expression result = makeSplitterFromFunctorAndTwoTerms(splitterFunctor, term1, term2, indices, process);
+		result = simplify(result, process);
+		return result;
+	}
+
+	/**
+	 * Makes splitter by applying given functor to two terms, indices coming first if any.
+	 * Does not simplify splitter (so, if it is simplifiable, it does not get simplified).
+	 * @param splitterFunctor the splitter's functor
+	 * @param term1
+	 * @param term2
+	 * @param indices
+	 * @param process
+	 * @return
+	 */
+	protected Expression makeSplitterFromFunctorAndTwoTerms(String splitterFunctor, Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
+		BinaryFunction<Expression, Expression, Expression> maker = getSplitterMaker(splitterFunctor);
+		Expression result;
+		// Places index or variable before constants.
+		if (indices.contains(term1)) {
+			result = maker.apply(term1, term2);
+		}
+		else if (indices.contains(term2)) {
+			result = maker.apply(term2, term1);
+		}
+		else if (termTheory.isVariableTerm(term1, process)) {
+			result = maker.apply(term1, term2);
+		}
+		else {
+			result = maker.apply(term2, term1);
+		}
+		return result;
+	}
+
+	@Override
+	public Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
+		if ( ! splitterSign) {
+			return applySplitterNegationToExpression(splitter, expression, process);
+		}
+	
+		Expression result = getSplitterApplier(splitter).apply(expression, process);
+		
+		return result;
+	}
+
+	private Expression applySplitterNegationToExpression(Expression splitter, Expression expression, RewritingProcess process) {
+		Expression result = getSplitterNegationApplier(splitter).apply(expression, process);
+		return result;
+	}
+
+	@Override
+	public boolean splitterDependsOnIndex(Expression splitter, Collection<Expression> indices) {
+		// Assumes splitter always has arguments, and if an argument is an index, the first one is.
+		boolean result = indices.contains(splitter.get(0));
+		return result;
+	}
+
 	/**
 	 * Indicates whether variable is chosen after otherTerm in model counting choosing ordering.
 	 */
@@ -286,7 +360,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 	 * Represents and manipulates constraints in the equalityTheory of disequalities of terms (variables and constants).
 	 */
 	@Beta
-	public class Constraint extends LinkedHashMap<Expression, Collection<Expression>> implements Theory.Constraint {
+	public class Constraint implements Theory.Constraint {
 
 		// The algorithm is based on the counting principle: to determine the model count, we
 		// go over indices, in a certain order, and analyse how many possible values each one them has,
@@ -318,20 +392,22 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		
 		private Collection<Expression> indices;
 		private Map<Expression, Expression> equalitiesMap;
+		private LinkedHashMap<Expression, Collection<Expression>> disequalitiesMap;
 		
 		public Constraint(Collection<Expression> indices) {
 			super();
 			this.indices = indices;
-			this.equalitiesMap        = new LinkedHashMap<Expression, Expression>();
+			this.equalitiesMap = new LinkedHashMap<Expression, Expression>();
+			this.disequalitiesMap = new LinkedHashMap<Expression, Collection<Expression>>(); 
 		}
 
 		private Constraint(Constraint another) {
-			//super(another);
-			for (Map.Entry<Expression, Collection<Expression>> entry : another.entrySet()) {
-				this.put(entry.getKey(), new LinkedHashSet<Expression>(entry.getValue())); // must copy sets to avoid interference. OPTIMIZATION: use a copy-as-needed implementation of set later.
-			}
 			this.indices = another.indices;
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>(another.equalitiesMap);
+			this.disequalitiesMap = new LinkedHashMap<Expression, Collection<Expression>>(); 
+			for (Map.Entry<Expression, Collection<Expression>> entry : another.disequalitiesMap.entrySet()) {
+				disequalitiesMap.put(entry.getKey(), new LinkedHashSet<Expression>(entry.getValue())); // must copy sets to avoid interference. OPTIMIZATION: use a copy-as-needed implementation of set later.
+			}
 		}
 
 		@Override
@@ -346,7 +422,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 			// we must know if Y and T are either the same or disequal before we can tell
 			// how many possible values X has.
 		
-			for (Expression x : keySet()) {
+			for (Expression x : disequalitiesMap.keySet()) {
 				if (indices.contains(x)) {
 					if ( ! indexIsBound(x)) { // optional, but more efficient
 						Collection<Expression> disequalsOfX = getDisequals(x);
@@ -382,7 +458,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 						return splitter; // need to disunify first
 					}
 					else if ( ! termsAreExplicitlyConstrainedToBeDisequal(term, anotherTerm, process)) { // already disunified
-						splitter = makeSplitterFromTwoTerms(term, anotherTerm, indices, process);
+						splitter = makeSplitterFromFunctorAndTwoTerms(FunctorConstants.EQUALITY, term, anotherTerm, indices, process);
 						return splitter;
 					}
 				}
@@ -479,7 +555,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 					}
 				}
 				else { // they are not constrained to be disequal and, from above tests, not equal either
-					Expression splitterOnEquivalentClassRepresentatives = makeSplitterFromTwoTerms(representative1, representative2, indices, process);
+					Expression splitterOnEquivalentClassRepresentatives = makeSplitterFromFunctorAndTwoTerms(FunctorConstants.EQUALITY, representative1, representative2, indices, process);
 					try {
 						if (splitterSign) {
 							result = applySplitterDefinedOnEquivalentClassRepresentatives(splitterOnEquivalentClassRepresentatives, process);
@@ -570,7 +646,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 						}
 						else {
 							newRepresentative = getRepresentative(newVariable, false, process);
-							representativesEquality = makeTrueFalseOrSplitterFromTwoTerms(oldRepresentative, newRepresentative, indices, process);
+							representativesEquality = makeTrueFalseOrSplitterFromTwoTerms(FunctorConstants.EQUALITY, oldRepresentative, newRepresentative, indices, process);
 							if (representativesEquality.equals(FALSE)) {
 								throw new Contradiction();
 							}
@@ -593,7 +669,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		private void updateRepresentativesInDisequalitiesMap(RewritingProcess process) {
 			Set<Expression> deletedKeys = new LinkedHashSet<Expression>();
 			Map<Expression, Collection<Expression>> updatedDisequals = new LinkedHashMap<Expression, Collection<Expression>>();
-			for (Map.Entry<Expression, Collection<Expression>> entry : entrySet()) {
+			for (Map.Entry<Expression, Collection<Expression>> entry : disequalitiesMap.entrySet()) {
 				Expression variable = entry.getKey();
 				Expression newVariable = useRepresentatives(variable, process);
 				Collection<Expression> disequals = entry.getValue();
@@ -619,7 +695,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 				
 				// we start by removing the modified entries
 				for (Expression deletedKey : deletedKeys) {
-					remove(deletedKey);
+					disequalitiesMap.remove(deletedKey);
 				}
 				
 				// and now we add the new disequalities. Note we cannot just put them in the map as they are, because of choosing order
@@ -650,7 +726,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		}
 
 		private void addFirstTermAsDisequalOfSecondTerm(Expression term1, Expression term2) {
-			Set<Expression> disequalsOfTerm1 = (Set<Expression>) Util.getValuePossiblyCreatingIt(((Constraint) this), term1, LinkedHashSet.class); // cannot use getDisequals(term1) here because that method does not create a new set if needed, but simply uses a constant empty collection. This prevents unnecessary creation of collections.
+			Set<Expression> disequalsOfTerm1 = (Set<Expression>) Util.getValuePossiblyCreatingIt(disequalitiesMap, term1, LinkedHashSet.class); // cannot use getDisequals(term1) here because that method does not create a new set if needed, but simply uses a constant empty collection. This prevents unnecessary creation of collections.
 			disequalsOfTerm1.add(term2);
 		}
 
@@ -714,7 +790,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 
 		private Collection<Expression> getSplittersToBeNotSatisfied(RewritingProcess process) {
 			Collection<Expression> result = new LinkedHashSet<Expression>();
-			for (Map.Entry<Expression, Collection<Expression>> entry : entrySet()) {
+			for (Map.Entry<Expression, Collection<Expression>> entry : disequalitiesMap.entrySet()) {
 				assert termTheory.isVariableTerm(entry.getKey(), process);
 				Expression variable = entry.getKey();
 				if ( ! indices.contains(variable)) { // if variable is free
@@ -728,7 +804,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		}
 
 		public Collection<Expression> getDisequals(Expression variable) {
-			Collection<Expression> result = getOrUseDefault(this, variable, emptyList());
+			Collection<Expression> result = getOrUseDefault(disequalitiesMap, variable, emptyList());
 			return result;
 		}
 
