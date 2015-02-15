@@ -160,11 +160,10 @@ abstract public class AbstractTheory implements Theory {
 			Expression modelCountGivenUndeterminedSplitters,
 			Collection<Expression> splittersToBeSatisfied,
 			Collection<Expression> splittersToBeUnsatisfied,
-			Theory theory,
 			RewritingProcess process) {
 		
-		Predicate<Expression> keepUnsatisfiedSplitters         = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(true,  s, theory, process);
-		Predicate<Expression> keepUnsatisfiedSplitterNegations = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(false, s, theory, process);
+		Predicate<Expression> keepUnsatisfiedSplitters         = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(true,  s, process);
+		Predicate<Expression> keepUnsatisfiedSplitterNegations = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(false, s, process);
 	
 		Collection<Expression> undeterminedSplittersThatNeedToBeTrue  = Util.filter(splittersToBeSatisfied,   keepUnsatisfiedSplitters);
 		Collection<Expression> undeterminedSplittersThatNeedToBeFalse = Util.filter(splittersToBeUnsatisfied, keepUnsatisfiedSplitterNegations);
@@ -193,7 +192,7 @@ abstract public class AbstractTheory implements Theory {
 	}
 
 
-	public boolean splitterIsNotSatisfiedFromContextualConstraintAlready(boolean splitterSign, Expression splitter, Theory theory, RewritingProcess process) {
+	public boolean splitterIsNotSatisfiedFromContextualConstraintAlready(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		boolean result;
 		Expression splitterNormalizedByContextualConstraint = normalizeOrTrivializeSplitter(splitter, process.getDPLLContextualConstraint(), process);
 		assert ! splitterNormalizedByContextualConstraint.equals( ! splitterSign); // required splitter must be satisfiable under contextual constraint, otherwise there is a bug somewhere

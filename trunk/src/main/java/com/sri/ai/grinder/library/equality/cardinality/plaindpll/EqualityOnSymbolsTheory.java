@@ -523,7 +523,6 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 			result = makeModelCountConditionedOnUndeterminedSplitters(
 					result,
 					getSplittersToBeSatisfied(indices, process), getSplittersToBeNotSatisfied(process),
-					EqualityOnSymbolsTheory.this,
 					process);
 			
 			return result;

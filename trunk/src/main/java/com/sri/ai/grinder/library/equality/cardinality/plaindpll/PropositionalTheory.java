@@ -252,7 +252,6 @@ public class PropositionalTheory extends AbstractTheory {
 					result,
 					assertedFreePropositions,
 					negatedFreePropositions,
-					PropositionalTheory.this,
 					process);
 			return result;
 		}

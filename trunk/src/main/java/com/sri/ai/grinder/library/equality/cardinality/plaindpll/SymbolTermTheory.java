@@ -40,7 +40,6 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnTermsTheory.Constraint;
 
 @Beta
 /** 
@@ -77,7 +76,7 @@ public class SymbolTermTheory implements TermTheory {
 	}
 
 	@Override
-	public Expression normalizeTermInEquality(Expression term, Constraint constraint, RewritingProcess process) {
+	public Expression normalizeTermInEquality(Expression term, EqualityOnTermsTheory.Constraint constraint, RewritingProcess process) {
 		return term;
 	}
 

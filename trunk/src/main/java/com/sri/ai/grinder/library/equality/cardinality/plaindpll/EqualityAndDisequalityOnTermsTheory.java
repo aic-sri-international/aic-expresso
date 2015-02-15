@@ -82,7 +82,7 @@ import com.sri.ai.util.base.BinaryFunction;
 /** 
  * A {@link Theory} for equality literals.
  */
-public class EqualityOnTermsTheory extends AbstractTheory {
+public class EqualityAndDisequalityOnTermsTheory extends EqualityOnTermsTheory {
 	
 	public TermTheory termTheory;
 	
@@ -91,8 +91,8 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 	// which is either a variable symbol, or an uninterpreted function application such as p(a, b, X).
 	// It can also be seen as an indexed variable (typically represented as x_i, y_i,j etc).
 	
-	public EqualityOnTermsTheory(TermTheory termTheory) {
-		super();
+	public EqualityAndDisequalityOnTermsTheory(TermTheory termTheory) {
+		super(termTheory);
 		this.termTheory = termTheory;
 	}
 
@@ -138,10 +138,10 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
 					ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(termTheory), new Tautologicality())).rewrite(f, process),
+					(new DPLLGeneralizedAndSymbolic(new EqualityAndDisequalityOnTermsTheory(termTheory), new Tautologicality())).rewrite(f, process),
  
 					ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(termTheory), new Satisfiability())).rewrite(f, process)
+					(new DPLLGeneralizedAndSymbolic(new EqualityAndDisequalityOnTermsTheory(termTheory), new Satisfiability())).rewrite(f, process)
 	);
 
 	@Override
@@ -383,7 +383,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 	 * Represents and manipulates constraints in the equalityTheory of disequalities of terms (variables and constants).
 	 */
 	@Beta
-	public class Constraint implements Theory.Constraint {
+	public class Constraint extends EqualityOnTermsTheory.Constraint {
 
 		// The algorithm is based on the counting principle: to determine the model count, we
 		// go over indices, in a certain order, and analyse how many possible values each one them has,
@@ -414,13 +414,14 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		// The map (super class) keeps disequals.
 		
 		public Constraint(Collection<Expression> indices) {
-			super();
+			super(indices);
 			this.indices = indices;
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>();
 			this.nonEqualityConstraintsMap = new LinkedHashMap<Expression, NonEqualityConstraints>(); 
 		}
 
 		private Constraint(Constraint another) {
+			super(another.indices);
 			this.indices = another.indices;
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>(another.equalitiesMap);
 			this.nonEqualityConstraintsMap = new LinkedHashMap<Expression, NonEqualityConstraints>(); 
