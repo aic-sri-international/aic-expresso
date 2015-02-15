@@ -520,7 +520,7 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 			
 			Expression result = Times.make(numberOfPossibleValuesForIndicesSoFar);
 			result = timesRewriter.rewrite(result, process);
-			result = DPLLUtil.makeModelCountConditionedOnUndeterminedSplitters(
+			result = makeModelCountConditionedOnUndeterminedSplitters(
 					result,
 					getSplittersToBeSatisfied(indices, process), getSplittersToBeNotSatisfied(process),
 					EqualityOnSymbolsTheory.this,
