@@ -37,21 +37,16 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
@@ -283,51 +278,6 @@ public class DPLLUtil {
 	}
 
 	/**
-	 * Given a splitter, a equalityTheory and a constraint,
-	 * returns either true, false, or an equivalent splitter normalized by the constraint.
-	 * This is similar to {@link #normalizeNonTrivialSplitter(Expression, Constraint, Theory, RewritingProcess)},
-	 * but accepts the case of a splitter trivialized by the constraint.
-	 * @param splitter
-	 * @param constraint
-	 * @param equalityTheory
-	 * @param process
-	 * @return
-	 */
-	public static Expression normalizeOrTrivializeSplitter(Expression splitter, Theory.Constraint constraint, Theory theory, RewritingProcess process) {
-		Expression result;
-		Expression trivializedSplitter = constraint.checkIfSplitterOrItsNegationIsImplied(splitter, process);
-		if (trivializedSplitter.equals(TRUE) || trivializedSplitter.equals(FALSE)) {
-			result = trivializedSplitter;
-		}
-		else {
-			result = normalizeNonTrivialSplitter(splitter, constraint, theory, process);
-		}
-		return result;
-	}
-
-	/**
-	 * Given a splitter, a equalityTheory and a constraint,
-	 * and assuming that the splitter is not trivialized by the constraint,
-	 * returns an equivalent splitter normalized by the constraint.
-	 * @param splitter
-	 * @param constraint
-	 * @param equalityTheory
-	 * @param process
-	 * @return
-	 */
-	public static Expression normalizeNonTrivialSplitter(Expression splitter, Theory.Constraint constraint, Theory theory, RewritingProcess process) {
-		Expression result;
-		if (theory.applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll()) {
-			result = splitter;
-		}
-		else {
-			Expression normalizedSplitter = constraint.normalize(splitter, process);
-			result = normalizedSplitter == splitter? splitter : theory.makeSplitterIfPossible(normalizedSplitter, constraint.getIndices(), process);
-		}
-		return result;
-	}
-
-	/**
 	 * Simplify an expression given maps of function application and syntactic form type simplifiers,
 	 * and an extra simplifier for a given syntactic form type.
 	 * @param expression
@@ -368,55 +318,6 @@ public class DPLLUtil {
 		Constraint constraint = theory.makeConstraint(Collections.emptyList()); // no indices in solutions
 		constraint = constraint.applySplitter(splitterSign, splitter, process);
 		Expression result = theory.applyConstraintToSolution(constraint, solution, process);
-		return result;
-	}
-
-	public static boolean splitterIsNotSatisfiedFromContextualConstraintAlready(boolean splitterSign, Expression splitter, Theory theory, RewritingProcess process) {
-		boolean result;
-		Expression splitterNormalizedByContextualConstraint = normalizeOrTrivializeSplitter(splitter, process.getDPLLContextualConstraint(), theory, process);
-		assert ! splitterNormalizedByContextualConstraint.equals( ! splitterSign); // required splitter must be satisfiable under contextual constraint, otherwise there is a bug somewhere
-		result = ! splitterNormalizedByContextualConstraint.equals(splitterSign); // if splitter is implied TRUE by contextual constraint, it is superfluous
-		return result;
-	}
-
-	/**
-	 * Receives a model count and two sets of splitters, ones that must be true, and others that must be false,
-	 * and returns conditional model count including the cases in which those conditions are not true
-	 * (which entail model count 0).
-	 * @param modelCountGivenUndedeterminedSplitters
-	 * @return
-	 */
-	public static Expression makeModelCountConditionedOnUndeterminedSplitters(Expression modelCountGivenUndedeterminedSplitters, Collection<Expression> undeterminedSplittersThatNeedToBeTrue, Collection<Expression> undeterminedSplittersThatNeedToBeFalse) {
-		Expression result = modelCountGivenUndedeterminedSplitters;
-		for (Expression splitterToBeSatisfied : undeterminedSplittersThatNeedToBeTrue) {
-			result = IfThenElse.make(splitterToBeSatisfied, result, ZERO, false);
-		}
-		for (Expression splitterToBeNotSatisfied : undeterminedSplittersThatNeedToBeFalse) {
-			result = IfThenElse.make(splitterToBeNotSatisfied, ZERO, result, false);
-		}
-		return result;
-	}
-
-	/**
-	 * Receives the model count for the case in which a certain set of splitter is satisfied, and another is unsatisfied,
-	 * and returns conditional model count including the cases in which those conditions are not true
-	 * (which entail model count 0),
-	 * taking into account the contextual constraint.
-	 */
-	public static Expression makeModelCountConditionedOnUndeterminedSplitters(
-			Expression modelCountGivenUndeterminedSplitters,
-			Collection<Expression> splittersToBeSatisfied,
-			Collection<Expression> splittersToBeUnsatisfied,
-			Theory theory,
-			RewritingProcess process) {
-		
-		Predicate<Expression> keepUnsatisfiedSplitters         = s -> splitterIsNotSatisfiedFromContextualConstraintAlready        (true,  s, theory, process);
-		Predicate<Expression> keepUnsatisfiedSplitterNegations = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(false, s, theory, process);
-	
-		Collection<Expression> undeterminedSplittersThatNeedToBeTrue  = Util.filter(splittersToBeSatisfied,   keepUnsatisfiedSplitters);
-		Collection<Expression> undeterminedSplittersThatNeedToBeFalse = Util.filter(splittersToBeUnsatisfied, keepUnsatisfiedSplitterNegations);
-		
-		Expression result = makeModelCountConditionedOnUndeterminedSplitters(modelCountGivenUndeterminedSplitters, undeterminedSplittersThatNeedToBeTrue, undeterminedSplittersThatNeedToBeFalse);
 		return result;
 	}
 }

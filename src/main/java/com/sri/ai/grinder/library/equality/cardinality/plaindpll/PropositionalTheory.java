@@ -248,7 +248,7 @@ public class PropositionalTheory extends AbstractTheory {
 			Expression result = Expressions.makeSymbol(new Rational(2).pow(indices.size() - numberOfBoundIndices));
 			List<Expression> assertedFreePropositions = Util.subtract(assertedPropositions, indices);
 			List<Expression> negatedFreePropositions = Util.subtract(negatedPropositions, indices);
-			result = DPLLUtil.makeModelCountConditionedOnUndeterminedSplitters(
+			result = makeModelCountConditionedOnUndeterminedSplitters(
 					result,
 					assertedFreePropositions,
 					negatedFreePropositions,
