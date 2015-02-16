@@ -107,9 +107,6 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 					FunctorConstants.DISEQUALITY,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
 					Disequality.simplify(f, process),
 
-					FunctorConstants.DISEQUALITY,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					Disequality.simplify(f, process),
-
 					FunctorConstants.AND,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
 					And.simplify(f),
 
@@ -421,6 +418,7 @@ public class EqualityOnTermsTheory extends AbstractTheory {
 		}
 
 		private Constraint(Constraint another) {
+			super();
 			this.indices = another.indices;
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>(another.equalitiesMap);
 			this.nonEqualityConstraintsMap = new LinkedHashMap<Expression, NonEqualityConstraints>(); 

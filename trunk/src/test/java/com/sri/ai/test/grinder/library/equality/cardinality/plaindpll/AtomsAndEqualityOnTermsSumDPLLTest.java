@@ -56,7 +56,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.AtomsAndEqualityOnTermsTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityAndDisequalityOnTermsTheory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityOnTermsTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.FunctionalTermTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Sum;
 import com.sri.ai.util.Util;
@@ -73,7 +73,7 @@ public class AtomsAndEqualityOnTermsSumDPLLTest extends AbstractSymbolicSymbolEq
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new DPLLGeneralizedAndSymbolic(new AtomsAndEqualityOnTermsTheory(new EqualityAndDisequalityOnTermsTheory(new FunctionalTermTheory())), new Sum());
+		return new DPLLGeneralizedAndSymbolic(new AtomsAndEqualityOnTermsTheory(new EqualityOnTermsTheory(new FunctionalTermTheory())), new Sum());
 	}
 
 	@Test
