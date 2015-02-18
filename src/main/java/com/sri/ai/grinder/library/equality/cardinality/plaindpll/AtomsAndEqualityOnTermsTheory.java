@@ -136,9 +136,9 @@ public class AtomsAndEqualityOnTermsTheory extends AbstractTheory {
 	
 	private class Constraint implements Theory.Constraint {
 
-		private EqualityOnTermsTheory.Constraint equalityConstraint;
+		private AbstractEqualityOnTermsTheory.Constraint equalityConstraint;
 		
-		public Constraint(EqualityOnTermsTheory.Constraint equalityConstraint) {
+		public Constraint(AbstractEqualityOnTermsTheory.Constraint equalityConstraint) {
 			this.equalityConstraint = equalityConstraint;
 		}
 		
@@ -190,7 +190,7 @@ public class AtomsAndEqualityOnTermsTheory extends AbstractTheory {
 		public Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			Expression equalitySplitter     = Equality.isEquality(splitter)? splitter     : Equality.make(splitter, splitterSign);
 			boolean    equalitySplitterSign = Equality.isEquality(splitter)? splitterSign : true;
-			EqualityOnTermsTheory.Constraint newEqualityConstraint = equalityConstraint.applySplitter(equalitySplitterSign, equalitySplitter, process);
+			AbstractEqualityOnTermsTheory.Constraint newEqualityConstraint = equalityConstraint.applySplitter(equalitySplitterSign, equalitySplitter, process);
 			Constraint result;
 			if (newEqualityConstraint != null) {
 				result = new Constraint(newEqualityConstraint);
