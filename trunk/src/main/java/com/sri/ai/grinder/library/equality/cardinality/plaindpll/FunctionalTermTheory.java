@@ -120,7 +120,7 @@ public class FunctionalTermTheory implements TermTheory {
 	}
 
 	@Override
-	public Expression normalizeTermInEquality(Expression term, EqualityOnTermsTheory.Constraint constraint, RewritingProcess process) {
+	public Expression normalizeTermInEquality(Expression term, AbstractEqualityOnTermsTheory.Constraint constraint, RewritingProcess process) {
 		Expression result = Expressions.replaceImmediateSubexpressions(term, t -> constraint.getRepresentative(t, process));
 		return result;
 	}
