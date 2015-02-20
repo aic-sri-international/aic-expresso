@@ -203,7 +203,8 @@ abstract public class AbstractTheory implements Theory {
 	@Override
 	public Expression normalizeOrTrivializeSplitter(Expression splitter, Theory.Constraint constraint, RewritingProcess process) {
 		Expression result;
-		Expression trivializedSplitter = constraint.checkIfSplitterOrItsNegationIsImplied(splitter, process);
+		Expression trivializedSplitter = constraint.normalizeSplitterGivenConstraint(splitter, process);
+//		Expression trivializedSplitter = constraint.checkIfSplitterOrItsNegationIsImplied(splitter, process);
 		if (trivializedSplitter.equals(TRUE) || trivializedSplitter.equals(FALSE)) {
 			result = trivializedSplitter;
 		}

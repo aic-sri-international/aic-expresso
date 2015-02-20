@@ -151,11 +151,6 @@ public class EqualityOnTermsTheory extends AbstractEqualityOnTermsTheory {
 
 	///////////// MAKE ABSTRACT IN NEW CLASS
 	
-	@Override
-	Theory makeTheory(TermTheory termTheory) {
-		return new EqualityOnTermsTheory(termTheory);
-	}
-
 	/**
 	 * If expression can generate a splitter, returns the appropriate splitter's functor;
 	 * otherwise, returns <code>null</code>.
@@ -174,17 +169,6 @@ public class EqualityOnTermsTheory extends AbstractEqualityOnTermsTheory {
 		return result;
 	}
 	
-	/**
-	 * @param splitterFunctor
-	 * @return
-	 */
-	@Override
-	protected BinaryFunction<Expression, Expression, Expression> getSplitterMaker(String splitterFunctor) {
-		BinaryFunction<Expression, Expression, Expression> result =
-				splitterFunctor.equals(FunctorConstants.EQUALITY)? (t1, t2) -> Equality.make(t1, t2) : null;
-		return result;
-	}
-
 	@Override
 	protected BinaryFunction<Expression, RewritingProcess, Expression>
 	
@@ -226,136 +210,11 @@ public class EqualityOnTermsTheory extends AbstractEqualityOnTermsTheory {
 	}
 
 	@Override
-	public boolean applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll() {
-		return false;
-	}
-
-	@Override
 	public Constraint makeConstraint(Collection<Expression> indices) {
 		return new Constraint(indices);
 	}
 	
 	///////////// END OF MAKE ABSTRACT IN NEW CLASS
-
-	// FROM NOW ON CODE MUST BE GENERIC
-	
-	/**
-	 * If expression can originate a splitter and has at least one variable argument, returns the splitter by making it in the following way:
-	 * obtain the appropriate splitter functor from {@link #getCorrespondingSplitterFunctorOrNull(Expression)}
-	 * and create splitter by getting expression's first variable argument, V, and expression's first argument distinct from V.
-	 * Otherwise, returns <code>null</code>.
-	 * @param expression
-	 * @param indices
-	 * @param process
-	 * @return
-	 */
-	@Override
-	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
-		Expression result = null;
-		String splitterFunctor = getCorrespondingSplitterFunctorOrNull(expression);
-		if (splitterFunctor != null) {
-			// remember that equality can have an arbitrary number of terms
-			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), 
-					e -> termTheory.isVariableTerm(e, process));
-			if (variable != null) {
-				Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(
-						expression.getArguments(),
-						e -> ! e.equals(variable) && termTheory.isTerm(e, process));
-				if (otherTerm != null) {
-					result = makeSplitterFromFunctorAndTwoTerms(splitterFunctor, variable, otherTerm, indices, process);
-				}
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Makes splitter by applying given functor to two terms, indices coming first if any.
-	 * Does not simplify splitter (so, if it is simplifiable, it does not get simplified).
-	 * @param splitterFunctor the splitter's functor
-	 * @param term1
-	 * @param term2
-	 * @param indices
-	 * @param process
-	 * @return
-	 */
-	protected Expression makeSplitterFromFunctorAndTwoTerms(String splitterFunctor, Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
-		BinaryFunction<Expression, Expression, Expression> maker = getSplitterMaker(splitterFunctor);
-		Expression result;
-		// Places index or variable before constants.
-		if (indices.contains(term1)) {
-			result = maker.apply(term1, term2);
-		}
-		else if (indices.contains(term2)) {
-			result = maker.apply(term2, term1);
-		}
-		else if (termTheory.isVariableTerm(term1, process)) {
-			result = maker.apply(term1, term2);
-		}
-		else {
-			result = maker.apply(term2, term1);
-		}
-		return result;
-	}
-
-	@Override
-	public Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
-		if ( ! splitterSign) {
-			return applySplitterNegationToExpression(splitter, expression, process);
-		}
-	
-		Expression result = getSplitterApplier(splitter).apply(expression, process);
-		
-		return result;
-	}
-
-	private Expression applySplitterNegationToExpression(Expression splitter, Expression expression, RewritingProcess process) {
-		Expression result = getSplitterNegationApplier(splitter).apply(expression, process);
-		return result;
-	}
-
-	@Override
-	public boolean splitterDependsOnIndex(Expression splitter, Collection<Expression> indices) {
-		// Assumes splitter always has arguments, and if an argument is an index, the first one is.
-		boolean result = indices.contains(splitter.get(0));
-		return result;
-	}
-
-	/**
-	 * Indicates whether variable is chosen after otherTerm in model counting choosing ordering.
-	 */
-	private static boolean variableIsChosenAfterOtherTerm(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
-		boolean result = process.isUniquelyNamedConstant(otherTerm) || variableIsChosenAfterOtherVariable(otherTerm, variable, indices);
-		return result;
-	}
-
-	/**
-	 * Indicates whether variable in chosen after otherVariable in choosing ordering.
-	 */
-	private static boolean variableIsChosenAfterOtherVariable(Expression variable, Expression otherVariable, Collection<Expression> indices) {
-		boolean result;
-		if (indices.contains(variable)) { // index
-			if ( ! indices.contains(otherVariable)) { // free variable
-				result = false; // free variables always precedes indices
-			}
-			else { // both are indices
-				result = otherVariable.toString().compareTo(variable.toString()) < 0; // indices are compared alphabetically
-			}
-		}
-		else if (indices.contains(otherVariable)) { // variable is free variable and otherVariable is index
-			result = true; // free variable always precedes indices
-		}
-		else { // neither is index
-			result = otherVariable.toString().compareTo(variable.toString()) < 0;	// alphabetically		
-		}
-		return result;
-	}
-
-	protected Expression makeTrueFalseOrSplitterFromTwoTerms(String splitterFunctor, Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
-		Expression result = makeSplitterFromFunctorAndTwoTerms(splitterFunctor, term1, term2, indices, process);
-		result = simplify(result, process);
-		return result;
-	}
 
 	public static class DisequalitiesConstraints implements NonEqualityConstraints {
 		private Collection<Expression> disequals = new LinkedHashSet<Expression>();
@@ -377,6 +236,10 @@ public class EqualityOnTermsTheory extends AbstractEqualityOnTermsTheory {
 		
 		public String toString() {
 			return disequals.toString();
+		}
+		
+		public DisequalitiesConstraints clone() {
+			return new DisequalitiesConstraints(this);
 		}
 	}
 	
@@ -420,16 +283,11 @@ public class EqualityOnTermsTheory extends AbstractEqualityOnTermsTheory {
 
 		private Constraint(Constraint another) {
 			super(another);
-			this.nonEqualityConstraintsMap = new LinkedHashMap<Expression, NonEqualityConstraints>(); 
-			for (Map.Entry<Expression, NonEqualityConstraints> entry : another.nonEqualityConstraintsMap.entrySet()) {
-				nonEqualityConstraintsMap.put(entry.getKey(), new DisequalitiesConstraints(entry.getValue())); // must copy sets to avoid interference. OPTIMIZATION: use a copy-as-needed implementation of set later.
-			}
 		}
 
-
 		@Override
-		protected Constraint makeCopyOf(AbstractEqualityOnTermsTheory.Constraint another) {
-			return new Constraint((Constraint) another);
+		public Constraint clone() {
+			return new Constraint(this);
 		}
 
 		/**
@@ -477,7 +335,7 @@ public class EqualityOnTermsTheory extends AbstractEqualityOnTermsTheory {
 		 * @return
 		 */
 		@Override
-		protected Expression simplifySplitterGivenConstraint(Expression splitter, RewritingProcess process) {
+		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
 			// THIS METHOD SHOULD PROBABLY BE MERGED WITH NORMALIZE
 			Expression simplifiedSplitterGivenConstraint;
 			Expression representative1 = getRepresentative(splitter.get(0), process);
@@ -489,6 +347,22 @@ public class EqualityOnTermsTheory extends AbstractEqualityOnTermsTheory {
 				}
 			}
 			return simplifiedSplitterGivenConstraint;
+		}
+
+		@Override
+		public Expression normalize(Expression expression, RewritingProcess process) {
+			String syntacticTypeForm = "Symbol";
+			BinaryFunction<Expression, RewritingProcess, Expression> representativeReplacer =
+					(BinaryFunction<Expression, RewritingProcess, Expression>) (s, p) -> getRepresentative(s, p);
+		
+			Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifier(
+					expression,
+					functionApplicationSimplifiers,
+					syntacticFormTypeSimplifiers,
+					syntacticTypeForm, representativeReplacer,
+					process);
+			
+			return result;
 		}
 
 		/**
@@ -544,7 +418,7 @@ public class EqualityOnTermsTheory extends AbstractEqualityOnTermsTheory {
 			// link variable to the other one otherwise while setting flag indicating representative change,
 			// keep going until the flag does not change.
 
-			setBinding(variableRepresentative, otherTermRepresentative, process);
+			setBinding(variableRepresentative, otherTermRepresentative);
 			updateRepresentativesWhereverTheyAreUsed(process);
 		}
 
@@ -701,7 +575,7 @@ public class EqualityOnTermsTheory extends AbstractEqualityOnTermsTheory {
 		 * @return
 		 */
 		@Override
-		protected Expression computerNumberOfPossibleValuesFor(Expression index, RewritingProcess process) {
+		protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process) {
 			long numberOfNonAvailableValues = getDisequals(index).size();
 			long typeSize = GrinderUtil.getTypeCardinality(index, process);
 			Expression numberOfPossibleValuesForIndex;
@@ -717,29 +591,6 @@ public class EqualityOnTermsTheory extends AbstractEqualityOnTermsTheory {
 				numberOfPossibleValuesForIndex = makeSymbol(Math.max(0, typeSize - numberOfNonAvailableValues));
 			}
 			return numberOfPossibleValuesForIndex;
-		}
-
-		@Override
-		public Expression checkIfSplitterOrItsNegationIsImplied(Expression splitter, RewritingProcess process) {
-			if (termsAreExplicitlyConstrainedToBeEqual(splitter.get(0), splitter.get(1), process)) {
-				// algorithm keeps all implied equalities represented, so we can conclude 'true' here.
-				return TRUE;
-			}
-			
-			if (algorithmKeepsAllDisequalitiesRepresented()) {
-				if (termsAreExplicitlyConstrainedToBeDisequal(splitter.get(0), splitter.get(1), process)) {
-					return FALSE;
-				}
-			}
-			else {
-				AbstractEqualityOnTermsTheory.Constraint underSplitter = this.applySplitter(true, splitter, process);
-				if (underSplitter == null) {
-					return FALSE; // if equality is incompatible with constraint, the constraint implies the disequality
-					// TODO: can we keep and use the computation performed here?
-				}
-			}
-			
-			return splitter;
 		}
 
 		public Collection<Expression> getDisequals(Expression variable) {
@@ -773,30 +624,6 @@ public class EqualityOnTermsTheory extends AbstractEqualityOnTermsTheory {
 			else if (getDisequals(representative2).contains(representative1)) {
 				result = true;
 			}
-			return result;
-		}
-
-		private boolean algorithmKeepsAllDisequalitiesRepresented() {
-			// the current algorithm does not try to propagate the consequences of disequalities,
-			// so if the particular term equalityTheory disequalities implies further facts,
-			// the algorithm does not represent all disequalities at all times.
-			boolean result = ! termTheory.disequalityBetweenTermsImpliesFurtherFacts();
-			return result;
-		}
-
-		@Override
-		public Expression normalize(Expression expression, RewritingProcess process) {
-			String syntacticTypeForm = "Symbol";
-			BinaryFunction<Expression, RewritingProcess, Expression> representativeReplacer =
-					(BinaryFunction<Expression, RewritingProcess, Expression>) (s, p) -> getRepresentative(s, p);
-		
-			Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifier(
-					expression,
-					functionApplicationSimplifiers,
-					syntacticFormTypeSimplifiers,
-					syntacticTypeForm, representativeReplacer,
-					process);
-			
 			return result;
 		}
 
