@@ -105,7 +105,6 @@ public interface Theory {
 	 * @return
 	 */
 	Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process);
-	// Perhaps this should be merged to applyConstraintToSolution.
 	
 	/**
 	 * Simplifies solution under constraint, by eliminating trivialized splitters
@@ -152,8 +151,11 @@ public interface Theory {
 		 * Simplifies a given splitter to true if implied by constraint, false if its negation is implied by constraint,
 		 * or a version of itself with terms replaced by representatives.
 		 * Note that {@link #normalize(Expression, RewritingProcess)} cannot be used instead of this method
-		 * because it transforms 'Term = true' into 'Term' and 'Term = false' into 'not Term',
-		 * and these are not splitters for this theory anymore.
+		 * because, for certain theories, the result of normalizing an splitter by treating it as an expression
+		 * may produce a non-boolean-constant expression that is not a splitter either.
+		 * For example, in equality theory, {@link #normalize(Expression, RewritingProcess)}
+		 * transforms 'Term = true' into 'Term' and 'Term = false' into 'not Term',
+		 * and these are not splitters for that theory anymore.
 		 */
 		Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process);
 

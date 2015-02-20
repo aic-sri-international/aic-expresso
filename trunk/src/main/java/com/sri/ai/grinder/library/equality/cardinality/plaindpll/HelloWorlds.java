@@ -54,9 +54,9 @@ public class HelloWorlds {
 	public static void main(String[] args) {
 
 		/*
-		 * The theory of equality on symbols (includes a model counter for formulas in it.
+		 * The theory of equality on symbols (includes a model counter for formulas in it).
 		 */
-		Theory theory = new EqualityOnSymbolsTheory();
+		Theory theory = new EqualityOnTermsTheory(new SymbolTermTheory());
 
 		/* 
 		 * The problem type, a sum. Could be Max or other commutative associative operators.

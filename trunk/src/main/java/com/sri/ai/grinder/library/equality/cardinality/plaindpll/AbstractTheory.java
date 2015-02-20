@@ -67,7 +67,6 @@ abstract public class AbstractTheory implements Theory {
 	 */
 	abstract protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers();
 
-
 	/**
 	 * Provides a map from syntactic form types (Strings) to a function mapping a
 	 * function application of that functor and a rewriting process to an equivalent, simplified formula
@@ -76,7 +75,6 @@ abstract public class AbstractTheory implements Theory {
 	 * @return
 	 */
 	abstract protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers();
-
 
 	/**
 	 * Simplifies an expression by exhaustively simplifying its top expression with basic boolean operators in equality logic (including quantifier elimination),
@@ -148,53 +146,76 @@ abstract public class AbstractTheory implements Theory {
 		return result;
 	}
 	
-	/**
-	 * Receives the model count for the case in which a certain set of splitter is satisfied, and another is unsatisfied,
-	 * and returns conditional model count including the cases in which those conditions are not true
-	 * (which entail model count 0),
-	 * taking into account the contextual constraint.
-	 */
-	public Expression makeModelCountConditionedOnUndeterminedSplitters(
-			Expression modelCountGivenUndeterminedSplitters,
-			Collection<Expression> splittersToBeSatisfied,
-			Collection<Expression> splittersToBeUnsatisfied,
-			RewritingProcess process) {
-		
-		Predicate<Expression> keepUnsatisfiedSplitters         = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(true,  s, process);
-		Predicate<Expression> keepUnsatisfiedSplitterNegations = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(false, s, process);
-	
-		Collection<Expression> undeterminedSplittersThatNeedToBeTrue  = Util.filter(splittersToBeSatisfied,   keepUnsatisfiedSplitters);
-		Collection<Expression> undeterminedSplittersThatNeedToBeFalse = Util.filter(splittersToBeUnsatisfied, keepUnsatisfiedSplitterNegations);
-		
-		Expression result = makeModelCountConditionedOnUndeterminedSplitters(modelCountGivenUndeterminedSplitters, undeterminedSplittersThatNeedToBeTrue, undeterminedSplittersThatNeedToBeFalse);
-		return result;
-	}
+	public abstract class AbstractConstraint implements Theory.Constraint {
 
+		abstract protected Expression computeModelCountGivenConditionsOnFreeVariables(RewritingProcess process);
 
-	/**
-	 * Receives a model count and two sets of splitters, ones that must be true, and others that must be false,
-	 * and returns conditional model count including the cases in which those conditions are not true
-	 * (which entail model count 0).
-	 * @param modelCountGivenUndedeterminedSplitters
-	 * @return
-	 */
-	public static Expression makeModelCountConditionedOnUndeterminedSplitters(Expression modelCountGivenUndedeterminedSplitters, Collection<Expression> undeterminedSplittersThatNeedToBeTrue, Collection<Expression> undeterminedSplittersThatNeedToBeFalse) {
-		Expression result = modelCountGivenUndedeterminedSplitters;
-		for (Expression splitterToBeSatisfied : undeterminedSplittersThatNeedToBeTrue) {
-			result = IfThenElse.make(splitterToBeSatisfied, result, ZERO, false);
+		abstract protected Collection<Expression> getSplittersToBeSatisfied(RewritingProcess process);
+
+		abstract protected Collection<Expression> getSplittersToBeNotSatisfied(RewritingProcess process);
+
+		@Override
+		public Expression modelCount(RewritingProcess process) {
+			Expression unconditionalCount = computeModelCountGivenConditionsOnFreeVariables(process);
+			Expression result =
+					makeModelCountConditionedOnUndeterminedSplitters(
+							unconditionalCount,
+							getSplittersToBeSatisfied(process), getSplittersToBeNotSatisfied(process),
+							process);
+			return result;
 		}
-		for (Expression splitterToBeNotSatisfied : undeterminedSplittersThatNeedToBeFalse) {
-			result = IfThenElse.make(splitterToBeNotSatisfied, ZERO, result, false);
+		
+		/**
+		 * Receives the model count for the case in which a certain set of splitter is satisfied, and another is unsatisfied,
+		 * and returns conditional model count including the cases in which those conditions are not true
+		 * (which entail model count 0),
+		 * taking into account the contextual constraint.
+		 */
+		private Expression makeModelCountConditionedOnUndeterminedSplitters(
+				Expression modelCountGivenUndeterminedSplitters,
+				Collection<Expression> splittersToBeSatisfied,
+				Collection<Expression> splittersToBeUnsatisfied,
+				RewritingProcess process) {
+			
+			Predicate<Expression> keepUnsatisfiedSplitters         = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(true,  s, process);
+			Predicate<Expression> keepUnsatisfiedSplitterNegations = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(false, s, process);
+		
+			Collection<Expression> undeterminedSplittersThatNeedToBeTrue  = Util.filter(splittersToBeSatisfied,   keepUnsatisfiedSplitters);
+			Collection<Expression> undeterminedSplittersThatNeedToBeFalse = Util.filter(splittersToBeUnsatisfied, keepUnsatisfiedSplitterNegations);
+			
+			Expression result = makeModelCountConditionedOnUndeterminedSplitters(
+					modelCountGivenUndeterminedSplitters, undeterminedSplittersThatNeedToBeTrue, undeterminedSplittersThatNeedToBeFalse);
+			return result;
 		}
-		return result;
-	}
 
+		private boolean splitterIsNotSatisfiedFromContextualConstraintAlready(boolean splitterSign, Expression splitter, RewritingProcess process) {
+			boolean result;
+			Expression splitterNormalizedByContextualConstraint = process.getDPLLContextualConstraint().normalizeSplitterGivenConstraint(splitter, process);
+			assert ! splitterNormalizedByContextualConstraint.equals( ! splitterSign); // required splitter must be satisfiable under contextual constraint, otherwise there is a bug somewhere
+			result = ! splitterNormalizedByContextualConstraint.equals(splitterSign); // if splitter is implied TRUE by contextual constraint, it is superfluous
+			return result;
+		}
 
-	public boolean splitterIsNotSatisfiedFromContextualConstraintAlready(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		boolean result;
-		Expression splitterNormalizedByContextualConstraint = process.getDPLLContextualConstraint().normalizeSplitterGivenConstraint(splitter, process);
-		assert ! splitterNormalizedByContextualConstraint.equals( ! splitterSign); // required splitter must be satisfiable under contextual constraint, otherwise there is a bug somewhere
-		result = ! splitterNormalizedByContextualConstraint.equals(splitterSign); // if splitter is implied TRUE by contextual constraint, it is superfluous
-		return result;
+		/**
+		 * Receives a model count and two sets of splitters, ones that must be true, and others that must be false,
+		 * and returns conditional model count including the cases in which those conditions are not true
+		 * (which entail model count 0).
+		 * @param modelCountGivenUndedeterminedSplitters
+		 * @return
+		 */
+		private Expression makeModelCountConditionedOnUndeterminedSplitters(
+				Expression modelCountGivenUndedeterminedSplitters,
+				Collection<Expression> undeterminedSplittersThatNeedToBeTrue,
+				Collection<Expression> undeterminedSplittersThatNeedToBeFalse) {
+			
+			Expression result = modelCountGivenUndedeterminedSplitters;
+			for (Expression splitterToBeSatisfied : undeterminedSplittersThatNeedToBeTrue) {
+				result = IfThenElse.make(splitterToBeSatisfied, result, ZERO, false);
+			}
+			for (Expression splitterToBeNotSatisfied : undeterminedSplittersThatNeedToBeFalse) {
+				result = IfThenElse.make(splitterToBeNotSatisfied, ZERO, result, false);
+			}
+			return result;
+		}
 	}
 }

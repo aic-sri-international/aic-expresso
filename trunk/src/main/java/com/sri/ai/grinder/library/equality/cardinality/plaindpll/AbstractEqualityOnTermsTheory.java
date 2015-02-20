@@ -246,7 +246,7 @@ public abstract class AbstractEqualityOnTermsTheory extends AbstractTheory {
 	 * Represents and manipulates constraints in the equalityTheory of disequalities of terms (variables and constants).
 	 */
 	@Beta
-	public abstract class Constraint implements Theory.Constraint {
+	public abstract class Constraint extends AbstractTheory.AbstractConstraint {
 
 		// The algorithm is based on the counting principle: to determine the model count, we
 		// go over indices, in a certain order, and analyse how many possible values each one them has,
@@ -325,11 +325,11 @@ public abstract class AbstractEqualityOnTermsTheory extends AbstractTheory {
 		// OPTIMIZATION: can we provide the method above with the representatives that have been updated to minimize
 		// representative lookup?
 
-		/** Provide splitters not involving indices that must be true lest this constraint be a contradiction. */
-		abstract protected Collection<Expression> getSplittersToBeSatisfied(RewritingProcess process);
-		
-		/** Provide splitters not involving indices that must be false lest this constraint be a contradiction. */
-		abstract protected Collection<Expression> getSplittersToBeNotSatisfied(RewritingProcess process);
+//		/** Provide splitters not involving indices that must be true lest this constraint be a contradiction. */
+//		abstract protected Collection<Expression> getSplittersToBeSatisfied(RewritingProcess process);
+//		
+//		/** Provide splitters not involving indices that must be false lest this constraint be a contradiction. */
+//		abstract protected Collection<Expression> getSplittersToBeNotSatisfied(RewritingProcess process);
 
 		/**
 		 * Returns an expression (in the free variables) for the number of possible values for the given index,
@@ -428,9 +428,7 @@ public abstract class AbstractEqualityOnTermsTheory extends AbstractTheory {
 			return newConstraint;
 		}
 
-		@Override
-		public Expression modelCount(RewritingProcess process) {
-			
+		protected Expression computeModelCountGivenConditionsOnFreeVariables(RewritingProcess process) {
 			List<Expression> numberOfPossibleValuesForIndicesSoFar = new LinkedList<Expression>();
 			
 			for (Expression index : indices) {
@@ -441,13 +439,8 @@ public abstract class AbstractEqualityOnTermsTheory extends AbstractTheory {
 			}
 			
 			Expression result = Times.make(numberOfPossibleValuesForIndicesSoFar);
-			result = timesRewriter.rewrite(result, process);
-			result = makeModelCountConditionedOnUndeterminedSplitters(
-					result,
-					getSplittersToBeSatisfied(process), getSplittersToBeNotSatisfied(process),
-					process);
-
-			return result;
+			Expression unconditionalCount = timesRewriter.rewrite(result, process);
+			return unconditionalCount;
 		}
 
 		////////// EQUALITY CONSTRAINTS MAINTENANCE
