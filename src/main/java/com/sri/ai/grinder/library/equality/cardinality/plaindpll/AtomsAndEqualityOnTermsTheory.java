@@ -173,9 +173,9 @@ public class AtomsAndEqualityOnTermsTheory extends AbstractTheory {
 		}
 
 		@Override
-		public Expression checkIfSplitterOrItsNegationIsImplied(Expression splitter, RewritingProcess process) {
+		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
 			Expression equalitySplitter = Equality.isEquality(splitter)? splitter : Equality.make(splitter, TRUE);
-			Expression impliedByEqualityConstraint = equalityConstraint.checkIfSplitterOrItsNegationIsImplied(equalitySplitter, process);
+			Expression impliedByEqualityConstraint = equalityConstraint.normalizeSplitterGivenConstraint(equalitySplitter, process);
 			Expression result;
 			if (impliedByEqualityConstraint.equals(TRUE) || impliedByEqualityConstraint.equals(FALSE)) {
 				result = impliedByEqualityConstraint;

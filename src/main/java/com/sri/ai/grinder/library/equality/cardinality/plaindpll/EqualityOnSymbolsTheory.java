@@ -621,7 +621,7 @@ public class EqualityOnSymbolsTheory extends AbstractTheory {
 		}
 
 		@Override
-		public Expression checkIfSplitterOrItsNegationIsImplied(Expression splitter, RewritingProcess process) {
+		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
 			if (termsAreConstrainedToBeEqual(splitter.get(0), splitter.get(1), process)) {
 				return Expressions.TRUE;
 			}

@@ -162,16 +162,14 @@ public interface Theory {
 		Expression pickSplitter(RewritingProcess process);
 		
 		/**
-		 * Receives a splitter and returns TRUE if it is implied by the constraint,
-		 * FALSE if its negation is, or the splitter itself otherwise.
-		 * This could be done using {@link #applySplitter(boolean, Expression, RewritingProcess)}
-		 * but can be often implemented in a faster manner that does not require constructing an entire new constraint.
-		 * @param splitter
-		 * @param process
-		 * @return
+		 * Simplifies a given splitter to true if implied by constraint, false if its negation is implied by constraint,
+		 * or a version of itself with terms replaced by representatives.
+		 * Note that {@link #normalize(Expression, RewritingProcess)} cannot be used instead of this method
+		 * because it transforms 'Term = true' into 'Term' and 'Term = false' into 'not Term',
+		 * and these are not splitters for this theory anymore.
 		 */
-		Expression checkIfSplitterOrItsNegationIsImplied(Expression splitter, RewritingProcess process);
-		
+		Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process);
+
 		/**
 		 * Generates new constraint representing conjunction of this constraint and given splitter
 		 * (or its negation, depending on the sign).

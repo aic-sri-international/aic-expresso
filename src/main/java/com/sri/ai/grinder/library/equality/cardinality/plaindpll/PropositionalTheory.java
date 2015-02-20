@@ -199,17 +199,6 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 
 		@Override
-		public Expression checkIfSplitterOrItsNegationIsImplied(Expression splitter, RewritingProcess process) {
-			if (assertedPropositions.contains(splitter)) {
-				return Expressions.TRUE;
-			}
-			if (negatedPropositions.contains(splitter)) {
-				return Expressions.FALSE;
-			}
-			return splitter;
-		}
-
-		@Override
 		public Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			Set<Expression> propositionsAssertedWithSameSign     = splitterSign? assertedPropositions : negatedPropositions;
 			Set<Expression> propositionsAssertedWithOppositeSign = splitterSign? negatedPropositions  : assertedPropositions;
@@ -254,6 +243,18 @@ public class PropositionalTheory extends AbstractTheory {
 					negatedFreePropositions,
 					process);
 			return result;
+		}
+
+
+		@Override
+		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
+			if (assertedPropositions.contains(splitter)) {
+				return Expressions.TRUE;
+			}
+			if (negatedPropositions.contains(splitter)) {
+				return Expressions.FALSE;
+			}
+			return splitter;
 		}
 
 		@Override
