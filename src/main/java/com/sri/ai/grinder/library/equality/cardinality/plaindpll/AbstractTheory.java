@@ -37,8 +37,6 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 
 import java.util.Collection;
@@ -118,7 +116,7 @@ abstract public class AbstractTheory implements Theory {
 			if (constraintUnderSolutionSplitter != null) {
 				Constraint constraintUnderSolutionSplitterNegation = constraint.applySplitter(false, solutionSplitter, process);
 				if (constraintUnderSolutionSplitterNegation != null) {
-					Expression newSolutionSplitter = normalizeNonTrivialSplitter(solutionSplitter, constraint, process);
+					Expression newSolutionSplitter = constraint.normalizeSplitterGivenConstraint(solutionSplitter, process);
 					Expression thenBranch = IfThenElse.getThenBranch(solution);
 					Expression elseBranch = IfThenElse.getElseBranch(solution);
 					Expression newThenBranch = applyConstraintToSolution(constraintUnderSolutionSplitter, thenBranch, process);
@@ -194,45 +192,9 @@ abstract public class AbstractTheory implements Theory {
 
 	public boolean splitterIsNotSatisfiedFromContextualConstraintAlready(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		boolean result;
-		Expression splitterNormalizedByContextualConstraint = normalizeOrTrivializeSplitter(splitter, process.getDPLLContextualConstraint(), process);
+		Expression splitterNormalizedByContextualConstraint = process.getDPLLContextualConstraint().normalizeSplitterGivenConstraint(splitter, process);
 		assert ! splitterNormalizedByContextualConstraint.equals( ! splitterSign); // required splitter must be satisfiable under contextual constraint, otherwise there is a bug somewhere
 		result = ! splitterNormalizedByContextualConstraint.equals(splitterSign); // if splitter is implied TRUE by contextual constraint, it is superfluous
-		return result;
-	}
-
-	@Override
-	public Expression normalizeOrTrivializeSplitter(Expression splitter, Theory.Constraint constraint, RewritingProcess process) {
-		Expression result;
-		Expression trivializedSplitter = constraint.normalizeSplitterGivenConstraint(splitter, process);
-//		Expression trivializedSplitter = constraint.checkIfSplitterOrItsNegationIsImplied(splitter, process);
-		if (trivializedSplitter.equals(TRUE) || trivializedSplitter.equals(FALSE)) {
-			result = trivializedSplitter;
-		}
-		else {
-			result = normalizeNonTrivialSplitter(splitter, constraint, process);
-		}
-		return result;
-	}
-
-	/**
-	 * Given a splitter, a equalityTheory and a constraint,
-	 * and assuming that the splitter is not trivialized by the constraint,
-	 * returns an equivalent splitter normalized by the constraint.
-	 * @param splitter
-	 * @param constraint
-	 * @param equalityTheory
-	 * @param process
-	 * @return
-	 */
-	public Expression normalizeNonTrivialSplitter(Expression splitter, Theory.Constraint constraint, RewritingProcess process) {
-		Expression result;
-		if (applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll()) {
-			result = splitter;
-		}
-		else {
-			Expression normalizedSplitter = constraint.normalize(splitter, process);
-			result = normalizedSplitter == splitter? splitter : makeSplitterIfPossible(normalizedSplitter, constraint.getIndices(), process);
-		}
 		return result;
 	}
 }

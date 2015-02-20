@@ -131,19 +131,6 @@ public interface Theory {
 	Constraint makeConstraint(Collection<Expression> indices);
 
 	/**
-	 * Given a splitter, a equalityTheory and a constraint,
-	 * returns either true, false, or an equivalent splitter normalized by the constraint.
-	 * This is similar to {@link AbstractTheory#normalizeNonTrivialSplitter(Expression, Constraint, Theory, RewritingProcess)},
-	 * but accepts the case of a splitter trivialized by the constraint.
-	 * @param splitter
-	 * @param constraint
-	 * @param process
-	 * @param equalityTheory
-	 * @return
-	 */
-	Expression normalizeOrTrivializeSplitter(Expression splitter, Theory.Constraint constraint, RewritingProcess process);
-
-	/**
 	 * An interface for equalityTheory-specific representations of the current constraint in DPLL.
 	 * 
 	 * @author braz
