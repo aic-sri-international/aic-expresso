@@ -68,11 +68,11 @@ public class HelloWorlds {
 		 * The expression to be summed (or whatever other operation'ed) - can use equality on symbols (capitalized ones are variables, other uniquely named constants),
 		 * boolean connectives, if then else expressions, and numbers.
 		 */
-		Expression expression  = Expressions.parse("if X = Y or Y = Z then 1 else if Y != a then 2 else 3");
+		Expression expression = Expressions.parse("if X = Y or Y = Z then 1 else if Y != a then 2 else 3");
 		
 		/* 
 		 * The variables to be summed out (or maxed out, etc, depending on the problem type). 
-		 * Could be just one of them, or all of them, or none of them
+		 * Could be just some of them, or all of them, or none of them
 		 */
 		Collection<Expression> indices = Util.list(Expressions.parse("X"), Expressions.parse("Y"));
 //		Collection<Expression> indices = Util.list(Expressions.parse("X"));
