@@ -158,7 +158,7 @@ abstract public class AbstractTheory implements Theory {
 		public Expression modelCount(RewritingProcess process) {
 			Expression unconditionalCount = computeModelCountGivenConditionsOnFreeVariables(process);
 			Expression result =
-					makeModelCountConditionedOnUndeterminedSplitters(
+					makeModelCountConditionedOnFreeVariableSplittersNotAlreadyImpliedByContextualConstraint(
 							unconditionalCount,
 							getSplittersToBeSatisfied(process), getSplittersToBeNotSatisfied(process),
 							process);
@@ -171,7 +171,7 @@ abstract public class AbstractTheory implements Theory {
 		 * (which entail model count 0),
 		 * taking into account the contextual constraint.
 		 */
-		private Expression makeModelCountConditionedOnUndeterminedSplitters(
+		private Expression makeModelCountConditionedOnFreeVariableSplittersNotAlreadyImpliedByContextualConstraint(
 				Expression modelCountGivenUndeterminedSplitters,
 				Collection<Expression> splittersToBeSatisfied,
 				Collection<Expression> splittersToBeUnsatisfied,
@@ -183,7 +183,7 @@ abstract public class AbstractTheory implements Theory {
 			Collection<Expression> undeterminedSplittersThatNeedToBeTrue  = Util.filter(splittersToBeSatisfied,   keepUnsatisfiedSplitters);
 			Collection<Expression> undeterminedSplittersThatNeedToBeFalse = Util.filter(splittersToBeUnsatisfied, keepUnsatisfiedSplitterNegations);
 			
-			Expression result = makeModelCountConditionedOnUndeterminedSplitters(
+			Expression result = conditionExpressionOnGivenSplitters(
 					modelCountGivenUndeterminedSplitters, undeterminedSplittersThatNeedToBeTrue, undeterminedSplittersThatNeedToBeFalse);
 			return result;
 		}
@@ -197,22 +197,19 @@ abstract public class AbstractTheory implements Theory {
 		}
 
 		/**
-		 * Receives a model count and two sets of splitters, ones that must be true, and others that must be false,
-		 * and returns conditional model count including the cases in which those conditions are not true
-		 * (which entail model count 0).
-		 * @param modelCountGivenUndedeterminedSplitters
-		 * @return
+		 * Receives an expression and conditions it on a set of splitters required to be true,
+		 * and another set of splitters required to be false.
 		 */
-		private Expression makeModelCountConditionedOnUndeterminedSplitters(
-				Expression modelCountGivenUndedeterminedSplitters,
-				Collection<Expression> undeterminedSplittersThatNeedToBeTrue,
-				Collection<Expression> undeterminedSplittersThatNeedToBeFalse) {
+		private Expression conditionExpressionOnGivenSplitters(
+				Expression expression,
+				Collection<Expression> splittersThatNeedToBeTrue,
+				Collection<Expression> splittersThatNeedToBeFalse) {
 			
-			Expression result = modelCountGivenUndedeterminedSplitters;
-			for (Expression splitterToBeSatisfied : undeterminedSplittersThatNeedToBeTrue) {
+			Expression result = expression;
+			for (Expression splitterToBeSatisfied : splittersThatNeedToBeTrue) {
 				result = IfThenElse.make(splitterToBeSatisfied, result, ZERO, false);
 			}
-			for (Expression splitterToBeNotSatisfied : undeterminedSplittersThatNeedToBeFalse) {
+			for (Expression splitterToBeNotSatisfied : splittersThatNeedToBeFalse) {
 				result = IfThenElse.make(splitterToBeNotSatisfied, ZERO, result, false);
 			}
 			return result;
