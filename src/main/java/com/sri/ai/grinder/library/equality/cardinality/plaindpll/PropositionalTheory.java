@@ -46,6 +46,7 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -165,7 +166,7 @@ public class PropositionalTheory extends AbstractTheory {
 		return new Constraint(indices);
 	}
 
-	public class Constraint implements Theory.Constraint {
+	public class Constraint extends AbstractTheory.AbstractConstraint { //implements Theory.Constraint {
 
 		private Collection<Expression> indices;
 		private int numberOfBoundIndices;
@@ -233,18 +234,19 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 
 		@Override
-		public Expression modelCount(RewritingProcess process) {
-			Expression result = Expressions.makeSymbol(new Rational(2).pow(indices.size() - numberOfBoundIndices));
-			List<Expression> assertedFreePropositions = Util.subtract(assertedPropositions, indices);
-			List<Expression> negatedFreePropositions = Util.subtract(negatedPropositions, indices);
-			result = makeModelCountConditionedOnUndeterminedSplitters(
-					result,
-					assertedFreePropositions,
-					negatedFreePropositions,
-					process);
-			return result;
+		protected Symbol computeModelCountGivenConditionsOnFreeVariables(RewritingProcess process) {
+			return Expressions.makeSymbol(new Rational(2).pow(indices.size() - numberOfBoundIndices));
 		}
 
+		@Override
+		protected List<Expression> getSplittersToBeNotSatisfied(RewritingProcess process) {
+			return Util.subtract(negatedPropositions, indices);
+		}
+
+		@Override
+		protected List<Expression> getSplittersToBeSatisfied(RewritingProcess process) {
+			return Util.subtract(assertedPropositions, indices);
+		}
 
 		@Override
 		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
