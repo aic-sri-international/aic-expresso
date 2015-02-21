@@ -146,42 +146,6 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 		return result;
 	}
 
-	protected Expression makeTrueFalseOrSplitterFromTwoTerms(String splitterFunctor, Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
-		Expression result = makeSplitterFromFunctorAndTwoTerms(splitterFunctor, term1, term2, indices, process);
-		result = simplify(result, process);
-		return result;
-	}
-
-	/**
-	 * Indicates whether variable is chosen after otherTerm in model counting choosing ordering.
-	 */
-	protected static boolean variableIsChosenAfterOtherTerm(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
-		boolean result = process.isUniquelyNamedConstant(otherTerm) || variableIsChosenAfterOtherVariable(otherTerm, variable, indices);
-		return result;
-	}
-
-	/**
-	 * Indicates whether variable in chosen after otherVariable in choosing ordering.
-	 */
-	protected static boolean variableIsChosenAfterOtherVariable(Expression variable, Expression otherVariable, Collection<Expression> indices) {
-		boolean result;
-		if (indices.contains(variable)) { // index
-			if ( ! indices.contains(otherVariable)) { // free variable
-				result = false; // free variables always precedes indices
-			}
-			else { // both are indices
-				result = otherVariable.toString().compareTo(variable.toString()) < 0; // indices are compared alphabetically
-			}
-		}
-		else if (indices.contains(otherVariable)) { // variable is free variable and otherVariable is index
-			result = true; // free variable always precedes indices
-		}
-		else { // neither is index
-			result = otherVariable.toString().compareTo(variable.toString()) < 0;	// alphabetically		
-		}
-		return result;
-	}
-
 	@Override
 	public boolean applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll() {
 		return false;
@@ -232,20 +196,17 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 		
 		// The map (super class) keeps disequals.
 		
-		protected Collection<Expression> indices;
 		protected Map<Expression, Expression> equalitiesMap;
 		protected LinkedHashMap<Expression, NonEqualityConstraints> nonEqualityConstraintsMap;
 		
 		public Constraint(Collection<Expression> indices) {
-			super();
-			this.indices = indices;
+			super(indices);
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>();
 			this.nonEqualityConstraintsMap = new LinkedHashMap<Expression, NonEqualityConstraints>(); 
 		}
 
 		protected Constraint(Constraint another) {
-			super();
-			this.indices = another.indices;
+			super(another.indices);
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>(another.equalitiesMap);
 			this.nonEqualityConstraintsMap = new LinkedHashMap<Expression, NonEqualityConstraints>(); 
 			for (Map.Entry<Expression, NonEqualityConstraints> entry : another.nonEqualityConstraintsMap.entrySet()) {
@@ -261,12 +222,12 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 		/**
 		 * Modify this constraint's inner representation to include this splitter.
 		 */
-		abstract protected void applySplitterDestructively(Expression splitter, RewritingProcess process);
+		abstract protected void applyNormalizedSplitterDestructively(Expression splitter, RewritingProcess process);
 
 		/**
 		 * Modify this constraint's inner representation to include this splitter's negation.
 		 */
-		abstract protected void applySplitterNegationDestructively(Expression splitter, RewritingProcess process);
+		abstract protected void applyNormalizedSplitterNegationDestructively(Expression splitter, RewritingProcess process);
 
 		/**
 		 * Modify this constraint's inner representation to use up-to-date representatives.
@@ -343,13 +304,13 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 
 		private Constraint applyNormalizedSplitter(Expression splitter, RewritingProcess process) {
 			Constraint newConstraint = clone();
-			newConstraint.applySplitterDestructively(splitter, process);
+			newConstraint.applyNormalizedSplitterDestructively(splitter, process);
 			return newConstraint;
 		}
 
 		private Constraint applyNormalizedSplitterNegation(Expression splitter, RewritingProcess process) {
 			Constraint newConstraint = clone();
-			newConstraint.applySplitterNegationDestructively(splitter, process);
+			newConstraint.applyNormalizedSplitterNegationDestructively(splitter, process);
 			return newConstraint;
 		}
 
