@@ -150,8 +150,6 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		return syntacticFormTypeSimplifiers;
 	}
 
-	///////////// MAKE ABSTRACT IN NEW CLASS
-	
 	@Override
 	boolean splittersAlwaysHaveTwoArguments() {
 		return true;
@@ -173,11 +171,11 @@ public class EqualityTheory extends AbstractEqualityTheory {
 	protected BinaryFunction<Expression, RewritingProcess, Expression>
 	getSplitterApplier(boolean splitterSign, Expression splitter) {
 		BinaryFunction<Expression, RewritingProcess, Expression> applier;
-		if (splitter.hasFunctor(FunctorConstants.EQUALITY)) { // TODO: make this if then else into a map from functors for efficiency
+		if (splitter.hasFunctor(FunctorConstants.EQUALITY)) {
+			Expression term1 = splitter.get(0);
+			Expression term2 = splitter.get(1);
 			if (splitterSign) {
 				applier = (Expression expression, RewritingProcess process) -> {
-					Expression term1 = splitter.get(0);
-					Expression term2 = splitter.get(1);
 					Expression result = expression.replaceAllOccurrences(term1, term2, process);
 					result = simplify(result, process);
 					return result;
@@ -185,13 +183,10 @@ public class EqualityTheory extends AbstractEqualityTheory {
 			}
 			else {
 				applier = (Expression expression, RewritingProcess process) -> {
-					Expression term1 = splitter.get(0);
-					Expression term2 = splitter.get(1);
 					Expression result = expression.replaceAllOccurrences(new SimplifyLiteralGivenDisequality(term1, term2), process);
 					result = simplify(result, process);
 					return result;
 				};
-				
 			}
 		}
 		else {
@@ -205,8 +200,6 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		return new Constraint(indices);
 	}
 	
-	///////////// END OF MAKE ABSTRACT IN NEW CLASS
-
 	public static class DisequalitiesConstraints implements NonEqualityConstraints {
 		private Collection<Expression> disequals = new LinkedHashSet<Expression>();
 		
@@ -295,7 +288,7 @@ public class EqualityTheory extends AbstractEqualityTheory {
 
 		private Expression getSplitterTowardsEnsuringTotalDisequalityOfTermsInCollection(Collection<Expression> terms, RewritingProcess process) {
 			for (Expression y : terms) {
-				if (termTheory.isVariableTerm(y, process)) { // we can restrict y to variables because at least one of y or t must be a variable (otherwise they would be two constants and we already know those are disequal).
+				if (isVariableTerm(y, process)) { // we can restrict y to variables because at least one of y or t must be a variable (otherwise they would be two constants and we already know those are disequal).
 					Expression splitter = getSplitterTowardsEnsuringVariableIsDisequalFromAllOtherTermsInCollection(y, terms, process); // TODO: search from y's position only
 					if (splitter != null) {
 						return splitter;
@@ -322,14 +315,8 @@ public class EqualityTheory extends AbstractEqualityTheory {
 			return null;
 		}
 
-		/**
-		 * @param splitter
-		 * @param process
-		 * @return
-		 */
 		@Override
 		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
-			// THIS METHOD SHOULD PROBABLY BE MERGED WITH NORMALIZE
 			Expression simplifiedSplitterGivenConstraint;
 			Expression representative1 = getRepresentative(splitter.get(0), process);
 			Expression representative2 = getRepresentative(splitter.get(1), process);
@@ -552,11 +539,6 @@ public class EqualityTheory extends AbstractEqualityTheory {
 			return result;
 		}
 
-		/**
-		 * @param index
-		 * @param process
-		 * @return
-		 */
 		@Override
 		protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process) {
 			Expression numberOfPossibleValuesForIndex;
