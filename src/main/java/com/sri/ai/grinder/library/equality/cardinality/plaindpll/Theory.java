@@ -62,6 +62,14 @@ import com.sri.ai.grinder.api.RewritingProcess;
 public interface Theory {
 	
 	/**
+	 * Indicates whether an expression is to be considered a variable term in this theory.
+	 * @param term
+	 * @param process
+	 * @return
+	 */
+	boolean isVariableTerm(Expression term, RewritingProcess process);
+
+	/**
 	 * Simplifies expression given equalityTheory.
 	 * @param expression
 	 * @param process
