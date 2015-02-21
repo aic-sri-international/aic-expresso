@@ -243,14 +243,14 @@ public class DPLLUtil {
 		List<Expression> freeVariablesIndexExpressions = getIndexExpressionsFromSymbolsAndTypes(freeVariablesAndTypes(constraintImpliesExpression, process)).getList();
 	
 		Expression closedConstraintImpliedExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesExpression);
-		Expression alwaysImpliesExpression = (new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(new SymbolTermTheory()), new Tautologicality())).rewrite(closedConstraintImpliedExpression, process);
+		Expression alwaysImpliesExpression = (new DPLLGeneralizedAndSymbolic(new EqualityTheory(new SymbolTermTheory()), new Tautologicality())).rewrite(closedConstraintImpliedExpression, process);
 		if (alwaysImpliesExpression.equals(Expressions.TRUE)) {
 			result = Expressions.TRUE;
 		}
 		else {
 			Expression constraintImpliesNegationOfExpression = Implication.make(constraint, Not.make(expression));
 			Expression closedConstraintImpliesNegationOfExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesNegationOfExpression);
-			Expression alwaysImpliesNegationOfExpression = (new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(new SymbolTermTheory()), new Tautologicality())).rewrite(closedConstraintImpliesNegationOfExpression, process);
+			Expression alwaysImpliesNegationOfExpression = (new DPLLGeneralizedAndSymbolic(new EqualityTheory(new SymbolTermTheory()), new Tautologicality())).rewrite(closedConstraintImpliesNegationOfExpression, process);
 			if (alwaysImpliesNegationOfExpression.equals(Expressions.TRUE)) {
 				result = Expressions.FALSE;
 			}

@@ -58,10 +58,10 @@ import com.sri.ai.util.base.BinaryFunction;
 /** 
  * A {@link Theory} for boolean atoms and equality literals,
  * whose splitters are either equality splitters or boolean atoms (function applications or symbols).
- * It works by using an internal {@link EqualityOnTermsTheory}
+ * It works by using an internal {@link EqualityTheory}
  * and converting atom splitter A to either "A = true" or "A = false".
  */
-public class AtomsAndEqualityOnTermsTheory extends AbstractTheory {
+public class AtomsAndEqualityTheory extends AbstractTheory {
 	
 	// This class deals with two types of theories and splitters;
 	// first, its base equality theory and its equality splitters,
@@ -70,9 +70,9 @@ public class AtomsAndEqualityOnTermsTheory extends AbstractTheory {
 	// We differentiate those two types of theory and splitters by always
 	// calling the first type "equality theory" and "equality splitters".
 	
-	EqualityOnTermsTheory equalityTheory;
+	EqualityTheory equalityTheory;
 	
-	public AtomsAndEqualityOnTermsTheory(EqualityOnTermsTheory equalityTheory) {
+	public AtomsAndEqualityTheory(EqualityTheory equalityTheory) {
 		this.equalityTheory = equalityTheory;
 	}
 
@@ -136,9 +136,9 @@ public class AtomsAndEqualityOnTermsTheory extends AbstractTheory {
 	
 	private class Constraint implements Theory.Constraint {
 
-		private AbstractEqualityOnTermsTheory.Constraint equalityConstraint;
+		private AbstractEqualityTheory.Constraint equalityConstraint;
 		
-		public Constraint(AbstractEqualityOnTermsTheory.Constraint equalityConstraint) {
+		public Constraint(AbstractEqualityTheory.Constraint equalityConstraint) {
 			this.equalityConstraint = equalityConstraint;
 		}
 		
@@ -190,7 +190,7 @@ public class AtomsAndEqualityOnTermsTheory extends AbstractTheory {
 		public Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			Expression equalitySplitter     = Equality.isEquality(splitter)? splitter     : Equality.make(splitter, splitterSign);
 			boolean    equalitySplitterSign = Equality.isEquality(splitter)? splitterSign : true;
-			AbstractEqualityOnTermsTheory.Constraint newEqualityConstraint = equalityConstraint.applySplitter(equalitySplitterSign, equalitySplitter, process);
+			AbstractEqualityTheory.Constraint newEqualityConstraint = equalityConstraint.applySplitter(equalitySplitterSign, equalitySplitter, process);
 			Constraint result;
 			if (newEqualityConstraint != null) {
 				result = new Constraint(newEqualityConstraint);
@@ -231,7 +231,7 @@ public class AtomsAndEqualityOnTermsTheory extends AbstractTheory {
 		
 		@Override
 		public String toString() {
-			return "AtomsAndEqualityOnTermsTheory on " + equalityConstraint;
+			return "AtomsAndEqualityTheory on " + equalityConstraint;
 		}
 	}
 }

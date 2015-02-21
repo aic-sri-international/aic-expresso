@@ -59,14 +59,14 @@ import com.sri.ai.util.base.BinaryFunction;
  * <p>
  * It defines generic code for such theories while leaving abstract methods
  * that specify specific behavior.
- * Its extension {@link EqualityOnTermsTheory} defines these methods for a theory with
+ * Its extension {@link EqualityTheory} defines these methods for a theory with
  * = and != constraints only.
  * Someone wishing to develop a theory including equality but also other constraints
- * should extend {@link EqualityOnTermsTheory} and override most of the methods
+ * should extend {@link EqualityTheory} and override most of the methods
  * defines as abstract here, even if they are defined there (because they do not consider other types
  * of constraints).
  */
-public abstract class AbstractEqualityOnTermsTheory extends AbstractTheory {
+public abstract class AbstractEqualityTheory extends AbstractTheory {
 	
 	public TermTheory termTheory;
 	
@@ -75,7 +75,7 @@ public abstract class AbstractEqualityOnTermsTheory extends AbstractTheory {
 	// which is either a variable symbol, or an uninterpreted function application such as p(a, b, X).
 	// It can also be seen as an indexed variable (typically represented as x_i, y_i,j etc).
 	
-	public AbstractEqualityOnTermsTheory(TermTheory termTheory) {
+	public AbstractEqualityTheory(TermTheory termTheory) {
 		super();
 		this.termTheory = termTheory;
 	}

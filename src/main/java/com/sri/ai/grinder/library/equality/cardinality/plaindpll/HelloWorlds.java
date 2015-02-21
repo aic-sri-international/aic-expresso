@@ -56,13 +56,13 @@ public class HelloWorlds {
 		/*
 		 * The theory of equality on symbols (includes a model counter for formulas in it).
 		 */
-		Theory theory = new EqualityOnTermsTheory(new SymbolTermTheory());
+		Theory theory = new EqualityTheory(new SymbolTermTheory());
 
 		/* 
 		 * The problem type, a sum. Could be Max or other commutative associative operators.
 		 */
-//		ProblemType problemType = new Sum();
-		ProblemType problemType = new Max();
+		ProblemType problemType = new Sum();
+//		ProblemType problemType = new Max();
 
 		/* 
 		 * The expression to be summed (or whatever other operation'ed) - can use equality on symbols (capitalized ones are variables, other uniquely named constants),
@@ -89,7 +89,7 @@ public class HelloWorlds {
 		/* Solve the problem. */
 		Expression result = solver.solve(expression, indices, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString);
 
-		System.out.println(problemType.getClass().getSimpleName() + " of\n" + expression + "\nover assignments to variables\n" + Util.join(indices) + "\nis\n" + result);	
+		System.out.println(problemType + " of\n" + expression + "\nover assignments to variables\n" + Util.join(indices) + "\nis\n" + result);	
 	}
 
 }
