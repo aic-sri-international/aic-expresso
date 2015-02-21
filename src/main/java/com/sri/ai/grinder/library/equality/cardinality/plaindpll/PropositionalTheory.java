@@ -190,6 +190,10 @@ public class PropositionalTheory extends AbstractTheory {
 			this.negatedPropositions = new LinkedHashSet<Expression>(another.negatedPropositions);
 		}
 
+		public Constraint clone() {
+			return new Constraint(this);
+		}
+		
 		@Override
 		public Collection<Expression> getIndices() {
 			return indices;
@@ -228,16 +232,21 @@ public class PropositionalTheory extends AbstractTheory {
 		private Constraint assertInNewCopy(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			Constraint result;
 			result = new Constraint(this);
+			result.applyNormalizedSplitterDestructively(splitterSign, splitter, process);
+			return result;
+		}
+
+		@Override
+		protected void applyNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			if (splitterSign) {
-				result.assertedPropositions.add(splitter);
+				assertedPropositions.add(splitter);
 			}
 			else {
-				result.negatedPropositions.add(splitter);
+				negatedPropositions.add(splitter);
 			}
 			if (indices.contains(splitter)) {
-				result.numberOfBoundIndices++;
+				numberOfBoundIndices++;
 			}
-			return result;
 		}
 
 		@Override

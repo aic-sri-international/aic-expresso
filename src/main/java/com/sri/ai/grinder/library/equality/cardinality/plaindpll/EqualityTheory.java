@@ -359,17 +359,15 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		}
 
 		@Override
-		protected void applyNormalizedSplitterDestructively(Expression splitter, RewritingProcess process) {
+		protected void applyNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			Expression variable  = splitter.get(0);
 			Expression otherTerm = splitter.get(1);
-			applyRepresentativesEqualityDestructively(variable, otherTerm, process);
-		}
-
-		@Override
-		protected void applyNormalizedSplitterNegationDestructively(Expression splitter, RewritingProcess process) {
-			Expression variable  = splitter.get(0);
-			Expression otherTerm = splitter.get(1);
-			applyRepresentativesDisequalityDestructively(variable, otherTerm, process);
+			if (splitterSign) {
+				applyRepresentativesEqualityDestructively(variable, otherTerm, process);
+			}
+			else {
+				applyRepresentativesDisequalityDestructively(variable, otherTerm, process);
+			}
 		}
 
 		private void applyRepresentativesEqualityDestructively(Expression variableRepresentative, Expression otherTermRepresentative, RewritingProcess process) {

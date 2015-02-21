@@ -144,7 +144,7 @@ public class AtomsAndEqualityTheory extends AbstractTheory {
 
 		private AbstractEqualityTheory.Constraint equalityConstraint;
 		
-		public Constraint(AbstractEqualityTheory.Constraint equalityConstraint) {
+		public Constraint(EqualityTheory.Constraint equalityConstraint) {
 			this.equalityConstraint = equalityConstraint;
 		}
 		
@@ -196,7 +196,8 @@ public class AtomsAndEqualityTheory extends AbstractTheory {
 		public Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			Expression equalitySplitter     = Equality.isEquality(splitter)? splitter     : Equality.make(splitter, splitterSign);
 			boolean    equalitySplitterSign = Equality.isEquality(splitter)? splitterSign : true;
-			AbstractEqualityTheory.Constraint newEqualityConstraint = equalityConstraint.applySplitter(equalitySplitterSign, equalitySplitter, process);
+			EqualityTheory.Constraint newEqualityConstraint = (EqualityTheory.Constraint)
+					equalityConstraint.applySplitter(equalitySplitterSign, equalitySplitter, process);
 			Constraint result;
 			if (newEqualityConstraint != null) {
 				result = new Constraint(newEqualityConstraint);
