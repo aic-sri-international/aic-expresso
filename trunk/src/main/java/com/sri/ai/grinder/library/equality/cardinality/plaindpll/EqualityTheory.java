@@ -171,44 +171,35 @@ public class EqualityTheory extends AbstractEqualityTheory {
 	
 	@Override
 	protected BinaryFunction<Expression, RewritingProcess, Expression>
-	
-	getSplitterApplier(Expression splitter) {
-
-		BinaryFunction<Expression, RewritingProcess, Expression> applier = null;
-
+	getSplitterApplier(boolean splitterSign, Expression splitter) {
+		BinaryFunction<Expression, RewritingProcess, Expression> applier;
 		if (splitter.hasFunctor(FunctorConstants.EQUALITY)) { // TODO: make this if then else into a map from functors for efficiency
-			applier = (Expression expression, RewritingProcess process) -> {
-				Expression term1 = splitter.get(0);
-				Expression term2 = splitter.get(1);
-				Expression result = expression.replaceAllOccurrences(term1, term2, process);
-				result = simplify(result, process);
-				return result;
-			};
+			if (splitterSign) {
+				applier = (Expression expression, RewritingProcess process) -> {
+					Expression term1 = splitter.get(0);
+					Expression term2 = splitter.get(1);
+					Expression result = expression.replaceAllOccurrences(term1, term2, process);
+					result = simplify(result, process);
+					return result;
+				};
+			}
+			else {
+				applier = (Expression expression, RewritingProcess process) -> {
+					Expression term1 = splitter.get(0);
+					Expression term2 = splitter.get(1);
+					Expression result = expression.replaceAllOccurrences(new SimplifyLiteralGivenDisequality(term1, term2), process);
+					result = simplify(result, process);
+					return result;
+				};
+				
+			}
 		}
-
+		else {
+			applier = null;
+		}
 		return applier;
 	}
-
-	@Override
-	protected BinaryFunction<Expression, RewritingProcess, Expression>
 	
-	getSplitterNegationApplier(Expression splitter) {
-	
-		BinaryFunction<Expression, RewritingProcess, Expression> applier = null;
-
-		if (splitter.hasFunctor(FunctorConstants.EQUALITY)) { // TODO: make this if then else into a map from functors for efficiency
-			applier = (Expression expression, RewritingProcess process) -> {
-				Expression term1 = splitter.get(0);
-				Expression term2 = splitter.get(1);
-				Expression result = expression.replaceAllOccurrences(new SimplifyLiteralGivenDisequality(term1, term2), process);
-				result = simplify(result, process);
-				return result;
-			};
-		}
-
-		return applier;
-	}
-
 	@Override
 	public Constraint makeConstraint(Collection<Expression> indices) {
 		return new Constraint(indices);
@@ -290,14 +281,16 @@ public class EqualityTheory extends AbstractEqualityTheory {
 			return new Constraint(this);
 		}
 
-		/**
-		 * @param x
-		 * @param process
-		 * @return
-		 */
 		@Override
 		protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression x, RewritingProcess process) {
-			return getSplitterTowardsEnsuringTotalDisequalityOfTermsInCollection(getDisequals(x), process);
+			Expression result;
+			if (indexIsBound(x)) {
+				result = null;
+			}
+			else {
+				result = getSplitterTowardsEnsuringTotalDisequalityOfTermsInCollection(getDisequals(x), process);
+			}
+			return result;
 		}
 
 		private Expression getSplitterTowardsEnsuringTotalDisequalityOfTermsInCollection(Collection<Expression> terms, RewritingProcess process) {

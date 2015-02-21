@@ -45,7 +45,6 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.util.Util;
@@ -98,10 +97,6 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 	 */
 	abstract protected String getCorrespondingSplitterFunctorOrNull(Expression expression);
 	
-	abstract protected BinaryFunction<Expression, RewritingProcess, Expression> getSplitterApplier(Expression splitter);
-	
-	abstract protected BinaryFunction<Expression, RewritingProcess, Expression> getSplitterNegationApplier(Expression splitter);
-	
 	@Override
 	abstract public Constraint makeConstraint(Collection<Expression> indices);
 	
@@ -109,6 +104,11 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 
 	// FROM NOW ON CODE MUST BE GENERIC
 	
+	@Override
+	protected boolean isVariableTerm(Expression term, RewritingProcess process) {
+		return termTheory.isVariableTerm(term, process);
+	}
+
 	/**
 	 * If expression can originate a splitter and has at least one variable argument, returns the splitter by making it in the following way:
 	 * obtain the appropriate splitter functor from {@link #getCorrespondingSplitterFunctorOrNull(Expression)}
@@ -126,7 +126,7 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 		if (splitterFunctor != null) {
 			// remember that equality can have an arbitrary number of terms
 			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), 
-					e -> termTheory.isVariableTerm(e, process));
+					e -> isVariableTerm(e, process));
 			if (variable != null) {
 				Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(
 						expression.getArguments(),
@@ -136,50 +136,6 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 				}
 			}
 		}
-		return result;
-	}
-
-	/**
-	 * Makes splitter by applying given functor to two terms, indices coming first if any.
-	 * Does not simplify splitter (so, if it is simplifiable, it does not get simplified).
-	 * @param splitterFunctor the splitter's functor
-	 * @param term1
-	 * @param term2
-	 * @param indices
-	 * @param process
-	 * @return
-	 */
-	protected Expression makeSplitterFromFunctorAndTwoTerms(String splitterFunctor, Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
-		Expression result;
-		// Places index or variable before constants.
-		if (indices.contains(term1)) {
-			result = Expressions.apply(splitterFunctor, term1, term2);
-		}
-		else if (indices.contains(term2)) {
-			result = Expressions.apply(splitterFunctor, term2, term1);
-		}
-		else if (termTheory.isVariableTerm(term1, process)) {
-			result = Expressions.apply(splitterFunctor, term1, term2);
-		}
-		else {
-			result = Expressions.apply(splitterFunctor, term2, term1);
-		}
-		return result;
-	}
-
-	@Override
-	public Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
-		if ( ! splitterSign) {
-			return applySplitterNegationToExpression(splitter, expression, process);
-		}
-	
-		Expression result = getSplitterApplier(splitter).apply(expression, process);
-		
-		return result;
-	}
-
-	private Expression applySplitterNegationToExpression(Expression splitter, Expression expression, RewritingProcess process) {
-		Expression result = getSplitterNegationApplier(splitter).apply(expression, process);
 		return result;
 	}
 
@@ -303,12 +259,6 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 		protected class Contradiction extends Error {};
 
 		/**
-		 * Given an unbound index x, return one splitter needed for us to be able to
-		 * compute this index's number of values, or null if none is needed.
-		 */
-		abstract protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression x, RewritingProcess process);
-
-		/**
 		 * Modify this constraint's inner representation to include this splitter.
 		 */
 		abstract protected void applySplitterDestructively(Expression splitter, RewritingProcess process);
@@ -324,20 +274,6 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 		abstract protected void updateRepresentativesWhereverTheyAreUsed(RewritingProcess process);
 		// OPTIMIZATION: can we provide the method above with the representatives that have been updated to minimize
 		// representative lookup?
-
-//		/** Provide splitters not involving indices that must be true lest this constraint be a contradiction. */
-//		abstract protected Collection<Expression> getSplittersToBeSatisfied(RewritingProcess process);
-//		
-//		/** Provide splitters not involving indices that must be false lest this constraint be a contradiction. */
-//		abstract protected Collection<Expression> getSplittersToBeNotSatisfied(RewritingProcess process);
-
-		/**
-		 * Returns an expression (in the free variables) for the number of possible values for the given index,
-		 * assuming that {@link #provideSplitterRequiredForComputingNumberOfValuesFor(Expression, RewritingProcess)}
-		 * currently returns <code>null</code>,
-		 * that is, we do not need anything splitters to be either imposed or negated in order to compute that.
-		 */
-		abstract protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process);
 
 		/**
 		 * Indicates whether two representatives are constrained to be disequal by this constraint.
@@ -357,8 +293,6 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 
 		@Override
 		abstract public Expression normalize(Expression expression, RewritingProcess process);
-
-		
 		
 		@Override
 		abstract public String toString();
@@ -370,22 +304,13 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 			return indices;
 		}
 
-		@Override
-		public Expression pickSplitter(RewritingProcess process) {
-		
-			for (Expression x : nonEqualityConstraintsMap.keySet()) {
-				if (indices.contains(x)) {
-					if ( ! indexIsBound(x)) {
-						Expression splitter = provideSplitterRequiredForComputingNumberOfValuesFor(x, process);
-						if (splitter != null) {
-							return splitter;
-						}
-					}
-				}
-			}
-
-			return null;
-		}
+		/**
+		 * Returns an expression (in the free variables) for the number of possible values for the given index,
+		 * assuming that {@link #provideSplitterRequiredForComputingNumberOfValuesFor(Expression, RewritingProcess)}
+		 * currently returns <code>null</code>,
+		 * that is, we do not need anything splitters to be either imposed or negated in order to compute that.
+		 */
+		abstract protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process);
 
 		@Override
 		public Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
@@ -480,7 +405,7 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 		/**
 		 * Indicates whether an index is bound to some other term.
 		 */
-		private boolean indexIsBound(Expression index) {
+		protected boolean indexIsBound(Expression index) {
 			return equalitiesMap.containsKey(index);
 		}
 
