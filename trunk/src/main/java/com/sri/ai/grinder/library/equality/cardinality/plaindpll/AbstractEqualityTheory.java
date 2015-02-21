@@ -39,15 +39,11 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.number.Times;
-import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 
 @Beta
@@ -87,16 +83,6 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 	@Override
 	abstract public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers();
 
-	/**
-	 * If expression can generate a splitter, returns the appropriate splitter's functor;
-	 * for example, an expression a != b generates the splitter =,
-	 * so the result for that input will be =.
-	 * If expression cannot generate a splitter, returns <code>null</code>.
-	 * @param expression
-	 * @return
-	 */
-	abstract protected String getCorrespondingSplitterFunctorOrNull(Expression expression);
-	
 	@Override
 	abstract public Constraint makeConstraint(Collection<Expression> indices);
 	
@@ -107,36 +93,6 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 	@Override
 	protected boolean isVariableTerm(Expression term, RewritingProcess process) {
 		return termTheory.isVariableTerm(term, process);
-	}
-
-	/**
-	 * If expression can originate a splitter and has at least one variable argument, returns the splitter by making it in the following way:
-	 * obtain the appropriate splitter functor from {@link #getCorrespondingSplitterFunctorOrNull(Expression)}
-	 * and create splitter by getting expression's first variable argument, V, and expression's first argument distinct from V.
-	 * Otherwise, returns <code>null</code>.
-	 * @param expression
-	 * @param indices
-	 * @param process
-	 * @return
-	 */
-	@Override
-	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
-		Expression result = null;
-		String splitterFunctor = getCorrespondingSplitterFunctorOrNull(expression);
-		if (splitterFunctor != null) {
-			// remember that equality can have an arbitrary number of terms
-			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), 
-					e -> isVariableTerm(e, process));
-			if (variable != null) {
-				Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(
-						expression.getArguments(),
-						e -> ! e.equals(variable) && termTheory.isTerm(e, process));
-				if (otherTerm != null) {
-					result = makeSplitterFromFunctorAndTwoTerms(splitterFunctor, variable, otherTerm, indices, process);
-				}
-			}
-		}
-		return result;
 	}
 
 	@Override
@@ -155,8 +111,6 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 	
 	// STATIC DECLARATIONS FOR USE IN Constraint (cannot be declared inside it because non-static inner classes cannot have static members).
 	
-	private static final Times timesRewriter = new Times(); // for use in the class below
-
 	protected interface NonEqualityConstraints {
 		NonEqualityConstraints clone();
 	}
@@ -214,8 +168,6 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 			}
 		}
 
-		abstract public Constraint clone();
-
 		/** Class an instance of which must be thrown when a contradiction is found during application of splitter. */
 		protected class Contradiction extends Error {};
 
@@ -231,53 +183,6 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 		 */
 		abstract protected boolean representativesAreExplicitlyConstrainedToBeDisequal(Expression representative1, Expression representative2, RewritingProcess process);
 		
-		/**
-		 * Simplifies a given splitter to true if implied by constraint, false if its negation is implied by constraint,
-		 * or a version of itself with terms replaced by representatives.
-		 * Note that {@link #normalize(Expression, RewritingProcess)} cannot be used instead of this method
-		 * because it transforms 'Term = true' into 'Term' and 'Term = false' into 'not Term',
-		 * and these are not splitters for this theory anymore.
-		 */
-		@Override
-		public
-		abstract Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process);
-
-		@Override
-		abstract public Expression normalize(Expression expression, RewritingProcess process);
-		
-		@Override
-		abstract public String toString();
-
-		///////////////////////// CODE BELOW THIS LINE MUST BE GENERIC
-		
-		@Override
-		public Collection<Expression> getIndices() {
-			return indices;
-		}
-
-		/**
-		 * Returns an expression (in the free variables) for the number of possible values for the given index,
-		 * assuming that {@link #provideSplitterRequiredForComputingNumberOfValuesFor(Expression, RewritingProcess)}
-		 * currently returns <code>null</code>,
-		 * that is, we do not need anything splitters to be either imposed or negated in order to compute that.
-		 */
-		abstract protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process);
-
-		protected Expression computeModelCountGivenConditionsOnFreeVariables(RewritingProcess process) {
-			List<Expression> numberOfPossibleValuesForIndicesSoFar = new LinkedList<Expression>();
-			
-			for (Expression index : indices) {
-				if ( ! indexIsBound(index)) {
-					Expression numberOfPossibleValuesForIndex = computeNumberOfPossibleValuesFor(index, process);
-					numberOfPossibleValuesForIndicesSoFar.add(numberOfPossibleValuesForIndex);
-				}
-			}
-			
-			Expression result = Times.make(numberOfPossibleValuesForIndicesSoFar);
-			Expression unconditionalCount = timesRewriter.rewrite(result, process);
-			return unconditionalCount;
-		}
-
 		////////// EQUALITY CONSTRAINTS MAINTENANCE
 		
 		/**

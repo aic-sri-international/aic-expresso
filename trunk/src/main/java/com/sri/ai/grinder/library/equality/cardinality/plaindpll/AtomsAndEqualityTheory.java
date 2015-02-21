@@ -82,9 +82,23 @@ public class AtomsAndEqualityTheory extends AbstractTheory {
 	}
 
 	@Override
+	boolean splittersAlwaysHaveTwoArguments() {
+		return false;
+	}
+
+	/**
+	 * This implementation method is irrelevant because {@link #makeSplitterIfPossible(Expression, Collection, RewritingProcess)}
+	 * is overridden and does not use it (see javadoc at this method's declaration in super class {@link AbstractTheory}).
+	 */
+	@Override
+	protected String getCorrespondingSplitterFunctorOrNull(Expression expression) {
+		throw new Error("AtomsAndEqualityTheory.getCorrespondingSplitterFunctorOrNull should never execute; see source code");
+	}
+
+	@Override
 	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
-		if (equalityTheory.termTheory.isVariableTerm(expression, process)
+		if (equalityTheory.isVariableTerm(expression, process)
 				&&
 				(
 						GrinderUtil.getType(expression, process).equals(parse("Boolean"))
