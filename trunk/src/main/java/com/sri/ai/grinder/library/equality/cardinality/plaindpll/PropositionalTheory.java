@@ -171,22 +171,20 @@ public class PropositionalTheory extends AbstractTheory {
 
 	public class Constraint extends AbstractTheory.AbstractConstraint { //implements Theory.Constraint {
 
-		private Collection<Expression> indices;
 		private int numberOfBoundIndices;
 		
 		private Set<Expression> assertedPropositions;
 		private Set<Expression> negatedPropositions;
 		
 		public Constraint(Collection<Expression> indices) {
-			this.indices = indices;
+			super(indices);
 			this.numberOfBoundIndices = 0;
 			this.assertedPropositions = new LinkedHashSet<Expression>();
 			this.negatedPropositions  = new LinkedHashSet<Expression>();
 		}
 		
 		public Constraint(Constraint another) {
-			super();
-			this.indices = another.indices;
+			super(another.indices);
 			this.numberOfBoundIndices = another.numberOfBoundIndices;
 			this.assertedPropositions = new LinkedHashSet<Expression>(another.assertedPropositions); // should be optimized to a copy-as-needed scheme.
 			this.negatedPropositions = new LinkedHashSet<Expression>(another.negatedPropositions);

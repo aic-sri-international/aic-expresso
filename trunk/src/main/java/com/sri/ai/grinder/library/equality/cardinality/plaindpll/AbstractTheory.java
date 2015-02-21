@@ -187,8 +187,44 @@ abstract public class AbstractTheory implements Theory {
 		return result;
 	}
 	
+	/**
+	 * Indicates whether variable is chosen after otherTerm in model counting choosing ordering.
+	 */
+	protected static boolean variableIsChosenAfterOtherTerm(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
+		boolean result = process.isUniquelyNamedConstant(otherTerm) || variableIsChosenAfterOtherVariable(otherTerm, variable, indices);
+		return result;
+	}
+
+	/**
+	 * Indicates whether variable in chosen after otherVariable in choosing ordering.
+	 */
+	protected static boolean variableIsChosenAfterOtherVariable(Expression variable, Expression otherVariable, Collection<Expression> indices) {
+		boolean result;
+		if (indices.contains(variable)) { // index
+			if ( ! indices.contains(otherVariable)) { // free variable
+				result = false; // free variables always precedes indices
+			}
+			else { // both are indices
+				result = otherVariable.toString().compareTo(variable.toString()) < 0; // indices are compared alphabetically
+			}
+		}
+		else if (indices.contains(otherVariable)) { // variable is free variable and otherVariable is index
+			result = true; // free variable always precedes indices
+		}
+		else { // neither is index
+			result = otherVariable.toString().compareTo(variable.toString()) < 0;	// alphabetically		
+		}
+		return result;
+	}
+
 	public abstract class AbstractConstraint implements Theory.Constraint {
 
+		protected Collection<Expression> indices;
+
+		public AbstractConstraint(Collection<Expression> indices) {
+			this.indices = indices;
+		}
+		
 		/**
 		 * Given an index x, return one splitter needed for us to be able to
 		 * compute this index's number of values, or null if none is needed.

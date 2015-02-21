@@ -358,30 +358,21 @@ public class EqualityTheory extends AbstractEqualityTheory {
 			return result;
 		}
 
-		/**
-		 * @param splitter
-		 * @param process
-		 * @param newConstraint
-		 */
 		@Override
-		protected void applySplitterDestructively(Expression splitter, RewritingProcess process) {
+		protected void applyNormalizedSplitterDestructively(Expression splitter, RewritingProcess process) {
 			Expression variable  = splitter.get(0);
 			Expression otherTerm = splitter.get(1);
-			applyEqualityDestructively(variable, otherTerm, process);
+			applyRepresentativesEqualityDestructively(variable, otherTerm, process);
 		}
 
-		/**
-		 * @param splitter
-		 * @param process
-		 */
 		@Override
-		protected void applySplitterNegationDestructively(Expression splitter, RewritingProcess process) {
+		protected void applyNormalizedSplitterNegationDestructively(Expression splitter, RewritingProcess process) {
 			Expression variable  = splitter.get(0);
 			Expression otherTerm = splitter.get(1);
-			applyDisequalityDestructively(variable, otherTerm, process);
+			applyRepresentativesDisequalityDestructively(variable, otherTerm, process);
 		}
 
-		private void applyEqualityDestructively(Expression variableRepresentative, Expression otherTermRepresentative, RewritingProcess process) {
+		private void applyRepresentativesEqualityDestructively(Expression variableRepresentative, Expression otherTermRepresentative, RewritingProcess process) {
 			// To apply the equality of these two representatives we must take several steps:
 			// first, we include the binding from the first to the second.
 			// This means the first term ceases being a representative, and is now represented by the second term.
@@ -439,7 +430,8 @@ public class EqualityTheory extends AbstractEqualityTheory {
 						}
 						else {
 							newRepresentative = getRepresentative(newVariable, false, process);
-							representativesEquality = makeTrueFalseOrSplitterFromTwoTerms(FunctorConstants.EQUALITY, oldRepresentative, newRepresentative, indices, process);
+							representativesEquality = makeSplitterFromFunctorAndTwoTerms(FunctorConstants.EQUALITY, oldRepresentative, newRepresentative, indices, process);
+							representativesEquality = simplify(representativesEquality, process);
 							if (representativesEquality.equals(FALSE)) {
 								throw new Contradiction();
 							}
@@ -494,7 +486,7 @@ public class EqualityTheory extends AbstractEqualityTheory {
 				// and now we add the new disequalities. Note we cannot just put them in the map as they are, because of choosing order
 				for (Map.Entry<Expression, Collection<Expression>> updatedEntry : updatedDisequals.entrySet()) {
 					for (Expression disequal : updatedEntry.getValue()) {
-						applyDisequalityDestructively(updatedEntry.getKey(), disequal, process);
+						applyRepresentativesDisequalityDestructively(updatedEntry.getKey(), disequal, process);
 					}
 				}
 			}
@@ -506,7 +498,7 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		}
 
 		/** Assumes disequality does not turn constraint into contradiction */
-		private void applyDisequalityDestructively(Expression term1, Expression term2, RewritingProcess process) {
+		private void applyRepresentativesDisequalityDestructively(Expression term1, Expression term2, RewritingProcess process) {
 			if (termTheory.isVariableTerm(term1, process) || termTheory.isVariableTerm(term2, process)) {
 				if (termTheory.isVariableTerm(term1, process) && variableIsChosenAfterOtherTerm(term1, term2, indices, process)) {
 					addFirstTermAsDisequalOfSecondTerm(term1, term2);
