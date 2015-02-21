@@ -41,6 +41,8 @@ import static com.sri.ai.expresso.helper.Expressions.ZERO;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
@@ -51,6 +53,7 @@ import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.AbstractEqualityTheory.Constraint.Contradiction;
+import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 
@@ -82,6 +85,61 @@ abstract public class AbstractTheory implements Theory {
 
 	abstract protected BinaryFunction<Expression, RewritingProcess, Expression> getSplitterApplier(boolean splitterSign, Expression splitter);
 
+	/**
+	 * If expression can generate a splitter, returns the appropriate splitter's functor;
+	 * for example, an equality theory may be defined so that an expression a != b generates the splitter =,
+	 * so the result for that input will be =.
+	 * If expression cannot generate a splitter, returns <code>null</code>.
+	 * This method is only used in this class' implementation of {@link #makeSplitterIfPossible(Expression, Collection, RewritingProcess)}
+	 * (so if a class overrides the latter and does not make use of it, its implementation of this method is irrelevant).
+	 * @param expression
+	 * @return
+	 */
+	abstract protected String getCorrespondingSplitterFunctorOrNull(Expression expression);
+	
+	/**
+	 * This default implementation does the following (check the javadoc in the declaration of this method in {@link Theory#Constraint}
+	 * for the more general, more relaxed requirements):
+	 * If expression can originate a splitter and has at least one variable argument, returns the splitter by making it in the following way:
+	 * obtain the appropriate splitter functor from {@link #getCorrespondingSplitterFunctorOrNull(Expression)}
+	 * and create splitter by getting expression's first variable argument, V, and expression's first argument distinct from V.
+	 * Otherwise, returns <code>null</code>.
+	 * @param expression
+	 * @param indices
+	 * @param process
+	 * @return
+	 */
+	@Override
+	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
+		assert splittersAlwaysHaveTwoArguments() : "splittersAlwaysHaveTwoArguments indicates false and yet an implementation of makeSplitterIfPossible using that assumption is being invoked.";
+		Expression result = null;
+		String splitterFunctor = getCorrespondingSplitterFunctorOrNull(expression);
+		if (splitterFunctor != null) {
+			// remember that equality can have an arbitrary number of terms
+			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), 
+					e -> isVariableTerm(e, process));
+			if (variable != null) {
+				Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(
+						expression.getArguments(),
+						e -> ! e.equals(variable));
+				if (otherTerm != null) {
+					result = makeSplitterFromFunctorAndTwoTerms(splitterFunctor, variable, otherTerm, indices, process);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Serves as a safeguard for developers extending {@link AbstractTheory}
+	 * by confirming the assumption made by this class' implementation of
+	 * {@link #makeSplitterIfPossible(Expression, Collection, RewritingProcess)};
+	 * if it returns false and the current implementation is used anyway,
+	 * an error message is thrown.
+	 * @return
+	 */
+	abstract boolean splittersAlwaysHaveTwoArguments();
+	
 	/**
 	 * Makes splitter by applying given functor to two terms, indices coming first if any.
 	 * Does not simplify splitter (so, if it is simplifiable, it does not get simplified).
@@ -218,6 +276,8 @@ abstract public class AbstractTheory implements Theory {
 		return result;
 	}
 
+	private static final Times timesRewriter = new Times(); // for use in the class below
+
 	public abstract class AbstractConstraint implements Theory.Constraint {
 
 		protected Collection<Expression> indices;
@@ -228,6 +288,11 @@ abstract public class AbstractTheory implements Theory {
 		
 		public abstract AbstractConstraint clone();
 		
+		@Override
+		public Collection<Expression> getIndices() {
+			return indices;
+		}
+
 		/**
 		 * Given an index x, return one splitter needed for us to be able to
 		 * compute this index's number of values, or null if none is needed.
@@ -280,8 +345,6 @@ abstract public class AbstractTheory implements Theory {
 			return newConstraint;
 		}
 
-		abstract protected Expression computeModelCountGivenConditionsOnFreeVariables(RewritingProcess process);
-
 		abstract protected Collection<Expression> getSplittersToBeSatisfied(RewritingProcess process);
 
 		abstract protected Collection<Expression> getSplittersToBeNotSatisfied(RewritingProcess process);
@@ -297,6 +360,31 @@ abstract public class AbstractTheory implements Theory {
 			return result;
 		}
 		
+		/**
+		 * Returns an expression (in the free variables) for the number of possible values for the given index,
+		 * assuming that {@link #provideSplitterRequiredForComputingNumberOfValuesFor(Expression, RewritingProcess)}
+		 * currently returns <code>null</code>,
+		 * that is, we do not need anything splitters to be either imposed or negated in order to compute that.
+		 * This method is only used in {@link AbstractConstraint}'s implementation of
+		 * {@link #computeModelCountGivenConditionsOnFreeVariables(RewritingProcess)};
+		 * if that method is overridden and the overriding version does not employ this method,
+		 * its implementation in the extending class is irrelevant.
+		 */
+		abstract protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process);
+
+		protected Expression computeModelCountGivenConditionsOnFreeVariables(RewritingProcess process) {
+			List<Expression> numberOfPossibleValuesForIndicesSoFar = new LinkedList<Expression>();
+			
+			for (Expression index : indices) {
+				Expression numberOfPossibleValuesForIndex = computeNumberOfPossibleValuesFor(index, process);
+				numberOfPossibleValuesForIndicesSoFar.add(numberOfPossibleValuesForIndex);
+			}
+			
+			Expression result = Times.make(numberOfPossibleValuesForIndicesSoFar);
+			Expression unconditionalCount = timesRewriter.rewrite(result, process);
+			return unconditionalCount;
+		}
+
 		/**
 		 * Receives the model count for the case in which a certain set of splitter is satisfied, and another is unsatisfied,
 		 * and returns conditional model count including the cases in which those conditions are not true

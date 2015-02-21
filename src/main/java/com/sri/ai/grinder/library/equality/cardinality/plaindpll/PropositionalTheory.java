@@ -38,7 +38,9 @@
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.TWO;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -108,6 +110,20 @@ public class PropositionalTheory extends AbstractTheory {
 	@Override
 	protected boolean isVariableTerm(Expression term, RewritingProcess process) {
 		return isProposition(term);
+	}
+
+	@Override
+	boolean splittersAlwaysHaveTwoArguments() {
+		return false;
+	}
+
+	/**
+	 * This implementation method is irrelevant because {@link #makeSplitterIfPossible(Expression, Collection, RewritingProcess)}
+	 * is overridden and does not use it (see javadoc at this method's declaration in super class {@link AbstractTheory}).
+	 */
+	@Override
+	protected String getCorrespondingSplitterFunctorOrNull(Expression expression) {
+		throw new Error("AtomsAndEqualityTheory.getCorrespondingSplitterFunctorOrNull should never execute; see source code");
 	}
 
 	/**
@@ -195,11 +211,6 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 		
 		@Override
-		public Collection<Expression> getIndices() {
-			return indices;
-		}
-
-		@Override
 		public Expression pickSplitter(RewritingProcess process) {
 			return null; // we are always ready to provide a model count, so there is no need for extra splitters
 		}
@@ -208,32 +219,6 @@ public class PropositionalTheory extends AbstractTheory {
 		@Override
 		protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression x, RewritingProcess process) {
 			return null; // we are always ready to provide a model count, so there is no need for extra splitters
-		}
-
-		@Override
-		public Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
-			Set<Expression> propositionsAssertedWithSameSign     = splitterSign? assertedPropositions : negatedPropositions;
-			Set<Expression> propositionsAssertedWithOppositeSign = splitterSign? negatedPropositions  : assertedPropositions;
-
-			Constraint result;
-			if (propositionsAssertedWithOppositeSign.contains(splitter)) {
-				result = null; // contradiction
-			}
-			else if (propositionsAssertedWithSameSign.contains(splitter)) {
-				result = this; // redundant
-			}
-			else {
-				result = assertInNewCopy(splitterSign, splitter, process);
-			}
-
-			return result;
-		}
-
-		private Constraint assertInNewCopy(boolean splitterSign, Expression splitter, RewritingProcess process) {
-			Constraint result;
-			result = new Constraint(this);
-			result.applyNormalizedSplitterDestructively(splitterSign, splitter, process);
-			return result;
 		}
 
 		@Override
@@ -249,6 +234,30 @@ public class PropositionalTheory extends AbstractTheory {
 			}
 		}
 
+		/**
+		 * We provide a correct implementation of this method, even though it is irrelevant
+		 * because {@link #computeModelCountGivenConditionsOnFreeVariables(RewritingProcess)}
+		 * has been overridden by a version that does not use it because it does not iterate over all indices.
+		 * (see javadoc in original declaration).
+		 */
+		@Override
+		protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process) {
+			Expression result;
+			if (assertedPropositions.contains(index) || negatedPropositions.contains(index)) {
+				result = ONE;
+			}
+			else {
+				result = TWO;
+			}
+			return result;
+		}
+
+		/**
+		 * This method did not (modulo efficiency) need to be implemented,
+		 * because the super class provides an implementation,
+		 * but this version computes the number of models without iterating over all indices
+		 * as in the original implementation.
+		 */
 		@Override
 		protected Symbol computeModelCountGivenConditionsOnFreeVariables(RewritingProcess process) {
 			return Expressions.makeSymbol(new Rational(2).pow(indices.size() - numberOfBoundIndices));

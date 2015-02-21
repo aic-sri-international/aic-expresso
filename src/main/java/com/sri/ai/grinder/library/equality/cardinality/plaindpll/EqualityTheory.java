@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
@@ -151,12 +152,11 @@ public class EqualityTheory extends AbstractEqualityTheory {
 
 	///////////// MAKE ABSTRACT IN NEW CLASS
 	
-	/**
-	 * If expression can generate a splitter, returns the appropriate splitter's functor;
-	 * otherwise, returns <code>null</code>.
-	 * @param expression
-	 * @return
-	 */
+	@Override
+	boolean splittersAlwaysHaveTwoArguments() {
+		return true;
+	}
+
 	@Override
 	protected String getCorrespondingSplitterFunctorOrNull(Expression expression) {
 		String result;
@@ -559,19 +559,24 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		 */
 		@Override
 		protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process) {
-			long numberOfNonAvailableValues = getDisequals(index).size();
-			long typeSize = GrinderUtil.getTypeCardinality(index, process);
 			Expression numberOfPossibleValuesForIndex;
-			if (typeSize == -1) {
-				Expression indexType = process.getContextualSymbolType(index);
-				if (indexType == null) {
-					indexType = new DefaultSyntacticFunctionApplication(FunctorConstants.TYPE, index);
-				}
-				Expression indexTypeCardinality = apply(CARDINALITY, indexType);
-				numberOfPossibleValuesForIndex = Minus.make(indexTypeCardinality, Expressions.makeSymbol(numberOfNonAvailableValues));
+			if (indexIsBound(index)) {
+				numberOfPossibleValuesForIndex = ONE;
 			}
 			else {
-				numberOfPossibleValuesForIndex = makeSymbol(Math.max(0, typeSize - numberOfNonAvailableValues));
+				long numberOfNonAvailableValues = getDisequals(index).size();
+				long typeSize = GrinderUtil.getTypeCardinality(index, process);
+				if (typeSize == -1) {
+					Expression indexType = process.getContextualSymbolType(index);
+					if (indexType == null) {
+						indexType = new DefaultSyntacticFunctionApplication(FunctorConstants.TYPE, index);
+					}
+					Expression indexTypeCardinality = apply(CARDINALITY, indexType);
+					numberOfPossibleValuesForIndex = Minus.make(indexTypeCardinality, Expressions.makeSymbol(numberOfNonAvailableValues));
+				}
+				else {
+					numberOfPossibleValuesForIndex = makeSymbol(Math.max(0, typeSize - numberOfNonAvailableValues));
+				}
 			}
 			return numberOfPossibleValuesForIndex;
 		}
