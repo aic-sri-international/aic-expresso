@@ -46,6 +46,7 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
@@ -76,6 +77,40 @@ abstract public class AbstractTheory implements Theory {
 	 */
 	abstract protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers();
 
+	abstract protected boolean isVariableTerm(Expression term, RewritingProcess process);
+
+	abstract protected BinaryFunction<Expression, RewritingProcess, Expression> getSplitterApplier(boolean splitterSign, Expression splitter);
+
+	/**
+	 * Makes splitter by applying given functor to two terms, indices coming first if any.
+	 * Does not simplify splitter (so, if it is simplifiable, it does not get simplified).
+	 * While this may not work for all theories (some may have more complex splitters),
+	 * it is likely useful in most.
+	 * @param splitterFunctor the splitter's functor
+	 * @param term1
+	 * @param term2
+	 * @param indices
+	 * @param process
+	 * @return
+	 */
+	protected Expression makeSplitterFromFunctorAndTwoTerms(String splitterFunctor, Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
+		Expression result;
+		// Places index or variable before constants.
+		if (indices.contains(term1)) {
+			result = Expressions.apply(splitterFunctor, term1, term2);
+		}
+		else if (indices.contains(term2)) {
+			result = Expressions.apply(splitterFunctor, term2, term1);
+		}
+		else if (isVariableTerm(term1, process)) {
+			result = Expressions.apply(splitterFunctor, term1, term2);
+		}
+		else {
+			result = Expressions.apply(splitterFunctor, term2, term1);
+		}
+		return result;
+	}
+
 	/**
 	 * Simplifies an expression by exhaustively simplifying its top expression with basic boolean operators in equality logic (including quantifier elimination),
 	 * then simplifying its sub-expressions,
@@ -101,6 +136,12 @@ abstract public class AbstractTheory implements Theory {
 			result = splitterCandidate;
 		}
 	
+		return result;
+	}
+
+	@Override
+	public Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
+		Expression result = getSplitterApplier(splitterSign, splitter).apply(expression, process);
 		return result;
 	}
 
@@ -147,6 +188,23 @@ abstract public class AbstractTheory implements Theory {
 	}
 	
 	public abstract class AbstractConstraint implements Theory.Constraint {
+
+		/**
+		 * Given an index x, return one splitter needed for us to be able to
+		 * compute this index's number of values, or null if none is needed.
+		 */
+		abstract protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression x, RewritingProcess process);
+
+		@Override
+		public Expression pickSplitter(RewritingProcess process) {
+			for (Expression x : getIndices()) {
+				Expression splitter = provideSplitterRequiredForComputingNumberOfValuesFor(x, process);
+				if (splitter != null) {
+					return splitter;
+				}
+			}
+			return null;
+		}
 
 		abstract protected Expression computeModelCountGivenConditionsOnFreeVariables(RewritingProcess process);
 

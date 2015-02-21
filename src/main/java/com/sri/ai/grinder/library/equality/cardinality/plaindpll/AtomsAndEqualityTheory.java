@@ -77,6 +77,11 @@ public class AtomsAndEqualityTheory extends AbstractTheory {
 	}
 
 	@Override
+	protected boolean isVariableTerm(Expression term, RewritingProcess process) {
+		return equalityTheory.isVariableTerm(term, process);
+	}
+
+	@Override
 	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
 		if (equalityTheory.termTheory.isVariableTerm(expression, process)
@@ -103,13 +108,14 @@ public class AtomsAndEqualityTheory extends AbstractTheory {
 	}
 
 	@Override
-	public Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
+	protected BinaryFunction<Expression, RewritingProcess, Expression>
+	getSplitterApplier(boolean splitterSign, Expression splitter) {
 		Expression equalitySplitter     = Equality.isEquality(splitter)? splitter     : Equality.make(splitter, splitterSign);
 		boolean    equalitySplitterSign = Equality.isEquality(splitter)? splitterSign : true;
-		Expression result = equalityTheory.applySplitterToExpression(equalitySplitterSign, equalitySplitter, expression, process);
+		BinaryFunction<Expression, RewritingProcess, Expression> result = equalityTheory.getSplitterApplier(equalitySplitterSign, equalitySplitter);
 		return result;
 	}
-
+	
 	@Override
 	public boolean applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll() {
 		boolean result = equalityTheory.applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll();

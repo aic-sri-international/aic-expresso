@@ -37,6 +37,9 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -102,6 +105,11 @@ public class PropositionalTheory extends AbstractTheory {
 		return syntacticFormTypeSimplifiers;
 	}
 
+	@Override
+	protected boolean isVariableTerm(Expression term, RewritingProcess process) {
+		return isProposition(term);
+	}
+
 	/**
 	 * If expression is a proposition, it is a splitter.
 	 * @param expression
@@ -121,6 +129,18 @@ public class PropositionalTheory extends AbstractTheory {
 		return result;
 	}
 
+	@Override
+	protected BinaryFunction<Expression, RewritingProcess, Expression>
+	getSplitterApplier(boolean splitterSign, Expression splitter) {
+		BinaryFunction<Expression, RewritingProcess, Expression> applier = 
+				(Expression expression, RewritingProcess process) -> {
+					Expression result = expression.replaceAllOccurrences(splitter, splitterSign? TRUE : FALSE, process);
+					result = simplify(result, process);
+					return result;
+				};
+		return applier;
+	}
+	
 	/**
 	 * @param expression
 	 * @return
@@ -130,23 +150,6 @@ public class PropositionalTheory extends AbstractTheory {
 				expression.getSyntacticFormType().equals("Symbol")
 				&&
 				! FormulaUtil.EQUALITY_FORMULAS_PRIMITIVE_SYMBOLS.contains(expression);
-		return result;
-	}
-
-	@Override
-	public Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
-		if ( ! splitterSign) {
-			return applySplitterNegationToExpression(splitter, expression, process);
-		}
-		
-		Expression result = expression.replaceAllOccurrences(splitter, Expressions.TRUE, process);
-		result = simplify(result, process);
-		return result;
-	}
-
-	private Expression applySplitterNegationToExpression(Expression splitter, Expression expression, RewritingProcess process) {
-		Expression result = expression.replaceAllOccurrences(splitter, Expressions.FALSE, process);
-		result = simplify(result, process);
 		return result;
 	}
 
@@ -196,6 +199,12 @@ public class PropositionalTheory extends AbstractTheory {
 
 		@Override
 		public Expression pickSplitter(RewritingProcess process) {
+			return null; // we are always ready to provide a model count, so there is no need for extra splitters
+		}
+
+
+		@Override
+		protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression x, RewritingProcess process) {
 			return null; // we are always ready to provide a model count, so there is no need for extra splitters
 		}
 
