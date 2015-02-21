@@ -73,4 +73,9 @@ public abstract class AbstractProblemType implements ProblemType {
 	public boolean isAbsorbingElement(Expression value) {
 		return semiRing.isAbsorbingElement(value);
 	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName();
+	}
 }

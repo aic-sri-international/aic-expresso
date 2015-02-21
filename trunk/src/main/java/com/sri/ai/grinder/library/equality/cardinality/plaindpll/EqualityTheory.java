@@ -80,7 +80,7 @@ import com.sri.ai.util.base.BinaryFunction;
 /** 
  * A {@link Theory} for equality literals.
  */
-public class EqualityOnTermsTheory extends AbstractEqualityOnTermsTheory {
+public class EqualityTheory extends AbstractEqualityTheory {
 	
 	public TermTheory termTheory;
 	
@@ -89,7 +89,7 @@ public class EqualityOnTermsTheory extends AbstractEqualityOnTermsTheory {
 	// which is either a variable symbol, or an uninterpreted function application such as p(a, b, X).
 	// It can also be seen as an indexed variable (typically represented as x_i, y_i,j etc).
 	
-	public EqualityOnTermsTheory(TermTheory termTheory) {
+	public EqualityTheory(TermTheory termTheory) {
 		super(termTheory);
 		this.termTheory = termTheory;
 	}
@@ -133,10 +133,10 @@ public class EqualityOnTermsTheory extends AbstractEqualityOnTermsTheory {
 	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
 					ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(termTheory), new Tautologicality())).rewrite(f, process),
+					(new DPLLGeneralizedAndSymbolic(new EqualityTheory(termTheory), new Tautologicality())).rewrite(f, process),
  
 					ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new DPLLGeneralizedAndSymbolic(new EqualityOnTermsTheory(termTheory), new Satisfiability())).rewrite(f, process)
+					(new DPLLGeneralizedAndSymbolic(new EqualityTheory(termTheory), new Satisfiability())).rewrite(f, process)
 	);
 
 	@Override
@@ -247,7 +247,7 @@ public class EqualityOnTermsTheory extends AbstractEqualityOnTermsTheory {
 	 * Represents and manipulates constraints in the equalityTheory of disequalities of terms (variables and constants).
 	 */
 	@Beta
-	public class Constraint extends AbstractEqualityOnTermsTheory.Constraint {
+	public class Constraint extends AbstractEqualityTheory.Constraint {
 
 		// The algorithm is based on the counting principle: to determine the model count, we
 		// go over indices, in a certain order, and analyse how many possible values each one them has,
