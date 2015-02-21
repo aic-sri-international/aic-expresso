@@ -50,6 +50,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.AbstractEqualityTheory.Constraint.Contradiction;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 
@@ -225,6 +226,8 @@ abstract public class AbstractTheory implements Theory {
 			this.indices = indices;
 		}
 		
+		public abstract AbstractConstraint clone();
+		
 		/**
 		 * Given an index x, return one splitter needed for us to be able to
 		 * compute this index's number of values, or null if none is needed.
@@ -240,6 +243,41 @@ abstract public class AbstractTheory implements Theory {
 				}
 			}
 			return null;
+		}
+
+		/**
+		 * Modify this constraint's inner representation to include this splitter.
+		 */
+		abstract protected void applyNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
+
+		@Override
+		public Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+			Constraint result;
+
+			Expression normalizedSplitterGivenConstraint = normalizeSplitterGivenConstraint(splitter, process);
+			
+			if (normalizedSplitterGivenConstraint.equals(splitterSign)) {
+				result = this; // splitter is redundant given constraint
+			}
+			else if (normalizedSplitterGivenConstraint.equals( ! splitterSign)) {
+				result = null; // splitter is contradictory given constraint
+			}
+			else {
+				try {
+					result = applyNormalizedSplitter(splitterSign, normalizedSplitterGivenConstraint, process);
+				}
+				catch (Contradiction e) {
+					result = null;
+				}
+			}
+
+			return result;
+		}
+
+		private Constraint applyNormalizedSplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+			AbstractConstraint newConstraint = clone();
+			newConstraint.applyNormalizedSplitterDestructively(splitterSign, splitter, process);
+			return newConstraint;
 		}
 
 		abstract protected Expression computeModelCountGivenConditionsOnFreeVariables(RewritingProcess process);

@@ -220,16 +220,6 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 		protected class Contradiction extends Error {};
 
 		/**
-		 * Modify this constraint's inner representation to include this splitter.
-		 */
-		abstract protected void applyNormalizedSplitterDestructively(Expression splitter, RewritingProcess process);
-
-		/**
-		 * Modify this constraint's inner representation to include this splitter's negation.
-		 */
-		abstract protected void applyNormalizedSplitterNegationDestructively(Expression splitter, RewritingProcess process);
-
-		/**
 		 * Modify this constraint's inner representation to use up-to-date representatives.
 		 */
 		abstract protected void updateRepresentativesWhereverTheyAreUsed(RewritingProcess process);
@@ -272,47 +262,6 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 		 * that is, we do not need anything splitters to be either imposed or negated in order to compute that.
 		 */
 		abstract protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process);
-
-		@Override
-		public Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
-			Constraint result;
-
-			Expression normalizedSplitterGivenConstraint = normalizeSplitterGivenConstraint(splitter, process);
-			
-			if (normalizedSplitterGivenConstraint.equals(splitterSign)) {
-				result = this; // splitter is redundant given constraint
-			}
-			else if (normalizedSplitterGivenConstraint.equals( ! splitterSign)) {
-				result = null; // splitter is contradictory given constraint
-			}
-			else {
-				try {
-					if (splitterSign) {
-						result = applyNormalizedSplitter(normalizedSplitterGivenConstraint, process);
-					}
-					else {
-						result = applyNormalizedSplitterNegation(normalizedSplitterGivenConstraint, process);
-					}
-				}
-				catch (Contradiction e) {
-					result = null;
-				}
-			}
-
-			return result;
-		}
-
-		private Constraint applyNormalizedSplitter(Expression splitter, RewritingProcess process) {
-			Constraint newConstraint = clone();
-			newConstraint.applyNormalizedSplitterDestructively(splitter, process);
-			return newConstraint;
-		}
-
-		private Constraint applyNormalizedSplitterNegation(Expression splitter, RewritingProcess process) {
-			Constraint newConstraint = clone();
-			newConstraint.applyNormalizedSplitterNegationDestructively(splitter, process);
-			return newConstraint;
-		}
 
 		protected Expression computeModelCountGivenConditionsOnFreeVariables(RewritingProcess process) {
 			List<Expression> numberOfPossibleValuesForIndicesSoFar = new LinkedList<Expression>();
