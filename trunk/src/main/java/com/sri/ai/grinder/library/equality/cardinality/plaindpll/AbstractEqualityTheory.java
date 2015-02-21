@@ -91,7 +91,7 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 	// FROM NOW ON CODE MUST BE GENERIC
 	
 	@Override
-	protected boolean isVariableTerm(Expression term, RewritingProcess process) {
+	public boolean isVariableTerm(Expression term, RewritingProcess process) {
 		return termTheory.isVariableTerm(term, process);
 	}
 
@@ -115,7 +115,6 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 		NonEqualityConstraints clone();
 	}
 
-	@SuppressWarnings("serial")
 	/**
 	 * Represents and manipulates constraints in the equalityTheory of disequalities of terms (variables and constants).
 	 */
@@ -168,15 +167,11 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 			}
 		}
 
-		/** Class an instance of which must be thrown when a contradiction is found during application of splitter. */
-		protected class Contradiction extends Error {};
-
 		/**
 		 * Modify this constraint's inner representation to use up-to-date representatives.
 		 */
 		abstract protected void updateRepresentativesWhereverTheyAreUsed(RewritingProcess process);
-		// OPTIMIZATION: can we provide the method above with the representatives that have been updated to minimize
-		// representative lookup?
+		// OPTIMIZATION: can we provide this method with the representatives that have been updated to minimize representative lookup?
 
 		/**
 		 * Indicates whether two representatives are constrained to be disequal by this constraint.

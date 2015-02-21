@@ -43,7 +43,6 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -52,14 +51,11 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.BinaryFunction;
 
 @Beta
 /** 
- * A {@link Theory} for boolean atoms and equality literals,
- * whose splitters are either equality splitters or boolean atoms (function applications or symbols).
- * It works by using an internal {@link EqualityTheory}
- * and converting atom splitter A to either "A = true" or "A = false".
+ * A {@link Theory} adding boolean atoms as splitters to another theory that has equality literals as splitters.
+ * It works by converting atom splitters "A" and "not A" to "A = true" or "A = false", respectively.
  */
 public class AtomsAndEqualityTheory extends AbstractTheory {
 	
@@ -70,14 +66,14 @@ public class AtomsAndEqualityTheory extends AbstractTheory {
 	// We differentiate those two types of theory and splitters by always
 	// calling the first type "equality theory" and "equality splitters".
 	
-	EqualityTheory equalityTheory;
+	Theory equalityTheory;
 	
-	public AtomsAndEqualityTheory(EqualityTheory equalityTheory) {
+	public AtomsAndEqualityTheory(AbstractTheory equalityTheory) {
 		this.equalityTheory = equalityTheory;
 	}
 
 	@Override
-	protected boolean isVariableTerm(Expression term, RewritingProcess process) {
+	public boolean isVariableTerm(Expression term, RewritingProcess process) {
 		return equalityTheory.isVariableTerm(term, process);
 	}
 
@@ -122,43 +118,44 @@ public class AtomsAndEqualityTheory extends AbstractTheory {
 	}
 
 	@Override
-	protected BinaryFunction<Expression, RewritingProcess, Expression>
-	getSplitterApplier(boolean splitterSign, Expression splitter) {
-		Expression equalitySplitter     = Equality.isEquality(splitter)? splitter     : Equality.make(splitter, splitterSign);
-		boolean    equalitySplitterSign = Equality.isEquality(splitter)? splitterSign : true;
-		BinaryFunction<Expression, RewritingProcess, Expression> result = equalityTheory.getSplitterApplier(equalitySplitterSign, equalitySplitter);
-		return result;
-	}
-	
-	@Override
 	public boolean applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll() {
 		boolean result = equalityTheory.applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll();
 		return result;
 	}
 
 	@Override
-	public Constraint makeConstraint(Collection<Expression> indices) {
-		Constraint result = new Constraint(equalityTheory.makeConstraint(indices));
-		return result;
+	protected boolean useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers() {
+		return false; // will instead delegate to equalityTheory.simplify.
 	}
 
 	@Override
-	protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers() {
-		Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> result = equalityTheory.getFunctionApplicationSimplifiers();
-		return result;
-	}
-
-	@Override
-	protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
-		Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> result = equalityTheory.getSyntacticFormTypeSimplifiers();
-		return result;
+	public Expression simplify(Expression expression, RewritingProcess process) {
+		return equalityTheory.simplify(expression, process);
 	}
 	
+	protected boolean useDefaultImplementationOfApplySplitterToExpressionByOverriddingGetSplitterApplier() {
+		return false; // will instead delegate to equalityTheory.applySplitterToExpression
+	}
+
+	@Override
+	public Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
+		Expression equalitySplitter     = Equality.isEquality(splitter)? splitter     : Equality.make(splitter, splitterSign);
+		boolean    equalitySplitterSign = Equality.isEquality(splitter)? splitterSign : true;
+		Expression result = equalityTheory.applySplitterToExpression(equalitySplitterSign, equalitySplitter, expression, process);
+		return result;
+	}
+
+	@Override
+	public Constraint makeConstraint(Collection<Expression> indices) {
+		Constraint result = new Constraint((AbstractConstraint) equalityTheory.makeConstraint(indices));
+		return result;
+	}
+
 	private class Constraint implements Theory.Constraint {
 
-		private AbstractEqualityTheory.Constraint equalityConstraint;
+		private AbstractTheory.AbstractConstraint equalityConstraint;
 		
-		public Constraint(EqualityTheory.Constraint equalityConstraint) {
+		public Constraint(AbstractTheory.AbstractConstraint equalityConstraint) {
 			this.equalityConstraint = equalityConstraint;
 		}
 		

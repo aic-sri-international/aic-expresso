@@ -151,6 +151,11 @@ public class EqualityTheory extends AbstractEqualityTheory {
 	}
 
 	@Override
+	protected boolean useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers() {
+		return true;
+	}
+
+	@Override
 	boolean splittersAlwaysHaveTwoArguments() {
 		return true;
 	}
@@ -195,6 +200,11 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		return applier;
 	}
 	
+	@Override
+	protected boolean useDefaultImplementationOfApplySplitterToExpressionByOverriddingGetSplitterApplier() {
+		return true;
+	}
+
 	@Override
 	public Constraint makeConstraint(Collection<Expression> indices) {
 		return new Constraint(indices);

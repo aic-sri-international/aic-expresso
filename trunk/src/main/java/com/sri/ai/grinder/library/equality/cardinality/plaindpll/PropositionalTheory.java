@@ -103,12 +103,17 @@ public class PropositionalTheory extends AbstractTheory {
 	}
 
 	@Override
+	protected boolean useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers() {
+		return true;
+	}
+
+	@Override
 	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
 		return syntacticFormTypeSimplifiers;
 	}
 
 	@Override
-	protected boolean isVariableTerm(Expression term, RewritingProcess process) {
+	public boolean isVariableTerm(Expression term, RewritingProcess process) {
 		return isProposition(term);
 	}
 
@@ -157,6 +162,11 @@ public class PropositionalTheory extends AbstractTheory {
 		return applier;
 	}
 	
+	@Override
+	protected boolean useDefaultImplementationOfApplySplitterToExpressionByOverriddingGetSplitterApplier() {
+		return true;
+	}
+
 	/**
 	 * @param expression
 	 * @return

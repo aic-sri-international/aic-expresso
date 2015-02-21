@@ -38,6 +38,8 @@
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import static com.sri.ai.util.Util.join;
+import static com.sri.ai.util.Util.throwAppropriateSafeguardError;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -52,7 +54,6 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.AbstractEqualityTheory.Constraint.Contradiction;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
@@ -63,6 +64,10 @@ import com.sri.ai.util.base.BinaryFunction;
  */
 abstract public class AbstractTheory implements Theory {
 
+	/** Class an instance of which must be thrown when a contradiction is found during application of splitter. */
+	@SuppressWarnings("serial")
+	protected class Contradiction extends Error {}
+	
 	/**
 	 * Provides a map from functors's getValue() values (Strings) to a function mapping a
 	 * function application of that functor and a rewriting process to an equivalent, simplified formula
@@ -70,7 +75,17 @@ abstract public class AbstractTheory implements Theory {
 	 * DPLL will use these simplifiers when a new decision is made and literals are replaced by boolean constants. 
 	 * @return
 	 */
-	abstract protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers();
+	protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers() {
+		boolean safeguard = useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers();
+		throwAppropriateSafeguardError(
+				safeguard,
+				"useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers",
+				getClass().getSimpleName(),
+				"getFunctionApplicationSimplifiers",
+				"AbstractTheory",
+				"simplify(Expression, RewritingProcess)");
+		return null; // never used, as safeguardCheck throws an error no matter what.
+	}
 
 	/**
 	 * Provides a map from syntactic form types (Strings) to a function mapping a
@@ -79,11 +94,38 @@ abstract public class AbstractTheory implements Theory {
 	 * DPLL will use these simplifiers when a new decision is made and literals are replaced by boolean constants. 
 	 * @return
 	 */
-	abstract protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers();
+	protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
+		boolean safeguard = useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers();
+		throwAppropriateSafeguardError(
+				safeguard,
+				"useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers",
+				getClass().getSimpleName(),
+				"getSyntacticFormTypeSimplifiers",
+				"AbstractTheory",
+				"simplify(Expression, RewritingProcess)");
+		return null; // never used, as safeguardCheck throws an error no matter what.
+	}
 
-	abstract protected boolean isVariableTerm(Expression term, RewritingProcess process);
-
-	abstract protected BinaryFunction<Expression, RewritingProcess, Expression> getSplitterApplier(boolean splitterSign, Expression splitter);
+	/**
+	 * Simplifies an expression by exhaustively simplifying its top expression with basic boolean operators in equality logic (including quantifier elimination),
+	 * then simplifying its sub-expressions,
+	 * and again exhaustively simplifying its top expression.
+	 * @param expression
+	 * @param topSimplifier
+	 * @param process
+	 * @return
+	 */
+	@Override
+	public Expression simplify(Expression expression, RewritingProcess process) {
+		return DPLLUtil.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), process);
+	}
+	
+	/**
+	 * A safeguard method making extending classes explicitly state whether they intend to use the provided default implementation of
+	 * simplify, which requires {@link #getFunctionApplicationSimplifiers()} and {@link #getSyntacticFormTypeSimplifiers()}
+	 * to be overridden (an error message is thrown otherwise).
+	 */
+	abstract protected boolean useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers();
 
 	/**
 	 * If expression can generate a splitter, returns the appropriate splitter's functor;
@@ -104,6 +146,8 @@ abstract public class AbstractTheory implements Theory {
 	 * obtain the appropriate splitter functor from {@link #getCorrespondingSplitterFunctorOrNull(Expression)}
 	 * and create splitter by getting expression's first variable argument, V, and expression's first argument distinct from V.
 	 * Otherwise, returns <code>null</code>.
+	 * The use of this default implementation will require extending classes to implement {@link #splitterDependsOnIndex(Expression, Collection)}
+	 * to return true, so as to confirm the assumption required.
 	 * @param expression
 	 * @param indices
 	 * @param process
@@ -170,20 +214,6 @@ abstract public class AbstractTheory implements Theory {
 		return result;
 	}
 
-	/**
-	 * Simplifies an expression by exhaustively simplifying its top expression with basic boolean operators in equality logic (including quantifier elimination),
-	 * then simplifying its sub-expressions,
-	 * and again exhaustively simplifying its top expression.
-	 * @param expression
-	 * @param topSimplifier
-	 * @param process
-	 * @return
-	 */
-	@Override
-	public Expression simplify(Expression expression, RewritingProcess process) {
-		return DPLLUtil.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), process);
-	}
-
 	@Override
 	public Expression pickSplitterInExpression(Expression expression, Constraint constraint, RewritingProcess process) {
 		Expression result = null;
@@ -202,6 +232,20 @@ abstract public class AbstractTheory implements Theory {
 	public Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
 		Expression result = getSplitterApplier(splitterSign, splitter).apply(expression, process);
 		return result;
+	}
+
+	abstract protected boolean useDefaultImplementationOfApplySplitterToExpressionByOverriddingGetSplitterApplier();
+
+	protected BinaryFunction<Expression, RewritingProcess, Expression> getSplitterApplier(boolean splitterSign, Expression splitter) {
+		boolean safeguard = useDefaultImplementationOfApplySplitterToExpressionByOverriddingGetSplitterApplier();
+		throwAppropriateSafeguardError(
+				safeguard,
+				"useDefaultImplementationOfApplySplitterToExpressionByOverriddingGetSplitterApplier", // safeguardMethodsName
+				getClass().getSimpleName(), // thisClassName
+				"AbstractTheory", // superClassName
+				"getSplitterApplier", // thisMethodsName
+				"simplify(Expression, RewritingProcess)"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
+		return null; // never used, as safeguardCheck throws an error no matter what.
 	}
 
 	@Override
@@ -275,7 +319,7 @@ abstract public class AbstractTheory implements Theory {
 		}
 		return result;
 	}
-
+	
 	private static final Times timesRewriter = new Times(); // for use in the class below
 
 	public abstract class AbstractConstraint implements Theory.Constraint {
