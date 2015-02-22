@@ -285,6 +285,11 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		}
 
 		@Override
+		protected boolean useDefaultImplementationOfPickSplitterByOverridingProvideSplitterRequiredForComputingNumberOfValuesFor() {
+			return true;
+		}
+
+		@Override
 		protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression x, RewritingProcess process) {
 			Expression result;
 			if (indexIsBound(x)) {
@@ -511,6 +516,10 @@ public class EqualityTheory extends AbstractEqualityTheory {
 			disequalsOfTerm1.add(term2);
 		}
 
+		protected boolean useDefaultImplementationOfModelCountByOverridingGetSplittersToBeSatisfiedAndGetSplittersToBeNotSatisfied() {
+			return true;
+		}
+
 		@Override
 		protected Collection<Expression> getSplittersToBeSatisfied(RewritingProcess process) {
 			Collection<Expression> result = new LinkedHashSet<Expression>();
@@ -549,6 +558,11 @@ public class EqualityTheory extends AbstractEqualityTheory {
 			return result;
 		}
 
+		@Override
+		protected boolean useDefaultImplementationOfComputeModelCountGivenConditionsOnFreeVariablesByOverridingComputeNumberOfPossibleValuesFor() {
+			return true;
+		}
+		
 		@Override
 		protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process) {
 			Expression numberOfPossibleValuesForIndex;
