@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.helper;
 
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.library.FunctorConstants.CARTESIAN_PRODUCT;
 import static com.sri.ai.util.Util.list;
 
@@ -1177,6 +1178,22 @@ public class GrinderUtil {
 			}
 		}
 		
+		return result;
+	}
+
+	/**
+	 * Indicates whether an expression is boolean-typed by having its {@link getType}
+	 * type be "Boolean", "'->'(Boolean)", or "bool", or "boolean".
+	 * @param expression
+	 * @param process
+	 * @return
+	 */
+	public static boolean isBooleanTyped(Expression expression, RewritingProcess process) {
+		boolean result =
+				getType(expression, process).equals(parse("Boolean")) ||
+				getType(expression, process).equals(parse("'->'(Boolean)")) ||
+				getType(expression, process).equals(parse("bool")) ||
+				getType(expression, process).equals(parse("boolean"));
 		return result;
 	}
 }

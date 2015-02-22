@@ -39,25 +39,21 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.helper.GrinderUtil.isBooleanTyped;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.util.Util;
 
 @Beta
 /** 
  * A {@link Theory} adding boolean atoms as splitters to another theory that has equality literals as splitters.
  * It works by converting atom splitters "A" and "not A" to "A = true" or "A = false", respectively.
  */
-public class AtomsAndEqualityTheory extends AbstractTheory {
+public class AtomsOnTheoryWithEquality extends AbstractTheory {
 	
 	// This class deals with two types of theories and splitters;
 	// first, its base equality theory and its equality splitters,
@@ -66,96 +62,87 @@ public class AtomsAndEqualityTheory extends AbstractTheory {
 	// We differentiate those two types of theory and splitters by always
 	// calling the first type "equality theory" and "equality splitters".
 	
-	Theory equalityTheory;
+	Theory theoryWithEquality;
 	
-	public AtomsAndEqualityTheory(AbstractTheory equalityTheory) {
-		this.equalityTheory = equalityTheory;
-	}
-
-	@Override
-	public boolean isVariableTerm(Expression term, RewritingProcess process) {
-		return equalityTheory.isVariableTerm(term, process);
-	}
-
-	@Override
-	boolean splittersAlwaysHaveTwoArguments() {
-		return false;
+	public AtomsOnTheoryWithEquality(AbstractTheory theoryWithEquality) {
+		this.theoryWithEquality = theoryWithEquality;
 	}
 
 	/**
-	 * This implementation method is irrelevant because {@link #makeSplitterIfPossible(Expression, Collection, RewritingProcess)}
-	 * is overridden and does not use it (see javadoc at this method's declaration in super class {@link AbstractTheory}).
+	 * Given a signed splitter (s, S), returns a corresponding signed splitter guaranteed to be an equality splitter
+	 * (and therefore suitable for passing to the base theory),
+	 * by taking returning (s, S) if S is an equality, and (true, S = s) if S is an atom.
+	 * @param splitterSign
+	 * @param splitter
+	 * @return
 	 */
+	private static SignedSplitter getSignedEqualitySplitter(boolean splitterSign, Expression splitter) {
+		Expression equalitySplitter     = Equality.isEquality(splitter)? splitter     : Equality.make(splitter, splitterSign);
+		boolean    equalitySplitterSign = Equality.isEquality(splitter)? splitterSign : true;
+		SignedSplitter result = new SignedSplitter(equalitySplitterSign, equalitySplitter);
+		return result;
+	}
+	
 	@Override
-	protected String getCorrespondingSplitterFunctorOrNull(Expression expression) {
-		throw new Error("AtomsAndEqualityTheory.getCorrespondingSplitterFunctorOrNull should never execute; see source code");
+	public boolean isVariableTerm(Expression term, RewritingProcess process) {
+		return theoryWithEquality.isVariableTerm(term, process);
+	}
+
+	@Override
+	public boolean splittersAlwaysHaveTwoArguments() {
+		return false;
 	}
 
 	@Override
 	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
-		if (equalityTheory.isVariableTerm(expression, process)
-				&&
-				(
-						GrinderUtil.getType(expression, process).equals(parse("Boolean"))
-						||
-						GrinderUtil.getType(expression, process).equals(parse("'->'(Boolean)"))
-						)
-				) {
+		if (theoryWithEquality.isVariableTerm(expression, process) && isBooleanTyped(expression, process)) {
 			result = expression;
 		}
 		else {
-			result = equalityTheory.makeSplitterIfPossible(expression, indices, process);
+			result = theoryWithEquality.makeSplitterIfPossible(expression, indices, process);
 		}
-		return result;
-	}
-
-	@Override
-	public boolean splitterDependsOnIndex(Expression splitter, Collection<Expression> indices) {
-		Iterator<Expression> subExpressionsIterator = new SubExpressionsDepthFirstIterator(splitter);
-		boolean result = Util.thereExists(subExpressionsIterator, e -> indices.contains(e));
 		return result;
 	}
 
 	@Override
 	public boolean applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll() {
-		boolean result = equalityTheory.applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll();
+		boolean result = theoryWithEquality.applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll();
 		return result;
 	}
 
 	@Override
 	protected boolean useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers() {
-		return false; // will instead delegate to equalityTheory.simplify.
+		return false; // will instead delegate to theoryWithEquality.simplify.
 	}
 
 	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {
-		return equalityTheory.simplify(expression, process);
+		return theoryWithEquality.simplify(expression, process);
 	}
 	
 	protected boolean useDefaultImplementationOfApplySplitterToExpressionByOverriddingGetSplitterApplier() {
-		return false; // will instead delegate to equalityTheory.applySplitterToExpression
+		return false; // will instead delegate to theoryWithEquality.applySplitterToExpression
 	}
 
 	@Override
 	public Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
-		Expression equalitySplitter     = Equality.isEquality(splitter)? splitter     : Equality.make(splitter, splitterSign);
-		boolean    equalitySplitterSign = Equality.isEquality(splitter)? splitterSign : true;
-		Expression result = equalityTheory.applySplitterToExpression(equalitySplitterSign, equalitySplitter, expression, process);
+		SignedSplitter equalitySignedSplitter = getSignedEqualitySplitter(splitterSign, splitter);
+		Expression result = theoryWithEquality.applySplitterToExpression(equalitySignedSplitter, expression, process);
 		return result;
 	}
 
 	@Override
 	public Constraint makeConstraint(Collection<Expression> indices) {
-		Constraint result = new Constraint((AbstractConstraint) equalityTheory.makeConstraint(indices));
+		Constraint result = new Constraint(theoryWithEquality.makeConstraint(indices));
 		return result;
 	}
 
 	private class Constraint implements Theory.Constraint {
 
-		private AbstractTheory.AbstractConstraint equalityConstraint;
+		private Theory.Constraint equalityConstraint;
 		
-		public Constraint(AbstractTheory.AbstractConstraint equalityConstraint) {
+		public Constraint(Theory.Constraint equalityConstraint) {
 			this.equalityConstraint = equalityConstraint;
 		}
 		
@@ -177,18 +164,6 @@ public class AtomsAndEqualityTheory extends AbstractTheory {
 			return result;
 		}
 
-		private Expression fromEqualitySplitterToSplitter(Expression equalitySplitter) {
-			Expression result;
-			if (equalitySplitter.get(1).equals(TRUE) || equalitySplitter.get(1).equals(FALSE)) {
-				// equality splitters of the form "V = true" and "V = false" get translated to splitter "V".
-				result = equalitySplitter.get(0);
-			}
-			else {
-				result = equalitySplitter;
-			}
-			return result;
-		}
-
 		@Override
 		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
 			Expression equalitySplitter = Equality.isEquality(splitter)? splitter : Equality.make(splitter, TRUE);
@@ -205,10 +180,8 @@ public class AtomsAndEqualityTheory extends AbstractTheory {
 
 		@Override
 		public Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
-			Expression equalitySplitter     = Equality.isEquality(splitter)? splitter     : Equality.make(splitter, splitterSign);
-			boolean    equalitySplitterSign = Equality.isEquality(splitter)? splitterSign : true;
-			EqualityTheory.Constraint newEqualityConstraint = (EqualityTheory.Constraint)
-					equalityConstraint.applySplitter(equalitySplitterSign, equalitySplitter, process);
+			SignedSplitter equalitySignedSplitter = getSignedEqualitySplitter(splitterSign, splitter);
+			Theory.Constraint newEqualityConstraint = equalityConstraint.applySplitter(equalitySignedSplitter, process);
 			Constraint result;
 			if (newEqualityConstraint != null) {
 				result = new Constraint(newEqualityConstraint);
@@ -224,19 +197,31 @@ public class AtomsAndEqualityTheory extends AbstractTheory {
 			Expression equalityModelCount = equalityConstraint.modelCount(process);
 			Expression result =
 					equalityModelCount.replaceAllOccurrences(
-							e -> fromEqualitySplitterToSplitterIfSplitterInTheFirstPlace(e, process),
+							e -> fromEqualitySplitterToSplitterIfEqualitySplitterInTheFirstPlace(e, process),
 							process);
 			return result;
 		}
 
-		private Expression fromEqualitySplitterToSplitterIfSplitterInTheFirstPlace(Expression expression, RewritingProcess process) {
-			Expression splitter = makeSplitterIfPossible(expression, equalityConstraint.getIndices(), process);
+		private Expression fromEqualitySplitterToSplitterIfEqualitySplitterInTheFirstPlace(Expression expression, RewritingProcess process) {
+			Expression equalitySplitter = makeSplitterIfPossible(expression, equalityConstraint.getIndices(), process);
 			Expression result;
-			if (splitter == null) {
+			if (equalitySplitter == null) {
 				result = expression;
 			}
 			else {
-				result = fromEqualitySplitterToSplitter(splitter);
+				result = fromEqualitySplitterToSplitter(equalitySplitter);
+			}
+			return result;
+		}
+
+		private Expression fromEqualitySplitterToSplitter(Expression equalitySplitter) {
+			Expression result;
+			if (equalitySplitter.get(1).equals(TRUE) || equalitySplitter.get(1).equals(FALSE)) {
+				// equality splitters of the form "V = true" and "V = false" get translated to splitter "V".
+				result = equalitySplitter.get(0);
+			}
+			else {
+				result = equalitySplitter;
 			}
 			return result;
 		}
@@ -249,7 +234,7 @@ public class AtomsAndEqualityTheory extends AbstractTheory {
 		
 		@Override
 		public String toString() {
-			return "AtomsAndEqualityTheory on " + equalityConstraint;
+			return getClass().getSimpleName() + " on " + equalityConstraint;
 		}
 	}
 }

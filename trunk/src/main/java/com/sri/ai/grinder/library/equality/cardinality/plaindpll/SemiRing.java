@@ -59,7 +59,7 @@ public interface SemiRing {
 	Expression add(Expression value1, Expression value2, RewritingProcess process);
 
 	/**
-	 * The result of adding a value (constant in the sense of having no background equalityTheory literals,
+	 * The result of adding a value (constant in the sense of having no background theoryWithEquality literals,
 	 * but possibly symbolic) to itself n times (which can itself be symbolic, that is, conditional).
 	 */
 	Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process);

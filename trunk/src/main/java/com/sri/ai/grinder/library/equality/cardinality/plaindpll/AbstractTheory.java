@@ -38,7 +38,6 @@
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
-import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.throwAppropriateSafeguardError;
 
 import java.util.Collection;
@@ -71,13 +70,13 @@ abstract public class AbstractTheory implements Theory {
 	/**
 	 * Provides a map from functors's getValue() values (Strings) to a function mapping a
 	 * function application of that functor and a rewriting process to an equivalent, simplified formula
-	 * according to this equalityTheory.
+	 * according to this theoryWithEquality.
 	 * DPLL will use these simplifiers when a new decision is made and literals are replaced by boolean constants. 
 	 * @return
 	 */
 	protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers() {
 		boolean safeguard = useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers();
-		throwAppropriateSafeguardError(
+		throwAppropriateSafeguardError( // OPTIMIZATION: much of this, if not all or even extra information, could be obtained by reflection inside throwAppropriateSafeguardError
 				safeguard,
 				"useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers",
 				getClass().getSimpleName(),
@@ -90,7 +89,7 @@ abstract public class AbstractTheory implements Theory {
 	/**
 	 * Provides a map from syntactic form types (Strings) to a function mapping a
 	 * function application of that functor and a rewriting process to an equivalent, simplified formula
-	 * according to this equalityTheory.
+	 * according to this theoryWithEquality.
 	 * DPLL will use these simplifiers when a new decision is made and literals are replaced by boolean constants. 
 	 * @return
 	 */
@@ -119,7 +118,18 @@ abstract public class AbstractTheory implements Theory {
 	public Expression simplify(Expression expression, RewritingProcess process) {
 		return DPLLUtil.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), process);
 	}
-	
+
+	/**
+	 * This default implementation searches the entire splitter and its sub-expressions for an index;
+	 * theories with more restricted splitters may want to implement more efficient versions.
+	 */
+	@Override
+	public boolean splitterDependsOnIndex(Expression splitter, Collection<Expression> indices) {
+		Iterator<Expression> subExpressionsIterator = new SubExpressionsDepthFirstIterator(splitter);
+		boolean result = Util.thereExists(subExpressionsIterator, e -> indices.contains(e));
+		return result;
+	}
+
 	/**
 	 * A safeguard method making extending classes explicitly state whether they intend to use the provided default implementation of
 	 * simplify, which requires {@link #getFunctionApplicationSimplifiers()} and {@link #getSyntacticFormTypeSimplifiers()}
@@ -128,16 +138,37 @@ abstract public class AbstractTheory implements Theory {
 	abstract protected boolean useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers();
 
 	/**
+	 * Serves as a safeguard for developers extending {@link AbstractTheory}
+	 * by confirming the assumption made by this class' implementation of
+	 * {@link #makeSplitterIfPossible(Expression, Collection, RewritingProcess)};
+	 * if it returns false and the current implementation is used anyway,
+	 * an error message is thrown.
+	 * @return
+	 */
+	abstract boolean splittersAlwaysHaveTwoArguments();
+	
+	/**
 	 * If expression can generate a splitter, returns the appropriate splitter's functor;
 	 * for example, an equality theory may be defined so that an expression a != b generates the splitter =,
 	 * so the result for that input will be =.
 	 * If expression cannot generate a splitter, returns <code>null</code>.
-	 * This method is only used in this class' implementation of {@link #makeSplitterIfPossible(Expression, Collection, RewritingProcess)}
-	 * (so if a class overrides the latter and does not make use of it, its implementation of this method is irrelevant).
+	 * This method is only used in this class' default implementation of {@link #makeSplitterIfPossible(Expression, Collection, RewritingProcess)}
+	 * so it only needs to be overridden if that default implementation is used, or some other overriding code uses it.
+	 * It is safeguarded by {@link #splittersAlwaysHaveTwoArguments()}.
 	 * @param expression
 	 * @return
 	 */
-	abstract protected String getCorrespondingSplitterFunctorOrNull(Expression expression);
+	protected String getCorrespondingSplitterFunctorOrNull(Expression expression) {
+		boolean safeguard = splittersAlwaysHaveTwoArguments();
+		throwAppropriateSafeguardError(
+				safeguard,
+				"splittersAlwaysHaveTwoArguments",
+				getClass().getSimpleName(),
+				"getCorrespondingSplitterFunctorOrNull",
+				"AbstractTheory",
+				"makeSplitterIfPossible");
+		return null; // never used, as safeguardCheck throws an error no matter what.
+	}
 	
 	/**
 	 * This default implementation does the following (check the javadoc in the declaration of this method in {@link Theory#Constraint}
@@ -155,7 +186,9 @@ abstract public class AbstractTheory implements Theory {
 	 */
 	@Override
 	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
-		assert splittersAlwaysHaveTwoArguments() : "splittersAlwaysHaveTwoArguments indicates false and yet an implementation of makeSplitterIfPossible using that assumption is being invoked.";
+		assert splittersAlwaysHaveTwoArguments() : "splittersAlwaysHaveTwoArguments indicates false and yet the default implementation of makeSplitterIfPossible in AbstractTheory using that assumption is being invoked (it should have been overridden).";
+		// the above looks like a safeguard message, but there is no safeguarded method in this situation (a safeguarded method is one used only by a default implementation making assumptions. This method is the one making assumptions.
+		
 		Expression result = null;
 		String splitterFunctor = getCorrespondingSplitterFunctorOrNull(expression);
 		if (splitterFunctor != null) {
@@ -174,16 +207,6 @@ abstract public class AbstractTheory implements Theory {
 		return result;
 	}
 
-	/**
-	 * Serves as a safeguard for developers extending {@link AbstractTheory}
-	 * by confirming the assumption made by this class' implementation of
-	 * {@link #makeSplitterIfPossible(Expression, Collection, RewritingProcess)};
-	 * if it returns false and the current implementation is used anyway,
-	 * an error message is thrown.
-	 * @return
-	 */
-	abstract boolean splittersAlwaysHaveTwoArguments();
-	
 	/**
 	 * Makes splitter by applying given functor to two terms, indices coming first if any.
 	 * Does not simplify splitter (so, if it is simplifiable, it does not get simplified).
