@@ -128,7 +128,7 @@ public class PropositionalTheory extends AbstractTheory {
 	 */
 	@Override
 	protected String getCorrespondingSplitterFunctorOrNull(Expression expression) {
-		throw new Error("AtomsAndEqualityTheory.getCorrespondingSplitterFunctorOrNull should never execute; see source code");
+		throw new Error("AtomsOnTheoryWithEquality.getCorrespondingSplitterFunctorOrNull should never execute; see source code");
 	}
 
 	/**

@@ -238,7 +238,7 @@ public class EqualityTheory extends AbstractEqualityTheory {
 	}
 	
 	/**
-	 * Represents and manipulates constraints in the equalityTheory of disequalities of terms (variables and constants).
+	 * Represents and manipulates constraints in the theoryWithEquality of disequalities of terms (variables and constants).
 	 */
 	@Beta
 	public class Constraint extends AbstractEqualityTheory.Constraint {
@@ -253,13 +253,13 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		
 		// A "disequal" of a variable V is a term T that comes *before* V in the choosing order.
 		// This means that this word is being used in a non-symmetric way.
-		// When we mean the symmetric sense of it, that is, "disequal according to the equalityTheory",
+		// When we mean the symmetric sense of it, that is, "disequal according to the theoryWithEquality",
 		// we say "constrained to be disequal".
 
 		// We map each variable equivalent class representative (including free ones) to its set of disequals.
 		
 		// We use "distinct" to refer to non-equal Java objects
-		// (as opposed to terms not being equal on the equality equalityTheory level).
+		// (as opposed to terms not being equal on the equality theoryWithEquality level).
 		
 		// Invariants:
 		// Terms belong to equivalence classes depending on what equality splitters have been applied before.

@@ -46,12 +46,12 @@ import com.sri.ai.grinder.api.RewritingProcess;
 /**
  * An interface for theories to be plugged into SGDPLL(T).
  * <p>
- * A equalityTheory represents a subset of all possible interpretations of a let of literals in its language.
- * It provides all services to DPLL specific to the equalityTheory, that is, that require knowledge about the specific subset of interpretations.
+ * A theoryWithEquality represents a subset of all possible interpretations of a let of literals in its language.
+ * It provides all services to DPLL specific to the theoryWithEquality, that is, that require knowledge about the specific subset of interpretations.
  * <p>
  * One of its tasks is to select and manipulate <i>splitters</i>.
  * A splitter is a literal on which DPLL splits the possible interpretations of an expression (see {@link DPLLGeneralizedAndSymbolic}).
- * The equalityTheory needs to know how to simplify expressions based on the fact that a splitter is true or false,
+ * The theoryWithEquality needs to know how to simplify expressions based on the fact that a splitter is true or false,
  * as well as how to simplify a <i>solution</i> based on a splitter's being true or false into a simpler solution.
  * A solution is an if-then-else expression in which all conditions are splitters.
  * 
@@ -70,7 +70,7 @@ public interface Theory {
 	boolean isVariableTerm(Expression term, RewritingProcess process);
 
 	/**
-	 * Simplifies expression given equalityTheory.
+	 * Simplifies expression given theoryWithEquality.
 	 * @param expression
 	 * @param process
 	 * @return
@@ -88,7 +88,7 @@ public interface Theory {
 	Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process);
 
 	/**
-	 * Picks a splitter based on one of the equalityTheory's literals in the given expression under given constraint.
+	 * Picks a splitter based on one of the theoryWithEquality's literals in the given expression under given constraint.
 	 * The returned splitter must be a splitter that will help solve the current expression;
 	 * it does not need to be equivalent to the given expression.
 	 * See {@link Theory} documentation for the definition of a splitter.
@@ -114,9 +114,14 @@ public interface Theory {
 	 */
 	Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process);
 	
+	/** Same as {@link #applySplitterToExpression(boolean, Expression, Expression, RewritingProcess)} but using {@link SignedSplitter}. */
+	default Expression applySplitterToExpression(SignedSplitter signedSplitter, Expression expression, RewritingProcess process) {
+		return applySplitterToExpression(signedSplitter.getSplitterSign(), signedSplitter.getSplitter(), expression, process);
+	}
+	
 	/**
 	 * Simplifies solution under constraint, by eliminating trivialized splitters
-	 * and normalizing remaining splitters and leaf expressions according to equalityTheory normalization properties.
+	 * and normalizing remaining splitters and leaf expressions according to theoryWithEquality normalization properties.
 	 * @param constraint
 	 * @param solution
 	 * @param process
@@ -132,13 +137,13 @@ public interface Theory {
 	boolean applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll();
 
 	/**
-	 * Make a new constraint for this equalityTheory over a set of indices (equivalent to all assignments to those indices).
+	 * Make a new constraint for this theoryWithEquality over a set of indices (equivalent to all assignments to those indices).
 	 * @return
 	 */
 	Constraint makeConstraint(Collection<Expression> indices);
 
 	/**
-	 * An interface for equalityTheory-specific representations of the current constraint in DPLL.
+	 * An interface for theoryWithEquality-specific representations of the current constraint in DPLL.
 	 * 
 	 * @author braz
 	 *
@@ -171,11 +176,16 @@ public interface Theory {
 		 * Generates new constraint representing conjunction of this constraint and given splitter
 		 * (or its negation, depending on the sign).
 		 * @param splitterSign the splitter's sign (true for splitter itself, false for its negation)
-		 * @param splitter the splitter according to this equalityTheory's choice
+		 * @param splitter the splitter according to this theoryWithEquality's choice
 		 * @param process the rewriting process
 		 */
 		Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process);
 
+		/** Same as {@link #applySplitter(boolean, Expression, RewritingProcess)} but using {@link SignedSplitter}. */
+		default Constraint applySplitter(SignedSplitter signedSplitter, RewritingProcess process) {
+			return applySplitter(signedSplitter.getSplitterSign(), signedSplitter.getSplitter(), process);
+		}
+		
 		/**
 		 * Computes model count for constraint, given a set of indices, in polynomial time.
 		 * Assumes that {@link #pickSplitter(RewritingProcess)} returns <code>null</code>,

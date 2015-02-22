@@ -37,57 +37,30 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
 
-@Beta
-public interface TermTheory {
-	
-	/**
-	 * Indicates whether expression is a term according to this term theory.
-	 * @param expression
-	 * @param process
-	 * @return
-	 */
-	boolean isTerm(Expression expression, RewritingProcess process);
-	
-	/**
-	 * Indicates whether expression is a generalized variable term according to this term theory.
-	 * @param expression
-	 * @param process
-	 * @return
-	 */
-	boolean isVariableTerm(Expression expression, RewritingProcess process);
-	
-	/**
-	 * Indicates whether equalities between two terms may imply further facts in this theoryWithEquality.
-	 */
-	boolean equalityBetweenTermsImpliesFurtherFacts();
-	
-	/**
-	 * Indicates whether disequalities between two terms may imply further facts in this theoryWithEquality.
-	 */
-	boolean disequalityBetweenTermsImpliesFurtherFacts();
-	
-	Expression getSplitterTowardDisunifyingDistinctTerms(Expression term, Expression anotherTerm, RewritingProcess process);
-	
-	/**
-	 * Rewrites a term used in an equality so that it uses only equality equivalence class representatives when possible.
-	 * For example, if a constraint involves X = Y and p(X) = q(X) and p(Y) = c
-	 * we want to normalize it to X = Y and q(Y) = p(Y) = c.
-	 * X is replaced by its representative in p(X) and q(X), but not in X = Y itself since that would incorrectly remove the equality X = Y.
-	 * @param term
-	 * @param constraint
-	 * @param process
-	 * @return
-	 */
-	Expression normalizeTermInEquality(Expression term, AbstractEqualityTheory.Constraint constraint, RewritingProcess process);
+/**
+ * Represents a splitter along with its sign.
+ * 
+ * @author braz
+ *
+ */
+public class SignedSplitter  {
 
-	/**
-	 * Indicates whether terms have no arguments.
-	 * This permits skipping the updating of representatives in bindings maps.
-	 * @return
-	 */
-	boolean termsHaveNoArguments();
+	private boolean splitterSign;
+	private Expression splitter;
+	
+	public SignedSplitter(boolean splitterSign, Expression splitter) {
+		super();
+		this.splitterSign = splitterSign;
+		this.splitter = splitter;
+	}
+
+	public boolean getSplitterSign() {
+		return splitterSign;
+	}
+
+	public Expression getSplitter() {
+		return splitter;
+	}
 }

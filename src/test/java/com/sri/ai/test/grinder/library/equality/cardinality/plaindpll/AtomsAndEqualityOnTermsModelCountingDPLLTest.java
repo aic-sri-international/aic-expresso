@@ -54,7 +54,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.AtomsAndEqualityTheory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.AtomsOnTheoryWithEquality;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.FunctionalTermTheory;
@@ -73,7 +73,7 @@ public class AtomsAndEqualityOnTermsModelCountingDPLLTest extends AbstractSymbol
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new DPLLGeneralizedAndSymbolic(new AtomsAndEqualityTheory(new EqualityTheory(new FunctionalTermTheory())), new ModelCounting());
+		return new DPLLGeneralizedAndSymbolic(new AtomsOnTheoryWithEquality(new EqualityTheory(new FunctionalTermTheory())), new ModelCounting());
 	}
 
 	@Test
@@ -153,13 +153,13 @@ public class AtomsAndEqualityOnTermsModelCountingDPLLTest extends AbstractSymbol
 
 		// FROM HERE ON: tests repeated from EqualityOnTermsModelCountingDPLLTest, which should still be solved by this generalization
 		
-		// tests the most important property in the equalityTheory, that of functional congruence.
+		// tests the most important property in the theoryWithEquality, that of functional congruence.
 		expression = parse("p(X) = a and p(Y) = b and X = Y");
 		indices    = list();
 		expected   = parse("0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
-		// tests the most important property in the equalityTheory, that of functional congruence.
+		// tests the most important property in the theoryWithEquality, that of functional congruence.
 		expression = parse("p(X,Y) != p(Z,W) => X != Z or Y != W");
 		indices    = list();
 		expected   = parse("1");
