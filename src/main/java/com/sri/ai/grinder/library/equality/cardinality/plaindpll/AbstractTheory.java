@@ -361,10 +361,26 @@ abstract public class AbstractTheory implements Theory {
 		}
 
 		/**
+		 * Safeguard method for {@link #pickSplitter(RewritingProcess)} and {@link #provideSplitterRequiredForComputingNumberOfValuesFor(Expression, RewritingProcess)}.
+		 */
+		abstract protected boolean useDefaultImplementationOfPickSplitterByOverridingProvideSplitterRequiredForComputingNumberOfValuesFor();
+
+		/**
 		 * Given an index x, return one splitter needed for us to be able to
 		 * compute this index's number of values, or null if none is needed.
+		 * Only required if using default implementation of {@link #pickSplitter(RewritingProcess)} (that is, not overriding it).
 		 */
-		abstract protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression x, RewritingProcess process);
+		protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression x, RewritingProcess process) {
+			boolean safeguard = useDefaultImplementationOfPickSplitterByOverridingProvideSplitterRequiredForComputingNumberOfValuesFor();
+			throwAppropriateSafeguardError(
+					safeguard,
+					"useDefaultImplementationOfPickSplitterByOverridingProvideSplitterRequiredForComputingNumberOfValuesFor", // safeguardMethodsName
+					getClass().getSimpleName(), // thisClassName
+					"AbstractTheory", // superClassName
+					"provideSplitterRequiredForComputingNumberOfValuesFor", // thisMethodsName
+					"pickSplitter"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
+			return null; // never used, as safeguardCheck throws an error no matter what.
+		}
 
 		@Override
 		public Expression pickSplitter(RewritingProcess process) {
@@ -412,9 +428,34 @@ abstract public class AbstractTheory implements Theory {
 			return newConstraint;
 		}
 
-		abstract protected Collection<Expression> getSplittersToBeSatisfied(RewritingProcess process);
+		/**
+		 * Safeguard method for {@link #pickSplitter(RewritingProcess)} and {@link #provideSplitterRequiredForComputingNumberOfValuesFor(Expression, RewritingProcess)}.
+		 */
+		abstract protected boolean useDefaultImplementationOfModelCountByOverridingGetSplittersToBeSatisfiedAndGetSplittersToBeNotSatisfied();
 
-		abstract protected Collection<Expression> getSplittersToBeNotSatisfied(RewritingProcess process);
+		protected Collection<Expression> getSplittersToBeSatisfied(RewritingProcess process) {
+			boolean safeguard = useDefaultImplementationOfModelCountByOverridingGetSplittersToBeSatisfiedAndGetSplittersToBeNotSatisfied();
+			throwAppropriateSafeguardError(
+					safeguard,
+					"useDefaultImplementationOfModelCountByOverridingGetSplittersToBeSatisfiedAndGetSplittersToBeNotSatisfied", // safeguardMethodsName
+					getClass().getSimpleName(), // thisClassName
+					"AbstractTheory", // superClassName
+					"getSplittersToBeSatisfied", // thisMethodsName
+					"modelCount"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
+			return null; // never used, as safeguardCheck throws an error no matter what.
+		}
+
+		protected Collection<Expression> getSplittersToBeNotSatisfied(RewritingProcess process) {
+			boolean safeguard = useDefaultImplementationOfModelCountByOverridingGetSplittersToBeSatisfiedAndGetSplittersToBeNotSatisfied();
+			throwAppropriateSafeguardError(
+					safeguard,
+					"useDefaultImplementationOfModelCountByOverridingGetSplittersToBeSatisfiedAndGetSplittersToBeNotSatisfied", // safeguardMethodsName
+					getClass().getSimpleName(), // thisClassName
+					"AbstractTheory", // superClassName
+					"getSplittersToBeNotSatisfied", // thisMethodsName
+					"modelCount"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
+			return null; // never used, as safeguardCheck throws an error no matter what.
+		}
 
 		@Override
 		public Expression modelCount(RewritingProcess process) {
@@ -428,16 +469,28 @@ abstract public class AbstractTheory implements Theory {
 		}
 		
 		/**
+		 * Safeguard method for {@link #pickSplitter(RewritingProcess)} and {@link #provideSplitterRequiredForComputingNumberOfValuesFor(Expression, RewritingProcess)}.
+		 */
+		abstract protected boolean useDefaultImplementationOfComputeModelCountGivenConditionsOnFreeVariablesByOverridingComputeNumberOfPossibleValuesFor();
+
+		/**
 		 * Returns an expression (in the free variables) for the number of possible values for the given index,
 		 * assuming that {@link #provideSplitterRequiredForComputingNumberOfValuesFor(Expression, RewritingProcess)}
 		 * currently returns <code>null</code>,
 		 * that is, we do not need anything splitters to be either imposed or negated in order to compute that.
-		 * This method is only used in {@link AbstractConstraint}'s implementation of
-		 * {@link #computeModelCountGivenConditionsOnFreeVariables(RewritingProcess)};
-		 * if that method is overridden and the overriding version does not employ this method,
-		 * its implementation in the extending class is irrelevant.
+		 * Only required if using default implementation of {@link #computeModelCountGivenConditionsOnFreeVariables(Expression index, RewritingProcess)} (that is, not overriding it).
 		 */
-		abstract protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process);
+		protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process) {
+			boolean safeguard = useDefaultImplementationOfPickSplitterByOverridingProvideSplitterRequiredForComputingNumberOfValuesFor();
+			throwAppropriateSafeguardError(
+					safeguard,
+					"useDefaultImplementationOfComputeModelCountGivenConditionsOnFreeVariablesByOverridingComputeNumberOfPossibleValuesFor", // safeguardMethodsName
+					getClass().getSimpleName(), // thisClassName
+					"AbstractTheory", // superClassName
+					"computeNumberOfPossibleValuesFor", // thisMethodsName
+					"computeModelCountGivenConditionsOnFreeVariables"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
+			return null; // never used, as safeguardCheck throws an error no matter what.
+		}
 
 		protected Expression computeModelCountGivenConditionsOnFreeVariables(RewritingProcess process) {
 			List<Expression> numberOfPossibleValuesForIndicesSoFar = new LinkedList<Expression>();

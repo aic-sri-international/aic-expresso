@@ -38,9 +38,7 @@
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.expresso.helper.Expressions.TWO;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -103,13 +101,13 @@ public class PropositionalTheory extends AbstractTheory {
 	}
 
 	@Override
-	protected boolean useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers() {
-		return true;
+	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
+		return syntacticFormTypeSimplifiers;
 	}
 
 	@Override
-	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
-		return syntacticFormTypeSimplifiers;
+	protected boolean useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers() {
+		return true;
 	}
 
 	@Override
@@ -120,15 +118,6 @@ public class PropositionalTheory extends AbstractTheory {
 	@Override
 	boolean splittersAlwaysHaveTwoArguments() {
 		return false;
-	}
-
-	/**
-	 * This implementation method is irrelevant because {@link #makeSplitterIfPossible(Expression, Collection, RewritingProcess)}
-	 * is overridden and does not use it (see javadoc at this method's declaration in super class {@link AbstractTheory}).
-	 */
-	@Override
-	protected String getCorrespondingSplitterFunctorOrNull(Expression expression) {
-		throw new Error("AtomsOnTheoryWithEquality.getCorrespondingSplitterFunctorOrNull should never execute; see source code");
 	}
 
 	/**
@@ -153,9 +142,10 @@ public class PropositionalTheory extends AbstractTheory {
 	@Override
 	protected BinaryFunction<Expression, RewritingProcess, Expression>
 	getSplitterApplier(boolean splitterSign, Expression splitter) {
-		BinaryFunction<Expression, RewritingProcess, Expression> applier = 
+		Expression replacement = splitterSign? TRUE : FALSE;
+		BinaryFunction<Expression, RewritingProcess, Expression> applier=
 				(Expression expression, RewritingProcess process) -> {
-					Expression result = expression.replaceAllOccurrences(splitter, splitterSign? TRUE : FALSE, process);
+					Expression result = expression.replaceAllOccurrences(splitter, replacement, process);
 					result = simplify(result, process);
 					return result;
 				};
@@ -195,7 +185,7 @@ public class PropositionalTheory extends AbstractTheory {
 		return new Constraint(indices);
 	}
 
-	public class Constraint extends AbstractTheory.AbstractConstraint { //implements Theory.Constraint {
+	public class Constraint extends AbstractTheory.AbstractConstraint {
 
 		private int numberOfBoundIndices;
 		
@@ -221,13 +211,12 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 		
 		@Override
-		public Expression pickSplitter(RewritingProcess process) {
-			return null; // we are always ready to provide a model count, so there is no need for extra splitters
+		protected boolean useDefaultImplementationOfPickSplitterByOverridingProvideSplitterRequiredForComputingNumberOfValuesFor() {
+			return false; // no need to pick splitters in this theory's constraints
 		}
 
-
 		@Override
-		protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression x, RewritingProcess process) {
+		public Expression pickSplitter(RewritingProcess process) {
 			return null; // we are always ready to provide a model count, so there is no need for extra splitters
 		}
 
@@ -244,33 +233,22 @@ public class PropositionalTheory extends AbstractTheory {
 			}
 		}
 
-		/**
-		 * We provide a correct implementation of this method, even though it is irrelevant
-		 * because {@link #computeModelCountGivenConditionsOnFreeVariables(RewritingProcess)}
-		 * has been overridden by a version that does not use it because it does not iterate over all indices.
-		 * (see javadoc in original declaration).
-		 */
 		@Override
-		protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process) {
-			Expression result;
-			if (assertedPropositions.contains(index) || negatedPropositions.contains(index)) {
-				result = ONE;
-			}
-			else {
-				result = TWO;
-			}
-			return result;
+		protected boolean useDefaultImplementationOfComputeModelCountGivenConditionsOnFreeVariablesByOverridingComputeNumberOfPossibleValuesFor() {
+			return false; // we do not need to iterate over all indices like the default implementation does.
 		}
-
+		
 		/**
-		 * This method did not (modulo efficiency) need to be implemented,
-		 * because the super class provides an implementation,
-		 * but this version computes the number of models without iterating over all indices
-		 * as in the original implementation.
+		 * This version (unlike's the super class' default implementation)
+		 * computes the number of models without iterating over all indices.
 		 */
 		@Override
 		protected Symbol computeModelCountGivenConditionsOnFreeVariables(RewritingProcess process) {
 			return Expressions.makeSymbol(new Rational(2).pow(indices.size() - numberOfBoundIndices));
+		}
+
+		protected boolean useDefaultImplementationOfModelCountByOverridingGetSplittersToBeSatisfiedAndGetSplittersToBeNotSatisfied() {
+			return true;
 		}
 
 		@Override
