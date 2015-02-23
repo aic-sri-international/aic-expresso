@@ -123,16 +123,16 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 	}
 
 	@Override
-	public Constraint makeConstraint(Collection<Expression> indices) {
-		Constraint result = new Constraint(theoryWithEquality.makeConstraint(indices));
+	public AtomsOnTheoryWithEqualitiesConstraint makeConstraint(Collection<Expression> indices) {
+		AtomsOnTheoryWithEqualitiesConstraint result = new AtomsOnTheoryWithEqualitiesConstraint(theoryWithEquality.makeConstraint(indices));
 		return result;
 	}
 
-	private class Constraint implements Theory.Constraint {
+	private class AtomsOnTheoryWithEqualitiesConstraint implements Theory.Constraint {
 
 		private Theory.Constraint equalityConstraint;
 		
-		public Constraint(Theory.Constraint equalityConstraint) {
+		public AtomsOnTheoryWithEqualitiesConstraint(Theory.Constraint equalityConstraint) {
 			this.equalityConstraint = equalityConstraint;
 		}
 		
@@ -169,12 +169,12 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		}
 
 		@Override
-		public Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		public AtomsOnTheoryWithEqualitiesConstraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			SignedSplitter equalitySignedSplitter = getSignedEqualitySplitter(splitterSign, splitter);
 			Theory.Constraint newEqualityConstraint = equalityConstraint.applySplitter(equalitySignedSplitter, process);
-			Constraint result;
+			AtomsOnTheoryWithEqualitiesConstraint result;
 			if (newEqualityConstraint != null) {
-				result = new Constraint(newEqualityConstraint);
+				result = new AtomsOnTheoryWithEqualitiesConstraint(newEqualityConstraint);
 			}
 			else {
 				result = null;

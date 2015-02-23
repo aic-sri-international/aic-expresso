@@ -84,7 +84,7 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 	abstract public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers();
 
 	@Override
-	abstract public Constraint makeConstraint(Collection<Expression> indices);
+	abstract public AbstractEqualityConstraint makeConstraint(Collection<Expression> indices);
 	
 	///////////// END OF ABSTRACT METHODS
 
@@ -109,7 +109,7 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 
 	// END OF GENERIC CODE
 	
-	// STATIC DECLARATIONS FOR USE IN Constraint (cannot be declared inside it because non-static inner classes cannot have static members).
+	// STATIC DECLARATIONS FOR USE IN AbstractEqualityConstraint (cannot be declared inside it because non-static inner classes cannot have static members).
 	
 	protected interface NonEqualityConstraints {
 		NonEqualityConstraints clone();
@@ -119,7 +119,7 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 	 * Represents and manipulates constraints in the theoryWithEquality of disequalities of terms (variables and constants).
 	 */
 	@Beta
-	public abstract class Constraint extends AbstractTheory.AbstractConstraint {
+	public abstract class AbstractEqualityConstraint extends AbstractRuleOfProductConstraint {
 
 		// The algorithm is based on the counting principle: to determine the model count, we
 		// go over indices, in a certain order, and analyse how many possible values each one them has,
@@ -152,13 +152,13 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 		protected Map<Expression, Expression> equalitiesMap;
 		protected LinkedHashMap<Expression, NonEqualityConstraints> nonEqualityConstraintsMap;
 		
-		public Constraint(Collection<Expression> indices) {
+		public AbstractEqualityConstraint(Collection<Expression> indices) {
 			super(indices);
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>();
 			this.nonEqualityConstraintsMap = new LinkedHashMap<Expression, NonEqualityConstraints>(); 
 		}
 
-		protected Constraint(Constraint another) {
+		protected AbstractEqualityConstraint(AbstractEqualityConstraint another) {
 			super(another.indices);
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>(another.equalitiesMap);
 			this.nonEqualityConstraintsMap = new LinkedHashMap<Expression, NonEqualityConstraints>(); 

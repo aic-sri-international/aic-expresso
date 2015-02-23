@@ -166,33 +166,33 @@ public class PropositionalTheory extends AbstractTheory {
 	}
 
 	@Override
-	public Constraint makeConstraint(Collection<Expression> indices) {
-		return new Constraint(indices);
+	public PropositionalConstraint makeConstraint(Collection<Expression> indices) {
+		return new PropositionalConstraint(indices);
 	}
 
-	public class Constraint extends AbstractTheory.AbstractConstraint {
+	public class PropositionalConstraint extends AbstractRuleOfProductConstraint {
 
 		private int numberOfBoundIndices;
 		
 		private Set<Expression> assertedPropositions;
 		private Set<Expression> negatedPropositions;
 		
-		public Constraint(Collection<Expression> indices) {
+		public PropositionalConstraint(Collection<Expression> indices) {
 			super(indices);
 			this.numberOfBoundIndices = 0;
 			this.assertedPropositions = new LinkedHashSet<Expression>();
 			this.negatedPropositions  = new LinkedHashSet<Expression>();
 		}
 		
-		public Constraint(Constraint another) {
+		public PropositionalConstraint(PropositionalConstraint another) {
 			super(another.indices);
 			this.numberOfBoundIndices = another.numberOfBoundIndices;
 			this.assertedPropositions = new LinkedHashSet<Expression>(another.assertedPropositions); // should be optimized to a copy-as-needed scheme.
 			this.negatedPropositions = new LinkedHashSet<Expression>(another.negatedPropositions);
 		}
 
-		public Constraint clone() {
-			return new Constraint(this);
+		public PropositionalConstraint clone() {
+			return new PropositionalConstraint(this);
 		}
 		
 		@Override

@@ -82,7 +82,7 @@ public interface TermTheory {
 	 * @param process
 	 * @return
 	 */
-	Expression normalizeTermInEquality(Expression term, AbstractEqualityTheory.Constraint constraint, RewritingProcess process);
+	Expression normalizeTermInEquality(Expression term, AbstractEqualityTheory.AbstractEqualityConstraint constraint, RewritingProcess process);
 
 	/**
 	 * Indicates whether terms have no arguments.
