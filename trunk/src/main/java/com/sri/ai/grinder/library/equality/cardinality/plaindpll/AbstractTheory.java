@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
-import static com.sri.ai.util.Util.throwAppropriateSafeguardError;
+import static com.sri.ai.util.Util.throwSafeguardError;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -71,14 +71,11 @@ abstract public class AbstractTheory implements Theory {
 	 * Provides a map from functors's getValue() values (Strings) to a function mapping a
 	 * function application of that functor and a rewriting process to an equivalent, simplified formula
 	 * according to this theoryWithEquality.
-	 * DPLL will use these simplifiers when a new decision is made and literals are replaced by boolean constants. 
+	 * Only required if {@link #simplify(Expression, RewritingProcess)} is not overridden by code not using it. 
 	 * @return
 	 */
 	protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers() {
-		boolean safeguard = useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers();
-		throwAppropriateSafeguardError( // OPTIMIZATION: much of this, if not all or even extra information, could be obtained by reflection inside throwAppropriateSafeguardError
-				safeguard,
-				"useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers",
+		throwSafeguardError( // OPTIMIZATION: much of this, if not all or even extra information, could be obtained by reflection inside throwAppropriateSafeguardError
 				getClass().getSimpleName(),
 				"getFunctionApplicationSimplifiers",
 				"AbstractTheory",
@@ -90,14 +87,11 @@ abstract public class AbstractTheory implements Theory {
 	 * Provides a map from syntactic form types (Strings) to a function mapping a
 	 * function application of that functor and a rewriting process to an equivalent, simplified formula
 	 * according to this theoryWithEquality.
-	 * DPLL will use these simplifiers when a new decision is made and literals are replaced by boolean constants. 
+	 * Only required if {@link #simplify(Expression, RewritingProcess)} is not overridden by code not using it. 
 	 * @return
 	 */
 	protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
-		boolean safeguard = useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers();
-		throwAppropriateSafeguardError(
-				safeguard,
-				"useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers",
+		throwSafeguardError(
 				getClass().getSimpleName(),
 				"getSyntacticFormTypeSimplifiers",
 				"AbstractTheory",
@@ -131,38 +125,17 @@ abstract public class AbstractTheory implements Theory {
 	}
 
 	/**
-	 * A safeguard method making extending classes explicitly state whether they intend to use the provided default implementation of
-	 * simplify, which requires {@link #getFunctionApplicationSimplifiers()} and {@link #getSyntacticFormTypeSimplifiers()}
-	 * to be overridden (an error message is thrown otherwise).
-	 */
-	abstract protected boolean useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers();
-
-	/**
-	 * Serves as a safeguard for developers extending {@link AbstractTheory}
-	 * by confirming the assumption made by this class' implementation of
-	 * {@link #makeSplitterIfPossible(Expression, Collection, RewritingProcess)};
-	 * if it returns false and the current implementation is used anyway,
-	 * an error message is thrown.
-	 * @return
-	 */
-	abstract boolean splittersAlwaysHaveTwoArguments();
-	
-	/**
 	 * If expression can generate a splitter, returns the appropriate splitter's functor;
 	 * for example, an equality theory may be defined so that an expression a != b generates the splitter =,
 	 * so the result for that input will be =.
 	 * If expression cannot generate a splitter, returns <code>null</code>.
 	 * This method is only used in this class' default implementation of {@link #makeSplitterIfPossible(Expression, Collection, RewritingProcess)}
 	 * so it only needs to be overridden if that default implementation is used, or some other overriding code uses it.
-	 * It is safeguarded by {@link #splittersAlwaysHaveTwoArguments()}.
 	 * @param expression
 	 * @return
 	 */
 	protected String getCorrespondingSplitterFunctorOrNull(Expression expression) {
-		boolean safeguard = splittersAlwaysHaveTwoArguments();
-		throwAppropriateSafeguardError(
-				safeguard,
-				"splittersAlwaysHaveTwoArguments",
+		throwSafeguardError(
 				getClass().getSimpleName(),
 				"getCorrespondingSplitterFunctorOrNull",
 				"AbstractTheory",
@@ -186,9 +159,6 @@ abstract public class AbstractTheory implements Theory {
 	 */
 	@Override
 	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
-		assert splittersAlwaysHaveTwoArguments() : "splittersAlwaysHaveTwoArguments indicates false and yet the default implementation of makeSplitterIfPossible in AbstractTheory using that assumption is being invoked (it should have been overridden).";
-		// the above looks like a safeguard message, but there is no safeguarded method in this situation (a safeguarded method is one used only by a default implementation making assumptions. This method is the one making assumptions.
-		
 		Expression result = null;
 		String splitterFunctor = getCorrespondingSplitterFunctorOrNull(expression);
 		if (splitterFunctor != null) {
@@ -257,16 +227,11 @@ abstract public class AbstractTheory implements Theory {
 		return result;
 	}
 
-	abstract protected boolean useDefaultImplementationOfApplySplitterToExpressionByOverriddingGetSplitterApplier();
-
 	protected BinaryFunction<Expression, RewritingProcess, Expression> getSplitterApplier(boolean splitterSign, Expression splitter) {
-		boolean safeguard = useDefaultImplementationOfApplySplitterToExpressionByOverriddingGetSplitterApplier();
-		throwAppropriateSafeguardError(
-				safeguard,
-				"useDefaultImplementationOfApplySplitterToExpressionByOverriddingGetSplitterApplier", // safeguardMethodsName
-				getClass().getSimpleName(), // thisClassName
+		throwSafeguardError(
+				getClass().getSimpleName(),
+				"getSplitterApplier", // thisClassName
 				"AbstractTheory", // superClassName
-				"getSplitterApplier", // thisMethodsName
 				"simplify(Expression, RewritingProcess)"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}
@@ -361,23 +326,15 @@ abstract public class AbstractTheory implements Theory {
 		}
 
 		/**
-		 * Safeguard method for {@link #pickSplitter(RewritingProcess)} and {@link #provideSplitterRequiredForComputingNumberOfValuesFor(Expression, RewritingProcess)}.
-		 */
-		abstract protected boolean useDefaultImplementationOfPickSplitterByOverridingProvideSplitterRequiredForComputingNumberOfValuesFor();
-
-		/**
 		 * Given an index x, return one splitter needed for us to be able to
 		 * compute this index's number of values, or null if none is needed.
 		 * Only required if using default implementation of {@link #pickSplitter(RewritingProcess)} (that is, not overriding it).
 		 */
 		protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression x, RewritingProcess process) {
-			boolean safeguard = useDefaultImplementationOfPickSplitterByOverridingProvideSplitterRequiredForComputingNumberOfValuesFor();
-			throwAppropriateSafeguardError(
-					safeguard,
-					"useDefaultImplementationOfPickSplitterByOverridingProvideSplitterRequiredForComputingNumberOfValuesFor", // safeguardMethodsName
-					getClass().getSimpleName(), // thisClassName
-					"AbstractTheory", // superClassName
-					"provideSplitterRequiredForComputingNumberOfValuesFor", // thisMethodsName
+			throwSafeguardError(
+					getClass().getSimpleName(),
+					"provideSplitterRequiredForComputingNumberOfValuesFor", // thisClassName
+					"AbstractTheory.AbstractConstraint", // superClassName
 					"pickSplitter"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
 			return null; // never used, as safeguardCheck throws an error no matter what.
 		}
@@ -428,31 +385,20 @@ abstract public class AbstractTheory implements Theory {
 			return newConstraint;
 		}
 
-		/**
-		 * Safeguard method for {@link #pickSplitter(RewritingProcess)} and {@link #provideSplitterRequiredForComputingNumberOfValuesFor(Expression, RewritingProcess)}.
-		 */
-		abstract protected boolean useDefaultImplementationOfModelCountByOverridingGetSplittersToBeSatisfiedAndGetSplittersToBeNotSatisfied();
-
 		protected Collection<Expression> getSplittersToBeSatisfied(RewritingProcess process) {
-			boolean safeguard = useDefaultImplementationOfModelCountByOverridingGetSplittersToBeSatisfiedAndGetSplittersToBeNotSatisfied();
-			throwAppropriateSafeguardError(
-					safeguard,
-					"useDefaultImplementationOfModelCountByOverridingGetSplittersToBeSatisfiedAndGetSplittersToBeNotSatisfied", // safeguardMethodsName
-					getClass().getSimpleName(), // thisClassName
-					"AbstractTheory", // superClassName
-					"getSplittersToBeSatisfied", // thisMethodsName
+			throwSafeguardError(
+					getClass().getSimpleName(),
+					"getSplittersToBeSatisfied", // thisClassName
+					"AbstractTheory.AbstractConstraint", // superClassName
 					"modelCount"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
 			return null; // never used, as safeguardCheck throws an error no matter what.
 		}
 
 		protected Collection<Expression> getSplittersToBeNotSatisfied(RewritingProcess process) {
-			boolean safeguard = useDefaultImplementationOfModelCountByOverridingGetSplittersToBeSatisfiedAndGetSplittersToBeNotSatisfied();
-			throwAppropriateSafeguardError(
-					safeguard,
-					"useDefaultImplementationOfModelCountByOverridingGetSplittersToBeSatisfiedAndGetSplittersToBeNotSatisfied", // safeguardMethodsName
-					getClass().getSimpleName(), // thisClassName
-					"AbstractTheory", // superClassName
-					"getSplittersToBeNotSatisfied", // thisMethodsName
+			throwSafeguardError(
+					getClass().getSimpleName(),
+					"getSplittersToBeNotSatisfied", // thisClassName
+					"AbstractTheory.AbstractConstraint", // superClassName
 					"modelCount"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
 			return null; // never used, as safeguardCheck throws an error no matter what.
 		}
@@ -469,11 +415,6 @@ abstract public class AbstractTheory implements Theory {
 		}
 		
 		/**
-		 * Safeguard method for {@link #pickSplitter(RewritingProcess)} and {@link #provideSplitterRequiredForComputingNumberOfValuesFor(Expression, RewritingProcess)}.
-		 */
-		abstract protected boolean useDefaultImplementationOfComputeModelCountGivenConditionsOnFreeVariablesByOverridingComputeNumberOfPossibleValuesFor();
-
-		/**
 		 * Returns an expression (in the free variables) for the number of possible values for the given index,
 		 * assuming that {@link #provideSplitterRequiredForComputingNumberOfValuesFor(Expression, RewritingProcess)}
 		 * currently returns <code>null</code>,
@@ -481,13 +422,10 @@ abstract public class AbstractTheory implements Theory {
 		 * Only required if using default implementation of {@link #computeModelCountGivenConditionsOnFreeVariables(Expression index, RewritingProcess)} (that is, not overriding it).
 		 */
 		protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process) {
-			boolean safeguard = useDefaultImplementationOfPickSplitterByOverridingProvideSplitterRequiredForComputingNumberOfValuesFor();
-			throwAppropriateSafeguardError(
-					safeguard,
-					"useDefaultImplementationOfComputeModelCountGivenConditionsOnFreeVariablesByOverridingComputeNumberOfPossibleValuesFor", // safeguardMethodsName
-					getClass().getSimpleName(), // thisClassName
-					"AbstractTheory", // superClassName
-					"computeNumberOfPossibleValuesFor", // thisMethodsName
+			throwSafeguardError(
+					getClass().getSimpleName(),
+					"computeNumberOfPossibleValuesFor", // thisClassName
+					"AbstractTheory.AbstractConstraint", // superClassName
 					"computeModelCountGivenConditionsOnFreeVariables"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
 			return null; // never used, as safeguardCheck throws an error no matter what.
 		}

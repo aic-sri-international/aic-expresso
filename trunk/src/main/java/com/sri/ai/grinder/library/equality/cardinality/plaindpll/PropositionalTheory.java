@@ -106,18 +106,8 @@ public class PropositionalTheory extends AbstractTheory {
 	}
 
 	@Override
-	protected boolean useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers() {
-		return true;
-	}
-
-	@Override
 	public boolean isVariableTerm(Expression term, RewritingProcess process) {
 		return isProposition(term);
-	}
-
-	@Override
-	boolean splittersAlwaysHaveTwoArguments() {
-		return false;
 	}
 
 	/**
@@ -152,11 +142,6 @@ public class PropositionalTheory extends AbstractTheory {
 		return applier;
 	}
 	
-	@Override
-	protected boolean useDefaultImplementationOfApplySplitterToExpressionByOverriddingGetSplitterApplier() {
-		return true;
-	}
-
 	/**
 	 * @param expression
 	 * @return
@@ -211,11 +196,6 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 		
 		@Override
-		protected boolean useDefaultImplementationOfPickSplitterByOverridingProvideSplitterRequiredForComputingNumberOfValuesFor() {
-			return false; // no need to pick splitters in this theory's constraints
-		}
-
-		@Override
 		public Expression pickSplitter(RewritingProcess process) {
 			return null; // we are always ready to provide a model count, so there is no need for extra splitters
 		}
@@ -233,11 +213,6 @@ public class PropositionalTheory extends AbstractTheory {
 			}
 		}
 
-		@Override
-		protected boolean useDefaultImplementationOfComputeModelCountGivenConditionsOnFreeVariablesByOverridingComputeNumberOfPossibleValuesFor() {
-			return false; // we do not need to iterate over all indices like the default implementation does.
-		}
-		
 		/**
 		 * This version (unlike's the super class' default implementation)
 		 * computes the number of models without iterating over all indices.
