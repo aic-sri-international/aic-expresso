@@ -89,11 +89,6 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 	}
 
 	@Override
-	public boolean splittersAlwaysHaveTwoArguments() {
-		return false;
-	}
-
-	@Override
 	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
 		if (theoryWithEquality.isVariableTerm(expression, process) && isBooleanTyped(expression, process)) {
@@ -109,11 +104,6 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 	public boolean applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll() {
 		boolean result = theoryWithEquality.applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll();
 		return result;
-	}
-
-	@Override
-	protected boolean useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers() {
-		return false; // will instead delegate to theoryWithEquality.simplify.
 	}
 
 	@Override

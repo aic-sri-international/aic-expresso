@@ -151,16 +151,6 @@ public class EqualityTheory extends AbstractEqualityTheory {
 	}
 
 	@Override
-	protected boolean useDefaultImplementationOfSimplifyByOverriddingGetFunctionApplicationSimplifiersAndGetSyntacticTypeFormSimplifiers() {
-		return true;
-	}
-
-	@Override
-	boolean splittersAlwaysHaveTwoArguments() {
-		return true;
-	}
-
-	@Override
 	protected String getCorrespondingSplitterFunctorOrNull(Expression expression) {
 		String result;
 		if (expression.hasFunctor(FunctorConstants.EQUALITY) || expression.hasFunctor(FunctorConstants.DISEQUALITY)) {
@@ -200,11 +190,6 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		return applier;
 	}
 	
-	@Override
-	protected boolean useDefaultImplementationOfApplySplitterToExpressionByOverriddingGetSplitterApplier() {
-		return true;
-	}
-
 	@Override
 	public Constraint makeConstraint(Collection<Expression> indices) {
 		return new Constraint(indices);
@@ -282,11 +267,6 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		@Override
 		public Constraint clone() {
 			return new Constraint(this);
-		}
-
-		@Override
-		protected boolean useDefaultImplementationOfPickSplitterByOverridingProvideSplitterRequiredForComputingNumberOfValuesFor() {
-			return true;
 		}
 
 		@Override
@@ -558,11 +538,6 @@ public class EqualityTheory extends AbstractEqualityTheory {
 			return result;
 		}
 
-		@Override
-		protected boolean useDefaultImplementationOfComputeModelCountGivenConditionsOnFreeVariablesByOverridingComputeNumberOfPossibleValuesFor() {
-			return true;
-		}
-		
 		@Override
 		protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process) {
 			Expression numberOfPossibleValuesForIndex;
