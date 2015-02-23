@@ -191,8 +191,8 @@ public class EqualityTheory extends AbstractEqualityTheory {
 	}
 	
 	@Override
-	public Constraint makeConstraint(Collection<Expression> indices) {
-		return new Constraint(indices);
+	public EqualityConstraint makeConstraint(Collection<Expression> indices) {
+		return new EqualityConstraint(indices);
 	}
 	
 	public static class DisequalitiesConstraints implements NonEqualityConstraints {
@@ -226,7 +226,7 @@ public class EqualityTheory extends AbstractEqualityTheory {
 	 * Represents and manipulates constraints in the theoryWithEquality of disequalities of terms (variables and constants).
 	 */
 	@Beta
-	public class Constraint extends AbstractEqualityTheory.Constraint {
+	public class EqualityConstraint extends AbstractEqualityTheory.AbstractEqualityConstraint {
 
 		// The algorithm is based on the counting principle: to determine the model count, we
 		// go over indices, in a certain order, and analyse how many possible values each one them has,
@@ -256,17 +256,17 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		
 		// The map (super class) keeps disequals.
 		
-		public Constraint(Collection<Expression> indices) {
+		public EqualityConstraint(Collection<Expression> indices) {
 			super(indices);
 		}
 
-		private Constraint(Constraint another) {
+		private EqualityConstraint(EqualityConstraint another) {
 			super(another);
 		}
 
 		@Override
-		public Constraint clone() {
-			return new Constraint(this);
+		public EqualityConstraint clone() {
+			return new EqualityConstraint(this);
 		}
 
 		@Override

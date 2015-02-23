@@ -3641,7 +3641,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"(| Type |-1, 9)"),	
 			//
 			// Basic: Examples from paper: 
-		    // 'Lifted Arbitrary Constraint Solving for Lifted Probabilistic Inference'.
+		    // 'Lifted Arbitrary AbstractEqualityConstraint Solving for Lifted Probabilistic Inference'.
 			// #5: | X = a |_x
 			new CardinalityData(false,
 					"| {(on X) tuple(X) | X = a } |",

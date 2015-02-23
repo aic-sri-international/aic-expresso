@@ -89,7 +89,7 @@ public class Cardinality extends AbstractCardinalityRewriter {
 		result = SolutionPostProcessing.fromSolutionToShorterExpression(simplifiedSolution, new EqualityTheory(new SymbolTermTheory()), process);
 		
 //		System.out.println("Problem                  : " + cardinalityOfIndexedFormulaExpression);
-//		System.out.println("Constraint               : " + process.getContextualConstraint());
+//		System.out.println("AbstractEqualityConstraint               : " + process.getContextualConstraint());
 //		System.out.println("Solution                 : " + solution);
 //		System.out.println("Solution under constraint: " + simplifiedSolution);
 //		System.out.println("Shortened solution       : " + result + "\n");
@@ -128,7 +128,7 @@ public class Cardinality extends AbstractCardinalityRewriter {
 			else {
 				result = rewrite(cardinalityOfIndexedFormulaExpression, quantification, process);
 				System.out.println("Problem                  : " + cardinalityOfIndexedFormulaExpression);
-				System.out.println("Constraint               : " + process.getContextualConstraint());
+				System.out.println("AbstractEqualityConstraint               : " + process.getContextualConstraint());
 				System.out.println("Solution                 : " + result);
 			}
 		} 
@@ -138,7 +138,7 @@ public class Cardinality extends AbstractCardinalityRewriter {
 		else {
 			System.out.println("Problem: " + expression);
 			Expression contextualConstraint = process.getContextualConstraint();
-			System.out.println("Constraint: " + contextualConstraint);
+			System.out.println("AbstractEqualityConstraint: " + contextualConstraint);
 		
 			expression = CardinalityUtil.removeIfThenElsesFromFormula(expression, process);
 
