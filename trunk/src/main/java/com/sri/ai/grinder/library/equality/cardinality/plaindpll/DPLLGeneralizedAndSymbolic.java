@@ -120,9 +120,9 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Pair<Expression, IndexExpressionsSet> formulaAndIndexExpressions = problemType.getExpressionAndIndexExpressionsFromRewriterProblemArgument(expression, process);
-		Expression       formula          = formulaAndIndexExpressions.first;
+		Expression formula = formulaAndIndexExpressions.first;
 		IndexExpressionsSet indexExpressions = formulaAndIndexExpressions.second;
-		Expression       simplifiedFormula = theory.simplify(formula, process); // eventually this will should not be needed as simplification should be lazy 
+		Expression simplifiedFormula = theory.simplify(formula, process); // eventually this will should not be needed as simplification should be lazy 
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
 		Expression result = solve(simplifiedFormula, indices, subProcess);
@@ -189,7 +189,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		
 		Expression result;
 		
-		assert constraint != null : this.getClass() + ".solve must not receive a contradiction constraint (a null pointer)";
+		assert constraint != null : getClass() + ".solve must not receive a contradiction constraint (a null pointer)";
 
 		Expression splitter = pickSplitter(expression, constraint, process);
 
@@ -305,6 +305,13 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 
 	/**
 	 * Solves under splitter, returning null if the splitter is contradictory with the constraint.
+	 * Note that, if the splitter is contradictory with the constraint, the sub-solution is the additive identity element,
+	 * so returning this identity element would be correct for the purpose of this method.
+	 * So, why is it important to return null instead?
+	 * To see why, assume the + case with a splitter not containing an index. Then the combination function is the conditional one.
+	 * In this case, returning the identity element (0) would lead to the solution "if splitter then 0 else <splitter negation sub-solution>"
+	 * which, while not incorrect, is redundant because at this point we know splitter must be false,
+	 * and that therefore "<splitter negation sub-solution>" is a better solution.
 	 * @param splitterSign
 	 * @param splitter
 	 * @param expression

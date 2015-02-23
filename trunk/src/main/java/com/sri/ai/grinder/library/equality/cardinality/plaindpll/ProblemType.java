@@ -52,7 +52,7 @@ import com.sri.ai.util.base.Pair;
  */
 public interface ProblemType {
 
-	/** The semi-ring identity element. */
+	/** The semi-ring identity element (for example, false for disjunction, -infinity for max, or 0 for sum. */
 	Expression additiveIdentityElement();
 
 	/**
@@ -67,7 +67,7 @@ public interface ProblemType {
 	Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process);
 
 	/**
-	 * Indicates whether given value is semi-ring's additive absorbing element.
+	 * Indicates whether given value is semi-ring's additive absorbing element (for example, true for disjunction, or infinity for max).
 	 */
 	boolean isAbsorbingElement(Expression value);
 
