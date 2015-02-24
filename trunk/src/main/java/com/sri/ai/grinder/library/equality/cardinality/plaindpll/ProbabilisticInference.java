@@ -64,24 +64,23 @@ import com.sri.ai.util.Util;
 public class ProbabilisticInference {
 
 	/**
-	 * Solves a Bayesian network provided as a product of potential functions.
-	 * @param bayesianNetwork an Expression representing the product of potential functions
+	 * Solves a factor graph (Markov network or Bayesian network) provided as a product of potential functions.
+	 * @param factorGraph an Expression representing the product of potential functions
+	 * @param isBayesianNetwork TODO
 	 * @param queryExpression an Expression representing the query
 	 * @param evidence an Expression representing the evidence
 	 * @param mapFromTypeNameToSizeString a map from type name strings to their size strings
 	 * @param mapFromRandomVariableNameToTypeName a map from random variable name strings to their type name strings
 	 * @return
 	 */
-	public static Expression solveBayesianNetwork(
-			Expression bayesianNetwork, Expression queryExpression, Expression evidence,
-			Map<String, String> mapFromTypeNameToSizeString, Map<String, String> mapFromRandomVariableNameToTypeName) {
+	public static Expression solveFactorGraph(
+			Expression factorGraph, boolean isBayesianNetwork, Expression queryExpression,
+			Expression evidence, Map<String, String> mapFromTypeNameToSizeString, Map<String, String> mapFromRandomVariableNameToTypeName) {
 		
 		// Add a query variable equivalent to query expression; this introduces no cycles and the model remains a Bayesian network
-		bayesianNetwork = Times.make(list(bayesianNetwork, parse("if query <=> " + queryExpression + " then 1 else 0")));
+		factorGraph = Times.make(list(factorGraph, parse("if query <=> " + queryExpression + " then 1 else 0")));
 		mapFromRandomVariableNameToTypeName.put("query", "Boolean");
 		Expression queryVariable = parse("query");
-		
-		Expression factorGraph = bayesianNetwork;
 		
 		if (evidence != null) {
 			// add evidence factor
@@ -100,16 +99,15 @@ public class ProbabilisticInference {
 		// The theory of atoms plus equality on function (relational) terms.
 		Theory theory = new AtomsOnTheoryWithEquality(new EqualityTheory(new SymbolTermTheory()));
 		ProblemType problemType = new Sum(); // for marginalization
-	
 		// The solver for the parameters above.
 		DPLLGeneralizedAndSymbolic solver = new DPLLGeneralizedAndSymbolic(theory, problemType);
-		
+	
 		// Solve the problem.
 		Expression unnormalizedMarginal = solver.solve(factorGraph, indices, mapFromRandomVariableNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
 		
 		Expression marginal;
-		if (evidence == null) {
-			marginal = unnormalizedMarginal; // factorGraph was a Bayesian network with no evidence, so marginal is equal to unnormalized marginal.
+		if (evidence == null && isBayesianNetwork) {
+			marginal = unnormalizedMarginal; // model was a Bayesian network with no evidence, so marginal is equal to unnormalized marginal.
 		}
 		else {
 			// We now marginalize on all variables. Since unnormalizedMarginal is the marginal on all variables but the query, we simply take that and marginalize on the query alone.
@@ -164,7 +162,7 @@ public class ProbabilisticInference {
 		Expression queryExpression = parse("earthquake");
 //		Expression queryExpression = parse("earthquake and burglar = bob");
 
-		Expression marginal = solveBayesianNetwork(bayesianNetwork, queryExpression, evidence, mapFromTypeNameToSizeString, mapFromVariableNameToTypeName);
+		Expression marginal = solveFactorGraph(bayesianNetwork, true, queryExpression, evidence, mapFromTypeNameToSizeString, mapFromVariableNameToTypeName);
 
 		if (evidence == null) {
 			System.out.println("Query marginal probability P(" + queryExpression + ") is: " + marginal);
