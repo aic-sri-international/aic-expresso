@@ -90,7 +90,7 @@ public class ProbabilisticInference {
 		
 		Collection<Expression> allVariables = Util.mapIntoList(mapFromRandomVariableNameToTypeName.keySet(), Expressions::parse);
 		
-		// We use the Prolog convention of small-letter initials for constants, but we need an exception for the variables.
+		// We use the Prolog convention of small-letter initials for constants, but we need an exception for the random variables.
 		Predicate<Expression> isPrologConstant = new PrologConstantPredicate();
 		Predicate<Expression> isUniquelyNamedConstantPredicate = e -> isPrologConstant.apply(e) && ! allVariables.contains(e);
 	
@@ -98,7 +98,7 @@ public class ProbabilisticInference {
 		Collection<Expression> indices = setDifference(allVariables, list(queryVariable)); 
 	
 		// The theory of atoms plus equality on function (relational) terms.
-		Theory theory = new AtomsOnTheoryWithEquality(new EqualityTheory(new FunctionalTermTheory()));
+		Theory theory = new AtomsOnTheoryWithEquality(new EqualityTheory(new SymbolTermTheory()));
 		ProblemType problemType = new Sum(); // for marginalization
 	
 		// The solver for the parameters above.
@@ -112,26 +112,25 @@ public class ProbabilisticInference {
 			marginal = unnormalizedMarginal; // factorGraph was a Bayesian network with no evidence, so marginal is equal to unnormalized marginal.
 		}
 		else {
-			// We now marginals on all variables. Since we have the marginal on all but the query, we simply take that and marginalize on the query alone.
+			// We now marginalize on all variables. Since unnormalizedMarginal is the marginal on all variables but the query, we simply take that and marginalize on the query alone.
 			Expression normalizationConstant = solver.solve(unnormalizedMarginal, list(queryVariable), mapFromRandomVariableNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
 			System.out.println("Normalization constant (same as evidence probability P(" + evidence + ") ) is " + normalizationConstant);
-	
-			marginal = Division.make(unnormalizedMarginal, normalizationConstant);
-			// now we use the algorithm again for simplifying the above division; this is a lazy way of doing this, as it performs search again -- we could instead write an ad hoc function to divide all numerical constants by the normalization constant.
+
+			marginal = Division.make(unnormalizedMarginal, normalizationConstant); // Bayes theorem: P(Q | E) = P(Q and E)/P(E)
+			// now we use the algorithm again for simplifying the above division; this is a lazy way of doing this, as it performs search on the query variable again -- we could instead write an ad hoc function to divide all numerical constants by the normalization constant, but the code would be uglier and the gain very small, since this is a search on a single variable anyway.
 			marginal = solver.solve(marginal, list(), mapFromRandomVariableNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
 		}
-		
+
+		// replace the query variable with the query expression
 		marginal = marginal.replaceAllOccurrences(queryVariable, queryExpression, new DefaultRewritingProcess(null));
-		
+
 		return marginal;
 	}
 
 	/**
-	 * An example.
-	 * @param args
+	 * 
 	 */
-	public static void main(String[] args) {
-
+	public static void burglarExample() {
 		// The definitions of types
 		Map<String, String> mapFromTypeNameToSizeString = Util.map(
 				"Folks", "10",
@@ -140,37 +139,46 @@ public class ProbabilisticInference {
 		// The definitions of variables, types, and type sizes
 		Map<String, String> mapFromVariableNameToTypeName = Util.map(
 				"earthquake", "Boolean",
-				"burglar", "Folks", // a multi-value random variable
-				"alarm", "Boolean"
+				"burglar",    "Folks", // a multi-value random variable
+				"alarm",      "Boolean"
 				);
-		
+
 		// a variant of the earthquake/burglary model in which some burglars are more active than others.
 		Expression bayesianNetwork = parse("" + 
 				"(if earthquake then 0.01 else 0.99) * " +
-				"(if burglar = bob then 0.7 else if burglar = tom then 0.1 else 0.2 / (|Folks| - 2)) * " +
+				"(if burglar = none then 0.7 else if burglar = tom then 0.1 else 0.2 / (|Folks| - 2)) * " +
 				// note the division above of the potential by number of remaining values, as the probabilities must sum up to 1
-				"(if burglar = bob or burglar = tom or earthquake "
+				"(if burglar != none or earthquake "
 				+    "then if alarm then 0.9 else 0.1 "
 				+    "else if alarm then 0.05 else 0.95) " +
 				"");
 
-//		Expression evidence = null; // null indicates no evidence
-//		Expression evidence = parse("alarm");
+//      Expression evidence = null; // null indicates no evidence
+		Expression evidence = parse("alarm");
+//		Expression evidence = parse("alarm and burglar = none");
 //		Expression evidence = parse("not alarm"); // can be any boolean expression
-		Expression evidence = parse("(alarm or not alarm) and (burglar = tom or burglar != tom)"); // tautology has same effect as no evidence
-		
-		Expression queryExpression = parse("burglar = bob");
-//		Expression queryExpression = parse("burglar = tom");
+//		Expression evidence = parse("(alarm or not alarm) and (burglar = tom or burglar != tom)"); // tautology has same effect as no evidence
+
 //		Expression queryExpression = parse("earthquake");
+//		Expression queryExpression = parse("burglar = none");
+		Expression queryExpression = parse("earthquake");
 //		Expression queryExpression = parse("earthquake and burglar = bob");
-		
+
 		Expression marginal = solveBayesianNetwork(bayesianNetwork, queryExpression, evidence, mapFromTypeNameToSizeString, mapFromVariableNameToTypeName);
 
 		if (evidence == null) {
-			System.out.println("Marginal probability P(" + queryExpression + ") is: " + marginal);
+			System.out.println("Query marginal probability P(" + queryExpression + ") is: " + marginal);
 		}
 		else {
 			System.out.println("Query posterior probability P(" + queryExpression + " | " + evidence + ") is: " + marginal);
 		}
+	}
+
+	/**
+	 * An example.
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		burglarExample();
 	}
 }
