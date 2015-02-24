@@ -1189,11 +1189,14 @@ public class GrinderUtil {
 	 * @return
 	 */
 	public static boolean isBooleanTyped(Expression expression, RewritingProcess process) {
+		Expression type = getType(expression, process);
 		boolean result =
-				getType(expression, process).equals(parse("Boolean")) ||
-				getType(expression, process).equals(parse("'->'(Boolean)")) ||
-				getType(expression, process).equals(parse("bool")) ||
-				getType(expression, process).equals(parse("boolean"));
+				type != null &&
+				(
+				type.equals(parse("Boolean")) ||
+				type.equals(parse("'->'(Boolean)")) ||
+				type.equals(parse("bool")) ||
+				type.equals(parse("boolean")));
 		return result;
 	}
 }

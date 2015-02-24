@@ -71,6 +71,7 @@ import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.number.Division;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
@@ -124,11 +125,20 @@ public class EqualityTheory extends AbstractEqualityTheory {
 					FunctorConstants.IMPLICATION,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
 					Implication.simplify(f),
 
+					FunctorConstants.CARDINALITY,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					{ Expression type = (Expression) process.getGlobalObject(f); return type == null? f : type; },
+
 					FunctorConstants.TIMES,           (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
 					times.rewrite(f, process),
 
+					FunctorConstants.DIVISION,        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Division.simplify(f),
+
 					FunctorConstants.PLUS,            (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					plus.rewrite(f, process)
+					plus.rewrite(f, process),
+
+					FunctorConstants.MINUS,           (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					f.numberOfArguments() == 2? Minus.simplify(f) : f
 	);
 	
 	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =
@@ -598,7 +608,7 @@ public class EqualityTheory extends AbstractEqualityTheory {
 
 		@Override
 		public String toString() {
-			String result = "Equalities: " + equalitiesMap + ", disequalities: " + nonEqualityConstraintsMap.toString();
+			String result = "Indices: " + indices + ", equalities: " + equalitiesMap + ", disequalities: " + nonEqualityConstraintsMap.toString();
 			return result; 
 		}
 	}
