@@ -39,6 +39,7 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
 
 import java.util.Collection;
 import java.util.List;
@@ -221,13 +222,13 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		else {
 			Expression unconditionalValue = normalizeUnconditionalExpression(expression, process);
 			Expression numberOfOccurrences = constraint.modelCount(process);
-//			if (numberOfOccurrences.equals(ZERO)) {
-//				result = null;
-//			}
-//			else {
+			if (numberOfOccurrences.equals(ZERO)) {
+				result = null;
+			}
+			else {
 				Expression valueToBeSummed = problemType.fromExpressionValueWithoutLiteralsToValueToBeAdded(unconditionalValue);
 				result = problemType.addNTimes(valueToBeSummed, numberOfOccurrences, process);
-//			}
+			}
 		}
 
 //		System.out.println("Solved");
