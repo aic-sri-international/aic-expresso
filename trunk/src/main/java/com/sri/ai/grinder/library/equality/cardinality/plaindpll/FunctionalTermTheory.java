@@ -72,7 +72,11 @@ public class FunctionalTermTheory implements TermTheory {
 				&&
 				! expression.hasFunctor(FunctorConstants.PLUS)
 				&&
+				! expression.hasFunctor(FunctorConstants.MINUS)
+				&&
 				! expression.hasFunctor(FunctorConstants.TIMES)
+				&&
+				! expression.hasFunctor(FunctorConstants.DIVISION)
 				&&
 				! expression.hasFunctor(FunctorConstants.MINUS)
 				);

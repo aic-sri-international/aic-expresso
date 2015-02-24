@@ -44,6 +44,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
@@ -51,6 +52,7 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
@@ -143,7 +145,20 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	/**
 	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
 	 */
-	public Expression solve(Expression expression, Collection<Expression> indices, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
+	public Expression solve(
+			Expression expression, Collection<Expression> indices,
+			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
+		return solve(expression, indices, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, new PrologConstantPredicate());
+	}
+	
+	/**
+	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
+	 */
+	public Expression solve(
+			Expression expression, Collection<Expression> indices,
+			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
+			Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		
 		RewritingProcess process = new DefaultRewritingProcess(this);
 		for (Map.Entry<String, String> variableNameAndTypeName : mapFromVariableNameToTypeName.entrySet()) {
 			String variableName = variableNameAndTypeName.getKey();
@@ -155,6 +170,9 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 			String sizeString = typeNameAndSizeString.getValue();
 			process.putGlobalObject(Expressions.parse("|" + typeName + "|"), Expressions.parse(sizeString));
 		}
+		
+		process.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
+		
 		Expression result = solve(expression, indices, process);
 		return result;
 	}
@@ -170,14 +188,18 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 
 		Constraint constraint = theory.makeConstraint(indices);
 		Expression result = solve(expression, constraint, process);
+		if (result == null) { // constraint is unsatisfiable, so result is identity element.
+			result = problemType.additiveIdentityElement();
+		}
 		
 		process.initializeDPLLContextualConstraint(oldConstraint);
 		return result;
 	}
 
 	/**
-	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices under given constraint,
-	 * which is considered a contradiction if it has the value <code>null</code>.
+	 * Returns the summation (or the provided semiring additive operation) of an expression
+	 * over the provided set of indices under given satisfiable constraint,
+	 * or null if constraint is unsatisfiable.
 	 */
 	protected Expression solve(Expression expression, Constraint constraint, RewritingProcess process) {
 		
@@ -189,7 +211,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		
 		Expression result;
 		
-		assert constraint != null : getClass() + ".solve must not receive a contradiction constraint (a null pointer)";
+		assert constraint != null : getClass() + ".solve must not receive a null constraint";
 
 		Expression splitter = pickSplitter(expression, constraint, process);
 
@@ -199,8 +221,13 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		else {
 			Expression unconditionalValue = normalizeUnconditionalExpression(expression, process);
 			Expression numberOfOccurrences = constraint.modelCount(process);
-			Expression valueToBeSummed = problemType.fromExpressionValueWithoutLiteralsToValueToBeAdded(unconditionalValue);
-			result = problemType.addNTimes(valueToBeSummed, numberOfOccurrences, process);
+//			if (numberOfOccurrences.equals(ZERO)) {
+//				result = null;
+//			}
+//			else {
+				Expression valueToBeSummed = problemType.fromExpressionValueWithoutLiteralsToValueToBeAdded(unconditionalValue);
+				result = problemType.addNTimes(valueToBeSummed, numberOfOccurrences, process);
+//			}
 		}
 
 //		System.out.println("Solved");
@@ -214,7 +241,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	}
 
 	/**
-	 * Method used to normalize unconditional expressions to some normal form chosen by extending classes
+	 * Hook method used to normalize unconditional expressions to some normal form chosen by extending classes
 	 * (default is identity).
 	 * @param expression
 	 * @param process

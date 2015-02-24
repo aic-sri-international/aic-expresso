@@ -65,6 +65,10 @@ public class Division extends AbstractRewriter {
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		return simplify(expression);
+	}
+
+	public static Expression simplify(Expression expression) {
 		if (expression.get(0).equals(expression.get(1))) { // if numerator and denominator are equal, result is 1.
 			return Expressions.ONE;
 		}
