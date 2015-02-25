@@ -2142,6 +2142,13 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 		}
 		
 		TestData[] tests = new TestData[] {
+				new Cardinality1DisjunctionData(false,
+						"| {(on X) tuple(X) | or(and(X != a, X != Y), and(X != a, X != Z))} |",
+						CardinalityRewriter.Quantification.THERE_EXISTS,
+						new CountsDeclaration(2),
+						"anyof((if Y = a or Z = a then 2 else 0), (if Y = a then 1 else (if Y != Z then 1 else 0)))"
+						//"if Y = a then 2 else (if Z = a then 2 else 0)"
+						),
 			//
 			// Basic: if quantification is "for all"
 			new Cardinality1DisjunctionData(false,
@@ -3607,17 +3614,6 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 		}
 		
 		TestData[] tests = new TestData[] {
-				// repeated for debugging - should be deleted for counts below to be correct
-				new CardinalityData(false,
-						// "|{{(on X in People) 1 | there exists Y : X != Y and Y != Z}}|"
-						"| {(on X) tuple(X) | there exists Y : X != Y and Y != Z } |",
-						new CountsDeclaration("X", "10", "Y", "2", "Z", "1"),
-						// "if X = Z then if | type(Y) | > 1 then | People | else 0 else if | type(Y) | > 2 then | People | else 0"
-						GrinderUtil.usePlain?
-								  "(|type(X)|,"  // uses GrinderConfiguration.isAssumeDomainsAlwaysLarge() to conclude that | type(Y) | > 0, as it should
-								  + "1)" // tricky example: for there to exist a Y, Z and X must be same value, because type(Y) has only two elements.
-								: 					// Note: first result looks wrong but is ok as we are working with ASSUME_DOMAIN_ALWAYS_LARGE assumption
-						"( (if | type(Y) | > 0 then | type(X) | else 0), 1 )"),
 
 			//
 			// Scope shadowing tests 
@@ -3964,7 +3960,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					// "if X = Z then if | type(Y) | > 1 then | People | else 0 else if | type(Y) | > 2 then | People | else 0"
 					GrinderUtil.usePlain?
 							  "(|type(X)|,"  // uses GrinderConfiguration.isAssumeDomainsAlwaysLarge() to conclude that | type(Y) | > 0, as it should
-							  + "1)" // tricky example: for there to exist a Y, Z and X must be same value, because type(Y) has only two elements.
+							  + "anyof(1,10))" // tricky example: for there to exist a Y, Z and X must be same value, because type(Y) has only two elements. DIFFERENT SOLVERS WILL PRODUCE DIFFERENT RESULTS BECAUSE THE PROBLEM DOES NOT FOLLOW THE REQUIRED ASSUMPTIONS! It is still a useful test to have around
 							: 					// Note: first result looks wrong but is ok as we are working with ASSUME_DOMAIN_ALWAYS_LARGE assumption
 					"( (if | type(Y) | > 0 then | type(X) | else 0), 1 )"),
 			new CardinalityData(false,

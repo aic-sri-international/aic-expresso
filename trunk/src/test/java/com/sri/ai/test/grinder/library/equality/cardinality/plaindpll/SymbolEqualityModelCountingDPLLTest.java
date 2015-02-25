@@ -81,15 +81,13 @@ public class SymbolEqualityModelCountingDPLLTest extends AbstractSymbolicSymbolE
 		Collection<String> indices;
 		
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-		
-		// Repeated for debugging purposes:
+
+		// this example tests whether conditioning an index to a value considers previous disequalities on that index,
+		// because X is split on b first, and then the algorithm attempts to condition on X = Y, but that requires Y to be != b.
 		expression = parse("X != b and X = Y");
 		indices    = list("X");
 		expected   = parse("if Y = b then 0 else 1");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
-		
-		
-		
 
 		// this example tests whether conditioning an index to a value considers previous disequalities on that index,
 		// because X is split on b first, and then the algorithm attempts to condition on X = Y, but that requires Y to be != b.
