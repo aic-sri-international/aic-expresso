@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.util.Util.arrayList;
+import static com.sri.ai.util.Util.list;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -51,6 +52,7 @@ import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.library.number.FlattenMinusInPlus;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.number.Plus;
+import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.util.math.Rational;
 
@@ -99,9 +101,16 @@ public class SymbolicNumberSemiRingWithPlus extends AbstractSymbolicNumberSemiRi
 			result = n;
 		}
 		else {
-			Rational rationalValue = valueToBeAdded.rationalValue();
-			assert rationalValue != null: "Expected a constant numeric expression but got " + valueToBeAdded;
-			result = Expressions.makeSymbol(rationalValue.multiply(n.rationalValue()));
+			Rational valueToBeAddedRationalValue = valueToBeAdded.rationalValue();
+			//assert valueToBeAddedRationalValue != null: "Expected a constant numeric expression but got " + valueToBeAdded;
+			Rational nRationalValue = n.rationalValue();
+			//assert nRationalValue != null: "Expected a constant numeric expression but got " + n;
+			if (valueToBeAddedRationalValue != null && nRationalValue != null) {
+				result = Expressions.makeSymbol(valueToBeAddedRationalValue.multiply(nRationalValue));
+			}
+			else {
+				result = Times.make(list(valueToBeAdded, n));
+			}
 		}
 		return result;
 	}

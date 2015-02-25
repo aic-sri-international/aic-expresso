@@ -39,7 +39,6 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.expresso.helper.Expressions.ZERO;
 
 import java.util.Collection;
 import java.util.List;
@@ -199,8 +198,7 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression
-	 * over the provided set of indices under given satisfiable constraint,
-	 * or null if constraint is unsatisfiable.
+	 * over the provided set of indices under given non-null constraint.
 	 */
 	protected Expression solve(Expression expression, Constraint constraint, RewritingProcess process) {
 		
@@ -212,8 +210,8 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		
 		Expression result;
 		
-		assert constraint != null : getClass() + ".solve must not receive a null constraint";
-
+		assert constraint != null : "solve(Expression, Constraint, RewritingProcess) must only be given non-null expressions";
+		
 		Expression splitter = pickSplitter(expression, constraint, process);
 
 		if (splitter != null) {
@@ -222,13 +220,8 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		else {
 			Expression unconditionalValue = normalizeUnconditionalExpression(expression, process);
 			Expression numberOfOccurrences = constraint.modelCount(process);
-			if (numberOfOccurrences.equals(ZERO)) {
-				result = null;
-			}
-			else {
-				Expression valueToBeSummed = problemType.fromExpressionValueWithoutLiteralsToValueToBeAdded(unconditionalValue);
-				result = problemType.addNTimes(valueToBeSummed, numberOfOccurrences, process);
-			}
+			Expression valueToBeSummed = problemType.fromExpressionValueWithoutLiteralsToValueToBeAdded(unconditionalValue);
+			result = problemType.addNTimes(valueToBeSummed, numberOfOccurrences, process);
 		}
 
 //		System.out.println("Solved");
@@ -239,6 +232,23 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 //		System.out.println("\n");
 		
 		return result;
+		
+		/**
+		 * (*) This is a little subtle. If numberOfOccurrences is 0, it means the constraint was inconsistent but
+		 * that has not been detected before.
+		 * Solvers are allowed to be incomplete with their consistency checks when a splitter is applied,
+		 * but the cost of that is that sometimes things will be checked when they did not have to be;
+		 * the more complete the solver can be without being expensive, the better.
+		 * They are *not*, however, allowed to be incomplete when counting models (it is not even possible, since they *have* to return a number,
+		 * so it is either completeness or just plain unsoundness) so, if a contradiction went unnoticed,
+		 * it is sure to be detected here.
+		 * The reason we have this check return null instead of the addNTimes(valueToBeSummed, 0), which would be correct anyway,
+		 * is that by returning null we are telling the invoker that the constraint was inconsistent even though it had not been notified by the solver.
+		 * Returning addNTimes(valueToBeSummed, 0) would not achieve this, since the invoker would not be told that this was a result of inconsistency
+		 * (it could be that valueToBeSummed is the identity element).
+		 * This gives it a change to retract its latest condition (in case it is a conditional combiner instead of additional combiner
+		 * -- see {@link #solveBasedOnSplitting(Expression splitter, Expression expression, Constraint constraint, RewritingProcess process)} 
+		 */
 	}
 
 	/**
@@ -332,8 +342,8 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	}
 
 	/**
-	 * Solves under splitter, returning null if the splitter is contradictory with the constraint.
-	 * Note that, if the splitter is contradictory with the constraint, the sub-solution is the additive identity element,
+	 * Solves under splitter, returning null if the splitter is contradictory with the contextual constraint (the one representing the free variable splitters so far).
+	 * Note that, if the splitter is contradictory with the contextual constraint, it will also invalidate the constraint and the sub-solution will be the additive identity element,
 	 * so returning this identity element would be correct for the purpose of this method.
 	 * So, why is it important to return null instead?
 	 * To see why, assume the + case with a splitter not containing an index. Then the combination function is the conditional one.
@@ -350,18 +360,19 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 	 */
 	private Expression solveUnderSplitter(boolean splitterSign, Expression splitter, Expression expression, Constraint constraint, boolean splitterInContextualConstraint, RewritingProcess process) {
 		Expression result;
-		Constraint constraintUnderSplitter = constraint.applySplitter(splitterSign, splitter, process);
-		if (constraintUnderSplitter == null) {
+		assert process.getDPLLContextualConstraint() != null : "SGDPLL(T) should not operate under a contradictory contextual constraint";
+		RewritingProcess processUnderSplitter = splitterInContextualConstraint? process.extendDPLLContextualConstraint(splitterSign, splitter) : process;
+		if (processUnderSplitter.getDPLLContextualConstraint() == null) {
 			result = null;
+			// subtle note about past bug: until February 2015 this check for returning null was done on constraint, not contextual constraint. That is incorrect, however, because the fact that a splitter turns the constraint inconsistent does not mean that the splitter is false. That would be the case only if the constraint was always required to hold, which is not the case. However, that check was indirectly covering the cases in which the splitter was contradictory with the *contextual* constraint, which *is* required to always hold, so it was being useful. To make things harder to detect, it seems that with the theories we then had it was hard to produce an example that exposed the bug, that is, an example in which the splitter was inconsistent with the constraint but *not* with the contextual constraint. The problem only surfaced when I started returning null for model counts equal to 0 (also inconsistent): sum_X X != a and Y != X for |X| = 2 creates a constraint with 0 models after application of splitter Y != a, but that does *not* mean that Y != a is necessarily false! Yet, using model count 0 inconsistency for the constraint was leading the algorithm to believe that. It is only when we check against the contextual constraint (which at that point is just 'true' and not inconsistent with Y != a) that things work again.
 		}
 		else {
-			Expression expressionUnderSplitter = theory.applySplitterToExpression(splitterSign, splitter, expression, process);
-			boolean rendersAdditiveIdentitySolution = expressionUnderSplitter.equals(problemType.expressionValueLeadingToAdditiveIdentityElement());
-			if (rendersAdditiveIdentitySolution) {
+			Constraint constraintUnderSplitter = constraint.applySplitter(splitterSign, splitter, process);
+			if (constraintUnderSplitter == null) { // it would be more elegant to place this check this inside 'solve' (which as of now assumes the given constraint is never null), but placing the check here avoids unnecessary applications of the splitter to expression.
 				result = problemType.additiveIdentityElement();
 			}
 			else {
-				RewritingProcess processUnderSplitter = splitterInContextualConstraint? process.extendDPLLContextualConstraint(splitterSign, splitter) : process;
+				Expression expressionUnderSplitter = theory.applySplitterToExpression(splitterSign, splitter, expression, process);
 				result = solve(expressionUnderSplitter, constraintUnderSplitter, processUnderSplitter);
 			}
 		}
