@@ -42,17 +42,13 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
-import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
@@ -72,7 +68,8 @@ import com.sri.ai.util.base.QuarternaryFunction;
  * @author braz
  *
  */
-public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
+public class DPLLGeneralizedAndSymbolic
+extends AbstractHierarchicalRewriter implements SymbolicGeneralizedSummationSolver {
 	
 	/**
 	 * A standard version of the algorithm picks a splitter,
@@ -139,41 +136,6 @@ public class DPLLGeneralizedAndSymbolic extends AbstractHierarchicalRewriter {
 		if (countsDeclaration != null) {
 			countsDeclaration.setup(result);
 		}
-		return result;
-	}
-
-	/**
-	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
-	 */
-	public Expression solve(
-			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
-		return solve(expression, indices, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, new PrologConstantPredicate());
-	}
-	
-	/**
-	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
-	 */
-	public Expression solve(
-			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
-			Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		
-		RewritingProcess process = new DefaultRewritingProcess(this);
-		for (Map.Entry<String, String> variableNameAndTypeName : mapFromVariableNameToTypeName.entrySet()) {
-			String variableName = variableNameAndTypeName.getKey();
-			String typeName     = variableNameAndTypeName.getValue();
-			process = GrinderUtil.extendContextualSymbolsWithIndexExpression(Expressions.parse(variableName + " in " + typeName), process);
-		}
-		for (Map.Entry<String, String> typeNameAndSizeString : mapFromTypeNameToSizeString.entrySet()) {
-			String typeName   = typeNameAndSizeString.getKey();
-			String sizeString = typeNameAndSizeString.getValue();
-			process.putGlobalObject(Expressions.parse("|" + typeName + "|"), Expressions.parse(sizeString));
-		}
-		
-		process.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
-		
-		Expression result = solve(expression, indices, process);
 		return result;
 	}
 
