@@ -161,7 +161,11 @@ public class ProbabilisticInference {
 			// We now marginalize on all variables. Since unnormalizedMarginal is the marginal on all variables but the query, we simply take that and marginalize on the query alone.
 			if (evidenceProbability == null) {
 				evidenceProbability = solver.solve(unnormalizedMarginal, list(queryVariable), mapFromRandomVariableNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
-				System.out.println("Normalization constant (same as evidence probability P(" + evidence + ") ) is " + evidenceProbability);
+				System.out.print("Normalization constant ");
+				if (evidence != null) {
+					System.out.print("(same as evidence probability P(" + evidence + ") ) ");
+				}
+				System.out.print("is " + evidenceProbability + "\n");
 			}
 
 			marginal = Division.make(unnormalizedMarginal, evidenceProbability); // Bayes theorem: P(Q | E) = P(Q and E)/P(E)
