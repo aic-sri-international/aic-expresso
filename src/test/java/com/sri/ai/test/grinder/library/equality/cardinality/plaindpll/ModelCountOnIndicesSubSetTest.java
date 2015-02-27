@@ -37,65 +37,72 @@
  */
 package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
 
-import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.X;
+import static com.sri.ai.expresso.helper.Expressions.Y;
+import static com.sri.ai.expresso.helper.Expressions.Z;
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLUtil.makeProcess;
+import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.map;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.util.List;
+
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SGDPLLT;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.FunctionalTermTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ModelCounting;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Sum;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolTermTheory;
-import com.sri.ai.util.Util;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.Constraint;
 
 @Beta
-/**
- * Tests the avoidance of unnecessary conditions by using type size.
- * For example, if Friends = {bob, mary},
- * then the solution to
- * <code>sum_empty_indices if F = bob then 1 else if F = mary then 2 else 3</code>
- * should be
- * <code>if F = bob then 1 else 2</code>
- * since the fact that <code>F != bob</code>, together with <code>| Friends | = 2</code>,
- * already implies <code>F = mary</code>.
- * @author braz
- *
- */
-public class ContradictionByTypeSizeTest extends AbstractSymbolicSymbolEqualityDPLLTest {
+public class ModelCountOnIndicesSubSetTest {
 	
-	@Override
-	protected Expression makeProblem(Expression expression, IndexExpressionsSet indexExpressions) {
-		Expression set = new DefaultIntensionalMultiSet(indexExpressions, Expressions.ONE, expression);
-		Expression problem = apply(FunctorConstants.CARDINALITY, set);
-		return problem;
-	}
-
-	@Override
-	protected Rewriter makeRewriter() {
-		return new SGDPLLT(new EqualityTheory(new FunctionalTermTheory()), new ModelCounting());
-	}
-
 	@Test
 	public void test() {
 		
-		Expression expression;
+		List<Expression> totalIndices;
+		List<Expression> countingIndices;
 		Expression expected;
+		Expression modelCount;
 		
-		SGDPLLT solver = new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new Sum());
+		EqualityTheory theory = new EqualityTheory(new SymbolTermTheory());
+		RewritingProcess process = makeProcess(theory, map("X", "Everything", "Y", "Everything", "Z", "Everything"), map("Everything", "10"));
 		
-		expression = parse("if F = bob then 1 else if F = mary then 2 else 3");
-		expected   = parse("if F = bob then 1 else 2");
-		Expression result = solver.solve(expression, Util.list(), Util.map("F", "Friends"), Util.map("Friends", "2"));
-
-//		assertEquals(expected, result);
+		totalIndices    = list(X, Y);
+		countingIndices = list(X, Y);
+		Constraint constraint = theory.makeConstraint(totalIndices);
+		constraint = constraint.applySplitter(false, parse("X = Y"), process);
+		constraint = constraint.applySplitter(false, parse("Y = Z"), process);
+		expected = parse("81");
+		modelCount = constraint.modelCount(countingIndices, process);
+		assertEquals(expected, modelCount);
+		
+		countingIndices = list(X);
+		expected = parse("if Y = Z then 0 else 9");
+		modelCount = constraint.modelCount(countingIndices, process);
+		assertEquals(expected, modelCount);
+		
+		countingIndices = list();
+		expected = parse("if Y = Z then 0 else if X = Y then 0 else 1");
+		modelCount = constraint.modelCount(countingIndices, process);
+		assertEquals(expected, modelCount);
+		
+		countingIndices = list(Y, Z); // invalid because Z is not in total indices.
+		try {
+			modelCount = null;
+			modelCount = constraint.modelCount(countingIndices, process);
+		} catch (AssertionError error) {
+			assertTrue(error.getMessage().contains("indicesSubSet must be a sub-set of getIndices()"));
+		}
+		if (modelCount != null) {
+			fail("An error about the counting indices needing to be a sub-set of the total indices should have been thrown");
+		}
 	}
 }

@@ -59,7 +59,7 @@ import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SGDPLLT;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLUtil;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ModelCounting;
@@ -79,7 +79,7 @@ import com.sri.ai.grinder.library.set.tuple.Tuple;
 @Beta
 public class Cardinality extends AbstractCardinalityRewriter {
 	
-	private Rewriter plainCardinality = GrinderUtil.usePlain? new DPLLGeneralizedAndSymbolic(new EqualityTheory(new SymbolTermTheory()), new ModelCounting()) : null;
+	private Rewriter plainCardinality = GrinderUtil.usePlain? new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new ModelCounting()) : null;
 
 	private Expression usePlainCardinality(Expression cardinalityOfIndexedFormulaExpression, RewritingProcess process) {
 		Expression result;

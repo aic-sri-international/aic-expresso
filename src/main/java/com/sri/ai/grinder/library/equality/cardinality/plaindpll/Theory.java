@@ -50,7 +50,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
  * It provides all services to DPLL specific to the theoryWithEquality, that is, that require knowledge about the specific subset of interpretations.
  * <p>
  * One of its tasks is to select and manipulate <i>splitters</i>.
- * A splitter is a literal on which DPLL splits the possible interpretations of an expression (see {@link DPLLGeneralizedAndSymbolic}).
+ * A splitter is a literal on which DPLL splits the possible interpretations of an expression (see {@link SGDPLLT}).
  * The theoryWithEquality needs to know how to simplify expressions based on the fact that a splitter is true or false,
  * as well as how to simplify a <i>solution</i> based on a splitter's being true or false into a simpler solution.
  * A solution is an if-then-else expression in which all conditions are splitters.
@@ -151,14 +151,10 @@ public interface Theory {
 	@Beta
 	public interface Constraint {
 		
-		Collection<Expression> getIndices();
-		
 		/**
-		 * Provides a splitter needed toward state, and not already explicitly represented by the constraint,
-		 * for which a complete with respect to the contextual constraint, possibly conditional,
-		 * model count can be computed in polynomial time, or null if it is already in such a state.
+		 * The set of variables on subsets of which one can count models of this constraint.
 		 */
-		Expression pickSplitter(RewritingProcess process);
+		Collection<Expression> getIndices();
 		
 		/**
 		 * Simplifies a given splitter to true if implied by constraint, false if its negation is implied by constraint,
@@ -187,12 +183,34 @@ public interface Theory {
 		}
 		
 		/**
-		 * Computes model count for constraint, given a set of indices, in polynomial time.
-		 * Assumes that {@link #pickSplitter(RewritingProcess)} returns <code>null</code>,
-		 * that is, the constraint is in such a state and context that allows the determination of a unique model count.
-		 * The model count is expected to be complete with respect to the contextual constraint.
+		 * Provides a splitter, not already explicitly represented by the constraint,
+		 * toward a state in which the model count for the given subset of indices
+		 * can be computed (the model count may be condition on the other variables),
+		 * or returns null if it already is in such a state.
 		 */
-		Expression modelCount(RewritingProcess process);
+		Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process);
+		
+		/**
+		 * Same as {@link #pickSplitter(Collection, RewritingProcess)} invoked on getIndices().
+		 */
+		default Expression pickSplitter(RewritingProcess process) {
+			return pickSplitter(getIndices(), process);
+		}
+		
+		/**
+		 * Computes model count for constraint, given a sub-set of indices, in polynomial time.
+		 * Assumes that {@link #pickSplitter(Collection, RewritingProcess)} returns <code>null</code>,
+		 * that is, the constraint is in such a state and context that allows the determination of a unique model count.
+		 * The model count is required to contain no literals implied by the contextual constraint.
+		 */
+		Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process);
+		
+		/**
+		 * Same as {@link #modelCount(Collection, RewritingProcess)} invoked on getIndices().
+		 */
+		default Expression modelCount(RewritingProcess process) {
+			return modelCount(getIndices(), process);
+		}
 		
 		/**
 		 * Receives an expression and returns an equivalent one according to some normalization property

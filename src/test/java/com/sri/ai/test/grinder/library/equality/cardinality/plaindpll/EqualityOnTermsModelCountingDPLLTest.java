@@ -53,7 +53,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SGDPLLT;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.FunctionalTermTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ModelCounting;
@@ -70,7 +70,7 @@ public class EqualityOnTermsModelCountingDPLLTest extends AbstractSymbolicSymbol
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new DPLLGeneralizedAndSymbolic(new EqualityTheory(new FunctionalTermTheory()), new ModelCounting());
+		return new SGDPLLT(new EqualityTheory(new FunctionalTermTheory()), new ModelCounting());
 	}
 
 	@Test

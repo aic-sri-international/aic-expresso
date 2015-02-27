@@ -50,7 +50,7 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SGDPLLT;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolTermTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Tautologicality;
@@ -205,7 +205,7 @@ public class SymbolEqualityTautologicalityDPLLTest extends AbstractSymbolicSymbo
 		return problem;
 	}
 
-	protected DPLLGeneralizedAndSymbolic makeRewriter() {
-		return new DPLLGeneralizedAndSymbolic(new EqualityTheory(new SymbolTermTheory()), new Tautologicality());
+	protected SGDPLLT makeRewriter() {
+		return new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new Tautologicality());
 	}
 }

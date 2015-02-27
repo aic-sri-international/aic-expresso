@@ -124,6 +124,9 @@ public class Expressions {
 	public static final Expression ONE             = Expressions.makeSymbol(1);
 	public static final Expression TWO             = Expressions.makeSymbol(2);
 	public static final Expression THREE           = Expressions.makeSymbol(3);
+	public static final Expression X               = Expressions.makeSymbol("X");
+	public static final Expression Y               = Expressions.makeSymbol("Y");
+	public static final Expression Z               = Expressions.makeSymbol("Z");
 	//
 	private static final SingletonListMaker<Integer> INTEGER_SINGLETON_LIST_MAKER = new SingletonListMaker<Integer>();
 	

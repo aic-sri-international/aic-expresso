@@ -47,7 +47,6 @@ import java.util.Map;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
@@ -128,20 +127,7 @@ abstract public class AbstractSymbolicGeneralizedSummationSolver extends Abstrac
 			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
 			Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		
-		RewritingProcess process = new DefaultRewritingProcess(this);
-		for (Map.Entry<String, String> variableNameAndTypeName : mapFromVariableNameToTypeName.entrySet()) {
-			String variableName = variableNameAndTypeName.getKey();
-			String typeName     = variableNameAndTypeName.getValue();
-			process = GrinderUtil.extendContextualSymbolsWithIndexExpression(Expressions.parse(variableName + " in " + typeName), process);
-		}
-		for (Map.Entry<String, String> typeNameAndSizeString : mapFromTypeNameToSizeString.entrySet()) {
-			String typeName   = typeNameAndSizeString.getKey();
-			String sizeString = typeNameAndSizeString.getValue();
-			process.putGlobalObject(Expressions.parse("|" + typeName + "|"), Expressions.parse(sizeString));
-		}
-		
-		process.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
-		
+		RewritingProcess process = DPLLUtil.makeProcess(theory, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
 		Expression result = solve(expression, indices, process);
 		return result;
 	}
@@ -163,23 +149,6 @@ abstract public class AbstractSymbolicGeneralizedSummationSolver extends Abstrac
 		
 		process.initializeDPLLContextualConstraint(oldConstraint);
 		return result;
-	}
-
-	/**
-	 * Returns the summation (or the provided semiring additive operation) of an expression
-	 * over the provided set of indices under given non-null constraint.
-	 */
-	abstract protected Expression solve(Expression expression, Constraint constraint, RewritingProcess process);
-	
-	/**
-	 * Hook method used to normalize unconditional expressions to some normal form chosen by extending classes
-	 * (default is identity).
-	 * @param expression
-	 * @param process
-	 * @return
-	 */
-	public Expression normalizeUnconditionalExpression(Expression expression, RewritingProcess process) {
-		return expression;
 	}
 
 	/**

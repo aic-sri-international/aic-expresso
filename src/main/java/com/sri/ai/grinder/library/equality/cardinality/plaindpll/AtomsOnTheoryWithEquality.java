@@ -142,19 +142,6 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		}
 
 		@Override
-		public Expression pickSplitter(RewritingProcess process) {
-			Expression equalitySplitter = equalityConstraint.pickSplitter(process);
-			Expression result;
-			if (equalitySplitter != null) {
-				result = fromEqualitySplitterToSplitter(equalitySplitter);
-			}
-			else {
-				result = null;
-			}
-			return result;
-		}
-
-		@Override
 		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
 			Expression equalitySplitter = Equality.isEquality(splitter)? splitter : Equality.make(splitter, TRUE);
 			Expression impliedByEqualityConstraint = equalityConstraint.normalizeSplitterGivenConstraint(equalitySplitter, process);
@@ -183,8 +170,21 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		}
 
 		@Override
-		public Expression modelCount(RewritingProcess process) {
-			Expression equalityModelCount = equalityConstraint.modelCount(process);
+		public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
+			Expression equalitySplitter = equalityConstraint.pickSplitter(indicesSubSet, process);
+			Expression result;
+			if (equalitySplitter != null) {
+				result = fromEqualitySplitterToSplitter(equalitySplitter);
+			}
+			else {
+				result = null;
+			}
+			return result;
+		}
+
+		@Override
+		public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
+			Expression equalityModelCount = equalityConstraint.modelCount(indicesSubSet, process);
 			Expression result =
 					equalityModelCount.replaceAllOccurrences(
 							e -> fromEqualitySplitterToSplitterIfEqualitySplitterInTheFirstPlace(e, process),

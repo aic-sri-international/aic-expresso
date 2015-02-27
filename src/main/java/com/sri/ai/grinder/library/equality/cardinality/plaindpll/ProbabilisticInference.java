@@ -104,7 +104,7 @@ public class ProbabilisticInference {
 		Predicate<Expression> isUniquelyNamedConstantPredicate;
 		Theory theory;
 		ProblemType problemType;
-		DPLLGeneralizedAndSymbolic solver;
+		SGDPLLT solver;
 
 		if (resultFromPreviousQueryIfKnown == null) {
 			mapFromTypeNameToSizeString = mapFromTypeNameToSizeStringParam;
@@ -123,7 +123,7 @@ public class ProbabilisticInference {
 			theory = new AtomsOnTheoryWithEquality(new EqualityTheory(new SymbolTermTheory()));
 			problemType = new Sum(); // for marginalization
 			// The solver for the parameters above.
-			solver = new DPLLGeneralizedAndSymbolic(theory, problemType);
+			solver = new SGDPLLT(theory, problemType);
 
 			evidenceProbability = null;
 		}
@@ -191,9 +191,9 @@ public class ProbabilisticInference {
 		private Predicate<Expression> isUniquelyNamedConstantPredicate;
 		private Theory theory;
 		private ProblemType problemType;
-		private DPLLGeneralizedAndSymbolic solver;
+		private SGDPLLT solver;
 	
-		public Result(Expression queryMarginal, Expression evidenceProbability, Map<String, String> mapFromTypeNameToSizeString, Map<String, String> mapFromRandomVariableNameToTypeName, Expression queryVariable, Collection<Expression> allVariables, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory, ProblemType problemType, DPLLGeneralizedAndSymbolic solver) {
+		public Result(Expression queryMarginal, Expression evidenceProbability, Map<String, String> mapFromTypeNameToSizeString, Map<String, String> mapFromRandomVariableNameToTypeName, Expression queryVariable, Collection<Expression> allVariables, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory, ProblemType problemType, SGDPLLT solver) {
 			super();
 			this.queryMarginal = queryMarginal;
 			this.evidenceProbability = evidenceProbability;
@@ -243,7 +243,7 @@ public class ProbabilisticInference {
 			return problemType;
 		}
 
-		public DPLLGeneralizedAndSymbolic getSolver() {
+		public SGDPLLT getSolver() {
 			return solver;
 		}
 	}
