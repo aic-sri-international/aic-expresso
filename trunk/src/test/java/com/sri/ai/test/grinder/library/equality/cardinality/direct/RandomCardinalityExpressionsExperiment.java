@@ -46,7 +46,7 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.equality.RandomCardinalityProblemGenerator;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLGeneralizedAndSymbolic;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SGDPLLT;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ModelCounting;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolTermTheory;
@@ -84,7 +84,7 @@ public class RandomCardinalityExpressionsExperiment {
 		Experiment.experiment(
 				new Dimension("algorithm",
 						Util.list(
-								new DPLLGeneralizedAndSymbolic(new EqualityTheory(new SymbolTermTheory()), new ModelCounting(), new CountsDeclaration(10))
+								new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new ModelCounting(), new CountsDeclaration(10))
 								//,
 								//new Cardinality(new CountsDeclaration(10))
 								)),

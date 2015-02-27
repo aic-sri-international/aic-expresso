@@ -144,10 +144,10 @@ public class EqualityTheory extends AbstractEqualityTheory {
 	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
 					ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new DPLLGeneralizedAndSymbolic(new EqualityTheory(termTheory), new Tautologicality())).rewrite(f, process),
+					(new SGDPLLT(new EqualityTheory(termTheory), new Tautologicality())).rewrite(f, process),
  
 					ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new DPLLGeneralizedAndSymbolic(new EqualityTheory(termTheory), new Satisfiability())).rewrite(f, process)
+					(new SGDPLLT(new EqualityTheory(termTheory), new Satisfiability())).rewrite(f, process)
 	);
 
 	@Override
@@ -511,11 +511,11 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		}
 
 		@Override
-		protected Collection<Expression> getSplittersToBeSatisfied(RewritingProcess process) {
+		protected Collection<Expression> getSplittersToBeSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
 			Collection<Expression> result = new LinkedHashSet<Expression>();
-			for (Expression freeVariable : equalitiesMap.keySet()) {
-				if ( ! indices.contains(freeVariable)) {
-					Expression representative = getRepresentative(freeVariable, process);
+			for (Expression variable : equalitiesMap.keySet()) {
+				if ( ! indicesSubSet.contains(variable)) {
+					Expression representative = getRepresentative(variable, process);
 					// Note that a free variable's representative is never an index, because
 					// in splitters indices always come before free variables,
 					// and that is the order of the binding.
@@ -523,8 +523,8 @@ public class EqualityTheory extends AbstractEqualityTheory {
 					// or a constant on the right-hand side.
 					// This matters because the conditional model count has to be in terms of
 					// free variables and constants only, never indices.
-					if ( ! representative.equals(freeVariable)) {
-						Expression splitter = Expressions.apply(FunctorConstants.EQUALITY, freeVariable, representative); // making it with apply instead of Equality.make sidesteps simplifications, which will not occur in this case because otherwise this condition would have either rendered the constraint a contradiction, or would have been eliminated from it
+					if ( ! representative.equals(variable)) {
+						Expression splitter = Expressions.apply(FunctorConstants.EQUALITY, variable, representative); // making it with apply instead of Equality.make sidesteps simplifications, which will not occur in this case because otherwise this condition would have either rendered the constraint a contradiction, or would have been eliminated from it
 						result.add(splitter);
 					}
 				}
@@ -533,12 +533,12 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		}
 
 		@Override
-		protected Collection<Expression> getSplittersToBeNotSatisfied(RewritingProcess process) {
+		protected Collection<Expression> getSplittersToBeNotSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
 			Collection<Expression> result = new LinkedHashSet<Expression>();
 			for (Map.Entry<Expression, NonEqualityConstraints> entry : nonEqualityConstraintsMap.entrySet()) {
 				assert termTheory.isVariableTerm(entry.getKey(), process);
 				Expression variable = entry.getKey();
-				if ( ! indices.contains(variable)) { // if variable is free
+				if ( ! indicesSubSet.contains(variable)) { // if variable is free
 					for (Expression disequal : ((DisequalitiesConstraints) entry.getValue()).getDisequals()) {
 						Expression splitter = Expressions.apply(FunctorConstants.EQUALITY, variable, disequal); // making it with apply instead of Equality.make sidesteps simplifications, which will not occur in this case because otherwise this condition would have either rendered the constraint a contradiction, or would have been eliminated from it
 						result.add(splitter);

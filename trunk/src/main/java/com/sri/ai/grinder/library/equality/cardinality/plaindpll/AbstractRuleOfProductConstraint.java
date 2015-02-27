@@ -57,8 +57,8 @@ public abstract class AbstractRuleOfProductConstraint implements Theory.Constrai
 	}
 
 	@Override
-	public Expression pickSplitter(RewritingProcess process) {
-		for (Expression x : getIndices()) {
+	public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
+		for (Expression x : indicesSubSet) {
 			Expression splitter = provideSplitterRequiredForComputingNumberOfValuesFor(x, process);
 			if (splitter != null) {
 				return splitter;
@@ -102,7 +102,7 @@ public abstract class AbstractRuleOfProductConstraint implements Theory.Constrai
 		return newConstraint;
 	}
 
-	protected Collection<Expression> getSplittersToBeSatisfied(RewritingProcess process) {
+	protected Collection<Expression> getSplittersToBeSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
 		throwSafeguardError(
 				getClass().getSimpleName(),
 				"getSplittersToBeSatisfied", // thisClassName
@@ -111,7 +111,7 @@ public abstract class AbstractRuleOfProductConstraint implements Theory.Constrai
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}
 
-	protected Collection<Expression> getSplittersToBeNotSatisfied(RewritingProcess process) {
+	protected Collection<Expression> getSplittersToBeNotSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
 		throwSafeguardError(
 				getClass().getSimpleName(),
 				"getSplittersToBeNotSatisfied", // thisClassName
@@ -121,12 +121,12 @@ public abstract class AbstractRuleOfProductConstraint implements Theory.Constrai
 	}
 
 	@Override
-	public Expression modelCount(RewritingProcess process) {
-		Expression unconditionalCount = computeModelCountGivenConditionsOnFreeVariables(process);
+	public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
+		Expression unconditionalCount = computeModelCountGivenConditionsOnVariablesNotIn(indicesSubSet, process);
 		Expression result =
 				makeModelCountConditionedOnFreeVariableSplittersNotAlreadyImpliedByContextualConstraint(
 						unconditionalCount,
-						getSplittersToBeSatisfied(process), getSplittersToBeNotSatisfied(process),
+						getSplittersToBeSatisfied(indicesSubSet, process), getSplittersToBeNotSatisfied(indicesSubSet, process),
 						process);
 		return result;
 	}
@@ -147,17 +147,19 @@ public abstract class AbstractRuleOfProductConstraint implements Theory.Constrai
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}
 
-	protected Expression computeModelCountGivenConditionsOnFreeVariables(RewritingProcess process) {
+	protected Expression computeModelCountGivenConditionsOnVariablesNotIn(Collection<Expression> indicesSubSet, RewritingProcess process) {
+		assert getIndices().containsAll(indicesSubSet) : "in " + getClass().getSimpleName() + ".computeModelCountGivenConditionsOnVariablesNotIn, indicesSubSet must be a sub-set of getIndices(), but " + indicesSubSet + " is not a sub-set of " + getIndices();
+
 		List<Expression> numberOfPossibleValuesForIndicesSoFar = new LinkedList<Expression>();
 		
-		for (Expression index : indices) {
+		for (Expression index : indicesSubSet) {
 			Expression numberOfPossibleValuesForIndex = computeNumberOfPossibleValuesFor(index, process);
 			numberOfPossibleValuesForIndicesSoFar.add(numberOfPossibleValuesForIndex);
 		}
 		
 		Expression result = Times.make(numberOfPossibleValuesForIndicesSoFar);
-		Expression unconditionalCount = AbstractRuleOfProductConstraint.timesRewriter.rewrite(result, process);
-		return unconditionalCount;
+		result = AbstractRuleOfProductConstraint.timesRewriter.rewrite(result, process);
+		return result;
 	}
 
 	/**

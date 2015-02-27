@@ -53,7 +53,7 @@ import com.sri.ai.util.base.QuarternaryFunction;
  * @author braz
  *
  */
-public class DPLLGeneralizedAndSymbolic extends AbstractSymbolicGeneralizedSummationSolver {
+public class SGDPLLT extends AbstractSymbolicGeneralizedSummationSolver {
 	
 	/**
 	 * A standard version of the algorithm picks a splitter,
@@ -81,20 +81,16 @@ public class DPLLGeneralizedAndSymbolic extends AbstractSymbolicGeneralizedSumma
 	 */
 	public final static boolean earlyExternalizationOfFreeVariableSplittersOptimization = true; // IMPORTANT: unit tests will break if set to false. However DPLL stress tests can still be used. As of this writing (12/4/2014) the false setting was slightly slower.
 	
-	public DPLLGeneralizedAndSymbolic(Theory theory, ProblemType problemType) {
+	public SGDPLLT(Theory theory, ProblemType problemType) {
 		this(theory, problemType, null);
 	}
 
-	public DPLLGeneralizedAndSymbolic(Theory theory, ProblemType problemType, CountsDeclaration countsDeclaration) {
+	public SGDPLLT(Theory theory, ProblemType problemType, CountsDeclaration countsDeclaration) {
 		super(theory, problemType, countsDeclaration);
 	}
 
-	/**
-	 * Returns the summation (or the provided semiring additive operation) of an expression
-	 * over the provided set of indices under given non-null constraint.
-	 */
 	@Override
-	protected Expression solve(Expression expression, Constraint constraint, RewritingProcess process) {
+	public Expression solve(Expression expression, Constraint constraint, RewritingProcess process) {
 		
 //		System.out.println("Solving");
 //		System.out.println("expression           : " + expression);

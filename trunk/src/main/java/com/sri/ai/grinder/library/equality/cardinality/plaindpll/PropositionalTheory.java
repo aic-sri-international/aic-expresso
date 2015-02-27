@@ -38,7 +38,9 @@
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.TWO;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,7 +51,6 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -215,34 +216,45 @@ public class PropositionalTheory extends AbstractTheory {
 
 		/**
 		 * This version (unlike's the super class' default implementation)
-		 * computes the number of models without iterating over all indices.
+		 * is more efficient when given all indices,
+		 * as it computes the number of models without iterating over all indices;
+		 * it still resorts to the default implementation in case indicesSubSet is a strict subset.
 		 */
 		@Override
-		protected Symbol computeModelCountGivenConditionsOnFreeVariables(RewritingProcess process) {
-			return Expressions.makeSymbol(new Rational(2).pow(indices.size() - numberOfBoundIndices));
-		}
-
-		protected boolean useDefaultImplementationOfModelCountByOverridingGetSplittersToBeSatisfiedAndGetSplittersToBeNotSatisfied() {
-			return true;
-		}
-
-		@Override
-		protected List<Expression> getSplittersToBeNotSatisfied(RewritingProcess process) {
-			return Util.subtract(negatedPropositions, indices);
+		protected Expression computeModelCountGivenConditionsOnVariablesNotIn(Collection<Expression> indicesSubSet, RewritingProcess process) {
+			Expression result;
+			if (indicesSubSet.size() == getIndices().size()) {
+				assert getIndices().containsAll(indicesSubSet) : "in PropositionalConstraint.computeModelCountGivenConditionsOnVariablesNotIn, indicesSubSet must be a sub-set of getIndices(), but " + indicesSubSet + " is not a sub-set of " + getIndices();
+				result = super.computeModelCountGivenConditionsOnVariablesNotIn(indicesSubSet, process);
+			}
+			result = Expressions.makeSymbol(new Rational(2).pow(indices.size() - numberOfBoundIndices));
+			return result;
 		}
 
 		@Override
-		protected List<Expression> getSplittersToBeSatisfied(RewritingProcess process) {
-			return Util.subtract(assertedPropositions, indices);
+		protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process) {
+			boolean isBound = assertedPropositions.contains(index) || negatedPropositions.contains(index);
+			Expression result = isBound? ONE : TWO;
+			return result;
+		}
+		
+		@Override
+		protected List<Expression> getSplittersToBeNotSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
+			return Util.subtract(negatedPropositions, indicesSubSet);
+		}
+
+		@Override
+		protected List<Expression> getSplittersToBeSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
+			return Util.subtract(assertedPropositions, indicesSubSet);
 		}
 
 		@Override
 		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
 			if (assertedPropositions.contains(splitter)) {
-				return Expressions.TRUE;
+				return TRUE;
 			}
 			if (negatedPropositions.contains(splitter)) {
-				return Expressions.FALSE;
+				return FALSE;
 			}
 			return splitter;
 		}

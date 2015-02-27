@@ -44,7 +44,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 
 
 /**
- * A collection of utility methods for post-processing {@link DPLLGeneralizedAndSymbolic} solutions.
+ * A collection of utility methods for post-processing {@link SGDPLLT} solutions.
  * 
  * @author braz
  *

@@ -39,6 +39,7 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
+import static com.sri.ai.util.Util.list;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,12 +48,16 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.core.PrologConstantPredicate;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
@@ -61,7 +66,7 @@ import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 
 /**
- * Implements utility methods to be used by {@link DPLLGeneralizedAndSymbolic} and associated classes.
+ * Implements utility methods to be used by {@link SGDPLLT} and associated classes.
  * <p>
  * Several of these methods could be more naturally seen as methods of the interfaces themselves
  * (for example, {@link DPLLUtil#getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices, Theory theoryWithEquality)}
@@ -243,14 +248,14 @@ public class DPLLUtil {
 		List<Expression> freeVariablesIndexExpressions = getIndexExpressionsFromSymbolsAndTypes(freeVariablesAndTypes(constraintImpliesExpression, process)).getList();
 	
 		Expression closedConstraintImpliedExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesExpression);
-		Expression alwaysImpliesExpression = (new DPLLGeneralizedAndSymbolic(new EqualityTheory(new SymbolTermTheory()), new Tautologicality())).rewrite(closedConstraintImpliedExpression, process);
+		Expression alwaysImpliesExpression = (new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new Tautologicality())).rewrite(closedConstraintImpliedExpression, process);
 		if (alwaysImpliesExpression.equals(Expressions.TRUE)) {
 			result = Expressions.TRUE;
 		}
 		else {
 			Expression constraintImpliesNegationOfExpression = Implication.make(constraint, Not.make(expression));
 			Expression closedConstraintImpliesNegationOfExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesNegationOfExpression);
-			Expression alwaysImpliesNegationOfExpression = (new DPLLGeneralizedAndSymbolic(new EqualityTheory(new SymbolTermTheory()), new Tautologicality())).rewrite(closedConstraintImpliesNegationOfExpression, process);
+			Expression alwaysImpliesNegationOfExpression = (new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new Tautologicality())).rewrite(closedConstraintImpliesNegationOfExpression, process);
 			if (alwaysImpliesNegationOfExpression.equals(Expressions.TRUE)) {
 				result = Expressions.FALSE;
 			}
@@ -319,5 +324,30 @@ public class DPLLUtil {
 		constraint = constraint.applySplitter(splitterSign, splitter, process);
 		Expression result = theory.applyConstraintToSolution(constraint, solution, process);
 		return result;
+	}
+
+	
+	public static RewritingProcess makeProcess(Theory theory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
+		return makeProcess(theory, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, new PrologConstantPredicate());
+	}
+
+	public static RewritingProcess makeProcess(Theory theory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		RewritingProcess process = new DefaultRewritingProcess(null);
+		for (Map.Entry<String, String> variableNameAndTypeName : mapFromVariableNameToTypeName.entrySet()) {
+			String variableName = variableNameAndTypeName.getKey();
+			String typeName     = variableNameAndTypeName.getValue();
+			process = GrinderUtil.extendContextualSymbolsWithIndexExpression(Expressions.parse(variableName + " in " + typeName), process);
+		}
+		for (Map.Entry<String, String> typeNameAndSizeString : mapFromTypeNameToSizeString.entrySet()) {
+			String typeName   = typeNameAndSizeString.getKey();
+			String sizeString = typeNameAndSizeString.getValue();
+			process.putGlobalObject(Expressions.parse("|" + typeName + "|"), Expressions.parse(sizeString));
+		}
+		
+		process.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
+
+		process.initializeDPLLContextualConstraint(theory.makeConstraint(list()));
+
+		return process;
 	}
 }

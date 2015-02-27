@@ -84,7 +84,7 @@ public class HelloWorlds {
 		Map<String, String> mapFromVariableNameToTypeName = Util.map("X", "Everything", "Y", "Everything", "Z", "Everything");
 		
 		/* The solver for the parameters above. */
-		DPLLGeneralizedAndSymbolic solver = new DPLLGeneralizedAndSymbolic(theory, problemType);
+		SGDPLLT solver = new SGDPLLT(theory, problemType);
 		
 		/* Solve the problem. */
 		Expression result = solver.solve(expression, indices, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString);
