@@ -149,7 +149,7 @@ public interface Theory {
 	 *
 	 */
 	@Beta
-	public interface Constraint {
+	public interface Constraint extends Expression {
 		
 		/**
 		 * The set of variables on subsets of which one can count models of this constraint.

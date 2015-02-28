@@ -118,6 +118,7 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 	/**
 	 * Represents and manipulates constraints in the theoryWithEquality of disequalities of terms (variables and constants).
 	 */
+	@SuppressWarnings("serial")
 	@Beta
 	public abstract class AbstractEqualityConstraint extends AbstractRuleOfProductConstraint {
 

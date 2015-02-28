@@ -342,6 +342,7 @@ public abstract class AbstractExpression implements Expression {
 		return result;
 	}
 
+	/** Default implementation returning null; function applications must override. */
 	@Override
 	public Expression getFunctor() {
 		return null;
@@ -357,7 +358,8 @@ public abstract class AbstractExpression implements Expression {
 		List<Expression> arguments = getArguments();
 		return arguments.size();
 	}
-	
+
+	/** Default implementation returning empty list; function application classes must override it. */
 	@Override
 	public List<Expression> getArguments() {
 		// throw new Error("Expression.getArguments() undefined for instances of class " + getClass().getSimpleName());

@@ -173,6 +173,8 @@ public class PropositionalTheory extends AbstractTheory {
 
 	public class PropositionalConstraint extends AbstractRuleOfProductConstraint {
 
+		private static final long serialVersionUID = 1L;
+
 		private int numberOfBoundIndices;
 		
 		private Set<Expression> assertedPropositions;
@@ -282,16 +284,11 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 
 		@Override
-		public String toString() {
-			ArrayList<String> items = new ArrayList<String>();
-			items.add("IndexExpressionsSet " + Util.join(supportedIndices));
-			if ( ! assertedPropositions.isEmpty()) {
-				items.add("asserted: " + Util.join(assertedPropositions));
-			}
-			if ( ! negatedPropositions.isEmpty()) {
-				items.add("negated: " + Util.join(negatedPropositions));
-			}
-			String result = Util.join(items);
+		protected Expression computeInnerExpression() {
+			Expression result =
+					And.make(
+							And.make(new ArrayList<Expression>(assertedPropositions)),
+							And.make(new ArrayList<Expression>( negatedPropositions)));
 			return result;
 		}
 	}
