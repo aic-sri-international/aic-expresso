@@ -45,7 +45,10 @@ import java.util.Collection;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.Equality;
 
 @Beta
@@ -128,14 +131,21 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		return result;
 	}
 
-	private class AtomsOnTheoryWithEqualitiesConstraint implements Theory.Constraint {
+	private class AtomsOnTheoryWithEqualitiesConstraint extends AbstractExpressionWrapper implements Theory.Constraint {
 
+		private static final long serialVersionUID = 1L;
+		
 		private Theory.Constraint equalityConstraint;
 		
 		public AtomsOnTheoryWithEqualitiesConstraint(Theory.Constraint equalityConstraint) {
 			this.equalityConstraint = equalityConstraint;
 		}
 		
+		@Override
+		public Expression clone() {
+			return new AtomsOnTheoryWithEqualitiesConstraint(equalityConstraint);
+		}
+
 		@Override
 		public Collection<Expression> getSupportedIndices() {
 			return equalityConstraint.getSupportedIndices();
@@ -223,8 +233,26 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		}
 		
 		@Override
-		public String toString() {
-			return getClass().getSimpleName() + " on " + equalityConstraint;
+		protected Expression computeInnerExpression() {
+			Expression result =
+					equalityConstraint.replaceAllOccurrences(
+							e -> {
+								Expression conjunct;
+								if (Equality.isEquality(e)) {
+									if (e.get(1).equals(Expressions.TRUE) || e.get(1).equals(Expressions.FALSE)) {
+										conjunct = e.get(0);
+									}
+									else {
+										conjunct = e;
+									}
+								}
+								else {
+									conjunct = e;
+								}
+								return conjunct;
+							},
+							new DefaultRewritingProcess(null));
+			return result;
 		}
 	}
 }

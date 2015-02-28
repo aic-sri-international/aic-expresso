@@ -9,8 +9,10 @@ import java.util.List;
 
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.AbstractEqualityTheory.AbstractEqualityConstraint;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.AbstractTheory.Contradiction;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.Constraint;
 import com.sri.ai.grinder.library.number.Times;
@@ -25,7 +27,8 @@ import com.sri.ai.util.Util;
  * @author braz
  *
  */
-public abstract class AbstractRuleOfProductConstraint implements Theory.Constraint {
+@SuppressWarnings("serial")
+public abstract class AbstractRuleOfProductConstraint extends AbstractExpressionWrapper implements Theory.Constraint {
 
 	static final private Times timesRewriter = new Times();
 

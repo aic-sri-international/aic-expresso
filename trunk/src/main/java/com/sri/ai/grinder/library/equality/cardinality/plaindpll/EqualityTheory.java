@@ -50,7 +50,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
@@ -266,6 +269,8 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		
 		// The map (super class) keeps disequals.
 		
+		private static final long serialVersionUID = 1L;
+
 		public EqualityConstraint(Collection<Expression> indices) {
 			super(indices);
 		}
@@ -607,9 +612,19 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		}
 
 		@Override
-		public String toString() {
-			String result = "Indices: " + supportedIndices + ", equalities: " + equalitiesMap + ", disequalities: " + nonEqualityConstraintsMap.toString();
-			return result; 
+		protected Expression computeInnerExpression() {
+			List<Expression> conjuncts = new LinkedList<Expression>();
+			for (Map.Entry<Expression, Expression> entry : equalitiesMap.entrySet()) {
+				conjuncts.add(Equality.make(entry.getKey(), entry.getValue()));
+			}
+			for (Entry<Expression, NonEqualityConstraints> entry : nonEqualityConstraintsMap.entrySet()) {
+				DisequalitiesConstraints disequalityConstraints = (DisequalitiesConstraints) entry.getValue();
+				for (Expression another : disequalityConstraints.getDisequals()) {
+					conjuncts.add(Disequality.make(entry.getKey(), another));
+				}
+			}
+			Expression result = And.make(conjuncts);
+			return result;
 		}
 	}
 }
