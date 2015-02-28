@@ -133,12 +133,12 @@ abstract public class AbstractSymbolicGeneralizedSummationSolver extends Abstrac
 	}
 
 	/**
-	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
+	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of supportedIndices.
 	 */
 	public Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		// TODO: should replace this oldConstraint by a copy constructor creating a sub-process, but surprisingly there is no complete copy constructor available in DefaultRewritingProcess.
 		Theory.Constraint oldConstraint = process.getDPLLContextualConstraint();
-		Constraint contextualConstraint = theory.makeConstraint(Util.list()); // contextual constraint does not involve any indices -- defined on free variables only
+		Constraint contextualConstraint = theory.makeConstraint(Util.list()); // contextual constraint does not involve any supportedIndices -- defined on free variables only
 		process.initializeDPLLContextualConstraint(contextualConstraint);
 
 		Constraint constraint = theory.makeConstraint(indices);

@@ -36,7 +36,7 @@ public class PickSingleElement {
 	 * <pre>
 	 * pick_single_element({ (on I) Alpha | C })
 	 * Returns its singleton element if the given uniset is a singleton, or null otherwise.
-	 * R <- indices in I that Alpha depends on 
+	 * R <- supportedIndices in I that Alpha depends on 
 	 * if R is empty, return Alpha.
 	 * let SomeIndex be an index in R
 	 * let R' be R - {SomeIndex}
@@ -67,7 +67,7 @@ public class PickSingleElement {
 		IndexExpressionsSet indexExpressionsSet = ((IntensionalSet) intensionalSet).getIndexExpressions();
 		assert indexExpressionsSet instanceof ExtensionalIndexExpressionsSet : "PickSingleElement not implemented for intensional sets with non-extensional index expressions"; 
 		List<Expression> indexExpressions = new ArrayList<Expression>(((ExtensionalIndexExpressionsSet) indexExpressionsSet).getList());
-		Trace.log("R <- indices in {} that {} depends on", indexExpressions, alpha);
+		Trace.log("R <- supportedIndices in {} that {} depends on", indexExpressions, alpha);
 		Set<Expression>  alphaVars   = Expressions.freeVariables(alpha, process);
 		List<Expression> indicesI    = new ArrayList<Expression>(IndexExpressions.getIndices(indexExpressionsSet));
 		Set<Expression>  tempIndices = new LinkedHashSet<Expression>(indicesI);

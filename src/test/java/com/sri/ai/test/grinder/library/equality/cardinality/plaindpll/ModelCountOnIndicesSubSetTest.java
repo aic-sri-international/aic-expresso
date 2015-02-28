@@ -50,12 +50,10 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolTermTheory;
@@ -94,7 +92,7 @@ public class ModelCountOnIndicesSubSetTest {
 		modelCount = constraint.modelCount(countingIndices, process);
 		assertEquals(expected, modelCount);
 		
-		countingIndices = list(Y, Z); // invalid because Z is not in total indices.
+		countingIndices = list(Y, Z); // invalid because Z is not in total supportedIndices.
 		try {
 			modelCount = null;
 			modelCount = constraint.modelCount(countingIndices, process);
@@ -102,7 +100,7 @@ public class ModelCountOnIndicesSubSetTest {
 			assertTrue(error.getMessage().contains("indicesSubSet must be a sub-set of getIndices()"));
 		}
 		if (modelCount != null) {
-			fail("An error about the counting indices needing to be a sub-set of the total indices should have been thrown");
+			fail("An error about the counting supportedIndices needing to be a sub-set of the total supportedIndices should have been thrown");
 		}
 	}
 }

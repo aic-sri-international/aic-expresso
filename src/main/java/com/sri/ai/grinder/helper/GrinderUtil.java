@@ -530,7 +530,7 @@ public class GrinderUtil {
 	}
 
 	/**
-	 * Returns a rewriting process with contextual symbols extended by an intensional set's indices.
+	 * Returns a rewriting process with contextual symbols extended by an intensional set's supportedIndices.
 	 */
 	public static RewritingProcess extendContextualSymbolsWithIntensionalSetIndices(Expression intensionalSet, RewritingProcess process) {
 		Map<Expression, Expression> indexToTypeMap = IndexExpressions.getIndexToTypeMapWithDefaultNull(intensionalSet);
@@ -564,14 +564,14 @@ public class GrinderUtil {
 
 	/**
 	 * Extend the rewriting processes's contextual symbols and constraints
-	 * with the indices and condition from an intensionally defined set.
+	 * with the supportedIndices and condition from an intensionally defined set.
 	 * 
 	 * @param intensionalSet
 	 * @param process
 	 *            the process in which the rewriting is occurring and whose
 	 *            contextual constraint is to be updated.
 	 * @return a sub-rewriting process with its contextual symbols and
-	 *         constraints extended by the indices and condition of the intensionally defined set passed in.
+	 *         constraints extended by the supportedIndices and condition of the intensionally defined set passed in.
 	 */
 	public static RewritingProcess extendContextualSymbolsAndConstraintWithIntensionalSet(
 			Expression intensionalSet, RewritingProcess process) {
@@ -653,7 +653,7 @@ public class GrinderUtil {
 	}
 
 	/**
-	 * Gets a map from indices to their types and returns a map from their functors-or-symbols
+	 * Gets a map from supportedIndices to their types and returns a map from their functors-or-symbols
 	 * (that is, their functors if they are function application, and themselves if they are symbols)
 	 * to their types.
 	 * A function has a type of the form <code>'->'('x'(T1, ..., Tn), R)</code>, where <code>T1,...,Tn</code>
@@ -936,7 +936,7 @@ public class GrinderUtil {
 	}
 
 	/**
-	 * Returns a list of index expressions corresponding to the given indices and their types per the context, if any.
+	 * Returns a list of index expressions corresponding to the given supportedIndices and their types per the context, if any.
 	 */
 	public static IndexExpressionsSet makeIndexExpressionsForIndicesInListAndTypesInContext(Collection<Expression> indices, RewritingProcess process) {
 		List<Expression> indexExpressions = new LinkedList<Expression>();
@@ -1037,7 +1037,7 @@ public class GrinderUtil {
 
 	/**
 	 * Indicates whether a expression is <i>known</i> (from a syntactic point of view)
-	 * to be independent from all indices of a scoping expression around it.
+	 * to be independent from all supportedIndices of a scoping expression around it.
 	 * Therefore it can detect that <code>j</code> is independent of <code>i</code> in <code>{ (on i) j }</code>,
 	 * for example, and that <code>g(X)</code> is independent of <code>f(X)</code> in <code>{ (on f(X)) g(X) }</code>,
 	 * but will not detect that

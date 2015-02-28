@@ -78,9 +78,9 @@ public class SyntaxTreeBasedSubExpressionAddress implements SubExpressionAddress
 	/**
 	 * Makes a new Expression based on a syntax tree, but with the sub-expression at the end of this {@link SyntaxTreeBasedSubExpressionAddress}'s path (from the ith step on)
 	 * (over syntax tree) equal to given subExpression (including a guarantee that it will be the same object instance).
-	 * The path is a list of indices indicating a path in the expression tree.
+	 * The path is a list of supportedIndices indicating a path in the expression tree.
 	 * The path-i-sub-expression is the expression obtained by following the path from the position i on.
-	 * If there are no indices to be followed (i is equal to the path's length), the sub-expression is returned.
+	 * If there are no supportedIndices to be followed (i is equal to the path's length), the sub-expression is returned.
 	 * The method assumes the path describes an existing path-i-sub-expression.
 	 */
 	private Expression replaceAtPath(SyntaxTree syntaxTree, int i, Expression subExpression) {

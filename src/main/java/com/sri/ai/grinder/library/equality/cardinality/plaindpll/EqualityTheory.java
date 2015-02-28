@@ -239,9 +239,9 @@ public class EqualityTheory extends AbstractEqualityTheory {
 	public class EqualityConstraint extends AbstractEqualityTheory.AbstractEqualityConstraint {
 
 		// The algorithm is based on the counting principle: to determine the model count, we
-		// go over indices, in a certain order, and analyse how many possible values each one them has,
-		// based on how many constants, free variables, and previous indices are constrained to be disequal from it.
-		// (free variables and constants are considered less than indices in the choosing order).
+		// go over supportedIndices, in a certain order, and analyse how many possible values each one them has,
+		// based on how many constants, free variables, and previous supportedIndices are constrained to be disequal from it.
+		// (free variables and constants are considered less than supportedIndices in the choosing order).
 
 		// Equalities define equivalence classes.
 		// Disequalities are represented on equivalent classes representatives only.
@@ -266,8 +266,8 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		
 		// The map (super class) keeps disequals.
 		
-		public EqualityConstraint(Collection<Expression> indices) {
-			super(indices);
+		public EqualityConstraint(Collection<Expression> supportedIndices) {
+			super(supportedIndices);
 		}
 
 		private EqualityConstraint(EqualityConstraint another) {
@@ -312,7 +312,7 @@ public class EqualityTheory extends AbstractEqualityTheory {
 						return splitter; // need to disunify first
 					}
 					else if ( ! termsAreExplicitlyConstrainedToBeDisequal(term, anotherTerm, process)) { // already disunified
-						splitter = makeSplitterFromFunctorAndTwoTerms(FunctorConstants.EQUALITY, term, anotherTerm, indices, process);
+						splitter = makeSplitterFromFunctorAndTwoTerms(FunctorConstants.EQUALITY, term, anotherTerm, supportedIndices, process);
 						return splitter;
 					}
 				}
@@ -420,7 +420,7 @@ public class EqualityTheory extends AbstractEqualityTheory {
 						}
 						else {
 							newRepresentative = getRepresentative(newVariable, false, process);
-							representativesEquality = makeSplitterFromFunctorAndTwoTerms(FunctorConstants.EQUALITY, oldRepresentative, newRepresentative, indices, process);
+							representativesEquality = makeSplitterFromFunctorAndTwoTerms(FunctorConstants.EQUALITY, oldRepresentative, newRepresentative, supportedIndices, process);
 							representativesEquality = simplify(representativesEquality, process);
 							if (representativesEquality.equals(FALSE)) {
 								throw new Contradiction();
@@ -490,7 +490,7 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		/** Assumes disequality does not turn constraint into contradiction */
 		private void applyRepresentativesDisequalityDestructively(Expression term1, Expression term2, RewritingProcess process) {
 			if (termTheory.isVariableTerm(term1, process) || termTheory.isVariableTerm(term2, process)) {
-				if (termTheory.isVariableTerm(term1, process) && variableIsChosenAfterOtherTerm(term1, term2, indices, process)) {
+				if (termTheory.isVariableTerm(term1, process) && variableIsChosenAfterOtherTerm(term1, term2, supportedIndices, process)) {
 					addFirstTermAsDisequalOfSecondTerm(term1, term2);
 				}
 				else { // term2 must be a variable because either term1 is not a variable, or it is but term2 comes later than term1 in ordering, which means it is a variable
@@ -517,12 +517,12 @@ public class EqualityTheory extends AbstractEqualityTheory {
 				if ( ! indicesSubSet.contains(variable)) {
 					Expression representative = getRepresentative(variable, process);
 					// Note that a free variable's representative is never an index, because
-					// in splitters indices always come before free variables,
+					// in splitters supportedIndices always come before free variables,
 					// and that is the order of the binding.
 					// A splitter with a free variable as the first term will always have another free variable
 					// or a constant on the right-hand side.
 					// This matters because the conditional model count has to be in terms of
-					// free variables and constants only, never indices.
+					// free variables and constants only, never supportedIndices.
 					if ( ! representative.equals(variable)) {
 						Expression splitter = Expressions.apply(FunctorConstants.EQUALITY, variable, representative); // making it with apply instead of Equality.make sidesteps simplifications, which will not occur in this case because otherwise this condition would have either rendered the constraint a contradiction, or would have been eliminated from it
 						result.add(splitter);
@@ -608,7 +608,7 @@ public class EqualityTheory extends AbstractEqualityTheory {
 
 		@Override
 		public String toString() {
-			String result = "Indices: " + indices + ", equalities: " + equalitiesMap + ", disequalities: " + nonEqualityConstraintsMap.toString();
+			String result = "Indices: " + supportedIndices + ", equalities: " + equalitiesMap + ", disequalities: " + nonEqualityConstraintsMap.toString();
 			return result; 
 		}
 	}

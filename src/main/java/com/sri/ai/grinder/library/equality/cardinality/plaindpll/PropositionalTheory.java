@@ -114,7 +114,7 @@ public class PropositionalTheory extends AbstractTheory {
 	/**
 	 * If expression is a proposition, it is a splitter.
 	 * @param expression
-	 * @param indices
+	 * @param supportedIndices
 	 * @param process
 	 * @return
 	 */
@@ -178,15 +178,15 @@ public class PropositionalTheory extends AbstractTheory {
 		private Set<Expression> assertedPropositions;
 		private Set<Expression> negatedPropositions;
 		
-		public PropositionalConstraint(Collection<Expression> indices) {
-			super(indices);
+		public PropositionalConstraint(Collection<Expression> supportedIndices) {
+			super(supportedIndices);
 			this.numberOfBoundIndices = 0;
 			this.assertedPropositions = new LinkedHashSet<Expression>();
 			this.negatedPropositions  = new LinkedHashSet<Expression>();
 		}
 		
 		public PropositionalConstraint(PropositionalConstraint another) {
-			super(another.indices);
+			super(another.supportedIndices);
 			this.numberOfBoundIndices = another.numberOfBoundIndices;
 			this.assertedPropositions = new LinkedHashSet<Expression>(another.assertedPropositions); // should be optimized to a copy-as-needed scheme.
 			this.negatedPropositions = new LinkedHashSet<Expression>(another.negatedPropositions);
@@ -209,25 +209,25 @@ public class PropositionalTheory extends AbstractTheory {
 			else {
 				negatedPropositions.add(splitter);
 			}
-			if (indices.contains(splitter)) {
+			if (supportedIndices.contains(splitter)) {
 				numberOfBoundIndices++;
 			}
 		}
 
 		/**
 		 * This version (unlike's the super class' default implementation)
-		 * is more efficient when given all indices,
-		 * as it computes the number of models without iterating over all indices;
+		 * is more efficient when given all supportedIndices,
+		 * as it computes the number of models without iterating over all supportedIndices;
 		 * it still resorts to the default implementation in case indicesSubSet is a strict subset.
 		 */
 		@Override
 		protected Expression computeModelCountGivenConditionsOnVariablesNotIn(Collection<Expression> indicesSubSet, RewritingProcess process) {
 			Expression result;
-			if (indicesSubSet.size() == getIndices().size()) {
-				assert getIndices().containsAll(indicesSubSet) : "in PropositionalConstraint.computeModelCountGivenConditionsOnVariablesNotIn, indicesSubSet must be a sub-set of getIndices(), but " + indicesSubSet + " is not a sub-set of " + getIndices();
+			if (indicesSubSet.size() == getSupportedIndices().size()) {
+				assert getSupportedIndices().containsAll(indicesSubSet) : "in PropositionalConstraint.computeModelCountGivenConditionsOnVariablesNotIn, indicesSubSet must be a sub-set of getIndices(), but " + indicesSubSet + " is not a sub-set of " + getSupportedIndices();
 				result = super.computeModelCountGivenConditionsOnVariablesNotIn(indicesSubSet, process);
 			}
-			result = Expressions.makeSymbol(new Rational(2).pow(indices.size() - numberOfBoundIndices));
+			result = Expressions.makeSymbol(new Rational(2).pow(supportedIndices.size() - numberOfBoundIndices));
 			return result;
 		}
 
@@ -284,7 +284,7 @@ public class PropositionalTheory extends AbstractTheory {
 		@Override
 		public String toString() {
 			ArrayList<String> items = new ArrayList<String>();
-			items.add("IndexExpressionsSet " + Util.join(indices));
+			items.add("IndexExpressionsSet " + Util.join(supportedIndices));
 			if ( ! assertedPropositions.isEmpty()) {
 				items.add("asserted: " + Util.join(assertedPropositions));
 			}

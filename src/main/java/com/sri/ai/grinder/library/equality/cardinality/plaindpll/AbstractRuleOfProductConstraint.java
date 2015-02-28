@@ -29,17 +29,17 @@ public abstract class AbstractRuleOfProductConstraint implements Theory.Constrai
 
 	static final private Times timesRewriter = new Times();
 
-	protected Collection<Expression> indices;
+	protected Collection<Expression> supportedIndices;
 
-	public AbstractRuleOfProductConstraint(Collection<Expression> indices) {
-		this.indices = indices;
+	public AbstractRuleOfProductConstraint(Collection<Expression> supportedIndices) {
+		this.supportedIndices = supportedIndices;
 	}
 	
 	public abstract AbstractRuleOfProductConstraint clone();
 	
 	@Override
-	public Collection<Expression> getIndices() {
-		return indices;
+	public Collection<Expression> getSupportedIndices() {
+		return supportedIndices;
 	}
 
 	/**
@@ -148,7 +148,7 @@ public abstract class AbstractRuleOfProductConstraint implements Theory.Constrai
 	}
 
 	protected Expression computeModelCountGivenConditionsOnVariablesNotIn(Collection<Expression> indicesSubSet, RewritingProcess process) {
-		assert getIndices().containsAll(indicesSubSet) : "in " + getClass().getSimpleName() + ".computeModelCountGivenConditionsOnVariablesNotIn, indicesSubSet must be a sub-set of getIndices(), but " + indicesSubSet + " is not a sub-set of " + getIndices();
+		assert getSupportedIndices().containsAll(indicesSubSet) : "in " + getClass().getSimpleName() + ".computeModelCountGivenConditionsOnVariablesNotIn, indicesSubSet must be a sub-set of getIndices(), but " + indicesSubSet + " is not a sub-set of " + getSupportedIndices();
 
 		List<Expression> numberOfPossibleValuesForIndicesSoFar = new LinkedList<Expression>();
 		

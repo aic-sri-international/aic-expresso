@@ -122,9 +122,9 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 	public abstract class AbstractEqualityConstraint extends AbstractRuleOfProductConstraint {
 
 		// The algorithm is based on the counting principle: to determine the model count, we
-		// go over indices, in a certain order, and analyse how many possible values each one them has,
-		// based on how many constants, free variables, and previous indices are constrained to be disequal from it.
-		// (free variables and constants are considered less than indices in the choosing order).
+		// go over supportedIndices, in a certain order, and analyse how many possible values each one them has,
+		// based on how many constants, free variables, and previous supportedIndices are constrained to be disequal from it.
+		// (free variables and constants are considered less than supportedIndices in the choosing order).
 
 		// Equalities define equivalence classes.
 		// Disequalities are represented on equivalent classes representatives only.
@@ -152,14 +152,14 @@ public abstract class AbstractEqualityTheory extends AbstractTheory {
 		protected Map<Expression, Expression> equalitiesMap;
 		protected LinkedHashMap<Expression, NonEqualityConstraints> nonEqualityConstraintsMap;
 		
-		public AbstractEqualityConstraint(Collection<Expression> indices) {
-			super(indices);
+		public AbstractEqualityConstraint(Collection<Expression> supportedIndices) {
+			super(supportedIndices);
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>();
 			this.nonEqualityConstraintsMap = new LinkedHashMap<Expression, NonEqualityConstraints>(); 
 		}
 
 		protected AbstractEqualityConstraint(AbstractEqualityConstraint another) {
-			super(another.indices);
+			super(another.getSupportedIndices());
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>(another.equalitiesMap);
 			this.nonEqualityConstraintsMap = new LinkedHashMap<Expression, NonEqualityConstraints>(); 
 			for (Map.Entry<Expression, NonEqualityConstraints> entry : another.nonEqualityConstraintsMap.entrySet()) {

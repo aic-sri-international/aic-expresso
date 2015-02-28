@@ -81,7 +81,7 @@ public interface Theory {
 	 * Makes splitter equivalent to given expression if such exists, or null otherwise.
 	 * Every decision as to whether an expression is a splitter or equivalent to a splitter must go through this method.
 	 * @param expression
-	 * @param indices
+	 * @param supportedIndices
 	 * @param process
 	 * @return
 	 */
@@ -137,7 +137,7 @@ public interface Theory {
 	boolean applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll();
 
 	/**
-	 * Make a new constraint for this theoryWithEquality over a set of indices (equivalent to all assignments to those indices).
+	 * Make a new constraint for this theoryWithEquality over a set of supportedIndices (equivalent to all assignments to those supportedIndices).
 	 * @return
 	 */
 	Constraint makeConstraint(Collection<Expression> indices);
@@ -154,7 +154,7 @@ public interface Theory {
 		/**
 		 * The set of variables on subsets of which one can count models of this constraint.
 		 */
-		Collection<Expression> getIndices();
+		Collection<Expression> getSupportedIndices();
 		
 		/**
 		 * Simplifies a given splitter to true if implied by constraint, false if its negation is implied by constraint,
@@ -184,7 +184,7 @@ public interface Theory {
 		
 		/**
 		 * Provides a splitter, not already explicitly represented by the constraint,
-		 * toward a state in which the model count for the given subset of indices
+		 * toward a state in which the model count for the given subset of supportedIndices
 		 * can be computed (the model count may be condition on the other variables),
 		 * or returns null if it already is in such a state.
 		 */
@@ -194,11 +194,11 @@ public interface Theory {
 		 * Same as {@link #pickSplitter(Collection, RewritingProcess)} invoked on getIndices().
 		 */
 		default Expression pickSplitter(RewritingProcess process) {
-			return pickSplitter(getIndices(), process);
+			return pickSplitter(getSupportedIndices(), process);
 		}
 		
 		/**
-		 * Computes model count for constraint, given a sub-set of indices, in polynomial time.
+		 * Computes model count for constraint, given a sub-set of supportedIndices, in polynomial time.
 		 * Assumes that {@link #pickSplitter(Collection, RewritingProcess)} returns <code>null</code>,
 		 * that is, the constraint is in such a state and context that allows the determination of a unique model count.
 		 * The model count is required to contain no literals implied by the contextual constraint.
@@ -209,7 +209,7 @@ public interface Theory {
 		 * Same as {@link #modelCount(Collection, RewritingProcess)} invoked on getIndices().
 		 */
 		default Expression modelCount(RewritingProcess process) {
-			return modelCount(getIndices(), process);
+			return modelCount(getSupportedIndices(), process);
 		}
 		
 		/**

@@ -198,8 +198,8 @@ public interface CardinalityRewriter extends Rewriter {
 	 * If quantification is "there exists", returns a counting-solution, the leaves of which may differ from the exact one in the following way: when the exact one is not 0, it may be any value but 0.
 	 * 
 	 * if F is a conjunction which can be partitioned into two or more independent sub problems
-	 * 	// i.e. there is a partition {I_1, ..., I_k} of indices such that there is a partition 
-	 *  { C_1, ..., C_k } of the conjuncts of F where indices in I_j occur in C_j only, for every j:
+	 * 	// i.e. there is a partition {I_1, ..., I_k} of supportedIndices such that there is a partition 
+	 *  { C_1, ..., C_k } of the conjuncts of F where supportedIndices in I_j occur in C_j only, for every j:
 	 *  	if I_1 is empty:
 	 *  		return if C_1 then R_normalize( R_card(|R_top_simplify(C_2)|_I_2, quantification)  * ... *  R_card(|R_top_simplify(C_k)|_I_k, quantification) ) else 0
 	 *  	else:
@@ -296,7 +296,7 @@ public interface CardinalityRewriter extends Rewriter {
 	 * If quantification is "there exists", returns a counting-solution, the leaves of which may differ from the exact one in the following way: when the exact one is not 0, it may be any value but 0.
 	 * 
 	 * if F is a disjunction which can be partitioned into a few subproblems
-	 * such that F can be partitioned into D, D_1, and D_2; where I_1 and I_2 are two partitions of the indices in X, 
+	 * such that F can be partitioned into D, D_1, and D_2; where I_1 and I_2 are two partitions of the supportedIndices in X, 
 	 * and the index variables in D_1 and D_2 are I_1 and I_2 respectively, and D is independent of X. Either D or D_2 may be empty:
 	 *   D_1 = R_top_simplify(D_1)
 	 * 	 if D_2 is empty:

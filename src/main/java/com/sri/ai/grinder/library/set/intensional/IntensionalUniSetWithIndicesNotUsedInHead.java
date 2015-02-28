@@ -59,9 +59,9 @@ import com.sri.ai.util.Util;
 /**
  * Implements the rewriting of
  * <code>{ (on I, I') Alpha(I) | C(I,I') } as { (on I) Alpha(I) | there exists I' : C(I,I') }</code>,
- * that is, it removes indices I' not used in set's head and replaces the condition by one on remaining indices I alone.
+ * that is, it removes supportedIndices I' not used in set's head and replaces the condition by one on remaining supportedIndices I alone.
  * 
- * The present rewriter only correctly applies to symbol (not function application indices).
+ * The present rewriter only correctly applies to symbol (not function application supportedIndices).
  * 
  * @author braz
  */
