@@ -69,9 +69,9 @@ public class SymbolEqualitySatisfiabilityDPLLTest extends AbstractSymbolicSymbol
 		
 		// Repeated for debugging purposes
 //		expression  = parse("(X != a) and (X = Y and Y != c)");
-//		supportedIndices     = list();
+//		indices     = list();
 //		expected    = parse("if X = a then false else if X = Y then if Y = c then false else true else false");
-//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
+//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
 		
 		// tests whether splitter negation, when applied, gets "translated" by inner splitters in then branches.

@@ -153,7 +153,7 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractCardinalityR
 		} 
 		else {
 //			Pair<Expression, Set<Expression>> pair = null;
-//			pair = possibleToEliminateAnyIndex(conjunction, supportedIndices);
+//			pair = possibleToEliminateAnyIndex(conjunction, indices);
 //			if ( pair != null ) {
 //				Trace.log("// Found an index X to eliminate");				
 //				Trace.log("    return (|type(X|)  - A) * |F'|_Z");
@@ -161,10 +161,10 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractCardinalityR
 //				Trace.log("    // F' is obtained from F by eliminating all disequalities of F where X occurs in");
 //				Trace.log("    // A is the set of all free variabels and constants in F and any other index variable Y have been replaced by new index variable Y'");
 //				Trace.log("    // Z is the set containing any new index variable Y'");
-//				result = eliminateIndex(conjunction, supportedIndices, pair.first, pair.second, quantification, process);
+//				result = eliminateIndex(conjunction, indices, pair.first, pair.second, quantification, process);
 			Trace.log("if X = {x1, ..., xn}");
 			result = rewriteUsingSumOverOneVariable(conjunction, indexExpressionsList, quantification, process);
-			//result = rewriteByConvertingOneDisequalityToEquality(conjunction, supportedIndices, quantification, process);
+			//result = rewriteByConvertingOneDisequalityToEquality(conjunction, indices, quantification, process);
 		}
 		return result;
 	}
@@ -257,10 +257,10 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractCardinalityR
 //		return result;
 //	}
 //	
-//	private Pair<Expression, Set<Expression>> possibleToEliminateAnyIndex(Expression conjunction, List<Expression> supportedIndices) {
+//	private Pair<Expression, Set<Expression>> possibleToEliminateAnyIndex(Expression conjunction, List<Expression> indices) {
 //		Pair<Expression, Set<Expression>> result = null;
 //		HashMap<Expression, Set<Expression>> map = new LinkedHashMap<Expression, Set<Expression>>();
-//		for (Expression index: supportedIndices) {
+//		for (Expression index: indices) {
 //			map.put(index, new LinkedHashSet<Expression>());
 //			map.get(index).add(index);
 //		}
@@ -275,10 +275,10 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractCardinalityR
 //
 //		for (Expression dis: conjuncts) {
 //			Pair<Expression, Expression> pair = getLiteralArguments(dis);
-//			if ( supportedIndices.contains(pair.first) ) {
+//			if ( indices.contains(pair.first) ) {
 //				map.get(pair.first).add(pair.second);
 //			}
-//			if ( supportedIndices.contains(pair.second) ) {
+//			if ( indices.contains(pair.second) ) {
 //				map.get(pair.second).add(pair.first);
 //			}
 //			allSymbols.add(pair.first);
@@ -299,7 +299,7 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractCardinalityR
 //		return Expressions.primedUntilUnique(var, expression, process);
 //	}
 //	
-//	private Expression eliminateIndex(Expression conjunction, List<Expression> supportedIndices, Expression index, Set<Expression> others, CardinalityRewriters.Quantification quantification, RewritingProcess process) {
+//	private Expression eliminateIndex(Expression conjunction, List<Expression> indices, Expression index, Set<Expression> others, CardinalityRewriters.Quantification quantification, RewritingProcess process) {
 //		Expression result = null;
 //		ArrayList<Expression> conjunctsToKeep = new ArrayList<Expression>();
 //		List<Expression> conjuncts = new ArrayList<Expression>();
@@ -316,16 +316,16 @@ public class CardinalityConjunctionOfDisequalities  extends AbstractCardinalityR
 //				conjunctsToKeep.add(dis);
 //			}
 //		}
-//		others.removeAll(supportedIndices);
+//		others.removeAll(indices);
 //		Expression theSet = ExtensionalSet.makeUniSet(Lists.newArrayList(others.toArray(new Expression[others.size()])));
 //		Expression setCardinality = Expressions.make(FunctorConstants.CARDINALITY, theSet);
 //		Expression setCardComputed = cardinalityRewriters.cardinalityExtensionalSet(setCardinality, process);
 //		Expression difference = Minus.make(CardinalityUtil.makeCardinalityOfIndexExpressions(index), setCardComputed);
-//		Expression originalSet = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(conjunction, supportedIndices.toArray(new Expression[supportedIndices.size()]));
+//		Expression originalSet = CardinalityUtil.makeCardinalityOfIndexedFormulaExpression(conjunction, indices.toArray(new Expression[indices.size()]));
 //		
 //		Expression newConjunction = And.make(conjunctsToKeep);
 //		ArrayList<Expression> newIndices = new ArrayList<Expression>();
-//		for (Expression idx: supportedIndices) {
+//		for (Expression idx: indices) {
 //			if ( !idx.equals(index) ) {
 //				Expression newIdx = makeUniqueVariable((Symbol)idx, originalSet, process);
 //				Expression cardIdx = CardinalityUtil.makeCardinalityOfIndexExpressions(idx);

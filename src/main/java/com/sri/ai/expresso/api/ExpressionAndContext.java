@@ -107,7 +107,7 @@ public interface ExpressionAndContext extends Serializable {
 
 	/**
 	 * 
-	 * @return a list of the supportedIndices in {@link #getIndexExpressions()}.
+	 * @return a list of the indices in {@link #getIndexExpressions()}.
 	 */
 	List<Expression> getIndices();
 

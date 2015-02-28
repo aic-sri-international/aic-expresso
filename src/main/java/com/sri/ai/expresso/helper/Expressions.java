@@ -807,7 +807,7 @@ public class Expressions {
 
 	/**
 	 * Returns a list of applications of a given functor to the corresponding elements in two lists
-	 * (two elements are correspondent if they have the same supportedIndices).
+	 * (two elements are correspondent if they have the same indices).
 	 */
 	public static List<Expression> makePairwiseApplications(Object functor, List<Expression> list1, List<Expression> list2) {
 		if (list1.size() != list2.size()) {

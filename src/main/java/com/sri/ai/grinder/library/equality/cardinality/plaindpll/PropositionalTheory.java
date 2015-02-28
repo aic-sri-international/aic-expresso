@@ -114,7 +114,7 @@ public class PropositionalTheory extends AbstractTheory {
 	/**
 	 * If expression is a proposition, it is a splitter.
 	 * @param expression
-	 * @param supportedIndices
+	 * @param indices
 	 * @param process
 	 * @return
 	 */
@@ -178,8 +178,8 @@ public class PropositionalTheory extends AbstractTheory {
 		private Set<Expression> assertedPropositions;
 		private Set<Expression> negatedPropositions;
 		
-		public PropositionalConstraint(Collection<Expression> supportedIndices) {
-			super(supportedIndices);
+		public PropositionalConstraint(Collection<Expression> indices) {
+			super(indices);
 			this.numberOfBoundIndices = 0;
 			this.assertedPropositions = new LinkedHashSet<Expression>();
 			this.negatedPropositions  = new LinkedHashSet<Expression>();
@@ -216,8 +216,8 @@ public class PropositionalTheory extends AbstractTheory {
 
 		/**
 		 * This version (unlike's the super class' default implementation)
-		 * is more efficient when given all supportedIndices,
-		 * as it computes the number of models without iterating over all supportedIndices;
+		 * is more efficient when given all indices,
+		 * as it computes the number of models without iterating over all indices;
 		 * it still resorts to the default implementation in case indicesSubSet is a strict subset.
 		 */
 		@Override

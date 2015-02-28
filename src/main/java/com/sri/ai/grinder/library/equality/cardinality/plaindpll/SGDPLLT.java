@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import java.util.Collection;
+
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
@@ -90,7 +92,7 @@ public class SGDPLLT extends AbstractSymbolicGeneralizedSummationSolver {
 	}
 
 	@Override
-	public Expression solve(Expression expression, Constraint constraint, RewritingProcess process) {
+	public Expression solve(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		
 //		System.out.println("Solving");
 //		System.out.println("expression           : " + expression);
@@ -105,11 +107,11 @@ public class SGDPLLT extends AbstractSymbolicGeneralizedSummationSolver {
 		Expression splitter = pickSplitter(expression, constraint, process);
 
 		if (splitter != null) {
-			result = solveBasedOnSplitting(splitter, expression, constraint, process);
+			result = solveBasedOnSplitting(splitter, expression, indices, constraint, process);
 		}
 		else {
 			Expression unconditionalValue = normalizeUnconditionalExpression(expression, process);
-			Expression numberOfOccurrences = constraint.modelCount(process);
+			Expression numberOfOccurrences = constraint.modelCount(indices, process);
 			Expression valueToBeSummed = problemType.fromExpressionValueWithoutLiteralsToValueToBeAdded(unconditionalValue);
 			result = problemType.addNTimes(valueToBeSummed, numberOfOccurrences, process);
 		}
@@ -167,7 +169,7 @@ public class SGDPLLT extends AbstractSymbolicGeneralizedSummationSolver {
 	 */
 	private static interface Combiner extends QuarternaryFunction<Expression, Expression, Expression, RewritingProcess, Expression> {};
 
-	private Expression solveBasedOnSplitting(Expression splitter, Expression expression, Constraint constraint, RewritingProcess process) {
+	private Expression solveBasedOnSplitting(Expression splitter, Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		
 		// Keep in mind that splitter may already be implied as true or false by theoryWithEquality constraint.
 		// This should not happen if the theoryWithEquality application of splitters to expressions only replaced them by true or false,
@@ -178,7 +180,7 @@ public class SGDPLLT extends AbstractSymbolicGeneralizedSummationSolver {
 		// if the splitter's negation turns the constraint unsatisfiable, we know it is implied false by it
 		// and then only the solution under the splitter is taken.
 		// This means that the application of the splitter must be done to the constraint first,
-		// and only if this constraint is not contradicted do we apply it to the expression and supportedIndices.
+		// and only if this constraint is not contradicted do we apply it to the expression and indices.
 		// This prevents a more elegant formalization in which the splitter is applied to the three of them,
 		// as if conceptually applied to the whole problem at once.
 		
@@ -198,10 +200,10 @@ public class SGDPLLT extends AbstractSymbolicGeneralizedSummationSolver {
 			splitterMustBeInContextualConstraint = false;
 		}
 
-		Expression solutionUnderSplitter = solveUnderSplitter(true, splitter, expression, constraint, splitterMustBeInContextualConstraint, process);
+		Expression solutionUnderSplitter = solveUnderSplitter(true, splitter, expression, indices, constraint, splitterMustBeInContextualConstraint, process);
 		boolean noNeedToComputeNegation  = solutionUnderSplitter != null && combiner == additionCombiner && problemType.isAbsorbingElement(solutionUnderSplitter);
 		Expression solutionUnderSplitterNegation = 
-				noNeedToComputeNegation? null : solveUnderSplitter(false, splitter, expression, constraint, splitterMustBeInContextualConstraint, process);
+				noNeedToComputeNegation? null : solveUnderSplitter(false, splitter, expression, indices, constraint, splitterMustBeInContextualConstraint, process);
 		Expression result = combine(combiner, splitter, solutionUnderSplitter, solutionUnderSplitterNegation, process);
 		
 		return result;
@@ -248,7 +250,7 @@ public class SGDPLLT extends AbstractSymbolicGeneralizedSummationSolver {
 	 * @param process
 	 * @return
 	 */
-	private Expression solveUnderSplitter(boolean splitterSign, Expression splitter, Expression expression, Constraint constraint, boolean splitterInContextualConstraint, RewritingProcess process) {
+	private Expression solveUnderSplitter(boolean splitterSign, Expression splitter, Expression expression, Collection<Expression> indices, Constraint constraint, boolean splitterInContextualConstraint, RewritingProcess process) {
 		Expression result;
 		assert process.getDPLLContextualConstraint() != null : "SGDPLL(T) should not operate under a contradictory contextual constraint";
 		RewritingProcess processUnderSplitter = splitterInContextualConstraint? process.extendDPLLContextualConstraint(splitterSign, splitter) : process;
@@ -263,7 +265,7 @@ public class SGDPLLT extends AbstractSymbolicGeneralizedSummationSolver {
 			}
 			else {
 				Expression expressionUnderSplitter = theory.applySplitterToExpression(splitterSign, splitter, expression, process);
-				result = solve(expressionUnderSplitter, constraintUnderSplitter, processUnderSplitter);
+				result = solve(expressionUnderSplitter, indices, constraintUnderSplitter, processUnderSplitter);
 			}
 		}
 		return result;

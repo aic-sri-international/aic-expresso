@@ -199,7 +199,7 @@ public class IfThenElse extends AbstractRewriter {
 
 	/**
 	 * Makes an if then else expression by receiving the branches but, instead of relying on the argument order to decide which branch is the then branch and which one is the else branch,
-	 * receives their respective supportedIndices (they must be 1 and 2, or 2 and 1 -- index 0 is the index of the condition itself).
+	 * receives their respective indices (they must be 1 and 2, or 2 and 1 -- index 0 is the index of the condition itself).
 	 */
 	public static Expression make(Expression condition, int indexOfFirstBranch, Expression firstBranch, int indexOfSecondBranch, Expression secondBranch) {
 		if (indexOfFirstBranch == 1) {

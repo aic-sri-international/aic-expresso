@@ -31,8 +31,8 @@ public abstract class AbstractRuleOfProductConstraint implements Theory.Constrai
 
 	protected Collection<Expression> supportedIndices;
 
-	public AbstractRuleOfProductConstraint(Collection<Expression> supportedIndices) {
-		this.supportedIndices = supportedIndices;
+	public AbstractRuleOfProductConstraint(Collection<Expression> indices) {
+		this.supportedIndices = indices;
 	}
 	
 	public abstract AbstractRuleOfProductConstraint clone();
