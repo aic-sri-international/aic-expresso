@@ -349,7 +349,7 @@ public class Equality extends AbstractRewriter {
 
 	/**
 	 * Returns a conjunction of equalities between the corresponding elements of two lists
-	 * (two elements are corresponding if they have the indices).
+	 * (two elements are corresponding if they have the supportedIndices).
 	 * Returns false if the lists have different sizes.
 	 */
 	public static Expression makePairwiseEquality(List<Expression> list1, List<Expression> list2) {

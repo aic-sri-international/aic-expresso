@@ -75,9 +75,9 @@ public class HelloWorlds {
 		 * Could be just some of them, or all of them, or none of them
 		 */
 		Collection<Expression> indices = Util.list(Expressions.parse("X"), Expressions.parse("Y"));
-//		Collection<Expression> indices = Util.list(Expressions.parse("X"));
-//		Collection<Expression> indices = Util.list(); // result is a compilation of the original expression in this case
-//		Collection<Expression> indices = Util.list(Expressions.parse("X"), Expressions.parse("Y"), Expressions.parse("Z")); // sum is just a number in this case
+//		Collection<Expression> supportedIndices = Util.list(Expressions.parse("X"));
+//		Collection<Expression> supportedIndices = Util.list(); // result is a compilation of the original expression in this case
+//		Collection<Expression> supportedIndices = Util.list(Expressions.parse("X"), Expressions.parse("Y"), Expressions.parse("Z")); // sum is just a number in this case
 
 		/* The definitions of variables, types, and type sizes. */
 		Map<String, String> mapFromTypeNameToSizeString   = Util.map("Everything", "10000");

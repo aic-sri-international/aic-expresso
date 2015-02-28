@@ -58,7 +58,7 @@ public class TableConversion {
 		 */
 		Theory theory = new EqualityTheory(new SymbolTermTheory());
 
-		ProblemType problemType = new Max(); // the problem type actually does not matter, because we are not going to have any indices.
+		ProblemType problemType = new Max(); // the problem type actually does not matter, because we are not going to have any supportedIndices.
 
 		Expression table = Expressions.parse(""
 						+ "if X = a and Y = a and Z = a then 0.1 else "
@@ -89,7 +89,7 @@ public class TableConversion {
 						+ "if X = c and Y = c and Z = b then 0.3 else "
 						+  /* X = c and Y = c and Z = c */  "0.3"); 
 
-		Collection<Expression> indices = Util.list(); // no indices; we want to keep all variables
+		Collection<Expression> indices = Util.list(); // no supportedIndices; we want to keep all variables
 
 		/* The definitions of variables, types, and type sizes. */
 		Map<String, String> mapFromTypeNameToSizeString   = Util.map("Everything", "3");

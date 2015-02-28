@@ -141,25 +141,25 @@ public class EqualityOnTermsModelCountingDPLLTest extends AbstractSymbolicSymbol
 		expected   = parse("0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
-		// can only use indices at this point when disconnected from function applications.
+		// can only use supportedIndices at this point when disconnected from function applications.
 		expression = parse("X != Y and p(Z) != p(W)");
 		indices    = list("X", "Y");
 		expected   = parse("if p(Z) = p(W) then 0 else (| Everything | - 1) * | Everything |");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
 		//		expression = parse("X = Y and p(X) = p(Y)");
-//		indices    = list("p(X)", "p(Y)");
+//		supportedIndices    = list("p(X)", "p(Y)");
 //		expected   = parse("| Everything |");
-//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
 //
 //		expression = parse("for all X : for all Y : (q(X) = q(Y) => X = Y)");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("1");
-//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
 //
 //		expression = parse("p(X) != p(Y) and (for all X : for all Y : (q(X) = q(Y) => X = Y)) => (q(X) != q(Y))");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("1");
-//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
 	}
 }

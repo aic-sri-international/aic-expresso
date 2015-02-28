@@ -83,8 +83,8 @@ import com.sri.ai.util.base.Pair;
  * If quantification is "there exists", returns a counting-solution, the leaves of which may differ from the exact one in the following way: when the exact one is not 0, it may be any value but 0.
  * 
  * if F is a conjunction which can be partitioned into two or more independent sub problems
- * 	// i.e. there is a partition {I_1, ..., I_k} of indices such that there is a partition 
- *  { C_1, ..., C_k } of the conjuncts of F where indices in I_j occur in C_j only, for every j:
+ * 	// i.e. there is a partition {I_1, ..., I_k} of supportedIndices such that there is a partition 
+ *  { C_1, ..., C_k } of the conjuncts of F where supportedIndices in I_j occur in C_j only, for every j:
  *  	if I_1 is empty:
  *  		return if C_1 then R_normalize( R_card(|R_top_simplify(C_2)|_I_2, quantification)  * ... *  R_card(|R_top_simplify(C_k)|_I_k, quantification) ) else 0
  *  	else:
@@ -212,7 +212,7 @@ public class CardinalityDPLLConjunction extends AbstractCardinalityRewriter {
 		} 
 		else {
 			Trace.log("if F is a conjunction which can be partitioned into two or more independent sub problems");
-			Trace.log("// i.e. there is a partition {I_1, ..., I_k} of indices such that there is a partition { C_1, ..., C_k } of the conjuncts of F where indices in I_j occur in C_j only, for every j:");
+			Trace.log("// i.e. there is a partition {I_1, ..., I_k} of supportedIndices such that there is a partition { C_1, ..., C_k } of the conjuncts of F where supportedIndices in I_j occur in C_j only, for every j:");
 			Expression independent = null;
 			List<BranchRewriteTask> taskRewriters = new ArrayList<BranchRewriteTask>();
 			for (Pair<Set<Expression>, List<Expression>> problem: problems) {
@@ -282,7 +282,7 @@ public class CardinalityDPLLConjunction extends AbstractCardinalityRewriter {
 			Trace.log("if F is F1 and F2 where F1 is a formula independent of all x's in X");
 			// Note: The logic for independent sub-problems does not encompass this as you can have something like this:
 			// | { ( on Z ) ( Z ) | Y != a and Z != Y and Z != b } |
-			// Y != a is independent of the indices but the conjuncts are transitively linked via Z != Y,
+			// Y != a is independent of the supportedIndices but the conjuncts are transitively linked via Z != Y,
 			// so they are not independent sub-problems.
 			Trace.log("   F2 = R_top_simplify_conjunction(F2)");
 			dependentConjunction = subProcess.rewrite(R_top_simplify_conjunction, dependentConjunction);

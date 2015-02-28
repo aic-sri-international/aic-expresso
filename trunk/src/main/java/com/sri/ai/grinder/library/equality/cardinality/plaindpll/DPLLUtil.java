@@ -69,7 +69,7 @@ import com.sri.ai.util.base.BinaryFunction;
  * Implements utility methods to be used by {@link SGDPLLT} and associated classes.
  * <p>
  * Several of these methods could be more naturally seen as methods of the interfaces themselves
- * (for example, {@link DPLLUtil#getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices, Theory theoryWithEquality)}
+ * (for example, {@link DPLLUtil#getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> supportedIndices, Theory theoryWithEquality)}
  * could be a method in interface {@link Theory}),
  * but are included here instead because their functionality depends on a more basic method of those interfaces
  * (in that case, on {@link Theory#makeConstraint()});
@@ -320,7 +320,7 @@ public class DPLLUtil {
 	 * @return an equivalent solution
 	 */
 	public static Expression applySplitterToSolution(boolean splitterSign, Expression splitter, Expression solution, Theory theory, RewritingProcess process) {
-		Constraint constraint = theory.makeConstraint(Collections.emptyList()); // no indices in solutions
+		Constraint constraint = theory.makeConstraint(Collections.emptyList()); // no supportedIndices in solutions
 		constraint = constraint.applySplitter(splitterSign, splitter, process);
 		Expression result = theory.applyConstraintToSolution(constraint, solution, process);
 		return result;

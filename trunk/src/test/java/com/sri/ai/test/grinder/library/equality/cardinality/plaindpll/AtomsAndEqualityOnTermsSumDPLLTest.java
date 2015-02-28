@@ -88,10 +88,10 @@ public class AtomsAndEqualityOnTermsSumDPLLTest extends AbstractSymbolicSymbolEq
 
 		// repeated for debugging
 //		expression = parse("(if atom(X) then 1 else 0) + (if not atom(X) then 1 else 0)");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("1");
 //		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
-//		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, freeSymbolsAndTypes, expected);
 
 		expression = parse("if atom(X) then 1 else if not atom(X) then 2 else 0");
 		indices    = list();
@@ -138,139 +138,139 @@ public class AtomsAndEqualityOnTermsSumDPLLTest extends AbstractSymbolicSymbolEq
 		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 
 //		expression = parse("atom(X) or not atom(Y)");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("if atom(X) then 1 else if atom(Y) then 0 else 1");
 //		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
-//		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, freeSymbolsAndTypes, expected);
 //
 //		expression = parse("X = Y and (atom(X) or not atom(Y))");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("if X = Y then 1 else 0");
 //		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
-//		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, freeSymbolsAndTypes, expected);
 //
 //		expression = parse("X = Y => (atom(X) or not atom(Y))");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("1");
 //		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
-//		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, freeSymbolsAndTypes, expected);
 //
 //		// tests whether equalities on boolean atoms still work; it sort of does, but equality theory doesn't know that atoms can have only two values, so we get this 
 //		expression = parse("X = Y => (atom(X) = true or atom(Y) = false)");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("if X = Y then if atom(Y) = true then 1 else if atom(Y) = false then 1 else 0 else 1");
 //		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
-//		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, freeSymbolsAndTypes, expected);
 //
 //		// tests whether equalities on boolean atoms work while mixed with regular atom use 
 //		expression = parse("X = Y => (atom(X) or atom(Y) = false)");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("1");
 //		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
-//		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, freeSymbolsAndTypes, expected);
 //
 //		// binary atom
 //		expression = parse("atom(X,Y) or not atom(X,Y)");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("1");
 //		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(x(Everything, Everything), Boolean)"));
-//		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, freeSymbolsAndTypes, expected);
 //
 //		// simplification
 //		expression = parse("if atom(X,Y) then atom(Y,X) else atom(X,Y)");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("if atom(X, Y) then if atom(Y, X) then 1 else 0 else 0");
 //		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(x(Everything, Everything), Boolean)"));
-//		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, freeSymbolsAndTypes, expected);
 //
 //		// mixing functions and atoms (predicates)
 //		expression = parse("p(X) = a => (atom(p(X), b) <=> atom(a, b))");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("1");
 //		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(x(Everything, Everything), Boolean)"));
-//		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, freeSymbolsAndTypes, expected);
 //
 //		// FROM HERE ON: tests repeated from EqualityOnTermsModelCountingDPLLTest, which should still be solved by this generalization
 //		
 //		// tests the most important property in the theoryWithEquality, that of functional congruence.
 //		expression = parse("p(X) = a and p(Y) = b and X = Y");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("0");
-//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
 //
 //		// tests the most important property in the theoryWithEquality, that of functional congruence.
 //		expression = parse("p(X,Y) != p(Z,W) => X != Z or Y != W");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("1");
-//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
 //
 //		// a non-intuitive one, because for X = a we have a contradiction, and yet X is never tested to be a.
 //		// The trick is that p(X) = p(a) already implies X != a.
 //		// The next example tried to add X = a afterwards, we the result is zero models
 //		expression = parse("p(X) != p(a)");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("if p(X) = p(a) then 0 else 1");
-//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
 //
 //		// This is coupled with the previous example
 //		expression = parse("p(X) != p(a) and X = a");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("0");
-//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
 //
 //		// This is coupled with the previous example
 //		// Another example of the same lack of intuition
 //		// It seems like the algorithm should consider the possibility that Z may be equal to a, in which case this is a contradiction
 //		expression = parse("p(a) != p(Y) and (Y = Z) ");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("if p(a) = p(Y) then 0 else if Y = Z then 1 else 0");
-//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
 //
 //		expression = parse("X = Y and p(X) = p(Y)");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("if X = Y then 1 else 0");
-//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
 //
 //		expression = parse("X = Y => p(X) = p(Y)");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("1");
-//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
 //
 //		expression = parse("X = Y => p(X, Z) = p(Y, W)");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("if X = Y then if p(Y, Z) = p(Y, W) then 1 else 0 else 1");
-//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
 //
 //		expression = parse("p(X) = a and Z = b and p(Y) = Z => X != Y");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("1");
-//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
 //
 //		expression = parse("X = Y and (Z = T1 or Z = T2) and (T1 = W and T2 = W) and p(X,Z) != p(Y,W)");
-//		indices    = list();
+//		supportedIndices    = list();
 //		expected   = parse("0");
-//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
 //
-//		// can only use indices at this point when disconnected from function applications.
+//		// can only use supportedIndices at this point when disconnected from function applications.
 //		expression = parse("X != Y and p(Z) != p(W)");
-//		indices    = list("X", "Y");
+//		supportedIndices    = list("X", "Y");
 //		expected   = parse("if p(Z) = p(W) then 0 else (| Everything | - 1) * | Everything |");
-//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
 //
 //		//		expression = parse("X = Y and p(X) = p(Y)");
-////		indices    = list("p(X)", "p(Y)");
+////		supportedIndices    = list("p(X)", "p(Y)");
 ////		expected   = parse("| Everything |");
-////		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+////		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
 ////
 ////		expression = parse("for all X : for all Y : (q(X) = q(Y) => X = Y)");
-////		indices    = list();
+////		supportedIndices    = list();
 ////		expected   = parse("1");
-////		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+////		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
 ////
 ////		expression = parse("p(X) != p(Y) and (for all X : for all Y : (q(X) = q(Y) => X = Y)) => (q(X) != q(Y))");
-////		indices    = list();
+////		supportedIndices    = list();
 ////		expected   = parse("1");
-////		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+////		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
 	}
 }
 

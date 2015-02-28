@@ -47,10 +47,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.Constraint;
 
 /**
- * A "plain" implementation of symbolic generalized DPLL (without using Grinder-style contexts and simplifications)
- * that is more ad hoc than rewriter-based approaches but also much faster.
- * 
- * This generic skeleton allows the algorithm to be used for different tasks.
+ * The interface for any rewriting solving symbolic generalized summation problems.
  * 
  * @author braz
  *
@@ -65,12 +62,12 @@ public interface SymbolicGeneralizedSummationSolver extends Rewriter {
 
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression
-	 * over the provided set of indices under given non-null constraint.
+	 * over the provided set of supportedIndices under given non-null constraint.
 	 */
 	Expression solve(Expression expression, Constraint constraint, RewritingProcess process);
 	
 	/**
-	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
+	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of supportedIndices.
 	 */
 	Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process);
 

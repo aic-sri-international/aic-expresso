@@ -51,7 +51,7 @@ import com.sri.ai.grinder.library.SemanticSubstitute;
 import com.sri.ai.grinder.library.set.Sets;
 
 /**
- * Rewriter of intensional sets with a condition that bounds one of its indices
+ * Rewriter of intensional sets with a condition that bounds one of its supportedIndices
  * to a version of the set after the removal of that index and its replacement by the valeu it's bound to.
  * @author braz
  */

@@ -56,12 +56,12 @@ public class RandomSatisfiabilityProblemGenerator extends AbstractRandomDPLLProb
 	/**
 	 * Creates an iterator over random satisfiability expressions.
 	 * This is done by sampling a random formula F from {@link RandomEqualityFormulaGenerator},
-	 * picking a random set of indices I, and returning there exists I : F.
+	 * picking a random set of supportedIndices I, and returning there exists I : F.
 	 * 
 	 * @param random a {@link Random} number generator.
 	 * @param numberOfVariables the (maximum) number of variables in the formula.
 	 * @param numberOfConstants the (maximum) number of constants in the formula.
-	 * @param minimumNumberOfIndices minimum number of variables used as indices (maximum is <i>all</i> variables).
+	 * @param minimumNumberOfIndices minimum number of variables used as supportedIndices (maximum is <i>all</i> variables).
 	 * @param depth the depth of the formula (all its sub-expressions with have depth equal to <code>depth - 1</code>).
 	 * @param breadth the number of sub-expressions of conjunctions and disjunctions.
 	 */

@@ -78,7 +78,7 @@ import com.sri.ai.util.base.PairOf;
  * </pre>
  * with {@link SGDPLLT}.
  * Note that the symbolic capability of {@link SGDPLLT} is crucial here, as
- * args_j for the various functions f_j will typically involve other indices which,
+ * args_j for the various functions f_j will typically involve other supportedIndices which,
  * at the level of the sub-problem, are free variables.
  * 
  * @author braz
@@ -134,11 +134,11 @@ public class SGVET extends AbstractSymbolicGeneralizedSummationSolver {
 
 	private Partition pickPartition(List<Expression> expressions, Constraint constraint, RewritingProcess process) {
 		Partition result;
-		if (constraint.getIndices().isEmpty()) {
+		if (constraint.getSupportedIndices().isEmpty()) {
 			result = null;
 		}
 		else {
-			Expression index = getFirst(constraint.getIndices());
+			Expression index = getFirst(constraint.getSupportedIndices());
 			Predicate<Expression> containsIndex = e -> isSubExpressionOf(index, e);
 			PairOf<List<Expression>> onIndexAndNot = collectToLists(expressions, containsIndex);
 			result = new Partition(index, onIndexAndNot);

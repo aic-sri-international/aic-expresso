@@ -210,7 +210,7 @@ public class CardinalityUtil {
 			    if (Tuple.isTuple(intensionalSetHead)) {	    	
 			    	Set<Expression> intensionalSetIndices = new LinkedHashSet<Expression>(IndexExpressions.getIndices(((IntensionalSet) intensionalSet).getIndexExpressions()));
 			    	Set<Expression> tupleIndices          = new LinkedHashSet<Expression>(Tuple.getElements(intensionalSetHead));
-			    	// The tuple and the indices on the uni-intensional set need to match
+			    	// The tuple and the supportedIndices on the uni-intensional set need to match
 			    	if (intensionalSetIndices.equals(tupleIndices)) {
 			    		result = true;
 			    	}
@@ -518,21 +518,21 @@ public class CardinalityUtil {
 	 * </pre>
 	 * 
 	 * This utility routine checks if the expression F passed in is a
-	 * conjunction, and there is a partition {I_1, ..., I_k} of indices such that
+	 * conjunction, and there is a partition {I_1, ..., I_k} of supportedIndices such that
 	 * there is a partition { C_1, ..., C_k } of the conjuncts of F, where
-	 * indices in I_j occur in C_j only, for every j.
+	 * supportedIndices in I_j occur in C_j only, for every j.
 	 * 
 	 * @param f
 	 *            the expression F to be tested for whether or not it is a
-	 *            conjunction that is partitioned on indices.
+	 *            conjunction that is partitioned on supportedIndices.
 	 * @param indexExpressions
-	 *            the index expressions, the indices of which we must partition F on.
+	 *            the index expressions, the supportedIndices of which we must partition F on.
 	 * @param process
 	 *            the process in which the rewriting is occurring.
 	 * @return a list of independent problems of the form Pair<Set<Expression>,
-	 *         List<Expression>>, where Pair.first are the indices associated
+	 *         List<Expression>>, where Pair.first are the supportedIndices associated
 	 *         with the independent problem and Pair.second are the conjuncts
-	 *         from F that are partitioned by these indices. Note: if there
+	 *         from F that are partitioned by these supportedIndices. Note: if there
 	 *         are no independent problems an empty list will be returned.
 	 */
 	public static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblemsInConjunction(Expression f, IndexExpressionsSet indexExpressions, RewritingProcess process) {
@@ -564,27 +564,27 @@ public class CardinalityUtil {
 	 * </pre>
 	 * 
 	 * This utility routine checks if the expression F passed in is a
-	 * disjunction, and there is a partition {I_2, I_3} of indices such that
+	 * disjunction, and there is a partition {I_2, I_3} of supportedIndices such that
 	 * there is a partition { D1, D2, D3 } of the disjuncts of F, where
-	 * indices in I_j occur in C_j only, for every j. Note that D1 is a partition with no index variables
+	 * supportedIndices in I_j occur in C_j only, for every j. Note that D1 is a partition with no index variables
 	 * and it may or may not exist. So the final list could be of length 2 or 3 depending on whether there
 	 * is a partition without any index variables.
 	 * 
 	 * @param f
 	 *            the expression F to be tested for whether or not it is a
-	 *            disjunction that is partitioned on indices.
+	 *            disjunction that is partitioned on supportedIndices.
 	 * @param indexExpressions
-	 *            the index expressions, on which indices to partition F on.
+	 *            the index expressions, on which supportedIndices to partition F on.
 	 * @param process
 	 *            the process in which the rewriting is occurring.
 	 * @return a list of independent problems of the form Pair<Set<Expression>,
-	 *         List<Expression>>, where Pair.first are the indices associated
+	 *         List<Expression>>, where Pair.first are the supportedIndices associated
 	 *         with the independent problem and Pair.second are the conjuncts disjuncts
-	 *         from F that are partitioned by these indices. Note: if there
+	 *         from F that are partitioned by these supportedIndices. Note: if there
 	 *         are no independent problems an empty list will be returned.
 	 *         Also, there will be at most 3 partitions:
-	 *         the first partition may be one with no indices. If the first partition
-	 *         has no indices, then there will be at most 2 other partitions with indices.
+	 *         the first partition may be one with no supportedIndices. If the first partition
+	 *         has no supportedIndices, then there will be at most 2 other partitions with supportedIndices.
 	 */
 	public static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblemsInDisjunction(Expression f, IndexExpressionsSet indexExpressions, RewritingProcess process) {
 		List<Pair<Set<Expression>, List<Expression>>> result = null;
@@ -592,7 +592,7 @@ public class CardinalityUtil {
 			List<Expression> subFormulas = new ArrayList<Expression>();
 			subFormulas.addAll(f.getArguments());
 			result = findIndependentProblems(subFormulas, indexExpressions, process);		
-			// For a disjunction, we can have at most three partitions: one partition with no indices, and at most two disjoint partitions:
+			// For a disjunction, we can have at most three partitions: one partition with no supportedIndices, and at most two disjoint partitions:
 			if ( result.size() > 1 ) {
 				Integer emptyIndex = -1, maxIndex = -1, maxElements = -1;
 				Pair<Set<Expression>, List<Expression>> emptyOne = null, maxOne = null;
@@ -892,7 +892,7 @@ public class CardinalityUtil {
 	 * @param quantification
 	 *        is either "there exists", "for all", or "none".
 	 * @param indicesX
-	 *        the indices from the original cardinality expression: | F |_X.
+	 *        the supportedIndices from the original cardinality expression: | F |_X.
 	 * @param process
 	 *        the current rewriting process.
 	 * @return the cardinality of | F and Alpha |_X + | F and not Alpha |_X.
@@ -1024,19 +1024,19 @@ public class CardinalityUtil {
 	// PRIVATE
 	//
 	protected  static List<Pair<Set<Expression>, List<Expression>>> findIndependentProblems(List<Expression> conjuncts, IndexExpressionsSet indexExpressions, RewritingProcess process) {
-		// indices and corresponding conjuncts
+		// supportedIndices and corresponding conjuncts
 		List<Pair<Set<Expression>, List<Expression>>> result = new ArrayList<Pair<Set<Expression>, List<Expression>>>();
 		
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 			
-		// For efficiency work with a set of the indices
+		// For efficiency work with a set of the supportedIndices
 		Set<Expression>                   indicesSet                  = new LinkedHashSet<Expression>(indices);
 		// Track conjuncts and their corresponding variables in the index
 		Map<Expression, List<Expression>> fromConjunctToItsVariables  = new LinkedHashMap<Expression, List<Expression>>();
 		// Track disjoint variable sets.
 		DisjointSets<Expression>          disjointVariableSets        = new DisjointSets<Expression>();
 		// Initialize the disjoint sets with the known indexes up front and track the set
-		// of known variables seen so far (i.e. in the indices and free).
+		// of known variables seen so far (i.e. in the supportedIndices and free).
 		Set<Expression>                   knownVariables              = new LinkedHashSet<Expression>(indices);
 		
 		for (Expression index : indices) {
@@ -1073,14 +1073,14 @@ public class CardinalityUtil {
 			List<Expression> conjunctsWithNoLinksToIndices = new ArrayList<Expression>();
 			// Add the conjuncts with variables
 			for (Map.Entry<Set<Expression>, List<Expression>> indexesToConjuncts : indexSetsToConjunctsMap.entrySet()) {
-				// indices and corresponding conjuncts
+				// supportedIndices and corresponding conjuncts
 				Set<Expression> indexes = new LinkedHashSet<Expression>(indexesToConjuncts.getKey());
 				// Remove indexes explicitly associated with conjuncts from the available
 				// set of disjoint indexes.
 				for (Expression index : indexes) {
 					indexToDisjointSetMap.remove(index);
 				}
-				// Only retain variables that were in the original indices
+				// Only retain variables that were in the original supportedIndices
 				indexes.retainAll(indicesSet);		
 				
 				if (indexes.size() == 0) {
@@ -1113,7 +1113,7 @@ public class CardinalityUtil {
 			Expression first = null;
 			for (Expression variable : variablesInConjunct) {
 				// Also set up disjoint sets for variables
-				// not in the indices (i.e. free).
+				// not in the supportedIndices (i.e. free).
 				if (!knownVariables.contains(variable)) {
 					disjointVariableSets.makeSet(variable);
 					knownVariables.add(variable);

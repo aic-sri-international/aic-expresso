@@ -178,7 +178,7 @@ public class SGDPLLT extends AbstractSymbolicGeneralizedSummationSolver {
 		// if the splitter's negation turns the constraint unsatisfiable, we know it is implied false by it
 		// and then only the solution under the splitter is taken.
 		// This means that the application of the splitter must be done to the constraint first,
-		// and only if this constraint is not contradicted do we apply it to the expression and indices.
+		// and only if this constraint is not contradicted do we apply it to the expression and supportedIndices.
 		// This prevents a more elegant formalization in which the splitter is applied to the three of them,
 		// as if conceptually applied to the whole problem at once.
 		
@@ -188,7 +188,7 @@ public class SGDPLLT extends AbstractSymbolicGeneralizedSummationSolver {
 		Combiner combiner;
 		boolean splitterMustBeInContextualConstraint;
 
-		boolean splitterDependsOnFreeVariablesOnly = ! theory.splitterDependsOnIndex(splitter, constraint.getIndices());
+		boolean splitterDependsOnFreeVariablesOnly = ! theory.splitterDependsOnIndex(splitter, constraint.getSupportedIndices());
 		if (earlyExternalizationOfFreeVariableSplittersOptimization && splitterDependsOnFreeVariablesOnly) {
 			combiner = conditionalCombiner;
 			splitterMustBeInContextualConstraint = true;

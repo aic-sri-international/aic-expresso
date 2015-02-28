@@ -1379,7 +1379,7 @@ public class GrinderTest extends AbstractGrinderTest {
 
 		expression1 = parse("{(on X, p(Z)) f(X,Y) | X != a }");
 		expression2 = parse("{(on X) f(X)}");
-		expected    = null; // no SA for function application indices
+		expected    = null; // no SA for function application supportedIndices
 		try {
 			performTestOfStandardizednApartWithoutAssumingImplicitQuantificationOfAllVariables(expression1, expression2);
 			fail("Should have thrown a StandardizedApartFrom.StandardizingApartOnFunctionApplicationsNotSupported");

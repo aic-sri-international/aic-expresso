@@ -137,8 +137,8 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		}
 		
 		@Override
-		public Collection<Expression> getIndices() {
-			return equalityConstraint.getIndices();
+		public Collection<Expression> getSupportedIndices() {
+			return equalityConstraint.getSupportedIndices();
 		}
 
 		@Override
@@ -193,7 +193,7 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		}
 
 		private Expression fromEqualitySplitterToSplitterIfEqualitySplitterInTheFirstPlace(Expression expression, RewritingProcess process) {
-			Expression equalitySplitter = makeSplitterIfPossible(expression, equalityConstraint.getIndices(), process);
+			Expression equalitySplitter = makeSplitterIfPossible(expression, equalityConstraint.getSupportedIndices(), process);
 			Expression result;
 			if (equalitySplitter == null) {
 				result = expression;

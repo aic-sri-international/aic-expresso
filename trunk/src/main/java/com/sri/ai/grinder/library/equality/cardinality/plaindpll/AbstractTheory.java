@@ -148,7 +148,7 @@ abstract public class AbstractTheory implements Theory {
 	 * The use of this default implementation will require extending classes to implement {@link #splitterDependsOnIndex(Expression, Collection)}
 	 * to return true, so as to confirm the assumption required.
 	 * @param expression
-	 * @param indices
+	 * @param supportedIndices
 	 * @param process
 	 * @return
 	 */
@@ -173,14 +173,14 @@ abstract public class AbstractTheory implements Theory {
 	}
 
 	/**
-	 * Makes splitter by applying given functor to two terms, indices coming first if any.
+	 * Makes splitter by applying given functor to two terms, supportedIndices coming first if any.
 	 * Does not simplify splitter (so, if it is simplifiable, it does not get simplified).
 	 * While this may not work for all theories (some may have more complex splitters),
 	 * it is likely useful in most.
 	 * @param splitterFunctor the splitter's functor
 	 * @param term1
 	 * @param term2
-	 * @param indices
+	 * @param supportedIndices
 	 * @param process
 	 * @return
 	 */
@@ -209,7 +209,7 @@ abstract public class AbstractTheory implements Theory {
 		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(expression);
 		while (result == null && subExpressionIterator.hasNext()) {
 			Expression subExpression = subExpressionIterator.next();
-			Expression splitterCandidate = makeSplitterIfPossible(subExpression, constraint.getIndices(), process);
+			Expression splitterCandidate = makeSplitterIfPossible(subExpression, constraint.getSupportedIndices(), process);
 			result = splitterCandidate;
 		}
 	
@@ -288,14 +288,14 @@ abstract public class AbstractTheory implements Theory {
 		boolean result;
 		if (indices.contains(variable)) { // index
 			if ( ! indices.contains(otherVariable)) { // free variable
-				result = false; // free variables always precedes indices
+				result = false; // free variables always precedes supportedIndices
 			}
-			else { // both are indices
-				result = otherVariable.toString().compareTo(variable.toString()) < 0; // indices are compared alphabetically
+			else { // both are supportedIndices
+				result = otherVariable.toString().compareTo(variable.toString()) < 0; // supportedIndices are compared alphabetically
 			}
 		}
 		else if (indices.contains(otherVariable)) { // variable is free variable and otherVariable is index
-			result = true; // free variable always precedes indices
+			result = true; // free variable always precedes supportedIndices
 		}
 		else { // neither is index
 			result = otherVariable.toString().compareTo(variable.toString()) < 0;	// alphabetically		

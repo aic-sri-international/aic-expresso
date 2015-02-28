@@ -203,8 +203,8 @@ public class SyntaxTrees {
 	/**
 	 * Given a syntax tree, a path, and a sub-syntax tree,
 	 * returns the syntax tree with its path-sub-syntax tree replaced by the given sub-syntax tree.
-	 * The path is a list of indices indicating a path in the syntax tree.
-	 * If there are no indices to be followed (path is empty), the sub-syntax tree itself is returned.
+	 * The path is a list of supportedIndices indicating a path in the syntax tree.
+	 * If there are no supportedIndices to be followed (path is empty), the sub-syntax tree itself is returned.
 	 * The method assumes the path describes an existing path-sub-syntax tree.
 	 */
 	public static SyntaxTree replaceAtPath(SyntaxTree syntaxTree, List<Integer> path, SyntaxTree subTree) {
@@ -214,9 +214,9 @@ public class SyntaxTrees {
 	/**
 	 * Given an syntax tree, a path, a position i in the path, and a sub-syntax tree,
 	 * returns the syntax tree with its path-i-sub-syntax tree replaced by the given sub-syntax tree.
-	 * The path is a list of indices indicating a path in the syntax tree.
+	 * The path is a list of supportedIndices indicating a path in the syntax tree.
 	 * The path-i-sub-syntax tree is the syntax tree obtained by following the path from the position i on.
-	 * If there are no indices to be followed (i is equal to the path's length), the sub-syntax tree is returned.
+	 * If there are no supportedIndices to be followed (i is equal to the path's length), the sub-syntax tree is returned.
 	 * The method assumes the path describes an existing path-i-sub-syntax tree.
 	 */
 	private static SyntaxTree replaceAtPath(SyntaxTree syntaxTree, List<Integer> path, int i, SyntaxTree subTree) {
