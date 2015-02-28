@@ -42,7 +42,6 @@ import java.util.Collections;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.Constraint;
 
 /**
  * A default implementation of {@link Problem}.

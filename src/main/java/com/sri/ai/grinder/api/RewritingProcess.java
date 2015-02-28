@@ -46,7 +46,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.core.RewriteOnce;
 import com.sri.ai.grinder.core.RewriterLookup;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ConjunctiveConstraint;
 import com.sri.ai.util.base.IdentityWrapper;
 import com.sri.ai.util.base.Pair;
 
@@ -255,9 +255,9 @@ public interface RewritingProcess {
 	 */
 	void interrupt();
 
-	void initializeDPLLContextualConstraint(Theory.Constraint constraint);
+	void initializeDPLLContextualConstraint(ConjunctiveConstraint constraint);
 
-	Theory.Constraint getDPLLContextualConstraint();
+	ConjunctiveConstraint getDPLLContextualConstraint();
 
 	RewritingProcess extendDPLLContextualConstraint(boolean splitterSign, Expression splitter);
 }
