@@ -55,7 +55,7 @@ import com.sri.ai.util.base.QuarternaryFunction;
  * @author braz
  *
  */
-public class SGDPLLT extends AbstractSymbolicGeneralizedSummationSolver {
+public class SGDPLLT extends AbstractSolver {
 	
 	/**
 	 * A standard version of the algorithm picks a splitter,

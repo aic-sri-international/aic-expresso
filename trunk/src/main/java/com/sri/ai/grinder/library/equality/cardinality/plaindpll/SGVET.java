@@ -84,7 +84,7 @@ import com.sri.ai.util.base.PairOf;
  * @author braz
  *
  */
-public class SGVET extends AbstractSymbolicGeneralizedSummationSolver {
+public class SGVET extends AbstractSolver {
 	
 	private Expression multiplicativeFunction;
 	private Solver subSolver;

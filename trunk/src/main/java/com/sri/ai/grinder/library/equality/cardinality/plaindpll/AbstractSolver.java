@@ -70,7 +70,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-abstract public class AbstractSymbolicGeneralizedSummationSolver extends AbstractHierarchicalRewriter implements Solver {
+abstract public class AbstractSolver extends AbstractHierarchicalRewriter implements Solver {
 	
 	/** The background theoryWithEquality for the algorithm. */
 	protected Theory theory;
@@ -81,11 +81,11 @@ abstract public class AbstractSymbolicGeneralizedSummationSolver extends Abstrac
 	/** A {@link CountsDeclaration} encapsulating sort size information. */
 	protected CountsDeclaration countsDeclaration;
 	
-	public AbstractSymbolicGeneralizedSummationSolver(Theory theory, ProblemType problemType) {
+	public AbstractSolver(Theory theory, ProblemType problemType) {
 		this(theory, problemType, null);
 	}
 
-	public AbstractSymbolicGeneralizedSummationSolver(Theory theory, ProblemType problemType, CountsDeclaration countsDeclaration) {
+	public AbstractSolver(Theory theory, ProblemType problemType, CountsDeclaration countsDeclaration) {
 		this.theory = theory;
 		this.problemType = problemType;
 		this.countsDeclaration = countsDeclaration;
