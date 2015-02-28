@@ -14,7 +14,6 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.AbstractEqualityTheory.AbstractEqualityConstraint;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.AbstractTheory.Contradiction;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.Constraint;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.util.Util;
 
@@ -28,7 +27,7 @@ import com.sri.ai.util.Util;
  *
  */
 @SuppressWarnings("serial")
-public abstract class AbstractRuleOfProductConstraint extends AbstractExpressionWrapper implements Theory.Constraint {
+public abstract class AbstractRuleOfProductConstraint extends AbstractExpressionWrapper implements ConjunctiveConstraint {
 
 	static final private Times timesRewriter = new Times();
 
@@ -76,8 +75,8 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractExpression
 	abstract protected void applyNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
 
 	@Override
-	public Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		Constraint result;
+	public ConjunctiveConstraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		ConjunctiveConstraint result;
 
 		Expression normalizedSplitterGivenConstraint = normalizeSplitterGivenConstraint(splitter, process);
 		
@@ -99,7 +98,7 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractExpression
 		return result;
 	}
 
-	private Constraint applyNormalizedSplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+	private ConjunctiveConstraint applyNormalizedSplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		AbstractRuleOfProductConstraint newConstraint = clone();
 		newConstraint.applyNormalizedSplitterDestructively(splitterSign, splitter, process);
 		return newConstraint;

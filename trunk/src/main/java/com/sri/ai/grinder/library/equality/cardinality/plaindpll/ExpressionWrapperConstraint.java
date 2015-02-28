@@ -38,50 +38,53 @@
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.Collections;
 
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.RewritingProcess;
 
-/**
- * The interface for any rewriting solving symbolic generalized summation problems.
- * 
- * @author braz
- *
- */
-public interface Solver extends Rewriter {
+@SuppressWarnings("serial")
+public class ExpressionWrapperConstraint extends AbstractExpressionWrapper implements Constraint {
 
-	/** Solves a problem encoded in the given expression. */
-	Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process);
-
-	/** Makes a default, appropriate rewriting process for use with this solver as a rewriter. */
-	RewritingProcess makeRewritingProcess(Expression expression);
-
-	/**
-	 * Returns the summation (or the provided semiring additive operation) of an expression
-	 * over the provided set of indices under given non-null constraint.
-	 */
-	Expression solve(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process);
+	private Expression expression;
+	private Collection<Expression> supportedIndices;
 	
-	/**
-	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
-	 */
-	Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process);
+	public ExpressionWrapperConstraint(Expression expression, Collection<Expression> supportedIndices) {
+		this.expression = expression;
+		this.supportedIndices = supportedIndices;
+	}
+	
+	@Override
+	public Expression clone() {
+		return new ExpressionWrapperConstraint(expression, supportedIndices);
+	}
 
-	/**
-	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
-	 */
-	Expression solve(
-			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString);
+	@Override
+	protected Expression computeInnerExpression() {
+		return expression;
+	}
 
-	/**
-	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
-	 */
-	Expression solve(
-			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
-			Predicate<Expression> isUniquelyNamedConstantPredicate);
+	@Override
+	public Collection<Expression> getSupportedIndices() {
+		return Collections.unmodifiableCollection(supportedIndices);
+	}
+
+	@Override
+	public ConjunctiveConstraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

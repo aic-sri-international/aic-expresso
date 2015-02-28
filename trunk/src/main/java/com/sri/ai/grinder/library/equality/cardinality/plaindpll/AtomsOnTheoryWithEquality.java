@@ -131,13 +131,13 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		return result;
 	}
 
-	private class AtomsOnTheoryWithEqualitiesConstraint extends AbstractExpressionWrapper implements Theory.Constraint {
+	private class AtomsOnTheoryWithEqualitiesConstraint extends AbstractExpressionWrapper implements ConjunctiveConstraint {
 
 		private static final long serialVersionUID = 1L;
 		
-		private Theory.Constraint equalityConstraint;
+		private ConjunctiveConstraint equalityConstraint;
 		
-		public AtomsOnTheoryWithEqualitiesConstraint(Theory.Constraint equalityConstraint) {
+		public AtomsOnTheoryWithEqualitiesConstraint(ConjunctiveConstraint equalityConstraint) {
 			this.equalityConstraint = equalityConstraint;
 		}
 		
@@ -168,7 +168,7 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		@Override
 		public AtomsOnTheoryWithEqualitiesConstraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			SignedSplitter equalitySignedSplitter = getSignedEqualitySplitter(splitterSign, splitter);
-			Theory.Constraint newEqualityConstraint = equalityConstraint.applySplitter(equalitySignedSplitter, process);
+			ConjunctiveConstraint newEqualityConstraint = equalityConstraint.applySplitter(equalitySignedSplitter, process);
 			AtomsOnTheoryWithEqualitiesConstraint result;
 			if (newEqualityConstraint != null) {
 				result = new AtomsOnTheoryWithEqualitiesConstraint(newEqualityConstraint);

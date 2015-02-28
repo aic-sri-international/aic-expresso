@@ -53,7 +53,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.Constraint;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.PairOf;

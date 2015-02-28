@@ -127,7 +127,7 @@ public interface Theory {
 	 * @param process
 	 * @return
 	 */
-	Expression applyConstraintToSolution(Constraint constraint, Expression solution, RewritingProcess process);
+	Expression applyConstraintToSolution(ConjunctiveConstraint constraint, Expression solution, RewritingProcess process);
 
 	/**
 	 * Indicates whether the application of a constraint on a splitter can result in true, false, or the splitter itself;
@@ -140,88 +140,5 @@ public interface Theory {
 	 * Make a new constraint for this theoryWithEquality over a set of indices (equivalent to all assignments to those indices).
 	 * @return
 	 */
-	Constraint makeConstraint(Collection<Expression> indices);
-
-	/**
-	 * An interface for theoryWithEquality-specific representations of the current constraint in DPLL.
-	 * 
-	 * @author braz
-	 *
-	 */
-	@Beta
-	public interface Constraint extends Expression {
-		
-		/**
-		 * The set of variables on subsets of which one can count models of this constraint.
-		 */
-		Collection<Expression> getSupportedIndices();
-		
-		/**
-		 * Simplifies a given splitter to true if implied by constraint, false if its negation is implied by constraint,
-		 * or a version of itself with terms replaced by representatives.
-		 * Note that {@link #normalize(Expression, RewritingProcess)} cannot be used instead of this method
-		 * because, for certain theories, the result of normalizing an splitter by treating it as an expression
-		 * may produce a non-boolean-constant expression that is not a splitter either.
-		 * For example, in equality theory, {@link #normalize(Expression, RewritingProcess)}
-		 * transforms 'Term = true' into 'Term' and 'Term = false' into 'not Term',
-		 * and these are not splitters for that theory anymore.
-		 */
-		Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process);
-
-		/**
-		 * Generates new constraint representing conjunction of this constraint and given splitter
-		 * (or its negation, depending on the sign).
-		 * @param splitterSign the splitter's sign (true for splitter itself, false for its negation)
-		 * @param splitter the splitter according to this theoryWithEquality's choice
-		 * @param process the rewriting process
-		 */
-		Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process);
-
-		/** Same as {@link #applySplitter(boolean, Expression, RewritingProcess)} but using {@link SignedSplitter}. */
-		default Constraint applySplitter(SignedSplitter signedSplitter, RewritingProcess process) {
-			return applySplitter(signedSplitter.getSplitterSign(), signedSplitter.getSplitter(), process);
-		}
-		
-		/**
-		 * Provides a splitter, not already explicitly represented by the constraint,
-		 * toward a state in which the model count for the given subset of indices
-		 * can be computed (the model count may be condition on the other variables),
-		 * or returns null if it already is in such a state.
-		 */
-		Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process);
-		
-		/**
-		 * Same as {@link #pickSplitter(Collection, RewritingProcess)} invoked on getIndices().
-		 */
-		default Expression pickSplitter(RewritingProcess process) {
-			return pickSplitter(getSupportedIndices(), process);
-		}
-		
-		/**
-		 * Computes model count for constraint, given a sub-set of indices, in polynomial time.
-		 * Assumes that {@link #pickSplitter(Collection, RewritingProcess)} returns <code>null</code>,
-		 * that is, the constraint is in such a state and context that allows the determination of a unique model count.
-		 * The model count is required to contain no literals implied by the contextual constraint.
-		 */
-		Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process);
-		
-		/**
-		 * Same as {@link #modelCount(Collection, RewritingProcess)} invoked on getIndices().
-		 */
-		default Expression modelCount(RewritingProcess process) {
-			return modelCount(getSupportedIndices(), process);
-		}
-		
-		/**
-		 * Receives an expression and returns an equivalent one according to some normalization property
-		 * For example, an implementation involving equality may choose to always represent all symbols in an equality cluster
-		 * by the same symbol. 
-		 * This method is not required to perform complete inference (that is, to return some minimal representation
-		 * of the expression).
-		 * @param expression
-		 * @param process
-		 * @return
-		 */
-		Expression normalize(Expression expression, RewritingProcess process);
-	}
+	ConjunctiveConstraint makeConstraint(Collection<Expression> indices);
 }

@@ -232,14 +232,14 @@ abstract public class AbstractTheory implements Theory {
 	}
 
 	@Override
-	public Expression applyConstraintToSolution(Constraint constraint, Expression solution, RewritingProcess process) {
+	public Expression applyConstraintToSolution(ConjunctiveConstraint constraint, Expression solution, RewritingProcess process) {
 		Expression result;
 		
 		if (DPLLUtil.isConditionalSolution(solution, this, process)) {
 			Expression solutionSplitter = IfThenElse.getCondition(solution);
-			Constraint constraintUnderSolutionSplitter = constraint.applySplitter(true, solutionSplitter, process);
+			ConjunctiveConstraint constraintUnderSolutionSplitter = constraint.applySplitter(true, solutionSplitter, process);
 			if (constraintUnderSolutionSplitter != null) {
-				Constraint constraintUnderSolutionSplitterNegation = constraint.applySplitter(false, solutionSplitter, process);
+				ConjunctiveConstraint constraintUnderSolutionSplitterNegation = constraint.applySplitter(false, solutionSplitter, process);
 				if (constraintUnderSolutionSplitterNegation != null) {
 					Expression newSolutionSplitter = constraint.normalizeSplitterGivenConstraint(solutionSplitter, process);
 					Expression thenBranch = IfThenElse.getThenBranch(solution);
@@ -255,7 +255,7 @@ abstract public class AbstractTheory implements Theory {
 				}
 			}
 			else {
-				Constraint constraintUnderSolutionSplitterNegation = constraint.applySplitter(false, solutionSplitter, process);
+				ConjunctiveConstraint constraintUnderSolutionSplitterNegation = constraint.applySplitter(false, solutionSplitter, process);
 				if (constraintUnderSolutionSplitterNegation != null) {
 					Expression elseBranch = IfThenElse.getElseBranch(solution);
 					Expression newElseBranch = applyConstraintToSolution(constraintUnderSolutionSplitterNegation, elseBranch, process);

@@ -56,7 +56,6 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.Constraint;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
@@ -137,8 +136,8 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	 */
 	public Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		// TODO: should replace this oldConstraint by a copy constructor creating a sub-process, but surprisingly there is no complete copy constructor available in DefaultRewritingProcess.
-		Theory.Constraint oldConstraint = process.getDPLLContextualConstraint();
-		Constraint contextualConstraint = theory.makeConstraint(Util.list()); // contextual constraint does not involve any indices -- defined on free variables only
+		ConjunctiveConstraint oldConstraint = process.getDPLLContextualConstraint();
+		ConjunctiveConstraint contextualConstraint = theory.makeConstraint(Util.list()); // contextual constraint does not involve any indices -- defined on free variables only
 		process.initializeDPLLContextualConstraint(contextualConstraint);
 
 		Constraint constraint = theory.makeConstraint(indices);
@@ -170,7 +169,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 			Expression thenBranch = IfThenElse.getThenBranch(solution1);
 			Expression elseBranch = IfThenElse.getElseBranch(solution1);
 
-			Constraint constraint = process.getDPLLContextualConstraint();
+			ConjunctiveConstraint constraint = process.getDPLLContextualConstraint();
 			Expression normalizedSplitter = constraint.normalizeSplitterGivenConstraint(splitter, process);
 
 			if (normalizedSplitter.equals(TRUE)) {
@@ -192,7 +191,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 			Expression thenBranch = IfThenElse.getThenBranch(solution2);
 			Expression elseBranch = IfThenElse.getElseBranch(solution2);
 
-			Constraint constraint = process.getDPLLContextualConstraint();
+			ConjunctiveConstraint constraint = process.getDPLLContextualConstraint();
 			Expression normalizedSplitter = constraint.normalizeSplitterGivenConstraint(splitter, process);
 
 			if (normalizedSplitter.equals(TRUE)) {
