@@ -84,9 +84,9 @@ public class SymbolEqualityMaxDPLLTest extends AbstractSymbolicSymbolEqualityDPL
 		
 		// Repeated for debugging purposes:
 //		expression = parse("X != b and X = Y");
-//		supportedIndices    = list("X");
+//		indices    = list("X");
 //		expected   = parse("if Y = b then 0 else 1");
-//		runSymbolicAndNonSymbolicTests(expression, supportedIndices, expected);
+//		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		
 		// this example tests whether conditioning an index to a value considers previous disequalities on that index,

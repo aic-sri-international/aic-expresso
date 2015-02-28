@@ -69,7 +69,7 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	List<Expression> getSubExpressions();
 	
 	/**
-	 * Returns scoped expressions (that is, supportedIndices and quantified variables) introduced by this expression
+	 * Returns scoped expressions (that is, indices and quantified variables) introduced by this expression
 	 * according to given process.
 	 */
 	List<Expression> getScopedExpressions(RewritingProcess process);

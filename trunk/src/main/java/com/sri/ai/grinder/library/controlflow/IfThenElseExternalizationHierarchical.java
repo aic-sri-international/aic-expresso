@@ -53,7 +53,7 @@ import com.sri.ai.util.Util;
 /**
  * Receives a basic expression (basic operators plus products of intensional sets with basic expressions in the head)
  * and returns an equivalent expression in which all conditional expressions are on the top of the expression,
- * but for the ones constrained to be inside sets because they use their supportedIndices.
+ * but for the ones constrained to be inside sets because they use their indices.
 */
 @Beta
 public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalRewriter {

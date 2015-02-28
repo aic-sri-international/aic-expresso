@@ -70,7 +70,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-abstract public class AbstractSymbolicGeneralizedSummationSolver extends AbstractHierarchicalRewriter implements SymbolicGeneralizedSummationSolver {
+abstract public class AbstractSymbolicGeneralizedSummationSolver extends AbstractHierarchicalRewriter implements Solver {
 	
 	/** The background theoryWithEquality for the algorithm. */
 	protected Theory theory;
@@ -133,16 +133,16 @@ abstract public class AbstractSymbolicGeneralizedSummationSolver extends Abstrac
 	}
 
 	/**
-	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of supportedIndices.
+	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
 	 */
 	public Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		// TODO: should replace this oldConstraint by a copy constructor creating a sub-process, but surprisingly there is no complete copy constructor available in DefaultRewritingProcess.
 		Theory.Constraint oldConstraint = process.getDPLLContextualConstraint();
-		Constraint contextualConstraint = theory.makeConstraint(Util.list()); // contextual constraint does not involve any supportedIndices -- defined on free variables only
+		Constraint contextualConstraint = theory.makeConstraint(Util.list()); // contextual constraint does not involve any indices -- defined on free variables only
 		process.initializeDPLLContextualConstraint(contextualConstraint);
 
 		Constraint constraint = theory.makeConstraint(indices);
-		Expression result = solve(expression, constraint, process);
+		Expression result = solve(expression, indices, constraint, process);
 		if (result == null) { // constraint is unsatisfiable, so result is identity element.
 			result = problemType.additiveIdentityElement();
 		}

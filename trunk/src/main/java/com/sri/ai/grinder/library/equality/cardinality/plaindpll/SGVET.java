@@ -78,7 +78,7 @@ import com.sri.ai.util.base.PairOf;
  * </pre>
  * with {@link SGDPLLT}.
  * Note that the symbolic capability of {@link SGDPLLT} is crucial here, as
- * args_j for the various functions f_j will typically involve other supportedIndices which,
+ * args_j for the various functions f_j will typically involve other indices which,
  * at the level of the sub-problem, are free variables.
  * 
  * @author braz
@@ -87,7 +87,7 @@ import com.sri.ai.util.base.PairOf;
 public class SGVET extends AbstractSymbolicGeneralizedSummationSolver {
 	
 	private Expression multiplicativeFunction;
-	private SymbolicGeneralizedSummationSolver subSolver;
+	private Solver subSolver;
 	
 	public SGVET(Expression multiplicativeFunction, Theory theory, ProblemType problemType) {
 		this(multiplicativeFunction, theory, problemType, null);
@@ -111,7 +111,7 @@ public class SGVET extends AbstractSymbolicGeneralizedSummationSolver {
 	}
 	
 	@Override
-	public Expression solve(Expression expression, Constraint constraint, RewritingProcess process) {
+	public Expression solve(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 //		Expression result;
 //		Partition partition = pickPartition(expression.getArguments(), constraint, process);
 //		if (partition == null) {

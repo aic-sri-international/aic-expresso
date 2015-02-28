@@ -82,7 +82,7 @@ public interface ProblemType {
 
 	/**
 	 * Gets an expression passed to a rewriter solving this type of problem, and returns a pair containing the expression
-	 * and supportedIndices for DPLL to solve.
+	 * and indices for DPLL to solve.
 	 * The index types are assumed to be stored in the rewriting process.
 	 * @param expression
 	 * @param process

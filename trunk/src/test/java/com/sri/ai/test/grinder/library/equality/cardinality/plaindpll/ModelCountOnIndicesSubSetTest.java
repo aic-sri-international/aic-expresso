@@ -92,7 +92,7 @@ public class ModelCountOnIndicesSubSetTest {
 		modelCount = constraint.modelCount(countingIndices, process);
 		assertEquals(expected, modelCount);
 		
-		countingIndices = list(Y, Z); // invalid because Z is not in total supportedIndices.
+		countingIndices = list(Y, Z); // invalid because Z is not in total indices.
 		try {
 			modelCount = null;
 			modelCount = constraint.modelCount(countingIndices, process);
@@ -100,7 +100,7 @@ public class ModelCountOnIndicesSubSetTest {
 			assertTrue(error.getMessage().contains("indicesSubSet must be a sub-set of getIndices()"));
 		}
 		if (modelCount != null) {
-			fail("An error about the counting supportedIndices needing to be a sub-set of the total supportedIndices should have been thrown");
+			fail("An error about the counting indices needing to be a sub-set of the total indices should have been thrown");
 		}
 	}
 }

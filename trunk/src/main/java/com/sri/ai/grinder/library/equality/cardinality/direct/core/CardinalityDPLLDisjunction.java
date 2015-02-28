@@ -79,7 +79,7 @@ import com.sri.ai.util.base.Pair;
  * If quantification is "there exists", returns a counting-solution, the leaves of which may differ from the exact one in the following way: when the exact one is not 0, it may be any value but 0.
  * 
  * if F is a disjunction which can be partitioned into a few subproblems
- * such that F can be partitioned into D, D_1, and D_2; where I_1 and I_2 are two partitions of the supportedIndices in X, 
+ * such that F can be partitioned into D, D_1, and D_2; where I_1 and I_2 are two partitions of the indices in X, 
  * and the index variables in D_1 and D_2 are I_1 and I_2 respectively, and D is independent of X. Either D or D_2 may be empty:
  *   D_1 = R_top_simplify(D_1)
  * 	 if D_2 is empty:

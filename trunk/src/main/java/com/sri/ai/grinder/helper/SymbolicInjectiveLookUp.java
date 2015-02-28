@@ -74,11 +74,11 @@ import com.sri.ai.util.base.Pair;
  * More formally, given an expression E, and an intensional set <code>{(on I) (K,V) | Cs }</code>,
  * such that both <code>E</code> and <code>K</code> are (possibly nested) injective applications,
  * where symbols (variables and constants) are considered injective functions,
- * and such that <code>K</code> contains all supportedIndices in <code>I</code>,
+ * and such that <code>K</code> contains all indices in <code>I</code>,
  * the method returns <code>E</code> if the set <code>{(on I) (E, V') | Cs and E = K}</code> is empty,
  * or it returns <code>if C then V' else E</code> if <code>{(on I) (E, V) | Cs and E = K}</code> is a singleton,
  * where <code>C<code> is equivalent to <code>there exists I : Cs and K = E</code>, but with the quantifier having been eliminated
- * (therefore not containing supportedIndices in I),
+ * (therefore not containing indices in I),
  * and <code>V'<code> is the second component of the only pair in that set.
  * <p>
  * The method also requires the name of a rewriter to be used as a complete simplifier
@@ -271,7 +271,7 @@ public class SymbolicInjectiveLookUp {
 
 			result.conditionOnExpressionVariables = process.rewrite(completeNormalizerName, unnormalizedCondition);
 
-			// provide the "external world" with a map from the original supportedIndices to the symbols in expression
+			// provide the "external world" with a map from the original indices to the symbols in expression
 			result.mapOfUnifiedVariables = getMapFromOriginalIndicesToExpressionSymbols(result.mapOfUnifiedVariables, intensionalSet, originalIntensionalSet);
 			
 			cache.put((List<Object>) cacheKey, result);

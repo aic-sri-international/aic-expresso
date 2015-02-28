@@ -52,7 +52,7 @@ import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Theory.Constrai
  * @author braz
  *
  */
-public interface SymbolicGeneralizedSummationSolver extends Rewriter {
+public interface Solver extends Rewriter {
 
 	/** Solves a problem encoded in the given expression. */
 	Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process);
@@ -62,12 +62,12 @@ public interface SymbolicGeneralizedSummationSolver extends Rewriter {
 
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression
-	 * over the provided set of supportedIndices under given non-null constraint.
+	 * over the provided set of indices under given non-null constraint.
 	 */
-	Expression solve(Expression expression, Constraint constraint, RewritingProcess process);
+	Expression solve(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process);
 	
 	/**
-	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of supportedIndices.
+	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
 	 */
 	Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process);
 

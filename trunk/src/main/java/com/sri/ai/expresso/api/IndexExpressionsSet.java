@@ -50,7 +50,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 public interface IndexExpressionsSet {
 	
 	/**
-	 * Provides the syntax-tree to be plugged into syntax trees of expressions with these supportedIndices;
+	 * Provides the syntax-tree to be plugged into syntax trees of expressions with these indices;
 	 * the particular syntax tree must be the same understood by {@link #makeFromSubSyntaxTree(SyntaxTree)}.
 	 * @return
 	 */
@@ -66,7 +66,7 @@ public interface IndexExpressionsSet {
 	}
 
 	/**
-	 * Provides the string that represents these supportedIndices in the string of expressions with these supportedIndices;
+	 * Provides the string that represents these indices in the string of expressions with these indices;
 	 * this must be consistent with whatever parser is being used.
 	 * @return
 	 */
