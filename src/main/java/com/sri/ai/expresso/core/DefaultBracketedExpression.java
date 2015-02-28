@@ -41,6 +41,7 @@ import static com.sri.ai.util.Util.arrayList;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -242,5 +243,15 @@ public class DefaultBracketedExpression extends AbstractNonQuantifiedExpression 
 	public String makeToString() {
 		String result = "[ " + innerExpression + " ]";
 		return result;
+	}
+
+	@Override
+	public Expression getFunctor() {
+		return null;
+	}
+
+	@Override
+	public List<Expression> getArguments() {
+		 return Collections.emptyList();
 	}
 }

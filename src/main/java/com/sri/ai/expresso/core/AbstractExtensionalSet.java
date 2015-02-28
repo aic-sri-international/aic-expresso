@@ -139,4 +139,9 @@ public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpres
 	abstract protected String getOpeningBrackets();
 
 	abstract protected String getClosingBrackets();
+
+	@Override
+	public Expression getFunctor() {
+		return null;
+	}
 }

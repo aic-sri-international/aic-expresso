@@ -37,8 +37,7 @@
  */
 package com.sri.ai.expresso.core;
 
-import static java.util.Collections.emptyList;
-
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -48,7 +47,6 @@ import com.google.common.cache.CacheBuilder;
 import com.sri.ai.expresso.ExpressoConfiguration;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
-import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
@@ -77,18 +75,6 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 	@Override
 	public Object getValue() {
 		return value;
-	}
-
-	/**
-	 * Even though {@link Symbol} is not a {@link FunctionApplication} and does not have arguments,
-	 * we offer this method (returning an empty list) for convenience,
-	 * because it is often the case that we want to treat function applications and symbols uniformly
-	 * and talk about their arguments,
-	 * and testing every time whether an expression is a symbol becomes cumbersome.
-	 */
-	@Override
-	public List<Expression> getArguments() {
-		return emptyList();
 	}
 
 	@Override
@@ -361,5 +347,15 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 	@Override
 	public String makeToString() {
 		return getSyntaxTree().toString();
+	}
+
+	@Override
+	public Expression getFunctor() {
+		return null;
+	}
+
+	@Override
+	public List<Expression> getArguments() {
+		 return Collections.emptyList();
 	}
 }

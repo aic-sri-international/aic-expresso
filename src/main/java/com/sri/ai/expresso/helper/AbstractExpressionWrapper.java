@@ -37,8 +37,6 @@
  */
 package com.sri.ai.expresso.helper;
 
-import static java.util.Collections.emptyList;
-
 import java.util.Iterator;
 import java.util.List;
 

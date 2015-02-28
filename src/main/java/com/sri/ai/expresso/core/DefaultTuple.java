@@ -189,4 +189,9 @@ public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tup
 		}
 		return result;
 	}
+
+	@Override
+	public Expression getFunctor() {
+		return null;
+	}
 }
