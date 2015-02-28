@@ -42,6 +42,7 @@ import static com.sri.ai.util.Util.mapIntoArray;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -179,5 +180,15 @@ public class DefaultSyntacticFunctionApplication extends AbstractNonQuantifiedEx
 	@Override
 	public String makeToString() {
 		return getSyntaxTree().toString();
+	}
+
+	@Override
+	public Expression getFunctor() {
+		return null;
+	}
+
+	@Override
+	public List<Expression> getArguments() {
+		 return Collections.emptyList();
 	}
 }

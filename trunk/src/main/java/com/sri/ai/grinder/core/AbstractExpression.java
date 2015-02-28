@@ -37,8 +37,6 @@
  */
 package com.sri.ai.grinder.core;
 
-import static java.util.Collections.emptyList;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -342,11 +340,8 @@ public abstract class AbstractExpression implements Expression {
 		return result;
 	}
 
-	/** Default implementation returning null; function applications must override. */
 	@Override
-	public Expression getFunctor() {
-		return null;
-	}
+	public abstract Expression getFunctor();
 
 	@Override
 	public boolean hasFunctor(Object functor) {
@@ -359,14 +354,8 @@ public abstract class AbstractExpression implements Expression {
 		return arguments.size();
 	}
 
-	/** Default implementation returning empty list; function application classes must override it. */
 	@Override
-	public List<Expression> getArguments() {
-		// throw new Error("Expression.getArguments() undefined for instances of class " + getClass().getSimpleName());
-		 return emptyList();
-		 // Leaving this implementation because we often enquire about the number of arguments of an expression of unknown type,
-		 // and assume that non-function-application ones will have zero arguments.
-	}
+	public abstract List<Expression> getArguments();
 
 	@Override
 	public Expression get(int index) {
