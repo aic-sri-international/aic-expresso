@@ -15,6 +15,9 @@ import com.sri.ai.grinder.api.RewritingProcess;
  */
 public interface Constraint extends Expression {
 
+	/** The theory to which this constraint belongs. */
+	Theory getTheory();
+	
 	/**
 	 * The set of variables on subsets of which one can count models of this constraint.
 	 */

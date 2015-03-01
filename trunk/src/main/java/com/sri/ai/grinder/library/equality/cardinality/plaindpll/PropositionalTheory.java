@@ -199,6 +199,11 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 		
 		@Override
+		public Theory getTheory() {
+			return PropositionalTheory.this;
+		}
+
+		@Override
 		public Expression pickSplitter(RewritingProcess process) {
 			return null; // we are always ready to provide a model count, so there is no need for extra splitters
 		}
