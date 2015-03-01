@@ -67,6 +67,7 @@ public class WrappedExpressionConstraint extends AbstractExpressionWrapper imple
 	private Theory theory;
 	
 	public WrappedExpressionConstraint(Theory theory, Collection<Expression> supportedIndices, Expression expression) {
+		assert expression != null : getClass().getSimpleName() + " cannot wrap a null value.";
 		this.expression = expression instanceof WrappedExpressionConstraint? ((WrappedExpressionConstraint) expression).expression : expression;
 		this.supportedIndices = supportedIndices;
 		this.theory = theory;
@@ -135,10 +136,7 @@ public class WrappedExpressionConstraint extends AbstractExpressionWrapper imple
 		}
 		else { // only acceptable leaves are boolean constants and splitters, so at this point it must be a boolean connective.
 			assert FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(expression) : "Only boolean formulas on theory literals supported by " + getClass();
-			result = wrap(
-					getFirstNonNullResultOrNull(
-							expression.getArguments(),
-							e -> wrap(e).pickSplitter(indicesSubSet, process)));
+			result = getFirstNonNullResultOrNull(expression.getArguments(), subExpression -> wrap(subExpression).pickSplitter(indicesSubSet, process));
 		}
 		return result;
 	}
@@ -146,7 +144,7 @@ public class WrappedExpressionConstraint extends AbstractExpressionWrapper imple
 	@Override
 	public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
 		Solver solver = getSolver();
-		Expression result = solver.solve(this, indicesSubSet, process); // this was the motivation for making Constraint implement Expression
+		Expression result = solver.solve(this, indicesSubSet, process);
 		return result;
 	}
 

@@ -49,7 +49,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import com.sri.ai.expresso.ExpressoConfiguration;
-import com.sri.ai.expresso.api.CompoundSyntaxTree;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.ReplacementFunctionWithContextuallyUpdatedProcess;
@@ -408,27 +407,12 @@ public abstract class AbstractExpression implements Expression {
 			return true;
 		}
 		
-		boolean result = false;
-		
-		boolean anotherObjectiIsExpressionDefinedOnCompoundSyntaxTree =
-				anotherObject instanceof Expression &&
-				((Expression) anotherObject).getSyntaxTree() instanceof CompoundSyntaxTree;
-		
-		if (anotherObjectiIsExpressionDefinedOnCompoundSyntaxTree) {
-			
-			Expression anotherCompoundSyntaxTree = (Expression) anotherObject;
-			
-			if (this.hashCode() == anotherCompoundSyntaxTree.hashCode()) {
-				
-				SyntaxTree       thisRootTree    = this.getSyntaxTree().getRootTree();
-				SyntaxTree       anotherRootTree = anotherCompoundSyntaxTree.getSyntaxTree().getRootTree();
-				
-				List<SyntaxTree> thisSubTrees    = this.getSyntaxTree().getImmediateSubTrees();
-				List<SyntaxTree> anotherSubTrees = anotherCompoundSyntaxTree.getSyntaxTree().getImmediateSubTrees();
-
-				result = thisRootTree.equals(anotherRootTree) && thisSubTrees.equals(anotherSubTrees);
-			}
+		if (! (anotherObject instanceof Expression)) {
+			anotherObject = Expressions.makeSymbol(anotherObject);
 		}
+
+		boolean result = getSyntaxTree().equals(((Expression)anotherObject).getSyntaxTree());
+		
 		return result;
 	}
 

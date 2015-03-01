@@ -66,4 +66,16 @@ public interface Constraint extends Expression {
 	default Expression modelCount(RewritingProcess process) {
 		return modelCount(getSupportedIndices(), process);
 	}
+
+	/**
+	 * Given a sub-set of supported indices, projects the constraint onto the remaining ones.
+	 * Default implementation uses symbolic satisfiability through {@link SGDPLLT}.
+	 * Specific constraint implementations will typically have more efficient ways to do it.
+	 */
+	default Expression project(Collection<Expression> indicesSubSet, RewritingProcess process) {
+		Solver projector = new SGDPLLT(getTheory(), new Satisfiability());
+		Expression result = projector.solve(this, indicesSubSet, process); // this was the motivation for making Constraint implement Expression
+		result = new WrappedExpressionConstraint(getTheory(), indicesSubSet, result);
+		return result;
+	}
 }
