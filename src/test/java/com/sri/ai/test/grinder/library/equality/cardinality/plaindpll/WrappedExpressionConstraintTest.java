@@ -52,6 +52,7 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Equivalence;
 import com.sri.ai.grinder.library.boole.Not;
@@ -67,6 +68,8 @@ public class WrappedExpressionConstraintTest {
 	@Test
 	public void test() {
 		
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+
 		List<Expression> totalIndices;
 		List<Expression> countingIndices;
 		Expression expected;

@@ -152,14 +152,14 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 
 	public Expression solve(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		Expression result;
-		if (expression instanceof Constraint && constraint.equals(TRUE)) {
+		if (expression instanceof ConjunctiveConstraint && constraint.equals(TRUE)) {
 			result = solveAfterBookkeeping(TRUE, indices, (Constraint) expression, process);
+			// OPTIMIZATION: perhaps it is worth it checking whether expression is a conjunction with a Constraint conjunct.
 		}
 		else {
 			result = solveAfterBookkeeping(expression, indices, constraint, process);
 		}
 		return result;
-		// OPTIMIZATION: perhaps it is worth it checking whether expression is a conjunction with a Constraint conjunct.
 	}
 
 	/**

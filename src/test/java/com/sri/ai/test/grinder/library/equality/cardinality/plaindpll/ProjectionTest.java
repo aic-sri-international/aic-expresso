@@ -61,7 +61,7 @@ import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolTermTheory;
 
 @Beta
-public class ModelCountOnIndicesSubSetTest {
+public class ProjectionTest {
 	
 	@Test
 	public void test() {
@@ -69,41 +69,42 @@ public class ModelCountOnIndicesSubSetTest {
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 
 		List<Expression> totalIndices;
-		List<Expression> countingIndices;
+		List<Expression> projectionIndices;
 		Expression expected;
-		Expression modelCount;
+		Expression projection; // Expression in general, but we want to test that it will actually be represented as a constraint.
 		
 		EqualityTheory theory = new EqualityTheory(new SymbolTermTheory());
 		RewritingProcess process = makeProcess(theory, map("X", "Everything", "Y", "Everything", "Z", "Everything"), map("Everything", "10"));
 		
-		totalIndices    = list(X, Y);
-		countingIndices = list(X, Y);
+		totalIndices = list(X, Y);
+		projectionIndices = list(X, Y);
 		Constraint constraint = theory.makeConstraint(totalIndices);
 		constraint = constraint.applySplitter(false, parse("X = Y"), process);
 		constraint = constraint.applySplitter(false, parse("Y = Z"), process);
-		expected = parse("81");
-		modelCount = constraint.modelCount(countingIndices, process);
-		assertEquals(expected, modelCount);
+
+		expected = parse("true");
+		projection = constraint.project(projectionIndices, process);
+		assertEquals(expected, projection);
 		
-		countingIndices = list(X);
-		expected = parse("if Y = Z then 0 else 9");
-		modelCount = constraint.modelCount(countingIndices, process);
-		assertEquals(expected, modelCount);
+		projectionIndices = list(X);
+		expected = parse("if Y = Z then false else true");
+		projection = constraint.project(projectionIndices, process);
+		assertEquals(expected, projection);
 		
-		countingIndices = list();
-		expected = parse("if Y = Z then 0 else if X = Y then 0 else 1");
-		modelCount = constraint.modelCount(countingIndices, process);
-		assertEquals(expected, modelCount);
+		projectionIndices = list();
+		expected = parse("if Y = Z then false else if X = Y then false else true");
+		projection = constraint.project(projectionIndices, process);
+		assertEquals(expected, projection);
 		
-		countingIndices = list(Y, Z); // invalid because Z is not in total indices.
+		projectionIndices = list(Y, Z); // invalid because Z is not in total indices.
+		projection = null; // need to erase previous values of projection in case an error is thrown
 		try {
-			modelCount = null;
-			modelCount = constraint.modelCount(countingIndices, process);
+			projection = constraint.project(projectionIndices, process);
 		} catch (AssertionError error) {
 			assertTrue(error.getMessage().contains("indicesSubSet must be a sub-set of getIndices()"));
 		}
-		if (modelCount != null) {
-			fail("An error about the counting indices needing to be a sub-set of the total indices should have been thrown");
+		if (projection != null) {
+			fail("An error about the projection indices needing to be a sub-set of the total indices should have been thrown");
 		}
 	}
 }

@@ -207,6 +207,13 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 			return result;
 		}
 
+		@Override
+		public Expression project(Collection<Expression> indicesSubSet, RewritingProcess process) {
+			Solver projector = new SGDPLLT(getTheory(), new Satisfiability());
+			Expression result = projector.solve(this, indicesSubSet, process);
+			return result;
+		}
+
 		private Expression fromEqualitySplitterToSplitterIfEqualitySplitterInTheFirstPlace(Expression expression, RewritingProcess process) {
 			Expression equalitySplitter = makeSplitterIfPossible(expression, equalityConstraint.getSupportedIndices(), process);
 			Expression result;
