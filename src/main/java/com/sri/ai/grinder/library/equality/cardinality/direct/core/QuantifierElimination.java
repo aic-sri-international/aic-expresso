@@ -121,7 +121,7 @@ public class QuantifierElimination extends AbstractCardinalityRewriter {
 		} 
 		else if (FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(expressionF)) {
 			Trace.log("return R_normalize(F with quantifiers eliminated from sub-expressions)");
-			result = Expressions.passThroughFunctionApplication(this, expressionF, process);
+			result = Expressions.applyRewriterToArgumentsAndReAssembleFunctionApplication(this, expressionF, process);
 			// we can safely assume it is a functional application because the only non-atomic formulas
 			// that are not function applications are the quantified ones, which will not reach this test.
 			if (result != expressionF) {

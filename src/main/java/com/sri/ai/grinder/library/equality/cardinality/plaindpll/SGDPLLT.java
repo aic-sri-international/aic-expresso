@@ -91,7 +91,7 @@ public class SGDPLLT extends AbstractSolver {
 	}
 
 	@Override
-	public Expression solve(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	protected Expression solveAfterBookkeeping(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		
 //		System.out.println("Solving");
 //		System.out.println("expression           : " + expression);

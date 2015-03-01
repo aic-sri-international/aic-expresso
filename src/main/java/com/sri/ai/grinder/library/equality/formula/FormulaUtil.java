@@ -532,5 +532,4 @@ public class FormulaUtil {
 		boolean result = EQUALITY_FORMULAS_PRIMITIVE_SYMBOLS.contains(formula.getFunctor());
 		return result;
 	}
-
 }

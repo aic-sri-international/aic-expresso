@@ -1095,7 +1095,7 @@ public class Expressions {
 	 * Given a function <code>F</code> and a function application <code>f(a1, ..., an)</code>,
 	 * returns <code>f(F(a1), ..., F(an))</code>.
 	 */
-	public static Expression passThroughFunctionApplication(Function<Expression, Expression> function, Expression expression) {
+	public static Expression applyJavaFunctionToArgumentsAndReAssembleFunctionApplication(Function<Expression, Expression> function, Expression expression) {
 		Expression       result;
 		Expression       functor            = expression.getFunctor();
 		List<Expression> arguments          = expression.getArguments();
@@ -1113,9 +1113,9 @@ public class Expressions {
 	 * Given a rewriter <code>R</code> and a function application <code>f(a1, ..., an)</code>,
 	 * returns <code>f(R(a1), ..., R(an))</code>.
 	 */
-	public static Expression passThroughFunctionApplication(Rewriter rewriter, Expression expression, RewritingProcess process) {
+	public static Expression applyRewriterToArgumentsAndReAssembleFunctionApplication(Rewriter rewriter, Expression expression, RewritingProcess process) {
 		RewriterFunction thisRewriterFunction = new RewriterFunction(rewriter, process);
-		Expression result = passThroughFunctionApplication(thisRewriterFunction, expression);
+		Expression result = applyJavaFunctionToArgumentsAndReAssembleFunctionApplication(thisRewriterFunction, expression);
 		return result;
 	}
 

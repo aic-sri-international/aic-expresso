@@ -106,4 +106,10 @@ public class Equivalence extends AbstractRewriter {
 
 		return expression;
 	}
+
+	public static Expression make(Expression expression1, Expression expression2) {
+		Expression result = Expressions.apply(FunctorConstants.EQUIVALENCE, expression1, expression2);
+		result = simplify(result);
+		return result;
+	}
 }

@@ -254,4 +254,9 @@ public class DefaultBracketedExpression extends AbstractNonQuantifiedExpression 
 	public List<Expression> getArguments() {
 		 return Collections.emptyList();
 	}
+
+	@Override
+	public Expression set(int i, Expression newIthArgument) {
+		throw new Error("set(int, Expression) not defined for " + getClass());
+	}
 }
