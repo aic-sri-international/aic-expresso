@@ -51,13 +51,14 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.number.Division;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.util.Util;
 
 /**
- * An example on how to use SGDPLL(T) to convert table representations to decision tree representations.
+ * An example on how to use SGVE(T) to convert table representations to decision tree representations.
  * @author braz
  *
  */
@@ -104,7 +105,7 @@ public class ProbabilisticInference {
 		Predicate<Expression> isUniquelyNamedConstantPredicate;
 		Theory theory;
 		ProblemType problemType;
-		SGDPLLT solver;
+		Solver solver;
 
 		if (resultFromPreviousQueryIfKnown == null) {
 			mapFromTypeNameToSizeString = mapFromTypeNameToSizeStringParam;
@@ -123,7 +124,8 @@ public class ProbabilisticInference {
 			theory = new AtomsOnTheoryWithEquality(new EqualityTheory(new SymbolTermTheory()));
 			problemType = new Sum(); // for marginalization
 			// The solver for the parameters above.
-			solver = new SGDPLLT(theory, problemType);
+			solver = new SGVET(FunctorConstants.TIMES, theory, problemType);
+//			solver = new SGDPLLT(theory, problemType);
 
 			evidenceProbability = null;
 		}
@@ -152,6 +154,7 @@ public class ProbabilisticInference {
 	
 		// Solve the problem.
 		Expression unnormalizedMarginal = solver.solve(factorGraph, indices, mapFromRandomVariableNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
+		System.out.println("Unnormalized marginal: " + unnormalizedMarginal);
 		
 		Expression marginal;
 		if (evidence == null && isBayesianNetwork) {
@@ -191,9 +194,9 @@ public class ProbabilisticInference {
 		private Predicate<Expression> isUniquelyNamedConstantPredicate;
 		private Theory theory;
 		private ProblemType problemType;
-		private SGDPLLT solver;
+		private Solver solver;
 	
-		public Result(Expression queryMarginal, Expression evidenceProbability, Map<String, String> mapFromTypeNameToSizeString, Map<String, String> mapFromRandomVariableNameToTypeName, Expression queryVariable, Collection<Expression> allVariables, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory, ProblemType problemType, SGDPLLT solver) {
+		public Result(Expression queryMarginal, Expression evidenceProbability, Map<String, String> mapFromTypeNameToSizeString, Map<String, String> mapFromRandomVariableNameToTypeName, Expression queryVariable, Collection<Expression> allVariables, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory, ProblemType problemType, Solver solver) {
 			super();
 			this.queryMarginal = queryMarginal;
 			this.evidenceProbability = evidenceProbability;
@@ -243,7 +246,7 @@ public class ProbabilisticInference {
 			return problemType;
 		}
 
-		public SGDPLLT getSolver() {
+		public Solver getSolver() {
 			return solver;
 		}
 	}
@@ -268,7 +271,7 @@ public class ProbabilisticInference {
 		Expression bayesianNetwork = parse("" + 
 				"(if earthquake then 0.01 else 0.99) * " +
 				"(if burglar = none then 0.7 else if burglar = tom then 0.1 else 0.2 / (|Folks| - 2)) * " +
-				// note the division above of the potential by number of remaining values, as the probabilities must sum up to 1
+				 // note the division above of the potential by number of remaining values, as the probabilities must sum up to 1
 				"(if burglar != none or earthquake "
 				+    "then if alarm then 0.9 else 0.1 "
 				+    "else if alarm then 0.05 else 0.95) " +

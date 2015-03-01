@@ -189,7 +189,7 @@ public class SGDPLLT extends AbstractSolver {
 		Combiner combiner;
 		boolean splitterMustBeInContextualConstraint;
 
-		boolean splitterDependsOnFreeVariablesOnly = ! theory.splitterDependsOnIndex(splitter, constraint.getSupportedIndices());
+		boolean splitterDependsOnFreeVariablesOnly = ! theory.splitterDependsOnIndex(splitter, indices);
 		if (earlyExternalizationOfFreeVariableSplittersOptimization && splitterDependsOnFreeVariablesOnly) {
 			combiner = conditionalCombiner;
 			splitterMustBeInContextualConstraint = true;

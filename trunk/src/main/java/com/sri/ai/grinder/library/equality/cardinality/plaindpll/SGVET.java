@@ -39,6 +39,7 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.isSubExpressionOf;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.collectToLists;
 import static com.sri.ai.util.Util.getFirst;
 import static com.sri.ai.util.Util.list;
@@ -84,13 +85,13 @@ public class SGVET extends AbstractSolver {
 	private Expression multiplicativeFunction;
 	private Solver subSolver;
 	
-	public SGVET(Expression multiplicativeFunction, Theory theory, ProblemType problemType) {
-		this(multiplicativeFunction, theory, problemType, null);
+	public SGVET(String multiplicativeFunctionString, Theory theory, ProblemType problemType) {
+		this(multiplicativeFunctionString, theory, problemType, null);
 	}
 
-	public SGVET(Expression multiplicativeFunction, Theory theory, ProblemType problemType, CountsDeclaration countsDeclaration) {
+	public SGVET(String multiplicativeFunctionString, Theory theory, ProblemType problemType, CountsDeclaration countsDeclaration) {
 		super(theory, problemType, countsDeclaration);
-		this.multiplicativeFunction = multiplicativeFunction;
+		this.multiplicativeFunction = makeSymbol(multiplicativeFunctionString);
 		this.subSolver = new SGDPLLT(theory, problemType, countsDeclaration);
 	}
 
@@ -110,7 +111,7 @@ public class SGVET extends AbstractSolver {
 	@Override
 	protected Expression solveAfterBookkeeping(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		Expression result;
-		Partition partition = pickPartition(expression.getArguments(), constraint, process);
+		Partition partition = pickPartition(getFactors(expression), indices, constraint, process);
 		if (partition == null) {
 			result = subSolver.solve(expression, indices, constraint, process);
 		}
@@ -127,9 +128,8 @@ public class SGVET extends AbstractSolver {
 		return result;
 	}
 
-	private Partition pickPartition(List<Expression> expressions, Constraint constraint, RewritingProcess process) {
+	private Partition pickPartition(List<Expression> expressions, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		Partition result;
-		Collection<Expression> indices = constraint.getSupportedIndices();
 		if (indices.isEmpty()) {
 			result = null;
 		}
@@ -145,5 +145,16 @@ public class SGVET extends AbstractSolver {
 
 	private Expression product(Collection<Expression> onIndex) {
 		return apply(multiplicativeFunction, onIndex);
+	}
+	
+	private List<Expression> getFactors(Expression expression) {
+		List<Expression> result;
+		if (expression.hasFunctor(multiplicativeFunction)) {
+			result = expression.getArguments();
+		}
+		else {
+			result = list(expression);
+		}
+		return result;
 	}
 }
