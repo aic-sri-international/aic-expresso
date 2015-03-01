@@ -107,6 +107,11 @@ public abstract class AbstractExpressionWrapper extends AbstractExpression {
 	}
 
 	@Override
+	public Expression set(int i, Expression newIthArgument) {
+		return getInnerExpression().set(i, newIthArgument);
+	}
+
+	@Override
 	public String makeToString() {
 		return getInnerExpression().toString();
 	}

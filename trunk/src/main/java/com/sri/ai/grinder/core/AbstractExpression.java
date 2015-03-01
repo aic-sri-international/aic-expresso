@@ -363,11 +363,6 @@ public abstract class AbstractExpression implements Expression {
 		return arguments.get(index);
 	}
 
-	@Override
-	public Expression set(int i, Expression newIthArgument) {
-		throw new Error("Expression.set(int, Expression) undefined for instances of class " + getClass().getSimpleName());
-	}
-
 	////// OBJECT
 	
 	@Override

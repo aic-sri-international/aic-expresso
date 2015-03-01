@@ -110,7 +110,7 @@ public class SGVET extends AbstractSolver {
 	}
 	
 	@Override
-	public Expression solve(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	protected Expression solveAfterBookkeeping(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 //		Expression result;
 //		Partition partition = pickPartition(expression.getArguments(), constraint, process);
 //		if (partition == null) {

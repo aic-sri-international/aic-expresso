@@ -150,6 +150,32 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		return result;
 	}
 
+	public Expression solve(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+		Expression result;
+		if (expression instanceof Constraint && constraint.equals(TRUE)) {
+			result = solveAfterBookkeeping(TRUE, indices, (Constraint) expression, process);
+		}
+		else {
+			result = solveAfterBookkeeping(expression, indices, constraint, process);
+		}
+		return result;
+		// OPTIMIZATION: perhaps it is worth it checking whether expression is a conjunction with a Constraint conjunct.
+	}
+
+	/**
+	 * The actual solving method provided by specific solvers.
+	 * The only current difference between this method and {@link #solve(Expression, Collection, Constraint, RewritingProcess)}
+	 * is that the latter checks whether the given expression is a {@link Constraint} and the given constraint is TRUE,
+	 * in which case it optimizes solving by "splitting on the entire constraint at once",
+	 * that is, replacing <code>sum_TRUE E</code> by <code>sum_E TRUE</code>, thus leveraging the already constructed internal representations of E.
+	 * @param expression
+	 * @param indices
+	 * @param constraint
+	 * @param process
+	 * @return
+	 */
+	protected abstract Expression solveAfterBookkeeping(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process);
+
 	/**
 	 * If solutions are unconditional expressions, simply add them.
 	 * If they are conditional (symbolic), perform distributive on conditions.
