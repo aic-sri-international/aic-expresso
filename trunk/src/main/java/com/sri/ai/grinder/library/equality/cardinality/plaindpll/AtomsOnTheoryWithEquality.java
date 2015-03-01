@@ -208,9 +208,10 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		}
 
 		@Override
-		public Expression project(Collection<Expression> indicesSubSet, RewritingProcess process) {
+		public Constraint project(Collection<Expression> indicesSubSet, RewritingProcess process) {
 			Solver projector = new SGDPLLT(getTheory(), new Satisfiability());
-			Expression result = projector.solve(this, indicesSubSet, process);
+			Expression resultExpression = projector.solve(this, getSupportedIndices(), process);
+			Constraint result = new ExpressionConstraint(getTheory(), getSupportedIndices(), resultExpression);
 			return result;
 		}
 

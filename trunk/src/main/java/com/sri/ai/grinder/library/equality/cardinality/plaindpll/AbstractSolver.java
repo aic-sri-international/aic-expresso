@@ -89,6 +89,10 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		this.problemType = problemType;
 		this.countsDeclaration = countsDeclaration;
 	}
+	
+	public Theory getTheory() {
+		return theory;
+	}
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {

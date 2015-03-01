@@ -60,7 +60,7 @@ import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Constraint;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolTermTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.WrappedExpressionConstraint;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ExpressionConstraint;
 
 @Beta
 public class WrappedExpressionConstraintTest {
@@ -89,13 +89,13 @@ public class WrappedExpressionConstraintTest {
 		constraint2 = theory.makeConstraint(totalIndices);
 		constraint2 = constraint2.applySplitter(true,  parse("Y = b"), process);
 		
-		compoundConstraint = new WrappedExpressionConstraint(theory, totalIndices, Or.make(constraint1, constraint2));
+		compoundConstraint = new ExpressionConstraint(theory, totalIndices, Or.make(constraint1, constraint2));
 		
 		expected = parse("91");
 		modelCount = compoundConstraint.modelCount(countingIndices, process);
 		assertEquals(expected, modelCount);
 		
-		compoundConstraint = new WrappedExpressionConstraint(theory, totalIndices, Equivalence.make(constraint1, constraint2));
+		compoundConstraint = new ExpressionConstraint(theory, totalIndices, Equivalence.make(constraint1, constraint2));
 		expected = parse("18");
 		modelCount = compoundConstraint.modelCount(countingIndices, process);
 		assertEquals(expected, modelCount);
@@ -103,7 +103,7 @@ public class WrappedExpressionConstraintTest {
 		modelCount = compoundConstraint.modelCount(list(X), process);
 		assertEquals(expected, modelCount);
 
-		compoundConstraint = new WrappedExpressionConstraint(theory, totalIndices, And.make(constraint1, Not.make(constraint1)));
+		compoundConstraint = new ExpressionConstraint(theory, totalIndices, And.make(constraint1, Not.make(constraint1)));
 		expected = parse("0");
 		modelCount = compoundConstraint.modelCount(countingIndices, process);
 		assertEquals(expected, modelCount);

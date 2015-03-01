@@ -60,22 +60,22 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
  *
  */
 @SuppressWarnings("serial")
-public class WrappedExpressionConstraint extends AbstractExpressionWrapper implements Constraint {
+public class ExpressionConstraint extends AbstractExpressionWrapper implements Constraint {
 
 	private Expression expression;
 	private Collection<Expression> supportedIndices;
 	private Theory theory;
 	
-	public WrappedExpressionConstraint(Theory theory, Collection<Expression> supportedIndices, Expression expression) {
+	public ExpressionConstraint(Theory theory, Collection<Expression> supportedIndices, Expression expression) {
 		assert expression != null : getClass().getSimpleName() + " cannot wrap a null value.";
-		this.expression = expression instanceof WrappedExpressionConstraint? ((WrappedExpressionConstraint) expression).expression : expression;
+		this.expression = expression instanceof ExpressionConstraint? ((ExpressionConstraint) expression).expression : expression;
 		this.supportedIndices = supportedIndices;
 		this.theory = theory;
 	}
 	
 	@Override
 	public Expression clone() {
-		return new WrappedExpressionConstraint(theory, supportedIndices, expression);
+		return new ExpressionConstraint(theory, supportedIndices, expression);
 	}
 
 	@Override
@@ -157,7 +157,7 @@ public class WrappedExpressionConstraint extends AbstractExpressionWrapper imple
 	}
 
 	/**
-	 * If expression is {@link Constraint}, return it; otherwise, wrap it in {@link WrappedExpressionConstraint} and return that.
+	 * If expression is {@link Constraint}, return it; otherwise, wrap it in {@link ExpressionConstraint} and return that.
 	 * @param expression
 	 * @return
 	 */
@@ -167,7 +167,7 @@ public class WrappedExpressionConstraint extends AbstractExpressionWrapper imple
 			result = (Constraint) expression;
 		}
 		else {
-			result = new WrappedExpressionConstraint(theory, supportedIndices, expression);
+			result = new ExpressionConstraint(theory, supportedIndices, expression);
 		}
 		return result;
 	}

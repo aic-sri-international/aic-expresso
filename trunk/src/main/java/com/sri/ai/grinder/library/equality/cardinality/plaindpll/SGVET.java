@@ -37,24 +37,20 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import static com.sri.ai.expresso.helper.Expressions.addExpressionToArgumentsOfFunctionApplication;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.isSubExpressionOf;
-import static com.sri.ai.util.Util.collect;
 import static com.sri.ai.util.Util.collectToLists;
 import static com.sri.ai.util.Util.getFirst;
 import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.removeNonDestructively;
 
 import java.util.Collection;
 import java.util.List;
 
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.util.Util;
-import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.PairOf;
 
 /**
@@ -99,48 +95,50 @@ public class SGVET extends AbstractSolver {
 	}
 
 	private static class Partition {
-		private Expression index;
+		private List<Expression> index;
+		private List<Expression> remainingIndices;
 		private PairOf<List<Expression>> expressionsOnIndexAndNot;
 
-		public Partition(Expression index, PairOf<List<Expression>> expressionsOnIndex) {
+		public Partition(Expression index, List<Expression> remainingIndices, PairOf<List<Expression>> expressionsOnIndex) {
 			super();
-			this.index = index;
+			this.index = list(index);
+			this.remainingIndices = remainingIndices;
 			this.expressionsOnIndexAndNot = expressionsOnIndex;
 		}
 	}
 	
 	@Override
 	protected Expression solveAfterBookkeeping(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
-//		Expression result;
-//		Partition partition = pickPartition(expression.getArguments(), constraint, process);
-//		if (partition == null) {
-//			result = subSolver.solve(expression, constraint, process);
-//		}
-//		else {
-//			Expression indexSubProblemExpression = product(partition.expressionsOnIndexAndNot.first);
-//			Constraint indexSubProblemConstraint = constraint.copyWithNewIndices(list(partition.index));
-//			Expression indexSubProblemSolution   = subSolver.solve(indexSubProblemExpression, indexSubProblemConstraint, process);
-//			
-//			partition.expressionsOnIndexAndNot.second.add(indexSubProblemSolution);
-//			Expression remainingSubProblemExpression = product(partition.expressionsOnIndexAndNot.second);
-//			Constraint remainingSubProblemConstraint = constraint.projectOnOtherIndices(partition.index);
-//			result = solve(remainingSubProblemExpression, remainingSubProblemConstraint, process);
-//		}
-//		
-//		return result;
-		return null;
+		Expression result;
+		Partition partition = pickPartition(expression.getArguments(), constraint, process);
+		if (partition == null) {
+			result = subSolver.solve(expression, indices, constraint, process);
+		}
+		else {
+			Expression indexSubProblemExpression = product(partition.expressionsOnIndexAndNot.first);
+			Expression indexSubProblemSolution   = subSolver.solve(indexSubProblemExpression, partition.index, constraint, process);
+			
+			partition.expressionsOnIndexAndNot.second.add(indexSubProblemSolution);
+			Expression remainingSubProblemExpression = product(partition.expressionsOnIndexAndNot.second);
+			Constraint constraintOnRemainingIndices = constraint.project(partition.index, process);
+			result = solve(remainingSubProblemExpression, partition.remainingIndices, constraintOnRemainingIndices, process);
+		}
+		
+		return result;
 	}
 
 	private Partition pickPartition(List<Expression> expressions, Constraint constraint, RewritingProcess process) {
 		Partition result;
-		if (constraint.getSupportedIndices().isEmpty()) {
+		Collection<Expression> indices = constraint.getSupportedIndices();
+		if (indices.isEmpty()) {
 			result = null;
 		}
 		else {
-			Expression index = getFirst(constraint.getSupportedIndices());
+			Expression index = getFirst(indices);
+			List<Expression> remainingIndices = removeNonDestructively(indices, index);
 			Predicate<Expression> containsIndex = e -> isSubExpressionOf(index, e);
 			PairOf<List<Expression>> onIndexAndNot = collectToLists(expressions, containsIndex);
-			result = new Partition(index, onIndexAndNot);
+			result = new Partition(index, remainingIndices, onIndexAndNot);
 		}
 		return result;
 	}
