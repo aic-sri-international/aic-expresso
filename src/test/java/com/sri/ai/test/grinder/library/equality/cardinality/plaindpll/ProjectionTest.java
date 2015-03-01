@@ -77,11 +77,11 @@ public class ProjectionTest {
 		RewritingProcess process = makeProcess(theory, map("X", "Everything", "Y", "Everything", "Z", "Everything"), map("Everything", "10"));
 		
 		totalIndices = list(X, Y);
-		projectionIndices = list(X, Y);
 		Constraint constraint = theory.makeConstraint(totalIndices);
 		constraint = constraint.applySplitter(false, parse("X = Y"), process);
 		constraint = constraint.applySplitter(false, parse("Y = Z"), process);
 
+		projectionIndices = list(X, Y);
 		expected = parse("true");
 		projection = constraint.project(projectionIndices, process);
 		assertEquals(expected, projection);
