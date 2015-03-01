@@ -285,6 +285,11 @@ public class EqualityTheory extends AbstractEqualityTheory {
 		}
 
 		@Override
+		public Theory getTheory() {
+			return EqualityTheory.this;
+		}
+
+		@Override
 		protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression x, RewritingProcess process) {
 			Expression result;
 			if (indexIsBound(x)) {

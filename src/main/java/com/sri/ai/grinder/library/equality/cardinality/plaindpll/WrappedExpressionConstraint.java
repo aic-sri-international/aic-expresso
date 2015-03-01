@@ -78,6 +78,11 @@ public class WrappedExpressionConstraint extends AbstractExpressionWrapper imple
 	}
 
 	@Override
+	public Theory getTheory() {
+		return theory;
+	}
+
+	@Override
 	protected Expression computeInnerExpression() {
 		return expression;
 	}

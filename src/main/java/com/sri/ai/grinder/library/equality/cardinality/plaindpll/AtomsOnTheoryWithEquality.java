@@ -126,24 +126,29 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 	}
 
 	@Override
-	public AtomsOnTheoryWithEqualitiesConstraint makeConstraint(Collection<Expression> indices) {
-		AtomsOnTheoryWithEqualitiesConstraint result = new AtomsOnTheoryWithEqualitiesConstraint(theoryWithEquality.makeConstraint(indices));
+	public AtomsOnTheoryWithEqualityConstraint makeConstraint(Collection<Expression> indices) {
+		AtomsOnTheoryWithEqualityConstraint result = new AtomsOnTheoryWithEqualityConstraint(theoryWithEquality.makeConstraint(indices));
 		return result;
 	}
 
-	private class AtomsOnTheoryWithEqualitiesConstraint extends AbstractExpressionWrapper implements ConjunctiveConstraint {
+	private class AtomsOnTheoryWithEqualityConstraint extends AbstractExpressionWrapper implements ConjunctiveConstraint {
 
 		private static final long serialVersionUID = 1L;
 		
 		private ConjunctiveConstraint equalityConstraint;
 		
-		public AtomsOnTheoryWithEqualitiesConstraint(ConjunctiveConstraint equalityConstraint) {
+		public AtomsOnTheoryWithEqualityConstraint(ConjunctiveConstraint equalityConstraint) {
 			this.equalityConstraint = equalityConstraint;
 		}
 		
 		@Override
 		public Expression clone() {
-			return new AtomsOnTheoryWithEqualitiesConstraint(equalityConstraint);
+			return new AtomsOnTheoryWithEqualityConstraint(equalityConstraint);
+		}
+
+		@Override
+		public Theory getTheory() {
+			return AtomsOnTheoryWithEquality.this;
 		}
 
 		@Override
@@ -166,12 +171,12 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		}
 
 		@Override
-		public AtomsOnTheoryWithEqualitiesConstraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		public AtomsOnTheoryWithEqualityConstraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			SignedSplitter equalitySignedSplitter = getSignedEqualitySplitter(splitterSign, splitter);
 			ConjunctiveConstraint newEqualityConstraint = equalityConstraint.applySplitter(equalitySignedSplitter, process);
-			AtomsOnTheoryWithEqualitiesConstraint result;
+			AtomsOnTheoryWithEqualityConstraint result;
 			if (newEqualityConstraint != null) {
-				result = new AtomsOnTheoryWithEqualitiesConstraint(newEqualityConstraint);
+				result = new AtomsOnTheoryWithEqualityConstraint(newEqualityConstraint);
 			}
 			else {
 				result = null;
