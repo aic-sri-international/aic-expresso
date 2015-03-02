@@ -38,7 +38,9 @@
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.applyJavaFunctionToArgumentsAndReAssembleFunctionApplication;
 import static com.sri.ai.util.Util.getFirstNonNullResultOrNull;
 
@@ -48,6 +50,7 @@ import java.util.Collections;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 
 /**
@@ -144,7 +147,7 @@ public class ExpressionConstraint extends AbstractExpressionWrapper implements C
 	@Override
 	public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
 		Solver solver = getSolver();
-		Expression result = solver.solve(this, indicesSubSet, process);
+		Expression result = solver.solve(IfThenElse.make(this, ONE, ZERO), indicesSubSet, process);
 		return result;
 	}
 

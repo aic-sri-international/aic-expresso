@@ -111,8 +111,13 @@ public class ProbabilisticInference {
 			mapFromTypeNameToSizeString = mapFromTypeNameToSizeStringParam;
 			mapFromRandomVariableNameToTypeName = mapFromRandomVariableNameToTypeNameParam;
 
-			mapFromRandomVariableNameToTypeName.put("query", "Boolean");
-			queryVariable = parse("query");
+			if (mapFromRandomVariableNameToTypeNameParam.containsKey(queryExpression)) {
+				queryVariable = queryExpression;
+			}
+			else {
+				mapFromRandomVariableNameToTypeName.put("query", "Boolean");
+				queryVariable = parse("query");
+			}
 
 			allVariables = Util.mapIntoList(mapFromRandomVariableNameToTypeName.keySet(), Expressions::parse);
 
@@ -124,7 +129,7 @@ public class ProbabilisticInference {
 			theory = new AtomsOnTheoryWithEquality(new EqualityTheory(new SymbolTermTheory()));
 			problemType = new Sum(); // for marginalization
 			// The solver for the parameters above.
-			solver = new SGVET(FunctorConstants.TIMES, theory, problemType);
+			solver = new SGVET(FunctorConstants.TIMES, ONE, ZERO, theory, problemType);
 //			solver = new SGDPLLT(theory, problemType);
 
 			evidenceProbability = null;
@@ -141,9 +146,11 @@ public class ProbabilisticInference {
 			evidenceProbability = resultFromPreviousQueryIfKnown.getEvidenceProbability();
 		}
 
-		// Add a query variable equivalent to query expression; this introduces no cycles and the model remains a Bayesian network
-		factorGraph = Times.make(list(factorGraph, parse("if query <=> " + queryExpression + " then 1 else 0")));
-		
+		if (queryVariable != queryExpression) {
+			// Add a query variable equivalent to query expression; this introduces no cycles and the model remains a Bayesian network
+			factorGraph = Times.make(list(factorGraph, parse("if query <=> " + queryExpression + " then 1 else 0")));
+		}
+
 		if (evidence != null) {
 			// add evidence factor
 			factorGraph = Times.make(list(factorGraph, IfThenElse.make(evidence, ONE, ZERO)));
@@ -278,23 +285,23 @@ public class ProbabilisticInference {
 				"");
 
 //      Expression evidence = null; // null indicates no evidence
-		Expression evidence = parse("alarm");
+//		Expression evidence = parse("alarm");
 //		Expression evidence = parse("alarm and burglar = none");
-//		Expression evidence = parse("not alarm"); // can be any boolean expression
+		Expression evidence = parse("not alarm"); // can be any boolean expression
 //		Expression evidence = parse("(alarm or not alarm) and (burglar = tom or burglar != tom)"); // tautology has same effect as no evidence
 
 //		Expression queryExpression = parse("earthquake");
 //		Expression queryExpression = parse("burglar = none");
-		Expression queryExpression = parse("earthquake");
+		Expression queryExpression = parse("not earthquake");
 //		Expression queryExpression = parse("earthquake and burglar = bob");
 
 		Expression marginal = solveFactorGraph(bayesianNetwork, true, null, queryExpression, evidence, mapFromTypeNameToSizeString, mapFromVariableNameToTypeName);
 
 		if (evidence == null) {
-			System.out.println("Query marginal probability P(" + queryExpression + ") is: " + marginal);
+			System.out.println("Query marginal probability P(" + queryExpression + ") = " + marginal);
 		}
 		else {
-			System.out.println("Query posterior probability P(" + queryExpression + " | " + evidence + ") is: " + marginal);
+			System.out.println("Query posterior probability P(" + queryExpression + " | " + evidence + ") = " + marginal);
 		}
 	}
 

@@ -43,13 +43,11 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.equality.RandomCardinalityProblemGenerator;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SGDPLLT;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ModelCounting;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SGVET;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SGDPLLT;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolTermTheory;
 
 @Beta
