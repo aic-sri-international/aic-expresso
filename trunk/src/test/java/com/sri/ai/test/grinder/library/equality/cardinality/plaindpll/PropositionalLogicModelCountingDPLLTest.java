@@ -84,9 +84,9 @@ public class PropositionalLogicModelCountingDPLLTest {
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
 		// DEBUG
-		expression = parse("p or q");
-		indices    = list();
-		expected   = parse("if p then 1 else if q then 1 else 0");
+		expression = parse("p");
+		indices    = list("p");
+		expected   = parse("1");
 		test(expression, expected, indices);
 
 		expression = parse("true");

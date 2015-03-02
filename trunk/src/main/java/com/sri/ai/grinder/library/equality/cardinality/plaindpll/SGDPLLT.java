@@ -93,11 +93,13 @@ public class SGDPLLT extends AbstractSolver {
 	@Override
 	protected Expression solveAfterBookkeeping(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		
-//		System.out.println("Solving");
-//		System.out.println("expression           : " + expression);
-//		System.out.println("constraint           : " + constraint);
-//		System.out.println("contextual constraint: " + process.getDPLLContextualConstraint());
-//		System.out.println("\n");
+		if (debug) {
+			System.out.println("Solving");
+			System.out.println("expression           : " + expression);
+			System.out.println("constraint           : " + constraint);
+			System.out.println("contextual constraint: " + process.getDPLLContextualConstraint());
+			System.out.println("\n");
+		}
 		
 		Expression result;
 		
@@ -115,13 +117,15 @@ public class SGDPLLT extends AbstractSolver {
 			result = problemType.addNTimes(valueToBeSummed, numberOfOccurrences, process);
 		}
 
-//		System.out.println("Solved");
-//		System.out.println("expression           : " + expression);
-//		System.out.println("constraint           : " + constraint);
-//		System.out.println("contextual constraint: " + process.getDPLLContextualConstraint());
-//		System.out.println("result               : " + result);
-//		System.out.println("\n");
-		
+		if (debug) {
+			System.out.println("Solved");
+			System.out.println("expression           : " + expression);
+			System.out.println("constraint           : " + constraint);
+			System.out.println("contextual constraint: " + process.getDPLLContextualConstraint());
+			System.out.println("result               : " + result);
+			System.out.println("\n");
+		}		
+
 		return result;
 		
 		/**

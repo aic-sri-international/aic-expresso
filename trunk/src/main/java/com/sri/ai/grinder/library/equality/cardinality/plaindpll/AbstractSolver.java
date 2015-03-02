@@ -70,6 +70,13 @@ import com.sri.ai.util.base.Pair;
  *
  */
 abstract public class AbstractSolver extends AbstractHierarchicalRewriter implements Solver {
+
+	protected boolean debug = false;
+	
+	@Override
+	public void setDebug(boolean newValue) {
+		this.debug = newValue;
+	}
 	
 	/** The background theoryWithEquality for the algorithm. */
 	protected Theory theory;

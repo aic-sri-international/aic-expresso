@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 
@@ -65,19 +64,22 @@ public class ModelCounting extends AbstractProblemType {
 	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
 	@Override
 	public Expression fromExpressionValueWithoutLiteralsToValueToBeAdded(Expression expression) {
-		return IfThenElse.make(expression, ONE, ZERO);
+//		return IfThenElse.make(expression, ONE, ZERO); // replaced this way of doing it because it was incompatible with SGVE(T); solution of sub-problem there would be a numeric expression while input of the problem was a boolean formula; the new way enforces they are both numerical expressions
+		return expression;
 	}
 
 	@Override
 	public Expression expressionValueLeadingToAdditiveIdentityElement() {
-		return FALSE;
+//		return FALSE;
+		return ZERO;
 	}
 
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
 		CardinalityUtil.assertIsCardinalityOfIndexedFormulaExpression(expression);
 		IntensionalSet set = (IntensionalSet) expression.get(0);
-		Pair<Expression, IndexExpressionsSet> result = Pair.make(set.getCondition(), set.getIndexExpressions());
+//		Pair<Expression, IndexExpressionsSet> result = Pair.make(set.getCondition(), set.getIndexExpressions());
+		Pair<Expression, IndexExpressionsSet> result = Pair.make(IfThenElse.make(set.getCondition(), ONE, ZERO), set.getIndexExpressions());
 		return result;
 	}
 }

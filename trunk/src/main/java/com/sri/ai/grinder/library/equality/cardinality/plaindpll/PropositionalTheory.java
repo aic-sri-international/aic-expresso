@@ -53,6 +53,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Equivalence;
@@ -108,7 +109,7 @@ public class PropositionalTheory extends AbstractTheory {
 
 	@Override
 	public boolean isVariableTerm(Expression term, RewritingProcess process) {
-		return isProposition(term);
+		return isProposition(term, process);
 	}
 
 	/**
@@ -121,7 +122,7 @@ public class PropositionalTheory extends AbstractTheory {
 	@Override
 	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
-		if (isProposition(expression)) {
+		if (isProposition(expression, process)) {
 			result = expression;
 		}
 		else {
@@ -147,10 +148,12 @@ public class PropositionalTheory extends AbstractTheory {
 	 * @param expression
 	 * @return
 	 */
-	protected boolean isProposition(Expression expression) {
+	protected boolean isProposition(Expression expression, RewritingProcess process) {
 		boolean result =
 				expression.getSyntacticFormType().equals("Symbol")
 				&&
+				! Expressions.isNumber(expression)
+				&& 
 				! FormulaUtil.EQUALITY_FORMULAS_PRIMITIVE_SYMBOLS.contains(expression);
 		return result;
 	}
