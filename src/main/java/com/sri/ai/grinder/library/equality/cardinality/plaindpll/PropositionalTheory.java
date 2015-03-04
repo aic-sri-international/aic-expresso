@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.TWO;
+import static com.sri.ai.util.Util.mapIntoArrayList;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,7 +54,6 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Equivalence;
@@ -296,7 +296,7 @@ public class PropositionalTheory extends AbstractTheory {
 			Expression result =
 					And.make(
 							And.make(new ArrayList<Expression>(assertedPropositions)),
-							And.make(new ArrayList<Expression>( negatedPropositions)));
+							And.make(mapIntoArrayList(negatedPropositions, Not::make)));
 			return result;
 		}
 	}

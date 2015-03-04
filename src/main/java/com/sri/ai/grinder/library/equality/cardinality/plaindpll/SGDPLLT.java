@@ -56,6 +56,8 @@ import com.sri.ai.util.base.QuarternaryFunction;
  */
 public class SGDPLLT extends AbstractSolver {
 	
+	public int debugLevel = 3;
+	
 	/**
 	 * A standard version of the algorithm picks a splitter,
 	 * splits the problem according to it into two sub-problems,
@@ -92,10 +94,12 @@ public class SGDPLLT extends AbstractSolver {
 
 	@Override
 	protected Expression solveAfterBookkeeping(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
-		
-		if (debug) {
+		long startTime = 0;
+		if (debug(process)) {
+			startTime = System.currentTimeMillis();
 			System.out.println("Solving");
-			System.out.println("expression           : " + expression);
+			System.out.println("level                : " + getLevel(process));	
+			System.out.println("expression           : " + shortString(expression));
 			System.out.println("constraint           : " + constraint);
 			System.out.println("contextual constraint: " + process.getDPLLContextualConstraint());
 			System.out.println("\n");
@@ -117,12 +121,14 @@ public class SGDPLLT extends AbstractSolver {
 			result = problemType.addNTimes(valueToBeSummed, numberOfOccurrences, process);
 		}
 
-		if (debug) {
-			System.out.println("Solved");
-			System.out.println("expression           : " + expression);
+		if (debug(process)) {
+			long endTime = System.currentTimeMillis();
+			System.out.println("Solved in " + (endTime - startTime) + " ms");
+			System.out.println("level                : " + getLevel(process));	
+			System.out.println("expression           : " + shortString(expression));
 			System.out.println("constraint           : " + constraint);
 			System.out.println("contextual constraint: " + process.getDPLLContextualConstraint());
-			System.out.println("result               : " + result);
+			System.out.println("result               : " + shortString(result));
 			System.out.println("\n");
 		}		
 
@@ -267,10 +273,69 @@ public class SGDPLLT extends AbstractSolver {
 				result = problemType.additiveIdentityElement();
 			}
 			else {
+				incrementLevel(processUnderSplitter, process);
 				Expression expressionUnderSplitter = theory.applySplitterToExpression(splitterSign, splitter, expression, process);
 				result = solve(expressionUnderSplitter, indices, constraintUnderSplitter, processUnderSplitter);
+				decrementLevel(processUnderSplitter);
 			}
 		}
 		return result;
+	}
+	
+	private int getLevel(RewritingProcess process) {
+		Integer level = (Integer) process.getGlobalObject("DPLL level");
+		if (level == null) {
+			level = 0;
+		}
+		return level;
+	}
+
+	private void incrementLevel(RewritingProcess subProcess, RewritingProcess process) {
+		Integer level = getLevel(process);
+		subProcess.putGlobalObject("DPLL level", level + 1);
+	}
+
+	private void decrementLevel(RewritingProcess process) {
+		Integer level = getLevel(process);
+		process.putGlobalObject("DPLL level", level - 1);
+	}
+
+	private boolean debug(RewritingProcess process) {
+		return debug && getLevel(process) < debugLevel;
+	}
+
+	protected Expression addSymbolicResults(Expression solution1, Expression solution2, RewritingProcess process) {
+		long start = 0;
+		if (debug(process)) {
+			System.out.println("Adding solutions");	
+			System.out.println(solution1);
+			System.out.println(solution2);
+			start = System.currentTimeMillis();
+		}
+		
+		Expression result = super.addSymbolicResults(solution1, solution2, process);
+		
+		if (debug(process)) {
+			System.out.println("Finished adding solutions");	
+			System.out.println(solution1);
+			System.out.println(solution2);
+			long end = System.currentTimeMillis();
+			System.out.println("Took " + (end - start) + " ms.");	
+		}
+		
+		return result;
+	}
+	
+	private String shortString(Object object) {
+		String string = object.toString();
+		if (string.length() > 100) {
+			return string.substring(0, 100);
+		}
+		return string;
+	}
+	
+	@Override
+	public String toString() {
+		return "SGDPLL(T)";
 	}
 }

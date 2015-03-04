@@ -621,12 +621,25 @@ public class Expressions {
 	 * objects as the current arguments.
 	 */
 	public static Expression replaceArguments(Expression expression, List<Expression> newArguments) {
-		Iterator<Expression> newArgumentsIterator = newArguments.iterator();
-		for (int i = 0; i != expression.numberOfArguments(); i++) {
-			Expression newIthArgument = newArgumentsIterator.next();
-			expression.set(i, newIthArgument);
+		if (expression.getArguments() == newArguments ||
+				(newArguments.isEmpty() && expression.numberOfArguments() == 0)) {
+			return expression;
 		}
-		return expression;
+		
+		if (expression.numberOfArguments() == newArguments.size()) {
+			Iterator<Expression> newArgumentsIterator = newArguments.iterator();
+			for (int i = 0; i != expression.numberOfArguments(); i++) {
+				Expression newIthArgument = newArgumentsIterator.next();
+				expression.set(i, newIthArgument);
+			}
+			return expression;
+		}
+		else {
+			if ( ! expression.getSyntacticFormType().equals("Function application")) {
+				throw new Error("Expressions.replaceArguments can only be invoked with a number of new arguments different from the number of old arguments if the expression is a function application.");
+			}
+			return apply(expression.getFunctor(), newArguments);
+		}
 	}
 
 	public static boolean isBooleanOperatorApplication(Expression condition) {

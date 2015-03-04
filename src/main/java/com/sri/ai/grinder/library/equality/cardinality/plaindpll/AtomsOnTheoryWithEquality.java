@@ -40,6 +40,7 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.grinder.helper.GrinderUtil.isBooleanTyped;
+import static com.sri.ai.grinder.library.Equality.isEquality;
 
 import java.util.Collection;
 
@@ -50,6 +51,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.Equality;
+import com.sri.ai.grinder.library.boole.Not;
 
 @Beta
 /** 
@@ -251,9 +253,12 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 					equalityConstraint.replaceAllOccurrences(
 							e -> {
 								Expression conjunct;
-								if (Equality.isEquality(e)) {
-									if (e.get(1).equals(Expressions.TRUE) || e.get(1).equals(Expressions.FALSE)) {
+								if (isEquality(e)) {
+									if (e.get(1).equals(TRUE)) {
 										conjunct = e.get(0);
+									}
+									else if (e.get(1).equals(FALSE)) {
+										conjunct = Not.make(e.get(0));
 									}
 									else {
 										conjunct = e;

@@ -37,36 +37,66 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import static com.sri.ai.expresso.helper.Expressions.INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.util.math.Rational;
 
 /**
- * Object representing a commutative semi-ring to be used as value of expression being processed by {@link SGDPLLT}.
+ * Object representing a group on symbolic numbers with the maximum operation.
  * 
  * @author braz
  *
  */
 @Beta
-public interface SemiRing {
+public class SymbolicNumbersWithMaxGroup extends AbstractSymbolicNumbersGroup {
 	
-	/** The semi-ring identity element. */
-	Expression additiveIdentityElement();
-	
-	/**
-	 * Performs the semi-ring's additive operation on two values.
-	 */
-	Expression add(Expression value1, Expression value2, RewritingProcess process);
+	@Override
+	public Expression additiveIdentityElement() {
+		return MINUS_INFINITY;
+	}
 
-	/**
-	 * The result of adding a value (constant in the sense of having no background theoryWithEquality literals,
-	 * but possibly symbolic) to itself n times (which can itself be symbolic, that is, conditional).
-	 */
-	Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process);
+	@Override
+	public boolean isAbsorbingElement(Expression value) {
+		boolean result = value.equals(INFINITY);
+		return result;
+	}
 
-	/**
-	 * Indicates whether given value is an absorbing element of the semi-ring's additive operation,
-	 * that is, using the additive operation on it with any other value will produce itself.
-	 */
-	boolean isAbsorbingElement(Expression value);
+	@Override
+	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
+		Expression result;
+		if (value1.getValue() instanceof Number && value2.getValue() instanceof Number) {
+			Rational rationalValue1 = value1.rationalValue();
+			Rational rationalValue2 = value2.rationalValue();
+			if (rationalValue1.compareTo(rationalValue2) > 0) {
+				result = value1;
+			}
+			else {
+				result = value2;
+			}
+		}
+		else if (value1.equals(INFINITY) || value2.equals(INFINITY)) {
+			result = INFINITY;
+		}
+		else if (value1.equals(MINUS_INFINITY)) {
+			result = value2;
+		}
+		else if (value2.equals(MINUS_INFINITY)) {
+			result = value1;
+		}
+		else {
+			result = Expressions.apply(FunctorConstants.MAX, value1, value2);
+		}
+		return result;
+	}
+
+	@Override
+	protected Expression addNTimesWithUnconditionalValueAndNAndNDistinctFromZero(Expression valueToBeAdded, Expression n) {
+		return valueToBeAdded;
+	}
 }

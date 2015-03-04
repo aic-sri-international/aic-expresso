@@ -56,7 +56,7 @@ import com.sri.ai.util.base.Pair;
 public class Sum extends AbstractProblemType {
 
 	public Sum() {
-		super(new SymbolicNumberSemiRingWithPlus());
+		super(new SymbolicNumbersWithAdditionGroup());
 	}
 	
 	@Override

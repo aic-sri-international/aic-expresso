@@ -66,7 +66,7 @@ abstract public class AbstractSymbolicGenericDPLLStressTest {
 				}
 				final long time = System.currentTimeMillis() - start;
 				if (isConsoleOutput()) {
-					System.out.println("->\n" + solution + "\n(Size " + size + ", " + problemIndex + "-th problem, " + ((double)time)/getNumberOfRunsForAveraging() + " ms, " + rewriter.getName() + ")\n");
+					System.out.println("->\n" + solution + "\n(Size " + size + ", " + problemIndex + "-th problem, " + ((double)time)/getNumberOfRunsForAveraging() + " ms, " + rewriter + ")\n");
 				}
 				problemIndex++;
 			}

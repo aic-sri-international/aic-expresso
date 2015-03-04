@@ -55,7 +55,7 @@ import com.sri.ai.util.base.Pair;
 public class Max extends AbstractProblemType {
 
 	public Max() {
-		super(new SymbolicNumberSemiRingWithMax());
+		super(new SymbolicNumbersWithMaxGroup());
 	}
 	
 	@Override

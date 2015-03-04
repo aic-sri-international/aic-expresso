@@ -41,37 +41,37 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 
 /**
- * Defines basic {@link ProblemType} functionality based on a given semi-ring.
+ * Defines basic {@link ProblemType} functionality based on a given {@link AssociativeCommutativeGroup}.
  * 
  * @author braz
  *
  */
 public abstract class AbstractProblemType implements ProblemType {
 
-	private SemiRing semiRing;
+	private AssociativeCommutativeGroup group;
 	
-	AbstractProblemType(SemiRing semiRing) {
-		this.semiRing = semiRing;
+	AbstractProblemType(AssociativeCommutativeGroup semiRing) {
+		this.group = semiRing;
 	}
 	
 	@Override
 	public Expression additiveIdentityElement() {
-		return semiRing.additiveIdentityElement();
+		return group.additiveIdentityElement();
 	}
 
 	@Override
 	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
-		return semiRing.add(value1, value2, process);
+		return group.add(value1, value2, process);
 	}
 
 	@Override
 	public Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process) {
-		return semiRing.addNTimes(constantValue, n, process);
+		return group.addNTimes(constantValue, n, process);
 	}
 
 	@Override
 	public boolean isAbsorbingElement(Expression value) {
-		return semiRing.isAbsorbingElement(value);
+		return group.isAbsorbingElement(value);
 	}
 
 	@Override
