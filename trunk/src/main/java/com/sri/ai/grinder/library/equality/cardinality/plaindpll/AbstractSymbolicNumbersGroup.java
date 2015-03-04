@@ -7,15 +7,15 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 
 /**
- * An abstract implementation of semi-rings on numbers, capable of processing symbolic numeric expressions,
+ * An abstract implementation of groups on numbers, capable of processing symbolic numeric expressions,
  * and leaving the additive operation to be specified by abstract methods.
  * 
  * @author braz
  *
  */
-public abstract class AbstractSymbolicNumberSemiRing implements SemiRing {
+public abstract class AbstractSymbolicNumbersGroup implements AssociativeCommutativeGroup {
 
-	public AbstractSymbolicNumberSemiRing() {
+	public AbstractSymbolicNumbersGroup() {
 		super();
 	}
 

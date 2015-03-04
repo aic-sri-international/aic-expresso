@@ -37,41 +37,36 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
-
+import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.UniversallyQuantifiedFormula;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.util.base.Pair;
 
 /**
- * Declares the problem type of determining whether a formula is always valid.
+ * Object representing a associative commutative group to be used as the solution set for {@link SGDPLLT}.
  * 
  * @author braz
  *
  */
-public class Tautologicality extends AbstractProblemType {
-
-	public Tautologicality() {
-		super(new BooleansWithConjunctionGroup());
-	}
+@Beta
+public interface AssociativeCommutativeGroup {
 	
-	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
-	@Override
-	public Expression fromExpressionValueWithoutLiteralsToValueToBeAdded(Expression expression) {
-		return expression;
-	}
+	/** The semi-ring identity element. */
+	Expression additiveIdentityElement();
+	
+	/**
+	 * Performs the semi-ring's additive operation on two values.
+	 */
+	Expression add(Expression value1, Expression value2, RewritingProcess process);
 
-	@Override
-	public Expression expressionValueLeadingToAdditiveIdentityElement() {
-		return TRUE;
-	}
+	/**
+	 * The result of adding a value (constant in the sense of having no background theoryWithEquality literals,
+	 * but possibly symbolic) to itself n times (which can itself be symbolic, that is, conditional).
+	 */
+	Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process);
 
-	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		UniversallyQuantifiedFormula universal = (UniversallyQuantifiedFormula) expression;
-		Pair<Expression, IndexExpressionsSet> formulaAndIndices = Pair.make(universal.getBody(), universal.getIndexExpressions());
-		return formulaAndIndices;
-	}
+	/**
+	 * Indicates whether given value is an absorbing element of the semi-ring's additive operation,
+	 * that is, using the additive operation on it with any other value will produce itself.
+	 */
+	boolean isAbsorbingElement(Expression value);
 }

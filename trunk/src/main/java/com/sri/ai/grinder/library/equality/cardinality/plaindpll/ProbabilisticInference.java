@@ -130,6 +130,7 @@ public class ProbabilisticInference {
 			problemType = new Sum(); // for marginalization
 			// The solver for the parameters above.
 			solver = new SGVET(FunctorConstants.TIMES, ONE, ZERO, theory, problemType);
+			((SGVET) solver).basicOutput = true;
 //			solver = new SGDPLLT(theory, problemType);
 
 			evidenceProbability = null;
@@ -286,8 +287,8 @@ public class ProbabilisticInference {
 
 //      Expression evidence = null; // null indicates no evidence
 //		Expression evidence = parse("alarm");
-//		Expression evidence = parse("alarm and burglar = none");
-		Expression evidence = parse("not alarm"); // can be any boolean expression
+		Expression evidence = parse("alarm and burglar = none");
+//		Expression evidence = parse("not alarm"); // can be any boolean expression
 //		Expression evidence = parse("(alarm or not alarm) and (burglar = tom or burglar != tom)"); // tautology has same effect as no evidence
 
 //		Expression queryExpression = parse("earthquake");

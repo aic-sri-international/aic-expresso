@@ -38,27 +38,36 @@
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
-import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.ONE;
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import static com.sri.ai.util.Util.arrayList;
+import static com.sri.ai.util.Util.list;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.core.TotalRewriter;
+import com.sri.ai.grinder.library.number.FlattenMinusInPlus;
+import com.sri.ai.grinder.library.number.Minus;
+import com.sri.ai.grinder.library.number.Plus;
+import com.sri.ai.grinder.library.number.Times;
+import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.util.math.Rational;
 
 /**
- * Object representing a symbolic numeric semiring (that is, numeric expressions do not need to be constant numbers) with the maximization operation.
+ * Object representing a group on symbolic numbers with addition.
  * 
  * @author braz
  *
  */
 @Beta
-public class SymbolicNumberSemiRingWithMax extends AbstractSymbolicNumberSemiRing {
+public class SymbolicNumbersWithAdditionGroup extends AbstractSymbolicNumbersGroup {
 	
 	@Override
 	public Expression additiveIdentityElement() {
-		return MINUS_INFINITY;
+		return ZERO;
 	}
 
 	@Override
@@ -70,33 +79,39 @@ public class SymbolicNumberSemiRingWithMax extends AbstractSymbolicNumberSemiRin
 	@Override
 	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
 		Expression result;
-		if (value1.getValue() instanceof Number && value2.getValue() instanceof Number) {
-			Rational rationalValue1 = value1.rationalValue();
-			Rational rationalValue2 = value2.rationalValue();
-			if (rationalValue1.compareTo(rationalValue2) > 0) {
-				result = value1;
-			}
-			else {
-				result = value2;
-			}
-		}
-		else if (value1.equals(INFINITY) || value2.equals(INFINITY)) {
-			result = INFINITY;
-		}
-		else if (value1.equals(MINUS_INFINITY)) {
-			result = value2;
-		}
-		else if (value2.equals(MINUS_INFINITY)) {
-			result = value1;
+		if (value1.getValue() instanceof Number && value2.getValue() instanceof Number) { // not necessary, as else clause is generic enough to deal with this case as well, but hopefully this saves time.
+			result = Expressions.makeSymbol(value1.rationalValue().add(value2.rationalValue()));
 		}
 		else {
-			result = Expressions.apply(FunctorConstants.MAX, value1, value2);
+			Expression sum = Plus.make(arrayList(value1, value2));
+			result = plusAndMinusRewriter.rewrite(sum, process);
 		}
 		return result;
 	}
 
+	private static Rewriter plusAndMinusRewriter = new TotalRewriter(new Plus(), new Minus(), new UnaryMinus(), new FlattenMinusInPlus());
+	
 	@Override
 	protected Expression addNTimesWithUnconditionalValueAndNAndNDistinctFromZero(Expression valueToBeAdded, Expression n) {
-		return valueToBeAdded;
+		Expression result;
+		if (valueToBeAdded.equals(ZERO)) { // optimization
+			result = ZERO;
+		}
+		else if (valueToBeAdded.equals(ONE)) { // optimization
+			result = n;
+		}
+		else {
+			Rational valueToBeAddedRationalValue = valueToBeAdded.rationalValue();
+			//assert valueToBeAddedRationalValue != null: "Expected a constant numeric expression but got " + valueToBeAdded;
+			Rational nRationalValue = n.rationalValue();
+			//assert nRationalValue != null: "Expected a constant numeric expression but got " + n;
+			if (valueToBeAddedRationalValue != null && nRationalValue != null) {
+				result = Expressions.makeSymbol(valueToBeAddedRationalValue.multiply(nRationalValue));
+			}
+			else {
+				result = Times.make(list(valueToBeAdded, n));
+			}
+		}
+		return result;
 	}
 }

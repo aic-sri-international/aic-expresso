@@ -71,7 +71,7 @@ import com.sri.ai.util.base.Pair;
  */
 abstract public class AbstractSolver extends AbstractHierarchicalRewriter implements Solver {
 
-	protected boolean debug = false;
+	public boolean debug = false;
 	
 	@Override
 	public void setDebug(boolean newValue) {

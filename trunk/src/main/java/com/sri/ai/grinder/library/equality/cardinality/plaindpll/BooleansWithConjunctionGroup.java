@@ -41,53 +41,53 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
+import static com.sri.ai.grinder.library.FunctorConstants.EQUAL;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.boole.Or;
+import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 
 /**
- * Object representing a boolean semiring with the or operation as its additive operation.
+ * Object representing a group on booleans and conjunction.
  * 
  * @author braz
  *
  */
 @Beta
-public class DisjunctiveBooleanSemiRing implements SemiRing {
+public class BooleansWithConjunctionGroup implements AssociativeCommutativeGroup {
 	
 	@Override
 	public Expression additiveIdentityElement() {
-		return FALSE;
+		return TRUE;
 	}
 
 	@Override
 	public boolean isAbsorbingElement(Expression value) {
-		boolean result = value.equals(Expressions.TRUE);
+		boolean result = value.equals(Expressions.FALSE);
 		return result;
 	}
 
 	@Override
 	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
-		return Or.make(value1, value2);
+		return And.make(value1, value2);
 	}
 
 	@Override
 	public Expression addNTimes(Expression value, Expression n, RewritingProcess process) {
 		Expression result;
-		if (value.equals(FALSE) || n.equals(ZERO)) {
-			result = FALSE;
-		}
-		else if (n.getValue() instanceof Number) { // we already know value is not false and n is greater than zero from the previous condition having failed
+		if (value.equals(TRUE) || n.equals(ZERO)) {
 			result = TRUE;
+		}
+		else if (n.getValue() instanceof Number) { // we already know value is not true and n is greater than zero from the previous condition having failed
+			result = FALSE;
 		}
 		// n is a symbolic value, so now it all depends on its being greater than zero
 		else if (GrinderConfiguration.isAssumeDomainsAlwaysLarge()) { // this flag tells us to always assume type sizes are as large as needed to make n positive.
-			result = TRUE;
+			result = FALSE;
 		}
 		else if (IfThenElse.isIfThenElse(n)) {
 			Expression condition  = IfThenElse.getCondition(n);
@@ -98,7 +98,8 @@ public class DisjunctiveBooleanSemiRing implements SemiRing {
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false); // do not simplify to condition so it is a DPLL solution
 		}
 		else {
-			result = apply(GREATER_THAN, n, Expressions.ZERO);
+			// it will only be true if n is zero
+			result = apply(EQUAL, n, Expressions.ZERO);
 		}
 		return result;
 	}
