@@ -117,8 +117,7 @@ public class SGDPLLT extends AbstractSolver {
 		else {
 			Expression unconditionalValue = normalizeUnconditionalExpression(expression, process);
 			Expression numberOfOccurrences = constraint.modelCount(indices, process);
-			Expression valueToBeSummed = problemType.fromExpressionValueWithoutLiteralsToValueToBeAdded(unconditionalValue);
-			result = problemType.addNTimes(valueToBeSummed, numberOfOccurrences, process);
+			result = problemType.addNTimes(unconditionalValue, numberOfOccurrences, process);
 		}
 
 		if (debug(process)) {

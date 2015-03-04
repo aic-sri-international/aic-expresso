@@ -46,27 +46,14 @@ import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.base.Pair;
 
+
 /**
  * The maximization problem type.
  * 
  * @author braz
  *
  */
-public class Max extends AbstractProblemType {
-
-	public Max() {
-		super(new SymbolicNumbersWithMaxGroup());
-	}
-	
-	@Override
-	public Expression fromExpressionValueWithoutLiteralsToValueToBeAdded(Expression expression) {
-		return expression;
-	}
-
-	@Override
-	public Expression expressionValueLeadingToAdditiveIdentityElement() {
-		return Expressions.MINUS_INFINITY;
-	}
+public class Max extends SymbolicNumbersWithMaxGroup implements ProblemType {
 
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {

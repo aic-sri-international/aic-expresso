@@ -43,10 +43,10 @@ import static com.sri.ai.expresso.helper.Expressions.isSubExpressionOf;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.argmin;
 import static com.sri.ai.util.Util.collectToLists;
-import static com.sri.ai.util.Util.nonDestructivelyExpandElementsIfFunctionReturnsNonNullCollection;
 import static com.sri.ai.util.Util.getFirst;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.mapIntoList;
+import static com.sri.ai.util.Util.nonDestructivelyExpandElementsIfFunctionReturnsNonNullCollection;
 import static com.sri.ai.util.Util.removeNonDestructively;
 
 import java.util.Collection;
@@ -59,7 +59,6 @@ import java.util.Set;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
@@ -68,7 +67,6 @@ import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.PairOf;
-import com.sri.ai.util.math.Rational;
 
 /**
  * A Variable Elimination algorithm generalized in the same manner
@@ -113,7 +111,7 @@ public class SGVET extends AbstractSolver {
 		super(theory, problemType, countsDeclaration);
 		this.multiplicativeFunction = makeSymbol(multiplicativeFunctionString);
 		this.subSolver = new SGDPLLT(theory, problemType, countsDeclaration);
-		subSolver.debug = true;
+		subSolver.debug = false;
 		subSolver.debugLevel = 6;
 		this.multiplicativeIdentityElement = multiplicativeIdentityElement;
 		this.multiplicativeAbsorbingElement = multiplicativeAbsorbingElement;

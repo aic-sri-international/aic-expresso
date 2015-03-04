@@ -37,8 +37,6 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
-
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.UniversallyQuantifiedFormula;
@@ -51,22 +49,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public class Tautologicality extends AbstractProblemType {
-
-	public Tautologicality() {
-		super(new BooleansWithConjunctionGroup());
-	}
-	
-	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
-	@Override
-	public Expression fromExpressionValueWithoutLiteralsToValueToBeAdded(Expression expression) {
-		return expression;
-	}
-
-	@Override
-	public Expression expressionValueLeadingToAdditiveIdentityElement() {
-		return TRUE;
-	}
+public class Tautologicality extends BooleansWithConjunctionGroup implements ProblemType {
 
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {

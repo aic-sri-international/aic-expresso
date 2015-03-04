@@ -49,36 +49,18 @@ import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.util.base.Pair;
 
 /**
- * Satisfiability uses the boolean semi-ring and does not boolean formulas
- * (applies the semi-ring additive operation, disjunction, directly on them).
+ * Satisfiability uses the boolean group and does not boolean formulas
+ * (applies the group additive operation, disjunction, directly on them).
  * 
  * @author braz
  *
  */
-public class ModelCounting extends AbstractProblemType {
-
-	public ModelCounting() {
-		super(new SymbolicNumbersWithAdditionGroup());
-	}
-	
-	/** Converts expression value without literals to the value to be summed (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
-	@Override
-	public Expression fromExpressionValueWithoutLiteralsToValueToBeAdded(Expression expression) {
-//		return IfThenElse.make(expression, ONE, ZERO); // replaced this way of doing it because it was incompatible with SGVE(T); solution of sub-problem there would be a numeric expression while input of the problem was a boolean formula; the new way enforces they are both numerical expressions
-		return expression;
-	}
-
-	@Override
-	public Expression expressionValueLeadingToAdditiveIdentityElement() {
-//		return FALSE;
-		return ZERO;
-	}
+public class ModelCounting extends SymbolicNumbersWithAdditionGroup implements ProblemType {
 
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
 		CardinalityUtil.assertIsCardinalityOfIndexedFormulaExpression(expression);
 		IntensionalSet set = (IntensionalSet) expression.get(0);
-//		Pair<Expression, IndexExpressionsSet> result = Pair.make(set.getCondition(), set.getIndexExpressions());
 		Pair<Expression, IndexExpressionsSet> result = Pair.make(IfThenElse.make(set.getCondition(), ONE, ZERO), set.getIndexExpressions());
 		return result;
 	}
