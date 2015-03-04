@@ -47,27 +47,14 @@ import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.base.Pair;
 
+
 /**
  * The sum problem type.
  * 
  * @author braz
  *
  */
-public class Sum extends AbstractProblemType {
-
-	public Sum() {
-		super(new SymbolicNumbersWithAdditionGroup());
-	}
-	
-	@Override
-	public Expression fromExpressionValueWithoutLiteralsToValueToBeAdded(Expression expression) {
-		return expression;
-	}
-
-	@Override
-	public Expression expressionValueLeadingToAdditiveIdentityElement() {
-		return ZERO;
-	}
+public class Sum extends SymbolicNumbersWithAdditionGroup implements ProblemType {
 
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {

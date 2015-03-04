@@ -59,8 +59,8 @@ import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Constraint;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolTermTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ExpressionConstraint;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolTermTheory;
 
 @Beta
 public class WrappedExpressionConstraintTest {

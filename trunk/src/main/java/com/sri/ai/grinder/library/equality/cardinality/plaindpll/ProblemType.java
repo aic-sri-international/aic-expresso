@@ -43,42 +43,13 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.util.base.Pair;
 
 /**
- * Defines a DPLL-type problem by using a semi-ring and a conversion from expression to value to be summed.
- * For example, satisfiability uses the boolean semi-ring and does not convert expressions ("sums" the expressions themselves, that is, takes their disjunction).
- * Model counting uses the number semi-ring and converts boolean formula F to 'if F then 1 else 0' to count satisfying models.
+ * Defines a DPLL-type problem by specifying how to extract an expression and indices to be given to a {@link Solver} from a given problem expression.
+ * For example, satisfiability converts expressions of the type <code>there exists X, Y : X != Y</code> to expression <code>X != Y</code> and indices <code>X, Y</code>.
  * 
  * @author braz
  *
  */
-public interface ProblemType {
-
-	/** The semi-ring identity element (for example, false for disjunction, -infinity for max, or 0 for sum. */
-	Expression additiveIdentityElement();
-
-	/**
-	 * Performs the semi-ring's additive operation on two values.
-	 */
-	Expression add(Expression value1, Expression value2, RewritingProcess process);
-
-	/**
-	 * The result of adding a value (constant in the sense of having no background theoryWithEquality literals,
-	 * but possibly symbolic) to itself n times.
-	 */
-	Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process);
-
-	/**
-	 * Indicates whether given value is semi-ring's additive absorbing element (for example, true for disjunction, or infinity for max).
-	 */
-	boolean isAbsorbingElement(Expression value);
-
-	/** Converts expression value without literals to the value to be added (useful for model counting of boolean formulas, for example: for boolean formula F, we want to sum 'if F then 1 else 0') */
-	Expression fromExpressionValueWithoutLiteralsToValueToBeAdded(Expression expression);
-
-	/**
-	 * The expression value that gets evaluated to the semi-ring identity element by {@link #fromExpressionValueWithoutLiteralsToValueToBeAdded(Expression)};
-	 * in other words, the expression E such that {@link #fromExpressionValueWithoutLiteralsToValueToBeAdded(Expression)}(E) is the additive neutral element of the semi-ring.
-	 */
-	Expression expressionValueLeadingToAdditiveIdentityElement();
+public interface ProblemType extends AssociativeCommutativeGroup {
 
 	/**
 	 * Gets an expression passed to a rewriter solving this type of problem, and returns a pair containing the expression

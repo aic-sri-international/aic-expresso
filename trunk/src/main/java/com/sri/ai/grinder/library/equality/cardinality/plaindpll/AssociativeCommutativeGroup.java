@@ -50,11 +50,11 @@ import com.sri.ai.grinder.api.RewritingProcess;
 @Beta
 public interface AssociativeCommutativeGroup {
 	
-	/** The semi-ring identity element. */
+	/** The group identity element. */
 	Expression additiveIdentityElement();
 	
 	/**
-	 * Performs the semi-ring's additive operation on two values.
+	 * Performs the group's additive operation on two values.
 	 */
 	Expression add(Expression value1, Expression value2, RewritingProcess process);
 
@@ -65,7 +65,7 @@ public interface AssociativeCommutativeGroup {
 	Expression addNTimes(Expression constantValue, Expression n, RewritingProcess process);
 
 	/**
-	 * Indicates whether given value is an absorbing element of the semi-ring's additive operation,
+	 * Indicates whether given value is an absorbing element of the group's additive operation,
 	 * that is, using the additive operation on it with any other value will produce itself.
 	 */
 	boolean isAbsorbingElement(Expression value);

@@ -39,13 +39,11 @@ package com.sri.ai.expresso.core;
 
 import static com.sri.ai.expresso.helper.SyntaxTrees.makeCompoundSyntaxTree;
 import static com.sri.ai.util.Util.castOrThrowError;
-import static com.sri.ai.util.Util.replaceElementsNonDestructively;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
@@ -56,8 +54,6 @@ import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.util.Util;
 
 /**
  * A default implementation of a {@link IntensionalSet}.
