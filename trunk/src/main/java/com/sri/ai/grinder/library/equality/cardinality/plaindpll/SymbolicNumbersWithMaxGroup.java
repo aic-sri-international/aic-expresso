@@ -62,7 +62,7 @@ public class SymbolicNumbersWithMaxGroup extends AbstractSymbolicNumbersGroup {
 	}
 
 	@Override
-	public boolean isAbsorbingElement(Expression value) {
+	public boolean isAdditiveAbsorbingElement(Expression value) {
 		boolean result = value.equals(INFINITY);
 		return result;
 	}

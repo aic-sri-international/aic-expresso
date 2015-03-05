@@ -138,16 +138,16 @@ public class GrinderUtil {
 	public static Expression makeSureConditionsOnLogicalVariablesAreSeparatedAndOnTop(
 			Expression expression, RewritingProcess process) {
 		if (IfThenElse.isIfThenElse(expression)) {
-			Expression condition = IfThenElse.getCondition(expression);
+			Expression condition = IfThenElse.condition(expression);
 			Pair<Expression, Expression> constraintsAndRest = Expressions
 					.separateEqualityFormulasOnAtomicSymbolsFromRest(condition, process);
 			// If either of these are the expression "true" then I don't need to make a change.
 			if (!Expressions.TRUE.equals(constraintsAndRest.first)
 					&& !Expressions.TRUE.equals(constraintsAndRest.second)) {
 				Expression thenBranch = makeSureConditionsOnLogicalVariablesAreSeparatedAndOnTop(
-						IfThenElse.getThenBranch(expression), process);
+						IfThenElse.thenBranch(expression), process);
 				Expression elseBranch = makeSureConditionsOnLogicalVariablesAreSeparatedAndOnTop(
-						IfThenElse.getElseBranch(expression), process);
+						IfThenElse.elseBranch(expression), process);
 				Expression result = IfThenElse.make(constraintsAndRest.first,
 						IfThenElse.make(constraintsAndRest.second, thenBranch,
 								elseBranch), elseBranch);
@@ -183,7 +183,7 @@ public class GrinderUtil {
 		boolean result = false;
 	
 		if (IfThenElse.isIfThenElse(expression)) {
-			Expression condition = IfThenElse.getCondition(expression);
+			Expression condition = IfThenElse.condition(expression);
 			if (condition.equals(Expressions.TRUE) || condition.equals(Expressions.FALSE)) {
 				// This is a degenerate case, i.e. no logical variables but
 				// constants for truth or falsehood are present,
@@ -254,9 +254,9 @@ public class GrinderUtil {
 		
 		if (IfThenElse.isIfThenElse(condition)) {
 			// Externalize the condition expression
-			Expression conditionalCondition = IfThenElse.getCondition(condition);
-			Expression thenCondition        = IfThenElse.getThenBranch(condition);
-			Expression elseCondition        = IfThenElse.getElseBranch(condition);
+			Expression conditionalCondition = IfThenElse.condition(condition);
+			Expression thenCondition        = IfThenElse.thenBranch(condition);
+			Expression elseCondition        = IfThenElse.elseBranch(condition);
 			
 			// Handle the then branch
 			RewritingProcess thenProcess = extendContextualConstraint(conditionalCondition, process);

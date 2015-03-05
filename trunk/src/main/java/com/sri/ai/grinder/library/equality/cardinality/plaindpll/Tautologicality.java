@@ -49,7 +49,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public class Tautologicality extends BooleansWithConjunctionGroup implements ProblemType {
+public class Tautologicality extends BooleansWithConjunctionGroup implements GroupProblemType {
 
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {

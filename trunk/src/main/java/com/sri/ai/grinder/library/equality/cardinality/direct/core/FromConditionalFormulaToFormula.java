@@ -68,18 +68,18 @@ public class FromConditionalFormulaToFormula extends AbstractRewriter {
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		
-		if (FormulaUtil.isFormula(IfThenElse.getThenBranch(expression), process) &&
-			FormulaUtil.isFormula(IfThenElse.getElseBranch(expression), process)) {
+		if (FormulaUtil.isFormula(IfThenElse.thenBranch(expression), process) &&
+			FormulaUtil.isFormula(IfThenElse.elseBranch(expression), process)) {
 
 			Expression result =
 					Or.make(
 							And.make(
-									IfThenElse.getCondition(expression),
-									IfThenElse.getThenBranch(expression)
+									IfThenElse.condition(expression),
+									IfThenElse.thenBranch(expression)
 							),
 							And.make(
-									Not.make(IfThenElse.getCondition(expression)),
-									IfThenElse.getElseBranch(expression)
+									Not.make(IfThenElse.condition(expression)),
+									IfThenElse.elseBranch(expression)
 									)
 							);
 			return result;

@@ -944,7 +944,7 @@ public class CardinalityUtil {
 		boolean result = false;
 		
 		if (IfThenElse.isIfThenElse(expression)) {
-			result = everyLeafIsConstantGreaterThanZero(IfThenElse.getThenBranch(expression)) && everyLeafIsConstantGreaterThanZero(IfThenElse.getElseBranch(expression));
+			result = everyLeafIsConstantGreaterThanZero(IfThenElse.thenBranch(expression)) && everyLeafIsConstantGreaterThanZero(IfThenElse.elseBranch(expression));
 		}
 		else if (expression.getSyntacticFormType().equals("Symbol")) {
 			if (((Symbol)expression).getValue() instanceof Number) {

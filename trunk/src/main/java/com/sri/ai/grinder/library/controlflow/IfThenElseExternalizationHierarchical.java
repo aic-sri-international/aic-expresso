@@ -89,7 +89,7 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 
 		ExpressionAndContext conditionalSubExpressionAndContext = findConditionalSubExpressionAndContext(expression, process);
 		if (conditionalSubExpressionAndContext != null) {
-			if (IfThenElse.isIfThenElse(expression) && conditionalSubExpressionAndContext.getExpression() != IfThenElse.getCondition(expression)) {
+			if (IfThenElse.isIfThenElse(expression) && conditionalSubExpressionAndContext.getExpression() != IfThenElse.condition(expression)) {
 				// The conditional sub-expression is not the condition of 'expression'.
 				// This, together with the fact that all sub-expressions are normalized (externalized),
 				// means expression is already normalized; this is the recursion base case.
@@ -100,9 +100,9 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 				Expression conditionalSubExpression = conditionalSubExpressionAndContext.getExpression();
 				boolean noScopingRestrictions = decideWhetherThereAreNoScopingRestrictions(expression, conditionalSubExpression, process);
 				if (noScopingRestrictions) {
-					Expression condition  = IfThenElse.getCondition(conditionalSubExpression);
-					Expression thenBranch = IfThenElse.getThenBranch(conditionalSubExpression);
-					Expression elseBranch = IfThenElse.getElseBranch(conditionalSubExpression);
+					Expression condition  = IfThenElse.condition(conditionalSubExpression);
+					Expression thenBranch = IfThenElse.thenBranch(conditionalSubExpression);
+					Expression elseBranch = IfThenElse.elseBranch(conditionalSubExpression);
 					Expression result = conditionalSubExpressionAndContext.getAddress().replace(expression, thenBranch);
 
 					// Create two expressions, one in which the "then branch" replaces the conditional sub-expression, and another in which the "else branch" does that.
@@ -150,7 +150,7 @@ public class IfThenElseExternalizationHierarchical extends AbstractHierarchicalR
 	}
 
 	private boolean decideWhetherThereAreNoScopingRestrictions(Expression expression, Expression conditionalSubExpression, RewritingProcess process) {
-		Expression condition  = IfThenElse.getCondition(conditionalSubExpression);
+		Expression condition  = IfThenElse.condition(conditionalSubExpression);
 		boolean result = GrinderUtil.isKnownToBeIndependentOfScopeIn(condition, expression, process);
 		return result;
 	}

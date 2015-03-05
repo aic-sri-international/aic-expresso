@@ -66,7 +66,7 @@ public class BooleansWithConjunctionGroup implements AssociativeCommutativeGroup
 	}
 
 	@Override
-	public boolean isAbsorbingElement(Expression value) {
+	public boolean isAdditiveAbsorbingElement(Expression value) {
 		boolean result = value.equals(Expressions.FALSE);
 		return result;
 	}
@@ -90,9 +90,9 @@ public class BooleansWithConjunctionGroup implements AssociativeCommutativeGroup
 			result = FALSE;
 		}
 		else if (IfThenElse.isIfThenElse(n)) {
-			Expression condition  = IfThenElse.getCondition(n);
-			Expression thenBranch = IfThenElse.getThenBranch(n);
-			Expression elseBranch = IfThenElse.getElseBranch(n);
+			Expression condition  = IfThenElse.condition(n);
+			Expression thenBranch = IfThenElse.thenBranch(n);
+			Expression elseBranch = IfThenElse.elseBranch(n);
 			Expression newThenBranch = addNTimes(value, thenBranch, process);
 			Expression newElseBranch = addNTimes(value, elseBranch, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false); // do not simplify to condition so it is a DPLL solution

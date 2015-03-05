@@ -219,9 +219,9 @@ public class GetConditionsFor {
 		Expression result;
 	
 		if (IfThenElse.isIfThenElse(bdd)) {
-			Expression condition = IfThenElse.getCondition(bdd);
-			Expression bddWhenVariableEqualValue    = IfThenElse.getThenBranch(bdd);
-			Expression bddWhenVariableNotEqualValue = IfThenElse.getElseBranch(bdd);
+			Expression condition = IfThenElse.condition(bdd);
+			Expression bddWhenVariableEqualValue    = IfThenElse.thenBranch(bdd);
+			Expression bddWhenVariableNotEqualValue = IfThenElse.elseBranch(bdd);
 			Expression valueOrNullIfNotEqualityOnVariable = Equality.getWhatExpressionIsComparedToIfUniqueOrNull(condition, variable);
 			if (valueOrNullIfNotEqualityOnVariable != null) {
 				Expression value = valueOrNullIfNotEqualityOnVariable;

@@ -55,7 +55,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public class ModelCounting extends SymbolicNumbersWithAdditionGroup implements ProblemType {
+public class ModelCounting extends SymbolicPlusGroup implements GroupProblemType {
 
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {

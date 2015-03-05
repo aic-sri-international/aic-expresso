@@ -58,7 +58,7 @@ public class TableConversion {
 		 */
 		Theory theory = new EqualityTheory(new SymbolTermTheory());
 
-		ProblemType problemType = new Max(); // the problem type actually does not matter, because we are not going to have any indices.
+		GroupProblemType problemType = new Max(); // the problem type actually does not matter, because we are not going to have any indices.
 
 		Expression table = Expressions.parse(""
 						+ "if X = a and Y = a and Z = a then 0.1 else "

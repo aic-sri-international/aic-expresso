@@ -37,29 +37,57 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.util.base.Pair;
+import java.util.List;
 
+import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewritingProcess;
 
 /**
- * The maximization problem type.
+ * Object representing an associative commutative semi-ring.
  * 
  * @author braz
  *
  */
-public class Max extends SymbolicNumbersWithMaxGroup implements GroupProblemType {
+@Beta
+public interface AssociativeCommutativeSemiRing extends AssociativeCommutativeGroup {
 
-	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		assert expression.hasFunctor(FunctorConstants.MAX) : "Expression expected to be application of " + FunctorConstants.MAX + " but is " + expression;
-		IntensionalSet set = (IntensionalSet) expression.get(0);
-		Pair<Expression, IndexExpressionsSet> result = Pair.make(IfThenElse.make(set.getCondition(), set.getHead(), Expressions.MINUS_INFINITY), set.getIndexExpressions());
-		return result;
-	}
+	/** Returns the functor of the multiplicative operation. */
+	String multiplicativeFunctor();
+	
+	/** The multiplicative operation identity element. */
+	Expression multiplicativeIdentityElement();
+
+	/** 
+	 * The multiplicative operation identity element.
+	 * This reason this is <i>not</i> a test like {@link AssociativeCommutativeGroup#isAdditiveAbsorbingElement}
+	 * is that semi-rings are required to have a multiplicative absorbing element,
+	 * but not required to have an additive one.
+	 */
+	Expression multiplicativeAbsorbingElement();
+
+	/**
+	 * Given an expression, returns its arguments if it is an application of the multiplicative operation,
+	 * or the expression itself otherwise.
+	 * This is useful when the multiplicative operator is implicit when applied to a single argument.
+	 */
+	List<Expression> getFactors(Expression expression);
+	
+	/**
+	 * Performs the semi-rings's multiplicative operation on a function application of the multiplicative operator.
+	 */
+	Expression multiply(Expression multiplication, RewritingProcess process);
+
+	/**
+	 * Returns the n-th root for an expression, if an exact value exists, or null otherwise. 
+	 * @param n
+	 * @param expression
+	 * @return
+	 */
+	Expression getNthRoot(int n, Expression expression);
+
+	/**
+	 * The result of multiplying a value to itself n times, where both value and n may be symbolic expressions.
+	 */
+	Expression multiplyNTimes(Expression value, Expression n, RewritingProcess process);
 }

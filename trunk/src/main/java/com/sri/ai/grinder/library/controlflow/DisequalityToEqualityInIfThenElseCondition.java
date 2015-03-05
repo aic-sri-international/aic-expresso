@@ -64,12 +64,12 @@ public class DisequalityToEqualityInIfThenElseCondition extends AbstractRewriter
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Expression condition;
 		if (IfThenElse.isIfThenElse(expression) &&
-				Disequality.isDisequality(condition = IfThenElse.getCondition(expression))) {
+				Disequality.isDisequality(condition = IfThenElse.condition(expression))) {
 			
 			Expression equality = Equality.make(condition.getArguments());
 			equality = Equality.normalize(equality, process);
-			Expression thenBranch = IfThenElse.getThenBranch(expression);
-			Expression elseBranch = IfThenElse.getElseBranch(expression);
+			Expression thenBranch = IfThenElse.thenBranch(expression);
+			Expression elseBranch = IfThenElse.elseBranch(expression);
 			Expression result = IfThenElse.make(equality, elseBranch, thenBranch);
 			return result;
 		}

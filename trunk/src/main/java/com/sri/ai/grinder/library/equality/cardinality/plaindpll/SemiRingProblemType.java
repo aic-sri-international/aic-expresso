@@ -37,29 +37,12 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.util.base.Pair;
-
 
 /**
- * The maximization problem type.
+ * Same as {@link GroupProblemType}, but offering {@link AssociativeCommutativeSemiRing} as well.
  * 
  * @author braz
  *
  */
-public class Max extends SymbolicNumbersWithMaxGroup implements GroupProblemType {
-
-	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		assert expression.hasFunctor(FunctorConstants.MAX) : "Expression expected to be application of " + FunctorConstants.MAX + " but is " + expression;
-		IntensionalSet set = (IntensionalSet) expression.get(0);
-		Pair<Expression, IndexExpressionsSet> result = Pair.make(IfThenElse.make(set.getCondition(), set.getHead(), Expressions.MINUS_INFINITY), set.getIndexExpressions());
-		return result;
-	}
+public interface SemiRingProblemType extends AssociativeCommutativeSemiRing, GroupProblemType {
 }

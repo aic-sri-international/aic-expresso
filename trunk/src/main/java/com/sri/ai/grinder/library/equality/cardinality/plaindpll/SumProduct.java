@@ -37,27 +37,30 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
+
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.base.Pair;
 
+
 /**
- * Defines a DPLL-type problem by specifying how to extract an expression and indices to be given to a {@link Solver} from a given problem expression.
- * For example, satisfiability converts expressions of the type <code>there exists X, Y : X != Y</code> to expression <code>X != Y</code> and indices <code>X, Y</code>.
+ * The sum problem type.
  * 
  * @author braz
  *
  */
-public interface ProblemType extends AssociativeCommutativeGroup {
+public class SumProduct extends SymbolicPlusTimesSemiRing implements SemiRingProblemType {
 
-	/**
-	 * Gets an expression passed to a rewriter solving this type of problem, and returns a pair containing the expression
-	 * and indices for DPLL to solve.
-	 * The index types are assumed to be stored in the rewriting process.
-	 * @param expression
-	 * @param process
-	 * @return
-	 */
-	Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process);
+	@Override
+	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
+		assert expression.hasFunctor(FunctorConstants.SUM) : "Expression expected to be application of " + FunctorConstants.SUM + " but is " + expression;
+		IntensionalSet set = (IntensionalSet) expression.get(0);
+		Pair<Expression, IndexExpressionsSet> result = Pair.make(IfThenElse.make(set.getCondition(), set.getHead(), ZERO), set.getIndexExpressions());
+		return result;
+	}
 }

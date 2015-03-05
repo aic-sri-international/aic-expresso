@@ -84,11 +84,11 @@ public class SGDPLLT extends AbstractSolver {
 	 */
 	public final static boolean earlyExternalizationOfFreeVariableSplittersOptimization = true; // IMPORTANT: unit tests will break if set to false. However DPLL stress tests can still be used. As of this writing (12/4/2014) the false setting was slightly slower.
 	
-	public SGDPLLT(Theory theory, ProblemType problemType) {
+	public SGDPLLT(Theory theory, GroupProblemType problemType) {
 		this(theory, problemType, null);
 	}
 
-	public SGDPLLT(Theory theory, ProblemType problemType, CountsDeclaration countsDeclaration) {
+	public SGDPLLT(Theory theory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
 		super(theory, problemType, countsDeclaration);
 	}
 
@@ -209,7 +209,7 @@ public class SGDPLLT extends AbstractSolver {
 		}
 
 		Expression solutionUnderSplitter = solveUnderSplitter(true, splitter, expression, indices, constraint, splitterMustBeInContextualConstraint, process);
-		boolean noNeedToComputeNegation  = solutionUnderSplitter != null && combiner == additionCombiner && problemType.isAbsorbingElement(solutionUnderSplitter);
+		boolean noNeedToComputeNegation  = solutionUnderSplitter != null && combiner == additionCombiner && problemType.isAdditiveAbsorbingElement(solutionUnderSplitter);
 		Expression solutionUnderSplitterNegation = 
 				noNeedToComputeNegation? null : solveUnderSplitter(false, splitter, expression, indices, constraint, splitterMustBeInContextualConstraint, process);
 		Expression result = combine(combiner, splitter, solutionUnderSplitter, solutionUnderSplitterNegation, process);

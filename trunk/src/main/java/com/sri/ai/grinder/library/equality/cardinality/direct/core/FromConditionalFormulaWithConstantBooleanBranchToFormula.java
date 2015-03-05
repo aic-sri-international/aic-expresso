@@ -77,9 +77,9 @@ public class FromConditionalFormulaWithConstantBooleanBranchToFormula extends Ab
 		
 		Expression result = expression;
 		
-		Expression condition = IfThenElse.getCondition(expression);
-		Expression thenBranch = IfThenElse.getThenBranch(expression);
-		Expression elseBranch = IfThenElse.getElseBranch(expression);
+		Expression condition = IfThenElse.condition(expression);
+		Expression thenBranch = IfThenElse.thenBranch(expression);
+		Expression elseBranch = IfThenElse.elseBranch(expression);
 		
 		if (thenBranch.equals(Expressions.TRUE) && FormulaUtil.isFormula(elseBranch, process)) {
 			result = Or.make(condition, elseBranch);

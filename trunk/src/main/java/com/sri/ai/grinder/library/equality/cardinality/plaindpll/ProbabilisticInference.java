@@ -51,7 +51,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
-import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.number.Division;
 import com.sri.ai.grinder.library.number.Times;
@@ -104,7 +103,7 @@ public class ProbabilisticInference {
 		Collection<Expression> allVariables;
 		Predicate<Expression> isUniquelyNamedConstantPredicate;
 		Theory theory;
-		ProblemType problemType;
+		SemiRingProblemType problemType;
 		Solver solver;
 
 		if (resultFromPreviousQueryIfKnown == null) {
@@ -127,9 +126,9 @@ public class ProbabilisticInference {
 
 			// The theory of atoms plus equality on function (relational) terms.
 			theory = new AtomsOnTheoryWithEquality(new EqualityTheory(new SymbolTermTheory()));
-			problemType = new Sum(); // for marginalization
+			problemType = new SumProduct(); // for marginalization
 			// The solver for the parameters above.
-			solver = new SGVET(FunctorConstants.TIMES, ONE, ZERO, theory, problemType);
+			solver = new SGVET(theory, problemType);
 			((SGVET) solver).basicOutput = true;
 //			solver = new SGDPLLT(theory, problemType);
 
@@ -201,10 +200,10 @@ public class ProbabilisticInference {
 		private Collection<Expression> allVariables;
 		private Predicate<Expression> isUniquelyNamedConstantPredicate;
 		private Theory theory;
-		private ProblemType problemType;
+		private SemiRingProblemType problemType;
 		private Solver solver;
 	
-		public Result(Expression queryMarginal, Expression evidenceProbability, Map<String, String> mapFromTypeNameToSizeString, Map<String, String> mapFromRandomVariableNameToTypeName, Expression queryVariable, Collection<Expression> allVariables, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory, ProblemType problemType, Solver solver) {
+		public Result(Expression queryMarginal, Expression evidenceProbability, Map<String, String> mapFromTypeNameToSizeString, Map<String, String> mapFromRandomVariableNameToTypeName, Expression queryVariable, Collection<Expression> allVariables, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory, SemiRingProblemType problemType, Solver solver) {
 			super();
 			this.queryMarginal = queryMarginal;
 			this.evidenceProbability = evidenceProbability;
@@ -250,7 +249,7 @@ public class ProbabilisticInference {
 			return theory;
 		}
 
-		public ProblemType getProblemType() {
+		public SemiRingProblemType getProblemType() {
 			return problemType;
 		}
 

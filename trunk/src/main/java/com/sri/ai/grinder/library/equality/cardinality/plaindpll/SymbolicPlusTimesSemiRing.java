@@ -37,29 +37,76 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.util.base.Pair;
+import static com.sri.ai.expresso.helper.Expressions.ONE;
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
+import static com.sri.ai.util.Util.list;
 
+import java.util.List;
+
+import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.number.Times;
 
 /**
- * The maximization problem type.
+ * Object representing a group on symbolic numbers with addition.
  * 
  * @author braz
  *
  */
-public class Max extends SymbolicNumbersWithMaxGroup implements GroupProblemType {
+@Beta
+public class SymbolicPlusTimesSemiRing extends SymbolicPlusGroup implements AssociativeCommutativeSemiRing {
 
 	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		assert expression.hasFunctor(FunctorConstants.MAX) : "Expression expected to be application of " + FunctorConstants.MAX + " but is " + expression;
-		IntensionalSet set = (IntensionalSet) expression.get(0);
-		Pair<Expression, IndexExpressionsSet> result = Pair.make(IfThenElse.make(set.getCondition(), set.getHead(), Expressions.MINUS_INFINITY), set.getIndexExpressions());
+	public String multiplicativeFunctor() {
+		return TIMES;
+	}
+
+	@Override
+	public Expression multiplicativeIdentityElement() {
+		return ZERO;
+	}
+
+	@Override
+	public Expression multiplicativeAbsorbingElement() {
+		return ONE;
+	}
+
+	@Override
+	public List<Expression> getFactors(Expression expression) {
+		List<Expression> result;
+		if (expression.hasFunctor(multiplicativeFunctor())) {
+			result = expression.getArguments();
+		}
+		else {
+			result = list(expression);
+		}
 		return result;
+	}
+
+	static final private Times timesRewriter = new Times();
+
+	@Override
+	public Expression multiply(Expression multiplication, RewritingProcess process) {
+		Expression result = timesRewriter.rewrite(multiplication, process);
+		return result;
+	}
+
+	@Override
+	public Expression getNthRoot(int n, Expression expression) {
+		Expression result;
+		if (expression.equals(ONE)) {
+			result = ONE;
+		}
+		else {
+			result = null;
+		}
+		return result;
+	}
+
+	@Override
+	public Expression multiplyNTimes(Expression value, Expression n, RewritingProcess process) {
+		throw new Error("Exponentiation not yet implemented.");
 	}
 }

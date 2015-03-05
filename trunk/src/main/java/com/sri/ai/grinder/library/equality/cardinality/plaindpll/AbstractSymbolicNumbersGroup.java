@@ -26,7 +26,7 @@ public abstract class AbstractSymbolicNumbersGroup implements AssociativeCommuta
 	public abstract Expression add(Expression value1, Expression value2, RewritingProcess process);
 
 	@Override
-	public abstract boolean isAbsorbingElement(Expression value);
+	public abstract boolean isAdditiveAbsorbingElement(Expression value);
 
 	/**
 	 * Implements the addition of an element to itself n times,
@@ -44,17 +44,17 @@ public abstract class AbstractSymbolicNumbersGroup implements AssociativeCommuta
 			result = additiveIdentityElement();
 		}
 		else if (IfThenElse.isIfThenElse(n)) { // it is important that this condition is tested before the next, because n can be conditional on splitters while valueToBeSummed can be conditioned on conditions in the unconditional solution language (such as | Everything | - 1 > 0), and we want splitters to be over non-splitter conditions
-			Expression condition  = IfThenElse.getCondition(n);
-			Expression thenBranch = IfThenElse.getThenBranch(n);
-			Expression elseBranch = IfThenElse.getElseBranch(n);
+			Expression condition  = IfThenElse.condition(n);
+			Expression thenBranch = IfThenElse.thenBranch(n);
+			Expression elseBranch = IfThenElse.elseBranch(n);
 			Expression newThenBranch = addNTimes(valueToBeAdded, thenBranch, process);
 			Expression newElseBranch = addNTimes(valueToBeAdded, elseBranch, process);
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch, false); // do not simplify to condition so it is a DPLL solution
 		}
 		else if (IfThenElse.isIfThenElse(valueToBeAdded)) {
-			Expression condition = IfThenElse.getCondition(valueToBeAdded);
-			Expression thenBranch = IfThenElse.getThenBranch(valueToBeAdded);
-			Expression elseBranch = IfThenElse.getElseBranch(valueToBeAdded);
+			Expression condition = IfThenElse.condition(valueToBeAdded);
+			Expression thenBranch = IfThenElse.thenBranch(valueToBeAdded);
+			Expression elseBranch = IfThenElse.elseBranch(valueToBeAdded);
 			
 			Expression newThenBranch = addNTimes(thenBranch, n, process);
 			Expression newElseBranch = addNTimes(elseBranch, n, process);
