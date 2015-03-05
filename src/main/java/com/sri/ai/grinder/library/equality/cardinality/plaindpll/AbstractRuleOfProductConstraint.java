@@ -12,13 +12,12 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.AbstractEqualityTheory.AbstractEqualityConstraint;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.AbstractTheory.Contradiction;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.util.Util;
 
 /**
- * An abstract {@link AbstractEqualityConstraint} implementation that lays the groundwork for
+ * An abstract {@link ConjunctiveConstraint} implementation that lays the groundwork for
  * computing model counts based on the rule of product, that is,
  * iterating over each index, computing the number of possible values for it
  * given the previous choices, and multiplying them all.
