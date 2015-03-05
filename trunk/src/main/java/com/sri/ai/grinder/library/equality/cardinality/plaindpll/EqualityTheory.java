@@ -47,6 +47,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
+import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.mapIntoSetOrSameIfNoDistinctElementInstances;
@@ -54,7 +55,6 @@ import static java.lang.Math.max;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -238,15 +238,25 @@ public class EqualityTheory extends AbstractTheory {
 		private Collection<Expression> disequals;
 		private EqualityConstraint parentEqualityConstraint;
 		
+		private Collection<Expression> uniquelyValuedDisequals; // disequals constrained to be disequal from all uniquely-valued disequals added before themselves. If this set reaches index's domain size, there will be no value left for it and an inconsistency is indicated.
+
 		public DisequalitiesConstraint(Expression index, EqualityConstraint parentEqualityConstraint) {
 			this.index = index;
-			this.disequals = list(); this.ownMyDisequals = true;
+			
+			this.disequals = Util.set();
+			this.uniquelyValuedDisequals = Util.set();
+			this.ownMyDisequals = true;
+			
 			this.parentEqualityConstraint = parentEqualityConstraint;
 		}
 		
 		public DisequalitiesConstraint(DisequalitiesConstraint another, EqualityConstraint parentEqualityConstraint) {
 			this.index = another.index;
-			this.disequals = ((DisequalitiesConstraint) another).disequals; this.ownMyDisequals = false;
+			
+			this.disequals = ((DisequalitiesConstraint) another).disequals;
+			this.uniquelyValuedDisequals = ((DisequalitiesConstraint) another).uniquelyValuedDisequals;
+			this.ownMyDisequals = false;
+			
 			this.parentEqualityConstraint = parentEqualityConstraint;
 		}
 		
@@ -254,12 +264,23 @@ public class EqualityTheory extends AbstractTheory {
 			return Collections.unmodifiableCollection(disequals);
 		}
 
-		public void addToDisequals(Expression term) {
+		public void addToDisequals(Expression term, RewritingProcess process) {
 			if ( ! ownMyDisequals) {
-				disequals = new LinkedHashSet<Expression>(disequals); // need to make a fresh copy because we may be using
+				disequals = new LinkedHashSet<Expression>(disequals);
+				if (getDomainSize(process) != -1) {
+					uniquelyValuedDisequals = new LinkedHashSet<Expression>(uniquelyValuedDisequals);
+				}
 				ownMyDisequals = true;
 			}
 			disequals.add(term);
+			if (getDomainSize(process) != -1) {
+				if (forAll(uniquelyValuedDisequals, u -> areConstrainedToBeDisequal(u, term, process))) {
+					uniquelyValuedDisequals.add(term);
+				}
+				if (uniquelyValuedDisequals.size() >= getDomainSize(process)) {
+					throw new Contradiction();
+				}
+			}
 		}
 		
 		public DisequalitiesConstraint clone() {
@@ -300,7 +321,7 @@ public class EqualityTheory extends AbstractTheory {
 					if (splitter != null) {
 						return splitter; // need to disunify first
 					}
-					else if ( ! parentEqualityConstraint.termsAreExplicitlyConstrainedToBeDisequal(disequal, anotherDisequal, process)) { // already disunified
+					else if ( ! areConstrainedToBeDisequal(disequal, anotherDisequal, process)) { // already disunified
 						splitter = makeSplitterFromFunctorAndTwoTerms(EQUALITY, disequal, anotherDisequal, parentEqualityConstraint.getSupportedIndices(), process);
 						return splitter;
 					}
@@ -309,11 +330,16 @@ public class EqualityTheory extends AbstractTheory {
 			return null;
 		}
 
+		private boolean areConstrainedToBeDisequal(Expression disequal, Expression anotherDisequal, RewritingProcess process) {
+			boolean result = parentEqualityConstraint.termsAreExplicitlyConstrainedToBeDisequal(disequal, anotherDisequal, process);
+			return result;
+		}
+
 		@Override
 		public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
 			Expression numberOfPossibleValuesForIndex;
 			long numberOfNonAvailableValues = getDisequals().size();
-			long typeSize = getTypeCardinality(index, process);
+			long typeSize = getDomainSize(process);
 			if (typeSize == -1) {
 				Expression indexType = process.getContextualSymbolType(index);
 				if (indexType == null) {
@@ -326,6 +352,14 @@ public class EqualityTheory extends AbstractTheory {
 				numberOfPossibleValuesForIndex = makeSymbol(max(0, typeSize - numberOfNonAvailableValues));
 			}
 			return numberOfPossibleValuesForIndex;
+		}
+
+		private long cachedDomainSize = -1;
+		public long getDomainSize(RewritingProcess process) {
+			if (cachedDomainSize == -1) {
+				cachedDomainSize = getTypeCardinality(index, process);
+			}
+			return cachedDomainSize;
 		}
 
 		@Override
@@ -597,18 +631,18 @@ public class EqualityTheory extends AbstractTheory {
 		private void applyRepresentativesDisequalityDestructively(Expression term1, Expression term2, RewritingProcess process) {
 			if (termTheory.isVariableTerm(term1, process) || termTheory.isVariableTerm(term2, process)) {
 				if (termTheory.isVariableTerm(term1, process) && variableIsChosenAfterOtherTerm(term1, term2, supportedIndices, process)) {
-					addFirstTermAsDisequalOfSecondTerm(term1, term2);
+					addFirstTermAsDisequalOfSecondTerm(term1, term2, process);
 				}
 				else { // term2 must be a variable because either term1 is not a variable, or it is but term2 comes later than term1 in ordering, which means it is a variable
-					addFirstTermAsDisequalOfSecondTerm(term2, term1);
+					addFirstTermAsDisequalOfSecondTerm(term2, term1, process);
 				}
 			}
 			// else they are both constants, and distinct ones, so no need to do anything.
 		}
 
-		private void addFirstTermAsDisequalOfSecondTerm(Expression term1, Expression term2) {
+		private void addFirstTermAsDisequalOfSecondTerm(Expression term1, Expression term2, RewritingProcess process) {
 			DisequalitiesConstraint disequalitiesConstraintForTerm1 = disequalitiesConstraintFor(term1);
-			disequalitiesConstraintForTerm1.addToDisequals(term2);
+			disequalitiesConstraintForTerm1.addToDisequals(term2, process);
 		}
 
 		private DisequalitiesConstraint disequalitiesConstraintFor(Expression term) {
