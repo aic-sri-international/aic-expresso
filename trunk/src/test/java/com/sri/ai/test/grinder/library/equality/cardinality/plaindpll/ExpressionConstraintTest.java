@@ -63,7 +63,7 @@ import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ExpressionConst
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolTermTheory;
 
 @Beta
-public class WrappedExpressionConstraintTest {
+public class ExpressionConstraintTest {
 	
 	@Test
 	public void test() {

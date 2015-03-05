@@ -94,6 +94,7 @@ public class SGDPLLT extends AbstractSolver {
 
 	@Override
 	protected Expression solveAfterBookkeeping(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+		
 		long startTime = 0;
 		if (debug(process)) {
 			startTime = System.currentTimeMillis();
