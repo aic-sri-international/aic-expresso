@@ -39,27 +39,25 @@ package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.util.base.Pair;
 
-
 /**
- * The maximization problem type.
+ * Defines a group-type problem by specifying how to extract an expression and indices to be given to a {@link Solver} from a given problem expression.
+ * For example, satisfiability converts expressions of the type <code>there exists X, Y : X != Y</code> to expression <code>X != Y</code> and indices <code>X, Y</code>.
  * 
  * @author braz
  *
  */
-public class Max extends SymbolicNumbersWithMaxGroup implements GroupProblemType {
+public interface GroupProblemType extends AssociativeCommutativeGroup {
 
-	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		assert expression.hasFunctor(FunctorConstants.MAX) : "Expression expected to be application of " + FunctorConstants.MAX + " but is " + expression;
-		IntensionalSet set = (IntensionalSet) expression.get(0);
-		Pair<Expression, IndexExpressionsSet> result = Pair.make(IfThenElse.make(set.getCondition(), set.getHead(), Expressions.MINUS_INFINITY), set.getIndexExpressions());
-		return result;
-	}
+	/**
+	 * Gets an expression passed to a rewriter solving this type of problem, and returns a pair containing the expression
+	 * and indices for DPLL to solve.
+	 * The index types are assumed to be stored in the rewriting process.
+	 * @param expression
+	 * @param process
+	 * @return
+	 */
+	Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process);
 }

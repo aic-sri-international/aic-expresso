@@ -54,7 +54,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public class Sum extends SymbolicNumbersWithAdditionGroup implements ProblemType {
+public class Sum extends SymbolicPlusGroup implements GroupProblemType {
 
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {

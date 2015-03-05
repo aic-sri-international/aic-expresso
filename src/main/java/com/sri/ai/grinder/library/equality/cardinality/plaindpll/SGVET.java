@@ -37,10 +37,14 @@
  */
 package com.sri.ai.grinder.library.equality.cardinality.plaindpll;
 
-import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.isSubExpressionOf;
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.library.boole.And.getConjuncts;
+import static com.sri.ai.grinder.library.boole.And.isConjunction;
+import static com.sri.ai.grinder.library.controlflow.IfThenElse.condition;
+import static com.sri.ai.grinder.library.controlflow.IfThenElse.elseBranch;
+import static com.sri.ai.grinder.library.controlflow.IfThenElse.isIfThenElse;
+import static com.sri.ai.grinder.library.controlflow.IfThenElse.thenBranch;
 import static com.sri.ai.util.Util.argmin;
 import static com.sri.ai.util.Util.collectToLists;
 import static com.sri.ai.util.Util.getFirst;
@@ -52,7 +56,6 @@ import static com.sri.ai.util.Util.removeNonDestructively;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -61,11 +64,8 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.number.Times;
-import com.sri.ai.util.Util;
 import com.sri.ai.util.base.PairOf;
 
 /**
@@ -98,25 +98,23 @@ public class SGVET extends AbstractSolver {
 
 	public boolean basicOutput = true;
 	
-	private Expression multiplicativeFunction;
-	private Expression multiplicativeIdentityElement;
-	private Expression multiplicativeAbsorbingElement;
 	private SGDPLLT subSolver;
 	
-	public SGVET(String multiplicativeFunctionString, Expression multiplicativeIdentityElement, Expression multiplicativeAbsorbingElement, Theory theory, ProblemType problemType) {
-		this(multiplicativeFunctionString, multiplicativeIdentityElement, multiplicativeAbsorbingElement, theory, problemType, null);
+	public SGVET(Theory theory, SemiRingProblemType problemType) {
+		this(theory, problemType, null);
 	}
 
-	public SGVET(String multiplicativeFunctionString, Expression multiplicativeIdentityElement, Expression multiplicativeAbsorbingElement, Theory theory, ProblemType problemType, CountsDeclaration countsDeclaration) {
+	public SGVET(Theory theory, SemiRingProblemType problemType, CountsDeclaration countsDeclaration) {
 		super(theory, problemType, countsDeclaration);
-		this.multiplicativeFunction = makeSymbol(multiplicativeFunctionString);
 		this.subSolver = new SGDPLLT(theory, problemType, countsDeclaration);
 		subSolver.debug = false;
 		subSolver.debugLevel = 6;
-		this.multiplicativeIdentityElement = multiplicativeIdentityElement;
-		this.multiplicativeAbsorbingElement = multiplicativeAbsorbingElement;
 	}
 
+	SemiRingProblemType getProblemType() {
+		return (SemiRingProblemType) problemType;
+	}
+	
 	private static class Partition {
 		private List<Expression> index;
 		private List<Expression> remainingIndices;
@@ -127,6 +125,11 @@ public class SGVET extends AbstractSolver {
 			this.index = list(index);
 			this.remainingIndices = remainingIndices;
 			this.expressionsOnIndexAndNot = expressionsOnIndex;
+		}
+		
+		public boolean isTrivial() {
+			boolean result = expressionsOnIndexAndNot.first.isEmpty() || expressionsOnIndexAndNot.second.isEmpty();
+			return result;
 		}
 	}
 	
@@ -139,12 +142,12 @@ public class SGVET extends AbstractSolver {
 		}
 		
 		Partition partition;
-		if (indices.size() < 3) {
+		if (indices.size() < 1) {
 			partition = null;
 		}
 		else {
-			Expression factoredConditionalsExpression = factoredConditionalsWithAbsorbingElseClause(expression);
-			partition = pickPartition(getFactors(factoredConditionalsExpression), indices, constraint, process);
+			Expression factoredConditionalsExpression = factoredConditionalsWithAbsorbingElseClause(expression, process);
+			partition = pickPartition(factoredConditionalsExpression, indices, constraint, process);
 		}
 		
 		if (partition == null) {
@@ -154,7 +157,7 @@ public class SGVET extends AbstractSolver {
 			result = subSolver.solve(expression, indices, constraint, process);
 		}
 		else {
-			Expression indexSubProblemExpression = product(partition.expressionsOnIndexAndNot.first);
+			Expression indexSubProblemExpression = product(partition.expressionsOnIndexAndNot.first, process);
 			if (basicOutput) {
 				System.out.println("Eliminating: " + getFirst(partition.index));	
 				System.out.println("From       : " + indexSubProblemExpression);	
@@ -166,25 +169,26 @@ public class SGVET extends AbstractSolver {
 			}
 			
 			partition.expressionsOnIndexAndNot.second.add(indexSubProblemSolution);
-			Expression remainingSubProblemExpression = product(partition.expressionsOnIndexAndNot.second);
+			Expression remainingSubProblemExpression = product(partition.expressionsOnIndexAndNot.second, process);
 			Constraint constraintOnRemainingIndices = constraint.project(partition.index, process);
 			result = solve(remainingSubProblemExpression, partition.remainingIndices, constraintOnRemainingIndices, process);
-			result = timesRewriter.rewrite(result, process);
+			result = getProblemType().multiply(result, process);
 		}
 		
 		return result;
 	}
 
-	private Partition pickPartition(List<Expression> expressions, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	private Partition pickPartition(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		Partition result;
 		if (indices.isEmpty()) {
 			result = null;
 		}
 		else {
-			List<Partition> allPartitions = mapIntoList(indices, makePartition(indices, expressions));
+			List<Expression> factors = getProblemType().getFactors(expression);
+			List<Partition> allPartitions = mapIntoList(indices, makePartition(indices, factors));
 			result = argmin(allPartitions, width(process)); // min-fill heuristics
-			if (result.expressionsOnIndexAndNot.first.isEmpty() || result.expressionsOnIndexAndNot.second.isEmpty()) {
-				result = null; // no need to partition
+			if (result.isTrivial()) {
+				result = null; // no need to incur in the overhead for partitioning
 			}
 		}
 		return result;
@@ -208,7 +212,9 @@ public class SGVET extends AbstractSolver {
 	}
 
 	private int width(Partition partition, RewritingProcess process) {
-		return width(product(partition.expressionsOnIndexAndNot.first), process);
+		Expression product = product(partition.expressionsOnIndexAndNot.first, process);
+		int result = width(product, process);
+		return result;
 	}
 
 	private int width(Expression expression, RewritingProcess process) {
@@ -224,84 +230,67 @@ public class SGVET extends AbstractSolver {
 		return result;
 	}
 
-	public Expression factoredConditionalsWithAbsorbingElseClause(Expression expression) {
-		List<Expression> factors = getFactors(expression);
-		List<Expression> factoredFactors = factoredConditionalsWithAbsorbingElseClause(factors);
+	public Expression factoredConditionalsWithAbsorbingElseClause(Expression expression, RewritingProcess process) {
+		List<Expression> factors = getProblemType().getFactors(expression);
+		List<Expression> factorsAfterFactoringConditionals = factoredConditionalsWithAbsorbingElseClause(factors);
 		Expression result;
-		if (factoredFactors == factors) {
+		if (factorsAfterFactoringConditionals == factors) {
 			result = expression;
 		}
 		else {
-			result = product(factoredFactors);
+			result = product(factorsAfterFactoringConditionals, process);
 		}
 		return result;
 	}
 	
 	private List<Expression> factoredConditionalsWithAbsorbingElseClause(List<Expression> factors) {
-		List<Expression> result = nonDestructivelyExpandElementsIfFunctionReturnsNonNullCollection(factors, this::factorConditionalIfPossible);
+		List<Expression> result =
+				nonDestructivelyExpandElementsIfFunctionReturnsNonNullCollection(
+						factors,
+						this::factorConditionalIfPossible);
 		return result;
 	}
 	
 	private List<Expression> factorConditionalIfPossible(Expression expression) {
 		List<Expression> result = null;
 		Expression nthRoot;
-		if (IfThenElse.isIfThenElse(expression) &&
-				IfThenElse.getElseBranch(expression).equals(multiplicativeAbsorbingElement)
+		if (isIfThenElse(expression) && elseBranchIsAbsorbing(expression)
 				&&
-				And.isConjunction(IfThenElse.getCondition(expression))
+				conditionIsConjunction(expression)
 				&&
-				(nthRoot =
-				getNthRoot(IfThenElse.getCondition(expression).numberOfArguments(),
-						IfThenElse.getThenBranch(expression)
-						)) != null) {
-			
-			result = Util.mapIntoList(
-					And.getConjuncts(IfThenElse.getCondition(expression)),
-					(Expression c) -> IfThenElse.make(c, nthRoot, multiplicativeAbsorbingElement));
+				(nthRoot = getNthRoot(numberOfConjuncts(expression), thenBranch(expression)))
+				!= null) {
+
+			result = mapIntoList(
+					getConjuncts(condition(expression)),
+					(Expression c) -> IfThenElse.make(c, nthRoot, multiplicativeAbsorbingElement()));
 		}
 		return result; 
 	}
 
-	/**
-	 * Returns the n-th root for an expression, if an exact value exists, or null otherwise. 
-	 * @param n
-	 * @param expression
-	 * @return
-	 */
+	public boolean conditionIsConjunction(Expression expression) {
+		return isConjunction(condition(expression));
+	}
+
+	public boolean elseBranchIsAbsorbing(Expression expression) {
+		return elseBranch(expression).equals(multiplicativeAbsorbingElement());
+	}
+
+	public Expression multiplicativeAbsorbingElement() {
+		return getProblemType().multiplicativeAbsorbingElement();
+	}
+
+	public int numberOfConjuncts(Expression expression) {
+		return condition(expression).numberOfArguments();
+	}
+
 	private Expression getNthRoot(int n, Expression expression) {
-		Expression result;
-		if (expression.equals(ONE)) {
-			result = ONE;
-		}
-		else {
-			result = null;
-		}
-		return result;
+		return getProblemType().getNthRoot(n, expression);
 	}
 
-	static final private Times timesRewriter = new Times();
-
-	private Expression product(Collection<Expression> factors) {
-		List<Expression> arguments = new LinkedList<Expression>();
-		for (Expression factor : factors) {
-			if (factor.equals(multiplicativeAbsorbingElement)) {
-				return factor;
-			}
-			if ( ! factor.equals(multiplicativeIdentityElement)) {
-				arguments.add(factor);
-			}
-		}
-		return apply(multiplicativeFunction, arguments);
-	}
-
-	private List<Expression> getFactors(Expression expression) {
-		List<Expression> result;
-		if (expression.hasFunctor(multiplicativeFunction)) {
-			result = expression.getArguments();
-		}
-		else {
-			result = list(expression);
-		}
+	private Expression product(Collection<Expression> factors, RewritingProcess process) {
+		Expression multiplication = apply(getProblemType().multiplicativeFunctor(), factors);
+		Expression result = getProblemType().multiply(multiplication, process);
 		return result;
 	}
 

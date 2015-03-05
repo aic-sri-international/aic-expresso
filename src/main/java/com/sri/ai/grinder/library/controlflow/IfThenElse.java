@@ -106,7 +106,7 @@ public class IfThenElse extends AbstractRewriter {
 	 */
 	public static Expression makeIfDistinctFrom(Expression original, Expression newCondition, Expression newThenBranch, Expression newElseBranch, boolean simplifyToConditionIfPossible) {
 		Expression result;
-		if (newCondition != getCondition(original) || newThenBranch != getThenBranch(original) || newElseBranch != getElseBranch(original)) {
+		if (newCondition != condition(original) || newThenBranch != thenBranch(original) || newElseBranch != elseBranch(original)) {
 			result = make(newCondition, newThenBranch, newElseBranch, simplifyToConditionIfPossible);
 		}
 		else {
@@ -116,16 +116,16 @@ public class IfThenElse extends AbstractRewriter {
 	}
 
 	public static Expression flipBranchesWithThisCondition(Expression ifThenElse, Expression newCondition) {
-		Expression thenBranch = getThenBranch(ifThenElse);
-		Expression elseBranch = getElseBranch(ifThenElse);
+		Expression thenBranch = thenBranch(ifThenElse);
+		Expression elseBranch = elseBranch(ifThenElse);
 		ifThenElse = make(newCondition, elseBranch, thenBranch);
 		return ifThenElse;
 	}
 
 	public static Expression makeBooleanFormulaEquivalentToIfThenElse(Expression ifThenElse) {
-		Expression condition    = getCondition(ifThenElse);
-		Expression thenBranch   = getThenBranch(ifThenElse);
-		Expression elseBranch   = getElseBranch(ifThenElse);
+		Expression condition    = condition(ifThenElse);
+		Expression thenBranch   = thenBranch(ifThenElse);
+		Expression elseBranch   = elseBranch(ifThenElse);
 		Expression notCondition = Not.make(condition);
 		Expression equivalent   = Or.make(And.make(condition, thenBranch), And.make(notCondition, elseBranch));
 		return equivalent;
@@ -238,19 +238,19 @@ public class IfThenElse extends AbstractRewriter {
 	}
 	
 	/** Returns the condition of an if then else expression. */
-	public static Expression getCondition(Expression expression) {
+	public static Expression condition(Expression expression) {
 		Expression result = expression.get(0);
 		return result;
 	}
 	
 	/** Returns the then branch of an if then else expression. */
-	public static Expression getThenBranch(Expression expression) {
+	public static Expression thenBranch(Expression expression) {
 		Expression result = expression.get(1);
 		return result;
 	}
 	
 	/** Returns the else branch of an if then else expression. */
-	public static Expression getElseBranch(Expression expression) {
+	public static Expression elseBranch(Expression expression) {
 		Expression result = expression.get(2);
 		return result;
 	}
@@ -261,12 +261,12 @@ public class IfThenElse extends AbstractRewriter {
 	 */
 	public static Expression copyWithReplacedCondition(Expression ifThenElse, Expression newCondition) {
 		if (newCondition.equals(Expressions.TRUE)) {
-			return getThenBranch(ifThenElse);
+			return thenBranch(ifThenElse);
 		}
 		if (newCondition.equals(Expressions.FALSE)) {
-			return getElseBranch(ifThenElse);
+			return elseBranch(ifThenElse);
 		}
-		Expression result = IfThenElse.make(newCondition, getThenBranch(ifThenElse), getElseBranch(ifThenElse));
+		Expression result = IfThenElse.make(newCondition, thenBranch(ifThenElse), elseBranch(ifThenElse));
 		return result;
 	}
 
@@ -282,9 +282,9 @@ public class IfThenElse extends AbstractRewriter {
 	public static Expression flipIfThenElseWithNegatedCondition(Expression ifThenElseWithNegatedCondition) {
 		Expression result =
 				make(
-						getCondition(ifThenElseWithNegatedCondition).get(0),
-						getElseBranch(ifThenElseWithNegatedCondition),
-						getThenBranch(ifThenElseWithNegatedCondition));
+						condition(ifThenElseWithNegatedCondition).get(0),
+						elseBranch(ifThenElseWithNegatedCondition),
+						thenBranch(ifThenElseWithNegatedCondition));
 		return result;
 	}
 	
@@ -294,13 +294,13 @@ public class IfThenElse extends AbstractRewriter {
 	public static Expression equivalentWithNonNegatedCondition(Expression expression) {
 		if (isIfThenElse(expression)) {
 			Pair<Integer, Expression> numberOfNotApplicationsAndArgument =
-					Expressions.getNumberOfConsecutiveApplicationsOfUnaryFunctorAndUnderlyingArgument(getCondition(expression), NOT_FUNCTOR);
+					Expressions.getNumberOfConsecutiveApplicationsOfUnaryFunctorAndUnderlyingArgument(condition(expression), NOT_FUNCTOR);
 			if (numberOfNotApplicationsAndArgument.first != 0) {
 				if (numberOfNotApplicationsAndArgument.first % 2 == 0) {
-					expression = make(numberOfNotApplicationsAndArgument.second, getThenBranch(expression), getElseBranch(expression));
+					expression = make(numberOfNotApplicationsAndArgument.second, thenBranch(expression), elseBranch(expression));
 				}
 				else {
-					expression = make(numberOfNotApplicationsAndArgument.second, getElseBranch(expression), getThenBranch(expression));
+					expression = make(numberOfNotApplicationsAndArgument.second, elseBranch(expression), thenBranch(expression));
 				}
 			}
 		}
@@ -308,9 +308,9 @@ public class IfThenElse extends AbstractRewriter {
 	}
 
 	public static Expression simplify(Expression ifThenElse) {
-		Expression condition  = getCondition(ifThenElse);
-		Expression thenBranch = getThenBranch(ifThenElse);
-		Expression elseBranch = getElseBranch(ifThenElse);
+		Expression condition  = condition(ifThenElse);
+		Expression thenBranch = thenBranch(ifThenElse);
+		Expression elseBranch = elseBranch(ifThenElse);
 		Expression result = IfThenElse.make(condition, thenBranch, elseBranch);
 		if (ifThenElse.equals(result)) {
 			result = ifThenElse; // make sure to return same instance if there were no changes 

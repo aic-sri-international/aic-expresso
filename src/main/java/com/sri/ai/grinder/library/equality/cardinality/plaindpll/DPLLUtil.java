@@ -212,16 +212,16 @@ public class DPLLUtil {
 		Expression result = null;
 		
 		if (IfThenElse.isIfThenElse(solution)) {
-			Expression newCondition = impliesExpressionOrItsNegationOrNeither(IfThenElse.getCondition(solution), constraint, process);
+			Expression newCondition = impliesExpressionOrItsNegationOrNeither(IfThenElse.condition(solution), constraint, process);
 			if (newCondition.equals(Expressions.TRUE)) {
-				result = simplifySolutionUnderNonTrivialConstraint(IfThenElse.getThenBranch(solution), constraint, process);
+				result = simplifySolutionUnderNonTrivialConstraint(IfThenElse.thenBranch(solution), constraint, process);
 			}
 			else if (newCondition.equals(Expressions.FALSE)) {
-				result = simplifySolutionUnderNonTrivialConstraint(IfThenElse.getElseBranch(solution), constraint, process);
+				result = simplifySolutionUnderNonTrivialConstraint(IfThenElse.elseBranch(solution), constraint, process);
 			}
 			else {
-				Expression newThenBranch = simplifySolutionUnderNonTrivialConstraint(IfThenElse.getThenBranch(solution), constraint, process);
-				Expression newElseBranch = simplifySolutionUnderNonTrivialConstraint(IfThenElse.getElseBranch(solution), constraint, process);
+				Expression newThenBranch = simplifySolutionUnderNonTrivialConstraint(IfThenElse.thenBranch(solution), constraint, process);
+				Expression newElseBranch = simplifySolutionUnderNonTrivialConstraint(IfThenElse.elseBranch(solution), constraint, process);
 				result = IfThenElse.makeIfDistinctFrom(solution, newCondition, newThenBranch, newElseBranch, false);
 			}
 		}
@@ -272,7 +272,7 @@ public class DPLLUtil {
 	 * @return
 	 */
 	public static boolean isConditionalSolution(Expression solution, Theory theory, RewritingProcess process) {
-		boolean result = IfThenElse.isIfThenElse(solution) && isSplitter(IfThenElse.getCondition(solution), theory, process);
+		boolean result = IfThenElse.isIfThenElse(solution) && isSplitter(IfThenElse.condition(solution), theory, process);
 		return result;
 	}
 

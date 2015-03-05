@@ -134,11 +134,11 @@ public class FormulaUtil {
 		}
 		// if phi1, phi2 and phi3 are formulas, then 'if ph1 then ph2 else ph3' is a formula
 		else if (IfThenElse.isIfThenElse(expression)) {
-			result = isFormula(IfThenElse.getCondition(expression), process)
+			result = isFormula(IfThenElse.condition(expression), process)
 					&&
-					isFormula(IfThenElse.getThenBranch(expression), process)
+					isFormula(IfThenElse.thenBranch(expression), process)
 					&&
-					isFormula(IfThenElse.getElseBranch(expression), process);
+					isFormula(IfThenElse.elseBranch(expression), process);
 		}
 		
 		return result;
@@ -464,8 +464,8 @@ public class FormulaUtil {
 	public static boolean isConditionalFormula(Expression expressionF, RewritingProcess process) {
 		boolean result =
 				IfThenElse.isIfThenElse(expressionF) &&
-				isFormula(IfThenElse.getThenBranch(expressionF), process) &&
-				isFormula(IfThenElse.getElseBranch(expressionF), process);
+				isFormula(IfThenElse.thenBranch(expressionF), process) &&
+				isFormula(IfThenElse.elseBranch(expressionF), process);
 		return result;
 	}
 

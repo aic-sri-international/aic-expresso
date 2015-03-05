@@ -170,9 +170,9 @@ public class CardinalityExtensionalSet extends AbstractCardinalityRewriter {
 			result = Expressions.makeSymbol(value.intValue() + 1);
 		}
 		else { // counting solution is an if then else
-			Expression condition = IfThenElse.getCondition(countingSolution);
-			Expression thenCountingSolution = IfThenElse.getThenBranch(countingSolution);
-			Expression elseCountingSolution = IfThenElse.getElseBranch(countingSolution);
+			Expression condition = IfThenElse.condition(countingSolution);
+			Expression thenCountingSolution = IfThenElse.thenBranch(countingSolution);
+			Expression elseCountingSolution = IfThenElse.elseBranch(countingSolution);
 
 			Expression newThenCountingSolution = plusOne(thenCountingSolution);
 			Expression newElseCountingSolution = plusOne(elseCountingSolution);

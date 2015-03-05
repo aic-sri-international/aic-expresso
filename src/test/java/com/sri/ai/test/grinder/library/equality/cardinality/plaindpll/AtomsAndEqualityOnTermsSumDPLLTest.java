@@ -59,6 +59,7 @@ import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.FunctionalTermTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SGDPLLT;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Sum;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SumProduct;
 import com.sri.ai.util.Util;
 
 @Beta

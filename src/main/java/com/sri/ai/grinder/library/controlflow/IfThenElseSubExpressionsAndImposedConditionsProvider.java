@@ -71,8 +71,8 @@ ImposedConditionsModule.Provider
 		
 		if (IfThenElse.isIfThenElse(expression)) {
 			result = new ArrayList<Pair<Expression, SubExpressionAddress>>();
-			result.add(Pair.make(IfThenElse.getCondition(expression), IfThenElse.getPathToThen()));
-			result.add(Pair.make(Not.make(IfThenElse.getCondition(expression)), IfThenElse.getPathToElse()));
+			result.add(Pair.make(IfThenElse.condition(expression), IfThenElse.getPathToThen()));
+			result.add(Pair.make(Not.make(IfThenElse.condition(expression)), IfThenElse.getPathToElse()));
 		}
 		
 		return result;

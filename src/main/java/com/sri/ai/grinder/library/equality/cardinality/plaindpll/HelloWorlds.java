@@ -61,7 +61,7 @@ public class HelloWorlds {
 		/* 
 		 * The problem type, a sum. Could be Max or other commutative associative operators.
 		 */
-		ProblemType problemType = new Sum();
+		GroupProblemType problemType = new Sum();
 //		ProblemType problemType = new Max();
 
 		/* 

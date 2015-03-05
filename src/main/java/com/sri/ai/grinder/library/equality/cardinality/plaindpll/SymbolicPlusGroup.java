@@ -63,7 +63,7 @@ import com.sri.ai.util.math.Rational;
  *
  */
 @Beta
-public class SymbolicNumbersWithAdditionGroup extends AbstractSymbolicNumbersGroup {
+public class SymbolicPlusGroup extends AbstractSymbolicNumbersGroup {
 	
 	@Override
 	public Expression additiveIdentityElement() {
@@ -71,7 +71,7 @@ public class SymbolicNumbersWithAdditionGroup extends AbstractSymbolicNumbersGro
 	}
 
 	@Override
-	public boolean isAbsorbingElement(Expression value) {
+	public boolean isAdditiveAbsorbingElement(Expression value) {
 		boolean result = value.equals(INFINITY);
 		return result;
 	}

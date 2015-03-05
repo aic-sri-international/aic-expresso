@@ -56,14 +56,14 @@ public class SolutionPostProcessing {
 		if (IfThenElse.isIfThenElse(solution)) {
 			result = simplifySolutionIfBranchesAreEqualModuloSplitter(result, theory, process);
 			
-			Expression splitter   = IfThenElse.getCondition(result);
-			Expression thenBranch = fromSolutionToShorterExpression(IfThenElse.getThenBranch(result), theory, process);
-			Expression elseBranch = fromSolutionToShorterExpression(IfThenElse.getElseBranch(result), theory, process);
+			Expression splitter   = IfThenElse.condition(result);
+			Expression thenBranch = fromSolutionToShorterExpression(IfThenElse.thenBranch(result), theory, process);
+			Expression elseBranch = fromSolutionToShorterExpression(IfThenElse.elseBranch(result), theory, process);
 			
 			// if C then if C' then A else B else B  --->   if C and C' then A else B
-			if (IfThenElse.isIfThenElse(thenBranch) && IfThenElse.getElseBranch(thenBranch).equals(elseBranch)) {
-				Expression conditionsConjunction = And.make(splitter, IfThenElse.getCondition(thenBranch));
-				result = IfThenElse.make(conditionsConjunction, IfThenElse.getThenBranch(thenBranch), elseBranch);
+			if (IfThenElse.isIfThenElse(thenBranch) && IfThenElse.elseBranch(thenBranch).equals(elseBranch)) {
+				Expression conditionsConjunction = And.make(splitter, IfThenElse.condition(thenBranch));
+				result = IfThenElse.make(conditionsConjunction, IfThenElse.thenBranch(thenBranch), elseBranch);
 			}
 			else {
 				result = IfThenElse.makeIfDistinctFrom(result, splitter, thenBranch, elseBranch);
@@ -77,9 +77,9 @@ public class SolutionPostProcessing {
 	public static Expression simplifySolutionIfBranchesAreEqualModuloSplitter(Expression solution, Theory theory, RewritingProcess process) {
 		Expression result = solution;
 		if (IfThenElse.isIfThenElse(solution)) {
-			Expression splitter   = IfThenElse.getCondition(solution);
-			Expression thenBranch = IfThenElse.getThenBranch(solution);
-			Expression elseBranch = IfThenElse.getElseBranch(solution);
+			Expression splitter   = IfThenElse.condition(solution);
+			Expression thenBranch = IfThenElse.thenBranch(solution);
+			Expression elseBranch = IfThenElse.elseBranch(solution);
 			if (equalModuloSplitter(splitter, thenBranch, elseBranch, theory, process)) {
 				result = elseBranch;
 			}

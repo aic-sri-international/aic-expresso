@@ -236,20 +236,20 @@ abstract public class AbstractTheory implements Theory {
 		Expression result;
 		
 		if (DPLLUtil.isConditionalSolution(solution, this, process)) {
-			Expression solutionSplitter = IfThenElse.getCondition(solution);
+			Expression solutionSplitter = IfThenElse.condition(solution);
 			ConjunctiveConstraint constraintUnderSolutionSplitter = constraint.applySplitter(true, solutionSplitter, process);
 			if (constraintUnderSolutionSplitter != null) {
 				ConjunctiveConstraint constraintUnderSolutionSplitterNegation = constraint.applySplitter(false, solutionSplitter, process);
 				if (constraintUnderSolutionSplitterNegation != null) {
 					Expression newSolutionSplitter = constraint.normalizeSplitterGivenConstraint(solutionSplitter, process);
-					Expression thenBranch = IfThenElse.getThenBranch(solution);
-					Expression elseBranch = IfThenElse.getElseBranch(solution);
+					Expression thenBranch = IfThenElse.thenBranch(solution);
+					Expression elseBranch = IfThenElse.elseBranch(solution);
 					Expression newThenBranch = applyConstraintToSolution(constraintUnderSolutionSplitter, thenBranch, process);
 					Expression newElseBranch = applyConstraintToSolution(constraintUnderSolutionSplitterNegation, elseBranch, process);
 					result = IfThenElse.makeIfDistinctFrom(solution, newSolutionSplitter, newThenBranch, newElseBranch, false /* no simplification to condition */);
 				}
 				else {
-					Expression thenBranch = IfThenElse.getThenBranch(solution);
+					Expression thenBranch = IfThenElse.thenBranch(solution);
 					Expression newThenBranch = applyConstraintToSolution(constraintUnderSolutionSplitter, thenBranch, process);
 					result = newThenBranch;
 				}
@@ -257,7 +257,7 @@ abstract public class AbstractTheory implements Theory {
 			else {
 				ConjunctiveConstraint constraintUnderSolutionSplitterNegation = constraint.applySplitter(false, solutionSplitter, process);
 				if (constraintUnderSolutionSplitterNegation != null) {
-					Expression elseBranch = IfThenElse.getElseBranch(solution);
+					Expression elseBranch = IfThenElse.elseBranch(solution);
 					Expression newElseBranch = applyConstraintToSolution(constraintUnderSolutionSplitterNegation, elseBranch, process);
 					result = newElseBranch;
 				}

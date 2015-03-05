@@ -100,9 +100,9 @@ public class SumOverOneVariable extends AbstractCardinalityRewriter {
 		
 		if (IfThenElse.isIfThenElse(s)) {
 			Trace.log("S is \"if F then S1 else S2\".");
-			Expression f  = IfThenElse.getCondition(s);
-			Expression s1 = IfThenElse.getThenBranch(s);
-			Expression s2 = IfThenElse.getElseBranch(s);
+			Expression f  = IfThenElse.condition(s);
+			Expression s1 = IfThenElse.thenBranch(s);
+			Expression s2 = IfThenElse.elseBranch(s);
 			Trace.log("    return R_normalize(R_sum_over_one_variable(sum_{x:Cx and F} S1) + R_sum_over_one_variable(sum_{x:Cx and not F} S2)))");
 			Expression sumS1 = CardinalityUtil.makeSummationExpression(x, CardinalityUtil.makeAnd(cX, f), s1);
 			Expression sumS2 = CardinalityUtil.makeSummationExpression(x, CardinalityUtil.makeAnd(cX, CardinalityUtil.makeNot(f)), s2);
@@ -142,8 +142,8 @@ public class SumOverOneVariable extends AbstractCardinalityRewriter {
 		boolean result = false;
 		
 		if ( IfThenElse.isIfThenElse(expression) ) {
-			Expression thenBranch = IfThenElse.getThenBranch(expression);
-			Expression elseBranch = IfThenElse.getElseBranch(expression);
+			Expression thenBranch = IfThenElse.thenBranch(expression);
+			Expression elseBranch = IfThenElse.elseBranch(expression);
 			
 			result = assertEpressionEasilySummable(thenBranch, var, process) && assertEpressionEasilySummable(elseBranch, var, process);
 		} 

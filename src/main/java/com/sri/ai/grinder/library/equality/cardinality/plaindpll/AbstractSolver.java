@@ -82,16 +82,16 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	protected Theory theory;
 	
 	/** The problem type being solved. */
-	protected ProblemType problemType;
+	protected GroupProblemType problemType;
 
 	/** A {@link CountsDeclaration} encapsulating sort size information. */
 	protected CountsDeclaration countsDeclaration;
 	
-	public AbstractSolver(Theory theory, ProblemType problemType) {
+	public AbstractSolver(Theory theory, GroupProblemType problemType) {
 		this(theory, problemType, null);
 	}
 
-	public AbstractSolver(Theory theory, ProblemType problemType, CountsDeclaration countsDeclaration) {
+	public AbstractSolver(Theory theory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
 		this.theory = theory;
 		this.problemType = problemType;
 		this.countsDeclaration = countsDeclaration;
@@ -202,9 +202,9 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 			result = theory.applyConstraintToSolution(process.getDPLLContextualConstraint(), solution1, process);
 		}
 		else if (DPLLUtil.isConditionalSolution(solution1, theory, process)) {
-			Expression splitter   = IfThenElse.getCondition (solution1);
-			Expression thenBranch = IfThenElse.getThenBranch(solution1);
-			Expression elseBranch = IfThenElse.getElseBranch(solution1);
+			Expression splitter   = IfThenElse.condition (solution1);
+			Expression thenBranch = IfThenElse.thenBranch(solution1);
+			Expression elseBranch = IfThenElse.elseBranch(solution1);
 
 			ConjunctiveConstraint constraint = process.getDPLLContextualConstraint();
 			Expression normalizedSplitter = constraint.normalizeSplitterGivenConstraint(splitter, process);
@@ -224,9 +224,9 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 			}
 		}
 		else if (DPLLUtil.isConditionalSolution(solution2, theory, process)) {
-			Expression splitter   = IfThenElse.getCondition (solution2);
-			Expression thenBranch = IfThenElse.getThenBranch(solution2);
-			Expression elseBranch = IfThenElse.getElseBranch(solution2);
+			Expression splitter   = IfThenElse.condition (solution2);
+			Expression thenBranch = IfThenElse.thenBranch(solution2);
+			Expression elseBranch = IfThenElse.elseBranch(solution2);
 
 			ConjunctiveConstraint constraint = process.getDPLLContextualConstraint();
 			Expression normalizedSplitter = constraint.normalizeSplitterGivenConstraint(splitter, process);
