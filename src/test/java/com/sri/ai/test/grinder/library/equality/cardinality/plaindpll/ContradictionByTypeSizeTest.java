@@ -39,6 +39,7 @@ package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -48,6 +49,7 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
 import com.sri.ai.grinder.library.equality.cardinality.plaindpll.FunctionalTermTheory;
@@ -87,15 +89,32 @@ public class ContradictionByTypeSizeTest extends AbstractSymbolicSymbolEqualityD
 	@Test
 	public void test() {
 		
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+
 		Expression expression;
 		Expression expected;
+		Expression result;
 		
 		SGDPLLT solver = new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new Sum());
 		
+		expression = parse("if F = bob then 1 else 2");
+		expected   = parse("1");
+		result = solver.solve(expression, Util.list(), Util.map("F", "Friends"), Util.map("Friends", "1"));
+		assertEquals(expected, result);
+
 		expression = parse("if F = bob then 1 else if F = mary then 2 else 3");
 		expected   = parse("if F = bob then 1 else 2");
-		Expression result = solver.solve(expression, Util.list(), Util.map("F", "Friends"), Util.map("Friends", "2"));
-
-//		assertEquals(expected, result);
+		result = solver.solve(expression, Util.list(), Util.map("F", "Friends"), Util.map("Friends", "2"));
+		assertEquals(expected, result);
+		
+		expression = parse("if F = bob then 1 else if F = mary then 2 else if F = john then 3 else if F = paul then 4 else 5");
+		expected   = parse("if F = bob then 1 else 2");
+		result = solver.solve(expression, Util.list(), Util.map("F", "Friends"), Util.map("Friends", "2"));
+		assertEquals(expected, result);
+		
+		expression = parse("if F = bob then 1 else if F = mary then 2 else 3");
+		expected   = expression;
+		result = solver.solve(expression, Util.list(), Util.map("F", "Friends"), Util.map("Friends", "5"));
+		assertEquals(expected, result);
 	}
 }
