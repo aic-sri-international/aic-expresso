@@ -44,6 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory.EqualityConstraint;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 
 @Beta
@@ -124,7 +125,7 @@ public class FunctionalTermTheory implements TermTheory {
 	}
 
 	@Override
-	public Expression normalizeTermInEquality(Expression term, AbstractEqualityTheory.AbstractEqualityConstraint constraint, RewritingProcess process) {
+	public Expression normalizeTermInEquality(Expression term, EqualityConstraint constraint, RewritingProcess process) {
 		Expression result = Expressions.replaceImmediateSubexpressions(term, t -> constraint.getRepresentative(t, process));
 		return result;
 	}
