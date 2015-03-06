@@ -35,31 +35,68 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
+package com.sri.ai.grinder.library.equality.cardinality.plaindpll.group;
 
-import java.util.Iterator;
-import java.util.Random;
+import static com.sri.ai.expresso.helper.Expressions.INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.library.equality.RandomSatisfiabilityProblemGenerator;
-import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.core.SGDPLLT;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.problemtype.Satisfiability;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.EqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.term.SymbolTermTheory;
+import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.util.math.Rational;
 
+/**
+ * Object representing a group on symbolic numbers with the maximum operation.
+ * 
+ * @author braz
+ *
+ */
 @Beta
-public class SymbolEqualitySatisfiabilityDPLLStressTest extends AbstractSymbolicGenericDPLLStressTest {
-
+public class SymbolicNumbersWithMaxGroup extends AbstractSymbolicNumbersGroup {
+	
 	@Override
-	protected Rewriter makeRewriter() {
-		return new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new Satisfiability(), new CountsDeclaration(10));
+	public Expression additiveIdentityElement() {
+		return MINUS_INFINITY;
 	}
 
 	@Override
-	protected Iterator<Expression> makeProblemsIterator(int size, int minimumNumberOfIndices) {
-		return new RandomSatisfiabilityProblemGenerator(new Random(getRandomSeedForProblems()), size, size, minimumNumberOfIndices, size, 3);
+	public boolean isAdditiveAbsorbingElement(Expression value) {
+		boolean result = value.equals(INFINITY);
+		return result;
+	}
+
+	@Override
+	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
+		Expression result;
+		if (value1.getValue() instanceof Number && value2.getValue() instanceof Number) {
+			Rational rationalValue1 = value1.rationalValue();
+			Rational rationalValue2 = value2.rationalValue();
+			if (rationalValue1.compareTo(rationalValue2) > 0) {
+				result = value1;
+			}
+			else {
+				result = value2;
+			}
+		}
+		else if (value1.equals(INFINITY) || value2.equals(INFINITY)) {
+			result = INFINITY;
+		}
+		else if (value1.equals(MINUS_INFINITY)) {
+			result = value2;
+		}
+		else if (value2.equals(MINUS_INFINITY)) {
+			result = value1;
+		}
+		else {
+			result = Expressions.apply(FunctorConstants.MAX, value1, value2);
+		}
+		return result;
+	}
+
+	@Override
+	protected Expression addNTimesWithUnconditionalValueAndNAndNDistinctFromZero(Expression valueToBeAdded, Expression n) {
+		return valueToBeAdded;
 	}
 }

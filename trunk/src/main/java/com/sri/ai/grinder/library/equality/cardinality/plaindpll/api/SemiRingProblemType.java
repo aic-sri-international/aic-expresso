@@ -35,31 +35,16 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
+package com.sri.ai.grinder.library.equality.cardinality.plaindpll.api;
 
-import java.util.Iterator;
-import java.util.Random;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.group.AssociativeCommutativeSemiRing;
 
-import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.library.equality.RandomSatisfiabilityProblemGenerator;
-import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.core.SGDPLLT;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.problemtype.Satisfiability;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.EqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.term.SymbolTermTheory;
 
-@Beta
-public class SymbolEqualitySatisfiabilityDPLLStressTest extends AbstractSymbolicGenericDPLLStressTest {
-
-	@Override
-	protected Rewriter makeRewriter() {
-		return new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new Satisfiability(), new CountsDeclaration(10));
-	}
-
-	@Override
-	protected Iterator<Expression> makeProblemsIterator(int size, int minimumNumberOfIndices) {
-		return new RandomSatisfiabilityProblemGenerator(new Random(getRandomSeedForProblems()), size, size, minimumNumberOfIndices, size, 3);
-	}
+/**
+ * Same as {@link GroupProblemType}, but offering {@link AssociativeCommutativeSemiRing} as well.
+ * 
+ * @author braz
+ *
+ */
+public interface SemiRingProblemType extends AssociativeCommutativeSemiRing, GroupProblemType {
 }

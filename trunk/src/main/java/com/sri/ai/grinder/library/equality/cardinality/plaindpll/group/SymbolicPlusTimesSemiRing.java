@@ -35,31 +35,78 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
+package com.sri.ai.grinder.library.equality.cardinality.plaindpll.group;
 
-import java.util.Iterator;
-import java.util.Random;
+import static com.sri.ai.expresso.helper.Expressions.ONE;
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
+import static com.sri.ai.util.Util.list;
+
+import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.library.equality.RandomSatisfiabilityProblemGenerator;
-import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.core.SGDPLLT;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.problemtype.Satisfiability;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.EqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.term.SymbolTermTheory;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.number.Times;
 
+/**
+ * Object representing a group on symbolic numbers with addition.
+ * 
+ * @author braz
+ *
+ */
 @Beta
-public class SymbolEqualitySatisfiabilityDPLLStressTest extends AbstractSymbolicGenericDPLLStressTest {
+public class SymbolicPlusTimesSemiRing extends SymbolicPlusGroup implements AssociativeCommutativeSemiRing {
 
 	@Override
-	protected Rewriter makeRewriter() {
-		return new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new Satisfiability(), new CountsDeclaration(10));
+	public String multiplicativeFunctor() {
+		return TIMES;
 	}
 
 	@Override
-	protected Iterator<Expression> makeProblemsIterator(int size, int minimumNumberOfIndices) {
-		return new RandomSatisfiabilityProblemGenerator(new Random(getRandomSeedForProblems()), size, size, minimumNumberOfIndices, size, 3);
+	public Expression multiplicativeIdentityElement() {
+		return ZERO;
+	}
+
+	@Override
+	public Expression multiplicativeAbsorbingElement() {
+		return ONE;
+	}
+
+	@Override
+	public List<Expression> getFactors(Expression expression) {
+		List<Expression> result;
+		if (expression.hasFunctor(multiplicativeFunctor())) {
+			result = expression.getArguments();
+		}
+		else {
+			result = list(expression);
+		}
+		return result;
+	}
+
+	static final private Times timesRewriter = new Times();
+
+	@Override
+	public Expression multiply(Expression multiplication, RewritingProcess process) {
+		Expression result = timesRewriter.rewrite(multiplication, process);
+		return result;
+	}
+
+	@Override
+	public Expression getNthRoot(int n, Expression expression) {
+		Expression result;
+		if (expression.equals(ONE)) {
+			result = ONE;
+		}
+		else {
+			result = null;
+		}
+		return result;
+	}
+
+	@Override
+	public Expression multiplyNTimes(Expression value, Expression n, RewritingProcess process) {
+		throw new Error("Exponentiation not yet implemented.");
 	}
 }

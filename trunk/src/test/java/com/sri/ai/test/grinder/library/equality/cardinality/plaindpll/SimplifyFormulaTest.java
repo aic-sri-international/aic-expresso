@@ -44,8 +44,8 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolTermTheory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.EqualityTheory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.term.SymbolTermTheory;
 
 @Beta
 public class SimplifyFormulaTest {

@@ -59,7 +59,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.expression.ExpressionCache;
 import com.sri.ai.grinder.expression.ExpressionCacheKey;
 import com.sri.ai.grinder.library.IsVariable;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ConjunctiveConstraint;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.api.ConjunctiveConstraint;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.IdentityWrapper;

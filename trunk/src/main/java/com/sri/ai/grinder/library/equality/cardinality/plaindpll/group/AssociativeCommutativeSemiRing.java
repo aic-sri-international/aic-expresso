@@ -35,31 +35,59 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
+package com.sri.ai.grinder.library.equality.cardinality.plaindpll.group;
 
-import java.util.Iterator;
-import java.util.Random;
+import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.library.equality.RandomSatisfiabilityProblemGenerator;
-import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.core.SGDPLLT;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.problemtype.Satisfiability;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.EqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.term.SymbolTermTheory;
+import com.sri.ai.grinder.api.RewritingProcess;
 
+/**
+ * Object representing an associative commutative semi-ring.
+ * 
+ * @author braz
+ *
+ */
 @Beta
-public class SymbolEqualitySatisfiabilityDPLLStressTest extends AbstractSymbolicGenericDPLLStressTest {
+public interface AssociativeCommutativeSemiRing extends AssociativeCommutativeGroup {
 
-	@Override
-	protected Rewriter makeRewriter() {
-		return new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new Satisfiability(), new CountsDeclaration(10));
-	}
+	/** Returns the functor of the multiplicative operation. */
+	String multiplicativeFunctor();
+	
+	/** The multiplicative operation identity element. */
+	Expression multiplicativeIdentityElement();
 
-	@Override
-	protected Iterator<Expression> makeProblemsIterator(int size, int minimumNumberOfIndices) {
-		return new RandomSatisfiabilityProblemGenerator(new Random(getRandomSeedForProblems()), size, size, minimumNumberOfIndices, size, 3);
-	}
+	/** 
+	 * The multiplicative operation identity element.
+	 * This reason this is <i>not</i> a test like {@link AssociativeCommutativeGroup#isAdditiveAbsorbingElement}
+	 * is that semi-rings are required to have a multiplicative absorbing element,
+	 * but not required to have an additive one.
+	 */
+	Expression multiplicativeAbsorbingElement();
+
+	/**
+	 * Given an expression, returns its arguments if it is an application of the multiplicative operation,
+	 * or the expression itself otherwise.
+	 * This is useful when the multiplicative operator is implicit when applied to a single argument.
+	 */
+	List<Expression> getFactors(Expression expression);
+	
+	/**
+	 * Performs the semi-rings's multiplicative operation on a function application of the multiplicative operator.
+	 */
+	Expression multiply(Expression multiplication, RewritingProcess process);
+
+	/**
+	 * Returns the n-th root for an expression, if an exact value exists, or null otherwise. 
+	 * @param n
+	 * @param expression
+	 * @return
+	 */
+	Expression getNthRoot(int n, Expression expression);
+
+	/**
+	 * The result of multiplying a value to itself n times, where both value and n may be symbolic expressions.
+	 */
+	Expression multiplyNTimes(Expression value, Expression n, RewritingProcess process);
 }

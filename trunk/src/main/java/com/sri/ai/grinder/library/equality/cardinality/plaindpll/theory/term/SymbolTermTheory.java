@@ -35,31 +35,55 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
-
-import java.util.Iterator;
-import java.util.Random;
+package com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.term;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.library.equality.RandomSatisfiabilityProblemGenerator;
-import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.core.SGDPLLT;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.problemtype.Satisfiability;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.EqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.term.SymbolTermTheory;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.api.TermTheory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.EqualityTheory.EqualityConstraint;
 
 @Beta
-public class SymbolEqualitySatisfiabilityDPLLStressTest extends AbstractSymbolicGenericDPLLStressTest {
+/** 
+ * A {@link TermTheory} for symbol terms.
+ */
+public class SymbolTermTheory implements TermTheory {
+
 
 	@Override
-	protected Rewriter makeRewriter() {
-		return new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new Satisfiability(), new CountsDeclaration(10));
+	public boolean isTerm(Expression expression, RewritingProcess process) {
+		boolean result = expression.getSyntacticFormType().equals("Symbol");
+		return result;
 	}
 
 	@Override
-	protected Iterator<Expression> makeProblemsIterator(int size, int minimumNumberOfIndices) {
-		return new RandomSatisfiabilityProblemGenerator(new Random(getRandomSeedForProblems()), size, size, minimumNumberOfIndices, size, 3);
+	public boolean isVariableTerm(Expression expression, RewritingProcess process) {
+		boolean result = isTerm(expression, process) && process.isVariable(expression);
+		return result;
+	}
+
+	@Override
+	public boolean equalityBetweenTermsImpliesFurtherFacts() {
+		return false;
+	}
+
+	@Override
+	public boolean disequalityBetweenTermsImpliesFurtherFacts() {
+		return false;
+	}
+
+	@Override
+	public Expression getSplitterTowardDisunifyingDistinctTerms(Expression term, Expression anotherTerm, RewritingProcess process) {
+		return null; // if two symbols are distinct, then they are disunified.
+	}
+
+	@Override
+	public Expression normalizeTermInEquality(Expression term, EqualityConstraint constraint, RewritingProcess process) {
+		return term;
+	}
+
+	@Override
+	public boolean termsHaveNoArguments() {
+		return true;
 	}
 }

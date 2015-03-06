@@ -41,7 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.X;
 import static com.sri.ai.expresso.helper.Expressions.Y;
 import static com.sri.ai.expresso.helper.Expressions.Z;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.library.equality.cardinality.plaindpll.DPLLUtil.makeProcess;
+import static com.sri.ai.grinder.library.equality.cardinality.plaindpll.util.DPLLUtil.makeProcess;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 import static org.junit.Assert.assertEquals;
@@ -56,9 +56,9 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.Constraint;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SymbolTermTheory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.api.Constraint;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.EqualityTheory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.term.SymbolTermTheory;
 
 @Beta
 public class ModelCountOnIndicesSubSetTest {
