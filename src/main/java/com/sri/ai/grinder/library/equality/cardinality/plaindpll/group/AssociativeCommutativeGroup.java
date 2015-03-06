@@ -35,31 +35,40 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
-
-import java.util.Iterator;
-import java.util.Random;
+package com.sri.ai.grinder.library.equality.cardinality.plaindpll.group;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.library.equality.RandomSatisfiabilityProblemGenerator;
-import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.core.SGDPLLT;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.problemtype.Satisfiability;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.EqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.term.SymbolTermTheory;
+import com.sri.ai.grinder.api.RewritingProcess;
 
+/**
+ * Object representing an associative commutative group.
+ * 
+ * @author braz
+ *
+ */
 @Beta
-public class SymbolEqualitySatisfiabilityDPLLStressTest extends AbstractSymbolicGenericDPLLStressTest {
+public interface AssociativeCommutativeGroup {
+	
+	/** The group identity element. */
+	Expression additiveIdentityElement();
 
-	@Override
-	protected Rewriter makeRewriter() {
-		return new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new Satisfiability(), new CountsDeclaration(10));
-	}
+	/**
+	 * Indicates whether given value is an absorbing element of the group's additive operation,
+	 * that is, using the additive operation on it with any other value will produce itself.
+	 * The reason this is a test on a value instead of a method providing the absorbing element
+	 * is that a group is not required to have one, in which case a test can just return false 
+	 * every time.
+	 */
+	boolean isAdditiveAbsorbingElement(Expression value);
+	
+	/**
+	 * Performs the group's additive operation on two values.
+	 */
+	Expression add(Expression value1, Expression value2, RewritingProcess process);
 
-	@Override
-	protected Iterator<Expression> makeProblemsIterator(int size, int minimumNumberOfIndices) {
-		return new RandomSatisfiabilityProblemGenerator(new Random(getRandomSeedForProblems()), size, size, minimumNumberOfIndices, size, 3);
-	}
+	/**
+	 * The result of adding a value to itself n times, where both value and n may be symbolic expressions.
+	 */
+	Expression addNTimes(Expression value, Expression n, RewritingProcess process);
 }

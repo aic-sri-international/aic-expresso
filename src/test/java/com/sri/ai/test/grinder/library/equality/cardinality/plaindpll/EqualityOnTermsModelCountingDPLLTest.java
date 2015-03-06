@@ -53,10 +53,10 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.EqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.FunctionalTermTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.ModelCounting;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.SGDPLLT;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.core.SGDPLLT;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.problemtype.ModelCounting;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.EqualityTheory;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.term.FunctionalTermTheory;
 
 @Beta
 public class EqualityOnTermsModelCountingDPLLTest extends AbstractSymbolicSymbolEqualityDPLLTest {

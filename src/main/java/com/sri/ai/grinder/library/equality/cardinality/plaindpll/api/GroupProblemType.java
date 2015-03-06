@@ -35,31 +35,30 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
+package com.sri.ai.grinder.library.equality.cardinality.plaindpll.api;
 
-import java.util.Iterator;
-import java.util.Random;
-
-import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.library.equality.RandomSatisfiabilityProblemGenerator;
-import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.core.SGDPLLT;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.problemtype.Satisfiability;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.EqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.term.SymbolTermTheory;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.equality.cardinality.plaindpll.group.AssociativeCommutativeGroup;
+import com.sri.ai.util.base.Pair;
 
-@Beta
-public class SymbolEqualitySatisfiabilityDPLLStressTest extends AbstractSymbolicGenericDPLLStressTest {
+/**
+ * Defines a group-type problem by specifying how to extract an expression and indices to be given to a {@link Solver} from a given problem expression.
+ * For example, satisfiability converts expressions of the type <code>there exists X, Y : X != Y</code> to expression <code>X != Y</code> and indices <code>X, Y</code>.
+ * 
+ * @author braz
+ *
+ */
+public interface GroupProblemType extends AssociativeCommutativeGroup {
 
-	@Override
-	protected Rewriter makeRewriter() {
-		return new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new Satisfiability(), new CountsDeclaration(10));
-	}
-
-	@Override
-	protected Iterator<Expression> makeProblemsIterator(int size, int minimumNumberOfIndices) {
-		return new RandomSatisfiabilityProblemGenerator(new Random(getRandomSeedForProblems()), size, size, minimumNumberOfIndices, size, 3);
-	}
+	/**
+	 * Gets an expression passed to a rewriter solving this type of problem, and returns a pair containing the expression
+	 * and indices for DPLL to solve.
+	 * The index types are assumed to be stored in the rewriting process.
+	 * @param expression
+	 * @param process
+	 * @return
+	 */
+	Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process);
 }
