@@ -111,6 +111,11 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 	}
 
 	@Override
+	protected boolean usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers() {
+		return false;
+	}
+
+	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {
 		return theoryWithEquality.simplify(expression, process);
 	}

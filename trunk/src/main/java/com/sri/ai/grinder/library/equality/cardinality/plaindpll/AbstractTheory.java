@@ -62,6 +62,8 @@ abstract public class AbstractTheory implements Theory {
 	@SuppressWarnings("serial")
 	protected class Contradiction extends Error {}
 	
+	protected abstract boolean usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers();
+	
 	/**
 	 * Provides a map from functors's getValue() values (Strings) to a function mapping a
 	 * function application of that functor and a rewriting process to an equivalent, simplified formula
@@ -105,6 +107,9 @@ abstract public class AbstractTheory implements Theory {
 	 */
 	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {
+		if ( ! usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers()) {
+			throw new Error(getClass() + " is using default implementation of simplify, even though its usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers methods returns false");
+		}
 		return DPLLUtil.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), process);
 	}
 

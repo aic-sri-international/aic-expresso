@@ -32,8 +32,8 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractExpression
 
 	protected Collection<Expression> supportedIndices;
 
-	public AbstractRuleOfProductConstraint(Collection<Expression> indices) {
-		this.supportedIndices = indices;
+	public AbstractRuleOfProductConstraint(Collection<Expression> supportedIndices) {
+		this.supportedIndices = supportedIndices;
 	}
 	
 	public abstract AbstractRuleOfProductConstraint clone();
