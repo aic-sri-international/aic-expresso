@@ -107,6 +107,11 @@ public class EqualityTheory extends AbstractTheory {
 	private static Rewriter plus  = new Plus();
 	private static Rewriter times = new Times();
 	
+	@Override
+	protected boolean usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers() {
+		return true;
+	}
+
 	private static Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
 					FunctorConstants.EQUALITY,        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
@@ -252,6 +257,7 @@ public class EqualityTheory extends AbstractTheory {
 		
 		public DisequalitiesConstraint(DisequalitiesConstraint another, EqualityConstraint parentEqualityConstraint) {
 			this.index = another.index;
+			this.cachedIndexDomainSize = another.cachedIndexDomainSize;
 			
 			this.disequals = ((DisequalitiesConstraint) another).disequals;
 			this.uniquelyValuedDisequals = ((DisequalitiesConstraint) another).uniquelyValuedDisequals;
@@ -267,17 +273,17 @@ public class EqualityTheory extends AbstractTheory {
 		public void addToDisequals(Expression term, RewritingProcess process) {
 			if ( ! ownMyDisequals) {
 				disequals = new LinkedHashSet<Expression>(disequals);
-				if (getDomainSize(process) != -1) {
+				if (getIndexDomainSize(process) != -1) {
 					uniquelyValuedDisequals = new LinkedHashSet<Expression>(uniquelyValuedDisequals);
 				}
 				ownMyDisequals = true;
 			}
 			disequals.add(term);
-			if (getDomainSize(process) != -1) {
+			if (getIndexDomainSize(process) != -1) {
 				if (forAll(uniquelyValuedDisequals, u -> areConstrainedToBeDisequal(u, term, process))) {
 					uniquelyValuedDisequals.add(term);
 				}
-				if (uniquelyValuedDisequals.size() >= getDomainSize(process)) {
+				if (uniquelyValuedDisequals.size() >= getIndexDomainSize(process)) {
 					throw new Contradiction();
 				}
 			}
@@ -339,7 +345,7 @@ public class EqualityTheory extends AbstractTheory {
 		public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
 			Expression numberOfPossibleValuesForIndex;
 			long numberOfNonAvailableValues = getDisequals().size();
-			long typeSize = getDomainSize(process);
+			long typeSize = getIndexDomainSize(process);
 			if (typeSize == -1) {
 				Expression indexType = process.getContextualSymbolType(index);
 				if (indexType == null) {
@@ -354,12 +360,12 @@ public class EqualityTheory extends AbstractTheory {
 			return numberOfPossibleValuesForIndex;
 		}
 
-		private long cachedDomainSize = -1;
-		public long getDomainSize(RewritingProcess process) {
-			if (cachedDomainSize == -1) {
-				cachedDomainSize = getTypeCardinality(index, process);
+		private long cachedIndexDomainSize = -1;
+		public long getIndexDomainSize(RewritingProcess process) {
+			if (cachedIndexDomainSize == -1) {
+				cachedIndexDomainSize = getTypeCardinality(index, process);
 			}
-			return cachedDomainSize;
+			return cachedIndexDomainSize;
 		}
 
 		@Override
@@ -560,7 +566,7 @@ public class EqualityTheory extends AbstractTheory {
 						}
 						else {
 							newRepresentative = getRepresentative(newVariable, false, process);
-							representativesEquality = makeSplitterFromFunctorAndTwoTerms(FunctorConstants.EQUALITY, oldRepresentative, newRepresentative, supportedIndices, process);
+							representativesEquality = makeSplitterFromFunctorAndTwoTerms(EQUALITY, oldRepresentative, newRepresentative, supportedIndices, process);
 							representativesEquality = simplify(representativesEquality, process);
 							if (representativesEquality.equals(FALSE)) {
 								throw new Contradiction();
@@ -586,9 +592,10 @@ public class EqualityTheory extends AbstractTheory {
 			Map<Expression, Collection<Expression>> updatedDisequals = new LinkedHashMap<Expression, Collection<Expression>>();
 			for (Map.Entry<Expression, DisequalitiesConstraint> entry : disequalitiesMap.entrySet()) {
 				Expression variable = entry.getKey();
-				Expression newVariable = useRepresentatives(variable, process);
+				Expression newVariable = replaceTermsByRepresentatives(variable, process);
 				Collection<Expression> disequals = ((DisequalitiesConstraint) entry.getValue()).getDisequals();
-				Collection<Expression> newDisequalsFromThisEntry = mapIntoSetOrSameIfNoDistinctElementInstances(disequals, e -> useRepresentatives(e, process));
+				Collection<Expression> newDisequalsFromThisEntry = 
+						mapIntoSetOrSameIfNoDistinctElementInstances(disequals, e -> replaceTermsByRepresentatives(e, process));
 				if (newDisequalsFromThisEntry.contains(newVariable)) {
 					throw new Contradiction();
 				}
@@ -622,7 +629,7 @@ public class EqualityTheory extends AbstractTheory {
 			}
 		}
 
-		private Expression useRepresentatives(Expression key, RewritingProcess process) {
+		private Expression replaceTermsByRepresentatives(Expression key, RewritingProcess process) {
 			Expression result = key.replaceAllOccurrences(t -> getRepresentative(t, process), process);
 			return result;
 		}
