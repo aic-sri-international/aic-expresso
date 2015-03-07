@@ -79,6 +79,8 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 
 	public boolean debug = false;
 	
+	private RewritingProcess topLevelRewritingProcess;
+	
 	@Override
 	public void setDebug(boolean newValue) {
 		this.debug = newValue;
@@ -143,8 +145,8 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
 			Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		
-		RewritingProcess process = DPLLUtil.makeProcess(theory, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
-		Expression result = solve(expression, indices, process);
+		topLevelRewritingProcess = DPLLUtil.makeProcess(theory, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
+		Expression result = solve(expression, indices, topLevelRewritingProcess);
 		return result;
 	}
 
@@ -256,5 +258,10 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		}
 	
 		return result;
+	}
+	
+	@Override
+	public void interrupt() {
+		topLevelRewritingProcess.interrupt();
 	}
 }

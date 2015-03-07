@@ -69,108 +69,95 @@ import com.sri.ai.util.Util;
  * @author braz
  *
  */
-public class ProbabilisticInference {
+public class InferenceForFactorGraphAndEvidence {
 
-	/**
-	 * Solves a factor graph (Markov network or Bayesian network) provided as a product of potential functions.
-	 * @param factorGraph an Expression representing the product of potential functions
-	 * @param isBayesianNetwork indicates the factor graph is a bayesian network (each potential function in normalized for one of its variables, forms a DAG).
-	 * @param resultFromPreviousQueryIfKnown the {@link Result} object from a previous query for the same model and evidence, if available, or null.
-	 * @param queryExpression an Expression representing the query
-	 * @param evidence an Expression representing the evidence
-	 * @param mapFromTypeNameToSizeStringParam a map from type name strings to their size strings
-	 * @param mapFromRandomVariableNameToTypeNameParam a map from random variable name strings to their type name strings
-	 * @return
-	 */
-	public static Expression solveFactorGraph(
-			Expression factorGraph, boolean isBayesianNetwork, Result resultFromPreviousQueryIfKnown,
-			Expression queryExpression, Expression evidence, Map<String, String> mapFromTypeNameToSizeStringParam, Map<String, String> mapFromRandomVariableNameToTypeNameParam) {
-		
-		Result result = solveFactorGraphAndReturnIntermediateInformation(factorGraph, isBayesianNetwork, resultFromPreviousQueryIfKnown, queryExpression, evidence, mapFromTypeNameToSizeStringParam, mapFromRandomVariableNameToTypeNameParam);
+	private Expression factorGraph;
+	private boolean isBayesianNetwork;
+	private Expression evidence;
+	private Expression evidenceProbability;
+	private Map<String, String> mapFromTypeNameToSizeString;
+	private Map<String, String> mapFromRandomVariableNameToTypeName;
+	private Expression queryVariable;
+	private Collection<Expression> allVariables;
+	private Predicate<Expression> isUniquelyNamedConstantPredicate;
+	private Theory theory;
+	private SemiRingProblemType problemType;
+	private Solver solver;
 
-		return result.getQueryMarginal();
+	public Expression getEvidenceProbability() {
+		return evidenceProbability;
 	}
 
+	public Map<String, String> getMapFromTypeNameToSizeString() {
+		return mapFromTypeNameToSizeString;
+	}
+
+	public Map<String, String> getMapFromRandomVariableNameToTypeName() {
+		return mapFromRandomVariableNameToTypeName;
+	}
+
+	public void interrupt() {
+		solver.interrupt();
+	}
+	
 	/**
-	 * same as {@link #solveFactorGraph(Expression, boolean, Result, Expression, Expression, Map, Map),
-	 * but returns an object with all intermediate information that can be reused in a new invocation.
-	 * @param factorGraph
-	 * @param isBayesianNetwork
-	 * @param resultFromPreviousQueryIfKnown
-	 * @param queryExpression
-	 * @param evidence
-	 * @param mapFromTypeNameToSizeStringParam
-	 * @param mapFromRandomVariableNameToTypeNameParam
+	 * Constructs a solver for a factor graph and an evidence expression.
+	 * @param mapFromTypeNameToSizeStringParam a map from type name strings to their size strings
+	 * @param mapFromRandomVariableNameToTypeNameParam a map from random variable name strings to their type name strings
+	 * @param allTheSameButQuery the {@link Result} object from a previous query for the same model and evidence, if available, or null.
+	 * @param factorGraph an Expression representing the product of potential functions
+	 * @param isBayesianNetwork indicates the factor graph is a bayesian network (each potential function in normalized for one of its variables, forms a DAG).
+	 * @param evidence an Expression representing the evidence
 	 * @return
 	 */
-	public static Result solveFactorGraphAndReturnIntermediateInformation(Expression factorGraph, boolean isBayesianNetwork, Result resultFromPreviousQueryIfKnown, Expression queryExpression, Expression evidence, Map<String, String> mapFromTypeNameToSizeStringParam, Map<String, String> mapFromRandomVariableNameToTypeNameParam) {
-		Expression evidenceProbability;
-		Map<String, String> mapFromTypeNameToSizeString;
-		Map<String, String> mapFromRandomVariableNameToTypeName;
-		Expression queryVariable;
-		Collection<Expression> allVariables;
-		Predicate<Expression> isUniquelyNamedConstantPredicate;
-		Theory theory;
-		SemiRingProblemType problemType;
-		Solver solver;
+	public InferenceForFactorGraphAndEvidence(
+			Expression factorGraphParam, boolean isBayesianNetworkParam,
+			Expression evidenceParam, Map<String, String> mapFromTypeNameToSizeStringParam, Map<String, String> mapFromRandomVariableNameToTypeNameParam) {
 
-		if (resultFromPreviousQueryIfKnown == null) {
-			mapFromTypeNameToSizeString = mapFromTypeNameToSizeStringParam;
-			mapFromRandomVariableNameToTypeName = mapFromRandomVariableNameToTypeNameParam;
+		factorGraph = factorGraphParam;
+		isBayesianNetwork = isBayesianNetworkParam;
+		evidence = evidenceParam;
+		mapFromTypeNameToSizeString = mapFromTypeNameToSizeStringParam;
+		mapFromRandomVariableNameToTypeName = mapFromRandomVariableNameToTypeNameParam;
+		mapFromRandomVariableNameToTypeName.put("query", "Boolean");
+		queryVariable = parse("query");
 
-			if (mapFromRandomVariableNameToTypeNameParam.containsKey(queryExpression)) {
-				queryVariable = queryExpression;
-			}
-			else {
-				mapFromRandomVariableNameToTypeName.put("query", "Boolean");
-				queryVariable = parse("query");
-			}
+		allVariables = Util.mapIntoList(mapFromRandomVariableNameToTypeName.keySet(), Expressions::parse);
 
-			allVariables = Util.mapIntoList(mapFromRandomVariableNameToTypeName.keySet(), Expressions::parse);
+		// We use the Prolog convention of small-letter initials for constants, but we need an exception for the random variables.
+		Predicate<Expression> isPrologConstant = new PrologConstantPredicate();
+		isUniquelyNamedConstantPredicate = e -> isPrologConstant.apply(e) && ! allVariables.contains(e);
 
-			// We use the Prolog convention of small-letter initials for constants, but we need an exception for the random variables.
-			Predicate<Expression> isPrologConstant = new PrologConstantPredicate();
-			isUniquelyNamedConstantPredicate = e -> isPrologConstant.apply(e) && ! allVariables.contains(e);
+		// The theory of atoms plus equality on function (relational) terms.
+		theory = new AtomsOnTheoryWithEquality(new EqualityTheory(new SymbolTermTheory()));
+		problemType = new SumProduct(); // for marginalization
+		// The solver for the parameters above.
+		solver = new SGVET(theory, problemType);
+		((SGVET) solver).basicOutput = true;
+		//			solver = new SGDPLLT(theory, problemType);
 
-			// The theory of atoms plus equality on function (relational) terms.
-			theory = new AtomsOnTheoryWithEquality(new EqualityTheory(new SymbolTermTheory()));
-			problemType = new SumProduct(); // for marginalization
-			// The solver for the parameters above.
-			solver = new SGVET(theory, problemType);
-			((SGVET) solver).basicOutput = true;
-//			solver = new SGDPLLT(theory, problemType);
+		evidenceProbability = null;
+	}
 
-			evidenceProbability = null;
-		}
-		else {
-			mapFromTypeNameToSizeString = resultFromPreviousQueryIfKnown.getMapFromTypeNameToSizeString();
-			mapFromRandomVariableNameToTypeName = resultFromPreviousQueryIfKnown.getMapFromRandomVariableNameToTypeName();
-			queryVariable = resultFromPreviousQueryIfKnown.getQueryVariable();
-			allVariables = resultFromPreviousQueryIfKnown.getAllVariables();
-			isUniquelyNamedConstantPredicate = resultFromPreviousQueryIfKnown.getIsUniquelyNamedConstantPredicate();
-			theory = resultFromPreviousQueryIfKnown.getTheory();
-			problemType = resultFromPreviousQueryIfKnown.getProblemType();
-			solver = resultFromPreviousQueryIfKnown.getSolver();
-			evidenceProbability = resultFromPreviousQueryIfKnown.getEvidenceProbability();
-		}
-
+	public Expression solve(Expression queryExpression) {
+		Expression factorGraphWithEvidence = factorGraph;
 		if (queryVariable != queryExpression) {
 			// Add a query variable equivalent to query expression; this introduces no cycles and the model remains a Bayesian network
-			factorGraph = Times.make(list(factorGraph, parse("if query <=> " + queryExpression + " then 1 else 0")));
+			factorGraphWithEvidence = Times.make(list(factorGraph, parse("if query <=> " + queryExpression + " then 1 else 0")));
 		}
 
 		if (evidence != null) {
 			// add evidence factor
-			factorGraph = Times.make(list(factorGraph, IfThenElse.make(evidence, ONE, ZERO)));
+			factorGraphWithEvidence = Times.make(list(factorGraph, IfThenElse.make(evidence, ONE, ZERO)));
 		}
-		
+
 		// We sum out all variables but the query
 		Collection<Expression> indices = setDifference(allVariables, list(queryVariable)); 
-	
+
 		// Solve the problem.
-		Expression unnormalizedMarginal = solver.solve(factorGraph, indices, mapFromRandomVariableNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
+		Expression unnormalizedMarginal = solver.solve(factorGraphWithEvidence, indices, mapFromRandomVariableNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
 		System.out.println("Unnormalized marginal: " + unnormalizedMarginal);
-		
+
 		Expression marginal;
 		if (evidence == null && isBayesianNetwork) {
 			marginal = unnormalizedMarginal; // model was a Bayesian network with no evidence, so marginal is equal to unnormalized marginal.
@@ -193,82 +180,10 @@ public class ProbabilisticInference {
 
 		// replace the query variable with the query expression
 		marginal = marginal.replaceAllOccurrences(queryVariable, queryExpression, new DefaultRewritingProcess(null));
-		
-		// Saves all intermediary information that can be re-used for new queries
-		Result result = new Result(marginal, evidenceProbability, mapFromTypeNameToSizeString, mapFromRandomVariableNameToTypeName, queryVariable, allVariables, isUniquelyNamedConstantPredicate, theory, problemType, solver);
-		return result;
+
+		return marginal;
 	}
 
-	public static class Result {
-		private Expression queryMarginal;
-		private Expression evidenceProbability;
-		private Map<String, String> mapFromTypeNameToSizeString;
-		private Map<String, String> mapFromRandomVariableNameToTypeName;
-		private Expression queryVariable;
-		private Collection<Expression> allVariables;
-		private Predicate<Expression> isUniquelyNamedConstantPredicate;
-		private Theory theory;
-		private SemiRingProblemType problemType;
-		private Solver solver;
-	
-		public Result(Expression queryMarginal, Expression evidenceProbability, Map<String, String> mapFromTypeNameToSizeString, Map<String, String> mapFromRandomVariableNameToTypeName, Expression queryVariable, Collection<Expression> allVariables, Predicate<Expression> isUniquelyNamedConstantPredicate, Theory theory, SemiRingProblemType problemType, Solver solver) {
-			super();
-			this.queryMarginal = queryMarginal;
-			this.evidenceProbability = evidenceProbability;
-			this.mapFromTypeNameToSizeString = mapFromTypeNameToSizeString;
-			this.mapFromRandomVariableNameToTypeName = mapFromRandomVariableNameToTypeName;
-			this.queryVariable = queryVariable;
-			this.allVariables = allVariables;
-			this.isUniquelyNamedConstantPredicate = isUniquelyNamedConstantPredicate;
-			this.theory = theory;
-			this.problemType = problemType;
-			this.solver = solver;
-		}
-
-		public Expression getQueryMarginal() {
-			return queryMarginal;
-		}
-	
-		public Expression getEvidenceProbability() {
-			return evidenceProbability;
-		}
-
-		public Map<String, String> getMapFromTypeNameToSizeString() {
-			return mapFromTypeNameToSizeString;
-		}
-
-		public Map<String, String> getMapFromRandomVariableNameToTypeName() {
-			return mapFromRandomVariableNameToTypeName;
-		}
-
-		public Expression getQueryVariable() {
-			return queryVariable;
-		}
-
-		public Collection<Expression> getAllVariables() {
-			return allVariables;
-		}
-
-		public Predicate<Expression> getIsUniquelyNamedConstantPredicate() {
-			return isUniquelyNamedConstantPredicate;
-		}
-
-		public Theory getTheory() {
-			return theory;
-		}
-
-		public SemiRingProblemType getProblemType() {
-			return problemType;
-		}
-
-		public Solver getSolver() {
-			return solver;
-		}
-	}
-
-	/**
-	 * 
-	 */
 	public static void burglarExample() {
 		// The definitions of types
 		Map<String, String> mapFromTypeNameToSizeString = Util.map(
@@ -303,7 +218,8 @@ public class ProbabilisticInference {
 		Expression queryExpression = parse("not earthquake");
 //		Expression queryExpression = parse("earthquake and burglar = bob");
 
-		Expression marginal = solveFactorGraph(bayesianNetwork, true, null, queryExpression, evidence, mapFromTypeNameToSizeString, mapFromVariableNameToTypeName);
+		InferenceForFactorGraphAndEvidence inferencer = new InferenceForFactorGraphAndEvidence(bayesianNetwork, true, evidence, mapFromTypeNameToSizeString, mapFromVariableNameToTypeName);
+		Expression marginal = inferencer.solve(queryExpression);
 
 		if (evidence == null) {
 			System.out.println("Query marginal probability P(" + queryExpression + ") = " + marginal);
