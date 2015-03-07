@@ -85,5 +85,7 @@ public interface Solver extends Rewriter {
 			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
 			Predicate<Expression> isUniquelyNamedConstantPredicate);
 
+	void interrupt();
+	
 	void setDebug(boolean b);
 }
