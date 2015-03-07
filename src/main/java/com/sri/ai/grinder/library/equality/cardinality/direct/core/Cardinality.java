@@ -59,15 +59,15 @@ import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.AbstractCardinalityRewriter;
 import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewriter;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.core.SGDPLLT;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.problemtype.ModelCounting;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.EqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.term.SymbolTermTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.util.DPLLUtil;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.util.SolutionPostProcessing;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
+import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
+import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
+import com.sri.ai.grinder.plaindpll.theory.EqualityTheory;
+import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
+import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
+import com.sri.ai.grinder.plaindpll.util.SolutionPostProcessing;
 
 
 /**

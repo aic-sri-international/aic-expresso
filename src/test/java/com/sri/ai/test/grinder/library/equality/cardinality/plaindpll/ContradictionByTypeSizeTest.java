@@ -51,12 +51,12 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.core.SGDPLLT;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.problemtype.ModelCounting;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.problemtype.Sum;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.EqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.term.FunctionalTermTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.term.SymbolTermTheory;
+import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
+import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
+import com.sri.ai.grinder.plaindpll.problemtype.Sum;
+import com.sri.ai.grinder.plaindpll.theory.EqualityTheory;
+import com.sri.ai.grinder.plaindpll.theory.term.FunctionalTermTheory;
+import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 import com.sri.ai.util.Util;
 
 @Beta

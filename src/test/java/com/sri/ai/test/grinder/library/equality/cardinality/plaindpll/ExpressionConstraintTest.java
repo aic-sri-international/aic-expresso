@@ -40,7 +40,7 @@ package com.sri.ai.test.grinder.library.equality.cardinality.plaindpll;
 import static com.sri.ai.expresso.helper.Expressions.X;
 import static com.sri.ai.expresso.helper.Expressions.Y;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.library.equality.cardinality.plaindpll.util.DPLLUtil.makeProcess;
+import static com.sri.ai.grinder.plaindpll.util.DPLLUtil.makeProcess;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 import static org.junit.Assert.assertEquals;
@@ -57,10 +57,10 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Equivalence;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.api.Constraint;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.core.ExpressionConstraint;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.EqualityTheory;
-import com.sri.ai.grinder.library.equality.cardinality.plaindpll.theory.term.SymbolTermTheory;
+import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.core.ExpressionConstraint;
+import com.sri.ai.grinder.plaindpll.theory.EqualityTheory;
+import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 
 @Beta
 public class ExpressionConstraintTest {
