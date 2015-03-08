@@ -79,8 +79,8 @@ public class ModelCountOnIndicesSubSetTest {
 		totalIndices    = list(X, Y);
 		countingIndices = list(X, Y);
 		Constraint constraint = theory.makeConstraint(totalIndices);
-		constraint = constraint.applySplitter(false, parse("X = Y"), process);
-		constraint = constraint.applySplitter(false, parse("Y = Z"), process);
+		constraint = constraint.incorporate(false, parse("X = Y"), process);
+		constraint = constraint.incorporate(false, parse("Y = Z"), process);
 		expected = parse("81");
 		modelCount = constraint.modelCount(countingIndices, process);
 		assertEquals(expected, modelCount);

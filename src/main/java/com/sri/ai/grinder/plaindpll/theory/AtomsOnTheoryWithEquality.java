@@ -52,14 +52,9 @@ import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.plaindpll.api.ConjunctiveConstraint;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
-import com.sri.ai.grinder.plaindpll.api.Solver;
 import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.grinder.plaindpll.core.AbstractTheory;
-import com.sri.ai.grinder.plaindpll.core.ExpressionConstraint;
-import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
-import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
 
 @Beta
 /** 
@@ -186,9 +181,9 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		}
 
 		@Override
-		public AtomsOnTheoryWithEqualityConstraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		public AtomsOnTheoryWithEqualityConstraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			SignedSplitter equalitySignedSplitter = getSignedEqualitySplitter(splitterSign, splitter);
-			ConjunctiveConstraint newEqualityConstraint = equalityConstraint.applySplitter(equalitySignedSplitter, process);
+			ConjunctiveConstraint newEqualityConstraint = equalityConstraint.incorporate(equalitySignedSplitter, process);
 			AtomsOnTheoryWithEqualityConstraint result;
 			if (newEqualityConstraint != null) {
 				result = new AtomsOnTheoryWithEqualityConstraint(newEqualityConstraint);
@@ -219,14 +214,6 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 					equalityModelCount.replaceAllOccurrences(
 							e -> fromEqualitySplitterToSplitterIfEqualitySplitterInTheFirstPlace(e, process),
 							process);
-			return result;
-		}
-
-		@Override
-		public Constraint project(Collection<Expression> indicesSubSet, RewritingProcess process) {
-			Solver projector = new SGDPLLT(getTheory(), new Satisfiability());
-			Expression resultExpression = projector.solve(this, getSupportedIndices(), process);
-			Constraint result = new ExpressionConstraint(getTheory(), getSupportedIndices(), resultExpression);
 			return result;
 		}
 

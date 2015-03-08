@@ -326,7 +326,7 @@ public class DPLLUtil {
 	 */
 	public static Expression applySplitterToSolution(boolean splitterSign, Expression splitter, Expression solution, Theory theory, RewritingProcess process) {
 		ConjunctiveConstraint constraint = theory.makeConstraint(Collections.emptyList()); // no indices in solutions
-		constraint = constraint.applySplitter(splitterSign, splitter, process);
+		constraint = constraint.incorporate(splitterSign, splitter, process);
 		Expression result = theory.applyConstraintToSolution(constraint, solution, process);
 		return result;
 	}

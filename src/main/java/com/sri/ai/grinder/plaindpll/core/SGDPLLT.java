@@ -113,7 +113,7 @@ public class SGDPLLT extends AbstractSolver {
 		
 		assert constraint != null : "solve(Expression, Constraint, RewritingProcess) must only be given non-null expressions";
 		
-		Expression splitter = pickSplitter(expression, constraint, process);
+		Expression splitter = pickSplitter(expression, indices, constraint, process);
 
 		if (splitter != null) {
 			result = solveBasedOnSplitting(splitter, expression, indices, constraint, process);
@@ -167,11 +167,11 @@ public class SGDPLLT extends AbstractSolver {
 	}
 
 	/** Picks splitter from either expression or constraint; assumes constraint is not <code>null</code>. */
-	protected Expression pickSplitter(Expression expression, Constraint constraint, RewritingProcess process) {
+	protected Expression pickSplitter(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		Expression splitter;
 		splitter = theory.pickSplitterInExpression(expression, constraint, process);
 		if (splitter == null) { // expression is constant value, so it does not have any splitters
-			splitter = constraint.pickSplitter(process);
+			splitter = constraint.pickSplitter(indices, process);
 		}
 		return splitter;
 	}
@@ -271,7 +271,7 @@ public class SGDPLLT extends AbstractSolver {
 			// subtle note about past bug: until February 2015 this check for returning null was done on constraint, not contextual constraint. That is incorrect, however, because the fact that a splitter turns the constraint inconsistent does not mean that the splitter is false. That would be the case only if the constraint was always required to hold, which is not the case. However, that check was indirectly covering the cases in which the splitter was contradictory with the *contextual* constraint, which *is* required to always hold, so it was being useful. To make things harder to detect, it seems that with the theories we then had it was hard to produce an example that exposed the bug, that is, an example in which the splitter was inconsistent with the constraint but *not* with the contextual constraint. The problem only surfaced when I started returning null for model counts equal to 0 (also inconsistent): sum_X X != a and Y != X for |X| = 2 creates a constraint with 0 models after application of splitter Y != a, but that does *not* mean that Y != a is necessarily false! Yet, using model count 0 inconsistency for the constraint was leading the algorithm to believe that. It is only when we check against the contextual constraint (which at that point is just 'true' and not inconsistent with Y != a) that things work again.
 		}
 		else {
-			Constraint constraintUnderSplitter = constraint.applySplitter(splitterSign, splitter, process);
+			Constraint constraintUnderSplitter = constraint.incorporate(splitterSign, splitter, process);
 			if (constraintUnderSplitter == null) { // it would be more elegant to place this check this inside 'solve' (which as of now assumes the given constraint is never null), but placing the check here avoids unnecessary applications of the splitter to expression.
 				result = problemType.additiveIdentityElement();
 			}

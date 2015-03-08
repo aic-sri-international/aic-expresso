@@ -84,10 +84,10 @@ public class ExpressionConstraintTest {
 		totalIndices    = list(X, Y);
 		countingIndices = list(X, Y);
 		constraint1 = theory.makeConstraint(totalIndices);
-		constraint1 = constraint1.applySplitter(false, parse("X = Y"), process); // note the negation
+		constraint1 = constraint1.incorporate(false, parse("X = Y"), process); // note the negation
 		
 		constraint2 = theory.makeConstraint(totalIndices);
-		constraint2 = constraint2.applySplitter(true,  parse("Y = b"), process);
+		constraint2 = constraint2.incorporate(true,  parse("Y = b"), process);
 		
 		compoundConstraint = new ExpressionConstraint(theory, totalIndices, Or.make(constraint1, constraint2));
 		
