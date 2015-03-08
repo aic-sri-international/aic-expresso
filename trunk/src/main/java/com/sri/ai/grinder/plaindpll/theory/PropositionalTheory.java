@@ -216,7 +216,7 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 
 		@Override
-		public Expression pickSplitter(RewritingProcess process) {
+		public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
 			return null; // we are always ready to provide a model count, so there is no need for extra splitters
 		}
 

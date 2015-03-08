@@ -101,28 +101,28 @@ public class ExpressionConstraint extends AbstractExpressionWrapper implements C
 	}
 
 	@Override
-	public Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+	public Constraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		Constraint result;
 		Expression splitterIfAny;
 		if (expression instanceof Constraint) {
-			result = ((Constraint) expression).applySplitter(splitterSign, splitter, process);
+			result = ((Constraint) expression).incorporate(splitterSign, splitter, process);
 		}
 		else if (expression.equals(FALSE)) {
 			result = wrap(FALSE);
 		}
 		else if (expression.equals(TRUE)) {
 			Constraint newConstraint = theory.makeConstraint(supportedIndices);
-			result = newConstraint.applySplitter(splitterSign, splitter, process);
+			result = newConstraint.incorporate(splitterSign, splitter, process);
 		}
 		else if ((splitterIfAny = theory.makeSplitterIfPossible(expression, supportedIndices, process)) != null) {
 			Constraint newConstraint = theory.makeConstraint(supportedIndices);
-			newConstraint.applySplitter(true, splitterIfAny, process);
-			result = newConstraint.applySplitter(splitterSign, splitter, process);
+			newConstraint.incorporate(true, splitterIfAny, process);
+			result = newConstraint.incorporate(splitterSign, splitter, process);
 		}
 		else { // only acceptable leaves are boolean constants and splitters, so at this point it must be a boolean connective.
 			assert FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(expression) : "Only boolean formulas on theory literals supported by " + getClass();
 			result = wrap(applyJavaFunctionToArgumentsAndReAssembleFunctionApplication(
-					subExpression -> wrap(subExpression).applySplitter(splitterSign, splitter, process),
+					subExpression -> wrap(subExpression).incorporate(splitterSign, splitter, process),
 					expression));
 		}
 		return result;

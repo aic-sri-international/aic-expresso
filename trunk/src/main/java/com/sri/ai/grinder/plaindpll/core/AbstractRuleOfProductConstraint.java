@@ -47,7 +47,7 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractExpression
 	/**
 	 * Given an index x, return one splitter needed for us to be able to
 	 * compute this index's number of values, or null if none is needed.
-	 * Only required if using default implementation of {@link #pickSplitter(RewritingProcess)} (that is, not overriding it).
+	 * Only required if using default implementation of {@link #pickSplitter(Collection<Expression>, RewritingProcess)} (that is, not overriding it).
 	 */
 	protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression x, RewritingProcess process) {
 		throwSafeguardError(
@@ -75,7 +75,7 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractExpression
 	abstract protected void applyNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
 
 	@Override
-	public ConjunctiveConstraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+	public ConjunctiveConstraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		ConjunctiveConstraint result;
 
 		Expression normalizedSplitterGivenConstraint = normalizeSplitterGivenConstraint(splitter, process);

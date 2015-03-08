@@ -14,11 +14,14 @@ import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
 @Beta
 public interface ConjunctiveConstraint extends Constraint {
 	
-	public abstract ConjunctiveConstraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process);
+	public abstract ConjunctiveConstraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process);
 
-	/** Same as {@link #applySplitter(boolean, Expression, RewritingProcess)} but using {@link SignedSplitter}. */
-	default ConjunctiveConstraint applySplitter(SignedSplitter signedSplitter, RewritingProcess process) {
-		return applySplitter(signedSplitter.getSplitterSign(), signedSplitter.getSplitter(), process);
+	/**
+	 * Same as {@link #incorporate(boolean, Expression, RewritingProcess)} but using {@link SignedSplitter};
+	 * reason for overriding is redefining return value to the more specific {@link ConjunctiveConstraint}.
+	 */
+	default ConjunctiveConstraint incorporate(SignedSplitter signedSplitter, RewritingProcess process) {
+		return incorporate(signedSplitter.getSplitterSign(), signedSplitter.getSplitter(), process);
 	}
 
 	/**

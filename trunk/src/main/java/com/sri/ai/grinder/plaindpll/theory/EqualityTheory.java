@@ -378,7 +378,7 @@ public class EqualityTheory extends AbstractTheory {
 		}
 
 		@Override
-		public ConjunctiveConstraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		public ConjunctiveConstraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			throw new Error("DisequalitiesConstraint.applySplitter not implemented; splitter application done at EqualityConstraint level.");
 		}
 
@@ -829,12 +829,12 @@ public class EqualityTheory extends AbstractTheory {
 		protected Expression getRepresentative(Expression term, boolean recordDirectBindingToRepresentative, RewritingProcess process) {
 			Expression current = term;
 			Expression currentBinding;
-			while (getTheory().isVariableTerm(current, process) && (currentBinding = getBinding(current)) != null) {
+			while (isVariableTerm(current, process) && (currentBinding = getBinding(current)) != null) {
 				current = currentBinding;
 			}
 			// now, 'current' is in the chain started at term,
 			// and it is either a constant or a variable without binding, therefore it is the equivalence class representative.
-			if (recordDirectBindingToRepresentative && getTheory().isVariableTerm(term, process)) {
+			if (recordDirectBindingToRepresentative && isVariableTerm(term, process)) {
 				setBinding(term, current); // optional recording so that we do not need to traverse the entire chain next time
 			}
 			return current;

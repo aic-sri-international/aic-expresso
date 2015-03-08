@@ -78,8 +78,8 @@ public class ProjectionTest {
 		
 		totalIndices = list(X, Y);
 		Constraint constraint = theory.makeConstraint(totalIndices);
-		constraint = constraint.applySplitter(false, parse("X = Y"), process);
-		constraint = constraint.applySplitter(false, parse("Y = Z"), process);
+		constraint = constraint.incorporate(false, parse("X = Y"), process);
+		constraint = constraint.incorporate(false, parse("Y = Z"), process);
 
 		projectionIndices = list(X, Y);
 		expected = parse("true");

@@ -34,11 +34,11 @@ public interface Constraint extends Expression {
 	 * @param splitter the splitter according to this theoryWithEquality's choice
 	 * @param process the rewriting process
 	 */
-	public abstract Constraint applySplitter(boolean splitterSign, Expression splitter, RewritingProcess process);
+	public abstract Constraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process);
 
-	/** Same as {@link #applySplitter(boolean, Expression, RewritingProcess)} but using {@link SignedSplitter}. */
-	default Constraint applySplitter(SignedSplitter signedSplitter, RewritingProcess process) {
-		return applySplitter(signedSplitter.getSplitterSign(), signedSplitter.getSplitter(), process);
+	/** Same as {@link #incorporate(boolean, Expression, RewritingProcess)} but using {@link SignedSplitter}. */
+	default Constraint incorporate(SignedSplitter signedSplitter, RewritingProcess process) {
+		return incorporate(signedSplitter.getSplitterSign(), signedSplitter.getSplitter(), process);
 	}
 
 	/**
@@ -50,26 +50,12 @@ public interface Constraint extends Expression {
 	public abstract Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process);
 
 	/**
-	 * Same as {@link #pickSplitter(Collection, RewritingProcess)} invoked on getIndices().
-	 */
-	default Expression pickSplitter(RewritingProcess process) {
-		return pickSplitter(getSupportedIndices(), process);
-	}
-
-	/**
 	 * Computes model count for constraint, given a sub-set of indices, in polynomial time.
 	 * Assumes that {@link #pickSplitter(Collection, RewritingProcess)} returns <code>null</code>,
 	 * that is, the constraint is in such a state and context that allows the determination of a unique model count.
 	 * The model count is required to contain no literals implied by the contextual constraint.
 	 */
 	public abstract Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process);
-
-	/**
-	 * Same as {@link #modelCount(Collection, RewritingProcess)} invoked on getIndices().
-	 */
-	default Expression modelCount(RewritingProcess process) {
-		return modelCount(getSupportedIndices(), process);
-	}
 
 	/**
 	 * Given a sub-set of supported indices, projects the constraint onto the remaining ones.
@@ -80,6 +66,7 @@ public interface Constraint extends Expression {
 	default Constraint project(Collection<Expression> eliminatedIndices, RewritingProcess process) {
 		Solver projector = new SGDPLLT(getTheory(), new Satisfiability());
 		Expression resultExpression = projector.solve(this, eliminatedIndices, process); // this was the motivation for making Constraint implement Expression
+		// note that solvers should be aware that their input or part of their input may be a Constraint, and take advantage of the internal representations already present in them, instead of simply converting them to an Expression and redoing all the work.
 		Constraint result = new ExpressionConstraint(getTheory(), getSupportedIndices(), resultExpression);
 		return result;
 	}
