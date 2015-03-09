@@ -338,21 +338,23 @@ public class DPLLUtil {
 
 	public static RewritingProcess makeProcess(Theory theory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		RewritingProcess process = new DefaultRewritingProcess(null);
+		List<Expression> indexExpressions = new ArrayList<>();
 		for (Map.Entry<String, String> variableNameAndTypeName : mapFromVariableNameToTypeName.entrySet()) {
 			String variableName = variableNameAndTypeName.getKey();
 			String typeName     = variableNameAndTypeName.getValue();
-			process = GrinderUtil.extendContextualSymbolsWithIndexExpression(Expressions.parse(variableName + " in " + typeName), process);
+			
+			indexExpressions.add(Expressions.parse(variableName + " in " + typeName));
 		}
+		process = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
+					
 		for (Map.Entry<String, String> typeNameAndSizeString : mapFromTypeNameToSizeString.entrySet()) {
 			String typeName   = typeNameAndSizeString.getKey();
 			String sizeString = typeNameAndSizeString.getValue();
 			process.putGlobalObject(Expressions.parse("|" + typeName + "|"), Expressions.parse(sizeString));
-		}
-		
-		process.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
-
+		}			
+		process.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);	
 		process.initializeDPLLContextualConstraint(theory.makeConstraint(list()));
-
+	
 		return process;
 	}
 }
