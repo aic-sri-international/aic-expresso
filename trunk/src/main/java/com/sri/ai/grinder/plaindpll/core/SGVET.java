@@ -198,7 +198,10 @@ public class SGVET extends AbstractSolver {
 	}
 
 	public Function<Expression, Partition> makePartition(Collection<Expression> indices, List<Expression> expressions) {
-		return index -> pickPartitionForIndex(index, indices, expressions);
+		return index -> {
+			checkInterrupted();
+			return pickPartitionForIndex(index, indices, expressions);
+		};
 	}
 
 	public Partition pickPartitionForIndex(Expression index, Collection<Expression> indices, List<Expression> expressions) {

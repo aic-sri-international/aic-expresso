@@ -172,9 +172,8 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	}
 
 	public Expression solve(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
-		if (interrupted) {
-			throw new RuntimeException("Solver Interrupted");
-		}
+		checkInterrupted();
+		
 		Expression result;
 		if (expression instanceof ConjunctiveConstraint && constraint.equals(TRUE)) {
 			result = solveAfterBookkeeping(TRUE, indices, (Constraint) expression, process);
@@ -271,6 +270,12 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		RewritingProcess topProcess = topLevelRewritingProcess;
 		if (topProcess != null) {
 			topProcess.interrupt();
+		}
+	}
+	
+	protected void checkInterrupted() {
+		if (interrupted) {
+			throw new RuntimeException("Solver Interrupted");
 		}
 	}
 }
