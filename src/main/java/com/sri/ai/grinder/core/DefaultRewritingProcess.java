@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.annotations.Beta;
@@ -126,12 +127,12 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	private Rewriter                     rootRewriter                                                          = null;
 	private RewriterLookup               rewriterLookup                                                        = null;
 	private ChildRewriterCallIntercepter childCallIntercepter                                                  = null;
-	private Map<Expression, Expression>  contextualSymbolsAndTypes                                         = null;
+	private Map<Expression, Expression>  contextualSymbolsAndTypes                                             = null;
 	private Expression                   contextualConstraint                                                  = Expressions.TRUE;
-	private Predicate<Expression>        isUniquelyNamedConstantPredicate                                                   = null;
+	private Predicate<Expression>        isUniquelyNamedConstantPredicate                                      = null;
 	private boolean                      isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess = true;
 	private int                          recursionLevel                                                        = 0;
-	private boolean                      interrupted                                                           = false;
+	private AtomicBoolean                interrupted                                                           = new AtomicBoolean(false);
 	//
 	private ConcurrentHashMap<Object, Object>               globalObjects       = null;
 	private ConcurrentHashMap<Class<?>, Rewriter>           lookedUpModuleCache = null;
@@ -231,7 +232,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				new ConcurrentHashMap<Object, Object>(globalObjects), 
 				new ConcurrentHashMap<RewriterKey, ExpressionCache>(),
 				new ConcurrentHashMap<Class<?>, Rewriter>(),
-				false, 
+				new AtomicBoolean(false), 
 				true);
 	}
 
@@ -253,7 +254,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				new ConcurrentHashMap<Object, Object>(globalObjects), 
 				new ConcurrentHashMap<RewriterKey, ExpressionCache>(),
 				new ConcurrentHashMap<Class<?>, Rewriter>(),
-				false, 
+				new AtomicBoolean(false), 
 				true);
 	}
 
@@ -592,7 +593,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 
 	@Override
 	public boolean getInterrupted() {
-		return interrupted;
+		return interrupted.get();
 	}
 
 	@Override
@@ -602,7 +603,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 
 	@Override
 	public void interrupt() {
-		interrupted = true;
+		interrupted.set(true);
 	}
 	
 	// END-RewritingProcess
@@ -652,12 +653,12 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 
 	public static RewritingProcess copyRewritingProcessWithCleanContextAndCaches(RewritingProcess process) {
-		RewritingProcess result = new DefaultRewritingProcess(process);
+		RewritingProcess result = new DefaultRewritingProcess((DefaultRewritingProcess)process);
 		return result;
 	}
 	
 	/** A copy constructor with clean contextual constraint and clean caches. */
-	private DefaultRewritingProcess(RewritingProcess process) {
+	private DefaultRewritingProcess(DefaultRewritingProcess process) {
 		initialize(
 				null, // parentProcess,
 				process.getRootExpression(),
@@ -670,7 +671,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				process.getGlobalObjects(),
 				new ConcurrentHashMap<RewriterKey, ExpressionCache>(),
 				new ConcurrentHashMap<Class<?>, Rewriter>(),
-				process.getInterrupted(),
+				process.interrupted,
 				process.getIsResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess());
 	}
 	
@@ -685,7 +686,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			ConcurrentHashMap<Object, Object> globalObjects,
 			ConcurrentHashMap<RewriterKey, ExpressionCache> rewriterCaches,
 			ConcurrentHashMap<Class<?>, Rewriter> lookedUpModuleCache,
-			boolean interrupted,
+			AtomicBoolean interrupted,
 			boolean isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess) {
 		this.id                   = _uniqueIdGenerator.addAndGet(1L);
 		this.parentProcess        = parentProcess;
@@ -720,19 +721,8 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	
 	private void checkInterrupted() {
 		boolean interrupt = false;
-		if (interrupted) {
+		if (interrupted.get()) {
 			interrupt = true;
-		}
-		else {
-			// Check if parent process interrupted
-			DefaultRewritingProcess parent = this.parentProcess;
-			while (parent != null) {
-				if (parent.interrupted) {
-					interrupt = true;
-					break;
-				}
-				parent = parent.parentProcess;
-			}
 		}
 		
 		if (interrupt) {

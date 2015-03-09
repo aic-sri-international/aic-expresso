@@ -80,6 +80,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	public boolean debug = false;
 	
 	private RewritingProcess topLevelRewritingProcess;
+	private boolean interrupted = false;
 	
 	@Override
 	public void setDebug(boolean newValue) {
@@ -170,6 +171,9 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	}
 
 	public Expression solve(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+		if (interrupted) {
+			throw new RuntimeException("Solver Interrupted");
+		}
 		Expression result;
 		if (expression instanceof ConjunctiveConstraint && constraint.equals(TRUE)) {
 			result = solveAfterBookkeeping(TRUE, indices, (Constraint) expression, process);
@@ -262,6 +266,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	
 	@Override
 	public void interrupt() {
+		interrupted = true;
 		topLevelRewritingProcess.interrupt();
 	}
 }
