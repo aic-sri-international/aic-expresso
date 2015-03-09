@@ -148,6 +148,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		
 		topLevelRewritingProcess = DPLLUtil.makeProcess(theory, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
 		Expression result = solve(expression, indices, topLevelRewritingProcess);
+		topLevelRewritingProcess = null;
 		return result;
 	}
 
@@ -267,6 +268,9 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	@Override
 	public void interrupt() {
 		interrupted = true;
-		topLevelRewritingProcess.interrupt();
+		RewritingProcess topProcess = topLevelRewritingProcess;
+		if (topProcess != null) {
+			topProcess.interrupt();
+		}
 	}
 }

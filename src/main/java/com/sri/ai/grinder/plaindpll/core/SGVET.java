@@ -296,6 +296,12 @@ public class SGVET extends AbstractSolver {
 		Expression result = getProblemType().multiply(multiplication, process);
 		return result;
 	}
+	
+	@Override 
+	public void interrupt() {
+		super.interrupt();
+		subSolver.interrupt();
+	}
 
 	@Override
 	public String toString() {
