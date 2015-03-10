@@ -82,6 +82,12 @@ public class EqualityOnTermsModelCountingDPLLTest extends AbstractSymbolicSymbol
 		
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 
+		// tests whether unification of two different terms keeps the union of their constraints -- here X = c makes p(X, c) and p(c, X) both p(c,c), which must be constrainted to be different from both a and b
+		expression = parse("p(X, c) != a and p(c, X) != b and X = c and (p(c, c) = a or p(c, c) = b)");
+		indices    = list();
+		expected   = parse("0");
+		runSymbolicAndNonSymbolicTests(expression, indices, expected);
+
 		// tests the most important property in the theoryWithEquality, that of functional congruence.
 		expression = parse("p(X) = a and p(Y) = b and X = Y");
 		indices    = list();
