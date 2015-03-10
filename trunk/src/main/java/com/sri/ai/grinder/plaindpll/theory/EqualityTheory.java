@@ -47,8 +47,11 @@ import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
+import static com.sri.ai.util.Util.addAllForEachEntry;
 import static com.sri.ai.util.Util.forAll;
+import static com.sri.ai.util.Util.getValuePossiblyCreatingIt;
 import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.mapIntoSetOrSameIfNoDistinctElementInstances;
 import static java.lang.Math.max;
@@ -63,6 +66,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
@@ -407,34 +411,44 @@ public class EqualityTheory extends AbstractTheory {
 			throw new Error("DisequalitiesConstraintForSingleVariable.normalize not implemented.");
 		}
 
-		public DisequalitiesConstraintForSingleVariable updateRepresentatives(RewritingProcess process) throws Contradiction {
-			Expression newVariable = variable.replaceAllOccurrences(t -> parentEqualityConstraint.getRepresentative(t, process), process);
-			Collection<Expression> newDisequals = 
-					mapIntoSetOrSameIfNoDistinctElementInstances(disequals, e -> e.replaceAllOccurrences(t -> parentEqualityConstraint.getRepresentative(t, process), process));
-			if (newDisequals.contains(newVariable)) {
-				throw new Contradiction();
-			}
-			DisequalitiesConstraintForSingleVariable newDisequalitiesConstraintForSingleVariable;
-			if (newVariable != variable || newDisequals != disequals) {
-				newDisequalitiesConstraintForSingleVariable = new DisequalitiesConstraintForSingleVariable(newVariable, parentEqualityConstraint);
-				newDisequalitiesConstraintForSingleVariable.cachedIndexDomainSize = cachedIndexDomainSize;
-				newDisequalitiesConstraintForSingleVariable.disequals = newDisequals;
-				if (newDisequalitiesConstraintForSingleVariable.disequals == disequals) {
-					newDisequalitiesConstraintForSingleVariable.ownMyDisequals = false;
-					newDisequalitiesConstraintForSingleVariable.uniquelyValuedDisequals = uniquelyValuedDisequals;
-				}
-				else {
-					newDisequalitiesConstraintForSingleVariable.ownMyDisequals = true;
-					newDisequalitiesConstraintForSingleVariable.uniquelyValuedDisequals = new LinkedHashSet<Expression>();
-					for (Expression newDisequal : newDisequalitiesConstraintForSingleVariable.disequals) {
-						newDisequalitiesConstraintForSingleVariable.updateUniqueValuedDisequals(newDisequal, process);
-					}
-				}
+		/**
+		 * A class representing the constraints in this object after updating representatives.
+		 * The result is the updated variable, and a map from constraint functor to
+		 * the terms the variable is constrained with by that functor.
+		 * @author braz
+		 *
+		 */
+		public class UpdatedNonEqualities {
+			public Expression newVariable;
+			public Map<String, Collection<Expression>> nonEqualities;
+		}
+		
+		/**
+		 * Returns an {@link UpdatedNonEqualities} object describing updated to constraint given new representatives,
+		 * or <code>null</code> if there are no changes.
+		 * @param process
+		 * @return
+		 * @throws Contradiction
+		 */
+		public UpdatedNonEqualities updatedNonEqualities(RewritingProcess process) throws Contradiction {
+			UpdatedNonEqualities result = new UpdatedNonEqualities();
+			result.newVariable = variable.replaceAllOccurrences(t -> parentEqualityConstraint.getRepresentative(t, process), process);
+			
+			Function<Expression, Expression> getRepresentative = t -> parentEqualityConstraint.getRepresentative(t, process);
+			Function<Expression, Expression> replaceAllTermsByRepresentatives = e -> e.replaceAllOccurrences(getRepresentative, process);
+			Collection<Expression> newDisequals = mapIntoSetOrSameIfNoDistinctElementInstances(disequals, replaceAllTermsByRepresentatives);
+			if (result.newVariable == variable && newDisequals == disequals) {
+				result = null;
 			}
 			else {
-				newDisequalitiesConstraintForSingleVariable = this;
+				if (newDisequals.contains(result.newVariable)) {
+					throw new Contradiction();
+				}
+				result.nonEqualities = new LinkedHashMap<String, Collection<Expression>>();
+				result.nonEqualities.put(DISEQUALITY, newDisequals);
 			}
-			return newDisequalitiesConstraintForSingleVariable;
+				
+			return result;
 		}
 
 		public List<Expression> getSplittersToBeNotSatisfied() {
@@ -652,29 +666,25 @@ public class EqualityTheory extends AbstractTheory {
 
 		private void updateRepresentativesInDisequalitiesMap(RewritingProcess process) {
 			Set<Expression> deletedKeys = new LinkedHashSet<Expression>();
-			Map<Expression, DisequalitiesConstraintForSingleVariable> updatedNonEqualitiesConstraintsForSingleVariables = new LinkedHashMap<Expression, DisequalitiesConstraintForSingleVariable>();
-			Map<Expression, Collection<Expression>> updatedDisequals = new LinkedHashMap<Expression, Collection<Expression>>();
+			Map<Expression, Map<String, Collection<Expression>>> updatedNonEqualitiesByVariable = new LinkedHashMap<Expression, Map<String, Collection<Expression>>>();
 			for (Map.Entry<Expression, DisequalitiesConstraintForSingleVariable> entry : disequalitiesMap.entrySet()) {
 				Expression variable = entry.getKey();
-				DisequalitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = (DisequalitiesConstraintForSingleVariable) entry.getValue();
+				DisequalitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = entry.getValue();
 				
-				DisequalitiesConstraintForSingleVariable newDisequalitiesConstraintForSingleVariable = disequalitiesConstraintForSingleVariable.updateRepresentatives(process);
-				
-				if (newDisequalitiesConstraintForSingleVariable != disequalitiesConstraintForSingleVariable) {
-					Collection<Expression> totalDisequalsSoFarForNewVariable = updatedDisequals.get(newDisequalitiesConstraintForSingleVariable.variable); // a previous key may have already been modified to newVariable
-					if (totalDisequalsSoFarForNewVariable == null) {
-						totalDisequalsSoFarForNewVariable = newDisequalitiesConstraintForSingleVariable.disequals;
-					}
-					else {
-						totalDisequalsSoFarForNewVariable.addAll(newDisequalitiesConstraintForSingleVariable.disequals);
-					}
-					updatedDisequals.put(newDisequalitiesConstraintForSingleVariable.variable, totalDisequalsSoFarForNewVariable);
+				DisequalitiesConstraintForSingleVariable.UpdatedNonEqualities updatedNonEqualities = disequalitiesConstraintForSingleVariable.updatedNonEqualities(process);
+				if (updatedNonEqualities != null) {
+					Map<String, Collection<Expression>> updatedNonEqualitiesForNewVariableSoFar = updatedNonEqualitiesByVariable.get(updatedNonEqualities.newVariable);
+					Map<String, Collection<Expression>> moreUpdatedNonEqualitiesForNewVariable  = updatedNonEqualities.nonEqualities;
+					Map<String, Collection<Expression>> newUpdatedNonEqualitiesForNewVariable   =
+							addAllForEachEntry(updatedNonEqualitiesForNewVariableSoFar, moreUpdatedNonEqualitiesForNewVariable);
+					updatedNonEqualitiesByVariable.put(updatedNonEqualities.newVariable, newUpdatedNonEqualitiesForNewVariable);
 					deletedKeys.add(variable);
 				}
+				
 			}
 			
 			// now we update the disequalities map if needed
-			if ( ! updatedDisequals.isEmpty()) {
+			if ( ! updatedNonEqualitiesByVariable.isEmpty()) {
 				
 				// we start by removing the modified entries
 				for (Expression deletedKey : deletedKeys) {
@@ -682,8 +692,8 @@ public class EqualityTheory extends AbstractTheory {
 				}
 				
 				// and now we add the new disequalities. Note we cannot just put them in the map as they are, because of choosing order
-				for (Map.Entry<Expression, Collection<Expression>> updatedEntry : updatedDisequals.entrySet()) {
-					for (Expression disequal : updatedEntry.getValue()) {
+				for (Map.Entry<Expression, Map<String, Collection<Expression>>> updatedEntry : updatedNonEqualitiesByVariable.entrySet()) {
+					for (Expression disequal : updatedEntry.getValue().get(DISEQUALITY)) {
 						applyRepresentativesDisequalityDestructively(updatedEntry.getKey(), disequal, process);
 					}
 				}
