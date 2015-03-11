@@ -264,7 +264,7 @@ public class EqualityTheory extends AbstractTheory {
 		/**
 		 * A copy "constructor".
 		 * The reason this is not a real constructor is because the signature would be easily confused with the constructor from variable 
-		 * since {@link DisequalitiesConstraintForSingleVariable} implements {@link Expression}.
+		 * since {@link NonEqualitiesConstraintForSingleVariable} implements {@link Expression}.
 		 * @param another
 		 * @param parentEqualityConstraint
 		 * @return
@@ -787,7 +787,7 @@ public class EqualityTheory extends AbstractTheory {
 		}
 
 		protected NonEqualitiesConstraintForSingleVariable makeNonEqualitiesConstraintForVariable(Expression variable) {
-			DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, this);
+			NonEqualitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, this);
 			return result;
 		}
 
@@ -991,22 +991,22 @@ public class EqualityTheory extends AbstractTheory {
 
 		////////// END OF EQUALITY CONSTRAINTS MAINTENANCE
 		
-		public void f() {
-			Expression trueSymbol = parse("true");
-			System.out.println("true.getSyntaxTree().getRoot(): " + trueSymbol.getSyntaxTree().getRootTree());	
-			DisequalitiesConstraintForSingleVariable d = new DisequalitiesConstraintForSingleVariable(parse("X"), this);
-			System.out.println("d.getSyntaxTree().getRoot(): " + d.getSyntaxTree().getRootTree());	
-			
-			DefaultRewritingProcess p = new DefaultRewritingProcess(null);
-			Expression th = p.getContextualSymbolType(trueSymbol);
-			System.out.println("type of true symbol: " + th);
-			System.out.println("type of d: " + p.getContextualSymbolType(d));
-		}
+//		public void f() {
+//			Expression trueSymbol = parse("true");
+//			System.out.println("true.getSyntaxTree().getRoot(): " + trueSymbol.getSyntaxTree().getRootTree());	
+//			DisequalitiesConstraintForSingleVariable d = new DisequalitiesConstraintForSingleVariable(parse("X"), this);
+//			System.out.println("d.getSyntaxTree().getRoot(): " + d.getSyntaxTree().getRootTree());	
+//			
+//			DefaultRewritingProcess p = new DefaultRewritingProcess(null);
+//			Expression th = p.getContextualSymbolType(trueSymbol);
+//			System.out.println("type of true symbol: " + th);
+//			System.out.println("type of d: " + p.getContextualSymbolType(d));
+//		}
 	}
 	
-	public static void main(String[] args) {
-		EqualityTheory t = new EqualityTheory(new FunctionalTermTheory());
-		EqualityConstraint e = t.makeConstraint(list(parse("X")));
-		e.f();
-	}
+//	public static void main(String[] args) {
+//		EqualityTheory t = new EqualityTheory(new FunctionalTermTheory());
+//		EqualityConstraint e = t.makeConstraint(list(parse("X")));
+//		e.f();
+//	}
 }
