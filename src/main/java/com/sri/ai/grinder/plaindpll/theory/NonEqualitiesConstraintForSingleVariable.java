@@ -9,7 +9,14 @@ import com.sri.ai.grinder.plaindpll.core.Contradiction;
 import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityConstraint;
 import com.sri.ai.util.base.Pair;
 
-/** Defined for the benefit of {@link EqualityConstraint} outside of it because the latter is a non-static class. */	
+/** 
+ * Represents a conjunction of literals of binary constraint operators between a variable and
+ * a set of terms such that distinct terms.
+ * This interface is defined for constraints used inside an EqualityConstraint
+ * in addition to equalities themselves.
+ * Eventually it should be merged with Constraint so that EqualityConstraint
+ * can contain any internal Constraint.
+ */	
 public interface NonEqualitiesConstraintForSingleVariable extends ConjunctiveConstraint {
 
 	/**
