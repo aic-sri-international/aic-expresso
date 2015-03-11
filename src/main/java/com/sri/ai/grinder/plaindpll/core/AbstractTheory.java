@@ -62,11 +62,6 @@ import com.sri.ai.util.base.BinaryFunction;
  */
 abstract public class AbstractTheory implements Theory {
 
-	/** Class an instance of which must be thrown when a contradiction is found during application of splitter. */
-	@SuppressWarnings("serial")
-	public class Contradiction extends Error {
-	}
-	
 	protected abstract boolean usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers();
 	
 	/**
@@ -194,7 +189,7 @@ abstract public class AbstractTheory implements Theory {
 	 * @param process
 	 * @return
 	 */
-	protected Expression makeSplitterFromFunctorAndTwoTerms(String splitterFunctor, Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
+	public Expression makeSplitterFromFunctorAndTwoTerms(String splitterFunctor, Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
 		// Places index or variable before constants.
 		if (indices.contains(term1)) {

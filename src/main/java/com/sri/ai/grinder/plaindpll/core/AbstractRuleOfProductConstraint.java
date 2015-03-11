@@ -14,7 +14,6 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.plaindpll.api.ConjunctiveConstraint;
-import com.sri.ai.grinder.plaindpll.core.AbstractTheory.Contradiction;
 import com.sri.ai.util.Util;
 
 /**
