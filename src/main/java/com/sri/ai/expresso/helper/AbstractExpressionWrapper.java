@@ -60,7 +60,7 @@ public abstract class AbstractExpressionWrapper extends AbstractExpression {
 
 	private static final long serialVersionUID = 1L;
 	
-	private Expression cachedInnerExpression;
+	protected Expression cachedInnerExpression;
 	
 	protected abstract Expression computeInnerExpression();
 	
@@ -69,6 +69,18 @@ public abstract class AbstractExpressionWrapper extends AbstractExpression {
 			cachedInnerExpression = computeInnerExpression();
 		}
 		return cachedInnerExpression;
+	}
+	
+	/**
+	 * Indicates the inner expression has changed and needs to be recomputed next time it is to be used.
+	 * Note that {@link Expression} should be immutable and therefore so should {@link AbstractExpressionWrapper}.
+	 * However, during debugging one may want to print this object during its (possibly multi-staged) construction,
+	 * and since {@link Object#toString()} depends on the inner expression, it needs to be reset when it changes
+	 * during construction.
+	 * This is the reason this method is protected, since only extending classes should be doing this kind of thing.
+	 */
+	protected void resetInnerExpression() {
+		cachedInnerExpression = null;
 	}
 	
 	@Override
