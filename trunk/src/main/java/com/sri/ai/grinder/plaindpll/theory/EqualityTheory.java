@@ -42,6 +42,7 @@ import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.getTypeCardinality;
 import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
@@ -73,6 +74,7 @@ import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -97,6 +99,7 @@ import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.core.SimplifyLiteralGivenDisequality;
 import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
 import com.sri.ai.grinder.plaindpll.problemtype.Tautologicality;
+import com.sri.ai.grinder.plaindpll.theory.term.FunctionalTermTheory;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
@@ -257,9 +260,19 @@ public class EqualityTheory extends AbstractTheory {
 
 	/** Defined for the benefit of {@link EqualityConstraint} outside of it because the latter is a non-static class. */	
 	public interface NonEqualitiesConstraintForSingleVariable extends ConjunctiveConstraint {
+
+		/**
+		 * A copy "constructor".
+		 * The reason this is not a real constructor is because the signature would be easily confused with the constructor from variable 
+		 * since {@link DisequalitiesConstraintForSingleVariable} implements {@link Expression}.
+		 * @param another
+		 * @param parentEqualityConstraint
+		 * @return
+		 */
+		NonEqualitiesConstraintForSingleVariable copy(EqualityConstraint parentEqualityConstraint);
 		
 		/**
-		 * Adds a constraint to this constraint object
+		 * Adds a constraint to this object.
 		 * @param functor
 		 * @param term
 		 * @param process
@@ -295,15 +308,9 @@ public class EqualityTheory extends AbstractTheory {
 		protected EqualityConstraint parentEqualityConstraint;
 		protected long cachedIndexDomainSize = -1;
 
-		public AbstractNonEqualitiesConstraintForSingleVariable(Expression index, EqualityConstraint parentEqualityConstraint) {
-			this.variable = index;
+		public AbstractNonEqualitiesConstraintForSingleVariable(Expression variable, EqualityConstraint parentEqualityConstraint) {
+			this.variable = variable;
 			this.cachedIndexDomainSize = -1;
-			this.parentEqualityConstraint = parentEqualityConstraint;
-		}
-		
-		public AbstractNonEqualitiesConstraintForSingleVariable(DisequalitiesConstraintForSingleVariable another, EqualityConstraint parentEqualityConstraint) {
-			this.variable = another.variable;
-			this.cachedIndexDomainSize = another.cachedIndexDomainSize;
 			this.parentEqualityConstraint = parentEqualityConstraint;
 		}
 		
@@ -349,19 +356,21 @@ public class EqualityTheory extends AbstractTheory {
 		private Collection<Expression> disequals;
 		private Collection<Expression> uniquelyValuedDisequals; // disequals constrained to be disequal from all uniquely-valued disequals added before themselves. If this set reaches variable's domain size, there will be no value left for it and an inconsistency is indicated.
 
-		public DisequalitiesConstraintForSingleVariable(Expression index, EqualityConstraint parentEqualityConstraint) {
-			super(index, parentEqualityConstraint);
+		public DisequalitiesConstraintForSingleVariable(Expression variable, EqualityConstraint parentEqualityConstraint) {
+			super(variable, parentEqualityConstraint);
 			this.ownMyDisequals = true;
 			this.disequals = Util.set();
 			this.uniquelyValuedDisequals = Util.set();
 		}
-		
-		public DisequalitiesConstraintForSingleVariable(DisequalitiesConstraintForSingleVariable another, EqualityConstraint parentEqualityConstraint) {
-			super(another, parentEqualityConstraint);
-			this.ownMyDisequals = false;
-			this.disequals = ((DisequalitiesConstraintForSingleVariable) another).disequals;
-			this.uniquelyValuedDisequals = ((DisequalitiesConstraintForSingleVariable) another).uniquelyValuedDisequals;
-			
+
+		@Override
+		public DisequalitiesConstraintForSingleVariable copy(EqualityConstraint parentEqualityConstraint) {
+			DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, parentEqualityConstraint);
+			result.cachedIndexDomainSize = cachedIndexDomainSize;
+			result.ownMyDisequals = false;
+			result.disequals = disequals;
+			result.uniquelyValuedDisequals = uniquelyValuedDisequals;
+			return result;
 		}
 		
 		public void addNonEqualityConstraintDestructively(String functor, Expression term, RewritingProcess process) throws Contradiction {
@@ -547,20 +556,20 @@ public class EqualityTheory extends AbstractTheory {
 		private static final long serialVersionUID = 1L;
 
 		public Map<Expression, Expression> equalitiesMap;
-		public LinkedHashMap<Expression, DisequalitiesConstraintForSingleVariable> disequalitiesMap;
+		public LinkedHashMap<Expression,NonEqualitiesConstraintForSingleVariable> disequalitiesMap;
 
 		public EqualityConstraint(Collection<Expression> indices) {
 			super(indices);
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>();
-			this.disequalitiesMap = new LinkedHashMap<Expression, DisequalitiesConstraintForSingleVariable>(); 
+			this.disequalitiesMap = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>(); 
 		}
 
 		private EqualityConstraint(EqualityConstraint another) {
 			super(another.getSupportedIndices());
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>(another.equalitiesMap);
-			this.disequalitiesMap = new LinkedHashMap<Expression, DisequalitiesConstraintForSingleVariable>(); 
-			for (Map.Entry<Expression, DisequalitiesConstraintForSingleVariable> entry : another.disequalitiesMap.entrySet()) {
-				disequalitiesMap.put(entry.getKey(), new DisequalitiesConstraintForSingleVariable(entry.getValue(), this)); // must copy sets to avoid interference. OPTIMIZATION: use a copy-as-needed implementation of set later.
+			this.disequalitiesMap = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>(); 
+			for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : another.disequalitiesMap.entrySet()) {
+				disequalitiesMap.put(entry.getKey(), entry.getValue().copy(this)); // must copy sets to avoid interference. OPTIMIZATION: use a copy-as-needed implementation of set later.
 			}
 		}
 
@@ -712,7 +721,7 @@ public class EqualityTheory extends AbstractTheory {
 			// add it to a map from each term to NonEqualitiesForSingleTerm,
 			// keeping also track of which variables got updated.
 			// If multiple variables are updated to same term, take the union of their NonEqualitiesForSingleTerm.
-			Function<Entry<Expression, DisequalitiesConstraintForSingleVariable>, Pair<Expression, NonEqualitiesForSingleTerm>>
+			Function<Entry<Expression, NonEqualitiesConstraintForSingleVariable>, Pair<Expression, NonEqualitiesForSingleTerm>>
 			getUpdatedTermAndNonEqualities = entry -> entry.getValue().updatedTermAndNonEqualitiesPair(process);
 			
 			BinaryFunction<NonEqualitiesForSingleTerm, NonEqualitiesForSingleTerm, NonEqualitiesForSingleTerm>
@@ -798,11 +807,11 @@ public class EqualityTheory extends AbstractTheory {
 			}
 			// TODO: when disequalitiesMap gets consolidated into a single Constraint object, make sure it has a method getSplittersToBeSatisfied
 			// that does not iterate over all variables for disequalities, since we know in advance they do not provide splitters of this sort.
-			for (Map.Entry<Expression, DisequalitiesConstraintForSingleVariable> entry : disequalitiesMap.entrySet()) {
+			for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : disequalitiesMap.entrySet()) {
 				assert termTheory.isVariableTerm(entry.getKey(), process);
 				Expression variable = entry.getKey();
 				if ( ! indicesSubSet.contains(variable)) { // if variable is free
-					DisequalitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = entry.getValue();
+					NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = entry.getValue();
 					List<Expression> subResult = disequalitiesConstraintForSingleVariable.getSplittersToBeSatisfied();
 					result.addAll(subResult);
 				}
@@ -813,11 +822,11 @@ public class EqualityTheory extends AbstractTheory {
 		@Override
 		protected Collection<Expression> getSplittersToBeNotSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
 			Collection<Expression> result = new LinkedHashSet<Expression>();
-			for (Map.Entry<Expression, DisequalitiesConstraintForSingleVariable> entry : disequalitiesMap.entrySet()) {
+			for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : disequalitiesMap.entrySet()) {
 				assert termTheory.isVariableTerm(entry.getKey(), process);
 				Expression variable = entry.getKey();
 				if ( ! indicesSubSet.contains(variable)) { // if variable is free
-					DisequalitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = entry.getValue();
+					NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = entry.getValue();
 					List<Expression> subResult = disequalitiesConstraintForSingleVariable.getSplittersToBeNotSatisfied();
 					result.addAll(subResult);
 				}
@@ -976,5 +985,23 @@ public class EqualityTheory extends AbstractTheory {
 		}
 
 		////////// END OF EQUALITY CONSTRAINTS MAINTENANCE
+		
+		public void f() {
+			Expression trueSymbol = parse("true");
+			System.out.println("true.getSyntaxTree().getRoot(): " + trueSymbol.getSyntaxTree().getRootTree());	
+			DisequalitiesConstraintForSingleVariable d = new DisequalitiesConstraintForSingleVariable(parse("X"), this);
+			System.out.println("d.getSyntaxTree().getRoot(): " + d.getSyntaxTree().getRootTree());	
+			
+			DefaultRewritingProcess p = new DefaultRewritingProcess(null);
+			Expression th = p.getContextualSymbolType(trueSymbol);
+			System.out.println("type of true symbol: " + th);
+			System.out.println("type of d: " + p.getContextualSymbolType(d));
+		}
+	}
+	
+	public static void main(String[] args) {
+		EqualityTheory t = new EqualityTheory(new FunctionalTermTheory());
+		EqualityConstraint e = t.makeConstraint(list(parse("X")));
+		e.f();
 	}
 }
