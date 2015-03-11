@@ -390,11 +390,12 @@ public abstract class AbstractExpression implements Expression {
 	@Override
 	public int hashCode() {
 		if (hashCode == -1) {
-			SyntaxTree rootTree = getSyntaxTree().getRootTree();
-			int rootHashCode = rootTree.hashCode();
-			List<SyntaxTree> immediateSubTrees = getSyntaxTree().getImmediateSubTrees();
+			SyntaxTree syntaxTree = getSyntaxTree();
+			Object label = syntaxTree.getLabel();
+			int labelHashCode = label.hashCode();
+			List<SyntaxTree> immediateSubTrees = syntaxTree.getImmediateSubTrees();
 			int subTreesHashCode = immediateSubTrees.hashCode();
-			hashCode = rootHashCode + subTreesHashCode;
+			hashCode = labelHashCode + subTreesHashCode;
 		}
 		
 		return hashCode;
