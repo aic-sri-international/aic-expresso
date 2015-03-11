@@ -556,20 +556,20 @@ public class EqualityTheory extends AbstractTheory {
 		private static final long serialVersionUID = 1L;
 
 		public Map<Expression, Expression> equalitiesMap;
-		public LinkedHashMap<Expression,NonEqualitiesConstraintForSingleVariable> disequalitiesMap;
+		public LinkedHashMap<Expression,NonEqualitiesConstraintForSingleVariable> nonEqualitiesMap;
 
 		public EqualityConstraint(Collection<Expression> indices) {
 			super(indices);
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>();
-			this.disequalitiesMap = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>(); 
+			this.nonEqualitiesMap = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>(); 
 		}
 
 		private EqualityConstraint(EqualityConstraint another) {
 			super(another.getSupportedIndices());
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>(another.equalitiesMap);
-			this.disequalitiesMap = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>(); 
-			for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : another.disequalitiesMap.entrySet()) {
-				disequalitiesMap.put(entry.getKey(), entry.getValue().copy(this)); // must copy sets to avoid interference. OPTIMIZATION: use a copy-as-needed implementation of set later.
+			this.nonEqualitiesMap = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>(); 
+			for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : another.nonEqualitiesMap.entrySet()) {
+				nonEqualitiesMap.put(entry.getKey(), entry.getValue().copy(this)); // must copy sets to avoid interference. OPTIMIZATION: use a copy-as-needed implementation of set later.
 			}
 		}
 
@@ -590,7 +590,7 @@ public class EqualityTheory extends AbstractTheory {
 				result = null;
 			}
 			else {
-				result = disequalitiesConstraintFor(index).pickSplitter(list(index), process);
+				result = nonEqualitiesConstraintFor(index).pickSplitter(list(index), process);
 			}
 			return result;
 		}
@@ -729,7 +729,7 @@ public class EqualityTheory extends AbstractTheory {
 			
 			Pair<Map<Expression, NonEqualitiesForSingleTerm>, Set<Expression>>
 			updatedNonEqualitiesByTermAndDeletedVariables
-			= getTransformedSubMap(disequalitiesMap, getUpdatedTermAndNonEqualities, unionOfNonEqualitiesIfNeeded);
+			= getTransformedSubMap(nonEqualitiesMap, getUpdatedTermAndNonEqualities, unionOfNonEqualitiesIfNeeded);
 
 			// Notes:
 			// One might wonder why we did not represent the non-equal elements after the update
@@ -752,7 +752,7 @@ public class EqualityTheory extends AbstractTheory {
 			Set<Expression> deletedVariables = updatedNonEqualitiesByTermAndDeletedVariables.second;
 
 			// we start by removing the modified entries
-			removeAll(disequalitiesMap, deletedVariables);
+			removeAll(nonEqualitiesMap, deletedVariables);
 
 			// and we add the new disequalities. Note we cannot just put them in the map as they are, because of choosing order
 			for (Map.Entry<Expression, NonEqualitiesForSingleTerm> updatedEntry : updatedNonEqualitiesByTerm.entrySet()) {
@@ -776,14 +776,19 @@ public class EqualityTheory extends AbstractTheory {
 		}
 
 		private void addFirstTermAsDisequalOfSecondTerm(Expression term1, Expression term2, RewritingProcess process) {
-			DisequalitiesConstraintForSingleVariable disequalitiesConstraintForTerm1 = disequalitiesConstraintFor(term1);
+			NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForTerm1 = nonEqualitiesConstraintFor(term1);
 			disequalitiesConstraintForTerm1.addNonEqualityConstraintDestructively(DISEQUALITY, term2, process);
 		}
 
-		private DisequalitiesConstraintForSingleVariable disequalitiesConstraintFor(Expression term) {
-			DisequalitiesConstraintForSingleVariable disequalitiesConstraint = (DisequalitiesConstraintForSingleVariable)
-					Util.getValuePossiblyCreatingIt(disequalitiesMap, term, key -> new DisequalitiesConstraintForSingleVariable(key, this));
-			return disequalitiesConstraint;
+		private NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintFor(Expression term) {
+			NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraint =
+					Util.getValuePossiblyCreatingIt(nonEqualitiesMap, term, key -> makeNonEqualitiesConstraintForVariable(key));
+			return nonEqualitiesConstraint;
+		}
+
+		protected NonEqualitiesConstraintForSingleVariable makeNonEqualitiesConstraintForVariable(Expression variable) {
+			DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, this);
+			return result;
 		}
 
 		@Override
@@ -805,9 +810,9 @@ public class EqualityTheory extends AbstractTheory {
 					}
 				}
 			}
-			// TODO: when disequalitiesMap gets consolidated into a single Constraint object, make sure it has a method getSplittersToBeSatisfied
+			// TODO: when nonEqualitiesMap gets consolidated into a single Constraint object, make sure it has a method getSplittersToBeSatisfied
 			// that does not iterate over all variables for disequalities, since we know in advance they do not provide splitters of this sort.
-			for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : disequalitiesMap.entrySet()) {
+			for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : nonEqualitiesMap.entrySet()) {
 				assert termTheory.isVariableTerm(entry.getKey(), process);
 				Expression variable = entry.getKey();
 				if ( ! indicesSubSet.contains(variable)) { // if variable is free
@@ -822,7 +827,7 @@ public class EqualityTheory extends AbstractTheory {
 		@Override
 		protected Collection<Expression> getSplittersToBeNotSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
 			Collection<Expression> result = new LinkedHashSet<Expression>();
-			for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : disequalitiesMap.entrySet()) {
+			for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : nonEqualitiesMap.entrySet()) {
 				assert termTheory.isVariableTerm(entry.getKey(), process);
 				Expression variable = entry.getKey();
 				if ( ! indicesSubSet.contains(variable)) { // if variable is free
@@ -841,7 +846,7 @@ public class EqualityTheory extends AbstractTheory {
 				numberOfPossibleValuesForIndex = ONE;
 			}
 			else {
-				numberOfPossibleValuesForIndex = disequalitiesConstraintFor(index).modelCount(list(index), process);
+				numberOfPossibleValuesForIndex = nonEqualitiesConstraintFor(index).modelCount(list(index), process);
 			}
 			return numberOfPossibleValuesForIndex;
 		}
@@ -880,10 +885,10 @@ public class EqualityTheory extends AbstractTheory {
 			return result;
 		}
 
-		private DisequalitiesConstraintForSingleVariable getNonEqualityConstraintOn(Expression variable, RewritingProcess process) {
-			DisequalitiesConstraintForSingleVariable result;
+		private NonEqualitiesConstraintForSingleVariable getNonEqualityConstraintOn(Expression variable, RewritingProcess process) {
+			NonEqualitiesConstraintForSingleVariable result;
 			assert termTheory.isVariableTerm(variable, process) : "getDisequalitiesConstraint must be invoked for a variable but was invoked on " + variable;
-			result = disequalitiesConstraintFor(variable);
+			result = nonEqualitiesConstraintFor(variable);
 			return result;
 		}
 
@@ -893,7 +898,7 @@ public class EqualityTheory extends AbstractTheory {
 			for (Map.Entry<Expression, Expression> entry : equalitiesMap.entrySet()) {
 				conjuncts.add(Equality.make(entry.getKey(), entry.getValue()));
 			}
-			conjuncts.addAll(disequalitiesMap.values());
+			conjuncts.addAll(nonEqualitiesMap.values());
 			Expression result = And.make(conjuncts);
 			return result;
 		}
