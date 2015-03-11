@@ -5,6 +5,8 @@ import java.util.LinkedHashMap;
 
 import com.sri.ai.expresso.api.Expression;
 
+/** A convenience implementation of {@link NonEqualitiesForSingleTerm}. */
 @SuppressWarnings("serial")
-public class LinkedHashNonEqualitiesForSingleVariable extends LinkedHashMap<String, Collection<Expression>> implements NonEqualitiesForSingleTerm {
+public class LinkedHashNonEqualitiesForSingleVariable
+extends LinkedHashMap<String, Collection<Expression>> implements NonEqualitiesForSingleTerm {
 }

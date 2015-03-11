@@ -29,10 +29,14 @@ import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityConstraint;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
-/** Defined for the benefit of {@link EqualityConstraint} outside of it because the latter is a non-static class. */	
+/**
+ * An implementation of {@link NonEqualitiesForSingleTerm} in which the only constraint is disequality.
+ * @author braz
+ *
+ */
 @SuppressWarnings("serial")
 public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualitiesConstraintForSingleVariable {
-	private boolean ownMyDisequals;
+	private boolean ownMyDisequals; // allows "borrowing" of another object's fields until and if we need to write to them. Eventually it would more elegant to use a Collection implementation that keeps track of it itself.
 	private Collection<Expression> disequals;
 	private Collection<Expression> uniquelyValuedDisequals; // disequals constrained to be disequal from all uniquely-valued disequals added before themselves. If this set reaches variable's domain size, there will be no value left for it and an inconsistency is indicated.
 
