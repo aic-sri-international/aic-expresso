@@ -1,26 +1,26 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
 import static com.sri.ai.grinder.helper.GrinderUtil.getTypeCardinality;
-import static com.sri.ai.util.Util.list;
 
 import java.util.Collection;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.api.ConjunctiveConstraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityConstraint;
 
 /** Defined for the benefit of {@link EqualityConstraint} outside of it because the latter is a non-static class. */	
 @SuppressWarnings("serial")
 public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends AbstractConstraint implements NonEqualitiesConstraintForSingleVariable {
 	protected Expression variable;
-	protected EqualityConstraint parentEqualityConstraint;
 	protected long cachedIndexDomainSize;
 
-	public AbstractNonEqualitiesConstraintForSingleVariable(Expression variable, EqualityConstraint parentEqualityConstraint) {
+	public AbstractNonEqualitiesConstraintForSingleVariable(Expression variable, Constraint parentEqualityConstraint) {
 		this.variable = variable;
 		this.cachedIndexDomainSize = -1;
-		this.parentEqualityConstraint = parentEqualityConstraint;
+		this.parentConstraint = parentEqualityConstraint;
 	}
 	
 	public AbstractNonEqualitiesConstraintForSingleVariable clone() {
@@ -30,14 +30,18 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 
 	@Override
 	public EqualityTheory getTheory() {
-		return parentEqualityConstraint.getTheory();
+		return ((EqualityConstraint)parentConstraint).getTheory();
 	}
 
 	@Override
 	public Collection<Expression> getSupportedIndices() {
-		return list(variable);
+		return parentConstraint.getSupportedIndices();
 	}
 
+	protected TermTheory getTermTheory() {
+		return ((EqualityConstraint)parentConstraint).getTermTheory();
+	}
+	
 	protected long getIndexDomainSize(RewritingProcess process) {
 		if (cachedIndexDomainSize == -1) {
 			cachedIndexDomainSize = getTypeCardinality(variable, process);

@@ -62,6 +62,7 @@ import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
+import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
 import com.sri.ai.grinder.plaindpll.core.AbstractTheory;
@@ -204,6 +205,11 @@ public class PropositionalTheory extends AbstractTheory {
 			this.numberOfBoundIndices = another.numberOfBoundIndices;
 			this.assertedPropositions = new LinkedHashSet<Expression>(another.assertedPropositions); // should be optimized to a copy-as-needed scheme.
 			this.negatedPropositions = new LinkedHashSet<Expression>(another.negatedPropositions);
+		}
+
+		@Override
+		public PropositionalConstraint copyWithNewParent(Constraint parentConstraint) {
+			return (PropositionalConstraint) super.copyWithNewParent(parentConstraint);
 		}
 
 		public PropositionalConstraint clone() {

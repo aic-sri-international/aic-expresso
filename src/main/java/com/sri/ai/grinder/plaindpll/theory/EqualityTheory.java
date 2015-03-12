@@ -77,6 +77,7 @@ import com.sri.ai.grinder.library.number.Division;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
+import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
 import com.sri.ai.grinder.plaindpll.core.AbstractTheory;
@@ -287,10 +288,16 @@ public class EqualityTheory extends AbstractTheory {
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>(another.equalitiesMap);
 			this.nonEqualitiesMap = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>(); 
 			for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : another.nonEqualitiesMap.entrySet()) {
-				nonEqualitiesMap.put(entry.getKey(), entry.getValue().copy(this)); // must copy sets to avoid interference. OPTIMIZATION: use a copy-as-needed implementation of set later.
+				NonEqualitiesConstraintForSingleVariable copyWithNewParent = (NonEqualitiesConstraintForSingleVariable) entry.getValue().copyWithNewParent(this);
+				nonEqualitiesMap.put(entry.getKey(), copyWithNewParent); // must copy sets to avoid interference. OPTIMIZATION: use a copy-as-needed implementation of set later.
 			}
 		}
 
+		@Override
+		public EqualityConstraint copyWithNewParent(Constraint parentConstraint) {
+			return (EqualityConstraint) super.copyWithNewParent(parentConstraint);
+		}
+		
 		@Override
 		public EqualityConstraint clone() {
 			return new EqualityConstraint(this);

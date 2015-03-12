@@ -51,8 +51,10 @@ import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.plaindpll.api.ConjunctiveConstraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.grinder.plaindpll.core.AbstractTheory;
+import com.sri.ai.grinder.plaindpll.core.ExpressionConstraint;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
 
 @Beta
@@ -151,7 +153,12 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		}
 		
 		@Override
-		public Expression clone() {
+		public AtomsOnTheoryWithEqualityConstraint copyWithNewParent(Constraint parentConstraint) {
+			return (AtomsOnTheoryWithEqualityConstraint) super.copyWithNewParent(parentConstraint);
+		}
+		
+		@Override
+		public AtomsOnTheoryWithEqualityConstraint clone() {
 			return new AtomsOnTheoryWithEqualityConstraint(equalityConstraint);
 		}
 

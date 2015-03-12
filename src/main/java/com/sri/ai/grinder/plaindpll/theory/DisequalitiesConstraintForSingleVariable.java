@@ -24,6 +24,7 @@ import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.number.Minus;
+import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
 import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityConstraint;
 import com.sri.ai.util.Util;
@@ -40,16 +41,21 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	private Collection<Expression> disequals;
 	private Collection<Expression> uniquelyValuedDisequals; // disequals constrained to be disequal from all uniquely-valued disequals added before themselves. If this set reaches variable's domain size, there will be no value left for it and an inconsistency is indicated.
 
-	public DisequalitiesConstraintForSingleVariable(Expression variable, EqualityConstraint parentEqualityConstraint) {
-		super(variable, parentEqualityConstraint);
+	public DisequalitiesConstraintForSingleVariable(Expression variable, Constraint parentConstraint) {
+		super(variable, parentConstraint);
 		this.ownMyDisequals = true;
 		this.disequals = Util.set();
 		this.uniquelyValuedDisequals = Util.set();
 	}
 
 	@Override
-	public DisequalitiesConstraintForSingleVariable copy(EqualityConstraint parentEqualityConstraint) {
-		DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, parentEqualityConstraint);
+	public DisequalitiesConstraintForSingleVariable copyWithNewParent(Constraint parentConstraint) {
+		return (DisequalitiesConstraintForSingleVariable) super.copyWithNewParent(parentConstraint);
+	}
+
+	@Override
+	public DisequalitiesConstraintForSingleVariable clone() {
+		DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, parentConstraint);
 		result.cachedIndexDomainSize = cachedIndexDomainSize;
 		result.ownMyDisequals = false;
 		result.disequals = disequals;
@@ -100,12 +106,12 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	private Expression getSplitterTowardsEnsuringVariableIsDisequalFromAllOtherTermsInCollection(Expression disequal, RewritingProcess process) {
 		for (Expression anotherDisequal : disequals) {
 			if ( ! anotherDisequal.equals(disequal)) {
-				Expression splitter = parentEqualityConstraint.getTermTheory().getSplitterTowardDisunifyingDistinctTerms(disequal, anotherDisequal, process); // if function applications, we need to disunify arguments first, for instance.
+				Expression splitter = getTermTheory().getSplitterTowardDisunifyingDistinctTerms(disequal, anotherDisequal, process); // if function applications, we need to disunify arguments first, for instance.
 				if (splitter != null) {
 					return splitter; // need to disunify first
 				}
 				else if ( ! areConstrainedToBeDisequal(disequal, anotherDisequal, process)) { // already disunified
-					splitter = getTheory().makeSplitterFromFunctorAndTwoTerms(EQUALITY, disequal, anotherDisequal, parentEqualityConstraint.getSupportedIndices(), process);
+					splitter = getTheory().makeSplitterFromFunctorAndTwoTerms(EQUALITY, disequal, anotherDisequal, getSupportedIndices(), process);
 					return splitter;
 				}
 			}
@@ -114,7 +120,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	}
 
 	private boolean areConstrainedToBeDisequal(Expression disequal, Expression anotherDisequal, RewritingProcess process) {
-		boolean result = parentEqualityConstraint.termsAreExplicitlyConstrainedToBeDisequal(disequal, anotherDisequal, process);
+		boolean result = ((EqualityConstraint)parentConstraint).termsAreExplicitlyConstrainedToBeDisequal(disequal, anotherDisequal, process);
 		return result;
 	}
 
@@ -163,9 +169,9 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	 */
 	public Pair<Expression, NonEqualitiesForSingleTerm> updatedTermAndNonEqualitiesPair(RewritingProcess process) throws Contradiction {
 		Pair<Expression, NonEqualitiesForSingleTerm> result = new Pair<Expression, NonEqualitiesForSingleTerm>();
-		result.first = variable.replaceAllOccurrences(t -> parentEqualityConstraint.getRepresentative(t, process), process);
+		result.first = variable.replaceAllOccurrences(t -> ((EqualityConstraint)parentConstraint).getRepresentative(t, process), process);
 		
-		Function<Expression, Expression> getRepresentative = t -> parentEqualityConstraint.getRepresentative(t, process);
+		Function<Expression, Expression> getRepresentative = t -> ((EqualityConstraint)parentConstraint).getRepresentative(t, process);
 		Function<Expression, Expression> replaceAllTermsByRepresentatives = e -> e.replaceAllOccurrences(getRepresentative, process);
 		Collection<Expression> newDisequals = mapIntoSetOrSameIfNoDistinctElementInstances(disequals, replaceAllTermsByRepresentatives);
 		if (result.first == variable && newDisequals == disequals) {
