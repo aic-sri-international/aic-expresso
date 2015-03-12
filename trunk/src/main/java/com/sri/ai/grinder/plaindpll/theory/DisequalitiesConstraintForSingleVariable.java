@@ -31,7 +31,8 @@ import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
 /**
- * An implementation of {@link NonEqualitiesForSingleTerm} in which the only constraint is disequality.
+ * An implementation of {@link NonEqualitiesForSingleTerm} in which the only constraint is disequality;
+ * its parent constraint must be a {@link EqualityConstraint}.
  * @author braz
  *
  */
@@ -41,21 +42,25 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	private Collection<Expression> disequals;
 	private Collection<Expression> uniquelyValuedDisequals; // disequals constrained to be disequal from all uniquely-valued disequals added before themselves. If this set reaches variable's domain size, there will be no value left for it and an inconsistency is indicated.
 
-	public DisequalitiesConstraintForSingleVariable(Expression variable, Constraint parentConstraint) {
+	public DisequalitiesConstraintForSingleVariable(Expression variable, EqualityConstraint parentConstraint) {
 		super(variable, parentConstraint);
 		this.ownMyDisequals = true;
 		this.disequals = Util.set();
 		this.uniquelyValuedDisequals = Util.set();
 	}
 
+	/**
+	 * Parent constraint must be an {@link EqualityConstraint}.
+	 */
 	@Override
 	public DisequalitiesConstraintForSingleVariable copyWithNewParent(Constraint parentConstraint) {
+		assert parentConstraint instanceof EqualityConstraint : getClass() + "'s parent constraint must be an EqualityConstraint";
 		return (DisequalitiesConstraintForSingleVariable) super.copyWithNewParent(parentConstraint);
 	}
 
 	@Override
 	public DisequalitiesConstraintForSingleVariable clone() {
-		DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, parentConstraint);
+		DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, (EqualityConstraint) parentConstraint);
 		result.cachedIndexDomainSize = cachedIndexDomainSize;
 		result.ownMyDisequals = false;
 		result.disequals = disequals;

@@ -19,8 +19,6 @@ import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
  */
 public interface Constraint extends Expression {
 
-	// TODO: define query-replying method
-	
 	/** Makes a copy of this constraint, but with a new parent constraint. */
 	Constraint copyWithNewParent(Constraint parentConstraint);
 	
