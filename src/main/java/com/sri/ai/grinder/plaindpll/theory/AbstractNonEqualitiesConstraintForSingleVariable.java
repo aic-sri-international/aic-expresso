@@ -6,14 +6,13 @@ import static com.sri.ai.util.Util.list;
 import java.util.Collection;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.api.ConjunctiveConstraint;
 import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityConstraint;
 
 /** Defined for the benefit of {@link EqualityConstraint} outside of it because the latter is a non-static class. */	
 @SuppressWarnings("serial")
-public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends AbstractExpressionWrapper implements NonEqualitiesConstraintForSingleVariable {
+public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends AbstractConstraint implements NonEqualitiesConstraintForSingleVariable {
 	protected Expression variable;
 	protected EqualityConstraint parentEqualityConstraint;
 	protected long cachedIndexDomainSize;

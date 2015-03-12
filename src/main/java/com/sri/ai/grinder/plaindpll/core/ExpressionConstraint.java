@@ -48,7 +48,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
@@ -56,6 +55,7 @@ import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.Solver;
 import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
+import com.sri.ai.grinder.plaindpll.theory.AbstractConstraint;
 
 /**
  * An implementation of {@link Constraint} based on an expression representing it
@@ -67,7 +67,7 @@ import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
  *
  */
 @SuppressWarnings("serial")
-public class ExpressionConstraint extends AbstractExpressionWrapper implements Constraint {
+public class ExpressionConstraint extends AbstractConstraint {
 
 	private Expression expression;
 	private Collection<Expression> supportedIndices;

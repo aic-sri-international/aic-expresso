@@ -9,11 +9,11 @@ import java.util.List;
 
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.plaindpll.api.ConjunctiveConstraint;
+import com.sri.ai.grinder.plaindpll.theory.AbstractConstraint;
 import com.sri.ai.util.Util;
 
 /**
@@ -26,7 +26,7 @@ import com.sri.ai.util.Util;
  *
  */
 @SuppressWarnings("serial")
-public abstract class AbstractRuleOfProductConstraint extends AbstractExpressionWrapper implements ConjunctiveConstraint {
+public abstract class AbstractRuleOfProductConstraint extends AbstractConstraint implements ConjunctiveConstraint {
 
 	static final private Times timesRewriter = new Times();
 
