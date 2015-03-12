@@ -19,6 +19,15 @@ import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
  */
 public interface Constraint extends Expression {
 
+	/**
+	 * A constraint under which this constraint is embedded,
+	 * and the consequences of which should be utilized as much as possible by this constraint;
+	 * it should be able to reply to queries from this constraint.
+	 */
+	Constraint getParentConstraint();
+	
+	// TODO: define query-replying method
+	
 	/** The theory to which this constraint belongs. */
 	Theory getTheory();
 	
