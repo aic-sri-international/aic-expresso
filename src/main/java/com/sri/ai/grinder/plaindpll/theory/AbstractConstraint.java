@@ -7,10 +7,14 @@ import com.sri.ai.grinder.plaindpll.api.Constraint;
 @SuppressWarnings("serial")
 public abstract class AbstractConstraint extends AbstractExpressionWrapper implements Constraint {
 	
-	private Constraint parentConstraint;
+	protected Constraint parentConstraint;
 	
-	@Override
-	public Constraint getParentConstraint() {
+	/**
+	 * A constraint under which this constraint is embedded,
+	 * and the consequences of which should be utilized as much as possible by this constraint;
+	 * it should be able to reply to queries from this constraint.
+	 */
+	protected Constraint getParentConstraint() {
 		return parentConstraint;
 	}
 }
