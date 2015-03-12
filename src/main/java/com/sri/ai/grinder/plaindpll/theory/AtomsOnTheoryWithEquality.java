@@ -54,7 +54,6 @@ import com.sri.ai.grinder.plaindpll.api.ConjunctiveConstraint;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.grinder.plaindpll.core.AbstractTheory;
-import com.sri.ai.grinder.plaindpll.core.ExpressionConstraint;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
 
 @Beta
