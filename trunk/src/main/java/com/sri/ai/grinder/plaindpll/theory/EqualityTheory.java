@@ -506,7 +506,7 @@ public class EqualityTheory extends AbstractTheory {
 
 		private void addFirstTermAsDisequalOfSecondTerm(Expression term1, Expression term2, RewritingProcess process) {
 			NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForTerm1 = nonEqualitiesConstraintFor(term1);
-			disequalitiesConstraintForTerm1.addNonEqualityConstraintDestructively(DISEQUALITY, term2, process);
+			disequalitiesConstraintForTerm1.incorporatePossiblyDestructively(false, Equality.make(term1, term2), process);
 		}
 
 		private NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintFor(Expression term) {

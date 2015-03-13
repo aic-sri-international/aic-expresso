@@ -45,6 +45,21 @@ public interface Constraint extends Expression {
 	}
 
 	/**
+	 * Same as {@link #incorporate(boolean, Expression, RewritingProcess)}, but allows the returned
+	 * Constraint to be this same instance even if it has changed --
+	 * this violates the immutability assumption about {@link Expression} and {@link Constraint}
+	 * and should only be used for setup purposes, before an object is released by its creator
+	 * to the world at large.
+	 * This default implementation simply invokes {@link #incorporate(boolean, Expression, RewritingProcess)}.
+	 * @param splitterSign the splitter's sign (true for splitter itself, false for its negation)
+	 * @param splitter the splitter according to this theoryWithEquality's choice
+	 * @param process the rewriting process
+	 */
+	default public Constraint incorporatePossiblyDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		return incorporate(splitterSign, splitter, process);
+	}
+
+	/**
 	 * Provides a splitter, not already explicitly represented by the constraint,
 	 * toward a state in which the model count for the given subset of indices
 	 * can be computed (the model count may be condition on the other variables),

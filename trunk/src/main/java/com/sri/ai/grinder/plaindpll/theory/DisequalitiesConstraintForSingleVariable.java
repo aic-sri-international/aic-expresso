@@ -3,6 +3,7 @@ package com.sri.ai.grinder.plaindpll.theory;
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.library.Equality.isEquality;
 import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
@@ -81,6 +82,14 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		resetInnerExpression();
 	}
 
+	@Override
+	public DisequalitiesConstraintForSingleVariable incorporatePossiblyDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		assert ! splitterSign && isEquality(splitter) : getClass() + " only allowed to take negative equality literals (disequalities) but got " + (splitterSign? "" : "not ") + " " + splitter;
+		assert splitter.get(0).equals(variable) : getClass() + " must only take splitters in which the first argument is the same as the main variable";
+		addNonEqualityConstraintDestructively(DISEQUALITY, splitter.get(1), process);
+		return this;
+	}
+	
 	private void updateUniqueValuedDisequals(Expression term, RewritingProcess process) throws Contradiction {
 		if (getIndexDomainSize(process) != -1) {
 			if (forAll(uniquelyValuedDisequals, u -> areConstrainedToBeDisequal(u, term, process))) {
