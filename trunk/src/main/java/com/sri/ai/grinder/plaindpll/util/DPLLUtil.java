@@ -61,7 +61,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.plaindpll.api.ConjunctiveConstraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.Tautologicality;
@@ -316,7 +316,7 @@ public class DPLLUtil {
 
 	/**
 	 * Applies a constraint equivalent to given signed splitter using
-	 * {@link Theory#applyConstraintToSolution(com.sri.ai.grinder.plaindpll.api.Theory.ConjunctiveConstraint, Expression, RewritingProcess)}.
+	 * {@link Theory#applyConstraintToSolution(com.sri.ai.grinder.plaindpll.api.Theory.Constraint, Expression, RewritingProcess)}.
 	 * @param splitterSign
 	 * @param splitter
 	 * @param solution
@@ -325,7 +325,7 @@ public class DPLLUtil {
 	 * @return an equivalent solution
 	 */
 	public static Expression applySplitterToSolution(boolean splitterSign, Expression splitter, Expression solution, Theory theory, RewritingProcess process) {
-		ConjunctiveConstraint constraint = theory.makeConstraint(Collections.emptyList()); // no indices in solutions
+		Constraint constraint = theory.makeConstraint(Collections.emptyList()); // no indices in solutions
 		constraint = constraint.incorporate(splitterSign, splitter, process);
 		Expression result = theory.applyConstraintToSolution(constraint, solution, process);
 		return result;

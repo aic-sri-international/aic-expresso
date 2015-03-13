@@ -89,13 +89,13 @@ public class ExpressionConstraintTest {
 		constraint2 = theory.makeConstraint(totalIndices);
 		constraint2 = constraint2.incorporate(true,  parse("Y = b"), process);
 		
-		compoundConstraint = new ExpressionConstraint(theory, totalIndices, Or.make(constraint1, constraint2));
+		compoundConstraint = ExpressionConstraint.wrap(theory, totalIndices, Or.make(constraint1, constraint2));
 		
 		expected = parse("91");
 		modelCount = compoundConstraint.modelCount(countingIndices, process);
 		assertEquals(expected, modelCount);
 		
-		compoundConstraint = new ExpressionConstraint(theory, totalIndices, Equivalence.make(constraint1, constraint2));
+		compoundConstraint = ExpressionConstraint.wrap(theory, totalIndices, Equivalence.make(constraint1, constraint2));
 		expected = parse("18");
 		modelCount = compoundConstraint.modelCount(countingIndices, process);
 		assertEquals(expected, modelCount);
@@ -103,7 +103,7 @@ public class ExpressionConstraintTest {
 		modelCount = compoundConstraint.modelCount(list(X), process);
 		assertEquals(expected, modelCount);
 
-		compoundConstraint = new ExpressionConstraint(theory, totalIndices, And.make(constraint1, Not.make(constraint1)));
+		compoundConstraint = ExpressionConstraint.wrap(theory, totalIndices, And.make(constraint1, Not.make(constraint1)));
 		expected = parse("0");
 		modelCount = compoundConstraint.modelCount(countingIndices, process);
 		assertEquals(expected, modelCount);

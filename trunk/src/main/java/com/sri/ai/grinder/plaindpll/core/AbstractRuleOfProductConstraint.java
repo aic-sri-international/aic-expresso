@@ -12,12 +12,12 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.number.Times;
-import com.sri.ai.grinder.plaindpll.api.ConjunctiveConstraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.theory.AbstractConstraint;
 import com.sri.ai.util.Util;
 
 /**
- * An abstract {@link ConjunctiveConstraint} implementation that lays the groundwork for
+ * An abstract {@link Constraint} implementation that lays the groundwork for
  * computing model counts based on the rule of product, that is,
  * iterating over each index, computing the number of possible values for it
  * given the previous choices, and multiplying them all.
@@ -26,7 +26,7 @@ import com.sri.ai.util.Util;
  *
  */
 @SuppressWarnings("serial")
-public abstract class AbstractRuleOfProductConstraint extends AbstractConstraint implements ConjunctiveConstraint {
+public abstract class AbstractRuleOfProductConstraint extends AbstractConstraint {
 
 	static final private Times timesRewriter = new Times();
 
@@ -74,8 +74,8 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractConstraint
 	abstract protected void applyNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
 
 	@Override
-	public ConjunctiveConstraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		ConjunctiveConstraint result;
+	public Constraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		Constraint result;
 
 		Expression normalizedSplitterGivenConstraint = normalizeSplitterGivenConstraint(splitter, process);
 		
@@ -97,7 +97,7 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractConstraint
 		return result;
 	}
 
-	private ConjunctiveConstraint applyNormalizedSplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+	private Constraint applyNormalizedSplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		AbstractRuleOfProductConstraint newConstraint = clone();
 		newConstraint.applyNormalizedSplitterDestructively(splitterSign, splitter, process);
 		return newConstraint;

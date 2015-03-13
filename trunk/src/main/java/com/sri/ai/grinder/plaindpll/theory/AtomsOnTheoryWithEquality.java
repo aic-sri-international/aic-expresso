@@ -50,7 +50,6 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.Not;
-import com.sri.ai.grinder.plaindpll.api.ConjunctiveConstraint;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.grinder.plaindpll.core.AbstractTheory;
@@ -141,13 +140,13 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		return result;
 	}
 
-	private class AtomsOnTheoryWithEqualityConstraint extends AbstractConstraint implements ConjunctiveConstraint {
+	private class AtomsOnTheoryWithEqualityConstraint extends AbstractConstraint {
 
 		private static final long serialVersionUID = 1L;
 		
-		private ConjunctiveConstraint equalityConstraint;
+		private Constraint equalityConstraint;
 		
-		public AtomsOnTheoryWithEqualityConstraint(ConjunctiveConstraint equalityConstraint) {
+		public AtomsOnTheoryWithEqualityConstraint(Constraint equalityConstraint) {
 			this.equalityConstraint = equalityConstraint;
 		}
 		
@@ -188,7 +187,7 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		@Override
 		public AtomsOnTheoryWithEqualityConstraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			SignedSplitter equalitySignedSplitter = getSignedEqualitySplitter(splitterSign, splitter);
-			ConjunctiveConstraint newEqualityConstraint = equalityConstraint.incorporate(equalitySignedSplitter, process);
+			Constraint newEqualityConstraint = equalityConstraint.incorporate(equalitySignedSplitter, process);
 			AtomsOnTheoryWithEqualityConstraint result;
 			if (newEqualityConstraint != null) {
 				result = new AtomsOnTheoryWithEqualityConstraint(newEqualityConstraint);

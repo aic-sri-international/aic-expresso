@@ -57,7 +57,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.plaindpll.api.ConjunctiveConstraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.api.Solver;
@@ -157,8 +157,8 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	 */
 	public Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		// TODO: should replace this oldConstraint by a copy constructor creating a sub-process, but surprisingly there is no complete copy constructor available in DefaultRewritingProcess.
-		ConjunctiveConstraint oldConstraint = process.getDPLLContextualConstraint();
-		ConjunctiveConstraint contextualConstraint = theory.makeConstraint(Util.list()); // contextual constraint does not involve any indices -- defined on free variables only
+		Constraint oldConstraint = process.getDPLLContextualConstraint();
+		Constraint contextualConstraint = theory.makeConstraint(Util.list()); // contextual constraint does not involve any indices -- defined on free variables only
 		process.initializeDPLLContextualConstraint(contextualConstraint);
 
 		Constraint constraint = theory.makeConstraint(indices);
@@ -175,7 +175,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		checkInterrupted();
 		
 		Expression result;
-		if (expression instanceof ConjunctiveConstraint && constraint.equals(TRUE)) {
+		if (expression instanceof Constraint && constraint.equals(TRUE)) {
 			result = solveAfterBookkeeping(TRUE, indices, (Constraint) expression, process);
 			// OPTIMIZATION: perhaps it is worth it checking whether expression is a conjunction with a Constraint conjunct.
 		}
@@ -218,7 +218,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 			Expression thenBranch = IfThenElse.thenBranch(solution1);
 			Expression elseBranch = IfThenElse.elseBranch(solution1);
 
-			ConjunctiveConstraint constraint = process.getDPLLContextualConstraint();
+			Constraint constraint = process.getDPLLContextualConstraint();
 			Expression normalizedSplitter = constraint.normalizeSplitterGivenConstraint(splitter, process);
 
 			if (normalizedSplitter.equals(TRUE)) {
@@ -240,7 +240,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 			Expression thenBranch = IfThenElse.thenBranch(solution2);
 			Expression elseBranch = IfThenElse.elseBranch(solution2);
 
-			ConjunctiveConstraint constraint = process.getDPLLContextualConstraint();
+			Constraint constraint = process.getDPLLContextualConstraint();
 			Expression normalizedSplitter = constraint.normalizeSplitterGivenConstraint(splitter, process);
 
 			if (normalizedSplitter.equals(TRUE)) {

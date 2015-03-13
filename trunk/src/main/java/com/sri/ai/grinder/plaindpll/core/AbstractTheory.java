@@ -49,7 +49,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.plaindpll.api.ConjunctiveConstraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
@@ -237,14 +237,14 @@ abstract public class AbstractTheory implements Theory {
 	}
 
 	@Override
-	public Expression applyConstraintToSolution(ConjunctiveConstraint constraint, Expression solution, RewritingProcess process) {
+	public Expression applyConstraintToSolution(Constraint constraint, Expression solution, RewritingProcess process) {
 		Expression result;
 		
 		if (DPLLUtil.isConditionalSolution(solution, this, process)) {
 			Expression solutionSplitter = IfThenElse.condition(solution);
-			ConjunctiveConstraint constraintUnderSolutionSplitter = constraint.incorporate(true, solutionSplitter, process);
+			Constraint constraintUnderSolutionSplitter = constraint.incorporate(true, solutionSplitter, process);
 			if (constraintUnderSolutionSplitter != null) {
-				ConjunctiveConstraint constraintUnderSolutionSplitterNegation = constraint.incorporate(false, solutionSplitter, process);
+				Constraint constraintUnderSolutionSplitterNegation = constraint.incorporate(false, solutionSplitter, process);
 				if (constraintUnderSolutionSplitterNegation != null) {
 					Expression newSolutionSplitter = constraint.normalizeSplitterGivenConstraint(solutionSplitter, process);
 					Expression thenBranch = IfThenElse.thenBranch(solution);
@@ -260,7 +260,7 @@ abstract public class AbstractTheory implements Theory {
 				}
 			}
 			else {
-				ConjunctiveConstraint constraintUnderSolutionSplitterNegation = constraint.incorporate(false, solutionSplitter, process);
+				Constraint constraintUnderSolutionSplitterNegation = constraint.incorporate(false, solutionSplitter, process);
 				if (constraintUnderSolutionSplitterNegation != null) {
 					Expression elseBranch = IfThenElse.elseBranch(solution);
 					Expression newElseBranch = applyConstraintToSolution(constraintUnderSolutionSplitterNegation, elseBranch, process);

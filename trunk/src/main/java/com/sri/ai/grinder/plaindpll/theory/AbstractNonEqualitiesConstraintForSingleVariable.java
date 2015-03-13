@@ -6,7 +6,6 @@ import java.util.Collection;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.plaindpll.api.ConjunctiveConstraint;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityConstraint;
@@ -50,7 +49,7 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 	}
 
 	@Override
-	public ConjunctiveConstraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
+	public Constraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		assert false : (new Object(){}).getClass().getEnclosingMethod() + " not implemented yet."; // more robust to method renaming
 		return null;
 	}

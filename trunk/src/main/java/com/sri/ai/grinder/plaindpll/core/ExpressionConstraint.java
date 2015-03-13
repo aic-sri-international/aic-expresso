@@ -58,7 +58,7 @@ import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
 import com.sri.ai.grinder.plaindpll.theory.AbstractConstraint;
 
 /**
- * An implementation of {@link Constraint} based on an expression representing it
+ * An implementation of {@link Constraint} based on an baseExpression representing it
  * (current only boolean formulas on the literals of a given theory are supported).
  * Note that this expressions or its sub-expressions can be implementations of {@link Constraint} themselves,
  * and when this is the case, this implementation exploits their efficient internal representations for its own purposes.
@@ -69,17 +69,50 @@ import com.sri.ai.grinder.plaindpll.theory.AbstractConstraint;
 @SuppressWarnings("serial")
 public class ExpressionConstraint extends AbstractConstraint {
 
-	private Expression expression;
+	private Expression baseExpression;
 	private Collection<Expression> supportedIndices;
 	private Theory theory;
 	
-	public ExpressionConstraint(Theory theory, Collection<Expression> supportedIndices, Expression expression) {
+	private ExpressionConstraint(Theory theory, Collection<Expression> supportedIndices, Expression expression) {
 		assert expression != null : getClass().getSimpleName() + " cannot wrap a null value.";
-		this.expression = expression instanceof ExpressionConstraint? ((ExpressionConstraint) expression).expression : expression;
+		this.baseExpression = expression instanceof ExpressionConstraint? ((ExpressionConstraint) expression).baseExpression : expression;
 		this.supportedIndices = supportedIndices;
 		this.theory = theory;
 	}
 	
+	/**
+	 * A "constructor" of a {@link Constraint} based on an {@link Expression}.
+	 * The reason this is not a regular Constraint is that if baseExpression is already a {@link Constraint},
+	 * it is directly returned, instead of wrapped in a new instance.
+	 * In that case, no check is performed to see if the given theory and supported indices are
+	 * the same as baseExpression's, but they should be.
+	 * @param theory
+	 * @param supportedIndices
+	 * @param baseExpression
+	 * @return
+	 */
+	public static Constraint wrap(Theory theory, Collection<Expression> supportedIndices, Expression expression) {
+		assert expression != null : "ExpressionConstraint cannot wrap a null value.";
+		Constraint result;
+		if (expression instanceof Constraint) {
+			result = (Constraint) expression;
+		}
+		else {
+			result = new ExpressionConstraint(theory, supportedIndices, expression);
+		}
+		return result;
+	}
+	
+	/**
+	 * If baseExpression is {@link Constraint}, return it; otherwise, wrap it in {@link ExpressionConstraint} and return that.
+	 * @param baseExpression
+	 * @return
+	 */
+	public Constraint wrap(Expression expression) {
+		Constraint result = wrap(theory, supportedIndices, expression);
+		return result;
+	}
+
 	@Override
 	public ExpressionConstraint copyWithNewParent(Constraint parentConstraint) {
 		return (ExpressionConstraint) super.copyWithNewParent(parentConstraint);
@@ -87,7 +120,7 @@ public class ExpressionConstraint extends AbstractConstraint {
 
 	@Override
 	public ExpressionConstraint clone() {
-		return new ExpressionConstraint(theory, supportedIndices, expression);
+		return new ExpressionConstraint(theory, supportedIndices, baseExpression);
 	}
 
 	@Override
@@ -97,7 +130,7 @@ public class ExpressionConstraint extends AbstractConstraint {
 
 	@Override
 	protected Expression computeInnerExpression() {
-		return expression;
+		return baseExpression;
 	}
 
 	@Override
@@ -109,26 +142,26 @@ public class ExpressionConstraint extends AbstractConstraint {
 	public Constraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		Constraint result;
 		Expression splitterIfAny;
-		if (expression instanceof Constraint) {
-			result = ((Constraint) expression).incorporate(splitterSign, splitter, process);
+		if (baseExpression instanceof Constraint) {
+			result = ((Constraint) baseExpression).incorporate(splitterSign, splitter, process);
 		}
-		else if (expression.equals(FALSE)) {
+		else if (baseExpression.equals(FALSE)) {
 			result = wrap(FALSE);
 		}
-		else if (expression.equals(TRUE)) {
+		else if (baseExpression.equals(TRUE)) {
 			Constraint newConstraint = theory.makeConstraint(supportedIndices);
 			result = newConstraint.incorporate(splitterSign, splitter, process);
 		}
-		else if ((splitterIfAny = theory.makeSplitterIfPossible(expression, supportedIndices, process)) != null) {
+		else if ((splitterIfAny = theory.makeSplitterIfPossible(baseExpression, supportedIndices, process)) != null) {
 			Constraint newConstraint = theory.makeConstraint(supportedIndices);
 			newConstraint.incorporate(true, splitterIfAny, process);
 			result = newConstraint.incorporate(splitterSign, splitter, process);
 		}
 		else { // only acceptable leaves are boolean constants and splitters, so at this point it must be a boolean connective.
-			assert FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(expression) : "Only boolean formulas on theory literals supported by " + getClass();
+			assert FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(baseExpression) : "Only boolean formulas on theory literals supported by " + getClass();
 			result = wrap(applyJavaFunctionToArgumentsAndReAssembleFunctionApplication(
 					subExpression -> wrap(subExpression).incorporate(splitterSign, splitter, process),
-					expression));
+					baseExpression));
 		}
 		return result;
 	}
@@ -137,18 +170,18 @@ public class ExpressionConstraint extends AbstractConstraint {
 	public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
 		Expression result;
 		Expression splitterIfAny;
-		if (expression instanceof Constraint) {
-			result = ((Constraint) expression).pickSplitter(indicesSubSet, process);
+		if (baseExpression instanceof Constraint) {
+			result = ((Constraint) baseExpression).pickSplitter(indicesSubSet, process);
 		}
-		else if (expression.equals(FALSE) || expression.equals(TRUE)) {
+		else if (baseExpression.equals(FALSE) || baseExpression.equals(TRUE)) {
 			result = null;
 		}
-		else if ((splitterIfAny = theory.makeSplitterIfPossible(expression, supportedIndices, process)) != null) {
+		else if ((splitterIfAny = theory.makeSplitterIfPossible(baseExpression, supportedIndices, process)) != null) {
 			result = splitterIfAny;
 		}
 		else { // only acceptable leaves are boolean constants and splitters, so at this point it must be a boolean connective.
-			assert FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(expression) : "Only boolean formulas on theory literals supported by " + getClass();
-			result = getFirstNonNullResultOrNull(expression.getArguments(), subExpression -> wrap(subExpression).pickSplitter(indicesSubSet, process));
+			assert FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(baseExpression) : "Only boolean formulas on theory literals supported by " + getClass();
+			result = getFirstNonNullResultOrNull(baseExpression.getArguments(), subExpression -> wrap(subExpression).pickSplitter(indicesSubSet, process));
 		}
 		return result;
 	}
@@ -168,19 +201,13 @@ public class ExpressionConstraint extends AbstractConstraint {
 		return cachedSolver;
 	}
 
-	/**
-	 * If expression is {@link Constraint}, return it; otherwise, wrap it in {@link ExpressionConstraint} and return that.
-	 * @param expression
-	 * @return
-	 */
-	public Constraint wrap(Expression expression) {
-		Constraint result;
-		if (expression instanceof Constraint) {
-			result = (Constraint) expression;
-		}
-		else {
-			result = new ExpressionConstraint(theory, supportedIndices, expression);
-		}
-		return result;
+	@Override
+	public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
+		throw new Error("ExpressionConstraint.normalizeSplitterGivenConstraint not implemented yet -- and it is going to be expensive. Are you sure that's what you need?");
+	}
+
+	@Override
+	public Expression normalize(Expression expression, RewritingProcess process) {
+		throw new Error("ExpressionConstraint.normalize not implemented yet -- and it is going to be expensive. Are you sure that's what you need?");
 	}
 }
