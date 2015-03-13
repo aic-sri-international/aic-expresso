@@ -19,15 +19,6 @@ import com.sri.ai.util.base.Pair;
 public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 
 	/**
-	 * Adds a constraint to this object.
-	 * @param functor
-	 * @param term
-	 * @param process
-	 */
-	void addNonEqualityConstraintDestructively(String functor, Expression term, RewritingProcess process) throws Contradiction;
-	// TODO: should be replaced by incorporate
-
-	/**
 	 * Returns a pair of the variable and non-equality constraints map after updating representatives in their
 	 * representation, or <code>null</code> if there are no changes.
 	 * @param process
@@ -35,7 +26,7 @@ public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 	 * @throws Contradiction
 	 */
 	Pair<Expression, NonEqualitiesForSingleTerm> updatedTermAndNonEqualitiesPair(RewritingProcess process) throws Contradiction;
-	// TODO: should be replaced by simplifyGiven
+	// TODO: should be replaced by normalize
 	
 	/**
 	 * Returns splitters on free variables required to hold for this constraint to hold.
