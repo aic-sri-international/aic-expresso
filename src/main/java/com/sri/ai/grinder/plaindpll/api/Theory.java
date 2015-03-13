@@ -129,7 +129,7 @@ public interface Theory {
 	 * @param process
 	 * @return
 	 */
-	Expression applyConstraintToSolution(ConjunctiveConstraint constraint, Expression solution, RewritingProcess process);
+	Expression applyConstraintToSolution(Constraint constraint, Expression solution, RewritingProcess process);
 
 	/**
 	 * Indicates whether the application of a constraint on a splitter can result in true, false, or the splitter itself;
@@ -142,5 +142,5 @@ public interface Theory {
 	 * Make a new constraint for this theoryWithEquality over a set of indices (equivalent to all assignments to those indices).
 	 * @return
 	 */
-	ConjunctiveConstraint makeConstraint(Collection<Expression> indices);
+	Constraint makeConstraint(Collection<Expression> indices);
 }

@@ -60,7 +60,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.expression.ExpressionCache;
 import com.sri.ai.grinder.expression.ExpressionCacheKey;
 import com.sri.ai.grinder.library.IsVariable;
-import com.sri.ai.grinder.plaindpll.api.ConjunctiveConstraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.IdentityWrapper;
@@ -735,24 +735,24 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		return getDPLLContextualConstraint() + " Rewriting process with context " + getContextualSymbolsAndTypes() + ", " + getContextualConstraint();
 	}
 
-	ConjunctiveConstraint dpllConstraint;
+	Constraint dpllConstraint;
 	
 	@Override
-	public void initializeDPLLContextualConstraint(ConjunctiveConstraint constraint) {
+	public void initializeDPLLContextualConstraint(Constraint constraint) {
 		dpllConstraint = constraint;
 	}
 
 	@Override
-	public ConjunctiveConstraint getDPLLContextualConstraint() {
+	public Constraint getDPLLContextualConstraint() {
 		return dpllConstraint;
 	}
 
 	@Override
 	public RewritingProcess extendDPLLContextualConstraint(boolean splitterSign, Expression splitter) {
 		DefaultRewritingProcess result = new DefaultRewritingProcess(this);
-		ConjunctiveConstraint constraint = getDPLLContextualConstraint();
+		Constraint constraint = getDPLLContextualConstraint();
 		if (constraint != null) {
-			ConjunctiveConstraint newConstraint = constraint.incorporate(splitterSign, splitter, this);
+			Constraint newConstraint = constraint.incorporate(splitterSign, splitter, this);
 			result.dpllConstraint = newConstraint;
 		}
 		return result;
