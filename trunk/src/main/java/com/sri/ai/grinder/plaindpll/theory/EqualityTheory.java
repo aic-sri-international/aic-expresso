@@ -275,22 +275,18 @@ public class EqualityTheory extends AbstractTheory {
 		private static final long serialVersionUID = 1L;
 
 		public Map<Expression, Expression> equalitiesMap;
-		public LinkedHashMap<Expression,NonEqualitiesConstraintForSingleVariable> nonEqualitiesMap;
+		public NonEqualitiesConstraint nonEqualitiesMap;
 
 		public EqualityConstraint(Collection<Expression> indices) {
 			super(indices);
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>();
-			this.nonEqualitiesMap = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>(); 
+			this.nonEqualitiesMap = new NonEqualitiesConstraint(); 
 		}
 
 		private EqualityConstraint(EqualityConstraint another) {
 			super(another.getSupportedIndices());
-			this.equalitiesMap = new LinkedHashMap<Expression, Expression>(another.equalitiesMap);
-			this.nonEqualitiesMap = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>(); 
-			for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : another.nonEqualitiesMap.entrySet()) {
-				NonEqualitiesConstraintForSingleVariable copyWithNewParent = (NonEqualitiesConstraintForSingleVariable) entry.getValue().copyWithNewParent(this);
-				nonEqualitiesMap.put(entry.getKey(), copyWithNewParent); // must copy sets to avoid interference. OPTIMIZATION: use a copy-as-needed implementation of set later.
-			}
+			this.equalitiesMap = new LinkedHashMap<Expression, Expression>(another.equalitiesMap); // TODO: implement a copy-on-write scheme
+			this.nonEqualitiesMap = another.nonEqualitiesMap.copyWithNewParent(this);
 		}
 
 		@Override
@@ -627,7 +623,7 @@ public class EqualityTheory extends AbstractTheory {
 			for (Map.Entry<Expression, Expression> entry : equalitiesMap.entrySet()) {
 				conjuncts.add(Equality.make(entry.getKey(), entry.getValue()));
 			}
-			conjuncts.addAll(nonEqualitiesMap.values());
+			conjuncts.add(nonEqualitiesMap);
 			Expression result = And.make(conjuncts);
 			return result;
 		}
