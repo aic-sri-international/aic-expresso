@@ -26,6 +26,10 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 		assert false : "Cloning of " + getClass() + " not implemented yet.";
 		return null;
 	}
+	
+	public AbstractNonEqualitiesConstraintForSingleVariable copyWithNewParent(Constraint parentConstraint) {
+		return (AbstractNonEqualitiesConstraintForSingleVariable) super.copyWithNewParent(parentConstraint);
+	}
 
 	@Override
 	public EqualityTheory getTheory() {
