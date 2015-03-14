@@ -13,32 +13,45 @@ import com.sri.ai.util.base.Pair;
  * a set of terms such that distinct terms.
  * This interface is defined for constraints used inside an EqualityConstraint
  * in addition to equalities themselves.
- * TODO: Eventually it should be merged with Constraint so that EqualityConstraint
- * can contain any internal Constraint.
+ * This is a pretty-specific, performance-based interface meant to be used inside TODO: COMPLETE WHEN WRITTEN.
  */	
 public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 
 	/**
+	 * Same as {@link #incorporate(boolean, Expression, RewritingProcess)}, but allows the returned
+	 * Constraint to be this same instance even if it has changed --
+	 * this violates the immutability assumption about {@link Expression} and {@link Constraint}
+	 * and should only be used for setup purposes, before an object is released by its creator
+	 * to the world at large.
+	 * @param splitterSign the splitter's sign (true for splitter itself, false for its negation)
+	 * @param splitter the splitter according to this theoryWithEquality's choice
+	 * @param process the rewriting process
+	 */
+	public Constraint incorporatePossiblyDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
+
+	/**
 	 * Returns a pair of the variable and non-equality constraints map after updating representatives in their
 	 * representation, or <code>null</code> if there are no changes.
+	 * The reason this method is needed in this interface and not in Constraint in general is that,
+	 * by representing only the constraints on a single variable,
+	 * their literals may be modified into equivalent ones that cannot be kept within them, but need
+	 * to be moved to some other constraint.
 	 * @param process
 	 * @return
 	 * @throws Contradiction
 	 */
 	Pair<Expression, NonEqualitiesForSingleTerm> updatedTermAndNonEqualitiesPair(RewritingProcess process) throws Contradiction;
-	// TODO: should be replaced by normalize
 	
 	/**
-	 * Returns splitters on free variables required to hold for this constraint to hold.
+	 * Assumes the main variable is a free variable, and returns splitters on it required to hold for this constraint to hold.
 	 * @return
 	 */
 	List<Expression> getSplittersToBeSatisfied();
-	// TODO: should be replaced by pickSplitter
 	
 	/**
-	 * Returns splitters on free variables the negations of which are required to hold for this constraint to hold.
+	 * Assumes the main variable is a free variable,
+	 * and returns splitters it the negations of which are required to hold for this constraint to hold.
 	 * @return
 	 */
 	List<Expression> getSplittersToBeNotSatisfied();
-	// TODO: should be replaced by pickSplitter
 }
