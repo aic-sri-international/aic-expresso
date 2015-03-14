@@ -2,6 +2,7 @@ package com.sri.ai.grinder.plaindpll.theory;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,8 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.Theory;
+import com.sri.ai.grinder.plaindpll.theory.EqualityTheory;
+import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityConstraint;
 
 
 /** 
@@ -21,8 +24,12 @@ public class NonEqualitiesConstraint extends AbstractConstraint implements Map<E
 
 	private LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable> map = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>();
 
+	public NonEqualitiesConstraint(EqualityTheory.EqualityConstraint parentConstraint) {
+		this.parentConstraint = parentConstraint;
+	}
+	
 	public NonEqualitiesConstraint copyWithNewParent(Constraint newParent) {
-		NonEqualitiesConstraint result = new NonEqualitiesConstraint();
+		NonEqualitiesConstraint result = new NonEqualitiesConstraint((EqualityConstraint) newParent);
 		result.parentConstraint = newParent;
 		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : entrySet()) {
 			NonEqualitiesConstraintForSingleVariable newEntryValue = entry.getValue().copyWithNewParent(newParent);
@@ -33,6 +40,34 @@ public class NonEqualitiesConstraint extends AbstractConstraint implements Map<E
 		// TODO: implement a copy-on-write scheme
 	}
 	
+	public void getNonEqualitiesSplittersToBeSatisfied(Collection<Expression> indicesSubSet, Collection<Expression> result, RewritingProcess process) {
+		// TODO: when nonEqualitiesConstraint gets consolidated into a single Constraint object, make sure it has a method getSplittersToBeSatisfied
+		// that does not iterate over all variables for disequalities, since we know in advance they do not provide splitters of this sort.
+		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : entrySet()) {
+			assert ((EqualityTheory.EqualityConstraint) parentConstraint).getTermTheory().isVariableTerm(entry.getKey(), process);
+			Expression variable = entry.getKey();
+			if ( ! indicesSubSet.contains(variable)) { // if variable is free
+				NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = entry.getValue();
+				List<Expression> subResult = disequalitiesConstraintForSingleVariable.getSplittersToBeSatisfied();
+				result.addAll(subResult);
+			}
+		}
+	}
+
+	public Collection<Expression> getNonEqualitiesSplittersToBeNotSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
+		Collection<Expression> result = new LinkedHashSet<Expression>();
+		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : entrySet()) {
+			assert ((EqualityTheory.EqualityConstraint) parentConstraint).getTermTheory().isVariableTerm(entry.getKey(), process);
+			Expression variable = entry.getKey();
+			if ( ! indicesSubSet.contains(variable)) { // if variable is free
+				NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = entry.getValue();
+				List<Expression> subResult = disequalitiesConstraintForSingleVariable.getSplittersToBeNotSatisfied();
+				result.addAll(subResult);
+			}
+		}
+		return result;
+	}
+
 	@Override
 	public Theory getTheory() {
 		// TODO Auto-generated method stub
@@ -85,7 +120,7 @@ public class NonEqualitiesConstraint extends AbstractConstraint implements Map<E
 
 	@Override
 	public Expression clone() {
-		NonEqualitiesConstraint newOne = new NonEqualitiesConstraint();
+		NonEqualitiesConstraint newOne = new NonEqualitiesConstraint((EqualityConstraint) parentConstraint);
 		newOne.map = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>();
 		newOne.map.putAll(map);
 		return newOne;
