@@ -1,6 +1,7 @@
 package com.sri.ai.grinder.plaindpll.core;
 
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import static com.sri.ai.util.Util.filter;
 import static com.sri.ai.util.Util.throwSafeguardError;
 
 import java.util.Collection;
@@ -14,7 +15,6 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.theory.AbstractConstraint;
-import com.sri.ai.util.Util;
 
 /**
  * An abstract {@link Constraint} implementation that lays the groundwork for
@@ -125,7 +125,7 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractConstraint
 	public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
 		Expression unconditionalCount = computeModelCountGivenConditionsOnVariablesNotIn(indicesSubSet, process);
 		Expression result =
-				makeModelCountConditionedOnFreeVariableSplittersNotAlreadyImpliedByContextualConstraint(
+				makeModelCountConditionedOnUndeterminedSplittersNotAlreadyImpliedByContextualConstraint(
 						unconditionalCount,
 						getSplittersToBeSatisfied(indicesSubSet, process), getSplittersToBeNotSatisfied(indicesSubSet, process),
 						process);
@@ -169,24 +169,53 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractConstraint
 	 * (which entail model count 0),
 	 * taking into account the contextual constraint.
 	 */
-	private Expression makeModelCountConditionedOnFreeVariableSplittersNotAlreadyImpliedByContextualConstraint(
+	private Expression makeModelCountConditionedOnUndeterminedSplittersNotAlreadyImpliedByContextualConstraint(
 			Expression modelCountGivenUndeterminedSplitters,
 			Collection<Expression> splittersToBeSatisfied,
 			Collection<Expression> splittersToBeUnsatisfied,
 			RewritingProcess process) {
 		
-		Predicate<Expression> keepUnsatisfiedSplitters         = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(true,  s, process);
-		Predicate<Expression> keepUnsatisfiedSplitterNegations = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(false, s, process);
-	
-		Collection<Expression> undeterminedSplittersThatNeedToBeTrue  = Util.filter(splittersToBeSatisfied,   keepUnsatisfiedSplitters);
-		Collection<Expression> undeterminedSplittersThatNeedToBeFalse = Util.filter(splittersToBeUnsatisfied, keepUnsatisfiedSplitterNegations);
+		Collection<Expression> undeterminedSplittersThatNeedToBeTrue = keepSplittersUnsatisfiedByContextualConstraint(splittersToBeSatisfied, process);
+		Collection<Expression> undeterminedSplittersThatNeedToBeFalse = keepSplitterTheNegationsOfWhichAreUnsatisfiedByContextualConstraint(splittersToBeUnsatisfied, process);
 		
 		Expression result = conditionExpressionOnGivenSplitters(
 				modelCountGivenUndeterminedSplitters, undeterminedSplittersThatNeedToBeTrue, undeterminedSplittersThatNeedToBeFalse);
 		return result;
 	}
 
-	private boolean splitterIsNotSatisfiedFromContextualConstraintAlready(boolean splitterSign, Expression splitter, RewritingProcess process) {
+	/**
+	 * Given a collection of splitters, returns a collection with those not yet satisfied by process's DPLL contextual constraint.
+	 * @param splitters
+	 * @param process
+	 * @return
+	 */
+	protected Collection<Expression> keepSplittersUnsatisfiedByContextualConstraint(Collection<Expression> splitters, RewritingProcess process) {
+		Predicate<Expression> keepUnsatisfiedSplitters = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(true,  s, process);
+		Collection<Expression> undeterminedSplittersThatNeedToBeTrue = filter(splitters,   keepUnsatisfiedSplitters);
+		return undeterminedSplittersThatNeedToBeTrue;
+	}
+
+	/**
+	 * Given a collection of splitters, returns a collection with those <i>the negations of which</i>
+	 * are not yet satisfied by process's DPLL contextual constraint.
+	 * @param splitters
+	 * @param process
+	 * @return
+	 */
+	protected Collection<Expression> keepSplitterTheNegationsOfWhichAreUnsatisfiedByContextualConstraint(Collection<Expression> splitters, RewritingProcess process) {
+		Predicate<Expression> keepUnsatisfiedSplitterNegations = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(false, s, process);
+		Collection<Expression> undeterminedSplittersThatNeedToBeFalse = filter(splitters, keepUnsatisfiedSplitterNegations);
+		return undeterminedSplittersThatNeedToBeFalse;
+	}
+
+	/**
+	 * Indicates whether a splitter does not hold according to process's DPLL contextual constraint.
+	 * @param splitterSign
+	 * @param splitter
+	 * @param process
+	 * @return
+	 */
+	protected boolean splitterIsNotSatisfiedFromContextualConstraintAlready(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		boolean result;
 		Expression splitterNormalizedByContextualConstraint = process.getDPLLContextualConstraint().normalizeSplitterGivenConstraint(splitter, process);
 		assert ! splitterNormalizedByContextualConstraint.equals( ! splitterSign); // required splitter must be satisfiable under contextual constraint, otherwise there is a bug somewhere

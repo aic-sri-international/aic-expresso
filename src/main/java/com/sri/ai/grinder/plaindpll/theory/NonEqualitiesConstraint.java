@@ -1,7 +1,6 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
 import static com.sri.ai.util.Util.list;
-import static com.sri.ai.util.Util.throwSafeguardError;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -17,7 +16,6 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
-import com.sri.ai.grinder.plaindpll.theory.EqualityTheory;
 import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityConstraint;
 import com.sri.ai.util.Util;
 
