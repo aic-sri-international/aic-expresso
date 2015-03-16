@@ -272,7 +272,7 @@ abstract public class AbstractTheory implements Theory {
 			}
 		}
 		else {
-			result = constraint.normalize(solution, process);
+			result = constraint.normalizeExpressionWithoutLiterals(solution, process);
 		}
 		
 		return result;

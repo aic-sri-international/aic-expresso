@@ -59,7 +59,7 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 	}
 
 	@Override
-	public Expression normalize(Expression expression, RewritingProcess process) {
+	public Expression normalizeExpressionWithoutLiterals(Expression expression, RewritingProcess process) {
 		assert false : (new Object(){}).getClass().getEnclosingMethod() + " not implemented yet."; // more robust to method renaming
 		return null;
 	}

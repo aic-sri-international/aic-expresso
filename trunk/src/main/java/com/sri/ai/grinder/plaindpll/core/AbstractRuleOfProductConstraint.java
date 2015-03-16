@@ -144,7 +144,7 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractConstraint
 				getClass().getSimpleName(),
 				"computeNumberOfPossibleValuesFor", // thisClassName
 				"AbstractTheory.AbstractConstraint", // superClassName
-				"computeModelCountGivenConditionsOnFreeVariables"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
+				"computeModelCountGivenConditionsOnVariablesNotIn"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}
 
@@ -204,11 +204,11 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractConstraint
 			Collection<Expression> splittersThatNeedToBeFalse) {
 		
 		Expression result = expression;
-		for (Expression splitterToBeSatisfied : splittersThatNeedToBeTrue) {
-			result = IfThenElse.make(splitterToBeSatisfied, result, ZERO, false);
-		}
 		for (Expression splitterToBeNotSatisfied : splittersThatNeedToBeFalse) {
 			result = IfThenElse.make(splitterToBeNotSatisfied, ZERO, result, false);
+		}
+		for (Expression splitterToBeSatisfied : splittersThatNeedToBeTrue) {
+			result = IfThenElse.make(splitterToBeSatisfied, result, ZERO, false);
 		}
 		return result;
 	}

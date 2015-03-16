@@ -280,7 +280,7 @@ public class EqualityTheory extends AbstractTheory {
 		public EqualityConstraint(Collection<Expression> indices) {
 			super(indices);
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>();
-			this.nonEqualitiesConstraint = new NonEqualitiesConstraint(this); 
+			this.nonEqualitiesConstraint = new NonEqualitiesConstraint(supportedIndices, this); 
 		}
 
 		private EqualityConstraint(EqualityConstraint another) {
@@ -335,7 +335,7 @@ public class EqualityTheory extends AbstractTheory {
 		}
 
 		@Override
-		public Expression normalize(Expression expression, RewritingProcess process) {
+		public Expression normalizeExpressionWithoutLiterals(Expression expression, RewritingProcess process) {
 			String syntacticTypeForm = "Symbol";
 			BinaryFunction<Expression, RewritingProcess, Expression> representativeReplacer =
 					(BinaryFunction<Expression, RewritingProcess, Expression>) (s, p) -> getRepresentative(s, p);
@@ -522,7 +522,7 @@ public class EqualityTheory extends AbstractTheory {
 			for (Expression variable : equalitiesMap.keySet()) {
 				if ( ! indicesSubSet.contains(variable)) {
 					Expression representative = getRepresentative(variable, process);
-					// Note that a free variable's representative is never an variable, because
+					// Note that a free variable's representative is never a supported index, because
 					// in splitters indices always come before free variables,
 					// and that is the order of the binding.
 					// A splitter with a free variable as the first term will always have another free variable

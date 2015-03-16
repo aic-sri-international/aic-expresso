@@ -207,7 +207,7 @@ public class ExpressionConstraint extends AbstractConstraint {
 	}
 
 	@Override
-	public Expression normalize(Expression expression, RewritingProcess process) {
+	public Expression normalizeExpressionWithoutLiterals(Expression expression, RewritingProcess process) {
 		throw new Error("ExpressionConstraint.normalize not implemented yet -- and it is going to be expensive. Are you sure that's what you need?");
 	}
 }
