@@ -8,6 +8,8 @@ import com.sri.ai.grinder.plaindpll.api.Constraint;
 public abstract class AbstractConstraint extends AbstractExpressionWrapper implements Constraint {
 	
 	protected Constraint parentConstraint;
+
+	public abstract AbstractConstraint clone();
 	
 	@Override
 	public AbstractConstraint copyWithNewParent(Constraint parentConstraint) {

@@ -39,9 +39,11 @@ package com.sri.ai.grinder.plaindpll.util;
 
 import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
+import static com.sri.ai.util.Util.filter;
 import static com.sri.ai.util.Util.list;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -356,5 +358,45 @@ public class DPLLUtil {
 		process.initializeDPLLContextualConstraint(theory.makeConstraint(list()));
 	
 		return process;
+	}
+
+	/**
+	 * Given a collection of splitters, returns a collection with those not yet satisfied by process's DPLL contextual constraint.
+	 * @param splitters
+	 * @param process
+	 * @return
+	 */
+	public static Collection<Expression> keepSplittersUnsatisfiedByContextualConstraint(Collection<Expression> splitters, RewritingProcess process) {
+		Predicate<Expression> keepUnsatisfiedSplitters = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(true,  s, process);
+		Collection<Expression> undeterminedSplittersThatNeedToBeTrue = filter(splitters, keepUnsatisfiedSplitters);
+		return undeterminedSplittersThatNeedToBeTrue;
+	}
+
+	/**
+	 * Given a collection of splitters, returns a collection with those <i>the negations of which</i>
+	 * are not yet satisfied by process's DPLL contextual constraint.
+	 * @param splitters
+	 * @param process
+	 * @return
+	 */
+	public static Collection<Expression> keepSplitterTheNegationsOfWhichAreUnsatisfiedByContextualConstraint(Collection<Expression> splitters, RewritingProcess process) {
+		Predicate<Expression> keepUnsatisfiedSplitterNegations = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(false, s, process);
+		Collection<Expression> undeterminedSplittersThatNeedToBeFalse = filter(splitters, keepUnsatisfiedSplitterNegations);
+		return undeterminedSplittersThatNeedToBeFalse;
+	}
+
+	/**
+	 * Indicates whether a splitter does not hold according to process's DPLL contextual constraint.
+	 * @param splitterSign
+	 * @param splitter
+	 * @param process
+	 * @return
+	 */
+	public static boolean splitterIsNotSatisfiedFromContextualConstraintAlready(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		boolean result;
+		Expression splitterNormalizedByContextualConstraint = process.getDPLLContextualConstraint().normalizeSplitterGivenConstraint(splitter, process);
+		assert ! splitterNormalizedByContextualConstraint.equals( ! splitterSign); // required splitter must be satisfiable under contextual constraint, otherwise there is a bug somewhere
+		result = ! splitterNormalizedByContextualConstraint.equals(splitterSign); // if splitter is implied TRUE by contextual constraint, it is superfluous
+		return result;
 	}
 }
