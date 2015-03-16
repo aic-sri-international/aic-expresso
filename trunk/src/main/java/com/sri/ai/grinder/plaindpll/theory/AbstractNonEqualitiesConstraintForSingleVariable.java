@@ -1,6 +1,7 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
 import static com.sri.ai.grinder.helper.GrinderUtil.getTypeCardinality;
+import static com.sri.ai.util.Util.list;
 
 import java.util.Collection;
 
@@ -12,16 +13,18 @@ import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityConstraint;
 
 /** Defined for the benefit of {@link EqualityConstraint} outside of it because the latter is a non-static class. */	
 @SuppressWarnings("serial")
-public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends AbstractConstraint implements NonEqualitiesConstraintForSingleVariable {
+public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends AbstractOwnRepresentationConstraint implements NonEqualitiesConstraintForSingleVariable {
 	protected Expression variable;
 	protected long cachedIndexDomainSize;
 
 	public AbstractNonEqualitiesConstraintForSingleVariable(Expression variable, Constraint parentEqualityConstraint) {
+		super(list(variable));
 		this.variable = variable;
 		this.cachedIndexDomainSize = -1;
 		this.parentConstraint = parentEqualityConstraint;
 	}
 	
+	@Override
 	public AbstractNonEqualitiesConstraintForSingleVariable clone() {
 		assert false : "Cloning of " + getClass() + " not implemented yet.";
 		return null;
@@ -57,6 +60,12 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 		assert false : (new Object(){}).getClass().getEnclosingMethod() + " not implemented yet."; // more robust to method renaming
 		return null;
 	}
+	
+	@Override
+	protected void applyNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		assert false : (new Object(){}).getClass().getEnclosingMethod() + " not implemented yet."; // more robust to method renaming
+	}
+
 
 	@Override
 	public Expression normalizeExpressionWithoutLiterals(Expression expression, RewritingProcess process) {

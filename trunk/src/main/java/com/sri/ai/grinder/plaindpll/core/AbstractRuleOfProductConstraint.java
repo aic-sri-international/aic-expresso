@@ -1,20 +1,19 @@
 package com.sri.ai.grinder.plaindpll.core;
 
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
-import static com.sri.ai.util.Util.filter;
 import static com.sri.ai.util.Util.throwSafeguardError;
 
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
-import com.sri.ai.grinder.plaindpll.theory.AbstractConstraint;
+import com.sri.ai.grinder.plaindpll.theory.AbstractOwnRepresentationConstraint;
+import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 
 /**
  * An abstract {@link Constraint} implementation that lays the groundwork for
@@ -26,14 +25,12 @@ import com.sri.ai.grinder.plaindpll.theory.AbstractConstraint;
  *
  */
 @SuppressWarnings("serial")
-public abstract class AbstractRuleOfProductConstraint extends AbstractConstraint {
+public abstract class AbstractRuleOfProductConstraint extends AbstractOwnRepresentationConstraint {
 
 	static final private Times timesRewriter = new Times();
 
-	protected Collection<Expression> supportedIndices;
-
 	public AbstractRuleOfProductConstraint(Collection<Expression> supportedIndices) {
-		this.supportedIndices = supportedIndices;
+		super(supportedIndices);
 	}
 	
 	public abstract AbstractRuleOfProductConstraint clone();
@@ -41,66 +38,6 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractConstraint
 	@Override
 	public Collection<Expression> getSupportedIndices() {
 		return supportedIndices;
-	}
-
-	/**
-	 * Given an index x, return one splitter needed for us to be able to
-	 * compute this index's number of values, or null if none is needed.
-	 * Only required if using default implementation of {@link #pickSplitter(Collection<Expression>, RewritingProcess)} (that is, not overriding it).
-	 */
-	protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression x, RewritingProcess process) {
-		throwSafeguardError(
-				getClass().getSimpleName(),
-				"provideSplitterRequiredForComputingNumberOfValuesFor", // thisClassName
-				"AbstractTheory.AbstractConstraint", // superClassName
-				"pickSplitter"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
-		return null; // never used, as safeguardCheck throws an error no matter what.
-	}
-
-	@Override
-	public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
-		for (Expression x : indicesSubSet) {
-			Expression splitter = provideSplitterRequiredForComputingNumberOfValuesFor(x, process);
-			if (splitter != null) {
-				return splitter;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Modify this constraint's inner representation to include this splitter.
-	 */
-	abstract protected void applyNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
-
-	@Override
-	public Constraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		Constraint result;
-
-		Expression normalizedSplitterGivenConstraint = normalizeSplitterGivenConstraint(splitter, process);
-		
-		if (normalizedSplitterGivenConstraint.equals(splitterSign)) {
-			result = this; // splitter is redundant given constraint
-		}
-		else if (normalizedSplitterGivenConstraint.equals( ! splitterSign)) {
-			result = null; // splitter is contradictory given constraint
-		}
-		else {
-			try {
-				result = applyNormalizedSplitter(splitterSign, normalizedSplitterGivenConstraint, process);
-			}
-			catch (Contradiction e) {
-				result = null;
-			}
-		}
-
-		return result;
-	}
-
-	private Constraint applyNormalizedSplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		AbstractRuleOfProductConstraint newConstraint = clone();
-		newConstraint.applyNormalizedSplitterDestructively(splitterSign, splitter, process);
-		return newConstraint;
 	}
 
 	protected Collection<Expression> getSplittersToBeSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
@@ -175,51 +112,11 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractConstraint
 			Collection<Expression> splittersToBeUnsatisfied,
 			RewritingProcess process) {
 		
-		Collection<Expression> undeterminedSplittersThatNeedToBeTrue = keepSplittersUnsatisfiedByContextualConstraint(splittersToBeSatisfied, process);
-		Collection<Expression> undeterminedSplittersThatNeedToBeFalse = keepSplitterTheNegationsOfWhichAreUnsatisfiedByContextualConstraint(splittersToBeUnsatisfied, process);
+		Collection<Expression> undeterminedSplittersThatNeedToBeTrue = DPLLUtil.keepSplittersUnsatisfiedByContextualConstraint(splittersToBeSatisfied, process);
+		Collection<Expression> undeterminedSplittersThatNeedToBeFalse = DPLLUtil.keepSplitterTheNegationsOfWhichAreUnsatisfiedByContextualConstraint(splittersToBeUnsatisfied, process);
 		
 		Expression result = conditionExpressionOnGivenSplitters(
 				modelCountGivenUndeterminedSplitters, undeterminedSplittersThatNeedToBeTrue, undeterminedSplittersThatNeedToBeFalse);
-		return result;
-	}
-
-	/**
-	 * Given a collection of splitters, returns a collection with those not yet satisfied by process's DPLL contextual constraint.
-	 * @param splitters
-	 * @param process
-	 * @return
-	 */
-	protected Collection<Expression> keepSplittersUnsatisfiedByContextualConstraint(Collection<Expression> splitters, RewritingProcess process) {
-		Predicate<Expression> keepUnsatisfiedSplitters = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(true,  s, process);
-		Collection<Expression> undeterminedSplittersThatNeedToBeTrue = filter(splitters,   keepUnsatisfiedSplitters);
-		return undeterminedSplittersThatNeedToBeTrue;
-	}
-
-	/**
-	 * Given a collection of splitters, returns a collection with those <i>the negations of which</i>
-	 * are not yet satisfied by process's DPLL contextual constraint.
-	 * @param splitters
-	 * @param process
-	 * @return
-	 */
-	protected Collection<Expression> keepSplitterTheNegationsOfWhichAreUnsatisfiedByContextualConstraint(Collection<Expression> splitters, RewritingProcess process) {
-		Predicate<Expression> keepUnsatisfiedSplitterNegations = s -> splitterIsNotSatisfiedFromContextualConstraintAlready(false, s, process);
-		Collection<Expression> undeterminedSplittersThatNeedToBeFalse = filter(splitters, keepUnsatisfiedSplitterNegations);
-		return undeterminedSplittersThatNeedToBeFalse;
-	}
-
-	/**
-	 * Indicates whether a splitter does not hold according to process's DPLL contextual constraint.
-	 * @param splitterSign
-	 * @param splitter
-	 * @param process
-	 * @return
-	 */
-	protected boolean splitterIsNotSatisfiedFromContextualConstraintAlready(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		boolean result;
-		Expression splitterNormalizedByContextualConstraint = process.getDPLLContextualConstraint().normalizeSplitterGivenConstraint(splitter, process);
-		assert ! splitterNormalizedByContextualConstraint.equals( ! splitterSign); // required splitter must be satisfiable under contextual constraint, otherwise there is a bug somewhere
-		result = ! splitterNormalizedByContextualConstraint.equals(splitterSign); // if splitter is implied TRUE by contextual constraint, it is superfluous
 		return result;
 	}
 

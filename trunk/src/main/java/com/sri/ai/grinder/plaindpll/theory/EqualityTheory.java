@@ -38,7 +38,6 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
@@ -81,7 +80,6 @@ import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
-import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
 import com.sri.ai.grinder.plaindpll.core.AbstractTheory;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
@@ -244,7 +242,7 @@ public class EqualityTheory extends AbstractTheory {
 	 * Represents and manipulates constraints in the theoryWithEquality of disequalities of terms (variables and constants).
 	 */
 	@Beta
-	public class EqualityConstraint extends AbstractRuleOfProductConstraint {
+	public class EqualityConstraint extends AbstractOwnRepresentationConstraint {
 
 		// The algorithm is based on the counting principle: to determine the model count, we
 		// go over indices, in a certain order, and analyse how many possible values each one them has,
@@ -518,14 +516,6 @@ public class EqualityTheory extends AbstractTheory {
 			return result;
 		}
 
-		@Override
-		protected Collection<Expression> getSplittersToBeSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
-			Collection<Expression> result = new LinkedHashSet<Expression>();
-			getSplittersToBeSatisfiedFromEqualities(indicesSubSet, result, process);
-			nonEqualitiesConstraint.getNonEqualitiesSplittersToBeSatisfied(indicesSubSet, result, process);
-			return result;
-		}
-
 		public void getSplittersToBeSatisfiedFromEqualities(Collection<Expression> indicesSubSet, Collection<Expression> result, RewritingProcess process) {
 			for (Expression variable : equalitiesMap.keySet()) {
 				if ( ! indicesSubSet.contains(variable)) {
@@ -546,16 +536,10 @@ public class EqualityTheory extends AbstractTheory {
 		}
 
 		@Override
-		protected Collection<Expression> getSplittersToBeNotSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
-			Collection<Expression> result = nonEqualitiesConstraint.getNonEqualitiesSplittersToBeNotSatisfied(indicesSubSet, process);
-			return result;
-		}
-
-		@Override
 		public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
 			Collection<Expression> splittersToBeSatisfiedFromEqualities = new LinkedHashSet<Expression>();
 			getSplittersToBeSatisfiedFromEqualities(indicesSubSet, splittersToBeSatisfiedFromEqualities, process);
-			Collection<Expression> splittersFromEqualitiesNotYetSatisfied = keepSplittersUnsatisfiedByContextualConstraint(splittersToBeSatisfiedFromEqualities, process);
+			Collection<Expression> splittersFromEqualitiesNotYetSatisfied = DPLLUtil.keepSplittersUnsatisfiedByContextualConstraint(splittersToBeSatisfiedFromEqualities, process);
 			Collection<Expression> notBoundIndices = filter(indicesSubSet, i -> !indexIsBound(i));
 			Expression result = nonEqualitiesConstraint.modelCount(notBoundIndices, process);
 			if ( ! result.equals(ZERO)) {
@@ -566,18 +550,6 @@ public class EqualityTheory extends AbstractTheory {
 			return result;
 		}
 		
-		@Override
-		protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process) {
-			Expression numberOfPossibleValuesForIndex;
-			if (indexIsBound(index)) {
-				numberOfPossibleValuesForIndex = ONE;
-			}
-			else {
-				numberOfPossibleValuesForIndex = nonEqualitiesConstraintFor(index).modelCount(list(index), process);
-			}
-			return numberOfPossibleValuesForIndex;
-		}
-
 		public boolean termsAreExplicitlyConstrainedToBeDisequal(Expression term1, Expression term2, RewritingProcess process) {
 			Expression representative1 = getRepresentative(term1, process);
 			Expression representative2 = getRepresentative(term2, process);
