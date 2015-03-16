@@ -246,8 +246,8 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		}
 
 		@Override
-		public Expression normalize(Expression expression, RewritingProcess process) {
-			Expression result = equalityConstraint.normalize(expression, process);
+		public Expression normalizeExpressionWithoutLiterals(Expression expression, RewritingProcess process) {
+			Expression result = equalityConstraint.normalizeExpressionWithoutLiterals(expression, process);
 			return result;
 		}
 		

@@ -1,5 +1,8 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
+import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.throwSafeguardError;
+
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -13,23 +16,26 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.Theory;
+import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
 import com.sri.ai.grinder.plaindpll.theory.EqualityTheory;
 import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityConstraint;
+import com.sri.ai.util.Util;
 
 
 /** 
  */	
 @SuppressWarnings("serial")
-public class NonEqualitiesConstraint extends AbstractConstraint implements Map<Expression, NonEqualitiesConstraintForSingleVariable>, Constraint {
+public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint implements Map<Expression, NonEqualitiesConstraintForSingleVariable>, Constraint {
 
 	private LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable> map = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>();
 
-	public NonEqualitiesConstraint(EqualityTheory.EqualityConstraint parentConstraint) {
+	public NonEqualitiesConstraint(Collection<Expression> supportedIndices, EqualityTheory.EqualityConstraint parentConstraint) {
+		super(supportedIndices);
 		this.parentConstraint = parentConstraint;
 	}
 	
 	public NonEqualitiesConstraint copyWithNewParent(Constraint newParent) {
-		NonEqualitiesConstraint result = new NonEqualitiesConstraint((EqualityConstraint) newParent);
+		NonEqualitiesConstraint result = new NonEqualitiesConstraint(supportedIndices, (EqualityConstraint) newParent);
 		result.parentConstraint = newParent;
 		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : entrySet()) {
 			NonEqualitiesConstraintForSingleVariable newEntryValue = entry.getValue().copyWithNewParent(newParent);
@@ -68,46 +74,53 @@ public class NonEqualitiesConstraint extends AbstractConstraint implements Map<E
 		return result;
 	}
 
+	protected Collection<Expression> getSplittersToBeSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
+		Collection<Expression> result = new LinkedList<Expression>();
+		getNonEqualitiesSplittersToBeSatisfied(indicesSubSet, result, process);
+		return result;
+	}
+
+	protected Collection<Expression> getSplittersToBeNotSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
+		return getNonEqualitiesSplittersToBeNotSatisfied(indicesSubSet, process);
+	}
+
+	protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process) {
+		Expression result = nonEqualitiesConstraintFor(index).modelCount(list(index), process);
+		return result;
+	}
+	
+	private NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintFor(Expression term) {
+		NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForTerm =
+				Util.getValuePossiblyCreatingIt(this, term, key -> makeNonEqualitiesConstraintForVariable(key));
+		return nonEqualitiesConstraintForTerm;
+	}
+
+	protected NonEqualitiesConstraintForSingleVariable makeNonEqualitiesConstraintForVariable(Expression variable) {
+		NonEqualitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, (EqualityConstraint) parentConstraint);
+		// TODO: need to change parent constraint of DisequalitiesConstraintForSingleVariable to this one, not the equality constraint.
+		return result;
+	}
+
 	@Override
 	public Theory getTheory() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Collection<Expression> getSupportedIndices() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Constraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
-		// TODO Auto-generated method stub
-		return null;
+		return parentConstraint.getTheory();
 	}
 
 	@Override
 	public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
-		// TODO Auto-generated method stub
-		return null;
+		return splitter;
+		// TODO: needs to be generalized for literals other than disequalities
 	}
 
 	@Override
-	public Expression normalize(Expression expression, RewritingProcess process) {
+	public Expression normalizeExpressionWithoutLiterals(Expression expression, RewritingProcess process) {
+		return expression;
+	}
+
+	@Override
+	protected void applyNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		// TODO Auto-generated method stub
-		return null;
+		
 	}
 
 	@Override
@@ -119,8 +132,8 @@ public class NonEqualitiesConstraint extends AbstractConstraint implements Map<E
 	}
 
 	@Override
-	public Expression clone() {
-		NonEqualitiesConstraint newOne = new NonEqualitiesConstraint((EqualityConstraint) parentConstraint);
+	public NonEqualitiesConstraint clone() {
+		NonEqualitiesConstraint newOne = new NonEqualitiesConstraint(supportedIndices, (EqualityConstraint) parentConstraint);
 		newOne.map = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>();
 		newOne.map.putAll(map);
 		return newOne;
@@ -187,5 +200,4 @@ public class NonEqualitiesConstraint extends AbstractConstraint implements Map<E
 	public Collection<NonEqualitiesConstraintForSingleVariable> values() {
 		return map.values();
 	}
-
 }

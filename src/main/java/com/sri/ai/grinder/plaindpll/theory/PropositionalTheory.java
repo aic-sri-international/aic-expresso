@@ -285,7 +285,7 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 
 		@Override
-		public Expression normalize(Expression expression, RewritingProcess process) {
+		public Expression normalizeExpressionWithoutLiterals(Expression expression, RewritingProcess process) {
 			String syntacticTypeForm = "Symbol";
 			BinaryFunction<Expression, RewritingProcess, Expression> valueReplacer =
 					(BinaryFunction<Expression, RewritingProcess, Expression>)
