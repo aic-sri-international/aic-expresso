@@ -1,7 +1,5 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
-import static com.sri.ai.util.Util.throwSafeguardError;
-
 import java.util.Collection;
 
 import com.sri.ai.expresso.api.Expression;
@@ -60,29 +58,4 @@ public abstract class AbstractOwnRepresentationConstraint extends AbstractConstr
 	 * Modify this constraint's inner representation to include this splitter.
 	 */
 	abstract protected void applyNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
-	
-	/**
-	 * Given an index x, return one splitter needed for us to be able to
-	 * compute this index's number of values, or null if none is needed.
-	 * Only required if using default implementation of {@link #pickSplitter(Collection<Expression>, RewritingProcess)} (that is, not overriding it).
-	 */
-	protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression x, RewritingProcess process) {
-		throwSafeguardError(
-				getClass().getSimpleName(),
-				"provideSplitterRequiredForComputingNumberOfValuesFor", // thisClassName
-				"AbstractTheory.AbstractConstraint", // superClassName
-				"pickSplitter"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
-		return null; // never used, as safeguardCheck throws an error no matter what.
-	}
-
-	@Override
-	public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
-		for (Expression x : indicesSubSet) {
-			Expression splitter = provideSplitterRequiredForComputingNumberOfValuesFor(x, process);
-			if (splitter != null) {
-				return splitter;
-			}
-		}
-		return null;
-	}
 }

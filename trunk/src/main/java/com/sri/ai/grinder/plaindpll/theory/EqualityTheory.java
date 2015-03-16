@@ -46,7 +46,6 @@ import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.addAllForEachEntry;
 import static com.sri.ai.util.Util.filter;
 import static com.sri.ai.util.Util.getTransformedSubMap;
-import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.removeAll;
 
 import java.util.Collection;
@@ -308,15 +307,10 @@ public class EqualityTheory extends AbstractTheory {
 			return termTheory;
 		}
 
+
 		@Override
-		protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression index, RewritingProcess process) {
-			Expression result;
-			if (indexIsBound(index)) {
-				result = null;
-			}
-			else {
-				result = nonEqualitiesConstraintFor(index).pickSplitter(list(index), process);
-			}
+		public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
+			Expression result = nonEqualitiesConstraint.pickSplitter(indicesSubSet, process);
 			return result;
 		}
 
@@ -327,7 +321,7 @@ public class EqualityTheory extends AbstractTheory {
 			Expression representative2 = getRepresentative(splitter.get(1), process);
 			simplifiedSplitterGivenConstraint = Equality.makeWithConstantSimplification(representative1, representative2, process);
 			if ( ! simplifiedSplitterGivenConstraint.getSyntacticFormType().equals("Symbol")) {
-				if (representativesAreExplicitlyConstrainedToBeDisequal(representative1, representative2, process)) {
+				if (nonEqualitiesConstraint.representativesAreExplicitlyConstrainedToBeDisequal(representative1, representative2, process)) {
 					simplifiedSplitterGivenConstraint = FALSE;
 				}
 			}
@@ -491,29 +485,13 @@ public class EqualityTheory extends AbstractTheory {
 		private void applyRepresentativesDisequalityDestructively(Expression term1, Expression term2, RewritingProcess process) {
 			if (termTheory.isVariableTerm(term1, process) || termTheory.isVariableTerm(term2, process)) {
 				if (termTheory.isVariableTerm(term1, process) && variableIsChosenAfterOtherTerm(term1, term2, supportedIndices, process)) {
-					addFirstTermAsDisequalOfSecondTermDestructively(term1, term2, process);
+					nonEqualitiesConstraint.addFirstTermAsDisequalOfSecondTermDestructively(term1, term2, process);
 				}
 				else { // term2 must be a variable because either term1 is not a variable, or it is but term2 comes later than term1 in ordering, which means it is a variable
-					addFirstTermAsDisequalOfSecondTermDestructively(term2, term1, process);
+					nonEqualitiesConstraint.addFirstTermAsDisequalOfSecondTermDestructively(term2, term1, process);
 				}
 			}
 			// else they are both constants, and distinct ones, so no need to do anything.
-		}
-
-		private void addFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process) {
-			NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForTerm1 = nonEqualitiesConstraintFor(term1);
-			disequalitiesConstraintForTerm1.incorporatePossiblyDestructively(false, Equality.make(term1, term2), process);
-		}
-
-		private NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintFor(Expression term) {
-			NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForTerm =
-					Util.getValuePossiblyCreatingIt(nonEqualitiesConstraint, term, key -> makeNonEqualitiesConstraintForVariable(key));
-			return nonEqualitiesConstraintForTerm;
-		}
-
-		protected NonEqualitiesConstraintForSingleVariable makeNonEqualitiesConstraintForVariable(Expression variable) {
-			NonEqualitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, this);
-			return result;
 		}
 
 		public void getSplittersToBeSatisfiedFromEqualities(Collection<Expression> indicesSubSet, Collection<Expression> result, RewritingProcess process) {
@@ -553,41 +531,7 @@ public class EqualityTheory extends AbstractTheory {
 		public boolean termsAreExplicitlyConstrainedToBeDisequal(Expression term1, Expression term2, RewritingProcess process) {
 			Expression representative1 = getRepresentative(term1, process);
 			Expression representative2 = getRepresentative(term2, process);
-			boolean result = representativesAreExplicitlyConstrainedToBeDisequal(representative1, representative2, process);
-			return result;
-		}
-
-		protected boolean representativesAreExplicitlyConstrainedToBeDisequal(Expression representative1, Expression representative2, RewritingProcess process) {
-			boolean result = false;
-			boolean representative1IsUniquelyNamedConstant = process.isUniquelyNamedConstant(representative1);
-			boolean representative2IsUniquelyNamedConstant = process.isUniquelyNamedConstant(representative2);
-			
-			Expression splitter = apply(EQUALITY, representative1, representative2);
-			
-			if (representative1IsUniquelyNamedConstant && representative2IsUniquelyNamedConstant) {
-				result = ! representative1.equals(representative2);
-			}
-			else if ( ! representative1IsUniquelyNamedConstant &&
-					getNonEqualityConstraintOn(representative1, process).normalizeSplitterGivenConstraint(splitter, process)
-					!= splitter) {
-				result = true;
-			}
-			else if ( ! representative2IsUniquelyNamedConstant &&
-					getNonEqualityConstraintOn(representative2, process).normalizeSplitterGivenConstraint(splitter, process)
-					!= splitter) {
-				result = true;
-			}
-			
-			// this method looks weird right now because we are in the process of generalizing it from DisequalitiesConstraintForSingleVariable to NonEqualitiesConstraint.
-			// Eventually this whole method will be a normalizeSplitterGivenConstraint for a Constraint implementation that gathers NonEqualitiesConstraints for all variables.
-			
-			return result;
-		}
-
-		private NonEqualitiesConstraintForSingleVariable getNonEqualityConstraintOn(Expression variable, RewritingProcess process) {
-			NonEqualitiesConstraintForSingleVariable result;
-			assert termTheory.isVariableTerm(variable, process) : "getDisequalitiesConstraint must be invoked for a variable but was invoked on " + variable;
-			result = nonEqualitiesConstraintFor(variable);
+			boolean result = nonEqualitiesConstraint.representativesAreExplicitlyConstrainedToBeDisequal(representative1, representative2, process);
 			return result;
 		}
 

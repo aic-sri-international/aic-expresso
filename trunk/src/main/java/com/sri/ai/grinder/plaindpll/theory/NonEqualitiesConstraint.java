@@ -1,5 +1,7 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.list;
 
 import java.util.Collection;
@@ -12,6 +14,7 @@ import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.Theory;
@@ -44,6 +47,51 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 		// TODO: implement a copy-on-write scheme
 	}
 	
+	@Override
+	protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression index, RewritingProcess process) {
+		Expression result = nonEqualitiesConstraintFor(index, process).pickSplitter(list(index), process);
+		return result;
+	}
+
+	private NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintFor(Expression variable, RewritingProcess process) {
+		assert ((EqualityConstraint) parentConstraint).getTermTheory().isVariableTerm(variable, process) : "nonEqualitiesConstraintFor must be invoked for a variable but was invoked on " + variable;
+		NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForTerm =
+				Util.getValuePossiblyCreatingIt(this, variable, key -> makeNonEqualitiesConstraintForVariable(key));
+		return nonEqualitiesConstraintForTerm;
+	}
+
+	protected boolean representativesAreExplicitlyConstrainedToBeDisequal(Expression representative1, Expression representative2, RewritingProcess process) {
+		boolean result = false;
+		boolean representative1IsUniquelyNamedConstant = process.isUniquelyNamedConstant(representative1);
+		boolean representative2IsUniquelyNamedConstant = process.isUniquelyNamedConstant(representative2);
+		
+		Expression splitter = apply(EQUALITY, representative1, representative2);
+		
+		if (representative1IsUniquelyNamedConstant && representative2IsUniquelyNamedConstant) {
+			result = ! representative1.equals(representative2);
+		}
+		else if ( ! representative1IsUniquelyNamedConstant &&
+				nonEqualitiesConstraintFor(representative1, process).normalizeSplitterGivenConstraint(splitter, process)
+				!= splitter) {
+			result = true;
+		}
+		else if ( ! representative2IsUniquelyNamedConstant &&
+				nonEqualitiesConstraintFor(representative2, process).normalizeSplitterGivenConstraint(splitter, process)
+				!= splitter) {
+			result = true;
+		}
+		
+		// this method looks weird right now because we are in the process of generalizing it from DisequalitiesConstraintForSingleVariable to NonEqualitiesConstraint.
+		// Eventually this whole method will be a normalizeSplitterGivenConstraint for a Constraint implementation that gathers NonEqualitiesConstraints for all variables.
+		
+		return result;
+	}
+
+	public void addFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process) {
+		NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForTerm1 = nonEqualitiesConstraintFor(term1, process);
+		disequalitiesConstraintForTerm1.incorporatePossiblyDestructively(false, Equality.make(term1, term2), process);
+	}
+
 	public void getNonEqualitiesSplittersToBeSatisfied(Collection<Expression> indicesSubSet, Collection<Expression> result, RewritingProcess process) {
 		// TODO: when nonEqualitiesConstraint gets consolidated into a single Constraint object, make sure it has a method getSplittersToBeSatisfied
 		// that does not iterate over all variables for disequalities, since we know in advance they do not provide splitters of this sort.

@@ -40,6 +40,31 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractOwnReprese
 		return supportedIndices;
 	}
 
+	/**
+	 * Given an index x, return one splitter needed for us to be able to
+	 * compute this index's number of values, or null if none is needed.
+	 * Only required if using default implementation of {@link #pickSplitter(Collection<Expression>, RewritingProcess)} (that is, not overriding it).
+	 */
+	protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression x, RewritingProcess process) {
+		throwSafeguardError(
+				getClass().getSimpleName(),
+				"provideSplitterRequiredForComputingNumberOfValuesFor", // thisClassName
+				"AbstractTheory.AbstractConstraint", // superClassName
+				"pickSplitter"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
+		return null; // never used, as safeguardCheck throws an error no matter what.
+	}
+
+	@Override
+	public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
+		for (Expression x : indicesSubSet) {
+			Expression splitter = provideSplitterRequiredForComputingNumberOfValuesFor(x, process);
+			if (splitter != null) {
+				return splitter;
+			}
+		}
+		return null;
+	}
+
 	protected Collection<Expression> getSplittersToBeSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
 		throwSafeguardError(
 				getClass().getSimpleName(),
