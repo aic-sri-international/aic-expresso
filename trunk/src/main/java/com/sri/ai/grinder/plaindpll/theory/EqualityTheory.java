@@ -40,10 +40,12 @@ package com.sri.ai.grinder.plaindpll.theory;
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.addAllForEachEntry;
+import static com.sri.ai.util.Util.filter;
 import static com.sri.ai.util.Util.getTransformedSubMap;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.removeAll;
@@ -519,6 +521,12 @@ public class EqualityTheory extends AbstractTheory {
 		@Override
 		protected Collection<Expression> getSplittersToBeSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
 			Collection<Expression> result = new LinkedHashSet<Expression>();
+			getSplittersToBeSatisfiedFromEqualities(indicesSubSet, result, process);
+			nonEqualitiesConstraint.getNonEqualitiesSplittersToBeSatisfied(indicesSubSet, result, process);
+			return result;
+		}
+
+		public void getSplittersToBeSatisfiedFromEqualities(Collection<Expression> indicesSubSet, Collection<Expression> result, RewritingProcess process) {
 			for (Expression variable : equalitiesMap.keySet()) {
 				if ( ! indicesSubSet.contains(variable)) {
 					Expression representative = getRepresentative(variable, process);
@@ -535,8 +543,6 @@ public class EqualityTheory extends AbstractTheory {
 					}
 				}
 			}
-			nonEqualitiesConstraint.getNonEqualitiesSplittersToBeSatisfied(indicesSubSet, result, process);
-			return result;
 		}
 
 		@Override
@@ -545,6 +551,21 @@ public class EqualityTheory extends AbstractTheory {
 			return result;
 		}
 
+		@Override
+		public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
+			Collection<Expression> splittersToBeSatisfiedFromEqualities = new LinkedHashSet<Expression>();
+			getSplittersToBeSatisfiedFromEqualities(indicesSubSet, splittersToBeSatisfiedFromEqualities, process);
+			Collection<Expression> splittersFromEqualitiesNotYetSatisfied = keepSplittersUnsatisfiedByContextualConstraint(splittersToBeSatisfiedFromEqualities, process);
+			Collection<Expression> notBoundIndices = filter(indicesSubSet, i -> !indexIsBound(i));
+			Expression result = nonEqualitiesConstraint.modelCount(notBoundIndices, process);
+			if ( ! result.equals(ZERO)) {
+				for (Expression splitter : splittersFromEqualitiesNotYetSatisfied) {
+					result = IfThenElse.make(splitter, result, ZERO);
+				}
+			}
+			return result;
+		}
+		
 		@Override
 		protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process) {
 			Expression numberOfPossibleValuesForIndex;
