@@ -280,7 +280,7 @@ abstract public class AbstractTheory implements Theory {
 	/**
 	 * Indicates whether variable is chosen after otherTerm in model counting choosing ordering.
 	 */
-	protected static boolean variableIsChosenAfterOtherTerm(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
+	public static boolean variableIsChosenAfterOtherTerm(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
 		boolean result = process.isUniquelyNamedConstant(otherTerm) || variableIsChosenAfterOtherVariable(otherTerm, variable, indices);
 		return result;
 	}

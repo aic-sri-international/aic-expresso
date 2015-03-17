@@ -34,7 +34,8 @@ public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 	public Constraint incorporatePossiblyDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
 
 	/**
-	 * Returns a pair of the variable and non-equality constraints map after updating representatives in their
+	 * Returns a pair of the variable and non-equality constraints map after updating representatives
+	 * (according to parent constraint) in their
 	 * representation, or <code>null</code> if there are no changes.
 	 * The reason this method is needed in this interface and not in Constraint in general is that,
 	 * by representing only the constraints on a single variable,
