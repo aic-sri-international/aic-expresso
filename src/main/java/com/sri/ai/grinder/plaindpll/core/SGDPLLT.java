@@ -46,6 +46,7 @@ import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.api.Theory;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.QuarternaryFunction;
 
 /**
@@ -111,7 +112,7 @@ public class SGDPLLT extends AbstractSolver {
 		
 		Expression result;
 		
-		assert constraint != null : "solve(Expression, Constraint, RewritingProcess) must only be given non-null expressions";
+		Util.myAssert(() -> constraint != null, "solve(Expression, Constraint, RewritingProcess) must only be given non-null expressions");
 		
 		Expression splitter = pickSplitter(expression, indices, constraint, process);
 
@@ -264,7 +265,7 @@ public class SGDPLLT extends AbstractSolver {
 	 */
 	private Expression solveUnderSplitter(boolean splitterSign, Expression splitter, Expression expression, Collection<Expression> indices, Constraint constraint, boolean splitterInContextualConstraint, RewritingProcess process) {
 		Expression result;
-		assert process.getDPLLContextualConstraint() != null : "SGDPLL(T) should not operate under a contradictory contextual constraint";
+		Util.myAssert(() -> process.getDPLLContextualConstraint() != null, "SGDPLL(T) should not operate under a contradictory contextual constraint");
 		RewritingProcess processUnderSplitter = splitterInContextualConstraint? process.extendDPLLContextualConstraint(splitterSign, splitter) : process;
 		if (processUnderSplitter.getDPLLContextualConstraint() == null) {
 			result = null;

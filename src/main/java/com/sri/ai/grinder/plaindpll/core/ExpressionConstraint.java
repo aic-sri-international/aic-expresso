@@ -56,6 +56,7 @@ import com.sri.ai.grinder.plaindpll.api.Solver;
 import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
 import com.sri.ai.grinder.plaindpll.theory.AbstractConstraint;
+import com.sri.ai.util.Util;
 
 /**
  * An implementation of {@link Constraint} based on an baseExpression representing it
@@ -92,7 +93,7 @@ public class ExpressionConstraint extends AbstractConstraint {
 	 * @return
 	 */
 	public static Constraint wrap(Theory theory, Collection<Expression> supportedIndices, Expression expression) {
-		assert expression != null : "ExpressionConstraint cannot wrap a null value.";
+		Util.myAssert(() -> expression != null, "ExpressionConstraint cannot wrap a null value.");
 		Constraint result;
 		if (expression instanceof Constraint) {
 			result = (Constraint) expression;

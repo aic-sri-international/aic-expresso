@@ -65,7 +65,7 @@ public class PickSingleElement {
 		
 		Expression       alpha       = ((IntensionalSet) intensionalSet).getHead();
 		IndexExpressionsSet indexExpressionsSet = ((IntensionalSet) intensionalSet).getIndexExpressions();
-		assert indexExpressionsSet instanceof ExtensionalIndexExpressionsSet : "PickSingleElement not implemented for intensional sets with non-extensional index expressions"; 
+		Util.myAssert(() -> indexExpressionsSet instanceof ExtensionalIndexExpressionsSet, "PickSingleElement not implemented for intensional sets with non-extensional index expressions"); 
 		List<Expression> indexExpressions = new ArrayList<Expression>(((ExtensionalIndexExpressionsSet) indexExpressionsSet).getList());
 		Trace.log("R <- indices in {} that {} depends on", indexExpressions, alpha);
 		Set<Expression>  alphaVars   = Expressions.freeVariables(alpha, process);
