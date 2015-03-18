@@ -87,7 +87,7 @@ public class AtomsAndEqualityOnTermsModelCountingDPLLTest extends AbstractSymbol
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 
 		// repeated for debugging:
-		expression = parse("p(X) = a and p(Y) = b and X = Y");
+		expression = parse("X = Y and (Z = T1 or Z = T2) and (T1 = W and T2 = W) and p(X,Z) != p(Y,W)");
 		indices    = list();
 		expected   = parse("0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);

@@ -166,11 +166,11 @@ abstract public class AbstractTheory implements Theory {
 					expression.getArguments(),
 					e -> isVariableTerm(e, process));
 			if (variable != null) {
-				Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(
+				Expression termDistinctFromVariable = Util.getFirstSatisfyingPredicateOrNull(
 						expression.getArguments(),
 						e -> ! e.equals(variable));
-				if (otherTerm != null) {
-					result = makeSplitterFromFunctorAndTwoTerms(splitterFunctor, variable, otherTerm, indices, process);
+				if (termDistinctFromVariable != null) {
+					result = makeSplitterFromFunctorAndVariableAndTermDistinctFromVariable(splitterFunctor, variable, termDistinctFromVariable, indices, process);
 				}
 			}
 		}
@@ -183,26 +183,45 @@ abstract public class AbstractTheory implements Theory {
 	 * While this may not work for all theories (some may have more complex splitters),
 	 * it is likely useful in most.
 	 * @param splitterFunctor the splitter's functor
-	 * @param term1
-	 * @param term2
+	 * @param variable
+	 * @param termDistinctFromVariable
 	 * @param indices
 	 * @param process
 	 * @return
 	 */
-	public Expression makeSplitterFromFunctorAndTwoTerms(String splitterFunctor, Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
+	public Expression makeSplitterFromFunctorAndVariableAndTermDistinctFromVariable(String splitterFunctor, Expression variable, Expression termDistinctFromVariable, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
 		// Places index or variable before constants.
-		if (indices.contains(term1)) {
-			result = Expressions.apply(splitterFunctor, term1, term2);
+		if (indices.contains(variable)) {
+			result = Expressions.apply(splitterFunctor, variable, termDistinctFromVariable);
 		}
-		else if (indices.contains(term2)) {
-			result = Expressions.apply(splitterFunctor, term2, term1);
+		else if (indices.contains(termDistinctFromVariable)) {
+			result = Expressions.apply(splitterFunctor, termDistinctFromVariable, variable);
 		}
-		else if (isVariableTerm(term1, process)) {
-			result = Expressions.apply(splitterFunctor, term1, term2);
+		else if (isVariableTerm(variable, process)) {
+			result = Expressions.apply(splitterFunctor, variable, termDistinctFromVariable);
 		}
 		else {
-			result = Expressions.apply(splitterFunctor, term2, term1);
+			result = Expressions.apply(splitterFunctor, termDistinctFromVariable, variable);
+		}
+		// Experimented with the below, which always chooses the variable later in value choice for first term in splitter,
+		// but this sometimes changes input expressions unnecessarily, so I am sticking with the above for now which is more conservative.
+//		if (variableIsChosenAfterOtherTerm(variable, termDistinctFromVariable, indices, process)) {
+//			result = Expressions.apply(splitterFunctor, variable, termDistinctFromVariable);
+//		}
+//		else { // only other variables are chosen after a variable, so here it must be the case that termDistinctFromVariable is a variable, too.
+//			result = Expressions.apply(splitterFunctor, termDistinctFromVariable, variable);
+//		}
+		return result;
+	}
+
+	public Expression makeSplitterFromFunctorAndTwoDistinctTermsOneOfWhichIsAVariable(String functor, Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
+		Expression result;
+		if (isVariableTerm(term1, process)) {
+			result = makeSplitterFromFunctorAndVariableAndTermDistinctFromVariable(functor, term1, term2, indices, process);
+		}
+		else {
+			result = makeSplitterFromFunctorAndVariableAndTermDistinctFromVariable(functor, term1, term2, indices, process);
 		}
 		return result;
 	}

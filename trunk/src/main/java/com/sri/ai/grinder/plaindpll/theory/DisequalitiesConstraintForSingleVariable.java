@@ -125,7 +125,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 					return splitter; // need to disunify first
 				}
 				else if ( ! areConstrainedToBeDisequal(disequal, anotherDisequal, process)) { // already disunified
-					splitter = getTheory().makeSplitterFromFunctorAndTwoTerms(EQUALITY, disequal, anotherDisequal, getSupportedIndices(), process);
+					splitter = getTheory().makeSplitterFromFunctorAndTwoDistinctTermsOneOfWhichIsAVariable(EQUALITY, disequal, anotherDisequal, getSupportedIndices(), process);
 					return splitter;
 				}
 			}
