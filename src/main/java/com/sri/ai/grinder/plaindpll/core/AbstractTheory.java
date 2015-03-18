@@ -162,7 +162,8 @@ abstract public class AbstractTheory implements Theory {
 		String splitterFunctor = getCorrespondingSplitterFunctorOrNull(expression);
 		if (splitterFunctor != null) {
 			// remember that equality can have an arbitrary number of terms
-			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(expression.getArguments(), 
+			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(
+					expression.getArguments(),
 					e -> isVariableTerm(e, process));
 			if (variable != null) {
 				Expression otherTerm = Util.getFirstSatisfyingPredicateOrNull(
@@ -302,7 +303,7 @@ abstract public class AbstractTheory implements Theory {
 			result = true; // free variable always precedes indices
 		}
 		else { // neither is index
-			result = otherVariable.toString().compareTo(variable.toString()) < 0;	// alphabetically		
+			result = otherVariable.toString().compareTo(variable.toString()) > 0;	// alphabetically		
 		}
 		return result;
 	}

@@ -1,5 +1,6 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
@@ -69,24 +70,47 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 	}
 
 	protected boolean representativesAreExplicitlyConstrainedToBeDisequal(Expression representative1, Expression representative2, RewritingProcess process) {
-		boolean result = false;
+		boolean result;
 		boolean representative1IsUniquelyNamedConstant = process.isUniquelyNamedConstant(representative1);
 		boolean representative2IsUniquelyNamedConstant = process.isUniquelyNamedConstant(representative2);
-		
-		Expression splitter = apply(EQUALITY, representative1, representative2);
 		
 		if (representative1IsUniquelyNamedConstant && representative2IsUniquelyNamedConstant) {
 			result = ! representative1.equals(representative2);
 		}
-		else if ( ! representative1IsUniquelyNamedConstant &&
-				nonEqualitiesConstraintFor(representative1, process).normalizeSplitterGivenConstraint(splitter, process)
-				!= splitter) {
-			result = true;
-		}
-		else if ( ! representative2IsUniquelyNamedConstant &&
-				nonEqualitiesConstraintFor(representative2, process).normalizeSplitterGivenConstraint(splitter, process)
-				!= splitter) {
-			result = true;
+		else {
+			Expression equality = apply(EQUALITY, representative1, representative2);
+			Expression splitter = equality;
+			
+			if ( ! representative1IsUniquelyNamedConstant &&
+					nonEqualitiesConstraintFor(representative1, process).normalizeSplitterGivenConstraint(splitter, process)
+					!= splitter) {
+				result = true;
+			}
+			else if ( ! representative2IsUniquelyNamedConstant &&
+					nonEqualitiesConstraintFor(representative2, process).normalizeSplitterGivenConstraint(splitter, process)
+					!= splitter) {
+				result = true;
+			}
+			else {
+				result = false;
+			}
+
+//			Expression splitter2 = getTheory().makeSplitterIfPossible(equality, getSupportedIndices(), process);
+//			// equality of two terms that are not constant will always be an equality splitter, so no need to check for splitter2 == null
+//			Expression simplifiedSplitter = nonEqualitiesConstraintFor(splitter2.get(0)).normalizeSplitterGivenConstraint(splitter2, process);
+//			boolean result2 = simplifiedSplitter.equals(FALSE);
+//			
+//			if (result2 != result) {
+//				System.out.println("Constraint: " + this);	
+//				System.out.println("terms: " + representative1 + ", " + representative2);	
+//				System.out.println("result: " + result);	
+//				System.out.println("splitter2: " + splitter2);	
+//				System.out.println("supportedIndices: " + getSupportedIndices());
+//				System.out.println("map: " + entrySet());	
+//				System.out.println("simplifiedSplitter: " + simplifiedSplitter);	
+//				System.out.println("result2: " + result2);	
+//				System.exit(-1);
+//			}
 		}
 		
 		// this method looks weird right now because we are in the process of generalizing it from DisequalitiesConstraintForSingleVariable to NonEqualitiesConstraint.
