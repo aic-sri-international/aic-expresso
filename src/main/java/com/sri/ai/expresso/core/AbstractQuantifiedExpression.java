@@ -57,6 +57,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractExpression;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.util.Util;
 
 /**
  * An abstract implementation of a {@link QuantifiedExpression}.
@@ -165,7 +166,7 @@ public abstract class AbstractQuantifiedExpression extends AbstractExpression im
 		@Override
 		public Expression replace(Expression expression, Expression newSubExpression) {
 			AbstractQuantifiedExpression quantifiedExpression = castOrThrowError(AbstractQuantifiedExpression.class, expression, "Attempt to use " + IndexExpressionTypeSubExpressionAddress.class.getSimpleName() + " to replace sub-expression " + newSubExpression + " in %s, but the latter should have been an instance of %s but is instead an instance of %s");
-			assert quantifiedExpression.getIndexExpressions() instanceof ExtensionalIndexExpressionsSet : quantifiedExpression.getClass().getSimpleName() + ".replaceIndexExpression assumes extensional set of index expressions but " + quantifiedExpression + " has a non-extensional index expression set";
+			Util.myAssert(() -> quantifiedExpression.getIndexExpressions() instanceof ExtensionalIndexExpressionsSet, () -> quantifiedExpression.getClass().getSimpleName() + ".replaceIndexExpression assumes extensional set of index expressions but " + quantifiedExpression + " has a non-extensional index expression set");
 
 			List<Expression> indexExpressionsList = ((ExtensionalIndexExpressionsSet) quantifiedExpression.getIndexExpressions()).getList();
 			List<Expression> newIndexExpressionsList =
