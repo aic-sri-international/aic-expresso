@@ -14,6 +14,7 @@ import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.theory.AbstractOwnRepresentationConstraint;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
+import com.sri.ai.util.Util;
 
 /**
  * An abstract {@link Constraint} implementation that lays the groundwork for
@@ -111,7 +112,7 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractOwnReprese
 	}
 
 	protected Expression computeModelCountGivenConditionsOnVariablesNotIn(Collection<Expression> indicesSubSet, RewritingProcess process) {
-		assert getSupportedIndices().containsAll(indicesSubSet) : "in " + getClass().getSimpleName() + ".computeModelCountGivenConditionsOnVariablesNotIn, indicesSubSet must be a sub-set of getIndices(), but " + indicesSubSet + " is not a sub-set of " + getSupportedIndices();
+		Util.myAssert(() -> getSupportedIndices().containsAll(indicesSubSet), () -> "in " + getClass().getSimpleName() + ".computeModelCountGivenConditionsOnVariablesNotIn, indicesSubSet must be a sub-set of getIndices(), but " + indicesSubSet + " is not a sub-set of " + getSupportedIndices());
 
 		List<Expression> numberOfPossibleValuesForIndicesSoFar = new LinkedList<Expression>();
 		

@@ -395,7 +395,7 @@ public class DPLLUtil {
 	public static boolean splitterIsNotSatisfiedFromContextualConstraintAlready(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		boolean result;
 		Expression splitterNormalizedByContextualConstraint = process.getDPLLContextualConstraint().normalizeSplitterGivenConstraint(splitter, process);
-		assert ! splitterNormalizedByContextualConstraint.equals( ! splitterSign); // required splitter must be satisfiable under contextual constraint, otherwise there is a bug somewhere
+		Util.myAssert(() -> ! splitterNormalizedByContextualConstraint.equals( ! splitterSign), "required splitter must be satisfiable under contextual constraint");
 		result = ! splitterNormalizedByContextualConstraint.equals(splitterSign); // if splitter is implied TRUE by contextual constraint, it is superfluous
 		return result;
 	}

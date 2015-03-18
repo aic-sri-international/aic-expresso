@@ -46,6 +46,7 @@ import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.group.SymbolicNumbersWithMaxGroup;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
 
@@ -59,7 +60,7 @@ public class Max extends SymbolicNumbersWithMaxGroup implements GroupProblemType
 
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		assert expression.hasFunctor(FunctorConstants.MAX) : "Expression expected to be application of " + FunctorConstants.MAX + " but is " + expression;
+		Util.myAssert(() -> expression.hasFunctor(FunctorConstants.MAX), () -> "Expression expected to be application of " + FunctorConstants.MAX + " but is " + expression);
 		IntensionalSet set = (IntensionalSet) expression.get(0);
 		Pair<Expression, IndexExpressionsSet> result = Pair.make(IfThenElse.make(set.getCondition(), set.getHead(), Expressions.MINUS_INFINITY), set.getIndexExpressions());
 		return result;

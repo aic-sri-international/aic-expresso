@@ -102,9 +102,7 @@ public class SymbolicPlusGroup extends AbstractSymbolicNumbersGroup {
 		}
 		else {
 			Rational valueToBeAddedRationalValue = valueToBeAdded.rationalValue();
-			//assert valueToBeAddedRationalValue != null: "Expected a constant numeric expression but got " + valueToBeAdded;
 			Rational nRationalValue = n.rationalValue();
-			//assert nRationalValue != null: "Expected a constant numeric expression but got " + n;
 			if (valueToBeAddedRationalValue != null && nRationalValue != null) {
 				result = Expressions.makeSymbol(valueToBeAddedRationalValue.multiply(nRationalValue));
 			}

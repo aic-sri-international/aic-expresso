@@ -200,7 +200,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 
 		@Override
 		public Expression replace(Expression expression, Expression newSubExpression) {
-			assert expression.getSyntacticFormType().equals("Function application") : DefaultFunctionApplication.class.getSimpleName() + ".IndexAddress applied to expression " + expression + " of class " + expression.getClass();
+			Util.myAssert(() -> expression.getSyntacticFormType().equals("Function application"), () -> DefaultFunctionApplication.class.getSimpleName() + ".IndexAddress applied to expression " + expression + " of class " + expression.getClass());
 			Expression result = expression.set(this.index, newSubExpression);
 			return result;
 		}

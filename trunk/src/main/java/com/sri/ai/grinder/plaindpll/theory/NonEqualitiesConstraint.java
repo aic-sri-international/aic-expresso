@@ -62,7 +62,7 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 	}
 
 	private NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintFor(Expression variable, RewritingProcess process) {
-		assert ((EqualityConstraint) parentConstraint).getTermTheory().isVariableTerm(variable, process) : "nonEqualitiesConstraintFor must be invoked for a variable but was invoked on " + variable;
+		Util.myAssert(() -> ((EqualityConstraint) parentConstraint).getTermTheory().isVariableTerm(variable, process), () -> "nonEqualitiesConstraintFor must be invoked for a variable but was invoked on " + variable);
 		NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForTerm =
 				Util.getValuePossiblyCreatingIt(this, variable, key -> makeNonEqualitiesConstraintForVariable(key));
 		return nonEqualitiesConstraintForTerm;
@@ -164,7 +164,7 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 		// TODO: when nonEqualitiesConstraint gets consolidated into a single Constraint object, make sure it has a method getSplittersToBeSatisfied
 		// that does not iterate over all variables for disequalities, since we know in advance they do not provide splitters of this sort.
 		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : entrySet()) {
-			assert getTermTheory().isVariableTerm(entry.getKey(), process);
+			Util.myAssert(() -> getTermTheory().isVariableTerm(entry.getKey(), process), () -> "Key in map for NonEqualitiesConstraints is not a variable, but " + entry.getKey());
 			Expression variable = entry.getKey();
 			if ( ! indicesSubSet.contains(variable)) { // if variable is free
 				NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = entry.getValue();
@@ -184,7 +184,7 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 	public Collection<Expression> getNonEqualitiesSplittersToBeNotSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
 		Collection<Expression> result = new LinkedHashSet<Expression>();
 		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : entrySet()) {
-			assert getTermTheory().isVariableTerm(entry.getKey(), process);
+			Util.myAssert(() -> getTermTheory().isVariableTerm(entry.getKey(), process), () -> "Key in map for NonEqualitiesConstraints is not a variable, but " + entry.getKey());
 			Expression variable = entry.getKey();
 			if ( ! indicesSubSet.contains(variable)) { // if variable is free
 				NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = entry.getValue();

@@ -75,7 +75,7 @@ public class ExpressionConstraint extends AbstractConstraint {
 	private Theory theory;
 	
 	private ExpressionConstraint(Theory theory, Collection<Expression> supportedIndices, Expression expression) {
-		assert expression != null : getClass().getSimpleName() + " cannot wrap a null value.";
+		Util.myAssert(() -> expression != null, () -> getClass().getSimpleName() + " cannot wrap a null value.");
 		this.baseExpression = expression instanceof ExpressionConstraint? ((ExpressionConstraint) expression).baseExpression : expression;
 		this.supportedIndices = supportedIndices;
 		this.theory = theory;
@@ -159,7 +159,7 @@ public class ExpressionConstraint extends AbstractConstraint {
 			result = newConstraint.incorporate(splitterSign, splitter, process);
 		}
 		else { // only acceptable leaves are boolean constants and splitters, so at this point it must be a boolean connective.
-			assert FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(baseExpression) : "Only boolean formulas on theory literals supported by " + getClass();
+			Util.myAssert(() -> FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(baseExpression), () -> "Only boolean formulas on theory literals supported by " + getClass());
 			result = wrap(applyJavaFunctionToArgumentsAndReAssembleFunctionApplication(
 					subExpression -> wrap(subExpression).incorporate(splitterSign, splitter, process),
 					baseExpression));
@@ -181,7 +181,7 @@ public class ExpressionConstraint extends AbstractConstraint {
 			result = splitterIfAny;
 		}
 		else { // only acceptable leaves are boolean constants and splitters, so at this point it must be a boolean connective.
-			assert FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(baseExpression) : "Only boolean formulas on theory literals supported by " + getClass();
+			Util.myAssert(() -> FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(baseExpression), () -> "Only boolean formulas on theory literals supported by " + getClass());
 			result = getFirstNonNullResultOrNull(baseExpression.getArguments(), subExpression -> wrap(subExpression).pickSplitter(indicesSubSet, process));
 		}
 		return result;

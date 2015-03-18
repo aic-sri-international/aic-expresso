@@ -249,7 +249,7 @@ public class PropositionalTheory extends AbstractTheory {
 		protected Expression computeModelCountGivenConditionsOnVariablesNotIn(Collection<Expression> indicesSubSet, RewritingProcess process) {
 			Expression result;
 			if (indicesSubSet.size() == getSupportedIndices().size()) {
-				assert getSupportedIndices().containsAll(indicesSubSet) : "in PropositionalConstraint.computeModelCountGivenConditionsOnVariablesNotIn, indicesSubSet must be a sub-set of getIndices(), but " + indicesSubSet + " is not a sub-set of " + getSupportedIndices();
+				Util.myAssert(() -> getSupportedIndices().containsAll(indicesSubSet), () -> "in PropositionalConstraint.computeModelCountGivenConditionsOnVariablesNotIn, indicesSubSet must be a sub-set of getIndices(), but " + indicesSubSet + " is not a sub-set of " + getSupportedIndices());
 				result = super.computeModelCountGivenConditionsOnVariablesNotIn(indicesSubSet, process);
 			}
 			result = Expressions.makeSymbol(new Rational(2).pow(supportedIndices.size() - numberOfBoundIndices));

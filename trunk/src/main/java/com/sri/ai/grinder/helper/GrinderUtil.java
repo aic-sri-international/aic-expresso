@@ -710,7 +710,7 @@ public class GrinderUtil {
 		}
 		else if (expression.getSyntacticFormType().equals("Function application")) {
 			Expression functionType = getType(expression.getFunctor(), process);
-			assert functionType.hasFunctor("->") : "Functor " + expression.getFunctor() + " in expression " + expression + " should have functional type be an expression with functor '->', but has type instead equal to " + functionType;
+			Util.myAssert(() -> functionType.hasFunctor("->"), () -> "Functor " + expression.getFunctor() + " in expression " + expression + " should have functional type be an expression with functor '->', but has type instead equal to " + functionType);
 			
 			List<Expression> argumentsTypesList;
 			Expression coDomain;
@@ -724,7 +724,7 @@ public class GrinderUtil {
 				argumentsTypesList = multipleArguments? argumentsType.getArguments() : list(argumentsType);
 				coDomain = functionType.get(1);
 			}
-			assert Util.mapIntoList(expression.getArguments(), new GetType(process)).equals(argumentsTypesList) : "Function " + expression.getFunctor() + " is of type " + functionType + " but is applied to " + expression.getArguments() + " which are of types " + Util.mapIntoList(expression.getArguments(), new GetType(process));
+			Util.myAssert(() -> Util.mapIntoList(expression.getArguments(), new GetType(process)).equals(argumentsTypesList), () -> "Function " + expression.getFunctor() + " is of type " + functionType + " but is applied to " + expression.getArguments() + " which are of types " + Util.mapIntoList(expression.getArguments(), new GetType(process)));
 
 			result = coDomain;
 		}

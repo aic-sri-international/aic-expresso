@@ -49,6 +49,7 @@ import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
 import com.sri.ai.grinder.plaindpll.theory.EqualityTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
+import com.sri.ai.util.Util;
 
 @Beta
 public class SymbolEqualityModelCountingDPLLStressTest extends AbstractSymbolicGenericDPLLStressTest {
@@ -62,7 +63,7 @@ public class SymbolEqualityModelCountingDPLLStressTest extends AbstractSymbolicG
 //		((SGVET) result).basicOutput = false;
 		
 		result = new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new ModelCounting(), new CountsDeclaration(10));
-		
+
 		return result;
 	}
 

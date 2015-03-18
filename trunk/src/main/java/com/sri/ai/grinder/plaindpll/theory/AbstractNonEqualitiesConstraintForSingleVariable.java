@@ -10,6 +10,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityConstraint;
+import com.sri.ai.util.Util;
 
 /** Defined for the benefit of {@link EqualityConstraint} outside of it because the latter is a non-static class. */	
 @SuppressWarnings("serial")
@@ -26,7 +27,7 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 	
 	@Override
 	public AbstractNonEqualitiesConstraintForSingleVariable clone() {
-		assert false : "Cloning of " + getClass() + " not implemented yet.";
+		Util.myAssert(() -> false, () -> "Cloning of " + getClass() + " not implemented yet.");
 		return null;
 	}
 	
@@ -57,19 +58,19 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 
 	@Override
 	public Constraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		assert false : (new Object(){}).getClass().getEnclosingMethod() + " not implemented yet."; // more robust to method renaming
+		Util.myAssert(() -> false, () -> (new Object(){}).getClass().getEnclosingMethod() + " not implemented yet."); // more robust to method renaming
 		return null;
 	}
 	
 	@Override
 	protected void applyNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		assert false : (new Object(){}).getClass().getEnclosingMethod() + " not implemented yet."; // more robust to method renaming
+		Util.myAssert(() -> false, () -> (new Object(){}).getClass().getEnclosingMethod() + " not implemented yet."); // more robust to method renaming
 	}
 
 
 	@Override
 	public Expression normalizeExpressionWithoutLiterals(Expression expression, RewritingProcess process) {
-		assert false : (new Object(){}).getClass().getEnclosingMethod() + " not implemented yet."; // more robust to method renaming
+		Util.myAssert(() -> false, () -> (new Object(){}).getClass().getEnclosingMethod() + " not implemented yet."); // more robust to method renaming
 		return null;
 	}
 }

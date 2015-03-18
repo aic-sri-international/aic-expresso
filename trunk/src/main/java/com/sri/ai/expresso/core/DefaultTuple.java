@@ -165,7 +165,7 @@ public class DefaultTuple extends AbstractNonQuantifiedExpression implements Tup
 
 		@Override
 		public Expression replace(Expression expression, Expression newSubExpression) {
-			assert expression instanceof DefaultTuple : DefaultTuple.class.getSimpleName() + ".IndexAddress applied to expression " + expression + " of class " + expression.getClass();
+			Util.myAssert(() -> expression instanceof DefaultTuple, () -> DefaultTuple.class.getSimpleName() + ".IndexAddress applied to expression " + expression + " of class " + expression.getClass());
 			Expression result = expression.set(this.index, newSubExpression);
 			return result;
 		}

@@ -55,7 +55,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	 */
 	@Override
 	public DisequalitiesConstraintForSingleVariable copyWithNewParent(Constraint parentConstraint) {
-		assert parentConstraint instanceof EqualityConstraint : getClass() + "'s parent constraint must be an EqualityConstraint";
+		Util.myAssert(() -> parentConstraint instanceof EqualityConstraint, () -> getClass() + "'s parent constraint must be an EqualityConstraint");
 		return (DisequalitiesConstraintForSingleVariable) super.copyWithNewParent(parentConstraint);
 	}
 
@@ -84,8 +84,8 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 
 	@Override
 	public DisequalitiesConstraintForSingleVariable incorporatePossiblyDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		assert ! splitterSign && isEquality(splitter) : getClass() + " only allowed to take negative equality literals (disequalities) but got " + (splitterSign? "" : "not ") + " " + splitter;
-		assert splitter.get(0).equals(variable) : getClass() + " must only take splitters in which the first argument is the same as the main variable";
+		Util.myAssert(() -> ! splitterSign && isEquality(splitter), () -> getClass() + " only allowed to take negative equality literals (disequalities) but got " + (splitterSign? "" : "not ") + " " + splitter);
+		Util.myAssert(() -> splitter.get(0).equals(variable), () -> getClass() + " must only take splitters in which the first argument is the same as the main variable");
 		addNonEqualityConstraintDestructively(DISEQUALITY, splitter.get(1), process);
 		return this;
 	}

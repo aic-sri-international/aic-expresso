@@ -51,14 +51,14 @@ public abstract class AbstractExtensionalSet extends AbstractNonQuantifiedExpres
 	
 			@Override
 			public Expression replace(Expression expression, Expression newSubExpression) {
-				assert expression instanceof AbstractExtensionalSet : getClass().getSimpleName() + ".IndexAddress applied to expression " + expression + " of class " + expression.getClass();
+				Util.myAssert(() -> expression instanceof AbstractExtensionalSet, () -> getClass().getSimpleName() + ".IndexAddress applied to expression " + expression + " of class " + expression.getClass());
 				Expression result = ((ExtensionalSetInterface)expression).setElementDefinition(this.index, newSubExpression);
 				return result;
 			}
 
 			@Override
 			public Expression getSubExpressionOf(Expression expression) {
-				assert expression instanceof AbstractExtensionalSet : getClass().getSimpleName() + ".IndexAddress applied to expression " + expression + " of class " + expression.getClass();
+				Util.myAssert(() -> expression instanceof AbstractExtensionalSet, () -> getClass().getSimpleName() + ".IndexAddress applied to expression " + expression + " of class " + expression.getClass());
 				Expression result = ((AbstractExtensionalSet) expression).getElementDefinition(index);
 				return result;
 			}

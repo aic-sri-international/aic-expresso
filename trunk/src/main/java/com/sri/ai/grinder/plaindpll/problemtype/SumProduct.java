@@ -47,6 +47,7 @@ import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
 import com.sri.ai.grinder.plaindpll.group.SymbolicPlusTimesSemiRing;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
 
@@ -60,7 +61,7 @@ public class SumProduct extends SymbolicPlusTimesSemiRing implements SemiRingPro
 
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		assert expression.hasFunctor(FunctorConstants.SUM) : "Expression expected to be application of " + FunctorConstants.SUM + " but is " + expression;
+		Util.myAssert(() -> expression.hasFunctor(FunctorConstants.SUM), () -> "Expression expected to be application of " + FunctorConstants.SUM + " but is " + expression);
 		IntensionalSet set = (IntensionalSet) expression.get(0);
 		Pair<Expression, IndexExpressionsSet> result = Pair.make(IfThenElse.make(set.getCondition(), set.getHead(), ZERO), set.getIndexExpressions());
 		return result;
