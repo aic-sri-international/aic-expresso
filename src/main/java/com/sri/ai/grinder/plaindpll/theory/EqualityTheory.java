@@ -389,40 +389,37 @@ public class EqualityTheory extends AbstractTheory {
 
 		private void updateRepresentativesInEqualitiesMap(RewritingProcess process) {
 			if ( ! termTheory.termsHaveNoArguments()) {
-				boolean representativesWereUpdated;
+				boolean equalitiesMapHasBeenUpdated;
 				do {
-					representativesWereUpdated = false;
+					equalitiesMapHasBeenUpdated = false;
 					Map<Expression, Expression> newEqualitiesMap = new LinkedHashMap<Expression, Expression>();
 					for (Expression variable : equalitiesMap.keySet()) {
-						Expression oldRepresentative = getRepresentative(variable, false /* do not update map as we are iterating over it */, process);
+						Expression representativeOfVariable = getRepresentative(variable, false /* do not update map as we are iterating over it */, process);
 						Expression newVariable = termTheory.normalizeTermInEquality(variable, this, process);
 
-						Expression newRepresentative;
-						Expression representativesEquality;
 						if (newVariable == variable) {
-							newRepresentative = oldRepresentative;
-							representativesEquality = TRUE;
+							// no change for this variable, just copy this entry to the new map
+							setBinding(newEqualitiesMap, variable, representativeOfVariable);
 						}
 						else {
-							newRepresentative = getRepresentative(newVariable, false, process);
-							representativesEquality = makeSplitterFromFunctorAndTwoTerms(EQUALITY, oldRepresentative, newRepresentative, supportedIndices, process);
-							representativesEquality = simplify(representativesEquality, process);
+							Expression representativeOfNewVariable = getRepresentative(newVariable, false, process);
+							Expression representativesEquality = Equality.makeWithConstantSimplification(representativeOfVariable, representativeOfNewVariable, process);
 							if (representativesEquality.equals(FALSE)) {
 								throw new Contradiction();
 							}
-						}
-
-						if (representativesEquality.equals(TRUE)) {
-							setBinding(newEqualitiesMap, newVariable, newRepresentative);
-						}
-						else {
-							representativesWereUpdated = true;
-							setBinding(newEqualitiesMap, newVariable, newRepresentative);
-							setBinding(newEqualitiesMap, representativesEquality.get(0), representativesEquality.get(1));
+							else {
+								setBinding(newEqualitiesMap, newVariable, representativeOfNewVariable);
+								if ( ! representativesEquality.equals(TRUE)) {
+									// variable = representativeOfVariable and variable = newVariable = representativeOfNewVariable,
+									// therefore, by transitivity, representativeOfVariable = representativeOfNewVariable
+									setBinding(newEqualitiesMap, representativeOfVariable, representativeOfNewVariable);
+								}
+								equalitiesMapHasBeenUpdated = true;
+							}
 						}
 					}
-					equalitiesMap = representativesWereUpdated? newEqualitiesMap : equalitiesMap;
-				} while (representativesWereUpdated);
+					equalitiesMap = equalitiesMapHasBeenUpdated? newEqualitiesMap : equalitiesMap;
+				} while (equalitiesMapHasBeenUpdated);
 			}
 		}
 
