@@ -1,6 +1,8 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 
 /** An class implementing basic {@link Constraint} functionality. */	
@@ -27,4 +29,9 @@ public abstract class AbstractConstraint extends AbstractExpressionWrapper imple
 //	protected Constraint getParentConstraint() {
 //		return parentConstraint;
 //	}
+
+	@Override
+	public Constraint incorporatePossiblyDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		throw new Error(this.getClass().getSimpleName() + "." + (new Object(){}).getClass().getEnclosingMethod() + " not implemented yet.");
+	}
 }

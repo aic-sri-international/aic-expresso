@@ -99,9 +99,30 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 		return result;
 	}
 
+	@Override
+	public NonEqualitiesConstraint incorporatePossiblyDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		myAssert( ! splitterSign, "NonEqualitiesConstraint.incorporatePossiblyDestructively must receive disequalities only for now");
+		Expression variable  = splitter.get(0);
+		Expression otherTerm = splitter.get(1);
+		if (isVariableTerm(variable, process) || isVariableTerm(otherTerm, process)) {
+			if (firstTermComesLaterInChoiceOrder(variable, otherTerm, process)) {
+				addFirstTermAsDisequalOfSecondTermDestructively(variable, otherTerm, process);
+			}
+			else { // term2 must be a variable because either term1 is not a variable, or it is but term2 comes later than term1 in ordering, which means it is a variable
+				addFirstTermAsDisequalOfSecondTermDestructively(otherTerm, variable, process);
+			}
+		}
+		// else they are both constants, and distinct ones, so no need to do anything.
+		return this;
+	}
+
 	private boolean firstTermComesLaterInChoiceOrder(Expression representative1, Expression representative2, RewritingProcess process) {
-		return getTheory().isVariableTerm(representative1, process) &&
+		return isVariableTerm(representative1, process) &&
 				AbstractTheory.variableIsChosenAfterOtherTerm(representative1, representative2, getSupportedIndices(), process);
+	}
+
+	private boolean isVariableTerm(Expression term, RewritingProcess process) {
+		return getTheory().isVariableTerm(term, process);
 	}
 
 	public void addFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process) {
