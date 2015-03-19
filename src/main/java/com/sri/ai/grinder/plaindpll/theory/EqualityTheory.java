@@ -344,13 +344,13 @@ public class EqualityTheory extends AbstractTheory {
 
 		@Override
 		protected void applyNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
-			Expression variable  = splitter.get(0);
-			Expression otherTerm = splitter.get(1);
 			if (splitterSign) {
+				Expression variable  = splitter.get(0);
+				Expression otherTerm = splitter.get(1);
 				applyRepresentativesEqualityDestructively(variable, otherTerm, process);
 			}
 			else {
-				applyRepresentativesDisequalityDestructively(variable, otherTerm, process);
+				nonEqualitiesConstraint = nonEqualitiesConstraint.incorporatePossiblyDestructively(splitterSign, splitter, process); 
 			}
 		}
 
@@ -427,19 +427,6 @@ public class EqualityTheory extends AbstractTheory {
 					equalitiesMap = equalitiesMapHasBeenUpdated? newEqualitiesMap : equalitiesMap;
 				} while (equalitiesMapHasBeenUpdated);
 			}
-		}
-
-		/** Assumes disequality does not turn constraint into contradiction */
-		private void applyRepresentativesDisequalityDestructively(Expression term1, Expression term2, RewritingProcess process) {
-			if (termTheory.isVariableTerm(term1, process) || termTheory.isVariableTerm(term2, process)) {
-				if (termTheory.isVariableTerm(term1, process) && variableIsChosenAfterOtherTerm(term1, term2, supportedIndices, process)) {
-					nonEqualitiesConstraint.addFirstTermAsDisequalOfSecondTermDestructively(term1, term2, process);
-				}
-				else { // term2 must be a variable because either term1 is not a variable, or it is but term2 comes later than term1 in ordering, which means it is a variable
-					nonEqualitiesConstraint.addFirstTermAsDisequalOfSecondTermDestructively(term2, term1, process);
-				}
-			}
-			// else they are both constants, and distinct ones, so no need to do anything.
 		}
 
 		public void getSplittersToBeSatisfiedFromEqualities(Collection<Expression> indicesSubSet, Collection<Expression> result, RewritingProcess process) {

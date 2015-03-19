@@ -21,19 +21,6 @@ public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 	public NonEqualitiesConstraintForSingleVariable copyWithNewParent(Constraint newParent);
 
 	/**
-	 * Same as {@link #incorporate(boolean, Expression, RewritingProcess)}, but allows the returned
-	 * Constraint to be this same instance even if it has changed --
-	 * this violates the immutability assumption about {@link Expression} and {@link Constraint}
-	 * and should only be used for setup purposes, before an object is released by its creator
-	 * to the world at large (because then it may be assumed immutable by other objects holding it,
-	 * so it should behave immutable from then on).
-	 * @param splitterSign the splitter's sign (true for splitter itself, false for its negation)
-	 * @param splitter the splitter according to this theoryWithEquality's choice
-	 * @param process the rewriting process
-	 */
-	public Constraint incorporatePossiblyDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
-
-	/**
 	 * Returns a pair of the variable and non-equality constraints map after updating representatives
 	 * (according to parent constraint) in their
 	 * representation, or <code>null</code> if there are no changes.
