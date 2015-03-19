@@ -6,6 +6,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.util.Util.addAllForEachEntry;
 import static com.sri.ai.util.Util.getTransformedSubMap;
 import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.removeAll;
 
 import java.util.Collection;
@@ -71,24 +72,20 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 
 	@Override
 	public boolean directlyImplies(Expression literal, RewritingProcess process) {
-		throw new Error("NonEqualitiesConstraintForSingleVariable.directlyImplies not tested yet.");
-//		myAssert(() -> literal.hasFunctor(DISEQUALITY), "NonEqualitiesConstraint.directlyImplies must receive disequalities only");
-//		boolean result = representativesAreExplicitlyConstrainedToBeDisequal(literal.get(0), literal.get(1), process);
-//		return result;
-	}
+		myAssert(() -> literal.hasFunctor(DISEQUALITY), "NonEqualitiesConstraint.directlyImplies must receive disequalities only");
 
-	protected boolean representativesAreExplicitlyConstrainedToBeDisequal(Expression representative1, Expression representative2, RewritingProcess process) {
 		boolean result;
+		Expression representative1 = literal.get(0);
+		Expression representative2 = literal.get(1);
 		
-		Expression literalWithRepresentative1First = apply(DISEQUALITY, representative1, representative2);
-		Expression simplifiedLiteral = getTheory().simplify(literalWithRepresentative1First, process);
+		Expression simplifiedLiteral = getTheory().simplify(literal, process);
 		if (simplifiedLiteral.getSyntacticFormType().equals("Symbol")) {
 			result = simplifiedLiteral.equals(TRUE);
 		}
 		else {
 			// at least one of the representatives is a variable, or the simplification would have been complete.
 			if (firstTermComesLaterInChoiceOrder(representative1, representative2, process)) {
-				result = nonEqualitiesConstraintFor(representative1, process).directlyImplies(literalWithRepresentative1First, process);
+				result = nonEqualitiesConstraintFor(representative1, process).directlyImplies(literal, process);
 			}
 			else {
 				Expression literalWithRepresentative2First = apply(DISEQUALITY, representative2, representative1);

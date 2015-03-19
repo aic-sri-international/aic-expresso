@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.filter;
 
@@ -318,7 +319,7 @@ public class EqualityTheory extends AbstractTheory {
 			Expression representative2 = getRepresentative(splitter.get(1), process);
 			simplifiedSplitterGivenConstraint = Equality.makeWithConstantSimplification(representative1, representative2, process);
 			if ( ! simplifiedSplitterGivenConstraint.getSyntacticFormType().equals("Symbol")) {
-				if (nonEqualitiesConstraint.representativesAreExplicitlyConstrainedToBeDisequal(representative1, representative2, process)) {
+				if (nonEqualitiesConstraint.directlyImplies(apply(DISEQUALITY, representative1, representative2), process)) { // TODO: create specialized interface to avoid this unnecessary creation of a literal
 					simplifiedSplitterGivenConstraint = FALSE;
 				}
 			}
@@ -478,7 +479,7 @@ public class EqualityTheory extends AbstractTheory {
 		public boolean termsAreExplicitlyConstrainedToBeDisequal(Expression term1, Expression term2, RewritingProcess process) {
 			Expression representative1 = getRepresentative(term1, process);
 			Expression representative2 = getRepresentative(term2, process);
-			boolean result = nonEqualitiesConstraint.representativesAreExplicitlyConstrainedToBeDisequal(representative1, representative2, process);
+			boolean result = nonEqualitiesConstraint.directlyImplies(apply(DISEQUALITY, representative1, representative2), process); // TODO: create specialized interface to avoid this unnecessary creation of a literal
 			return result;
 		}
 
