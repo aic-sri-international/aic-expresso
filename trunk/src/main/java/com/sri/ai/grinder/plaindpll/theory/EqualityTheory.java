@@ -307,6 +307,11 @@ public class EqualityTheory extends AbstractTheory {
 		}
 
 		@Override
+		public boolean directlyImplies(Expression literal, RewritingProcess process) {
+			throw new Error("EqualityConstraint.directlyImplies not implemented yet.");
+		}
+
+		@Override
 		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
 			Expression simplifiedSplitterGivenConstraint;
 			Expression representative1 = getRepresentative(splitter.get(0), process);

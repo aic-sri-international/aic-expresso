@@ -171,6 +171,11 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		}
 
 		@Override
+		public boolean directlyImplies(Expression literal, RewritingProcess process) {
+			throw new Error("AtomsOnTheoryWithEquality.directlyImplies not implemented yet.");
+		}
+
+		@Override
 		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
 			Expression equalitySplitter = Equality.isEquality(splitter)? splitter : Equality.make(splitter, TRUE);
 			Expression impliedByEqualityConstraint = equalityConstraint.normalizeSplitterGivenConstraint(equalitySplitter, process);

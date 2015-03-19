@@ -1,9 +1,8 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
-import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.addAllForEachEntry;
 import static com.sri.ai.util.Util.getTransformedSubMap;
 import static com.sri.ai.util.Util.list;
@@ -26,6 +25,7 @@ import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
+import com.sri.ai.grinder.plaindpll.core.AbstractTheory;
 import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityConstraint;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
@@ -69,54 +69,42 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 		return nonEqualitiesConstraintForTerm;
 	}
 
+	@Override
+	public boolean directlyImplies(Expression literal, RewritingProcess process) {
+		throw new Error("NonEqualitiesConstraintForSingleVariable.directlyImplies not tested yet.");
+//		myAssert(() -> literal.hasFunctor(DISEQUALITY), "NonEqualitiesConstraint.directlyImplies must receive disequalities only");
+//		boolean result = representativesAreExplicitlyConstrainedToBeDisequal(literal.get(0), literal.get(1), process);
+//		return result;
+	}
+
 	protected boolean representativesAreExplicitlyConstrainedToBeDisequal(Expression representative1, Expression representative2, RewritingProcess process) {
 		boolean result;
-		boolean representative1IsUniquelyNamedConstant = process.isUniquelyNamedConstant(representative1);
-		boolean representative2IsUniquelyNamedConstant = process.isUniquelyNamedConstant(representative2);
 		
-		if (representative1IsUniquelyNamedConstant && representative2IsUniquelyNamedConstant) {
-			result = ! representative1.equals(representative2);
+		Expression literalWithRepresentative1First = apply(DISEQUALITY, representative1, representative2);
+		Expression simplifiedLiteral = getTheory().simplify(literalWithRepresentative1First, process);
+		if (simplifiedLiteral.getSyntacticFormType().equals("Symbol")) {
+			result = simplifiedLiteral.equals(TRUE);
 		}
 		else {
-			Expression equality = apply(EQUALITY, representative1, representative2);
-			Expression splitter = equality;
-			
-			if ( ! representative1IsUniquelyNamedConstant &&
-					nonEqualitiesConstraintFor(representative1, process).normalizeSplitterGivenConstraint(splitter, process)
-					!= splitter) {
-				result = true;
-			}
-			else if ( ! representative2IsUniquelyNamedConstant &&
-					nonEqualitiesConstraintFor(representative2, process).normalizeSplitterGivenConstraint(splitter, process)
-					!= splitter) {
-				result = true;
+			// at least one of the representatives is a variable, or the simplification would have been complete.
+			if (firstTermComesLaterInChoiceOrder(representative1, representative2, process)) {
+				result = nonEqualitiesConstraintFor(representative1, process).directlyImplies(literalWithRepresentative1First, process);
 			}
 			else {
-				result = false;
+				Expression literalWithRepresentative2First = apply(DISEQUALITY, representative2, representative1);
+				result = nonEqualitiesConstraintFor(representative2, process).directlyImplies(literalWithRepresentative2First, process);
+				// TODO: perhaps we should extend Constraint for an interface that accepts directlyImpliesDisequalityAgainst(representative1, process)
+				// or something similar, in order to avoid the unnecessary construction of the literal, as well as the check about which of the literal's terms
+				// is equal to the single variable of the constraint, which we already know at this point.
 			}
-
-//			Expression splitter2 = getTheory().makeSplitterIfPossible(equality, getSupportedIndices(), process);
-//			// equality of two terms that are not constant will always be an equality splitter, so no need to check for splitter2 == null
-//			Expression simplifiedSplitter = nonEqualitiesConstraintFor(splitter2.get(0)).normalizeSplitterGivenConstraint(splitter2, process);
-//			boolean result2 = simplifiedSplitter.equals(FALSE);
-//			
-//			if (result2 != result) {
-//				System.out.println("Constraint: " + this);	
-//				System.out.println("terms: " + representative1 + ", " + representative2);	
-//				System.out.println("result: " + result);	
-//				System.out.println("splitter2: " + splitter2);	
-//				System.out.println("supportedIndices: " + getSupportedIndices());
-//				System.out.println("map: " + entrySet());	
-//				System.out.println("simplifiedSplitter: " + simplifiedSplitter);	
-//				System.out.println("result2: " + result2);	
-//				System.exit(-1);
-//			}
 		}
 		
-		// this method looks weird right now because we are in the process of generalizing it from DisequalitiesConstraintForSingleVariable to NonEqualitiesConstraint.
-		// Eventually this whole method will be a normalizeSplitterGivenConstraint for a Constraint implementation that gathers NonEqualitiesConstraints for all variables.
-		
 		return result;
+	}
+
+	private boolean firstTermComesLaterInChoiceOrder(Expression representative1, Expression representative2, RewritingProcess process) {
+		return getTheory().isVariableTerm(representative1, process) &&
+				AbstractTheory.variableIsChosenAfterOtherTerm(representative1, representative2, getSupportedIndices(), process);
 	}
 
 	public void addFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process) {
@@ -174,7 +162,7 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 	/** Assumes disequality does not turn constraint into contradiction */
 	private void applyRepresentativesDisequalityDestructively(Expression term1, Expression term2, RewritingProcess process) {
 		if (getTermTheory().isVariableTerm(term1, process) || getTermTheory().isVariableTerm(term2, process)) {
-			if (getTermTheory().isVariableTerm(term1, process) && EqualityTheory.variableIsChosenAfterOtherTerm(term1, term2, supportedIndices, process)) {
+			if (firstTermComesLaterInChoiceOrder(term1, term2, process)) {
 				addFirstTermAsDisequalOfSecondTermDestructively(term1, term2, process);
 			}
 			else { // term2 must be a variable because either term1 is not a variable, or it is but term2 comes later than term1 in ordering, which means it is a variable
