@@ -130,14 +130,23 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 		disequalitiesConstraintForTerm1.incorporatePossiblyDestructively(false, Equality.make(term1, term2), process);
 	}
 
-	public void updateRepresentativesInDisequalitiesMap(RewritingProcess process) {
+	/**
+	 * Given a function mapping each term either to itself or to another term meant to represent it
+	 * (determined, most likely, by a system of equalities somewhere),
+	 * apply it to the present constraint, possibly destructively if that means much better performance.
+	 * Terms with distinct representatives should not appear in the resulting constraint.
+	 * @param getRepresentative
+	 * @param process
+	 */
+	@Override
+	public NonEqualitiesConstraint updateRepresentativesPossiblyDestructively(Function<Expression, Expression> getRepresentative, RewritingProcess process) {
 		
 		// Go over all entries of disequality map, and if entry requires updating,
 		// add it to a map from each term to NonEqualitiesForSingleTerm,
 		// keeping also track of which variables got updated.
 		// If multiple variables are updated to same term, take the union of their NonEqualitiesForSingleTerm.
 		Function<Entry<Expression, NonEqualitiesConstraintForSingleVariable>, Pair<Expression, NonEqualitiesForSingleTerm>>
-		getUpdatedTermAndNonEqualities = entry -> entry.getValue().updatedTermAndNonEqualitiesPair(process);
+		getUpdatedTermAndNonEqualities = entry -> entry.getValue().updatedTermAndNonEqualitiesPair(getRepresentative, process);
 		
 		BinaryFunction<NonEqualitiesForSingleTerm, NonEqualitiesForSingleTerm, NonEqualitiesForSingleTerm>
 		unionOfNonEqualitiesIfNeeded = (previous, more) -> addAllForEachEntry(previous, more);
@@ -145,6 +154,8 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 		Pair<Map<Expression, NonEqualitiesForSingleTerm>, Set<Expression>>
 		updatedNonEqualitiesByTermAndDeletedVariables
 		= getTransformedSubMap(this, getUpdatedTermAndNonEqualities, unionOfNonEqualitiesIfNeeded);
+		// TODO: it could be more efficient to apply disequalities right inside the above call, instead of storing pairs and then applying.
+		// It would also detect contradictions sooner.
 
 		// Notes:
 		// One might wonder why we did not represent the non-equal elements after the update
@@ -175,6 +186,8 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 				applyRepresentativesDisequalityDestructively(updatedEntry.getKey(), disequal, process);
 			}
 		}
+		
+		return this;
 	}
 
 	/** Assumes disequality does not turn constraint into contradiction */

@@ -2,6 +2,7 @@ package com.sri.ai.grinder.plaindpll.theory;
 
 import java.util.List;
 
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
@@ -32,7 +33,8 @@ public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 	 * @return
 	 * @throws Contradiction
 	 */
-	Pair<Expression, NonEqualitiesForSingleTerm> updatedTermAndNonEqualitiesPair(RewritingProcess process) throws Contradiction;
+	Pair<Expression, NonEqualitiesForSingleTerm> updatedTermAndNonEqualitiesPair(
+			Function<Expression, Expression> getRepresentative, RewritingProcess process) throws Contradiction;
 	
 	/**
 	 * Assumes the main variable is a free variable, and returns splitters on it required to hold for this constraint to hold.

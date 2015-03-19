@@ -2,6 +2,7 @@ package com.sri.ai.grinder.plaindpll.api;
 
 import java.util.Collection;
 
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.core.ExpressionConstraint;
@@ -56,6 +57,17 @@ public interface Constraint extends Expression {
 	 * @param process the rewriting process
 	 */
 	public Constraint incorporatePossiblyDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
+
+	/**
+	 * Given a function mapping each term either to itself or to another term meant to represent it
+	 * (determined, most likely, by a system of equalities somewhere),
+	 * apply it to the present constraint, possibly destructively if that means much better performance.
+	 * Terms with distinct representatives should not appear in the resulting constraint.
+	 * @param getRepresentative
+	 * @param process
+	 * @return 
+	 */
+	Constraint updateRepresentativesPossiblyDestructively(Function<Expression, Expression> getRepresentative, RewritingProcess process);
 
 	/**
 	 * Provides a splitter, not already explicitly represented by the constraint,
