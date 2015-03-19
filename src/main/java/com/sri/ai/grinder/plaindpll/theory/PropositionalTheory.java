@@ -274,6 +274,11 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 
 		@Override
+		public boolean directlyImplies(Expression literal, RewritingProcess process) {
+			throw new Error("PropositionalConstraint.directlyImplies not implemented yet.");
+		}
+
+		@Override
 		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
 			if (assertedPropositions.contains(splitter)) {
 				return TRUE;

@@ -11,6 +11,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.mapIntoSetOrSameIfNoDistinctElementInstances;
+import static com.sri.ai.util.Util.myAssert;
 import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
 
@@ -155,6 +156,24 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 			numberOfPossibleValuesForIndex = makeSymbol(max(0, typeSize - numberOfNonAvailableValues));
 		}
 		return numberOfPossibleValuesForIndex;
+	}
+
+	@Override
+	public boolean directlyImplies(Expression literal, RewritingProcess process) {
+		myAssert(() -> literal.hasFunctor(DISEQUALITY), "DisequalitiesConstraintForSingleVariable.directlyImplies must receive disequality constraints only.");
+		boolean result;
+		
+		if (literal.get(0).equals(variable) && disequals.contains(literal.get(1))) {
+			result = true;
+		}
+		else if (literal.get(1).equals(variable) && disequals.contains(literal.get(0))) {
+			result = true;
+		}
+		else {
+			result = false;
+		}
+		
+		return result;
 	}
 
 	@Override

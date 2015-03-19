@@ -75,8 +75,18 @@ public interface Constraint extends Expression {
 	}
 
 	/**
+	 * Indicates whether a given literal is directly implied by this constraint
+	 * (that is, it's value is either trivial or explicitly represented by the constraint, without inference).
+	 * @param literal
+	 * @param process
+	 * @return
+	 */
+	boolean directlyImplies(Expression literal, RewritingProcess process);
+	
+	/**
 	 * Simplifies a given splitter to true if implied by constraint, false if its negation is implied by constraint,
 	 * or a version of itself with terms replaced by representatives.
+	 * TODO: consider simply using {@link #directlyImplies(Expression, RewritingProcess)} instead (needs to be as efficient).
 	 */
 	Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process);
 
