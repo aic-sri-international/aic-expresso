@@ -200,11 +200,10 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	 * @return
 	 * @throws Contradiction
 	 */
-	public Pair<Expression, NonEqualitiesForSingleTerm> updatedTermAndNonEqualitiesPair(RewritingProcess process) throws Contradiction {
+	public Pair<Expression, NonEqualitiesForSingleTerm> updatedTermAndNonEqualitiesPair(Function<Expression, Expression> getRepresentative, RewritingProcess process) throws Contradiction {
 		Pair<Expression, NonEqualitiesForSingleTerm> result = new Pair<Expression, NonEqualitiesForSingleTerm>();
-		result.first = variable.replaceAllOccurrences(t -> ((EqualityConstraint)parentConstraint).getRepresentative(t, process), process);
+		result.first = variable.replaceAllOccurrences(getRepresentative, process);
 		
-		Function<Expression, Expression> getRepresentative = t -> ((EqualityConstraint)parentConstraint).getRepresentative(t, process);
 		Function<Expression, Expression> replaceAllTermsByRepresentatives = e -> e.replaceAllOccurrences(getRepresentative, process);
 		Collection<Expression> newDisequals = mapIntoSetOrSameIfNoDistinctElementInstances(disequals, replaceAllTermsByRepresentatives);
 		if (result.first == variable && newDisequals == disequals) {

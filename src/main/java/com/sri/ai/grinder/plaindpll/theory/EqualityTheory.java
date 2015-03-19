@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -267,7 +268,7 @@ public class EqualityTheory extends AbstractTheory {
 		private static final long serialVersionUID = 1L;
 
 		public Map<Expression, Expression> equalitiesMap;
-		public NonEqualitiesConstraint nonEqualitiesConstraint;
+		public Constraint nonEqualitiesConstraint;
 
 		public EqualityConstraint(Collection<Expression> indices) {
 			super(indices);
@@ -385,12 +386,13 @@ public class EqualityTheory extends AbstractTheory {
 			// keep going until the flag does not change.
 
 			setBinding(variableRepresentative, otherTermRepresentative);
-			updateRepresentativesWhereverTheyAreUsed(process);
+			updateRepresentativesWhereverTheyAreUsedDestructively(process);
 		}
 
-		protected void updateRepresentativesWhereverTheyAreUsed(RewritingProcess process) {
+		protected void updateRepresentativesWhereverTheyAreUsedDestructively(RewritingProcess process) {
 			updateRepresentativesInEqualitiesMap(process);
-			nonEqualitiesConstraint.updateRepresentativesInDisequalitiesMap(process);
+			Function<Expression, Expression> getRepresentative = t -> getRepresentative(t, process);
+			nonEqualitiesConstraint = nonEqualitiesConstraint.updateRepresentativesPossiblyDestructively(getRepresentative, process);
 		}
 
 		private void updateRepresentativesInEqualitiesMap(RewritingProcess process) {
