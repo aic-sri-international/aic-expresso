@@ -80,7 +80,6 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		}
 		disequals.add(term);
 		updateUniqueValuedDisequals(term, process);
-		resetInnerExpression();
 	}
 
 	@Override

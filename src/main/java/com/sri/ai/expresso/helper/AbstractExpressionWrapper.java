@@ -52,6 +52,11 @@ import com.sri.ai.grinder.core.AbstractExpression;
  * This is useful when implementing extending an interface of {@link Expression}
  * that applies to all implementations of {@link Expression},
  * without having to extend each of those implementations.
+ * <p>
+ * While {@link Expression} is an immutable type, extensions of this class are allowed to be
+ * mutable, as long as they are no longer changed after having being used as an {@link Expression}
+ * for the first time. This may be useful for efficiently setting up objects before
+ * releasing them for general use.
  * 
  * @author braz
  */
@@ -69,18 +74,6 @@ public abstract class AbstractExpressionWrapper extends AbstractExpression {
 			cachedInnerExpression = computeInnerExpression();
 		}
 		return cachedInnerExpression;
-	}
-	
-	/**
-	 * Indicates the inner expression has changed and needs to be recomputed next time it is to be used.
-	 * Note that {@link Expression} should be immutable and therefore so should {@link AbstractExpressionWrapper}.
-	 * However, during debugging one may want to print this object during its (possibly multi-staged) construction,
-	 * and since {@link Object#toString()} depends on the inner expression, it needs to be reset when it changes
-	 * during construction.
-	 * This is the reason this method is protected, since only extending classes should be doing this kind of thing.
-	 */
-	protected void resetInnerExpression() {
-		cachedInnerExpression = null;
 	}
 	
 	@Override
@@ -126,5 +119,18 @@ public abstract class AbstractExpressionWrapper extends AbstractExpression {
 	@Override
 	public String makeToString() {
 		return getInnerExpression().toString();
+	}
+	
+	/**
+	 * Overridden in order to avoid using {@link Expression}'s implementation,
+	 * which would use the cached inner expression and not produce
+	 * an update String if the instance changed (remember that instances
+	 * to this class are allowed to change before being used as an expression 
+	 * for the first time).
+	 * This implementation re-computes an Expression every time it is invoked.
+	 */
+	@Override
+	public String toString() {
+		return computeInnerExpression().toString();
 	}
 }
