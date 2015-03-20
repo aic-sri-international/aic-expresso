@@ -237,34 +237,6 @@ public class EqualityTheory extends AbstractTheory {
 	@Beta
 	public class EqualityConstraint extends AbstractOwnRepresentationConstraint {
 
-		// The algorithm is based on the counting principle: to determine the model count, we
-		// go over indices, in a certain order, and analyse how many possible values each one them has,
-		// based on how many constants, free variables, and previous indices are constrained to be disequal from it.
-		// (free variables and constants are considered less than indices in the choosing order).
-
-		// Equalities define equivalence classes.
-		// Disequalities are represented on equivalent classes representatives only.
-		
-		// A "disequal" of a variable V is a term T that comes *before* V in the choosing order.
-		// This means that this word is being used in a non-symmetric way.
-		// When we mean the symmetric sense of it, that is, "disequal according to the theoryWithEquality",
-		// we say "constrained to be disequal".
-
-		// We map each variable equivalent class representative (including free ones) to its set of disequals.
-		
-		// We use "distinct" to refer to non-equal Java objects
-		// (as opposed to terms not being equal on the equality theoryWithEquality level).
-		
-		// Invariants:
-		// Terms belong to equivalence classes depending on what equality splitters have been applied before.
-		// Each equivalence class is represented *only* by its representative in the disequalities data structure (the map super class)
-		// and arguments of generalized variables in the equalities.
-		// If an equivalent class contains a constant, that constant must be its representative
-		// (because it contains the extra implicit information about its disequality to other constants).
-		// equalitiesMap maps variables to another term of its equivalence class.
-		
-		// The map (super class) keeps disequals.
-		
 		private static final long serialVersionUID = 1L;
 
 		public Map<Expression, Expression> equalitiesMap;
@@ -301,16 +273,10 @@ public class EqualityTheory extends AbstractTheory {
 			return termTheory;
 		}
 
-
 		@Override
 		public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
 			Expression result = nonEqualitiesConstraint.pickSplitter(indicesSubSet, process);
 			return result;
-		}
-
-		@Override
-		public boolean directlyImplies(Expression literal, RewritingProcess process) {
-			throw new Error("EqualityConstraint.directlyImplies not implemented yet.");
 		}
 
 		@Override
@@ -391,7 +357,7 @@ public class EqualityTheory extends AbstractTheory {
 
 		protected void updateRepresentativesWhereverTheyAreUsedDestructively(RewritingProcess process) {
 			updateRepresentativesInEqualitiesMap(process);
-			Function<Expression, Expression> getRepresentative = t -> getRepresentative(t, process);
+			Function<Expression, Expression> getRepresentative = t -> getRepresentative(t, process); // TODO: we should only pass the actually updated terms, instead of a function on them all.
 			nonEqualitiesConstraint = nonEqualitiesConstraint.updateRepresentativesPossiblyDestructively(getRepresentative, process);
 		}
 
@@ -570,23 +536,5 @@ public class EqualityTheory extends AbstractTheory {
 		}
 
 		////////// END OF EQUALITY CONSTRAINTS MAINTENANCE
-		
-//		public void f() {
-//			Expression trueSymbol = parse("true");
-//			System.out.println("true.getSyntaxTree().getRoot(): " + trueSymbol.getSyntaxTree().getRootTree());	
-//			DisequalitiesConstraintForSingleVariable d = new DisequalitiesConstraintForSingleVariable(parse("X"), this);
-//			System.out.println("d.getSyntaxTree().getRoot(): " + d.getSyntaxTree().getRootTree());	
-//			
-//			DefaultRewritingProcess p = new DefaultRewritingProcess(null);
-//			Expression th = p.getContextualSymbolType(trueSymbol);
-//			System.out.println("type of true symbol: " + th);
-//			System.out.println("type of d: " + p.getContextualSymbolType(d));
-//		}
 	}
-	
-//	public static void main(String[] args) {
-//		EqualityTheory t = new EqualityTheory(new FunctionalTermTheory());
-//		EqualityConstraint e = t.makeConstraint(list(parse("X")));
-//		e.f();
-//	}
 }
