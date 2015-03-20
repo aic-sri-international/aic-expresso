@@ -68,6 +68,7 @@ public interface Constraint extends Expression {
 	 * @return 
 	 */
 	Constraint updateRepresentativesPossiblyDestructively(Function<Expression, Expression> getRepresentative, RewritingProcess process);
+	// TODO: change this method to take explicit list of which terms to update, so that implementations do not need to check each of the terms they use.
 
 	/**
 	 * Provides a splitter, not already explicitly represented by the constraint,

@@ -36,7 +36,7 @@ import com.sri.ai.util.base.Pair;
 /** 
  */	
 @SuppressWarnings("serial")
-public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint implements Map<Expression, NonEqualitiesConstraintForSingleVariable>, Constraint {
+public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint {
 
 	private LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable> map = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>();
 
@@ -48,9 +48,9 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 	public NonEqualitiesConstraint copyWithNewParent(Constraint newParent) {
 		NonEqualitiesConstraint result = new NonEqualitiesConstraint(supportedIndices, (EqualityConstraint) newParent);
 		result.parentConstraint = newParent;
-		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : entrySet()) {
+		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : map.entrySet()) {
 			NonEqualitiesConstraintForSingleVariable newEntryValue = entry.getValue().copyWithNewParent(newParent);
-			result.put(entry.getKey(), newEntryValue);
+			result.map.put(entry.getKey(), newEntryValue);
 		}
 		return result;
 		// TODO: change parents of NonEqualitiesConstraintForSingleVariable to the NonEqualitiesConstraint instead of the EqualityConstraint
@@ -66,7 +66,7 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 	private NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintFor(Expression variable, RewritingProcess process) {
 		Util.myAssert(() -> ((EqualityConstraint) parentConstraint).getTermTheory().isVariableTerm(variable, process), () -> "nonEqualitiesConstraintFor must be invoked for a variable but was invoked on " + variable);
 		NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForTerm =
-				Util.getValuePossiblyCreatingIt(this, variable, key -> makeNonEqualitiesConstraintForVariable(key));
+				Util.getValuePossiblyCreatingIt(map, variable, key -> makeNonEqualitiesConstraintForVariable(key));
 		return nonEqualitiesConstraintForTerm;
 	}
 
@@ -145,7 +145,7 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 		// add it to a map from each term to NonEqualitiesForSingleTerm,
 		// keeping also track of which variables got updated.
 		// If multiple variables are updated to same term, take the union of their NonEqualitiesForSingleTerm.
-		Function<Entry<Expression, NonEqualitiesConstraintForSingleVariable>, Pair<Expression, NonEqualitiesForSingleTerm>>
+		Function<Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable>, Pair<Expression, NonEqualitiesForSingleTerm>>
 		getUpdatedTermAndNonEqualities = entry -> entry.getValue().updatedTermAndNonEqualitiesPair(getRepresentative, process);
 		
 		BinaryFunction<NonEqualitiesForSingleTerm, NonEqualitiesForSingleTerm, NonEqualitiesForSingleTerm>
@@ -153,7 +153,7 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 		
 		Pair<Map<Expression, NonEqualitiesForSingleTerm>, Set<Expression>>
 		updatedNonEqualitiesByTermAndDeletedVariables
-		= getTransformedSubMap(this, getUpdatedTermAndNonEqualities, unionOfNonEqualitiesIfNeeded);
+		= getTransformedSubMap(map, getUpdatedTermAndNonEqualities, unionOfNonEqualitiesIfNeeded);
 		// TODO: it could be more efficient to apply disequalities right inside the above call, instead of storing pairs and then applying.
 		// It would also detect contradictions sooner.
 
@@ -178,7 +178,7 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 		Set<Expression> deletedVariables = updatedNonEqualitiesByTermAndDeletedVariables.second;
 
 		// we start by removing the modified entries
-		removeAll(this, deletedVariables);
+		removeAll(map, deletedVariables);
 
 		// and we add the new disequalities. Note we cannot just put them in the map as they are, because of choosing order
 		for (Map.Entry<Expression, NonEqualitiesForSingleTerm> updatedEntry : updatedNonEqualitiesByTerm.entrySet()) {
@@ -206,7 +206,7 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 	public void getNonEqualitiesSplittersToBeSatisfied(Collection<Expression> indicesSubSet, Collection<Expression> result, RewritingProcess process) {
 		// TODO: when nonEqualitiesConstraint gets consolidated into a single Constraint object, make sure it has a method getSplittersToBeSatisfied
 		// that does not iterate over all variables for disequalities, since we know in advance they do not provide splitters of this sort.
-		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : entrySet()) {
+		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : map.entrySet()) {
 			Util.myAssert(() -> getTermTheory().isVariableTerm(entry.getKey(), process), () -> "Key in map for NonEqualitiesConstraints is not a variable, but " + entry.getKey());
 			Expression variable = entry.getKey();
 			if ( ! indicesSubSet.contains(variable)) { // if variable is free
@@ -226,7 +226,7 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 
 	public Collection<Expression> getNonEqualitiesSplittersToBeNotSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
 		Collection<Expression> result = new LinkedHashSet<Expression>();
-		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : entrySet()) {
+		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : map.entrySet()) {
 			Util.myAssert(() -> getTermTheory().isVariableTerm(entry.getKey(), process), () -> "Key in map for NonEqualitiesConstraints is not a variable, but " + entry.getKey());
 			Expression variable = entry.getKey();
 			if ( ! indicesSubSet.contains(variable)) { // if variable is free
@@ -255,7 +255,7 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 	
 	private NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintFor(Expression term) {
 		NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForTerm =
-				Util.getValuePossiblyCreatingIt(this, term, key -> makeNonEqualitiesConstraintForVariable(key));
+				Util.getValuePossiblyCreatingIt(map, term, key -> makeNonEqualitiesConstraintForVariable(key));
 		return nonEqualitiesConstraintForTerm;
 	}
 
@@ -301,67 +301,5 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint imp
 		newOne.map = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>();
 		newOne.map.putAll(map);
 		return newOne;
-	}
-
-	// Map
-	
-	@Override
-	public void clear() {
-		map.clear();
-	}
-
-	@Override
-	public boolean containsKey(Object arg0) {
-		return map.containsKey(arg0);
-	}
-
-	@Override
-	public boolean containsValue(Object arg0) {
-		return map.containsValue(arg0);
-	}
-
-	@Override
-	public Set<java.util.Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable>> entrySet() {
-		return map.entrySet();
-	}
-
-	@Override
-	public NonEqualitiesConstraintForSingleVariable get(Object arg0) {
-		return map.get(arg0);
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return map.isEmpty();
-	}
-
-	@Override
-	public Set<Expression> keySet() {
-		return map.keySet();
-	}
-
-	@Override
-	public NonEqualitiesConstraintForSingleVariable put(Expression arg0, NonEqualitiesConstraintForSingleVariable arg1) {
-		return map.put(arg0, arg1);
-	}
-
-	@Override
-	public void putAll(Map<? extends Expression, ? extends NonEqualitiesConstraintForSingleVariable> arg0) {
-		map.putAll(arg0);
-	}
-
-	@Override
-	public NonEqualitiesConstraintForSingleVariable remove(Object arg0) {
-		return map.remove(arg0);
-	}
-
-	@Override
-	public int size() {
-		return map.size();
-	}
-
-	@Override
-	public Collection<NonEqualitiesConstraintForSingleVariable> values() {
-		return map.values();
 	}
 }

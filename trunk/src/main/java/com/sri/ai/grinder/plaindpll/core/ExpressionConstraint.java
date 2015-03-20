@@ -203,11 +203,6 @@ public class ExpressionConstraint extends AbstractConstraint {
 	}
 
 	@Override
-	public boolean directlyImplies(Expression literal, RewritingProcess process) {
-		throw new Error("ExpressionConstraint.directlyImplies not implemented yet.");
-	}
-
-	@Override
 	public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
 		throw new Error("ExpressionConstraint.normalizeSplitterGivenConstraint not implemented yet -- and it is going to be expensive. Are you sure that's what you need?");
 	}
