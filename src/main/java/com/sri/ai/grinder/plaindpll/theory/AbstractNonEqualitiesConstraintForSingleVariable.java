@@ -9,10 +9,10 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
-import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityConstraint;
+import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityTheoryConstraint;
 import com.sri.ai.util.Util;
 
-/** Defined for the benefit of {@link EqualityConstraint} outside of it because the latter is a non-static class. */	
+/** Defined for the benefit of {@link EqualityTheoryConstraint} outside of it because the latter is a non-static class. */	
 @SuppressWarnings("serial")
 public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends AbstractOwnRepresentationConstraint implements NonEqualitiesConstraintForSingleVariable {
 	protected Expression variable;
@@ -37,7 +37,7 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 
 	@Override
 	public EqualityTheory getTheory() {
-		return ((EqualityConstraint)parentConstraint).getTheory();
+		return ((EqualityTheoryConstraint)parentConstraint).getTheory();
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 	}
 
 	protected TermTheory getTermTheory() {
-		return ((EqualityConstraint)parentConstraint).getTermTheory();
+		return ((EqualityTheoryConstraint)parentConstraint).getTermTheory();
 	}
 	
 	protected long getIndexDomainSize(RewritingProcess process) {

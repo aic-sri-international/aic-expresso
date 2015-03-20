@@ -41,7 +41,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
-import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityConstraint;
+import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityTheoryConstraint;
 
 @Beta
 /** 
@@ -78,7 +78,7 @@ public class SymbolTermTheory implements TermTheory {
 	}
 
 	@Override
-	public Expression normalizeTermInEquality(Expression term, EqualityConstraint constraint, RewritingProcess process) {
+	public Expression normalizeTermInEquality(Expression term, EqualityTheoryConstraint constraint, RewritingProcess process) {
 		return term;
 	}
 
