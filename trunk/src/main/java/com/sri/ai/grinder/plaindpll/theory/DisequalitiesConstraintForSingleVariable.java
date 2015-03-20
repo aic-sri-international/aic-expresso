@@ -28,13 +28,13 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
-import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityConstraint;
+import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityTheoryConstraint;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
 /**
  * An implementation of {@link NonEqualitiesForSingleTerm} in which the only constraint is disequality;
- * its parent constraint must be a {@link EqualityConstraint}.
+ * its parent constraint must be a {@link EqualityTheoryConstraint}.
  * @author braz
  *
  */
@@ -44,7 +44,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	private Collection<Expression> disequals;
 	private Collection<Expression> uniquelyValuedDisequals; // disequals constrained to be disequal from all uniquely-valued disequals added before themselves. If this set reaches variable's domain size, there will be no value left for it and an inconsistency is indicated.
 
-	public DisequalitiesConstraintForSingleVariable(Expression variable, EqualityConstraint parentConstraint) {
+	public DisequalitiesConstraintForSingleVariable(Expression variable, EqualityTheoryConstraint parentConstraint) {
 		super(variable, parentConstraint);
 		this.ownMyDisequals = true;
 		this.disequals = Util.set();
@@ -52,17 +52,17 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	}
 
 	/**
-	 * Parent constraint must be an {@link EqualityConstraint}.
+	 * Parent constraint must be an {@link EqualityTheoryConstraint}.
 	 */
 	@Override
 	public DisequalitiesConstraintForSingleVariable copyWithNewParent(Constraint parentConstraint) {
-		Util.myAssert(() -> parentConstraint instanceof EqualityConstraint, () -> getClass() + "'s parent constraint must be an EqualityConstraint");
+		Util.myAssert(() -> parentConstraint instanceof EqualityTheoryConstraint, () -> getClass() + "'s parent constraint must be an EqualityTheoryConstraint");
 		return (DisequalitiesConstraintForSingleVariable) super.copyWithNewParent(parentConstraint);
 	}
 
 	@Override
 	public DisequalitiesConstraintForSingleVariable clone() {
-		DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, (EqualityConstraint) parentConstraint);
+		DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, (EqualityTheoryConstraint) parentConstraint);
 		result.cachedIndexDomainSize = cachedIndexDomainSize;
 		result.ownMyDisequals = false;
 		result.disequals = disequals;
@@ -134,7 +134,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	}
 
 	private boolean areConstrainedToBeDisequal(Expression disequal, Expression anotherDisequal, RewritingProcess process) {
-		boolean result = ((EqualityConstraint)parentConstraint).termsAreExplicitlyConstrainedToBeDisequal(disequal, anotherDisequal, process);
+		boolean result = ((EqualityTheoryConstraint)parentConstraint).termsAreExplicitlyConstrainedToBeDisequal(disequal, anotherDisequal, process);
 		return result;
 	}
 

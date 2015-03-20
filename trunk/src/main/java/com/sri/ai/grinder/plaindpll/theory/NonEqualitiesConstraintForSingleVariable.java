@@ -12,7 +12,7 @@ import com.sri.ai.util.base.Pair;
 /** 
  * Represents a conjunction of literals of binary constraint operators between a variable and
  * a set of terms such that distinct terms.
- * This interface is defined for constraints used inside an EqualityConstraint
+ * This interface is defined for constraints used inside an EqualityTheoryConstraint
  * in addition to equalities themselves.
  * This is a pretty-specific, performance-based interface meant to be used inside TODO: COMPLETE WHEN WRITTEN.
  */	

@@ -46,7 +46,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
-import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityConstraint;
+import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityTheoryConstraint;
 
 @Beta
 /** 
@@ -126,7 +126,7 @@ public class FunctionalTermTheory implements TermTheory {
 	}
 
 	@Override
-	public Expression normalizeTermInEquality(Expression term, EqualityConstraint constraint, RewritingProcess process) {
+	public Expression normalizeTermInEquality(Expression term, EqualityTheoryConstraint constraint, RewritingProcess process) {
 		Expression result = Expressions.replaceImmediateSubexpressions(term, t -> constraint.getRepresentative(t, process));
 		return result;
 	}

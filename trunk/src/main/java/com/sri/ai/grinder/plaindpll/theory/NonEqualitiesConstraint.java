@@ -27,7 +27,7 @@ import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
 import com.sri.ai.grinder.plaindpll.core.AbstractTheory;
-import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityConstraint;
+import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityTheoryConstraint;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.Pair;
@@ -40,20 +40,20 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint {
 
 	private LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable> map = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>();
 
-	public NonEqualitiesConstraint(Collection<Expression> supportedIndices, EqualityTheory.EqualityConstraint parentConstraint) {
+	public NonEqualitiesConstraint(Collection<Expression> supportedIndices, EqualityTheory.EqualityTheoryConstraint parentConstraint) {
 		super(supportedIndices);
 		this.parentConstraint = parentConstraint;
 	}
 	
 	public NonEqualitiesConstraint copyWithNewParent(Constraint newParent) {
-		NonEqualitiesConstraint result = new NonEqualitiesConstraint(supportedIndices, (EqualityConstraint) newParent);
+		NonEqualitiesConstraint result = new NonEqualitiesConstraint(supportedIndices, (EqualityTheoryConstraint) newParent);
 		result.parentConstraint = newParent;
 		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : map.entrySet()) {
 			NonEqualitiesConstraintForSingleVariable newEntryValue = entry.getValue().copyWithNewParent(newParent);
 			result.map.put(entry.getKey(), newEntryValue);
 		}
 		return result;
-		// TODO: change parents of NonEqualitiesConstraintForSingleVariable to the NonEqualitiesConstraint instead of the EqualityConstraint
+		// TODO: change parents of NonEqualitiesConstraintForSingleVariable to the NonEqualitiesConstraint instead of the EqualityTheoryConstraint
 		// TODO: implement a copy-on-write scheme
 	}
 	
@@ -64,7 +64,7 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint {
 	}
 
 	private NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintFor(Expression variable, RewritingProcess process) {
-		Util.myAssert(() -> ((EqualityConstraint) parentConstraint).getTermTheory().isVariableTerm(variable, process), () -> "nonEqualitiesConstraintFor must be invoked for a variable but was invoked on " + variable);
+		Util.myAssert(() -> ((EqualityTheoryConstraint) parentConstraint).getTermTheory().isVariableTerm(variable, process), () -> "nonEqualitiesConstraintFor must be invoked for a variable but was invoked on " + variable);
 		NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForTerm =
 				Util.getValuePossiblyCreatingIt(map, variable, key -> makeNonEqualitiesConstraintForVariable(key));
 		return nonEqualitiesConstraintForTerm;
@@ -221,7 +221,7 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint {
 	 * @return
 	 */
 	private TermTheory getTermTheory() {
-		return ((EqualityTheory.EqualityConstraint) parentConstraint).getTermTheory();
+		return ((EqualityTheory.EqualityTheoryConstraint) parentConstraint).getTermTheory();
 	}
 
 	public Collection<Expression> getNonEqualitiesSplittersToBeNotSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
@@ -260,7 +260,7 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint {
 	}
 
 	protected NonEqualitiesConstraintForSingleVariable makeNonEqualitiesConstraintForVariable(Expression variable) {
-		NonEqualitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, (EqualityConstraint) parentConstraint);
+		NonEqualitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, (EqualityTheoryConstraint) parentConstraint);
 		// TODO: need to change parent constraint of DisequalitiesConstraintForSingleVariable to this one, not the equality constraint.
 		return result;
 	}
@@ -297,7 +297,7 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint {
 
 	@Override
 	public NonEqualitiesConstraint clone() {
-		NonEqualitiesConstraint newOne = new NonEqualitiesConstraint(supportedIndices, (EqualityConstraint) parentConstraint);
+		NonEqualitiesConstraint newOne = new NonEqualitiesConstraint(supportedIndices, (EqualityTheoryConstraint) parentConstraint);
 		newOne.map = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>();
 		newOne.map.putAll(map);
 		return newOne;

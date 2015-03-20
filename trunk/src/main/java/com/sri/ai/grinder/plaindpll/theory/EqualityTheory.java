@@ -44,6 +44,7 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.filter;
+import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -51,6 +52,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
@@ -88,21 +90,21 @@ import com.sri.ai.util.base.BinaryFunction;
  * A {@link Theory} for equality literals.
  */
 public class EqualityTheory extends AbstractTheory {
-	
+
 	public TermTheory termTheory;
-	
+
 	// Important:
 	// this class generalizes the notion of a variable to a "generalized variable" (simply referred by as "variable"),
 	// which is either a variable symbol, or an uninterpreted function application such as p(a, b, X).
 	// It can also be seen as an indexed variable (typically represented as x_i, y_i,j etc).
-	
+
 	public EqualityTheory(TermTheory termTheory) {
 		this.termTheory = termTheory;
 	}
 
 	private static Rewriter plus  = new Plus();
 	private static Rewriter times = new Times();
-	
+
 	@Override
 	protected boolean usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers() {
 		return true;
@@ -112,7 +114,7 @@ public class EqualityTheory extends AbstractTheory {
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
 					FunctorConstants.EQUALITY,        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
 					Equality.simplify(f, process),
-					
+
 					FunctorConstants.DISEQUALITY,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
 					Disequality.simplify(f, process),
 
@@ -148,16 +150,16 @@ public class EqualityTheory extends AbstractTheory {
 
 					FunctorConstants.MINUS,           (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
 					f.numberOfArguments() == 2? Minus.simplify(f) : f
-	);
-	
+					);
+
 	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
 					ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
 					(new SGDPLLT(new EqualityTheory(termTheory), new Tautologicality())).rewrite(f, process),
- 
+
 					ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
 					(new SGDPLLT(new EqualityTheory(termTheory), new Satisfiability())).rewrite(f, process)
-	);
+					);
 
 	@Override
 	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers() {
@@ -180,7 +182,7 @@ public class EqualityTheory extends AbstractTheory {
 		}
 		return result;
 	}
-	
+
 	@Override
 	protected BinaryFunction<Expression, RewritingProcess, Expression>
 	getSplitterApplier(boolean splitterSign, Expression splitter) {
@@ -208,12 +210,12 @@ public class EqualityTheory extends AbstractTheory {
 		}
 		return applier;
 	}
-	
+
 	@Override
-	public EqualityConstraint makeConstraint(Collection<Expression> indices) {
-		return new EqualityConstraint(indices);
+	public EqualityTheoryConstraint makeConstraint(Collection<Expression> indices) {
+		return new EqualityTheoryConstraint(indices);
 	}
-	
+
 	@Override
 	public boolean isVariableTerm(Expression term, RewritingProcess process) {
 		return termTheory.isVariableTerm(term, process);
@@ -235,33 +237,36 @@ public class EqualityTheory extends AbstractTheory {
 	 * Represents and manipulates constraints in the theoryWithEquality of disequalities of terms (variables and constants).
 	 */
 	@Beta
-	public class EqualityConstraint extends AbstractOwnRepresentationConstraint {
+	public class EqualityTheoryConstraint extends AbstractOwnRepresentationConstraint {
 
 		private static final long serialVersionUID = 1L;
 
-		public Map<Expression, Expression> equalitiesMap;
+		protected EqualitiesConstraint equalitiesConstraint;
+		//		public Map<Expression, Expression> equalitiesMap;
 		public Constraint nonEqualitiesConstraint;
 
-		public EqualityConstraint(Collection<Expression> indices) {
-			super(indices);
-			this.equalitiesMap = new LinkedHashMap<Expression, Expression>();
+		public EqualityTheoryConstraint(Collection<Expression> supportedIndices) {
+			super(supportedIndices);
+			this.equalitiesConstraint = new EqualitiesConstraint(getSupportedIndices());
+			//			this.equalitiesMap = new LinkedHashMap<Expression, Expression>();
 			this.nonEqualitiesConstraint = new NonEqualitiesConstraint(supportedIndices, this); 
 		}
 
-		private EqualityConstraint(EqualityConstraint another) {
+		private EqualityTheoryConstraint(EqualityTheoryConstraint another) {
 			super(another.getSupportedIndices());
-			this.equalitiesMap = new LinkedHashMap<Expression, Expression>(another.equalitiesMap); // TODO: implement a copy-on-write scheme
+			this.equalitiesConstraint = new EqualitiesConstraint(another.equalitiesConstraint);
+			//			this.equalitiesMap = new LinkedHashMap<Expression, Expression>(another.equalitiesMap);
 			this.nonEqualitiesConstraint = another.nonEqualitiesConstraint.copyWithNewParent(this);
 		}
 
 		@Override
-		public EqualityConstraint copyWithNewParent(Constraint parentConstraint) {
-			return (EqualityConstraint) super.copyWithNewParent(parentConstraint);
+		public EqualityTheoryConstraint copyWithNewParent(Constraint parentConstraint) {
+			return (EqualityTheoryConstraint) super.copyWithNewParent(parentConstraint);
 		}
-		
+
 		@Override
-		public EqualityConstraint clone() {
-			return new EqualityConstraint(this);
+		public EqualityTheoryConstraint clone() {
+			return new EqualityTheoryConstraint(this);
 		}
 
 		@Override
@@ -298,15 +303,15 @@ public class EqualityTheory extends AbstractTheory {
 			String syntacticTypeForm = "Symbol";
 			BinaryFunction<Expression, RewritingProcess, Expression> representativeReplacer =
 					(BinaryFunction<Expression, RewritingProcess, Expression>) (s, p) -> getRepresentative(s, p);
-		
-			Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifier(
-					expression,
-					functionApplicationSimplifiers,
-					syntacticFormTypeSimplifiers,
-					syntacticTypeForm, representativeReplacer,
-					process);
-			
-			return result;
+
+					Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifier(
+							expression,
+							functionApplicationSimplifiers,
+							syntacticFormTypeSimplifiers,
+							syntacticTypeForm, representativeReplacer,
+							process);
+
+					return result;
 		}
 
 		@Override
@@ -366,10 +371,302 @@ public class EqualityTheory extends AbstractTheory {
 				boolean equalitiesMapHasBeenUpdated;
 				do {
 					equalitiesMapHasBeenUpdated = false;
+					EqualitiesConstraint newEqualitiesMap = new EqualitiesConstraint(getSupportedIndices());
+					for (Expression variable : equalitiesConstraint.keySet()) {
+						Expression representativeOfVariable = getRepresentative(variable, false /* do not update map as we are iterating over it */, process);
+						Expression newVariable = termTheory.normalizeTermInEquality(variable, this, process);
+
+						if (newVariable == variable) {
+							// no change for this variable, just copy this entry to the new map
+							setBinding(newEqualitiesMap, variable, representativeOfVariable);
+						}
+						else {
+							Expression representativeOfNewVariable = getRepresentative(newVariable, false, process);
+							Expression representativesEquality = Equality.makeWithConstantSimplification(representativeOfVariable, representativeOfNewVariable, process);
+							if (representativesEquality.equals(FALSE)) {
+								throw new Contradiction();
+							}
+							else {
+								setBinding(newEqualitiesMap, newVariable, representativeOfNewVariable);
+								if ( ! representativesEquality.equals(TRUE)) {
+									// variable = representativeOfVariable and variable = newVariable = representativeOfNewVariable,
+									// therefore, by transitivity, representativeOfVariable = representativeOfNewVariable
+									setBinding(newEqualitiesMap, representativeOfVariable, representativeOfNewVariable);
+								}
+								equalitiesMapHasBeenUpdated = true;
+							}
+						}
+					}
+					equalitiesConstraint = equalitiesMapHasBeenUpdated? newEqualitiesMap : equalitiesConstraint;
+				} while (equalitiesMapHasBeenUpdated);
+			}
+		}
+
+		public void getSplittersToBeSatisfiedFromEqualities(Collection<Expression> indicesSubSet, Collection<Expression> result, RewritingProcess process) {
+			for (Expression variable : equalitiesConstraint.keySet()) {
+				if ( ! indicesSubSet.contains(variable)) {
+					Expression representative = getRepresentative(variable, process);
+					// Note that a free variable's representative is never a supported index, because
+					// in splitters indices always come before free variables,
+					// and that is the order of the binding.
+					// A splitter with a free variable as the first term will always have another free variable
+					// or a constant on the right-hand side.
+					// This matters because the conditional model count has to be in terms of
+					// free variables and constants only, never indices.
+					if ( ! representative.equals(variable)) {
+						Expression splitter = apply(EQUALITY, variable, representative); // making it with apply instead of Equality.make sidesteps simplifications, which will not occur in this case because otherwise this condition would have either rendered the constraint a contradiction, or would have been eliminated from it
+						result.add(splitter);
+					}
+				}
+			}
+		}
+
+		@Override
+		public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
+			Collection<Expression> splittersToBeSatisfiedFromEqualities = new LinkedHashSet<Expression>();
+			getSplittersToBeSatisfiedFromEqualities(indicesSubSet, splittersToBeSatisfiedFromEqualities, process);
+			Collection<Expression> splittersFromEqualitiesNotYetSatisfied = DPLLUtil.keepSplittersUnsatisfiedByContextualConstraint(splittersToBeSatisfiedFromEqualities, process);
+			Collection<Expression> notBoundIndices = filter(indicesSubSet, i -> !indexIsBound(i));
+			Expression result = nonEqualitiesConstraint.modelCount(notBoundIndices, process);
+			if ( ! result.equals(ZERO)) {
+				for (Expression splitter : splittersFromEqualitiesNotYetSatisfied) {
+					result = IfThenElse.make(splitter, result, ZERO);
+				}
+			}
+			return result;
+		}
+
+		public boolean termsAreExplicitlyConstrainedToBeDisequal(Expression term1, Expression term2, RewritingProcess process) {
+			Expression representative1 = getRepresentative(term1, process);
+			Expression representative2 = getRepresentative(term2, process);
+			boolean result = nonEqualitiesConstraint.directlyImplies(apply(DISEQUALITY, representative1, representative2), process); // TODO: create specialized interface to avoid this unnecessary creation of a literal
+			return result;
+		}
+
+		@Override
+		protected Expression computeInnerExpression() {
+			List<Expression> conjuncts = new LinkedList<Expression>();
+			for (Map.Entry<Expression, Expression> entry : equalitiesConstraint.entrySet()) {
+				conjuncts.add(Equality.make(entry.getKey(), entry.getValue()));
+			}
+			conjuncts.add(nonEqualitiesConstraint);
+			Expression result = And.make(conjuncts);
+			return result;
+		}
+
+		////////// EQUALITY CONSTRAINTS MAINTENANCE
+
+		/**
+		 * Indicates the binding of a variable in the equalities map.
+		 * A chain of bindings always links terms constrained to be equal and its
+		 * final element is the representative of the equivalent class of those terms.
+		 * @param variable
+		 * @return
+		 */
+		private Expression getBinding(Expression variable) {
+			Expression result = equalitiesConstraint.get(variable);
+			return result;
+		}
+
+		/**
+		 * Modifies the binding of a variable to a new one
+		 * (see {@link #getBinding(Expression)}).
+		 */
+		protected void setBinding(Expression variable, Expression newBinding) {
+			if ( ! variable.equals(newBinding)) {
+				equalitiesConstraint.put(variable, newBinding);
+			}
+		}
+
+		/**
+		 * Same as {@link #setBinding(Expression, Expression, RewritingProcess),
+		 * but for an arbitrary equality map, as opposed to the constraint's.
+		 */
+		protected void setBinding(Map<Expression, Expression> equalitiesMap, Expression variable, Expression binding) {
+			if ( ! variable.equals(binding)) {
+				equalitiesMap.put(variable, binding);
+			}
+		}
+
+		/**
+		 * Indicates whether an variable is bound to some other term.
+		 */
+		protected boolean indexIsBound(Expression index) {
+			return equalitiesConstraint.containsKey(index);
+		}
+
+		/**
+		 * A normalized term's representative is itself, if the term is a constant,
+		 * the final term in the current binding chain, if the term is a variable and it has a binding,
+		 * or itself if it is a variable without a binding.
+		 * If the term is a variable with a binding,
+		 * this method sets its binding to the final term in the chain
+		 * for greater efficiency next time the method is invoked.
+		 * @param term
+		 * @param process
+		 * @return
+		 */
+		public Expression getRepresentative(Expression term, RewritingProcess process) {
+			return getRepresentative(term, true /* record direct binding to representative */, process);
+		}
+
+		/**
+		 * A normalized term's representative is itself, if the term is a constant,
+		 * the final term in the current binding chain, if the term is a variable and it has a binding,
+		 * or itself if it is a variable without a binding.
+		 * If the term is a variable with a binding,
+		 * this method sets its binding to the final term in the chain
+		 * for greater efficiency next time the method is invoked.
+		 * @param term
+		 * @param process
+		 * @return
+		 */
+		protected Expression getRepresentative(Expression term, boolean recordDirectBindingToRepresentative, RewritingProcess process) {
+			Expression current = term;
+			Expression currentBinding;
+			while (isVariableTerm(current, process) && (currentBinding = getBinding(current)) != null) {
+				current = currentBinding;
+			}
+			// now, 'current' is in the chain started at term,
+			// and it is either a constant or a variable without binding, therefore it is the equivalence class representative.
+			if (recordDirectBindingToRepresentative && isVariableTerm(term, process)) {
+				setBinding(term, current); // optional recording so that we do not need to traverse the entire chain next time
+			}
+			return current;
+		}
+
+		protected boolean termsAreExplicitlyConstrainedToBeEqual(Expression variable, Expression otherTerm, RewritingProcess process) {
+			boolean result = getRepresentative(variable, process).equals(getRepresentative(otherTerm, process));
+			return result;
+		}
+
+		////////// END OF EQUALITY CONSTRAINTS MAINTENANCE
+	}
+
+	/**
+	 * Represents and manipulates constraints in the theoryWithEquality of disequalities of terms (variables and constants).
+	 */
+	@Beta
+	public class EqualitiesConstraint extends AbstractOwnRepresentationConstraint implements Map<Expression, Expression> {
+
+		private static final long serialVersionUID = 1L;
+
+		public Map<Expression, Expression> equalitiesMap;
+
+		public EqualitiesConstraint(Collection<Expression> supportedIndices) {
+			super(supportedIndices);
+			this.equalitiesMap = new LinkedHashMap<Expression, Expression>();
+		}
+
+		private EqualitiesConstraint(EqualitiesConstraint another) {
+			super(another.getSupportedIndices());
+			this.equalitiesMap = new LinkedHashMap<Expression, Expression>(another.equalitiesMap); // TODO: implement a copy-on-write scheme
+		}
+
+		@Override
+		public EqualitiesConstraint copyWithNewParent(Constraint parentConstraint) {
+			return (EqualitiesConstraint) super.copyWithNewParent(parentConstraint);
+		}
+
+		@Override
+		public EqualitiesConstraint clone() {
+			return new EqualitiesConstraint(this);
+		}
+
+		@Override
+		public EqualityTheory getTheory() {
+			return EqualityTheory.this;
+		}
+
+		public TermTheory getTermTheory() {
+			return termTheory;
+		}
+
+		@Override
+		public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
+			return null;
+		}
+
+		@Override
+		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
+			Expression simplifiedSplitterGivenConstraint;
+			Expression representative1 = getRepresentative(splitter.get(0), process);
+			Expression representative2 = getRepresentative(splitter.get(1), process);
+			simplifiedSplitterGivenConstraint = Equality.makeWithConstantSimplification(representative1, representative2, process);
+			return simplifiedSplitterGivenConstraint;
+		}
+
+		@Override
+		public Expression normalizeExpressionWithoutLiterals(Expression expression, RewritingProcess process) {
+			String syntacticTypeForm = "Symbol";
+			BinaryFunction<Expression, RewritingProcess, Expression> representativeReplacer =
+					(BinaryFunction<Expression, RewritingProcess, Expression>) (s, p) -> getRepresentative(s, p);
+
+					Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifier(
+							expression,
+							functionApplicationSimplifiers,
+							syntacticFormTypeSimplifiers,
+							syntacticTypeForm, representativeReplacer,
+							process);
+
+					return result;
+		}
+
+		@Override
+		protected void applyNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+			myAssert(splitterSign, "EqualitiesConstraint.applyNormalizedSplitterDestructively must take positive splitters only."); 
+			Expression variable  = splitter.get(0);
+			Expression otherTerm = splitter.get(1);
+			applyRepresentativesEqualityDestructively(variable, otherTerm, process);
+		}
+
+		private void applyRepresentativesEqualityDestructively(Expression variableRepresentative, Expression otherTermRepresentative, RewritingProcess process) {
+			// To apply the equality of these two representatives we must take several steps:
+			// first, we include the binding from the first to the second.
+			// This means the first term ceases being a representative, and is now represented by the second term.
+			// We call such a term an obsolete representative.
+			// We have a set of obsolete representatives, initially containing only this one obsolete representative,
+			// which must be replaced everywhere a representative is used by its new representative.
+			// These places are the representations of bound terms and the disequals map.
+			// To replace an obsolete representative, we first replace it in the disequals map.
+			// This may lead to finding a contradiction, if a disequal becomes equal to the term
+			// it is constrained to be disequal from.
+			// We then replace it in the bound terms representations.
+			// For each bound term T, let R be the representative of T and R' the representative of updated term T'.
+			// If R and R' are distinct constants, fail.
+			// If they are the same term, link T' to R' if it is distinct from R'.
+			// Otherwise, bind the variable among R, R' to the other.
+			// If T is a representative itself, it is added to the set of obsolete representatives.
+			// Once the first updating is finished, we pick another of the recorded obsolete representatives and repeat till they are all updated.
+			// Note that when it is time for an obsolete representative to be updated, its parts may have been updated in the meantime,
+			// so it is important to update its part before proceeding.
+			//
+			// OR... to keep things simple if a bit less optimized...
+			//
+			// We simply keep updating everything according to the latest representatives until there are no changes.
+			// We go over disequals map and update each term, checking whether disequalities are violated.
+			// Then we go over bound items, check if its representatives before or after updating are distinct,
+			// do nothing if they are the same, fail if they are distinct constants,
+			// link variable to the other one otherwise while setting flag indicating representative change,
+			// keep going until the flag does not change.
+
+			setBinding(variableRepresentative, otherTermRepresentative);
+			updateRepresentativesWhereverTheyAreUsedDestructively(process);
+		}
+
+		protected void updateRepresentativesWhereverTheyAreUsedDestructively(RewritingProcess process) {
+			updateRepresentativesInEqualitiesMap(process);
+		}
+
+		private void updateRepresentativesInEqualitiesMap(RewritingProcess process) {
+			if ( ! termTheory.termsHaveNoArguments()) {
+				boolean equalitiesMapHasBeenUpdated;
+				do {
+					equalitiesMapHasBeenUpdated = false;
 					Map<Expression, Expression> newEqualitiesMap = new LinkedHashMap<Expression, Expression>();
 					for (Expression variable : equalitiesMap.keySet()) {
 						Expression representativeOfVariable = getRepresentative(variable, false /* do not update map as we are iterating over it */, process);
-						Expression newVariable = termTheory.normalizeTermInEquality(variable, this, process);
+						Expression newVariable = ((EqualityTheoryConstraint)parentConstraint).getTermTheory().normalizeTermInEquality(variable, (EqualityTheoryConstraint) parentConstraint, process);
 
 						if (newVariable == variable) {
 							// no change for this variable, just copy this entry to the new map
@@ -418,24 +715,7 @@ public class EqualityTheory extends AbstractTheory {
 
 		@Override
 		public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
-			Collection<Expression> splittersToBeSatisfiedFromEqualities = new LinkedHashSet<Expression>();
-			getSplittersToBeSatisfiedFromEqualities(indicesSubSet, splittersToBeSatisfiedFromEqualities, process);
-			Collection<Expression> splittersFromEqualitiesNotYetSatisfied = DPLLUtil.keepSplittersUnsatisfiedByContextualConstraint(splittersToBeSatisfiedFromEqualities, process);
-			Collection<Expression> notBoundIndices = filter(indicesSubSet, i -> !indexIsBound(i));
-			Expression result = nonEqualitiesConstraint.modelCount(notBoundIndices, process);
-			if ( ! result.equals(ZERO)) {
-				for (Expression splitter : splittersFromEqualitiesNotYetSatisfied) {
-					result = IfThenElse.make(splitter, result, ZERO);
-				}
-			}
-			return result;
-		}
-		
-		public boolean termsAreExplicitlyConstrainedToBeDisequal(Expression term1, Expression term2, RewritingProcess process) {
-			Expression representative1 = getRepresentative(term1, process);
-			Expression representative2 = getRepresentative(term2, process);
-			boolean result = nonEqualitiesConstraint.directlyImplies(apply(DISEQUALITY, representative1, representative2), process); // TODO: create specialized interface to avoid this unnecessary creation of a literal
-			return result;
+			throw new Error("modelCount not yet implemented for EqualitiesConstraint");
 		}
 
 		@Override
@@ -444,13 +724,12 @@ public class EqualityTheory extends AbstractTheory {
 			for (Map.Entry<Expression, Expression> entry : equalitiesMap.entrySet()) {
 				conjuncts.add(Equality.make(entry.getKey(), entry.getValue()));
 			}
-			conjuncts.add(nonEqualitiesConstraint);
 			Expression result = And.make(conjuncts);
 			return result;
 		}
 
 		////////// EQUALITY CONSTRAINTS MAINTENANCE
-		
+
 		/**
 		 * Indicates the binding of a variable in the equalities map.
 		 * A chain of bindings always links terms constrained to be equal and its
@@ -504,7 +783,7 @@ public class EqualityTheory extends AbstractTheory {
 		public Expression getRepresentative(Expression term, RewritingProcess process) {
 			return getRepresentative(term, true /* record direct binding to representative */, process);
 		}
-		
+
 		/**
 		 * A normalized term's representative is itself, if the term is a constant,
 		 * the final term in the current binding chain, if the term is a variable and it has a binding,
@@ -529,12 +808,72 @@ public class EqualityTheory extends AbstractTheory {
 			}
 			return current;
 		}
-		
+
 		protected boolean termsAreExplicitlyConstrainedToBeEqual(Expression variable, Expression otherTerm, RewritingProcess process) {
 			boolean result = getRepresentative(variable, process).equals(getRepresentative(otherTerm, process));
 			return result;
 		}
 
 		////////// END OF EQUALITY CONSTRAINTS MAINTENANCE
+
+		@Override
+		public void clear() {
+			equalitiesMap.clear();
+		}
+
+		@Override
+		public boolean containsKey(Object arg0) {
+			return equalitiesMap.containsKey(arg0);
+		}
+
+		@Override
+		public boolean containsValue(Object arg0) {
+			return equalitiesMap.containsValue(arg0);
+		}
+
+		@Override
+		public Set<java.util.Map.Entry<Expression, Expression>> entrySet() {
+			return equalitiesMap.entrySet();
+		}
+
+		@Override
+		public Expression get(Object arg0) {
+			return equalitiesMap.get(arg0);
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return equalitiesMap.isEmpty();
+		}
+
+		@Override
+		public Set<Expression> keySet() {
+			return equalitiesMap.keySet();
+		}
+
+		@Override
+		public Expression remove(Object arg0) {
+			return equalitiesMap.remove(arg0);
+		}
+
+		@Override
+		public int size() {
+			return equalitiesMap.size();
+		}
+
+		@Override
+		public Expression put(Expression key, Expression value) {
+			return equalitiesMap.put(key, value);
+		}
+
+		@Override
+		public void putAll(Map<? extends Expression, ? extends Expression> m) {
+			equalitiesMap.putAll(m);
+		}
+
+		@Override
+		public Collection<Expression> values() {
+			return equalitiesMap.values();
+		}
 	}
 }
