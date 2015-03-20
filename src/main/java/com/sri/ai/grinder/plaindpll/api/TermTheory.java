@@ -38,9 +38,9 @@
 package com.sri.ai.grinder.plaindpll.api;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityTheoryConstraint;
 
 @Beta
 public interface TermTheory {
@@ -83,7 +83,7 @@ public interface TermTheory {
 	 * @param process
 	 * @return
 	 */
-	Expression normalizeTermInEquality(Expression term, EqualityTheoryConstraint constraint, RewritingProcess process);
+	Expression normalizeTermInEquality(Expression term, Function<Expression, Expression> getRepresentative, RewritingProcess process);
 
 	/**
 	 * Indicates whether terms have no arguments.
