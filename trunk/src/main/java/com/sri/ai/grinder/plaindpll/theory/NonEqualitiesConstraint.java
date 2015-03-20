@@ -204,7 +204,7 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint {
 	}
 
 	public void getNonEqualitiesSplittersToBeSatisfied(Collection<Expression> indicesSubSet, Collection<Expression> result, RewritingProcess process) {
-		// TODO: when nonEqualitiesConstraint gets consolidated into a single Constraint object, make sure it has a method getSplittersToBeSatisfied
+		// TODO: when nonEqualities gets consolidated into a single Constraint object, make sure it has a method getSplittersToBeSatisfied
 		// that does not iterate over all variables for disequalities, since we know in advance they do not provide splitters of this sort.
 		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : map.entrySet()) {
 			Util.myAssert(() -> getTermTheory().isVariableTerm(entry.getKey(), process), () -> "Key in map for NonEqualitiesConstraints is not a variable, but " + entry.getKey());

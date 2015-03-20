@@ -134,7 +134,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	}
 
 	private boolean areConstrainedToBeDisequal(Expression disequal, Expression anotherDisequal, RewritingProcess process) {
-		boolean result = ((EqualityTheoryConstraint)parentConstraint).termsAreExplicitlyConstrainedToBeDisequal(disequal, anotherDisequal, process);
+		boolean result = parentConstraint.directlyImplies(apply(DISEQUALITY, disequal, anotherDisequal), process);
 		return result;
 	}
 
