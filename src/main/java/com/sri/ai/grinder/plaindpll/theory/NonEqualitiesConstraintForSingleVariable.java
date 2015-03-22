@@ -18,8 +18,18 @@ import com.sri.ai.util.base.Pair;
  */	
 public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 
-	@Override
-	public NonEqualitiesConstraintForSingleVariable copyWithNewParent(Constraint newParent);
+	/**
+	 * Gets the {@link NonEqualitiesConstraint} containing this constraint.
+	 * @param nonEqualitiesConstraint
+	 * @return
+	 */
+	NonEqualitiesConstraint getNonEqualitiesConstraint(NonEqualitiesConstraint nonEqualitiesConstraint);
+	
+	/**
+	 * Destructively set the {@link NonEqualitiesConstraint} containing this constraint.
+	 * @param nonEqualitiesConstraint
+	 */
+	void setNonEqualitiesConstraintDestructively(NonEqualitiesConstraint nonEqualitiesConstraint);
 
 	/**
 	 * Returns a pair of the variable and non-equality constraints map after updating representatives

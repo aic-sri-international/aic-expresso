@@ -26,15 +26,13 @@ import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.number.Minus;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
-import com.sri.ai.grinder.plaindpll.theory.EqualityTheory.EqualityTheoryConstraint;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
 /**
  * An implementation of {@link NonEqualitiesForSingleTerm} in which the only constraint is disequality;
- * its parent constraint must be a {@link EqualityTheoryConstraint}.
+ * it must be informed of its containing {@link NonEqualitiesConstraint}.
  * @author braz
  *
  */
@@ -43,26 +41,19 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	private boolean ownMyDisequals; // allows "borrowing" of another object's fields until and if we need to write to them. Eventually it would more elegant to use a Collection implementation that keeps track of it itself.
 	private Collection<Expression> disequals;
 	private Collection<Expression> uniquelyValuedDisequals; // disequals constrained to be disequal from all uniquely-valued disequals added before themselves. If this set reaches variable's domain size, there will be no value left for it and an inconsistency is indicated.
-
-	public DisequalitiesConstraintForSingleVariable(Expression variable, EqualityTheoryConstraint parentConstraint) {
-		super(variable, parentConstraint);
+	
+	public DisequalitiesConstraintForSingleVariable(Expression variable, NonEqualitiesConstraint nonEqualitiesConstraint) {
+		super(variable, nonEqualitiesConstraint);
 		this.ownMyDisequals = true;
 		this.disequals = Util.set();
 		this.uniquelyValuedDisequals = Util.set();
-	}
-
-	/**
-	 * Parent constraint must be an {@link EqualityTheoryConstraint}.
-	 */
-	@Override
-	public DisequalitiesConstraintForSingleVariable copyWithNewParent(Constraint parentConstraint) {
-		Util.myAssert(() -> parentConstraint instanceof EqualityTheoryConstraint, () -> getClass() + "'s parent constraint must be an EqualityTheoryConstraint");
-		return (DisequalitiesConstraintForSingleVariable) super.copyWithNewParent(parentConstraint);
+		this.nonEqualitiesConstraint = nonEqualitiesConstraint;
+		myAssert(() -> nonEqualitiesConstraint != null, "nonEqualitiesConstraint cannot be null");
 	}
 
 	@Override
 	public DisequalitiesConstraintForSingleVariable clone() {
-		DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, (EqualityTheoryConstraint) parentConstraint);
+		DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, nonEqualitiesConstraint);
 		result.cachedIndexDomainSize = cachedIndexDomainSize;
 		result.ownMyDisequals = false;
 		result.disequals = disequals;
@@ -70,23 +61,20 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		return result;
 	}
 	
-	public void addNonEqualityConstraintDestructively(String functor, Expression term, RewritingProcess process) throws Contradiction {
+	@Override
+	public DisequalitiesConstraintForSingleVariable incorporatePossiblyDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		Util.myAssert(() -> ! splitterSign && isEquality(splitter), () -> getClass() + " only allowed to take negative equality literals (disequalities) but got " + (splitterSign? "" : "not ") + " " + splitter);
+		Util.myAssert(() -> splitter.get(0).equals(variable), () -> getClass() + " must only take splitters in which the first argument is the same as the main variable");
+		Expression term = splitter.get(1);
 		if ( ! ownMyDisequals) {
 			disequals = new LinkedHashSet<Expression>(disequals);
-			if (getIndexDomainSize(process) != -1) {
+			if (getIndexDomainSize(process) != -1) { // we only use the field below when we know the domain size
 				uniquelyValuedDisequals = new LinkedHashSet<Expression>(uniquelyValuedDisequals);
 			}
 			ownMyDisequals = true;
 		}
 		disequals.add(term);
 		updateUniqueValuedDisequals(term, process);
-	}
-
-	@Override
-	public DisequalitiesConstraintForSingleVariable incorporatePossiblyDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		Util.myAssert(() -> ! splitterSign && isEquality(splitter), () -> getClass() + " only allowed to take negative equality literals (disequalities) but got " + (splitterSign? "" : "not ") + " " + splitter);
-		Util.myAssert(() -> splitter.get(0).equals(variable), () -> getClass() + " must only take splitters in which the first argument is the same as the main variable");
-		addNonEqualityConstraintDestructively(DISEQUALITY, splitter.get(1), process);
 		return this;
 	}
 	
@@ -94,18 +82,18 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		if (getIndexDomainSize(process) != -1) {
 			if (forAll(uniquelyValuedDisequals, u -> areConstrainedToBeDisequal(u, term, process))) {
 				uniquelyValuedDisequals.add(term);
-			}
-			if (uniquelyValuedDisequals.size() >= getIndexDomainSize(process)) {
-				throw new Contradiction();
+				if (uniquelyValuedDisequals.size() >= getIndexDomainSize(process)) {
+					throw new Contradiction();
+				}
 			}
 		}
 	}
 	
 	@Override
 	public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
-		if ( ! indicesSubSet.isEmpty()) { // if empty, no splitters are needed. If not empty, it must be a set with this.index as only element.
+		if ( ! indicesSubSet.isEmpty()) { // if empty, no splitters are needed. If not empty, it necessarily is a set with this.variable as only element.
 			for (Expression disequal : disequals) {
-				if (getTheory().isVariableTerm(disequal, process)) { // we can restrict y to variables because at least one of y or t must be a variable (otherwise they would be two constants and we already know those are disequal).
+				if (getTheory().isVariableTerm(disequal, process)) { // we can restrict disequal to variables because at least one of the splitter's arguments must be a variable (otherwise they would be two constants and we already know those are disequal).
 					Expression splitter  = getSplitterTowardsEnsuringVariableIsDisequalFromAllOtherTermsInCollection(disequal, process);
 					if (splitter != null) {
 						return splitter;
@@ -125,7 +113,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 					return splitter; // need to disunify first
 				}
 				else if ( ! areConstrainedToBeDisequal(disequal, anotherDisequal, process)) { // already disunified
-					splitter = getTheory().makeSplitterFromFunctorAndTwoDistinctTermsOneOfWhichIsAVariable(EQUALITY, disequal, anotherDisequal, getSupportedIndices(), process);
+					splitter = getTheory().makeSplitterFromFunctorAndVariableAndTermDistinctFromVariable(EQUALITY, disequal, anotherDisequal, getSupportedIndices(), process);
 					return splitter;
 				}
 			}
@@ -133,8 +121,9 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		return null;
 	}
 
+	// TODO: specialize interface to avoid creating unnecessary literal
 	private boolean areConstrainedToBeDisequal(Expression disequal, Expression anotherDisequal, RewritingProcess process) {
-		boolean result = parentConstraint.directlyImpliesLiteral(apply(DISEQUALITY, disequal, anotherDisequal), process);
+		boolean result = nonEqualitiesConstraint.directlyImpliesLiteral(apply(DISEQUALITY, disequal, anotherDisequal), process);
 		return result;
 	}
 
@@ -159,17 +148,19 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 
 	@Override
 	public boolean directlyImpliesNonTrivialLiteral(Expression literal, RewritingProcess process) {
-		myAssert(() -> literal.hasFunctor(DISEQUALITY), "DisequalitiesConstraintForSingleVariable.directlyImplies must receive disequality constraints only.");
 		boolean result;
 		
+		if (literal.hasFunctor(EQUALITY)) {
+			result = false; // no equalities are implied
+		}
 		if (literal.get(0).equals(variable) && disequals.contains(literal.get(1))) {
-			result = true;
+			result = true; 
 		}
 		else if (literal.get(1).equals(variable) && disequals.contains(literal.get(0))) {
 			result = true;
 		}
 		else {
-			result = false;
+			result = false; // it is a disequality, but not implied.
 		}
 		
 		return result;

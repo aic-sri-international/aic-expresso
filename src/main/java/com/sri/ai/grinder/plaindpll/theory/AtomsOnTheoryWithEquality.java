@@ -151,11 +151,6 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		}
 		
 		@Override
-		public AtomsOnTheoryWithEqualityConstraint copyWithNewParent(Constraint parentConstraint) {
-			return (AtomsOnTheoryWithEqualityConstraint) super.copyWithNewParent(parentConstraint);
-		}
-		
-		@Override
 		public AtomsOnTheoryWithEqualityConstraint clone() {
 			return new AtomsOnTheoryWithEqualityConstraint(equalityConstraint);
 		}
@@ -173,10 +168,10 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		@Override
 		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
 			Expression equalitySplitter = Equality.isEquality(splitter)? splitter : Equality.make(splitter, TRUE);
-			Expression impliedByEqualityConstraint = equalityConstraint.normalizeSplitterGivenConstraint(equalitySplitter, process);
+			Expression equalitySplitterSimplifiedUnderEqualityConstraint = equalityConstraint.normalizeSplitterGivenConstraint(equalitySplitter, process);
 			Expression result;
-			if (impliedByEqualityConstraint.equals(TRUE) || impliedByEqualityConstraint.equals(FALSE)) {
-				result = impliedByEqualityConstraint;
+			if (equalitySplitterSimplifiedUnderEqualityConstraint.equals(TRUE) || equalitySplitterSimplifiedUnderEqualityConstraint.equals(FALSE)) {
+				result = equalitySplitterSimplifiedUnderEqualityConstraint;
 			}
 			else {
 				result = splitter;

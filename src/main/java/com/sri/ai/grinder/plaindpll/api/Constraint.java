@@ -22,14 +22,14 @@ import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
  */
 public interface Constraint extends Expression {
 
-	/** Makes a copy of this constraint, but with a new parent constraint. */
-	Constraint copyWithNewParent(Constraint parentConstraint);
-
+	Constraint clone();
+	
 	/** The theory to which this constraint belongs. */
 	Theory getTheory();
 
 	/**
-	 * The set of variables on subsets of which one can count models of this constraint.
+	 * The set of variables on subsets of which one can count models of this constraint,
+	 * and which have preference in coming first in splitters (even if not being counted on).
 	 */
 	public abstract Collection<Expression> getSupportedIndices();
 
@@ -136,7 +136,8 @@ public interface Constraint extends Expression {
 	/**
 	 * Simplifies a given splitter to true if implied by constraint, false if its negation is implied by constraint,
 	 * or a version of itself with terms replaced by representatives.
-	 * TODO: consider simply using {@link #directlyImpliesNonTrivialLiteral(Expression, RewritingProcess)} instead (needs to be as efficient).
+	 * This is similar to {@link #directlyImpliesLiteral(Expression, RewritingProcess)} but potentially more efficient
+	 * because a splitter is a restricted type of literal.
 	 */
 	Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process);
 

@@ -2,6 +2,7 @@ package com.sri.ai.grinder.plaindpll.theory;
 
 import static com.sri.ai.grinder.helper.GrinderUtil.getTypeCardinality;
 import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Collection;
 
@@ -17,12 +18,14 @@ import com.sri.ai.util.Util;
 public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends AbstractOwnRepresentationConstraint implements NonEqualitiesConstraintForSingleVariable {
 	protected Expression variable;
 	protected long cachedIndexDomainSize;
+	protected NonEqualitiesConstraint nonEqualitiesConstraint; // the DefaultNonEqualitiesConstraint containing this one
 
-	public AbstractNonEqualitiesConstraintForSingleVariable(Expression variable, Constraint parentEqualityConstraint) {
+	public AbstractNonEqualitiesConstraintForSingleVariable(Expression variable, NonEqualitiesConstraint nonEqualitiesConstraint) {
 		super(list(variable));
 		this.variable = variable;
 		this.cachedIndexDomainSize = -1;
-		this.parentConstraint = parentEqualityConstraint;
+		this.nonEqualitiesConstraint = nonEqualitiesConstraint;
+		myAssert(() -> nonEqualitiesConstraint != null, "nonEqualitiesConstraint cannot be null");
 	}
 	
 	@Override
@@ -31,22 +34,30 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 		return null;
 	}
 	
-	public AbstractNonEqualitiesConstraintForSingleVariable copyWithNewParent(Constraint parentConstraint) {
-		return (AbstractNonEqualitiesConstraintForSingleVariable) super.copyWithNewParent(parentConstraint);
+	@Override
+	public NonEqualitiesConstraint getNonEqualitiesConstraint(NonEqualitiesConstraint nonEqualitiesConstraint) {
+		myAssert(() -> nonEqualitiesConstraint != null, "nonEqualitiesConstraint must not be null");
+		return nonEqualitiesConstraint;
+	}
+
+	@Override
+	public void setNonEqualitiesConstraintDestructively(NonEqualitiesConstraint nonEqualitiesConstraint) {
+		this.nonEqualitiesConstraint = nonEqualitiesConstraint;
+		myAssert(() -> nonEqualitiesConstraint != null, "nonEqualitiesConstraint cannot be null");
 	}
 
 	@Override
 	public EqualityTheory getTheory() {
-		return ((EqualityTheoryConstraint)parentConstraint).getTheory();
+		return nonEqualitiesConstraint.getTheory();
 	}
 
 	@Override
 	public Collection<Expression> getSupportedIndices() {
-		return parentConstraint.getSupportedIndices();
+		return nonEqualitiesConstraint.getSupportedIndices();
 	}
 
 	protected TermTheory getTermTheory() {
-		return ((EqualityTheoryConstraint)parentConstraint).getTermTheory();
+		return nonEqualitiesConstraint.getTermTheory();
 	}
 	
 	protected long getIndexDomainSize(RewritingProcess process) {
