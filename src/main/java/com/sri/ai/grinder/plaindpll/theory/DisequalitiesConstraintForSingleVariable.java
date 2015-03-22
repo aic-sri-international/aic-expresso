@@ -11,13 +11,10 @@ import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.mapIntoSetOrSameIfNoDistinctElementInstances;
-import static com.sri.ai.util.Util.myAssert;
 import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.base.Function;
@@ -29,6 +26,7 @@ import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.collect.CopyOnWriteCollection;
 
 /**
  * An implementation of {@link NonEqualitiesForSingleTerm} in which the only constraint is disequality;
@@ -38,26 +36,27 @@ import com.sri.ai.util.base.Pair;
  */
 @SuppressWarnings("serial")
 public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualitiesConstraintForSingleVariable {
-	private boolean ownMyDisequals; // allows "borrowing" of another object's fields until and if we need to write to them. Eventually it would more elegant to use a Collection implementation that keeps track of it itself.
 	private Collection<Expression> disequals;
 	private Collection<Expression> uniquelyValuedDisequals; // disequals constrained to be disequal from all uniquely-valued disequals added before themselves. If this set reaches variable's domain size, there will be no value left for it and an inconsistency is indicated.
 	
+	/**
+	 * Constructs a set of disequality constraints for variable to be used inside nonEqualitiesConstraint.
+	 * @param variable
+	 * @param nonEqualitiesConstraint
+	 */
 	public DisequalitiesConstraintForSingleVariable(Expression variable, NonEqualitiesConstraint nonEqualitiesConstraint) {
 		super(variable, nonEqualitiesConstraint);
-		this.ownMyDisequals = true;
 		this.disequals = Util.set();
 		this.uniquelyValuedDisequals = Util.set();
 		this.nonEqualitiesConstraint = nonEqualitiesConstraint;
-		myAssert(() -> nonEqualitiesConstraint != null, "nonEqualitiesConstraint cannot be null");
 	}
 
 	@Override
 	public DisequalitiesConstraintForSingleVariable clone() {
 		DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, nonEqualitiesConstraint);
 		result.cachedIndexDomainSize = cachedIndexDomainSize;
-		result.ownMyDisequals = false;
-		result.disequals = disequals;
-		result.uniquelyValuedDisequals = uniquelyValuedDisequals;
+		result.disequals = new CopyOnWriteCollection<Expression>(disequals);
+		result.uniquelyValuedDisequals = new CopyOnWriteCollection<Expression>(uniquelyValuedDisequals);
 		return result;
 	}
 	
@@ -66,13 +65,6 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		Util.myAssert(() -> ! splitterSign && isEquality(splitter), () -> getClass() + " only allowed to take negative equality literals (disequalities) but got " + (splitterSign? "" : "not ") + " " + splitter);
 		Util.myAssert(() -> splitter.get(0).equals(variable), () -> getClass() + " must only take splitters in which the first argument is the same as the main variable");
 		Expression term = splitter.get(1);
-		if ( ! ownMyDisequals) {
-			disequals = new LinkedHashSet<Expression>(disequals);
-			if (getIndexDomainSize(process) != -1) { // we only use the field below when we know the domain size
-				uniquelyValuedDisequals = new LinkedHashSet<Expression>(uniquelyValuedDisequals);
-			}
-			ownMyDisequals = true;
-		}
 		disequals.add(term);
 		updateUniqueValuedDisequals(term, process);
 		return this;
@@ -80,7 +72,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	
 	private void updateUniqueValuedDisequals(Expression term, RewritingProcess process) throws Contradiction {
 		if (getIndexDomainSize(process) != -1) {
-			if (forAll(uniquelyValuedDisequals, u -> areConstrainedToBeDisequal(u, term, process))) {
+			if (forAll(uniquelyValuedDisequals, u -> nonEqualitiesConstraint.directlyImpliesLiteral(apply(DISEQUALITY, u, term), process))) {
 				uniquelyValuedDisequals.add(term);
 				if (uniquelyValuedDisequals.size() >= getIndexDomainSize(process)) {
 					throw new Contradiction();
@@ -91,7 +83,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	
 	@Override
 	public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
-		if ( ! indicesSubSet.isEmpty()) { // if empty, no splitters are needed. If not empty, it necessarily is a set with this.variable as only element.
+		if ( ! indicesSubSet.isEmpty()) { // if empty, no splitters are needed. If not empty, indicesSubSet is necessarily a set with this.variable as only element.
 			for (Expression disequal : disequals) {
 				if (getTheory().isVariableTerm(disequal, process)) { // we can restrict disequal to variables because at least one of the splitter's arguments must be a variable (otherwise they would be two constants and we already know those are disequal).
 					Expression splitter  = getSplitterTowardsEnsuringVariableIsDisequalFromAllOtherTermsInCollection(disequal, process);
@@ -112,7 +104,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 				if (splitter != null) {
 					return splitter; // need to disunify first
 				}
-				else if ( ! areConstrainedToBeDisequal(disequal, anotherDisequal, process)) { // already disunified
+				else if ( ! nonEqualitiesConstraint.directlyImpliesLiteral(apply(DISEQUALITY, disequal, anotherDisequal), process)) { // already disunified
 					splitter = getTheory().makeSplitterFromFunctorAndVariableAndTermDistinctFromVariable(EQUALITY, disequal, anotherDisequal, getSupportedIndices(), process);
 					return splitter;
 				}
@@ -121,9 +113,46 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		return null;
 	}
 
-	// TODO: specialize interface to avoid creating unnecessary literal
-	private boolean areConstrainedToBeDisequal(Expression disequal, Expression anotherDisequal, RewritingProcess process) {
-		boolean result = nonEqualitiesConstraint.directlyImpliesLiteral(apply(DISEQUALITY, disequal, anotherDisequal), process);
+	@Override
+	public boolean directlyImpliesNonTrivialLiteral(Expression literal, RewritingProcess process) {
+		boolean result;
+		
+		if (literal.hasFunctor(EQUALITY)) {
+			result = false; // no equalities are implied
+		}
+		else if (literal.get(0).equals(variable) && disequals.contains(literal.get(1))) {
+			result = true; 
+		}
+		else if (literal.get(1).equals(variable) && disequals.contains(literal.get(0))) {
+			result = true;
+		}
+		else {
+			result = false; // it is a disequality, but not implied.
+		}
+		
+		return result;
+	}
+
+	@Override
+	public boolean directlyImpliesDisequalityOfVariableAnd(Expression term, RewritingProcess process) {
+		boolean result = disequals.contains(term);
+		return result;
+	}
+
+	@Override
+	public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
+		Expression result;
+		
+		if (splitter.get(0).equals(variable) && disequals.contains(splitter.get(1))) {
+			result = FALSE;
+		}
+		else if (splitter.get(1).equals(variable) && disequals.contains(splitter.get(0))) {
+			result = FALSE;
+		}
+		else {
+			result = splitter;
+		}
+		
 		return result;
 	}
 
@@ -144,43 +173,6 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 			numberOfPossibleValuesForIndex = makeSymbol(max(0, typeSize - numberOfNonAvailableValues));
 		}
 		return numberOfPossibleValuesForIndex;
-	}
-
-	@Override
-	public boolean directlyImpliesNonTrivialLiteral(Expression literal, RewritingProcess process) {
-		boolean result;
-		
-		if (literal.hasFunctor(EQUALITY)) {
-			result = false; // no equalities are implied
-		}
-		if (literal.get(0).equals(variable) && disequals.contains(literal.get(1))) {
-			result = true; 
-		}
-		else if (literal.get(1).equals(variable) && disequals.contains(literal.get(0))) {
-			result = true;
-		}
-		else {
-			result = false; // it is a disequality, but not implied.
-		}
-		
-		return result;
-	}
-
-	@Override
-	public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
-		Expression result;
-		
-		if (splitter.get(0).equals(variable) && disequals.contains(splitter.get(1))) {
-			result = FALSE;
-		}
-		else if (splitter.get(1).equals(variable) && disequals.contains(splitter.get(0))) {
-			result = FALSE;
-		}
-		else {
-			result = splitter;
-		}
-		
-		return result;
 	}
 
 	/**
@@ -208,6 +200,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		}
 			
 		return result;
+		// OPTIMIZATION: skip the intermediary representation NonEqualitiesForSingleTerm and get instead a procedure parameter on what to do with each pair.
 	}
 
 	public List<Expression> getSplittersToBeSatisfied() {
@@ -215,11 +208,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	}
 
 	public List<Expression> getSplittersToBeNotSatisfied() {
-		List<Expression> result = new LinkedList<Expression>();
-		for (Expression disequal : disequals) {
-			Expression splitter = apply(EQUALITY, variable, disequal); // making it with apply instead of Equality.make sidesteps simplifications, which will not occur in this case because otherwise this condition would have either rendered the constraint a contradiction, or would have been eliminated from it
-			result.add(splitter);
-		}
+		List<Expression> result = mapIntoList(disequals, disequal -> apply(EQUALITY, variable, disequal)); // making it with apply instead of Equality.make sidesteps simplifications, which will not occur in this case because otherwise this condition would have either rendered the constraint a contradiction, or would have been eliminated from it
 		return result;
 	}
 

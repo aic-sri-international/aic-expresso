@@ -19,6 +19,15 @@ import com.sri.ai.util.base.Pair;
 public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 
 	/**
+	 * A more efficient replacement for {@link #directlyImpliesLiteral(Expression, RewritingProcess)} for disequality literals.
+	 * @param term1
+	 * @param term
+	 * @param process
+	 * @return
+	 */
+	boolean directlyImpliesDisequalityOfVariableAnd(Expression term, RewritingProcess process);
+
+	/**
 	 * Gets the {@link NonEqualitiesConstraint} containing this constraint.
 	 * @param nonEqualitiesConstraint
 	 * @return
