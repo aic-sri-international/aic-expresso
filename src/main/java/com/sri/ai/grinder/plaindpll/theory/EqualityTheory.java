@@ -173,7 +173,7 @@ public class EqualityTheory extends AbstractTheory {
 	@Override
 	protected String getCorrespondingSplitterFunctorOrNull(Expression expression) {
 		String result;
-		if (expression.hasFunctor(FunctorConstants.EQUALITY) || expression.hasFunctor(FunctorConstants.DISEQUALITY)) {
+		if (expression.hasFunctor(FunctorConstants.EQUALITY) || expression.hasFunctor(FunctorConstants.DISEQUALITY)) { // TODO: need to generalize to other types of constraint
 			result = FunctorConstants.EQUALITY;
 		}
 		else {
@@ -184,7 +184,9 @@ public class EqualityTheory extends AbstractTheory {
 
 	@Override
 	protected BinaryFunction<Expression, RewritingProcess, Expression>
-	getSplitterApplier(boolean splitterSign, Expression splitter) {
+	
+	getSplitterApplier(boolean splitterSign, Expression splitter) { // TODO: generalize to other types of constraint
+		
 		BinaryFunction<Expression, RewritingProcess, Expression> applier;
 		if (splitter.hasFunctor(FunctorConstants.EQUALITY)) {
 			Expression term1 = splitter.get(0);
@@ -211,7 +213,7 @@ public class EqualityTheory extends AbstractTheory {
 	}
 
 	@Override
-	public EqualityTheoryConstraint makeConstraint(Collection<Expression> indices) {
+	public EqualityTheoryConstraint makeConstraint(Collection<Expression> indices) { // TODO: generalize to other types of constraint
 		return new EqualityTheoryConstraint(indices);
 	}
 
@@ -220,9 +222,9 @@ public class EqualityTheory extends AbstractTheory {
 		return termTheory.isVariableTerm(term, process);
 	}
 
+	/** A faster implementation than the default implementation, since we know more about splitters here. */
 	@Override
 	public boolean splitterDependsOnIndex(Expression splitter, Collection<Expression> indices) {
-		// A faster implementation than the default implementation, since we know more about splitters here.
 		boolean result = indices.contains(splitter.get(0));
 		return result;
 	}
@@ -275,22 +277,31 @@ public class EqualityTheory extends AbstractTheory {
 
 		@Override
 		public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
+			// equalities do not require splitters for model counting, so we ask only the non-equalities.
 			Expression result = nonEqualities.pickSplitter(indicesSubSet, process);
 			return result;
 		}
 
 		@Override
 		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
-			Expression simplifiedSplitterGivenConstraint;
-			Expression representative1 = equalities.getRepresentative(splitter.get(0), process);
-			Expression representative2 = equalities.getRepresentative(splitter.get(1), process);
-			simplifiedSplitterGivenConstraint = Equality.makeWithConstantSimplification(representative1, representative2, process);
-			if ( ! simplifiedSplitterGivenConstraint.getSyntacticFormType().equals("Symbol")) {
-				if (nonEqualities.directlyImplies(apply(DISEQUALITY, representative1, representative2), process)) { // TODO: create specialized interface to avoid this unnecessary creation of a literal
-					simplifiedSplitterGivenConstraint = FALSE;
+			Expression result;
+			if (splitter.hasFunctor(EQUALITY)) {
+				Expression representativesEqualitySimplification;
+				Expression representative1 = equalities.getRepresentative(splitter.get(0), process);
+				Expression representative2 = equalities.getRepresentative(splitter.get(1), process);
+				representativesEqualitySimplification = Equality.makeWithConstantSimplification(representative1, representative2, process);
+				if ( ! representativesEqualitySimplification.getSyntacticFormType().equals("Symbol")) {
+					if (nonEqualities.directlyImpliesNonTrivialLiteral(apply(DISEQUALITY, representative1, representative2), process)) { // TODO: create specialized interface to avoid this unnecessary creation of a literal
+						representativesEqualitySimplification = FALSE;
+					}
 				}
+				result = representativesEqualitySimplification;
 			}
-			return simplifiedSplitterGivenConstraint;
+			else {
+				throw new Error("EqualityTheoryConstraint.normalizeSplitterGivenConstraint must receive equality splitters only.");
+				// TODO generalize for other constraint functors.
+			}
+			return result;
 		}
 
 		@Override
@@ -377,15 +388,16 @@ public class EqualityTheory extends AbstractTheory {
 		}
 
 		@Override
-		public boolean directlyImplies(Expression literal, RewritingProcess process) {
+		public boolean directlyImpliesNonTrivialLiteral(Expression literal, RewritingProcess process) {
 			boolean result;
 			if (literal.hasFunctor(EQUALITY)) {
-				result = equalities.directlyImplies(literal, process);
+				result = equalities.directlyImpliesNonTrivialLiteral(literal, process);
 			}
 			else {
+				// since non-equalities are defined on representatives only, we need to find them first before delegating.
 				Expression representative1 = equalities.getRepresentative(literal.get(0), process);
 				Expression representative2 = equalities.getRepresentative(literal.get(1), process);
-				result = nonEqualities.directlyImplies(apply(DISEQUALITY, representative1, representative2), process); // TODO: create specialized interface to avoid this unnecessary creation of a literal
+				result = nonEqualities.directlyImpliesLiteral(apply(DISEQUALITY, representative1, representative2), process); // TODO: create specialized interface to avoid this unnecessary creation of a literal
 			}
 			return result;
 		}
@@ -637,7 +649,7 @@ public class EqualityTheory extends AbstractTheory {
 		}
 
 		@Override
-		public boolean directlyImplies(Expression literal, RewritingProcess process) {
+		public boolean directlyImpliesNonTrivialLiteral(Expression literal, RewritingProcess process) {
 			myAssert( () -> literal.hasFunctor(EQUALITY), "EqualitiesConstraint.directlyImplies must take equality *atoms* only.");
 			boolean result1 = getRepresentative(literal.get(0), process).equals(getRepresentative(literal.get(1), process));
 			boolean result = result1;

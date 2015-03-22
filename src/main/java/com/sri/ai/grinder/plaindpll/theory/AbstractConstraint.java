@@ -37,7 +37,7 @@ public abstract class AbstractConstraint extends AbstractExpressionWrapper imple
 	}
 
 	@Override
-	public boolean directlyImplies(Expression literal, RewritingProcess process) {
+	public boolean directlyImpliesNonTrivialLiteral(Expression literal, RewritingProcess process) {
 		throw new Error(this.getClass().getSimpleName() + "." + (new Object(){}).getClass().getEnclosingMethod() + " not implemented yet.");
 	}
 	

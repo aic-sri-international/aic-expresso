@@ -1,5 +1,7 @@
 package com.sri.ai.grinder.plaindpll.api;
 
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
+
 import java.util.Collection;
 
 import com.google.common.base.Function;
@@ -22,10 +24,10 @@ public interface Constraint extends Expression {
 
 	/** Makes a copy of this constraint, but with a new parent constraint. */
 	Constraint copyWithNewParent(Constraint parentConstraint);
-	
+
 	/** The theory to which this constraint belongs. */
 	Theory getTheory();
-	
+
 	/**
 	 * The set of variables on subsets of which one can count models of this constraint.
 	 */
@@ -102,17 +104,39 @@ public interface Constraint extends Expression {
 
 	/**
 	 * Indicates whether a given literal is directly implied by this constraint
-	 * (that is, it's value is either trivial or explicitly represented by the constraint, without inference).
+	 * (that is, it's value is either trivial or explicitly represented by the constraint, without inference);
+	 * implementations are allowed to assume that the literal is already simplified,
+	 * and that it is not a trivial TRUE or FALSE. 
 	 * @param literal
 	 * @param process
 	 * @return
 	 */
-	boolean directlyImplies(Expression literal, RewritingProcess process);
-	
+	boolean directlyImpliesNonTrivialLiteral(Expression literal, RewritingProcess process);
+
+	/**
+	 * Indicates whether a given literal is directly implied by this constraint
+	 * (that is, it's value is either trivial or explicitly represented by the constraint, without inference);
+	 * default implementation simplifies it according to theory and asks {@link #directlyImpliesNonTrivialLiteral(Expression, RewritingProcess)}.
+	 * @param literal
+	 * @param process
+	 * @return
+	 */
+	default boolean directlyImpliesLiteral(Expression literal, RewritingProcess process) {
+		boolean result;
+		Expression simplifiedLiteral = getTheory().simplify(literal, process);
+		if (simplifiedLiteral.getSyntacticFormType().equals("Symbol")) {
+			result = simplifiedLiteral.equals(TRUE);
+		}
+		else {
+			result = directlyImpliesNonTrivialLiteral(simplifiedLiteral, process);
+		}
+		return result;
+	}
+
 	/**
 	 * Simplifies a given splitter to true if implied by constraint, false if its negation is implied by constraint,
 	 * or a version of itself with terms replaced by representatives.
-	 * TODO: consider simply using {@link #directlyImplies(Expression, RewritingProcess)} instead (needs to be as efficient).
+	 * TODO: consider simply using {@link #directlyImpliesNonTrivialLiteral(Expression, RewritingProcess)} instead (needs to be as efficient).
 	 */
 	Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process);
 

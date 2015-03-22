@@ -134,7 +134,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	}
 
 	private boolean areConstrainedToBeDisequal(Expression disequal, Expression anotherDisequal, RewritingProcess process) {
-		boolean result = parentConstraint.directlyImplies(apply(DISEQUALITY, disequal, anotherDisequal), process);
+		boolean result = parentConstraint.directlyImpliesLiteral(apply(DISEQUALITY, disequal, anotherDisequal), process);
 		return result;
 	}
 
@@ -158,7 +158,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	}
 
 	@Override
-	public boolean directlyImplies(Expression literal, RewritingProcess process) {
+	public boolean directlyImpliesNonTrivialLiteral(Expression literal, RewritingProcess process) {
 		myAssert(() -> literal.hasFunctor(DISEQUALITY), "DisequalitiesConstraintForSingleVariable.directlyImplies must receive disequality constraints only.");
 		boolean result;
 		
