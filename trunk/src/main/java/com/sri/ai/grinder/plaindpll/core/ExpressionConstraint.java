@@ -115,11 +115,6 @@ public class ExpressionConstraint extends AbstractConstraint {
 	}
 
 	@Override
-	public ExpressionConstraint copyWithNewParent(Constraint parentConstraint) {
-		return (ExpressionConstraint) super.copyWithNewParent(parentConstraint);
-	}
-
-	@Override
 	public ExpressionConstraint clone() {
 		return new ExpressionConstraint(theory, supportedIndices, baseExpression);
 	}

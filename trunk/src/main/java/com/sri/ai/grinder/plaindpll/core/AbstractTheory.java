@@ -205,7 +205,9 @@ abstract public class AbstractTheory implements Theory {
 			result = Expressions.apply(splitterFunctor, termDistinctFromVariable, variable);
 		}
 		// Experimented with the below, which always chooses the variable later in value choice for first term in splitter,
-		// but this sometimes changes input expressions unnecessarily, so I am sticking with the above for now which is more conservative.
+		// but this sometimes changes input expressions unnecessarily (*), so I am sticking with the above for now which is more conservative.
+		// (*) the differences occur when we have two indices or two non-indices, which in choice order means they are sorted alphabetically,
+		// whereas in splitters there is no preference.
 //		if (variableIsChosenAfterOtherTerm(variable, termDistinctFromVariable, indices, process)) {
 //			result = Expressions.apply(splitterFunctor, variable, termDistinctFromVariable);
 //		}

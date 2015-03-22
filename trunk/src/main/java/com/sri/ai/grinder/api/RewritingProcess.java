@@ -47,7 +47,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.core.RewriteOnce;
 import com.sri.ai.grinder.core.RewriterLookup;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.util.base.IdentityWrapper;
 import com.sri.ai.util.base.Pair;
 

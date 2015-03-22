@@ -101,6 +101,10 @@ public class EqualityTheory extends AbstractTheory {
 		this.termTheory = termTheory;
 	}
 
+	public TermTheory getTermTheory() {
+		return termTheory;
+	}
+	
 	private static Rewriter plus  = new Plus();
 	private static Rewriter times = new Times();
 
@@ -247,18 +251,13 @@ public class EqualityTheory extends AbstractTheory {
 		public EqualityTheoryConstraint(Collection<Expression> supportedIndices) {
 			super(supportedIndices);
 			this.equalities = new EqualitiesConstraint(getTermTheory(), getSupportedIndices());
-			this.nonEqualities = new NonEqualitiesConstraint(supportedIndices, this); 
+			this.nonEqualities = new DefaultNonEqualitiesConstraint(getTheory(), supportedIndices); 
 		}
 
 		private EqualityTheoryConstraint(EqualityTheoryConstraint another) {
 			super(another.getSupportedIndices());
 			this.equalities = new EqualitiesConstraint(another.equalities);
-			this.nonEqualities = another.nonEqualities.copyWithNewParent(this);
-		}
-
-		@Override
-		public EqualityTheoryConstraint copyWithNewParent(Constraint parentConstraint) {
-			return (EqualityTheoryConstraint) super.copyWithNewParent(parentConstraint);
+			this.nonEqualities = another.nonEqualities.clone();
 		}
 
 		@Override
@@ -325,44 +324,15 @@ public class EqualityTheory extends AbstractTheory {
 			if (splitterSign) {
 				Expression variable  = splitter.get(0);
 				Expression otherTerm = splitter.get(1);
-				applyRepresentativesEqualityDestructively(variable, otherTerm, process);
+				applyEqualityDestructively(variable, otherTerm, process);
 			}
 			else {
 				nonEqualities = nonEqualities.incorporatePossiblyDestructively(splitterSign, splitter, process); 
 			}
 		}
 
-		private void applyRepresentativesEqualityDestructively(Expression variableRepresentative, Expression otherTermRepresentative, RewritingProcess process) {
-			// To apply the equality of these two representatives we must take several steps:
-			// first, we include the binding from the first to the second.
-			// This means the first term ceases being a representative, and is now represented by the second term.
-			// We call such a term an obsolete representative.
-			// We have a set of obsolete representatives, initially containing only this one obsolete representative,
-			// which must be replaced everywhere a representative is used by its new representative.
-			// These places are the representations of bound terms and the disequals map.
-			// To replace an obsolete representative, we first replace it in the disequals map.
-			// This may lead to finding a contradiction, if a disequal becomes equal to the term
-			// it is constrained to be disequal from.
-			// We then replace it in the bound terms representations.
-			// For each bound term T, let R be the representative of T and R' the representative of updated term T'.
-			// If R and R' are distinct constants, fail.
-			// If they are the same term, link T' to R' if it is distinct from R'.
-			// Otherwise, bind the variable among R, R' to the other.
-			// If T is a representative itself, it is added to the set of obsolete representatives.
-			// Once the first updating is finished, we pick another of the recorded obsolete representatives and repeat till they are all updated.
-			// Note that when it is time for an obsolete representative to be updated, its parts may have been updated in the meantime,
-			// so it is important to update its part before proceeding.
-			//
-			// OR... to keep things simple if a bit less optimized...
-			//
-			// We simply keep updating everything according to the latest representatives until there are no changes.
-			// We go over disequals map and update each term, checking whether disequalities are violated.
-			// Then we go over bound items, check if its representatives before or after updating are distinct,
-			// do nothing if they are the same, fail if they are distinct constants,
-			// link variable to the other one otherwise while setting flag indicating representative change,
-			// keep going until the flag does not change.
-
-			equalities.setBinding(variableRepresentative, otherTermRepresentative);
+		private void applyEqualityDestructively(Expression variable, Expression otherTerm, RewritingProcess process) {
+			equalities.setBinding(variable, otherTerm);
 			updateRepresentativesWhereverTheyAreUsedDestructively(process);
 		}
 
@@ -433,11 +403,6 @@ public class EqualityTheory extends AbstractTheory {
 			super(another.getSupportedIndices());
 			this.termTheory = another.termTheory;
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>(another.equalitiesMap); // TODO: implement a copy-on-write scheme
-		}
-
-		@Override
-		public EqualitiesConstraint copyWithNewParent(Constraint parentConstraint) {
-			return (EqualitiesConstraint) super.copyWithNewParent(parentConstraint);
 		}
 
 		@Override
