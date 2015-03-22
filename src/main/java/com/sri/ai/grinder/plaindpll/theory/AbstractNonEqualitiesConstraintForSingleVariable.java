@@ -25,7 +25,6 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 		this.variable = variable;
 		this.cachedIndexDomainSize = -1;
 		this.nonEqualitiesConstraint = nonEqualitiesConstraint;
-		myAssert(() -> nonEqualitiesConstraint != null, "nonEqualitiesConstraint cannot be null");
 	}
 	
 	@Override
