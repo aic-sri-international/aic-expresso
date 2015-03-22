@@ -91,6 +91,40 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 		return result;
 	}
 
+	/**
+	 * Equivalent to {@link #directlyImpliesLiteral(Expression, RewritingProcess)} on a disequality literal,
+	 * but more efficient and not requiring the construction of the literal.
+	 */
+	@Override
+	public boolean directlyImpliesDisequality(Expression term1, Expression term2, RewritingProcess process) {
+		boolean result;
+		if (term1.equals(term2)) {
+			result = false;
+		}
+		else if (process.isUniquelyNamedConstant(term1) && process.isUniquelyNamedConstant(term2)) {
+			result = true;
+		}
+		else if (firstTermComesLaterInChoiceOrder(term1, term2, process)) {
+			result = directlyImpliesDisequalityBetweenVariableComingLaterInChoiceOrderAndAnotherTerm(term1, term2, process);
+		}
+		else {
+			result = directlyImpliesDisequalityBetweenVariableComingLaterInChoiceOrderAndAnotherTerm(term2, term1, process);
+		}
+		return result;
+	}
+
+	private boolean directlyImpliesDisequalityBetweenVariableComingLaterInChoiceOrderAndAnotherTerm(Expression laterVariable, Expression anotherTerm, RewritingProcess process) {
+		boolean result;
+		NonEqualitiesConstraintForSingleVariable constraintsOnTerm1 = map.get(laterVariable);
+		if (constraintsOnTerm1 != null && constraintsOnTerm1.directlyImpliesDisequalityOfVariableAnd(anotherTerm, process)) {
+			result = true;
+		}
+		else {
+			result = false;
+		}
+		return result;
+	}
+
 	@Override
 	public DefaultNonEqualitiesConstraint incorporatePossiblyDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		myAssert( ! splitterSign, "DefaultNonEqualitiesConstraint.incorporatePossiblyDestructively must receive disequalities only for now");
