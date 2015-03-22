@@ -71,29 +71,23 @@ public class NonEqualitiesConstraint extends AbstractRuleOfProductConstraint {
 	}
 
 	@Override
-	public boolean directlyImplies(Expression literal, RewritingProcess process) {
+	public boolean directlyImpliesNonTrivialLiteral(Expression literal, RewritingProcess process) {
 		myAssert(() -> literal.hasFunctor(DISEQUALITY), "NonEqualitiesConstraint.directlyImplies must receive disequalities only");
 
 		boolean result;
-		Expression representative1 = literal.get(0);
-		Expression representative2 = literal.get(1);
+		Expression term1 = literal.get(0);
+		Expression term2 = literal.get(1);
 		
-		Expression simplifiedLiteral = getTheory().simplify(literal, process);
-		if (simplifiedLiteral.getSyntacticFormType().equals("Symbol")) {
-			result = simplifiedLiteral.equals(TRUE);
+		// at least one of the representatives is a variable, or the literal would be trivial.
+		if (firstTermComesLaterInChoiceOrder(term1, term2, process)) {
+			result = nonEqualitiesConstraintFor(term1, process).directlyImpliesNonTrivialLiteral(literal, process);
 		}
 		else {
-			// at least one of the representatives is a variable, or the simplification would have been complete.
-			if (firstTermComesLaterInChoiceOrder(representative1, representative2, process)) {
-				result = nonEqualitiesConstraintFor(representative1, process).directlyImplies(literal, process);
-			}
-			else {
-				Expression literalWithRepresentative2First = apply(DISEQUALITY, representative2, representative1);
-				result = nonEqualitiesConstraintFor(representative2, process).directlyImplies(literalWithRepresentative2First, process);
-				// TODO: perhaps we should extend Constraint for an interface that accepts directlyImpliesDisequalityAgainst(representative1, process)
-				// or something similar, in order to avoid the unnecessary construction of the literal, as well as the check about which of the literal's terms
-				// is equal to the single variable of the constraint, which we already know at this point.
-			}
+			Expression literalWithRepresentative2First = apply(DISEQUALITY, term2, term1);
+			result = nonEqualitiesConstraintFor(term2, process).directlyImpliesNonTrivialLiteral(literalWithRepresentative2First, process);
+			// TODO: perhaps we should extend Constraint for an interface that accepts directlyImpliesDisequalityAgainst(representative1, process)
+			// or something similar, in order to avoid the unnecessary construction of the literal, as well as the check about which of the literal's terms
+			// is equal to the single variable of the constraint, which we already know at this point.
 		}
 		
 		return result;
