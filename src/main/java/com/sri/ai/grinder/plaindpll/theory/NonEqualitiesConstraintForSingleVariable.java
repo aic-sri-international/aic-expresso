@@ -18,6 +18,8 @@ import com.sri.ai.util.base.Pair;
  */	
 public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 
+	NonEqualitiesConstraintForSingleVariable cloneWithNewNonEqualitiesConstraint(NonEqualitiesConstraint nonEqualitiesConstraint);
+	
 	/**
 	 * A more efficient replacement for {@link #directlyImpliesLiteral(Expression, RewritingProcess)} for disequality literals.
 	 * @param term1
@@ -34,12 +36,6 @@ public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 	 */
 	NonEqualitiesConstraint getNonEqualitiesConstraint(NonEqualitiesConstraint nonEqualitiesConstraint);
 	
-	/**
-	 * Destructively set the {@link NonEqualitiesConstraint} containing this constraint.
-	 * @param nonEqualitiesConstraint
-	 */
-	void setNonEqualitiesConstraintDestructively(NonEqualitiesConstraint nonEqualitiesConstraint);
-
 	/**
 	 * Returns a pair of the variable and non-equality constraints map after updating representatives
 	 * (according to parent constraint) in their

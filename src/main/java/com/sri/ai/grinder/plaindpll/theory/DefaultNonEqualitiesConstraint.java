@@ -1,12 +1,13 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
-import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
+import static com.sri.ai.grinder.plaindpll.core.AbstractTheory.variableIsChosenAfterOtherTerm;
 import static com.sri.ai.util.Util.addAllForEachEntry;
 import static com.sri.ai.util.Util.getTransformedSubMap;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.removeAll;
+import static java.util.Collections.emptyList;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -23,13 +24,13 @@ import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
-import com.sri.ai.grinder.plaindpll.core.AbstractTheory;
+import com.sri.ai.grinder.plaindpll.core.Contradiction;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.Pair;
 
-
 /** 
+ * A default implementation of {@link NonEqualitiesConstraint} that keeps a map from variables to {@link NonEqualitiesConstraintForSingleVariable} objects.
  */	
 @SuppressWarnings("serial")
 public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstraint implements NonEqualitiesConstraint  {
@@ -45,18 +46,24 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	
 	@Override
 	public DefaultNonEqualitiesConstraint clone() {
-		DefaultNonEqualitiesConstraint result = new DefaultNonEqualitiesConstraint(theory, supportedIndices);
+		DefaultNonEqualitiesConstraint newNonEqualitiesConstraint = new DefaultNonEqualitiesConstraint(theory, supportedIndices);
 		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : map.entrySet()) {
-			NonEqualitiesConstraintForSingleVariable newEntryValue = (NonEqualitiesConstraintForSingleVariable) entry.getValue().clone();
-			newEntryValue.setNonEqualitiesConstraintDestructively(result);
-			result.map.put(entry.getKey(), newEntryValue);
+			NonEqualitiesConstraintForSingleVariable newEntryValue = entry.getValue().cloneWithNewNonEqualitiesConstraint(newNonEqualitiesConstraint);
+			newNonEqualitiesConstraint.map.put(entry.getKey(), newEntryValue);
 		}
-		return result;
-		// TODO: implement a copy-on-write scheme
+		return newNonEqualitiesConstraint;
+		// TODO: implement a copy-on-write scheme. This requires a special encapsulation of map because copy must include the change of the value's nonEqualitiesConstraint.
+	}
+
+	/**
+	 * @return
+	 */
+	public TermTheory getTermTheory() {
+		return getTheory().getTermTheory();
 	}
 
 	@Override
-	protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression index, RewritingProcess process) {
+	protected Expression pickSplitterFor(Expression index, RewritingProcess process) {
 		Expression result = nonEqualitiesConstraintFor(index, process).pickSplitter(list(index), process);
 		return result;
 	}
@@ -71,29 +78,13 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	@Override
 	public boolean directlyImpliesNonTrivialLiteral(Expression literal, RewritingProcess process) {
 		myAssert(() -> literal.hasFunctor(DISEQUALITY), "DefaultNonEqualitiesConstraint.directlyImplies must receive disequalities only");
-
-		boolean result;
-		Expression term1 = literal.get(0);
-		Expression term2 = literal.get(1);
-		
-		// at least one of the representatives is a variable, or the literal would be trivial.
-		if (firstTermComesLaterInChoiceOrder(term1, term2, process)) {
-			result = nonEqualitiesConstraintFor(term1, process).directlyImpliesNonTrivialLiteral(literal, process);
-		}
-		else {
-			Expression literalWithRepresentative2First = apply(DISEQUALITY, term2, term1);
-			result = nonEqualitiesConstraintFor(term2, process).directlyImpliesNonTrivialLiteral(literalWithRepresentative2First, process);
-			// TODO: perhaps we should extend Constraint for an interface that accepts directlyImpliesDisequalityAgainst(representative1, process)
-			// or something similar, in order to avoid the unnecessary construction of the literal, as well as the check about which of the literal's terms
-			// is equal to the single variable of the constraint, which we already know at this point.
-		}
-		
+		boolean result = directlyImpliesNonTrivialDisequality(literal.get(0), literal.get(1), process);
 		return result;
 	}
 
 	/**
 	 * Equivalent to {@link #directlyImpliesLiteral(Expression, RewritingProcess)} on a disequality literal,
-	 * but more efficient and not requiring the construction of the literal.
+	 * but more efficient and not requiring the construction of a literal.
 	 */
 	@Override
 	public boolean directlyImpliesDisequality(Expression term1, Expression term2, RewritingProcess process) {
@@ -104,7 +95,16 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 		else if (process.isUniquelyNamedConstant(term1) && process.isUniquelyNamedConstant(term2)) {
 			result = true;
 		}
-		else if (firstTermComesLaterInChoiceOrder(term1, term2, process)) {
+		else {
+			result = directlyImpliesNonTrivialDisequality(term1, term2, process);
+		}
+		return result;
+	}
+
+	@Override
+	public boolean directlyImpliesNonTrivialDisequality(Expression term1, Expression term2, RewritingProcess process) {
+		boolean result;
+		if (firstTermComesLaterInChoiceOrder(term1, term2, process)) {
 			result = directlyImpliesDisequalityBetweenVariableComingLaterInChoiceOrderAndAnotherTerm(term1, term2, process);
 		}
 		else {
@@ -126,25 +126,34 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	}
 
 	@Override
-	public DefaultNonEqualitiesConstraint incorporatePossiblyDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		myAssert( ! splitterSign, "DefaultNonEqualitiesConstraint.incorporatePossiblyDestructively must receive disequalities only for now");
+	public void incorporateDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		myAssert( ! splitterSign, "DefaultNonEqualitiesConstraint.incorporatePossiblyDestructively must receive negative equalities (disequalities) only (for now)");
 		Expression variable  = splitter.get(0);
 		Expression otherTerm = splitter.get(1);
-		if (isVariableTerm(variable, process) || isVariableTerm(otherTerm, process)) {
-			if (firstTermComesLaterInChoiceOrder(variable, otherTerm, process)) {
-				addFirstTermAsDisequalOfSecondTermDestructively(variable, otherTerm, process);
-			}
-			else { // term2 must be a variable because either term1 is not a variable, or it is but term2 comes later than term1 in ordering, which means it is a variable
-				addFirstTermAsDisequalOfSecondTermDestructively(otherTerm, variable, process);
-			}
-		}
-		// else they are both constants, and distinct ones, so no need to do anything.
-		return this;
+		addNonTrivialDisequalityOfVariableAndAnotherTermDestructively(variable, otherTerm, process);
 	}
 
-	private boolean firstTermComesLaterInChoiceOrder(Expression representative1, Expression representative2, RewritingProcess process) {
-		return isVariableTerm(representative1, process) &&
-				AbstractTheory.variableIsChosenAfterOtherTerm(representative1, representative2, getSupportedIndices(), process);
+	private void applyDisequalityDestructively(Expression term1, Expression term2, RewritingProcess process) {
+		if (term1.equals(term2)) {
+			throw new Contradiction();
+		}
+		else if (getTermTheory().isVariableTerm(term1, process) || getTermTheory().isVariableTerm(term2, process)) {
+			addNonTrivialDisequalityOfVariableAndAnotherTermDestructively(term1, term2, process);
+		}
+	}
+
+	private void addNonTrivialDisequalityOfVariableAndAnotherTermDestructively(Expression variable, Expression otherTerm, RewritingProcess process) {
+		if (firstTermComesLaterInChoiceOrder(variable, otherTerm, process)) {
+			addFirstTermAsDisequalOfSecondTermDestructively(variable, otherTerm, process);
+		}
+		else { // term2 must be a variable because either term1 is not a variable, or it is but term2 comes later than term1 in ordering, which means it is a variable
+			addFirstTermAsDisequalOfSecondTermDestructively(otherTerm, variable, process);
+		}
+	}
+
+	private boolean firstTermComesLaterInChoiceOrder(Expression term1, Expression term2, RewritingProcess process) {
+		boolean result = isVariableTerm(term1, process) && variableIsChosenAfterOtherTerm(term1, term2, getSupportedIndices(), process);
+		return result;
 	}
 
 	private boolean isVariableTerm(Expression term, RewritingProcess process) {
@@ -153,7 +162,7 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 
 	public void addFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process) {
 		NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForTerm1 = nonEqualitiesConstraintFor(term1, process);
-		disequalitiesConstraintForTerm1.incorporatePossiblyDestructively(false, Equality.make(term1, term2), process);
+		disequalitiesConstraintForTerm1.incorporateDestructively(false, Equality.make(term1, term2), process);
 	}
 
 	/**
@@ -174,14 +183,15 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 		Function<Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable>, Pair<Expression, NonEqualitiesForSingleTerm>>
 		getUpdatedTermAndNonEqualities = entry -> entry.getValue().updatedTermAndNonEqualitiesPair(getRepresentative, process);
 		
+		// TODO: it could be more efficient to apply disequalities right inside the above call, instead of storing pairs and then applying.
+		// It would also detect contradictions sooner.
+
 		BinaryFunction<NonEqualitiesForSingleTerm, NonEqualitiesForSingleTerm, NonEqualitiesForSingleTerm>
 		unionOfNonEqualitiesIfNeeded = (previous, more) -> addAllForEachEntry(previous, more);
 		
 		Pair<Map<Expression, NonEqualitiesForSingleTerm>, Set<Expression>>
 		updatedNonEqualitiesByTermAndDeletedVariables
 		= getTransformedSubMap(map, getUpdatedTermAndNonEqualities, unionOfNonEqualitiesIfNeeded);
-		// TODO: it could be more efficient to apply disequalities right inside the above call, instead of storing pairs and then applying.
-		// It would also detect contradictions sooner.
 
 		// Notes:
 		// One might wonder why we did not represent the non-equal elements after the update
@@ -209,85 +219,71 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 		// and we add the new disequalities. Note we cannot just put them in the map as they are, because of choosing order
 		for (Map.Entry<Expression, NonEqualitiesForSingleTerm> updatedEntry : updatedNonEqualitiesByTerm.entrySet()) {
 			for (Expression disequal : updatedEntry.getValue().get(DISEQUALITY)) {
-				applyRepresentativesDisequalityDestructively(updatedEntry.getKey(), disequal, process);
+				applyDisequalityDestructively(updatedEntry.getKey(), disequal, process);
 			}
 		}
 		
 		return this;
 	}
 
-	/** Assumes disequality does not turn constraint into contradiction */
-	private void applyRepresentativesDisequalityDestructively(Expression term1, Expression term2, RewritingProcess process) {
-		if (getTermTheory().isVariableTerm(term1, process) || getTermTheory().isVariableTerm(term2, process)) {
-			if (firstTermComesLaterInChoiceOrder(term1, term2, process)) {
-				addFirstTermAsDisequalOfSecondTermDestructively(term1, term2, process);
-			}
-			else { // term2 must be a variable because either term1 is not a variable, or it is but term2 comes later than term1 in ordering, which means it is a variable
-				addFirstTermAsDisequalOfSecondTermDestructively(term2, term1, process);
-			}
-		}
-		// else they are both constants, and distinct ones, so no need to do anything.
-	}
-
-	public void getNonEqualitiesSplittersToBeSatisfied(Collection<Expression> indicesSubSet, Collection<Expression> result, RewritingProcess process) {
-		// TODO: when nonEqualities gets consolidated into a single Constraint object, make sure it has a method getSplittersToBeSatisfied
-		// that does not iterate over all variables for disequalities, since we know in advance they do not provide splitters of this sort.
-		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : map.entrySet()) {
-			Util.myAssert(() -> getTermTheory().isVariableTerm(entry.getKey(), process), () -> "Key in map for NonEqualitiesConstraints is not a variable, but " + entry.getKey());
-			Expression variable = entry.getKey();
-			if ( ! indicesSubSet.contains(variable)) { // if variable is free
-				NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = entry.getValue();
-				List<Expression> subResult = disequalitiesConstraintForSingleVariable.getSplittersToBeSatisfied();
-				result.addAll(subResult);
-			}
-		}
-	}
-
 	/**
+	 * Indicates whether the constraints represented ever product splitters that need to be satisfied (default is true).
 	 * @return
 	 */
-	public TermTheory getTermTheory() {
-		return getTheory().getTermTheory();
+	protected boolean constraintsDoNotProduceSplittersToBeSatisfied() {
+		return true;
 	}
-
-	public Collection<Expression> getNonEqualitiesSplittersToBeNotSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
-		Collection<Expression> result = new LinkedHashSet<Expression>();
-		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : map.entrySet()) {
-			Util.myAssert(() -> getTermTheory().isVariableTerm(entry.getKey(), process), () -> "Key in map for NonEqualitiesConstraints is not a variable, but " + entry.getKey());
-			Expression variable = entry.getKey();
-			if ( ! indicesSubSet.contains(variable)) { // if variable is free
-				NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = entry.getValue();
-				List<Expression> subResult = disequalitiesConstraintForSingleVariable.getSplittersToBeNotSatisfied();
-				result.addAll(subResult);
-			}
-		}
-		return result;
+	
+	/**
+	 * Indicates whether the constraints represented ever product splitters that need to be <i>not</i> satisfied (default is false).
+	 * @return
+	 */
+	protected boolean constraintsDoNotProduceSplittersToBeNotSatisfied() {
+		return false;
 	}
 
 	protected Collection<Expression> getSplittersToBeSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
 		Collection<Expression> result = new LinkedList<Expression>();
-		getNonEqualitiesSplittersToBeSatisfied(indicesSubSet, result, process);
+		if ( ! constraintsDoNotProduceSplittersToBeSatisfied()) {
+			for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : map.entrySet()) {
+				Util.myAssert(() -> getTermTheory().isVariableTerm(entry.getKey(), process), () -> "Key in map for NonEqualitiesConstraints is not a variable, but " + entry.getKey());
+				Expression variable = entry.getKey();
+				if ( ! indicesSubSet.contains(variable)) { // if variable is free
+					NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = entry.getValue();
+					List<Expression> subResult = disequalitiesConstraintForSingleVariable.getSplittersToBeSatisfied();
+					result.addAll(subResult);
+				}
+			}
+		}
 		return result;
 	}
 
 	protected Collection<Expression> getSplittersToBeNotSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
-		return getNonEqualitiesSplittersToBeNotSatisfied(indicesSubSet, process);
+		Collection<Expression> result = new LinkedHashSet<Expression>();
+		if ( ! constraintsDoNotProduceSplittersToBeNotSatisfied()) {
+			for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : map.entrySet()) {
+				Util.myAssert(() -> getTermTheory().isVariableTerm(entry.getKey(), process), () -> "Key in map for NonEqualitiesConstraints is not a variable, but " + entry.getKey());
+				Expression variable = entry.getKey();
+				if ( ! indicesSubSet.contains(variable)) { // if variable is free
+					NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = entry.getValue();
+					List<Expression> subResult = disequalitiesConstraintForSingleVariable.getSplittersToBeNotSatisfied();
+					result.addAll(subResult);
+				}
+			}
+		}
+		else {
+			result = emptyList();
+		}
+		return result;
 	}
 
 	protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process) {
-		Expression result = nonEqualitiesConstraintFor(index).modelCount(list(index), process);
+		Expression result = nonEqualitiesConstraintFor(index, process).modelCount(list(index), process);
 		return result;
 	}
 	
-	private NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintFor(Expression term) {
-		NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForTerm =
-				Util.getValuePossiblyCreatingIt(map, term, key -> makeNonEqualitiesConstraintForVariable(key));
-		return nonEqualitiesConstraintForTerm;
-	}
-
 	protected NonEqualitiesConstraintForSingleVariable makeNonEqualitiesConstraintForVariable(Expression variable) {
 		NonEqualitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, this);
-		// TODO: need to change parent constraint of DisequalitiesConstraintForSingleVariable to this one, not the equality constraint.
 		return result;
 	}
 
@@ -309,8 +305,7 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 
 	@Override
 	protected void applyNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		// TODO Auto-generated method stub
-		
+		throw new Error((new Object(){}).getClass().getEnclosingMethod() + " not implemented yet.");
 	}
 
 	@Override

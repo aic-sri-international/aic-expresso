@@ -327,7 +327,7 @@ public class EqualityTheory extends AbstractTheory {
 				applyEqualityDestructively(variable, otherTerm, process);
 			}
 			else {
-				nonEqualities = nonEqualities.incorporatePossiblyDestructively(splitterSign, splitter, process); 
+				nonEqualities.incorporateDestructively(splitterSign, splitter, process); 
 			}
 		}
 
