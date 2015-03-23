@@ -16,6 +16,7 @@ import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import com.google.common.base.Function;
@@ -56,19 +57,18 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	public DisequalitiesConstraintForSingleVariable clone() {
 		DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, nonEqualitiesConstraint);
 		result.cachedIndexDomainSize = cachedIndexDomainSize;
-		result.disequals = new CopyOnWriteCollection<Expression>(disequals);
-		result.uniquelyValuedDisequals = new CopyOnWriteCollection<Expression>(uniquelyValuedDisequals);
+		result.disequals = new CopyOnWriteCollection<Expression>(disequals, LinkedHashSet.class);
+		result.uniquelyValuedDisequals = new CopyOnWriteCollection<Expression>(uniquelyValuedDisequals, LinkedHashSet.class);
 		return result;
 	}
 	
 	@Override
-	public DisequalitiesConstraintForSingleVariable incorporatePossiblyDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+	public void incorporateDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		myAssert(() -> ! splitterSign && isEquality(splitter), () -> getClass() + " only allowed to take negative equality literals (disequalities) but got " + (splitterSign? "" : "not ") + " " + splitter);
 		myAssert(() -> splitter.get(0).equals(variable), () -> getClass() + " must only take splitters in which the first argument is the same as the main variable");
 		Expression term = splitter.get(1);
 		disequals.add(term);
 		updateUniqueValuedDisequals(term, process);
-		return this;
 	}
 	
 	private void updateUniqueValuedDisequals(Expression term, RewritingProcess process) throws Contradiction {
@@ -97,6 +97,8 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		return null;
 		// TODO: OPTIMIZATION:
 		// Cache this! Because DisequalitiesConstraintForSingleVariable is immutable after setup, you only need to run it once!
+		// However, remember that this ultimately depends on the nonEqualitiesConstraint containing it, so its result cannot be reused after changing hands
+		// (unless some more sophisticated analysis of introduced disequalities is performed).
 	}
 
 	private Expression getSplitterTowardsEnsuringVariableIsDisequalFromAllOtherTermsInCollection(Expression disequal, RewritingProcess process) {

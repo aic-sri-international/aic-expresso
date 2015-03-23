@@ -46,10 +46,10 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractOwnReprese
 	 * compute this index's number of values, or null if none is needed.
 	 * Only required if using default implementation of {@link #pickSplitter(Collection<Expression>, RewritingProcess)} (that is, not overriding it).
 	 */
-	protected Expression provideSplitterRequiredForComputingNumberOfValuesFor(Expression x, RewritingProcess process) {
+	protected Expression pickSplitterFor(Expression x, RewritingProcess process) {
 		throwSafeguardError(
 				getClass().getSimpleName(),
-				"provideSplitterRequiredForComputingNumberOfValuesFor", // thisClassName
+				"pickSplitterFor", // thisClassName
 				"AbstractTheory.AbstractConstraint", // superClassName
 				"pickSplitter"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
 		return null; // never used, as safeguardCheck throws an error no matter what.
@@ -58,7 +58,7 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractOwnReprese
 	@Override
 	public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
 		for (Expression x : indicesSubSet) {
-			Expression splitter = provideSplitterRequiredForComputingNumberOfValuesFor(x, process);
+			Expression splitter = pickSplitterFor(x, process);
 			if (splitter != null) {
 				return splitter;
 			}
@@ -97,7 +97,7 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractOwnReprese
 	
 	/**
 	 * Returns an expression (in the free variables) for the number of possible values for the given index,
-	 * assuming that {@link #provideSplitterRequiredForComputingNumberOfValuesFor(Expression, RewritingProcess)}
+	 * assuming that {@link #pickSplitterFor(Expression, RewritingProcess)}
 	 * currently returns <code>null</code>,
 	 * that is, we do not need anything splitters to be either imposed or negated in order to compute that.
 	 * Only required if using default implementation of {@link #computeModelCountGivenConditionsOnFreeVariables(Expression index, RewritingProcess)} (that is, not overriding it).

@@ -40,9 +40,10 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 	}
 
 	@Override
-	public void setNonEqualitiesConstraintDestructively(NonEqualitiesConstraint nonEqualitiesConstraint) {
-		this.nonEqualitiesConstraint = nonEqualitiesConstraint;
-		myAssert(() -> nonEqualitiesConstraint != null, "nonEqualitiesConstraint cannot be null");
+	public NonEqualitiesConstraintForSingleVariable cloneWithNewNonEqualitiesConstraint(NonEqualitiesConstraint nonEqualitiesConstraint) {
+		AbstractNonEqualitiesConstraintForSingleVariable result = clone();
+		result.nonEqualitiesConstraint = nonEqualitiesConstraint;
+		return result;
 	}
 
 	@Override

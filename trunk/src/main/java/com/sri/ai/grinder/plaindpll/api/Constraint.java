@@ -48,9 +48,12 @@ public interface Constraint extends Expression {
 	}
 
 	/**
-	 * Same as {@link #incorporate(boolean, Expression, RewritingProcess)}, but allows the returned
-	 * Constraint to be this same instance even if it has changed, if this means significant performance gain --
-	 * this violates the immutability assumption about {@link Expression} and {@link Constraint}
+	 * Same as {@link #incorporate(boolean, Expression, RewritingProcess)}, but 
+	 * must destructively alter the instance itself.
+	 * This option is available for performance reasons; sometimes during setup stages,
+	 * it is much more efficient to make several changes to the same object
+	 * instead of creating an instance after each change.
+	 * This violates the immutability assumption about {@link Expression} and {@link Constraint}
 	 * and should only be used for setup purposes, before an object is released by its creator
 	 * to the world at large (because then it may be assumed immutable by other objects holding it,
 	 * so it should behave immutable from then on).
@@ -58,7 +61,7 @@ public interface Constraint extends Expression {
 	 * @param splitter the splitter according to this theoryWithEquality's choice
 	 * @param process the rewriting process
 	 */
-	public Constraint incorporatePossiblyDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
+	public void incorporateDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
 
 	/**
 	 * Given a function mapping each term either to itself or to another term meant to represent it

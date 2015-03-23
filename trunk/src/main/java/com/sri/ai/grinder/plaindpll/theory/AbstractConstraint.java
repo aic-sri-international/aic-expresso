@@ -13,7 +13,7 @@ public abstract class AbstractConstraint extends AbstractExpressionWrapper imple
 	public abstract AbstractConstraint clone();
 	
 	@Override
-	public Constraint incorporatePossiblyDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+	public void incorporateDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		throw new Error(this.getClass().getSimpleName() + "." + (new Object(){}).getClass().getEnclosingMethod() + " not implemented yet.");
 	}
 
