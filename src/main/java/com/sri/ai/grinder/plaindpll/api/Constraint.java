@@ -70,9 +70,8 @@ public interface Constraint extends Expression {
 	 * Terms with distinct representatives should not appear in the resulting constraint.
 	 * @param getRepresentative
 	 * @param process
-	 * @return 
 	 */
-	Constraint updateRepresentativesPossiblyDestructively(Function<Expression, Expression> getRepresentative, RewritingProcess process);
+	void updateRepresentativesDestructively(Function<Expression, Expression> getRepresentative, RewritingProcess process);
 	// TODO: change this method to take explicit list of which terms to update, so that implementations do not need to check each of the terms they use.
 
 	/**

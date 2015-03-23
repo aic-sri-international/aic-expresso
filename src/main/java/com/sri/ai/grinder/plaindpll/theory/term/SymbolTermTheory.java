@@ -78,7 +78,7 @@ public class SymbolTermTheory implements TermTheory {
 	}
 
 	@Override
-	public Expression normalizeTermInEquality(Expression term, Function<Expression, Expression> getRepresentative, RewritingProcess process) {
+	public Expression normalizeTermModuloRepresentatives(Expression term, Function<Expression, Expression> getRepresentative, RewritingProcess process) {
 		return term;
 	}
 

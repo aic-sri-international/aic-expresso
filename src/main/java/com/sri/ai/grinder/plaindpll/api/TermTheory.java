@@ -74,7 +74,7 @@ public interface TermTheory {
 	Expression getSplitterTowardDisunifyingDistinctTerms(Expression term, Expression anotherTerm, RewritingProcess process);
 	
 	/**
-	 * Rewrites a term used in an equality so that it uses only equality equivalence class representatives when possible.
+	 * Rewrites a term used in a term so that it uses only equality equivalence class representatives when possible.
 	 * For example, if a constraint involves X = Y and p(X) = q(X) and p(Y) = c
 	 * we want to normalize it to X = Y and q(Y) = p(Y) = c.
 	 * X is replaced by its representative in p(X) and q(X), but not in X = Y itself since that would incorrectly remove the equality X = Y.
@@ -83,7 +83,7 @@ public interface TermTheory {
 	 * @param process
 	 * @return
 	 */
-	Expression normalizeTermInEquality(Expression term, Function<Expression, Expression> getRepresentative, RewritingProcess process);
+	Expression normalizeTermModuloRepresentatives(Expression term, Function<Expression, Expression> getRepresentative, RewritingProcess process);
 
 	/**
 	 * Indicates whether terms have no arguments.
