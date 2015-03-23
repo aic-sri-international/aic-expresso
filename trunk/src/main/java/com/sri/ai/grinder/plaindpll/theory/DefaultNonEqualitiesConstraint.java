@@ -174,7 +174,7 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	 * @param process
 	 */
 	@Override
-	public DefaultNonEqualitiesConstraint updateRepresentativesPossiblyDestructively(Function<Expression, Expression> getRepresentative, RewritingProcess process) {
+	public void updateRepresentativesDestructively(Function<Expression, Expression> getRepresentative, RewritingProcess process) {
 		
 		// Go over all entries of disequality map, and if entry requires updating,
 		// add it to a map from each term to NonEqualitiesForSingleTerm,
@@ -222,8 +222,6 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 				applyDisequalityDestructively(updatedEntry.getKey(), disequal, process);
 			}
 		}
-		
-		return this;
 	}
 
 	/**

@@ -23,7 +23,7 @@ public abstract class AbstractConstraint extends AbstractExpressionWrapper imple
 	}
 	
 	@Override
-	public Constraint updateRepresentativesPossiblyDestructively(Function<Expression, Expression> getRepresentative, RewritingProcess process) {
+	public void updateRepresentativesDestructively(Function<Expression, Expression> getRepresentative, RewritingProcess process) {
 		throw new Error(this.getClass().getSimpleName() + "." + (new Object(){}).getClass().getEnclosingMethod() + " not implemented yet.");
 	}
 }

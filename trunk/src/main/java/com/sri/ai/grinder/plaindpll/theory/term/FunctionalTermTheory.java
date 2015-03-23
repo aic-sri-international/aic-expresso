@@ -126,7 +126,7 @@ public class FunctionalTermTheory implements TermTheory {
 	}
 
 	@Override
-	public Expression normalizeTermInEquality(Expression term, Function<Expression, Expression> getRepresentative, RewritingProcess process) {
+	public Expression normalizeTermModuloRepresentatives(Expression term, Function<Expression, Expression> getRepresentative, RewritingProcess process) {
 		Expression result = Expressions.replaceImmediateSubexpressions(term, getRepresentative);
 		return result;
 	}

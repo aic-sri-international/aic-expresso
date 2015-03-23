@@ -41,7 +41,6 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.filter;
 import static com.sri.ai.util.Util.myAssert;
@@ -73,7 +72,6 @@ import com.sri.ai.grinder.library.number.Division;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractTheory;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
@@ -245,19 +243,19 @@ public class EqualityTheory extends AbstractTheory {
 	@Beta
 	public class EqualityTheoryConstraint extends AbstractOwnRepresentationConstraint {
 
-		protected EqualitiesConstraint equalities;
-		protected Constraint nonEqualities;
+		protected EqualitiesConstraint equalities; // TODO: make EqualitiesConstraint an interface
+		protected NonEqualitiesConstraint nonEqualities;
 
 		public EqualityTheoryConstraint(Collection<Expression> supportedIndices) {
 			super(supportedIndices);
-			this.equalities = new EqualitiesConstraint(getTermTheory(), getSupportedIndices());
+			this.equalities = new EqualitiesConstraint(getTheory(), getSupportedIndices());
 			this.nonEqualities = new DefaultNonEqualitiesConstraint(getTheory(), supportedIndices); 
 		}
 
 		private EqualityTheoryConstraint(EqualityTheoryConstraint another) {
 			super(another.getSupportedIndices());
 			this.equalities = new EqualitiesConstraint(another.equalities);
-			this.nonEqualities = another.nonEqualities.clone();
+			this.nonEqualities = (NonEqualitiesConstraint) another.nonEqualities.clone();
 		}
 
 		@Override
@@ -290,7 +288,7 @@ public class EqualityTheory extends AbstractTheory {
 				Expression representative2 = equalities.getRepresentative(splitter.get(1), process);
 				representativesEqualitySimplification = Equality.makeWithConstantSimplification(representative1, representative2, process);
 				if ( ! representativesEqualitySimplification.getSyntacticFormType().equals("Symbol")) {
-					if (nonEqualities.directlyImpliesNonTrivialLiteral(apply(DISEQUALITY, representative1, representative2), process)) { // TODO: create specialized interface to avoid this unnecessary creation of a literal
+					if (nonEqualities.directlyImpliesNonTrivialDisequality(representative1, representative2, process)) {
 						representativesEqualitySimplification = FALSE;
 					}
 				}
@@ -339,7 +337,7 @@ public class EqualityTheory extends AbstractTheory {
 		protected void updateRepresentativesWhereverTheyAreUsedDestructively(RewritingProcess process) {
 			equalities.updateRepresentativesInEqualitiesMap(process);
 			Function<Expression, Expression> getRepresentative = t -> equalities.getRepresentative(t, process); // TODO: we should only pass the actually updated terms, instead of a function on them all.
-			nonEqualities = nonEqualities.updateRepresentativesPossiblyDestructively(getRepresentative, process);
+			nonEqualities.updateRepresentativesDestructively(getRepresentative, process);
 		}
 
 		@Override
@@ -367,7 +365,7 @@ public class EqualityTheory extends AbstractTheory {
 				// since non-equalities are defined on representatives only, we need to find them first before delegating.
 				Expression representative1 = equalities.getRepresentative(literal.get(0), process);
 				Expression representative2 = equalities.getRepresentative(literal.get(1), process);
-				result = nonEqualities.directlyImpliesLiteral(apply(DISEQUALITY, representative1, representative2), process); // TODO: create specialized interface to avoid this unnecessary creation of a literal
+				result = nonEqualities.directlyImpliesDisequality(representative1, representative2, process);
 			}
 			return result;
 		}
@@ -375,7 +373,7 @@ public class EqualityTheory extends AbstractTheory {
 		@Override
 		protected Expression computeInnerExpression() {
 			List<Expression> conjuncts = new LinkedList<Expression>();
-			conjuncts.addAll(And.getConjuncts(equalities)); // using getConjuncts to ensure a final flat conjunction.
+			conjuncts.addAll(And.getConjuncts(equalities)); // using getConjuncts to ensure a final flat conjunction instead of a conjunction of two conjunctions
 			conjuncts.addAll(And.getConjuncts(nonEqualities));
 			Expression result = And.make(conjuncts);
 			return result;
@@ -386,22 +384,22 @@ public class EqualityTheory extends AbstractTheory {
 	 * Represents and manipulates constraints in the theoryWithEquality of disequalities of terms (variables and constants).
 	 */
 	@Beta
-	public class EqualitiesConstraint extends AbstractOwnRepresentationConstraint {
+	public static class EqualitiesConstraint extends AbstractOwnRepresentationConstraint {
 
 		private static final long serialVersionUID = 1L;
 
 		public Map<Expression, Expression> equalitiesMap;
-		protected TermTheory termTheory;
+		protected EqualityTheory theory;
 
-		public EqualitiesConstraint(TermTheory termTheory, Collection<Expression> supportedIndices) {
+		public EqualitiesConstraint(EqualityTheory theory, Collection<Expression> supportedIndices) {
 			super(supportedIndices);
-			this.termTheory = termTheory;
+			this.theory = theory;
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>();
 		}
 
 		private EqualitiesConstraint(EqualitiesConstraint another) {
 			super(another.getSupportedIndices());
-			this.termTheory = another.termTheory;
+			this.theory = another.theory;
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>(another.equalitiesMap); // TODO: implement a copy-on-write scheme
 		}
 
@@ -412,11 +410,11 @@ public class EqualityTheory extends AbstractTheory {
 
 		@Override
 		public EqualityTheory getTheory() {
-			return EqualityTheory.this;
+			return theory;
 		}
 
 		public TermTheory getTermTheory() {
-			return termTheory;
+			return getTheory().getTermTheory();
 		}
 
 		@Override
@@ -441,8 +439,8 @@ public class EqualityTheory extends AbstractTheory {
 
 					Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifier(
 							expression,
-							functionApplicationSimplifiers,
-							syntacticFormTypeSimplifiers,
+							theory.getFunctionApplicationSimplifiers(),
+							theory.getSyntacticFormTypeSimplifiers(),
 							syntacticTypeForm, representativeReplacer,
 							process);
 
@@ -463,14 +461,14 @@ public class EqualityTheory extends AbstractTheory {
 		}
 
 		private void updateRepresentativesInEqualitiesMap(RewritingProcess process) {
-			if ( ! termTheory.termsHaveNoArguments()) {
+			if ( ! getTermTheory().termsHaveNoArguments()) { // if terms have no arguments, simply keeping the bindings is enough;
 				boolean equalitiesMapHasBeenUpdated;
 				do {
 					equalitiesMapHasBeenUpdated = false;
 					Map<Expression, Expression> newEqualitiesMap = new LinkedHashMap<Expression, Expression>();
-					for (Expression variable : equalitiesMap.keySet()) {
+					for (Expression variable : equalitiesMap.keySet()) { // TODO: use the representatives that we know to have been updated, and go where they are instead of scanning the entire map
 						Expression representativeOfVariable = getRepresentative(variable, false /* do not update map as we are iterating over it */, process);
-						Expression newVariable = termTheory.normalizeTermInEquality(variable,  t -> getRepresentative(t, process), process);
+						Expression newVariable = getTermTheory().normalizeTermModuloRepresentatives(variable,  t -> getRepresentative(t, process), process);
 
 						if (newVariable == variable) {
 							// no change for this variable, just copy this entry to the new map
@@ -508,7 +506,7 @@ public class EqualityTheory extends AbstractTheory {
 					// A splitter with a free variable as the first term will always have another free variable
 					// or a constant on the right-hand side.
 					// This matters because the conditional model count has to be in terms of
-					// free variables and constants only, never indices.
+					// free variables and constants only, never indices, so representative cannot be an index.
 					if ( ! representative.equals(variable)) {
 						Expression splitter = apply(EQUALITY, variable, representative); // making it with apply instead of Equality.make sidesteps simplifications, which will not occur in this case because otherwise this condition would have either rendered the constraint a contradiction, or would have been eliminated from it
 						result.add(splitter);
@@ -519,7 +517,7 @@ public class EqualityTheory extends AbstractTheory {
 
 		@Override
 		public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
-			throw new Error("modelCount not yet implemented for EqualitiesConstraint");
+			throw new Error("modelCount not yet implemented for EqualitiesConstraint"); // we don't need it for EqualityTheoryConstraint (see implementation to see why).
 		}
 
 		@Override
@@ -611,6 +609,10 @@ public class EqualityTheory extends AbstractTheory {
 				setBinding(term, current); // optional recording so that we do not need to traverse the entire chain next time
 			}
 			return current;
+		}
+
+		private boolean isVariableTerm(Expression term, RewritingProcess process) {
+			return getTheory().isVariableTerm(term, process);
 		}
 
 		@Override
