@@ -2,11 +2,9 @@ package com.sri.ai.grinder.plaindpll.theory;
 
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.plaindpll.core.AbstractTheory.variableIsChosenAfterOtherTerm;
-import static com.sri.ai.util.Util.addAllForEachEntry;
-import static com.sri.ai.util.Util.getTransformedSubMap;
 import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.mapIntoSetOrSameIfNoDistinctElementInstances;
 import static com.sri.ai.util.Util.myAssert;
-import static com.sri.ai.util.Util.removeAll;
 import static java.util.Collections.emptyList;
 
 import java.util.Collection;
@@ -15,7 +13,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
@@ -26,8 +23,6 @@ import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.BinaryFunction;
-import com.sri.ai.util.base.Pair;
 
 /** 
  * A default implementation of {@link NonEqualitiesConstraint} that keeps a map from variables to {@link NonEqualitiesConstraintForSingleVariable} objects.
@@ -133,7 +128,7 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 		addNonTrivialDisequalityOfVariableAndAnotherTermDestructively(variable, otherTerm, process);
 	}
 
-	private void applyDisequalityDestructively(Expression term1, Expression term2, RewritingProcess process) {
+	private void incorporateDisequalityDestructively(Expression term1, Expression term2, RewritingProcess process) {
 		if (term1.equals(term2)) {
 			throw new Contradiction();
 		}
@@ -173,53 +168,25 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	 * @param getRepresentative
 	 * @param process
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void updateRepresentativesDestructively(Function<Expression, Expression> getRepresentative, RewritingProcess process) {
+		// copies entries to a new map because original one is altered during iteration.
+		Map<Expression, NonEqualitiesConstraintForSingleVariable> entriesHolder = (Map<Expression, NonEqualitiesConstraintForSingleVariable>) map.clone();
+		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : entriesHolder.entrySet()) {
+			DisequalitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = (DisequalitiesConstraintForSingleVariable) entry.getValue();
+			
+			Expression variable = disequalitiesConstraintForSingleVariable.getVariable();
+			Collection<Expression> disequals = disequalitiesConstraintForSingleVariable.getDisequals();
+			
+			Expression variableRepresentative = variable.replaceAllOccurrences(getRepresentative, process); // NOTE: variableRepresentative needs not be a variable itself.
+			Collection<Expression> disequalsRepresentatives = mapIntoSetOrSameIfNoDistinctElementInstances(disequals, t -> t.replaceAllOccurrences(getRepresentative, process));
 		
-		// Go over all entries of disequality map, and if entry requires updating,
-		// add it to a map from each term to NonEqualitiesForSingleTerm,
-		// keeping also track of which variables got updated.
-		// If multiple variables are updated to same term, take the union of their NonEqualitiesForSingleTerm.
-		Function<Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable>, Pair<Expression, NonEqualitiesForSingleTerm>>
-		getUpdatedTermAndNonEqualities = entry -> entry.getValue().updatedTermAndNonEqualitiesPair(getRepresentative, process);
-		
-		// TODO: it could be more efficient to apply disequalities right inside the above call, instead of storing pairs and then applying.
-		// It would also detect contradictions sooner.
-
-		BinaryFunction<NonEqualitiesForSingleTerm, NonEqualitiesForSingleTerm, NonEqualitiesForSingleTerm>
-		unionOfNonEqualitiesIfNeeded = (previous, more) -> addAllForEachEntry(previous, more);
-		
-		Pair<Map<Expression, NonEqualitiesForSingleTerm>, Set<Expression>>
-		updatedNonEqualitiesByTermAndDeletedVariables
-		= getTransformedSubMap(map, getUpdatedTermAndNonEqualities, unionOfNonEqualitiesIfNeeded);
-
-		// Notes:
-		// One might wonder why we did not represent the non-equal elements after the update
-		// in a DisequalitiesConstraintForSingleVariable object, and then just add this new
-		// object to the disequalities map.
-		// There are two reasons for this:
-		// - DisequalitiesConstraintForSingleVariable requires the elements non-equal to its variable
-		// to contain only terms that come *before* the variable in the term ordering;
-		// updating representatives may result in some non-equal terms to come *after* the
-		// (also now possibly updated) variable;
-		// therefore, these non-equal elements will have to be re-constrained to be non-equal from
-		// the updated variable one by one anyway, and keeping them in a DisequalitiesConstraintForSingleVariable
-		// would not be useful as they will probably go separate anyway;
-		// - the variable may be updated to a constant, and DisequalitiesConstraintForSingleVariable
-		// is only defined for variables.
-		
-		// now we update the disequalities map if needed:
-
-		Map<Expression, NonEqualitiesForSingleTerm> updatedNonEqualitiesByTerm = updatedNonEqualitiesByTermAndDeletedVariables.first;
-		Set<Expression> deletedVariables = updatedNonEqualitiesByTermAndDeletedVariables.second;
-
-		// we start by removing the modified entries
-		removeAll(map, deletedVariables);
-
-		// and we add the new disequalities. Note we cannot just put them in the map as they are, because of choosing order
-		for (Map.Entry<Expression, NonEqualitiesForSingleTerm> updatedEntry : updatedNonEqualitiesByTerm.entrySet()) {
-			for (Expression disequal : updatedEntry.getValue().get(DISEQUALITY)) {
-				applyDisequalityDestructively(updatedEntry.getKey(), disequal, process);
+			if (variableRepresentative != variable || disequalsRepresentatives != disequals) { // otherwise, nothing to do
+				map.remove(variable); // note that an entry for this same key *may* be re-created if some other term being updated gets updated to it
+				for (Expression disequalRepresentative : disequalsRepresentatives) {
+					incorporateDisequalityDestructively(variableRepresentative, disequalRepresentative, process);
+				}
 			}
 		}
 	}

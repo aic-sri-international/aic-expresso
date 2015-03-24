@@ -10,16 +10,15 @@ import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.mapIntoList;
-import static com.sri.ai.util.Util.mapIntoSetOrSameIfNoDistinctElementInstances;
 import static com.sri.ai.util.Util.myAssert;
 import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -27,7 +26,6 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.collect.CopyOnWriteCollection;
 
 /**
@@ -40,6 +38,18 @@ import com.sri.ai.util.collect.CopyOnWriteCollection;
 public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualitiesConstraintForSingleVariable {
 	private Collection<Expression> disequals;
 	private Collection<Expression> uniquelyValuedDisequals; // disequals constrained to be disequal from all uniquely-valued disequals added before themselves. If this set reaches variable's domain size, there will be no value left for it and an inconsistency is indicated.
+	
+	public boolean equals(Object another) {
+		if (another instanceof DisequalitiesConstraintForSingleVariable) {
+			DisequalitiesConstraintForSingleVariable anotherDisequalitiesConstraintForSingleVariable = (DisequalitiesConstraintForSingleVariable) another;
+			return disequals.equals(anotherDisequalitiesConstraintForSingleVariable.disequals);
+		}
+		return false;
+	}
+	
+	public int hashCode() {
+		return disequals.hashCode();
+	}
 	
 	/**
 	 * Constructs a set of disequality constraints for variable to be used inside nonEqualitiesConstraint.
@@ -62,11 +72,30 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		return result;
 	}
 	
+	public DisequalitiesConstraintForSingleVariable cloneWithNewVariable(Expression newVariable) {
+		DisequalitiesConstraintForSingleVariable result = clone();
+		result.variable = newVariable;
+		return result;
+	}
+	
+	@Override
+	public Expression getVariable() {
+		return variable;
+	}
+	
+	public Collection<Expression> getDisequals() {
+		return Collections.unmodifiableCollection(disequals);
+	}
+	
 	@Override
 	public void incorporateDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		myAssert(() -> ! splitterSign && isEquality(splitter), () -> getClass() + " only allowed to take negative equality literals (disequalities) but got " + (splitterSign? "" : "not ") + " " + splitter);
 		myAssert(() -> splitter.get(0).equals(variable), () -> getClass() + " must only take splitters in which the first argument is the same as the main variable");
 		Expression term = splitter.get(1);
+		incorporateDisequalDestructively(term, process);
+	}
+
+	public void incorporateDisequalDestructively(Expression term, RewritingProcess process) throws Contradiction {
 		disequals.add(term);
 		updateUniqueValuedDisequals(term, process);
 	}
@@ -180,34 +209,6 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 			numberOfPossibleValuesForIndex = makeSymbol(max(0, typeSize - numberOfNonAvailableValues));
 		}
 		return numberOfPossibleValuesForIndex;
-	}
-
-	/**
-	 * Returns a pair of the variable and non-equality constraints map after updating representatives in their
-	 * representation, or <code>null</code> if there are no changes.
-	 * @param process
-	 * @return
-	 * @throws Contradiction
-	 */
-	public Pair<Expression, NonEqualitiesForSingleTerm> updatedTermAndNonEqualitiesPair(Function<Expression, Expression> getRepresentative, RewritingProcess process) throws Contradiction {
-		Pair<Expression, NonEqualitiesForSingleTerm> result = new Pair<Expression, NonEqualitiesForSingleTerm>();
-		result.first = variable.replaceAllOccurrences(getRepresentative, process);
-		
-		Function<Expression, Expression> replaceAllTermsByRepresentatives = e -> e.replaceAllOccurrences(getRepresentative, process);
-		Collection<Expression> newDisequals = mapIntoSetOrSameIfNoDistinctElementInstances(disequals, replaceAllTermsByRepresentatives);
-		if (result.first == variable && newDisequals == disequals) {
-			result = null;
-		}
-		else {
-			if (newDisequals.contains(result.first)) {
-				throw new Contradiction();
-			}
-			result.second = new LinkedHashNonEqualitiesForSingleVariable();
-			result.second.put(DISEQUALITY, newDisequals);
-		}
-			
-		return result;
-		// TODO: OPTIMIZATION: skip the intermediary representation NonEqualitiesForSingleTerm and get instead a procedure parameter on what to do with each pair.
 	}
 
 	public List<Expression> getSplittersToBeSatisfied() {
