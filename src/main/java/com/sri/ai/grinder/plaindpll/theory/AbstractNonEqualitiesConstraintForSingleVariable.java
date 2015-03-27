@@ -60,7 +60,7 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 		return nonEqualitiesConstraint.getTermTheory();
 	}
 	
-	protected long getIndexDomainSize(RewritingProcess process) {
+	protected long getVariableDomainSize(RewritingProcess process) {
 		if (cachedIndexDomainSize == -1) {
 			cachedIndexDomainSize = getTypeCardinality(variable, process);
 		}
