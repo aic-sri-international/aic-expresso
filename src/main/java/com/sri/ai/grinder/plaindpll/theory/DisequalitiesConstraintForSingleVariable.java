@@ -8,9 +8,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
-import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.getFirstNonNullResultOrNull;
-import static com.sri.ai.util.Util.iterateTillPastBothElementsByIdentity;
 import static com.sri.ai.util.Util.iterateTillPastElementByIdentity;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.myAssert;
@@ -20,7 +18,6 @@ import static java.util.Collections.emptyList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
@@ -29,7 +26,9 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
-import com.sri.ai.util.Util;
+import com.sri.ai.util.collect.ArrayHashSet;
+import com.sri.ai.util.collect.ArraySet;
+import com.sri.ai.util.collect.CopyOnWriteArraySet;
 import com.sri.ai.util.collect.CopyOnWriteCollection;
 
 /**
@@ -40,7 +39,7 @@ import com.sri.ai.util.collect.CopyOnWriteCollection;
  */
 @SuppressWarnings("serial")
 public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualitiesConstraintForSingleVariable {
-	private Collection<Expression> disequals;
+	private ArraySet<Expression> disequals;
 	private Collection<Expression> uniquelyValuedDisequals; // disequals constrained to be disequal from all uniquely-valued disequals added before themselves. If this set reaches variable's domain size, there will be no value left for it and an inconsistency is indicated.
 	private Expression lastUniquelyValuedDisequal;
 	private Expression nextSplitter;
@@ -53,8 +52,8 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	 */
 	public DisequalitiesConstraintForSingleVariable(Expression variable, NonEqualitiesConstraint nonEqualitiesConstraint) {
 		super(variable, nonEqualitiesConstraint);
-		this.disequals = Util.set();
-		this.uniquelyValuedDisequals = new LinkedHashSet<Expression>();
+		this.disequals = new ArrayHashSet<Expression>();
+		this.uniquelyValuedDisequals = new ArrayHashSet<Expression>();
 		this.lastUniquelyValuedDisequal = null;
 		this.nextSplitter = null;
 		this.nonEqualitiesConstraintForNextSplitter = null;
@@ -65,8 +64,8 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	public DisequalitiesConstraintForSingleVariable clone() {
 		DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, nonEqualitiesConstraint);
 		result.cachedIndexDomainSize = cachedIndexDomainSize;
-		result.disequals = new CopyOnWriteCollection<Expression>(disequals, LinkedHashSet.class);
-		result.uniquelyValuedDisequals = new CopyOnWriteCollection<Expression>(uniquelyValuedDisequals, LinkedHashSet.class);
+		result.disequals = new CopyOnWriteArraySet<Expression>(disequals, ArrayHashSet.class);
+		result.uniquelyValuedDisequals = new CopyOnWriteCollection<Expression, Collection<Expression>>(uniquelyValuedDisequals, ArrayHashSet.class);
 		result.nextSplitter = nextSplitter;
 		result.nonEqualitiesConstraintForNextSplitter = nonEqualitiesConstraintForNextSplitter;
 		result.lastUniquelyValuedDisequal = lastUniquelyValuedDisequal;
