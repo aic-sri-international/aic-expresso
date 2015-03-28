@@ -9,7 +9,6 @@ import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
 import static com.sri.ai.util.Util.getFirstNonNullResultOrNull;
-import static com.sri.ai.util.Util.iterateTillPastElementByIdentity;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.myAssert;
 import static java.lang.Math.max;
@@ -17,7 +16,6 @@ import static java.util.Collections.emptyList;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
@@ -66,9 +64,9 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		result.cachedIndexDomainSize = cachedIndexDomainSize;
 		result.disequals = new CopyOnWriteArraySet<Expression>(disequals, ArrayHashSet.class);
 		result.uniquelyValuedDisequals = new CopyOnWriteCollection<Expression, Collection<Expression>>(uniquelyValuedDisequals, ArrayHashSet.class);
+		result.lastUniquelyValuedDisequal = lastUniquelyValuedDisequal;
 		result.nextSplitter = nextSplitter;
 		result.nonEqualitiesConstraintForNextSplitter = nonEqualitiesConstraintForNextSplitter;
-		result.lastUniquelyValuedDisequal = lastUniquelyValuedDisequal;
 		return result;
 	}
 	
@@ -161,8 +159,8 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		}
 		else {
 			result = null;
-			for (Expression disequal : disequals) {
-				Expression splitter  = getSplitterTowardsEnsuringDisequalIsDisequalFromAllOtherDisequals(disequal, process);
+			for (int disequalIndex = 0; disequalIndex != disequals.size(); disequalIndex++) {
+				Expression splitter  = getSplitterTowardsEnsuringDisequalIsDisequalFromAllOtherDisequalsBeforeIt(disequalIndex, process);
 				if (splitter != null) {
 					result = splitter;
 					break;
@@ -184,13 +182,13 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		return result;
 	}
 
-	private Expression getSplitterTowardsEnsuringDisequalIsDisequalFromAllOtherDisequals(Expression disequal, RewritingProcess process) {
-		Iterator<Expression> anotherDisequalIterator = disequals.iterator();
-		iterateTillPastElementByIdentity(anotherDisequalIterator, disequal); // we only need to look at other disequals past 'disequal'
+	private Expression getSplitterTowardsEnsuringDisequalIsDisequalFromAllOtherDisequalsBeforeIt(int disequalIndex, RewritingProcess process) {
 		Expression result = null;
-		while (result == null && anotherDisequalIterator.hasNext()) {
-			Expression anotherDisequal = anotherDisequalIterator.next();
-			if ( ! uniquelyValuedDisequals.contains(anotherDisequal)) { // we can skip all uniquely valued disequals, because we already know that they are disequal from all other previous disequals in insertion order, and 'disequal' comes before it in insertion order
+		Expression disequal = disequals.get(disequalIndex);
+		boolean disequalIsUniquelyValued = uniquelyValuedDisequals.contains(disequal);
+		for (int anotherDisequalIndex = 0; result == null && anotherDisequalIndex != disequalIndex; anotherDisequalIndex++) {
+			Expression anotherDisequal = disequals.get(anotherDisequalIndex);
+			if ( ! (disequalIsUniquelyValued && uniquelyValuedDisequals.contains(anotherDisequal))) { // if they are both uniquely valued, we know they are constrained to be disequal
 				result = getSplitterTowardDisequalityOfTwoTerms(disequal, anotherDisequal, process);
 			}
 		}
