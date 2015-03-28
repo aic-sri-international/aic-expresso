@@ -70,8 +70,7 @@ public class SymbolEqualitySatisfiabilityDPLLTest extends AbstractSymbolicSymbol
 		// Repeated for debugging purposes
 		expression = parse("X != Y and X != Z and X != a");
 		indices    = list("X");
-		expected   = parse("if Y = Z then if Z = a then | Everything | - 1 > 0 else | Everything | - 2 > 0 else if Y = a then | Everything | - 2 > 0 else if Z = a then | Everything | - 2 > 0 else | Everything | - 3 > 0");
-//		expected   = parse("if Z = Y then if Y = a then | Everything | - 1 > 0 else | Everything | - 2 > 0 else if Z = a then | Everything | - 2 > 0 else if Y = a then | Everything | - 2 > 0 else | Everything | - 3 > 0");
+		expected   = parse("if Z = Y then if Y = a then | Everything | - 1 > 0 else | Everything | - 2 > 0 else if Y = a then | Everything | - 2 > 0 else if Z = a then | Everything | - 2 > 0 else | Everything | - 3 > 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
 		
@@ -144,8 +143,8 @@ public class SymbolEqualitySatisfiabilityDPLLTest extends AbstractSymbolicSymbol
 		
 		expression = parse("X != Y and X != Z and X != a");
 		indices    = list("X");
-		expected   = parse("if Y = Z then if Z = a then | Everything | - 1 > 0 else | Everything | - 2 > 0 else if Y = a then | Everything | - 2 > 0 else if Z = a then | Everything | - 2 > 0 else | Everything | - 3 > 0");
-//		expected   = parse("if Z = Y then if Y = a then | Everything | - 1 > 0 else | Everything | - 2 > 0 else if Z = a then | Everything | - 2 > 0 else if Y = a then | Everything | - 2 > 0 else | Everything | - 3 > 0");
+//		expected   = parse("if Y = Z then if Z = a then | Everything | - 1 > 0 else | Everything | - 2 > 0 else if Y = a then | Everything | - 2 > 0 else if Z = a then | Everything | - 2 > 0 else | Everything | - 3 > 0");
+		expected   = parse("if Z = Y then if Y = a then | Everything | - 1 > 0 else | Everything | - 2 > 0 else if Y = a then | Everything | - 2 > 0 else if Z = a then | Everything | - 2 > 0 else | Everything | - 3 > 0");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 		
 		expression = parse("Y = a and X != Y and X != a");
