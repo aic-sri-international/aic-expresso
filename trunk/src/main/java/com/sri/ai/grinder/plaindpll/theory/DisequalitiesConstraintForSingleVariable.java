@@ -9,6 +9,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
 import static com.sri.ai.util.Util.getFirstNonNullResultOrNull;
+import static com.sri.ai.util.Util.getIndexOfFirstSatisfyingPredicateOrMinusOne;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.myAssert;
 import static java.lang.Math.max;
@@ -24,10 +25,10 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.ArrayHashSet;
 import com.sri.ai.util.collect.ArraySet;
 import com.sri.ai.util.collect.CopyOnWriteArraySet;
-import com.sri.ai.util.collect.CopyOnWriteCollection;
 
 /**
  * An implementation of {@link NonEqualitiesForSingleTerm} in which the only constraint is disequality;
@@ -38,10 +39,61 @@ import com.sri.ai.util.collect.CopyOnWriteCollection;
 @SuppressWarnings("serial")
 public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualitiesConstraintForSingleVariable {
 	private ArraySet<Expression> disequals;
-	private Collection<Expression> uniquelyValuedDisequals; // disequals constrained to be disequal from all uniquely-valued disequals added before themselves. If this set reaches variable's domain size, there will be no value left for it and an inconsistency is indicated.
+	private ArraySet<Expression> uniquelyValuedDisequals; // disequals constrained to be disequal from all uniquely-valued disequals added before themselves. If this set reaches variable's domain size, there will be no value left for it and an inconsistency is indicated.
 	private Expression lastUniquelyValuedDisequal;
-	private Expression nextSplitter;
-	private NonEqualitiesConstraint nonEqualitiesConstraintForNextSplitter;
+	
+	private static class SplitterSearch {
+		public Expression nextSplitter;
+		public NonEqualitiesConstraint nonEqualitiesConstraintForNextSplitter;
+		public int index1;
+		public Expression disequal;
+		public boolean disequalIsUniquelyValued;
+		public int index2;
+		public Expression previousDisequal;
+		
+		@Override
+		public SplitterSearch clone() {
+			SplitterSearch result = new SplitterSearch();
+			result.nextSplitter = nextSplitter;
+			result.nonEqualitiesConstraintForNextSplitter = nonEqualitiesConstraintForNextSplitter;
+			result.index1 = index1;
+			result.disequal = disequal;
+			result.disequalIsUniquelyValued = disequalIsUniquelyValued;
+			result.index2 = index2;
+			result.previousDisequal = previousDisequal;
+			return result;
+		}
+		
+		@Override
+		public String toString() {
+			return 
+			nextSplitter + "\n" +
+			nonEqualitiesConstraintForNextSplitter + "\n" +
+			index1 + "\n" +
+			disequal + "\n" +
+			disequalIsUniquelyValued + "\n" +
+			index2 + "\n" +
+			previousDisequal;
+		}
+
+		@Override
+		public boolean equals(Object another) {
+			if (another instanceof SplitterSearch) {
+				SplitterSearch anotherSplitterSearch = (SplitterSearch) another;
+				return
+						anotherSplitterSearch.nextSplitter == nextSplitter &&
+						anotherSplitterSearch.nonEqualitiesConstraintForNextSplitter == nonEqualitiesConstraintForNextSplitter &&
+						anotherSplitterSearch.index1 == index1 &&
+						anotherSplitterSearch.disequal == disequal &&
+						anotherSplitterSearch.disequalIsUniquelyValued == disequalIsUniquelyValued &&
+						anotherSplitterSearch.index2 == index2 &&
+						anotherSplitterSearch.previousDisequal == previousDisequal;
+			}
+			return false;
+		}
+	}
+	
+	private SplitterSearch splitterSearch = null;
 	
 	/**
 	 * Constructs a set of disequality constraints for variable to be used inside nonEqualitiesConstraint.
@@ -50,12 +102,12 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	 */
 	public DisequalitiesConstraintForSingleVariable(Expression variable, NonEqualitiesConstraint nonEqualitiesConstraint) {
 		super(variable, nonEqualitiesConstraint);
-		this.disequals = new ArrayHashSet<Expression>();
+		this.disequals = new ArrayHashSet<Expression>(); // TODO have constructor take expected capacity
 		this.uniquelyValuedDisequals = new ArrayHashSet<Expression>();
 		this.lastUniquelyValuedDisequal = null;
-		this.nextSplitter = null;
-		this.nonEqualitiesConstraintForNextSplitter = null;
 		this.nonEqualitiesConstraint = nonEqualitiesConstraint;
+		
+		this.splitterSearch = null; // other splitter search fields do not need values if this is false
 	}
 
 	@Override
@@ -63,18 +115,32 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, nonEqualitiesConstraint);
 		result.cachedIndexDomainSize = cachedIndexDomainSize;
 		result.disequals = new CopyOnWriteArraySet<Expression>(disequals, ArrayHashSet.class);
-		result.uniquelyValuedDisequals = new CopyOnWriteCollection<Expression, Collection<Expression>>(uniquelyValuedDisequals, ArrayHashSet.class);
+		result.uniquelyValuedDisequals = new CopyOnWriteArraySet<Expression>(uniquelyValuedDisequals, ArrayHashSet.class);
 		result.lastUniquelyValuedDisequal = lastUniquelyValuedDisequal;
-		result.nextSplitter = nextSplitter;
-		result.nonEqualitiesConstraintForNextSplitter = nonEqualitiesConstraintForNextSplitter;
+
+		result.splitterSearch = splitterSearch;
+
 		return result;
 	}
-	
+
 	@Override
 	public DisequalitiesConstraintForSingleVariable cloneWithNewNonEqualitiesConstraint(NonEqualitiesConstraint nonEqualitiesConstraint) {
 		DisequalitiesConstraintForSingleVariable result = (DisequalitiesConstraintForSingleVariable) super.cloneWithNewNonEqualitiesConstraint(nonEqualitiesConstraint);
-		result.nextSplitter = nextSplitter; // may not be true anymore under new nonEqualitiesConstraint, so needs to be checked when the time comes!
-		result.nonEqualitiesConstraintForNextSplitter = nonEqualitiesConstraintForNextSplitter;
+		result.splitterSearch = splitterSearch; // may not be true anymore under new nonEqualitiesConstraint, so needs to be checked when the time comes!
+//		if (splitterSearch == null) {
+//			System.out.println("SPLITTER SEARCH COPIED: null");	
+//			System.out.println("Giving: " + this + " " + System.identityHashCode(this));	
+//			System.out.println("Receiving: " + result + " " + System.identityHashCode(result));	
+//		}
+//		else {
+//			System.out.println("SPLITTER SEARCH COPIED:");
+//			System.out.println("Giving: " + this + " " + System.identityHashCode(this));	
+//			System.out.println("Receiving: " + result + " " + System.identityHashCode(result));	
+//			System.out.println("nextSplitter: " + splitterSearch.nextSplitter);
+//			System.out.println("nonEqualitiesConstraintForNextSplitter: " + splitterSearch.nonEqualitiesConstraintForNextSplitter);
+//			System.out.println("index1: " + splitterSearch.index1);
+//			System.out.println("index2: " + splitterSearch.index2);
+//		}
 		return result;
 	}
 
@@ -104,7 +170,9 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	
 	private void updateUniqueValuedDisequalsWithNewDisequal(Expression newDisequal, RewritingProcess process) throws Contradiction {
 		Expression splitter;
-		if ((splitter = getSplitterTowardDisequalityOfAllTermsInACollectionAndAnotherTerm(uniquelyValuedDisequals, newDisequal, process)) == null) {
+		int index;
+		if ((index = getIndexOfFirstTermWithoutDirectlyImpliedDisequalityWithAnotherTerm(uniquelyValuedDisequals, newDisequal, process)) == -1) {
+//		if ((splitter = getSplitterTowardDisequalityOfAllTermsInACollectionAndAnotherTerm(uniquelyValuedDisequals, newDisequal, process)) == null) {
 			uniquelyValuedDisequals.add(newDisequal);
 			if (uniquelyValuedDisequals.size() == getVariableDomainSize(process)) { // Note that this works when getIndexDomainSize is -1 (no domain size information) because then the condition is always false
 				// in principle, comparison is >=, but uniquelyValuedDisequals's size increases one at a time and == is cheaper.
@@ -113,31 +181,52 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 			lastUniquelyValuedDisequal = newDisequal;
 		}
 		else {
-			discardStoredSplitterIfObsolete(process);
-			if (nextSplitter != null) { // we have it, and it is still good
-				// keep the one we have; we could simply overwrite it with the new one, but keeping the original behavior (first one) for now.
+			if ( ! currentSplitterIsStillValid(process)) {
+				splitterSearch = new SplitterSearch();
+				// 'index' indicates where first splitter will be, so initialize splitter search data accordingly to save time
+				// NOTE: remember 'index' is an index for uniquelyValuedDisequals; however, the fact that we did not have a splitter yet
+				// means that all terms added so far were uniquely valued, and therefore uniquelyValuedDisequals is equal to 'disequals' at this point,
+				// so 'index' applies to 'disequals' as well.
+				splitterSearch.index1 = disequals.size() - 1; // index of current 'newDisequal'
+				updateSplitterSearchAfterUpdateToSplitterSearchIndex1();
+				splitterSearch.index2 = index; // index of the term before newDisequal that is not necessarily disequal to it
+				updateSplitterSearchAfterUpdateToSplitterSearchIndex2();
 			}
-			else {
-				nextSplitter = splitter;
-				nonEqualitiesConstraintForNextSplitter = nonEqualitiesConstraint;
-//				System.out.println("NEXT SPLITTER SELECTION");	
-//				System.out.println("this: " + this);	
-//				System.out.println("nextSplitter picked as: " + nextSplitter);	
-//				System.out.println("with non-equalities   : " + nonEqualitiesConstraintForNextSplitter);	
-			}
+//			if ( ! splitterSearchInitialized) { // if we do not have the next splitter already lined up
+//				// 'index' indicates where first splitter will be, so initialize splitter search data accordingly to save time
+//				// NOTE: remember 'index' is an index for uniquelyValuedDisequals; however, the fact that we did not have a splitter yet
+//				// means that all terms added so far were uniquely valued, and therefore uniquelyValuedDisequals is equal to 'disequals' at this point,
+//				// so 'index' applies to 'disequals' as well.
+//				index1 = disequals.size() - 1; // index of current 'newDisequal'
+//				updateSplitterSearchAfterUpdateToSplitterSearchIndex1();
+//				index2 = index; // index of the term before newDisequal that is not necessarily disequal to it
+//				updateSplitterSearchAfterUpdateToSplitterSearchIndex2();
+//				splitterSearchInitialized = true;
+//				
+//				System.out.println("SAVING SPLITTER SEARCH INFO");	
+//				System.out.println("this: " + this + " identity " + System.identityHashCode(this));
+//				System.out.println("uniquelyValuedDisequals: " + uniquelyValuedDisequals);	
+//				System.out.println("disequals: " + disequals);	
+//				System.out.println("nextSplitter will be on : " + disequals.get(index2) + " = " + disequals.get(index1));	
+//			}
 		}
 	}
 	
-	private void discardStoredSplitterIfObsolete(RewritingProcess process) {
-		if (nextSplitter != null && nonEqualitiesConstraint.directlyImpliesDisequality(nextSplitter.get(0), nextSplitter.get(1), process)) {
-//			System.out.println("Discarding obsolete nextSplitter      : " + nextSplitter);
-//			System.out.println("because nonEqualitiesConstraint is now: " + nonEqualitiesConstraint);	
-			nextSplitter = null;
-		}
-	}
+//	private void discardStoredSplitterIfObsolete(RewritingProcess process) {
+//		if (nextSplitter != null && nonEqualitiesConstraint != nonEqualitiesConstraintForNextSplitter && nonEqualitiesConstraint.directlyImpliesDisequality(nextSplitter.get(0), nextSplitter.get(1), process)) {
+////			System.out.println("Discarding obsolete nextSplitter      : " + nextSplitter);
+////			System.out.println("because nonEqualitiesConstraint is now: " + nonEqualitiesConstraint);	
+//			nextSplitter = null;
+//		}
+//	}
 	
 	private Expression getSplitterTowardDisequalityOfAllTermsInACollectionAndAnotherTerm(Collection<Expression> terms, Expression anotherTerm, RewritingProcess process) {
 		Expression result = getFirstNonNullResultOrNull(terms, term -> getSplitterTowardDisequalityOfTwoTerms(term, anotherTerm, process));
+		return result;
+	}
+	
+	private int getIndexOfFirstTermWithoutDirectlyImpliedDisequalityWithAnotherTerm(Collection<Expression> terms, Expression anotherTerm, RewritingProcess process) {
+		int result = getIndexOfFirstSatisfyingPredicateOrMinusOne(terms, term -> ! nonEqualitiesConstraint.directlyImpliesDisequality(term, anotherTerm, process));
 		return result;
 	}
 	
@@ -145,52 +234,186 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
 
 		Expression result;
-		discardStoredSplitterIfObsolete(process);
-//		if (nextSplitter != null) {
-//			result = nextSplitter;
+//		discardStoredSplitterIfObsolete(process);
+		
+//		if (splitterSearch != null
+//				&&
+//				splitterSearch.nextSplitter != null
+//				&& 
+//				// constraint under which nextSplitter was computed is still the same, or there is a new one but it does not invalidate it.
+//				(nonEqualitiesConstraint == splitterSearch.nonEqualitiesConstraintForNextSplitter
+//				|| ! nonEqualitiesConstraint.directlyImpliesDisequality(splitterSearch.nextSplitter.get(0), splitterSearch.nextSplitter.get(1), process))) {
+//			result = splitterSearch.nextSplitter;
 ////			System.out.println("Used nextSplitter: " + nextSplitter);
 ////			System.out.println("for constraint   : " + this);	
-////			System.out.println("for nonEqualitiesConstraint              : " + nonEqualitiesConstraint);	
-////			System.out.println("nonEqualitiesConstraintForNextSplitter   : " + nonEqualitiesConstraintForNextSplitter);	
-//		}
-//		else 
+		////			System.out.println("for nonEqualitiesConstraint              : " + nonEqualitiesConstraint);	
+		////			System.out.println("nonEqualitiesConstraintForNextSplitter   : " + nonEqualitiesConstraintForNextSplitter);	
+		//		}
+		//		else 
 		if (indicesSubSet.isEmpty()) { // if empty, no splitters are needed. If not empty, indicesSubSet is necessarily a set with this.variable as only element.
 			result = null;
 		}
 		else {
-			result = null;
-			for (int disequalIndex = 0; disequalIndex != disequals.size(); disequalIndex++) {
-				Expression splitter  = getSplitterTowardsEnsuringDisequalIsDisequalFromAllOtherDisequalsBeforeIt(disequalIndex, process);
-				if (splitter != null) {
-					result = splitter;
-					break;
-				}
+			if (currentSplitterIsStillValid(process)) {
+				result = splitterSearch.nextSplitter;
+				//		System.out.println("Used nextSplitter: " + nextSplitter);
+				//		System.out.println("for constraint   : " + this);	
+				//		System.out.println("for nonEqualitiesConstraint              : " + nonEqualitiesConstraint);	
+				//		System.out.println("nonEqualitiesConstraintForNextSplitter   : " + nonEqualitiesConstraintForNextSplitter);	
+			}
+			else {
+				splitterSearch = null;
+				initializeSplitterSearch();
+
+//				System.out.println("GOING TO COMPUTE newResult for " + System.identityHashCode(this));	
+//				showState();	
+
+				Expression justAVariable = findNextSplitter(process); // SUBTLE! findNextSplitter may change the identity of splitterSearch, so a direct assignment is not correct
+				splitterSearch.nextSplitter = justAVariable;
+				splitterSearch.nonEqualitiesConstraintForNextSplitter = nonEqualitiesConstraint;
+				result = splitterSearch.nextSplitter;
+//				System.out.println("COMPUTED newResult " + result + " for " + System.identityHashCode(this));	
+//				System.out.println("index1: " + splitterSearch.index1);	
+//				System.out.println("index2: " + splitterSearch.index2);	
+
+				//			// REDO COMPUTATION FOR DEBUGGING PURPOSES
+				//			Expression newResult = result;
+				//			splitterSearch = null;
+				//			
+				//			if (splitterSearch == null) {
+				//				initializeSplitterSearch();
+				//			}
+				//			Expression findNextSplitter = findNextSplitter(process);
+				//			splitterSearch.nextSplitter = findNextSplitter;
+				//			splitterSearch.nonEqualitiesConstraintForNextSplitter = nonEqualitiesConstraint;
+				//			result = splitterSearch.nextSplitter;
+
+				//			if ( ! Util.equals(result, newResult)) {
+				//				System.out.println("DISAGREEMENT");	
+				//				System.out.println("this: " + this + " identity " + System.identityHashCode(this));	
+				//				System.out.println("newResult: " + newResult);	
+				//				System.out.println("result   : " + result);	
+				//				System.out.println("nonEqualitiesConstraint               : " + nonEqualitiesConstraint);	
+				//				System.out.println("nonEqualitiesConstraintForNextSplitter: " + splitterSearch.nonEqualitiesConstraintForNextSplitter);	
+				//				System.out.println("indicesSubSet: " + indicesSubSet);	
+				//				System.exit(-1);
+				//			}
 			}
 		}
-
-//		if (nextSplitter != null && (result == null || ! nextSplitter.equals(result))) {
-//			System.out.println("DISAGREEMENT");	
-//			System.out.println("this: " + this);	
-//			System.out.println("nextSplitter: " + nextSplitter);	
-//			System.out.println("result: " + result);	
-//			System.out.println("nonEqualitiesConstraint               : " + nonEqualitiesConstraint);	
-//			System.out.println("nonEqualitiesConstraintForNextSplitter: " + nonEqualitiesConstraintForNextSplitter);	
-//			System.out.println("indicesSubSet: " + indicesSubSet);	
-//			System.exit(-1);
-//		}
 
 		return result;
 	}
 
-	private Expression getSplitterTowardsEnsuringDisequalIsDisequalFromAllOtherDisequalsBeforeIt(int disequalIndex, RewritingProcess process) {
-		Expression result = null;
-		Expression disequal = disequals.get(disequalIndex);
-		boolean disequalIsUniquelyValued = uniquelyValuedDisequals.contains(disequal);
-		for (int anotherDisequalIndex = 0; result == null && anotherDisequalIndex != disequalIndex; anotherDisequalIndex++) {
-			Expression anotherDisequal = disequals.get(anotherDisequalIndex);
-			if ( ! (disequalIsUniquelyValued && uniquelyValuedDisequals.contains(anotherDisequal))) { // if they are both uniquely valued, we know they are constrained to be disequal
-				result = getSplitterTowardDisequalityOfTwoTerms(disequal, anotherDisequal, process);
+	/**
+	 * @param process
+	 * @return
+	 */
+	private boolean currentSplitterIsStillValid(RewritingProcess process) {
+		boolean valid = splitterSearch != null
+				&&
+				splitterSearch.nextSplitter != null
+				&& 
+				// constraint under which nextSplitter was computed is still the same, or there is a new one but it does not invalidate it.
+				(nonEqualitiesConstraint == splitterSearch.nonEqualitiesConstraintForNextSplitter
+				|| ! nonEqualitiesConstraint.directlyImpliesDisequality(splitterSearch.nextSplitter.get(0), splitterSearch.nextSplitter.get(1), process));
+		return valid;
+	}
+
+	private void initializeSplitterSearch() {
+		splitterSearch = new SplitterSearch();
+		if (disequals.isEmpty()) {
+			splitterSearch.index1 = 0;
+		}
+		else {
+			splitterSearch.index1 = 1; // this is necessary so that index2 gets set to 0 and previousDisequal gets a valid value
+		}
+		updateSplitterSearchAfterUpdateToSplitterSearchIndex1();
+	}
+
+	private boolean splitterSearchNotOver() {
+		return splitterSearch.index1 != disequals.size();
+	}
+
+	private void incrementSplitterSearch() {
+		splitterSearch.index2++;
+		if (splitterSearch.index2 == splitterSearch.index1) {
+			splitterSearch.index2 = 0;
+			incrementSplitterSearchIndex1();
+		}
+		updateSplitterSearchAfterUpdateToSplitterSearchIndex2();
+	}
+	
+	private boolean splitterSearchIndex1NotOver() {
+		return splitterSearch.index1 != disequals.size();
+	}
+
+	private void incrementSplitterSearchIndex1() {
+		splitterSearch.index1++;
+		updateSplitterSearchAfterUpdateToSplitterSearchIndex1();
+	}
+
+	private void updateSplitterSearchAfterUpdateToSplitterSearchIndex1() {
+		if (splitterSearch.index1 != disequals.size()) {
+			splitterSearch.disequal = disequals.get(splitterSearch.index1);
+			splitterSearch.disequalIsUniquelyValued = uniquelyValuedDisequals.contains(splitterSearch.disequal);
+			splitterSearch.index2 = 0;
+			updateSplitterSearchAfterUpdateToSplitterSearchIndex2();
+		}
+	}
+
+	private boolean splitterSearchIndex2NotOver() {
+		return splitterSearch.index2 != splitterSearch.index1;
+	}
+
+	private void incrementSplitterSearchIndex2() {
+		splitterSearch.index2++;
+		updateSplitterSearchAfterUpdateToSplitterSearchIndex2();
+	}
+
+	private void updateSplitterSearchAfterUpdateToSplitterSearchIndex2() {
+		if (splitterSearchIndex2NotOver()) {
+			splitterSearch.previousDisequal = disequals.get(splitterSearch.index2);
+		}
+	}
+
+	/**
+	 * @param process
+	 * @return
+	 */
+	private Expression findNextSplitter(RewritingProcess process) {
+		Expression newResult = null;
+//		String aux0 = splitterSearch.toString();
+//		SplitterSearch aux = splitterSearch.clone();
+		while (newResult == null && splitterSearchNotOver()) {
+			if ( ! (splitterSearch.disequalIsUniquelyValued && uniquelyValuedDisequals.contains(splitterSearch.previousDisequal))) { // if they are both uniquely valued, we know they are constrained to be disequal
+				newResult = getSplitterTowardDisequalityOfTwoTerms(splitterSearch.disequal, splitterSearch.previousDisequal, process);
 			}
+			incrementSplitterSearch();
+		}
+//		splitterSearch = aux;
+//		if ( ! splitterSearch.toString().equals(aux0)) {
+//			System.out.println("Not equal!!!");	
+//			System.exit(-1);
+//		}
+		
+//		Expression result = null;
+//		while (result == null && splitterSearchIndex1NotOver()) {
+//			result = getSplitterTowardsEnsuringDisequalAtIndex1IsDisequalFromAllOtherDisequalsBeforeIt(process);
+//			incrementSplitterSearchIndex1();
+//		}
+//
+//		System.out.println("findSplitter: " + result);
+		
+		return newResult;
+	}
+
+	private Expression getSplitterTowardsEnsuringDisequalAtIndex1IsDisequalFromAllOtherDisequalsBeforeIt(RewritingProcess process) {
+		Expression result = null;
+		while (result == null && splitterSearchIndex2NotOver()) {
+			if ( ! (splitterSearch.disequalIsUniquelyValued && uniquelyValuedDisequals.contains(splitterSearch.previousDisequal))) { // if they are both uniquely valued, we know they are constrained to be disequal
+				result = getSplitterTowardDisequalityOfTwoTerms(splitterSearch.disequal, splitterSearch.previousDisequal, process);
+			}
+			incrementSplitterSearchIndex2();
 		}
 		return result;
 	}
@@ -304,3 +527,4 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		return result;
 	}
 }
+
