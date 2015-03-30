@@ -38,7 +38,6 @@ import com.sri.ai.util.collect.CopyOnWriteArraySet;
 public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualitiesConstraintForSingleVariable {
 	private ArraySet<Expression> disequals;
 	private ArraySet<Expression> uniquelyValuedDisequals; // disequals constrained to be disequal from all uniquely-valued disequals added before themselves. If this set reaches variable's domain size, there will be no value left for it and an inconsistency is indicated.
-	private Expression lastUniquelyValuedDisequal;
 	private DisequalitiesSplitterSearchLowerBound splitterSearchLowerBound;
 	private boolean allowInsertedNotUniquelyValuedDisequalToAdvanceLowerBound; // see occurrences of field for comments on the meaning of this field
 	
@@ -49,9 +48,8 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	 */
 	public DisequalitiesConstraintForSingleVariable(Expression variable, NonEqualitiesConstraint nonEqualitiesConstraint) {
 		super(variable, nonEqualitiesConstraint);
-		this.disequals = new ArrayHashSet<Expression>(); // TODO have constructor take expected capacity
+		this.disequals = new ArrayHashSet<Expression>();
 		this.uniquelyValuedDisequals = new ArrayHashSet<Expression>();
-		this.lastUniquelyValuedDisequal = null;
 		this.nonEqualitiesConstraint = nonEqualitiesConstraint;
 		this.splitterSearchLowerBound = null;
 		this.allowInsertedNotUniquelyValuedDisequalToAdvanceLowerBound = true;
@@ -61,9 +59,8 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	public DisequalitiesConstraintForSingleVariable clone() {
 		DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, nonEqualitiesConstraint);
 		result.cachedIndexDomainSize = cachedIndexDomainSize;
-		result.disequals = new CopyOnWriteArraySet<Expression>(disequals, ArrayHashSet.class);
-		result.uniquelyValuedDisequals = new CopyOnWriteArraySet<Expression>(uniquelyValuedDisequals, ArrayHashSet.class);
-		result.lastUniquelyValuedDisequal = lastUniquelyValuedDisequal;
+		result.disequals = new CopyOnWriteArraySet<Expression>(disequals, () -> new ArrayHashSet<Expression>());
+		result.uniquelyValuedDisequals = new CopyOnWriteArraySet<Expression>(uniquelyValuedDisequals, () -> new ArrayHashSet<Expression>());
 		result.splitterSearchLowerBound = splitterSearchLowerBound == null? null : new DisequalitiesSplitterSearchLowerBound(splitterSearchLowerBound);
 		result.allowInsertedNotUniquelyValuedDisequalToAdvanceLowerBound = allowInsertedNotUniquelyValuedDisequalToAdvanceLowerBound;
 		return result;
@@ -101,7 +98,6 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 				// in principle, comparison is >=, but uniquelyValuedDisequals's size increases one at a time and == is cheaper.
 				throw new Contradiction();
 			}
-			lastUniquelyValuedDisequal = newDisequal;
 
 			// myAssert(allowInsertedNotUniquelyValuedDisequalToAdvanceLowerBound, "If all disequals are uniquely valued so far, we should not have allowInsertedNotUniquelyValuedDisequalToAdvanceLowerBound set to false yet");
 			if (disequals.size() == uniquelyValuedDisequals.size()) {
@@ -120,7 +116,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 				int index1 = disequals.size() - 1; // index of current 'newDisequal'
 				int index2 = index; // index of the term before newDisequal that is not necessarily disequal to it
 				splitterSearchLowerBound = new DisequalitiesSplitterSearchLowerBound(index1, index2);
-				allowInsertedNotUniquelyValuedDisequalToAdvanceLowerBound = false; // from now on we must not make such updated because we may skip the current splitter candidate.
+				allowInsertedNotUniquelyValuedDisequalToAdvanceLowerBound = false; // from now on we must not make such updates because that may lead us to inadvertently skip a splitter candidate.
 			}
 		}
 	}
@@ -206,27 +202,28 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		return result;
 	}
 
+	private Expression cachedNumberOfPossibleValuesForIndex = null;
+	
 	@Override
 	public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
-		// TODO: cache this operation because DisequalitiesConstraintForSingleVariable may be shared among many NonEqualitiesConstraints.
-		Expression numberOfPossibleValuesForIndex;
-		long numberOfNonAvailableValues = disequals.size();
-		long variableDomainSize = getVariableDomainSize(process);
-		if (variableDomainSize == -1) {
-			Expression variableDomain = getVariableDomain(process);
-			Expression variableDomainCardinality = apply(CARDINALITY, variableDomain);
-			numberOfPossibleValuesForIndex = Minus.make(variableDomainCardinality, makeSymbol(numberOfNonAvailableValues));
+		// caching this operation because DisequalitiesConstraintForSingleVariable may be shared among many NonEqualitiesConstraints.
+		if (cachedNumberOfPossibleValuesForIndex == null) {
+			Expression numberOfPossibleValuesForIndex;
+			long numberOfNonAvailableValues = disequals.size();
+			long variableDomainSize = getVariableDomainSize(process);
+			if (variableDomainSize == -1) {
+				Expression variableDomain = getVariableDomain(process);
+				Expression variableDomainCardinality = apply(CARDINALITY, variableDomain);
+				numberOfPossibleValuesForIndex = Minus.make(variableDomainCardinality, makeSymbol(numberOfNonAvailableValues));
+			}
+			else {
+				numberOfPossibleValuesForIndex = makeSymbol(max(0, variableDomainSize - numberOfNonAvailableValues));
+			}
+			cachedNumberOfPossibleValuesForIndex = numberOfPossibleValuesForIndex;
 		}
-		else {
-			numberOfPossibleValuesForIndex = makeSymbol(max(0, variableDomainSize - numberOfNonAvailableValues));
-		}
-		return numberOfPossibleValuesForIndex;
+		return cachedNumberOfPossibleValuesForIndex;
 	}
 
-	/**
-	 * @param process
-	 * @return
-	 */
 	private Expression getVariableDomain(RewritingProcess process) {
 		Expression variableType = process.getContextualSymbolType(variable);
 		if (variableType == null) {
@@ -239,11 +236,14 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		return emptyList();
 	}
 
+	private List<Expression> cachedSplittersToBeNotSatisfied = null;
+	
 	public List<Expression> getSplittersToBeNotSatisfied() {
-		// TODO: OPTIMIZATION:
-		// Cache this! Because DisequalitiesConstraintForSingleVariable is immutable after setup, you only need to run it once!
-		List<Expression> result = mapIntoList(disequals, disequal -> apply(EQUALITY, variable, disequal)); // making it with apply instead of Equality.make sidesteps simplifications, which will not occur in this case because otherwise this condition would have either rendered the constraint a contradiction, or would have been eliminated from it
-		return result;
+		// caching this operation because DisequalitiesConstraintForSingleVariable may be shared among many NonEqualitiesConstraints.
+		if (cachedSplittersToBeNotSatisfied == null) {
+			cachedSplittersToBeNotSatisfied = mapIntoList(disequals, disequal -> apply(EQUALITY, variable, disequal)); // making it with apply instead of Equality.make sidesteps simplifications, which will not occur in this case because otherwise this condition would have either rendered the constraint a contradiction, or would have been eliminated from it
+		}
+		return cachedSplittersToBeNotSatisfied;
 	}
 
 	@Override
