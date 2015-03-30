@@ -47,12 +47,11 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 			newNonEqualitiesConstraint.map.put(entry.getKey(), newEntryValue);
 		}
 		return newNonEqualitiesConstraint;
-		// TODO: implement a copy-on-write scheme. This requires a special encapsulation of map because copy must include the change of the value's nonEqualitiesConstraint.
+		// TODO: OPTIMIZATION implement a copy-on-write scheme.
+		// In order to use a standard copy-on-write map wrapper implementation,
+		// this will require removing the need for NonEqualitiesConstraintForSingleVariable to keep a reference to this NonEqualitiesConstraint
 	}
 
-	/**
-	 * @return
-	 */
 	public TermTheory getTermTheory() {
 		return getTheory().getTermTheory();
 	}
