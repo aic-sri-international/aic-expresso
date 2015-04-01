@@ -15,10 +15,10 @@ import com.sri.ai.grinder.plaindpll.api.Constraint;
  */	
 public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 
-	NonEqualitiesConstraintForSingleVariable cloneWithNewNonEqualitiesConstraint(NonEqualitiesConstraint nonEqualitiesConstraint);
-
 	/** Returns the single variable against which all other terms are constrained. */
 	Expression getVariable();
+
+	NonEqualitiesConstraintForSingleVariable clone();
 	
 	/**
 	 * A more efficient replacement for {@link #directlyImpliesLiteral(Expression, RewritingProcess)} for disequality literals.
@@ -29,13 +29,6 @@ public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 	 */
 	boolean directlyImpliesDisequalityOfVariableAnd(Expression term, RewritingProcess process);
 
-	/**
-	 * Gets the {@link NonEqualitiesConstraint} containing this constraint.
-	 * @param nonEqualitiesConstraint
-	 * @return
-	 */
-	NonEqualitiesConstraint getNonEqualitiesConstraint(NonEqualitiesConstraint nonEqualitiesConstraint);
-	
 	/**
 	 * Assumes the main variable is a free variable, and returns splitters on it required to hold for this constraint to hold.
 	 * @return

@@ -161,7 +161,8 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		process.initializeDPLLContextualConstraint(contextualConstraint);
 
 		Constraint constraint = theory.makeConstraint(indices);
-		Expression result = solve(expression, indices, constraint, process);
+		Expression simplifiedExpression = theory.simplify(expression, process);
+		Expression result = solve(simplifiedExpression, indices, constraint, process);
 		if (result == null) { // constraint is unsatisfiable, so result is identity element.
 			result = problemType.additiveIdentityElement();
 		}

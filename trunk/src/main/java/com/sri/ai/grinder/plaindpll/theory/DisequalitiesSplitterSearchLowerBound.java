@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.util.base.BinaryFunction;
+import com.sri.ai.util.base.BinaryPredicate;
 import com.sri.ai.util.collect.ArraySet;
 
 /**
@@ -58,27 +59,29 @@ class DisequalitiesSplitterSearchLowerBound {
 	}
 
 	public Expression getCurrentSplitter(
-			ArraySet<Expression> disequals, ArraySet<Expression> uniquelyValuedDisequals, NonEqualitiesConstraint nonEqualitiesConstraint, 
-			BinaryFunction<Expression, Expression, Expression> getSplitterTowardDisequalityOfTwoTerms, RewritingProcess process) {
-		if (needsToBeSearched(nonEqualitiesConstraint, process)) {
-			goToNextSplitter(disequals, uniquelyValuedDisequals, nonEqualitiesConstraint, getSplitterTowardDisequalityOfTwoTerms);
+			ArraySet<Expression> disequals, ArraySet<Expression> uniquelyValuedDisequals,
+			BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally,
+			BinaryFunction<Expression, Expression, Expression> getSplitterTowardDisequalityOfTwoTerms,
+			RewritingProcess process) {
+		if (needsToBeSearched(disequalityDirectlyImpliedExternally, process)) {
+			goToNextSplitter(disequals, uniquelyValuedDisequals, getSplitterTowardDisequalityOfTwoTerms);
 		}
 		return currentSplitter;
 	}
 	
-	private boolean needsToBeSearched(NonEqualitiesConstraint nonEqualitiesConstraint, RewritingProcess process) {
+	private boolean needsToBeSearched(BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) {
 		// needs to be search if it has not been searched yet, or if it's obsolete for the current non-equalities
-		boolean result = currentSplitter == null || ! nonNullCurrentSplitterStillValid(nonEqualitiesConstraint, process);
+		boolean result = currentSplitter == null || ! nonNullCurrentSplitterStillValid(disequalityDirectlyImpliedExternally, process);
 		return result;
 	}
 
-	private boolean nonNullCurrentSplitterStillValid(NonEqualitiesConstraint nonEqualitiesConstraint, RewritingProcess process) {
-		boolean result = ! nonEqualitiesConstraint.directlyImpliesDisequality(currentSplitter.get(0), currentSplitter.get(1), process);
+	private boolean nonNullCurrentSplitterStillValid(BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) {
+		boolean result = ! disequalityDirectlyImpliedExternally.apply(currentSplitter.get(0), currentSplitter.get(1));
 		return result;
 	}
 
 	private void goToNextSplitter(
-			ArraySet<Expression> disequals, ArraySet<Expression> uniquelyValuedDisequals, NonEqualitiesConstraint nonEqualitiesConstraint,
+			ArraySet<Expression> disequals, ArraySet<Expression> uniquelyValuedDisequals,
 			BinaryFunction<Expression, Expression, Expression> getSplitterTowardDisequalityOfTwoTerms) {
 		
 		currentSplitter = null;

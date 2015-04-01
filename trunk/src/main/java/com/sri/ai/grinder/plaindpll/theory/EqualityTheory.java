@@ -82,6 +82,7 @@ import com.sri.ai.grinder.plaindpll.problemtype.Tautologicality;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
+import com.sri.ai.util.collect.CopyOnWriteMap;
 @Beta
 /** 
  * A {@link Theory} for equality literals.
@@ -400,7 +401,7 @@ public class EqualityTheory extends AbstractTheory {
 		private EqualitiesConstraint(EqualitiesConstraint another) {
 			super(another.getSupportedIndices());
 			this.theory = another.theory;
-			this.equalitiesMap = new LinkedHashMap<Expression, Expression>(another.equalitiesMap); // TODO: implement a copy-on-write scheme
+			this.equalitiesMap = new CopyOnWriteMap<Expression, Expression>(another.equalitiesMap);
 		}
 
 		@Override

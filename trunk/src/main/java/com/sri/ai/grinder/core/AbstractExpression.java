@@ -412,7 +412,9 @@ public abstract class AbstractExpression implements Expression {
 			anotherObject = Expressions.makeSymbol(anotherObject);
 		}
 
-		boolean result = getSyntaxTree().equals(((Expression)anotherObject).getSyntaxTree());
+		SyntaxTree thisSyntaxTree = getSyntaxTree();
+		SyntaxTree anotherSyntaxTree = ((Expression)anotherObject).getSyntaxTree();
+		boolean result = thisSyntaxTree.equals(anotherSyntaxTree);
 		
 		return result;
 	}
