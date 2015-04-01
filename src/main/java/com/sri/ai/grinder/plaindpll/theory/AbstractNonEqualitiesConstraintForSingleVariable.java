@@ -2,7 +2,6 @@ package com.sri.ai.grinder.plaindpll.theory;
 
 import static com.sri.ai.grinder.helper.GrinderUtil.getTypeCardinality;
 import static com.sri.ai.util.Util.list;
-import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Collection;
 
@@ -18,13 +17,15 @@ import com.sri.ai.util.Util;
 public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends AbstractOwnRepresentationConstraint implements NonEqualitiesConstraintForSingleVariable {
 	protected Expression variable;
 	protected long cachedIndexDomainSize;
-	protected NonEqualitiesConstraint nonEqualitiesConstraint; // the DefaultNonEqualitiesConstraint containing this one
+	protected EqualityTheory theory;
+	protected Collection<Expression> supportedIndices;
 
-	public AbstractNonEqualitiesConstraintForSingleVariable(Expression variable, NonEqualitiesConstraint nonEqualitiesConstraint) {
+	public AbstractNonEqualitiesConstraintForSingleVariable(Expression variable, EqualityTheory theory, Collection<Expression> supportedIndices) {
 		super(list(variable));
 		this.variable = variable;
 		this.cachedIndexDomainSize = -1;
-		this.nonEqualitiesConstraint = nonEqualitiesConstraint;
+		this.theory = theory;
+		this.supportedIndices = supportedIndices;
 	}
 	
 	@Override
@@ -34,30 +35,17 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 	}
 	
 	@Override
-	public NonEqualitiesConstraint getNonEqualitiesConstraint(NonEqualitiesConstraint nonEqualitiesConstraint) {
-		myAssert(() -> nonEqualitiesConstraint != null, "nonEqualitiesConstraint must not be null");
-		return nonEqualitiesConstraint;
-	}
-
-	@Override
-	public NonEqualitiesConstraintForSingleVariable cloneWithNewNonEqualitiesConstraint(NonEqualitiesConstraint nonEqualitiesConstraint) {
-		AbstractNonEqualitiesConstraintForSingleVariable result = clone();
-		result.nonEqualitiesConstraint = nonEqualitiesConstraint;
-		return result;
-	}
-
-	@Override
 	public EqualityTheory getTheory() {
-		return nonEqualitiesConstraint.getTheory();
+		return theory;
 	}
 
 	@Override
 	public Collection<Expression> getSupportedIndices() {
-		return nonEqualitiesConstraint.getSupportedIndices();
+		return supportedIndices;
 	}
 
 	protected TermTheory getTermTheory() {
-		return nonEqualitiesConstraint.getTermTheory();
+		return getTheory().getTermTheory();
 	}
 	
 	protected long getVariableDomainSize(RewritingProcess process) {

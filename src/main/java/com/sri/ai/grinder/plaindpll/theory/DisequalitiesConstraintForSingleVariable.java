@@ -24,6 +24,8 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
+import com.sri.ai.util.base.BinaryFunction;
+import com.sri.ai.util.base.BinaryPredicate;
 import com.sri.ai.util.collect.ArrayHashSet;
 import com.sri.ai.util.collect.ArraySet;
 import com.sri.ai.util.collect.CopyOnWriteArraySet;
@@ -46,18 +48,17 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	 * @param variable
 	 * @param nonEqualitiesConstraint
 	 */
-	public DisequalitiesConstraintForSingleVariable(Expression variable, NonEqualitiesConstraint nonEqualitiesConstraint) {
-		super(variable, nonEqualitiesConstraint);
+	public DisequalitiesConstraintForSingleVariable(Expression variable, EqualityTheory theory, Collection<Expression> supportedIndices) {
+		super(variable, theory, supportedIndices);
 		this.disequals = new ArrayHashSet<Expression>();
 		this.uniquelyValuedDisequals = new ArrayHashSet<Expression>();
-		this.nonEqualitiesConstraint = nonEqualitiesConstraint;
 		this.splitterSearchLowerBound = null;
 		this.allowInsertedNotUniquelyValuedDisequalToAdvanceLowerBound = true;
 	}
 
 	@Override
 	public DisequalitiesConstraintForSingleVariable clone() {
-		DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, nonEqualitiesConstraint);
+		DisequalitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, theory, supportedIndices);
 		result.cachedIndexDomainSize = cachedIndexDomainSize;
 		result.disequals = new CopyOnWriteArraySet<Expression>(disequals, () -> new ArrayHashSet<Expression>());
 		result.uniquelyValuedDisequals = new CopyOnWriteArraySet<Expression>(uniquelyValuedDisequals, () -> new ArrayHashSet<Expression>());
@@ -77,22 +78,31 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	
 	@Override
 	public void incorporateDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		throw new Error(this.getClass().getSimpleName() + "." + (new Object(){}).getClass().getEnclosingMethod() + " not valid; use a similar method taking way to deermine disequalities implied externally.");
+	}
+
+	@Override
+	public void incorporateDestructively(boolean splitterSign, Expression splitter, BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) {
 		myAssert(() -> ! splitterSign && isEquality(splitter), () -> getClass() + " only allowed to take negative equality literals (disequalities) but got " + (splitterSign? "" : "not ") + " " + splitter);
 		myAssert(() -> splitter.get(0).equals(variable), () -> getClass() + " must only take splitters in which the first argument is the same as the main variable");
 		Expression term = splitter.get(1);
-		incorporateDisequalDestructively(term, process);
+		incorporateDisequalDestructively(term, disequalityDirectlyImpliedExternally, process);
 	}
 
-	public void incorporateDisequalDestructively(Expression term, RewritingProcess process) throws Contradiction {
+	private void incorporateDisequalDestructively(Expression term, BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) throws Contradiction {
 		boolean termIsNewDisequal = disequals.add(term);
 		if (termIsNewDisequal) {
-			updateUniqueValuedDisequalsWithNewDisequal(term, process);
+			updateUniqueValuedDisequalsWithNewDisequal(term, disequalityDirectlyImpliedExternally, process);
 		}
 	}
 	
-	private void updateUniqueValuedDisequalsWithNewDisequal(Expression newDisequal, RewritingProcess process) throws Contradiction {
-		int index;
-		if ((index = getIndexOfFirstTermWithoutDirectlyImpliedDisequalityWithAnotherTerm(uniquelyValuedDisequals, newDisequal, process)) == -1) {
+	private void updateUniqueValuedDisequalsWithNewDisequal(
+			Expression newDisequal, BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) throws Contradiction {
+		
+		int indexOfFirstNotNecessarilyDisequalTermToNewDisequal;
+		int newDisequalIndex = disequals.size() - 1;
+		int result = getIndexOfFirstSatisfyingPredicateOrMinusOne(uniquelyValuedDisequals, term -> ! disequalityDirectlyImpliedExternally.apply(term, newDisequal));
+		if ((indexOfFirstNotNecessarilyDisequalTermToNewDisequal = result) == -1) {
 			uniquelyValuedDisequals.add(newDisequal);
 			if (uniquelyValuedDisequals.size() == getVariableDomainSize(process)) { // Note that this works when getIndexDomainSize is -1 (no domain size information) because then the condition is always false
 				// in principle, comparison is >=, but uniquelyValuedDisequals's size increases one at a time and == is cheaper.
@@ -104,30 +114,30 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 				// We can speed up future searches for splitters by indicating that
 				// you can start from (index1, index2) equal to (disequals.size(), disequals.size() - 1).
 				// All pairs coming before that are uniquely valued and will not form a splitter.
-				splitterSearchLowerBound = new DisequalitiesSplitterSearchLowerBound(disequals.size(), disequals.size() - 1);
+				splitterSearchLowerBound = new DisequalitiesSplitterSearchLowerBound(disequals.size(), newDisequalIndex);
 			}
 		}
 		else {
 			if (allowInsertedNotUniquelyValuedDisequalToAdvanceLowerBound) { // this update is only allowed the first time (see last line of block)
-				// 'index' indicates where first splitter will be, so initialize splitter search data accordingly to save time
-				// NOTE: remember 'index' is an index for uniquelyValuedDisequals; however, the fact that we did not have a splitter yet
+				// 'index' indicates where first splitter candidate is, so set splitter search lower bound accordingly to save time
+				// NOTE: remember 'indexOfFirstNotNecessarilyDisequalTermToNewDisequal' is an index for uniquelyValuedDisequals,
+				// and that the lower bound is expressed in indices on 'disequals'.
+				// However, the fact that we did not have a splitter so far
 				// means that all terms added so far were uniquely valued, and therefore uniquelyValuedDisequals is equal to 'disequals' at this point,
-				// so 'index' applies to 'disequals' as well.
-				int index1 = disequals.size() - 1; // index of current 'newDisequal'
-				int index2 = index; // index of the term before newDisequal that is not necessarily disequal to it
-				splitterSearchLowerBound = new DisequalitiesSplitterSearchLowerBound(index1, index2);
+				// so 'indexOfFirstNotNecessarilyDisequalTermToNewDisequal' applies to 'disequals' as well.
+				splitterSearchLowerBound = new DisequalitiesSplitterSearchLowerBound(newDisequalIndex, indexOfFirstNotNecessarilyDisequalTermToNewDisequal);
 				allowInsertedNotUniquelyValuedDisequalToAdvanceLowerBound = false; // from now on we must not make such updates because that may lead us to inadvertently skip a splitter candidate.
 			}
 		}
 	}
 	
-	private int getIndexOfFirstTermWithoutDirectlyImpliedDisequalityWithAnotherTerm(Collection<Expression> terms, Expression anotherTerm, RewritingProcess process) {
-		int result = getIndexOfFirstSatisfyingPredicateOrMinusOne(terms, term -> ! nonEqualitiesConstraint.directlyImpliesDisequality(term, anotherTerm, process));
-		return result;
-	}
-	
 	@Override
 	public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
+		throw new Error((new Object(){}).getClass().getEnclosingMethod() + " not valid for " + getClass() + ". Use similar method taking predicate for directly implied disequalities.");
+	}
+
+	@Override
+	public Expression pickSplitter(Collection<Expression> indicesSubSet, BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) {
 
 		Expression result;
 		
@@ -139,20 +149,23 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 				result = null;
 			}
 			else {
-				result = splitterSearchLowerBound.getCurrentSplitter(disequals, uniquelyValuedDisequals, nonEqualitiesConstraint, (t1, t2) -> getSplitterTowardDisequalityOfTwoTerms(t1, t2, process), process);
+				BinaryFunction<Expression, Expression, Expression> getSplitterTowardDisequalityOfTwoTerms = (t1, t2) -> getSplitterTowardDisequalityOfTwoTerms(t1, t2, disequalityDirectlyImpliedExternally, process);
+				result = splitterSearchLowerBound.getCurrentSplitter(disequals, uniquelyValuedDisequals, disequalityDirectlyImpliedExternally, getSplitterTowardDisequalityOfTwoTerms, process);
 			}
 		}
 
 		return result;
 	}
 
-	private Expression getSplitterTowardDisequalityOfTwoTerms(Expression term1, Expression term2, RewritingProcess process) {
+	private Expression getSplitterTowardDisequalityOfTwoTerms(
+			Expression term1, Expression term2, BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) {
+		
 		Expression result = null;
 		Expression splitter = getTermTheory().getSplitterTowardDisunifyingDistinctTerms(term1, term2, process); // if function applications, we need to disunify arguments first, for instance.
 		if (splitter != null) {
 			result = splitter;
 		}
-		else if (! nonEqualitiesConstraint.directlyImpliesDisequality(term1, term2, process)) { // already disunified but not disequal
+		else if (! disequalityDirectlyImpliedExternally.apply(term1, term2)) { // already disunified but not disequal
 			splitter = getTheory().makeSplitterFromFunctorAndVariableAndTermDistinctFromVariable(EQUALITY, term1, term2, getSupportedIndices(), process);
 			result = splitter;
 		}

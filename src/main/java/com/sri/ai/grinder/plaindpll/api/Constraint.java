@@ -11,6 +11,7 @@ import com.sri.ai.grinder.plaindpll.core.ExpressionConstraint;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
 import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
+import com.sri.ai.util.base.BinaryPredicate;
 
 /**
  * An {@link Expression} with efficient internal representation for operations on being expanded by a splitter (literal in constraint theory) and
@@ -61,7 +62,21 @@ public interface Constraint extends Expression {
 	 * @param splitter the splitter according to this theoryWithEquality's choice
 	 * @param process the rewriting process
 	 */
-	public void incorporateDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
+	void incorporateDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
+
+	/**
+	 * Same as {@link #incorporateDestructively(boolean, Expression, RewritingProcess)} but taking
+	 * a binary predicate to evaluate whether terms are directly implied disequal by the external context
+	 * (this will probably be merged with the contextual constraint mechanism).
+	 * Default implementation uses the former method while ignoring the extra parameter.
+	 * @param splitterSign
+	 * @param splitter
+	 * @param disequalityDirectlyImpliedExternally
+	 * @param process
+	 */
+	default void incorporateDestructively(boolean splitterSign, Expression splitter, BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) {
+		incorporateDestructively(splitterSign, splitter, process);
+	}
 
 	/**
 	 * Given a function mapping each term either to itself or to another term meant to represent it
@@ -80,7 +95,20 @@ public interface Constraint extends Expression {
 	 * can be computed (the model count may be condition on the other variables),
 	 * or returns null if it already is in such a state.
 	 */
-	public abstract Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process);
+	Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process);
+
+	/**
+	 * Similar to {@link #pickSplitter(Collection, RewritingProcess)}, but taking
+	 * an extra binary function argument determining directly implied disequalities by an external source;
+	 * default implementation will ignore it; this will probably be merged into the contextual constraint mechanism.
+	 * @param indicesSubSet
+	 * @param disequalityDirectlyImpliedExternally
+	 * @param process
+	 * @return
+	 */
+	default Expression pickSplitter(Collection<Expression> indicesSubSet, BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) {
+		return pickSplitter(indicesSubSet, process);
+	}
 
 	/**
 	 * Computes model count for constraint, given a sub-set of indices, in polynomial time.
@@ -88,7 +116,7 @@ public interface Constraint extends Expression {
 	 * that is, the constraint is in such a state and context that allows the determination of a unique model count.
 	 * The model count is required to contain no literals implied by the contextual constraint.
 	 */
-	public abstract Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process);
+	Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process);
 
 	/**
 	 * Given a sub-set of supported indices, projects the constraint onto the remaining ones.

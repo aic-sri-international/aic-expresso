@@ -23,6 +23,7 @@ import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
 import com.sri.ai.util.Util;
+import com.sri.ai.util.base.BinaryPredicate;
 
 /** 
  * A default implementation of {@link NonEqualitiesConstraint} that keeps a map from variables to {@link NonEqualitiesConstraintForSingleVariable} objects.
@@ -32,7 +33,7 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 
 	private EqualityTheory theory;
 	
-	private LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable> map = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>();
+	private Map<Expression, NonEqualitiesConstraintForSingleVariable> map = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>();
 
 	public DefaultNonEqualitiesConstraint(EqualityTheory theory, Collection<Expression> supportedIndices) {
 		super(supportedIndices);
@@ -43,13 +44,13 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	public DefaultNonEqualitiesConstraint clone() {
 		DefaultNonEqualitiesConstraint newNonEqualitiesConstraint = new DefaultNonEqualitiesConstraint(theory, supportedIndices);
 		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : map.entrySet()) {
-			NonEqualitiesConstraintForSingleVariable newEntryValue = entry.getValue().cloneWithNewNonEqualitiesConstraint(newNonEqualitiesConstraint);
+			NonEqualitiesConstraintForSingleVariable newEntryValue = entry.getValue().clone();
 			newNonEqualitiesConstraint.map.put(entry.getKey(), newEntryValue);
 		}
 		return newNonEqualitiesConstraint;
-		// TODO: OPTIMIZATION implement a copy-on-write scheme.
-		// In order to use a standard copy-on-write map wrapper implementation,
-		// this will require removing the need for NonEqualitiesConstraintForSingleVariable to keep a reference to this NonEqualitiesConstraint
+		// OPTIMIZATION perhaps for very large maps it makes sense to use an implementation
+		// that keeps the original map around and clones the values as needed.
+		// This implementation would be a little complicated/expensive so I am not sure it is worth it at this point.
 	}
 
 	public TermTheory getTermTheory() {
@@ -58,7 +59,8 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 
 	@Override
 	protected Expression pickSplitterFor(Expression index, RewritingProcess process) {
-		Expression result = nonEqualitiesConstraintFor(index, process).pickSplitter(list(index), process);
+		BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally = (t1, t2) -> directlyImpliesDisequality(t1, t2, process);
+		Expression result = nonEqualitiesConstraintFor(index, process).pickSplitter(list(index), disequalityDirectlyImpliedExternally, process);
 		return result;
 	}
 
@@ -156,7 +158,8 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 
 	public void addFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process) {
 		NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForTerm1 = nonEqualitiesConstraintFor(term1, process);
-		disequalitiesConstraintForTerm1.incorporateDestructively(false, Equality.make(term1, term2), process);
+		BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally = (t1, t2) -> directlyImpliesDisequality(t1, t2, process);
+		disequalitiesConstraintForTerm1.incorporateDestructively(false, Equality.make(term1, term2), disequalityDirectlyImpliedExternally, process);
 	}
 
 	/**
@@ -167,12 +170,11 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	 * @param getRepresentative
 	 * @param process
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public void updateRepresentativesDestructively(Function<Expression, Expression> getRepresentative, RewritingProcess process) {
-		// copies entries to a new map because original one is altered during iteration.
-		Map<Expression, NonEqualitiesConstraintForSingleVariable> entriesHolder = (Map<Expression, NonEqualitiesConstraintForSingleVariable>) map.clone();
-		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : entriesHolder.entrySet()) {
+		// copies entries to a list because original one is altered during iteration.
+		List<Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable>> entriesHolder = new LinkedList<Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable>>(map.entrySet());
+		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : entriesHolder) {
 			DisequalitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = (DisequalitiesConstraintForSingleVariable) entry.getValue();
 			
 			Expression variable = disequalitiesConstraintForSingleVariable.getVariable();
@@ -247,7 +249,7 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	}
 	
 	protected NonEqualitiesConstraintForSingleVariable makeNonEqualitiesConstraintForVariable(Expression variable) {
-		NonEqualitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, this);
+		NonEqualitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, getTheory(), getSupportedIndices());
 		return result;
 	}
 
