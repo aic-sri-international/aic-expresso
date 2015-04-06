@@ -105,10 +105,6 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		this.countsDeclaration = countsDeclaration;
 	}
 	
-	public Theory getTheory() {
-		return theory;
-	}
-
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Pair<Expression, IndexExpressionsSet> formulaAndIndexExpressions = problemType.getExpressionAndIndexExpressionsFromRewriterProblemArgument(expression, process);
