@@ -53,14 +53,14 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.Solver;
-import com.sri.ai.grinder.plaindpll.api.Theory;
+import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
 import com.sri.ai.grinder.plaindpll.theory.AbstractConstraint;
 import com.sri.ai.util.Util;
 
 /**
  * An implementation of {@link Constraint} based on an baseExpression representing it
- * (current only boolean formulas on the literals of a given theory are supported).
+ * (current only boolean formulas on the literals of a given constraintTheory are supported).
  * Note that this expressions or its sub-expressions can be implementations of {@link Constraint} themselves,
  * and when this is the case, this implementation exploits their efficient internal representations for its own purposes.
  * 
@@ -72,9 +72,9 @@ public class ExpressionConstraint extends AbstractConstraint {
 
 	private Expression baseExpression;
 	private Collection<Expression> supportedIndices;
-	private Theory theory;
+	private ConstraintTheory theory;
 	
-	private ExpressionConstraint(Theory theory, Collection<Expression> supportedIndices, Expression expression) {
+	private ExpressionConstraint(ConstraintTheory theory, Collection<Expression> supportedIndices, Expression expression) {
 		Util.myAssert(() -> expression != null, () -> getClass().getSimpleName() + " cannot wrap a null value.");
 		this.baseExpression = expression instanceof ExpressionConstraint? ((ExpressionConstraint) expression).baseExpression : expression;
 		this.supportedIndices = supportedIndices;
@@ -85,14 +85,14 @@ public class ExpressionConstraint extends AbstractConstraint {
 	 * A "constructor" of a {@link Constraint} based on an {@link Expression}.
 	 * The reason this is not a regular Constraint is that if baseExpression is already a {@link Constraint},
 	 * it is directly returned, instead of wrapped in a new instance.
-	 * In that case, no check is performed to see if the given theory and supported indices are
+	 * In that case, no check is performed to see if the given constraintTheory and supported indices are
 	 * the same as baseExpression's, but they should be.
-	 * @param theory
+	 * @param constraintTheory
 	 * @param supportedIndices
 	 * @param baseExpression
 	 * @return
 	 */
-	public static Constraint wrap(Theory theory, Collection<Expression> supportedIndices, Expression expression) {
+	public static Constraint wrap(ConstraintTheory theory, Collection<Expression> supportedIndices, Expression expression) {
 		Util.myAssert(() -> expression != null, "ExpressionConstraint cannot wrap a null value.");
 		Constraint result;
 		if (expression instanceof Constraint) {
@@ -120,7 +120,7 @@ public class ExpressionConstraint extends AbstractConstraint {
 	}
 
 	@Override
-	public Theory getTheory() {
+	public ConstraintTheory getTheory() {
 		return theory;
 	}
 
@@ -154,7 +154,7 @@ public class ExpressionConstraint extends AbstractConstraint {
 			result = newConstraint.incorporate(splitterSign, splitter, process);
 		}
 		else { // only acceptable leaves are boolean constants and splitters, so at this point it must be a boolean connective.
-			Util.myAssert(() -> FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(baseExpression), () -> "Only boolean formulas on theory literals supported by " + getClass());
+			Util.myAssert(() -> FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(baseExpression), () -> "Only boolean formulas on constraintTheory literals supported by " + getClass());
 			result = wrap(applyJavaFunctionToArgumentsAndReAssembleFunctionApplication(
 					subExpression -> wrap(subExpression).incorporate(splitterSign, splitter, process),
 					baseExpression));
@@ -176,7 +176,7 @@ public class ExpressionConstraint extends AbstractConstraint {
 			result = splitterIfAny;
 		}
 		else { // only acceptable leaves are boolean constants and splitters, so at this point it must be a boolean connective.
-			Util.myAssert(() -> FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(baseExpression), () -> "Only boolean formulas on theory literals supported by " + getClass());
+			Util.myAssert(() -> FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(baseExpression), () -> "Only boolean formulas on constraintTheory literals supported by " + getClass());
 			result = getFirstNonNullResultOrNull(baseExpression.getArguments(), subExpression -> wrap(subExpression).pickSplitter(indicesSubSet, process));
 		}
 		return result;

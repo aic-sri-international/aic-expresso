@@ -62,9 +62,9 @@ import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
-import com.sri.ai.grinder.plaindpll.api.Theory;
+import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
-import com.sri.ai.grinder.plaindpll.core.AbstractTheory;
+import com.sri.ai.grinder.plaindpll.core.AbstractConstraintTheory;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
@@ -72,9 +72,9 @@ import com.sri.ai.util.math.Rational;
 
 @Beta
 /** 
- * A {@link Theory} for propositional logic.
+ * A {@link ConstraintTheory} for propositional logic.
  */
-public class PropositionalTheory extends AbstractTheory {
+public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 
 	@Override
 	protected boolean usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers() {
@@ -211,8 +211,8 @@ public class PropositionalTheory extends AbstractTheory {
 		}
 		
 		@Override
-		public Theory getTheory() {
-			return PropositionalTheory.this;
+		public ConstraintTheory getTheory() {
+			return PropositionalConstraintTheory.this;
 		}
 
 		@Override
@@ -292,8 +292,8 @@ public class PropositionalTheory extends AbstractTheory {
 
 			Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifier(
 					expression,
-					PropositionalTheory.functionApplicationSimplifiers,
-					PropositionalTheory.syntacticFormTypeSimplifiers,
+					PropositionalConstraintTheory.functionApplicationSimplifiers,
+					PropositionalConstraintTheory.syntacticFormTypeSimplifiers,
 					syntacticTypeForm, valueReplacer,
 					process);
 			

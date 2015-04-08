@@ -48,7 +48,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	 * @param variable
 	 * @param nonEqualitiesConstraint
 	 */
-	public DisequalitiesConstraintForSingleVariable(Expression variable, EqualityTheory theory, Collection<Expression> supportedIndices) {
+	public DisequalitiesConstraintForSingleVariable(Expression variable, EqualityConstraintTheory theory, Collection<Expression> supportedIndices) {
 		super(variable, theory, supportedIndices);
 		this.disequals = new ArrayHashSet<Expression>();
 		this.uniquelyValuedDisequals = new ArrayHashSet<Expression>();

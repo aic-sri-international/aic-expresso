@@ -43,10 +43,10 @@ import java.util.Map;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
-import com.sri.ai.grinder.plaindpll.api.Theory;
+import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.Sum;
-import com.sri.ai.grinder.plaindpll.theory.EqualityTheory;
+import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 import com.sri.ai.util.Util;
 
@@ -60,9 +60,9 @@ public class HelloWorlds {
 	public static void main(String[] args) {
 
 		/*
-		 * The theory of equality on symbols (includes a model counter for formulas in it).
+		 * The constraintTheory of equality on symbols (includes a model counter for formulas in it).
 		 */
-		Theory theory = new EqualityTheory(new SymbolTermTheory());
+		ConstraintTheory theory = new EqualityConstraintTheory(new SymbolTermTheory());
 
 		/* 
 		 * The problem type, a sum. Could be Max or other commutative associative operators.

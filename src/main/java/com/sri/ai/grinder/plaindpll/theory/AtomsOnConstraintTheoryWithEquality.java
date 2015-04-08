@@ -51,33 +51,33 @@ import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
-import com.sri.ai.grinder.plaindpll.api.Theory;
-import com.sri.ai.grinder.plaindpll.core.AbstractTheory;
+import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
+import com.sri.ai.grinder.plaindpll.core.AbstractConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
 
 @Beta
 /** 
- * A {@link Theory} adding boolean atoms as splitters to another theory that has equality literals as splitters.
+ * A {@link ConstraintTheory} adding boolean atoms as splitters to another constraintTheory that has equality literals as splitters.
  * It works by converting atom splitters "A" and "not A" to "A = true" or "A = false", respectively.
  */
-public class AtomsOnTheoryWithEquality extends AbstractTheory {
+public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheory {
 	
 	// This class deals with two types of theories and splitters;
-	// first, its base equality theory and its equality splitters,
-	// and itself as a theory with its own class of splitters which
+	// first, its base equality constraintTheory and its equality splitters,
+	// and itself as a constraintTheory with its own class of splitters which
 	// is the union of equality splitters and boolean function applications or symbols.
-	// We differentiate those two types of theory and splitters by always
-	// calling the first type "equality theory" and "equality splitters".
+	// We differentiate those two types of constraintTheory and splitters by always
+	// calling the first type "equality constraintTheory" and "equality splitters".
 	
-	Theory theoryWithEquality;
+	ConstraintTheory theoryWithEquality;
 	
-	public AtomsOnTheoryWithEquality(AbstractTheory theoryWithEquality) {
+	public AtomsOnConstraintTheoryWithEquality(AbstractConstraintTheory theoryWithEquality) {
 		this.theoryWithEquality = theoryWithEquality;
 	}
 
 	/**
 	 * Given a signed splitter (s, S), returns a corresponding signed splitter guaranteed to be an equality splitter
-	 * (and therefore suitable for passing to the base theory),
+	 * (and therefore suitable for passing to the base constraintTheory),
 	 * by taking returning (s, S) if S is an equality, and (true, S = s) if S is an atom.
 	 * @param splitterSign
 	 * @param splitter
@@ -156,8 +156,8 @@ public class AtomsOnTheoryWithEquality extends AbstractTheory {
 		}
 
 		@Override
-		public Theory getTheory() {
-			return AtomsOnTheoryWithEquality.this;
+		public ConstraintTheory getTheory() {
+			return AtomsOnConstraintTheoryWithEquality.this;
 		}
 
 		@Override

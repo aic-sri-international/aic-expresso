@@ -50,16 +50,16 @@ import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
-import com.sri.ai.grinder.plaindpll.api.Theory;
+import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 
 @Beta
 /** 
- * Basic implementation of some methods of {@link Theory}.
+ * Basic implementation of some methods of {@link ConstraintTheory}.
  */
-abstract public class AbstractTheory implements Theory {
+abstract public class AbstractConstraintTheory implements ConstraintTheory {
 
 	protected abstract boolean usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers();
 	
@@ -74,7 +74,7 @@ abstract public class AbstractTheory implements Theory {
 		throwSafeguardError( // OPTIMIZATION: much of this, if not all or even extra information, could be obtained by reflection inside throwAppropriateSafeguardError
 				getClass().getSimpleName(),
 				"getFunctionApplicationSimplifiers",
-				"AbstractTheory",
+				"AbstractConstraintTheory",
 				"simplify(Expression, RewritingProcess)");
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}
@@ -90,7 +90,7 @@ abstract public class AbstractTheory implements Theory {
 		throwSafeguardError(
 				getClass().getSimpleName(),
 				"getSyntacticFormTypeSimplifiers",
-				"AbstractTheory",
+				"AbstractConstraintTheory",
 				"simplify(Expression, RewritingProcess)");
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}
@@ -125,7 +125,7 @@ abstract public class AbstractTheory implements Theory {
 
 	/**
 	 * If expression can generate a splitter, returns the appropriate splitter's functor;
-	 * for example, an equality theory may be defined so that an expression a != b generates the splitter =,
+	 * for example, an equality constraintTheory may be defined so that an expression a != b generates the splitter =,
 	 * so the result for that input will be =.
 	 * If expression cannot generate a splitter, returns <code>null</code>.
 	 * This method is only used in this class' default implementation of {@link #makeSplitterIfPossible(Expression, Collection, RewritingProcess)}
@@ -137,13 +137,13 @@ abstract public class AbstractTheory implements Theory {
 		throwSafeguardError(
 				getClass().getSimpleName(),
 				"getCorrespondingSplitterFunctorOrNull",
-				"AbstractTheory",
+				"AbstractConstraintTheory",
 				"makeSplitterIfPossible");
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}
 	
 	/**
-	 * This default implementation does the following (check the javadoc in the declaration of this method in {@link Theory#AbstractEqualityConstraint}
+	 * This default implementation does the following (check the javadoc in the declaration of this method in {@link ConstraintTheory#AbstractEqualityConstraint}
 	 * for the more general, more relaxed requirements):
 	 * If expression can originate a splitter and has at least one variable argument, returns the splitter by making it in the following way:
 	 * obtain the appropriate splitter functor from {@link #getCorrespondingSplitterFunctorOrNull(Expression)}
@@ -252,7 +252,7 @@ abstract public class AbstractTheory implements Theory {
 		throwSafeguardError(
 				getClass().getSimpleName(),
 				"getSplitterApplier", // thisClassName
-				"AbstractTheory", // superClassName
+				"AbstractConstraintTheory", // superClassName
 				"simplify(Expression, RewritingProcess)"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}

@@ -68,7 +68,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
-import com.sri.ai.grinder.plaindpll.api.Theory;
+import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.util.base.PairOf;
 
 /**
@@ -103,11 +103,11 @@ public class SGVET extends AbstractSolver {
 	
 	private SGDPLLT subSolver;
 	
-	public SGVET(Theory theory, SemiRingProblemType problemType) {
+	public SGVET(ConstraintTheory theory, SemiRingProblemType problemType) {
 		this(theory, problemType, null);
 	}
 
-	public SGVET(Theory theory, SemiRingProblemType problemType, CountsDeclaration countsDeclaration) {
+	public SGVET(ConstraintTheory theory, SemiRingProblemType problemType, CountsDeclaration countsDeclaration) {
 		super(theory, problemType, countsDeclaration);
 		this.subSolver = new SGDPLLT(theory, problemType, countsDeclaration);
 		subSolver.debug = false;
@@ -228,7 +228,7 @@ public class SGVET extends AbstractSolver {
 		Iterator<Expression> iterator = new SubExpressionsDepthFirstIterator(expression);
 		while (iterator.hasNext()) {
 			Expression subExpression = iterator.next();
-			if (theory.isVariableTerm(subExpression, process)) {
+			if (constraintTheory.isVariableTerm(subExpression, process)) {
 				variables.add(subExpression);
 			}
 		}

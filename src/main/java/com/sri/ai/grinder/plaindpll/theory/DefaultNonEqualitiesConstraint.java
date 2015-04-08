@@ -1,7 +1,7 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
-import static com.sri.ai.grinder.plaindpll.core.AbstractTheory.variableIsChosenAfterOtherTerm;
+import static com.sri.ai.grinder.plaindpll.core.AbstractConstraintTheory.variableIsChosenAfterOtherTerm;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.mapIntoSetOrSameIfNoDistinctElementInstances;
 import static com.sri.ai.util.Util.myAssert;
@@ -31,11 +31,11 @@ import com.sri.ai.util.base.BinaryPredicate;
 @SuppressWarnings("serial")
 public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstraint implements NonEqualitiesConstraint  {
 
-	private EqualityTheory theory;
+	private EqualityConstraintTheory theory;
 	
 	private Map<Expression, NonEqualitiesConstraintForSingleVariable> map = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>();
 
-	public DefaultNonEqualitiesConstraint(EqualityTheory theory, Collection<Expression> supportedIndices) {
+	public DefaultNonEqualitiesConstraint(EqualityConstraintTheory theory, Collection<Expression> supportedIndices) {
 		super(supportedIndices);
 		this.theory = theory;
 	}
@@ -254,7 +254,7 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	}
 
 	@Override
-	public EqualityTheory getTheory() {
+	public EqualityConstraintTheory getTheory() {
 		return theory;
 	}
 

@@ -61,10 +61,10 @@ import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
  *
  */
 @Beta
-public interface Theory {
+public interface ConstraintTheory {
 	
 	/**
-	 * Indicates whether an expression is to be considered a variable term in this theory.
+	 * Indicates whether an expression is to be considered a variable term in this constraintTheory.
 	 * @param term
 	 * @param process
 	 * @return
@@ -93,7 +93,7 @@ public interface Theory {
 	 * Picks a splitter based on one of the theoryWithEquality's literals in the given expression under given constraint.
 	 * The returned splitter must be a splitter that will help solve the current expression;
 	 * it does not need to be equivalent to the given expression.
-	 * See {@link Theory} documentation for the definition of a splitter.
+	 * See {@link ConstraintTheory} documentation for the definition of a splitter.
 	 * @param expression
 	 * @param constraint
 	 * @param process
