@@ -73,7 +73,7 @@ import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
-import com.sri.ai.grinder.plaindpll.core.AbstractTheory;
+import com.sri.ai.grinder.plaindpll.core.AbstractConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.core.SimplifyLiteralGivenDisequality;
@@ -85,9 +85,9 @@ import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.collect.CopyOnWriteMap;
 @Beta
 /** 
- * A {@link Theory} for equality literals.
+ * A {@link ConstraintTheory} for equality literals.
  */
-public class EqualityTheory extends AbstractTheory {
+public class EqualityConstraintTheory extends AbstractConstraintTheory {
 
 	public TermTheory termTheory;
 
@@ -96,7 +96,7 @@ public class EqualityTheory extends AbstractTheory {
 	// which is either a variable symbol, or an uninterpreted function application such as p(a, b, X).
 	// It can also be seen as an indexed variable (typically represented as x_i, y_i,j etc).
 
-	public EqualityTheory(TermTheory termTheory) {
+	public EqualityConstraintTheory(TermTheory termTheory) {
 		this.termTheory = termTheory;
 	}
 
@@ -157,10 +157,10 @@ public class EqualityTheory extends AbstractTheory {
 	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
 					ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new SGDPLLT(new EqualityTheory(termTheory), new Tautologicality())).rewrite(f, process),
+					(new SGDPLLT(new EqualityConstraintTheory(termTheory), new Tautologicality())).rewrite(f, process),
 
 					ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new SGDPLLT(new EqualityTheory(termTheory), new Satisfiability())).rewrite(f, process)
+					(new SGDPLLT(new EqualityConstraintTheory(termTheory), new Satisfiability())).rewrite(f, process)
 					);
 
 	@Override
@@ -265,8 +265,8 @@ public class EqualityTheory extends AbstractTheory {
 		}
 
 		@Override
-		public EqualityTheory getTheory() {
-			return EqualityTheory.this;
+		public EqualityConstraintTheory getTheory() {
+			return EqualityConstraintTheory.this;
 		}
 
 		public TermTheory getTermTheory() {
@@ -390,9 +390,9 @@ public class EqualityTheory extends AbstractTheory {
 		private static final long serialVersionUID = 1L;
 
 		public Map<Expression, Expression> equalitiesMap;
-		protected EqualityTheory theory;
+		protected EqualityConstraintTheory theory;
 
-		public EqualitiesConstraint(EqualityTheory theory, Collection<Expression> supportedIndices) {
+		public EqualitiesConstraint(EqualityConstraintTheory theory, Collection<Expression> supportedIndices) {
 			super(supportedIndices);
 			this.theory = theory;
 			this.equalitiesMap = new LinkedHashMap<Expression, Expression>();
@@ -410,7 +410,7 @@ public class EqualityTheory extends AbstractTheory {
 		}
 
 		@Override
-		public EqualityTheory getTheory() {
+		public EqualityConstraintTheory getTheory() {
 			return theory;
 		}
 

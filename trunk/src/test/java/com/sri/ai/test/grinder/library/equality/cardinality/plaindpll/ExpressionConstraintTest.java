@@ -59,7 +59,7 @@ import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.core.ExpressionConstraint;
-import com.sri.ai.grinder.plaindpll.theory.EqualityTheory;
+import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 
 @Beta
@@ -78,7 +78,7 @@ public class ExpressionConstraintTest {
 		Constraint constraint2;
 		Constraint compoundConstraint;
 		
-		EqualityTheory theory = new EqualityTheory(new SymbolTermTheory());
+		EqualityConstraintTheory theory = new EqualityConstraintTheory(new SymbolTermTheory());
 		RewritingProcess process = makeProcess(theory, map("X", "Everything", "Y", "Everything", "Z", "Everything"), map("Everything", "10"));
 		
 		totalIndices    = list(X, Y);

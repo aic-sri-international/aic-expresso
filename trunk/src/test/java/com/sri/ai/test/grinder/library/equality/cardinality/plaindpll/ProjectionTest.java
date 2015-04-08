@@ -57,7 +57,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
-import com.sri.ai.grinder.plaindpll.theory.EqualityTheory;
+import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 
 @Beta
@@ -73,7 +73,7 @@ public class ProjectionTest {
 		Expression expected;
 		Expression projection; // Expression in general, but we want to test that it will actually be represented as a constraint.
 		
-		EqualityTheory theory = new EqualityTheory(new SymbolTermTheory());
+		EqualityConstraintTheory theory = new EqualityConstraintTheory(new SymbolTermTheory());
 		RewritingProcess process = makeProcess(theory, map("X", "Everything", "Y", "Everything", "Z", "Everything"), map("Everything", "10"));
 		
 		totalIndices = list(X, Y);

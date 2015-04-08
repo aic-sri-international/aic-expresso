@@ -14,7 +14,7 @@ import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
 import com.sri.ai.util.base.BinaryPredicate;
 
 /**
- * An {@link Expression} with efficient internal representation for operations on being expanded by a splitter (literal in constraint theory) and
+ * An {@link Expression} with efficient internal representation for operations on being expanded by a splitter (literal in constraint constraintTheory) and
  * model counting.
  * This interface is defined for use primarily by {@link SGDPLLT}.
  * 
@@ -25,8 +25,8 @@ public interface Constraint extends Expression {
 
 	Constraint clone();
 	
-	/** The theory to which this constraint belongs. */
-	Theory getTheory();
+	/** The constraintTheory to which this constraint belongs. */
+	ConstraintTheory getTheory();
 
 	/**
 	 * The set of variables on subsets of which one can count models of this constraint,
@@ -146,7 +146,7 @@ public interface Constraint extends Expression {
 	/**
 	 * Indicates whether a given literal is directly implied by this constraint
 	 * (that is, it's value is either trivial or explicitly represented by the constraint, without inference);
-	 * default implementation simplifies it according to theory and asks {@link #directlyImpliesNonTrivialLiteral(Expression, RewritingProcess)}.
+	 * default implementation simplifies it according to constraintTheory and asks {@link #directlyImpliesNonTrivialLiteral(Expression, RewritingProcess)}.
 	 * @param literal
 	 * @param process
 	 * @return

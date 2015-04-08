@@ -55,7 +55,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.Sum;
-import com.sri.ai.grinder.plaindpll.theory.EqualityTheory;
+import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 
 @Beta
@@ -70,7 +70,7 @@ public class SymbolEqualitySumDPLLTest extends AbstractSymbolicSymbolEqualityDPL
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new Sum());
+		return new SGDPLLT(new EqualityConstraintTheory(new SymbolTermTheory()), new Sum());
 	}
 
 	@Test

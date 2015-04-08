@@ -60,7 +60,7 @@ import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.api.Solver;
-import com.sri.ai.grinder.plaindpll.api.Theory;
+import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
@@ -86,8 +86,11 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		this.debug = newValue;
 	}
 	
-	/** The background theoryWithEquality for the algorithm. */
-	protected Theory theory;
+	/** The background theory for the solver's input in the algorithm. */
+	protected ConstraintTheory inputTheory;
+	
+	/** The background theory for constraints in the algorithm. */
+	protected ConstraintTheory constraintTheory;
 	
 	/** The problem type being solved. */
 	protected GroupProblemType problemType;
@@ -95,25 +98,26 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	/** A {@link CountsDeclaration} encapsulating sort size information. */
 	protected CountsDeclaration countsDeclaration;
 	
-	public AbstractSolver(Theory theory, GroupProblemType problemType) {
+	public AbstractSolver(ConstraintTheory theory, GroupProblemType problemType) {
 		this(theory, problemType, null);
 	}
 
-	public AbstractSolver(Theory theory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
-		this.theory = theory;
+	public AbstractSolver(ConstraintTheory theory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
+		this.inputTheory = theory;
+		this.constraintTheory = theory;
 		this.problemType = problemType;
 		this.countsDeclaration = countsDeclaration;
 	}
 	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Pair<Expression, IndexExpressionsSet> formulaAndIndexExpressions = problemType.getExpressionAndIndexExpressionsFromRewriterProblemArgument(expression, process);
-		Expression formula = formulaAndIndexExpressions.first;
-		IndexExpressionsSet indexExpressions = formulaAndIndexExpressions.second;
-		Expression simplifiedFormula = theory.simplify(formula, process); // eventually this will should not be needed as simplification should be lazy 
+		Pair<Expression, IndexExpressionsSet> inputAndIndexExpressions = problemType.getExpressionAndIndexExpressionsFromRewriterProblemArgument(expression, process);
+		Expression input = inputAndIndexExpressions.first;
+		IndexExpressionsSet indexExpressions = inputAndIndexExpressions.second;
+		Expression simplifiedInput = inputTheory.simplify(input, process); // eventually this will should not be needed as simplification should be lazy 
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
-		Expression result = solve(simplifiedFormula, indices, subProcess);
+		Expression result = solve(simplifiedInput, indices, subProcess);
 		return result;
 	}
 
@@ -141,7 +145,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
 			Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		
-		topLevelRewritingProcess = DPLLUtil.makeProcess(theory, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
+		topLevelRewritingProcess = DPLLUtil.makeProcess(constraintTheory, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
 		Expression result = solve(expression, indices, topLevelRewritingProcess);
 		topLevelRewritingProcess = null;
 		return result;
@@ -150,15 +154,15 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
 	 */
-	public Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process) {
+	public Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process) {
 		// TODO: should replace this oldConstraint by a copy constructor creating a sub-process, but surprisingly there is no complete copy constructor available in DefaultRewritingProcess.
 		Constraint oldConstraint = process.getDPLLContextualConstraint();
-		Constraint contextualConstraint = theory.makeConstraint(Util.list()); // contextual constraint does not involve any indices -- defined on free variables only
+		Constraint contextualConstraint = constraintTheory.makeConstraint(Util.list()); // contextual constraint does not involve any indices -- defined on free variables only
 		process.initializeDPLLContextualConstraint(contextualConstraint);
 
-		Constraint constraint = theory.makeConstraint(indices);
-		Expression simplifiedExpression = theory.simplify(expression, process);
-		Expression result = solve(simplifiedExpression, indices, constraint, process);
+		Constraint constraint = constraintTheory.makeConstraint(indices);
+		Expression simplifiedInput = constraintTheory.simplify(input, process);
+		Expression result = solve(simplifiedInput, indices, constraint, process);
 		if (result == null) { // constraint is unsatisfiable, so result is identity element.
 			result = problemType.additiveIdentityElement();
 		}
@@ -204,12 +208,12 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		Expression result = null;
 
 		if (solution1.equals(problemType.additiveIdentityElement())) {
-			result = theory.applyConstraintToSolution(process.getDPLLContextualConstraint(), solution2, process);
+			result = constraintTheory.applyConstraintToSolution(process.getDPLLContextualConstraint(), solution2, process);
 		}
 		else if (solution2.equals(problemType.additiveIdentityElement())) {
-			result = theory.applyConstraintToSolution(process.getDPLLContextualConstraint(), solution1, process);
+			result = constraintTheory.applyConstraintToSolution(process.getDPLLContextualConstraint(), solution1, process);
 		}
-		else if (DPLLUtil.isConditionalSolution(solution1, theory, process)) {
+		else if (DPLLUtil.isConditionalSolution(solution1, constraintTheory, process)) {
 			Expression splitter   = IfThenElse.condition (solution1);
 			Expression thenBranch = IfThenElse.thenBranch(solution1);
 			Expression elseBranch = IfThenElse.elseBranch(solution1);
@@ -231,7 +235,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 				result = IfThenElse.make(normalizedSplitter, newThenBranch, newElseBranch, false /* no simplification to condition */);
 			}
 		}
-		else if (DPLLUtil.isConditionalSolution(solution2, theory, process)) {
+		else if (DPLLUtil.isConditionalSolution(solution2, constraintTheory, process)) {
 			Expression splitter   = IfThenElse.condition (solution2);
 			Expression thenBranch = IfThenElse.thenBranch(solution2);
 			Expression elseBranch = IfThenElse.elseBranch(solution2);

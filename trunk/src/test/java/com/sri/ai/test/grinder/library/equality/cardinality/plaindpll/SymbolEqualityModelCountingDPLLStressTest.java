@@ -47,7 +47,7 @@ import com.sri.ai.grinder.library.equality.RandomCardinalityProblemGenerator;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
-import com.sri.ai.grinder.plaindpll.theory.EqualityTheory;
+import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 
 @Beta
@@ -57,11 +57,11 @@ public class SymbolEqualityModelCountingDPLLStressTest extends AbstractSymbolicG
 	protected Rewriter makeRewriter() {
 		Rewriter result;
 
-//		result = new SGVET(FunctorConstants.TIMES, ONE, ZERO, new EqualityTheory(new SymbolTermTheory()), new ModelCounting(), new CountsDeclaration(10));
+//		result = new SGVET(FunctorConstants.TIMES, ONE, ZERO, new EqualityConstraintTheory(new SymbolTermTheory()), new ModelCounting(), new CountsDeclaration(10));
 //		((SGVET) result).debug = false;
 //		((SGVET) result).basicOutput = false;
 		
-		result = new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new ModelCounting(), new CountsDeclaration(10));
+		result = new SGDPLLT(new EqualityConstraintTheory(new SymbolTermTheory()), new ModelCounting(), new CountsDeclaration(10));
 
 		return result;
 	}

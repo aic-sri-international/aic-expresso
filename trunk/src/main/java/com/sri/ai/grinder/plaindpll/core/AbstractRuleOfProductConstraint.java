@@ -50,7 +50,7 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractOwnReprese
 		throwSafeguardError(
 				getClass().getSimpleName(),
 				"pickSplitterFor", // thisClassName
-				"AbstractTheory.AbstractConstraint", // superClassName
+				"AbstractConstraintTheory.AbstractConstraint", // superClassName
 				"pickSplitter"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}
@@ -70,7 +70,7 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractOwnReprese
 		throwSafeguardError(
 				getClass().getSimpleName(),
 				"getSplittersToBeSatisfied", // thisClassName
-				"AbstractTheory.AbstractConstraint", // superClassName
+				"AbstractConstraintTheory.AbstractConstraint", // superClassName
 				"modelCount"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}
@@ -79,7 +79,7 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractOwnReprese
 		throwSafeguardError(
 				getClass().getSimpleName(),
 				"getSplittersToBeNotSatisfied", // thisClassName
-				"AbstractTheory.AbstractConstraint", // superClassName
+				"AbstractConstraintTheory.AbstractConstraint", // superClassName
 				"modelCount"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}
@@ -106,7 +106,7 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractOwnReprese
 		throwSafeguardError(
 				getClass().getSimpleName(),
 				"computeNumberOfPossibleValuesFor", // thisClassName
-				"AbstractTheory.AbstractConstraint", // superClassName
+				"AbstractConstraintTheory.AbstractConstraint", // superClassName
 				"computeModelCountGivenConditionsOnVariablesNotIn"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}

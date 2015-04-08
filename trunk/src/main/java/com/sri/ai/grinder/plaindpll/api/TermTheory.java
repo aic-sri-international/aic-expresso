@@ -46,7 +46,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 public interface TermTheory {
 	
 	/**
-	 * Indicates whether expression is a term according to this term theory.
+	 * Indicates whether expression is a term according to this term constraintTheory.
 	 * @param expression
 	 * @param process
 	 * @return
@@ -54,7 +54,7 @@ public interface TermTheory {
 	boolean isTerm(Expression expression, RewritingProcess process);
 	
 	/**
-	 * Indicates whether expression is a generalized variable term according to this term theory.
+	 * Indicates whether expression is a generalized variable term according to this term constraintTheory.
 	 * @param expression
 	 * @param process
 	 * @return

@@ -56,8 +56,8 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.Sum;
-import com.sri.ai.grinder.plaindpll.theory.AtomsOnTheoryWithEquality;
-import com.sri.ai.grinder.plaindpll.theory.EqualityTheory;
+import com.sri.ai.grinder.plaindpll.theory.AtomsOnConstraintTheoryWithEquality;
+import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.FunctionalTermTheory;
 import com.sri.ai.util.Util;
 
@@ -73,7 +73,7 @@ public class AtomsAndEqualityOnTermsSumDPLLTest extends AbstractSymbolicSymbolEq
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new SGDPLLT(new AtomsOnTheoryWithEquality(new EqualityTheory(new FunctionalTermTheory())), new Sum());
+		return new SGDPLLT(new AtomsOnConstraintTheoryWithEquality(new EqualityConstraintTheory(new FunctionalTermTheory())), new Sum());
 	}
 
 	@Test
@@ -155,7 +155,7 @@ public class AtomsAndEqualityOnTermsSumDPLLTest extends AbstractSymbolicSymbolEq
 //		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
 //		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 //
-//		// tests whether equalities on boolean atoms still work; it sort of does, but equality theory doesn't know that atoms can have only two values, so we get this 
+//		// tests whether equalities on boolean atoms still work; it sort of does, but equality constraintTheory doesn't know that atoms can have only two values, so we get this 
 //		expression = parse("X = Y => (atom(X) = true or atom(Y) = false)");
 //		indices    = list();
 //		expected   = parse("if X = Y then if atom(Y) = true then 1 else if atom(Y) = false then 1 else 0 else 1");

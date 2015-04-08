@@ -56,8 +56,8 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
-import com.sri.ai.grinder.plaindpll.theory.AtomsOnTheoryWithEquality;
-import com.sri.ai.grinder.plaindpll.theory.EqualityTheory;
+import com.sri.ai.grinder.plaindpll.theory.AtomsOnConstraintTheoryWithEquality;
+import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.FunctionalTermTheory;
 import com.sri.ai.util.Util;
 
@@ -73,7 +73,7 @@ public class AtomsAndEqualityOnTermsModelCountingDPLLTest extends AbstractSymbol
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new SGDPLLT(new AtomsOnTheoryWithEquality(new EqualityTheory(new FunctionalTermTheory())), new ModelCounting());
+		return new SGDPLLT(new AtomsOnConstraintTheoryWithEquality(new EqualityConstraintTheory(new FunctionalTermTheory())), new ModelCounting());
 	}
 
 	@Test

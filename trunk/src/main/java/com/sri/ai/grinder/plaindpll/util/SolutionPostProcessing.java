@@ -41,7 +41,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.plaindpll.api.Theory;
+import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 
 
@@ -53,7 +53,7 @@ import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
  */
 public class SolutionPostProcessing {
 
-	public static Expression fromSolutionToShorterExpression(Expression solution, Theory theory, RewritingProcess process) {
+	public static Expression fromSolutionToShorterExpression(Expression solution, ConstraintTheory theory, RewritingProcess process) {
 		Expression result = solution;
 		if (IfThenElse.isIfThenElse(solution)) {
 			result = simplifySolutionIfBranchesAreEqualModuloSplitter(result, theory, process);
@@ -76,7 +76,7 @@ public class SolutionPostProcessing {
 		return result;
 	}
 
-	public static Expression simplifySolutionIfBranchesAreEqualModuloSplitter(Expression solution, Theory theory, RewritingProcess process) {
+	public static Expression simplifySolutionIfBranchesAreEqualModuloSplitter(Expression solution, ConstraintTheory theory, RewritingProcess process) {
 		Expression result = solution;
 		if (IfThenElse.isIfThenElse(solution)) {
 			Expression splitter   = IfThenElse.condition(solution);
@@ -103,7 +103,7 @@ public class SolutionPostProcessing {
 	 * @param process TODO
 	 * @return whether the two solutions are equal modulo the splitter equality
 	 */
-	public static boolean equalModuloSplitter(Expression splitter, Expression solution1, Expression solution2, Theory theory, RewritingProcess process) {
+	public static boolean equalModuloSplitter(Expression splitter, Expression solution1, Expression solution2, ConstraintTheory theory, RewritingProcess process) {
 		boolean result = solution1.equals(solution2);
 		if ( ! result) {
 			Expression solution2UnderSplitter = DPLLUtil.applySplitterToSolution(true, splitter, solution2, theory, process);

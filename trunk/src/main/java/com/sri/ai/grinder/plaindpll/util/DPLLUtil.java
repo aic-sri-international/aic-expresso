@@ -64,10 +64,10 @@ import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
-import com.sri.ai.grinder.plaindpll.api.Theory;
+import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.Tautologicality;
-import com.sri.ai.grinder.plaindpll.theory.EqualityTheory;
+import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
@@ -76,10 +76,10 @@ import com.sri.ai.util.base.BinaryFunction;
  * Implements utility methods to be used by {@link SGDPLLT} and associated classes.
  * <p>
  * Several of these methods could be more naturally seen as methods of the interfaces themselves
- * (for example, {@link DPLLUtil#getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices, Theory theoryWithEquality)}
- * could be a method in interface {@link Theory}),
+ * (for example, {@link DPLLUtil#getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices, ConstraintTheory theoryWithEquality)}
+ * could be a method in interface {@link ConstraintTheory}),
  * but are included here instead because their functionality depends on a more basic method of those interfaces
- * (in that case, on {@link Theory#makeConstraint()});
+ * (in that case, on {@link ConstraintTheory#makeConstraint()});
  * including them there would place the burden on users to make sure the implementations of these multiple methods are mutually consistent.
  * Default interface methods would not be a good solution either because the burden would still be there for the user not to override
  * the default method, or if they did, to make sure they are consistent (there are no "final default" interface methods).
@@ -255,14 +255,14 @@ public class DPLLUtil {
 		List<Expression> freeVariablesIndexExpressions = getIndexExpressionsFromSymbolsAndTypes(freeVariablesAndTypes(constraintImpliesExpression, process)).getList();
 	
 		Expression closedConstraintImpliedExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesExpression);
-		Expression alwaysImpliesExpression = (new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new Tautologicality())).rewrite(closedConstraintImpliedExpression, process);
+		Expression alwaysImpliesExpression = (new SGDPLLT(new EqualityConstraintTheory(new SymbolTermTheory()), new Tautologicality())).rewrite(closedConstraintImpliedExpression, process);
 		if (alwaysImpliesExpression.equals(Expressions.TRUE)) {
 			result = Expressions.TRUE;
 		}
 		else {
 			Expression constraintImpliesNegationOfExpression = Implication.make(constraint, Not.make(expression));
 			Expression closedConstraintImpliesNegationOfExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesNegationOfExpression);
-			Expression alwaysImpliesNegationOfExpression = (new SGDPLLT(new EqualityTheory(new SymbolTermTheory()), new Tautologicality())).rewrite(closedConstraintImpliesNegationOfExpression, process);
+			Expression alwaysImpliesNegationOfExpression = (new SGDPLLT(new EqualityConstraintTheory(new SymbolTermTheory()), new Tautologicality())).rewrite(closedConstraintImpliesNegationOfExpression, process);
 			if (alwaysImpliesNegationOfExpression.equals(Expressions.TRUE)) {
 				result = Expressions.FALSE;
 			}
@@ -279,12 +279,12 @@ public class DPLLUtil {
 	 * @param process
 	 * @return
 	 */
-	public static boolean isConditionalSolution(Expression solution, Theory theory, RewritingProcess process) {
+	public static boolean isConditionalSolution(Expression solution, ConstraintTheory theory, RewritingProcess process) {
 		boolean result = IfThenElse.isIfThenElse(solution) && isSplitter(IfThenElse.condition(solution), theory, process);
 		return result;
 	}
 
-	public static boolean isSplitter(Expression literal, Theory theory, RewritingProcess process) {
+	public static boolean isSplitter(Expression literal, ConstraintTheory theory, RewritingProcess process) {
 		boolean result = theory.makeSplitterIfPossible(literal, Util.list(), process) != null;
 		return result;
 	}
@@ -318,7 +318,7 @@ public class DPLLUtil {
 
 	/**
 	 * Applies a constraint equivalent to given signed splitter using
-	 * {@link Theory#applyConstraintToSolution(com.sri.ai.grinder.plaindpll.api.Theory.Constraint, Expression, RewritingProcess)}.
+	 * {@link ConstraintTheory#applyConstraintToSolution(com.sri.ai.grinder.plaindpll.api.ConstraintTheory.Constraint, Expression, RewritingProcess)}.
 	 * @param splitterSign
 	 * @param splitter
 	 * @param solution
@@ -326,7 +326,7 @@ public class DPLLUtil {
 	 * @param process
 	 * @return an equivalent solution
 	 */
-	public static Expression applySplitterToSolution(boolean splitterSign, Expression splitter, Expression solution, Theory theory, RewritingProcess process) {
+	public static Expression applySplitterToSolution(boolean splitterSign, Expression splitter, Expression solution, ConstraintTheory theory, RewritingProcess process) {
 		Constraint constraint = theory.makeConstraint(Collections.emptyList()); // no indices in solutions
 		constraint = constraint.incorporate(splitterSign, splitter, process);
 		Expression result = theory.applyConstraintToSolution(constraint, solution, process);
@@ -334,11 +334,11 @@ public class DPLLUtil {
 	}
 
 	
-	public static RewritingProcess makeProcess(Theory theory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
+	public static RewritingProcess makeProcess(ConstraintTheory theory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
 		return makeProcess(theory, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, new PrologConstantPredicate());
 	}
 
-	public static RewritingProcess makeProcess(Theory theory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+	public static RewritingProcess makeProcess(ConstraintTheory constraintTheory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		RewritingProcess process = new DefaultRewritingProcess(null);
 		List<Expression> indexExpressions = new ArrayList<>();
 		for (Map.Entry<String, String> variableNameAndTypeName : mapFromVariableNameToTypeName.entrySet()) {
@@ -355,7 +355,7 @@ public class DPLLUtil {
 			process.putGlobalObject(Expressions.parse("|" + typeName + "|"), Expressions.parse(sizeString));
 		}			
 		process.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);	
-		process.initializeDPLLContextualConstraint(theory.makeConstraint(list()));
+		process.initializeDPLLContextualConstraint(constraintTheory.makeConstraint(list()));
 	
 		return process;
 	}

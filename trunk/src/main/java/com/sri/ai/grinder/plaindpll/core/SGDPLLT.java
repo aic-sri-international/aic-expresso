@@ -45,7 +45,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
-import com.sri.ai.grinder.plaindpll.api.Theory;
+import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.QuarternaryFunction;
 
@@ -88,11 +88,11 @@ public class SGDPLLT extends AbstractSolver {
 	 */
 	public final static boolean earlyExternalizationOfFreeVariableSplittersOptimization = true; // IMPORTANT: unit tests will break if set to false. However DPLL stress tests can still be used. As of this writing (12/4/2014) the false setting was slightly slower.
 	
-	public SGDPLLT(Theory theory, GroupProblemType problemType) {
+	public SGDPLLT(ConstraintTheory theory, GroupProblemType problemType) {
 		this(theory, problemType, null);
 	}
 
-	public SGDPLLT(Theory theory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
+	public SGDPLLT(ConstraintTheory theory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
 		super(theory, problemType, countsDeclaration);
 	}
 
@@ -170,7 +170,7 @@ public class SGDPLLT extends AbstractSolver {
 	/** Picks splitter from either expression or constraint; assumes constraint is not <code>null</code>. */
 	protected Expression pickSplitter(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		Expression splitter;
-		splitter = theory.pickSplitterInExpression(expression, constraint, process);
+		splitter = constraintTheory.pickSplitterInExpression(expression, constraint, process);
 		if (splitter == null) { // expression is constant value, so it does not have any splitters
 			splitter = constraint.pickSplitter(indices, process);
 		}
@@ -203,7 +203,7 @@ public class SGDPLLT extends AbstractSolver {
 		Combiner combiner;
 		boolean splitterMustBeInContextualConstraint;
 
-		boolean splitterDependsOnFreeVariablesOnly = ! theory.splitterDependsOnIndex(splitter, indices);
+		boolean splitterDependsOnFreeVariablesOnly = ! constraintTheory.splitterDependsOnIndex(splitter, indices);
 		if (earlyExternalizationOfFreeVariableSplittersOptimization && splitterDependsOnFreeVariablesOnly) {
 			combiner = conditionalCombiner;
 			splitterMustBeInContextualConstraint = true;
@@ -278,7 +278,7 @@ public class SGDPLLT extends AbstractSolver {
 			}
 			else {
 				incrementLevel(processUnderSplitter, process);
-				Expression expressionUnderSplitter = theory.applySplitterToExpression(splitterSign, splitter, expression, process);
+				Expression expressionUnderSplitter = constraintTheory.applySplitterToExpression(splitterSign, splitter, expression, process);
 				result = solve(expressionUnderSplitter, indices, constraintUnderSplitter, processUnderSplitter);
 				decrementLevel(processUnderSplitter);
 			}
