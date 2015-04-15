@@ -12,6 +12,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
+import com.sri.ai.grinder.plaindpll.theory.AtomsOnConstraintTheoryWithEquality;
 import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 import com.sri.ai.util.Util;
@@ -98,7 +99,7 @@ public class CompilationTest {
 		mapFromVariableNameToTypeName = Util.map("x", "Everything", "y", "Everything", "z", "Everything");
 		runTest(input, expected, theory, mapFromTypeNameToSizeString, mapFromVariableNameToTypeName);
 
-		theory = new EqualityConstraintTheory(new SymbolTermTheory());
+		theory = new AtomsOnConstraintTheoryWithEquality(new EqualityConstraintTheory(new SymbolTermTheory()));
 		input = Expressions.parse(""
 						+ "if not g0 and (g1 = consg1_0)\r\n" + 
 						"then 0.0001\r\n" + 
@@ -116,7 +117,14 @@ public class CompilationTest {
 						"                              then 1\r\n" + 
 						"                              else 1\r\n" + 
 						""); 
-		expected = parse("if g1 = consg1_0 then if not g0 then 0.0001 else if g0 then 1 else 1 else if g1 = consg1_1 then if not g0 then 1 else if g0 then 1 else 1 else if g1 = consg1_2 then if not g0 then 0.0001 else if g0 then 1 else 1 else if not g0 then 1 else 1");
+		expected = parse("if g0 then 1 else if g1 = consg1_0 then 0.0001 else if g1 = consg1_1 then 1 else if g1 = consg1_2 then 0.0001 else 1");
+		mapFromTypeNameToSizeString   = Util.map("G1Type", "4", "Boolean", "2");
+		mapFromVariableNameToTypeName = Util.map("g0", "Boolean", "g1", "G1Type");
+		runTest(input, expected, theory, mapFromTypeNameToSizeString, mapFromVariableNameToTypeName);
+
+		theory = new AtomsOnConstraintTheoryWithEquality(new EqualityConstraintTheory(new SymbolTermTheory()));
+		input = Expressions.parse("if not g0 then 1 else 1"); 
+		expected = parse("1");
 		mapFromTypeNameToSizeString   = Util.map("G1Type", "4", "Boolean", "2");
 		mapFromVariableNameToTypeName = Util.map("g0", "Boolean", "g1", "G1Type");
 		runTest(input, expected, theory, mapFromTypeNameToSizeString, mapFromVariableNameToTypeName);
