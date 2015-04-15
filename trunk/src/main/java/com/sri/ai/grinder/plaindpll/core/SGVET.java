@@ -99,7 +99,7 @@ import com.sri.ai.util.base.PairOf;
  */
 public class SGVET extends AbstractSolver {
 
-	public boolean basicOutput = true;
+	public boolean basicOutput = false;
 	
 	private SGDPLLT subSolver;
 	
