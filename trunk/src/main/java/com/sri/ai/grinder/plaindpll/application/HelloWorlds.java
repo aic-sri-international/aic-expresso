@@ -87,13 +87,13 @@ public class HelloWorlds {
 
 		/* The definitions of variables, types, and type sizes. */
 		Map<String, String> mapFromTypeNameToSizeString   = Util.map("Everything", "10000");
-		Map<String, String> mapFromVariableNameToTypeName = Util.map("X", "Everything", "Y", "Everything", "Z", "Everything");
+		Map<String, String> mapFromSymbolNameToTypeName = Util.map("X", "Everything", "Y", "Everything", "Z", "Everything");
 		
 		/* The solver for the parameters above. */
 		SGDPLLT solver = new SGDPLLT(theory, problemType);
 		
 		/* Solve the problem. */
-		Expression result = solver.solve(expression, indices, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString);
+		Expression result = solver.solve(expression, indices, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString);
 
 		System.out.println(problemType + " of\n" + expression + "\nover assignments to variables\n" + Util.join(indices) + "\nis\n" + result);	
 	}

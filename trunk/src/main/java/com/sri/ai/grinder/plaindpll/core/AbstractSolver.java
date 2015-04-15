@@ -135,17 +135,17 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	@Override
 	public Expression solve(
 			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
-		return solve(expression, indices, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, new PrologConstantPredicate());
+			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
+		return solve(expression, indices, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, new PrologConstantPredicate());
 	}
 	
 	@Override
 	public Expression solve(
 			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
+			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
 			Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		
-		topLevelRewritingProcess = DPLLUtil.makeProcess(constraintTheory, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
+		topLevelRewritingProcess = DPLLUtil.makeProcess(constraintTheory, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
 		Expression result = solve(expression, indices, topLevelRewritingProcess);
 		topLevelRewritingProcess = null;
 		return result;
