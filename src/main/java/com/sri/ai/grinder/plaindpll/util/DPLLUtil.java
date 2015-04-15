@@ -334,20 +334,20 @@ public class DPLLUtil {
 	}
 
 	
-	public static RewritingProcess makeProcess(ConstraintTheory theory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
-		return makeProcess(theory, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, new PrologConstantPredicate());
+	public static RewritingProcess makeProcess(ConstraintTheory theory, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
+		return makeProcess(theory, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, new PrologConstantPredicate());
 	}
 
-	public static RewritingProcess makeProcess(ConstraintTheory constraintTheory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+	public static RewritingProcess makeProcess(ConstraintTheory constraintTheory, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		RewritingProcess process = new DefaultRewritingProcess(null);
-		List<Expression> indexExpressions = new ArrayList<>();
-		for (Map.Entry<String, String> variableNameAndTypeName : mapFromVariableNameToTypeName.entrySet()) {
-			String variableName = variableNameAndTypeName.getKey();
+		List<Expression> symbolDeclarations = new ArrayList<>();
+		for (Map.Entry<String, String> variableNameAndTypeName : mapFromSymbolNameToTypeName.entrySet()) {
+			String symbolName = variableNameAndTypeName.getKey();
 			String typeName     = variableNameAndTypeName.getValue();
 			
-			indexExpressions.add(Expressions.parse(variableName + " in " + typeName));
+			symbolDeclarations.add(Expressions.parse(symbolName + " in " + typeName));
 		}
-		process = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
+		process = GrinderUtil.extendContextualSymbolsWithIndexExpressions(symbolDeclarations, process);
 					
 		for (Map.Entry<String, String> typeNameAndSizeString : mapFromTypeNameToSizeString.entrySet()) {
 			String typeName   = typeNameAndSizeString.getKey();
