@@ -296,7 +296,7 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 				result = representativesEqualitySimplification;
 			}
 			else {
-				throw new Error("EqualityTheoryConstraint.normalizeSplitterGivenConstraint must receive equality splitters only.");
+				throw new Error("EqualityTheoryConstraint.normalizeSplitterGivenConstraint must receive equality splitters only, got: "+splitter);
 				// TODO generalize for other constraint functors.
 			}
 			return result;
