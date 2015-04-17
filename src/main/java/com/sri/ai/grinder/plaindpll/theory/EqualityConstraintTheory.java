@@ -508,7 +508,8 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 					// or a constant on the right-hand side.
 					// This matters because the conditional model count has to be in terms of
 					// free variables and constants only, never indices, so representative cannot be an index.
-					if ( ! representative.equals(variable)) {
+					// FIXED BUG: however, variable may be a supported index that is not in the indicesSubSet! So we need to check representative not to be in indicesSubSet!
+					if ( ! representative.equals(variable) &&  ! indicesSubSet.contains(representative)) {
 						Expression splitter = apply(EQUALITY, variable, representative); // making it with apply instead of Equality.make sidesteps simplifications, which will not occur in this case because otherwise this condition would have either rendered the constraint a contradiction, or would have been eliminated from it
 						result.add(splitter);
 					}
