@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.filter;
 import static com.sri.ai.util.Util.myAssert;
@@ -362,11 +363,14 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 			if (literal.hasFunctor(EQUALITY)) {
 				result = equalities.directlyImpliesNonTrivialLiteral(literal, process);
 			}
-			else {
+			else if (literal.hasFunctor(DISEQUALITY)) {
 				// since non-equalities are defined on representatives only, we need to find them first before delegating.
 				Expression representative1 = equalities.getRepresentative(literal.get(0), process);
 				Expression representative2 = equalities.getRepresentative(literal.get(1), process);
 				result = nonEqualities.directlyImpliesDisequality(representative1, representative2, process);
+			}
+			else {
+				result = nonEqualities.directlyImpliesNonTrivialLiteral(literal, process);
 			}
 			return result;
 		}

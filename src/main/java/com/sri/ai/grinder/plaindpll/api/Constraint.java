@@ -11,7 +11,6 @@ import com.sri.ai.grinder.plaindpll.core.ExpressionConstraint;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
 import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
-import com.sri.ai.util.base.BinaryPredicate;
 
 /**
  * An {@link Expression} with efficient internal representation for operations on being expanded by a splitter (literal in constraint constraintTheory) and
@@ -40,6 +39,7 @@ public interface Constraint extends Expression {
 	 * @param splitterSign the splitter's sign (true for splitter itself, false for its negation)
 	 * @param splitter the splitter according to this theoryWithEquality's choice
 	 * @param process the rewriting process
+	 * @param the conjunction of this constraint and the given splitter, or <code>null</code> if that is contradictory.
 	 */
 	public abstract Constraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process);
 
@@ -57,26 +57,12 @@ public interface Constraint extends Expression {
 	 * This violates the immutability assumption about {@link Expression} and {@link Constraint}
 	 * and should only be used for setup purposes, before an object is released by its creator
 	 * to the world at large (because then it may be assumed immutable by other objects holding it,
-	 * so it should behave immutable from then on).
+	 * and should behave immutable from then on).
 	 * @param splitterSign the splitter's sign (true for splitter itself, false for its negation)
 	 * @param splitter the splitter according to this theoryWithEquality's choice
 	 * @param process the rewriting process
 	 */
 	void incorporateDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
-
-	/**
-	 * Same as {@link #incorporateDestructively(boolean, Expression, RewritingProcess)} but taking
-	 * a binary predicate to evaluate whether terms are directly implied disequal by the external context
-	 * (this will probably be merged with the contextual constraint mechanism).
-	 * Default implementation uses the former method while ignoring the extra parameter.
-	 * @param splitterSign
-	 * @param splitter
-	 * @param disequalityDirectlyImpliedExternally
-	 * @param process
-	 */
-	default void incorporateDestructively(boolean splitterSign, Expression splitter, BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) {
-		incorporateDestructively(splitterSign, splitter, process);
-	}
 
 	/**
 	 * Given a function mapping each term either to itself or to another term meant to represent it
@@ -96,19 +82,6 @@ public interface Constraint extends Expression {
 	 * or returns null if it already is in such a state.
 	 */
 	Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process);
-
-	/**
-	 * Similar to {@link #pickSplitter(Collection, RewritingProcess)}, but taking
-	 * an extra binary function argument determining directly implied disequalities by an external source;
-	 * default implementation will ignore it; this will probably be merged into the contextual constraint mechanism.
-	 * @param indicesSubSet
-	 * @param disequalityDirectlyImpliedExternally
-	 * @param process
-	 * @return
-	 */
-	default Expression pickSplitter(Collection<Expression> indicesSubSet, BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) {
-		return pickSplitter(indicesSubSet, process);
-	}
 
 	/**
 	 * Computes model count for constraint, given a sub-set of indices, in polynomial time.

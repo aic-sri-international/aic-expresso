@@ -153,7 +153,9 @@ public class ExpressionConstraint extends AbstractConstraint {
 			newConstraint.incorporate(true, splitterIfAny, process);
 			result = newConstraint.incorporate(splitterSign, splitter, process);
 		}
-		else { // only acceptable leaves are boolean constants and splitters, so at this point it must be a boolean connective.
+		else { // only acceptable leaves are boolean constants and splitters and those have already been tested,
+			   // so at this point this object must be the application of a boolean connective,
+			   // and therefore we apply the splitter to its arguments and apply the same connective on the updated arguments.
 			Util.myAssert(() -> FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(baseExpression), () -> "Only boolean formulas on constraintTheory literals supported by " + getClass());
 			result = wrap(applyJavaFunctionToArgumentsAndReAssembleFunctionApplication(
 					subExpression -> wrap(subExpression).incorporate(splitterSign, splitter, process),

@@ -1,17 +1,19 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.util.base.BinaryPredicate;
 
 /** 
  * Represents a conjunction of literals of binary constraint operators between a variable and
  * a set of terms such that distinct terms.
  * This interface is defined for constraints used inside an EqualityTheoryConstraint
  * in addition to equalities themselves.
- * This is a pretty-specific, performance-based interface meant to be used inside TODO: COMPLETE WHEN WRITTEN.
+ * This is a pretty-specific, performance-based interface meant to be used inside {@link NonEqualitiesConstraint} implementations.
  */	
 public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 
@@ -20,6 +22,29 @@ public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 
 	NonEqualitiesConstraintForSingleVariable clone();
 	
+	/**
+	 * Similar to {@link #pickSplitter(Collection, RewritingProcess)}, but taking
+	 * an extra binary function argument determining directly implied disequalities by an external source;
+	 * default implementation will ignore it; this will probably be merged into the contextual constraint mechanism.
+	 * @param indicesSubSet
+	 * @param disequalityDirectlyImpliedExternally
+	 * @param process
+	 * @return
+	 */
+	Expression pickSplitterGivenExternalConstraint(Collection<Expression> indicesSubSet, Constraint externalConstraint, RewritingProcess process);
+
+	/**
+	 * Same as {@link #incorporateDestructively(boolean, Expression, RewritingProcess)} but taking
+	 * a binary predicate to evaluate whether terms are directly implied disequal by the external context
+	 * (this will probably be merged with the contextual constraint mechanism).
+	 * Default implementation uses the former method while ignoring the extra parameter.
+	 * @param splitterSign
+	 * @param splitter
+	 * @param disequalityDirectlyImpliedExternally
+	 * @param process
+	 */
+	void incorporateDestructively(boolean splitterSign, Expression splitter, Constraint externalConstraint, RewritingProcess process);
+
 	/**
 	 * A more efficient replacement for {@link #directlyImpliesLiteral(Expression, RewritingProcess)} for disequality literals.
 	 * @param term1

@@ -23,6 +23,7 @@ import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.number.Minus;
+import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.BinaryPredicate;
@@ -31,8 +32,7 @@ import com.sri.ai.util.collect.ArraySet;
 import com.sri.ai.util.collect.CopyOnWriteArraySet;
 
 /**
- * An implementation of {@link NonEqualitiesForSingleTerm} in which the only constraint is disequality;
- * it must be informed of its containing {@link NonEqualitiesConstraint}.
+ * An implementation of {@link NonEqualitiesForSingleTerm} in which the only constraint is disequality.
  * @author braz
  *
  */
@@ -82,26 +82,27 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	}
 
 	@Override
-	public void incorporateDestructively(boolean splitterSign, Expression splitter, BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) {
+	public void incorporateDestructively(boolean splitterSign, Expression splitter, Constraint externalConstraint, RewritingProcess process) {
 		myAssert(() -> ! splitterSign && isEquality(splitter), () -> getClass() + " only allowed to take negative equality literals (disequalities) but got " + (splitterSign? "" : "not ") + " " + splitter);
 		myAssert(() -> splitter.get(0).equals(variable), () -> getClass() + " must only take splitters in which the first argument is the same as the main variable");
 		Expression term = splitter.get(1);
-		incorporateDisequalDestructively(term, disequalityDirectlyImpliedExternally, process);
+		incorporateDisequalDestructively(term, externalConstraint, process);
 	}
 
-	private void incorporateDisequalDestructively(Expression term, BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) throws Contradiction {
+	private void incorporateDisequalDestructively(Expression term, Constraint externalConstraint, RewritingProcess process) throws Contradiction {
 		boolean termIsNewDisequal = disequals.add(term);
 		if (termIsNewDisequal) {
-			updateUniqueValuedDisequalsWithNewDisequal(term, disequalityDirectlyImpliedExternally, process);
+			updateUniqueValuedDisequalsWithNewDisequal(term, externalConstraint, process);
 		}
 	}
 	
 	private void updateUniqueValuedDisequalsWithNewDisequal(
-			Expression newDisequal, BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) throws Contradiction {
+			Expression newDisequal, Constraint externalConstraint, RewritingProcess process) throws Contradiction {
 		
 		int indexOfFirstNotNecessarilyDisequalTermToNewDisequal;
 		int newDisequalIndex = disequals.size() - 1;
-		int result = getIndexOfFirstSatisfyingPredicateOrMinusOne(uniquelyValuedDisequals, term -> ! disequalityDirectlyImpliedExternally.apply(term, newDisequal));
+		int result = getIndexOfFirstSatisfyingPredicateOrMinusOne(uniquelyValuedDisequals, term -> ! externalConstraint.directlyImpliesLiteral(apply(DISEQUALITY, term, newDisequal), process));
+//		int result = getIndexOfFirstSatisfyingPredicateOrMinusOne(uniquelyValuedDisequals, term -> ! disequalityDirectlyImpliedExternally.apply(term, newDisequal));
 		if ((indexOfFirstNotNecessarilyDisequalTermToNewDisequal = result) == -1) {
 			uniquelyValuedDisequals.add(newDisequal);
 			if (uniquelyValuedDisequals.size() == getVariableDomainSize(process)) { // Note that this works when getIndexDomainSize is -1 (no domain size information) because then the condition is always false
@@ -137,7 +138,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	}
 
 	@Override
-	public Expression pickSplitter(Collection<Expression> indicesSubSet, BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) {
+	public Expression pickSplitterGivenExternalConstraint(Collection<Expression> indicesSubSet, Constraint externalConstraint, RewritingProcess process) {
 
 		Expression result;
 		
@@ -149,8 +150,8 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 				result = null;
 			}
 			else {
-				BinaryFunction<Expression, Expression, Expression> getSplitterTowardDisequalityOfTwoTerms = (t1, t2) -> getSplitterTowardDisequalityOfTwoTerms(t1, t2, disequalityDirectlyImpliedExternally, process);
-				result = splitterSearchLowerBound.getCurrentSplitter(disequals, uniquelyValuedDisequals, disequalityDirectlyImpliedExternally, getSplitterTowardDisequalityOfTwoTerms, process);
+				BinaryFunction<Expression, Expression, Expression> getSplitterTowardDisequalityOfTwoTerms = (t1, t2) -> getSplitterTowardDisequalityOfTwoTerms(t1, t2, externalConstraint, process);
+				result = splitterSearchLowerBound.getCurrentSplitter(disequals, uniquelyValuedDisequals, externalConstraint, getSplitterTowardDisequalityOfTwoTerms, process);
 			}
 		}
 
@@ -158,14 +159,14 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	}
 
 	private Expression getSplitterTowardDisequalityOfTwoTerms(
-			Expression term1, Expression term2, BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) {
+			Expression term1, Expression term2, Constraint externalConstraint, RewritingProcess process) {
 		
 		Expression result = null;
 		Expression splitter = getTermTheory().getSplitterTowardDisunifyingDistinctTerms(term1, term2, process); // if function applications, we need to disunify arguments first, for instance.
 		if (splitter != null) {
 			result = splitter;
 		}
-		else if (! disequalityDirectlyImpliedExternally.apply(term1, term2)) { // already disunified but not disequal
+		else if (! externalConstraint.directlyImpliesLiteral(apply(DISEQUALITY, term1, term2), process)) { // already disunified but not disequal
 			splitter = getTheory().makeSplitterFromFunctorAndVariableAndTermDistinctFromVariable(EQUALITY, term1, term2, getSupportedIndices(), process);
 			result = splitter;
 		}
