@@ -1,9 +1,14 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
+
 import java.util.Collection;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.BinaryPredicate;
 import com.sri.ai.util.collect.ArraySet;
@@ -60,23 +65,23 @@ class DisequalitiesSplitterSearchLowerBound {
 
 	public Expression getCurrentSplitter(
 			ArraySet<Expression> disequals, ArraySet<Expression> uniquelyValuedDisequals,
-			BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally,
+			Constraint externalConstraint, 
 			BinaryFunction<Expression, Expression, Expression> getSplitterTowardDisequalityOfTwoTerms,
 			RewritingProcess process) {
-		if (needsToBeSearched(disequalityDirectlyImpliedExternally, process)) {
+		if (needsToBeSearched(externalConstraint, process)) {
 			goToNextSplitter(disequals, uniquelyValuedDisequals, getSplitterTowardDisequalityOfTwoTerms);
 		}
 		return currentSplitter;
 	}
 	
-	private boolean needsToBeSearched(BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) {
+	private boolean needsToBeSearched(Constraint externalConstraint, RewritingProcess process) {
 		// needs to be search if it has not been searched yet, or if it's obsolete for the current non-equalities
-		boolean result = currentSplitter == null || ! nonNullCurrentSplitterStillValid(disequalityDirectlyImpliedExternally, process);
+		boolean result = currentSplitter == null || ! nonNullCurrentSplitterStillValid(externalConstraint, process);
 		return result;
 	}
 
-	private boolean nonNullCurrentSplitterStillValid(BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally, RewritingProcess process) {
-		boolean result = ! disequalityDirectlyImpliedExternally.apply(currentSplitter.get(0), currentSplitter.get(1));
+	private boolean nonNullCurrentSplitterStillValid(Constraint externalConstraint, RewritingProcess process) {
+		boolean result = ! externalConstraint.directlyImpliesLiteral(apply(DISEQUALITY, currentSplitter.get(0), currentSplitter.get(1)), process);
 		return result;
 	}
 

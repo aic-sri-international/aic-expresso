@@ -12,6 +12,8 @@ public abstract class AbstractConstraint extends AbstractExpressionWrapper imple
 	
 	public abstract AbstractConstraint clone();
 	
+	// TODO: give safeguarded default implementations for these methods
+	
 	@Override
 	public void incorporateDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		throw new Error(this.getClass().getSimpleName() + "." + (new Object(){}).getClass().getEnclosingMethod() + " not implemented yet.");

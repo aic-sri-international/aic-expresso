@@ -1,6 +1,8 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
+import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.plaindpll.core.AbstractConstraintTheory.variableIsChosenAfterOtherTerm;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.mapIntoSetOrSameIfNoDistinctElementInstances;
@@ -16,8 +18,10 @@ import java.util.Map;
 
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Equality;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
@@ -59,8 +63,7 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 
 	@Override
 	protected Expression pickSplitterFor(Expression index, RewritingProcess process) {
-		BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally = (t1, t2) -> directlyImpliesDisequality(t1, t2, process);
-		Expression result = nonEqualitiesConstraintFor(index, process).pickSplitter(list(index), disequalityDirectlyImpliedExternally, process);
+		Expression result = nonEqualitiesConstraintFor(index, process).pickSplitterGivenExternalConstraint(list(index), this, process);
 		return result;
 	}
 
@@ -73,8 +76,18 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 
 	@Override
 	public boolean directlyImpliesNonTrivialLiteral(Expression literal, RewritingProcess process) {
-		myAssert(() -> literal.hasFunctor(DISEQUALITY), "DefaultNonEqualitiesConstraint.directlyImplies must receive disequalities only");
-		boolean result = directlyImpliesNonTrivialDisequality(literal.get(0), literal.get(1), process);
+		boolean result;
+		Expression term1 = literal.get(0);
+		Expression term2 = literal.get(1);
+		if (literal.hasFunctor(DISEQUALITY)) {
+			result = directlyImpliesNonTrivialDisequality(term1, term2, process);
+		}
+		else {
+			myAssert(() -> literal.numberOfArguments() == 2, () -> (new Object(){}).getClass().getEnclosingMethod() + " requires binary literal but got " + literal);
+			Expression laterInOrder = getLaterInOrder(term1, term2, process);
+			NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForSingleVariable = nonEqualitiesConstraintFor(laterInOrder, process);
+			result = nonEqualitiesConstraintForSingleVariable.directlyImpliesNonTrivialLiteral(literal, process);
+		}
 		return result;
 	}
 
@@ -152,14 +165,23 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 		return result;
 	}
 
+	/**
+	 * @param term1
+	 * @param term2
+	 * @param process
+	 * @return
+	 */
+	private Expression getLaterInOrder(Expression term1, Expression term2, RewritingProcess process) {
+		return firstTermComesLaterInChoiceOrder(term1, term2, process)? term1 : term2;
+	}
+
 	private boolean isVariableTerm(Expression term, RewritingProcess process) {
 		return getTheory().isVariableTerm(term, process);
 	}
 
 	public void addFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process) {
 		NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForTerm1 = nonEqualitiesConstraintFor(term1, process);
-		BinaryPredicate<Expression, Expression> disequalityDirectlyImpliedExternally = (t1, t2) -> directlyImpliesDisequality(t1, t2, process);
-		disequalitiesConstraintForTerm1.incorporateDestructively(false, Equality.make(term1, term2), disequalityDirectlyImpliedExternally, process);
+		disequalitiesConstraintForTerm1.incorporateDestructively(false, Equality.make(term1, term2), this, process);
 	}
 
 	/**
