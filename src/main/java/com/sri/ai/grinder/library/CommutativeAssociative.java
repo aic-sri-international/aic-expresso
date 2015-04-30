@@ -129,6 +129,10 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 			return expression; // everything is an non-operable argument, nothing that can be done.
 		}
 		
+		//if (operableArguments.contains(getAbsorbingElement())) {
+		//	return getAbsorbingElement();
+		//}
+		
 		// get result on operable arguments
 		Expression resultOnOperableArgumentsExpression = operationOnExpressionOperables(operableArguments);
 
