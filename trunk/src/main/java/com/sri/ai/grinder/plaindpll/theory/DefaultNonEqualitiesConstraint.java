@@ -1,7 +1,5 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
-import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.plaindpll.core.AbstractConstraintTheory.variableIsChosenAfterOtherTerm;
 import static com.sri.ai.util.Util.list;
@@ -18,16 +16,13 @@ import java.util.Map;
 
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.BinaryPredicate;
 
 /** 
  * A default implementation of {@link NonEqualitiesConstraint} that keeps a map from variables to {@link NonEqualitiesConstraintForSingleVariable} objects.
@@ -36,7 +31,10 @@ import com.sri.ai.util.base.BinaryPredicate;
 public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstraint implements NonEqualitiesConstraint  {
 
 	private EqualityConstraintTheory theory;
-	
+
+	/**
+	 * The main data structure of the class; maps variables to their individual NonEqualitiesConstraintForSingleVariable instances.
+	 */
 	private Map<Expression, NonEqualitiesConstraintForSingleVariable> map = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>();
 
 	public DefaultNonEqualitiesConstraint(EqualityConstraintTheory theory, Collection<Expression> supportedIndices) {
@@ -67,7 +65,7 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 		return result;
 	}
 
-	private NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintFor(Expression variable, RewritingProcess process) {
+	protected NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintFor(Expression variable, RewritingProcess process) {
 		Util.myAssert(() -> isVariableTerm(variable, process), () -> "nonEqualitiesConstraintFor must be invoked for a variable but was invoked on " + variable);
 		NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForTerm =
 				Util.getValuePossiblyCreatingIt(map, variable, key -> makeNonEqualitiesConstraintForVariable(key));
@@ -76,18 +74,13 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 
 	@Override
 	public boolean directlyImpliesNonTrivialLiteral(Expression literal, RewritingProcess process) {
+		myAssert(() -> literal.numberOfArguments() == 2, () -> (new Object(){}).getClass().getEnclosingMethod() + " requires binary literal but got " + literal);
 		boolean result;
 		Expression term1 = literal.get(0);
 		Expression term2 = literal.get(1);
-		if (literal.hasFunctor(DISEQUALITY)) {
-			result = directlyImpliesNonTrivialDisequality(term1, term2, process);
-		}
-		else {
-			myAssert(() -> literal.numberOfArguments() == 2, () -> (new Object(){}).getClass().getEnclosingMethod() + " requires binary literal but got " + literal);
-			Expression laterInOrder = getLaterInOrder(term1, term2, process);
-			NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForSingleVariable = nonEqualitiesConstraintFor(laterInOrder, process);
-			result = nonEqualitiesConstraintForSingleVariable.directlyImpliesNonTrivialLiteral(literal, process);
-		}
+		Expression laterOneInChoosingOrder = getLaterOneInChoosingOrder(term1, term2, process);
+		NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForSingleVariable = nonEqualitiesConstraintFor(laterOneInChoosingOrder, process);
+		result = nonEqualitiesConstraintForSingleVariable.directlyImpliesNonTrivialLiteral(literal, process);
 		return result;
 	}
 
@@ -114,17 +107,17 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	public boolean directlyImpliesNonTrivialDisequality(Expression term1, Expression term2, RewritingProcess process) {
 		boolean result;
 		if (firstTermComesLaterInChoiceOrder(term1, term2, process)) {
-			result = directlyImpliesDisequalityBetweenVariableComingLaterInChoiceOrderAndAnotherTerm(term1, term2, process);
+			result = directlyImpliesDisequalityBetweenVariableComingLaterInChoosingOrderAndAnotherTerm(term1, term2, process);
 		}
 		else {
-			result = directlyImpliesDisequalityBetweenVariableComingLaterInChoiceOrderAndAnotherTerm(term2, term1, process);
+			result = directlyImpliesDisequalityBetweenVariableComingLaterInChoosingOrderAndAnotherTerm(term2, term1, process);
 		}
 		return result;
 	}
 
-	private boolean directlyImpliesDisequalityBetweenVariableComingLaterInChoiceOrderAndAnotherTerm(Expression laterVariable, Expression anotherTerm, RewritingProcess process) {
+	private boolean directlyImpliesDisequalityBetweenVariableComingLaterInChoosingOrderAndAnotherTerm(Expression laterVariable, Expression anotherTerm, RewritingProcess process) {
 		boolean result;
-		NonEqualitiesConstraintForSingleVariable constraintsOnTerm1 = map.get(laterVariable);
+		NonEqualitiesConstraintForSingleVariable constraintsOnTerm1 = map.get(laterVariable); // directly consult map instead of using nonEqualitiesConstraintForSingleVariable to avoid unnecessary default construction of single variable constraint
 		if (constraintsOnTerm1 != null && constraintsOnTerm1.directlyImpliesDisequalityOfVariableAnd(anotherTerm, process)) {
 			result = true;
 		}
@@ -135,8 +128,8 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	}
 
 	@Override
-	public void incorporateDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		myAssert( ! splitterSign, "DefaultNonEqualitiesConstraint.incorporatePossiblyDestructively must receive negative equalities (disequalities) only (for now)");
+	public void incorporateNonTrivialSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		myAssert( () -> !(splitterSign && splitter.hasFunctor(EQUALITY)), () -> getClass() + " should not receive equality literal splitters but received " + splitter); 
 		Expression variable  = splitter.get(0);
 		Expression otherTerm = splitter.get(1);
 		addNonTrivialDisequalityOfVariableAndAnotherTermDestructively(variable, otherTerm, process);
@@ -171,7 +164,7 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	 * @param process
 	 * @return
 	 */
-	private Expression getLaterInOrder(Expression term1, Expression term2, RewritingProcess process) {
+	private Expression getLaterOneInChoosingOrder(Expression term1, Expression term2, RewritingProcess process) {
 		return firstTermComesLaterInChoiceOrder(term1, term2, process)? term1 : term2;
 	}
 
@@ -289,11 +282,6 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	@Override
 	public Expression normalizeExpressionWithoutLiterals(Expression expression, RewritingProcess process) {
 		return expression;
-	}
-
-	@Override
-	protected void incorporateNonTrivialNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		throw new Error((new Object(){}).getClass().getEnclosingMethod() + " not implemented yet.");
 	}
 
 	@Override

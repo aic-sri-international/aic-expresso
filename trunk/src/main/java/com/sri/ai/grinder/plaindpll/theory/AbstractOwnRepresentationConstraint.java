@@ -17,7 +17,7 @@ import com.sri.ai.grinder.plaindpll.core.Contradiction;
  * normalizes the splitter according to the solution to see if it is simplified to a constant
  * (in which case it is either redundant or a contradiction).
  * In case it is not, creates a clone of itself and invokes abstract method
- * {@link #incorporateNonTrivialNormalizedSplitterDestructively(boolean, Expression, RewritingProcess)},
+ * {@link #incorporateNonTrivialSplitterDestructively(boolean, Expression, RewritingProcess)},
  * which does not need to worry about checking redundancy or inconsistency, nor about creating a clone.
  * <p>
  * It also provides a {@link #supportedIndices} field.
@@ -70,7 +70,7 @@ public abstract class AbstractOwnRepresentationConstraint extends AbstractConstr
 
 	private Constraint incorporateNonTrivialNormalizedSplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		AbstractOwnRepresentationConstraint newConstraint = clone();
-		newConstraint.incorporateNonTrivialNormalizedSplitterDestructively(splitterSign, splitter, process);
+		newConstraint.incorporateNonTrivialSplitterDestructively(splitterSign, splitter, process);
 		return newConstraint;
 	}
 
@@ -78,5 +78,5 @@ public abstract class AbstractOwnRepresentationConstraint extends AbstractConstr
 	 * Modify this constraint's inner representation to include this splitter,
 	 * which has already been checked for redundancy or inconsistency with the constraint.
 	 */
-	abstract protected void incorporateNonTrivialNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
+	public abstract void incorporateNonTrivialSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
 }

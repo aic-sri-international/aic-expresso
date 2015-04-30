@@ -33,6 +33,9 @@ public interface Constraint extends Expression {
 	 */
 	public abstract Collection<Expression> getSupportedIndices();
 
+	// TODO: seems like this should be a Constraint-specific implementation of Expression.replaceAllOccurrences(...).
+	// TODO: provide a more efficient implementation that takes an explicit list of which terms to update, so that implementations do not need to check each of the terms they use.
+	
 	/**
 	 * Generates new constraint representing conjunction of this constraint and given splitter
 	 * (or its negation, depending on the sign).
@@ -50,7 +53,8 @@ public interface Constraint extends Expression {
 
 	/**
 	 * Same as {@link #incorporate(boolean, Expression, RewritingProcess)}, but 
-	 * must destructively alter the instance itself.
+	 * must destructively alter the instance itself,
+	 * and can assume a non-trivial splitter.
 	 * This option is available for performance reasons; sometimes during setup stages,
 	 * it is much more efficient to make several changes to the same object
 	 * instead of creating an instance after each change.
@@ -62,21 +66,35 @@ public interface Constraint extends Expression {
 	 * @param splitter the splitter according to this theoryWithEquality's choice
 	 * @param process the rewriting process
 	 */
-	void incorporateDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
+	void incorporateNonTrivialSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
 
+	/**
+	 * A collection of splitters implied by this constraint that it cannot represent itself.
+	 * This is useful when the task of representing constraints for a given theory is divided among
+	 * multiple types of constraints, each specialized in representing certain types of literals.
+	 * A constraint may be able to identify splitters implied by itself but which are of a type
+	 * different from the one it is able to represent.
+	 * It then provides it through this method for the overall constraint coordinator to pick up
+	 * and apply wherever appropriate.
+	 * This collection may or may not be guaranteed to be complete, depending on the implementation.
+	 * @return
+	 */
+	Collection<Expression> getImpliedNonRepresentableSplitters();
+	
 	/**
 	 * Given a function mapping each term either to itself or to another term meant to represent it
 	 * (determined, most likely, by a system of equalities somewhere),
-	 * apply it to the present constraint, possibly destructively if that means much better performance.
+	 * apply it to the present constraint.
 	 * Terms with distinct representatives should not appear in the resulting constraint.
 	 * @param getRepresentative
 	 * @param process
 	 */
 	void updateRepresentativesDestructively(Function<Expression, Expression> getRepresentative, RewritingProcess process);
-	// TODO: change this method to take explicit list of which terms to update, so that implementations do not need to check each of the terms they use.
-
+	// TODO: seems like this should be a Constraint-specific implementation of Expression.replaceAllOccurrences(...).
+	// TODO: provide a more efficient implementation that takes an explicit list of which terms to update, so that implementations do not need to check each of the terms they use.
+	
 	/**
-	 * Provides a splitter, not already explicitly represented by the constraint,
+	 * Provides a splitter, not already directly implied by the constraint,
 	 * toward a state in which the model count for the given subset of indices
 	 * can be computed (the model count may be condition on the other variables),
 	 * or returns null if it already is in such a state.
