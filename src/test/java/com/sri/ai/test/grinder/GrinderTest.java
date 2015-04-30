@@ -71,7 +71,6 @@ import com.sri.ai.grinder.core.ExhaustiveRewriter;
 import com.sri.ai.grinder.core.OpenInterpretationModule;
 import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.AbsorbingElement;
 import com.sri.ai.grinder.library.Associative;
 import com.sri.ai.grinder.library.Basic;
 import com.sri.ai.grinder.library.CommonLibrary;
@@ -347,7 +346,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	@Test
 	public void testTimes() {
 		Library library = new DefaultLibrary(
-				new AbsorbingElement("*", 0),
 				new Associative("*"),
 				new Times());
 		evaluator = new ExhaustiveRewriter(library);
@@ -633,7 +631,6 @@ public class GrinderTest extends AbstractGrinderTest {
 	@Test
 	public void testAnd() {
 		Library library = new DefaultLibrary(
-				new AbsorbingElement("and", "false"),
 				new And(),
 				new Associative("and"));
 		evaluator = new ExhaustiveRewriter(library);
@@ -684,57 +681,8 @@ public class GrinderTest extends AbstractGrinderTest {
 	}
 
 	@Test
-	public void testAndWithoutAbsorbingElement() {
-		Library library = new DefaultLibrary(
-				new And(),
-				new Associative("and"));
-		evaluator = new ExhaustiveRewriter(library);
-		
-		expressionString = "true";
-		expected   = Expressions.makeSymbol(true);
-		evaluationTest();
-	
-		expressionString = "x and y";
-		expected = parse(expressionString);
-		evaluationTest();
-		
-		expressionString = "true and false";
-		expected   = Expressions.makeSymbol(false);
-		evaluationTest();
-		
-		expressionString = "x and false";
-		expected = parse("x and false");
-		evaluationTest();
-		
-		expressionString = "x and false and y and true";
-		expected   = parse("x and false and y");
-		evaluationTest();
-		
-		expressionString = "and(x, false, false and true, false and y, false)";
-		expected   = parse("and(x, false, y)");
-		evaluationTest();
-		
-		expressionString = "and(x, true, false)";
-		expected   = parse("x and false");
-		evaluationTest();
-		
-		expressionString = "x";
-		expected = parse(expressionString);
-		evaluationTest();
-		
-		expressionString = "and";
-		expected = parse(expressionString);
-		evaluationTest();
-	
-		expressionString = "and()";
-		expected = parse("true");
-		evaluationTest();
-	}
-
-	@Test
 	public void testOr() {
 		Library library = new DefaultLibrary(
-				new AbsorbingElement("or", "true"),
 				new Or(),
 				new Associative("or"));
 		evaluator = new ExhaustiveRewriter(library);
