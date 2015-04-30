@@ -320,14 +320,14 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 		}
 
 		@Override
-		protected void incorporateNonTrivialNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		public void incorporateNonTrivialSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			if (splitterSign) {
 				Expression variable  = splitter.get(0);
 				Expression otherTerm = splitter.get(1);
 				applyEqualityDestructively(variable, otherTerm, process);
 			}
 			else {
-				nonEqualities.incorporateDestructively(splitterSign, splitter, process); 
+				nonEqualities.incorporateNonTrivialSplitterDestructively(splitterSign, splitter, process); 
 			}
 		}
 
@@ -453,7 +453,7 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 		}
 
 		@Override
-		protected void incorporateNonTrivialNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		public void incorporateNonTrivialSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			myAssert(splitterSign, "EqualitiesConstraint.applyNormalizedSplitterDestructively must take positive splitters only."); 
 			Expression variable  = splitter.get(0);
 			Expression otherTerm = splitter.get(1);

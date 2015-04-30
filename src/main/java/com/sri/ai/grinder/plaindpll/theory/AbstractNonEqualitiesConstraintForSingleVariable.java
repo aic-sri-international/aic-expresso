@@ -71,12 +71,7 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 	}
 
 	@Override
-	public void incorporateDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		Util.myAssert(() -> false, () -> (new Object(){}).getClass().getEnclosingMethod() + " disabled for " + getClass().getSimpleName() + "; incorporation must be done with version that takes exterior constraint instead"); // more robust to method renaming
-	}
-
-	@Override
-	protected void incorporateNonTrivialNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+	public void incorporateNonTrivialSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		Util.myAssert(() -> false, () -> (new Object(){}).getClass().getEnclosingMethod() + " disabled for " + getClass().getSimpleName() + "; incorporation must be done with version that takes exterior constraint instead"); // more robust to method renaming
 	}
 

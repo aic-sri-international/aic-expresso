@@ -57,14 +57,17 @@ public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 	boolean directlyImpliesDisequalityOfVariableAnd(Expression term, RewritingProcess process);
 
 	/**
-	 * Assumes the main variable is a free variable, and returns splitters on it required to hold for this constraint to hold.
+	 * Provides the positive splitters implied by this constraint
+	 * (these, conjuncted with the negations of the ones provided by {@link #getSplittersToBeNotSatisfied()},
+	 * should be equivalent to the constraint).
 	 * @return
 	 */
 	List<Expression> getSplittersToBeSatisfied();
 	
 	/**
-	 * Assumes the main variable is a free variable,
-	 * and returns splitters it the negations of which are required to hold for this constraint to hold.
+	 * Provides the negative splitters implied by this constraint
+	 * (the negation of these, conjuncted with the ones provided by {@link #getSplittersToBeSatisfied()},
+	 * should be equivalent to the constraint).
 	 * @return
 	 */
 	List<Expression> getSplittersToBeNotSatisfied();
