@@ -174,6 +174,10 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	public Expression solve(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		checkInterrupted();
 		
+		Predicate<Expression> oldIsUniquelyNamedConstantPredicate = process.getIsUniquelyNamedConstantPredicate();
+		Predicate<Expression> excludeIndicesFromUniquelyNamedConstantsPredicate = s -> ! indices.contains(s) && oldIsUniquelyNamedConstantPredicate.apply(s);
+		process.setIsUniquelyNamedConstantPredicate(excludeIndicesFromUniquelyNamedConstantsPredicate);
+		
 		Expression result;
 		if (expression instanceof Constraint && constraint.equals(TRUE)) {
 			result = solveAfterBookkeeping(TRUE, indices, (Constraint) expression, process);
@@ -182,6 +186,9 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		else {
 			result = solveAfterBookkeeping(expression, indices, constraint, process);
 		}
+		
+		process.setIsUniquelyNamedConstantPredicate(oldIsUniquelyNamedConstantPredicate);
+		
 		return result;
 	}
 
