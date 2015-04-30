@@ -184,5 +184,11 @@ public class InequalitiesAndDisequalitiesConstraintForSingleVariable extends Abs
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public AbstractNonEqualitiesConstraintForSingleVariable clone() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
 
