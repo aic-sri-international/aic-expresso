@@ -36,11 +36,6 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractOwnReprese
 	
 	public abstract AbstractRuleOfProductConstraint clone();
 	
-	@Override
-	public Collection<Expression> getSupportedIndices() {
-		return supportedIndices;
-	}
-
 	/**
 	 * Given an index x, return one splitter needed for us to be able to
 	 * compute this index's number of values, or null if none is needed.

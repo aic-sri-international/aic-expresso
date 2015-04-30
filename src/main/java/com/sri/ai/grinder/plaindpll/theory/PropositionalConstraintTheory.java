@@ -221,7 +221,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 		}
 
 		@Override
-		protected void applyNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		protected void incorporateNonTrivialNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
 			if (splitterSign) {
 				assertedPropositions.add(splitter);
 			}

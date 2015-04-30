@@ -292,7 +292,7 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	}
 
 	@Override
-	protected void applyNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+	protected void incorporateNonTrivialNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		throw new Error((new Object(){}).getClass().getEnclosingMethod() + " not implemented yet.");
 	}
 
