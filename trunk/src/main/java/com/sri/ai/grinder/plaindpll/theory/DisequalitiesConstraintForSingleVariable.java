@@ -67,20 +67,10 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		return result;
 	}
 
-	@Override
-	public Expression getVariable() {
-		return variable;
-	}
-	
 	public Collection<Expression> getDisequals() {
 		return Collections.unmodifiableCollection(disequals);
 	}
 	
-	@Override
-	public void incorporateDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		throw new Error(this.getClass().getSimpleName() + "." + (new Object(){}).getClass().getEnclosingMethod() + " not valid; use a similar method taking way to deermine disequalities implied externally.");
-	}
-
 	@Override
 	public void incorporateDestructively(boolean splitterSign, Expression splitter, Constraint externalConstraint, RewritingProcess process) {
 		myAssert(() -> ! splitterSign && isEquality(splitter), () -> getClass() + " only allowed to take negative equality literals (disequalities) but got " + (splitterSign? "" : "not ") + " " + splitter);
@@ -96,8 +86,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		}
 	}
 	
-	private void updateUniqueValuedDisequalsWithNewDisequal(
-			Expression newDisequal, Constraint externalConstraint, RewritingProcess process) throws Contradiction {
+	private void updateUniqueValuedDisequalsWithNewDisequal(Expression newDisequal, Constraint externalConstraint, RewritingProcess process) throws Contradiction {
 		
 		int indexOfFirstNotNecessarilyDisequalTermToNewDisequal;
 		int newDisequalIndex = disequals.size() - 1;
@@ -132,11 +121,6 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		}
 	}
 	
-	@Override
-	public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
-		throw new Error((new Object(){}).getClass().getEnclosingMethod() + " not valid for " + getClass() + ". Use similar method taking predicate for directly implied disequalities.");
-	}
-
 	@Override
 	public Expression pickSplitterGivenExternalConstraint(Collection<Expression> indicesSubSet, Constraint externalConstraint, RewritingProcess process) {
 
@@ -236,14 +220,6 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 			cachedNumberOfPossibleValuesForIndex = numberOfPossibleValuesForIndex;
 		}
 		return cachedNumberOfPossibleValuesForIndex;
-	}
-
-	private Expression getVariableDomain(RewritingProcess process) {
-		Expression variableType = process.getContextualSymbolType(variable);
-		if (variableType == null) {
-			variableType = new DefaultSyntacticFunctionApplication(TYPE, variable);
-		}
-		return variableType;
 	}
 
 	public List<Expression> getSplittersToBeSatisfied() {

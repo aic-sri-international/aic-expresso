@@ -1,6 +1,7 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -16,18 +17,10 @@ import com.sri.ai.grinder.plaindpll.core.Contradiction;
  * normalizes the splitter according to the solution to see if it is simplified to a constant
  * (in which case it is either redundant or a contradiction).
  * In case it is not, creates a clone of itself and invokes abstract method
- * {@link #applyNormalizedSplitterDestructively(boolean, Expression, RewritingProcess)},
+ * {@link #incorporateNonTrivialNormalizedSplitterDestructively(boolean, Expression, RewritingProcess)},
  * which does not need to worry about checking redundancy or inconsistency, nor about creating a clone.
  * <p>
  * It also provides a {@link #supportedIndices} field.
- * <p>
- * TODO: this class needs redesigning; the only thing in it that is fundamentally dependent on a
- * class "providing its own representation" is the provision of a supportedIndices field.
- * The {@link #incorporate(boolean, Expression, RewritingProcess)} implementation does not
- * depend on a class providing its own implementation. 
- * However, this method's implementation does assume the constraint knows how to normalize a splitter,
- * so we cannot simply move it up to {@link AbstractConstraint}, which does not provide that guarantee
- * yet as of the time of this writing (April 2015).
  */	
 @SuppressWarnings("serial")
 public abstract class AbstractOwnRepresentationConstraint extends AbstractConstraint {
@@ -42,7 +35,7 @@ public abstract class AbstractOwnRepresentationConstraint extends AbstractConstr
 	
 	@Override
 	public Collection<Expression> getSupportedIndices() {
-		return supportedIndices;
+		return Collections.unmodifiableCollection(supportedIndices);
 	}
 
 	@Override
@@ -59,7 +52,7 @@ public abstract class AbstractOwnRepresentationConstraint extends AbstractConstr
 		}
 		else {
 			try {
-				result = applyNormalizedSplitter(splitterSign, normalizedSplitterGivenConstraint, process);
+				result = incorporateNonTrivialNormalizedSplitter(splitterSign, normalizedSplitterGivenConstraint, process);
 			}
 			catch (Contradiction e) {
 				result = null;
@@ -67,11 +60,17 @@ public abstract class AbstractOwnRepresentationConstraint extends AbstractConstr
 		}
 
 		return result;
+		// Note: while the above method could in principle be used for constraints that do not keep their own representation,
+		// but rely on some other constraint as a basis,
+		// it is generally not as appropriate for them, since they will typically delegate the task of normalizing a splitter
+		// to the base constraint.
+		// (Moreover, for it to be raised to constraints in general, incorporateNonTrivialNormalizedSplitter would have to be added
+		// to Constraint).
 	}
 
-	private Constraint applyNormalizedSplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+	private Constraint incorporateNonTrivialNormalizedSplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		AbstractOwnRepresentationConstraint newConstraint = clone();
-		newConstraint.applyNormalizedSplitterDestructively(splitterSign, splitter, process);
+		newConstraint.incorporateNonTrivialNormalizedSplitterDestructively(splitterSign, splitter, process);
 		return newConstraint;
 	}
 
@@ -79,5 +78,5 @@ public abstract class AbstractOwnRepresentationConstraint extends AbstractConstr
 	 * Modify this constraint's inner representation to include this splitter,
 	 * which has already been checked for redundancy or inconsistency with the constraint.
 	 */
-	abstract protected void applyNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
+	abstract protected void incorporateNonTrivialNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
 }

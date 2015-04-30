@@ -6,7 +6,6 @@ import java.util.List;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
-import com.sri.ai.util.base.BinaryPredicate;
 
 /** 
  * Represents a conjunction of literals of binary constraint operators between a variable and
@@ -14,6 +13,9 @@ import com.sri.ai.util.base.BinaryPredicate;
  * This interface is defined for constraints used inside an EqualityTheoryConstraint
  * in addition to equalities themselves.
  * This is a pretty-specific, performance-based interface meant to be used inside {@link NonEqualitiesConstraint} implementations.
+ * It does not behave like a stand-alone {@link Constraint} implementation because its picking and incorporation of splitters
+ * are done by alternative methods that take the containing (enveloping constraint).
+ * The original methods should throw an error if invoked.
  */	
 public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 
