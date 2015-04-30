@@ -18,7 +18,6 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 	protected Expression variable;
 	protected long cachedIndexDomainSize;
 	protected EqualityConstraintTheory theory;
-	protected Collection<Expression> supportedIndices;
 
 	public AbstractNonEqualitiesConstraintForSingleVariable(Expression variable, EqualityConstraintTheory theory, Collection<Expression> supportedIndices) {
 		super(list(variable));
@@ -29,10 +28,7 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 	}
 	
 	@Override
-	public AbstractNonEqualitiesConstraintForSingleVariable clone() {
-		Util.myAssert(() -> false, () -> "Cloning of " + getClass() + " not implemented yet.");
-		return null;
-	}
+	abstract public AbstractNonEqualitiesConstraintForSingleVariable clone();
 	
 	@Override
 	public Expression getVariable() {
@@ -50,11 +46,6 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 	@Override
 	public EqualityConstraintTheory getTheory() {
 		return theory;
-	}
-
-	@Override
-	public Collection<Expression> getSupportedIndices() {
-		return supportedIndices;
 	}
 
 	protected TermTheory getTermTheory() {
