@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
 import static com.sri.ai.util.Util.filter;
 import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.putAll;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,6 +72,7 @@ import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
+import com.sri.ai.util.collect.StackedHashMap;
 
 /**
  * Implements utility methods to be used by {@link SGDPLLT} and associated classes.
@@ -295,22 +297,21 @@ public class DPLLUtil {
 	 * @param expression
 	 * @param functionApplicationSimplifiers
 	 * @param syntacticFormTypeSimplifiers
+	 * @param process
 	 * @param syntacticTypeForm
 	 * @param simplifier
-	 * @param process
 	 * @return
 	 */
-	public static Expression simplifyWithExtraSyntacticFormTypeSimplifier(
+	public static Expression simplifyWithExtraSyntacticFormTypeSimplifiers(
 			Expression expression,
 			Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers,
-			String syntacticTypeForm,
-			BinaryFunction<Expression, RewritingProcess, Expression> simplifier,
-			RewritingProcess process) {
-		Map<String, BinaryFunction<Expression, RewritingProcess, Expression>>
-		mySyntacticFormTypeSimplifiers = new LinkedHashMap<String, BinaryFunction<Expression, RewritingProcess, Expression>>(syntacticFormTypeSimplifiers);
+			RewritingProcess process,
+			Object... syntacticFormTypesAndBinaryFunctionsFromExpressionRewritingProcessToExpression) {
 		
-		// Use an extra simplifier replacing symbols by their representatives per the constraint
-		mySyntacticFormTypeSimplifiers.put(syntacticTypeForm, simplifier);
+		Map<String, BinaryFunction<Expression, RewritingProcess, Expression>>
+		mySyntacticFormTypeSimplifiers = new StackedHashMap<String, BinaryFunction<Expression, RewritingProcess, Expression>>(syntacticFormTypeSimplifiers);
+		
+		putAll(mySyntacticFormTypeSimplifiers, syntacticFormTypesAndBinaryFunctionsFromExpressionRewritingProcessToExpression);
 		
 		Expression result = simplify(expression, functionApplicationSimplifiers, mySyntacticFormTypeSimplifiers, process);
 		return result;

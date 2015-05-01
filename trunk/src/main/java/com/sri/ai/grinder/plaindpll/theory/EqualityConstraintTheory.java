@@ -308,7 +308,7 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 			Expression representative2 = equalities.getRepresentative(splitter.get(1), process);
 
 			Expression normalizedSplitter = apply(splitter.getFunctor(), representative1, representative2);
-			Expression normalizedSplitterSimplification = getTheory().simplify(normalizedSplitter, process); // careful, this may not be a splitter itself
+			Expression normalizedSplitterSimplification = getTheory().simplify(normalizedSplitter, process); // careful, this may not be a splitter itself because X = true is simplified to X
 			if (Expressions.isBooleanSymbol(normalizedSplitterSimplification)) {
 				result = normalizedSplitterSimplification;
 			}
@@ -321,17 +321,16 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 		@Override
 		public Expression normalizeExpressionWithoutLiterals(Expression expression, RewritingProcess process) {
 			String syntacticTypeForm = "Symbol";
-			BinaryFunction<Expression, RewritingProcess, Expression> representativeReplacer =
-					(BinaryFunction<Expression, RewritingProcess, Expression>) (s, p) -> equalities.getRepresentative(s, p);
+			BinaryFunction<Expression, RewritingProcess, Expression> representativeReplacer = (s, p) -> equalities.getRepresentative(s, p);
 
-					Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifier(
-							expression,
-							functionApplicationSimplifiers,
-							syntacticFormTypeSimplifiers,
-							syntacticTypeForm, representativeReplacer,
-							process);
+			Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifiers(
+					expression,
+					functionApplicationSimplifiers,
+					syntacticFormTypeSimplifiers,
+					process, syntacticTypeForm,
+					representativeReplacer);
 
-					return result;
+			return result;
 		}
 
 		@Override
@@ -469,12 +468,12 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 			BinaryFunction<Expression, RewritingProcess, Expression> representativeReplacer =
 					(BinaryFunction<Expression, RewritingProcess, Expression>) (s, p) -> getRepresentative(s, p);
 
-					Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifier(
+					Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifiers(
 							expression,
 							theory.getFunctionApplicationSimplifiers(),
 							theory.getSyntacticFormTypeSimplifiers(),
-							syntacticTypeForm, representativeReplacer,
-							process);
+							process, syntacticTypeForm,
+							representativeReplacer);
 
 					return result;
 		}

@@ -290,12 +290,12 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 							Expressions.FALSE
 							: s;
 
-			Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifier(
+			Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifiers(
 					expression,
 					PropositionalConstraintTheory.functionApplicationSimplifiers,
 					PropositionalConstraintTheory.syntacticFormTypeSimplifiers,
-					syntacticTypeForm, valueReplacer,
-					process);
+					process, syntacticTypeForm,
+					valueReplacer);
 			
 			return result;
 		}
