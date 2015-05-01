@@ -512,7 +512,7 @@ public class Expressions {
 	}
 	
 	/** Indicates whether an expression is a Symbol representing a boolean constant. */
-	public static boolean isBoolean(Expression expression) {
+	public static boolean isBooleanSymbol(Expression expression) {
 		boolean result = expression.equals(TRUE) || expression.equals(FALSE);
 		return result;
 	}
