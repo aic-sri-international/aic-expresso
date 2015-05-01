@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.plaindpll.core;
 
+import static com.sri.ai.util.Util.myAssert;
+
 import java.util.Collection;
 
 import com.sri.ai.expresso.api.Expression;
@@ -112,7 +114,7 @@ public class SGDPLLT extends AbstractSolver {
 		
 		Expression result;
 		
-		Util.myAssert(() -> constraint != null, "solve(Expression, Constraint, RewritingProcess) must only be given non-null expressions");
+		myAssert(() -> constraint != null, () -> "solve(Expression, Constraint, RewritingProcess) must only be given non-null expressions");
 		
 		Expression splitter = pickSplitter(expression, indices, constraint, process);
 
@@ -265,7 +267,7 @@ public class SGDPLLT extends AbstractSolver {
 	 */
 	private Expression solveUnderSplitter(boolean splitterSign, Expression splitter, Expression expression, Collection<Expression> indices, Constraint constraint, boolean splitterInContextualConstraint, RewritingProcess process) {
 		Expression result;
-		Util.myAssert(() -> process.getDPLLContextualConstraint() != null, "SGDPLL(T) should not operate under a contradictory contextual constraint");
+		myAssert(() -> process.getDPLLContextualConstraint() != null, () -> "SGDPLL(T) should not operate under a contradictory contextual constraint");
 		RewritingProcess processUnderSplitter = splitterInContextualConstraint? process.extendDPLLContextualConstraint(splitterSign, splitter) : process;
 		if (processUnderSplitter.getDPLLContextualConstraint() == null) {
 			result = null;

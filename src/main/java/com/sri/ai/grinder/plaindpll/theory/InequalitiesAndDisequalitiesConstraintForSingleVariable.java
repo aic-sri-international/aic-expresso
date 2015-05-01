@@ -45,7 +45,6 @@ public class InequalitiesAndDisequalitiesConstraintForSingleVariable extends Abs
 			Expression first  = lowerBoundsIterator.next();
 			Expression second = lowerBoundsIterator.next();
 			splitter = apply(LESS_THAN_OR_EQUAL_TO, first, second); // order is irrelevant, we simply want them to be ordered somehow
-			myAssert(splitter != null, "We have more than one lower bound but they are all already order-constrained (only the minimum should have been kept).");
 			return splitter; // we don't like to use early return statements, but here it will make the code cleaner and faster.
 		}
 		
@@ -54,7 +53,6 @@ public class InequalitiesAndDisequalitiesConstraintForSingleVariable extends Abs
 			Expression first  = upperBoundsIterator.next();
 			Expression second = upperBoundsIterator.next();
 			splitter = apply(LESS_THAN_OR_EQUAL_TO, first, second); // order is irrelevant, we simply want them to be ordered somehow
-			myAssert(splitter != null, "We have more than one upper bound but they are all already order-constrained (only the maximum should have been kept).");
 			return splitter;
 		}
 		
