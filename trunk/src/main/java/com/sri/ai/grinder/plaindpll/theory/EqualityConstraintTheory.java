@@ -56,6 +56,7 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
@@ -370,7 +371,11 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 				result = nonEqualities.directlyImpliesDisequality(representative1, representative2, process);
 			}
 			else {
-				result = nonEqualities.directlyImpliesNonTrivialLiteral(literal, process);
+				// since non-equalities are defined on representatives only, we need to find them first before delegating.
+				Expression representative1 = equalities.getRepresentative(literal.get(0), process);
+				Expression representative2 = equalities.getRepresentative(literal.get(1), process);
+				Expression representativesLiteral = apply(literal.getFunctor(), representative1, representative2);
+				result = nonEqualities.directlyImpliesNonTrivialLiteral(representativesLiteral, process);
 			}
 			return result;
 		}
@@ -420,6 +425,14 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 
 		public TermTheory getTermTheory() {
 			return getTheory().getTermTheory();
+		}
+
+		@Override
+		public boolean directlyImpliesNonTrivialLiteral(Expression literal, RewritingProcess process) {
+			myAssert( () -> literal.hasFunctor(EQUALITY), "EqualitiesConstraint.directlyImplies must take equality *atoms* only.");
+			boolean result1 = getRepresentative(literal.get(0), process).equals(getRepresentative(literal.get(1), process));
+			boolean result = result1;
+			return result;
 		}
 
 		@Override
@@ -523,7 +536,7 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 
 		@Override
 		public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
-			throw new Error("modelCount not yet implemented for EqualitiesConstraint"); // we don't need it for EqualityTheoryConstraint (see implementation to see why).
+			throw new Error("modelCount not yet implemented for EqualitiesConstraint"); // we don't need it for EqualityTheoryConstraint.modelCount (see that method to see why).
 		}
 
 		@Override
@@ -619,14 +632,6 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 
 		private boolean isVariableTerm(Expression term, RewritingProcess process) {
 			return getTheory().isVariableTerm(term, process);
-		}
-
-		@Override
-		public boolean directlyImpliesNonTrivialLiteral(Expression literal, RewritingProcess process) {
-			myAssert( () -> literal.hasFunctor(EQUALITY), "EqualitiesConstraint.directlyImplies must take equality *atoms* only.");
-			boolean result1 = getRepresentative(literal.get(0), process).equals(getRepresentative(literal.get(1), process));
-			boolean result = result1;
-			return result;
 		}
 
 		////////// END OF EQUALITY CONSTRAINTS MAINTENANCE
