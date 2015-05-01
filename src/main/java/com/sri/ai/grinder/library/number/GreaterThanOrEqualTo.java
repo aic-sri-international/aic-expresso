@@ -37,12 +37,17 @@
  */
 package com.sri.ai.grinder.library.number;
 
+import static com.sri.ai.expresso.helper.Expressions.isNumber;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.util.Util.greaterThanOrEqualTo;
+
 import java.util.LinkedHashSet;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.library.BinaryOperator;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.Util;
 
 /**
@@ -64,5 +69,21 @@ public class GreaterThanOrEqualTo extends BinaryOperator {
 	@Override
 	protected Object operation(Expression expression1, Expression expression2) {
 		return Util.greaterThanOrEqualTo(expression1.rationalValue(), expression2.rationalValue());
+	}
+	
+	/**
+	 * Receives an application of {@link FunctorConstants.GREATER_THAN_OR_EQUAL_TO} and evaluates it if possible.
+	 * @param greaterThanOrEqualToApplication
+	 * @return
+	 */
+	public static Expression simplify(Expression greaterThanOrEqualToApplication) {
+		Expression result;
+		if (isNumber(greaterThanOrEqualToApplication.get(0)) && isNumber(greaterThanOrEqualToApplication.get(1))) {
+			result = makeSymbol(greaterThanOrEqualTo(greaterThanOrEqualToApplication.get(0).rationalValue(), greaterThanOrEqualToApplication.get(1).rationalValue()));
+		}
+		else {
+			result = greaterThanOrEqualToApplication;
+		}
+		return result;
 	}
 }
