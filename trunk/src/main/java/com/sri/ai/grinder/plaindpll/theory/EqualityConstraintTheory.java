@@ -56,7 +56,6 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
@@ -71,6 +70,10 @@ import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.number.Division;
+import com.sri.ai.grinder.library.number.GreaterThan;
+import com.sri.ai.grinder.library.number.GreaterThanOrEqualTo;
+import com.sri.ai.grinder.library.number.LessThan;
+import com.sri.ai.grinder.library.number.LessThanOrEqualTo;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
@@ -153,7 +156,20 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 					plus.rewrite(f, process),
 
 					FunctorConstants.MINUS,           (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					f.numberOfArguments() == 2? Minus.simplify(f) : f
+					(f.numberOfArguments() == 2? Minus.simplify(f) : f),
+
+					FunctorConstants.LESS_THAN,                 (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					LessThan.simplify(f),
+
+					FunctorConstants.LESS_THAN_OR_EQUAL_TO,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					LessThanOrEqualTo.simplify(f),
+
+					FunctorConstants.GREATER_THAN,              (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					GreaterThan.simplify(f),
+
+					FunctorConstants.GREATER_THAN_OR_EQUAL_TO,  (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					GreaterThanOrEqualTo.simplify(f)
+
 					);
 
 	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =

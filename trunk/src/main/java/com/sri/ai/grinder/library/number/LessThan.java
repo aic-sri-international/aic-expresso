@@ -37,6 +37,10 @@
  */
 package com.sri.ai.grinder.library.number;
 
+import static com.sri.ai.expresso.helper.Expressions.isNumber;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.util.Util.lessThan;
+
 import java.util.LinkedHashSet;
 
 import com.google.common.annotations.Beta;
@@ -68,5 +72,21 @@ public class LessThan extends BinaryOperator {
 	@Override
 	protected Object operation(Expression expression1, Expression expression2) {
 		return Util.lessThan(expression1.rationalValue(), expression2.rationalValue());
+	}
+	
+	/**
+	 * Receives an application of {@link FunctorConstants.LESS_THAN} and evaluates it if possible.
+	 * @param lessThanApplication
+	 * @return
+	 */
+	public static Expression simplify(Expression lessThanApplication) {
+		Expression result;
+		if (isNumber(lessThanApplication.get(0)) && isNumber(lessThanApplication.get(1))) {
+			result = makeSymbol(lessThan(lessThanApplication.get(0).rationalValue(), lessThanApplication.get(1).rationalValue()));
+		}
+		else {
+			result = lessThanApplication;
+		}
+		return result;
 	}
 }
