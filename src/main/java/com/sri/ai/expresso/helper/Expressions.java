@@ -511,6 +511,12 @@ public class Expressions {
 		return result;
 	}
 	
+	/** Indicates whether an expression is a Symbol representing a boolean constant. */
+	public static boolean isBoolean(Expression expression) {
+		boolean result = expression.equals(TRUE) || expression.equals(FALSE);
+		return result;
+	}
+	
 	/** Assumes the expression is a Symbol and returns its value as Number. */
 	public static Number asNumber(Expression expression) {
 		return (Number) ((SyntaxLeaf) expression.getSyntaxTree()).getValue();
