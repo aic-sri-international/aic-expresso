@@ -301,12 +301,12 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 
 		@Override
 		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
-			myAssert(splitter.numberOfArguments() == 2, (new Object(){}).getClass().getEnclosingMethod() + " currently operates on binary splitters only.");
+			myAssert(() -> splitter.numberOfArguments() == 2, () -> (new Object(){}).getClass().getEnclosingMethod() + " currently operates on binary splitters only.");
 			
 			Expression result;
 			Expression representative1 = equalities.getRepresentative(splitter.get(0), process);
 			Expression representative2 = equalities.getRepresentative(splitter.get(1), process);
-
+			
 			Expression normalizedSplitter = apply(splitter.getFunctor(), representative1, representative2);
 			Expression normalizedSplitterSimplification = getTheory().simplify(normalizedSplitter, process); // careful, this may not be a splitter itself because X = true is simplified to X
 			if (Expressions.isBooleanSymbol(normalizedSplitterSimplification)) {
@@ -315,6 +315,7 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 			else {
 				result = nonEqualities.normalizeSplitterGivenConstraint(normalizedSplitter, process);
 			}
+
 			return result;
 		}
 
@@ -442,7 +443,7 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 
 		@Override
 		public boolean directlyImpliesNonTrivialLiteral(Expression literal, RewritingProcess process) {
-			myAssert( () -> literal.hasFunctor(EQUALITY), "EqualitiesConstraint.directlyImplies must take equality *atoms* only.");
+			myAssert( () -> literal.hasFunctor(EQUALITY), () -> "EqualitiesConstraint.directlyImplies must take equality *atoms* only.");
 			boolean result1 = getRepresentative(literal.get(0), process).equals(getRepresentative(literal.get(1), process));
 			boolean result = result1;
 			return result;
@@ -480,7 +481,7 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 
 		@Override
 		public void incorporateNonTrivialSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
-			myAssert(splitterSign, "EqualitiesConstraint.applyNormalizedSplitterDestructively must take positive splitters only."); 
+			myAssert(() -> splitterSign, () -> "EqualitiesConstraint.applyNormalizedSplitterDestructively must take positive splitters only."); 
 			Expression variable  = splitter.get(0);
 			Expression otherTerm = splitter.get(1);
 			applyRepresentativesEqualityDestructively(variable, otherTerm, process);

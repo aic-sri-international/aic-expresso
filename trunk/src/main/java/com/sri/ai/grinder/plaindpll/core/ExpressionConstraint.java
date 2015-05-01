@@ -43,6 +43,7 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.applyJavaFunctionToArgumentsAndReAssembleFunctionApplication;
 import static com.sri.ai.util.Util.getFirstNonNullResultOrNull;
+import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -93,7 +94,7 @@ public class ExpressionConstraint extends AbstractConstraint {
 	 * @return
 	 */
 	public static Constraint wrap(ConstraintTheory theory, Collection<Expression> supportedIndices, Expression expression) {
-		Util.myAssert(() -> expression != null, "ExpressionConstraint cannot wrap a null value.");
+		myAssert(() -> expression != null, () -> "ExpressionConstraint cannot wrap a null value.");
 		Constraint result;
 		if (expression instanceof Constraint) {
 			result = (Constraint) expression;

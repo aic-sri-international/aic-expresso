@@ -1,5 +1,7 @@
 package com.sri.ai.grinder.helper;
 
+import static com.sri.ai.util.Util.myAssert;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -65,7 +67,7 @@ public class PickSingleElement {
 		
 		Expression       alpha       = ((IntensionalSet) intensionalSet).getHead();
 		IndexExpressionsSet indexExpressionsSet = ((IntensionalSet) intensionalSet).getIndexExpressions();
-		Util.myAssert(() -> indexExpressionsSet instanceof ExtensionalIndexExpressionsSet, "PickSingleElement not implemented for intensional sets with non-extensional index expressions"); 
+		myAssert(() -> indexExpressionsSet instanceof ExtensionalIndexExpressionsSet, () -> "PickSingleElement not implemented for intensional sets with non-extensional index expressions"); 
 		List<Expression> indexExpressions = new ArrayList<Expression>(((ExtensionalIndexExpressionsSet) indexExpressionsSet).getList());
 		Trace.log("R <- indices in {} that {} depends on", indexExpressions, alpha);
 		Set<Expression>  alphaVars   = Expressions.freeVariables(alpha, process);

@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
 import static com.sri.ai.util.Util.filter;
 import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.putAll;
 
 import java.util.ArrayList;
@@ -396,7 +397,7 @@ public class DPLLUtil {
 	public static boolean splitterIsNotSatisfiedFromContextualConstraintAlready(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		boolean result;
 		Expression splitterNormalizedByContextualConstraint = process.getDPLLContextualConstraint().normalizeSplitterGivenConstraint(splitter, process);
-		Util.myAssert(() -> ! splitterNormalizedByContextualConstraint.equals( ! splitterSign), "required splitter must be satisfiable under contextual constraint");
+		myAssert(() -> ! splitterNormalizedByContextualConstraint.equals( ! splitterSign), () -> "required splitter must be satisfiable under contextual constraint");
 		result = ! splitterNormalizedByContextualConstraint.equals(splitterSign); // if splitter is implied TRUE by contextual constraint, it is superfluous
 		return result;
 	}
