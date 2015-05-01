@@ -275,8 +275,16 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 
 	@Override
 	public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
-		return splitter;
-		// TODO: needs to be generalized for literals other than disequalities
+		Expression result;
+		Expression term1 = splitter.get(0);
+		Expression term2 = splitter.get(1);
+		if (firstTermComesLaterInChoiceOrder(term1, term2, process)) {
+			result = nonEqualitiesConstraintFor(term1, process).normalizeSplitterGivenConstraint(splitter, process);
+		}
+		else {
+			result = nonEqualitiesConstraintFor(term2, process).normalizeSplitterGivenConstraint(splitter, process);
+		}
+		return result;
 	}
 
 	@Override

@@ -63,4 +63,8 @@ public class SignedSplitter  {
 	public Expression getSplitter() {
 		return splitter;
 	}
+	
+	public String toString() {
+		return "Signed splitter " + (splitterSign? "" : "neg ") + splitter;
+	}
 }

@@ -56,6 +56,7 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
@@ -300,22 +301,19 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 
 		@Override
 		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
+			myAssert(splitter.numberOfArguments() == 2, (new Object(){}).getClass().getEnclosingMethod() + " currently operates on binary splitters only.");
+			
 			Expression result;
-			if (splitter.hasFunctor(EQUALITY)) {
-				Expression representativesEqualitySimplification;
-				Expression representative1 = equalities.getRepresentative(splitter.get(0), process);
-				Expression representative2 = equalities.getRepresentative(splitter.get(1), process);
-				representativesEqualitySimplification = Equality.makeWithConstantSimplification(representative1, representative2, process);
-				if ( ! representativesEqualitySimplification.getSyntacticFormType().equals("Symbol")) {
-					if (nonEqualities.directlyImpliesNonTrivialDisequality(representative1, representative2, process)) {
-						representativesEqualitySimplification = FALSE;
-					}
-				}
-				result = representativesEqualitySimplification;
+			Expression representative1 = equalities.getRepresentative(splitter.get(0), process);
+			Expression representative2 = equalities.getRepresentative(splitter.get(1), process);
+
+			Expression normalizedSplitter = apply(splitter.getFunctor(), representative1, representative2);
+			Expression normalizedSplitterSimplification = getTheory().simplify(normalizedSplitter, process); // careful, this may not be a splitter itself
+			if (Expressions.isBooleanSymbol(normalizedSplitterSimplification)) {
+				result = normalizedSplitterSimplification;
 			}
 			else {
-				throw new Error("EqualityTheoryConstraint.normalizeSplitterGivenConstraint must receive equality splitters only, got: "+splitter);
-				// TODO generalize for other constraint functors.
+				result = nonEqualities.normalizeSplitterGivenConstraint(normalizedSplitter, process);
 			}
 			return result;
 		}
