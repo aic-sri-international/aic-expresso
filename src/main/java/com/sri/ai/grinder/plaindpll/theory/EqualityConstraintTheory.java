@@ -45,10 +45,8 @@ import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.filter;
 import static com.sri.ai.util.Util.myAssert;
-import static com.sri.ai.util.Util.putAll;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -238,8 +236,8 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public EqualityTheoryConstraint makeConstraint(Collection<Expression> indices) { // TODO: generalize to other types of constraint
-		return new EqualityTheoryConstraint(indices);
+	public EqualityConstraintTheoryConstraint makeConstraint(Collection<Expression> indices) { // TODO: generalize to other types of constraint
+		return new EqualityConstraintTheoryConstraint(indices);
 	}
 
 	@Override
@@ -264,26 +262,26 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 	 */
 	@SuppressWarnings("serial")
 	@Beta
-	public class EqualityTheoryConstraint extends AbstractOwnRepresentationConstraint {
+	public class EqualityConstraintTheoryConstraint extends AbstractOwnRepresentationConstraint {
 
 		protected EqualitiesConstraint equalities; // TODO: make EqualitiesConstraint an interface
 		protected NonEqualitiesConstraint nonEqualities;
 
-		public EqualityTheoryConstraint(Collection<Expression> supportedIndices) {
+		public EqualityConstraintTheoryConstraint(Collection<Expression> supportedIndices) {
 			super(supportedIndices);
 			this.equalities = new EqualitiesConstraint(getTheory(), getSupportedIndices());
 			this.nonEqualities = new DefaultNonEqualitiesConstraint(getTheory(), supportedIndices); 
 		}
 
-		private EqualityTheoryConstraint(EqualityTheoryConstraint another) {
+		private EqualityConstraintTheoryConstraint(EqualityConstraintTheoryConstraint another) {
 			super(another.getSupportedIndices());
 			this.equalities = new EqualitiesConstraint(another.equalities);
 			this.nonEqualities = (NonEqualitiesConstraint) another.nonEqualities.clone();
 		}
 
 		@Override
-		public EqualityTheoryConstraint clone() {
-			return new EqualityTheoryConstraint(this);
+		public EqualityConstraintTheoryConstraint clone() {
+			return new EqualityConstraintTheoryConstraint(this);
 		}
 
 		@Override
@@ -563,7 +561,7 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 
 		@Override
 		public Expression modelCount(Collection<Expression> indicesSubSet, RewritingProcess process) {
-			throw new Error("modelCount not yet implemented for EqualitiesConstraint"); // we don't need it for EqualityTheoryConstraint.modelCount (see that method to see why).
+			throw new Error("modelCount not yet implemented for EqualitiesConstraint"); // we don't need it for EqualityConstraintTheoryConstraint.modelCount (see that method to see why).
 		}
 
 		@Override

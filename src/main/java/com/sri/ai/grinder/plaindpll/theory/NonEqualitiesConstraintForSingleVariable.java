@@ -10,7 +10,7 @@ import com.sri.ai.grinder.plaindpll.api.Constraint;
 /** 
  * Represents a conjunction of literals of binary constraint operators between a variable and
  * a set of terms such that distinct terms.
- * This interface is defined for constraints used inside an EqualityTheoryConstraint
+ * This interface is defined for constraints used inside an EqualityConstraintTheoryConstraint
  * in addition to equalities themselves.
  * This is a pretty-specific, performance-based interface meant to be used inside {@link NonEqualitiesConstraint} implementations.
  * It does not behave like a stand-alone {@link Constraint} implementation because its picking and incorporation of splitters
