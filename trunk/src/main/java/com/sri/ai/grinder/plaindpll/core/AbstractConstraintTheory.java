@@ -142,7 +142,7 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 				"getCorrespondingSplitterFunctorOrNull",
 				"AbstractConstraintTheory",
 				"makeSplitterIfPossible");
-		return null; // never used, as safeguardCheck throws an error no matter what.
+		return null; // never used, as safeguard throws an error no matter what.
 	}
 	
 	/**
@@ -276,8 +276,8 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 				getClass().getSimpleName(),
 				"getSplitterApplier", // thisClassName
 				"AbstractConstraintTheory", // superClassName
-				"applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process)"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
-		return null; // never used, as safeguardCheck throws an error no matter what.
+				"simplifyExpressionGivenSplitter(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process)"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
+		return null; // never used, as safeguard throws an error no matter what.
 	}
 
 

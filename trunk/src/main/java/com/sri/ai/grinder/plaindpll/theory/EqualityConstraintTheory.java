@@ -200,9 +200,13 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 			result = FunctorConstants.EQUALITY;
 		}
 		else {
-			result = null; // TODO: add abstract method to be invoked here.
+			result = getCorrespondingSplitterFunctorOtherThanEqualityOrNull(expression); // TODO: add abstract method to be invoked here.
 		}
 		return result;
+	}
+
+	protected String getCorrespondingSplitterFunctorOtherThanEqualityOrNull(Expression expression) { // TODO: abstract
+		return null;
 	}
 
 	@Override
@@ -224,14 +228,24 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 			}
 		}
 		else {
-			result = null;  // TODO: add abstract method to be invoked here.
+			result = getNonEqualitySplitterApplier(splitterSign, splitter);
 		}
 		return result;
 	}
+	
+	protected Function<Expression, Expression> getNonEqualitySplitterApplier(boolean splitterSign, Expression splitter) { // TODO: abstract
+		return null;
+	}
 
 	@Override
-	public EqualityConstraintTheoryConstraint makeConstraint(Collection<Expression> indices) { // TODO: generalize to other types of constraint
-		return new EqualityConstraintTheoryConstraint(indices); // TODO: add abstract method to be invoked here providing NonEqualities to be used.
+	public EqualityConstraintTheoryConstraint makeConstraint(Collection<Expression> indices) {
+		DefaultNonEqualitiesConstraint nonEqualities = makeNonEqualitiesConstraint(indices);
+		EqualityConstraintTheoryConstraint result = new EqualityConstraintTheoryConstraint(indices, nonEqualities);
+		return result;
+	}
+
+	protected DefaultNonEqualitiesConstraint makeNonEqualitiesConstraint(Collection<Expression> indices) { // TODO: abstract
+		return new DefaultNonEqualitiesConstraint(this, indices);
 	}
 
 	@Override
@@ -261,10 +275,10 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 		protected EqualitiesConstraint equalities; // TODO: make EqualitiesConstraint an interface
 		protected NonEqualitiesConstraint nonEqualities;
 
-		public EqualityConstraintTheoryConstraint(Collection<Expression> supportedIndices) {
+		public EqualityConstraintTheoryConstraint(Collection<Expression> supportedIndices, NonEqualitiesConstraint nonEqualities) {
 			super(supportedIndices);
 			this.equalities = new EqualitiesConstraint(getTheory(), getSupportedIndices());
-			this.nonEqualities = new DefaultNonEqualitiesConstraint(getTheory(), supportedIndices); 
+			this.nonEqualities = nonEqualities; 
 		}
 
 		private EqualityConstraintTheoryConstraint(EqualityConstraintTheoryConstraint another) {
@@ -486,7 +500,7 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 
 		@Override
 		public void incorporateNonTrivialSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
-			myAssert(() -> splitterSign, () -> "EqualitiesConstraint.applyNormalizedSplitterDestructively must take positive splitters only."); 
+			myAssert(() -> splitterSign, () -> "EqualitiesConstraint.incorporateNonTrivialSplitterDestructively must take positive splitters only."); 
 			Expression variable  = splitter.get(0);
 			Expression otherTerm = splitter.get(1);
 			applyRepresentativesEqualityDestructively(variable, otherTerm, process);
