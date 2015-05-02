@@ -3,6 +3,7 @@ package com.sri.ai.grinder.plaindpll.theory;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
@@ -26,7 +27,7 @@ public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 	
 	/**
 	 * Similar to {@link #pickSplitter(Collection, RewritingProcess)}, but taking
-	 * an extra binary function argument determining directly implied disequalities by an external source;
+	 * an external constraint setting an additional context
 	 * default implementation will ignore it; this will probably be merged into the contextual constraint mechanism.
 	 * @param indicesSubSet
 	 * @param disequalityDirectlyImpliedExternally
@@ -37,15 +38,28 @@ public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 
 	/**
 	 * Same as {@link #incorporateDestructively(boolean, Expression, RewritingProcess)} but taking
-	 * a binary predicate to evaluate whether terms are directly implied disequal by the external context
-	 * (this will probably be merged with the contextual constraint mechanism).
+	 * an external constraint setting an additional context
+	 * (this will probably be merged with the contextual constraint mechanism)
+	 * and which may be <i>updated</i> with information that this constraint itself cannot represent
+	 * (this will probably be replaced by a constraint propagation scheme later).
 	 * Default implementation uses the former method while ignoring the extra parameter.
 	 * @param splitterSign
 	 * @param splitter
-	 * @param disequalityDirectlyImpliedExternally
+	 * @param externalConstraint
 	 * @param process
 	 */
 	void incorporateDestructively(boolean splitterSign, Expression splitter, Constraint externalConstraint, RewritingProcess process);
+
+	/**
+	 * Same as {@link #updateRepresentativesDestructively(boolean, Expression, RewritingProcess)} but taking
+	 * an external constraint that is <i>updated</i> with information that this constraint itself cannot represent.
+	 * (this will probably be replaced by a constraint propagation scheme later).
+	 * Default implementation uses the former method while ignoring the extra parameter.
+	 * @param getRepresentative
+	 * @param externalConstraint
+	 * @param process
+	 */
+	void updateRepresentativesDestructively(Function<Expression, Expression> getRepresentative, NonEqualitiesConstraint externalConstraint, RewritingProcess process);
 
 	/**
 	 * A more efficient replacement for {@link #directlyImpliesLiteral(Expression, RewritingProcess)} for disequality literals.
