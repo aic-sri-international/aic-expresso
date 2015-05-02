@@ -235,12 +235,12 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 	
 	@Override
 	public EqualityConstraintTheoryConstraint makeConstraint(Collection<Expression> indices) {
-		DefaultNonEqualitiesConstraint nonEqualities = makeNonEqualitiesConstraint(indices);
+		NonEqualitiesConstraint nonEqualities = makeNonEqualitiesConstraint(indices);
 		EqualityConstraintTheoryConstraint result = new EqualityConstraintTheoryConstraint(indices, nonEqualities);
 		return result;
 	}
 
-	abstract protected DefaultNonEqualitiesConstraint makeNonEqualitiesConstraint(Collection<Expression> indices);
+	abstract protected NonEqualitiesConstraint makeNonEqualitiesConstraint(Collection<Expression> indices);
 
 	@Override
 	public boolean isVariableTerm(Expression term, RewritingProcess process) {

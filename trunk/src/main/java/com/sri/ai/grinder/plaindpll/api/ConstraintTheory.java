@@ -46,10 +46,7 @@ import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
 
 /**
- * An interface for theories to be plugged into SGDPLL(T).
- * <p>
- * A theoryWithEquality represents a subset of all possible interpretations of a let of literals in its language.
- * It provides all services to DPLL specific to the theoryWithEquality, that is, that require knowledge about the specific subset of interpretations.
+ * An interface for constraint theories to be plugged into SGDPLL(T).
  * <p>
  * One of its tasks is to select and manipulate <i>splitters</i>.
  * A splitter is a literal on which DPLL splits the possible interpretations of an expression (see {@link SGDPLLT}).

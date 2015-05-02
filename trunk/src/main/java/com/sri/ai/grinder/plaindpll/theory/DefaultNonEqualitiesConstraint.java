@@ -2,8 +2,8 @@ package com.sri.ai.grinder.plaindpll.theory;
 
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.plaindpll.core.AbstractConstraintTheory.variableIsChosenAfterOtherTerm;
+import static com.sri.ai.util.Util.getValuePossiblyCreatingIt;
 import static com.sri.ai.util.Util.list;
-import static com.sri.ai.util.Util.mapIntoSetOrSameIfNoDistinctElementInstances;
 import static com.sri.ai.util.Util.myAssert;
 import static java.util.Collections.emptyList;
 
@@ -66,10 +66,15 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	}
 
 	protected NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintFor(Expression variable, RewritingProcess process) {
-		Util.myAssert(() -> isVariableTerm(variable, process), () -> "nonEqualitiesConstraintFor must be invoked for a variable but was invoked on " + variable);
+		myAssert(() -> isVariableTerm(variable, process), () -> "nonEqualitiesConstraintFor must be invoked for a variable but was invoked on " + variable);
 		NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForTerm =
-				Util.getValuePossiblyCreatingIt(map, variable, key -> makeNonEqualitiesConstraintForVariable(key));
+				getValuePossiblyCreatingIt(map, variable, key -> makeNonEqualitiesConstraintForVariable(key));
 		return nonEqualitiesConstraintForTerm;
+	}
+
+	@Override
+	public NonEqualitiesConstraintForSingleVariable removeNonEqualitiesForGivenVariableDestructively(Expression variable) {
+		return map.remove(variable);
 	}
 
 	@Override
@@ -128,14 +133,15 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	}
 
 	@Override
-	public void incorporateNonTrivialSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+	public void incorporateNonTrivialSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) { // TODO: make abstract
 		myAssert( () -> !(splitterSign && splitter.hasFunctor(EQUALITY)), () -> getClass() + " should not receive equality literal splitters but received " + splitter); 
 		Expression variable  = splitter.get(0);
 		Expression otherTerm = splitter.get(1);
 		addNonTrivialDisequalityOfVariableAndAnotherTermDestructively(variable, otherTerm, process);
 	}
 
-	private void incorporateDisequalityDestructively(Expression term1, Expression term2, RewritingProcess process) {
+	@Override
+	public void incorporateDisequalityDestructively(Expression term1, Expression term2, RewritingProcess process) {
 		if (term1.equals(term2)) {
 			throw new Contradiction();
 		}
@@ -158,12 +164,6 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 		return result;
 	}
 
-	/**
-	 * @param term1
-	 * @param term2
-	 * @param process
-	 * @return
-	 */
 	private Expression getLaterOneInChoosingOrder(Expression term1, Expression term2, RewritingProcess process) {
 		return firstTermComesLaterInChoiceOrder(term1, term2, process)? term1 : term2;
 	}
@@ -172,9 +172,9 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 		return getTheory().isVariableTerm(term, process);
 	}
 
-	public void addFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process) {
-		NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForTerm1 = nonEqualitiesConstraintFor(term1, process);
-		disequalitiesConstraintForTerm1.incorporateDestructively(false, Equality.make(term1, term2), this, process);
+	public void addFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process) { // TODO: make abstract, use current implementation for general case
+		NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForTerm1 = nonEqualitiesConstraintFor(term1, process);
+		nonEqualitiesConstraintForTerm1.incorporateDestructively(false, Equality.make(term1, term2), this, process);
 	}
 
 	/**
@@ -190,20 +190,8 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 		// copies entries to a list because original one is altered during iteration.
 		List<Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable>> entriesHolder = new LinkedList<Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable>>(map.entrySet());
 		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : entriesHolder) {
-			DisequalitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = (DisequalitiesConstraintForSingleVariable) entry.getValue();
-			
-			Expression variable = disequalitiesConstraintForSingleVariable.getVariable();
-			Collection<Expression> disequals = disequalitiesConstraintForSingleVariable.getDisequals();
-			
-			Expression variableRepresentative = variable.replaceAllOccurrences(getRepresentative, process); // NOTE: variableRepresentative needs not be a variable itself.
-			Collection<Expression> disequalsRepresentatives = mapIntoSetOrSameIfNoDistinctElementInstances(disequals, t -> t.replaceAllOccurrences(getRepresentative, process));
-		
-			if (variableRepresentative != variable || disequalsRepresentatives != disequals) { // otherwise, nothing to do
-				map.remove(variable); // note that an entry for this same key *may* be re-created if some other term being updated gets updated to it
-				for (Expression disequalRepresentative : disequalsRepresentatives) {
-					incorporateDisequalityDestructively(variableRepresentative, disequalRepresentative, process);
-				}
-			}
+			NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForSingleVariable = entry.getValue();
+			nonEqualitiesConstraintForSingleVariable.updateRepresentativesDestructively(getRepresentative, this, process);
 		}
 	}
 
@@ -211,7 +199,7 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	 * Indicates whether the constraints represented ever product splitters that need to be satisfied (default is true).
 	 * @return
 	 */
-	protected boolean constraintsDoNotProduceSplittersToBeSatisfied() {
+	protected boolean constraintsDoNotProduceSplittersToBeSatisfied() { // TODO: make abstract
 		return true;
 	}
 	
@@ -219,7 +207,7 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	 * Indicates whether the constraints represented ever product splitters that need to be <i>not</i> satisfied (default is false).
 	 * @return
 	 */
-	protected boolean constraintsDoNotProduceSplittersToBeNotSatisfied() {
+	protected boolean constraintsDoNotProduceSplittersToBeNotSatisfied() { // TODO: make abstract
 		return false;
 	}
 
@@ -230,8 +218,8 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 				Util.myAssert(() -> getTermTheory().isVariableTerm(entry.getKey(), process), () -> "Key in map for NonEqualitiesConstraints is not a variable, but " + entry.getKey());
 				Expression variable = entry.getKey();
 				if ( ! indicesSubSet.contains(variable)) { // if variable is free
-					NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = entry.getValue();
-					List<Expression> subResult = disequalitiesConstraintForSingleVariable.getSplittersToBeSatisfied();
+					NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForSingleVariable = entry.getValue();
+					List<Expression> subResult = nonEqualitiesConstraintForSingleVariable.getSplittersToBeSatisfied();
 					result.addAll(subResult);
 				}
 			}
@@ -246,8 +234,8 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 				Util.myAssert(() -> getTermTheory().isVariableTerm(entry.getKey(), process), () -> "Key in map for NonEqualitiesConstraints is not a variable, but " + entry.getKey());
 				Expression variable = entry.getKey();
 				if ( ! indicesSubSet.contains(variable)) { // if variable is free
-					NonEqualitiesConstraintForSingleVariable disequalitiesConstraintForSingleVariable = entry.getValue();
-					List<Expression> subResult = disequalitiesConstraintForSingleVariable.getSplittersToBeNotSatisfied();
+					NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForSingleVariable = entry.getValue();
+					List<Expression> subResult = nonEqualitiesConstraintForSingleVariable.getSplittersToBeNotSatisfied();
 					result.addAll(subResult);
 				}
 			}
@@ -258,12 +246,12 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 		return result;
 	}
 
+	@Override
 	protected Expression computeNumberOfPossibleValuesFor(Expression index, RewritingProcess process) {
-		Expression result = nonEqualitiesConstraintFor(index, process).modelCount(list(index), process);
-		return result;
+		return nonEqualitiesConstraintFor(index, process).modelCount(list(index), process);
 	}
 	
-	protected NonEqualitiesConstraintForSingleVariable makeNonEqualitiesConstraintForVariable(Expression variable) {
+	protected NonEqualitiesConstraintForSingleVariable makeNonEqualitiesConstraintForVariable(Expression variable) { // TODO: make abstract
 		NonEqualitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, getTheory(), getSupportedIndices());
 		return result;
 	}

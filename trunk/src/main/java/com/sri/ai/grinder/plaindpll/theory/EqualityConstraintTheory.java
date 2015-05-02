@@ -64,7 +64,7 @@ public class EqualityConstraintTheory extends AbstractEqualityConstraintTheory {
 	}
 
 	@Override
-	protected DefaultNonEqualitiesConstraint makeNonEqualitiesConstraint(Collection<Expression> indices) {
+	protected NonEqualitiesConstraint makeNonEqualitiesConstraint(Collection<Expression> indices) {
 		return new DefaultNonEqualitiesConstraint(this, indices);
 	}
 }

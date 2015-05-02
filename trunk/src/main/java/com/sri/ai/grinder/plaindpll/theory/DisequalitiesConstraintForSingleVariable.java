@@ -9,6 +9,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.getIndexOfFirstSatisfyingPredicateOrMinusOne;
 import static com.sri.ai.util.Util.mapIntoList;
+import static com.sri.ai.util.Util.mapIntoSetOrSameIfNoDistinctElementInstances;
 import static com.sri.ai.util.Util.myAssert;
 import static java.lang.Math.max;
 import static java.util.Collections.emptyList;
@@ -17,6 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
@@ -240,6 +242,22 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		List<Expression> arguments = mapIntoList(disequals, d -> apply(DISEQUALITY, variable, d));
 		Expression result = And.make(arguments);
 		return result;
+	}
+
+	@Override
+	public void updateRepresentativesDestructively(Function<Expression, Expression> getRepresentative, NonEqualitiesConstraint externalConstraint, RewritingProcess process) {
+		Expression variable = getVariable();
+		Collection<Expression> disequals = getDisequals();
+		
+		Expression variableRepresentative = variable.replaceAllOccurrences(getRepresentative, process); // NOTE: variableRepresentative needs not be a variable itself.
+		Collection<Expression> disequalsRepresentatives = mapIntoSetOrSameIfNoDistinctElementInstances(disequals, t -> t.replaceAllOccurrences(getRepresentative, process));
+	
+		if (variableRepresentative != variable || disequalsRepresentatives != disequals) { // otherwise, nothing to do
+			externalConstraint.removeNonEqualitiesForGivenVariableDestructively(variable); // note that an entry for this same variable *may* be re-created if some other term being updated gets updated to it
+			for (Expression disequalRepresentative : disequalsRepresentatives) {
+				externalConstraint.incorporateDisequalityDestructively(variableRepresentative, disequalRepresentative, process);
+			}
+		}
 	}
 }
 

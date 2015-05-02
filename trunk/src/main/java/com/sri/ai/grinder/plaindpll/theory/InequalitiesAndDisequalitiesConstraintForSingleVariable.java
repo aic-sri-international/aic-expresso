@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
@@ -187,6 +188,12 @@ public class InequalitiesAndDisequalitiesConstraintForSingleVariable extends Abs
 	public AbstractNonEqualitiesConstraintForSingleVariable clone() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void updateRepresentativesDestructively(Function<Expression, Expression> getRepresentative, NonEqualitiesConstraint externalConstraint, RewritingProcess process) {
+		// TODO Auto-generated method stub
+		
 	}
 }
 
