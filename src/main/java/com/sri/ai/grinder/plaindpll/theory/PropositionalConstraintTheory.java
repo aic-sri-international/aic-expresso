@@ -51,6 +51,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -141,16 +142,15 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	protected BinaryFunction<Expression, RewritingProcess, Expression>
-	getSplitterApplier(boolean splitterSign, Expression splitter) {
+	protected boolean usesDefaultImplementationOfSimplifyExpressionGivenSplitterByOverriddingGetSplitterApplier() {
+		return true;
+	}
+
+	@Override
+	protected Function<Expression, Expression> getSplitterApplier(boolean splitterSign, Expression splitter) {
 		Expression replacement = splitterSign? TRUE : FALSE;
-		BinaryFunction<Expression, RewritingProcess, Expression> applier=
-				(Expression expression, RewritingProcess process) -> {
-					Expression result = expression.replaceAllOccurrences(splitter, replacement, process);
-					result = simplify(result, process);
-					return result;
-				};
-		return applier;
+		Function<Expression, Expression> result = e -> e.equals(splitter)? replacement : e;
+		return result;
 	}
 	
 	/**

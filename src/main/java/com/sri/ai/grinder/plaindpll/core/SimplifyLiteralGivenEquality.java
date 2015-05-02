@@ -5,7 +5,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 
-class SimplifyLiteralGivenEquality implements Function<Expression, Expression> {
+public class SimplifyLiteralGivenEquality implements Function<Expression, Expression> {
 	
 	private Expression variable;
 	private Expression otherTerm;

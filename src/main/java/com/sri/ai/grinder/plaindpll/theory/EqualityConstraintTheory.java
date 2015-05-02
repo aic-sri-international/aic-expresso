@@ -200,44 +200,38 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 			result = FunctorConstants.EQUALITY;
 		}
 		else {
-			result = null;
+			result = null; // TODO: add abstract method to be invoked here.
 		}
 		return result;
 	}
 
 	@Override
-	protected BinaryFunction<Expression, RewritingProcess, Expression>
-	
-	getSplitterApplier(boolean splitterSign, Expression splitter) { // TODO: generalize to other types of constraint
-		
-		BinaryFunction<Expression, RewritingProcess, Expression> applier;
+	protected boolean usesDefaultImplementationOfSimplifyExpressionGivenSplitterByOverriddingGetSplitterApplier() {
+		return true;
+	}
+
+	@Override
+	protected Function<Expression, Expression> getSplitterApplier(boolean splitterSign, Expression splitter) {
+		Function<Expression, Expression> result;
 		if (splitter.hasFunctor(FunctorConstants.EQUALITY)) {
 			Expression term1 = splitter.get(0);
 			Expression term2 = splitter.get(1);
 			if (splitterSign) {
-				applier = (Expression expression, RewritingProcess process) -> {
-					Expression result = expression.replaceAllOccurrences(term1, term2, process);
-					result = simplify(result, process);
-					return result;
-				};
+				result = e -> e.equals(term1)? term2 : e;
 			}
 			else {
-				applier = (Expression expression, RewritingProcess process) -> {
-					Expression result = expression.replaceAllOccurrences(new SimplifyLiteralGivenDisequality(term1, term2), process);
-					result = simplify(result, process);
-					return result;
-				};
+				result = new SimplifyLiteralGivenDisequality(term1, term2);
 			}
 		}
 		else {
-			applier = null;
+			result = null;  // TODO: add abstract method to be invoked here.
 		}
-		return applier;
+		return result;
 	}
 
 	@Override
 	public EqualityConstraintTheoryConstraint makeConstraint(Collection<Expression> indices) { // TODO: generalize to other types of constraint
-		return new EqualityConstraintTheoryConstraint(indices);
+		return new EqualityConstraintTheoryConstraint(indices); // TODO: add abstract method to be invoked here providing NonEqualities to be used.
 	}
 
 	@Override

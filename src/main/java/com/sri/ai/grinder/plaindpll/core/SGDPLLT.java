@@ -46,9 +46,8 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
-import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
-import com.sri.ai.util.Util;
+import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.util.base.QuarternaryFunction;
 
 /**
@@ -280,7 +279,7 @@ public class SGDPLLT extends AbstractSolver {
 			}
 			else {
 				incrementLevel(processUnderSplitter, process);
-				Expression expressionUnderSplitter = constraintTheory.applySplitterToExpression(splitterSign, splitter, expression, process);
+				Expression expressionUnderSplitter = constraintTheory.simplifyExpressionGivenSplitter(splitterSign, splitter, expression, process);
 				result = solve(expressionUnderSplitter, indices, constraintUnderSplitter, processUnderSplitter);
 				decrementLevel(processUnderSplitter);
 			}

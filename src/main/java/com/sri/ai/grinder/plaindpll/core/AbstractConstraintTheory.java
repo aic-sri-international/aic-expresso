@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.plaindpll.core;
 
+import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.throwSafeguardError;
 
 import java.util.Collection;
@@ -44,6 +45,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
@@ -96,7 +98,8 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	}
 
 	/**
-	 * Simplifies an expression by exhaustively simplifying its top expression with basic boolean operators in equality logic (including quantifier elimination),
+	 * Default implementation that simplifies an expression by exhaustively simplifying its top expression with
+	 * the simplifiers provided by {@link #getFunctionApplicationSimplifiers()} and {@link #getSyntacticFormTypeSimplifiers()},
 	 * then simplifying its sub-expressions,
 	 * and again exhaustively simplifying its top expression.
 	 * @param expression
@@ -106,9 +109,9 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	 */
 	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {
-		if ( ! usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers()) {
-			throw new Error(getClass() + " is using default implementation of simplify, even though its usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers methods returns false");
-		}
+		myAssert(
+				() -> usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers(),
+				() -> getClass() + " is using default implementation of simplify, even though its usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers method returns false");
 		return DPLLUtil.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), process);
 	}
 
@@ -242,13 +245,33 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 		return result;
 	}
 
+	abstract protected boolean usesDefaultImplementationOfSimplifyExpressionGivenSplitterByOverriddingGetSplitterApplier();
+
+	/**
+	 * Default implementation that obtains a function from {@link #getSplitterApplier(boolean, Expression)} and,
+	 * if it is not <code>null</code>,
+	 * invokes {@link Expression#replaceAllOccurrences(Function, RewritingProcess)} with it as a parameter and the simplifies it,
+	 * otherwise just returning the original expression otherwise.
+	 */
 	@Override
-	public Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
-		Expression result = getSplitterApplier(splitterSign, splitter).apply(expression, process);
+	public Expression simplifyExpressionGivenSplitter(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
+		myAssert(
+				() -> usesDefaultImplementationOfSimplifyExpressionGivenSplitterByOverriddingGetSplitterApplier(),
+				() -> getClass() + " is using default implementation of applySplitterToExpression, even though its useDefaultImplementationOfApplySplitterToExpressionByOverriddingGetSplitterApplier method returns false");
+
+		Expression result;
+		Function<Expression, Expression> splitterSubExpressionApplier = getSplitterApplier(splitterSign, splitter);
+		if (splitterSubExpressionApplier != null) {
+			result = expression.replaceAllOccurrences(splitterSubExpressionApplier, process);
+			result = simplify(result, process);
+		}
+		else {
+			result = expression;
+		}
 		return result;
 	}
 
-	protected BinaryFunction<Expression, RewritingProcess, Expression> getSplitterApplier(boolean splitterSign, Expression splitter) {
+	protected Function<Expression, Expression> getSplitterApplier(boolean splitterSign, Expression splitter) {
 		throwSafeguardError(
 				getClass().getSimpleName(),
 				"getSplitterApplier", // thisClassName
@@ -256,6 +279,7 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 				"applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process)"); // namesOfMethodsWhoseDefaultImplementationUsesThisMethod
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}
+
 
 	@Override
 	public Expression applyConstraintToSolution(Constraint constraint, Expression solution, RewritingProcess process) {
