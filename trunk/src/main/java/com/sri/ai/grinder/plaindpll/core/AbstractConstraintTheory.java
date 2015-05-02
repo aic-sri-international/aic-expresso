@@ -257,7 +257,7 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	public Expression simplifyExpressionGivenSplitter(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
 		myAssert(
 				() -> usesDefaultImplementationOfSimplifyExpressionGivenSplitterByOverriddingGetSplitterApplier(),
-				() -> getClass() + " is using default implementation of applySplitterToExpression, even though its useDefaultImplementationOfApplySplitterToExpressionByOverriddingGetSplitterApplier method returns false");
+				() -> getClass() + " is using default implementation of simplifyExpressionGivenSplitter, even though its usesDefaultImplementationOfSimplifyExpressionGivenSplitterByOverriddingGetSplitterApplier returns false");
 
 		Expression result;
 		Function<Expression, Expression> splitterSubExpressionApplier = getSplitterApplier(splitterSign, splitter);
