@@ -165,7 +165,9 @@ public interface Constraint extends Expression {
 	/**
 	 * Receives an expression without literals and returns an equivalent one according to some normalization property
 	 * For example, an implementation involving equality may choose to always represent all symbols in an equality cluster
-	 * by the same symbol. 
+	 * by the same symbol.
+	 * This operation is necessary during the combination of two symbolic expressions because a solution
+	 * may be placed in the context of a constraint it was not under before.
 	 * @param expression
 	 * @param process
 	 * @return

@@ -45,8 +45,10 @@ import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.filter;
 import static com.sri.ai.util.Util.myAssert;
+import static com.sri.ai.util.Util.putAll;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -89,6 +91,7 @@ import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.collect.CopyOnWriteMap;
+import com.sri.ai.util.collect.StackedHashMap;
 @Beta
 /** 
  * A {@link ConstraintTheory} for equality literals.
@@ -319,18 +322,28 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 			return result;
 		}
 
+		private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap;
+		
+		private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap() {
+			if (syntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap == null) {
+
+				syntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap = 
+						new StackedHashMap<String, BinaryFunction<Expression, RewritingProcess, Expression>>(syntacticFormTypeSimplifiers);
+				
+				BinaryFunction<Expression, RewritingProcess, Expression> representativeReplacer = (s, p) -> equalities.getRepresentative(s, p);
+
+				syntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap.put("Symbol", representativeReplacer);
+				
+				if ( ! getTermTheory().termsHaveNoArguments()) {
+					syntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap.put("Function application", representativeReplacer);
+				}
+			}
+			return syntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap;
+		}
+		
 		@Override
 		public Expression normalizeExpressionWithoutLiterals(Expression expression, RewritingProcess process) {
-			String syntacticTypeForm = "Symbol";
-			BinaryFunction<Expression, RewritingProcess, Expression> representativeReplacer = (s, p) -> equalities.getRepresentative(s, p);
-
-			Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifiers(
-					expression,
-					functionApplicationSimplifiers,
-					syntacticFormTypeSimplifiers,
-					process, syntacticTypeForm,
-					representativeReplacer);
-
+			Expression result = DPLLUtil.simplify(expression, functionApplicationSimplifiers, getSyntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap(), process);
 			return result;
 		}
 
