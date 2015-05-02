@@ -114,11 +114,11 @@ public interface ConstraintTheory {
 	 * @param process
 	 * @return
 	 */
-	Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process);
+	Expression simplifyExpressionGivenSplitter(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process);
 	
-	/** Same as {@link #applySplitterToExpression(boolean, Expression, Expression, RewritingProcess)} but using {@link SignedSplitter}. */
+	/** Same as {@link #simplifyExpressionGivenSplitter(boolean, Expression, Expression, RewritingProcess)} but using {@link SignedSplitter}. */
 	default Expression applySplitterToExpression(SignedSplitter signedSplitter, Expression expression, RewritingProcess process) {
-		return applySplitterToExpression(signedSplitter.getSplitterSign(), signedSplitter.getSplitter(), expression, process);
+		return simplifyExpressionGivenSplitter(signedSplitter.getSplitterSign(), signedSplitter.getSplitter(), expression, process);
 	}
 	
 	/**
