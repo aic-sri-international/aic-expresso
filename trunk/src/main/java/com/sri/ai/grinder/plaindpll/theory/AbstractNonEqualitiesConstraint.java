@@ -1,6 +1,5 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
-import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.plaindpll.core.AbstractConstraintTheory.variableIsChosenAfterOtherTerm;
 import static com.sri.ai.util.Util.getValuePossiblyCreatingIt;
 import static com.sri.ai.util.Util.list;
@@ -17,7 +16,6 @@ import java.util.Map;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
@@ -27,33 +25,51 @@ import com.sri.ai.util.Util;
 /** 
  * A default implementation of {@link NonEqualitiesConstraint} that keeps a map from variables to {@link NonEqualitiesConstraintForSingleVariable} objects.
  */	
+/**
+ * @author braz
+ *
+ */
 @SuppressWarnings("serial")
-public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstraint implements NonEqualitiesConstraint  {
+public abstract class AbstractNonEqualitiesConstraint extends AbstractRuleOfProductConstraint implements NonEqualitiesConstraint  {
 
-	private EqualityConstraintTheory theory;
+	protected EqualityConstraintTheory theory;
 
 	/**
 	 * The main data structure of the class; maps variables to their individual NonEqualitiesConstraintForSingleVariable instances.
 	 */
-	private Map<Expression, NonEqualitiesConstraintForSingleVariable> map = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>();
+	protected Map<Expression, NonEqualitiesConstraintForSingleVariable> map = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>();
 
-	public DefaultNonEqualitiesConstraint(EqualityConstraintTheory theory, Collection<Expression> supportedIndices) {
+	public AbstractNonEqualitiesConstraint(EqualityConstraintTheory theory, Collection<Expression> supportedIndices) {
 		super(supportedIndices);
 		this.theory = theory;
 	}
 	
 	@Override
-	public DefaultNonEqualitiesConstraint clone() {
-		DefaultNonEqualitiesConstraint newNonEqualitiesConstraint = new DefaultNonEqualitiesConstraint(theory, supportedIndices);
-		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : map.entrySet()) {
-			NonEqualitiesConstraintForSingleVariable newEntryValue = entry.getValue().clone();
-			newNonEqualitiesConstraint.map.put(entry.getKey(), newEntryValue);
-		}
+	public DisequalitiesConstraint clone() {
+		DisequalitiesConstraint newNonEqualitiesConstraint = make();
+		copyClonedEntries(newNonEqualitiesConstraint);
 		return newNonEqualitiesConstraint;
 		// OPTIMIZATION perhaps for very large maps it makes sense to use an implementation
 		// that keeps the original map around and clones the values as needed.
 		// This implementation would be a little complicated/expensive so I am not sure it is worth it at this point.
 	}
+
+	/**
+	 * Clones each entry of another object's {@link #map} to this own's.
+	 * @param newNonEqualitiesConstraint
+	 */
+	protected void copyClonedEntries(DisequalitiesConstraint newNonEqualitiesConstraint) {
+		for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : map.entrySet()) {
+			NonEqualitiesConstraintForSingleVariable newEntryValue = entry.getValue().clone();
+			newNonEqualitiesConstraint.map.put(entry.getKey(), newEntryValue);
+		}
+	}
+
+	/**
+	 * Makes a new object of this class (without putting anything in the inner map).
+	 * @return a new instance.
+	 */
+	abstract protected DisequalitiesConstraint make();
 
 	public TermTheory getTermTheory() {
 		return getTheory().getTermTheory();
@@ -133,12 +149,7 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	}
 
 	@Override
-	public void incorporateNonTrivialSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) { // TODO: make abstract
-		myAssert( () -> !(splitterSign && splitter.hasFunctor(EQUALITY)), () -> getClass() + " should not receive equality literal splitters but received " + splitter); 
-		Expression variable  = splitter.get(0);
-		Expression otherTerm = splitter.get(1);
-		addNonTrivialDisequalityOfVariableAndAnotherTermDestructively(variable, otherTerm, process);
-	}
+	abstract public void incorporateNonTrivialSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
 
 	@Override
 	public void incorporateDisequalityDestructively(Expression term1, Expression term2, RewritingProcess process) {
@@ -150,7 +161,7 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 		}
 	}
 
-	private void addNonTrivialDisequalityOfVariableAndAnotherTermDestructively(Expression variable, Expression otherTerm, RewritingProcess process) {
+	protected void addNonTrivialDisequalityOfVariableAndAnotherTermDestructively(Expression variable, Expression otherTerm, RewritingProcess process) {
 		if (firstTermComesLaterInChoiceOrder(variable, otherTerm, process)) {
 			addFirstTermAsDisequalOfSecondTermDestructively(variable, otherTerm, process);
 		}
@@ -172,10 +183,7 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 		return getTheory().isVariableTerm(term, process);
 	}
 
-	public void addFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process) { // TODO: make abstract, use current implementation for general case
-		NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForTerm1 = nonEqualitiesConstraintFor(term1, process);
-		nonEqualitiesConstraintForTerm1.incorporateDestructively(false, Equality.make(term1, term2), this, process);
-	}
+	abstract public void addFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process);
 
 	/**
 	 * Given a function mapping each term either to itself or to another term meant to represent it
@@ -199,17 +207,13 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 	 * Indicates whether the constraints represented ever product splitters that need to be satisfied (default is true).
 	 * @return
 	 */
-	protected boolean constraintsDoNotProduceSplittersToBeSatisfied() { // TODO: make abstract
-		return true;
-	}
+	abstract protected boolean constraintsDoNotProduceSplittersToBeSatisfied();
 	
 	/**
 	 * Indicates whether the constraints represented ever product splitters that need to be <i>not</i> satisfied (default is false).
 	 * @return
 	 */
-	protected boolean constraintsDoNotProduceSplittersToBeNotSatisfied() { // TODO: make abstract
-		return false;
-	}
+	abstract protected boolean constraintsDoNotProduceSplittersToBeNotSatisfied();
 
 	protected Collection<Expression> getSplittersToBeSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
 		Collection<Expression> result = new LinkedList<Expression>();
@@ -251,10 +255,7 @@ public class DefaultNonEqualitiesConstraint extends AbstractRuleOfProductConstra
 		return nonEqualitiesConstraintFor(index, process).modelCount(list(index), process);
 	}
 	
-	protected NonEqualitiesConstraintForSingleVariable makeNonEqualitiesConstraintForVariable(Expression variable) { // TODO: make abstract
-		NonEqualitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, getTheory(), getSupportedIndices());
-		return result;
-	}
+	abstract protected NonEqualitiesConstraintForSingleVariable makeNonEqualitiesConstraintForVariable(Expression variable);
 
 	@Override
 	public EqualityConstraintTheory getTheory() {
