@@ -19,19 +19,28 @@ public class DisequalitiesConstraint extends AbstractNonEqualitiesConstraint  {
 		super(theory, supportedIndices);
 	}
 	
-	protected DisequalitiesConstraint make() {
+	protected DisequalitiesConstraint cloneWithoutNonEqualitiesForSingleVariables() {
 		return new DisequalitiesConstraint(theory, supportedIndices);
 	}
 
 	@Override
-	public void incorporateNonTrivialSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+	protected boolean singleVariableConstraintsMustBeInformedOfLiteralsStoredOnTheirSiblings() {
+		return false;
+	}
+
+	/**
+	 * Optional specialization that uses the fact that we know at this point a splitter must be a negative equality literal.
+	 */
+	@Override
+	public void incorporateNonTrivialNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		myAssert( () -> !(splitterSign && splitter.hasFunctor(EQUALITY)), () -> getClass() + " should not receive equality literal splitters but received " + splitter); 
 		Expression variable  = splitter.get(0);
 		Expression otherTerm = splitter.get(1);
-		addNonTrivialDisequalityOfVariableAndAnotherTermDestructively(variable, otherTerm, process);
+		incorporateNonTrivialDisequalityOfVariableAndAnotherTermDestructively(variable, otherTerm, process);
 	}
 
-	public void addFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process) {
+	@Override
+	protected void incorporateFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process) {
 		NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForTerm1 = nonEqualitiesConstraintFor(term1, process);
 		nonEqualitiesConstraintForTerm1.incorporateDestructively(false, Equality.make(term1, term2), this, process);
 	}

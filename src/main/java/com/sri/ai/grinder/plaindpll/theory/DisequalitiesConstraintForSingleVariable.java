@@ -7,6 +7,7 @@ import static com.sri.ai.grinder.library.Equality.isEquality;
 import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
+import static com.sri.ai.util.Util.fatalError;
 import static com.sri.ai.util.Util.getIndexOfFirstSatisfyingPredicateOrMinusOne;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.mapIntoSetOrSameIfNoDistinctElementInstances;
@@ -25,6 +26,7 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.collect.ArrayHashSet;
 import com.sri.ai.util.collect.ArraySet;
@@ -73,8 +75,17 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	@Override
 	public void incorporateDestructively(boolean splitterSign, Expression splitter, Constraint externalConstraint, RewritingProcess process) {
 		myAssert(() -> ! splitterSign && isEquality(splitter), () -> getClass() + " only allowed to take negative equality literals (disequalities) but got " + (splitterSign? "" : "not ") + " " + splitter);
-		myAssert(() -> splitter.get(0).equals(variable), () -> getClass() + " must only take splitters in which the first argument is the same as the main variable");
-		Expression term = splitter.get(1);
+		Expression term;
+		if (splitter.get(0).equals(variable)) {
+			term = splitter.get(1);
+		}
+		else if (splitter.get(1).equals(variable)) {
+			term = splitter.get(0);
+		}
+		else {
+			fatalError(getClass() + " must only take splitters with one of its arguments the same as the main variable");
+			term = null; // never used.
+		}
 		incorporateDisequalDestructively(term, externalConstraint, process);
 	}
 
@@ -258,6 +269,13 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 				externalConstraint.incorporateDisequalityDestructively(variableRepresentative, disequalRepresentative, process);
 			}
 		}
+	}
+
+	@Override
+	public void informDestructively(Expression literal, RewritingProcess process) {
+		// single-variable disequality constraints are not affected by literals (of the type stored in them, !=)
+		// stored in other instances in the same {@link NonEqualitiesConstraint},
+		// so do nothing.
 	}
 }
 

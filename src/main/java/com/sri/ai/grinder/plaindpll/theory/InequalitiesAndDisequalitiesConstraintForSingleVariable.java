@@ -127,6 +127,12 @@ public class InequalitiesAndDisequalitiesConstraintForSingleVariable extends Abs
 	}
 
 	@Override
+	public void informDestructively(Expression literal, RewritingProcess process) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
 	public void incorporateDestructively(boolean splitterSign, Expression splitter, Constraint externalConstraint, RewritingProcess process) {
 		// TODO Auto-generated method stub
 		

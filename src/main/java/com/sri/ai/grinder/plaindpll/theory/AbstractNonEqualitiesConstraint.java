@@ -16,6 +16,7 @@ import java.util.Map;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
@@ -46,7 +47,7 @@ public abstract class AbstractNonEqualitiesConstraint extends AbstractRuleOfProd
 	
 	@Override
 	public DisequalitiesConstraint clone() {
-		DisequalitiesConstraint newNonEqualitiesConstraint = make();
+		DisequalitiesConstraint newNonEqualitiesConstraint = cloneWithoutNonEqualitiesForSingleVariables();
 		copyClonedEntries(newNonEqualitiesConstraint);
 		return newNonEqualitiesConstraint;
 		// OPTIMIZATION perhaps for very large maps it makes sense to use an implementation
@@ -69,7 +70,7 @@ public abstract class AbstractNonEqualitiesConstraint extends AbstractRuleOfProd
 	 * Makes a new object of this class (without putting anything in the inner map).
 	 * @return a new instance.
 	 */
-	abstract protected DisequalitiesConstraint make();
+	abstract protected DisequalitiesConstraint cloneWithoutNonEqualitiesForSingleVariables();
 
 	public TermTheory getTermTheory() {
 		return getTheory().getTermTheory();
@@ -92,6 +93,12 @@ public abstract class AbstractNonEqualitiesConstraint extends AbstractRuleOfProd
 	public NonEqualitiesConstraintForSingleVariable removeNonEqualitiesForGivenVariableDestructively(Expression variable) {
 		return map.remove(variable);
 	}
+	
+	/**
+	 * Indicates whether this constraint is such that a literal to be stored in a particular single-variable constraint
+	 * must also be communicated to other single-variable constraints for simplification.
+	 */
+	abstract protected boolean singleVariableConstraintsMustBeInformedOfLiteralsStoredOnTheirSiblings();
 
 	@Override
 	public boolean directlyImpliesNonTrivialLiteral(Expression literal, RewritingProcess process) {
@@ -148,8 +155,33 @@ public abstract class AbstractNonEqualitiesConstraint extends AbstractRuleOfProd
 		return result;
 	}
 
+	/**
+	 * Default implementation that passes the splitter to the appropriate {@link NonEqualitiesConstraintForSingleVariable}
+	 * using {@link NonEqualitiesConstraintForSingleVariable#incorporateDestructively(boolean, Expression, com.sri.ai.grinder.plaindpll.api.Constraint, RewritingProcess)},
+	 * and then informs others, via {@link NonEqualitiesConstraintForSingleVariable#informDestructively(Expression, RewritingProcess)},
+	 * but only if {@link #singleVariableConstraintsMustBeInformedOfLiteralsStoredOnTheirSiblings()} returns <code>true</code>.
+	 */
 	@Override
-	abstract public void incorporateNonTrivialSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
+	public void incorporateNonTrivialNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		Expression variable  = splitter.get(0);
+		Expression otherTerm = splitter.get(1);
+		NonEqualitiesConstraintForSingleVariable nonEqualitiesConstraintForSingleVariableToBeUsed;
+		if (firstTermComesLaterInChoiceOrder(variable, otherTerm, process)) {
+			nonEqualitiesConstraintForSingleVariableToBeUsed = nonEqualitiesConstraintFor(variable, process);
+		}
+		else { // otherTerm must be a variable because it comes later than variable in ordering, and only other variables do that
+			nonEqualitiesConstraintForSingleVariableToBeUsed = nonEqualitiesConstraintFor(otherTerm, process);
+		}
+		nonEqualitiesConstraintForSingleVariableToBeUsed.incorporateDestructively(splitterSign, splitter, this, process);
+		
+//		// TODO: notify other single-variable constraints if needed
+//		if (singleVariableConstraintsMustBeInformedOfLiteralsStoredOnTheirSiblings()) {
+//			Map<Expression, NonEqualitiesConstraintForSingleVariable> newEntries = new LinkedHashMap<Expression, NonEqualitiesConstraintForSingleVariable>();
+//			for (Map.Entry<Expression, NonEqualitiesConstraintForSingleVariable> entry : map.entrySet()) {
+//				
+//			}
+//		}
+	}
 
 	@Override
 	public void incorporateDisequalityDestructively(Expression term1, Expression term2, RewritingProcess process) {
@@ -157,16 +189,16 @@ public abstract class AbstractNonEqualitiesConstraint extends AbstractRuleOfProd
 			throw new Contradiction();
 		}
 		else if (getTermTheory().isVariableTerm(term1, process) || getTermTheory().isVariableTerm(term2, process)) {
-			addNonTrivialDisequalityOfVariableAndAnotherTermDestructively(term1, term2, process);
+			incorporateNonTrivialDisequalityOfVariableAndAnotherTermDestructively(term1, term2, process);
 		}
 	}
 
-	protected void addNonTrivialDisequalityOfVariableAndAnotherTermDestructively(Expression variable, Expression otherTerm, RewritingProcess process) {
+	protected void incorporateNonTrivialDisequalityOfVariableAndAnotherTermDestructively(Expression variable, Expression otherTerm, RewritingProcess process) {
 		if (firstTermComesLaterInChoiceOrder(variable, otherTerm, process)) {
-			addFirstTermAsDisequalOfSecondTermDestructively(variable, otherTerm, process);
+			incorporateFirstTermAsDisequalOfSecondTermDestructively(variable, otherTerm, process);
 		}
 		else { // term2 must be a variable because either term1 is not a variable, or it is but term2 comes later than term1 in ordering, which means it is a variable
-			addFirstTermAsDisequalOfSecondTermDestructively(otherTerm, variable, process);
+			incorporateFirstTermAsDisequalOfSecondTermDestructively(otherTerm, variable, process);
 		}
 	}
 
@@ -183,7 +215,7 @@ public abstract class AbstractNonEqualitiesConstraint extends AbstractRuleOfProd
 		return getTheory().isVariableTerm(term, process);
 	}
 
-	abstract public void addFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process);
+	protected abstract void incorporateFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process);
 
 	/**
 	 * Given a function mapping each term either to itself or to another term meant to represent it
