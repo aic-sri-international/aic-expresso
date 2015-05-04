@@ -66,7 +66,7 @@ public interface Constraint extends Expression {
 	 * @param splitter the splitter according to this theoryWithEquality's choice
 	 * @param process the rewriting process
 	 */
-	void incorporateNonTrivialSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
+	void incorporateNonTrivialNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
 
 	/**
 	 * A collection of splitters implied by this constraint that it cannot represent itself.

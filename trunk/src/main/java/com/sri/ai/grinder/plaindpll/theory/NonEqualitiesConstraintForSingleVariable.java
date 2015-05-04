@@ -62,6 +62,15 @@ public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 	void updateRepresentativesDestructively(Function<Expression, Expression> getRepresentative, NonEqualitiesConstraint externalConstraint, RewritingProcess process);
 
 	/**
+	 * Makes simplifications and adjustments, possibly throwing a {@link Contradiction},
+	 * whenever a given literal is being stored in <i>another</i> single-variable constraint
+	 * stored in the same {@link NonEqualitiesConstraint}.
+	 * @param literal
+	 * @param process
+	 */
+	void informDestructively(Expression literal, RewritingProcess process);
+	
+	/**
 	 * A more efficient replacement for {@link #directlyImpliesLiteral(Expression, RewritingProcess)} for disequality literals.
 	 * @param term1
 	 * @param term

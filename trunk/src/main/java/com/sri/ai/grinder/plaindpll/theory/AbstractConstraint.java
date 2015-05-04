@@ -25,7 +25,7 @@ public abstract class AbstractConstraint extends AbstractExpressionWrapper imple
 	// TODO: give safeguarded default implementations for these methods
 	
 	@Override
-	public void incorporateNonTrivialSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
+	public void incorporateNonTrivialNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		throw new Error(this.getClass().getSimpleName() + "." + (new Object(){}).getClass().getEnclosingMethod() + " not implemented yet.");
 	}
 	
