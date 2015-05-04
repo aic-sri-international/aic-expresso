@@ -108,9 +108,9 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		}
 		else {
 			if (allowInsertedNotUniquelyValuedDisequalToAdvanceLowerBound) { // this update is only allowed the first time (see last line of block)
-				// 'index' indicates where first splitter candidate is, so set splitter search lower bound accordingly to save time
+				// 'index' indicates where first splitter candidate is, so set splitter search lower separator accordingly to save time
 				// NOTE: remember 'indexOfFirstNotNecessarilyDisequalTermToNewDisequal' is an index for uniquelyValuedDisequals,
-				// and that the lower bound is expressed in indices on 'disequals'.
+				// and that the lower separator is expressed in indices on 'disequals'.
 				// However, the fact that we did not have a splitter so far
 				// means that all terms added so far were uniquely valued, and therefore uniquelyValuedDisequals is equal to 'disequals' at this point,
 				// so 'indexOfFirstNotNecessarilyDisequalTermToNewDisequal' applies to 'disequals' as well.

@@ -611,7 +611,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 		}
 
 		/**
-		 * Indicates whether an variable is bound to some other term.
+		 * Indicates whether an variable is separator to some other term.
 		 */
 		protected boolean indexIsBound(Expression index) {
 			return equalitiesMap.containsKey(index);

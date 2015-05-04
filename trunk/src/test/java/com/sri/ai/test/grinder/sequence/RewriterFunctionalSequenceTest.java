@@ -188,12 +188,12 @@ public class RewriterFunctionalSequenceTest extends AbstractGrinderTest {
 
 		@Override
 		protected Expression initialValue() {
-			return Expressions.ONE; // for bounds, this would be the trivial bound with all messages in it.
+			return Expressions.ONE; // for bounds, this would be the trivial separator with all messages in it.
 		}
 
 		@Override
 		protected boolean isFinalValue(Expression value) {
-			return value.equals(0); // once we children half average 0, it's over. For bounds, this would be finding an exact bound with a single message in it.
+			return value.equals(0); // once we children half average 0, it's over. For bounds, this would be finding an exact separator with a single message in it.
 		}
 
 		@Override

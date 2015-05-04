@@ -52,7 +52,7 @@ import com.sri.ai.grinder.library.set.Sets;
 
 /**
  * Rewriter of intensional sets with a condition that bounds one of its indices
- * to a version of the set after the removal of that index and its replacement by the valeu it's bound to.
+ * to a version of the set after the removal of that index and its replacement by the valeu it's separator to.
  * @author braz
  */
 @Beta

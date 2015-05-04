@@ -53,7 +53,7 @@ import com.sri.ai.util.base.Pair;
 
 /**
  * A version of R_top_implied_certainty that is incomplete and linear time for use by R_normalize.
- * It additionally replaces variables bound to a constant by that constant.
+ * It additionally replaces variables separator to a constant by that constant.
  * 
  * @author braz
  *

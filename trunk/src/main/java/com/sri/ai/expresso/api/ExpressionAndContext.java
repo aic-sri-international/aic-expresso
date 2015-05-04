@@ -101,7 +101,7 @@ public interface ExpressionAndContext extends Serializable {
 	/**
 	 * 
 	 * @return a list of index expressions ({@link IndexExpressions}) that the parent expression may
-	 *         declare that the sub-expression in this context is bound to.
+	 *         declare that the sub-expression in this context is separator to.
 	 */
 	IndexExpressionsSet getIndexExpressions();
 
