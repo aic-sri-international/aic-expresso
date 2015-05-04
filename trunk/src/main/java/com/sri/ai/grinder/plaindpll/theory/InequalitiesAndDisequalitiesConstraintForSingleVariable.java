@@ -1,7 +1,9 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.equalArgumentsInSameOrder;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
+import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
@@ -12,6 +14,7 @@ import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.myAssert;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -21,8 +24,10 @@ import java.util.Set;
 
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Equality;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
 import com.sri.ai.util.Util;
@@ -176,7 +181,7 @@ public class InequalitiesAndDisequalitiesConstraintForSingleVariable extends Abs
 	}
 	
 	/**
-	 * A result of {@link InequalitiesAndDisequalitiesConstraintForSingleVariable#localInference(Expression[])}
+	 * A result of {@link InequalitiesAndDisequalitiesConstraintForSingleVariable#threeWayLocalInference(Expression[])}
 	 * indicating which literals must be removed and which ones must be added given three literals in the
 	 * equalities and inequalities theory (note that that methods can also throw a {@link Contradiction}.
 	 * @author braz
@@ -212,7 +217,16 @@ public class InequalitiesAndDisequalitiesConstraintForSingleVariable extends Abs
 
 		@Override
 		public boolean equals(Object another) {
-			return another instanceof LocalInferenceConclusion && toString().equals(another.toString());
+			try {
+				LocalInferenceConclusion anotherConclusion = (LocalInferenceConclusion) another;
+				boolean result = 
+						addedLiterals.equals(anotherConclusion.addedLiterals) && 
+						Arrays.equals(keep, anotherConclusion.keep);
+				return result;
+			}
+			catch (ClassCastException e) {
+				return false;
+			}
 		}
 		
 		@Override
@@ -222,14 +236,186 @@ public class InequalitiesAndDisequalitiesConstraintForSingleVariable extends Abs
 	}
 	
 	/**
-	 * Given three literals in the equalities and inequalities theory,
+	 * Given two literals in the equalities and inequalities theory,
 	 * indicates a simplification {@link #LocalInferenceConclusion} by indicating which ones can be removed and which literals need to be added,
-	 * returns null if no such simplification is known, and throws a {@link Contradiction} in case the conjunction of the literals is contradictory.
+	 * returns null if no simplification known to this method applies, and throws a {@link Contradiction} in case the conjunction of the literals is contradictory.
 	 * This method assumes the literals are not trivial (such as 3 < 10, or 1000 < 2).
+	 * <p>
+	 * The simplifications known to this method are summarized by these rules:
+	 * <pre>
+Splitter x < y
+Literals:
+x < y: don't add splitter
+x <= y: remove this, add splitter
+x != y: remove this, add splitter
+x >= y: inconsistent
+x > y: inconsistent
+
+Analogous for x > y.
+
+Splitter x <= y
+Literals:
+x < y: don't add splitter
+x <= y: don't add splitter
+x != y: remove this, add x < y, don't add splitter
+x >= y: remove this, add x = y, don't add splitter
+x > y: inconsistent
+
+Analogous for x >= y.
+
+Splitter x != y
+Literals:
+x < y: don't add splitter
+x <= y: remove this, add x < y, don't add splitter
+x != y: redundant
+x >= y: remove this, add x > y, don't add splitter
+x > y: don't add splitter
+	 * </pre>
+	 * <p>
+	 * Important: the literals order does not matter; all permutations are checked until a conclusion can be drawn.
 	 * @param literals
 	 * @return
 	 */
-	public static LocalInferenceConclusion localInference(Expression[] literals) {
+	public static LocalInferenceConclusion twoWayLocalInference(Expression[] literals) {
+		
+		myAssert(() -> literals.length == 2, () -> "Requires two literals exactly.");
+		
+		LocalInferenceConclusion result = null;
+		
+		Expression splitter = literals[0];  // renaming to make it easier to relate to documentation
+		Expression theOther = literals[1];
+		
+		if (equalArgumentsInSameOrder(splitter, theOther)) {
+			// good
+		}
+		else if (equalTwoArgumentsInSwappedOrder(splitter, theOther)) {
+			theOther = flip(theOther);
+		}
+		else {
+			return null; // this method only applies to two literals on the same arguments.
+		}
+		
+		// now they both apply to the same two arguments x and y, in the same order.
+		
+		Expression x = splitter.get(0); // renaming to make it easier to relate to documentation
+		Expression y = splitter.get(1);
+
+		boolean[] keepOriginalLiterals;
+		List<Expression> addedLiterals;
+
+		if (splitter.hasFunctor(LESS_THAN)) {  // x < y
+			switch (theOther.getFunctor().toString()) {
+			case LESS_THAN: // x < y, x < y
+				keepOriginalLiterals = new boolean[]{false, true}; // keep the other only
+				addedLiterals = list();
+				result = new LocalInferenceConclusion(literals, keepOriginalLiterals, addedLiterals);
+				break;
+			case LESS_THAN_OR_EQUAL_TO: // x < y, x <= y 
+				keepOriginalLiterals = new boolean[]{true, false}; // splitter is stronger, keep it alone
+				addedLiterals = list();
+				result = new LocalInferenceConclusion(literals, keepOriginalLiterals, addedLiterals);
+				break;
+			case DISEQUALITY: // x < y, x != y
+				keepOriginalLiterals = new boolean[]{true, false}; // splitter is stronger, keep it alone
+				addedLiterals = list();
+				result = new LocalInferenceConclusion(literals, keepOriginalLiterals, addedLiterals);
+				break;
+			case GREATER_THAN_OR_EQUAL_TO: // x < y, x >= y 
+				throw new Contradiction();
+			case GREATER_THAN: // x < y, x > y
+				throw new Contradiction();
+			default:
+				throw new Error("Should only see disequalities and inequalities at this point, but got " + theOther);
+			}
+		}
+		else if (splitter.hasFunctor(LESS_THAN_OR_EQUAL_TO)) { // x <= y
+			switch (theOther.getFunctor().toString()) {
+			case LESS_THAN: // x <= y, x < y
+				keepOriginalLiterals = new boolean[]{false, true}; // the other is either the same or stronger, keep it alone
+				addedLiterals = list();
+				result = new LocalInferenceConclusion(literals, keepOriginalLiterals, addedLiterals);
+				break;
+			case LESS_THAN_OR_EQUAL_TO: // x <= y, x <= y 
+				keepOriginalLiterals = new boolean[]{false, true}; // the other is either the same or stronger, keep it alone
+				addedLiterals = list();
+				result = new LocalInferenceConclusion(literals, keepOriginalLiterals, addedLiterals);
+				break;
+			case DISEQUALITY: // x <= y, x != y
+				keepOriginalLiterals = new boolean[]{false, false}; // replace both by the equivalent x < y
+				addedLiterals = list(apply(LESS_THAN, x, y));
+				result = new LocalInferenceConclusion(literals, keepOriginalLiterals, addedLiterals);
+				break;
+			case GREATER_THAN_OR_EQUAL_TO: // x <= y, x >= y 
+				keepOriginalLiterals = new boolean[]{false, false}; // replace both by the equivalent x = y
+				addedLiterals = list(apply(EQUALITY, x, y));
+				result = new LocalInferenceConclusion(literals, keepOriginalLiterals, addedLiterals);
+				break;
+			case GREATER_THAN: // x <= y, x > y
+				throw new Contradiction();
+			default:
+				throw new Error("Should only see disequalities and inequalities at this point, but got " + theOther);
+			}
+		}
+		else if (splitter.hasFunctor(DISEQUALITY)) { // x != y
+			switch (theOther.getFunctor().toString()) {
+			case LESS_THAN: // x != y, x < y
+				keepOriginalLiterals = new boolean[]{false, true}; // the other is stronger, keep it alone
+				addedLiterals = list();
+				result = new LocalInferenceConclusion(literals, keepOriginalLiterals, addedLiterals);
+				break;
+			case LESS_THAN_OR_EQUAL_TO: // x != y, x <= y 
+				keepOriginalLiterals = new boolean[]{false, false}; // replace both by the equivalent x < y
+				addedLiterals = list(apply(LESS_THAN, x, y));
+				result = new LocalInferenceConclusion(literals, keepOriginalLiterals, addedLiterals);
+				break;
+			case DISEQUALITY: // x != y, x != y
+				keepOriginalLiterals = new boolean[]{false, true}; // keep the other alone, they are equivalent.
+				addedLiterals = list();
+				result = new LocalInferenceConclusion(literals, keepOriginalLiterals, addedLiterals);
+				break;
+			case GREATER_THAN_OR_EQUAL_TO: // x != y, x >= y 
+				keepOriginalLiterals = new boolean[]{false, true}; // the other is stronger, keep it alone
+				addedLiterals = list();
+				result = new LocalInferenceConclusion(literals, keepOriginalLiterals, addedLiterals);
+				break;
+			case GREATER_THAN: // x != y, x > y
+				keepOriginalLiterals = new boolean[]{false, false}; // replace both by the equivalent x > y
+				addedLiterals = list(apply(GREATER_THAN, x, y));
+				result = new LocalInferenceConclusion(literals, keepOriginalLiterals, addedLiterals);
+				break;
+			default:
+				throw new Error("Should only see disequalities and inequalities at this point, but got " + theOther);
+			}
+		}
+		else if (isDecreasingInequality(splitter)) { // x > y, or x >= y
+			// simply flip the splitter to fall under above cases
+			Expression flippedSplitter = flip(splitter);
+			result = twoWayLocalInference(new Expression[]{flippedSplitter, theOther});
+		}
+		
+		return result;
+	}
+
+	/**
+	 * Given three literals in the equalities and inequalities theory,
+	 * indicates a simplification {@link #LocalInferenceConclusion} by indicating which ones can be removed and which literals need to be added,
+	 * returns null if no simplification known to this method applies, and throws a {@link Contradiction} in case the conjunction of the literals is contradictory.
+	 * This method assumes the literals are not trivial (such as 3 < 10, or 1000 < 2).
+	 * <p>
+	 * The simplifications known to this method are summarized by these rules:
+	 * <ul>
+	 * <li> x <. b <. y and x != y --> remove x != y
+	 * <li> x <. b <. y and x <. y --> remove x <. y
+	 * <li> x <. b <. y and x >. y --> inconsistency if at least one strict
+	 * <li> x <. b <. y and x >= y --> x = b = y if all non-strict
+	 * </ul>
+	 * where <code><.</code> stand for either <code><</code> or <code><=</code>.
+	 * <p>
+	 * Important: the literals order does not matter; all permutations are checked until a conclusion can be drawn.
+	 * @param literals
+	 * @return
+	 */
+	public static LocalInferenceConclusion threeWayLocalInference(Expression[] literals) {
 		
 		myAssert(() -> literals.length == 3, () -> "Requires three literals exactly.");
 		
@@ -248,7 +434,7 @@ public class InequalitiesAndDisequalitiesConstraintForSingleVariable extends Abs
 			Expression l1 = increasingLiterals[permutation[1]];
 			Expression l2 = increasingLiterals[permutation[2]];
 			Separation separation;
-			if ((separation = twoValuesSeparatedByAThird(l0, l1)) != null) { // eg, x < b and b <= y and x != y
+			if ((separation = twoValuesSeparatedByAThird(l0, l1)) != null) { // eg, x < b and b <= y
 				boolean l2RelatesLeastAndGreatestInSeparation = l2.get(0).equals(separation.least) && l2.get(1).equals(separation.greatest);
 				if (l2RelatesLeastAndGreatestInSeparation) {
 					if (isInequality(l2)     // x <. b, b <. y, and x <. y, so last one is redundant
@@ -395,11 +581,24 @@ public class InequalitiesAndDisequalitiesConstraintForSingleVariable extends Abs
 		return result;
 	}
 	
+	private static boolean isDecreasing(Expression inequalityLiteral) {
+		boolean result = inequalityLiteral.getFunctor().equals(GREATER_THAN) || inequalityLiteral.getFunctor().equals(GREATER_THAN_OR_EQUAL_TO);
+		return result;
+	}
+	
 	public static boolean isInequality(Expression literal) {
 		boolean result = inequalityFunctors.contains(literal.getFunctor().toString());
 		return result;
 	}
 	
+	private static boolean isIncreasingInequality(Expression literal) {
+		return isInequality(literal) && isIncreasing(literal);
+	}
+
+	private static boolean isDecreasingInequality(Expression literal) {
+		return isInequality(literal) && isDecreasing(literal);
+	}
+
 	public static boolean isInequalityOrEqualTo(Expression literal) {
 		boolean result = inequalityOrEqualToFunctors.contains(literal.getFunctor().toString());
 		return result;
@@ -414,12 +613,12 @@ public class InequalitiesAndDisequalitiesConstraintForSingleVariable extends Abs
 		return inequalityFunctorNegations.get(inequalityFunctor.toString());
 	}
 	
-	public static String inequalityFunctorFlip(Expression inequalityFunctor) {
-		return inequalityFunctorFlips.get(inequalityFunctor.toString());
+	public static String functorFlip(Expression inequalityFunctor) {
+		return functorFlips.get(inequalityFunctor.toString());
 	}
 	
 	public static Expression flip(Expression literal) {
-		Expression result = apply(inequalityFunctorFlip(literal.getFunctor()), literal.get(1), literal.get(0));
+		Expression result = apply(functorFlip(literal.getFunctor()), literal.get(1), literal.get(0));
 		return result;
 	}
 	
@@ -432,6 +631,13 @@ public class InequalitiesAndDisequalitiesConstraintForSingleVariable extends Abs
 		{2, 1, 0},
 	};
 	
+	private static boolean equalTwoArgumentsInSwappedOrder(Expression literal1, Expression literal2) {
+		boolean result =
+				literal1.numberOfArguments() == 2 && literal2.numberOfArguments() == 2
+				&& literal1.get(0).equals(literal2.get(1)) && literal1.get(1).equals(literal2.get(0));
+		return result;
+	}
+
 	public static boolean[] permute(int[] permutation, boolean... array) {
 		boolean[] result = new boolean[array.length];
 		for (int i = 0; i != array.length; i++) {
@@ -455,7 +661,8 @@ public class InequalitiesAndDisequalitiesConstraintForSingleVariable extends Abs
 			LESS_THAN_OR_EQUAL_TO,    GREATER_THAN,
 			GREATER_THAN,             LESS_THAN_OR_EQUAL_TO,
 			GREATER_THAN_OR_EQUAL_TO, LESS_THAN);
-	private static Map<String, String> inequalityFunctorFlips = Util.map(
+	private static Map<String, String> functorFlips = Util.map(
+			DISEQUALITY,              DISEQUALITY,
 			LESS_THAN,                GREATER_THAN,
 			LESS_THAN_OR_EQUAL_TO,    GREATER_THAN_OR_EQUAL_TO,
 			GREATER_THAN,             LESS_THAN,

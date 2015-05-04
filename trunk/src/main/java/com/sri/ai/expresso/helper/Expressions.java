@@ -1200,4 +1200,14 @@ public class Expressions {
 	public static final Expression MINUS_INFINITY = parse("-infinity");
 
 	public static final Expression INFINITY = parse("infinity");
+
+	/**
+	 * Indicates <code>expression1.getArguments().equals(expression2.getArguments())</code>. 
+	 * @param expression1
+	 * @param expression2
+	 * @return
+	 */
+	public static boolean equalArgumentsInSameOrder(Expression expression1, Expression expression2) {
+		return expression1.getArguments().equals(expression2.getArguments());
+	}
 }
