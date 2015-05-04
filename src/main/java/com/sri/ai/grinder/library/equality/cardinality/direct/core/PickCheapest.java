@@ -80,7 +80,7 @@ public class PickCheapest {
 	 * // cost of an expression is its size times the number of disjunctive operators in it
 	 * // or, => and <=> are disjunctive operators
 	 * // implementation note: when picking the smallest Fi, down-recurse all candidates in parallel
-	 * // keeping the lower bound (accumulated cost so far) for each of them. Stop when you have the
+	 * // keeping the lower separator (accumulated cost so far) for each of them. Stop when you have the
 	 * // final cost of a candidate and it is cheaper than the lower bounds of all others. This will avoid
 	 * // having to recurse down all of them till the end.
 	 * </pre>
@@ -148,7 +148,7 @@ public class PickCheapest {
 		}
 
 		// implementation note: when picking the smallest Fi, down-recurse all
-		// candidates in parallel keeping the lower bound (accumulated cost so 
+		// candidates in parallel keeping the lower separator (accumulated cost so 
 		// far) for each of them.
 		// Stop when you have the final cost of a candidate and it is cheaper 
 		// than the lower bounds of all others. This will avoid having to recurse 

@@ -840,23 +840,23 @@ public class Expressions {
 	}
 
 	/**
-	 * A small class for gathering the information regarding an index bound to some value in a given condition
+	 * A small class for gathering the information regarding an index separator to some value in a given condition
 	 * @author braz
 	 */
 	public static class BoundIndexInformation {
-		/** The bound index */
+		/** The separator index */
 		public Expression index;
 		
-		/** One of the values the index is bound to. */
+		/** One of the values the index is separator to. */
 		public Expression value;
 		
-		/** The index expressions minus the one on the bound index. */
+		/** The index expressions minus the one on the separator index. */
 		public IndexExpressionsSet indexExpressionsWithoutBoundIndex;
 	}
 
 	/**
 	 * Returns a {@link BoundIndexInformation} object for the first index (among those defined in indexExpressions)
-	 * bound in a given formula.
+	 * separator in a given formula.
 	 */
 	public static BoundIndexInformation getBoundIndexInformation(Expression formula, IndexExpressionsSet indexExpressions) {
 		BoundIndexInformation result = null;

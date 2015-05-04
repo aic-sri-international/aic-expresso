@@ -323,7 +323,7 @@ public class Equality extends AbstractRewriter {
 			for (Expression term : equality.getArguments()) {
 				result.add(term);
 			}
-			// i.e. A = A, A is not bound to something else. 
+			// i.e. A = A, A is not separator to something else. 
 			if (result.size() == 1) {
 				result.clear();
 			}

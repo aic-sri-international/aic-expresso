@@ -21,7 +21,7 @@ import com.sri.ai.util.collect.ArraySet;
  * <p>
  * (index1, index2) > (index1', index2') if and only if index1 > index1' or index1 == index1' and index2 > index2'. 
  * <p>
- * {@link DisequalitiesSplitterSearchLowerBound}s are objects representing a lower bound on the indices (index1, index2) for the next splitter to be found.
+ * {@link DisequalitiesSplitterSearchLowerBound}s are objects representing a lower separator on the indices (index1, index2) for the next splitter to be found.
  * They can also be used to find the next valid splitter.
  * They are meant to be shared among such constraints that descend from each other as much as possible, as to minimize the search.
  * For this reason, they do not carry a reference to a {@link DisequalitiesConstraintForSingleVariable} they belong to,
