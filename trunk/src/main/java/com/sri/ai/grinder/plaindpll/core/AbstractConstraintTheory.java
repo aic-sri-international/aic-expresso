@@ -328,7 +328,7 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	 * Indicates whether variable is chosen after otherTerm in model counting choosing ordering.
 	 */
 	public static boolean variableIsChosenAfterOtherTerm(Expression variable, Expression otherTerm, Collection<Expression> indices, RewritingProcess process) {
-		boolean result = process.isUniquelyNamedConstant(otherTerm) || variableIsChosenAfterOtherVariable(otherTerm, variable, indices);
+		boolean result = process.isUniquelyNamedConstant(otherTerm) || variableIsChosenAfterOtherVariable(variable, otherTerm, indices);
 		return result;
 	}
 
@@ -339,17 +339,17 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 		boolean result;
 		if (indices.contains(variable)) { // index
 			if ( ! indices.contains(otherVariable)) { // free variable
-				result = false; // free variables always precedes indices
+				result = true; // free variables always precedes indices
 			}
 			else { // both are indices
-				result = choosingOrderTieBreaker.compare(otherVariable, variable) < 0;
+				result = choosingOrderTieBreaker.compare(otherVariable, variable) > 0;
 			}
 		}
 		else if (indices.contains(otherVariable)) { // variable is free variable and otherVariable is index
-			result = true; // free variable always precedes indices
+			result = false; // free variable always precedes indices
 		}
 		else { // neither is index
-			result = choosingOrderTieBreaker.compare(otherVariable, variable) > 0;	// alphabetically		
+			result = choosingOrderTieBreaker.compare(otherVariable, variable) > 0;		
 		}
 		return result;
 	}
