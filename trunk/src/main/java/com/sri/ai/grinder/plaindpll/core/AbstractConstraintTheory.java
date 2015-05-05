@@ -41,6 +41,7 @@ import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.throwSafeguardError;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -341,15 +342,20 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 				result = false; // free variables always precedes indices
 			}
 			else { // both are indices
-				result = otherVariable.toString().compareTo(variable.toString()) < 0; // indices are compared alphabetically
+				result = choosingOrderTieBreaker.compare(otherVariable, variable) < 0;
 			}
 		}
 		else if (indices.contains(otherVariable)) { // variable is free variable and otherVariable is index
 			result = true; // free variable always precedes indices
 		}
 		else { // neither is index
-			result = otherVariable.toString().compareTo(variable.toString()) > 0;	// alphabetically		
+			result = choosingOrderTieBreaker.compare(otherVariable, variable) > 0;	// alphabetically		
 		}
 		return result;
 	}
+	
+	/**
+	 * The tie-breaker used for choosing order within the same group (indices, free variables and constants).
+	 */
+	public static final Comparator<Expression> choosingOrderTieBreaker = (a, b) -> a.toString().compareTo(b.toString());
 }
