@@ -64,6 +64,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
@@ -166,7 +167,20 @@ public class SGVET extends AbstractSolver {
 				System.out.println("From       : " + indexSubProblemExpression);	
 				System.out.println("Width      : " + width(indexSubProblemExpression, process) + " out of " + indices.size() + " indices");	
 			}
-			Expression indexSubProblemSolution = subSolver.solve(indexSubProblemExpression, partition.index, constraint, process);
+
+			// We now invoke the subsolver for summing the index out of the factors it is in.
+			// Ideally, we would reuse the current constraint, but the set of index has changed and the current constraint may
+			// use an internal representation that depends on its previous set of indices.
+			// In the future, we should try to re-use that internal representation and re-index it appropriately, but for now
+			// we rewrite the program in a way that the current constraint becomes a part of the input expression.
+			// This will be equivalent to using it as a constraint, but will cause the constraint to be re-built.
+			// BTW, the call to "project" below will also re-process the constraint for the same reason: re-indexing.
+			// In the future it should also re-use the representation.
+			// The following transformation is:  sum_C E   =   sum_{true} if C then E else 0
+			Expression indexSubProblemExpressionWithConstraint = IfThenElse.make(constraint, indexSubProblemExpression, getProblemType().multiplicativeAbsorbingElement());
+			Expression indexSubProblemSolution = subSolver.solve(indexSubProblemExpressionWithConstraint, partition.index, process);
+//			Expression indexSubProblemSolution = subSolver.solve(indexSubProblemExpression, partition.index, constraint, process);
+			
 			if (basicOutput) {
 				System.out.println("Solution   : " + indexSubProblemSolution + "\n");	
 			}
