@@ -39,6 +39,7 @@ package com.sri.ai.grinder.plaindpll.core;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Collection;
 import java.util.List;
@@ -231,9 +232,31 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 			else {
 				RewritingProcess processUnderSplitterAssertion = process.extendDPLLContextualConstraint(true,  normalizedSplitter);
 				RewritingProcess processUnderSplitterNegation  = process.extendDPLLContextualConstraint(false, normalizedSplitter);
-				Expression newThenBranch = addSymbolicResults(thenBranch, solution2, processUnderSplitterAssertion);
-				Expression newElseBranch = addSymbolicResults(elseBranch, solution2, processUnderSplitterNegation);
-				result = IfThenElse.make(normalizedSplitter, newThenBranch, newElseBranch, false /* no simplification to condition */);
+				
+				// Workaround because normalizeSplitterGivenConstraint is not complete (for example if the contextual constraint is X != a and Y != a for domain size 2, and the splitter is X != Y
+				Expression newThenBranch = null;
+				Expression newElseBranch = null;
+				if (processUnderSplitterAssertion.getDPLLContextualConstraint() != null) {
+					newThenBranch = addSymbolicResults(thenBranch, solution2, processUnderSplitterAssertion);
+				}
+				if (processUnderSplitterNegation.getDPLLContextualConstraint() != null) {
+					newElseBranch = addSymbolicResults(elseBranch, solution2, processUnderSplitterNegation);
+				}
+				if (processUnderSplitterAssertion.getDPLLContextualConstraint() == null) {
+					result = newElseBranch;
+					myAssert(newElseBranch != null, () -> "It should never be the case that the splitter *and* its negation are inconsistent with the contextual constraint.");
+				}
+				else if (processUnderSplitterNegation.getDPLLContextualConstraint() == null) {
+					result = newThenBranch;
+					myAssert(newThenBranch != null, () -> "It should never be the case that the splitter *and* its negation are inconsistent with the contextual constraint.");
+				}
+				else {
+					result = IfThenElse.make(normalizedSplitter, newThenBranch, newElseBranch, false /* no simplification to condition */);
+				}
+				// End of workaround; see original code below
+//				Expression newThenBranch = addSymbolicResults(thenBranch, solution2, processUnderSplitterAssertion);
+//				Expression newElseBranch = addSymbolicResults(elseBranch, solution2, processUnderSplitterNegation);
+//				result = IfThenElse.make(normalizedSplitter, newThenBranch, newElseBranch, false /* no simplification to condition */);
 			}
 		}
 		else if (DPLLUtil.isConditionalSolution(solution2, constraintTheory, process)) {
@@ -253,9 +276,31 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 			else {
 				RewritingProcess processUnderSplitterAssertion = process.extendDPLLContextualConstraint(true,  splitter);
 				RewritingProcess processUnderSplitterNegation  = process.extendDPLLContextualConstraint(false, splitter);
-				Expression newThenBranch = addSymbolicResults(solution1, thenBranch, processUnderSplitterAssertion);
-				Expression newElseBranch = addSymbolicResults(solution1, elseBranch, processUnderSplitterNegation);
-				result = IfThenElse.make(normalizedSplitter, newThenBranch, newElseBranch, false /* no simplification to condition */);
+
+				// Workaround because normalizeSplitterGivenConstraint is not complete (for example if the contextual constraint is X != a and Y != a for domain size 2, and the splitter is X != Y
+				Expression newThenBranch = null;
+				Expression newElseBranch = null;
+				if (processUnderSplitterAssertion.getDPLLContextualConstraint() != null) {
+					newThenBranch = addSymbolicResults(solution1, thenBranch, processUnderSplitterAssertion);
+				}
+				if (processUnderSplitterNegation.getDPLLContextualConstraint() != null) {
+					newElseBranch = addSymbolicResults(solution1, elseBranch, processUnderSplitterNegation);
+				}
+				if (processUnderSplitterAssertion.getDPLLContextualConstraint() == null) {
+					result = newElseBranch;
+					myAssert(newElseBranch != null, () -> "It should never be the case that the splitter *and* its negation are inconsistent with the contextual constraint.");
+				}
+				else if (processUnderSplitterNegation.getDPLLContextualConstraint() == null) {
+					result = newThenBranch;
+					myAssert(newThenBranch != null, () -> "It should never be the case that the splitter *and* its negation are inconsistent with the contextual constraint.");
+				}
+				else {
+					result = IfThenElse.make(normalizedSplitter, newThenBranch, newElseBranch, false /* no simplification to condition */);
+				}
+				// End of workaround; see original code below
+//				Expression newThenBranch = addSymbolicResults(solution1, thenBranch, processUnderSplitterAssertion);
+//				Expression newElseBranch = addSymbolicResults(solution1, elseBranch, processUnderSplitterNegation);
+//				result = IfThenElse.make(normalizedSplitter, newThenBranch, newElseBranch, false /* no simplification to condition */);
 			}
 		}
 		else {

@@ -306,6 +306,8 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 		public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
 			myAssert(() -> splitter.numberOfArguments() == 2, () -> (new Object(){}).getClass().getEnclosingMethod() + " currently operates on binary splitters only.");
 			
+			// TODO: this is incomplete because if constraint is "X != a and Y != a" with domain size 2, "X != Y" will not be normalized to false even though it is inconsistent with the constraint.
+			
 			Expression result;
 			Expression representative1 = equalities.getRepresentative(splitter.get(0), process);
 			Expression representative2 = equalities.getRepresentative(splitter.get(1), process);
