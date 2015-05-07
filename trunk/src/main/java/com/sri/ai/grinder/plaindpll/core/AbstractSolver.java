@@ -242,6 +242,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 				if (processUnderSplitterNegation.getDPLLContextualConstraint() != null) {
 					newElseBranch = addSymbolicResults(elseBranch, solution2, processUnderSplitterNegation);
 				}
+				
 				if (processUnderSplitterAssertion.getDPLLContextualConstraint() == null) {
 					result = newElseBranch;
 					myAssert(newElseBranch != null, () -> "It should never be the case that the splitter *and* its negation are inconsistent with the contextual constraint.");
@@ -286,6 +287,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 				if (processUnderSplitterNegation.getDPLLContextualConstraint() != null) {
 					newElseBranch = addSymbolicResults(solution1, elseBranch, processUnderSplitterNegation);
 				}
+				
 				if (processUnderSplitterAssertion.getDPLLContextualConstraint() == null) {
 					result = newElseBranch;
 					myAssert(newElseBranch != null, () -> "It should never be the case that the splitter *and* its negation are inconsistent with the contextual constraint.");
