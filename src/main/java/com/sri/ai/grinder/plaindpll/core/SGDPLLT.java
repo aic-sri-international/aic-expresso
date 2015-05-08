@@ -226,6 +226,7 @@ public class SGDPLLT extends AbstractSolver {
 	/**
 	 * Combines two sub-solutions under a splitter and its negation, where a null sub-solution means the respective splitter or negation cannot be true,
 	 * in which case the combination is simply the other sub-solution.
+	 * if the other sub-solution is also false, this means the contextual constraint itself is inconsistent, and the combined solution will be null.
 	 * @param combiner
 	 * @param splitter
 	 * @param solutionUnderSplitter

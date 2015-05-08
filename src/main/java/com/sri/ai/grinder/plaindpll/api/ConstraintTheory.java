@@ -121,6 +121,8 @@ public interface ConstraintTheory {
 	/**
 	 * Simplifies solution under constraint, by eliminating trivialized splitters
 	 * and normalizing remaining splitters and leaf expressions according to theoryWithEquality normalization properties.
+	 * If the constraint is found to be inconsistent during this operation (this may happen if the solver is incomplete),
+	 * returns null.
 	 * @param constraint
 	 * @param solution
 	 * @param process
