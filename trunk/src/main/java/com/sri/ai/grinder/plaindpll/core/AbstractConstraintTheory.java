@@ -297,7 +297,15 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 					Expression elseBranch = IfThenElse.elseBranch(solution);
 					Expression newThenBranch = applyConstraintToSolution(constraintUnderSolutionSplitter, thenBranch, process);
 					Expression newElseBranch = applyConstraintToSolution(constraintUnderSolutionSplitterNegation, elseBranch, process);
-					result = IfThenElse.makeIfDistinctFrom(solution, newSolutionSplitter, newThenBranch, newElseBranch, false /* no simplification to condition */);
+					if (newThenBranch == null) {
+						result = newElseBranch;
+					}
+					else if (newElseBranch == null) {
+						result = newThenBranch;
+					}
+					else {
+						result = IfThenElse.makeIfDistinctFrom(solution, newSolutionSplitter, newThenBranch, newElseBranch, false /* no simplification to condition */);
+					}
 				}
 				else {
 					Expression thenBranch = IfThenElse.thenBranch(solution);
@@ -313,7 +321,9 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 					result = newElseBranch;
 				}
 				else {
-					throw new Error("AbstractEqualityConstraint applied to solution should be compatible with the solution splitter or its negation (otherwise either the constraint is unsatisfiable, or the sub-solution is, and in this case we should not have gotten here).");
+					// throw new Error("AbstractEqualityConstraint applied to solution should be compatible with the solution splitter or its negation (otherwise either the constraint is unsatisfiable, or the sub-solution is, and in this case we should not have gotten here).");
+					// Not true; due to incompleteness, the constraint might have been inconsistent but that only got detected now.
+					result = null;
 				}
 			}
 		}
