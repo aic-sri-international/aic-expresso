@@ -22,7 +22,7 @@ capabilities in the following areas:
       ```
 * [Latest Release](https://github.com/aic-sri-international/aic-expresso/releases)
 * [Instructions on how to set up your workspace (for aic-expresso developers)](https://github.com/aic-sri-international/aic-expresso/wiki/Getting-Started)
-* 
+
 ##### Acknowledgements
 SRI International gratefully acknowledges the support of the Defense Advanced Research Projects Agency (DARPA) 
 Machine Reading Program, and Probabilistic Programming for Advanced Machine Learning Program, under Air Force 
