@@ -27,7 +27,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<name>AIC-Expresso</name>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.1.0</version>
 	<groupId>com.googlecode.aic-expresso</groupId>
 	<artifactId>aic-expresso</artifactId>
 
@@ -68,7 +68,7 @@
 	<properties>
 		<target.jdk.version>1.8</target.jdk.version>
 		<targetJdk>1.8</targetJdk>
-		<aic.util.version>1.0.1-SNAPSHOT</aic.util.version>
+		<aic.util.version>1.1.0</aic.util.version>
 		<antlr.version>4.3</antlr.version>
 		<sat4j.version>2.3.5</sat4j.version>
 		<junit.version>4.11</junit.version>
