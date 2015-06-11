@@ -898,6 +898,7 @@ public class GrinderUtil {
 		return result;
 	}
 
+	@SafeVarargs
 	public static List<Rewriter> addRewritersBefore(List<Rewriter> rewriters,
 			Pair<Class<?>, Rewriter>... rewritersBefore) {
 		for (int i = 0; i < rewritersBefore.length; i++) {
