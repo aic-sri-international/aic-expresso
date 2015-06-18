@@ -45,6 +45,8 @@ import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
+import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.plaindpll.group.SymbolicPlusTimesSemiRing;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
@@ -55,12 +57,13 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public class SumProduct extends AbstractGroupProblemType {
+public class SumProduct extends SymbolicPlusTimesSemiRing implements SemiRingProblemType {
 
-	public SumProduct() {
-		super(new SymbolicPlusTimesSemiRing());
+	@Override
+	public AssociativeCommutativeGroup getGroup() {
+		return this;
 	}
-	
+
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
 		Util.myAssert(() -> expression.hasFunctor(FunctorConstants.SUM), () -> "Expression expected to be application of " + FunctorConstants.SUM + " but is " + expression);
