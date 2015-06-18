@@ -7,7 +7,7 @@ capabilities in the following areas:
 
 * Representation of Expressions and Syntax Trees.
 * Parsing human readable strings into Expressions and back again.
-* A general purpose Rewriting System for Expressions (including arithmetic, set, logic, and model counting support).
+* A general purpose [Rewriting System](http://en.wikipedia.org/wiki/Rewriting) for Expressions (including arithmetic, set, logic, and model counting support).
 
 ### Getting Started
 * [User Guide](https://github.com/aic-sri-international/aic-expresso/wiki/Introduction)
