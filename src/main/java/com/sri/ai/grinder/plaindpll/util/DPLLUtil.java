@@ -68,7 +68,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
-import com.sri.ai.grinder.plaindpll.problemtype.Tautologicality;
+import com.sri.ai.grinder.plaindpll.problemtype.Validity;
 import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 import com.sri.ai.util.Util;
@@ -258,14 +258,14 @@ public class DPLLUtil {
 		List<Expression> freeVariablesIndexExpressions = getIndexExpressionsFromSymbolsAndTypes(freeVariablesAndTypes(constraintImpliesExpression, process)).getList();
 	
 		Expression closedConstraintImpliedExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesExpression);
-		Expression alwaysImpliesExpression = (new SGDPLLT(new EqualityConstraintTheory(new SymbolTermTheory()), new Tautologicality())).rewrite(closedConstraintImpliedExpression, process);
+		Expression alwaysImpliesExpression = (new SGDPLLT(new EqualityConstraintTheory(new SymbolTermTheory()), new Validity())).rewrite(closedConstraintImpliedExpression, process);
 		if (alwaysImpliesExpression.equals(Expressions.TRUE)) {
 			result = Expressions.TRUE;
 		}
 		else {
 			Expression constraintImpliesNegationOfExpression = Implication.make(constraint, Not.make(expression));
 			Expression closedConstraintImpliesNegationOfExpression = new DefaultUniversallyQuantifiedFormula(freeVariablesIndexExpressions, constraintImpliesNegationOfExpression);
-			Expression alwaysImpliesNegationOfExpression = (new SGDPLLT(new EqualityConstraintTheory(new SymbolTermTheory()), new Tautologicality())).rewrite(closedConstraintImpliesNegationOfExpression, process);
+			Expression alwaysImpliesNegationOfExpression = (new SGDPLLT(new EqualityConstraintTheory(new SymbolTermTheory()), new Validity())).rewrite(closedConstraintImpliesNegationOfExpression, process);
 			if (alwaysImpliesNegationOfExpression.equals(Expressions.TRUE)) {
 				result = Expressions.FALSE;
 			}

@@ -123,7 +123,7 @@ public class SGDPLLT extends AbstractSolver {
 		else {
 			Expression unconditionalValue = normalizeUnconditionalExpression(expression, process);
 			Expression numberOfOccurrences = constraint.modelCount(indices, process);
-			result = problemType.addNTimes(unconditionalValue, numberOfOccurrences, process);
+			result = problemType.getGroup().addNTimes(unconditionalValue, numberOfOccurrences, process);
 		}
 
 		if (debug(process)) {
@@ -215,7 +215,7 @@ public class SGDPLLT extends AbstractSolver {
 		}
 
 		Expression solutionUnderSplitter = solveUnderSplitter(true, splitter, expression, indices, constraint, splitterMustBeInContextualConstraint, process);
-		boolean noNeedToComputeNegation  = solutionUnderSplitter != null && combiner == additionCombiner && problemType.isAdditiveAbsorbingElement(solutionUnderSplitter);
+		boolean noNeedToComputeNegation  = solutionUnderSplitter != null && combiner == additionCombiner && problemType.getGroup().isAdditiveAbsorbingElement(solutionUnderSplitter);
 		Expression solutionUnderSplitterNegation = 
 				noNeedToComputeNegation? null : solveUnderSplitter(false, splitter, expression, indices, constraint, splitterMustBeInContextualConstraint, process);
 		Expression result = combine(combiner, splitter, solutionUnderSplitter, solutionUnderSplitterNegation, process);
@@ -276,7 +276,7 @@ public class SGDPLLT extends AbstractSolver {
 		else {
 			Constraint constraintUnderSplitter = constraint.incorporate(splitterSign, splitter, process);
 			if (constraintUnderSplitter == null) { // it would be more elegant to place this check this inside 'solve' (which as of now assumes the given constraint is never null), but placing the check here avoids unnecessary applications of the splitter to expression.
-				result = problemType.additiveIdentityElement();
+				result = problemType.getGroup().additiveIdentityElement();
 			}
 			else {
 				incrementLevel(processUnderSplitter, process);

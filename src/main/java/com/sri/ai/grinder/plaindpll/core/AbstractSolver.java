@@ -164,7 +164,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		Expression simplifiedInput = constraintTheory.simplify(input, process);
 		Expression result = solve(simplifiedInput, indices, constraint, process);
 		if (result == null) { // constraint is unsatisfiable, so result is identity element.
-			result = problemType.additiveIdentityElement();
+			result = problemType.getGroup().additiveIdentityElement();
 		}
 		
 		process.initializeDPLLContextualConstraint(oldConstraint);
@@ -217,10 +217,10 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		else if (process.getDPLLContextualConstraint() == null) {
 			result = null;
 		}
-		else if (solution1.equals(problemType.additiveIdentityElement())) {
+		else if (solution1.equals(problemType.getGroup().additiveIdentityElement())) {
 			result = constraintTheory.applyConstraintToSolution(process.getDPLLContextualConstraint(), solution2, process);
 		}
-		else if (solution2.equals(problemType.additiveIdentityElement())) {
+		else if (solution2.equals(problemType.getGroup().additiveIdentityElement())) {
 			result = constraintTheory.applyConstraintToSolution(process.getDPLLContextualConstraint(), solution1, process);
 		}
 		else if (DPLLUtil.isConditionalSolution(solution1, constraintTheory, process)) {
@@ -300,7 +300,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 			}
 		}
 		else {
-			result = problemType.add(solution1, solution2, process);
+			result = problemType.getGroup().add(solution1, solution2, process);
 		}
 	
 		return result;

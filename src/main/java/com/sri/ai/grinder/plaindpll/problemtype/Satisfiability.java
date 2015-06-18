@@ -41,7 +41,6 @@ import com.sri.ai.expresso.api.ExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.group.BooleansWithDisjunctionGroup;
 import com.sri.ai.util.base.Pair;
 
@@ -51,7 +50,11 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public class Satisfiability extends BooleansWithDisjunctionGroup implements GroupProblemType {
+public class Satisfiability extends AbstractGroupProblemType {
+	
+	public Satisfiability() {
+		super(new BooleansWithDisjunctionGroup());
+	}
 	
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {

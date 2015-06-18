@@ -37,36 +37,29 @@
  */
 package com.sri.ai.grinder.plaindpll.problemtype;
 
-import static com.sri.ai.expresso.helper.Expressions.ONE;
-import static com.sri.ai.expresso.helper.Expressions.ZERO;
-
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.api.UniversallyQuantifiedFormula;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
-import com.sri.ai.grinder.plaindpll.group.SymbolicPlusGroup;
+import com.sri.ai.grinder.plaindpll.group.BooleansWithConjunctionGroup;
 import com.sri.ai.util.base.Pair;
 
 /**
- * Satisfiability uses the boolean group and does not boolean formulas
- * (applies the group additive operation, disjunction, directly on them).
+ * Declares the problem type of determining whether a formula is always valid.
  * 
  * @author braz
  *
  */
-public class ModelCounting extends AbstractGroupProblemType {
+public class Validity extends AbstractGroupProblemType {
 
-	public ModelCounting() {
-		super(new SymbolicPlusGroup());
+	public Validity() {
+		super(new BooleansWithConjunctionGroup());
 	}
 	
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		CardinalityUtil.assertIsCardinalityOfIndexedFormulaExpression(expression);
-		IntensionalSet set = (IntensionalSet) expression.get(0);
-		Pair<Expression, IndexExpressionsSet> result = Pair.make(IfThenElse.make(set.getCondition(), ONE, ZERO), set.getIndexExpressions());
-		return result;
+		UniversallyQuantifiedFormula universal = (UniversallyQuantifiedFormula) expression;
+		Pair<Expression, IndexExpressionsSet> formulaAndIndices = Pair.make(universal.getBody(), universal.getIndexExpressions());
+		return formulaAndIndices;
 	}
 }

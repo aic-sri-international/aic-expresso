@@ -51,7 +51,7 @@ import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
-import com.sri.ai.grinder.plaindpll.problemtype.Tautologicality;
+import com.sri.ai.grinder.plaindpll.problemtype.Validity;
 import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 
@@ -206,6 +206,6 @@ public class SymbolEqualityTautologicalityDPLLTest extends AbstractSymbolicSymbo
 	}
 
 	protected SGDPLLT makeRewriter() {
-		return new SGDPLLT(new EqualityConstraintTheory(new SymbolTermTheory()), new Tautologicality());
+		return new SGDPLLT(new EqualityConstraintTheory(new SymbolTermTheory()), new Validity());
 	}
 }

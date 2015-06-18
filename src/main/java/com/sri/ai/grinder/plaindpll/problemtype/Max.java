@@ -44,7 +44,6 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.group.SymbolicNumbersWithMaxGroup;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
@@ -56,7 +55,11 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public class Max extends SymbolicNumbersWithMaxGroup implements GroupProblemType {
+public class Max extends AbstractGroupProblemType {
+	
+	public Max() {
+		super(new SymbolicNumbersWithMaxGroup());
+	}
 
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {

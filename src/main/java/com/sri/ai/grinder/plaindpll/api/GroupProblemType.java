@@ -50,8 +50,14 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public interface GroupProblemType extends AssociativeCommutativeGroup {
+public interface GroupProblemType {
 
+	/**
+	 * Returns the group this problem type is based in.
+	 * @return the group this problem type is based in.
+	 */
+	AssociativeCommutativeGroup getGroup();
+	
 	/**
 	 * Gets an expression passed to a rewriter solving this type of problem, and returns a pair containing the expression
 	 * and indices for DPLL to solve.

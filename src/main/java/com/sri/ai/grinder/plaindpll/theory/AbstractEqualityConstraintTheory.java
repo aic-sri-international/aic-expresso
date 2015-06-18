@@ -84,7 +84,7 @@ import com.sri.ai.grinder.plaindpll.core.Contradiction;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.core.SimplifyLiteralGivenDisequality;
 import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
-import com.sri.ai.grinder.plaindpll.problemtype.Tautologicality;
+import com.sri.ai.grinder.plaindpll.problemtype.Validity;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
@@ -177,7 +177,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
 					ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new SGDPLLT(this, new Tautologicality())).rewrite(f, process),
+					(new SGDPLLT(this, new Validity())).rewrite(f, process),
 
 					ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
 					(new SGDPLLT(this, new Satisfiability())).rewrite(f, process)
