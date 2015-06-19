@@ -267,8 +267,7 @@ public class SGDPLLT extends AbstractSolver {
 	private List<Expression> computeSubSolutionsSequentially(Expression splitter, Expression expression, Collection<Expression> indices, Constraint constraint, Combiner combiner, Combiner additionCombiner, RewritingProcess process, boolean splitterMustBeInContextualConstraint) {
 		List<Expression> solutions;
 		Expression solutionUnderSplitter = solveUnderSplitter(true, splitter, expression, indices, constraint, splitterMustBeInContextualConstraint, process);
-		// NOTE: to turn off this optimization just set noNeedToComputeNegation = false;
-		// However, it is a very effective optimization so leave enabled by default.
+		// NOTE: to turn off this optimization just set noNeedToComputeNegation = false; however, it is a very effective optimization so leave enabled by default.
 		boolean noNeedToComputeNegation  = solutionUnderSplitter != null && combiner == additionCombiner && problemType.getGroup().isAdditiveAbsorbingElement(solutionUnderSplitter);
 		Expression solutionUnderSplitterNegation = 
 				noNeedToComputeNegation? null : solveUnderSplitter(false, splitter, expression, indices, constraint, splitterMustBeInContextualConstraint, process);
