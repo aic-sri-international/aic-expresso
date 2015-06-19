@@ -1,4 +1,4 @@
-# AIC-Expresso
+# AIC-Expresso [![Build Status](https://travis-ci.org/aic-sri-international/aic-expresso.svg?branch=master)](https://travis-ci.org/aic-sri-international/aic-expresso)
 SRI International's AIC Symbolic Manipulation and Evaluation Library (for Java 1.8+)
 ### Overview
 A general purpose symbolic manipulation and evaluation library, developed at 
