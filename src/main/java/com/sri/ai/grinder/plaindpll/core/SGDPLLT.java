@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.plaindpll.core;
 
+import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Collection;
@@ -217,49 +218,64 @@ public class SGDPLLT extends AbstractSolver {
 			combiner = additionCombiner;
 			splitterMustBeInContextualConstraint = false;
 		}
+
+		List<Expression> solutions = computeSubSolutions(splitter, expression, indices, constraint, combiner, additionCombiner, splitterMustBeInContextualConstraint, process);
 		
-		Expression solutionUnderSplitter         = null;
-		Expression solutionUnderSplitterNegation = null;
-		
-		// Only call branch and merge if threading is enabled as the 'noNeedToComputeNegation' optimization
-		// is very effective in the non-threaded case (cannot be supported effectively in branch/merge mechanism).
-		if (AICUtilConfiguration.isBranchAndMergeThreadingEnabled()) {
-// TODO - make Constraint implementations thread safe			
-			// Avoid java.util.ConcurrentModificationExceptions by cloning up front 
-			// as Constraint implementations appear to be non-thread safe currently.
-			Constraint positiveContraint  = constraint.clone();
-			Constraint negativeConstraint = constraint.clone();
-			List<Expression> solutions = GrinderUtil.branchAndMergeTasks(new BranchRewriteTask[] {
-				new BranchRewriteTask((expressions, rwprocess) -> {
-					Expression result = solveUnderSplitter(true, splitter, expression, indices, positiveContraint, splitterMustBeInContextualConstraint, process);
-					return result;
-				}, 
-				new Expression[0]),
-				new BranchRewriteTask((expressions, rwprocess) -> {
-					Expression result = solveUnderSplitter(false, splitter, expression, indices, negativeConstraint, splitterMustBeInContextualConstraint, process);
-					return result;
-				}, 
-				new Expression[0])
-			}, process);
-			
-			solutionUnderSplitter         = solutions.get(0);
-			solutionUnderSplitterNegation = solutions.get(1);
-		}
-		else {
-			solutionUnderSplitter = solveUnderSplitter(true, splitter, expression, indices, constraint, splitterMustBeInContextualConstraint, process);
-			// NOTE: to turn off this optimization just set 
-			// noNeedToComputeNegation = false;
-			// However, is very effective optimization so leave enabled by default.
-			boolean noNeedToComputeNegation  = solutionUnderSplitter != null && combiner == additionCombiner && problemType.getGroup().isAdditiveAbsorbingElement(solutionUnderSplitter);
-			solutionUnderSplitterNegation = 
-					noNeedToComputeNegation? null : solveUnderSplitter(false, splitter, expression, indices, constraint, splitterMustBeInContextualConstraint, process);
-		}
-		
+		Expression solutionUnderSplitter         = solutions.get(0);
+		Expression solutionUnderSplitterNegation = solutions.get(1);
+
 		Expression result = combine(combiner, splitter, solutionUnderSplitter, solutionUnderSplitterNegation, process);
 		
 		return result;
 	}
-	
+
+	private List<Expression> computeSubSolutions(Expression splitter, Expression expression, Collection<Expression> indices, Constraint constraint, Combiner combiner, Combiner additionCombiner, boolean splitterMustBeInContextualConstraint, RewritingProcess process) {
+		List<Expression> solutions;
+		// Only call branch and merge if threading is enabled as the 'noNeedToComputeNegation' optimization
+		// is very effective in the non-threaded case (cannot be supported effectively in branch/merge mechanism).
+		if (AICUtilConfiguration.isBranchAndMergeThreadingEnabled()) {
+			solutions = computeSubSolutionsByBranchAndMerge(splitter, expression, indices, constraint, splitterMustBeInContextualConstraint, process);
+		}
+		else {
+			solutions = computeSubSolutionsSequentially(splitter, expression, indices, constraint, combiner, additionCombiner, process, splitterMustBeInContextualConstraint);
+		}
+		return solutions;
+	}
+
+	private List<Expression> computeSubSolutionsByBranchAndMerge(Expression splitter, Expression expression, Collection<Expression> indices, Constraint constraint, boolean splitterMustBeInContextualConstraint, RewritingProcess process) {
+		List<Expression> solutions;
+		// TODO - make Constraint implementations thread safe			
+					// Avoid java.util.ConcurrentModificationExceptions by cloning up front 
+					// as Constraint implementations appear to be non-thread safe currently.
+					Constraint positiveContraint  = constraint.clone();
+					Constraint negativeConstraint = constraint.clone();
+					solutions = GrinderUtil.branchAndMergeTasks(new BranchRewriteTask[] {
+						new BranchRewriteTask((expressions, rwprocess) -> {
+							Expression result = solveUnderSplitter(true, splitter, expression, indices, positiveContraint, splitterMustBeInContextualConstraint, process);
+							return result;
+						}, 
+						new Expression[0]),
+						new BranchRewriteTask((expressions, rwprocess) -> {
+							Expression result = solveUnderSplitter(false, splitter, expression, indices, negativeConstraint, splitterMustBeInContextualConstraint, process);
+							return result;
+						}, 
+						new Expression[0])
+					}, process);
+		return solutions;
+	}
+
+	private List<Expression> computeSubSolutionsSequentially(Expression splitter, Expression expression, Collection<Expression> indices, Constraint constraint, Combiner combiner, Combiner additionCombiner, RewritingProcess process, boolean splitterMustBeInContextualConstraint) {
+		List<Expression> solutions;
+		Expression solutionUnderSplitter = solveUnderSplitter(true, splitter, expression, indices, constraint, splitterMustBeInContextualConstraint, process);
+		// NOTE: to turn off this optimization just set noNeedToComputeNegation = false;
+		// However, it is a very effective optimization so leave enabled by default.
+		boolean noNeedToComputeNegation  = solutionUnderSplitter != null && combiner == additionCombiner && problemType.getGroup().isAdditiveAbsorbingElement(solutionUnderSplitter);
+		Expression solutionUnderSplitterNegation = 
+				noNeedToComputeNegation? null : solveUnderSplitter(false, splitter, expression, indices, constraint, splitterMustBeInContextualConstraint, process);
+		solutions = arrayList(solutionUnderSplitter, solutionUnderSplitterNegation);
+		return solutions;
+	}
+
 	/**
 	 * Combines two sub-solutions under a splitter and its negation, where a null sub-solution means the respective splitter or negation cannot be true,
 	 * in which case the combination is simply the other sub-solution.
