@@ -396,9 +396,4 @@ public class SGDPLLT extends AbstractSolver {
 	public String toString() {
 		return "SGDPLL(T)";
 	}
-	
-	public int dummy() {
-		int i = 1 + 3;
-		return i;
-	}
 }
