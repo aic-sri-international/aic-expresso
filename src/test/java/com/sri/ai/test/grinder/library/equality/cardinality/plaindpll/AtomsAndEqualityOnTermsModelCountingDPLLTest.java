@@ -89,7 +89,7 @@ public class AtomsAndEqualityOnTermsModelCountingDPLLTest extends AbstractSymbol
 		// repeated for debugging:
 		expression = parse("X = Y and (Z = T1 or Z = T2) and (T1 = W and T2 = W) and p(X,Z) != p(Y,W)");
 		indices    = list();
-		expected   = parse("0");
+		expected   = parse("1");
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 
 		expression = parse("atom(X) or not atom(X)");
