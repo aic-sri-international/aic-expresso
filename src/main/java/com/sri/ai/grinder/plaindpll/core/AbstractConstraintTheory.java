@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.plaindpll.core;
 
+import static com.sri.ai.util.Util.getFirstOrNull;
 import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.throwSafeguardError;
 
@@ -57,6 +58,8 @@ import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
+import com.sri.ai.util.collect.FunctionIterator;
+import com.sri.ai.util.collect.PredicateIterator;
 
 @Beta
 /** 
@@ -232,17 +235,17 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 		return result;
 	}
 
-	@Override
 	public Expression pickSplitterInExpression(Expression expression, Constraint constraint, RewritingProcess process) {
-		Expression result = null;
-		
+		Expression result = getFirstOrNull(pickSplitterInExpressionIterator(expression, constraint, process));
+		return result;
+	}
+
+	@Override
+	public Iterator<Expression> pickSplitterInExpressionIterator(Expression expression, Constraint constraint, RewritingProcess process) {
+		Function<Expression, Expression> makerOfSplitterOrNull = e -> makeSplitterIfPossible(e, constraint.getSupportedIndices(), process);
 		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(expression);
-		while (result == null && subExpressionIterator.hasNext()) {
-			Expression subExpression = subExpressionIterator.next();
-			Expression splitterCandidate = makeSplitterIfPossible(subExpression, constraint.getSupportedIndices(), process);
-			result = splitterCandidate;
-		}
-	
+		Iterator<Expression> splittersOrNullIterator = new FunctionIterator<>(subExpressionIterator, makerOfSplitterOrNull);
+		Iterator<Expression> result = new PredicateIterator<Expression>(splittersOrNullIterator, e -> e != null);
 		return result;
 	}
 

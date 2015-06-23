@@ -38,9 +38,12 @@
 package com.sri.ai.grinder.plaindpll.core;
 
 import static com.sri.ai.util.Util.arrayList;
+import static com.sri.ai.util.Util.getFirstOrNull;
 import static com.sri.ai.util.Util.myAssert;
+import static com.sri.ai.util.Util.singletonListIfNotNullOrEmptyListIfNull;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
@@ -53,7 +56,9 @@ import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.util.AICUtilConfiguration;
+import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.base.QuarternaryFunction;
+import com.sri.ai.util.collect.NestedIterator;
 
 /**
  * A "plain" implementation of symbolic generalized DPLL (without using Grinder-style contexts and simplifications)
@@ -175,12 +180,24 @@ public class SGDPLLT extends AbstractSolver {
 
 	/** Picks splitter from either expression or constraint; assumes constraint is not <code>null</code>. */
 	protected Expression pickSplitter(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
-		Expression splitter;
-		splitter = constraintTheory.pickSplitterInExpression(expression, constraint, process);
-		if (splitter == null) { // expression is constant value, so it does not have any splitters
-			splitter = constraint.pickSplitter(indices, process);
-		}
+		Expression splitter = getFirstOrNull(getSplittersIterator(expression, indices, constraint, process));
 		return splitter;
+	}
+
+	/**
+	 * Returns an iterator over the possible splitters for the current problem, starting with the ones from the input expression and
+	 * then to the one provided by the constraint theory (in the future, constraint theories may be expanded to return an iterator, too).
+	 * @param expression
+	 * @param indices
+	 * @param constraint
+	 * @param process
+	 * @return
+	 */
+	protected Iterator<Expression> getSplittersIterator(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+		Iterator<Expression> splittersFromExpressionIterator = constraintTheory.pickSplitterInExpressionIterator(expression, constraint, process);
+		NullaryFunction<List<Expression>> splittersFromConstraintNullaryFunction = () -> singletonListIfNotNullOrEmptyListIfNull(constraint.pickSplitter(indices, process));
+		Iterator<Expression> result = new NestedIterator<>(splittersFromExpressionIterator, splittersFromConstraintNullaryFunction);
+		return result;
 	}
 
 	/**
@@ -209,7 +226,7 @@ public class SGDPLLT extends AbstractSolver {
 		Combiner combiner;
 		boolean splitterMustBeInContextualConstraint;
 
-		boolean splitterDependsOnFreeVariablesOnly = ! constraintTheory.splitterDependsOnIndex(splitter, indices);
+		boolean splitterDependsOnFreeVariablesOnly = ! containsIndex(splitter, indices);
 		if (earlyExternalizationOfFreeVariableSplittersOptimization && splitterDependsOnFreeVariablesOnly) {
 			combiner = conditionalCombiner;
 			splitterMustBeInContextualConstraint = true;
@@ -226,6 +243,11 @@ public class SGDPLLT extends AbstractSolver {
 
 		Expression result = combine(combiner, splitter, solutionUnderSplitter, solutionUnderSplitterNegation, process);
 		
+		return result;
+	}
+
+	protected boolean containsIndex(Expression splitter, Collection<Expression> indices) {
+		boolean result = constraintTheory.splitterDependsOnIndex(splitter, indices);
 		return result;
 	}
 
@@ -340,7 +362,7 @@ public class SGDPLLT extends AbstractSolver {
 		return result;
 	}
 	
-	private int getLevel(RewritingProcess process) {
+	protected int getLevel(RewritingProcess process) {
 		Integer level = (Integer) process.getGlobalObject("DPLL level");
 		if (level == null) {
 			level = 0;
@@ -348,12 +370,12 @@ public class SGDPLLT extends AbstractSolver {
 		return level;
 	}
 
-	private void incrementLevel(RewritingProcess subProcess, RewritingProcess process) {
+	protected void incrementLevel(RewritingProcess subProcess, RewritingProcess process) {
 		Integer level = getLevel(process);
 		subProcess.putGlobalObject("DPLL level", level + 1);
 	}
 
-	private void decrementLevel(RewritingProcess process) {
+	protected void decrementLevel(RewritingProcess process) {
 		Integer level = getLevel(process);
 		process.putGlobalObject("DPLL level", level - 1);
 	}

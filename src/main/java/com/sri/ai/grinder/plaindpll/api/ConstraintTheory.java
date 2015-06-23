@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.plaindpll.api;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -87,7 +88,8 @@ public interface ConstraintTheory {
 	Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process);
 
 	/**
-	 * Picks a splitter based on one of the theoryWithEquality's literals in the given expression under given constraint.
+	 * Returns an iterator that ranges over splitters from a given input expression,
+	 * based on one of the theoryWithEquality's literals in the given expression under given constraint.
 	 * The returned splitter must be a splitter that will help solve the current expression;
 	 * it does not need to be equivalent to the given expression.
 	 * See {@link ConstraintTheory} documentation for the definition of a splitter.
@@ -96,7 +98,7 @@ public interface ConstraintTheory {
 	 * @param process
 	 * @return
 	 */
-	Expression pickSplitterInExpression(Expression expression, Constraint constraint, RewritingProcess process);
+	Iterator<Expression> pickSplitterInExpressionIterator(Expression expression, Constraint constraint, RewritingProcess process);
 
 	/**
 	 * Indicates whether a splitter interpretation depends on the interpretation of some index.
