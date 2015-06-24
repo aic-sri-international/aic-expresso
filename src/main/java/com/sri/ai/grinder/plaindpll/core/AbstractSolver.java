@@ -39,6 +39,7 @@ package com.sri.ai.grinder.plaindpll.core;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.util.Util.list;
 
 import java.util.Collection;
 import java.util.List;
@@ -109,6 +110,18 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		this.countsDeclaration = countsDeclaration;
 	}
 	
+	@Override
+	public
+	ConstraintTheory getConstraintTheory() {
+		return constraintTheory;
+	}
+	
+	@Override
+	public
+	GroupProblemType getProblemType() {
+		return problemType;
+	}
+
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		Pair<Expression, IndexExpressionsSet> inputAndIndexExpressions = problemType.getExpressionAndIndexExpressionsFromRewriterProblemArgument(expression, process);
@@ -199,6 +212,16 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	 * @return
 	 */
 	protected abstract Expression solveAfterBookkeeping(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process);
+
+	/**
+	 * Same as {@link addSymbolicResults(Expression, Expression, RewritingProcess)}
+	 * called with a newly constructed default rewriting process.
+	 */
+	protected Expression addSymbolicResults(Expression solution1, Expression solution2) {
+		DefaultRewritingProcess process = new DefaultRewritingProcess(null);
+		process.initializeDPLLContextualConstraint(getConstraintTheory().makeConstraint(list()));
+		return addSymbolicResults(solution1, solution2, process);
+	}
 
 	/**
 	 * If solutions are unconditional expressions, simply add them.

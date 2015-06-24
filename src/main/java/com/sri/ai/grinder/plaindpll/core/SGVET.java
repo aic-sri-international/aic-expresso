@@ -114,7 +114,7 @@ public class SGVET extends AbstractSolver {
 		subSolver.debugLevel = 6;
 	}
 
-	SemiRingProblemType getProblemType() {
+	public SemiRingProblemType getProblemType() {
 		return (SemiRingProblemType) problemType;
 	}
 	

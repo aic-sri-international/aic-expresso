@@ -53,6 +53,12 @@ import com.sri.ai.grinder.api.RewritingProcess;
  */
 public interface Solver extends Rewriter {
 
+	/** Returns the constraint theory used by this solver. */
+	ConstraintTheory getConstraintTheory();
+	
+	/** Returns the problem type solved by this solver. */
+	GroupProblemType getProblemType();
+	
 	/** Solves a problem encoded in the given expression. */
 	Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process);
 
