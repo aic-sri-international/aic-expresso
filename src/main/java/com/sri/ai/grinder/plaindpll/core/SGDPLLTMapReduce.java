@@ -69,7 +69,7 @@ public class SGDPLLTMapReduce extends AbstractSolver {
 		int depth = 3;
 		
 		final Wrapper<Expression> accumulatedSolution = new Wrapper<>(getProblemType().getGroup().additiveIdentityElement()); // starts with "zero"
-		// Wrapper is used because one cannot use a non-final object inside a closure as below.
+		// Wrapper is used because one cannot use a non-final object inside a closure as seen below.
 		
 		Solver solver = new SGDPLLT(getConstraintTheory(), getProblemType());
 		
