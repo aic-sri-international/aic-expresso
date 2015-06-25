@@ -62,6 +62,7 @@ import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.api.Solver;
+import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
@@ -88,7 +89,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	}
 	
 	/** The background theory for the solver's input in the algorithm. */
-	protected ConstraintTheory inputTheory;
+	protected Theory inputTheory;
 	
 	/** The background theory for constraints in the algorithm. */
 	protected ConstraintTheory constraintTheory;
@@ -108,6 +109,12 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		this.constraintTheory = theory;
 		this.problemType = problemType;
 		this.countsDeclaration = countsDeclaration;
+	}
+	
+	@Override
+	public
+	Theory getInputTheory() {
+		return inputTheory;
 	}
 	
 	@Override

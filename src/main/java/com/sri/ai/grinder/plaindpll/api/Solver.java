@@ -53,6 +53,9 @@ import com.sri.ai.grinder.api.RewritingProcess;
  */
 public interface Solver extends Rewriter {
 
+	/** Returns the input theory used by this solver. */
+	Theory getInputTheory();
+	
 	/** Returns the constraint theory used by this solver. */
 	ConstraintTheory getConstraintTheory();
 	

@@ -131,7 +131,7 @@ public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheor
 	@Override
 	public Expression simplifyExpressionGivenSplitter(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
 		SignedSplitter equalitySignedSplitter = getSignedEqualitySplitter(splitterSign, splitter);
-		Expression result = theoryWithEquality.applySplitterToExpression(equalitySignedSplitter, expression, process);
+		Expression result = theoryWithEquality.simplifyExpressionGivenSplitter(equalitySignedSplitter, expression, process);
 		return result;
 	}
 

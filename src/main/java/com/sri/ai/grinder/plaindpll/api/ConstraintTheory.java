@@ -59,7 +59,7 @@ import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
  *
  */
 @Beta
-public interface ConstraintTheory {
+public interface ConstraintTheory extends Theory {
 	
 	/**
 	 * Indicates whether an expression is to be considered a variable term in this constraintTheory.
@@ -70,12 +70,19 @@ public interface ConstraintTheory {
 	boolean isVariableTerm(Expression term, RewritingProcess process);
 
 	/**
-	 * Simplifies expression given theoryWithEquality.
+	 * Simplifies an expression given the assumption that a splitter is true or false, depending on given sign.
+	 * @param splitterSign
+	 * @param splitter
 	 * @param expression
 	 * @param process
 	 * @return
 	 */
-	Expression simplify(Expression expression, RewritingProcess process);
+	public abstract Expression simplifyExpressionGivenSplitter(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process);
+
+	/** Same as {@link #simplifyExpressionGivenSplitter(boolean, Expression, Expression, RewritingProcess)} but using {@link SignedSplitter}. */
+	default Expression simplifyExpressionGivenSplitter(SignedSplitter signedSplitter, Expression expression, RewritingProcess process) {
+		return simplifyExpressionGivenSplitter(signedSplitter.getSplitterSign(), signedSplitter.getSplitter(), expression, process);
+	}
 
 	/**
 	 * Makes splitter equivalent to given expression if such exists, or null otherwise.
@@ -105,21 +112,6 @@ public interface ConstraintTheory {
 	 */
 	boolean splitterDependsOnIndex(Expression splitter, Collection<Expression> indices);
 
-	/**
-	 * Simplifies an expression given the assumption that a splitter is true or false, depending on given sign.
-	 * @param splitterSign
-	 * @param splitter
-	 * @param expression
-	 * @param process
-	 * @return
-	 */
-	Expression simplifyExpressionGivenSplitter(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process);
-	
-	/** Same as {@link #simplifyExpressionGivenSplitter(boolean, Expression, Expression, RewritingProcess)} but using {@link SignedSplitter}. */
-	default Expression applySplitterToExpression(SignedSplitter signedSplitter, Expression expression, RewritingProcess process) {
-		return simplifyExpressionGivenSplitter(signedSplitter.getSplitterSign(), signedSplitter.getSplitter(), expression, process);
-	}
-	
 	/**
 	 * Simplifies solution under constraint, by eliminating trivialized splitters
 	 * and normalizing remaining splitters and leaf expressions according to theoryWithEquality normalization properties.
