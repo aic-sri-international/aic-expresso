@@ -47,7 +47,6 @@ import static com.sri.ai.util.Util.putAll;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -79,7 +78,7 @@ import com.sri.ai.util.collect.StackedHashMap;
  * Implements utility methods to be used by {@link SGDPLLT} and associated classes.
  * <p>
  * Several of these methods could be more naturally seen as methods of the interfaces themselves
- * (for example, {@link DPLLUtil#getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices, ConstraintTheory theoryWithEquality)}
+ * (for example, {@link DPLLUtil#getIndexBoundBySplitterApplicationIfAny(Expression splitter, Collection<Expression> indices, ConstraintTheory constraintTheoryWithEquality)}
  * could be a method in interface {@link ConstraintTheory}),
  * but are included here instead because their functionality depends on a more basic method of those interfaces
  * (in that case, on {@link ConstraintTheory#makeConstraint()});
@@ -324,7 +323,7 @@ public class DPLLUtil {
 	 * @param splitterSign
 	 * @param splitter
 	 * @param solution
-	 * @param theoryWithEquality
+	 * @param constraintTheoryWithEquality
 	 * @param process
 	 * @return an equivalent solution
 	 */

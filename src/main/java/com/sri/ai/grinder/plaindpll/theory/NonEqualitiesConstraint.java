@@ -11,7 +11,7 @@ import com.sri.ai.grinder.plaindpll.api.TermTheory;
 public interface NonEqualitiesConstraint extends Constraint {
 	
 	@Override
-	EqualityConstraintTheory getTheory();
+	EqualityConstraintTheory getConstraintTheory();
 	
 	TermTheory getTermTheory();
 	

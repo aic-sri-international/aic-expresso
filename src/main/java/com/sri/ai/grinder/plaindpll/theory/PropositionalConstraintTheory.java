@@ -211,7 +211,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 		}
 		
 		@Override
-		public ConstraintTheory getTheory() {
+		public ConstraintTheory getConstraintTheory() {
 			return PropositionalConstraintTheory.this;
 		}
 

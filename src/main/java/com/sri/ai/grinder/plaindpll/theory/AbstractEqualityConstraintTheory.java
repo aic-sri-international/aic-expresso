@@ -57,34 +57,17 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.library.boole.Equivalence;
-import com.sri.ai.grinder.library.boole.ForAll;
-import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
-import com.sri.ai.grinder.library.boole.Or;
-import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.number.Division;
-import com.sri.ai.grinder.library.number.GreaterThan;
-import com.sri.ai.grinder.library.number.GreaterThanOrEqualTo;
-import com.sri.ai.grinder.library.number.LessThan;
-import com.sri.ai.grinder.library.number.LessThanOrEqualTo;
-import com.sri.ai.grinder.library.number.Minus;
-import com.sri.ai.grinder.library.number.Plus;
-import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
-import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.core.SimplifyLiteralGivenDisequality;
-import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
-import com.sri.ai.grinder.plaindpll.problemtype.Validity;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
@@ -111,8 +94,8 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 		return termTheory;
 	}
 	
-	private static Rewriter plus  = new Plus();
-	private static Rewriter times = new Times();
+//	private static Rewriter plus  = new Plus();
+//	private static Rewriter times = new Times();
 
 	@Override
 	protected boolean usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers() {
@@ -127,60 +110,38 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 					FunctorConstants.DISEQUALITY,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
 					Disequality.simplify(f, process),
 
-					FunctorConstants.AND,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					And.simplify(f),
-
-					FunctorConstants.OR,              (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					Or.simplify(f),
-
 					FunctorConstants.NOT,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					Not.simplify(f),
+					Not.simplify(f)
+					//,
 
-					FunctorConstants.IF_THEN_ELSE,    (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					IfThenElse.simplify(f),
-
-					FunctorConstants.EQUIVALENCE,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					Equivalence.simplify(f),
-
-					FunctorConstants.IMPLICATION,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					Implication.simplify(f),
-
-					FunctorConstants.CARDINALITY,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					{ Expression type = (Expression) process.getGlobalObject(f); return type == null? f : type; },
-
-					FunctorConstants.TIMES,           (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					times.rewrite(f, process),
-
-					FunctorConstants.DIVISION,        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					Division.simplify(f),
-
-					FunctorConstants.PLUS,            (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					plus.rewrite(f, process),
-
-					FunctorConstants.MINUS,           (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(f.numberOfArguments() == 2? Minus.simplify(f) : f),
-
-					FunctorConstants.LESS_THAN,                 (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					LessThan.simplify(f),
-
-					FunctorConstants.LESS_THAN_OR_EQUAL_TO,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					LessThanOrEqualTo.simplify(f),
-
-					FunctorConstants.GREATER_THAN,              (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					GreaterThan.simplify(f),
-
-					FunctorConstants.GREATER_THAN_OR_EQUAL_TO,  (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					GreaterThanOrEqualTo.simplify(f)
+					// Soon to be used for difference arithmetic
+//					FunctorConstants.PLUS,            (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+//					plus.rewrite(f, process),
+//
+//					FunctorConstants.MINUS,           (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+//					(f.numberOfArguments() == 2? Minus.simplify(f) : f),
+//
+//					FunctorConstants.LESS_THAN,                 (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+//					LessThan.simplify(f),
+//
+//					FunctorConstants.LESS_THAN_OR_EQUAL_TO,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+//					LessThanOrEqualTo.simplify(f),
+//
+//					FunctorConstants.GREATER_THAN,              (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+//					GreaterThan.simplify(f),
+//
+//					FunctorConstants.GREATER_THAN_OR_EQUAL_TO,  (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+//					GreaterThanOrEqualTo.simplify(f)
 
 					);
 
 	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =
 			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
-					ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new SGDPLLT(this, new Validity())).rewrite(f, process),
-
-					ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					(new SGDPLLT(this, new Satisfiability())).rewrite(f, process)
+//					ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+//					(new SGDPLLT(this, new Validity())).rewrite(f, process),
+//
+//					ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+//					(new SGDPLLT(this, new Satisfiability())).rewrite(f, process)
 					);
 
 	@Override
@@ -260,7 +221,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 	}
 
 	/**
-	 * Represents and manipulates constraints in the theoryWithEquality of disequalities of terms (variables and constants).
+	 * Represents and manipulates constraints in the constraintTheoryWithEquality of disequalities of terms (variables and constants).
 	 */
 	@SuppressWarnings("serial")
 	@Beta
@@ -271,7 +232,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 
 		public EqualityConstraintTheoryConstraint(Collection<Expression> supportedIndices, NonEqualitiesConstraint nonEqualities) {
 			super(supportedIndices);
-			this.equalities = new EqualitiesConstraint(getTheory(), getSupportedIndices());
+			this.equalities = new EqualitiesConstraint(getConstraintTheory(), getSupportedIndices());
 			this.nonEqualities = nonEqualities; 
 		}
 
@@ -287,7 +248,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 		}
 
 		@Override
-		public AbstractEqualityConstraintTheory getTheory() {
+		public AbstractEqualityConstraintTheory getConstraintTheory() {
 			return AbstractEqualityConstraintTheory.this;
 		}
 
@@ -313,7 +274,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 			Expression representative2 = equalities.getRepresentative(splitter.get(1), process);
 			
 			Expression normalizedSplitter = apply(splitter.getFunctor(), representative1, representative2);
-			Expression normalizedSplitterSimplification = getTheory().simplify(normalizedSplitter, process); // careful, this may not be a splitter itself because X = true is simplified to X
+			Expression normalizedSplitterSimplification = getConstraintTheory().simplify(normalizedSplitter, process); // careful, this may not be a splitter itself because X = true is simplified to X
 			if (Expressions.isBooleanSymbol(normalizedSplitterSimplification)) {
 				result = normalizedSplitterSimplification;
 			}
@@ -420,7 +381,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 	}
 
 	/**
-	 * Represents and manipulates constraints in the theoryWithEquality of disequalities of terms (variables and constants).
+	 * Represents and manipulates constraints in the constraintTheoryWithEquality of disequalities of terms (variables and constants).
 	 */
 	@Beta
 	public static class EqualitiesConstraint extends AbstractOwnRepresentationConstraint {
@@ -448,12 +409,12 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 		}
 
 		@Override
-		public AbstractEqualityConstraintTheory getTheory() {
+		public AbstractEqualityConstraintTheory getConstraintTheory() {
 			return theory;
 		}
 
 		public TermTheory getTermTheory() {
-			return getTheory().getTermTheory();
+			return getConstraintTheory().getTermTheory();
 		}
 
 		@Override
@@ -660,7 +621,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 		}
 
 		private boolean isVariableTerm(Expression term, RewritingProcess process) {
-			return getTheory().isVariableTerm(term, process);
+			return getConstraintTheory().isVariableTerm(term, process);
 		}
 
 		////////// END OF EQUALITY CONSTRAINTS MAINTENANCE

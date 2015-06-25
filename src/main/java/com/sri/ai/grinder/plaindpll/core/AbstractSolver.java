@@ -63,6 +63,7 @@ import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.api.Solver;
 import com.sri.ai.grinder.plaindpll.api.Theory;
+import com.sri.ai.grinder.plaindpll.theory.DefaultTheory;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
@@ -104,9 +105,9 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		this(theory, problemType, null);
 	}
 
-	public AbstractSolver(ConstraintTheory theory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
-		this.inputTheory = theory;
-		this.constraintTheory = theory;
+	public AbstractSolver(ConstraintTheory constraintTheory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
+		this.inputTheory = new DefaultTheory(constraintTheory);
+		this.constraintTheory = constraintTheory;
 		this.problemType = problemType;
 		this.countsDeclaration = countsDeclaration;
 	}
@@ -134,7 +135,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		Pair<Expression, IndexExpressionsSet> inputAndIndexExpressions = problemType.getExpressionAndIndexExpressionsFromRewriterProblemArgument(expression, process);
 		Expression input = inputAndIndexExpressions.first;
 		IndexExpressionsSet indexExpressions = inputAndIndexExpressions.second;
-		Expression simplifiedInput = inputTheory.simplify(input, process); // eventually this will should not be needed as simplification should be lazy 
+		Expression simplifiedInput = inputTheory.simplify(input, process); // TODO: eventually this will should not be needed as simplification should be lazy 
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
 		Expression result = solve(simplifiedInput, indices, subProcess);
@@ -181,7 +182,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		process.initializeDPLLContextualConstraint(contextualConstraint);
 
 		Constraint constraint = constraintTheory.makeConstraint(indices);
-		Expression simplifiedInput = constraintTheory.simplify(input, process);
+		Expression simplifiedInput = inputTheory.simplify(input, process);
 		Expression result = solve(simplifiedInput, indices, constraint, process);
 		if (result == null) { // constraint is unsatisfiable, so result is identity element.
 			result = problemType.getGroup().additiveIdentityElement();

@@ -62,7 +62,7 @@ public class DisequalitiesConstraint extends AbstractNonEqualitiesConstraint  {
 	}
 
 	protected NonEqualitiesConstraintForSingleVariable makeNonEqualitiesConstraintForVariable(Expression variable) {
-		NonEqualitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, getTheory(), getSupportedIndices());
+		NonEqualitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, getConstraintTheory(), getSupportedIndices());
 		return result;
 	}
 }

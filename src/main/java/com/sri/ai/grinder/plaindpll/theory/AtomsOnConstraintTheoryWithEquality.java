@@ -69,10 +69,10 @@ public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheor
 	// We differentiate those two types of constraintTheory and splitters by always
 	// calling the first type "equality constraintTheory" and "equality splitters".
 	
-	ConstraintTheory theoryWithEquality;
+	ConstraintTheory constraintTheoryWithEquality;
 	
 	public AtomsOnConstraintTheoryWithEquality(AbstractConstraintTheory theoryWithEquality) {
-		this.theoryWithEquality = theoryWithEquality;
+		this.constraintTheoryWithEquality = theoryWithEquality;
 	}
 
 	/**
@@ -92,24 +92,24 @@ public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheor
 	
 	@Override
 	public boolean isVariableTerm(Expression term, RewritingProcess process) {
-		return theoryWithEquality.isVariableTerm(term, process);
+		return constraintTheoryWithEquality.isVariableTerm(term, process);
 	}
 
 	@Override
 	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
-		if (theoryWithEquality.isVariableTerm(expression, process) && isBooleanTyped(expression, process)) {
+		if (constraintTheoryWithEquality.isVariableTerm(expression, process) && isBooleanTyped(expression, process)) {
 			result = expression;
 		}
 		else {
-			result = theoryWithEquality.makeSplitterIfPossible(expression, indices, process);
+			result = constraintTheoryWithEquality.makeSplitterIfPossible(expression, indices, process);
 		}
 		return result;
 	}
 
 	@Override
 	public boolean applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll() {
-		boolean result = theoryWithEquality.applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll();
+		boolean result = constraintTheoryWithEquality.applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll();
 		return result;
 	}
 
@@ -120,24 +120,24 @@ public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheor
 
 	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {
-		return theoryWithEquality.simplify(expression, process);
+		return constraintTheoryWithEquality.simplify(expression, process);
 	}
 	
 	@Override
 	protected boolean usesDefaultImplementationOfSimplifyExpressionGivenSplitterByOverriddingGetSplitterApplier() {
-		return false; // will instead delegate to theoryWithEquality.applySplitterToExpression
+		return false; // will instead delegate to constraintTheoryWithEquality.applySplitterToExpression
 	}
 
 	@Override
-	public Expression simplifyExpressionGivenSplitter(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
+	public Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
 		SignedSplitter equalitySignedSplitter = getSignedEqualitySplitter(splitterSign, splitter);
-		Expression result = theoryWithEquality.simplifyExpressionGivenSplitter(equalitySignedSplitter, expression, process);
+		Expression result = constraintTheoryWithEquality.applySplitterToExpression(equalitySignedSplitter, expression, process);
 		return result;
 	}
 
 	@Override
 	public AtomsOnTheoryWithEqualityConstraint makeConstraint(Collection<Expression> indices) {
-		AtomsOnTheoryWithEqualityConstraint result = new AtomsOnTheoryWithEqualityConstraint(theoryWithEquality.makeConstraint(indices));
+		AtomsOnTheoryWithEqualityConstraint result = new AtomsOnTheoryWithEqualityConstraint(constraintTheoryWithEquality.makeConstraint(indices));
 		return result;
 	}
 
@@ -157,7 +157,7 @@ public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheor
 		}
 
 		@Override
-		public ConstraintTheory getTheory() {
+		public ConstraintTheory getConstraintTheory() {
 			return AtomsOnConstraintTheoryWithEquality.this;
 		}
 

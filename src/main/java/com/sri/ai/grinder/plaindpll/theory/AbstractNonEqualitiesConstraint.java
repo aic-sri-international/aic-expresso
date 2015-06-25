@@ -72,7 +72,7 @@ public abstract class AbstractNonEqualitiesConstraint extends AbstractRuleOfProd
 	abstract protected DisequalitiesConstraint cloneWithoutNonEqualitiesForSingleVariables();
 
 	public TermTheory getTermTheory() {
-		return getTheory().getTermTheory();
+		return getConstraintTheory().getTermTheory();
 	}
 
 	@Override
@@ -211,7 +211,7 @@ public abstract class AbstractNonEqualitiesConstraint extends AbstractRuleOfProd
 	}
 
 	private boolean isVariableTerm(Expression term, RewritingProcess process) {
-		return getTheory().isVariableTerm(term, process);
+		return getConstraintTheory().isVariableTerm(term, process);
 	}
 
 	protected abstract void incorporateFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process);
@@ -289,7 +289,7 @@ public abstract class AbstractNonEqualitiesConstraint extends AbstractRuleOfProd
 	abstract protected NonEqualitiesConstraintForSingleVariable makeNonEqualitiesConstraintForVariable(Expression variable);
 
 	@Override
-	public EqualityConstraintTheory getTheory() {
+	public EqualityConstraintTheory getConstraintTheory() {
 		return theory;
 	}
 

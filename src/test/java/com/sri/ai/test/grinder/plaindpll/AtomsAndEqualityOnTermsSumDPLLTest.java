@@ -192,13 +192,13 @@ public class AtomsAndEqualityOnTermsSumDPLLTest extends AbstractSymbolicSymbolEq
 //
 //		// FROM HERE ON: tests repeated from EqualityOnTermsModelCountingDPLLTest, which should still be solved by this generalization
 //		
-//		// tests the most important property in the theoryWithEquality, that of functional congruence.
+//		// tests the most important property in the constraintTheoryWithEquality, that of functional congruence.
 //		expression = parse("p(X) = a and p(Y) = b and X = Y");
 //		indices    = list();
 //		expected   = parse("0");
 //		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 //
-//		// tests the most important property in the theoryWithEquality, that of functional congruence.
+//		// tests the most important property in the constraintTheoryWithEquality, that of functional congruence.
 //		expression = parse("p(X,Y) != p(Z,W) => X != Z or Y != W");
 //		indices    = list();
 //		expected   = parse("1");

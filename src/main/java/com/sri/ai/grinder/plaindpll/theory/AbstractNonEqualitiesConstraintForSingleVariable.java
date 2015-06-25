@@ -44,12 +44,12 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 	}
 
 	@Override
-	public EqualityConstraintTheory getTheory() {
+	public EqualityConstraintTheory getConstraintTheory() {
 		return theory;
 	}
 
 	protected TermTheory getTermTheory() {
-		return getTheory().getTermTheory();
+		return getConstraintTheory().getTermTheory();
 	}
 	
 	protected long getVariableDomainSize(RewritingProcess process) {

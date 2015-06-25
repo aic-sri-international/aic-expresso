@@ -44,7 +44,6 @@ import static com.sri.ai.util.Util.throwSafeguardError;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
@@ -57,7 +56,6 @@ import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.PredicateIterator;
 
@@ -65,41 +63,7 @@ import com.sri.ai.util.collect.PredicateIterator;
 /** 
  * Basic implementation of some methods of {@link ConstraintTheory}.
  */
-abstract public class AbstractConstraintTheory implements ConstraintTheory {
-
-	protected abstract boolean usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers();
-	
-	/**
-	 * Provides a map from functors's getValue() values (Strings) to a function mapping a
-	 * function application of that functor and a rewriting process to an equivalent, simplified formula
-	 * according to this theoryWithEquality.
-	 * Only required if {@link #simplify(Expression, RewritingProcess)} is not overridden by code not using it. 
-	 * @return
-	 */
-	protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers() {
-		throwSafeguardError( // OPTIMIZATION: much of this, if not all or even extra information, could be obtained by reflection inside throwAppropriateSafeguardError
-				getClass().getSimpleName(),
-				"getFunctionApplicationSimplifiers",
-				"AbstractConstraintTheory",
-				"simplify(Expression, RewritingProcess)");
-		return null; // never used, as safeguardCheck throws an error no matter what.
-	}
-
-	/**
-	 * Provides a map from syntactic form types (Strings) to a function mapping a
-	 * function application of that functor and a rewriting process to an equivalent, simplified formula
-	 * according to this theoryWithEquality.
-	 * Only required if {@link #simplify(Expression, RewritingProcess)} is not overridden by code not using it. 
-	 * @return
-	 */
-	protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
-		throwSafeguardError(
-				getClass().getSimpleName(),
-				"getSyntacticFormTypeSimplifiers",
-				"AbstractConstraintTheory",
-				"simplify(Expression, RewritingProcess)");
-		return null; // never used, as safeguardCheck throws an error no matter what.
-	}
+abstract public class AbstractConstraintTheory extends AbstractTheory implements ConstraintTheory {
 
 	/**
 	 * Default implementation that simplifies an expression by exhaustively simplifying its top expression with
@@ -254,11 +218,11 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	/**
 	 * Default implementation that obtains a function from {@link #getSplitterApplier(boolean, Expression)} and,
 	 * if it is not <code>null</code>,
-	 * invokes {@link Expression#replaceAllOccurrences(Function, RewritingProcess)} with it as a parameter and the simplifies it,
+	 * invokes {@link Expression#replaceAllOccurrences(Function, RewritingProcess)} with it as a parameter,
 	 * otherwise just returning the original expression otherwise.
 	 */
 	@Override
-	public Expression simplifyExpressionGivenSplitter(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
+	public Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
 		myAssert(
 				() -> usesDefaultImplementationOfSimplifyExpressionGivenSplitterByOverriddingGetSplitterApplier(),
 				() -> getClass() + " is using default implementation of simplifyExpressionGivenSplitter, even though its usesDefaultImplementationOfSimplifyExpressionGivenSplitterByOverriddingGetSplitterApplier returns false");
@@ -267,7 +231,6 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 		Function<Expression, Expression> splitterSubExpressionApplier = getSplitterApplier(splitterSign, splitter);
 		if (splitterSubExpressionApplier != null) {
 			result = expression.replaceAllOccurrences(splitterSubExpressionApplier, process);
-			result = simplify(result, process);
 		}
 		else {
 			result = expression;

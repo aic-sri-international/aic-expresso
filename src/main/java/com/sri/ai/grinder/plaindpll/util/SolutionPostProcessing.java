@@ -99,7 +99,7 @@ public class SolutionPostProcessing {
 	 * @param splitter
 	 * @param solution1
 	 * @param solution2
-	 * @param theoryWithEquality TODO
+	 * @param constraintTheoryWithEquality TODO
 	 * @param process TODO
 	 * @return whether the two solutions are equal modulo the splitter equality
 	 */

@@ -207,8 +207,8 @@ public class SGDPLLT extends AbstractSolver {
 
 	private Expression solveBasedOnSplitting(Expression splitter, Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		
-		// Keep in mind that splitter may already be implied as true or false by theoryWithEquality constraint.
-		// This should not happen if the theoryWithEquality application of splitters to expressions only replaced them by true or false,
+		// Keep in mind that splitter may already be implied as true or false by constraintTheoryWithEquality constraint.
+		// This should not happen if the constraintTheoryWithEquality application of splitters to expressions only replaced them by true or false,
 		// but if it does more than that, those manipulations may create new literals that happen to be implied true or false by constraint.
 		// This is verified at this point by applying the splitter to the constraint and checking if it is does not render it unsatisfiable.
 		// If it does, only the solution under the splitter's negation is considered.
@@ -354,11 +354,17 @@ public class SGDPLLT extends AbstractSolver {
 			}
 			else {
 				incrementLevel(processUnderSplitter, process);
-				Expression expressionUnderSplitter = constraintTheory.simplifyExpressionGivenSplitter(splitterSign, splitter, expression, process);
+				Expression expressionUnderSplitter = simplifyExpressionGivenSplitter(splitterSign, splitter, expression, process);
 				result = solve(expressionUnderSplitter, indices, constraintUnderSplitter, processUnderSplitter);
 				decrementLevel(processUnderSplitter);
 			}
 		}
+		return result;
+	}
+
+	protected Expression simplifyExpressionGivenSplitter(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
+		Expression afterApplyingSplitter = constraintTheory.applySplitterToExpression(splitterSign, splitter, expression, process);
+		Expression result = getInputTheory().simplify(afterApplyingSplitter, process);
 		return result;
 	}
 	

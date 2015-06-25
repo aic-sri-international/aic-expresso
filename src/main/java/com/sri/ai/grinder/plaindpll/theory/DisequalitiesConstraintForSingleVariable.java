@@ -26,7 +26,6 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
-import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.collect.ArrayHashSet;
 import com.sri.ai.util.collect.ArraySet;
@@ -161,7 +160,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 			result = splitter;
 		}
 		else if (! externalConstraint.directlyImpliesLiteral(apply(DISEQUALITY, term1, term2), process)) { // already disunified but not disequal
-			splitter = getTheory().makeSplitterFromFunctorAndVariableAndTermDistinctFromVariable(EQUALITY, term1, term2, getSupportedIndices(), process);
+			splitter = getConstraintTheory().makeSplitterFromFunctorAndVariableAndTermDistinctFromVariable(EQUALITY, term1, term2, getSupportedIndices(), process);
 			result = splitter;
 		}
 		return result;

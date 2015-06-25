@@ -121,7 +121,7 @@ public class ExpressionConstraint extends AbstractConstraint {
 	}
 
 	@Override
-	public ConstraintTheory getTheory() {
+	public ConstraintTheory getConstraintTheory() {
 		return theory;
 	}
 

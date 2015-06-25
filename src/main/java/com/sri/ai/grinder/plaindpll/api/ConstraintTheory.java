@@ -51,7 +51,7 @@ import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
  * <p>
  * One of its tasks is to select and manipulate <i>splitters</i>.
  * A splitter is a literal on which DPLL splits the possible interpretations of an expression (see {@link SGDPLLT}).
- * The theoryWithEquality needs to know how to simplify expressions based on the fact that a splitter is true or false,
+ * The constraintTheoryWithEquality needs to know how to simplify expressions based on the fact that a splitter is true or false,
  * as well as how to simplify a <i>solution</i> based on a splitter's being true or false into a simpler solution.
  * A solution is an if-then-else expression in which all conditions are splitters.
  * 
@@ -77,11 +77,11 @@ public interface ConstraintTheory extends Theory {
 	 * @param process
 	 * @return
 	 */
-	public abstract Expression simplifyExpressionGivenSplitter(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process);
+	public abstract Expression applySplitterToExpression(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process);
 
-	/** Same as {@link #simplifyExpressionGivenSplitter(boolean, Expression, Expression, RewritingProcess)} but using {@link SignedSplitter}. */
-	default Expression simplifyExpressionGivenSplitter(SignedSplitter signedSplitter, Expression expression, RewritingProcess process) {
-		return simplifyExpressionGivenSplitter(signedSplitter.getSplitterSign(), signedSplitter.getSplitter(), expression, process);
+	/** Same as {@link #applySplitterToExpression(boolean, Expression, Expression, RewritingProcess)} but using {@link SignedSplitter}. */
+	default Expression applySplitterToExpression(SignedSplitter signedSplitter, Expression expression, RewritingProcess process) {
+		return applySplitterToExpression(signedSplitter.getSplitterSign(), signedSplitter.getSplitter(), expression, process);
 	}
 
 	/**
@@ -96,7 +96,7 @@ public interface ConstraintTheory extends Theory {
 
 	/**
 	 * Returns an iterator that ranges over splitters from a given input expression,
-	 * based on one of the theoryWithEquality's literals in the given expression under given constraint.
+	 * based on one of the constraintTheoryWithEquality's literals in the given expression under given constraint.
 	 * The returned splitter must be a splitter that will help solve the current expression;
 	 * it does not need to be equivalent to the given expression.
 	 * See {@link ConstraintTheory} documentation for the definition of a splitter.
@@ -114,7 +114,7 @@ public interface ConstraintTheory extends Theory {
 
 	/**
 	 * Simplifies solution under constraint, by eliminating trivialized splitters
-	 * and normalizing remaining splitters and leaf expressions according to theoryWithEquality normalization properties.
+	 * and normalizing remaining splitters and leaf expressions according to constraintTheoryWithEquality normalization properties.
 	 * If the constraint is found to be inconsistent during this operation (this may happen if the solver is incomplete),
 	 * returns null.
 	 * @param constraint
@@ -132,7 +132,7 @@ public interface ConstraintTheory extends Theory {
 	boolean applicationOfConstraintOnSplitterAlwaysEitherTrivializesItOrEffectsNoChangeAtAll();
 
 	/**
-	 * Make a new constraint for this theoryWithEquality over a set of indices (equivalent to all assignments to those indices).
+	 * Make a new constraint for this constraintTheoryWithEquality over a set of indices (equivalent to all assignments to those indices).
 	 * @return
 	 */
 	Constraint makeConstraint(Collection<Expression> indices);

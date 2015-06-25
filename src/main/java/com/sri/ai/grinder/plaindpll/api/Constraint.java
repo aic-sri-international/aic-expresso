@@ -25,7 +25,7 @@ public interface Constraint extends Expression {
 	Constraint clone();
 	
 	/** The constraintTheory to which this constraint belongs. */
-	ConstraintTheory getTheory();
+	ConstraintTheory getConstraintTheory();
 
 	/**
 	 * The set of variables on subsets of which one can count models of this constraint,
@@ -40,7 +40,7 @@ public interface Constraint extends Expression {
 	 * Generates new constraint representing conjunction of this constraint and given splitter
 	 * (or its negation, depending on the sign).
 	 * @param splitterSign the splitter's sign (true for splitter itself, false for its negation)
-	 * @param splitter the splitter according to this theoryWithEquality's choice
+	 * @param splitter the splitter according to this constraintTheoryWithEquality's choice
 	 * @param process the rewriting process
 	 * @param the conjunction of this constraint and the given splitter, or <code>null</code> if that is contradictory.
 	 */
@@ -63,7 +63,7 @@ public interface Constraint extends Expression {
 	 * to the world at large (because then it may be assumed immutable by other objects holding it,
 	 * and should behave immutable from then on).
 	 * @param splitterSign the splitter's sign (true for splitter itself, false for its negation)
-	 * @param splitter the splitter according to this theoryWithEquality's choice
+	 * @param splitter the splitter according to this constraintTheoryWithEquality's choice
 	 * @param process the rewriting process
 	 */
 	void incorporateNonTrivialNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
@@ -116,10 +116,10 @@ public interface Constraint extends Expression {
 	 * Specific constraint implementations will typically have more efficient ways to do it.
 	 */
 	default Constraint project(Collection<Expression> eliminatedIndices, RewritingProcess process) {
-		Solver projector = new SGDPLLT(getTheory(), new Satisfiability());
+		Solver projector = new SGDPLLT(getConstraintTheory(), new Satisfiability());
 		Expression resultExpression = projector.solve(this, eliminatedIndices, process); // this was the motivation for making Constraint implement Expression
 		// note that solvers should be aware that their input or part of their input may be a Constraint, and take advantage of the internal representations already present in them, instead of simply converting them to an Expression and redoing all the work.
-		Constraint result = ExpressionConstraint.wrap(getTheory(), getSupportedIndices(), resultExpression);
+		Constraint result = ExpressionConstraint.wrap(getConstraintTheory(), getSupportedIndices(), resultExpression);
 		return result;
 	}
 
@@ -144,7 +144,7 @@ public interface Constraint extends Expression {
 	 */
 	default boolean directlyImpliesLiteral(Expression literal, RewritingProcess process) {
 		boolean result;
-		Expression simplifiedLiteral = getTheory().simplify(literal, process);
+		Expression simplifiedLiteral = getConstraintTheory().simplify(literal, process);
 		if (simplifiedLiteral.getSyntacticFormType().equals("Symbol")) {
 			result = simplifiedLiteral.equals(TRUE);
 		}
