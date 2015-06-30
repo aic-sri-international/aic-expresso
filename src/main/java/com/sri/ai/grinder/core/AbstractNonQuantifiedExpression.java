@@ -37,12 +37,12 @@
  */
 package com.sri.ai.grinder.core;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.util.Util;
 
 /**
  * A basic, default implementation of some of the {@link Expression} methods.
@@ -56,7 +56,7 @@ public abstract class AbstractNonQuantifiedExpression extends AbstractExpression
 
 	@Override
 	public List<Expression> getScopedExpressions(RewritingProcess process) {
-		List<Expression> result = Util.list();
+		List<Expression> result = Collections.emptyList();
 		return result;
 	}
 	
