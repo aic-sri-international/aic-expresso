@@ -35,9 +35,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.expresso.api;
+package com.sri.ai.grinder.api;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.FunctionApplication;
 
 /**
  * 

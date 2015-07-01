@@ -35,13 +35,15 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.expresso.api;
+package com.sri.ai.grinder.api;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
