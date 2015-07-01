@@ -49,7 +49,7 @@ import com.sri.ai.expresso.api.Expression;
  *
  */
 @Beta
-public class ExpressionOrder implements Comparator<Expression> {
+public class ExpressionComparator implements Comparator<Expression> {
 
 	@Override
 	public int compare(Expression o1, Expression o2) {

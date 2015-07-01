@@ -37,9 +37,12 @@
  */
 package com.sri.ai.expresso.api;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -60,6 +63,17 @@ import com.sri.ai.util.math.Rational;
  * </code>
  * </pre>
  * 
+ * <b>NOTE:</b> To make the library as general as possible, any expression
+ * that is not a numeric constant or an application of +, -, *, / or ^ with
+ * constant integer exponent, is to be considered a "generalized variable".
+ * Therefore:
+ * 
+ * <pre>
+ * <code>
+ * vars(10 * |Dogs|^2 * |People|^3 * f(y) * x^2) = { |Dogs|, |People|, f(y), x }
+ * </code>
+ * </pre>
+ * 
  * @author oreilly
  *
  */
@@ -70,23 +84,21 @@ public interface Monomial extends FunctionApplication {
 	 * @return the numerical constant (i.e. coefficient) of the monomial.
 	 */
 	Rational getCoefficient();
+	
+	/**
+	 * Convenience routine for getting the variables of the monomial in Set form.
+	 * 
+	 * @return a Set representation of the variables contained within the Monomial.
+	 */
+	Set<Expression> getVariables();
 
 	/**
-	 * <b>NOTE:</b> To make the library as general as possible, any expression
-	 * that is not a numeric constant or an application of +, -, *, / or ^ with
-	 * constant integer exponent, is considered a "generalized variable".
-	 * Therefore:
-	 * 
-	 * <pre>
-	 * <code>
-	 * vars(10 * |Dogs|^2 * |People|^3 * f(y) * x^2) = { |Dogs|, |People|, f(y), x }
-	 * </code>
-	 * </pre>
+	 * Get a unique list, lexicographically ordered, of the variables in the monomial.
 	 * 
 	 * @return a lexicographically ordered list of the variables contained in
 	 *         the monomial.
 	 */
-	List<Expression> getVariables();
+	List<Expression> getVariablesLexicographicallyOrdered();
 
 	/**
 	 * 
@@ -120,7 +132,7 @@ public interface Monomial extends FunctionApplication {
 	 * Two monomials <em>M1</em> and <em>M2</em> have <b>like terms</b> if they
 	 * contain the same variables raised to the same powers, i.e. if vars(M1) =
 	 * vars(M2) and signature(M1, vars(M1)) = signature(M2, vars(M2)).<br>
-	 * Compatible Examples:<br>
+	 * Have Like Terms Examples:<br>
 	 * 
 	 * <pre>
 	 * <code>
@@ -131,25 +143,111 @@ public interface Monomial extends FunctionApplication {
 	 * </pre>
 	 * 
 	 * @param monomial
-	 *            the monomial to check compatibility with.
-	 * @return true if this monomial is compatible with the given monomial,
+	 *            the monomial to check if have like terms with.
+	 * @return true if this monomial has like terms with the given monomial,
 	 *         false otherwise.
 	 */
 	default boolean haveLikeTerms(Monomial other) {
-		boolean result = getVariables().equals(other.getVariables())
+		boolean result = getVariablesLexicographicallyOrdered().equals(other.getVariablesLexicographicallyOrdered())
 				&& getPowersOfVariables().equals(other.getPowersOfVariables());
 		return result;
 	}
 
+	/**
+	 * The degree of a monomial is the sum of the exponents of all its variables.
+	 * 
+	 * @return the degree of the monomial.
+	 */
 	default Rational degree() {
 		Rational result = getPowersOfVariables().stream().reduce(Rational.ZERO,
 				(r1, r2) -> r1.add(r2));
 		return result;
 	}
 
-// TODO - JavaDoc	
-	Monomial times(Monomial another);
+	/**
+	 * Multiply this Monomial by another.
+	 * 
+	 * @param multiplier
+	 *            the multiplier.
+	 * @return a new Monomial representing the result of the multiplication.
+	 */
+	Monomial times(Monomial multiplier);
 
-// TODO - JavaDoc	
-	Monomial divide(Monomial another);
+	/**
+	 * Divide this monomial with another.
+	 * 
+	 * @param divisor
+	 *            the divisor
+	 * @return a pair consisting of the quotient and remainder of the division.
+	 */
+	Pair<Monomial, Monomial> divide(Monomial divisor);
+	
+	/**
+	 * Raise this monomial to a given power.
+	 * 
+	 * @param power
+	 *            the power to raise the monomial to.
+	 * @return a new monomial which is the result of raising this monomial to
+	 *         the given power.
+	 */
+	Monomial exponentiate(int power);
+	
+	/**
+	 * Create a lexicographically ordered union (no duplicates) of the variables
+	 * contained in two Monomials.
+	 * 
+	 * @param m1
+	 *            the first monomial.
+	 * @param m2
+	 *            the second monomial.
+	 * @return the lexicographically ordered union (no duplicates) of the
+	 *         variables contained in two Monomials.
+	 */
+	public static List<Expression> unionVariablesLexicographically(Monomial m1, Monomial m2) {
+		List<Expression> m1Variables = m1.getVariablesLexicographicallyOrdered();
+		List<Expression> m2Variables = m2.getVariablesLexicographicallyOrdered();
+		// For efficiency ensure we have enough capacity in the union up front.
+		List<Expression> result = new ArrayList<>(m1Variables.size()
+				+ m2Variables.size());
+
+		// NOTE: we know m1 and m2's variables are lexicographically ordered,
+		// which we can take advantage of to perform the lexicraphically ordered
+		// union more efficiently
+		int m1VariablesSize = m1Variables.size();
+		int m2VariablesSize = m2Variables.size();
+		Expression m1Var, m2Var;
+		for (int i1 = 0, i2 = 0; i1 < m1VariablesSize || i2 < m2VariablesSize;) {
+			if (i1 < m1VariablesSize && i2 < m2VariablesSize) {
+				m1Var = m1Variables.get(i1);
+				m2Var = m2Variables.get(i2);
+				int m1VarComparisonToM2Var = m1Var.compareTo(m2Var);
+
+				if (m1VarComparisonToM2Var == 0) { // are considered equal
+					// just add one of them (as considered same) as do not want
+					// duplicates in the returned union.
+					result.add(m1Var);
+					i1++;
+					i2++;
+				} 
+				else if (m1VarComparisonToM2Var < 0) { // i.e. m1Var is before m2Var
+					result.add(m1Var);
+					i1++;
+				} 
+				else { // i.e. m2Var is before m1Var
+					result.add(m2Var);
+					i2++;
+				}
+			} 
+			else if (i1 < m1VariablesSize) { // implies i2 is exhausted
+				result.add(m1Variables.get(i1));
+				i1++;
+			} 
+			else { // implies i2 < m2VariableSize and i1 is exhausted
+				result.add(m2Variables.get(i2));
+				i2++;
+			}
+		}
+
+		return result;
+	}
 }

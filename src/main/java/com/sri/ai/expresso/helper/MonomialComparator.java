@@ -37,10 +37,7 @@
  */
 package com.sri.ai.expresso.helper;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
@@ -57,26 +54,21 @@ import com.sri.ai.util.math.Rational;
  *
  */
 @Beta
-public class MonomialOrder implements Comparator<Monomial> {
-	private ExpressionOrder expressionComparator = new ExpressionOrder();
-
+public class MonomialComparator implements Comparator<Monomial> {
+	
 	@Override
-	public int compare(Monomial o1, Monomial o2) {
+	public int compare(Monomial m1, Monomial m2) {
 		int result = 0;
-// TODO - could implement more efficiently as we know the variable orders are lexicographical		
-		LinkedHashSet<Expression> unionOfVariables = new LinkedHashSet<>(o1.getVariables());
-		unionOfVariables.addAll(o2.getVariables());
 		
-		List<Expression> sortedUnionOfVariables = new ArrayList<>();
-		Collections.sort(sortedUnionOfVariables, expressionComparator);
+		List<Expression> sortedUnionOfVariables = Monomial.unionVariablesLexicographically(m1, m2);
 		
-		List<Rational> o1Signature = o1.getSignature(sortedUnionOfVariables);
-		List<Rational> o2Signature = o2.getSignature(sortedUnionOfVariables);
+		List<Rational> m1Signature = m1.getSignature(sortedUnionOfVariables);
+		List<Rational> m2Signature = m2.getSignature(sortedUnionOfVariables);
 		
 		// Note: Both signatures will be the same length
-		int signatureLength = o1Signature.size();
+		int signatureLength = m1Signature.size();
 		for (int i = 0; i < signatureLength; i++) {
-			if ((result = o1Signature.get(i).compareTo(o2Signature.get(i))) != 0) {
+			if ((result = m1Signature.get(i).compareTo(m2Signature.get(i))) != 0) {
 				// if not = 0 we know that one is less than or greater than the other
 				break;
 			}
