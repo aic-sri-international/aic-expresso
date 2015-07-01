@@ -107,7 +107,18 @@ public interface Monomial extends FunctionApplication {
 	 * @return the powers of the variables in the monomial, which map to the
 	 *         lexicographical order of the variables.
 	 */
-	List<Rational> getPowersOfVariables();
+	List<Rational> getPowersOfLexicographicallyOrderedVariables();
+	
+	/**
+	 * Get the power of the given variable if it is a variable of the monomial
+	 * otherwise return 0.
+	 * 
+	 * @param variable
+	 *            the variable whose power is to be retrieved.
+	 * @return the power of the given variable if the variable is contained in
+	 *         the monomial. If not contained in the monomial will return 0.
+	 */
+	Rational getPowerOfVariable(Expression variable);
 
 	/**
 	 * The <b>signature</b> of a monomial <em>M</em> wrt a tuple of variables
@@ -123,7 +134,7 @@ public interface Monomial extends FunctionApplication {
 	 * </pre>
 	 * 
 	 * @param variables
-	 *            a lexicographically ordered list of variables.
+	 *            a list of variables.
 	 * @return the tuple of the powers of the given variables that are in this
 	 *         Monomial (0 is returned for the power of variables not present in
 	 *         this monomial).
@@ -151,7 +162,7 @@ public interface Monomial extends FunctionApplication {
 	 */
 	default boolean haveLikeTerms(Monomial other) {
 		boolean result = getVariablesLexicographicallyOrdered().equals(other.getVariablesLexicographicallyOrdered())
-				&& getPowersOfVariables().equals(other.getPowersOfVariables());
+				&& getPowersOfLexicographicallyOrderedVariables().equals(other.getPowersOfLexicographicallyOrderedVariables());
 		return result;
 	}
 
@@ -161,7 +172,7 @@ public interface Monomial extends FunctionApplication {
 	 * @return the degree of the monomial.
 	 */
 	default Rational degree() {
-		Rational result = getPowersOfVariables().stream().reduce(Rational.ZERO,
+		Rational result = getPowersOfLexicographicallyOrderedVariables().stream().reduce(Rational.ZERO,
 				(r1, r2) -> r1.add(r2));
 		return result;
 	}
@@ -187,12 +198,12 @@ public interface Monomial extends FunctionApplication {
 	/**
 	 * Raise this monomial to a given power.
 	 * 
-	 * @param power
-	 *            the power to raise the monomial to.
+	 * @param exponent
+	 *            the exponent to raise the monomial to.
 	 * @return a new monomial which is the result of raising this monomial to
-	 *         the given power.
+	 *         the given exponent.
 	 */
-	Monomial exponentiate(int power);
+	Monomial exponentiate(int exponent);
 	
 	/**
 	 * Create a lexicographically ordered union (no duplicates) of the variables

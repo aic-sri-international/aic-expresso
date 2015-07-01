@@ -73,11 +73,11 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 	private static final long serialVersionUID = 1L;
 	
 	private Expression                 functor;
-	private ArrayList<Expression>      arguments;
+	private List<Expression>           arguments;
 	private SyntaxTree                 syntaxTree;
 	private List<ExpressionAndContext> expressionAndContexts;
 	
-	public DefaultFunctionApplication(Expression functor, ArrayList<Expression> arguments) {
+	public DefaultFunctionApplication(Expression functor, List<Expression> arguments) {
 		super();
 		this.functor   = functor;
 		this.arguments = arguments;
