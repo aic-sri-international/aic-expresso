@@ -91,16 +91,35 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 			if (Expressions.isNumber(numericalConstantOrTerm)) {
 				coefficient = coefficient.multiply(numericalConstantOrTerm.rationalValue());
 			}
+			else if (Expressions.hasFunctor(numericalConstantOrTerm, EXPONENTIATION_FUNCTOR) 
+					&& Expressions.isNumber(numericalConstantOrTerm.get(0)) 
+					&& Expressions.isNumber(numericalConstantOrTerm.get(1))
+					&& numericalConstantOrTerm.get(1).rationalValue().isInteger()) {
+				// Handle special case where the base is a number and the exponent is constant integer as well
+				// as we don't want the base in this case to be treated like a variable.
+				// Instead we update the coefficient appropriately
+				coefficient = coefficient.multiply(numericalConstantOrTerm.get(0).rationalValue().pow(numericalConstantOrTerm.get(1).intValue()));
+			}
 			else { // Is a term				
 				Expression variable = numericalConstantOrTerm;
 				Rational   power    = Rational.ONE;
-				// If exponentiation using a number then we need to extract the variable and the power
-				if (Expressions.hasFunctor(variable, EXPONENTIATION_FUNCTOR) && Expressions.isNumber(variable.get(1))) {
+				// If exponentiation using a constant integer exponent then we need to extract the variable and the power
+				if (Expressions.hasFunctor(variable, EXPONENTIATION_FUNCTOR) 
+						&& Expressions.isNumber(variable.get(1))
+						&& variable.get(1).rationalValue().isInteger()) {
 					power    = variable.get(1).rationalValue();
 					variable = variable.get(0); // The variable is actually the base of the exponentiation
 				}
 // TODO - validate that the variable is a legal 'general variable' expression	
-				variableToPower.put(variable, power);
+				
+				// Ensure duplicate variables in the monomial are handled correctly
+				Rational existingPower = variableToPower.get(variable);
+				if (existingPower == null) {
+					variableToPower.put(variable, power);
+				}
+				else {
+					variableToPower.put(variable, existingPower.add(power));
+				}
 			}
 		}
 		

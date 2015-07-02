@@ -75,6 +75,12 @@ public class DefaultMonomialTest {
 		
 		// Test that numerical constants are multiplied together to create the coefficient
 		Assert.assertEquals(new Rational(8), makeMonomial("y^3*2*x^2*4").getCoefficient());
+		
+		// Test edge case where the coefficient is represented as a power
+		Assert.assertEquals(new Rational(8), makeMonomial("2^3*x^2").getCoefficient());
+		
+		// Test edge case where the coefficient is represented as a power and a separate constant
+		Assert.assertEquals(new Rational(24), makeMonomial("2^3*x^2*3").getCoefficient());
 	}
 	
 	@Test
@@ -106,11 +112,52 @@ public class DefaultMonomialTest {
 		m = makeMonomial("4*y^2*x^3");
 		Assert.assertEquals(2, m.getVariables().size());
 		Assert.assertEquals(new HashSet<>(Arrays.asList(Expressions.parse("x"), Expressions.parse("y"))), m.getVariables());
+		
+		// Ensure duplicates are correctly collapse
+		m = makeMonomial("4*y^2*y^3");
+		Assert.assertEquals(1, m.getVariables().size());
+		Assert.assertEquals(new HashSet<>(Arrays.asList(Expressions.parse("y"))), m.getVariables());		
+		
+		//
+		// General variables examples
+		m = makeMonomial("10 * |Dogs|^2 * |People|^3 * f(y) * x^2");
+		Assert.assertEquals(4, m.getVariables().size());
+		Assert.assertEquals(new HashSet<>(Arrays.asList(Expressions.parse("|Dogs|"), Expressions.parse("|People|"), Expressions.parse("f(y)"), Expressions.parse("x"))), m.getVariables());
+	
+		//
+		m = makeMonomial("10 * 2^a");
+		Assert.assertEquals(1, m.getVariables().size());
+		Assert.assertEquals(new HashSet<>(Arrays.asList(Expressions.parse("2^a"))), m.getVariables());
+		
+		m = makeMonomial("10 * 2^1.1"); // treated as a variable as a non-integer exponent
+		Assert.assertEquals(1, m.getVariables().size());
+		Assert.assertEquals(new HashSet<>(Arrays.asList(Expressions.parse("2^1.1"))), m.getVariables());
 	}
 	
 	@Test
 	public void testGetVariablesLexicographicallyOrdered() {
-// TODO		
+		Monomial m = makeMonomial("2");
+		Assert.assertEquals(0, m.getVariablesLexicographicallyOrdered().size());	
+		
+		m = makeMonomial("2*x");
+		Assert.assertEquals(1, m.getVariables().size());
+		Assert.assertEquals(Arrays.asList(Expressions.parse("x")), m.getVariablesLexicographicallyOrdered());
+		
+		m = makeMonomial("2*x^3*y^7*z^11");
+		Assert.assertEquals(3, m.getVariables().size());
+		Assert.assertEquals(Arrays.asList(Expressions.parse("x"), Expressions.parse("y"), Expressions.parse("z")), m.getVariablesLexicographicallyOrdered());
+		
+		m = makeMonomial("2*z^3*y^7*x^11");
+		Assert.assertEquals(3, m.getVariables().size());
+		Assert.assertEquals(Arrays.asList(Expressions.parse("x"), Expressions.parse("y"), Expressions.parse("z")), m.getVariablesLexicographicallyOrdered());
+		
+		m = makeMonomial("2*z^3*x^7*y^11");
+		Assert.assertEquals(3, m.getVariables().size());
+		Assert.assertEquals(Arrays.asList(Expressions.parse("x"), Expressions.parse("y"), Expressions.parse("z")), m.getVariablesLexicographicallyOrdered());
+		
+		m = makeMonomial("2*z^3*x^7*x^11");
+		Assert.assertEquals(2, m.getVariables().size());
+		Assert.assertEquals(Arrays.asList(Expressions.parse("x"), Expressions.parse("z")), m.getVariablesLexicographicallyOrdered());
 	}
 	
 	@Test
@@ -187,6 +234,11 @@ public class DefaultMonomialTest {
 	
 	@Test
 	public void testClone() {
+// TODO		
+	}
+	
+	@Test
+	public void testCompareTo() {
 // TODO		
 	}
 	
