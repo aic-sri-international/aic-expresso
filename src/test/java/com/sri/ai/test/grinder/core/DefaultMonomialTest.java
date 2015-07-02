@@ -350,7 +350,6 @@ public class DefaultMonomialTest {
 		m1 = makeMonomial("x^2*y^3");
 		m2 = makeMonomial("z^4*y^2*x^3");
 		Assert.assertEquals(Expressions.parse("tuple(x, y, z)").getArguments(), Monomial.unionVariablesLexicographically(m1, m2));
-
 	}
 	
 	//
