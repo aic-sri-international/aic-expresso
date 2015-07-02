@@ -68,7 +68,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	//
 	private static final long serialVersionUID = 1L;
 	//
-	private static final Expression MONOMIAL_FUNCTOR       = Expressions.makeSymbol(FunctorConstants.PRODUCT);
+	private static final Expression MONOMIAL_FUNCTOR       = Expressions.makeSymbol(FunctorConstants.TIMES);
 	private static final Expression EXPONENTIATION_FUNCTOR = Expressions.makeSymbol(FunctorConstants.EXPONENTIATION);
 	//
 	private static final ExpressionComparator _variableComparator = new ExpressionComparator();
@@ -86,6 +86,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	
 	public static Monomial make(List<Expression> numericalConstantsAndTerms) {
 		Rational coefficient = Rational.ONE;
+// TODO - handle nested exponentiations properly		
 		Map<Expression, Rational> variableToPower = new LinkedHashMap<>();
 		for (Expression numericalConstantOrTerm : numericalConstantsAndTerms) {
 			if (Expressions.isNumber(numericalConstantOrTerm)) {
@@ -182,6 +183,9 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 
 	@Override
 	public Monomial exponentiate(int exponent) {
+		if (exponent < 0) {
+			throw new IllegalArgumentException("Exponent must be a non-negative integer, given: "+exponent);
+		}
 		
 		Rational       resultCoefficient = coefficient.pow(exponent);
 		List<Rational> resultPowers      = new ArrayList<>(orderedPowers.size());

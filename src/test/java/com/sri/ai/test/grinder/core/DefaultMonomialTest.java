@@ -234,12 +234,70 @@ public class DefaultMonomialTest {
 	
 	@Test
 	public void testHaveLikeTerms() {
-// TODO		
+		Monomial m1 = makeMonomial("2");
+		Monomial m2 = makeMonomial("2");
+		Assert.assertEquals(true, m1.haveLikeTerms(m2));
+		
+		m1 = makeMonomial("2");
+		m2 = makeMonomial("3");
+		Assert.assertEquals(true, m1.haveLikeTerms(m2));
+		
+		m1 = makeMonomial("x");
+		m2 = makeMonomial("x");
+		Assert.assertEquals(true, m1.haveLikeTerms(m2));
+		
+		m1 = makeMonomial("x");
+		m2 = makeMonomial("y");
+		Assert.assertEquals(false, m1.haveLikeTerms(m2));
+		
+		m1 = makeMonomial("2");
+		m2 = makeMonomial("2*x");
+		Assert.assertEquals(false, m1.haveLikeTerms(m2));
+		
+		m1 = makeMonomial("2*x");
+		m2 = makeMonomial("2*x");
+		Assert.assertEquals(true, m1.haveLikeTerms(m2));
+		
+		m1 = makeMonomial("2*x^1");
+		m2 = makeMonomial("2*x");
+		Assert.assertEquals(true, m1.haveLikeTerms(m2));
+		
+		m1 = makeMonomial("2*x");
+		m2 = makeMonomial("2*x^2");
+		Assert.assertEquals(false, m1.haveLikeTerms(m2));
+		
+		m1 = makeMonomial("2*y^1*x");
+		m2 = makeMonomial("2*x^1*y");
+		Assert.assertEquals(true, m1.haveLikeTerms(m2));
+		
+		m1 = makeMonomial("2*y^3*x^2");
+		m2 = makeMonomial("2*x^2*y^7");
+		Assert.assertEquals(false, m1.haveLikeTerms(m2));
+		
+		m1 = makeMonomial("2*y^1*x");
+		m2 = makeMonomial("2*x^1*y*z^4");
+		Assert.assertEquals(false, m1.haveLikeTerms(m2));
 	}
 	
 	@Test
 	public void testDegree() {
-// TODO		
+		Monomial m = makeMonomial("2");
+		Assert.assertEquals(new Rational(0), m.degree());
+		
+		m = makeMonomial("x");
+		Assert.assertEquals(new Rational(1), m.degree());
+		
+		m = makeMonomial("2*x");
+		Assert.assertEquals(new Rational(1), m.degree());
+		
+		m = makeMonomial("2*x^3");
+		Assert.assertEquals(new Rational(3), m.degree());
+		
+		m = makeMonomial("2*x^3*y");
+		Assert.assertEquals(new Rational(4), m.degree());
+		
+		m = makeMonomial("2*x^3*y*z^5");
+		Assert.assertEquals(new Rational(9), m.degree());
 	}
 	
 	@Test
@@ -254,12 +312,45 @@ public class DefaultMonomialTest {
 	
 	@Test
 	public void testExponentiate() {
-// TODO		
+		Monomial m = makeMonomial("0");
+		Assert.assertEquals(makeMonomial("0"), m.exponentiate(3));
+		
+		m = makeMonomial("2");
+		Assert.assertEquals(makeMonomial("8"), m.exponentiate(3));
+		
+		m = makeMonomial("2*x");
+		Assert.assertEquals(makeMonomial("8*x^3"), m.exponentiate(3));
+		
+		m = makeMonomial("2*x^2");
+		Assert.assertEquals(makeMonomial("8*x^6"), m.exponentiate(3));
+		
+		m = makeMonomial("2*y^2*x^3");
+		Assert.assertEquals(makeMonomial("8*x^9*y^6"), m.exponentiate(3));
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void testIllegalExponeniateArgument() {
+		makeMonomial("x^2").exponentiate(-1);
 	}
 	
 	@Test
 	public void testUnionVariablesLexicographically() {
-// TODO		
+		Monomial m1 = makeMonomial("0");
+		Monomial m2 = makeMonomial("0");
+		Assert.assertEquals(Collections.emptyList(), Monomial.unionVariablesLexicographically(m1, m2));
+		
+		m1 = makeMonomial("x");
+		m2 = makeMonomial("x");
+		Assert.assertEquals(Expressions.parse("tuple(x)").getArguments(), Monomial.unionVariablesLexicographically(m1, m2));
+		
+		m1 = makeMonomial("x^2*y^3");
+		m2 = makeMonomial("y^2*x^3");
+		Assert.assertEquals(Expressions.parse("tuple(x, y)").getArguments(), Monomial.unionVariablesLexicographically(m1, m2));
+		
+		m1 = makeMonomial("x^2*y^3");
+		m2 = makeMonomial("z^4*y^2*x^3");
+		Assert.assertEquals(Expressions.parse("tuple(x, y, z)").getArguments(), Monomial.unionVariablesLexicographically(m1, m2));
+
 	}
 	
 	//
@@ -301,6 +392,11 @@ public class DefaultMonomialTest {
 	
 	//
 	// Additional Test
+	@Test
+	public void testEquals() {
+		
+	}	
+	
 	@Test
 	public void testToString() {
 // TODO		
