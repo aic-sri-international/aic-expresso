@@ -225,7 +225,11 @@ public class DefaultMonomialTest {
 		
 		// Examples form Javadoc
 		// signature(3 * y * x^2,  (x, y, z))  =  (2, 1, 0)
-		// signature(3,            (x, y, z))  =  (0, 0, 0)
+		m = makeMonomial("3 * y * x^2");
+		Assert.assertEquals(Arrays.asList(new Rational(2), new Rational(1), new Rational(0)), m.getSignature(Expressions.parse("tuple(x, y, z)").getArguments()));	
+		// signature(3, (x, y, z))  =  (0, 0, 0)
+		m = makeMonomial("3");
+		Assert.assertEquals(Arrays.asList(new Rational(0), new Rational(0), new Rational(0)), m.getSignature(Expressions.parse("tuple(x, y, z)").getArguments()));
 	}
 	
 	@Test
