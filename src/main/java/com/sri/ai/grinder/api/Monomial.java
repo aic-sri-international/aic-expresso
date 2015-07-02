@@ -139,7 +139,11 @@ public interface Monomial extends FunctionApplication {
 	 *         Monomial (0 is returned for the power of variables not present in
 	 *         this monomial).
 	 */
-	List<Rational> getSignature(List<Expression> variables);
+	default List<Rational> getSignature(List<Expression> variables) {
+		List<Rational> result = new ArrayList<>(variables.size());
+		variables.forEach(variable -> result.add(getPowerOfVariable(variable)));
+		return result;
+	}
 
 	/**
 	 * Two monomials <em>M1</em> and <em>M2</em> have <b>like terms</b> if they

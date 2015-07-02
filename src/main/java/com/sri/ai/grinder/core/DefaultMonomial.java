@@ -169,13 +169,6 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	}
 
 	@Override
-	public List<Rational> getSignature(List<Expression> variables) {
-		List<Rational> result = new ArrayList<>(variables.size());
-		variables.forEach(variable -> variableToPower.getOrDefault(variable, Rational.ZERO));
-		return result;
-	}
-
-	@Override
 	public Monomial times(Monomial multiplier) {
 // TODO
 		throw new UnsupportedOperationException("To implement yet");

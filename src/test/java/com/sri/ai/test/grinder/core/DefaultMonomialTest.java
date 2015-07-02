@@ -106,32 +106,32 @@ public class DefaultMonomialTest {
 		// Two variables
 		m = makeMonomial("y^2*x^3");
 		Assert.assertEquals(2, m.getVariables().size());
-		Assert.assertEquals(new HashSet<>(Arrays.asList(Expressions.parse("x"), Expressions.parse("y"))), m.getVariables());
+		Assert.assertEquals(new HashSet<>(Expressions.parse("(x, y)").getArguments()), m.getVariables());
 		
 		// A coefficient and two variables
 		m = makeMonomial("4*y^2*x^3");
 		Assert.assertEquals(2, m.getVariables().size());
-		Assert.assertEquals(new HashSet<>(Arrays.asList(Expressions.parse("x"), Expressions.parse("y"))), m.getVariables());
+		Assert.assertEquals(new HashSet<>(Expressions.parse("(x, y)").getArguments()), m.getVariables());
 		
 		// Ensure duplicates are correctly collapse
 		m = makeMonomial("4*y^2*y^3");
 		Assert.assertEquals(1, m.getVariables().size());
-		Assert.assertEquals(new HashSet<>(Arrays.asList(Expressions.parse("y"))), m.getVariables());		
+		Assert.assertEquals(new HashSet<>(Expressions.parse("tuple(y)").getArguments()), m.getVariables());		
 		
 		//
 		// General variables examples
 		m = makeMonomial("10 * |Dogs|^2 * |People|^3 * f(y) * x^2");
 		Assert.assertEquals(4, m.getVariables().size());
-		Assert.assertEquals(new HashSet<>(Arrays.asList(Expressions.parse("|Dogs|"), Expressions.parse("|People|"), Expressions.parse("f(y)"), Expressions.parse("x"))), m.getVariables());
+		Assert.assertEquals(new HashSet<>(Expressions.parse("(|Dogs|, |People|, f(y), x)").getArguments()), m.getVariables());
 	
 		//
 		m = makeMonomial("10 * 2^a");
 		Assert.assertEquals(1, m.getVariables().size());
-		Assert.assertEquals(new HashSet<>(Arrays.asList(Expressions.parse("2^a"))), m.getVariables());
+		Assert.assertEquals(new HashSet<>(Expressions.parse("tuple(2^a)").getArguments()), m.getVariables());
 		
 		m = makeMonomial("10 * 2^1.1"); // treated as a variable as a non-integer exponent
 		Assert.assertEquals(1, m.getVariables().size());
-		Assert.assertEquals(new HashSet<>(Arrays.asList(Expressions.parse("2^1.1"))), m.getVariables());
+		Assert.assertEquals(new HashSet<>(Expressions.parse("tuple(2^1.1)").getArguments()), m.getVariables());
 	}
 	
 	@Test
@@ -141,38 +141,91 @@ public class DefaultMonomialTest {
 		
 		m = makeMonomial("2*x");
 		Assert.assertEquals(1, m.getVariables().size());
-		Assert.assertEquals(Arrays.asList(Expressions.parse("x")), m.getVariablesLexicographicallyOrdered());
+		Assert.assertEquals(Expressions.parse("tuple(x)").getArguments(), m.getVariablesLexicographicallyOrdered());
 		
 		m = makeMonomial("2*x^3*y^7*z^11");
 		Assert.assertEquals(3, m.getVariables().size());
-		Assert.assertEquals(Arrays.asList(Expressions.parse("x"), Expressions.parse("y"), Expressions.parse("z")), m.getVariablesLexicographicallyOrdered());
+		Assert.assertEquals(Expressions.parse("(x, y, z)").getArguments(), m.getVariablesLexicographicallyOrdered());
 		
 		m = makeMonomial("2*z^3*y^7*x^11");
 		Assert.assertEquals(3, m.getVariables().size());
-		Assert.assertEquals(Arrays.asList(Expressions.parse("x"), Expressions.parse("y"), Expressions.parse("z")), m.getVariablesLexicographicallyOrdered());
+		Assert.assertEquals(Expressions.parse("(x, y, z)").getArguments(), m.getVariablesLexicographicallyOrdered());
 		
 		m = makeMonomial("2*z^3*x^7*y^11");
 		Assert.assertEquals(3, m.getVariables().size());
-		Assert.assertEquals(Arrays.asList(Expressions.parse("x"), Expressions.parse("y"), Expressions.parse("z")), m.getVariablesLexicographicallyOrdered());
+		Assert.assertEquals(Expressions.parse("(x, y, z)").getArguments(), m.getVariablesLexicographicallyOrdered());
 		
 		m = makeMonomial("2*z^3*x^7*x^11");
 		Assert.assertEquals(2, m.getVariables().size());
-		Assert.assertEquals(Arrays.asList(Expressions.parse("x"), Expressions.parse("z")), m.getVariablesLexicographicallyOrdered());
+		Assert.assertEquals(Expressions.parse("(x, z)").getArguments(), m.getVariablesLexicographicallyOrdered());
 	}
 	
 	@Test
 	public void testGetPowersOfLexicographicallyOrderedVariables() {
-// TODO		
+		Monomial m = makeMonomial("2");
+		Assert.assertEquals(0, m.getPowersOfLexicographicallyOrderedVariables().size());	
+		
+		m = makeMonomial("2*x");
+		Assert.assertEquals(1, m.getVariables().size());
+		Assert.assertEquals(Arrays.asList(new Rational(1)), m.getPowersOfLexicographicallyOrderedVariables());
+		
+		m = makeMonomial("2*x^3*y^7*z^11");
+		Assert.assertEquals(3, m.getVariables().size());
+		Assert.assertEquals(Arrays.asList(new Rational(3), new Rational(7), new Rational(11)), m.getPowersOfLexicographicallyOrderedVariables());
+		
+		m = makeMonomial("2*z^3*y^7*x^11");
+		Assert.assertEquals(3, m.getVariables().size());
+		Assert.assertEquals(Arrays.asList(new Rational(11), new Rational(7), new Rational(3)), m.getPowersOfLexicographicallyOrderedVariables());
+		
+		m = makeMonomial("2*z^3*x^7*y^11");
+		Assert.assertEquals(3, m.getVariables().size());
+		Assert.assertEquals(Arrays.asList(new Rational(7), new Rational(11), new Rational(3)), m.getPowersOfLexicographicallyOrderedVariables());
+		
+		m = makeMonomial("2*z^3*x^7*x^11");
+		Assert.assertEquals(2, m.getVariables().size());
+		Assert.assertEquals(Arrays.asList(new Rational(18), new Rational(3)), m.getPowersOfLexicographicallyOrderedVariables());	
 	}
 	
 	@Test
 	public void testGetPowerOfVariable() {
-// TODO		
+		// Implicit power of 1
+		Monomial m = makeMonomial("2*x");
+		Assert.assertEquals(1, m.getVariables().size());
+		Assert.assertEquals(new Rational(1), m.getPowerOfVariable(Expressions.parse("x")));	
+		
+		m = makeMonomial("2*x^3*y^7*z^11");
+		Assert.assertEquals(new Rational(3), m.getPowerOfVariable(Expressions.parse("x")));	
+		Assert.assertEquals(new Rational(7), m.getPowerOfVariable(Expressions.parse("y")));
+		Assert.assertEquals(new Rational(11), m.getPowerOfVariable(Expressions.parse("z")));	
+		
+		m = makeMonomial("2*z^3*y^7*x^11");
+		Assert.assertEquals(new Rational(11), m.getPowerOfVariable(Expressions.parse("x")));	
+		Assert.assertEquals(new Rational(7), m.getPowerOfVariable(Expressions.parse("y")));
+		Assert.assertEquals(new Rational(3), m.getPowerOfVariable(Expressions.parse("z")));
+		
+		m = makeMonomial("2*z^3*x^7*y^11");
+		Assert.assertEquals(new Rational(7), m.getPowerOfVariable(Expressions.parse("x")));	
+		Assert.assertEquals(new Rational(11), m.getPowerOfVariable(Expressions.parse("y")));
+		Assert.assertEquals(new Rational(3), m.getPowerOfVariable(Expressions.parse("z")));
+		
+		m = makeMonomial("2*z^3*x^7*x^11");
+		Assert.assertEquals(new Rational(18), m.getPowerOfVariable(Expressions.parse("x")));	
+		Assert.assertEquals(new Rational(0), m.getPowerOfVariable(Expressions.parse("y")));
+		Assert.assertEquals(new Rational(3), m.getPowerOfVariable(Expressions.parse("z")));
+		
+		// If Variable not present in the monomial its power is 0.
+		m = makeMonomial("2");
+		Assert.assertEquals(new Rational(0), m.getPowerOfVariable(Expressions.parse("x")));	
 	}
 	
 	@Test
 	public void testGetSignature() {
-// TODO		
+		Monomial m = makeMonomial("2*x");
+		Assert.assertEquals(Arrays.asList(new Rational(1)), m.getSignature(Expressions.parse("tuple(x)").getArguments()));	
+		
+		// Examples form Javadoc
+		// signature(3 * y * x^2,  (x, y, z))  =  (2, 1, 0)
+		// signature(3,            (x, y, z))  =  (0, 0, 0)
 	}
 	
 	@Test
