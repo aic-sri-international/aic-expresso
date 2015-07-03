@@ -72,7 +72,9 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	private static final Expression EXPONENTIATION_FUNCTOR = Expressions.makeSymbol(FunctorConstants.EXPONENTIATION);
 	//
 	private static final ExpressionComparator _variableComparator = new ExpressionComparator();
-	private static final Monomial             _zeroMonomial       = make(Rational.ZERO, Collections.emptyList(), Collections.emptyList());
+	//	
+	private static final Monomial ZERO = make(Rational.ZERO, Collections.emptyList(), Collections.emptyList());
+	private static final Monomial ONE  = make(Rational.ONE, Collections.emptyList(), Collections.emptyList());
 	//
 	private Rational                  coefficient      = null; 
 	private List<Expression>          orderedVariables = null;
@@ -117,7 +119,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 		Monomial result;
 		// return 0 if either coefficient is 0
 		if (this.coefficient.equals(Rational.ZERO) || multiplier.getCoefficient().equals(Rational.ZERO)) {
-			result = _zeroMonomial;
+			result = ZERO;
 		}
 		else {
 			List<Expression> combinedVariables = Monomial.unionVariablesLexicographically(this, multiplier);
@@ -144,7 +146,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 		}
 		
 		if (this.getCoefficient().equals(Rational.ZERO)) {
-			result = new Pair<>(_zeroMonomial, _zeroMonomial);
+			result = new Pair<>(ZERO, ZERO);
 		}		
 		else if (getVariables().containsAll(divisor.getVariables())) {
 			List<Expression> combinedVariables = Monomial.unionVariablesLexicographically(this, divisor);
@@ -156,14 +158,14 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 			
 			List<Rational> resultPowers = Util.zipWith((power1, power2) -> power1.subtract(power2), thisSignature, divisorSignature);
 			if (resultPowers.stream().anyMatch(power -> power.signum() == -1)) {
-				result = new Pair<>(_zeroMonomial, this); 
+				result = new Pair<>(ZERO, this); 
 			}
 			else {
-				result = new Pair<>(make(resultCoefficient, combinedVariables, resultPowers), _zeroMonomial);
+				result = new Pair<>(make(resultCoefficient, combinedVariables, resultPowers), ZERO);
 			}
 		}
 		else {
-			result = new Pair<>(_zeroMonomial, this);
+			result = new Pair<>(ZERO, this);
 		}
 		
 		return result;
@@ -174,13 +176,18 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 		if (exponent < 0) {
 			throw new IllegalArgumentException("Exponent must be a non-negative integer, given: "+exponent);
 		}
-		
-		Rational       resultCoefficient = coefficient.pow(exponent);
-		List<Rational> resultPowers      = new ArrayList<>(orderedPowers.size());
-		
-		orderedPowers.forEach(currentPower -> resultPowers.add(currentPower.multiply(exponent)));
-		
-		Monomial result = make(resultCoefficient, orderedVariables, resultPowers);
+		Monomial result;		
+		if (exponent == 0) {
+			result = ONE;
+		}
+		else {
+			Rational       resultCoefficient = coefficient.pow(exponent);
+			List<Rational> resultPowers      = new ArrayList<>(orderedPowers.size());
+			
+			orderedPowers.forEach(currentPower -> resultPowers.add(currentPower.multiply(exponent)));
+			
+			result = make(resultCoefficient, orderedVariables, resultPowers);
+		}
 		
 		return result;
 	}
@@ -248,7 +255,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 		
 		Monomial result = null;
 		if (coefficient.equals(Rational.ZERO)) {
-			result = _zeroMonomial;
+			result = ZERO;
 		}
 		else {
 			List<Expression> orderedVariables = new ArrayList<>(variableToPower.keySet());

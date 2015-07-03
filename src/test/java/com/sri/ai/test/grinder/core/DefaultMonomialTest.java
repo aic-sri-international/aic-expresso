@@ -393,6 +393,9 @@ public class DefaultMonomialTest {
 		
 		m = makeMonomial("2*y^2*x^3");
 		Assert.assertEquals(makeMonomial("8*x^9*y^6"), m.exponentiate(3));
+		
+		m = makeMonomial("2*y^2*x^3");
+		Assert.assertEquals(makeMonomial("1"), m.exponentiate(0));
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
