@@ -67,7 +67,7 @@ import com.sri.ai.util.math.Rational;
  * 
  * <b>NOTE:</b> To make the library as general as possible, any expression
  * that is not a numeric constant or an application of +, -, *, / or ^ with
- * constant integer exponent, is to be considered a "generalized variable".
+ * constant non-negative integer exponent, is to be considered a "generalized variable".
  * Therefore:
  * 
  * <pre>
@@ -191,11 +191,15 @@ public interface Monomial extends FunctionApplication {
 	Monomial times(Monomial multiplier);
 
 	/**
-	 * Divide this monomial with another.
+	 * Divide this monomial by another.
+	 * 
+	 * <pre><code>
+	 * this.divide(that) = this/that 
+	 * </pre></code>
 	 * 
 	 * @param divisor
 	 *            the divisor
-	 * @return a pair consisting of the quotient and remainder of the division.
+	 * @return a pair consisting of the quotient and remainder of this/divisor.
 	 */
 	Pair<Monomial, Monomial> divide(Monomial divisor);
 	

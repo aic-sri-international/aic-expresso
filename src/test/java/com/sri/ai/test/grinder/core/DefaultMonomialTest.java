@@ -47,6 +47,7 @@ import org.junit.Test;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Monomial;
 import com.sri.ai.grinder.core.DefaultMonomial;
+import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
 public class DefaultMonomialTest {
@@ -158,6 +159,12 @@ public class DefaultMonomialTest {
 		m = makeMonomial("2*z^3*x^7*x^11");
 		Assert.assertEquals(2, m.getVariables().size());
 		Assert.assertEquals(Expressions.parse("(x, z)").getArguments(), m.getVariablesLexicographicallyOrdered());
+		
+		// Note: z is dropped as we know is = 1
+		m = makeMonomial("2*x^3*y^7*z^0");
+		Assert.assertEquals(2, m.getVariables().size());
+		Assert.assertEquals(Expressions.parse("(x, y)").getArguments(), m.getVariablesLexicographicallyOrdered());
+
 	}
 	
 	@Test
@@ -302,12 +309,72 @@ public class DefaultMonomialTest {
 	
 	@Test
 	public void testTimes() {
-// TODO		
+		Monomial m1 = makeMonomial("2");
+		Monomial m2 = makeMonomial("3");		
+		Assert.assertEquals(makeMonomial("6"), m1.times(m2));
+		
+		m1 = makeMonomial("x");
+		m2 = makeMonomial("x");		
+		Assert.assertEquals(makeMonomial("x^2"), m1.times(m2));
+		
+		m1 = makeMonomial("2*x^2");
+		m2 = makeMonomial("3*x^3");		
+		Assert.assertEquals(makeMonomial("6*x^5"), m1.times(m2));
+		
+		m1 = makeMonomial("3*x^2*y");
+		m2 = makeMonomial("3*x^3*z^2");		
+		Assert.assertEquals(makeMonomial("9*x^5*y*z^2"), m1.times(m2));
+		
+		m1 = makeMonomial("0");
+		m2 = makeMonomial("3*x^3*z^2");		
+		Assert.assertEquals(makeMonomial("0"), m1.times(m2));
+		
+		m1 = makeMonomial("3*x^2*y");
+		m2 = makeMonomial("0");		
+		Assert.assertEquals(makeMonomial("0"), m1.times(m2));
 	}
 	
 	@Test
 	public void testDivide() {
-// TODO		
+		Monomial m1 = makeMonomial("1");
+		Monomial m2 = makeMonomial("2");		
+		Assert.assertEquals(new Pair<>(makeMonomial("0.5"), makeMonomial("0")), m1.divide(m2));
+		
+		m1 = makeMonomial("3");
+		m2 = makeMonomial("2");		
+		Assert.assertEquals(new Pair<>(makeMonomial("1.5"), makeMonomial("0")), m1.divide(m2));
+		
+		m1 = makeMonomial("3*x^3");
+		m2 = makeMonomial("2*x^2");		
+		Assert.assertEquals(new Pair<>(makeMonomial("1.5*x"), makeMonomial("0")), m1.divide(m2));
+		
+		m1 = makeMonomial("3*x^3");
+		m2 = makeMonomial("2*x^3");		
+		Assert.assertEquals(new Pair<>(makeMonomial("1.5"), makeMonomial("0")), m1.divide(m2));
+		
+		m1 = makeMonomial("3*x^3*z^2");	
+		m2 = makeMonomial("3*x^2");
+		Assert.assertEquals(new Pair<>(makeMonomial("x*z^2"), makeMonomial("0")), m1.divide(m2));
+		
+		m1 = makeMonomial("3*x^3*z^2");	
+		m2 = makeMonomial("3*x^4");
+		Assert.assertEquals(new Pair<>(makeMonomial("0"), makeMonomial("3*x^3*z^2")), m1.divide(m2));
+		
+		m1 = makeMonomial("3*x^2*y");
+		m2 = makeMonomial("3*x^3*z^2");		
+		Assert.assertEquals(new Pair<>(makeMonomial("0"), makeMonomial("3*x^2*y")), m1.divide(m2));
+		
+		m1 = makeMonomial("0");
+		m2 = makeMonomial("3*x^3*z^2");	
+		Assert.assertEquals(new Pair<>(makeMonomial("0"), makeMonomial("0")), m1.divide(m2));
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void testDivideIllegalArgumentException() {
+		Monomial m1 = makeMonomial("2*x^3");
+		Monomial m2 = makeMonomial("0*x");
+		
+		m1.divide(m2);
 	}
 	
 	@Test
