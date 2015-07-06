@@ -37,8 +37,9 @@
  */
 package com.sri.ai.grinder.core;
 
+import static com.sri.ai.util.Util.zipWith;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,13 +53,14 @@ import com.sri.ai.expresso.helper.ExpressionComparator;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Monomial;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.number.Exponentiation;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
 /**
- * Default implementation of the Monomial Inteface.
+ * Default implementation of the Monomial interface.
  * 
  * @author oreilly
  *
@@ -69,7 +71,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	private static final long serialVersionUID = 1L;
 	//
 	private static final Expression MONOMIAL_FUNCTOR       = Expressions.makeSymbol(FunctorConstants.TIMES);
-	private static final Expression EXPONENTIATION_FUNCTOR = Expressions.makeSymbol(FunctorConstants.EXPONENTIATION);
+	public static final Expression EXPONENTIATION_FUNCTOR = Expressions.makeSymbol(FunctorConstants.EXPONENTIATION);
 	//
 	private static final ExpressionComparator _variableComparator = new ExpressionComparator();
 	//	
@@ -295,10 +297,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	private static List<Expression> makeAsArgumentsToProduct(Rational coefficient, List<Expression> orderedVariables, List<Rational> orderedPowers) {
 		List<Expression> result = new ArrayList<>(1+orderedVariables.size());
 		result.add(Expressions.makeSymbol(coefficient));
-		result.addAll(Util.zipWith((base, power) -> {
-			return new DefaultFunctionApplication(EXPONENTIATION_FUNCTOR, Arrays.asList(base, Expressions.makeSymbol(power)));
-		}, orderedVariables, orderedPowers));
-		
+		result.addAll(zipWith((base, power) -> Exponentiation.make(base, power), orderedVariables, orderedPowers));
 		return result;
 	}
 }

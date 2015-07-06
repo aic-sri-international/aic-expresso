@@ -37,11 +37,14 @@
  */
 package com.sri.ai.grinder.library.number;
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
+import com.sri.ai.grinder.core.DefaultMonomial;
 import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -74,6 +77,17 @@ public class Exponentiation extends AbstractRewriter {
 		System.out.println("min exp  ="+minExp);
 	}
 	
+	/**
+	 * Makes an exponentiation function application.
+	 * @param base the base of the exponentiation
+	 * @param power the power of the exponentiation
+	 * @return the exponentiation function application
+	 */
+	public static Expression make(Expression base, Rational power) {
+		Expression result = apply(DefaultMonomial.EXPONENTIATION_FUNCTOR, base, power);
+		return result;
+	}
+
 	public Exponentiation() {
 		this.setReifiedTests(new HasKind(FunctorConstants.EXPONENTIATION),
 				             new HasNumberOfArguments(2));

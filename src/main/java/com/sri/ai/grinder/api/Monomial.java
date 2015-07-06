@@ -230,11 +230,10 @@ public interface Monomial extends FunctionApplication {
 		List<Expression> m1Variables = m1.getVariablesLexicographicallyOrdered();
 		List<Expression> m2Variables = m2.getVariablesLexicographicallyOrdered();
 		// For efficiency ensure we have enough capacity in the union up front.
-		List<Expression> result = new ArrayList<>(m1Variables.size()
-				+ m2Variables.size());
+		List<Expression> result = new ArrayList<>(m1Variables.size() + m2Variables.size());
 
 		// NOTE: we know m1 and m2's variables are lexicographically ordered,
-		// which we can take advantage of to perform the lexicraphically ordered
+		// which we can take advantage of to perform the lexicographically ordered
 		// union more efficiently
 		int m1VariablesSize = m1Variables.size();
 		int m2VariablesSize = m2Variables.size();
