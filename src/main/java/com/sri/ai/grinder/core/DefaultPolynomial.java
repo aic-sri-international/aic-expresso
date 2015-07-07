@@ -52,8 +52,9 @@ import com.sri.ai.grinder.library.FunctorConstants;
  * @author oreilly
  *
  */
+// TODO - remove abstract
 @Beta
-public class DefaultPolynomial extends DefaultFunctionApplication implements Polynomial {
+public abstract class DefaultPolynomial extends DefaultFunctionApplication implements Polynomial {
 	//
 	public static final Expression POLYNOMIAL_FUNCTOR = Expressions.makeSymbol(FunctorConstants.PLUS);
 	//

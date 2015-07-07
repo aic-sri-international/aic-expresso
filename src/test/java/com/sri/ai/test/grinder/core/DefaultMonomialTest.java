@@ -64,6 +64,8 @@ public class DefaultMonomialTest {
 		Assert.assertEquals(Expressions.parse("1*x^1*y^1"), makeMonomial("x*y"));
 		Assert.assertEquals(Expressions.parse("2*x^1*y^1"), makeMonomial("2*x*y"));
 		Assert.assertEquals(Expressions.parse("16*x^1"), makeMonomial("*(2*4*(2*x))"));
+		Assert.assertEquals(Expressions.parse("1*(y+10)^1"), makeMonomial("(y + 10)"));
+		Assert.assertEquals(Expressions.parse("1*x^2*(y^3 + y^4*z)^1"), makeMonomial("(y^3 + y^4*z)*x^2"));
 	}
 	
 	@Test
@@ -500,31 +502,30 @@ public class DefaultMonomialTest {
 		m = makeMonomial("x^2*y^3");
 		// Note: x^2 is set to a general variable (i.e. negative exponent)
 		Assert.assertEquals(makeMonomial("(x^(-2))^1*y^3"), m.set(1, Expressions.parse("x^(-2)")));
-	}
-	
-	@Test(expected=IllegalArgumentException.class)
-	public void testSetIllegalFunctor() {
-		makeMonomial("x^2*y^3").set(-1, Expressions.makeSymbol("+"));
-	}
-	
-	@Test(expected=IllegalArgumentException.class)
-	public void testSetIllegalAddition() {
-		makeMonomial("x^2*y^3").set(1, Expressions.parse("2 + 3"));
-	}
-	
-	@Test(expected=IllegalArgumentException.class)
-	public void testSetIllegalSubtraction() {
-		makeMonomial("x^2*y^3").set(1, Expressions.parse("2 - 3"));
-	}
-	
-	@Test(expected=IllegalArgumentException.class)
-	public void testSetIllegalDivision() {
-		makeMonomial("x^2*y^3").set(1, Expressions.parse("2 / 3"));
+		
+		m = makeMonomial("x^2*y^3");
+		//  Note: by changing the functor the old monomial is transformed into a generalized variable
+		Assert.assertEquals(makeMonomial("1*(1+x^2+y^3)^1"), m.set(-1, Expressions.makeSymbol("+")));
+
+		m = makeMonomial("x^2*y^3");
+		//  Note: the x^2 becomes a generalized variable (2+3)^1
+		Assert.assertEquals(makeMonomial("1*(2+3)^1*y^3"), m.set(1, Expressions.parse("2 + 3")));
+		
+		m = makeMonomial("x^2*y^3");
+		//  Note: the x^2 becomes a generalized variable (2-3)^1
+		Assert.assertEquals(makeMonomial("1*(2-3)^1*y^3"), m.set(1, Expressions.parse("2 - 3")));
+		
+		m = makeMonomial("x^2*y^3");
+		//  Note: the x^2 becomes a generalized variable (2/3)^1
+		Assert.assertEquals(makeMonomial("1*(2/3)^1*y^3"), m.set(1, Expressions.parse("2 / 3")));
 	}
 	
 	@Test
 	public void testCompareTo() {
 		Assert.assertEquals(-1, makeMonomial("x^2*y^3").compareTo(makeMonomial("w^1")));
+		Assert.assertEquals(-1, makeMonomial("10").compareTo(makeMonomial("5*x")));
+		Assert.assertEquals(-1, makeMonomial("10").compareTo(makeMonomial("x^2")));
+		Assert.assertEquals(-1, makeMonomial("5*x").compareTo(makeMonomial("x^2")));
 		
 		Assert.assertEquals(0, makeMonomial("0").compareTo(makeMonomial("7")));
 		Assert.assertEquals(0, makeMonomial("2*x^2*y^3").compareTo(makeMonomial("4*x^2*y^3")));

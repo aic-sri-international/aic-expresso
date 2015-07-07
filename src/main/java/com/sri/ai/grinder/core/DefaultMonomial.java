@@ -280,18 +280,6 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 					power    = variable.get(1).rationalValue();
 					variable = variable.get(0); // The variable is actually the base of the exponentiation
 				}
-
-				// Validate that the variable is a legal 'general variable' expression	
-				Expression variableFunctor = variable.getFunctor();
-				if (variableFunctor != null) {
-					if (variableFunctor.equals(FunctorConstants.PLUS) ||
-						variableFunctor.equals(FunctorConstants.MINUS) ||
-						variableFunctor.equals(FunctorConstants.TIMES) ||
-						variableFunctor.equals(FunctorConstants.DIVISION)
-							) {
-						throw new IllegalArgumentException("Cannot be considered a 'general variable' expression: "+variable);
-					}
-				}
 				
 				// Ensure duplicate variables in the monomial are handled correctly
 				Rational existingPower = variableToPower.get(variable);

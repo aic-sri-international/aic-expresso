@@ -37,10 +37,30 @@
  */
 package com.sri.ai.grinder.api;
 
+import java.util.Set;
+
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.FunctionApplication;
+import com.sri.ai.util.base.Pair;
 
 /**
+ * A polynomial is an expression consisting of variables (or indeterminates) and
+ * coefficients, that involves only the operations of addition, subtraction,
+ * multiplication, and non-negative integer exponents. 
+ * 
+ * In this API a polynomial is a monomial, or a sum of monomials such that no two 
+ * monomials have like terms, and the monomials are ordered from highest to lowest. 
+ * Therefore:<br>
+ * <pre><code>
+ * 3*x  + 2*x  + 10 + x^2 
+ * 
+ * is not a valid polynomial in this representation, but:
+ * 
+ * x^2 + 5*x + 10 
+ *  
+ * is a valid polynomial.
+ * </pre></code>  
  * 
  * @author oreilly
  *
@@ -48,4 +68,44 @@ import com.sri.ai.expresso.api.FunctionApplication;
 @Beta
 public interface Polynomial extends FunctionApplication {
 // TODO
+	boolean isMonomial();
+	Monomial asMonomial();
+	
+	Set<Expression> getVariables();
+	
+	/**
+	 * summand(this) + summand = sum.
+	 * 
+	 * @param summand
+	 * @return
+	 */
+	Polynomial add(Polynomial summand);
+	
+	/**
+	 * minuend(this) - subtrahend = difference.
+	 * 
+	 * @param subtrahend
+	 * @return
+	 */
+	Polynomial minus(Polynomial subtrahend);
+	
+	/**
+	 * multiplicand(this) * multiplier = product.
+	 * 
+	 * @param multiplier
+	 * @return
+	 */
+	Polynomial times(Polynomial multiplier);
+	
+	/**
+	 * dividend(this) / divisor = quotient.
+	 * 
+	 * @param divisor
+	 * @return
+	 */
+	Pair<Polynomial, Polynomial> divide(Polynomial divisor);
+	
+	Polynomial exponentiate(int exponent);
+	
+	Polynomial project(Set<Expression> variables);
 }

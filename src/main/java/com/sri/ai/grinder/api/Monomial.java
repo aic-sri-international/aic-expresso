@@ -65,10 +65,9 @@ import com.sri.ai.util.math.Rational;
  * </code>
  * </pre>
  * 
- * <b>NOTE:</b> To make the library as general as possible, any expression
- * that is not a numeric constant or an application of +, -, *, / or ^ with
- * constant non-negative integer exponent, is to be considered a "generalized variable".
- * Therefore:
+ * <b>NOTE:</b> To make the library as general as possible, any expression that
+ * is not a numeric constant or an application of ^ with constant non-negative
+ * integer exponent, is to be considered a "generalized variable". Therefore:
  * 
  * <pre>
  * <code>
