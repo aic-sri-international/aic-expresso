@@ -44,7 +44,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
-import com.sri.ai.grinder.core.DefaultMonomial;
 import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.core.HasNumberOfArguments;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -58,7 +57,8 @@ import com.sri.ai.util.math.Rational;
  */
 @Beta
 public class Exponentiation extends AbstractRewriter {
-	
+	public static final Expression EXPONENTIATION_FUNCTOR = Expressions.makeSymbol(FunctorConstants.EXPONENTIATION);
+	//
 	private int      maxAbsExponentSizeBeforeLoosePrecision = Math.min(Math.abs(Double.MAX_EXPONENT), Math.abs(Double.MIN_EXPONENT));
 	private Rational nonZeroMinAbsValue                     = new Rational(1).divide(new Rational(10).pow(324)); // Note: 324 is based on # digits in numerator of Double.MIN_VALUE
 	private Expression   nonZeroMinPosSymbol                = Expressions.makeSymbol(nonZeroMinAbsValue);
@@ -84,7 +84,7 @@ public class Exponentiation extends AbstractRewriter {
 	 * @return the exponentiation function application
 	 */
 	public static Expression make(Expression base, Rational power) {
-		Expression result = apply(DefaultMonomial.EXPONENTIATION_FUNCTOR, base, power);
+		Expression result = apply(EXPONENTIATION_FUNCTOR, base, power);
 		return result;
 	}
 

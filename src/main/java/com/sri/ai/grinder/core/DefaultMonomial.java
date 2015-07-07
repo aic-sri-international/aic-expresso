@@ -52,10 +52,9 @@ import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.helper.ExpressionComparator;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Monomial;
+import com.sri.ai.grinder.helper.MonomialComparator;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.number.Exponentiation;
-import com.sri.ai.grinder.library.number.Times;
-import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
@@ -70,10 +69,10 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	//
 	private static final long serialVersionUID = 1L;
 	//
-	private static final Expression MONOMIAL_FUNCTOR       = Expressions.makeSymbol(FunctorConstants.TIMES);
-	public static final Expression EXPONENTIATION_FUNCTOR = Expressions.makeSymbol(FunctorConstants.EXPONENTIATION);
+	private static final Expression MONOMIAL_FUNCTOR = Expressions.makeSymbol(FunctorConstants.TIMES);
 	//
 	private static final ExpressionComparator _variableComparator = new ExpressionComparator();
+	private static final MonomialComparator   _monomialComparator = new MonomialComparator();
 	//	
 	private static final Monomial ZERO = make(Rational.ZERO, Collections.emptyList(), Collections.emptyList());
 	private static final Monomial ONE  = make(Rational.ONE, Collections.emptyList(), Collections.emptyList());
@@ -84,7 +83,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	private Map<Expression, Rational> variableToPower  = new LinkedHashMap<>();
 	
 	public static Monomial make(Expression expression) {
-		Monomial result = make(Times.getMultiplicands(expression));
+		Monomial result = make(flattenTimes(expression));
 		return result;
 	}
 	
@@ -131,7 +130,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 			
 			Rational resultCoefficient = coefficient.multiply(multiplier.getCoefficient());
 			
-			List<Rational> resultPowers = Util.zipWith((power1, power2) -> power1.add(power2), thisSignature, multiplierSignature);
+			List<Rational> resultPowers = zipWith((power1, power2) -> power1.add(power2), thisSignature, multiplierSignature);
 			
 			result = make(resultCoefficient, combinedVariables, resultPowers);
 		}
@@ -158,7 +157,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 						
 			Rational resultCoefficient = this.coefficient.divide(divisor.getCoefficient());
 			
-			List<Rational> resultPowers = Util.zipWith((power1, power2) -> power1.subtract(power2), thisSignature, divisorSignature);
+			List<Rational> resultPowers = zipWith((power1, power2) -> power1.subtract(power2), thisSignature, divisorSignature);
 			if (resultPowers.stream().anyMatch(power -> power.signum() == -1)) {
 				result = new Pair<>(ZERO, this); 
 			}
@@ -197,6 +196,31 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	//
 	
 	//
+	// START-FunctionApplication
+	@Override
+	public Expression set(int i, Expression newIthArgument) {
+		Expression result = super.set(i, newIthArgument);
+		// Ensure we can make a Monomial out of the modified expression
+		result = make(result);
+		return result;
+	}
+	
+	@Override
+	public int compareTo(Object anotherObject) {
+		int result;
+		if (anotherObject instanceof Monomial) {
+			// Monomial compareTo logic is different than the standard expression compareTo logic
+			result = _monomialComparator.compare(this, (Monomial) anotherObject);
+		}
+		else {
+			result = super.compareTo(anotherObject);
+		}
+		return result;
+	}
+	// END-FunctionApplication
+	//
+	
+	//
 	// PRIVATE
 	//
 	private DefaultMonomial(Rational coefficient, List<Expression> orderedVariables, List<Rational> orderedPowers) {
@@ -213,15 +237,29 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 		this.variableToPower  = Collections.unmodifiableMap(this.variableToPower);
 	}
 	
+	private static List<Expression> flattenTimes(Expression expression) {
+		List<Expression> result = new ArrayList<>();
+		
+		if (expression.hasFunctor(MONOMIAL_FUNCTOR)) {
+			for (Expression arg : expression.getArguments()) {
+				result.addAll(flattenTimes(arg));
+			}		
+		} else {
+			result.add(expression);
+		}
+		
+		return result;
+	}
+	
 	private static Monomial make(List<Expression> numericalConstantsAndTerms) {
 		Rational coefficient = Rational.ONE;
-// TODO - handle nested exponentiations properly		
+		
 		Map<Expression, Rational> variableToPower = new LinkedHashMap<>();
 		for (Expression numericalConstantOrTerm : numericalConstantsAndTerms) {
 			if (Expressions.isNumber(numericalConstantOrTerm)) {
 				coefficient = coefficient.multiply(numericalConstantOrTerm.rationalValue());
 			}
-			else if (Expressions.hasFunctor(numericalConstantOrTerm, EXPONENTIATION_FUNCTOR) 
+			else if (Expressions.hasFunctor(numericalConstantOrTerm, Exponentiation.EXPONENTIATION_FUNCTOR) 
 					&& Expressions.isNumber(numericalConstantOrTerm.get(0)) 
 					&& Expressions.isNumber(numericalConstantOrTerm.get(1))
 					&& numericalConstantOrTerm.get(1).rationalValue().isInteger()
@@ -235,14 +273,25 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 				Expression variable = numericalConstantOrTerm;
 				Rational   power    = Rational.ONE;
 				// If exponentiation using a constant integer exponent then we need to extract the variable and the power
-				if (Expressions.hasFunctor(variable, EXPONENTIATION_FUNCTOR) 
+				if (Expressions.hasFunctor(variable, Exponentiation.EXPONENTIATION_FUNCTOR) 
 						&& Expressions.isNumber(variable.get(1))
 						&& variable.get(1).rationalValue().isInteger()
 						&& numericalConstantOrTerm.get(1).rationalValue().signum() != -1) {
 					power    = variable.get(1).rationalValue();
 					variable = variable.get(0); // The variable is actually the base of the exponentiation
 				}
-// TODO - validate that the variable is a legal 'general variable' expression	
+
+				// Validate that the variable is a legal 'general variable' expression	
+				Expression variableFunctor = variable.getFunctor();
+				if (variableFunctor != null) {
+					if (variableFunctor.equals(FunctorConstants.PLUS) ||
+						variableFunctor.equals(FunctorConstants.MINUS) ||
+						variableFunctor.equals(FunctorConstants.TIMES) ||
+						variableFunctor.equals(FunctorConstants.DIVISION)
+							) {
+						throw new IllegalArgumentException("Cannot be considered a 'general variable' expression: "+variable);
+					}
+				}
 				
 				// Ensure duplicate variables in the monomial are handled correctly
 				Rational existingPower = variableToPower.get(variable);
