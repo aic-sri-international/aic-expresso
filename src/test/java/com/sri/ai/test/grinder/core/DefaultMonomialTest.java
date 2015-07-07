@@ -57,7 +57,7 @@ public class DefaultMonomialTest {
 	//
 	// Monomial API
 	@Test
-	public void testMake() {
+	public void testMake() {	
 		Assert.assertEquals(Expressions.parse("*(0)"), makeMonomial("0"));
 		Assert.assertEquals(Expressions.parse("*(2)"), makeMonomial("2"));
 		Assert.assertEquals(Expressions.parse("1*x^1"), makeMonomial("x"));
@@ -66,9 +66,13 @@ public class DefaultMonomialTest {
 		Assert.assertEquals(Expressions.parse("-1*x^2"), makeMonomial("-x^2"));
 		Assert.assertEquals(Expressions.parse("-1*x^2"), makeMonomial("1*-x^2"));
 		Assert.assertEquals(Expressions.parse("1*x^1*y^1"), makeMonomial("x*y"));
+		Assert.assertEquals(Expressions.parse("*(16)"), makeMonomial("2^2^2"));
+		Assert.assertEquals(Expressions.parse("16*x^1"), makeMonomial("2^2^2*x"));
+		Assert.assertEquals(Expressions.parse("1*(2^x^4)^1"), makeMonomial("2^x^2^2"));
+		Assert.assertEquals(Expressions.parse("1*(2^2^x^4)^1"), makeMonomial("2^2^x^2^2"));
 		Assert.assertEquals(Expressions.parse("2*x^1*y^1"), makeMonomial("2*x*y"));
 		Assert.assertEquals(Expressions.parse("16*x^1"), makeMonomial("*(2*4*(2*x))"));
-		Assert.assertEquals(Expressions.parse("-8*(2*x)^1"), makeMonomial("*(2*4*-(2*x))"));
+		Assert.assertEquals(Expressions.parse("-16*x^1"), makeMonomial("*(2*4*-(2*x))"));
 		Assert.assertEquals(Expressions.parse("1*(y+10)^1"), makeMonomial("(y + 10)"));
 		Assert.assertEquals(Expressions.parse("-1*(y+10)^1"), makeMonomial("-(y + 10)"));
 		Assert.assertEquals(Expressions.parse("1*x^2*(y^3 + y^4*z)^1"), makeMonomial("(y^3 + y^4*z)*x^2"));
@@ -82,7 +86,7 @@ public class DefaultMonomialTest {
 		Assert.assertEquals(new Rational(-1), makeMonomial("-1").getCoefficient());
 		Assert.assertEquals(new Rational(2), makeMonomial("2").getCoefficient());
 		
-		// Ensure the coefficient is set to 1 if not explicitly repesented in the expression
+		// Ensure the coefficient is set to 1 if not explicitly represented in the expression
 		Assert.assertEquals(new Rational(1), makeMonomial("x^2").getCoefficient());
 		
 		Assert.assertEquals(new Rational(4), makeMonomial("4*x^2").getCoefficient());
@@ -92,7 +96,7 @@ public class DefaultMonomialTest {
 		// Test that numerical constants are multiplied together to create the coefficient
 		Assert.assertEquals(new Rational(8), makeMonomial("y^3*2*x^2*4").getCoefficient());
 		
-		// Test edge case where the coefficient is represented as a power
+		// Test edge case where the coefficient is represented as a power	
 		Assert.assertEquals(new Rational(8), makeMonomial("2^3*x^2").getCoefficient());
 		
 		// Test edge case where the coefficient is represented as a power and a separate constant
