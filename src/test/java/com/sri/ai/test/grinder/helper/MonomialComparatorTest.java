@@ -37,6 +37,32 @@
  */
 package com.sri.ai.test.grinder.helper;
 
-public class MonomialComparatorTest {
+import org.junit.Assert;
+import org.junit.Test;
 
+import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Monomial;
+import com.sri.ai.grinder.core.DefaultMonomial;
+import com.sri.ai.grinder.helper.MonomialComparator;
+
+public class MonomialComparatorTest {
+	private MonomialComparator comparator = new MonomialComparator();
+	
+	@Test
+	public void testCompare() {
+		Assert.assertEquals(-1, comparator.compare(makeMonomial("x^2*y^3"), makeMonomial("w^1")));
+			
+		Assert.assertEquals(0, comparator.compare(makeMonomial("0"), makeMonomial("7")));
+		Assert.assertEquals(0, comparator.compare(makeMonomial("2*x^2*y^3"), makeMonomial("4*x^2*y^3")));
+			
+		Assert.assertEquals(1, comparator.compare(makeMonomial("x^2*y^3"), makeMonomial("z^6")));		
+	}
+
+	//
+	// PRIVATE
+	//
+	private static Monomial makeMonomial(String monomial) {
+		Monomial result = DefaultMonomial.make(Expressions.parse(monomial));
+		return result;
+	}
 }

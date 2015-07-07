@@ -67,9 +67,9 @@ import com.sri.ai.util.math.Rational;
 @Beta
 public class DefaultMonomial extends DefaultFunctionApplication implements Monomial {
 	//
-	private static final long serialVersionUID = 1L;
+	public static final Expression MONOMIAL_FUNCTOR = Expressions.makeSymbol(FunctorConstants.TIMES);
 	//
-	private static final Expression MONOMIAL_FUNCTOR = Expressions.makeSymbol(FunctorConstants.TIMES);
+	private static final long serialVersionUID = 1L;
 	//
 	private static final ExpressionComparator _variableComparator = new ExpressionComparator();
 	private static final MonomialComparator   _monomialComparator = new MonomialComparator();
@@ -224,7 +224,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	// PRIVATE
 	//
 	private DefaultMonomial(Rational coefficient, List<Expression> orderedVariables, List<Rational> orderedPowers) {
-		super(MONOMIAL_FUNCTOR, makeAsArgumentsToProduct(coefficient, orderedVariables, orderedPowers));
+		super(MONOMIAL_FUNCTOR, makeAsArgumentsToTimes(coefficient, orderedVariables, orderedPowers));
 		// NOTE: we use Collections.unmodifiable<...> to ensure Monomials are immutable.
 		this.coefficient      = coefficient;
 		this.orderedVariables = Collections.unmodifiableList(orderedVariables);
@@ -343,7 +343,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 		return result;
 	}
 	
-	private static List<Expression> makeAsArgumentsToProduct(Rational coefficient, List<Expression> orderedVariables, List<Rational> orderedPowers) {
+	private static List<Expression> makeAsArgumentsToTimes(Rational coefficient, List<Expression> orderedVariables, List<Rational> orderedPowers) {
 		List<Expression> result = new ArrayList<>(1+orderedVariables.size());
 		result.add(Expressions.makeSymbol(coefficient));
 		result.addAll(zipWith((base, power) -> Exponentiation.make(base, power), orderedVariables, orderedPowers));
