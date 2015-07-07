@@ -60,21 +60,43 @@ import com.sri.ai.util.base.Pair;
  * x^2 + 5*x + 10 
  *  
  * is a valid polynomial.
- * </pre></code>  
+ * </code></pre>  
  * 
  * @author oreilly
  *
  */
 @Beta
 public interface Polynomial extends FunctionApplication {
-// TODO
+
+	/**
+	 * 
+	 * @return true if this Polynomial is equivalent to a Monomial.
+	 */
 	boolean isMonomial();
-	Monomial asMonomial();
-	
-	Set<Expression> getVariables();
 	
 	/**
+	 * If the Polynomial is equivalent to a Monomial get its representation as
+	 * such.
+	 * 
+	 * @return this Polynomial's representation as a Monomial.
+	 * @throws IllegalStateException
+	 *             if this Polynomial is not equivalent to a Monomial.
+	 */
+	Monomial asMonomial() throws IllegalStateException;
+	
+	/**
+	 * 
+	 * @return the set of 'generalized variables' contained within this Polynomial.
+	 */
+	Set<Expression> getVariables();
+
+// TODO - Complete JavaDoc of API	
+	/**
+	 * Add this polynomial to another polynomial and return a new Polynomial representing the sum.
+	 * 
+	 * <pre><code>
 	 * summand(this) + summand = sum.
+	 * </code></pre>
 	 * 
 	 * @param summand
 	 * @return

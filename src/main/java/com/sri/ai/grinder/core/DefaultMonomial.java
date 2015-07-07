@@ -272,6 +272,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 			else { // Is a term				
 				Expression variable = numericalConstantOrTerm;
 				Rational   power    = Rational.ONE;
+				
 				// If exponentiation using a constant integer exponent then we need to extract the variable and the power
 				if (Expressions.hasFunctor(variable, Exponentiation.EXPONENTIATION_FUNCTOR) 
 						&& Expressions.isNumber(variable.get(1))
@@ -279,6 +280,12 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 						&& numericalConstantOrTerm.get(1).rationalValue().signum() != -1) {
 					power    = variable.get(1).rationalValue();
 					variable = variable.get(0); // The variable is actually the base of the exponentiation
+				}
+				
+				// Handle case where variable is negated, e.g.: -x
+				if (variable.hasFunctor(FunctorConstants.MINUS) && variable.numberOfArguments() == 1) {
+					variable    = variable.get(0);
+					coefficient = coefficient.negate();
 				}
 				
 				// Ensure duplicate variables in the monomial are handled correctly

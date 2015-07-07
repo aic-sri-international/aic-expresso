@@ -61,10 +61,16 @@ public class DefaultMonomialTest {
 		Assert.assertEquals(Expressions.parse("*(0)"), makeMonomial("0"));
 		Assert.assertEquals(Expressions.parse("*(2)"), makeMonomial("2"));
 		Assert.assertEquals(Expressions.parse("1*x^1"), makeMonomial("x"));
+		Assert.assertEquals(Expressions.parse("*(-2)"), makeMonomial("-2"));
+		Assert.assertEquals(Expressions.parse("-1*x^2"), makeMonomial("-1*x^2"));
+		Assert.assertEquals(Expressions.parse("-1*x^2"), makeMonomial("-x^2"));
+		Assert.assertEquals(Expressions.parse("-1*x^2"), makeMonomial("1*-x^2"));
 		Assert.assertEquals(Expressions.parse("1*x^1*y^1"), makeMonomial("x*y"));
 		Assert.assertEquals(Expressions.parse("2*x^1*y^1"), makeMonomial("2*x*y"));
 		Assert.assertEquals(Expressions.parse("16*x^1"), makeMonomial("*(2*4*(2*x))"));
+		Assert.assertEquals(Expressions.parse("-8*(2*x)^1"), makeMonomial("*(2*4*-(2*x))"));
 		Assert.assertEquals(Expressions.parse("1*(y+10)^1"), makeMonomial("(y + 10)"));
+		Assert.assertEquals(Expressions.parse("-1*(y+10)^1"), makeMonomial("-(y + 10)"));
 		Assert.assertEquals(Expressions.parse("1*x^2*(y^3 + y^4*z)^1"), makeMonomial("(y^3 + y^4*z)*x^2"));
 	}
 	
