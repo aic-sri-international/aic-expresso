@@ -272,12 +272,12 @@ public interface Monomial extends FunctionApplication {
 	 * 
 	 * @param exponent
 	 *            a non negative integer exponent to raise the monomial to.
-	 * @return a new monomial which is the result of raising this monomial to
+	 * @return a monomial which is the result of raising this monomial to
 	 *         the given exponent.
 	 * @throws IllegalArgumentException
 	 *             if the exponent is negative.
 	 */
-	Monomial exponentiate(int exponent);
+	Monomial exponentiate(int exponent) throws IllegalArgumentException;
 
 	/**
 	 * Create a lexicographically ordered union (no duplicates) of the

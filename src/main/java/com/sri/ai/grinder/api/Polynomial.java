@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.api;
 
+import java.util.List;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
@@ -45,22 +46,23 @@ import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.util.base.Pair;
 
 /**
- * A polynomial is an expression consisting of variables (or indeterminates) and
- * coefficients, that involves only the operations of addition, subtraction,
- * multiplication, and non-negative integer exponents. 
+ * A polynomial is a monomial, or a sum of monomials, associated with a tuple of
+ * factors <em>F</em>, called the <b>signature factors</b>, such that no two
+ * monomials are like terms to each other wrt <em>F</em>, and monomials are in
+ * descending order according to "comes before" wrt <em>F</em>. Therefore:<br>
  * 
- * In this API a polynomial is a monomial, or a sum of monomials such that no two 
- * monomials have like terms, and the monomials are ordered from highest to lowest. 
- * Therefore:<br>
- * <pre><code>
- * 3*x  + 2*x  + 10 + x^2 
+ * <pre>
+ * <code>
+ * 3*x + 2*x + 10 + x^2 wrt F = (x) 
  * 
- * is not a valid polynomial in this representation, but:
+ * is not a valid polynomial in this representation, but 
  * 
- * x^2 + 5*x + 10 
- *  
- * is a valid polynomial.
- * </code></pre>  
+ * x^2 + 5*x + 10 wrt F = (x) 
+ * 
+ * is a valid polynomial in this representation.
+ * </code>
+ * </pre>
+ * 
  * 
  * @author oreilly
  *
@@ -70,10 +72,20 @@ public interface Polynomial extends FunctionApplication {
 
 	/**
 	 * 
+	 * @return the factors that are used to identify like terms in the
+	 *         polynomial.
+	 */
+	List<Expression> getSignatureFactors();
+
+	/**
+	 * 
 	 * @return true if this Polynomial is equivalent to a Monomial.
 	 */
-	boolean isMonomial();
-	
+	default boolean isMonomial() {
+		boolean result = numberOfArguments() == 1;
+		return result;
+	}
+
 	/**
 	 * If the Polynomial is equivalent to a Monomial get its representation as
 	 * such.
@@ -83,51 +95,154 @@ public interface Polynomial extends FunctionApplication {
 	 *             if this Polynomial is not equivalent to a Monomial.
 	 */
 	Monomial asMonomial() throws IllegalStateException;
-	
-	/**
-	 * 
-	 * @return the set of 'generalized variables' contained within this Polynomial.
-	 */
-	Set<Expression> getVariables();
 
-// TODO - Complete JavaDoc of API	
 	/**
-	 * Add this polynomial to another polynomial and return a new Polynomial representing the sum.
 	 * 
-	 * <pre><code>
+	 * @return the set of non-numeric constant factors contained within this
+	 *         Polynomial.
+	 */
+	Set<Expression> getNonNumericConstantFactors();
+
+	/**
+	 * Add this polynomial to another polynomial and return a new Polynomial
+	 * representing the sum.
+	 * 
+	 * <pre>
+	 * <code>
 	 * summand(this) + summand = sum.
-	 * </code></pre>
+	 * </code>
+	 * </pre>
 	 * 
 	 * @param summand
-	 * @return
+	 *            the summand to be added to this polynomial.
+	 * @return the sum of this and the summand.
+	 * @throws IllegalArgumentException
+	 *             if the summand does not share the same <b>signature
+	 *             factors</b> as this polynomial.
 	 */
-	Polynomial add(Polynomial summand);
-	
+	Polynomial add(Polynomial summand) throws IllegalArgumentException;
+
 	/**
+	 * Subtract a given polynomial from this polynomial and return a new
+	 * polynomial representing the difference of the two.
+	 * 
+	 * <pre>
+	 * <code>
 	 * minuend(this) - subtrahend = difference.
+	 * </code>
+	 * </pre>
 	 * 
 	 * @param subtrahend
-	 * @return
+	 *            the subtrahend.
+	 * @return the difference of this polynomial minus the subtrahend.
+	 * @throws IllegalArgumentException
+	 *             if the subtrahend does not share the same <b>signature
+	 *             factors</b> as this polynomial.
 	 */
-	Polynomial minus(Polynomial subtrahend);
-	
+	Polynomial minus(Polynomial subtrahend) throws IllegalArgumentException;
+
 	/**
+	 * Mulitply this polynomial by another.
+	 * 
+	 * <pre>
+	 * <code>
 	 * multiplicand(this) * multiplier = product.
+	 * </code>
+	 * </pre>
 	 * 
 	 * @param multiplier
-	 * @return
+	 *            the multiplier.
+	 * @return the project of this polynomial and the given multiplier.
+	 * @throws IllegalArgumentException
+	 *             if the multiplier does not share the same <b>signature
+	 *             factors</b> as this polynomial.
 	 */
-	Polynomial times(Polynomial multiplier);
-	
+	Polynomial times(Polynomial multiplier) throws IllegalArgumentException;
+
 	/**
-	 * dividend(this) / divisor = quotient.
+	 * Divide this polynomial by another.
+	 * 
+	 * <pre>
+	 * <code>
+	 * dividend(this) / divisor = (quotient, remainder).
+	 * </code>
+	 * </pre>
 	 * 
 	 * @param divisor
-	 * @return
+	 * @return a pair consisting of the quotient and remainder of this/divisor.
+	 * @throws IllegalArgumentException
+	 *             if the divisor does not share the same <b>signature
+	 *             factors</b> as this polynomial.
 	 */
-	Pair<Polynomial, Polynomial> divide(Polynomial divisor);
-	
+	Pair<Polynomial, Polynomial> divide(Polynomial divisor)
+			throws IllegalArgumentException;
+
+	/**
+	 * Raise this polynomial to a given power.
+	 * 
+	 * @param exponent
+	 *            a non negative integer exponent to raise the polynomial to.
+	 * @return a polynomial which is the result of raising this polynomial to
+	 *         the given exponent.
+	 * @throws IllegalArgumentException
+	 *             if the exponent is negative.
+	 */
 	Polynomial exponentiate(int exponent);
-	
-	Polynomial project(Set<Expression> variables);
+
+	/**
+	 * Formally,if <em>S</em> is a set of <b>signature factors</b> and
+	 * <em>s</em> is a signature on them (a tuple of integers representing their
+	 * powers), <em>S^s</em> is the product of the factors in <em>S</em>
+	 * exponentiated by the corresponding integer powers. For example if
+	 * <em>S</em> is <em>{x, y, z}</em> and the signature <em>s</em> is
+	 * <em>(2, 3, 4)</em>, then <em>S^s</em> is <em>x^2 * y^3 * z^4</em>.<br>
+	 * <br>
+	 * The projection of <em>P</em> defined on <b>signature factors</b>
+	 * <em>F</em> on subset <em>S</em> of <em>F</em> is defined by:<br>
+	 * 
+	 * <pre>
+	 * <code>
+	 * projection(P, S):
+	 *     P' = empty polynomial of monomials, based on variable factors S
+	 *     for each signature s on S present in P,
+	 *         a_s = sum of all monomials t_i such that there is a monomial t_i*S^s in P
+	 *         P ' = P' + a_s * S^s
+	 *    return polynomial on set of monomials P' 
+	 * </code>
+	 * </pre>
+	 * 
+	 * For example:<br>
+	 * 
+	 * <pre>
+	 * <code>
+	 * x^2 * y^4 * z + x^2 * y^3 + y + 10
+	 * 
+	 * with F = (x,y,z), and the polynomial is organized around the signatures for these 
+	 * three factors (one monomial per possible signature).
+	 * 
+	 * The projection of the polynomial on a subset S of F re-organizes it around the 
+	 * signatures on S alone.
+	 * 
+	 * So if S = { x }, we get two monomials:
+	 * 
+	 * (y^4*z + y^3)*x^2 + (y + 10),  with respect to S
+	 * 
+	 * that is, the other factors (y and z) are treated like constants.
+	 * We simply aggregate things multiplying variables in S and group them per signature in S.
+	 * 
+	 * If S = {y, z}, we keep the original four monomials
+	 * 
+	 * x^2 * y^4 * z + x^2 * y^3 + y + 10
+	 * 
+	 * with respect to S.
+	 * </code>
+	 * </pre>
+	 * 
+	 * @param subsetSignatureFactors
+	 *            a subset of the signature factors of this polynomial on which
+	 *            to perform the projection.
+	 * @return the project of this Polynomial based on the given subset of
+	 *         signature factors.
+	 */
+	Polynomial project(Set<Expression> subsetSignatureFactors);
 }
