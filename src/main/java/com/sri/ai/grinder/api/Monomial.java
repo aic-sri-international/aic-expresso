@@ -162,6 +162,21 @@ public interface Monomial extends FunctionApplication {
 		factors.forEach(factor -> result.add(getPowerOfFactor(factor)));
 		return result;
 	}
+	
+	/**
+	 * Convenience method that gets the signature of this Monomial using the
+	 * non-numeric constant factors contained within.
+	 * 
+	 * @return the tuple of the powers of the non-numeric constant factors that
+	 *         are in this Monomial.
+	 */
+	default List<Rational> getSignature() {
+		List<Expression> factors = this.getNonNumericConstantFactorsLexicographicallyOrdered();
+		
+		List<Rational> result = getSignature(factors);
+		
+		return result;
+	}
 
 	/**
 	 * Two monomials <em>M1</em> and <em>M2</em> are <b>like terms
@@ -182,17 +197,36 @@ public interface Monomial extends FunctionApplication {
 	 * 
 	 * @param monomial
 	 *            the monomial to check if a like term to this monomial.
-	 * @oaran factors the factors to construct the signature used to determine
-	 *        if two monomials are like terms.
-	 * @return true if this monomial has like terms with the given monomial,
-	 *         false otherwise.
+	 * @param factors
+	 *            the factors to construct the signature used to determine if
+	 *            two monomials are like terms.
+	 * @return true if are like terms based on the given factors, false
+	 *         otherwise.
 	 */
 	default boolean areLikeTerms(Monomial other, List<Expression> factors) {
-		List<Rational> thisSignature = getSignature(factors);
+		List<Rational> thisSignature  = getSignature(factors);
 		List<Rational> otherSignature = other.getSignature(factors);
 
 		boolean result = thisSignature.equals(otherSignature);
 
+		return result;
+	}
+	
+	/**
+	 * Convenience method that uses the combined non-numeric constant factors
+	 * from this and the other Monomial to call areLikeTerms(other,
+	 * combinedNonNumericConstantFactors).
+	 * 
+	 * @param other
+	 *            the monomial to check if a like term to this monomial.
+	 * @return true if are like terms based on the combined non-numeric constant
+	 *         factors, false otherwise.
+	 */
+	default boolean areLikeTerms(Monomial other) {
+		List<Expression> combinedNonNumericConstantFactors = Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(this, other);
+		
+		boolean result = areLikeTerms(other, combinedNonNumericConstantFactors);
+		
 		return result;
 	}
 
@@ -224,9 +258,8 @@ public interface Monomial extends FunctionApplication {
 	 * <pre>
 	 * <code>
 	 * this.divide(that) = this/that
-	 * </pre>
-	 * 
 	 * </code>
+	 * </pre>
 	 * 
 	 * @param divisor
 	 *            the divisor
