@@ -285,10 +285,16 @@ public class DefaultMonomialTest {
 		// signature(3, (x, y, z))  =  (0, 0, 0)
 		m = makeMonomial("3");
 		Assert.assertEquals(Arrays.asList(new Rational(0), new Rational(0), new Rational(0)), m.getSignature(Expressions.parse("tuple(x, y, z)").getArguments()));
+		// signature(3 * (x + 2),  (x + 2, x, y, z)) =  (1, 0, 0, 0)
+		m = makeMonomial("3 * (x + 2)");
+		Assert.assertEquals(Arrays.asList(new Rational(1), new Rational(0), new Rational(0), new Rational(0)), m.getSignature(Expressions.parse("tuple(x + 2, x, y, z)").getArguments()));		
+		// signature(3 * (x + 2),  (3, x + 2, x, y, z)) = (1, 1, 0, 0, 0)
+		m = makeMonomial("3 * (x + 2)");
+		Assert.assertEquals(Arrays.asList(new Rational(1), new Rational(1), new Rational(0), new Rational(0), new Rational(0)), m.getSignature(Expressions.parse("tuple(3, x + 2, x, y, z)").getArguments()));		
 	}
 	
 	@Test
-	public void testAreLikeTerms() {
+	public void testAreLikeTermsUnionOfFactors() {
 		Monomial m1 = makeMonomial("2");
 		Monomial m2 = makeMonomial("2");
 		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(m1, m2)));
@@ -332,9 +338,100 @@ public class DefaultMonomialTest {
 		m1 = makeMonomial("2*y^1*x");
 		m2 = makeMonomial("2*x^1*y*z^4");
 		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(m1, m2)));
-	
-// TODO - add more tests using explicit lists of factors
 	}
+	
+	@Test
+	public void testAreLikeTermsExplicitSignatureOfFactors() {
+		Monomial m1 = makeMonomial("2");
+		Monomial m2 = makeMonomial("2");
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(1)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(2)").getArguments()));
+		
+		m1 = makeMonomial("2");
+		m2 = makeMonomial("3");
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(1)").getArguments()));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Expressions.parse("tuple(2)").getArguments()));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Expressions.parse("tuple(3)").getArguments()));
+		
+		m1 = makeMonomial("x");
+		m2 = makeMonomial("x");
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(1)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(x)").getArguments()));
+		
+		m1 = makeMonomial("x");
+		m2 = makeMonomial("y");
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(1)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(z)").getArguments()));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Expressions.parse("tuple(x)").getArguments()));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Expressions.parse("tuple(y)").getArguments()));
+		
+		m1 = makeMonomial("2");
+		m2 = makeMonomial("2*x");
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(1)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(2)").getArguments()));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Expressions.parse("tuple(x)").getArguments()));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Expressions.parse("(2, x)").getArguments()));
+		
+		m1 = makeMonomial("2*x");
+		m2 = makeMonomial("2*x");
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(1)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(z)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(2)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(x)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("(2, x)").getArguments()));
+		
+		m1 = makeMonomial("2*x^1");
+		m2 = makeMonomial("2*x");
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(1)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(z)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(2)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(x)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("(2, x)").getArguments()));
+		
+		m1 = makeMonomial("2*x");
+		m2 = makeMonomial("2*x^2");
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(1)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(z)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(2)").getArguments()));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Expressions.parse("tuple(x)").getArguments()));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Expressions.parse("(2, x)").getArguments()));
+		
+		m1 = makeMonomial("2*y^1*x");
+		m2 = makeMonomial("2*x^1*y");
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(1)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(z)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(2)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(x)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(y)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("(2, x)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("(2, y)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("(2, x, y)").getArguments()));
+		
+		m1 = makeMonomial("2*y^3*x^2");
+		m2 = makeMonomial("2*x^2*y^7");
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(1)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(z)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(2)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(x)").getArguments()));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Expressions.parse("tuple(y)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("(2, x)").getArguments()));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Expressions.parse("(2, y)").getArguments()));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Expressions.parse("(2, x, y)").getArguments()));
+		
+		m1 = makeMonomial("2*y^1*x");
+		m2 = makeMonomial("2*x^1*y*z^4");
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(1)").getArguments()));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Expressions.parse("tuple(z)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(2)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(x)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("tuple(y)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("(2, x)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("(2, y)").getArguments()));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Expressions.parse("(2, z)").getArguments()));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Expressions.parse("(2, x, y)").getArguments()));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Expressions.parse("(2, x, y, z)").getArguments()));
+	}
+
 	
 	@Test
 	public void testDegree() {
