@@ -73,16 +73,16 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	//
 	private static final long serialVersionUID = 1L;
 	//
-	private static final ExpressionComparator _variableComparator = new ExpressionComparator();
+	private static final ExpressionComparator _factorComparator   = new ExpressionComparator();
 	private static final MonomialComparator   _monomialComparator = new MonomialComparator();
 	//	
 	private static final Monomial ZERO = make(Rational.ZERO, Collections.emptyList(), Collections.emptyList());
 	private static final Monomial ONE  = make(Rational.ONE, Collections.emptyList(), Collections.emptyList());
 	//
-	private Rational                  coefficient      = null; 
-	private List<Expression>          orderedVariables = null;
-	private List<Rational>            orderedPowers    = null;
-	private Map<Expression, Rational> variableToPower  = new LinkedHashMap<>();
+	private Rational                  numericConstantFactor            = null; 
+	private List<Expression>          orderedNonNumericConstantFactors = null;
+	private List<Rational>            orderedNonNumericConstantPowers  = null;
+	private Map<Expression, Rational> factorToPower                    = new LinkedHashMap<>();
 	
 	public static Monomial make(Expression expression) {
 		Monomial result = make(Times.getMultiplicands(expression));
@@ -92,28 +92,53 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	//
 	// START-Monomial
 	@Override
-	public Rational getCoefficient() {
-		return coefficient;
+	public Rational getNumericConstantFactor() {
+		return numericConstantFactor;
 	}
 
 	@Override
-	public Set<Expression> getVariables() {
-		return variableToPower.keySet();
+	public Set<Expression> getFactors() {
+		return factorToPower.keySet();
 	}
 
 	@Override
-	public List<Expression> getVariablesLexicographicallyOrdered() {
-		return orderedVariables;
+	public List<Expression> getNonNumericConstantFactorsLexicographicallyOrdered() {
+		return orderedNonNumericConstantFactors;
 	}
 
 	@Override
-	public List<Rational> getPowersOfLexicographicallyOrderedVariables() {
-		return orderedPowers;
+	public List<Rational> getPowersOfLexicographicallyOrderedNonNumericConstantFactors() {
+		return orderedNonNumericConstantPowers;
 	}
 	
 	@Override
-	public Rational getPowerOfVariable(Expression variable) {
-		Rational result = variableToPower.getOrDefault(variable, Rational.ZERO);
+	public Monomial getCoefficient(Set<Expression> factors) {
+		Rational resultNumericConstantFactor = this.numericConstantFactor;
+		if (factors.contains(this.numericConstantFactor)) {
+			// reduces to 1.
+			resultNumericConstantFactor = Rational.ONE;
+		}
+		List<Expression> resultOrderedNonNumericConstantFactors = new ArrayList<>(this.orderedNonNumericConstantFactors.size());
+		List<Rational>   resultOrderedNonNumericConstantPowers  = new ArrayList<>(this.orderedNonNumericConstantPowers.size());
+		int numFactors = this.orderedNonNumericConstantFactors.size();
+		for (int i = 0; i < numFactors; i++) {
+			Expression factor = this.orderedNonNumericConstantFactors.get(i);
+			if (!factors.contains(factor)) {
+				Rational power = this.orderedNonNumericConstantPowers.get(i);
+				
+				resultOrderedNonNumericConstantFactors.add(factor);
+				resultOrderedNonNumericConstantPowers.add(power);
+			}
+		}
+		
+		Monomial result = make(resultNumericConstantFactor, resultOrderedNonNumericConstantFactors, resultOrderedNonNumericConstantPowers);
+		
+		return result;
+	}
+	
+	@Override
+	public Rational getPowerOfFactor(Expression factor) {
+		Rational result = factorToPower.getOrDefault(factor, Rational.ZERO);
 		return result;
 	}
 
@@ -121,20 +146,20 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	public Monomial times(Monomial multiplier) {
 		Monomial result;
 		// return 0 if either coefficient is 0
-		if (this.coefficient.equals(Rational.ZERO) || multiplier.getCoefficient().equals(Rational.ZERO)) {
+		if (this.numericConstantFactor.equals(Rational.ZERO) || multiplier.getNumericConstantFactor().equals(Rational.ZERO)) {
 			result = ZERO;
 		}
 		else {
-			List<Expression> combinedVariables = Monomial.unionVariablesLexicographically(this, multiplier);
+			List<Expression> combinedNonNumericConstantFactors = Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(this, multiplier);
 			
-			List<Rational> thisSignature       = this.getSignature(combinedVariables);
-			List<Rational> multiplierSignature = multiplier.getSignature(combinedVariables);
+			List<Rational> thisSignature       = this.getSignature(combinedNonNumericConstantFactors);
+			List<Rational> multiplierSignature = multiplier.getSignature(combinedNonNumericConstantFactors);
 			
-			Rational resultCoefficient = coefficient.multiply(multiplier.getCoefficient());
+			Rational resultNumericConstantFactor = numericConstantFactor.multiply(multiplier.getNumericConstantFactor());
 			
 			List<Rational> resultPowers = zipWith((power1, power2) -> power1.add(power2), thisSignature, multiplierSignature);
 			
-			result = make(resultCoefficient, combinedVariables, resultPowers);
+			result = make(resultNumericConstantFactor, combinedNonNumericConstantFactors, resultPowers);
 		}
 		
 		return result;
@@ -144,27 +169,27 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	public Pair<Monomial, Monomial> divide(Monomial divisor) {
 		Pair<Monomial, Monomial> result;
 		
-		if (divisor.getCoefficient().equals(Rational.ZERO)) {
+		if (divisor.getNumericConstantFactor().equals(Rational.ZERO)) {
 			throw new IllegalArgumentException("Argument divisor is 0.");
 		}
 		
-		if (this.getCoefficient().equals(Rational.ZERO)) {
+		if (this.getNumericConstantFactor().equals(Rational.ZERO)) {
 			result = new Pair<>(ZERO, ZERO);
-		}		
-		else if (getVariables().containsAll(divisor.getVariables())) {
-			List<Expression> combinedVariables = Monomial.unionVariablesLexicographically(this, divisor);
+		} // TODO - will likely want to make this containsAll call more efficient by using sets.		
+		else if (getNonNumericConstantFactorsLexicographicallyOrdered().containsAll(divisor.getNonNumericConstantFactorsLexicographicallyOrdered())) {
+			List<Expression> combinedNonNumericConstantFactors = Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(this, divisor);
 			
-			List<Rational> thisSignature    = this.getSignature(combinedVariables);
-			List<Rational> divisorSignature = divisor.getSignature(combinedVariables);
+			List<Rational> thisSignature    = this.getSignature(combinedNonNumericConstantFactors);
+			List<Rational> divisorSignature = divisor.getSignature(combinedNonNumericConstantFactors);
 						
-			Rational resultCoefficient = this.coefficient.divide(divisor.getCoefficient());
+			Rational resultNumericConstantFactor = this.numericConstantFactor.divide(divisor.getNumericConstantFactor());
 			
 			List<Rational> resultPowers = zipWith((power1, power2) -> power1.subtract(power2), thisSignature, divisorSignature);
 			if (resultPowers.stream().anyMatch(power -> power.signum() == -1)) {
 				result = new Pair<>(ZERO, this); 
 			}
 			else {
-				result = new Pair<>(make(resultCoefficient, combinedVariables, resultPowers), ZERO);
+				result = new Pair<>(make(resultNumericConstantFactor, combinedNonNumericConstantFactors, resultPowers), ZERO);
 			}
 		}
 		else {
@@ -184,12 +209,12 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 			result = ONE;
 		}
 		else {
-			Rational       resultCoefficient = coefficient.pow(exponent);
-			List<Rational> resultPowers      = new ArrayList<>(orderedPowers.size());
+			Rational       resultNumericConstantFactor = this.numericConstantFactor.pow(exponent);
+			List<Rational> resultPowers                = new ArrayList<>(orderedNonNumericConstantPowers.size());
 			
-			orderedPowers.forEach(currentPower -> resultPowers.add(currentPower.multiply(exponent)));
+			orderedNonNumericConstantPowers.forEach(currentPower -> resultPowers.add(currentPower.multiply(exponent)));
 			
-			result = make(resultCoefficient, orderedVariables, resultPowers);
+			result = make(resultNumericConstantFactor, orderedNonNumericConstantFactors, resultPowers);
 		}
 		
 		return result;
@@ -225,99 +250,100 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	//
 	// PRIVATE
 	//
-	private DefaultMonomial(Rational coefficient, List<Expression> orderedVariables, List<Rational> orderedPowers) {
-		super(MONOMIAL_FUNCTOR, makeAsArgumentsToTimes(coefficient, orderedVariables, orderedPowers));
+	private DefaultMonomial(Rational numericConstantFactor, List<Expression> orderedNonNumericConstantFactors, List<Rational> orderedNonNumericConstantPowers) {
+		super(MONOMIAL_FUNCTOR, makeAsArgumentsToTimes(numericConstantFactor, orderedNonNumericConstantFactors, orderedNonNumericConstantPowers));
 		// NOTE: we use Collections.unmodifiable<...> to ensure Monomials are immutable.
-		this.coefficient      = coefficient;
-		this.orderedVariables = Collections.unmodifiableList(orderedVariables);
-		this.orderedPowers    = Collections.unmodifiableList(orderedPowers);
+		this.numericConstantFactor            = numericConstantFactor;
+		this.orderedNonNumericConstantFactors = Collections.unmodifiableList(orderedNonNumericConstantFactors);
+		this.orderedNonNumericConstantPowers  = Collections.unmodifiableList(orderedNonNumericConstantPowers);
 		
-		for (int i = 0; i < orderedVariables.size(); i++) {
-			this.variableToPower.put(orderedVariables.get(i), orderedPowers.get(i));
+		this.factorToPower.put(Expressions.makeSymbol(this.numericConstantFactor), Rational.ONE);
+		for (int i = 0; i < orderedNonNumericConstantFactors.size(); i++) {
+			this.factorToPower.put(orderedNonNumericConstantFactors.get(i), orderedNonNumericConstantPowers.get(i));
 		}
 		
-		this.variableToPower  = Collections.unmodifiableMap(this.variableToPower);
+		this.factorToPower = Collections.unmodifiableMap(this.factorToPower);
 	}
 	
-	private static Monomial make(List<Expression> numericalConstantsAndTerms) {
-		Rational coefficient = Rational.ONE;
+	private static Monomial make(List<Expression> numericConstantsAndTerms) {
+		Rational numericConstantFactor = Rational.ONE;
 		
-		Map<Expression, Rational> variableToPower = new LinkedHashMap<>();
-		for (Expression numericalConstantOrTerm : numericalConstantsAndTerms) {
-			if (Expressions.isNumber(numericalConstantOrTerm)) {
-				coefficient = coefficient.multiply(numericalConstantOrTerm.rationalValue());
+		Map<Expression, Rational> factorToPower = new LinkedHashMap<>();
+		for (Expression numericConstantOrTerm : numericConstantsAndTerms) {
+			if (Expressions.isNumber(numericConstantOrTerm)) {
+				numericConstantFactor = numericConstantFactor.multiply(numericConstantOrTerm.rationalValue());
 			}
 			else { // Is a term				
-				Expression variable          = numericalConstantOrTerm;
+				Expression factor            = numericConstantOrTerm;
 				Rational   power             = Rational.ONE;
 				boolean    attemptFlattening = false;
 				
-				// If exponentiation using a constant integer exponent then we need to extract the variable and the power
-				if (Expressions.hasFunctor(variable, Exponentiation.EXPONENTIATION_FUNCTOR)) {
-					Expression simplifiedPower = simplifyExponentIfPossible(variable.get(1));
+				// If exponentiation using a constant integer exponent then we need to extract the factor and the power
+				if (Expressions.hasFunctor(factor, Exponentiation.EXPONENTIATION_FUNCTOR)) {
+					Expression simplifiedPower = simplifyExponentIfPossible(factor.get(1));
 					if (isLegalExponent(simplifiedPower)) {
 						power    = simplifiedPower.rationalValue();
-						// The variable is actually the base of the exponentiation
-						variable = variable.get(0); 
+						// The factor is actually the base of the exponentiation
+						factor = factor.get(0); 
 						attemptFlattening = true;
 					}
-					else if (!simplifiedPower.equals(variable.get(1))) {
-						// Use the simplified version of the non legal exponent in the variable
-						// i.e. is a generalized variable where the exponent has been simplified
+					else if (!simplifiedPower.equals(factor.get(1))) {
+						// Use the simplified version of the non legal exponent in the factor
+						// i.e. is a non numeric constant factor where the exponent has been simplified
 						// as best as possible.
-						variable = new DefaultFunctionApplication(Exponentiation.EXPONENTIATION_FUNCTOR, Arrays.asList(variable.get(0), simplifiedPower));
+						factor = new DefaultFunctionApplication(Exponentiation.EXPONENTIATION_FUNCTOR, Arrays.asList(factor.get(0), simplifiedPower));
 					}
 				}
 				
-				// Handle case where variable is negated, e.g.: -x
-				if (variable.hasFunctor(FunctorConstants.MINUS) && variable.numberOfArguments() == 1) {
-					variable    = variable.get(0);
+				// Handle case where factor is negated, e.g.: -x
+				if (factor.hasFunctor(FunctorConstants.MINUS) && factor.numberOfArguments() == 1) {
+					factor = factor.get(0);
 					// i.e. same as having an explicit constant '-1' multiplicand in the expression
-					coefficient = coefficient.negate();
+					numericConstantFactor = numericConstantFactor.negate();
 					attemptFlattening = true;
 				}
 				
 				// Handle nested *'s arguments
-				if (variable.hasFunctor(MONOMIAL_FUNCTOR)) {
+				if (factor.hasFunctor(MONOMIAL_FUNCTOR)) {
 					attemptFlattening = true;
 				}
 				
-				// We attempt flattening if we were/are able to simplify the variable in some way
+				// We attempt flattening if we were/are able to simplify the factor in some way
 				if (attemptFlattening) {
-					// Treat the variable as a Monomial and merge it in
+					// Treat the factor as a Monomial and merge it in
 					// This lets you handle nested monomial expressions
 					// in a simplified manner.
-					Monomial variableAsMonomial = make(Times.getMultiplicands(variable));
+					Monomial factorAsMonomial = make(Times.getMultiplicands(factor));
 					// Need to raise to the current power
-					variableAsMonomial = variableAsMonomial.exponentiate(power.intValue());
-					coefficient = coefficient.multiply(variableAsMonomial.getCoefficient());
-					List<Expression> varVariables = variableAsMonomial.getVariablesLexicographicallyOrdered();
-					List<Rational>   varPowers    = variableAsMonomial.getPowersOfLexicographicallyOrderedVariables();
-					int varSize = varVariables.size();
-					for (int i = 0; i < varSize; i++) {
-						Expression varVariable = varVariables.get(i);
-						Rational   varPower    = varPowers.get(i);
-						updateVariableToPowerMap(variableToPower, varVariable, varPower);
+					factorAsMonomial      = factorAsMonomial.exponentiate(power.intValue());
+					numericConstantFactor = numericConstantFactor.multiply(factorAsMonomial.getNumericConstantFactor());
+					List<Expression> factorFactors = factorAsMonomial.getNonNumericConstantFactorsLexicographicallyOrdered();
+					List<Rational>   factorPowers  = factorAsMonomial.getPowersOfLexicographicallyOrderedNonNumericConstantFactors();
+					int factorSize = factorFactors.size();
+					for (int i = 0; i < factorSize; i++) {
+						Expression factorFactor = factorFactors.get(i);
+						Rational   factorPower  = factorPowers.get(i);
+						updateFactorToPowerMap(factorToPower, factorFactor, factorPower);
 					} 
 				}
 				else {
-					updateVariableToPowerMap(variableToPower, variable, power);
+					updateFactorToPowerMap(factorToPower, factor, power);
 				}
 			}
 		}
 		
 		Monomial result = null;
-		if (coefficient.equals(Rational.ZERO)) {
+		if (numericConstantFactor.equals(Rational.ZERO)) {
 			result = ZERO;
 		}
 		else {
-			List<Expression> orderedVariables = new ArrayList<>(variableToPower.keySet());
-			Collections.sort(orderedVariables, _variableComparator);
+			List<Expression> orderedFactors = new ArrayList<>(factorToPower.keySet());
+			Collections.sort(orderedFactors, _factorComparator);
 			
-			List<Rational> orderedPowers = new ArrayList<>(orderedVariables.size());
-			orderedVariables.forEach(variable -> orderedPowers.add(variableToPower.get(variable)));
+			List<Rational> orderedPowers = new ArrayList<>(orderedFactors.size());
+			orderedFactors.forEach(factor -> orderedPowers.add(factorToPower.get(factor)));
 			
-			result = make(coefficient, orderedVariables, orderedPowers);
+			result = make(numericConstantFactor, orderedFactors, orderedPowers);
 		}
 		
 		return result;
@@ -353,43 +379,43 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 		return result;
 	}
 	
-	private static void updateVariableToPowerMap(Map<Expression, Rational> variableToPower, Expression variable, Rational power) {
-		// Ensure duplicate variables in the monomial are handled correctly
-		Rational existingPower = variableToPower.get(variable);
+	private static void updateFactorToPowerMap(Map<Expression, Rational> factorToPower, Expression factor, Rational power) {
+		// Ensure duplicate factors in the monomial are handled correctly
+		Rational existingPower = factorToPower.get(factor);
 		if (existingPower == null) {
-			variableToPower.put(variable, power);
+			factorToPower.put(factor, power);
 		}
 		else {
-			variableToPower.put(variable, existingPower.add(power));
+			factorToPower.put(factor, existingPower.add(power));
 		}
 	}
 	
-	private static Monomial make(Rational coefficient, List<Expression> orderedVariables, List<Rational> orderedPowers) {
-		List<Expression> variables = new ArrayList<>(orderedVariables.size());
-		List<Rational>   powers    = new ArrayList<>(orderedPowers.size());		
-		for (int i = 0; i < orderedPowers.size(); i++) {
-			Rational power = orderedPowers.get(i);
+	private static Monomial make(Rational numericConstantFactor, List<Expression> orderedNonNumericConstantFactors, List<Rational> orderedNonNumericConstantPowers) {
+		List<Expression> factors = new ArrayList<>(orderedNonNumericConstantFactors.size());
+		List<Rational>   powers  = new ArrayList<>(orderedNonNumericConstantPowers.size());		
+		for (int i = 0; i < orderedNonNumericConstantPowers.size(); i++) {
+			Rational power = orderedNonNumericConstantPowers.get(i);
 			// Power must not be negative as this is illegal for a polynomial
 			if (power.signum() == -1) {
 				throw new IllegalArgumentException("Negative powers are not allowed.");
 			}
-			// 0 power means the variable is equivalent to 1 so we can just drop it.
+			// 0 power means the factor is equivalent to 1 so we can just drop it.
 			if (power.signum() > 0) {
-				Expression variable = orderedVariables.get(i);
-				variables.add(variable);
+				Expression factor = orderedNonNumericConstantFactors.get(i);
+				factors.add(factor);
 				powers.add(power);				
 			}
 		}
 		
-		Monomial result = new DefaultMonomial(coefficient, variables, powers);
+		Monomial result = new DefaultMonomial(numericConstantFactor, factors, powers);
 		
 		return result;
 	}
 	
-	private static List<Expression> makeAsArgumentsToTimes(Rational coefficient, List<Expression> orderedVariables, List<Rational> orderedPowers) {
-		List<Expression> result = new ArrayList<>(1+orderedVariables.size());
-		result.add(Expressions.makeSymbol(coefficient));
-		result.addAll(zipWith((base, power) -> Exponentiation.make(base, power), orderedVariables, orderedPowers));
+	private static List<Expression> makeAsArgumentsToTimes(Rational numericConstantFactor, List<Expression> orderedNonNumericConstantFactors, List<Rational> orderedNonNumericConstantPowers) {
+		List<Expression> result = new ArrayList<>(1+orderedNonNumericConstantFactors.size());
+		result.add(Expressions.makeSymbol(numericConstantFactor));
+		result.addAll(zipWith((base, power) -> Exponentiation.make(base, power), orderedNonNumericConstantFactors, orderedNonNumericConstantPowers));
 		return result;
 	}
 }

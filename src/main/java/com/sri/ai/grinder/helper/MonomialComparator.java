@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.helper;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -46,34 +47,74 @@ import com.sri.ai.grinder.api.Monomial;
 import com.sri.ai.util.math.Rational;
 
 /**
- * A monomial <em>M1</em> <b>comes before</b> another monomial <em>M2</em>  
- * iff signature(M1, U) is lexicographically larger than signature(M2, U), 
- * where U = sortedTuple(vars(M1) union vars(M2)). 
+ * A monomial <em>M1<em> <b>comes before</b> another monomial <em>M2</em> wrt
+ * tuple of factors
+ * <em>F<em> iff signature(M1, F) is lexicographically larger than signature(M2, F).
  * 
  * @author oreilly
  *
  */
 @Beta
 public class MonomialComparator implements Comparator<Monomial> {
-	
+
+	private List<Expression> signatureFactors = null;
+
+	/**
+	 * Default Constructor, uses the union of the non-numeric constant factors
+	 * of the given monomials under comparison to determine the factors to use
+	 * when retrieving their signatures.
+	 */
+	public MonomialComparator() {
+
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param signatureFactors
+	 *            The signature factors to use when retrieving the signatures of
+	 *            given monomials that are being compared.
+	 */
+	public MonomialComparator(List<Expression> signatureFactors) {
+		this.signatureFactors = new ArrayList<>(signatureFactors);
+	}
+
 	@Override
 	public int compare(Monomial m1, Monomial m2) {
 		int result = 0;
-		
-		List<Expression> sortedUnionOfVariables = Monomial.unionVariablesLexicographically(m1, m2);
-		
-		List<Rational> m1Signature = m1.getSignature(sortedUnionOfVariables);
-		List<Rational> m2Signature = m2.getSignature(sortedUnionOfVariables);
-		
+
+		List<Expression> factors = getSignatureFactors(m1, m2);
+
+		List<Rational> m1Signature = m1.getSignature(factors);
+		List<Rational> m2Signature = m2.getSignature(factors);
+
 		// Note: Both signatures will be the same length
 		int signatureLength = m1Signature.size();
 		for (int i = 0; i < signatureLength; i++) {
 			if ((result = m1Signature.get(i).compareTo(m2Signature.get(i))) != 0) {
-				// if not = 0 we know that one is less than or greater than the other
+				// if not = 0 we know that one is less than or greater than the
+				// other
 				break;
 			}
 		}
-		
+
+		return result;
+	}
+
+	//
+	// PRIVATE
+	//
+	private List<Expression> getSignatureFactors(Monomial m1, Monomial m2) {
+		List<Expression> result = signatureFactors;
+
+		// no signature factors defined, then fall back on the union of the
+		// non-numeric constants factors of the given monomials.
+		if (result == null) {
+			result = Monomial
+					.unionNonNumericConstantFactorsLexicographicallyOrdered(m1,
+							m2);
+		}
+
 		return result;
 	}
 }

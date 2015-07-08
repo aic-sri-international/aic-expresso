@@ -48,9 +48,9 @@ import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
 /**
- * A monomial is a product of a number and powers of variables, where the number
- * constant (if any) is the first argument and the variables are in alphabetical
- * order.<br>
+ * A monomial is a product of factors, where the numeric constant factor (if
+ * any) is the first argument and the non-numeric constant factors are in
+ * lexicographic order.<br>
  * 
  * Examples: <br>
  * 
@@ -65,16 +65,6 @@ import com.sri.ai.util.math.Rational;
  * </code>
  * </pre>
  * 
- * <b>NOTE:</b> To make the library as general as possible, any expression that
- * is not a numeric constant or an application of ^ with constant non-negative
- * integer exponent, is to be considered a "generalized variable". Therefore:
- * 
- * <pre>
- * <code>
- * vars(10 * |Dogs|^2 * |People|^3 * f(y) * x^2) = { |Dogs|, |People|, f(y), x }
- * </code>
- * </pre>
- * 
  * @author oreilly
  *
  */
@@ -82,101 +72,140 @@ import com.sri.ai.util.math.Rational;
 public interface Monomial extends FunctionApplication {
 	/**
 	 * 
-	 * @return the numerical constant (i.e. coefficient) of the monomial.
+	 * @return the numeric constant of the monomial (if not explicitly defined
+	 *         is 1).
 	 */
-	Rational getCoefficient();
-	
-	/**
-	 * Convenience routine for getting the variables of the monomial in Set form.
-	 * 
-	 * @return a Set representation of the variables contained within the Monomial.
-	 */
-	Set<Expression> getVariables();
+	Rational getNumericConstantFactor();
 
 	/**
-	 * Get a unique list, lexicographically ordered, of the variables in the monomial.
+	 * The <b>factors of a monomial</b> <em>M</em> is the Collection factors(M).
+	 * They are the expressions being multiplied, and possibly exponentiated by
+	 * non-negative integers. Example:
 	 * 
-	 * @return a lexicographically ordered list of the variables contained in
-	 *         the monomial.
+	 * <pre>
+	 * <code>
+	 * factors(10 * |Dogs|^2 * |People|^3 * f(y) * (x + 2) * x^2) = { 10, |Dogs|, |People|, f(y), x + 2, x }
+	 * </code>
+	 * </pre>
+	 * 
+	 * @return a Set representation of the factors contained within the Monomial
+	 *         (this includes the numeric constant factor).
 	 */
-	List<Expression> getVariablesLexicographicallyOrdered();
+	Set<Expression> getFactors();
+
+	/**
+	 * Get a unique list, lexicographically ordered, of the non-numeric
+	 * constant factors in the monomial.
+	 * 
+	 * @return a lexicographically ordered list of the non-numeric constant
+	 *         factors contained in the monomial.
+	 */
+	List<Expression> getNonNumericConstantFactorsLexicographicallyOrdered();
 
 	/**
 	 * 
-	 * @return the powers of the variables in the monomial, which map to the
-	 *         lexicographical order of the variables.
+	 * @return the powers of the non-numeric constant factors in the monomial,
+	 *         which map to the lexicographical order of these factors.
 	 */
-	List<Rational> getPowersOfLexicographicallyOrderedVariables();
-	
+	List<Rational> getPowersOfLexicographicallyOrderedNonNumericConstantFactors();
+
 	/**
-	 * Get the power of the given variable if it is a variable of the monomial
+	 * The <b>coefficient</b> of a monomial <em>M</em> wrt a set of factors
+	 * <em>F</em> is the product of the remaining factors of <em>M</em>.
+	 * Example:
+	 * 
+	 * <pre>
+	 * <code>
+	 * coefficient(3*x^2*y^4, { x }) = 3* y^4
+	 * </code>
+	 * </pre>
+	 * 
+	 * @param factors
+	 * @return
+	 */
+	Monomial getCoefficient(Set<Expression> factors);
+
+	/**
+	 * Get the power of the given factor if it is a factor of the monomial
 	 * otherwise return 0.
 	 * 
-	 * @param variable
-	 *            the variable whose power is to be retrieved.
-	 * @return the power of the given variable if the variable is contained in
-	 *         the monomial. If not contained in the monomial will return 0.
+	 * @param factor
+	 *            the factor whose power is to be retrieved.
+	 * @return the power of the given factor if the factor is contained in the
+	 *         monomial. If not contained in the monomial will return 0.
 	 */
-	Rational getPowerOfVariable(Expression variable);
+	Rational getPowerOfFactor(Expression factor);
 
 	/**
-	 * The <b>signature</b> of a monomial <em>M</em> wrt a tuple of variables
-	 * <em>V</em> is the tuple of the powers of variables in <em>V</em> in
-	 * <em>M</em> (the power is 0 if the variable is not present in <em>M</em>).<br>
+	 * The <b>signature</b> of a monomial <em>M</em> wrt a tuple of factors
+	 * <em>F</em> is the tuple of the powers of the factors in <em>F</em> in
+	 * <em>M</em> (the power is 0 if the factor is not present in <em>M</em>).<br>
 	 * Examples:<br>
 	 * 
 	 * <pre>
 	 * <code>
-	 * signature(3 * y * x^2,  (x, y, z))  =  (2, 1, 0)
-	 * signature(3,            (x, y, z))  =  (0, 0, 0)
+	 * signature(3 * y * x^2,  (x, y, z))            =  (2, 1, 0)
+	 * signature(3,            (x, y, z))            =  (0, 0, 0)
+	 * signature(3 * (x + 2),  (x + 2, x, y, z))     =  (1, 0, 0, 0)
+	 * signature(3 * (x + 2),  (3, x + 2, x, y, z))  =  (1, 1, 0, 0, 0)
 	 * </code>
 	 * </pre>
 	 * 
-	 * @param variables
-	 *            a list of variables.
-	 * @return the tuple of the powers of the given variables that are in this
-	 *         Monomial (0 is returned for the power of variables not present in
+	 * @param factors
+	 *            a list of factors.
+	 * @return the tuple of the powers of the given factors that are in this
+	 *         Monomial (0 is returned for the power of factors not present in
 	 *         this monomial).
 	 */
-	default List<Rational> getSignature(List<Expression> variables) {
-		List<Rational> result = new ArrayList<>(variables.size());
-		variables.forEach(variable -> result.add(getPowerOfVariable(variable)));
+	default List<Rational> getSignature(List<Expression> factors) {
+		List<Rational> result = new ArrayList<>(factors.size());
+		factors.forEach(factor -> result.add(getPowerOfFactor(factor)));
 		return result;
 	}
 
 	/**
-	 * Two monomials <em>M1</em> and <em>M2</em> have <b>like terms</b> if they
-	 * contain the same variables raised to the same powers, i.e. if vars(M1) =
-	 * vars(M2) and signature(M1, vars(M1)) = signature(M2, vars(M2)).<br>
-	 * Have Like Terms Examples:<br>
+	 * Two monomials <em>M1</em> and <em>M2</em> are <b>like terms
+	 * <em> wrt a tuple of factors <em>F</em> if signature(M1, F) =
+	 * signature(M2, F).<br>
+	 * Examples:
 	 * 
 	 * <pre>
-	 * <code>
-	 *  x^2 * y and 3 * y * x^2
-	 *  x and 3 * x
-	 *  10 and 20
+	 * </code>
+	 * x^2 * y  and 3 * y * x^2 wrt F = (x, y)
+	 * x^2 * y  and 3 * y * x^2 wrt F = (x)
+	 * x^2 * y  and 3 * y * x^2 wrt F = (y)
+	 * x^2 * y  and 3 * y * x^2 wrt F = ()
+	 * x and 3 * x wrt F = (x)
+	 * 10 and 20 wrt F = ()
 	 * </code>
 	 * </pre>
 	 * 
 	 * @param monomial
-	 *            the monomial to check if have like terms with.
+	 *            the monomial to check if a like term to this monomial.
+	 * @oaran factors the factors to construct the signature used to determine
+	 *        if two monomials are like terms.
 	 * @return true if this monomial has like terms with the given monomial,
 	 *         false otherwise.
 	 */
-	default boolean haveLikeTerms(Monomial other) {
-		boolean result = getVariablesLexicographicallyOrdered().equals(other.getVariablesLexicographicallyOrdered())
-				&& getPowersOfLexicographicallyOrderedVariables().equals(other.getPowersOfLexicographicallyOrderedVariables());
+	default boolean areLikeTerms(Monomial other, List<Expression> factors) {
+		List<Rational> thisSignature = getSignature(factors);
+		List<Rational> otherSignature = other.getSignature(factors);
+
+		boolean result = thisSignature.equals(otherSignature);
+
 		return result;
 	}
 
 	/**
-	 * The degree of a monomial is the sum of the exponents of all its variables.
+	 * The degree of a monomial is the sum of the exponents of all its
+	 * non-numeric constant factors (numeric constant factors have a degree of
+	 * 0).
 	 * 
 	 * @return the degree of the monomial.
 	 */
 	default Rational degree() {
-		Rational result = getPowersOfLexicographicallyOrderedVariables().stream().reduce(Rational.ZERO,
-				(r1, r2) -> r1.add(r2));
+		Rational result = getPowersOfLexicographicallyOrderedNonNumericConstantFactors()
+				.stream().reduce(Rational.ZERO, (r1, r2) -> r1.add(r2));
 		return result;
 	}
 
@@ -192,16 +221,19 @@ public interface Monomial extends FunctionApplication {
 	/**
 	 * Divide this monomial by another.
 	 * 
-	 * <pre><code>
-	 * this.divide(that) = this/that 
-	 * </pre></code>
+	 * <pre>
+	 * <code>
+	 * this.divide(that) = this/that
+	 * </pre>
+	 * 
+	 * </code>
 	 * 
 	 * @param divisor
 	 *            the divisor
 	 * @return a pair consisting of the quotient and remainder of this/divisor.
 	 */
 	Pair<Monomial, Monomial> divide(Monomial divisor);
-	
+
 	/**
 	 * Raise this monomial to a given power.
 	 * 
@@ -210,61 +242,65 @@ public interface Monomial extends FunctionApplication {
 	 * @return a new monomial which is the result of raising this monomial to
 	 *         the given exponent.
 	 * @throws IllegalArgumentException
-	 *         if the exponent is negative.
+	 *             if the exponent is negative.
 	 */
 	Monomial exponentiate(int exponent);
-	
+
 	/**
-	 * Create a lexicographically ordered union (no duplicates) of the variables
-	 * contained in two Monomials.
+	 * Create a lexicographically ordered union (no duplicates) of the
+	 * non-numeric constant factors contained in two Monomials.
 	 * 
 	 * @param m1
 	 *            the first monomial.
 	 * @param m2
 	 *            the second monomial.
 	 * @return the lexicographically ordered union (no duplicates) of the
-	 *         variables contained in two Monomials.
+	 *         non-numeric constant factors contained in two Monomials.
 	 */
-	public static List<Expression> unionVariablesLexicographically(Monomial m1, Monomial m2) {
-		List<Expression> m1Variables = m1.getVariablesLexicographicallyOrdered();
-		List<Expression> m2Variables = m2.getVariablesLexicographicallyOrdered();
+	public static List<Expression> unionNonNumericConstantFactorsLexicographicallyOrdered(
+			Monomial m1, Monomial m2) {
+		List<Expression> m1Factors = m1
+				.getNonNumericConstantFactorsLexicographicallyOrdered();
+		List<Expression> m2Factors = m2
+				.getNonNumericConstantFactorsLexicographicallyOrdered();
 		// For efficiency ensure we have enough capacity in the union up front.
-		List<Expression> result = new ArrayList<>(m1Variables.size() + m2Variables.size());
+		List<Expression> result = new ArrayList<>(m1Factors.size()
+				+ m2Factors.size());
 
-		// NOTE: we know m1 and m2's variables are lexicographically ordered,
-		// which we can take advantage of to perform the lexicographically ordered
+		// NOTE: we know m1 and m2's non-numeric constant factors are
+		// lexicographically ordered,
+		// which we can take advantage of to perform the lexicographically
+		// ordered
 		// union more efficiently
-		int m1VariablesSize = m1Variables.size();
-		int m2VariablesSize = m2Variables.size();
-		Expression m1Var, m2Var;
-		for (int i1 = 0, i2 = 0; i1 < m1VariablesSize || i2 < m2VariablesSize;) {
-			if (i1 < m1VariablesSize && i2 < m2VariablesSize) {
-				m1Var = m1Variables.get(i1);
-				m2Var = m2Variables.get(i2);
-				int m1VarComparisonToM2Var = m1Var.compareTo(m2Var);
+		int m1FactorsSize = m1Factors.size();
+		int m2FactorsSize = m2Factors.size();
+		Expression m1Factor, m2Factor;
+		for (int i1 = 0, i2 = 0; i1 < m1FactorsSize || i2 < m2FactorsSize;) {
+			if (i1 < m1FactorsSize && i2 < m2FactorsSize) {
+				m1Factor = m1Factors.get(i1);
+				m2Factor = m2Factors.get(i2);
+				int m1FactorComparisonToM2Factor = m1Factor.compareTo(m2Factor);
 
-				if (m1VarComparisonToM2Var == 0) { // are considered equal
+				if (m1FactorComparisonToM2Factor == 0) { // are considered equal
 					// just add one of them (as considered same) as do not want
 					// duplicates in the returned union.
-					result.add(m1Var);
+					result.add(m1Factor);
 					i1++;
 					i2++;
-				} 
-				else if (m1VarComparisonToM2Var < 0) { // i.e. m1Var is before m2Var
-					result.add(m1Var);
+				} else if (m1FactorComparisonToM2Factor < 0) { // i.e. m1Factor
+																// is before
+																// m2Factor
+					result.add(m1Factor);
 					i1++;
-				} 
-				else { // i.e. m2Var is before m1Var
-					result.add(m2Var);
+				} else { // i.e. m2Factor is before m1Factor
+					result.add(m2Factor);
 					i2++;
 				}
-			} 
-			else if (i1 < m1VariablesSize) { // implies i2 is exhausted
-				result.add(m1Variables.get(i1));
+			} else if (i1 < m1FactorsSize) { // implies i2 is exhausted
+				result.add(m1Factors.get(i1));
 				i1++;
-			} 
-			else { // implies i2 < m2VariableSize and i1 is exhausted
-				result.add(m2Variables.get(i2));
+			} else { // implies i2 < m2FactorsSize and i1 is exhausted
+				result.add(m2Factors.get(i2));
 				i2++;
 			}
 		}
