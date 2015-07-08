@@ -86,26 +86,26 @@ public class DefaultMonomialTest {
 		Assert.assertEquals(new Rational(-1), makeMonomial("-1").getNumericConstantFactor());
 		Assert.assertEquals(new Rational(2), makeMonomial("2").getNumericConstantFactor());
 		
-		// Ensure the coefficient is set to 1 if not explicitly represented in the expression
+		// Ensure the numeric constant is set to 1 if not explicitly represented in the expression
 		Assert.assertEquals(new Rational(1), makeMonomial("x^2").getNumericConstantFactor());
 		
 		Assert.assertEquals(new Rational(4), makeMonomial("4*x^2").getNumericConstantFactor());
 		
 		Assert.assertEquals(new Rational(4), makeMonomial("y*4*x^2").getNumericConstantFactor());
 		
-		// Test that numerical constants are multiplied together to create the coefficient
+		// Test that numerical constants are multiplied together
 		Assert.assertEquals(new Rational(8), makeMonomial("y^3*2*x^2*4").getNumericConstantFactor());
 		
-		// Test edge case where the coefficient is represented as a power	
+		// Test edge case where the numeric constant is represented as a power	
 		Assert.assertEquals(new Rational(8), makeMonomial("2^3*x^2").getNumericConstantFactor());
 		
-		// Test edge case where the coefficient is represented as a power and a separate constant
+		// Test edge case where the numeric constant is represented as a power and a separate constant
 		Assert.assertEquals(new Rational(24), makeMonomial("2^3*x^2*3").getNumericConstantFactor());
 	}
 	
 	@Test
 	public void testGetFactors() {
-		// A constant, 1 factor.
+		// A numeric constant, 1 factor.
 		Monomial m = makeMonomial("2");
 		Assert.assertEquals(1, m.getFactors().size());
 		
@@ -113,7 +113,7 @@ public class DefaultMonomialTest {
 		m = makeMonomial("0*x^2");
 		Assert.assertEquals(1, m.getFactors().size());
 		
-		// A single non numeric constant factor
+		// A single non numeric constant factor, the default numeric constant 1 is present as a factor
 		m = makeMonomial("x");
 		Assert.assertEquals(2, m.getFactors().size());
 		Assert.assertEquals(new HashSet<>(Expressions.parse("(1, x)").getArguments()), m.getFactors());
@@ -145,7 +145,7 @@ public class DefaultMonomialTest {
 		Assert.assertEquals(new HashSet<>(Expressions.parse("(10, |Dogs|, |People|, f(y), x)").getArguments()), m.getFactors());
 	
 		//
-		m = makeMonomial("10 * 2^a");
+		m = makeMonomial("10 * 2^a");  // treated as a factors as a non-integer exponent
 		Assert.assertEquals(2, m.getFactors().size());
 		Assert.assertEquals(new HashSet<>(Expressions.parse("(10, 2^a)").getArguments()), m.getFactors());
 		
@@ -183,7 +183,6 @@ public class DefaultMonomialTest {
 		m = makeMonomial("2*x^3*y^7*z^0");
 		Assert.assertEquals(2, m.getNonNumericConstantFactorsLexicographicallyOrdered().size());
 		Assert.assertEquals(Expressions.parse("(x, y)").getArguments(), m.getNonNumericConstantFactorsLexicographicallyOrdered());
-
 	}
 	
 	@Test
@@ -214,7 +213,30 @@ public class DefaultMonomialTest {
 	
 	@Test
 	public void testGetCoefficient() {
-// TODO
+		Monomial m = makeMonomial("0");
+		Assert.assertEquals(makeMonomial("0"), m.getCoefficient(new HashSet<>(Collections.emptyList())));
+		Assert.assertEquals(makeMonomial("0"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(x)").getArguments())));
+	
+		m = makeMonomial("1");
+		Assert.assertEquals(makeMonomial("1"), m.getCoefficient(new HashSet<>(Collections.emptyList())));
+		Assert.assertEquals(makeMonomial("1"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(x)").getArguments())));
+
+		m = makeMonomial("x");
+		Assert.assertEquals(makeMonomial("x"), m.getCoefficient(new HashSet<>(Collections.emptyList())));
+		Assert.assertEquals(makeMonomial("1"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(x)").getArguments())));	
+		
+		m = makeMonomial("3*x^2");
+		Assert.assertEquals(makeMonomial("3*x^2"), m.getCoefficient(new HashSet<>(Collections.emptyList())));
+		Assert.assertEquals(makeMonomial("3*x^2"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(1)").getArguments())));
+		Assert.assertEquals(makeMonomial("3*x^2"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(z)").getArguments())));
+		Assert.assertEquals(makeMonomial("x^2"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(3)").getArguments())));
+		Assert.assertEquals(makeMonomial("3"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(x)").getArguments())));
+		Assert.assertEquals(makeMonomial("1"), m.getCoefficient(new HashSet<>(Expressions.parse("(3, x)").getArguments())));
+
+		m = makeMonomial("3*x^2*y^4");
+		Assert.assertEquals(makeMonomial("3*x^2*y^4"), m.getCoefficient(new HashSet<>(Collections.emptyList())));
+		Assert.assertEquals(makeMonomial("3*x^2*y^4"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(1)").getArguments())));
+		Assert.assertEquals(makeMonomial("3*y^4"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(x)").getArguments())));	
 	}
 	
 	@Test

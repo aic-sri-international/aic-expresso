@@ -79,7 +79,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	private static final Monomial ZERO = make(Rational.ZERO, Collections.emptyList(), Collections.emptyList());
 	private static final Monomial ONE  = make(Rational.ONE, Collections.emptyList(), Collections.emptyList());
 	//
-	private Rational                  numericConstantFactor            = null; 
+	private Expression                numericConstantFactorExpression  = null; 
 	private List<Expression>          orderedNonNumericConstantFactors = null;
 	private List<Rational>            orderedNonNumericConstantPowers  = null;
 	private Map<Expression, Rational> factorToPower                    = new LinkedHashMap<>();
@@ -93,7 +93,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	// START-Monomial
 	@Override
 	public Rational getNumericConstantFactor() {
-		return numericConstantFactor;
+		return numericConstantFactorExpression.rationalValue();
 	}
 
 	@Override
@@ -113,25 +113,46 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	
 	@Override
 	public Monomial getCoefficient(Set<Expression> factors) {
-		Rational resultNumericConstantFactor = this.numericConstantFactor;
-		if (factors.contains(this.numericConstantFactor)) {
-			// reduces to 1.
-			resultNumericConstantFactor = Rational.ONE;
+		Monomial result;
+		
+		if (getNumericConstantFactor().equals(Rational.ZERO)) {
+			result = ZERO;
 		}
-		List<Expression> resultOrderedNonNumericConstantFactors = new ArrayList<>(this.orderedNonNumericConstantFactors.size());
-		List<Rational>   resultOrderedNonNumericConstantPowers  = new ArrayList<>(this.orderedNonNumericConstantPowers.size());
-		int numFactors = this.orderedNonNumericConstantFactors.size();
-		for (int i = 0; i < numFactors; i++) {
-			Expression factor = this.orderedNonNumericConstantFactors.get(i);
-			if (!factors.contains(factor)) {
-				Rational power = this.orderedNonNumericConstantPowers.get(i);
-				
-				resultOrderedNonNumericConstantFactors.add(factor);
-				resultOrderedNonNumericConstantPowers.add(power);
+		else if (factors.size() == 0) {
+			result = this;
+		}
+		else {
+			// If the factors provided don't overlap with the factors in this monomial
+			// then you just want to return this monomial.
+			boolean factorsOverlap = false;
+			Rational resultNumericConstantFactor = getNumericConstantFactor();
+			if (factors.contains(this.numericConstantFactorExpression)) {
+				// reduces to 1.
+				resultNumericConstantFactor = Rational.ONE;
+				factorsOverlap              = true;
+			}
+			List<Expression> resultOrderedNonNumericConstantFactors = new ArrayList<>(this.orderedNonNumericConstantFactors.size());
+			List<Rational>   resultOrderedNonNumericConstantPowers  = new ArrayList<>(this.orderedNonNumericConstantPowers.size());
+			int numFactors = this.orderedNonNumericConstantFactors.size();
+			for (int i = 0; i < numFactors; i++) {
+				Expression factor = this.orderedNonNumericConstantFactors.get(i);
+				if (factors.contains(factor)) {
+					factorsOverlap = true;
+				} else {
+					Rational power = this.orderedNonNumericConstantPowers.get(i);
+					
+					resultOrderedNonNumericConstantFactors.add(factor);
+					resultOrderedNonNumericConstantPowers.add(power);
+				}
+			}
+			
+			if (factorsOverlap) {
+				result = make(resultNumericConstantFactor, resultOrderedNonNumericConstantFactors, resultOrderedNonNumericConstantPowers);
+			}
+			else {
+				result = this;
 			}
 		}
-		
-		Monomial result = make(resultNumericConstantFactor, resultOrderedNonNumericConstantFactors, resultOrderedNonNumericConstantPowers);
 		
 		return result;
 	}
@@ -145,8 +166,8 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	@Override
 	public Monomial times(Monomial multiplier) {
 		Monomial result;
-		// return 0 if either coefficient is 0
-		if (this.numericConstantFactor.equals(Rational.ZERO) || multiplier.getNumericConstantFactor().equals(Rational.ZERO)) {
+		// Optimization: return 0 if either numeric constant factor is 0
+		if (getNumericConstantFactor().equals(Rational.ZERO) || multiplier.getNumericConstantFactor().equals(Rational.ZERO)) {
 			result = ZERO;
 		}
 		else {
@@ -155,7 +176,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 			List<Rational> thisSignature       = this.getSignature(combinedNonNumericConstantFactors);
 			List<Rational> multiplierSignature = multiplier.getSignature(combinedNonNumericConstantFactors);
 			
-			Rational resultNumericConstantFactor = numericConstantFactor.multiply(multiplier.getNumericConstantFactor());
+			Rational resultNumericConstantFactor = getNumericConstantFactor().multiply(multiplier.getNumericConstantFactor());
 			
 			List<Rational> resultPowers = zipWith((power1, power2) -> power1.add(power2), thisSignature, multiplierSignature);
 			
@@ -182,7 +203,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 			List<Rational> thisSignature    = this.getSignature(combinedNonNumericConstantFactors);
 			List<Rational> divisorSignature = divisor.getSignature(combinedNonNumericConstantFactors);
 						
-			Rational resultNumericConstantFactor = this.numericConstantFactor.divide(divisor.getNumericConstantFactor());
+			Rational resultNumericConstantFactor = getNumericConstantFactor().divide(divisor.getNumericConstantFactor());
 			
 			List<Rational> resultPowers = zipWith((power1, power2) -> power1.subtract(power2), thisSignature, divisorSignature);
 			if (resultPowers.stream().anyMatch(power -> power.signum() == -1)) {
@@ -209,7 +230,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 			result = ONE;
 		}
 		else {
-			Rational       resultNumericConstantFactor = this.numericConstantFactor.pow(exponent);
+			Rational       resultNumericConstantFactor = getNumericConstantFactor().pow(exponent);
 			List<Rational> resultPowers                = new ArrayList<>(orderedNonNumericConstantPowers.size());
 			
 			orderedNonNumericConstantPowers.forEach(currentPower -> resultPowers.add(currentPower.multiply(exponent)));
@@ -253,11 +274,11 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	private DefaultMonomial(Rational numericConstantFactor, List<Expression> orderedNonNumericConstantFactors, List<Rational> orderedNonNumericConstantPowers) {
 		super(MONOMIAL_FUNCTOR, makeAsArgumentsToTimes(numericConstantFactor, orderedNonNumericConstantFactors, orderedNonNumericConstantPowers));
 		// NOTE: we use Collections.unmodifiable<...> to ensure Monomials are immutable.
-		this.numericConstantFactor            = numericConstantFactor;
+		this.numericConstantFactorExpression  = Expressions.makeSymbol(numericConstantFactor);
 		this.orderedNonNumericConstantFactors = Collections.unmodifiableList(orderedNonNumericConstantFactors);
 		this.orderedNonNumericConstantPowers  = Collections.unmodifiableList(orderedNonNumericConstantPowers);
 		
-		this.factorToPower.put(Expressions.makeSymbol(this.numericConstantFactor), Rational.ONE);
+		this.factorToPower.put(this.numericConstantFactorExpression, Rational.ONE);
 		for (int i = 0; i < orderedNonNumericConstantFactors.size(); i++) {
 			this.factorToPower.put(orderedNonNumericConstantFactors.get(i), orderedNonNumericConstantPowers.get(i));
 		}
@@ -282,7 +303,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 				if (Expressions.hasFunctor(factor, Exponentiation.EXPONENTIATION_FUNCTOR)) {
 					Expression simplifiedPower = simplifyExponentIfPossible(factor.get(1));
 					if (isLegalExponent(simplifiedPower)) {
-						power    = simplifiedPower.rationalValue();
+						power  = simplifiedPower.rationalValue();
 						// The factor is actually the base of the exponentiation
 						factor = factor.get(0); 
 						attemptFlattening = true;
@@ -312,7 +333,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 				if (attemptFlattening) {
 					// Treat the factor as a Monomial and merge it in
 					// This lets you handle nested monomial expressions
-					// in a simplified manner.
+					// in a simplified/recursive manner.
 					Monomial factorAsMonomial = make(Times.getMultiplicands(factor));
 					// Need to raise to the current power
 					factorAsMonomial      = factorAsMonomial.exponentiate(power.intValue());
@@ -391,23 +412,31 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	}
 	
 	private static Monomial make(Rational numericConstantFactor, List<Expression> orderedNonNumericConstantFactors, List<Rational> orderedNonNumericConstantPowers) {
-		List<Expression> factors = new ArrayList<>(orderedNonNumericConstantFactors.size());
-		List<Rational>   powers  = new ArrayList<>(orderedNonNumericConstantPowers.size());		
-		for (int i = 0; i < orderedNonNumericConstantPowers.size(); i++) {
-			Rational power = orderedNonNumericConstantPowers.get(i);
-			// Power must not be negative as this is illegal for a polynomial
-			if (power.signum() == -1) {
-				throw new IllegalArgumentException("Negative powers are not allowed.");
-			}
-			// 0 power means the factor is equivalent to 1 so we can just drop it.
-			if (power.signum() > 0) {
-				Expression factor = orderedNonNumericConstantFactors.get(i);
-				factors.add(factor);
-				powers.add(power);				
-			}
-		}
+		Monomial result;
 		
-		Monomial result = new DefaultMonomial(numericConstantFactor, factors, powers);
+		// if numeric constant is = 0 the whole expression is 0, so reduce to that.
+		if (numericConstantFactor.equals(Rational.ZERO)) {
+			result = new DefaultMonomial(Rational.ZERO, Collections.emptyList(), Collections.emptyList());
+		}
+		else {
+			List<Expression> factors = new ArrayList<>(orderedNonNumericConstantFactors.size());
+			List<Rational>   powers  = new ArrayList<>(orderedNonNumericConstantPowers.size());		
+			for (int i = 0; i < orderedNonNumericConstantPowers.size(); i++) {
+				Rational power = orderedNonNumericConstantPowers.get(i);
+				// Power must not be negative as this is illegal for a monomial
+				if (power.signum() == -1) {
+					throw new IllegalArgumentException("Negative powers are not allowed.");
+				}
+				// 0 power means the factor is equivalent to 1 so we can just drop it.
+				if (power.signum() > 0) {
+					Expression factor = orderedNonNumericConstantFactors.get(i);
+					factors.add(factor);
+					powers.add(power);				
+				}
+			}
+			
+			result = new DefaultMonomial(numericConstantFactor, factors, powers);
+		}
 		
 		return result;
 	}
