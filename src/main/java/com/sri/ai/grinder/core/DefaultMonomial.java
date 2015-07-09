@@ -102,12 +102,12 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	}
 
 	@Override
-	public List<Expression> getNonNumericConstantFactorsLexicographicallyOrdered() {
+	public List<Expression> getOrderedNonNumericConstantFactors() {
 		return orderedNonNumericConstantFactors;
 	}
 
 	@Override
-	public List<Rational> getPowersOfLexicographicallyOrderedNonNumericConstantFactors() {
+	public List<Rational> getPowersOfOrderedNonNumericConstantFactors() {
 		return orderedNonNumericConstantPowers;
 	}
 	
@@ -171,7 +171,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 			result = ZERO;
 		}
 		else {
-			List<Expression> combinedNonNumericConstantFactors = Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(this, multiplier);
+			List<Expression> combinedNonNumericConstantFactors = Monomial.orderedUnionOfNonNumericConstantFactors(this, multiplier);
 			
 			List<Rational> thisSignature       = this.getSignature(combinedNonNumericConstantFactors);
 			List<Rational> multiplierSignature = multiplier.getSignature(combinedNonNumericConstantFactors);
@@ -197,8 +197,8 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 		if (this.getNumericConstantFactor().equals(Rational.ZERO)) {
 			result = new Pair<>(ZERO, ZERO);
 		} // TODO - will likely want to make this containsAll call more efficient by using sets.		
-		else if (getNonNumericConstantFactorsLexicographicallyOrdered().containsAll(divisor.getNonNumericConstantFactorsLexicographicallyOrdered())) {
-			List<Expression> combinedNonNumericConstantFactors = Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(this, divisor);
+		else if (getOrderedNonNumericConstantFactors().containsAll(divisor.getOrderedNonNumericConstantFactors())) {
+			List<Expression> combinedNonNumericConstantFactors = Monomial.orderedUnionOfNonNumericConstantFactors(this, divisor);
 			
 			List<Rational> thisSignature    = this.getSignature(combinedNonNumericConstantFactors);
 			List<Rational> divisorSignature = divisor.getSignature(combinedNonNumericConstantFactors);
@@ -338,8 +338,8 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 					// Need to raise to the current power
 					factorAsMonomial      = factorAsMonomial.exponentiate(power.intValue());
 					numericConstantFactor = numericConstantFactor.multiply(factorAsMonomial.getNumericConstantFactor());
-					List<Expression> factorFactors = factorAsMonomial.getNonNumericConstantFactorsLexicographicallyOrdered();
-					List<Rational>   factorPowers  = factorAsMonomial.getPowersOfLexicographicallyOrderedNonNumericConstantFactors();
+					List<Expression> factorFactors = factorAsMonomial.getOrderedNonNumericConstantFactors();
+					List<Rational>   factorPowers  = factorAsMonomial.getPowersOfOrderedNonNumericConstantFactors();
 					int factorSize = factorFactors.size();
 					for (int i = 0; i < factorSize; i++) {
 						Expression factorFactor = factorFactors.get(i);

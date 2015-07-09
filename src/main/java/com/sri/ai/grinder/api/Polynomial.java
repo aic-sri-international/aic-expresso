@@ -223,18 +223,54 @@ public interface Polynomial extends FunctionApplication {
 	 * The projection of the polynomial on a subset S of F re-organizes it around the 
 	 * signatures on S alone.
 	 * 
-	 * So if S = { x }, we get two monomials:
+	 * So, if S = { x }, we get two monomials:
+	 * 
+	 * x^2 * y^4 * z (signature (2), coefficient z*y^4)
+	 * +
+	 * x^2 * y^3 (signature (2), coefficient y^3)
+	 * +
+	 * y (signature (0), coefficient y)
+	 * +
+	 * 10 (signature (0), coefficient 10) 
+	 * 
+	 * =
 	 * 
 	 * (y^4*z + y^3)*x^2 + (y + 10),  with respect to S
 	 * 
 	 * that is, the other factors (y and z) are treated like constants.
 	 * We simply aggregate things multiplying variables in S and group them per signature in S.
 	 * 
-	 * If S = {y, z}, we keep the original four monomials
+	 * If S = {y, z}, we get:
 	 * 
-	 * x^2 * y^4 * z + x^2 * y^3 + y + 10
+	 * x^2 * y^4 * z (signature (4, 1), coefficient x^2)
+	 * +
+	 * x^2 * y^3 (signature (3, 0), coefficient x^2)
+	 * +
+	 * y (signature (1, 0), coefficient 1).
+	 * +
+	 * 10 (signature (0, 0), coefficient 10).
+	 * 
+	 * =
+	 * 
+	 * (x^2)y^4*z^1 + (x^2)^y^3 + y + 10 
 	 * 
 	 * with respect to S.
+	 * 
+	 * if S = { y }, we get (grouping on multiple signatures of S):
+	 * 
+	 * x^2 * y^4 * z (signature (4), coefficient x^2*z)
+	 * +
+	 * x^2 * y^3 (signature (3), coefficient x^2)
+	 * +
+	 * y (signature (1), coefficient 1)
+	 * +
+	 * 10 (signature (0), coefficient 10) 
+	 * 
+	 * = 
+	 * 
+	 * (x^2*z)*y^4 + (x^2)^y^3 + y + 10
+	 * 
+	 * 
 	 * </code>
 	 * </pre>
 	 * 
@@ -243,6 +279,10 @@ public interface Polynomial extends FunctionApplication {
 	 *            to perform the projection.
 	 * @return the project of this Polynomial based on the given subset of
 	 *         signature factors.
+	 * @throws IllegalArgumentException
+	 *             if the subsetSignatureFactors is not actually a subset of
+	 *             this polynomials signature factors.
 	 */
-	Polynomial project(Set<Expression> subsetSignatureFactors);
+	Polynomial project(Set<Expression> subsetSignatureFactors)
+			throws IllegalArgumentException;
 }

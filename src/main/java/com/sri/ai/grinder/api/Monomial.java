@@ -49,8 +49,7 @@ import com.sri.ai.util.math.Rational;
 
 /**
  * A monomial is a product of factors, where the numeric constant factor (if
- * any) is the first argument and the non-numeric constant factors are in
- * lexicographic order.<br>
+ * any) is the first argument and the non-numeric constant factors are in order.<br>
  * 
  * Examples: <br>
  * 
@@ -94,20 +93,20 @@ public interface Monomial extends FunctionApplication {
 	Set<Expression> getFactors();
 
 	/**
-	 * Get a unique list, lexicographically ordered, of the non-numeric
-	 * constant factors in the monomial.
+	 * Get a unique list, ordered, of the non-numeric constant factors in the
+	 * monomial.
 	 * 
-	 * @return a lexicographically ordered list of the non-numeric constant
-	 *         factors contained in the monomial.
+	 * @return an ordered list of the non-numeric constant factors contained in
+	 *         the monomial.
 	 */
-	List<Expression> getNonNumericConstantFactorsLexicographicallyOrdered();
+	List<Expression> getOrderedNonNumericConstantFactors();
 
 	/**
 	 * 
 	 * @return the powers of the non-numeric constant factors in the monomial,
-	 *         which map to the lexicographical order of these factors.
+	 *         which map to the order of these factors.
 	 */
-	List<Rational> getPowersOfLexicographicallyOrderedNonNumericConstantFactors();
+	List<Rational> getPowersOfOrderedNonNumericConstantFactors();
 
 	/**
 	 * The <b>coefficient</b> of a monomial <em>M</em> wrt a set of factors
@@ -162,7 +161,7 @@ public interface Monomial extends FunctionApplication {
 		factors.forEach(factor -> result.add(getPowerOfFactor(factor)));
 		return result;
 	}
-	
+
 	/**
 	 * Convenience method that gets the signature of this Monomial using the
 	 * non-numeric constant factors contained within.
@@ -171,10 +170,10 @@ public interface Monomial extends FunctionApplication {
 	 *         are in this Monomial.
 	 */
 	default List<Rational> getSignature() {
-		List<Expression> factors = this.getNonNumericConstantFactorsLexicographicallyOrdered();
-		
+		List<Expression> factors = this.getOrderedNonNumericConstantFactors();
+
 		List<Rational> result = getSignature(factors);
-		
+
 		return result;
 	}
 
@@ -204,14 +203,14 @@ public interface Monomial extends FunctionApplication {
 	 *         otherwise.
 	 */
 	default boolean areLikeTerms(Monomial other, List<Expression> factors) {
-		List<Rational> thisSignature  = getSignature(factors);
+		List<Rational> thisSignature = getSignature(factors);
 		List<Rational> otherSignature = other.getSignature(factors);
 
 		boolean result = thisSignature.equals(otherSignature);
 
 		return result;
 	}
-	
+
 	/**
 	 * Convenience method that uses the combined non-numeric constant factors
 	 * from this and the other Monomial to call areLikeTerms(other,
@@ -223,10 +222,11 @@ public interface Monomial extends FunctionApplication {
 	 *         factors, false otherwise.
 	 */
 	default boolean areLikeTerms(Monomial other) {
-		List<Expression> combinedNonNumericConstantFactors = Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(this, other);
-		
+		List<Expression> combinedNonNumericConstantFactors = Monomial
+				.orderedUnionOfNonNumericConstantFactors(this, other);
+
 		boolean result = areLikeTerms(other, combinedNonNumericConstantFactors);
-		
+
 		return result;
 	}
 
@@ -238,7 +238,7 @@ public interface Monomial extends FunctionApplication {
 	 * @return the degree of the monomial.
 	 */
 	default Rational degree() {
-		Rational result = getPowersOfLexicographicallyOrderedNonNumericConstantFactors()
+		Rational result = getPowersOfOrderedNonNumericConstantFactors()
 				.stream().reduce(Rational.ZERO, (r1, r2) -> r1.add(r2));
 		return result;
 	}
@@ -272,39 +272,35 @@ public interface Monomial extends FunctionApplication {
 	 * 
 	 * @param exponent
 	 *            a non negative integer exponent to raise the monomial to.
-	 * @return a monomial which is the result of raising this monomial to
-	 *         the given exponent.
+	 * @return a monomial which is the result of raising this monomial to the
+	 *         given exponent.
 	 * @throws IllegalArgumentException
 	 *             if the exponent is negative.
 	 */
 	Monomial exponentiate(int exponent) throws IllegalArgumentException;
 
 	/**
-	 * Create a lexicographically ordered union (no duplicates) of the
-	 * non-numeric constant factors contained in two Monomials.
+	 * Create an ordered union (no duplicates) of the non-numeric constant
+	 * factors contained in two Monomials.
 	 * 
 	 * @param m1
 	 *            the first monomial.
 	 * @param m2
 	 *            the second monomial.
-	 * @return the lexicographically ordered union (no duplicates) of the
-	 *         non-numeric constant factors contained in two Monomials.
+	 * @return the ordered union (no duplicates) of the non-numeric constant
+	 *         factors contained in two Monomials.
 	 */
-	public static List<Expression> unionNonNumericConstantFactorsLexicographicallyOrdered(
+	public static List<Expression> orderedUnionOfNonNumericConstantFactors(
 			Monomial m1, Monomial m2) {
-		List<Expression> m1Factors = m1
-				.getNonNumericConstantFactorsLexicographicallyOrdered();
-		List<Expression> m2Factors = m2
-				.getNonNumericConstantFactorsLexicographicallyOrdered();
+		List<Expression> m1Factors = m1.getOrderedNonNumericConstantFactors();
+		List<Expression> m2Factors = m2.getOrderedNonNumericConstantFactors();
 		// For efficiency ensure we have enough capacity in the union up front.
 		List<Expression> result = new ArrayList<>(m1Factors.size()
 				+ m2Factors.size());
 
 		// NOTE: we know m1 and m2's non-numeric constant factors are
-		// lexicographically ordered,
-		// which we can take advantage of to perform the lexicographically
-		// ordered
-		// union more efficiently
+		// ordered, which we can take advantage of to perform the
+		// ordered union more efficiently.
 		int m1FactorsSize = m1Factors.size();
 		int m2FactorsSize = m2Factors.size();
 		Expression m1Factor, m2Factor;

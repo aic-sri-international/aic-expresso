@@ -49,7 +49,10 @@ import com.sri.ai.util.math.Rational;
 /**
  * A monomial <em>M1<em> <b>comes before</b> another monomial <em>M2</em> wrt
  * tuple of factors
- * <em>F<em> iff signature(M1, F) is lexicographically larger than signature(M2, F).
+ * <em>F<em> iff signature(M1, F) is lexicographically larger than signature(M2, F). For example:<br>
+ * <br>
+ * x^3 <b>comes before</b> x^2
+ * <br><br>
  * 
  * @author oreilly
  *
@@ -93,7 +96,10 @@ public class MonomialComparator implements Comparator<Monomial> {
 		for (int i = 0; i < signatureLength; i++) {
 			if ((result = m1Signature.get(i).compareTo(m2Signature.get(i))) != 0) {
 				// if not = 0 we know that one is less than or greater than the
-				// other
+				// other.
+				// NOTE: as we consider the one with larger lexicographic order
+				// to come before we need to negate the result of the compareTo
+				result = result * -1;
 				break;
 			}
 		}
@@ -110,9 +116,7 @@ public class MonomialComparator implements Comparator<Monomial> {
 		// no signature factors defined, then fall back on the union of the
 		// non-numeric constants factors of the given monomials.
 		if (result == null) {
-			result = Monomial
-					.unionNonNumericConstantFactorsLexicographicallyOrdered(m1,
-							m2);
+			result = Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2);
 		}
 
 		return result;

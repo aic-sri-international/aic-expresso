@@ -155,60 +155,60 @@ public class DefaultMonomialTest {
 	}
 	
 	@Test
-	public void testGetNonNumericConstantFactorsLexicographicallyOrdered() {
+	public void testGetOrderedNonNumericConstantFactors() {
 		Monomial m = makeMonomial("2");
-		Assert.assertEquals(0, m.getNonNumericConstantFactorsLexicographicallyOrdered().size());	
+		Assert.assertEquals(0, m.getOrderedNonNumericConstantFactors().size());	
 		
 		m = makeMonomial("2*x");
-		Assert.assertEquals(1, m.getNonNumericConstantFactorsLexicographicallyOrdered().size());
-		Assert.assertEquals(Expressions.parse("tuple(x)").getArguments(), m.getNonNumericConstantFactorsLexicographicallyOrdered());
+		Assert.assertEquals(1, m.getOrderedNonNumericConstantFactors().size());
+		Assert.assertEquals(Expressions.parse("tuple(x)").getArguments(), m.getOrderedNonNumericConstantFactors());
 		
 		m = makeMonomial("2*x^3*y^7*z^11");
-		Assert.assertEquals(3, m.getNonNumericConstantFactorsLexicographicallyOrdered().size());
-		Assert.assertEquals(Expressions.parse("(x, y, z)").getArguments(), m.getNonNumericConstantFactorsLexicographicallyOrdered());
+		Assert.assertEquals(3, m.getOrderedNonNumericConstantFactors().size());
+		Assert.assertEquals(Expressions.parse("(x, y, z)").getArguments(), m.getOrderedNonNumericConstantFactors());
 		
 		m = makeMonomial("2*z^3*y^7*x^11");
-		Assert.assertEquals(3, m.getNonNumericConstantFactorsLexicographicallyOrdered().size());
-		Assert.assertEquals(Expressions.parse("(x, y, z)").getArguments(), m.getNonNumericConstantFactorsLexicographicallyOrdered());
+		Assert.assertEquals(3, m.getOrderedNonNumericConstantFactors().size());
+		Assert.assertEquals(Expressions.parse("(x, y, z)").getArguments(), m.getOrderedNonNumericConstantFactors());
 		
 		m = makeMonomial("2*z^3*x^7*y^11");
-		Assert.assertEquals(3, m.getNonNumericConstantFactorsLexicographicallyOrdered().size());
-		Assert.assertEquals(Expressions.parse("(x, y, z)").getArguments(), m.getNonNumericConstantFactorsLexicographicallyOrdered());
+		Assert.assertEquals(3, m.getOrderedNonNumericConstantFactors().size());
+		Assert.assertEquals(Expressions.parse("(x, y, z)").getArguments(), m.getOrderedNonNumericConstantFactors());
 		
 		m = makeMonomial("2*z^3*x^7*x^11");
-		Assert.assertEquals(2, m.getNonNumericConstantFactorsLexicographicallyOrdered().size());
-		Assert.assertEquals(Expressions.parse("(x, z)").getArguments(), m.getNonNumericConstantFactorsLexicographicallyOrdered());
+		Assert.assertEquals(2, m.getOrderedNonNumericConstantFactors().size());
+		Assert.assertEquals(Expressions.parse("(x, z)").getArguments(), m.getOrderedNonNumericConstantFactors());
 		
 		// Note: z is dropped as we know is = 1
 		m = makeMonomial("2*x^3*y^7*z^0");
-		Assert.assertEquals(2, m.getNonNumericConstantFactorsLexicographicallyOrdered().size());
-		Assert.assertEquals(Expressions.parse("(x, y)").getArguments(), m.getNonNumericConstantFactorsLexicographicallyOrdered());
+		Assert.assertEquals(2, m.getOrderedNonNumericConstantFactors().size());
+		Assert.assertEquals(Expressions.parse("(x, y)").getArguments(), m.getOrderedNonNumericConstantFactors());
 	}
 	
 	@Test
-	public void testGetPowersOfLexicographicallyOrderedNonNumericConstantFactors() {
+	public void testGetPowersOfOrderedNonNumericConstantFactors() {
 		Monomial m = makeMonomial("2");
-		Assert.assertEquals(0, m.getPowersOfLexicographicallyOrderedNonNumericConstantFactors().size());	
+		Assert.assertEquals(0, m.getPowersOfOrderedNonNumericConstantFactors().size());	
 		
 		m = makeMonomial("2*x");
-		Assert.assertEquals(1, m.getPowersOfLexicographicallyOrderedNonNumericConstantFactors().size());
-		Assert.assertEquals(Arrays.asList(new Rational(1)), m.getPowersOfLexicographicallyOrderedNonNumericConstantFactors());
+		Assert.assertEquals(1, m.getPowersOfOrderedNonNumericConstantFactors().size());
+		Assert.assertEquals(Arrays.asList(new Rational(1)), m.getPowersOfOrderedNonNumericConstantFactors());
 		
 		m = makeMonomial("2*x^3*y^7*z^11");
-		Assert.assertEquals(3, m.getPowersOfLexicographicallyOrderedNonNumericConstantFactors().size());
-		Assert.assertEquals(Arrays.asList(new Rational(3), new Rational(7), new Rational(11)), m.getPowersOfLexicographicallyOrderedNonNumericConstantFactors());
+		Assert.assertEquals(3, m.getPowersOfOrderedNonNumericConstantFactors().size());
+		Assert.assertEquals(Arrays.asList(new Rational(3), new Rational(7), new Rational(11)), m.getPowersOfOrderedNonNumericConstantFactors());
 		
 		m = makeMonomial("2*z^3*y^7*x^11");
-		Assert.assertEquals(3, m.getPowersOfLexicographicallyOrderedNonNumericConstantFactors().size());
-		Assert.assertEquals(Arrays.asList(new Rational(11), new Rational(7), new Rational(3)), m.getPowersOfLexicographicallyOrderedNonNumericConstantFactors());
+		Assert.assertEquals(3, m.getPowersOfOrderedNonNumericConstantFactors().size());
+		Assert.assertEquals(Arrays.asList(new Rational(11), new Rational(7), new Rational(3)), m.getPowersOfOrderedNonNumericConstantFactors());
 		
 		m = makeMonomial("2*z^3*x^7*y^11");
-		Assert.assertEquals(3, m.getPowersOfLexicographicallyOrderedNonNumericConstantFactors().size());
-		Assert.assertEquals(Arrays.asList(new Rational(7), new Rational(11), new Rational(3)), m.getPowersOfLexicographicallyOrderedNonNumericConstantFactors());
+		Assert.assertEquals(3, m.getPowersOfOrderedNonNumericConstantFactors().size());
+		Assert.assertEquals(Arrays.asList(new Rational(7), new Rational(11), new Rational(3)), m.getPowersOfOrderedNonNumericConstantFactors());
 		
 		m = makeMonomial("2*z^3*x^7*x^11");
-		Assert.assertEquals(2, m.getPowersOfLexicographicallyOrderedNonNumericConstantFactors().size());
-		Assert.assertEquals(Arrays.asList(new Rational(18), new Rational(3)), m.getPowersOfLexicographicallyOrderedNonNumericConstantFactors());	
+		Assert.assertEquals(2, m.getPowersOfOrderedNonNumericConstantFactors().size());
+		Assert.assertEquals(Arrays.asList(new Rational(18), new Rational(3)), m.getPowersOfOrderedNonNumericConstantFactors());	
 	}
 	
 	@Test
@@ -305,57 +305,57 @@ public class DefaultMonomialTest {
 	public void testAreLikeTermsUnionOfFactors() {
 		Monomial m1 = makeMonomial("2");
 		Monomial m2 = makeMonomial("2");
-		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(m1, m2)));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
 		Assert.assertEquals(true, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("2");
 		m2 = makeMonomial("3");
-		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(m1, m2)));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
 		Assert.assertEquals(true, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("x");
 		m2 = makeMonomial("x");
-		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(m1, m2)));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
 		Assert.assertEquals(true, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("x");
 		m2 = makeMonomial("y");
-		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(m1, m2)));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
 		Assert.assertEquals(false, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("2");
 		m2 = makeMonomial("2*x");
-		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(m1, m2)));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
 		Assert.assertEquals(false, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("2*x");
 		m2 = makeMonomial("2*x");
-		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(m1, m2)));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
 		Assert.assertEquals(true, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("2*x^1");
 		m2 = makeMonomial("2*x");
-		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(m1, m2)));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
 		Assert.assertEquals(true, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("2*x");
 		m2 = makeMonomial("2*x^2");
-		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(m1, m2)));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
 		Assert.assertEquals(false, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("2*y^1*x");
 		m2 = makeMonomial("2*x^1*y");
-		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(m1, m2)));
+		Assert.assertEquals(true, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
 		Assert.assertEquals(true, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("2*y^3*x^2");
 		m2 = makeMonomial("2*x^2*y^7");
-		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(m1, m2)));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
 		Assert.assertEquals(false, m1.areLikeTerms(m2));
 		
 		m1 = makeMonomial("2*y^1*x");
 		m2 = makeMonomial("2*x^1*y*z^4");
-		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(m1, m2)));
+		Assert.assertEquals(false, m1.areLikeTerms(m2, Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2)));
 		Assert.assertEquals(false, m1.areLikeTerms(m2));
 	}
 	
@@ -570,22 +570,22 @@ public class DefaultMonomialTest {
 	}
 	
 	@Test
-	public void testUnionNonNumericConstantFactorsLexicographicallyOrdered() {
+	public void testOrderedUnionOfNonNumericConstantFactors() {
 		Monomial m1 = makeMonomial("0");
 		Monomial m2 = makeMonomial("0");
-		Assert.assertEquals(Collections.emptyList(), Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(m1, m2));
+		Assert.assertEquals(Collections.emptyList(), Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2));
 		
 		m1 = makeMonomial("x");
 		m2 = makeMonomial("x");
-		Assert.assertEquals(Expressions.parse("tuple(x)").getArguments(), Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(m1, m2));
+		Assert.assertEquals(Expressions.parse("tuple(x)").getArguments(), Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2));
 		
 		m1 = makeMonomial("x^2*y^3");
 		m2 = makeMonomial("y^2*x^3");
-		Assert.assertEquals(Expressions.parse("tuple(x, y)").getArguments(), Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(m1, m2));
+		Assert.assertEquals(Expressions.parse("tuple(x, y)").getArguments(), Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2));
 		
 		m1 = makeMonomial("x^2*y^3");
 		m2 = makeMonomial("z^4*y^2*x^3");
-		Assert.assertEquals(Expressions.parse("tuple(x, y, z)").getArguments(), Monomial.unionNonNumericConstantFactorsLexicographicallyOrdered(m1, m2));
+		Assert.assertEquals(Expressions.parse("tuple(x, y, z)").getArguments(), Monomial.orderedUnionOfNonNumericConstantFactors(m1, m2));
 	}
 	
 	//
@@ -679,15 +679,15 @@ public class DefaultMonomialTest {
 	
 	@Test
 	public void testCompareTo() {
-		Assert.assertEquals(-1, makeMonomial("x^2*y^3").compareTo(makeMonomial("w^1")));
-		Assert.assertEquals(-1, makeMonomial("10").compareTo(makeMonomial("5*x")));
-		Assert.assertEquals(-1, makeMonomial("10").compareTo(makeMonomial("x^2")));
-		Assert.assertEquals(-1, makeMonomial("5*x").compareTo(makeMonomial("x^2")));
+		Assert.assertEquals(1, makeMonomial("x^2*y^3").compareTo(makeMonomial("w^1")));
+		Assert.assertEquals(1, makeMonomial("10").compareTo(makeMonomial("5*x")));
+		Assert.assertEquals(1, makeMonomial("10").compareTo(makeMonomial("x^2")));
+		Assert.assertEquals(1, makeMonomial("5*x").compareTo(makeMonomial("x^2")));
 		
 		Assert.assertEquals(0, makeMonomial("0").compareTo(makeMonomial("7")));
 		Assert.assertEquals(0, makeMonomial("2*x^2*y^3").compareTo(makeMonomial("4*x^2*y^3")));
 		
-		Assert.assertEquals(1, makeMonomial("x^2*y^3").compareTo(makeMonomial("z^6")));		
+		Assert.assertEquals(-1, makeMonomial("x^2*y^3").compareTo(makeMonomial("z^6")));		
 	}
 	
 	//
