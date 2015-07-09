@@ -301,6 +301,36 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 		return result;
 	}
 	
+	static Monomial make(Rational numericConstantFactor, List<Expression> orderedNonNumericConstantFactors, List<Rational> orderedNonNumericConstantPowers) {
+		Monomial result;
+		
+		// if numeric constant is = 0 the whole expression is 0, so reduce to that.
+		if (numericConstantFactor.equals(Rational.ZERO)) {
+			result = new DefaultMonomial(Rational.ZERO, Collections.emptyList(), Collections.emptyList());
+		}
+		else {
+			List<Expression> factors = new ArrayList<>(orderedNonNumericConstantFactors.size());
+			List<Rational>   powers  = new ArrayList<>(orderedNonNumericConstantPowers.size());		
+			for (int i = 0; i < orderedNonNumericConstantPowers.size(); i++) {
+				Rational power = orderedNonNumericConstantPowers.get(i);
+				// Power must not be negative as this is illegal for a monomial
+				if (power.signum() == -1) {
+					throw new IllegalArgumentException("Negative powers are not allowed.");
+				}
+				// 0 power means the factor is equivalent to 1 so we can just drop it.
+				if (power.signum() > 0) {
+					Expression factor = orderedNonNumericConstantFactors.get(i);
+					factors.add(factor);
+					powers.add(power);				
+				}
+			}
+			
+			result = new DefaultMonomial(numericConstantFactor, factors, powers);
+		}
+		
+		return result;
+	}
+	
 	//
 	// PRIVATE
 	//
@@ -332,6 +362,14 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 				Rational   power             = Rational.ONE;
 				boolean    attemptFlattening = false;
 				
+				// Handle case where factor is negated, e.g.: -x
+				if (factor.hasFunctor(FunctorConstants.MINUS) && factor.numberOfArguments() == 1) {
+					factor = factor.get(0);
+					// i.e. same as having an explicit constant '-1' multiplicand in the expression
+					numericConstantFactor = numericConstantFactor.negate();
+					attemptFlattening = true;
+				}
+				
 				// If exponentiation using a constant integer exponent then we need to extract the factor and the power
 				if (Expressions.hasFunctor(factor, Exponentiation.EXPONENTIATION_FUNCTOR)) {
 					Expression simplifiedPower = simplifyExponentIfPossible(factor.get(1));
@@ -347,14 +385,6 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 						// as best as possible.
 						factor = new DefaultFunctionApplication(Exponentiation.EXPONENTIATION_FUNCTOR, Arrays.asList(factor.get(0), simplifiedPower));
 					}
-				}
-				
-				// Handle case where factor is negated, e.g.: -x
-				if (factor.hasFunctor(FunctorConstants.MINUS) && factor.numberOfArguments() == 1) {
-					factor = factor.get(0);
-					// i.e. same as having an explicit constant '-1' multiplicand in the expression
-					numericConstantFactor = numericConstantFactor.negate();
-					attemptFlattening = true;
 				}
 				
 				// Handle nested *'s arguments
@@ -412,36 +442,6 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 		else {
 			factorToPower.put(factor, existingPower.add(power));
 		}
-	}
-	
-	private static Monomial make(Rational numericConstantFactor, List<Expression> orderedNonNumericConstantFactors, List<Rational> orderedNonNumericConstantPowers) {
-		Monomial result;
-		
-		// if numeric constant is = 0 the whole expression is 0, so reduce to that.
-		if (numericConstantFactor.equals(Rational.ZERO)) {
-			result = new DefaultMonomial(Rational.ZERO, Collections.emptyList(), Collections.emptyList());
-		}
-		else {
-			List<Expression> factors = new ArrayList<>(orderedNonNumericConstantFactors.size());
-			List<Rational>   powers  = new ArrayList<>(orderedNonNumericConstantPowers.size());		
-			for (int i = 0; i < orderedNonNumericConstantPowers.size(); i++) {
-				Rational power = orderedNonNumericConstantPowers.get(i);
-				// Power must not be negative as this is illegal for a monomial
-				if (power.signum() == -1) {
-					throw new IllegalArgumentException("Negative powers are not allowed.");
-				}
-				// 0 power means the factor is equivalent to 1 so we can just drop it.
-				if (power.signum() > 0) {
-					Expression factor = orderedNonNumericConstantFactors.get(i);
-					factors.add(factor);
-					powers.add(power);				
-				}
-			}
-			
-			result = new DefaultMonomial(numericConstantFactor, factors, powers);
-		}
-		
-		return result;
 	}
 	
 	private static List<Expression> makeAsArgumentsToTimes(Rational numericConstantFactor, List<Expression> orderedNonNumericConstantFactors, List<Rational> orderedNonNumericConstantPowers) {

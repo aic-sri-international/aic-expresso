@@ -62,9 +62,16 @@ public class DefaultMonomialTest {
 		Assert.assertEquals(Expressions.parse("*(2)"), makeMonomial("2"));
 		Assert.assertEquals(Expressions.parse("1*x^1"), makeMonomial("x"));
 		Assert.assertEquals(Expressions.parse("*(-2)"), makeMonomial("-2"));
+		
 		Assert.assertEquals(Expressions.parse("-1*x^2"), makeMonomial("-1*x^2"));
-		Assert.assertEquals(Expressions.parse("-1*x^2"), makeMonomial("-x^2"));
-		Assert.assertEquals(Expressions.parse("-1*x^2"), makeMonomial("1*-x^2"));
+		
+		Assert.assertEquals(Expressions.parse("1*x^2"), makeMonomial("-x^2"));
+		Assert.assertEquals(Expressions.parse("1*x^2"), makeMonomial("(-x)^2"));
+		Assert.assertEquals(Expressions.parse("1*x^2"), makeMonomial("1*-x^2"));
+		Assert.assertEquals(Expressions.parse("-1*x^3"), makeMonomial("-x^3"));
+		Assert.assertEquals(Expressions.parse("-1*x^3"), makeMonomial("(-x)^3"));
+		Assert.assertEquals(Expressions.parse("-1*x^3"), makeMonomial("1*-x^3"));
+		
 		Assert.assertEquals(Expressions.parse("1*x^1*y^1"), makeMonomial("x*y"));
 		Assert.assertEquals(Expressions.parse("*(16)"), makeMonomial("2^2^2"));
 		Assert.assertEquals(Expressions.parse("16*x^1"), makeMonomial("2^2^2*x"));
@@ -101,6 +108,19 @@ public class DefaultMonomialTest {
 		
 		// Test edge case where the numeric constant is represented as a power and a separate constant
 		Assert.assertEquals(new Rational(24), makeMonomial("2^3*x^2*3").getNumericConstantFactor());
+	}
+	
+	@Test
+	public void testIsNumericConstant() {
+		Assert.assertTrue(makeMonomial("-2").isNumericConstant());
+		Assert.assertTrue(makeMonomial("-1").isNumericConstant());
+		Assert.assertTrue(makeMonomial("0").isNumericConstant());
+		Assert.assertTrue(makeMonomial("1").isNumericConstant());
+		Assert.assertTrue(makeMonomial("2").isNumericConstant());
+		Assert.assertTrue(makeMonomial("2.2").isNumericConstant());
+		
+		Assert.assertFalse(makeMonomial("x").isNumericConstant());
+		Assert.assertFalse(makeMonomial("4*x").isNumericConstant());
 	}
 	
 	@Test

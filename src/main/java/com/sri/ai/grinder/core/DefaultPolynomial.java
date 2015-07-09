@@ -42,19 +42,23 @@ import static com.sri.ai.grinder.core.DefaultMonomial.simplifyExponentIfPossible
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
+import com.sri.ai.expresso.helper.ExpressionComparator;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Monomial;
 import com.sri.ai.grinder.api.Polynomial;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.math.Rational;
 
 /**
  * Default implementation of the Polynomial interface.
@@ -81,6 +85,8 @@ public class DefaultPolynomial extends DefaultFunctionApplication implements
 			.makeSymbol(FunctorConstants.DIVISION);
 	private static final Expression EXPONENTIATION_FUNCTOR = Expressions
 			.makeSymbol(FunctorConstants.EXPONENTIATION);
+	//
+	private static final ExpressionComparator _factorComparator   = new ExpressionComparator();
 	//
 	private List<Expression> signatureFactors = null;
 	private List<Monomial> orderedSummands = null;
@@ -203,36 +209,72 @@ public class DefaultPolynomial extends DefaultFunctionApplication implements
 
 	@Override
 	public Polynomial add(Polynomial summand) throws IllegalArgumentException {
+		assertSameSignatures(summand);
+		
 		return null; // TODO - implement
 	}
 
 	@Override
 	public Polynomial minus(Polynomial subtrahend)
 			throws IllegalArgumentException {
+		assertSameSignatures(subtrahend);
+		
 		return null; // TODO - implement
 	}
 
 	@Override
 	public Polynomial times(Polynomial multiplier)
 			throws IllegalArgumentException {
-		return null; // TODO - implement
+		assertSameSignatures(multiplier);
+		
+		Polynomial result;
+		// Base case
+		if (isMonomial() && multiplier.isMonomial()) {
+			result = makeFromMonomial(this.asMonomial().times(multiplier.asMonomial()), getSignatureFactors());
+		}
+		else {
+// TODO - implement			
+			result = null; 
+		}
+		
+		return result;
 	}
 
 	@Override
 	public Pair<Polynomial, Polynomial> divide(Polynomial divisor)
 			throws IllegalArgumentException {
+		assertSameSignatures(divisor);
+		
 		return null; // TODO - implement
 	}
 
 	@Override
 	public Polynomial exponentiate(int exponent)
 			throws IllegalArgumentException {
-		return null; // TODO - implement
+		if (exponent < 0) {
+			throw new IllegalArgumentException("Exponent must be a non-negative integer, given: "+exponent);
+		}
+		
+		Polynomial result;
+		// Base case
+		if (isMonomial()) {
+			result = makeFromMonomial(asMonomial().exponentiate(exponent), getSignatureFactors());
+		}
+		else {
+// TODO - implement			
+			result = null; 
+		}
+		
+		return result;
 	}
 
 	@Override
 	public Polynomial project(Set<Expression> subsetOfSignatureFactors)
 			throws IllegalArgumentException {
+		if (!getSignatureFactors().containsAll(subsetOfSignatureFactors)) {
+			throw new IllegalArgumentException("Argument is not a subset of this Polynomials signature of factors.");
+		}
+		
 		return null; // TODO - implement
 	}
 
@@ -272,15 +314,54 @@ public class DefaultPolynomial extends DefaultFunctionApplication implements
 		this.nonNumericConstantFactors = Collections
 				.unmodifiableSet(this.nonNumericConstantFactors);
 	}
+	
+	private void assertSameSignatures(Polynomial other) {
+		if (!getSignatureFactors().equals(other.getSignatureFactors())) {
+			throw new IllegalArgumentException("Signature factors are not equal between polynomials");
+		}
+	}
 
 	private static Polynomial makeFromMonomial(Expression monomialExpression,
 			List<Expression> signatureFactors) {
 		Monomial monomial = DefaultMonomial.make(monomialExpression);
-//		Monomial coefficient = monomial.getCoefficient(new HashSet<>(signatureFactors));
-//		if (!coefficient.equals(monomial)) {
-//// TODO - need to apply signature to get correct set of constant factors.			
-//			throw new UnsupportedOperationException("TODO - need to apply polynomials signature to get correct set of constant factors");
-//		}
+		if (!monomial.isNumericConstant()) {
+			// Need to pull out the factors are to be treated together as a single constant
+			// based on the polynomial's signature of factors.
+			Set<Expression> signatureFactorsSet = new HashSet<>(signatureFactors);
+			Monomial        coefficient         = monomial.getCoefficient(signatureFactorsSet);
+			if (!coefficient.isNumericConstant()) {
+				// Have factors of the monomial that need to be treated as a single constant
+				// based on the polynomials signature of factors.
+				List<Expression>          orderedFactors = new ArrayList<>();  
+				Map<Expression, Rational> factorToPower  = new HashMap<>();
+				
+				orderedFactors.add(coefficient);
+				factorToPower.put(coefficient, Rational.ONE);
+				
+				for (Expression factor : monomial.getOrderedNonNumericConstantFactors()) {
+					if (signatureFactorsSet.contains(factor)) {
+						orderedFactors.add(factor);
+						factorToPower.put(factor, monomial.getPowerOfFactor(factor));
+					}
+				}
+				
+				Rational numericConstant = monomial.getNumericConstantFactor();
+				// Handle the case where we called
+				// coefficient(3*x^2*y^2, {3, x}) = 1*y^2
+				// in that the coefficent gets the numeric constant from the
+				// original monomial as the numeric constant is listed as one
+				// of the signature factors.
+				if (coefficient.getNumericConstantFactor().equals(numericConstant)) {
+					numericConstant = Rational.ONE; // i.e. numeric constant was in signature factors.
+				}
+				List<Rational> orderedPowers = new ArrayList<>();
+				Collections.sort(orderedFactors, _factorComparator);
+				orderedFactors.forEach(factor -> orderedPowers.add(factorToPower.get(factor)));
+			
+			
+				monomial = DefaultMonomial.make(numericConstant, orderedFactors, orderedPowers);
+			}
+		}
 		
 		Polynomial result = new DefaultPolynomial(
 				Collections.singletonList(monomial), signatureFactors);

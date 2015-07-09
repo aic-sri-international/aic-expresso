@@ -75,6 +75,15 @@ public interface Monomial extends FunctionApplication {
 	 *         is 1).
 	 */
 	Rational getNumericConstantFactor();
+	
+	/**
+	 * 
+	 * @return true if this monomial is equivalent to a numeric constant;
+	 */
+	default boolean isNumericConstant() {
+		boolean result = getOrderedNonNumericConstantFactors().size() == 0;
+		return result;
+	}
 
 	/**
 	 * The <b>factors of a monomial</b> <em>M</em> is the Collection factors(M).
