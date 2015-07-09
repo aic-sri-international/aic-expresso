@@ -37,6 +37,124 @@
  */
 package com.sri.ai.test.grinder.core;
 
+import org.junit.Test;
+
+import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Polynomial;
+import com.sri.ai.grinder.core.DefaultPolynomial;
+
 public class DefaultPolynomialTest {
 
+	@Test
+	public void testMake() {
+		// TODO
+	}
+	
+	@Test
+	public void testGetSignatureFactors() {
+		// TODO
+	}
+	
+	@Test
+	public void testIsMonomial() {
+		// TODO
+	}
+	
+	@Test
+	public void testAsMonomial() {
+		// TODO
+	}
+	
+	@Test
+	public void testGetOrderedSummands() {
+		// TODO
+	}
+	
+	@Test
+	public void testGetNonNumericConstantFactors() {
+		// TODO
+	}
+	
+	@Test
+	public void testAdd() {
+		// TODO
+	}
+	
+	@Test
+	public void testMinus() {
+		// TODO
+	}
+	
+	@Test
+	public void testTimes() {
+		// TODO
+	}
+	
+	@Test
+	public void testDivide() {
+		// TODO
+	}
+	
+	@Test
+	public void testExponentiate() {
+		// TODO
+	}
+	
+	@Test
+	public void testProject() {
+		// TODO
+	}
+	
+	//
+	// FunctionaApplication API related tests
+	@Test
+	public void testGetFunctor() {
+		// TODO
+	}
+	
+	@Test
+	public void testGetArguments() {
+		// TODO
+	}
+	
+	@Test
+	public void testNumberOfArguments() {
+		// TODO
+	}
+	
+	@Test
+	public void testGet() {
+		// TODO
+	}
+	
+	@Test
+	public void testSet() {
+		// TODO
+	}
+	
+	@Test
+	public void testCompareTo() {
+		// TODO
+	}
+	
+	//
+	// Additional Tests
+	@Test
+	public void testEquals() {
+		// TODO
+	}
+	
+	@Test
+	public void testToString() {
+		// TODO
+	}
+	
+	//
+	// PRIVATE
+	//
+	private static Polynomial makePolynomial(String polynomial, String tupleSignatureFactors) {
+		Polynomial result = DefaultPolynomial.make(Expressions.parse(polynomial), Expressions.parse(tupleSignatureFactors).getArguments());
+		return result;
+	}
 }
+

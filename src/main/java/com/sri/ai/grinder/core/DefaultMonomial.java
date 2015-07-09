@@ -71,14 +71,14 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	//
 	public static final Expression MONOMIAL_FUNCTOR = Expressions.makeSymbol(FunctorConstants.TIMES);
 	//
+	public static final Monomial ZERO = make(Rational.ZERO, Collections.emptyList(), Collections.emptyList());
+	public static final Monomial ONE  = make(Rational.ONE, Collections.emptyList(), Collections.emptyList());
+	//
 	private static final long serialVersionUID = 1L;
 	//
 	private static final ExpressionComparator _factorComparator   = new ExpressionComparator();
 	private static final MonomialComparator   _monomialComparator = new MonomialComparator();
 	//	
-	private static final Monomial ZERO = make(Rational.ZERO, Collections.emptyList(), Collections.emptyList());
-	private static final Monomial ONE  = make(Rational.ONE, Collections.emptyList(), Collections.emptyList());
-	//
 	private Expression                numericConstantFactorExpression  = null; 
 	private List<Expression>          orderedNonNumericConstantFactors = null;
 	private List<Rational>            orderedNonNumericConstantPowers  = null;
@@ -221,7 +221,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	}
 
 	@Override
-	public Monomial exponentiate(int exponent) {
+	public Monomial exponentiate(int exponent) throws IllegalArgumentException {
 		if (exponent < 0) {
 			throw new IllegalArgumentException("Exponent must be a non-negative integer, given: "+exponent);
 		}

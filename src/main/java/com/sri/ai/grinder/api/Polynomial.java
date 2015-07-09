@@ -49,7 +49,7 @@ import com.sri.ai.util.base.Pair;
  * A polynomial is a monomial, or a sum of monomials, associated with a tuple of
  * factors <em>F</em>, called the <b>signature factors</b>, such that no two
  * monomials are like terms to each other wrt <em>F</em>, and monomials are in
- * descending order according to "comes before" wrt <em>F</em>. Therefore:<br>
+ * order according to "comes before" wrt <em>F</em>. Therefore:<br>
  * 
  * <pre>
  * <code>
@@ -95,6 +95,12 @@ public interface Polynomial extends FunctionApplication {
 	 *             if this Polynomial is not equivalent to a Monomial.
 	 */
 	Monomial asMonomial() throws IllegalStateException;
+	
+	/**
+	 * 
+	 * @return the monomial summands of this polynomial.
+	 */
+	List<Monomial> getOrderedSummands();
 
 	/**
 	 * 
@@ -187,7 +193,7 @@ public interface Polynomial extends FunctionApplication {
 	 * @throws IllegalArgumentException
 	 *             if the exponent is negative.
 	 */
-	Polynomial exponentiate(int exponent);
+	Polynomial exponentiate(int exponent) throws IllegalArgumentException;
 
 	/**
 	 * Formally,if <em>S</em> is a set of <b>signature factors</b> and
@@ -274,7 +280,7 @@ public interface Polynomial extends FunctionApplication {
 	 * </code>
 	 * </pre>
 	 * 
-	 * @param subsetSignatureFactors
+	 * @param subsetOfSignatureFactors
 	 *            a subset of the signature factors of this polynomial on which
 	 *            to perform the projection.
 	 * @return the project of this Polynomial based on the given subset of
@@ -283,6 +289,6 @@ public interface Polynomial extends FunctionApplication {
 	 *             if the subsetSignatureFactors is not actually a subset of
 	 *             this polynomials signature factors.
 	 */
-	Polynomial project(Set<Expression> subsetSignatureFactors)
+	Polynomial project(Set<Expression> subsetOfSignatureFactors)
 			throws IllegalArgumentException;
 }

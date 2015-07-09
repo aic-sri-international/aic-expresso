@@ -37,14 +37,20 @@
  */
 package com.sri.ai.grinder.core;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.Monomial;
 import com.sri.ai.grinder.api.Polynomial;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.util.base.Pair;
 
 /**
  * Default implementation of the Polynomial interface.
@@ -52,21 +58,107 @@ import com.sri.ai.grinder.library.FunctorConstants;
  * @author oreilly
  *
  */
-// TODO - remove abstract
 @Beta
-public abstract class DefaultPolynomial extends DefaultFunctionApplication implements Polynomial {
+public class DefaultPolynomial extends DefaultFunctionApplication implements Polynomial {
 	//
 	public static final Expression POLYNOMIAL_FUNCTOR = Expressions.makeSymbol(FunctorConstants.PLUS);
 	//
 	private static final long serialVersionUID = 1L;
 	//
+	private List<Expression> signatureFactors          = null;
+	private List<Monomial>   orderedSummands           = null;
+	private Set<Expression>  nonNumericConstantFactors = null;
 	
-// TODO
+	public static Polynomial make(Expression expression, List<Expression> signatureFactors) {		
+		return null; // TODO - implement
+	}
+	
+	//
+	// START-Polynomial
+	@Override
+	public List<Expression> getSignatureFactors() {
+		return signatureFactors;
+	}
+	
+	@Override
+	public Monomial asMonomial() throws IllegalStateException {
+		if (!isMonomial()) {
+			throw new IllegalStateException("This polynomial, "+this+", is not a monomial");
+		}
+		
+		Monomial result = orderedSummands.get(0);
+		
+		return result;
+	}
+	
+	@Override
+	public List<Monomial> getOrderedSummands() {
+		return orderedSummands;
+	}
+	
+	@Override
+	public Set<Expression> getNonNumericConstantFactors() {
+		return nonNumericConstantFactors;
+	}
+	
+	@Override
+	public Polynomial add(Polynomial summand) throws IllegalArgumentException {
+		return null; // TODO - implement
+	}
+	
+	@Override
+	public Polynomial minus(Polynomial subtrahend) throws IllegalArgumentException {
+		return null; // TODO - implement
+	}
+	
+	@Override
+	public Polynomial times(Polynomial multiplier) throws IllegalArgumentException {
+		return null; // TODO - implement
+	}
+	
+	@Override
+	public Pair<Polynomial, Polynomial> divide(Polynomial divisor) throws IllegalArgumentException {
+		return null; // TODO - implement
+	}
+	
+	@Override
+	public Polynomial exponentiate(int exponent) throws IllegalArgumentException {
+		return null; // TODO - implement
+	}
+	
+	@Override
+	public Polynomial project(Set<Expression> subsetOfSignatureFactors) throws IllegalArgumentException {
+		return null; // TODO - implement
+	}
+	// END-Polynomial
+	//
+	
+	//
+	// START-FunctionApplication
+	@Override
+	public Expression set(int i, Expression newIthArgument) {
+		List<Expression> signatureFactors = getSignatureFactors();
+		Expression result = super.set(i, newIthArgument);
+		// Ensure we make a Polynomial out ot the modified expression
+		result = make(result, signatureFactors);
+		return result;
+	}
+	// END-FunctionApplication
+	//
 	
 	//
 	// PRIVATE
 	//
-	private DefaultPolynomial(List<Expression> summands) {
-		super(POLYNOMIAL_FUNCTOR, summands);
+	private DefaultPolynomial(List<Expression> signatureFactors, List<Monomial> orderedSummands) {
+		super(POLYNOMIAL_FUNCTOR, new ArrayList<>(orderedSummands));
+		// NOTE: we use Collections.unmodifiable<...> to ensure Polynomials are immutable.
+		this.signatureFactors = Collections.unmodifiableList(signatureFactors);
+		this.orderedSummands  = Collections.unmodifiableList(orderedSummands);
+		
+		this.nonNumericConstantFactors = new LinkedHashSet<>();
+		for (Monomial monomial : orderedSummands) {
+			this.nonNumericConstantFactors.addAll(monomial.getOrderedNonNumericConstantFactors());
+		}
+		this.nonNumericConstantFactors = Collections.unmodifiableSet(this.nonNumericConstantFactors);
 	}
 }
