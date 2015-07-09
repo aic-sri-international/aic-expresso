@@ -269,6 +269,39 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	//
 	
 	//
+	// PACKAGE PROTECTED
+	//
+	static boolean isLegalExponent(Expression exponentExpression) {
+		boolean result = false;
+		if (Expressions.isNumber(exponentExpression)) {
+			Rational exponent = exponentExpression.rationalValue();
+			if (exponent.isInteger() && exponent.signum() != -1) {
+				result = true;
+			}
+		}
+		return result;
+	}
+	
+	static Expression simplifyExponentIfPossible(Expression exponent) {
+		Expression result = exponent;
+		
+		if (exponent.hasFunctor(Exponentiation.EXPONENTIATION_FUNCTOR)) {
+			Expression base  = exponent.get(0);
+			Expression power = exponent.get(1);
+			
+			Expression simplifiedPower = simplifyExponentIfPossible(power);
+			if (Expressions.isNumber(base) && isLegalExponent(simplifiedPower)) {
+				result = Expressions.makeSymbol(base.rationalValue().pow(simplifiedPower.intValueExact()));
+			}
+			else if (!power.equals(simplifiedPower)){
+				result = new DefaultFunctionApplication(Exponentiation.EXPONENTIATION_FUNCTOR, Arrays.asList(base, simplifiedPower));
+			}
+		}
+		
+		return result;
+	}
+	
+	//
 	// PRIVATE
 	//
 	private DefaultMonomial(Rational numericConstantFactor, List<Expression> orderedNonNumericConstantFactors, List<Rational> orderedNonNumericConstantPowers) {
@@ -369,37 +402,7 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 		
 		return result;
 	}
-	
-	private static boolean isLegalExponent(Expression exponentExpression) {
-		boolean result = false;
-		if (Expressions.isNumber(exponentExpression)) {
-			Rational exponent = exponentExpression.rationalValue();
-			if (exponent.isInteger() && exponent.signum() != -1) {
-				result = true;
-			}
-		}
-		return result;
-	}
-	
-	private static Expression simplifyExponentIfPossible(Expression exponent) {
-		Expression result = exponent;
 		
-		if (exponent.hasFunctor(Exponentiation.EXPONENTIATION_FUNCTOR)) {
-			Expression base  = exponent.get(0);
-			Expression power = exponent.get(1);
-			
-			Expression simplifiedPower = simplifyExponentIfPossible(power);
-			if (Expressions.isNumber(base) && isLegalExponent(simplifiedPower)) {
-				result = Expressions.makeSymbol(base.rationalValue().pow(simplifiedPower.intValueExact()));
-			}
-			else if (!power.equals(simplifiedPower)){
-				result = new DefaultFunctionApplication(Exponentiation.EXPONENTIATION_FUNCTOR, Arrays.asList(base, simplifiedPower));
-			}
-		}
-		
-		return result;
-	}
-	
 	private static void updateFactorToPowerMap(Map<Expression, Rational> factorToPower, Expression factor, Rational power) {
 		// Ensure duplicate factors in the monomial are handled correctly
 		Rational existingPower = factorToPower.get(factor);

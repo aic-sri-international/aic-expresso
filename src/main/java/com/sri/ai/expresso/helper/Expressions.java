@@ -119,6 +119,7 @@ public class Expressions {
 	
 	public static final Expression TRUE            = Expressions.makeSymbol("true");
 	public static final Expression FALSE           = Expressions.makeSymbol("false");
+	public static final Expression MINUS_ONE       = Expressions.makeSymbol(-1);
 	public static final Expression ZERO            = Expressions.makeSymbol(0);
 	public static final Expression ZERO_POINT_FIVE = Expressions.makeSymbol(0.5);
 	public static final Expression ONE             = Expressions.makeSymbol(1);

@@ -37,6 +37,7 @@
  */
 package com.sri.ai.test.grinder.core;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.sri.ai.expresso.helper.Expressions;
@@ -47,7 +48,14 @@ public class DefaultPolynomialTest {
 
 	@Test
 	public void testMake() {
-		// TODO
+		Assert.assertEquals(Expressions.parse("+(*(0))"), makePolynomial("0", "tuple()"));
+		Assert.assertEquals(Expressions.parse("+(*(2))"), makePolynomial("2", "tuple()"));
+		Assert.assertEquals(Expressions.parse("+(*(0))"), makePolynomial("0", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("+(*(2))"), makePolynomial("2", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("+(1*x^1)"), makePolynomial("x", "tuple()"));
+		Assert.assertEquals(Expressions.parse("+(1*x^1)"), makePolynomial("x", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("+(1*x^1)"), makePolynomial("x", "tuple(z)"));
+// TODO -		Assert.assertEquals(Expressions.parse("+(*(-2))"), makePolynomial("2", "tuple(-2)"));
 	}
 	
 	@Test
@@ -151,7 +159,7 @@ public class DefaultPolynomialTest {
 	
 	//
 	// PRIVATE
-	//
+	//	
 	private static Polynomial makePolynomial(String polynomial, String tupleSignatureFactors) {
 		Polynomial result = DefaultPolynomial.make(Expressions.parse(polynomial), Expressions.parse(tupleSignatureFactors).getArguments());
 		return result;
