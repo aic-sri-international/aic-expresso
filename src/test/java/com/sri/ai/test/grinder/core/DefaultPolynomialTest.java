@@ -77,7 +77,11 @@ public class DefaultPolynomialTest {
 		Assert.assertEquals(Expressions.parse("+(1*(-1*x^3)^1)"), makePolynomial("-x^3", "tuple()"));
 		Assert.assertEquals(Expressions.parse("+(1*(-1*x^3)^1)"), makePolynomial("-x^3", "tuple(z)"));
 		
+		Assert.assertEquals(Expressions.parse("+(3*x^2)"), makePolynomial("3*x^2", "tuple(x)"));
 		Assert.assertEquals(Expressions.parse("+(1*(3*x^2)^1)"), makePolynomial("3*x^2", "tuple()"));
+		Assert.assertEquals(Expressions.parse("+(1*(3*x^2)^1)"), makePolynomial("3*x^2", "tuple(z)"));
+		Assert.assertEquals(Expressions.parse("+(3*(1*x^2)^1)"), makePolynomial("3*x^2", "tuple(3)"));
+		Assert.assertEquals(Expressions.parse("+(3*x^2)"), makePolynomial("3*x^2", "tuple(3, x)"));
 	}
 	
 	@Test
