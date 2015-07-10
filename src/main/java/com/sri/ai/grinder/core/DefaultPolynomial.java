@@ -224,81 +224,88 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		
 		Polynomial result;
 		
-		List<Monomial>      summands           = new ArrayList<>();
-		Set<List<Rational>> combinedSignatures = new LinkedHashSet<>(this.getOrderedSummands().size()+summand.getOrderedSummands().size());
-		combinedSignatures.addAll(this.getSignatureTermMap().keySet());
-		combinedSignatures.addAll(summand.getSignatureTermMap().keySet());
-		Set<Expression> signatureFactorsSet = new LinkedHashSet<>(getSignatureFactors());
-		for (List<Rational> signature : combinedSignatures) {
-			// NOTE: at least one of these assignments is guaranteed to be non-null.
-			Monomial m1 = this.getSignatureTermMap().get(signature);
-			Monomial m2 = summand.getSignatureTermMap().get(signature);
-			if (m1 == null) {
-				if (!m2.isZero()) {
-					summands.add(m2);
-				}
-			}
-			else if (m2 == null) {
-				if (!m1.isZero()) {
-					summands.add(m1);
-				}
-			}
-			else {
-				// Both have the same signature
-				Monomial m1Coefficient = m1.getCoefficient(signatureFactorsSet);
-				Monomial m2Coefficient = m2.getCoefficient(signatureFactorsSet);
-				Expression summedCoefficient;
-				if (m1Coefficient.isNumericConstant() && m2Coefficient.isNumericConstant()) {
-					// We can add them
-					summedCoefficient = Expressions.makeSymbol(m1Coefficient.getNumericConstantFactor().add(m2Coefficient.getNumericConstantFactor()));
-				}
-				else {
-					List<Expression> plusArgs = new ArrayList<>();
-					if (!m1Coefficient.isZero()) {
-						plusArgs.add(m1Coefficient);
-					}
-					if (!m2Coefficient.isZero()) {
-						plusArgs.add(m2Coefficient);
-					}
-					if (plusArgs.size() == 2) {
-						summedCoefficient = new DefaultFunctionApplication(PLUS_FUNCTOR, Arrays.asList(m1Coefficient, m2Coefficient));
-					}
-					else {
-						summedCoefficient = plusArgs.get(0);
-					}
-				}
-				if (!Expressions.ZERO.equals(summedCoefficient)) {
-					List<Expression> args = new ArrayList<Expression>();
-					Rational numericConstantFactor = Rational.ONE;
-					if (Expressions.isNumber(summedCoefficient)) {
-						numericConstantFactor = summedCoefficient.rationalValue();
-					}
-					else {
-						args.add(summedCoefficient);
-					}
-					args.addAll(getSignatureFactors());
-					Collections.sort(args, _factorComparator);
-					List<Rational> orderedPowers = new ArrayList<>();
-					for (Expression factor : args) {
-						if (factor == summedCoefficient) {
-							orderedPowers.add(Rational.ONE);
-						}
-						else {
-							orderedPowers.add(m1.getPowerOfFactor(factor));
-						}
-					}
-					Monomial sum = DefaultMonomial.make(numericConstantFactor, args, orderedPowers);
-					summands.add(sum);
-				}
-			}
+		if (isZero()) {
+			result = summand;
 		}
-		
-		// In case all the summands cancel each other out
-		if (summands.isEmpty()) {
-			result = makeFromMonomial(Expressions.ZERO, signatureFactors);
+		else if (summand.isZero()) {
+			result = this;
 		}
 		else {
-			result = new DefaultPolynomial(summands, getSignatureFactors());
+			List<Monomial>      summands           = new ArrayList<>();
+			Set<List<Rational>> combinedSignatures = new LinkedHashSet<>(this.getOrderedSummands().size()+summand.getOrderedSummands().size());
+			combinedSignatures.addAll(this.getSignatureTermMap().keySet());
+			combinedSignatures.addAll(summand.getSignatureTermMap().keySet());
+			Set<Expression> signatureFactorsSet = new LinkedHashSet<>(getSignatureFactors());
+			for (List<Rational> signature : combinedSignatures) {
+				// NOTE: at least one of these assignments is guaranteed to be non-null.
+				Monomial m1 = this.getSignatureTermMap().get(signature);
+				Monomial m2 = summand.getSignatureTermMap().get(signature);
+				if (m1 == null) {
+					if (!m2.isZero()) {
+						summands.add(m2);
+					}
+				}
+				else if (m2 == null) {
+					if (!m1.isZero()) {
+						summands.add(m1);
+					}
+				}
+				else {
+					// Both have the same signature
+					Monomial m1Coefficient = m1.getCoefficient(signatureFactorsSet);
+					Monomial m2Coefficient = m2.getCoefficient(signatureFactorsSet);
+					Expression summedCoefficient;
+					if (m1Coefficient.isNumericConstant() && m2Coefficient.isNumericConstant()) {
+						// We can add them
+						summedCoefficient = Expressions.makeSymbol(m1Coefficient.getNumericConstantFactor().add(m2Coefficient.getNumericConstantFactor()));
+					}
+					else {
+						List<Expression> plusArgs = new ArrayList<>();
+						if (!m1Coefficient.isZero()) {
+							plusArgs.add(m1Coefficient);
+						}
+						if (!m2Coefficient.isZero()) {
+							plusArgs.add(m2Coefficient);
+						}
+						if (plusArgs.size() == 2) {
+							summedCoefficient = new DefaultFunctionApplication(PLUS_FUNCTOR, Arrays.asList(m1Coefficient, m2Coefficient));
+						}
+						else {
+							summedCoefficient = plusArgs.get(0);
+						}
+					}
+					if (!Expressions.ZERO.equals(summedCoefficient)) {
+						List<Expression> args = new ArrayList<Expression>();
+						Rational numericConstantFactor = Rational.ONE;
+						if (Expressions.isNumber(summedCoefficient)) {
+							numericConstantFactor = summedCoefficient.rationalValue();
+						}
+						else {
+							args.add(summedCoefficient);
+						}
+						args.addAll(getSignatureFactors());
+						Collections.sort(args, _factorComparator);
+						List<Rational> orderedPowers = new ArrayList<>();
+						for (Expression factor : args) {
+							if (factor == summedCoefficient) {
+								orderedPowers.add(Rational.ONE);
+							}
+							else {
+								orderedPowers.add(m1.getPowerOfFactor(factor));
+							}
+						}
+						Monomial sum = DefaultMonomial.make(numericConstantFactor, args, orderedPowers);
+						summands.add(sum);
+					}
+				}
+			}
+			// In case all the summands cancel each other out
+			if (summands.isEmpty()) {
+				result = makeFromMonomial(Expressions.ZERO, signatureFactors);
+			}
+			else {
+				result = new DefaultPolynomial(summands, getSignatureFactors());
+			}
 		}
 		
 		return result;
@@ -309,7 +316,20 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			throws IllegalArgumentException {
 		assertSameSignatures(subtrahend);
 		
-		return null; // TODO - implement
+		Polynomial result;
+		
+		if (subtrahend.isZero()) {
+			result = this;
+		}
+		else {
+			List<Monomial> negatedSubtrahendSummands = new ArrayList<>();
+			subtrahend.getOrderedSummands().forEach(summand -> negatedSubtrahendSummands.add(summand.times(DefaultMonomial.MINUS_ONE)));
+			Polynomial negatedSubtrahend = new DefaultPolynomial(negatedSubtrahendSummands, getSignatureFactors());
+			
+			result = add(negatedSubtrahend);
+		}
+		
+		return result;
 	}
 
 	@Override

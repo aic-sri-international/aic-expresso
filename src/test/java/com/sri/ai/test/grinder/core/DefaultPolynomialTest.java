@@ -125,14 +125,28 @@ public class DefaultPolynomialTest {
 		Assert.assertEquals(Expressions.parse("3*x^2*y^4"), makePolynomial("3*x^2*y^4", "tuple()"));
 
 
+		//
+		// Additions
 		Assert.assertEquals(Expressions.parse("y + 10"), makePolynomial("y + 10", "tuple(y)"));
 		// NOTE: it is the ordering of the signature factors that gives us '10 + y'.
 		Assert.assertEquals(Expressions.parse("10 + y"), makePolynomial("y + 10", "(10, y)"));
 		Assert.assertEquals(Expressions.parse("y + 10"), makePolynomial("y + 10", "(y, 10)"));
 		Assert.assertEquals(Expressions.parse("(y + 10)"), makePolynomial("y + 10", "tuple()"));
-		
-		
+
 		Assert.assertEquals(Expressions.parse("2*y + 10"), makePolynomial("y + 10 + y", "tuple(y)"));
+
+		Assert.assertEquals(Expressions.parse("x^3*y^2 + 2*x^2 + x + y^2 + y + 10"), makePolynomial("x^2 + 7 + x^3*y^2 + 3 + y^2 + x^2 + x + y", "tuple(x, y)"));
+		
+		
+		//
+		// Subtractions
+		Assert.assertEquals(Expressions.parse("-1"), makePolynomial("1 - 2", "tuple()"));
+		Assert.assertEquals(Expressions.parse("x"), makePolynomial("2*x - x", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("0"), makePolynomial("x - x", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("0"), makePolynomial("2*x - x - x", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("x"), makePolynomial("x - 0", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("-1*x"), makePolynomial("0 - x", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("2*x^3 + -1*x^2 + -1*x"), makePolynomial("2*x^3 - x^2 - x", "tuple(x)"));
 		
 		// TODO - more tests, e.g.:
 		// -(y + 10)
