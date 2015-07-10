@@ -50,38 +50,38 @@ public class DefaultPolynomialTest {
 	public void testMake() {		
 		//
 		// From Trivial Monomials
-		Assert.assertEquals(Expressions.parse("+(*(0))"), makePolynomial("0", "tuple()"));
-		Assert.assertEquals(Expressions.parse("+(*(2))"), makePolynomial("2", "tuple()"));
-		Assert.assertEquals(Expressions.parse("+(*(-2))"), makePolynomial("-2", "tuple()"));
-		Assert.assertEquals(Expressions.parse("+(*(0))"), makePolynomial("0", "tuple(x)"));
-		Assert.assertEquals(Expressions.parse("+(*(2))"), makePolynomial("2", "tuple(x)"));
-		Assert.assertEquals(Expressions.parse("+(*(-2))"), makePolynomial("-2", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("0"), makePolynomial("0", "tuple()"));
+		Assert.assertEquals(Expressions.parse("2"), makePolynomial("2", "tuple()"));
+		Assert.assertEquals(Expressions.parse("-2"), makePolynomial("-2", "tuple()"));
+		Assert.assertEquals(Expressions.parse("0"), makePolynomial("0", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("2"), makePolynomial("2", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("-2"), makePolynomial("-2", "tuple(x)"));
 		
-		Assert.assertEquals(Expressions.parse("+(1*x^1)"), makePolynomial("x", "tuple(x)"));
-		Assert.assertEquals(Expressions.parse("+(1*(1*x^1)^1)"), makePolynomial("x", "tuple()"));
-		Assert.assertEquals(Expressions.parse("+(1*(1*x^1)^1)"), makePolynomial("x", "tuple(z)"));
+		Assert.assertEquals(Expressions.parse("x"), makePolynomial("x", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("(x)"), makePolynomial("x", "tuple()"));
+		Assert.assertEquals(Expressions.parse("(x)"), makePolynomial("x", "tuple(z)"));
 		
-		Assert.assertEquals(Expressions.parse("+(-1*x^2)"), makePolynomial("-1*x^2", "tuple(x)"));
-		Assert.assertEquals(Expressions.parse("+(1*(-1*x^2)^1)"), makePolynomial("-1*x^2", "tuple()"));
-		Assert.assertEquals(Expressions.parse("+(1*(-1*x^2)^1)"), makePolynomial("-1*x^2", "tuple(z)"));
+		Assert.assertEquals(Expressions.parse("-1*x^2"), makePolynomial("-1*x^2", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("(-1*x^2)"), makePolynomial("-1*x^2", "tuple()"));
+		Assert.assertEquals(Expressions.parse("(-1*x^2)"), makePolynomial("-1*x^2", "tuple(z)"));
 		
-		Assert.assertEquals(Expressions.parse("+(-1*x^2)"), makePolynomial("-(x^2)", "tuple(x)"));
-		Assert.assertEquals(Expressions.parse("+(1*(-1*x^2)^1)"), makePolynomial("-(x^2)", "tuple()"));
-		Assert.assertEquals(Expressions.parse("+(1*(-1*x^2)^1)"), makePolynomial("-(x^2)", "tuple(z)"));
+		Assert.assertEquals(Expressions.parse("-1*x^2"), makePolynomial("-(x^2)", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("(-1*x^2)"), makePolynomial("-(x^2)", "tuple()"));
+		Assert.assertEquals(Expressions.parse("(-1*x^2)"), makePolynomial("-(x^2)", "tuple(z)"));
 		
-		Assert.assertEquals(Expressions.parse("+(1*x^2)"), makePolynomial("-x^2", "tuple(x)"));
-		Assert.assertEquals(Expressions.parse("+(1*(1*x^2)^1)"), makePolynomial("-x^2", "tuple()"));
-		Assert.assertEquals(Expressions.parse("+(1*(1*x^2)^1)"), makePolynomial("-x^2", "tuple(z)"));
+		Assert.assertEquals(Expressions.parse("x^2"), makePolynomial("-x^2", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("(x^2)"), makePolynomial("-x^2", "tuple()"));
+		Assert.assertEquals(Expressions.parse("(x^2)"), makePolynomial("-x^2", "tuple(z)"));
 		
-		Assert.assertEquals(Expressions.parse("+(-1*x^3)"), makePolynomial("-x^3", "tuple(x)"));
-		Assert.assertEquals(Expressions.parse("+(1*(-1*x^3)^1)"), makePolynomial("-x^3", "tuple()"));
-		Assert.assertEquals(Expressions.parse("+(1*(-1*x^3)^1)"), makePolynomial("-x^3", "tuple(z)"));
+		Assert.assertEquals(Expressions.parse("-1*x^3"), makePolynomial("-x^3", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("(-1*x^3)"), makePolynomial("-x^3", "tuple()"));
+		Assert.assertEquals(Expressions.parse("(-1*x^3)"), makePolynomial("-x^3", "tuple(z)"));
 		
-		Assert.assertEquals(Expressions.parse("+(3*x^2)"), makePolynomial("3*x^2", "tuple(x)"));
-		Assert.assertEquals(Expressions.parse("+(1*(3*x^2)^1)"), makePolynomial("3*x^2", "tuple()"));
-		Assert.assertEquals(Expressions.parse("+(1*(3*x^2)^1)"), makePolynomial("3*x^2", "tuple(z)"));
-		Assert.assertEquals(Expressions.parse("+(3*(1*x^2)^1)"), makePolynomial("3*x^2", "tuple(3)"));
-		Assert.assertEquals(Expressions.parse("+(3*x^2)"), makePolynomial("3*x^2", "tuple(3, x)"));
+		Assert.assertEquals(Expressions.parse("3*x^2"), makePolynomial("3*x^2", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("(3*x^2)"), makePolynomial("3*x^2", "tuple()"));
+		Assert.assertEquals(Expressions.parse("(3*x^2)"), makePolynomial("3*x^2", "tuple(z)"));
+		Assert.assertEquals(Expressions.parse("3*(x^2)"), makePolynomial("3*x^2", "tuple(3)"));
+		Assert.assertEquals(Expressions.parse("3*x^2"), makePolynomial("3*x^2", "tuple(3, x)"));
 	}
 	
 	@Test

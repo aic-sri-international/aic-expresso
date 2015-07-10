@@ -52,6 +52,7 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
+import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.expresso.helper.ExpressionComparator;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Monomial;
@@ -67,7 +68,7 @@ import com.sri.ai.util.math.Rational;
  *
  */
 @Beta
-public class DefaultPolynomial extends DefaultFunctionApplication implements
+public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		Polynomial {
 	//
 	public static final Expression POLYNOMIAL_FUNCTOR = Expressions
@@ -282,29 +283,63 @@ public class DefaultPolynomial extends DefaultFunctionApplication implements
 	//
 
 	//
-	// START-FunctionApplication
+	// START-Expression
+	@Override
+	public Polynomial clone() {
+		Polynomial result = new DefaultPolynomial(orderedSummands, signatureFactors);
+		return result;
+	}
+	
+	@Override
+	public Expression get(int index) {
+		if (index == -1) {
+			return getInnerExpression().getFunctor();
+		}
+		return super.get(index);
+	}
+	
 	@Override
 	public Expression set(int i, Expression newIthArgument) {
 		List<Expression> signatureFactors = getSignatureFactors();
 		Expression result = super.set(i, newIthArgument);
-		// Ensure we make a Polynomial out ot the modified expression
+		// Ensure we make a Polynomial out of the modified expression
 		result = make(result, signatureFactors);
 		return result;
 	}
-
-	// END-FunctionApplication
+	
+	@Override
+	public String toString() {
+		// We don't need to re-compute as are immutable
+		return getInnerExpression().toString();
+	}
+	// END-Expression
 	//
+	
+	//
+	// PROTECTED
+	//
+	protected Expression computeInnerExpression() {
+		Expression result;
+		
+		if (orderedSummands.size() == 1) {
+			result = orderedSummands.get(0);
+		}
+		else {
+			result = new DefaultFunctionApplication(POLYNOMIAL_FUNCTOR, new ArrayList<>(orderedSummands));
+		}
+		
+		return result;
+	}
 
 	//
 	// PRIVATE
 	//
 	private DefaultPolynomial(List<Monomial> orderedSummands,
 			List<Expression> signatureFactors) {
-		super(POLYNOMIAL_FUNCTOR, new ArrayList<>(orderedSummands));
 		// NOTE: we use Collections.unmodifiable<...> to ensure Polynomials are
 		// immutable.
-		this.signatureFactors = Collections.unmodifiableList(signatureFactors);
 		this.orderedSummands = Collections.unmodifiableList(orderedSummands);
+		this.signatureFactors = Collections.unmodifiableList(signatureFactors);
 
 		this.nonNumericConstantFactors = new LinkedHashSet<>();
 		for (Monomial monomial : orderedSummands) {

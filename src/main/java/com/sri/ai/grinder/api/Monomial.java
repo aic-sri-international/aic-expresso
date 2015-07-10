@@ -43,7 +43,6 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
@@ -68,7 +67,7 @@ import com.sri.ai.util.math.Rational;
  *
  */
 @Beta
-public interface Monomial extends FunctionApplication {
+public interface Monomial extends Expression {
 	/**
 	 * 
 	 * @return the numeric constant of the monomial (if not explicitly defined

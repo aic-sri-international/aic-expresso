@@ -42,7 +42,6 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -68,7 +67,7 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public interface Polynomial extends FunctionApplication {
+public interface Polynomial extends Expression {
 
 	/**
 	 * 
@@ -82,7 +81,7 @@ public interface Polynomial extends FunctionApplication {
 	 * @return true if this Polynomial is equivalent to a Monomial.
 	 */
 	default boolean isMonomial() {
-		boolean result = numberOfArguments() == 1;
+		boolean result = getOrderedSummands().size() == 1;
 		return result;
 	}
 

@@ -50,6 +50,7 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultFunctionApplication;
+import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.expresso.helper.ExpressionComparator;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Monomial;
@@ -67,7 +68,7 @@ import com.sri.ai.util.math.Rational;
  *
  */
 @Beta
-public class DefaultMonomial extends DefaultFunctionApplication implements Monomial {
+public class DefaultMonomial extends AbstractExpressionWrapper implements Monomial {
 	//
 	public static final Expression MONOMIAL_FUNCTOR = Expressions.makeSymbol(FunctorConstants.TIMES);
 	//
@@ -244,7 +245,21 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	//
 	
 	//
-	// START-FunctionApplication
+	// START-Expression
+	@Override
+	public Monomial clone() {
+		Monomial result = make(getNumericConstantFactor(), orderedNonNumericConstantFactors, orderedNonNumericConstantPowers);
+		return result;
+	}
+	
+	@Override
+	public Expression get(int index) {
+		if (index == -1) {
+			return getInnerExpression().getFunctor();
+		}
+		return super.get(index);
+	}
+	
 	@Override
 	public Expression set(int i, Expression newIthArgument) {
 		Expression result = super.set(i, newIthArgument);
@@ -265,7 +280,13 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 		}
 		return result;
 	}
-	// END-FunctionApplication
+	
+	@Override
+	public String toString() {
+		// We don't need to re-compute as are immutable
+		return getInnerExpression().toString();
+	}
+	// END-Expression
 	//
 	
 	//
@@ -332,10 +353,49 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 	}
 	
 	//
+	// PROTECTED
+	//
+	protected Expression computeInnerExpression() {
+		Expression result;
+		
+		if (isNumericConstant()) {
+			result = numericConstantFactorExpression;
+		}
+		else {
+			List<Expression> args = new ArrayList<>(1+orderedNonNumericConstantFactors.size());
+			if (!getNumericConstantFactor().equals(Rational.ONE)) {
+				args.add(numericConstantFactorExpression);
+			}
+			
+			args.addAll(zipWith((base, power) -> {
+				Expression arg;
+				if (power.equals(Rational.ONE)) {
+					arg = base; // No need to include exponentiation
+				}
+				else {
+					arg = Exponentiation.make(base, power);
+				}
+				return arg;
+			}, orderedNonNumericConstantFactors, orderedNonNumericConstantPowers));
+			
+			if (args.size() == 1) {
+				// simplified to a single argument 
+				// (i.e. numeric constant was 1 as we know we have at least one 
+				//  non-numeric constant term here).
+				result = args.get(0);
+			}
+			else {
+				result = new DefaultFunctionApplication(MONOMIAL_FUNCTOR, args);
+			}
+		}
+		
+		return result;
+	}
+	
+	//
 	// PRIVATE
 	//
 	private DefaultMonomial(Rational numericConstantFactor, List<Expression> orderedNonNumericConstantFactors, List<Rational> orderedNonNumericConstantPowers) {
-		super(MONOMIAL_FUNCTOR, makeAsArgumentsToTimes(numericConstantFactor, orderedNonNumericConstantFactors, orderedNonNumericConstantPowers));
 		// NOTE: we use Collections.unmodifiable<...> to ensure Monomials are immutable.
 		this.numericConstantFactorExpression  = Expressions.makeSymbol(numericConstantFactor);
 		this.orderedNonNumericConstantFactors = Collections.unmodifiableList(orderedNonNumericConstantFactors);
@@ -442,12 +502,5 @@ public class DefaultMonomial extends DefaultFunctionApplication implements Monom
 		else {
 			factorToPower.put(factor, existingPower.add(power));
 		}
-	}
-	
-	private static List<Expression> makeAsArgumentsToTimes(Rational numericConstantFactor, List<Expression> orderedNonNumericConstantFactors, List<Rational> orderedNonNumericConstantPowers) {
-		List<Expression> result = new ArrayList<>(1+orderedNonNumericConstantFactors.size());
-		result.add(Expressions.makeSymbol(numericConstantFactor));
-		result.addAll(zipWith((base, power) -> Exponentiation.make(base, power), orderedNonNumericConstantFactors, orderedNonNumericConstantPowers));
-		return result;
 	}
 }

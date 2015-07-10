@@ -69,7 +69,7 @@ public abstract class AbstractExpressionWrapper extends AbstractExpression {
 	
 	protected abstract Expression computeInnerExpression();
 	
-	private Expression getInnerExpression() {
+	protected Expression getInnerExpression() {
 		if (cachedInnerExpression == null) {
 			cachedInnerExpression = computeInnerExpression();
 		}

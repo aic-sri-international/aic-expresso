@@ -508,7 +508,7 @@ public class Expressions {
 	/** Indicates whether an expression is a Symbol representing a numeric constant. */
 	public static boolean isNumber(Expression expression) {
 		boolean result = expression.getSyntacticFormType().equals("Symbol") &&
-				((Symbol) expression).getValue() instanceof Number;
+				expression.getValue() instanceof Number;
 		return result;
 	}
 	
