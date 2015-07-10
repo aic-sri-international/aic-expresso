@@ -150,11 +150,9 @@ public class DefaultPolynomialTest {
 		
 		//
 		// Multiplications
+		Assert.assertEquals(Expressions.parse("-1*y + -10"), makePolynomial("-(y + 10)", "tuple(y)"));
+		Assert.assertEquals(Expressions.parse("x^2*y^4* z + x^2*y^3"), makePolynomial("(y^3 + y^4*z)*x^2", "tuple(x, y, z)"));
 		Assert.assertEquals(Expressions.parse("2*x^2*y + 4*x^2 + 3*x*y^2 + 21*x*y + 12*x + 15*y^2 + 28*y + 5"), makePolynomial("(2*x + 3*y + 5) * (2*x + 5*y + x*y + 1)", "tuple(x, y)"));
-		
-		// TODO - more tests, e.g.:
-		// -(y + 10)
-		// (y^3 + y^4*z)*x^2
 	}
 	
 	@Test
