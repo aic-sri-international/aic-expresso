@@ -318,13 +318,29 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		assertSameSignatures(multiplier);
 		
 		Polynomial result;
-		// Base case
-		if (isMonomial() && multiplier.isMonomial()) {
-			result = makeFromMonomial(this.asMonomial().times(multiplier.asMonomial()), getSignatureFactors());
+		
+		// Optimization: return 0 if either numeric constant factor is 0
+		if (isZero()) {
+			result = this;
+		}
+		else if (multiplier.isZero()) {
+			result = multiplier;
+		}
+		else if (isOne()) { // Optimization, neutral element
+			result = multiplier;
+		}
+		else if (multiplier.isOne()) { // Optimization, neutral element
+			result = this;
 		}
 		else {
+			// Base case
+			if (isMonomial() && multiplier.isMonomial()) {
+				result = makeFromMonomial(this.asMonomial().times(multiplier.asMonomial()), getSignatureFactors());
+			}
+			else {
 // TODO - implement			
-			result = null; 
+				result = null; 
+			}
 		}
 		
 		return result;

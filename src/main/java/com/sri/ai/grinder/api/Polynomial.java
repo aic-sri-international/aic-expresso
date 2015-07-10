@@ -137,6 +137,15 @@ public interface Polynomial extends Expression {
 		boolean result = isMonomial() && asMonomial().isZero();
 		return result;
 	}
+	
+	/**
+	 * 
+	 * @return true if this Polynomial is equivalent to the numeric constant one.
+	 */
+	default boolean isOne() {
+		boolean result = isMonomial() && asMonomial().isOne();
+		return result;
+	}
  
 	/**
 	 * 

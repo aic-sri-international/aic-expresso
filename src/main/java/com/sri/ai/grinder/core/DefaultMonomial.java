@@ -172,6 +172,12 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 		if (isZero() || multiplier.isZero()) {
 			result = ZERO;
 		}
+		else if (isOne()) { // Optimization, neutral element
+			result = multiplier;
+		}
+		else if (multiplier.isOne()) { // Optimization, neutral element
+			result = this;
+		}
 		else {
 			List<Expression> combinedNonNumericConstantFactors = Monomial.orderedUnionOfNonNumericConstantFactors(this, multiplier);
 			
