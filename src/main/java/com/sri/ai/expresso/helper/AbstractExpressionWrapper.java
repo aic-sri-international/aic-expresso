@@ -46,6 +46,7 @@ import com.sri.ai.expresso.api.ExpressionAndContext;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractExpression;
+import com.sri.ai.util.math.Rational;
 
 /**
  * A implementation of {@link Expression} that redirects methods to an inner {@link Expression}.
@@ -114,6 +115,36 @@ public abstract class AbstractExpressionWrapper extends AbstractExpression {
 	@Override
 	public Expression set(int i, Expression newIthArgument) {
 		return getInnerExpression().set(i, newIthArgument);
+	}
+	
+	@Override
+	public Object getValue() {
+		return getInnerExpression().getValue();
+	}
+	
+	@Override
+	public boolean booleanValue() {
+		return getInnerExpression().booleanValue();
+	}
+	
+	@Override
+	public int intValue() {
+		return getInnerExpression().intValue();
+	}
+	
+	@Override
+	public int intValueExact() throws ArithmeticException {
+		return getInnerExpression().intValueExact();
+	}
+	
+	@Override
+	public double doubleValue() {
+		return getInnerExpression().doubleValue();
+	}
+	
+	@Override
+	public Rational rationalValue() {
+		return getInnerExpression().rationalValue();
 	}
 
 	@Override
