@@ -124,8 +124,16 @@ public class DefaultPolynomialTest {
 		Assert.assertEquals(Expressions.parse("3*y^4*(x^2)"), makePolynomial("3*x^2*y^4", "tuple(3, y)"));
 		Assert.assertEquals(Expressions.parse("3*x^2*y^4"), makePolynomial("3*x^2*y^4", "tuple()"));
 
-// TODO - more tests, e.g.:
-		// (y + 10)
+
+		Assert.assertEquals(Expressions.parse("y + 10"), makePolynomial("y + 10", "tuple(y)"));
+// TODO - look into more as both look wrong
+		Assert.assertEquals(Expressions.parse("(10 + y)"), makePolynomial("y + 10", "tuple(10, y)"));
+		Assert.assertEquals(Expressions.parse("(0 + y) + 10"), makePolynomial("y + 10", "tuple()"));
+		
+		
+		Assert.assertEquals(Expressions.parse("2*y + 10"), makePolynomial("y + 10 + y", "tuple(y)"));
+		
+		// TODO - more tests, e.g.:
 		// -(y + 10)
 		// (y^3 + y^4*z)*x^2
 	}
@@ -136,12 +144,22 @@ public class DefaultPolynomialTest {
 	}
 	
 	@Test
+	public void testGetSignatureTermMap() {
+		// TODO
+	}
+	
+	@Test
 	public void testIsMonomial() {
 		// TODO
 	}
 	
 	@Test
 	public void testAsMonomial() {
+		// TODO
+	}
+	
+	@Test
+	public void testNumberOfTerms() {
 		// TODO
 	}
 	

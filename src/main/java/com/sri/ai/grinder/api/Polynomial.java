@@ -38,11 +38,13 @@
 package com.sri.ai.grinder.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.math.Rational;
 
 /**
  * A polynomial is a monomial, or a sum of monomials, associated with a tuple of
@@ -75,6 +77,14 @@ public interface Polynomial extends Expression {
 	 *         polynomial.
 	 */
 	List<Expression> getSignatureFactors();
+	
+	
+	/**
+	 *
+	 * @return the signature term map for this polynomial (NOTE: no two terms
+	 *         have the same signature in this representation).
+	 */
+	Map<List<Rational>, Monomial> getSignatureTermMap();
 
 	/**
 	 * 
@@ -94,6 +104,15 @@ public interface Polynomial extends Expression {
 	 *             if this Polynomial is not equivalent to a Monomial.
 	 */
 	Monomial asMonomial() throws IllegalStateException;
+	
+	/**
+	 * 
+	 * @return the number of terms in this polynomial.
+	 */
+	default int numberOfTerms() {
+		int result = getOrderedSummands().size();
+		return result;
+	}
 	
 	/**
 	 * 

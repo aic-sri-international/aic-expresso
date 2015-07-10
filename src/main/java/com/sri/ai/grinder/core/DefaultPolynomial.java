@@ -41,9 +41,11 @@ import static com.sri.ai.grinder.core.DefaultMonomial.isLegalExponent;
 import static com.sri.ai.grinder.core.DefaultMonomial.simplifyExponentIfPossible;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +59,7 @@ import com.sri.ai.expresso.helper.ExpressionComparator;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Monomial;
 import com.sri.ai.grinder.api.Polynomial;
+import com.sri.ai.grinder.helper.MonomialComparator;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
@@ -87,11 +90,13 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	private static final Expression EXPONENTIATION_FUNCTOR = Expressions
 			.makeSymbol(FunctorConstants.EXPONENTIATION);
 	//
-	private static final ExpressionComparator _factorComparator   = new ExpressionComparator();
+	private static final ExpressionComparator _factorComparator = new ExpressionComparator();
 	//
-	private List<Expression> signatureFactors = null;
-	private List<Monomial> orderedSummands = null;
-	private Set<Expression> nonNumericConstantFactors = null;
+	private List<Expression>              signatureFactors          = null;
+	private MonomialComparator            monomialComparator        = null;
+	private List<Monomial>                orderedSummands           = null;
+	private Set<Expression>               nonNumericConstantFactors = null;
+	private Map<List<Rational>, Monomial> signatureTermMap          = null;
 
 	public static Polynomial make(Expression expression,
 			List<Expression> signatureFactors) {
@@ -185,6 +190,11 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	public List<Expression> getSignatureFactors() {
 		return signatureFactors;
 	}
+	
+	@Override
+	public Map<List<Rational>, Monomial> getSignatureTermMap() {
+		return signatureTermMap;
+	}
 
 	@Override
 	public Monomial asMonomial() throws IllegalStateException {
@@ -212,7 +222,75 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	public Polynomial add(Polynomial summand) throws IllegalArgumentException {
 		assertSameSignatures(summand);
 		
-		return null; // TODO - implement
+		Polynomial result;
+		
+		List<Monomial>      summands           = new ArrayList<>();
+		Set<List<Rational>> combinedSignatures = new LinkedHashSet<>(this.getOrderedSummands().size()+summand.getOrderedSummands().size());
+		combinedSignatures.addAll(this.getSignatureTermMap().keySet());
+		combinedSignatures.addAll(summand.getSignatureTermMap().keySet());
+		Set<Expression> signatureFactorsSet = new LinkedHashSet<>(getSignatureFactors());
+		for (List<Rational> signature : combinedSignatures) {
+			// NOTE: at least one of these assignments is guaranteed to be non-null.
+			Monomial m1 = this.getSignatureTermMap().get(signature);
+			Monomial m2 = summand.getSignatureTermMap().get(signature);
+			if (m1 == null) {
+				if (!m2.getNumericConstantFactor().equals(Rational.ZERO)) {
+					summands.add(m2);
+				}
+			}
+			else if (m2 == null) {
+				if (!m1.getNumericConstantFactor().equals(Rational.ZERO)) {
+					summands.add(m1);
+				}
+			}
+			else {
+				// Both have the same signature
+				Monomial m1Coefficient = m1.getCoefficient(signatureFactorsSet);
+				Monomial m2Coefficient = m2.getCoefficient(signatureFactorsSet);
+				Expression summedCoefficient;
+				if (m1Coefficient.isNumericConstant() && m2Coefficient.isNumericConstant()) {
+					// We can add them
+					summedCoefficient = Expressions.makeSymbol(m1Coefficient.getNumericConstantFactor().add(m2Coefficient.getNumericConstantFactor()));
+				}
+				else {
+					// All we can do is create a summation
+					summedCoefficient = new DefaultFunctionApplication(PLUS_FUNCTOR, Arrays.asList(m1Coefficient, m2Coefficient));
+				}
+				if (!Expressions.ZERO.equals(summedCoefficient)) {
+					List<Expression> args = new ArrayList<Expression>();
+					Rational numericConstantFactor = Rational.ONE;
+					if (Expressions.isNumber(summedCoefficient)) {
+						numericConstantFactor = summedCoefficient.rationalValue();
+					}
+					else {
+						args.add(summedCoefficient);
+					}
+					args.addAll(getSignatureFactors());
+					Collections.sort(args, _factorComparator);
+					List<Rational> orderedPowers = new ArrayList<>();
+					for (Expression factor : args) {
+						if (factor == summedCoefficient) {
+							orderedPowers.add(Rational.ONE);
+						}
+						else {
+							orderedPowers.add(m1.getPowerOfFactor(factor));
+						}
+					}
+					Monomial sum = DefaultMonomial.make(numericConstantFactor, args, orderedPowers);
+					summands.add(sum);
+				}
+			}
+		}
+		
+		// In case all the summands cancel each other out
+		if (summands.isEmpty()) {
+			result = makeFromMonomial(Expressions.ZERO, signatureFactors);
+		}
+		else {
+			result = new DefaultPolynomial(summands, getSignatureFactors());
+		}
+		
+		return result;
 	}
 
 	@Override
@@ -334,20 +412,28 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	//
 	// PRIVATE
 	//
-	private DefaultPolynomial(List<Monomial> orderedSummands,
+	private DefaultPolynomial(List<Monomial> summands,
 			List<Expression> signatureFactors) {
 		// NOTE: we use Collections.unmodifiable<...> to ensure Polynomials are
 		// immutable.
-		this.orderedSummands = Collections.unmodifiableList(orderedSummands);
+		this.monomialComparator = new MonomialComparator(signatureFactors);
+		Collections.sort(summands, monomialComparator);
+		this.orderedSummands  = Collections.unmodifiableList(summands);
 		this.signatureFactors = Collections.unmodifiableList(signatureFactors);
 
+		this.signatureTermMap          = new LinkedHashMap<>();
 		this.nonNumericConstantFactors = new LinkedHashSet<>();
 		for (Monomial monomial : orderedSummands) {
 			this.nonNumericConstantFactors.addAll(monomial
 					.getOrderedNonNumericConstantFactors());
+			List<Rational> signature = monomial.getSignature(this.signatureFactors);
+			if (this.signatureTermMap.containsKey(signature)) {
+				throw new IllegalArgumentException("Trying to create a polynomial with like terms");
+			}
+			this.signatureTermMap.put(signature, monomial);
 		}
-		this.nonNumericConstantFactors = Collections
-				.unmodifiableSet(this.nonNumericConstantFactors);
+		this.nonNumericConstantFactors = Collections.unmodifiableSet(this.nonNumericConstantFactors);
+		this.signatureTermMap          = Collections.unmodifiableMap(this.signatureTermMap);
 	}
 	
 	private void assertSameSignatures(Polynomial other) {
