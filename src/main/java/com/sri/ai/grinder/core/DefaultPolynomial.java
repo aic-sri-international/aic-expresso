@@ -358,8 +358,19 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 				result = makeFromMonomial(this.asMonomial().times(multiplier.asMonomial()), getSignatureFactors());
 			}
 			else {
-// TODO - implement			
-				result = null; 
+				result = null;
+				for (Monomial multiplicandMonomial : getOrderedSummands()) {
+					for (Monomial multiplierMonomial : multiplier.getOrderedSummands()) {
+						Monomial   monomialProduct = multiplicandMonomial.times(multiplierMonomial);
+						Polynomial product         = new DefaultPolynomial(Collections.singletonList(monomialProduct), getSignatureFactors());
+						if (result == null) {
+							result = product;
+						}
+						else {
+							result = result.add(product);
+						}
+					}
+				}
 			}
 		}
 		
@@ -370,8 +381,8 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	public Pair<Polynomial, Polynomial> divide(Polynomial divisor)
 			throws IllegalArgumentException {
 		assertSameSignatures(divisor);
-		
-		return null; // TODO - implement
+// TODO - implement last.		
+		throw new UnsupportedOperationException("Division of of polynomials is currently not supported.");
 	}
 
 	@Override

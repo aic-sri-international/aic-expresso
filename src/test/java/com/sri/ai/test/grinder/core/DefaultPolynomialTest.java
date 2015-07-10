@@ -136,7 +136,7 @@ public class DefaultPolynomialTest {
 		Assert.assertEquals(Expressions.parse("2*y + 10"), makePolynomial("y + 10 + y", "tuple(y)"));
 
 		Assert.assertEquals(Expressions.parse("x^3*y^2 + 2*x^2 + x + y^2 + y + 10"), makePolynomial("x^2 + 7 + x^3*y^2 + 3 + y^2 + x^2 + x + y", "tuple(x, y)"));
-		
+		Assert.assertEquals(Expressions.parse("5*x*y + x + 4*y^2 + 6"), makePolynomial("(3*x^2 - 2*x + 5*x*y - 2) + (-3*x^2 + 3*x + 4*y^2 + 8)", "(x, y)"));
 		
 		//
 		// Subtractions
@@ -147,6 +147,10 @@ public class DefaultPolynomialTest {
 		Assert.assertEquals(Expressions.parse("x"), makePolynomial("x - 0", "tuple(x)"));
 		Assert.assertEquals(Expressions.parse("-1*x"), makePolynomial("0 - x", "tuple(x)"));
 		Assert.assertEquals(Expressions.parse("2*x^3 + -1*x^2 + -1*x"), makePolynomial("2*x^3 - x^2 - x", "tuple(x)"));
+		
+		//
+		// Multiplications
+		Assert.assertEquals(Expressions.parse("2*x^2*y + 4*x^2 + 3*x*y^2 + 21*x*y + 12*x + 15*y^2 + 28*y + 5"), makePolynomial("(2*x + 3*y + 5) * (2*x + 5*y + x*y + 1)", "tuple(x, y)"));
 		
 		// TODO - more tests, e.g.:
 		// -(y + 10)
