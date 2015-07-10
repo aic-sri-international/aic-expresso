@@ -234,12 +234,12 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			Monomial m1 = this.getSignatureTermMap().get(signature);
 			Monomial m2 = summand.getSignatureTermMap().get(signature);
 			if (m1 == null) {
-				if (!m2.getNumericConstantFactor().equals(Rational.ZERO)) {
+				if (!m2.isZero()) {
 					summands.add(m2);
 				}
 			}
 			else if (m2 == null) {
-				if (!m1.getNumericConstantFactor().equals(Rational.ZERO)) {
+				if (!m1.isZero()) {
 					summands.add(m1);
 				}
 			}
@@ -253,8 +253,19 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 					summedCoefficient = Expressions.makeSymbol(m1Coefficient.getNumericConstantFactor().add(m2Coefficient.getNumericConstantFactor()));
 				}
 				else {
-					// All we can do is create a summation
-					summedCoefficient = new DefaultFunctionApplication(PLUS_FUNCTOR, Arrays.asList(m1Coefficient, m2Coefficient));
+					List<Expression> plusArgs = new ArrayList<>();
+					if (!m1Coefficient.isZero()) {
+						plusArgs.add(m1Coefficient);
+					}
+					if (!m2Coefficient.isZero()) {
+						plusArgs.add(m2Coefficient);
+					}
+					if (plusArgs.size() == 2) {
+						summedCoefficient = new DefaultFunctionApplication(PLUS_FUNCTOR, Arrays.asList(m1Coefficient, m2Coefficient));
+					}
+					else {
+						summedCoefficient = plusArgs.get(0);
+					}
 				}
 				if (!Expressions.ZERO.equals(summedCoefficient)) {
 					List<Expression> args = new ArrayList<Expression>();

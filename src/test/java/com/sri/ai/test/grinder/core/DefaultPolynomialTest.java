@@ -48,6 +48,7 @@ public class DefaultPolynomialTest {
 
 	@Test
 	public void testMake() {	
+makePolynomial("y + 10", "tuple(10, y)");		
 		//
 		// From Trivial Monomials
 		Assert.assertEquals(Expressions.parse("0"), makePolynomial("0", "tuple()"));
@@ -97,8 +98,8 @@ public class DefaultPolynomialTest {
 		Assert.assertEquals(Expressions.parse("2^2^x^4"), makePolynomial("2^2^x^2^2", "tuple()"));
 		Assert.assertEquals(Expressions.parse("2^2^x^4"), makePolynomial("2^2^x^2^2", "tuple(z)"));
 
-		Assert.assertEquals(Expressions.parse("2*x*y"), makePolynomial("2*x*y", "tuple(2, x, y)"));
 		Assert.assertEquals(Expressions.parse("2*x*y"), makePolynomial("2*x*y", "tuple(x, y)"));
+		Assert.assertEquals(Expressions.parse("2*x*y"), makePolynomial("2*x*y", "tuple(2, x, y)"));
 		Assert.assertEquals(Expressions.parse("x*(2*y)"), makePolynomial("2*x*y", "tuple(x)"));
 		Assert.assertEquals(Expressions.parse("y*(2*x)"), makePolynomial("2*x*y", "tuple(y)"));
 
@@ -116,8 +117,8 @@ public class DefaultPolynomialTest {
 		Assert.assertEquals(Expressions.parse("3*(x^2)"), makePolynomial("3*x^2", "tuple(3)"));
 		Assert.assertEquals(Expressions.parse("3*x^2"), makePolynomial("3*x^2", "tuple(3, x)"));
 	
-		Assert.assertEquals(Expressions.parse("3*x^2*y^4"), makePolynomial("3*x^2*y^4", "tuple(3, x, y)"));
 		Assert.assertEquals(Expressions.parse("3*x^2*y^4"), makePolynomial("3*x^2*y^4", "tuple(x, y)"));
+		Assert.assertEquals(Expressions.parse("3*x^2*y^4"), makePolynomial("3*x^2*y^4", "tuple(3, x, y)"));
 		Assert.assertEquals(Expressions.parse("x^2*(3*y^4)"), makePolynomial("3*x^2*y^4", "tuple(x)"));
 		Assert.assertEquals(Expressions.parse("3*x^2*(y^4)"), makePolynomial("3*x^2*y^4", "tuple(3, x)"));
 		Assert.assertEquals(Expressions.parse("y^4*(3*x^2)"), makePolynomial("3*x^2*y^4", "tuple(y)"));
@@ -126,9 +127,10 @@ public class DefaultPolynomialTest {
 
 
 		Assert.assertEquals(Expressions.parse("y + 10"), makePolynomial("y + 10", "tuple(y)"));
-// TODO - look into more as both look wrong
-		Assert.assertEquals(Expressions.parse("(10 + y)"), makePolynomial("y + 10", "tuple(10, y)"));
-		Assert.assertEquals(Expressions.parse("(0 + y) + 10"), makePolynomial("y + 10", "tuple()"));
+		// NOTE: it is the ordering of the signature that gives us '10 + y'.
+		Assert.assertEquals(Expressions.parse("10 + y"), makePolynomial("y + 10", "tuple(10, y)"));
+		Assert.assertEquals(Expressions.parse("y + 10"), makePolynomial("y + 10", "tuple(y, 10)"));
+		Assert.assertEquals(Expressions.parse("(y + 10)"), makePolynomial("y + 10", "tuple()"));
 		
 		
 		Assert.assertEquals(Expressions.parse("2*y + 10"), makePolynomial("y + 10 + y", "tuple(y)"));
@@ -165,6 +167,16 @@ public class DefaultPolynomialTest {
 	
 	@Test
 	public void testGetOrderedSummands() {
+		// TODO
+	}
+	
+	@Test
+	public void testIsNumericConstant() {
+		// TODO
+	}
+	
+	@Test
+	public void testIsZero() {
 		// TODO
 	}
 	

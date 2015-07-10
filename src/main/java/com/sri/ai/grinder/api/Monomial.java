@@ -83,6 +83,15 @@ public interface Monomial extends Expression {
 		boolean result = getOrderedNonNumericConstantFactors().size() == 0;
 		return result;
 	}
+	
+	/**
+	 * 
+	 * @return true if this monomial is equivalent to the numeric constant zero.
+	 */
+	default boolean isZero() {
+		boolean result = getNumericConstantFactor().equals(Rational.ZERO);
+		return result;
+	}
 
 	/**
 	 * The <b>factors of a monomial</b> <em>M</em> is the Collection factors(M).

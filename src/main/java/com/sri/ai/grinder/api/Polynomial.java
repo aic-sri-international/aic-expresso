@@ -119,7 +119,25 @@ public interface Polynomial extends Expression {
 	 * @return the monomial summands of this polynomial.
 	 */
 	List<Monomial> getOrderedSummands();
-
+	
+	/**
+	 * 
+	 * @return true if this Polynomial is equivalent to a numeric constant;
+	 */
+	default boolean isNumericConstant() {
+		boolean result = isMonomial() && asMonomial().isNumericConstant();
+		return result;
+	}
+	
+	/**
+	 * 
+	 * @return true if this Polynomial is equivalent to the numeric constant zero.
+	 */
+	default boolean isZero() {
+		boolean result = isMonomial() && asMonomial().isZero();
+		return result;
+	}
+ 
 	/**
 	 * 
 	 * @return the set of non-numeric constant factors contained within this

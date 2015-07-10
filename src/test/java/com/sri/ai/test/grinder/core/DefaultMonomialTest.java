@@ -124,6 +124,18 @@ public class DefaultMonomialTest {
 	}
 	
 	@Test
+	public void testIsZero() {
+		Assert.assertFalse(makeMonomial("-2").isZero());
+		Assert.assertFalse(makeMonomial("-1").isZero());
+		Assert.assertTrue(makeMonomial("0").isZero());
+		Assert.assertFalse(makeMonomial("1").isZero());
+		Assert.assertFalse(makeMonomial("2").isZero());
+		Assert.assertFalse(makeMonomial("2.2").isZero());
+		Assert.assertFalse(makeMonomial("x").isZero());
+		Assert.assertFalse(makeMonomial("4*x").isZero());
+	}
+	
+	@Test
 	public void testGetFactors() {
 		// A numeric constant, 1 factor.
 		Monomial m = makeMonomial("2");

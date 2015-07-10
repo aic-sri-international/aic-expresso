@@ -72,6 +72,7 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	//
 	public static final Expression MONOMIAL_FUNCTOR = Expressions.makeSymbol(FunctorConstants.TIMES);
 	//
+	public static final Monomial MINUS_ONE = make(Rational.MINUS_ONE, Collections.emptyList(), Collections.emptyList());
 	public static final Monomial ZERO = make(Rational.ZERO, Collections.emptyList(), Collections.emptyList());
 	public static final Monomial ONE  = make(Rational.ONE, Collections.emptyList(), Collections.emptyList());
 	//
@@ -116,7 +117,7 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	public Monomial getCoefficient(Set<Expression> factors) {
 		Monomial result;
 		
-		if (getNumericConstantFactor().equals(Rational.ZERO)) {
+		if (isZero()) {
 			result = ZERO;
 		}
 		else if (factors.size() == 0) {
@@ -168,7 +169,7 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	public Monomial times(Monomial multiplier) {
 		Monomial result;
 		// Optimization: return 0 if either numeric constant factor is 0
-		if (getNumericConstantFactor().equals(Rational.ZERO) || multiplier.getNumericConstantFactor().equals(Rational.ZERO)) {
+		if (isZero() || multiplier.isZero()) {
 			result = ZERO;
 		}
 		else {
@@ -191,11 +192,11 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	public Pair<Monomial, Monomial> divide(Monomial divisor) {
 		Pair<Monomial, Monomial> result;
 		
-		if (divisor.getNumericConstantFactor().equals(Rational.ZERO)) {
+		if (divisor.isZero()) {
 			throw new IllegalArgumentException("Argument divisor is 0.");
 		}
 		
-		if (this.getNumericConstantFactor().equals(Rational.ZERO)) {
+		if (isZero()) {
 			result = new Pair<>(ZERO, ZERO);
 		} // TODO - will likely want to make this containsAll call more efficient by using sets.		
 		else if (getOrderedNonNumericConstantFactors().containsAll(divisor.getOrderedNonNumericConstantFactors())) {
