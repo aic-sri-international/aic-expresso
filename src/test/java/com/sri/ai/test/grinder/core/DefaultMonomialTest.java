@@ -714,7 +714,8 @@ public class DefaultMonomialTest {
 	
 	@Test
 	public void testCompareTo() {
-		Assert.assertEquals(1, makeMonomial("x^2*y^3").compareTo(makeMonomial("w^1")));
+		Assert.assertEquals(-1, makeMonomial("x^2*y^3").compareTo(makeMonomial("w^1")));
+		Assert.assertEquals(1, makeMonomial("x^2*y^3").compareTo(makeMonomial("w^5")));
 		Assert.assertEquals(1, makeMonomial("10").compareTo(makeMonomial("5*x")));
 		Assert.assertEquals(1, makeMonomial("10").compareTo(makeMonomial("x^2")));
 		Assert.assertEquals(1, makeMonomial("5*x").compareTo(makeMonomial("x^2")));
@@ -722,7 +723,8 @@ public class DefaultMonomialTest {
 		Assert.assertEquals(0, makeMonomial("0").compareTo(makeMonomial("7")));
 		Assert.assertEquals(0, makeMonomial("2*x^2*y^3").compareTo(makeMonomial("4*x^2*y^3")));
 		
-		Assert.assertEquals(-1, makeMonomial("x^2*y^3").compareTo(makeMonomial("z^6")));		
+		Assert.assertEquals(1, makeMonomial("x^2*y^3").compareTo(makeMonomial("z^6")));		
+		Assert.assertEquals(-1, makeMonomial("x^2*y^3").compareTo(makeMonomial("z^5")));
 	}
 	
 	//

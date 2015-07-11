@@ -47,8 +47,8 @@ import com.sri.ai.grinder.api.Monomial;
 import com.sri.ai.util.math.Rational;
 
 /**
- * A monomial <em>M1<em> <b>comes before</b> another monomial <em>M2</em> wrt
- * tuple of factors
+ * A monomial <em>M1<em> <b>comes before</b> another monomial <em>M2</em> if it
+ * has higher degree or if their degree are the same wrt to a tuple of factors
  * <em>F<em> iff signature(M1, F) is lexicographically larger than signature(M2, F). For example:<br>
  * <br>
  * x^3 <b>comes before</b> x^2
@@ -85,22 +85,35 @@ public class MonomialComparator implements Comparator<Monomial> {
 	@Override
 	public int compare(Monomial m1, Monomial m2) {
 		int result = 0;
+		
+		result = m2.degree().subtract(m1.degree()).intValue();
 
-		List<Expression> factors = getSignatureFactors(m1, m2);
-
-		List<Rational> m1Signature = m1.getSignature(factors);
-		List<Rational> m2Signature = m2.getSignature(factors);
-
-		// Note: Both signatures will be the same length
-		int signatureLength = m1Signature.size();
-		for (int i = 0; i < signatureLength; i++) {
-			if ((result = m1Signature.get(i).compareTo(m2Signature.get(i))) != 0) {
-				// if not = 0 we know that one is less than or greater than the
-				// other.
-				// NOTE: as we consider the one with larger lexicographic order
-				// to come before we need to negate the result of the compareTo
-				result = result * -1;
-				break;
+		if (result != 0) {
+			// Ensure we normalize answer
+			if (result < 0) {
+				result = -1;
+			}
+			else {
+				result = 1;
+			}
+		}
+		else {
+			List<Expression> factors = getSignatureFactors(m1, m2);
+	
+			List<Rational> m1Signature = m1.getSignature(factors);
+			List<Rational> m2Signature = m2.getSignature(factors);
+	
+			// Note: Both signatures will be the same length
+			int signatureLength = m1Signature.size();
+			for (int i = 0; i < signatureLength; i++) {
+				if ((result = m1Signature.get(i).compareTo(m2Signature.get(i))) != 0) {
+					// if not = 0 we know that one is less than or greater than the
+					// other.
+					// NOTE: as we consider the one with larger lexicographic order
+					// to come before we need to negate the result of the compareTo
+					result = result * -1;
+					break;
+				}
 			}
 		}
 

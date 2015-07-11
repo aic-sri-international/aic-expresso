@@ -251,50 +251,8 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 					}
 				}
 				else {
-					// Both have the same signature
-					Monomial m1Coefficient = m1.getCoefficient(signatureFactorsSet);
-					Monomial m2Coefficient = m2.getCoefficient(signatureFactorsSet);
-					Expression summedCoefficient;
-					if (m1Coefficient.isNumericConstant() && m2Coefficient.isNumericConstant()) {
-						// We can add them
-						summedCoefficient = Expressions.makeSymbol(m1Coefficient.getNumericConstantFactor().add(m2Coefficient.getNumericConstantFactor()));
-					}
-					else {
-						List<Expression> plusArgs = new ArrayList<>();
-						if (!m1Coefficient.isZero()) {
-							plusArgs.add(m1Coefficient);
-						}
-						if (!m2Coefficient.isZero()) {
-							plusArgs.add(m2Coefficient);
-						}
-						if (plusArgs.size() == 2) {
-							summedCoefficient = new DefaultFunctionApplication(PLUS_FUNCTOR, Arrays.asList(m1Coefficient, m2Coefficient));
-						}
-						else {
-							summedCoefficient = plusArgs.get(0);
-						}
-					}
-					if (!Expressions.ZERO.equals(summedCoefficient)) {
-						List<Expression> args = new ArrayList<Expression>();
-						Rational numericConstantFactor = Rational.ONE;
-						if (Expressions.isNumber(summedCoefficient)) {
-							numericConstantFactor = summedCoefficient.rationalValue();
-						}
-						else {
-							args.add(summedCoefficient);
-						}
-						args.addAll(getSignatureFactors());
-						Collections.sort(args, _factorComparator);
-						List<Rational> orderedPowers = new ArrayList<>();
-						for (Expression factor : args) {
-							if (factor == summedCoefficient) {
-								orderedPowers.add(Rational.ONE);
-							}
-							else {
-								orderedPowers.add(m1.getPowerOfFactor(factor));
-							}
-						}
-						Monomial sum = DefaultMonomial.make(numericConstantFactor, args, orderedPowers);
+					Monomial sum = addMonomialsWithSameSignature(m1, m2, signatureFactorsSet);
+					if (!sum.isZero()) {
 						summands.add(sum);
 					}
 				}
@@ -545,6 +503,62 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		Polynomial result = new DefaultPolynomial(
 				Collections.singletonList(monomial), signatureFactors);
 
+		return result;
+	}
+	
+	private Monomial addMonomialsWithSameSignature(Monomial m1, Monomial m2, Set<Expression> signatureFactorsSet) {
+		Monomial result;
+		
+		// Both have the same signature
+		Monomial m1Coefficient = m1.getCoefficient(signatureFactorsSet);
+		Monomial m2Coefficient = m2.getCoefficient(signatureFactorsSet);
+		Expression summedCoefficient;
+		if (m1Coefficient.isNumericConstant() && m2Coefficient.isNumericConstant()) {
+			// We can add them
+			summedCoefficient = Expressions.makeSymbol(m1Coefficient.getNumericConstantFactor().add(m2Coefficient.getNumericConstantFactor()));
+		}
+		else {
+			List<Expression> plusArgs = new ArrayList<>();
+			if (!m1Coefficient.isZero()) {
+				plusArgs.add(m1Coefficient);
+			}
+			if (!m2Coefficient.isZero()) {
+				plusArgs.add(m2Coefficient);
+			}
+			if (plusArgs.size() == 2) {
+				summedCoefficient = new DefaultFunctionApplication(PLUS_FUNCTOR, Arrays.asList(m1Coefficient, m2Coefficient));
+			}
+			else {
+				summedCoefficient = plusArgs.get(0);
+			}
+		}
+		
+		if (!Expressions.ZERO.equals(summedCoefficient)) {
+			List<Expression> args = new ArrayList<Expression>();
+			Rational numericConstantFactor = Rational.ONE;
+			if (Expressions.isNumber(summedCoefficient)) {
+				numericConstantFactor = summedCoefficient.rationalValue();
+			}
+			else {
+				args.add(summedCoefficient);
+			}
+			args.addAll(getSignatureFactors());
+			Collections.sort(args, _factorComparator);
+			List<Rational> orderedPowers = new ArrayList<>();
+			for (Expression factor : args) {
+				if (factor == summedCoefficient) {
+					orderedPowers.add(Rational.ONE);
+				}
+				else {
+					orderedPowers.add(m1.getPowerOfFactor(factor));
+				}
+			}
+			result = DefaultMonomial.make(numericConstantFactor, args, orderedPowers);
+		}
+		else {
+			result = DefaultMonomial.ZERO;
+		}
+		
 		return result;
 	}
 }

@@ -128,15 +128,14 @@ public class DefaultPolynomialTest {
 		//
 		// Additions
 		Assert.assertEquals(Expressions.parse("y + 10"), makePolynomial("y + 10", "tuple(y)"));
-		// NOTE: it is the ordering of the signature factors that gives us '10 + y'.
-		Assert.assertEquals(Expressions.parse("10 + y"), makePolynomial("y + 10", "(10, y)"));
+		Assert.assertEquals(Expressions.parse("y + 10"), makePolynomial("y + 10", "(10, y)"));
 		Assert.assertEquals(Expressions.parse("y + 10"), makePolynomial("y + 10", "(y, 10)"));
 		Assert.assertEquals(Expressions.parse("(y + 10)"), makePolynomial("y + 10", "tuple()"));
 
 		Assert.assertEquals(Expressions.parse("2*y + 10"), makePolynomial("y + 10 + y", "tuple(y)"));
 
-		Assert.assertEquals(Expressions.parse("x^3*y^2 + 2*x^2 + x + y^2 + y + 10"), makePolynomial("x^2 + 7 + x^3*y^2 + 3 + y^2 + x^2 + x + y", "tuple(x, y)"));
-		Assert.assertEquals(Expressions.parse("5*x*y + x + 4*y^2 + 6"), makePolynomial("(3*x^2 - 2*x + 5*x*y - 2) + (-3*x^2 + 3*x + 4*y^2 + 8)", "(x, y)"));
+		Assert.assertEquals(Expressions.parse("x^3*y^2 + 2*x^2 + y^2 + x + y + 10"), makePolynomial("x^2 + 7 + x^3*y^2 + 3 + y^2 + x^2 + x + y", "tuple(x, y)"));
+		Assert.assertEquals(Expressions.parse("5*x*y + 4*y^2 + x + 6"), makePolynomial("(3*x^2 - 2*x + 5*x*y - 2) + (-3*x^2 + 3*x + 4*y^2 + 8)", "(x, y)"));
 		
 		//
 		// Subtractions
@@ -152,7 +151,7 @@ public class DefaultPolynomialTest {
 		// Multiplications
 		Assert.assertEquals(Expressions.parse("-1*y + -10"), makePolynomial("-(y + 10)", "tuple(y)"));
 		Assert.assertEquals(Expressions.parse("x^2*y^4* z + x^2*y^3"), makePolynomial("(y^3 + y^4*z)*x^2", "tuple(x, y, z)"));
-		Assert.assertEquals(Expressions.parse("2*x^2*y + 4*x^2 + 3*x*y^2 + 21*x*y + 12*x + 15*y^2 + 28*y + 5"), makePolynomial("(2*x + 3*y + 5) * (2*x + 5*y + x*y + 1)", "tuple(x, y)"));
+		Assert.assertEquals(Expressions.parse("2*x^2*y + 3*x*y^2 + 4*x^2 + 21*x*y + 15*y^2 + 12*x + 28*y + 5"), makePolynomial("(2*x + 3*y + 5) * (2*x + 5*y + x*y + 1)", "tuple(x, y)"));
 	}
 	
 	@Test
