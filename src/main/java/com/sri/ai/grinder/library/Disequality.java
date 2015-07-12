@@ -115,6 +115,23 @@ public class Disequality extends AbstractRewriter {
 		return result;
 	}
 
+	/**
+	 * Makes a disequality application on two terms possibly simplifying it (taking constants into account).
+	 */
+	public static Expression makeWithConstantSimplification(Expression term1, Expression term2, RewritingProcess process) {
+		Expression result;
+		if (term1.equals(term2)) {
+			result = Expressions.FALSE;
+		}
+		else if (process.isUniquelyNamedConstant(term1) && process.isUniquelyNamedConstant(term2)) {
+			result = Expressions.TRUE;
+		}
+		else {
+			result = make(term1, term2);
+		}
+		return result;
+	}
+	
 	public static Expression conditionForSubExpressionsDisequality(
 			Expression expression1, Expression expression2) {
 		List<Expression> conditionsForSubExpressionsToBeDistinct = listOfDisequalitiesOfSubExpressions(

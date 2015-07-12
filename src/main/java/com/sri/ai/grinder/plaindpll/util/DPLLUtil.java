@@ -340,6 +340,29 @@ public class DPLLUtil {
 	}
 
 	public static RewritingProcess makeProcess(ConstraintTheory constraintTheory, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		RewritingProcess process = makeProcess(mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);	
+		process.initializeDPLLContextualConstraint(constraintTheory.makeConstraint(list()));
+		return process;
+	}
+
+	/**
+	 * @param mapFromSymbolNameToTypeName
+	 * @param mapFromTypeNameToSizeString
+	 * @param isUniquelyNamedConstantPredicate
+	 * @return
+	 */
+	public static RewritingProcess makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		RewritingProcess process = makeProcess(mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString);			
+		process.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
+		return process;
+	}
+
+	/**
+	 * @param mapFromSymbolNameToTypeName
+	 * @param mapFromTypeNameToSizeString
+	 * @return
+	 */
+	public static RewritingProcess makeProcess(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
 		RewritingProcess process = new DefaultRewritingProcess(null);
 		List<Expression> symbolDeclarations = new ArrayList<>();
 		for (Map.Entry<String, String> variableNameAndTypeName : mapFromSymbolNameToTypeName.entrySet()) {
@@ -354,10 +377,7 @@ public class DPLLUtil {
 			String typeName   = typeNameAndSizeString.getKey();
 			String sizeString = typeNameAndSizeString.getValue();
 			process.putGlobalObject(Expressions.parse("|" + typeName + "|"), Expressions.parse(sizeString));
-		}			
-		process.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);	
-		process.initializeDPLLContextualConstraint(constraintTheory.makeConstraint(list()));
-	
+		}
 		return process;
 	}
 
