@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -235,7 +234,6 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			Set<List<Rational>> combinedSignatures = new LinkedHashSet<>(this.getOrderedSummands().size()+summand.getOrderedSummands().size());
 			combinedSignatures.addAll(this.getSignatureTermMap().keySet());
 			combinedSignatures.addAll(summand.getSignatureTermMap().keySet());
-			Set<Expression> signatureFactorsSet = new LinkedHashSet<>(getSignatureFactors());
 			for (List<Rational> signature : combinedSignatures) {
 				// NOTE: at least one of these assignments is guaranteed to be non-null.
 				Monomial m1 = this.getSignatureTermMap().get(signature);
@@ -251,7 +249,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 					}
 				}
 				else {
-					Monomial sum = addMonomialsWithSameSignature(m1, m2, signatureFactorsSet);
+					Monomial sum = addMonomialsWithSameSignature(m1, m2);
 					if (!sum.isZero()) {
 						summands.add(sum);
 					}
@@ -464,8 +462,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		if (!monomial.isNumericConstant()) {
 			// Need to pull out the factors are to be treated together as a single constant
 			// based on the polynomial's signature of factors.
-			Set<Expression> signatureFactorsSet = new HashSet<>(signatureFactors);
-			Monomial        coefficient         = monomial.getCoefficient(signatureFactorsSet);
+			Monomial coefficient = monomial.getCoefficient(signatureFactors);
 			if (!coefficient.isNumericConstant()) {
 				// Have factors of the monomial that need to be treated as a single constant
 				// based on the polynomials signature of factors.
@@ -474,9 +471,9 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 				
 				orderedFactors.add(coefficient);
 				factorToPower.put(coefficient, Rational.ONE);
-				
+				Set<Expression> coeefficientFactors = coefficient.getFactors();
 				for (Expression factor : monomial.getOrderedNonNumericConstantFactors()) {
-					if (signatureFactorsSet.contains(factor)) {
+					if (!coeefficientFactors.contains(factor)) {
 						orderedFactors.add(factor);
 						factorToPower.put(factor, monomial.getPowerOfFactor(factor));
 					}
@@ -494,8 +491,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 				List<Rational> orderedPowers = new ArrayList<>();
 				Collections.sort(orderedFactors, _factorComparator);
 				orderedFactors.forEach(factor -> orderedPowers.add(factorToPower.get(factor)));
-			
-			
+				
 				monomial = DefaultMonomial.make(numericConstant, orderedFactors, orderedPowers);
 			}
 		}
@@ -506,12 +502,12 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		return result;
 	}
 	
-	private Monomial addMonomialsWithSameSignature(Monomial m1, Monomial m2, Set<Expression> signatureFactorsSet) {
+	private Monomial addMonomialsWithSameSignature(Monomial m1, Monomial m2) {
 		Monomial result;
 		
 		// Both have the same signature
-		Monomial m1Coefficient = m1.getCoefficient(signatureFactorsSet);
-		Monomial m2Coefficient = m2.getCoefficient(signatureFactorsSet);
+		Monomial m1Coefficient = m1.getCoefficient(getSignatureFactors());
+		Monomial m2Coefficient = m2.getCoefficient(getSignatureFactors());
 		Expression summedCoefficient;
 		if (m1Coefficient.isNumericConstant() && m2Coefficient.isNumericConstant()) {
 			// We can add them

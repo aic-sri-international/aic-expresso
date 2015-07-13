@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -115,7 +116,7 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	}
 	
 	@Override
-	public Monomial getCoefficient(Set<Expression> factors) {
+	public Monomial getCoefficient(List<Expression> factors) {
 		Monomial result;
 		
 		if (isZero()) {
@@ -125,35 +126,33 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 			result = this;
 		}
 		else {
+			// NOTE: This set will preserve the required ordering			
+			Set<Expression> coefficientFactors = new LinkedHashSet<>(getFactors());
+			coefficientFactors.removeAll(factors);
+			
 			// If the factors provided don't overlap with the factors in this monomial
 			// then you just want to return this monomial.
-			boolean factorsOverlap = false;
-			Rational resultNumericConstantFactor = getNumericConstantFactor();
-			if (factors.contains(this.numericConstantFactorExpression)) {
-				// reduces to 1.
-				resultNumericConstantFactor = Rational.ONE;
-				factorsOverlap              = true;
-			}
-			List<Expression> resultOrderedNonNumericConstantFactors = new ArrayList<>(this.orderedNonNumericConstantFactors.size());
-			List<Rational>   resultOrderedNonNumericConstantPowers  = new ArrayList<>(this.orderedNonNumericConstantPowers.size());
-			int numFactors = this.orderedNonNumericConstantFactors.size();
-			for (int i = 0; i < numFactors; i++) {
-				Expression factor = this.orderedNonNumericConstantFactors.get(i);
-				if (factors.contains(factor)) {
-					factorsOverlap = true;
-				} else {
-					Rational power = this.orderedNonNumericConstantPowers.get(i);
-					
-					resultOrderedNonNumericConstantFactors.add(factor);
-					resultOrderedNonNumericConstantPowers.add(power);
-				}
-			}
-			
-			if (factorsOverlap) {
-				result = make(resultNumericConstantFactor, resultOrderedNonNumericConstantFactors, resultOrderedNonNumericConstantPowers);
+			if (coefficientFactors.size() == getFactors().size()) {
+				result = this;
 			}
 			else {
-				result = this;
+				// Check if the numeric constant is to be considered part of the coefficient or not
+				// (i.e. could be included in set of given factors to exclude)
+				Rational resultNumericConstantFactor = Rational.ONE;
+				if (coefficientFactors.contains(this.numericConstantFactorExpression)) {
+					resultNumericConstantFactor = getNumericConstantFactor();
+				}
+				
+				List<Expression> resultOrderedNonNumericConstantFactors = new ArrayList<>(this.orderedNonNumericConstantFactors.size());
+				List<Rational>   resultOrderedNonNumericConstantPowers  = new ArrayList<>(this.orderedNonNumericConstantPowers.size());
+				for (Expression coefficientFactor : coefficientFactors) {
+					if (!Expressions.isNumber(coefficientFactor)) {
+						resultOrderedNonNumericConstantFactors.add(coefficientFactor);
+						resultOrderedNonNumericConstantPowers.add(getPowerOfFactor(coefficientFactor));
+					}
+				}
+			
+				result = make(resultNumericConstantFactor, resultOrderedNonNumericConstantFactors, resultOrderedNonNumericConstantPowers);
 			}
 		}
 		

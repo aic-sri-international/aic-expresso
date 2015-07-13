@@ -74,7 +74,7 @@ public interface Monomial extends Expression {
 	 *         is 1).
 	 */
 	Rational getNumericConstantFactor();
-	
+
 	/**
 	 * 
 	 * @return true if this monomial is equivalent to a numeric constant;
@@ -83,7 +83,7 @@ public interface Monomial extends Expression {
 		boolean result = getOrderedNonNumericConstantFactors().size() == 0;
 		return result;
 	}
-	
+
 	/**
 	 * 
 	 * @return true if this monomial is equivalent to the numeric constant zero.
@@ -92,13 +92,14 @@ public interface Monomial extends Expression {
 		boolean result = getNumericConstantFactor().equals(Rational.ZERO);
 		return result;
 	}
-	
+
 	/**
 	 * 
 	 * @return true if this monomial is equivalent to the numeric constant one.
 	 */
 	default boolean isOne() {
-		boolean result = getNumericConstantFactor().equals(Rational.ONE) && getOrderedNonNumericConstantFactors().size() == 0;
+		boolean result = getNumericConstantFactor().equals(Rational.ONE)
+				&& getOrderedNonNumericConstantFactors().size() == 0;
 		return result;
 	}
 
@@ -146,9 +147,12 @@ public interface Monomial extends Expression {
 	 * </pre>
 	 * 
 	 * @param factors
-	 * @return
+	 *            what are to be considered the factors of the monomial (i.e.
+	 *            not part of the coefficient).
+	 * @return the product of the remaining factors in this monomial not in the
+	 *         given list of factors.
 	 */
-	Monomial getCoefficient(Set<Expression> factors);
+	Monomial getCoefficient(List<Expression> factors);
 
 	/**
 	 * Get the power of the given factor if it is a factor of the monomial

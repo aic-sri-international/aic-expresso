@@ -258,29 +258,29 @@ public class DefaultMonomialTest {
 	@Test
 	public void testGetCoefficient() {
 		Monomial m = makeMonomial("0");
-		Assert.assertEquals(makeMonomial("0"), m.getCoefficient(new HashSet<>(Collections.emptyList())));
-		Assert.assertEquals(makeMonomial("0"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(x)").getArguments())));
+		Assert.assertEquals(makeMonomial("0"), m.getCoefficient(Collections.emptyList()));
+		Assert.assertEquals(makeMonomial("0"), m.getCoefficient(Expressions.parse("tuple(x)").getArguments()));
 	
 		m = makeMonomial("1");
-		Assert.assertEquals(makeMonomial("1"), m.getCoefficient(new HashSet<>(Collections.emptyList())));
-		Assert.assertEquals(makeMonomial("1"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(x)").getArguments())));
+		Assert.assertEquals(makeMonomial("1"), m.getCoefficient(Collections.emptyList()));
+		Assert.assertEquals(makeMonomial("1"), m.getCoefficient(Expressions.parse("tuple(x)").getArguments()));
 
 		m = makeMonomial("x");
-		Assert.assertEquals(makeMonomial("x"), m.getCoefficient(new HashSet<>(Collections.emptyList())));
-		Assert.assertEquals(makeMonomial("1"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(x)").getArguments())));	
+		Assert.assertEquals(makeMonomial("x"), m.getCoefficient(Collections.emptyList()));
+		Assert.assertEquals(makeMonomial("1"), m.getCoefficient(Expressions.parse("tuple(x)").getArguments()));	
 		
 		m = makeMonomial("3*x^2");
-		Assert.assertEquals(makeMonomial("3*x^2"), m.getCoefficient(new HashSet<>(Collections.emptyList())));
-		Assert.assertEquals(makeMonomial("3*x^2"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(1)").getArguments())));
-		Assert.assertEquals(makeMonomial("3*x^2"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(z)").getArguments())));
-		Assert.assertEquals(makeMonomial("x^2"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(3)").getArguments())));
-		Assert.assertEquals(makeMonomial("3"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(x)").getArguments())));
-		Assert.assertEquals(makeMonomial("1"), m.getCoefficient(new HashSet<>(Expressions.parse("(3, x)").getArguments())));
+		Assert.assertEquals(makeMonomial("3*x^2"), m.getCoefficient(Collections.emptyList()));
+		Assert.assertEquals(makeMonomial("3*x^2"), m.getCoefficient(Expressions.parse("tuple(1)").getArguments()));
+		Assert.assertEquals(makeMonomial("3*x^2"), m.getCoefficient(Expressions.parse("tuple(z)").getArguments()));
+		Assert.assertEquals(makeMonomial("x^2"), m.getCoefficient(Expressions.parse("tuple(3)").getArguments()));
+		Assert.assertEquals(makeMonomial("3"), m.getCoefficient(Expressions.parse("tuple(x)").getArguments()));
+		Assert.assertEquals(makeMonomial("1"), m.getCoefficient(Expressions.parse("(3, x)").getArguments()));
 
 		m = makeMonomial("3*x^2*y^4");
-		Assert.assertEquals(makeMonomial("3*x^2*y^4"), m.getCoefficient(new HashSet<>(Collections.emptyList())));
-		Assert.assertEquals(makeMonomial("3*x^2*y^4"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(1)").getArguments())));
-		Assert.assertEquals(makeMonomial("3*y^4"), m.getCoefficient(new HashSet<>(Expressions.parse("tuple(x)").getArguments())));	
+		Assert.assertEquals(makeMonomial("3*x^2*y^4"), m.getCoefficient(Collections.emptyList()));
+		Assert.assertEquals(makeMonomial("3*x^2*y^4"), m.getCoefficient(Expressions.parse("tuple(1)").getArguments()));
+		Assert.assertEquals(makeMonomial("3*y^4"), m.getCoefficient(Expressions.parse("tuple(x)").getArguments()));	
 	}
 	
 	@Test
