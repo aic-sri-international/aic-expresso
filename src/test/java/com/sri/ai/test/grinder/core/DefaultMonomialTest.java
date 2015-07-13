@@ -499,22 +499,22 @@ public class DefaultMonomialTest {
 	@Test
 	public void testDegree() {
 		Monomial m = makeMonomial("2");
-		Assert.assertEquals(new Rational(0), m.degree());
+		Assert.assertEquals(0, m.degree());
 		
 		m = makeMonomial("x");
-		Assert.assertEquals(new Rational(1), m.degree());
+		Assert.assertEquals(1, m.degree());
 		
 		m = makeMonomial("2*x");
-		Assert.assertEquals(new Rational(1), m.degree());
+		Assert.assertEquals(1, m.degree());
 		
 		m = makeMonomial("2*x^3");
-		Assert.assertEquals(new Rational(3), m.degree());
+		Assert.assertEquals(3, m.degree());
 		
 		m = makeMonomial("2*x^3*y");
-		Assert.assertEquals(new Rational(4), m.degree());
+		Assert.assertEquals(4, m.degree());
 		
 		m = makeMonomial("2*x^3*y*z^5");
-		Assert.assertEquals(new Rational(9), m.degree());
+		Assert.assertEquals(9, m.degree());
 	}
 	
 	@Test

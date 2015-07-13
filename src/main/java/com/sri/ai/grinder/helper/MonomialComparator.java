@@ -86,7 +86,7 @@ public class MonomialComparator implements Comparator<Monomial> {
 	public int compare(Monomial m1, Monomial m2) {
 		int result = 0;
 		
-		result = m2.degree().subtract(m1.degree()).intValue();
+		result = m2.degree() - m1.degree();
 
 		if (result != 0) {
 			// Ensure we normalize answer

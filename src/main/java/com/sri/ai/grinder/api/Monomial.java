@@ -263,11 +263,7 @@ public interface Monomial extends Expression {
 	 * 
 	 * @return the degree of the monomial.
 	 */
-	default Rational degree() {
-		Rational result = getPowersOfOrderedNonNumericConstantFactors()
-				.stream().reduce(Rational.ZERO, (r1, r2) -> r1.add(r2));
-		return result;
-	}
+	int degree();
 
 	/**
 	 * Multiply this Monomial by another.

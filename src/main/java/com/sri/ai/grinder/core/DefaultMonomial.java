@@ -80,7 +80,8 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	//
 	private static final ExpressionComparator _factorComparator   = new ExpressionComparator();
 	private static final MonomialComparator   _monomialComparator = new MonomialComparator();
-	//	
+	//
+	private int                       degree                           = 0;
 	private Expression                numericConstantFactorExpression  = null; 
 	private List<Expression>          orderedNonNumericConstantFactors = null;
 	private List<Rational>            orderedNonNumericConstantPowers  = null;
@@ -163,6 +164,11 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	public Rational getPowerOfFactor(Expression factor) {
 		Rational result = factorToPower.getOrDefault(factor, Rational.ZERO);
 		return result;
+	}
+	
+	@Override
+	public int degree() {
+		return degree;
 	}
 
 	@Override
@@ -414,6 +420,8 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 		}
 		
 		this.factorToPower = Collections.unmodifiableMap(this.factorToPower);
+		
+		this.degree = this.orderedNonNumericConstantPowers.stream().reduce(Rational.ZERO, (r1, r2) -> r1.add(r2)).intValue();
 	}
 	
 	private static Monomial make(List<Expression> numericConstantsAndTerms) {
