@@ -219,7 +219,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 
 	@Override
 	public Polynomial add(Polynomial summand) throws IllegalArgumentException {
-		assertSameSignatures(summand);
+		assertSameSignatureFactors(summand);
 		
 		Polynomial result;
 		
@@ -270,7 +270,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	@Override
 	public Polynomial minus(Polynomial subtrahend)
 			throws IllegalArgumentException {
-		assertSameSignatures(subtrahend);
+		assertSameSignatureFactors(subtrahend);
 		
 		Polynomial result;
 		
@@ -291,7 +291,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	@Override
 	public Polynomial times(Polynomial multiplier)
 			throws IllegalArgumentException {
-		assertSameSignatures(multiplier);
+		assertSameSignatureFactors(multiplier);
 		
 		Polynomial result;
 		
@@ -314,19 +314,44 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 				result = makeFromMonomial(this.asMonomial().times(multiplier.asMonomial()), getSignatureFactors());
 			}
 			else {
-				result = null;
+				// OPTIMIZATION NOTE: Instead of incrementally adding to a result polynomial for each of the
+				// products from the cross product of this polynomials and the multipliers terms. We instead
+				// collect up the cross product computations first, then sort them based on monomial 'comes before'
+				// and then add like monomials together. Only then is an actual Polynomial result constructed.
+				// This reduces the number of additions required by the '# term in the result' and also removes 
+				// the need for the creation of 'cross product # of terms' of intermediate polynomial objects 
+				// in order to come up with a final result.
+				List<Monomial> products = new ArrayList<>(getOrderedSummands().size()+multiplier.getOrderedSummands().size());
 				for (Monomial multiplicandMonomial : getOrderedSummands()) {
 					for (Monomial multiplierMonomial : multiplier.getOrderedSummands()) {
-						Monomial   monomialProduct = multiplicandMonomial.times(multiplierMonomial);
-						Polynomial product         = new DefaultPolynomial(Collections.singletonList(monomialProduct), getSignatureFactors());
-						if (result == null) {
-							result = product;
+						Monomial monomialProduct = multiplicandMonomial.times(multiplierMonomial);
+						products.add(monomialProduct);						
+					}
+				}
+				// Ensure we sort so that it is easy to add up like terms together for the final result
+				Collections.sort(products, monomialComparator);
+				List<Monomial> summedLikeProducts = new ArrayList<>(products.size());
+				for (Monomial product : products) {
+					int summedIdx = summedLikeProducts.size()-1;
+					if (summedIdx < 0) {
+						summedLikeProducts.add(product);
+					}
+					else {
+						Monomial sumOfLikeTerms = summedLikeProducts.get(summedIdx);
+						// are like terms, add them and track their sum
+						if (sumOfLikeTerms.areLikeTerms(product, getSignatureFactors())) {
+							sumOfLikeTerms = addMonomialsWithSameSignature(sumOfLikeTerms, product);
+							summedLikeProducts.set(summedIdx, sumOfLikeTerms);
 						}
 						else {
-							result = result.add(product);
+							summedLikeProducts.add(product);
 						}
 					}
 				}
+				
+				summedLikeProducts.removeIf(term -> term.isZero());
+				
+				result = new DefaultPolynomial(summedLikeProducts, getSignatureFactors());
 			}
 		}
 		
@@ -336,7 +361,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	@Override
 	public Pair<Polynomial, Polynomial> divide(Polynomial divisor)
 			throws IllegalArgumentException {
-		assertSameSignatures(divisor);
+		assertSameSignatureFactors(divisor);
 // TODO - implement last.		
 		throw new UnsupportedOperationException("Division of of polynomials is currently not supported.");
 	}
@@ -450,7 +475,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		this.signatureTermMap          = Collections.unmodifiableMap(this.signatureTermMap);
 	}
 	
-	private void assertSameSignatures(Polynomial other) {
+	private void assertSameSignatureFactors(Polynomial other) {
 		if (!getSignatureFactors().equals(other.getSignatureFactors())) {
 			throw new IllegalArgumentException("Signature factors are not equal between polynomials");
 		}
