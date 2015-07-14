@@ -242,6 +242,9 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 		if (exponent == 0) {
 			result = ONE;
 		}
+		else if (exponent == 1) {
+			result = this;
+		}
 		else {
 			Rational       resultNumericConstantFactor = getNumericConstantFactor().pow(exponent);
 			List<Rational> resultPowers                = new ArrayList<>(orderedNonNumericConstantPowers.size());

@@ -168,8 +168,20 @@ public class DefaultPolynomialTest {
 	
 		//
 		// Exponentiation
-// TODO		
-	
+		Assert.assertEquals(Expressions.parse("1"), makePolynomial("0^0", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("0"), makePolynomial("0^1", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("0"), makePolynomial("0^3", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("1"), makePolynomial("1^0", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("1"), makePolynomial("1^1", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("1"), makePolynomial("1^3", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("1"), makePolynomial("x^0", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("x"), makePolynomial("x^1", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("x^3"), makePolynomial("x^3", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("1"), makePolynomial("(x + 2)^0", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("x + 2"), makePolynomial("(x + 2)^1", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("x^2 + 4*x + 4"), makePolynomial("(x + 2)^2", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("x^3 + 6*x^2 + 12*x + 8"), makePolynomial("(x + 2)^3", "tuple(x)"));
+		
 		//
 		// Division
 // TODO		
@@ -389,12 +401,42 @@ public class DefaultPolynomialTest {
 	
 	@Test
 	public void testDivide() {
-		// TODO
+// TODO
 	}
 	
 	@Test
 	public void testExponentiate() {
-		// TODO
+		Polynomial p = makePolynomial("0", "tuple(x)");
+		Assert.assertEquals(makePolynomial("1", "tuple(x)"), p.exponentiate(0));
+		Assert.assertEquals(makePolynomial("0", "tuple(x)"), p.exponentiate(1));
+		Assert.assertEquals(makePolynomial("0", "tuple(x)"), p.exponentiate(3));
+		
+		p = makePolynomial("1", "tuple(x)");
+		Assert.assertEquals(makePolynomial("1", "tuple(x)"), p.exponentiate(0));
+		Assert.assertEquals(makePolynomial("1", "tuple(x)"), p.exponentiate(1));
+		Assert.assertEquals(makePolynomial("1", "tuple(x)"), p.exponentiate(3));
+		
+		p = makePolynomial("x", "tuple(x)");
+		Assert.assertEquals(makePolynomial("1", "tuple(x)"), p.exponentiate(0));
+		Assert.assertEquals(makePolynomial("x", "tuple(x)"), p.exponentiate(1));
+		Assert.assertEquals(makePolynomial("x^3", "tuple(x)"), p.exponentiate(3));
+		
+		p = makePolynomial("x + 2", "tuple(x)");
+		Assert.assertEquals(makePolynomial("1", "tuple(x)"), p.exponentiate(0));
+		Assert.assertEquals(makePolynomial("x + 2", "tuple(x)"), p.exponentiate(1));
+		Assert.assertEquals(makePolynomial("x^2 + 4*x + 4", "tuple(x)"), p.exponentiate(2));
+		Assert.assertEquals(makePolynomial("x^3 + 6*x^2 + 12*x + 8", "tuple(x)"), p.exponentiate(3));
+		
+		p = makePolynomial("x + y + 2", "tuple(x, y)");
+		Assert.assertEquals(makePolynomial("1", "tuple(x, y)"), p.exponentiate(0));
+		Assert.assertEquals(makePolynomial("x + y + 2", "tuple(x, y)"), p.exponentiate(1));
+		Assert.assertEquals(makePolynomial("x^2 + 2*x*y + 4*x + y^2 + 4*y + 4", "tuple(x, y)"), p.exponentiate(2));
+		Assert.assertEquals(makePolynomial("x^3 + 3*x^2*y + 6*x^2 + 3*x*y^2 + 12*x*y + 12*x + y^3 + 6*y^2 + 12*y + 8", "tuple(x, y)"), p.exponentiate(3));
+		
+		p = makePolynomial("x^2*y + y + z^3 + 2", "tuple(x, y, z)");
+		Assert.assertEquals(makePolynomial("1", "tuple(x, y, z)"), p.exponentiate(0));
+		Assert.assertEquals(makePolynomial("x^2*y + y + z^3 + 2", "tuple(x, y, z)"), p.exponentiate(1));
+		Assert.assertEquals(makePolynomial("x^4*y^2 + 2*x^2*y^2 + 2*x^2*y*z^3 + 4*x^2*y + y^2 + 2*y*z^3 + 4*y + z^6 + 4*z^3 + 4", "tuple(x, y, z)"), p.exponentiate(2));
 	}
 	
 	@Test

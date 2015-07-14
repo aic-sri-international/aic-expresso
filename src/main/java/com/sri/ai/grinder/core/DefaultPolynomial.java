@@ -367,8 +367,18 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			result = makeFromMonomial(asMonomial().exponentiate(exponent), getSignatureFactors());
 		}
 		else {
-// TODO - implement			
-			result = null; 
+			if (exponent == 0) {
+				result = makeFromMonomial(DefaultMonomial.ONE, getSignatureFactors());
+			}
+			else if (exponent == 1 || isZero() || isOne()) {
+				result = this;
+			}
+			else {
+				result = this;
+				for (int i = 2; i <= exponent; i++) {
+					result = result.times(this);
+				}
+			}
 		}
 		
 		return result;
