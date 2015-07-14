@@ -103,7 +103,16 @@ public interface Polynomial extends Expression {
 	 * @throws IllegalStateException
 	 *             if this Polynomial is not equivalent to a Monomial.
 	 */
-	Monomial asMonomial() throws IllegalStateException;
+	default Monomial asMonomial() throws IllegalStateException {
+		if (!isMonomial()) {
+			throw new IllegalStateException("This polynomial, " + this
+					+ ", is not a monomial");
+		}
+	
+		Monomial result = getOrderedSummands().get(0);
+	
+		return result;
+	}
 	
 	/**
 	 * 

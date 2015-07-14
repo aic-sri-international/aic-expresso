@@ -196,18 +196,6 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	}
 
 	@Override
-	public Monomial asMonomial() throws IllegalStateException {
-		if (!isMonomial()) {
-			throw new IllegalStateException("This polynomial, " + this
-					+ ", is not a monomial");
-		}
-
-		Monomial result = orderedSummands.get(0);
-
-		return result;
-	}
-
-	@Override
 	public List<Monomial> getOrderedSummands() {
 		return orderedSummands;
 	}
@@ -421,6 +409,51 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		Expression result = super.set(i, newIthArgument);
 		// Ensure we make a Polynomial out of the modified expression
 		result = make(result, signatureFactors);
+		return result;
+	}
+	
+	@Override
+	public int compareTo(Object anotherObject) {
+		int result;
+		if (anotherObject instanceof Monomial) {
+			// NOTE: Don't know the monomials signature of factors, so work with assumption are the same
+			// if being compared to.
+			result = monomialComparator.compare(getOrderedSummands().get(0), (Monomial) anotherObject);
+		}
+		else if (anotherObject instanceof Polynomial) {
+			result = 0; // Set to something, we are guaranteed to go through the following for loop 
+			Polynomial otherPolynomial = (Polynomial) anotherObject;
+			if (this.getSignatureFactors().equals(otherPolynomial.getSignatureFactors())) {
+				for (int i = 0, j = 0; i < this.getOrderedSummands().size() && j < otherPolynomial.getOrderedSummands().size(); i++, j++) {
+					result = monomialComparator.compare(getOrderedSummands().get(i), otherPolynomial.getOrderedSummands().get(j));
+					if (result != 0) {
+						break;
+					}
+				}
+				if (result == 0) {
+					if (this.getOrderedSummands().size() > otherPolynomial.getOrderedSummands().size()) {
+						result = -1;
+					}
+					else if (this.getOrderedSummands().size() < otherPolynomial.getOrderedSummands().size()) {
+						result = 1;
+					}
+				}
+			}
+			else {
+				// Can only compare degrees of leading term as they have different signature factors
+				result = otherPolynomial.getOrderedSummands().get(0).degree() - getOrderedSummands().get(0).degree();
+				// Ensure we normalize.
+				if (result < 0) {
+					result = -1;
+				}
+				else if (result > 0) {
+					result = 1;
+				}
+			}
+		}
+		else {
+			result = super.compareTo(anotherObject);
+		}
 		return result;
 	}
 	

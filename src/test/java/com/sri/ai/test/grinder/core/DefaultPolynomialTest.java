@@ -444,29 +444,76 @@ public class DefaultPolynomialTest {
 	
 	@Test
 	public void testGet() {
-		// TODO
+		Polynomial p = makePolynomial("x^2*y^3", "(x, y)");
+		Assert.assertEquals(Expressions.makeSymbol("*"), p.get(-1));
+		Assert.assertEquals(Expressions.parse("x^2"), p.get(0));
+		Assert.assertEquals(Expressions.parse("y^3"), p.get(1));
+		
+		p = makePolynomial("x^2*y^3 + 10", "(x, y)");
+		Assert.assertEquals(Expressions.makeSymbol("+"), p.get(-1));
+		Assert.assertEquals(Expressions.parse("x^2*y^3"), p.get(0));
+		Assert.assertEquals(Expressions.parse("10"), p.get(1));
 	}
 	
 	@Test
 	public void testSet() {
-		// TODO
+		Polynomial p = makePolynomial("x^2*y^3", "(x, y)");
+		Assert.assertEquals(makePolynomial("2*y^3", "(x, y)"), p.set(0, Expressions.parse("2")));
+		Assert.assertEquals(makePolynomial("x^5", "(x, y)"), p.set(1, Expressions.parse("x^3")));
+		Assert.assertEquals(makePolynomial("x^2*z^4", "(x, y)"), p.set(1, Expressions.parse("z^4")));
+		
+		p = makePolynomial("x^2*y^3 + 10", "(x, y)");
+		Assert.assertEquals(makePolynomial("12", "(x, y)"), p.set(0, Expressions.parse("2")));
+		Assert.assertEquals(makePolynomial("x^2*y^3", "(x, y)"), p.set(1, Expressions.parse("0")));
+		Assert.assertEquals(makePolynomial("15", "(x, y)"), p.set(0, Expressions.parse("2 + 3")));
 	}
 	
 	@Test
-	public void testCompareTo() {
-		// TODO
+	public void testCompareTo() {		
+		Assert.assertEquals(1, makePolynomial("10", "(x, y)").compareTo(makePolynomial("5*x", "(x, y)")));
+		Assert.assertEquals(1, makePolynomial("10", "(x, y)").compareTo(makePolynomial("x^2", "(x, y)")));
+		Assert.assertEquals(1, makePolynomial("5*x", "(x, y)").compareTo(makePolynomial("x^2", "(x, y)")));
+		
+		Assert.assertEquals(0, makePolynomial("0", "(x, y)").compareTo(makePolynomial("7", "(x, y)")));
+		Assert.assertEquals(0, makePolynomial("2*x^2*y^3", "(x, y)").compareTo(makePolynomial("4*x^2*y^3", "(x, y)")));
+		
+		Assert.assertEquals(1, makePolynomial("x^2*y^3", "(x, y, z)").compareTo(makePolynomial("z^6", "(x, y, z)")));		
+		Assert.assertEquals(-1, makePolynomial("x^2*y^3", "(x, y, z)").compareTo(makePolynomial("z^5", "(x, y, z)")));
+	
+		// Mismatched lengths
+		Assert.assertEquals(-1, makePolynomial("2*x^2*y^3 + 10", "(x, y)").compareTo(makePolynomial("2*x^2*y^3", "(x, y)")));
+		Assert.assertEquals(1, makePolynomial("2*x^2*y^3", "(x, y)").compareTo(makePolynomial("2*x^2*y^3 + 10", "(x, y)")));
+	
+		// Mismatched signatures so can only compare based on degree
+		Assert.assertEquals(-1, makePolynomial("x^2*y^3", "(x, y)").compareTo(makePolynomial("w^1", "tuple(w)")));
+		Assert.assertEquals(0, makePolynomial("x^2*y^3", "(x, y)").compareTo(makePolynomial("w^5", "tuple(w)")));
+		Assert.assertEquals(1, makePolynomial("x^2*y^3", "(x, y)").compareTo(makePolynomial("w^6", "tuple(w)")));
 	}
 	
 	//
 	// Additional Tests
 	@Test
 	public void testEquals() {
-		// TODO
+		Assert.assertTrue(makePolynomial("0", "(x, y)").equals(makePolynomial("0", "(x, y)")));
+		Assert.assertTrue(makePolynomial("0", "(x, y)").equals(Expressions.parse("0")));
+		
+		Assert.assertTrue(makePolynomial("x^2*y^3", "(x, y)").equals(makePolynomial("y^3*x^2", "(x, y)")));
+		Assert.assertFalse(makePolynomial("x^2*y^3", "(x, y)").equals(Expressions.parse("y^3*x^2")));
+		
+		Assert.assertTrue(makePolynomial("x^2*y^3", "(x, y)").equals(Expressions.parse("x^2*y^3")));
+		Assert.assertFalse(makePolynomial("x^2*y^3", "(x, y)").equals(Expressions.parse("1*x^2*y^3")));
+		
+		Assert.assertTrue(makePolynomial("x^2*y^3 + 10", "(x, y)").equals(Expressions.parse("x^2*y^3 + 10")));
+		Assert.assertFalse(makePolynomial("x^2*y^3 + 10", "(x, y)").equals(Expressions.parse("1*x^2*y^3 + 10")));
 	}
 	
 	@Test
 	public void testToString() {
-		// TODO
+		Assert.assertEquals("0", makePolynomial("0", "(x, y)").toString());
+		Assert.assertEquals("1", makePolynomial("1", "(x, y)").toString());
+		Assert.assertEquals("x", makePolynomial("x", "(x, y)").toString());
+		Assert.assertEquals("2 * x ^ 3", makePolynomial("2*x^3", "(x, y)").toString());
+		Assert.assertEquals("x * y", makePolynomial("y*x", "(x, y)").toString());
 	}
 	
 	//
