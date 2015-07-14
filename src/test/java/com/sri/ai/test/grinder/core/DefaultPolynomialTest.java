@@ -398,8 +398,11 @@ public class DefaultPolynomialTest {
 	}
 	
 	@Test
-	public void testProject() {
-		// TODO
+	public void testProject() {		
+		Polynomial p = makePolynomial("x^2 * y^4 * z + x^2 * y^3 + y + 10", "(x, y, z)");
+		Assert.assertEquals(Expressions.parse("x^2*(y^4*z + y^3) + (y + 10)"), p.project(new HashSet<>(Expressions.parse("tuple(x)").getArguments())));
+		Assert.assertEquals(Expressions.parse("y^4*z*(x^2) + y^3*(x^2) + y + 10"), p.project(new HashSet<>(Expressions.parse("tuple(y, z)").getArguments())));
+		Assert.assertEquals(Expressions.parse("y^4*(x^2*z) + y^3*(x^2) + y + 10"), p.project(new HashSet<>(Expressions.parse("tuple(y)").getArguments())));
 	}
 	
 	//

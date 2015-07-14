@@ -152,6 +152,16 @@ public abstract class AbstractExpressionWrapper extends AbstractExpression {
 		return getInnerExpression().toString();
 	}
 	
+	@Override
+	public boolean equals(Object anotherObject) {
+		return getInnerExpression().equals(anotherObject);
+	}
+	
+	@Override
+	public int hashCode() {
+		return getInnerExpression().hashCode();
+	}
+	
 	/**
 	 * Overridden in order to avoid using {@link Expression}'s implementation,
 	 * which would use the cached inner expression and not produce

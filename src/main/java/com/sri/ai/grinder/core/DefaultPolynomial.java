@@ -381,7 +381,19 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			throw new IllegalArgumentException("Argument is not a subset of this Polynomials signature of factors.");
 		}
 		
-		return null; // TODO - implement
+		// Get the subset of signatures factors in their current order.
+		List<Expression> subsetFactors = new ArrayList<>(subsetOfSignatureFactors.size());
+		getSignatureFactors().forEach(signatureFactor -> {
+			if (subsetOfSignatureFactors.contains(signatureFactor)) {
+				subsetFactors.add(signatureFactor);
+			}
+		});
+		
+		// NOTE: calling make again with the subet of factors will implement this logic by default
+		// i.e.. terms that become like terms will be summed appropriately
+		Polynomial result = make(this, subsetFactors);
+		
+		return result;
 	}
 
 	// END-Polynomial

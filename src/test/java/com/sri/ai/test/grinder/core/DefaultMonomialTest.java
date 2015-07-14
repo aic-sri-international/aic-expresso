@@ -739,7 +739,18 @@ public class DefaultMonomialTest {
 		
 		Assert.assertTrue(makeMonomial("x^2*y^3").equals(Expressions.parse("x^2*y^3")));
 		Assert.assertFalse(makeMonomial("x^2*y^3").equals(Expressions.parse("1*x^2*y^3")));
-	}	
+		
+		Assert.assertTrue(Expressions.parse("0").equals(makeMonomial("0")));
+		Assert.assertTrue(Expressions.parse("y").equals(makeMonomial("y")));
+		Assert.assertTrue(Expressions.parse("x^2*y^3").equals(makeMonomial("x^2*y^3")));
+	}
+	
+	@Test
+	public void testHashCode() {
+		Assert.assertEquals(Expressions.parse("0").hashCode(), makeMonomial("0").hashCode());
+		Assert.assertEquals(Expressions.parse("y").hashCode(), makeMonomial("y").hashCode());
+		Assert.assertEquals(Expressions.parse("x^2*y^3").hashCode(), makeMonomial("x^2*y^3").hashCode());
+	}
 	
 	@Test
 	public void testToString() {

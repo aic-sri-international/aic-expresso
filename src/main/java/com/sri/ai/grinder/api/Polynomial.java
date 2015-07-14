@@ -295,7 +295,7 @@ public interface Polynomial extends Expression {
 	 * 
 	 * =
 	 * 
-	 * (y^4*z + y^3)*x^2 + (y + 10),  with respect to S
+	 * x^2*(y^4*z + y^3) + y + 10,  with respect to S
 	 * 
 	 * that is, the other factors (y and z) are treated like constants.
 	 * We simply aggregate things multiplying variables in S and group them per signature in S.
@@ -312,7 +312,7 @@ public interface Polynomial extends Expression {
 	 * 
 	 * =
 	 * 
-	 * (x^2)y^4*z^1 + (x^2)^y^3 + y + 10 
+	 * y^4*z^1*(x^2) + y^3*(x^2) + y + 10 
 	 * 
 	 * with respect to S.
 	 * 
@@ -328,7 +328,7 @@ public interface Polynomial extends Expression {
 	 * 
 	 * = 
 	 * 
-	 * (x^2*z)*y^4 + (x^2)^y^3 + y + 10
+	 * y^4*(x^2*z) + y^3*(x^2) + y + 10
 	 * 
 	 * 
 	 * </code>
