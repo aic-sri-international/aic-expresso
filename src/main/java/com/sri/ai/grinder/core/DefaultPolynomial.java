@@ -61,6 +61,7 @@ import com.sri.ai.grinder.api.Polynomial;
 import com.sri.ai.grinder.helper.MonomialComparator;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.math.Multinomial;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -374,10 +375,30 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 				result = this;
 			}
 			else {
-				result = this;
-				for (int i = 2; i <= exponent; i++) {
-					result = result.times(this);
-				}
+				Map<List<Rational>, Monomial> expandedLikeTerms = new HashMap<>();
+				Multinomial multinomial                         = new Multinomial(exponent, numberOfTerms());
+				do {					
+					Monomial coefficient = DefaultMonomial.make(Expressions.makeSymbol(multinomial.choose()));
+					Monomial product     = getOrderedSummands().get(0).exponentiate(multinomial.getClassSize(0));
+					for (int i = 1; i < numberOfTerms(); i++) {
+						product = product.times(getOrderedSummands().get(i).exponentiate(multinomial.getClassSize(i)));
+					}
+					product = coefficient.times(product);
+
+					List<Rational> productSignature = product.getSignature(getSignatureFactors());
+					Monomial       existingLikeTerm = expandedLikeTerms.get(productSignature);
+					if (existingLikeTerm == null) {
+						expandedLikeTerms.put(productSignature, product);
+					}
+					else {
+						Monomial sumOfLikeTerms = addMonomialsWithSameSignature(existingLikeTerm, product);
+						expandedLikeTerms.put(productSignature, sumOfLikeTerms);
+					}
+						
+				} while (multinomial.iterate());
+				
+				List<Monomial> expandedTerms = new ArrayList<>(expandedLikeTerms.values());
+				result = new DefaultPolynomial(expandedTerms, getSignatureFactors());
 			}
 		}
 		
