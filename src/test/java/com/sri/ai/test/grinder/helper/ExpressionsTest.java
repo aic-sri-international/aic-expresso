@@ -53,12 +53,25 @@ import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.Basic;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 import com.sri.ai.util.Util;
+import com.sri.ai.util.math.Rational;
 
 public class ExpressionsTest extends AbstractGrinderTest {
 	
 	@Override
 	public RewritingProcess makeRewritingProcess(Expression topExpression) {
 		return new DefaultRewritingProcess(topExpression, new Basic());
+	}
+	
+	@Test
+	public void testEqualityAndHashCodes() {
+		Assert.assertTrue(Expressions.parse("x").equals(Expressions.parse("x")));
+		Assert.assertEquals(Expressions.parse("x").hashCode(), Expressions.parse("x").hashCode());
+		Assert.assertTrue(Expressions.parse("x").equals("x"));
+		Assert.assertEquals(Expressions.parse("x").hashCode(), "x".hashCode());
+		Assert.assertTrue(Expressions.parse("1").equals(Expressions.parse("1")));
+		Assert.assertEquals(Expressions.parse("1").hashCode(), Expressions.parse("1").hashCode());
+		Assert.assertTrue(Expressions.parse("1").equals(new Rational(1)));
+		Assert.assertEquals(Expressions.parse("1").hashCode(), new Rational(1).hashCode());
 	}
 	
 	@Test

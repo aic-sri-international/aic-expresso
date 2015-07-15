@@ -51,7 +51,6 @@ import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractNonQuantifiedExpression;
 import com.sri.ai.util.AICUtilConfiguration;
@@ -98,45 +97,6 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 		if (this.equals(symbol)) {
 			result = newSymbol;
 		}
-		return result;
-	}
-
-	//
-	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
-
-	@Override
-	public int hashCode() {
-		if (hashCode == -1) {
-			hashCode = getValue().hashCode();
-		}
-		return hashCode;
-	}
-
-	/**
-	 * The semantics of comparison of expressions based on Symbols 
-	 * is the comparison of the underlying syntax trees.
-	 * If the other object is a syntax tree itself, it is considered its own underlying syntax tree.
-	 * If it is not an Expression or a SyntaxTree, a Symbol is built on it and used.
-	 */
-	@Override
-	public boolean equals(Object another) {
-		if (this == another) {
-			return true;
-		}
-	
-		SyntaxTree anotherSyntaxTree;
-		
-		if (another instanceof SyntaxTree) {
-			anotherSyntaxTree = (SyntaxTree) another;
-		}
-		else if (another instanceof Expression) {
-			anotherSyntaxTree = ((Expression) another).getSyntaxTree();
-		}
-		else {
-			anotherSyntaxTree = SyntaxTrees.makeSyntaxLeaf(another);
-		}
-		
-		boolean result = getSyntaxTree().equals(anotherSyntaxTree);
 		return result;
 	}
 

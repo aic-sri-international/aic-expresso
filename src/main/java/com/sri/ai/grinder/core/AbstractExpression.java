@@ -76,6 +76,7 @@ public abstract class AbstractExpression implements Expression {
 	
 	protected static Cache<Thread, Function<Expression, String>> threadToString = newThreadToStringCache();
 	protected String                             cachedToString                      = null;
+	protected int                                cachedHashCode                      = -1;
 	protected volatile Object                    cachedSyntacticFormType             = null;
 	protected Lock                               lazyInitCachedSyntacticFormTypeLock = new ReentrantLock();
 	protected volatile ImmutableList<Expression> cachedArguments                     = null;
@@ -385,37 +386,45 @@ public abstract class AbstractExpression implements Expression {
 		return result;
 	}
 	
-
-	private int hashCode = -1;
 	@Override
 	public int hashCode() {
-		if (hashCode == -1) {
+		if (cachedHashCode == -1) {
 			SyntaxTree syntaxTree = getSyntaxTree();
 			Object label = syntaxTree.getLabel();
 			int labelHashCode = label.hashCode();
 			List<SyntaxTree> immediateSubTrees = syntaxTree.getImmediateSubTrees();
-			int subTreesHashCode = immediateSubTrees.hashCode();
-			hashCode = labelHashCode + subTreesHashCode;
+			cachedHashCode = labelHashCode;
+			// NOTE: Critical, only include subtree hashCode if subtree actually
+			// exists. This allows symbols that are considered equal to objects
+			// (e.g. String or Rational) to have the same hash codes, which is
+			// assumed by some of the dependent code.
+			if (immediateSubTrees.size() > 0) {
+				cachedHashCode += immediateSubTrees.hashCode();
+			}
 		}
 		
-		return hashCode;
+		return cachedHashCode;
 	}
 
 	@Override
-	public boolean equals(Object anotherObject) {
-		
-		if (this == anotherObject) {
+	public boolean equals(Object another) {
+		if (this == another) {
 			return true;
 		}
+	
+		SyntaxTree anotherSyntaxTree;
 		
-		if (! (anotherObject instanceof Expression)) {
-			anotherObject = Expressions.makeSymbol(anotherObject);
+		if (another instanceof SyntaxTree) {
+			anotherSyntaxTree = (SyntaxTree) another;
 		}
-
-		SyntaxTree thisSyntaxTree = getSyntaxTree();
-		SyntaxTree anotherSyntaxTree = ((Expression)anotherObject).getSyntaxTree();
-		boolean result = thisSyntaxTree.equals(anotherSyntaxTree);
+		else if (another instanceof Expression) {
+			anotherSyntaxTree = ((Expression) another).getSyntaxTree();
+		}
+		else {
+			anotherSyntaxTree = SyntaxTrees.makeSyntaxLeaf(another);
+		}
 		
+		boolean result = getSyntaxTree().equals(anotherSyntaxTree);
 		return result;
 	}
 
