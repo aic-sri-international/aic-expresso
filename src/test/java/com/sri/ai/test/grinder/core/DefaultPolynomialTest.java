@@ -348,6 +348,13 @@ public class DefaultPolynomialTest {
 	}
 	
 	@Test
+	public void testDegree() {
+		Assert.assertEquals(0, makePolynomial("0", "(x, y)").degree());
+		Assert.assertEquals(6, makePolynomial("3*x^2*y^4", "(x, y)").degree());
+		Assert.assertEquals(8, makePolynomial("3*x^2*y^4 + x^8", "(x, y)").degree());
+	}
+	
+	@Test
 	public void testAdd() {
 		Assert.assertEquals(Expressions.parse("12"), makePolynomial("2", "tuple(y)").add(makePolynomial("10", "tuple(y)")));
 		Assert.assertEquals(Expressions.parse("y + 10"), makePolynomial("y", "tuple(y)").add(makePolynomial("10", "tuple(y)")));

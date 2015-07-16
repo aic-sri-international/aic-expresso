@@ -162,6 +162,19 @@ public interface Polynomial extends Expression {
 	 *         Polynomial.
 	 */
 	Set<Expression> getNonNumericConstantFactors();
+	
+	/**
+	 * The degree of a polynomial is the highest degree of its terms.
+	 * 
+	 * @return the degree of the polynomial.
+	 */
+	default int degree() {
+		// Default implementation makse assumption that the polynomial
+		// is represented in canonical form with terms with the highests
+		// degree listed first.
+		int result = getOrderedSummands().get(0).degree();
+		return result;
+	}
 
 	/**
 	 * Add this polynomial to another polynomial and return a new Polynomial
