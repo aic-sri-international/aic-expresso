@@ -254,4 +254,19 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	 * An error is thrown if the value of the symbol is not a number.
 	 */
 	Rational rationalValue();
+	
+	/**
+	 * Indicates whether two expressions are syntactically equal, allowing comparisons to Strings as well as a convenience
+	 * (this is equivalent to comparing to the {@link Symbol} obtained from the String).
+	 * Note that the comparison to String violates the specification of equals, since <code>s.equals(e)</code> for <code>s</code> and <code>e</code>
+	 * String and Expression respectively will always return false, even if <code>e.equals(s)</code> returns true.
+	 * However, this should not be a problem if Strings and Expressions are not mixed in containers or algorithms relying on equals,
+	 * which would not be possible even if the comparison to String convenience were omitted.
+	 * TODO: In the future we may replace this convenience by a method specific to comparing to Strings, which would be more explicit.
+	 * This will take some work as all invocations of equals on Strings would have to be replaced by this new method.
+	 * @param object the object to compare this expression to.
+	 * @return whether the two objects are considered equal.
+	 */
+	@Override
+	boolean equals(Object object);
 }
