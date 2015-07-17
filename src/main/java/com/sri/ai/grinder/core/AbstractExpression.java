@@ -389,18 +389,7 @@ public abstract class AbstractExpression implements Expression {
 	@Override
 	public int hashCode() {
 		if (cachedHashCode == -1) {
-			SyntaxTree syntaxTree = getSyntaxTree();
-			Object label = syntaxTree.getLabel();
-			int labelHashCode = label.hashCode();
-			List<SyntaxTree> immediateSubTrees = syntaxTree.getImmediateSubTrees();
-			cachedHashCode = labelHashCode;
-			// NOTE: Critical, only include subtree hashCode if subtree actually
-			// exists. This allows symbols that are considered equal to objects
-			// (e.g. String or Rational) to have the same hash codes, which is
-			// assumed by some of the dependent code.
-			if (immediateSubTrees.size() > 0) {
-				cachedHashCode += immediateSubTrees.hashCode();
-			}
+			cachedHashCode = getSyntaxTree().hashCode();
 		}
 		
 		return cachedHashCode;
