@@ -76,7 +76,6 @@ public abstract class AbstractExpression implements Expression {
 	
 	protected static Cache<Thread, Function<Expression, String>> threadToString = newThreadToStringCache();
 	protected String                             cachedToString                      = null;
-	protected int                                cachedHashCode                      = -1;
 	protected volatile Object                    cachedSyntacticFormType             = null;
 	protected Lock                               lazyInitCachedSyntacticFormTypeLock = new ReentrantLock();
 	protected volatile ImmutableList<Expression> cachedArguments                     = null;
@@ -388,11 +387,10 @@ public abstract class AbstractExpression implements Expression {
 	
 	@Override
 	public int hashCode() {
-		if (cachedHashCode == -1) {
-			cachedHashCode = getSyntaxTree().hashCode();
-		}
-		
-		return cachedHashCode;
+		// NOTE: the implementations of SyntaxTree cache their hash codes so no need to do again here.
+		int result = getSyntaxTree().hashCode();
+
+		return result;
 	}
 
 	@Override
