@@ -614,6 +614,9 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			// We can add them
 			summedCoefficient = Expressions.makeSymbol(m1Coefficient.getNumericConstantFactor().add(m2Coefficient.getNumericConstantFactor()));
 		}
+		else if (m1Coefficient.equals(m2Coefficient)) { // Compactly represent non-numeric coefficients that are equal 
+			summedCoefficient = new DefaultFunctionApplication(TIMES_FUNCTOR, Arrays.asList(Expressions.TWO, m1Coefficient));
+		}
 		else {
 			List<Expression> plusArgs = new ArrayList<>();
 			if (!m1Coefficient.isZero()) {
@@ -636,7 +639,10 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			if (Expressions.isNumber(summedCoefficient)) {
 				numericConstantFactor = summedCoefficient.rationalValue();
 			}
-			else {
+			else if (summedCoefficient.hasFunctor(TIMES_FUNCTOR)) { // i.e. coefficients are equal so write in compact form.
+				numericConstantFactor = summedCoefficient.get(0).rationalValue();
+				args.add(summedCoefficient.get(1));
+			} else {
 				args.add(summedCoefficient);
 			}
 			args.addAll(getSignatureFactors());

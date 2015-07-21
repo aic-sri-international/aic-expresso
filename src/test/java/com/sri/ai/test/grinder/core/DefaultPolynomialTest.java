@@ -379,6 +379,10 @@ public class DefaultPolynomialTest {
 				makePolynomial("(3*x^2 - 2*x + 5*x*y - 2)", "(x, y)")
 					.add(makePolynomial("-3*x^2 + 3*x + 4*y^2 + 8", "(x, y)"))
 		);
+		Assert.assertEquals(Expressions.parse("2*x + 2*(y+1)"), 
+				makePolynomial("x + y + 1", "tuple(x)")
+					.add(makePolynomial("x + y + 1", "tuple(x)"))
+		);
 	}
 	
 	@Test
@@ -404,6 +408,10 @@ public class DefaultPolynomialTest {
 				.times(makePolynomial("x^2", "tuple(x, y, z)")));
 		Assert.assertEquals(Expressions.parse("2*x^2*y + 3*x*y^2 + 4*x^2 + 21*x*y + 15*y^2 + 12*x + 28*y + 5"), makePolynomial("2*x + 3*y + 5", "tuple(x, y)")
 				.times(makePolynomial("2*x + 5*y + x*y + 1", "tuple(x, y)")));
+		Assert.assertEquals(Expressions.parse("x^2 + 2*x*(y + 1) + (y + 1)^2"), 
+				makePolynomial("x + y + 1", "tuple(x)")
+					.times(makePolynomial("x + y + 1", "tuple(x)"))
+		);
 	}
 	
 	@Test
@@ -447,6 +455,9 @@ public class DefaultPolynomialTest {
 	
 		p = makePolynomial("a + b + c", "(a, b, c)");
 		Assert.assertEquals(makePolynomial("a^3 + b^3 + c^3 + 3*a^2*b + 3*a^2*c + 3*b^2*a + 3*b^2*c + 3*c^2*a + 3*c^2*b + 6*a*b*c", "(a, b, c)"), p.exponentiate(3));
+	
+		p = makePolynomial("x + y + 1", "tuple(x)");
+		Assert.assertEquals(Expressions.parse("x^2 + 2*x*(y + 1) + (y + 1)^2"), p.exponentiate(2));
 	}
 	
 	@Test
