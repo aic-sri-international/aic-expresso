@@ -158,9 +158,9 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			Polynomial remainder = quotientAndRemainder.second;
 			Polynomial zero = makeFromMonomial(Expressions.ZERO,
 					signatureFactors);
-			if (remainder.equals(zero)) {
+			if (!remainder.equals(zero)) {
 				throw new UnsupportedOperationException(
-						"Constructing a polynomial form a division operation that results in a remainder is not supported: "
+						"Constructing a polynomial from a division operation that results in a remainder is not supported: "
 								+ expression
 								+ "\nquotient ="
 								+ quotient
@@ -351,8 +351,20 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	public Pair<Polynomial, Polynomial> divide(Polynomial divisor)
 			throws IllegalArgumentException {
 		assertSameSignatureFactors(divisor);
+		
+		Pair<Polynomial, Polynomial> result;
+		// Base case
+		if (isMonomial() && divisor.isMonomial()) {
+			Pair<Monomial, Monomial> monomialQuotientAndRemainder = asMonomial().divide(divisor.asMonomial());
+			result = new Pair<>(makeFromMonomial(monomialQuotientAndRemainder.first, getSignatureFactors()),
+					            makeFromMonomial(monomialQuotientAndRemainder.second, getSignatureFactors()));
+		}
+		else {
 // TODO - implement last.		
-		throw new UnsupportedOperationException("Division of of polynomials is currently not supported.");
+			throw new UnsupportedOperationException("Division of of polynomials is currently not supported.");
+		}
+		
+		return result;
 	}
 
 	@Override

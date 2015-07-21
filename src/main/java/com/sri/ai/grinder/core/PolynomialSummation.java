@@ -40,7 +40,9 @@ package com.sri.ai.grinder.core;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
@@ -50,11 +52,31 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Monomial;
 import com.sri.ai.grinder.api.Polynomial;
 import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
+import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.base.Triple;
+import com.sri.ai.util.math.BernoulliNumber;
+import com.sri.ai.util.math.Multinomial;
+import com.sri.ai.util.math.Rational;
 
 @Beta
 public class PolynomialSummation {
+	private static final Expression PLUS_FUNCTOR = Expressions
+			.makeSymbol(FunctorConstants.PLUS);
+	private static final Expression MINUS_FUNCTOR = Expressions
+			.makeSymbol(FunctorConstants.MINUS);
+	private static final Expression TIMES_FUNCTOR = Expressions
+			.makeSymbol(FunctorConstants.TIMES);
+	private static final Expression DIVISION_FUNCTOR = Expressions
+			.makeSymbol(FunctorConstants.DIVISION);
+	private static final Expression EXPONENTIATION_FUNCTOR = Expressions
+			.makeSymbol(FunctorConstants.EXPONENTIATION);
+	
 	public static void main(String[] args) {
-		sum(Expressions.parse("x"), Expressions.parse("y + 1"), Expressions.parse("z + 2"), DefaultPolynomial.make(Expressions.parse("2 + 3*x^2"), Arrays.asList(Expressions.parse("x"))));
+		sum(Expressions.parse("x"), Expressions.parse("0"), Expressions.parse("1"), DefaultPolynomial.make(Expressions.parse("x"), Arrays.asList(Expressions.parse("x"))));
+		sum(Expressions.parse("x"), Expressions.parse("0"), Expressions.parse("2"), DefaultPolynomial.make(Expressions.parse("x"), Arrays.asList(Expressions.parse("x"))));
+		sum(Expressions.parse("x"), Expressions.parse("0"), Expressions.parse("3"), DefaultPolynomial.make(Expressions.parse("x"), Arrays.asList(Expressions.parse("x"))));
+		sum(Expressions.parse("x"), Expressions.parse("y + 1"), Expressions.parse("z + 2"), DefaultPolynomial.make(Expressions.parse("2 + 3*x"), Arrays.asList(Expressions.parse("x"))));
 	}
 	
 	public static Polynomial sum(Expression indexOfSummation, Expression lowerBound, Expression upperBound, Polynomial summand) {
@@ -79,18 +101,95 @@ public class PolynomialSummation {
 System.out.println("tCoefficients="+tCoefficients);
 		
         // compute polynomials R_i(x) = (x + l)^i for each i
-		Expression indexOfSummationPlusLowerBound          = new DefaultFunctionApplication(Expressions.makeSymbol(FunctorConstants.PLUS), Arrays.asList(indexOfSummation, lowerBound));
+		Expression indexOfSummationPlusLowerBound          = new DefaultFunctionApplication(PLUS_FUNCTOR, Arrays.asList(indexOfSummation, lowerBound));
 		Polynomial indexOfSummationPlusLowerBoundPolynomial = DefaultPolynomial.make(indexOfSummationPlusLowerBound, factors);
 
 		List<Polynomial> rPolynomials = new ArrayList<>(n);		
 		rPolynomials.add(DefaultPolynomial.make(Expressions.ONE, factors));
-		rPolynomials.add(indexOfSummationPlusLowerBoundPolynomial);
+		rPolynomials.add(indexOfSummationPlusLowerBoundPolynomial);		
 		for (int i = 2; i <= n; i++) {
 			rPolynomials.add(rPolynomials.get(i-1).times(indexOfSummationPlusLowerBoundPolynomial));
 		}
-System.out.println("rPolynomials="+rPolynomials);
+System.out.println("rPolynomials="+rPolynomials);		
+		Map<Pair<Integer, Integer>, Pair<Expression, Expression>> rCoefficientIndexOfSummationPairs = new LinkedHashMap<>();
+		for (int i = 0; i <= n; i++) {
+			Polynomial rPolynomial = rPolynomials.get(i);
+			for (int q = 0; q <= i; q++) {
+				Pair<Integer, Integer> indexKey = new Pair<>(i, q);
+				Monomial rqxq = rPolynomial.getSignatureTermMap().get(Arrays.asList(new Rational(q)));
+				if (rqxq == null) {
+					rCoefficientIndexOfSummationPairs.put(indexKey, new Pair<>(Expressions.ZERO, Expressions.ZERO));
+				}
+				else {
+					rCoefficientIndexOfSummationPairs.put(indexKey, new Pair<>(rqxq.getCoefficient(factors),  
+							new DefaultFunctionApplication(EXPONENTIATION_FUNCTOR, Arrays.asList(indexOfSummation, Expressions.makeSymbol(q)))));
+				}
+			}
+		}
 		
-		result = null; // TODO - compute correctly
+System.out.println("rCoefficientIndexOfSummationPairs="+rCoefficientIndexOfSummationPairs);
+		Simplify rSimplify = new Simplify();
+		// compute "constants" (may contain variables other than x)  
+		// s_i,q,j =   t_i*R_{i,q}/(q+1) (-1)^j choose(q+1,j) B_j
+        // where R_{i,q}(x) is the coefficient in R_i(x) multiplying x^q.
+		Map<Triple<Integer, Integer, Integer>, Polynomial> sConstants = new LinkedHashMap<>();
+		for (int i = 0; i <= n; i++) {
+			Expression ti = tCoefficients.get(i);
+			for (int q = 0; q <= i; q++) {
+				Expression riq     = rCoefficientIndexOfSummationPairs.get(new Pair<>(i, q)).first;
+				Expression tiByriq = new DefaultFunctionApplication(TIMES_FUNCTOR, Arrays.asList(ti, riq));
+				for (int j = 0; j <= q; j++) {
+					Triple<Integer, Integer, Integer> indexKey = new Triple<>(i, q, j);	
+					Expression qPlus1        = Expressions.makeSymbol(q+1);
+					Expression minus1PowerJ  = Expressions.makeSymbol(j % 2 == 0 ? 1 : -1);
+					Expression chooseQplus1J = Expressions.makeSymbol(new Multinomial(j, q+1).choose());
+					Expression bernoulliJ    = Expressions.makeSymbol(BernoulliNumber.computeFirst(j));
+
+// TODO - simplify sConstant ?					
+					Expression sConstant = new DefaultFunctionApplication(TIMES_FUNCTOR, Arrays.asList(
+								new DefaultFunctionApplication(DIVISION_FUNCTOR, Arrays.asList(tiByriq, qPlus1)),
+								minus1PowerJ,
+								chooseQplus1J,
+								bernoulliJ
+							));
+					
+					sConstant = rSimplify.rewrite(sConstant);
+					
+					sConstants.put(indexKey, DefaultPolynomial.make(sConstant, factors));
+				}
+			}
+		}
+System.out.println("sConstants="+sConstants);	
+
+		// compute polynomials, for each q, j,   V_{q + 1 -j}  = (u - l)^{q + 1 - j}
+		Expression upperBoundMinusLowerBound            = new DefaultFunctionApplication(MINUS_FUNCTOR, Arrays.asList(upperBound, lowerBound));
+		Polynomial upperBoundMinusLowerBoundPolynomial  = DefaultPolynomial.make(upperBoundMinusLowerBound, factors);
+		Map<Integer, Polynomial> vValues                = new LinkedHashMap<>();
+		for (int q = 0; q <= n; q++) {
+			for (int j = 0; j <= q; j++) {
+				Integer exponent = q + 1 - j;
+				if (!vValues.containsKey(exponent)) {
+					vValues.put(exponent, upperBoundMinusLowerBoundPolynomial.exponentiate(exponent));
+				}
+			}
+		}
+System.out.println("vValues="+vValues);		
+		
+		result = DefaultPolynomial.make(Expressions.ZERO, factors);
+		for (int i = 0; i <= n; i++) {
+			for (int q = 0; q <= i; q++) {
+				for (int j = 0; j <= q; j++) {
+					Triple<Integer, Integer, Integer> sConstantKey = new Triple<>(i, q, j);
+					Integer                           valueKey     = q + 1 - j;
+					Polynomial sConstant = sConstants.get(sConstantKey);
+					Polynomial vValue    = vValues.get(valueKey);
+					Polynomial w         = sConstant.times(vValue);
+					result = result.add(w);
+				}
+			}
+		}
+System.out.println("result="+result);		
+		
 		return result;
 	}
 }
