@@ -98,7 +98,7 @@ public class PolynomialSummation {
 			tCoefficients.set(term.degree(), term.getCoefficient(factors));
 		}
 		
-System.out.println("tCoefficients="+tCoefficients);
+//System.out.println("tCoefficients="+tCoefficients);
 		
         // compute polynomials R_i(x) = (x + l)^i for each i
 		Expression indexOfSummationPlusLowerBound          = new DefaultFunctionApplication(PLUS_FUNCTOR, Arrays.asList(indexOfSummation, lowerBound));
@@ -110,7 +110,7 @@ System.out.println("tCoefficients="+tCoefficients);
 		for (int i = 2; i <= n; i++) {
 			rPolynomials.add(rPolynomials.get(i-1).times(indexOfSummationPlusLowerBoundPolynomial));
 		}
-System.out.println("rPolynomials="+rPolynomials);		
+//System.out.println("rPolynomials="+rPolynomials);		
 		Map<Pair<Integer, Integer>, Pair<Expression, Expression>> rCoefficientIndexOfSummationPairs = new LinkedHashMap<>();
 		for (int i = 0; i <= n; i++) {
 			Polynomial rPolynomial = rPolynomials.get(i);
@@ -127,7 +127,7 @@ System.out.println("rPolynomials="+rPolynomials);
 			}
 		}
 		
-System.out.println("rCoefficientIndexOfSummationPairs="+rCoefficientIndexOfSummationPairs);
+//System.out.println("rCoefficientIndexOfSummationPairs="+rCoefficientIndexOfSummationPairs);
 		Simplify rSimplify = new Simplify();
 		// compute "constants" (may contain variables other than x)  
 		// s_i,q,j =   t_i*R_{i,q}/(q+1) (-1)^j choose(q+1,j) B_j
@@ -142,10 +142,8 @@ System.out.println("rCoefficientIndexOfSummationPairs="+rCoefficientIndexOfSumma
 					Triple<Integer, Integer, Integer> indexKey = new Triple<>(i, q, j);	
 					Expression qPlus1        = Expressions.makeSymbol(q+1);
 					Expression minus1PowerJ  = Expressions.makeSymbol(j % 2 == 0 ? 1 : -1);
-					Expression chooseQplus1J = Expressions.makeSymbol(new Multinomial(j, q+1).choose());
-					Expression bernoulliJ    = Expressions.makeSymbol(BernoulliNumber.computeFirst(j));
-
-// TODO - simplify sConstant ?					
+					Expression chooseQplus1J = Expressions.makeSymbol(j == 0 ? Rational.ONE : new Multinomial(q+1, j).productOfFactorials());
+					Expression bernoulliJ    = Expressions.makeSymbol(BernoulliNumber.computeFirst(j));					
 					Expression sConstant = new DefaultFunctionApplication(TIMES_FUNCTOR, Arrays.asList(
 								new DefaultFunctionApplication(DIVISION_FUNCTOR, Arrays.asList(tiByriq, qPlus1)),
 								minus1PowerJ,
@@ -159,7 +157,7 @@ System.out.println("rCoefficientIndexOfSummationPairs="+rCoefficientIndexOfSumma
 				}
 			}
 		}
-System.out.println("sConstants="+sConstants);	
+//System.out.println("sConstants="+sConstants);	
 
 		// compute polynomials, for each q, j,   V_{q + 1 -j}  = (u - l)^{q + 1 - j}
 		Expression upperBoundMinusLowerBound            = new DefaultFunctionApplication(MINUS_FUNCTOR, Arrays.asList(upperBound, lowerBound));
@@ -173,7 +171,7 @@ System.out.println("sConstants="+sConstants);
 				}
 			}
 		}
-System.out.println("vValues="+vValues);		
+//System.out.println("vValues="+vValues);		
 		
 		result = DefaultPolynomial.make(Expressions.ZERO, factors);
 		for (int i = 0; i <= n; i++) {
