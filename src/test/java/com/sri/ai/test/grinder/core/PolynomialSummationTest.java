@@ -85,15 +85,33 @@ public class PolynomialSummationTest {
 		Assert.assertEquals(makePolynomial("5",  "tuple(x)"), polynomialSummationSum("x", "-1 + 1", "-1 + 2", "2 + 3*x"));
 		// y = 2, z = 4 => 51 (if y and z substituted into above equation).
 		Assert.assertEquals(makePolynomial("51",  "tuple(x)"), polynomialSummationSum("x", "2 + 1", "4 + 2", "2 + 3*x"));
+		
+		Assert.assertEquals(makePolynomial("-1*y^3 + z^3 + -4.5*y^2 + 7.5*z^2 + -8.5*y + 20.5*z + 14",  "tuple(x)"), 
+				polynomialSummationSum("x", "y + 1", "z + 2", "2 + 3*x^2"));
+		// y = -1, z = -1 => 5 (if y and z substituted into above equation).
+		Assert.assertEquals(makePolynomial("5",  "tuple(x)"), 
+				polynomialSummationSum("x", "-1 + 1", "-1 + 2", "2 + 3*x^2"));
+		// y = 2, z = 4 => 237 (if y and z substituted into above equation).
+		Assert.assertEquals(makePolynomial("237",  "tuple(x)"), 
+				polynomialSummationSum("x", "2 + 1", "4 + 2", "2 + 3*x^2"));
+		
+		Assert.assertEquals(makePolynomial("-1*y^3 + z^3 + -5*y^2 + 8*z^2 + -10*y + 23*z + 16",  "tuple(x)"), 
+				polynomialSummationSum("x", "y + 1", "z + 2", "2 + 3*x^2 + x"));
+		// y = -1, z = -1 => 6 (if y and z substituted into above equation).
+		Assert.assertEquals(makePolynomial("6",  "tuple(x)"), 
+				polynomialSummationSum("x", "-1 + 1", "-1 + 2", "2 + 3*x^2 + x"));
+		// y = 2, z = 4 => 252 (if y and z substituted into above equation).
+		Assert.assertEquals(makePolynomial("252",  "tuple(x)"), 
+				polynomialSummationSum("x", "2 + 1", "4 + 2", "2 + 3*x^2 + x"));
 
-// TODO - looks incorrect		
+// TODO - is incorrect		
 //		Assert.assertEquals(makePolynomial("-1.5*y^3 + 0.5*y*z^2 + z^3 + -7*y^2 + 2.5*y*z + 8.5*z^2 + -7.5*y + 23.5*z + 16",  "tuple(x)"), 
 //				polynomialSummationSum("x", "y + 1", "z + 2", "2 + 3*x^2 + y"));
 		// y = -1, z = -1 => y - 5 (if y and z substituted into above expression)
 		Assert.assertEquals(makePolynomial("y + 5",  "tuple(x)"), 
 				polynomialSummationSum("x", "-1 + 1", "-1 + 2", "2 + 3*x^2 + y"));
-// TODO - looks incorrect		
-//		// y = 2, z = 4 => y - 5 (if y and z substituted into above expression)
+// TODO - is incorrect		
+//		// y = 2, z = 4 => 3*y + 237 (if y and z substituted into above expression)
 //		Assert.assertEquals(makePolynomial("15*y + 261",  "tuple(x)"), 
 //				polynomialSummationSum("x", "2 + 1", "4 + 2", "2 + 3*x^2 + y"));
 	}
