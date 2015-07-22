@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -98,6 +99,13 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	private Set<Expression>               nonNumericConstantFactors = null;
 	private Map<List<Rational>, Monomial> signatureTermMap          = null;
 
+	public static Polynomial make(Expression expression) {
+		List<Expression> generalizedVariables = extractGeneralizedVariables(expression);
+		Polynomial       result               = make(expression, generalizedVariables);
+		
+		return result;
+	}
+			
 	public static Polynomial make(Expression expression,
 			List<Expression> signatureFactors) {
 		Polynomial result = null;
@@ -154,11 +162,9 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			Polynomial p2 = make(expression.get(1), signatureFactors);
 
 			Pair<Polynomial, Polynomial> quotientAndRemainder = p1.divide(p2);
-			Polynomial quotient = quotientAndRemainder.first;
+			Polynomial quotient  = quotientAndRemainder.first;
 			Polynomial remainder = quotientAndRemainder.second;
-			Polynomial zero = makeFromMonomial(Expressions.ZERO,
-					signatureFactors);
-			if (!remainder.equals(zero)) {
+			if (!remainder.isZero()) {
 				throw new UnsupportedOperationException(
 						"Constructing a polynomial from a division operation that results in a remainder is not supported: "
 								+ expression
@@ -166,6 +172,9 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 								+ quotient
 								+ "\nremainder=" + remainder);
 			}
+			
+			result = quotient;
+			
 		} else if (expression.hasFunctor(EXPONENTIATION_FUNCTOR)) {
 			// E1 ^ m with m an integer constant --> make(E1).exponentiate(m)
 			Expression base  = expression.get(0);
@@ -181,6 +190,18 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			result = makeFromMonomial(expression, signatureFactors);
 		}
 
+		return result;
+	}
+	
+	public static List<Expression> extractGeneralizedVariables(Expression polynomialExpression) {
+		List<Expression> result               = new ArrayList<>();
+		Set<Expression>  generalizedVariables = new HashSet<>();
+		
+		extractGeneralizedVariables(polynomialExpression, generalizedVariables);
+		result.addAll(generalizedVariables);
+		
+		Collections.sort(result, _factorComparator);
+		
 		return result;
 	}
 
@@ -360,8 +381,22 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 					            makeFromMonomial(monomialQuotientAndRemainder.second, getSignatureFactors()));
 		}
 		else {
-// TODO - implement last.		
-			throw new UnsupportedOperationException("Division of of polynomials is currently not supported.");
+			if (divisor.isNumericConstant()) {
+				Monomial       monomialDivisor = divisor.asMonomial();
+				List<Monomial> quotients       = new ArrayList<>();				
+				for (Monomial term : getOrderedSummands()) {
+					Pair<Monomial, Monomial> monomialQuotientAndRemainder = term.divide(monomialDivisor);
+					if (!monomialQuotientAndRemainder.second.isZero()) {
+						throw new IllegalStateException("Got an unexpected remainder from " + term + " / " + divisor);						
+					}
+					quotients.add(monomialQuotientAndRemainder.first);
+				}
+				result = new Pair<>(new DefaultPolynomial(quotients, getSignatureFactors()), 
+						            makeFromMonomial(DefaultMonomial.ZERO, getSignatureFactors()));			
+			}
+			else {
+				throw new UnsupportedOperationException("Division of these kinds of polynomials is currently not supported : " + this + " / " + divisor);
+			}
 		}
 		
 		return result;
@@ -675,5 +710,27 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		}
 		
 		return result;
+	}
+	
+	private static void extractGeneralizedVariables(Expression polynomialExpression, Set<Expression> generalizedVariables) {
+		if (Expressions.isSymbol(polynomialExpression)) {
+			if (!Expressions.isNumber(polynomialExpression)) {
+				generalizedVariables.add(polynomialExpression);
+			}
+		}
+		else if (Expressions.hasFunctor(polynomialExpression, PLUS_FUNCTOR)     ||
+				 Expressions.hasFunctor(polynomialExpression, MINUS_FUNCTOR)    ||
+				 Expressions.hasFunctor(polynomialExpression, TIMES_FUNCTOR)    ||
+				 Expressions.hasFunctor(polynomialExpression, DIVISION_FUNCTOR) ||
+				 Expressions.hasFunctor(polynomialExpression, EXPONENTIATION_FUNCTOR)) {
+			for (Expression arg : polynomialExpression.getArguments()) {
+				extractGeneralizedVariables(arg, generalizedVariables);
+			}
+		}
+		else {
+			// An unknown functor or other type of expression not expected
+			// by a standard polynomial expression
+			generalizedVariables.add(polynomialExpression);
+		}
 	}
 }

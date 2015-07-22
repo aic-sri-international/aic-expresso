@@ -182,7 +182,7 @@ public class PolynomialSummation {
 	
 		//
 		// Compute the w values and construct the final result.
-		result = DefaultPolynomial.make(Expressions.ZERO, factors);
+		Polynomial ws = DefaultPolynomial.make(Expressions.ZERO, factors);
 		for (int i = 0; i <= n; i++) {
 			for (int q = 0; q <= i; q++) {
 				for (int j = 0; j <= q; j++) {
@@ -191,10 +191,19 @@ public class PolynomialSummation {
 					Polynomial sConstant = sConstants.get(sConstantKey);
 					Polynomial vValue    = vValues.get(valueKey);
 					Polynomial w         = sConstant.times(vValue);
-					result = result.add(w);
+					ws = ws.add(w);
 				}
 			}
-		}		
+		}	
+		
+		List<Expression> generalizedVariables = DefaultPolynomial.extractGeneralizedVariables(ws);
+		if (generalizedVariables.size() > 0) {
+			// Simplify in the context of the contained generalized variables 
+			// and then return as a single constant factor (i.e. the index variable should not be present).
+			ws = DefaultPolynomial.make(ws, generalizedVariables);
+		}
+		
+		result = DefaultPolynomial.make(ws, factors);
 		
 		return result;
 	}

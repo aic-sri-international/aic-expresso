@@ -79,12 +79,23 @@ public class PolynomialSummationTest {
 	
 	@Test
 	public void testUnknownUpperAndLowerBounds() {
-		Assert.assertEquals(makePolynomial("2 * (z + 2 + -1 * (y + 1)) + 3 * (y + 1) * (z + 2 + -1 * (y + 1)) + 1.5 * (z + 2 + -1 * (y + 1)) ^ 2 + 1.5 * (z + 2 + -1 * (y + 1))",  "tuple(x)"), 
+		Assert.assertEquals(makePolynomial("-1.5*y^2 + 1.5*z^2 + -6.5*y + 9.5*z + 8",  "tuple(x)"), 
 				polynomialSummationSum("x", "y + 1", "z + 2", "2 + 3*x"));
 		// y = -1, z = -1 => 5 (if y and z substituted into above equation).
 		Assert.assertEquals(makePolynomial("5",  "tuple(x)"), polynomialSummationSum("x", "-1 + 1", "-1 + 2", "2 + 3*x"));
 		// y = 2, z = 4 => 51 (if y and z substituted into above equation).
 		Assert.assertEquals(makePolynomial("51",  "tuple(x)"), polynomialSummationSum("x", "2 + 1", "4 + 2", "2 + 3*x"));
+
+// TODO - looks incorrect		
+//		Assert.assertEquals(makePolynomial("-1.5*y^3 + 0.5*y*z^2 + z^3 + -7*y^2 + 2.5*y*z + 8.5*z^2 + -7.5*y + 23.5*z + 16",  "tuple(x)"), 
+//				polynomialSummationSum("x", "y + 1", "z + 2", "2 + 3*x^2 + y"));
+		// y = -1, z = -1 => y - 5 (if y and z substituted into above expression)
+		Assert.assertEquals(makePolynomial("y + 5",  "tuple(x)"), 
+				polynomialSummationSum("x", "-1 + 1", "-1 + 2", "2 + 3*x^2 + y"));
+// TODO - looks incorrect		
+//		// y = 2, z = 4 => y - 5 (if y and z substituted into above expression)
+//		Assert.assertEquals(makePolynomial("15*y + 261",  "tuple(x)"), 
+//				polynomialSummationSum("x", "2 + 1", "4 + 2", "2 + 3*x^2 + y"));
 	}
 	
 	//
