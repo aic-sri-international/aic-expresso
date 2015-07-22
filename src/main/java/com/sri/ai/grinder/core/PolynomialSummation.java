@@ -78,15 +78,15 @@ public class PolynomialSummation {
 	 * 
 	 * @param indexOfSummation
 	 *        the index variable of the summation.
-	 * @param lowerBound
+	 * @param lowerBoundExclusive
 	 *        the lower bound of the summation.
-	 * @param upperBound
+	 * @param upperBoundInclusive
 	 *        the upper bound of the summation.
 	 * @param summand
 	 *        the polynomial to be summed.
 	 * @return the sum of the given summation.
 	 */
-	public static Polynomial sum(Expression indexOfSummation, Expression lowerBound, Expression upperBound, Polynomial summand) {
+	public static Polynomial sum(Expression indexOfSummation, Expression lowerBoundExclusive, Expression upperBoundInclusive, Polynomial summand) {
 		Polynomial result;
 		
 		List<Expression> factors                 = Arrays.asList(indexOfSummation);
@@ -109,7 +109,7 @@ public class PolynomialSummation {
 		
 		//
         // compute polynomials R_i(x) = (x + l)^i for each i
-		Expression indexOfSummationPlusLowerBound          = new DefaultFunctionApplication(PLUS_FUNCTOR, Arrays.asList(indexOfSummation, lowerBound));
+		Expression indexOfSummationPlusLowerBound          = new DefaultFunctionApplication(PLUS_FUNCTOR, Arrays.asList(indexOfSummation, lowerBoundExclusive));
 		Polynomial indexOfSummationPlusLowerBoundPolynomial = DefaultPolynomial.make(indexOfSummationPlusLowerBound, factors);
 
 		List<Polynomial> rPolynomials = new ArrayList<>(n);		
@@ -168,7 +168,7 @@ public class PolynomialSummation {
 
 		//
 		// compute polynomials, for each q, j,   V_{q + 1 -j}  = (u - l)^{q + 1 - j}
-		Expression upperBoundMinusLowerBound            = new DefaultFunctionApplication(MINUS_FUNCTOR, Arrays.asList(upperBound, lowerBound));
+		Expression upperBoundMinusLowerBound            = new DefaultFunctionApplication(MINUS_FUNCTOR, Arrays.asList(upperBoundInclusive, lowerBoundExclusive));
 		Polynomial upperBoundMinusLowerBoundPolynomial  = DefaultPolynomial.make(upperBoundMinusLowerBound, factors);
 		Map<Integer, Polynomial> vValues                = new LinkedHashMap<>();
 		for (int q = 0; q <= n; q++) {

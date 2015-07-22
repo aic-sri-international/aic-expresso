@@ -77,6 +77,16 @@ public class PolynomialSummationTest {
 		Assert.assertEquals(makePolynomial("48", "tuple(x)"), polynomialSummationSum("x", "0", "4", "x^2 + x + 2"));
 	}
 	
+	@Test
+	public void testUnknownUpperAndLowerBounds() {
+		Assert.assertEquals(makePolynomial("2 * (z + 2 + -1 * (y + 1)) + 3 * (y + 1) * (z + 2 + -1 * (y + 1)) + 1.5 * (z + 2 + -1 * (y + 1)) ^ 2 + 1.5 * (z + 2 + -1 * (y + 1))",  "tuple(x)"), 
+				polynomialSummationSum("x", "y + 1", "z + 2", "2 + 3*x"));
+		// y = -1, z = -1 => 5 (if y and z substituted into above equation).
+		Assert.assertEquals(makePolynomial("5",  "tuple(x)"), polynomialSummationSum("x", "-1 + 1", "-1 + 2", "2 + 3*x"));
+		// y = 2, z = 4 => 51 (if y and z substituted into above equation).
+		Assert.assertEquals(makePolynomial("51",  "tuple(x)"), polynomialSummationSum("x", "2 + 1", "4 + 2", "2 + 3*x"));
+	}
+	
 	//
 	// PRIVATE
 	//
@@ -85,8 +95,8 @@ public class PolynomialSummationTest {
 		return result;
 	}
 	
-	private static Polynomial polynomialSummationSum(String indexOfSummation, String lowerBound, String upperBound, String summand) {
-		Polynomial result = PolynomialSummation.sum(Expressions.parse(indexOfSummation), Expressions.parse(lowerBound), Expressions.parse(upperBound), 
+	private static Polynomial polynomialSummationSum(String indexOfSummation, String lowerBoundExclusive, String upperBoundInclusive, String summand) {
+		Polynomial result = PolynomialSummation.sum(Expressions.parse(indexOfSummation), Expressions.parse(lowerBoundExclusive), Expressions.parse(upperBoundInclusive), 
 				makePolynomial(summand, "tuple("+indexOfSummation+")"));
 		return result;
 	}
