@@ -52,7 +52,6 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Monomial;
 import com.sri.ai.grinder.api.Polynomial;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.equality.cardinality.direct.core.Simplify;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.Triple;
@@ -138,7 +137,6 @@ public class PolynomialSummation {
 		// compute "constants" (may contain variables other than x)  
 		// s_i,q,j =   t_i*R_{i,q}/(q+1) (-1)^j choose(q+1,j) B_j
         // where R_{i,q}(x) is the coefficient in R_i(x) multiplying x^q.
-		Simplify rSimplify = new Simplify();
 		Map<Triple<Integer, Integer, Integer>, Polynomial> sConstants = new LinkedHashMap<>();
 		for (int i = 0; i <= n; i++) {
 			Expression ti = tCoefficients.get(i);
@@ -157,9 +155,6 @@ public class PolynomialSummation {
 								chooseQplus1J,
 								bernoulliJ
 							));
-					
-					// Simplify as best as possible
-					sConstant = rSimplify.rewrite(sConstant);
 					
 					sConstants.put(indexKey, DefaultPolynomial.make(sConstant, factors));
 				}

@@ -154,6 +154,15 @@ public class PolynomialSummationTest {
 				polynomialSummationSum("x", "y + 1", "z - 3", "y^2 + 4*x^3"));
 	}
 	
+	@Test
+	public void testHigherDegreePolynomialBounds() {
+		Assert.assertEquals(makePolynomial("1.5*z^6 + -1.5*y^4 + 3*z^4 + 9.5*z^3 + -6.5*y^2 + 1.5*z^2 + 9.5*z + 8",  "tuple(x)"), 
+				polynomialSummationSum("x", "y^2 + 1", "z^3 + z + 2", "2 + 3*x"));
+		
+		Assert.assertEquals(makePolynomial("(-4/3)*y^6 + (4/3)*z^6 + 4*z^5 + -6*y^4 + 14*z^4 + -1*y^3 + y*z^2 + (64/3)*z^3 + (-26/3)*y^2 + y*z + (104/3)*z^2 + y + (74/3)*z + 16",  "tuple(x)"), 
+				polynomialSummationSum("x", "y^2 + 1", "z^2 + z + 2", "y + 4*x^2"));
+	}
+	
 	//
 	// PRIVATE
 	//
