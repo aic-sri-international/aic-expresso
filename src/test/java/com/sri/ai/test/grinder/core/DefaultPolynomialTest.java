@@ -473,7 +473,7 @@ public class DefaultPolynomialTest {
 	}
 	
 	@Test
-	public void testDivide() {
+	public void testUnivariateDivide() {
 		Polynomial dividend = makePolynomial("0", "tuple(x)");
 		Polynomial divisor  = makePolynomial("x^2 + 3", "tuple(x)");
 		Pair<Polynomial, Polynomial> quotientAndRemainder = dividend.divide(divisor);
@@ -517,6 +517,17 @@ public class DefaultPolynomialTest {
 		Assert.assertEquals(2, p.numberOfTerms());
 		Assert.assertEquals(Expressions.parse("3*x"), p.getOrderedSummands().get(0));
 		Assert.assertEquals(Expressions.parse("-11 + ((28*x + 30) / (x^2 + 3*x + 3))"), p.getOrderedSummands().get(1));
+	}
+	
+	@Test
+	public void testMultivariateDivide() {
+		// NOTE: We currently don't support multivariate division so the remainder will be
+		//       the same as the dividend.	
+		Polynomial dividend = makePolynomial("x^3*y^3 + y^2 + 5", "tuple(x, y)");
+		Polynomial divisor  = makePolynomial("x^2 + y", "tuple(x, y)");
+		Pair<Polynomial, Polynomial> quotientAndRemainder = dividend.divide(divisor);
+		Assert.assertEquals(Expressions.parse("0"), quotientAndRemainder.first);
+		Assert.assertEquals(Expressions.parse("x^3*y^3 + y^2 + 5"), quotientAndRemainder.second);
 	}
 	
 	@Test(expected=IllegalArgumentException.class)

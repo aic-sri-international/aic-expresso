@@ -161,6 +161,10 @@ public class PolynomialSummationTest {
 		
 		Assert.assertEquals(makePolynomial("(-4/3)*y^6 + (4/3)*z^6 + 4*z^5 + -6*y^4 + 14*z^4 + -1*y^3 + y*z^2 + (64/3)*z^3 + (-26/3)*y^2 + y*z + (104/3)*z^2 + y + (74/3)*z + 16",  "tuple(x)"), 
 				polynomialSummationSum("x", "y^2 + 1", "z^2 + z + 2", "y + 4*x^2"));
+
+// TODO
+//		Assert.assertEquals(makePolynomial("1",  "tuple(x)"), 
+//				polynomialSummationSum("x", "y^2 + r + 1", "z^2 + z + r + 2", "y + 4*x^2"));
 	}
 	
 	//

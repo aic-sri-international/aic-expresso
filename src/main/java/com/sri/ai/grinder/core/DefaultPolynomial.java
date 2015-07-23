@@ -401,24 +401,33 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 					            makeFromMonomial(DefaultMonomial.ZERO, getSignatureFactors()));						
 		}
 		else {
-			// Perform Polynomial Long Division
-			Polynomial quotient  = makeFromMonomial(DefaultMonomial.ZERO, getSignatureFactors());
-			Polynomial remainder = this;
-			
-			Monomial leadingDivisorTerm = divisor.getOrderedSummands().get(0);
-			do {
-				Monomial leadingNumeratorTerm = remainder.getOrderedSummands().get(0);
+			// Univariate case
+			if (getSignatureFactors().size() == 1) {
+				// Perform Polynomial Long Division
+				Polynomial quotient  = makeFromMonomial(DefaultMonomial.ZERO, getSignatureFactors());
+				Polynomial remainder = this;
 				
-				Pair<Monomial, Monomial> monomialQuotientAndRemainder = leadingNumeratorTerm.divide(leadingDivisorTerm);
-				if (!monomialQuotientAndRemainder.second.isZero()) {
-					break; // Could not divide, i.e. have a remainder
-				}
-				Polynomial monomialQuotient = makeFromMonomial(monomialQuotientAndRemainder.first, getSignatureFactors());
-				quotient  = quotient.add(monomialQuotient);
-				remainder = remainder.minus(divisor.times(monomialQuotient));		
-			} while (!remainder.isZero());
-			
-			result = new Pair<>(quotient, remainder);
+				Monomial leadingDivisorTerm = divisor.getOrderedSummands().get(0);
+				do {
+					Monomial leadingNumeratorTerm = remainder.getOrderedSummands().get(0);
+					
+					Pair<Monomial, Monomial> monomialQuotientAndRemainder = leadingNumeratorTerm.divide(leadingDivisorTerm);
+					if (!monomialQuotientAndRemainder.second.isZero()) {
+						break; // Could not divide, i.e. have a remainder
+					}
+					Polynomial monomialQuotient = makeFromMonomial(monomialQuotientAndRemainder.first, getSignatureFactors());
+					quotient  = quotient.add(monomialQuotient);
+					remainder = remainder.minus(divisor.times(monomialQuotient));		
+				} while (!remainder.isZero());
+				
+				result = new Pair<>(quotient, remainder);
+			}
+			else {
+				// Multivariate case, currently not supported 
+				// See: https://en.wikipedia.org/wiki/Gr%C3%B6bner_basis
+				// for generalization of long division to the multivariate case.
+				result = new Pair<>(makeFromMonomial(DefaultMonomial.ZERO, getSignatureFactors()), this);
+			}
 		}
 		
 		return result;
