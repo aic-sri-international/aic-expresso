@@ -45,6 +45,21 @@ import com.sri.ai.grinder.api.Polynomial;
 import com.sri.ai.grinder.core.DefaultPolynomial;
 import com.sri.ai.grinder.core.PolynomialSummation;
 
+/**
+ * NOTE: Used <a hfref="http://www.wolframalpha.com">WolframAlpha</a> to
+ * validate expected results, e.g. input given:<br>
+ * 
+ * <pre>
+ * <code>
+ * sum_{x=y +1 + 1}^{z - 3}  (y^2 + 4*x^3)
+ * </pre>
+ * 
+ * </code> Remembering that WolframAlpha's lower and upper bounds are inclusive,
+ * while PolynomialSummation's lower bound is exclusive.
+ * 
+ * @author oreilly
+ *
+ */
 public class PolynomialSummationTest {
 
 	@Test
@@ -103,17 +118,40 @@ public class PolynomialSummationTest {
 		// y = 2, z = 4 => 252 (if y and z substituted into above equation).
 		Assert.assertEquals(makePolynomial("252",  "tuple(x)"), 
 				polynomialSummationSum("x", "2 + 1", "4 + 2", "2 + 3*x^2 + x"));
-
-// TODO - is incorrect		
-//		Assert.assertEquals(makePolynomial("-1.5*y^3 + 0.5*y*z^2 + z^3 + -7*y^2 + 2.5*y*z + 8.5*z^2 + -7.5*y + 23.5*z + 16",  "tuple(x)"), 
-//				polynomialSummationSum("x", "y + 1", "z + 2", "2 + 3*x^2 + y"));
-		// y = -1, z = -1 => y - 5 (if y and z substituted into above expression)
+	}
+	
+	@Test
+	public void testUnknownUpperAndLowerBoundsWithFreeVariablesInTerms() {		
+		Assert.assertEquals(makePolynomial("-1*w*y + w*z + -1.5*y^2 + 1.5*z^2 + w + -6.5*y + 9.5*z + 8",  "tuple(x)"), 
+				polynomialSummationSum("x", "y + 1", "z + 2", "3*x + w + 2"));
+		// y = -1, z = -1 => w + 5 (if y and z substituted into above expression)
+		Assert.assertEquals(makePolynomial("w + 5",  "tuple(x)"), 
+				polynomialSummationSum("x", "-1 + 1", "-1 + 2", "3*x + w + 2"));
+		// y = 2, z = 4 => 3*w + 51 (if y and z substituted into above expression)
+		Assert.assertEquals(makePolynomial("3*w + 51",  "tuple(x)"), 
+				polynomialSummationSum("x", "2 + 1", "4 + 2", "3*x + w + 2"));
+				
+		Assert.assertEquals(makePolynomial("-1*y^3 + z^3 + -1*w*y + w*z + -4.5*y^2 + 7.5*z^2 + w + -8.5*y + 20.5*z + 14",  "tuple(x)"), 
+				polynomialSummationSum("x", "y + 1", "z + 2", "2 + 3*x^2 + w"));
+		// y = -1, z = -1 => w + 5 (if y and z substituted into above expression)
+		Assert.assertEquals(makePolynomial("w+5",  "tuple(x)"), 
+				polynomialSummationSum("x", "-1 + 1", "-1 + 2", "2 + 3*x^2 + w"));
+		// y = 2, z = 4 => 3*w + 237 (if y and z substituted into above expression)
+		Assert.assertEquals(makePolynomial("3*w + 237",  "tuple(x)"), 
+				polynomialSummationSum("x", "2 + 1", "4 + 2", "2 + 3*x^2 + w"));
+						
+		Assert.assertEquals(makePolynomial("-1*y^3 + z^3 + -5.5*y^2 + y*z + 7.5*z^2 + -7.5*y + 20.5*z + 14",  "tuple(x)"), 
+				polynomialSummationSum("x", "y + 1", "z + 2", "2 + 3*x^2 + y"));
+		// y = -1, z = -1 => y + 5 (if y and z substituted into above expression)
 		Assert.assertEquals(makePolynomial("y + 5",  "tuple(x)"), 
-				polynomialSummationSum("x", "-1 + 1", "-1 + 2", "2 + 3*x^2 + y"));
-// TODO - is incorrect		
-//		// y = 2, z = 4 => 3*y + 237 (if y and z substituted into above expression)
-//		Assert.assertEquals(makePolynomial("15*y + 261",  "tuple(x)"), 
-//				polynomialSummationSum("x", "2 + 1", "4 + 2", "2 + 3*x^2 + y"));
+				polynomialSummationSum("x", "-1 + 1", "-1 + 2", "2 + 3*x^2 + y"));	
+		// y = 2, z = 4 => 3*y + 237 (if y and z substituted into above expression)
+		Assert.assertEquals(makePolynomial("3*y + 237",  "tuple(x)"), 
+				polynomialSummationSum("x", "2 + 1", "4 + 2", "2 + 3*x^2 + y"));		
+
+		// NOTE: based on Hybrid Reasoning 2015 workshop paper example in section 4.1		
+		Assert.assertEquals(makePolynomial("-1*y^4 + z^4 + -7*y^3 + y^2*z + -10*z^3 + -17*y^2 + 37*z^2 + -12*y + -60*z + 32",  "tuple(x)"), 
+				polynomialSummationSum("x", "y + 1", "z - 3", "y^2 + 4*x^3"));
 	}
 	
 	//

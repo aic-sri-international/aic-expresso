@@ -104,12 +104,12 @@ public class PolynomialSummation {
 		}
 		for (int i = 0; i < projectedSummand.numberOfTerms(); i++) {
 			Monomial term = projectedSummand.getOrderedSummands().get(i);
-			tCoefficients.set(term.degree(), term.getCoefficient(factors));
+			tCoefficients.set(term.getPowerOfFactor(indexOfSummation).intValue(), term.getCoefficient(factors));
 		}
 		
 		//
         // compute polynomials R_i(x) = (x + l)^i for each i
-		Expression indexOfSummationPlusLowerBound          = new DefaultFunctionApplication(PLUS_FUNCTOR, Arrays.asList(indexOfSummation, lowerBoundExclusive));
+		Expression indexOfSummationPlusLowerBound           = new DefaultFunctionApplication(PLUS_FUNCTOR, Arrays.asList(indexOfSummation, lowerBoundExclusive));
 		Polynomial indexOfSummationPlusLowerBoundPolynomial = DefaultPolynomial.make(indexOfSummationPlusLowerBound, factors);
 
 		List<Polynomial> rPolynomials = new ArrayList<>(n);		
