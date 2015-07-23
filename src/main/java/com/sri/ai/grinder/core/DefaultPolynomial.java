@@ -158,23 +158,24 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 			}
 		} else if (expression.hasFunctor(DIVISION_FUNCTOR)) {
 			// E1 / E2 --> make(E1, F).divide(make(E2, F))
-			Polynomial p1 = make(expression.get(0), signatureFactors);
-			Polynomial p2 = make(expression.get(1), signatureFactors);
+			Polynomial dividend = make(expression.get(0), signatureFactors);
+			Polynomial divisor  = make(expression.get(1), signatureFactors);
 
-			Pair<Polynomial, Polynomial> quotientAndRemainder = p1.divide(p2);
+			Pair<Polynomial, Polynomial> quotientAndRemainder = dividend.divide(divisor);
 			Polynomial quotient  = quotientAndRemainder.first;
 			Polynomial remainder = quotientAndRemainder.second;
 			if (!remainder.isZero()) {
-				throw new UnsupportedOperationException(
-						"Constructing a polynomial from a division operation that results in a remainder is not supported: "
-								+ expression
-								+ "\nquotient ="
-								+ quotient
-								+ "\nremainder=" + remainder);
+				// We have a remainder so want to treat it as a constant factor.
+				// so we can construct an expression of the form: 
+				//    f(x)                      remainder(x)
+				// ----------  =  quotient(x) + ------------
+				// divisor(x)                    divisor(x)
+				Expression remainderDividedByDivisor = new DefaultFunctionApplication(DIVISION_FUNCTOR, Arrays.asList(remainder, divisor));
+				result = quotient.add(makeFromMonomial(remainderDividedByDivisor, signatureFactors));
 			}
-			
-			result = quotient;
-			
+			else {
+				result = quotient;
+			}
 		} else if (expression.hasFunctor(EXPONENTIATION_FUNCTOR)) {
 			// E1 ^ m with m an integer constant --> make(E1).exponentiate(m)
 			Expression base  = expression.get(0);
@@ -374,29 +375,50 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		assertSameSignatureFactors(divisor);
 		
 		Pair<Polynomial, Polynomial> result;
-		// Base case
-		if (isMonomial() && divisor.isMonomial()) {
+		
+		if (isZero()) {
+			// 0 / divisor = 0
+			result = new Pair<>(this, this);
+		} // Base case
+		else if (isMonomial() && divisor.isMonomial()) { 
 			Pair<Monomial, Monomial> monomialQuotientAndRemainder = asMonomial().divide(divisor.asMonomial());
 			result = new Pair<>(makeFromMonomial(monomialQuotientAndRemainder.first, getSignatureFactors()),
 					            makeFromMonomial(monomialQuotientAndRemainder.second, getSignatureFactors()));
 		}
-		else {
-			if (divisor.isNumericConstant()) {
-				Monomial       monomialDivisor = divisor.asMonomial();
-				List<Monomial> quotients       = new ArrayList<>();				
-				for (Monomial term : getOrderedSummands()) {
-					Pair<Monomial, Monomial> monomialQuotientAndRemainder = term.divide(monomialDivisor);
-					if (!monomialQuotientAndRemainder.second.isZero()) {
-						throw new IllegalStateException("Got an unexpected remainder from " + term + " / " + divisor);						
-					}
-					quotients.add(monomialQuotientAndRemainder.first);
+		else if (divisor.isNumericConstant()) {
+			// In this case do not need to worry about remainders as can always
+			// dividie using a numeric constant divisor.
+			Monomial       monomialDivisor = divisor.asMonomial();
+			List<Monomial> quotients       = new ArrayList<>();				
+			for (Monomial term : getOrderedSummands()) {
+				Pair<Monomial, Monomial> monomialQuotientAndRemainder = term.divide(monomialDivisor);
+				if (!monomialQuotientAndRemainder.second.isZero()) {
+					throw new IllegalStateException("Got an unexpected remainder from " + term + " / " + divisor);						
 				}
-				result = new Pair<>(new DefaultPolynomial(quotients, getSignatureFactors()), 
-						            makeFromMonomial(DefaultMonomial.ZERO, getSignatureFactors()));			
+				quotients.add(monomialQuotientAndRemainder.first);
 			}
-			else {
-				throw new UnsupportedOperationException("Division of these kinds of polynomials is currently not supported : " + this + " / " + divisor);
-			}
+			result = new Pair<>(new DefaultPolynomial(quotients, getSignatureFactors()), 
+					            makeFromMonomial(DefaultMonomial.ZERO, getSignatureFactors()));						
+		}
+		else {
+			// Perform Polynomial Long Division
+			Polynomial quotient  = makeFromMonomial(DefaultMonomial.ZERO, getSignatureFactors());
+			Polynomial remainder = this;
+			
+			Monomial leadingDivisorTerm = divisor.getOrderedSummands().get(0);
+			do {
+				Monomial leadingNumeratorTerm = remainder.getOrderedSummands().get(0);
+				
+				Pair<Monomial, Monomial> monomialQuotientAndRemainder = leadingNumeratorTerm.divide(leadingDivisorTerm);
+				if (!monomialQuotientAndRemainder.second.isZero()) {
+					break; // Could not divide, i.e. have a remainder
+				}
+				Polynomial monomialQuotient = makeFromMonomial(monomialQuotientAndRemainder.first, getSignatureFactors());
+				quotient  = quotient.add(monomialQuotient);
+				remainder = remainder.minus(divisor.times(monomialQuotient));		
+			} while (!remainder.isZero());
+			
+			result = new Pair<>(quotient, remainder);
 		}
 		
 		return result;

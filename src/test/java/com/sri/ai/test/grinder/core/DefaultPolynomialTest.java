@@ -53,12 +53,13 @@ import com.sri.ai.grinder.api.Monomial;
 import com.sri.ai.grinder.api.Polynomial;
 import com.sri.ai.grinder.core.DefaultMonomial;
 import com.sri.ai.grinder.core.DefaultPolynomial;
+import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.math.Rational;
 
 public class DefaultPolynomialTest {
 
 	@Test
-	public void testMake() {			
+	public void testMakeExplicitSignatureOfFactors() {			
 		//
 		// From Trivial Monomials
 		Assert.assertEquals(Expressions.parse("0"), makePolynomial("0", "tuple()"));
@@ -186,6 +187,63 @@ public class DefaultPolynomialTest {
 		// Division
 // TODO		
 	
+	}
+	
+	@Test
+	public void testMakeSignatureFactorsFromExtractedGeneralizedVariables() {
+		Assert.assertEquals(Expressions.parse("16*x"), makePolynomial("2^2^2*x"));
+		Assert.assertEquals(Expressions.parse("2^x^4"), makePolynomial("2^x^2^2"));
+		Assert.assertEquals(Expressions.parse("2^2^x^4"), makePolynomial("2^2^x^2^2"));
+		Assert.assertEquals(Expressions.parse("2*x*y"), makePolynomial("2*x*y"));
+		Assert.assertEquals(Expressions.parse("16*x"), makePolynomial("*(2*4*(2*x))"));
+		Assert.assertEquals(Expressions.parse("-16*x"), makePolynomial("*(2*4*-(2*x))"));		
+		Assert.assertEquals(Expressions.parse("3*x^2"), makePolynomial("3*x^2"));
+		Assert.assertEquals(Expressions.parse("3*x^2*y^4"), makePolynomial("3*x^2*y^4"));
+		Assert.assertEquals(Expressions.parse("y + 10"), makePolynomial("y + 10"));
+		Assert.assertEquals(Expressions.parse("2*y + 10"), makePolynomial("y + 10 + y"));
+
+		Assert.assertEquals(Expressions.parse("x^3*y^2 + 2*x^2 + y^2 + x + y + 10"), makePolynomial("x^2 + 7 + x^3*y^2 + 3 + y^2 + x^2 + x + y"));
+		Assert.assertEquals(Expressions.parse("5*x*y + 4*y^2 + x + 6"), makePolynomial("(3*x^2 - 2*x + 5*x*y - 2) + (-3*x^2 + 3*x + 4*y^2 + 8)"));
+		
+		Assert.assertEquals(Expressions.parse("x"), makePolynomial("2*x - x"));
+		Assert.assertEquals(Expressions.parse("0"), makePolynomial("x - x"));
+		Assert.assertEquals(Expressions.parse("0"), makePolynomial("2*x - x - x"));
+		Assert.assertEquals(Expressions.parse("x"), makePolynomial("x - 0"));
+		Assert.assertEquals(Expressions.parse("-1*x"), makePolynomial("0 - x"));
+		Assert.assertEquals(Expressions.parse("2*x^3 + -1*x^2 + -1*x"), makePolynomial("2*x^3 - x^2 - x"));
+
+		Assert.assertEquals(Expressions.parse("-1*y + -10"), makePolynomial("-(y + 10)"));
+		Assert.assertEquals(Expressions.parse("x^2*y^4* z + x^2*y^3"), makePolynomial("(y^3 + y^4*z)*x^2"));
+		Assert.assertEquals(Expressions.parse("2*x^2*y + 3*x*y^2 + 4*x^2 + 21*x*y + 15*y^2 + 12*x + 28*y + 5"), makePolynomial("(2*x + 3*y + 5) * (2*x + 5*y + x*y + 1)"));
+	
+		Assert.assertEquals(Expressions.parse("x"), makePolynomial("x^1"));
+		Assert.assertEquals(Expressions.parse("x^3"), makePolynomial("x^3"));
+		Assert.assertEquals(Expressions.parse("1"), makePolynomial("(x + 2)^0"));
+		Assert.assertEquals(Expressions.parse("x + 2"), makePolynomial("(x + 2)^1"));
+		Assert.assertEquals(Expressions.parse("x^2 + 4*x + 4"), makePolynomial("(x + 2)^2"));
+		Assert.assertEquals(Expressions.parse("x^3 + 6*x^2 + 12*x + 8"), makePolynomial("(x + 2)^3"));	
+		
+// TODO - some division examples		
+	}
+	
+	@Test
+	public void testExtractGeneralizedVariables() {
+		Assert.assertEquals(
+				Expressions.parse("tuple(x)").getArguments(),
+				DefaultPolynomial.extractGeneralizedVariables(Expressions.parse("x + 2"))
+		);
+		Assert.assertEquals(
+				Expressions.parse("tuple(x, y)").getArguments(),
+				DefaultPolynomial.extractGeneralizedVariables(Expressions.parse("x + 2 + y"))
+		);
+		Assert.assertEquals(
+				Expressions.parse("tuple(x, |x|)").getArguments(),
+				DefaultPolynomial.extractGeneralizedVariables(Expressions.parse("|x| + x + 2"))
+		);	
+		Assert.assertEquals(
+				Expressions.parse("tuple(x, afunction(y))").getArguments(),
+				DefaultPolynomial.extractGeneralizedVariables(Expressions.parse("x + 2 + afunction(y)"))
+		);
 	}
 	
 	@Test
@@ -416,7 +474,59 @@ public class DefaultPolynomialTest {
 	
 	@Test
 	public void testDivide() {
-// TODO
+		Polynomial dividend = makePolynomial("0", "tuple(x)");
+		Polynomial divisor  = makePolynomial("x^2 + 3", "tuple(x)");
+		Pair<Polynomial, Polynomial> quotientAndRemainder = dividend.divide(divisor);
+		Assert.assertEquals(Expressions.parse("0"), quotientAndRemainder.first);
+		Assert.assertEquals(Expressions.parse("0"), quotientAndRemainder.second);
+		
+		dividend             = makePolynomial("3", "tuple(x)");
+		divisor              = makePolynomial("2", "tuple(x)");
+		quotientAndRemainder = dividend.divide(divisor);
+		Assert.assertEquals(Expressions.parse("1.5"), quotientAndRemainder.first);
+		Assert.assertEquals(Expressions.parse("0"), quotientAndRemainder.second);
+		
+		dividend             = makePolynomial("2*x^2 + 3*x + 6", "tuple(x)");
+		divisor              = makePolynomial("2", "tuple(x)");
+		quotientAndRemainder = dividend.divide(divisor);
+		Assert.assertEquals(Expressions.parse("x^2 + 1.5*x + 3"), quotientAndRemainder.first);
+		Assert.assertEquals(Expressions.parse("0"), quotientAndRemainder.second);
+		
+		dividend             = makePolynomial("x^3 - 5*x^2 + 3*x - 15", "tuple(x)");
+		divisor              = makePolynomial("x^2 + 3", "tuple(x)");
+		quotientAndRemainder = dividend.divide(divisor);
+		Assert.assertEquals(Expressions.parse("x + -5"), quotientAndRemainder.first);
+		Assert.assertEquals(Expressions.parse("0"), quotientAndRemainder.second);
+		
+		dividend             = makePolynomial("x^3 - 1", "tuple(x)");
+		divisor              = makePolynomial("x + 2", "tuple(x)");
+		quotientAndRemainder = dividend.divide(divisor);
+		Assert.assertEquals(Expressions.parse("x^2 + -2*x + 4"), quotientAndRemainder.first);
+		Assert.assertEquals(Expressions.parse("-9"), quotientAndRemainder.second);
+		
+		dividend             = makePolynomial("3*x^3 - 2*x^2 + 4*x - 3", "tuple(x)");
+		divisor              = makePolynomial("x^2 + 3*x + 3", "tuple(x)");
+		quotientAndRemainder = dividend.divide(divisor);
+		Assert.assertEquals(Expressions.parse("3*x + -11"), quotientAndRemainder.first);
+		Assert.assertEquals(Expressions.parse("28*x + 30"), quotientAndRemainder.second);
+		
+		Polynomial p = makePolynomial("(3*x^3 - 2*x^2 + 4*x - 3) / (x^2 + 3*x + 3)", "tuple(x)");
+		Assert.assertEquals(Expressions.parse("3*x + (-11 + ((28*x + 30) / (x^2 + 3*x + 3)))"), p);
+		// Note: the -11 from the quotient gets absorbed into the remainder/divisor term 
+		// as they are like terms under the signature factors [x]
+		Assert.assertEquals(2, p.numberOfTerms());
+		Assert.assertEquals(Expressions.parse("3*x"), p.getOrderedSummands().get(0));
+		Assert.assertEquals(Expressions.parse("-11 + ((28*x + 30) / (x^2 + 3*x + 3))"), p.getOrderedSummands().get(1));
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void testDivideByZero1() {
+		makePolynomial("3 / 0");
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void testDivideByZero2() {
+		makePolynomial("(x + y + 2) / 0");
 	}
 	
 	@Test
@@ -587,6 +697,11 @@ public class DefaultPolynomialTest {
 	//	
 	private static Monomial makeMonomial(String monomial) {
 		Monomial result = DefaultMonomial.make(Expressions.parse(monomial));
+		return result;
+	}
+	
+	private static Polynomial makePolynomial(String polynomial) {
+		Polynomial result = DefaultPolynomial.make(Expressions.parse(polynomial));
 		return result;
 	}
 	
