@@ -162,9 +162,11 @@ public class PolynomialSummationTest {
 		Assert.assertEquals(makePolynomial("(-4/3)*y^6 + (4/3)*z^6 + 4*z^5 + -6*y^4 + 14*z^4 + -1*y^3 + y*z^2 + (64/3)*z^3 + (-26/3)*y^2 + y*z + (104/3)*z^2 + y + (74/3)*z + 16",  "tuple(x)"), 
 				polynomialSummationSum("x", "y^2 + 1", "z^2 + z + 2", "y + 4*x^2"));
 
-// TODO
-//		Assert.assertEquals(makePolynomial("1",  "tuple(x)"), 
-//				polynomialSummationSum("x", "y^2 + r + 1", "z^2 + z + r + 2", "y + 4*x^2"));
+		Assert.assertEquals(makePolynomial("(4/3)*z^6 + 4*r*z^4 + 4*r^2*z^2 + 2*z^4 + -4*r^2*y + -4*r*y^2 + 4*r*z^2 + (-4/3)*y^3 + y*z^2 + -4*r^2 + -12*r*y + -7*y^2 + (2/3)*z^2 + -8*r + (-29/3)*y + -4",  "tuple(x)"), 
+				polynomialSummationSum("x", "y + r + 1", "z^2 + r", "y + 4*x^2"));
+		
+		Assert.assertEquals(makePolynomial("(4/3)*z^6 + 4*y*z^4 + 4*y^2*z^2 + 2*z^4 + -4*y^2*z + y*z^2 + (-4/3)*z^3 + -4*y^2 + -13*y*z + (-16/3)*z^2 + -9*y + (-26/3)*z + -4",  "tuple(x)"), 
+				polynomialSummationSum("x", "y + z + 1", "z^2 + y", "y + 4*x^2"));
 	}
 	
 	//

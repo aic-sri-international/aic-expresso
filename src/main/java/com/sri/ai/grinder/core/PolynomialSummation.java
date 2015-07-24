@@ -194,7 +194,7 @@ public class PolynomialSummation {
 		List<Expression> generalizedVariables = DefaultPolynomial.extractGeneralizedVariables(ws);
 		if (generalizedVariables.size() > 0) {
 			// Simplify in the context of the contained generalized variables 
-			// and then return as a single constant factor (i.e. the index variable should not be present).
+			// and then return as a single constant factor (i.e. the index variable should not be present).			
 			ws = DefaultPolynomial.make(ws, generalizedVariables);
 		}
 		

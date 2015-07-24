@@ -403,6 +403,8 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 		else {
 			// Univariate case
 			if (getSignatureFactors().size() == 1) {
+// TODO - implement faster synthetic division version
+//        see: https://en.wikipedia.org/wiki/Synthetic_division
 				// Perform Polynomial Long Division
 				Polynomial quotient  = makeFromMonomial(DefaultMonomial.ZERO, getSignatureFactors());
 				Polynomial remainder = this;
@@ -423,9 +425,9 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 				result = new Pair<>(quotient, remainder);
 			}
 			else {
-				// Multivariate case, currently not supported 
-				// See: https://en.wikipedia.org/wiki/Gr%C3%B6bner_basis
-				// for generalization of long division to the multivariate case.
+// TODO - Multivariate case, currently not supported 
+// See: https://en.wikipedia.org/wiki/Gr%C3%B6bner_basis
+// for generalization of long division to the multivariate case.
 				result = new Pair<>(makeFromMonomial(DefaultMonomial.ZERO, getSignatureFactors()), this);
 			}
 		}
@@ -466,11 +468,18 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 					List<Rational> productSignature = product.getSignature(getSignatureFactors());
 					Monomial       existingLikeTerm = expandedLikeTerms.get(productSignature);
 					if (existingLikeTerm == null) {
-						expandedLikeTerms.put(productSignature, product);
+						if (!product.isZero()) {
+							expandedLikeTerms.put(productSignature, product);
+						}
 					}
 					else {
 						Monomial sumOfLikeTerms = addMonomialsWithSameSignature(existingLikeTerm, product);
-						expandedLikeTerms.put(productSignature, sumOfLikeTerms);
+						if (sumOfLikeTerms.isZero()) {							
+							expandedLikeTerms.remove(productSignature);
+						}
+						else {
+							expandedLikeTerms.put(productSignature, sumOfLikeTerms);
+						}
 					}
 						
 				} while (multinomial.iterate());
@@ -621,7 +630,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 					.getOrderedNonNumericConstantFactors());
 			List<Rational> signature = monomial.getSignature(this.signatureFactors);
 			if (this.signatureTermMap.containsKey(signature)) {
-				throw new IllegalArgumentException("Trying to create a polynomial with like terms");
+				throw new IllegalArgumentException("Trying to create a polynomial with like terms: "+orderedSummands);
 			}
 			this.signatureTermMap.put(signature, monomial);
 		}
