@@ -185,8 +185,12 @@ public class DefaultPolynomialTest {
 		
 		//
 		// Division
-// TODO		
-	
+		Assert.assertEquals(Expressions.parse("0"), makePolynomial("0 / (x^2 + 3)", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("1.5"), makePolynomial("3 / 2", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("x^2 + 1.5*x + 3"), makePolynomial("(2*x^2 + 3*x + 6) / 2", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("x + -5"), makePolynomial("(x^3 - 5*x^2 + 3*x - 15) / (x^2 + 3)", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("x^2 + -2*x + (4 + -9/(x + 2))"), makePolynomial("(x^3 - 1) / (x + 2)", "tuple(x)"));
+		Assert.assertEquals(Expressions.parse("3*x + (-11 + (28*x + 30)/(x^2 + 3*x + 3))"), makePolynomial("(3*x^3 - 2*x^2 + 4*x - 3) / (x^2 + 3*x + 3)", "tuple(x)"));	
 	}
 	
 	@Test
@@ -223,7 +227,12 @@ public class DefaultPolynomialTest {
 		Assert.assertEquals(Expressions.parse("x^2 + 4*x + 4"), makePolynomial("(x + 2)^2"));
 		Assert.assertEquals(Expressions.parse("x^3 + 6*x^2 + 12*x + 8"), makePolynomial("(x + 2)^3"));	
 		
-// TODO - some division examples		
+		Assert.assertEquals(Expressions.parse("0"), makePolynomial("0 / (x^2 + 3)"));
+		Assert.assertEquals(Expressions.parse("1.5"), makePolynomial("3 / 2"));
+		Assert.assertEquals(Expressions.parse("x^2 + 1.5*x + 3"), makePolynomial("(2*x^2 + 3*x + 6) / 2"));
+		Assert.assertEquals(Expressions.parse("x + -5"), makePolynomial("(x^3 - 5*x^2 + 3*x - 15) / (x^2 + 3)"));
+		Assert.assertEquals(Expressions.parse("x^2 + -2*x + (4 + -9/(x + 2))"), makePolynomial("(x^3 - 1) / (x + 2)"));
+		Assert.assertEquals(Expressions.parse("3*x + (-11 + (28*x + 30)/(x^2 + 3*x + 3))"), makePolynomial("(3*x^3 - 2*x^2 + 4*x - 3) / (x^2 + 3*x + 3)"));			
 	}
 	
 	@Test
@@ -579,6 +588,11 @@ public class DefaultPolynomialTest {
 	
 		p = makePolynomial("x + y + 1", "tuple(x)");
 		Assert.assertEquals(Expressions.parse("x^2 + 2*x*(y + 1) + (y + 1)^2"), p.exponentiate(2));
+		
+		// NOTE: of interest as it will cause terms to cancel each other out during computation
+		//       due to the negative values and odd exponent.
+		p = makePolynomial("z^2 + -1*z + -1", "tuple(z)");
+		Assert.assertEquals(Expressions.parse("z^6 + -3*z^5 + 5*z^3 + -3*z + -1"), p.exponentiate(3));
 	}
 	
 	@Test
