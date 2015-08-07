@@ -4,13 +4,13 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 
 import java.util.Collection;
 
-import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.core.ExpressionConstraint;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
 import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
+import com.sri.ai.util.Util;
 
 /**
  * An {@link Expression} with efficient internal representation for operations on being expanded by a splitter (literal in constraint constraintTheory) and
@@ -69,31 +69,6 @@ public interface Constraint extends Expression {
 	void incorporateNonTrivialNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
 
 	/**
-	 * A collection of splitters implied by this constraint that it cannot represent itself.
-	 * This is useful when the task of representing constraints for a given theory is divided among
-	 * multiple types of constraints, each specialized in representing certain types of literals.
-	 * A constraint may be able to identify splitters implied by itself but which are of a type
-	 * different from the one it is able to represent.
-	 * It then provides it through this method for the overall constraint coordinator to pick up
-	 * and apply wherever appropriate.
-	 * This collection may or may not be guaranteed to be complete, depending on the implementation.
-	 * @return
-	 */
-	Collection<Expression> getImpliedNonRepresentableSplitters();
-	
-	/**
-	 * Given a function mapping each term either to itself or to another term meant to represent it
-	 * (determined, most likely, by a system of equalities somewhere),
-	 * apply it to the present constraint.
-	 * Terms with distinct representatives should not appear in the resulting constraint.
-	 * @param getRepresentative
-	 * @param process
-	 */
-	void updateRepresentativesDestructively(Function<Expression, Expression> getRepresentative, RewritingProcess process);
-	// TODO: seems like this should be a Constraint-specific implementation of Expression.replaceAllOccurrences(...).
-	// TODO: provide a more efficient implementation that takes an explicit list of which terms to update, so that implementations do not need to check each of the terms they use.
-	
-	/**
 	 * Provides a splitter, not already directly implied by the constraint,
 	 * toward a state in which the model count for the given subset of indices
 	 * can be computed (the model count may be condition on the other variables),
@@ -119,7 +94,8 @@ public interface Constraint extends Expression {
 		Solver projector = new SGDPLLT(getConstraintTheory(), new Satisfiability());
 		Expression resultExpression = projector.solve(this, eliminatedIndices, process); // this was the motivation for making Constraint implement Expression
 		// note that solvers should be aware that their input or part of their input may be a Constraint, and take advantage of the internal representations already present in them, instead of simply converting them to an Expression and redoing all the work.
-		Constraint result = ExpressionConstraint.wrap(getConstraintTheory(), getSupportedIndices(), resultExpression);
+		Collection<Expression> remainingSupportedIndices = Util.subtract(getSupportedIndices(), eliminatedIndices);
+		Constraint result = ExpressionConstraint.wrap(getConstraintTheory(), remainingSupportedIndices, resultExpression);
 		return result;
 	}
 

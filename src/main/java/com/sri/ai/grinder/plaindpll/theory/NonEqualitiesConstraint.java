@@ -1,5 +1,6 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
@@ -49,4 +50,14 @@ public interface NonEqualitiesConstraint extends Constraint {
 	 * @return
 	 */
 	NonEqualitiesConstraintForSingleVariable removeNonEqualitiesForGivenVariableDestructively(Expression variable);
+	
+	/**
+	 * Given a function mapping each term either to itself or to another term meant to represent it
+	 * (determined, most likely, by a system of equalities somewhere),
+	 * apply it to the present constraint, possibly destructively if that means much better performance.
+	 * Terms with distinct representatives should not appear in the resulting constraint.
+	 * @param getRepresentative
+	 * @param process
+	 */
+	public void updateRepresentativesDestructively(Function<Expression, Expression> getRepresentative, RewritingProcess process);
 }

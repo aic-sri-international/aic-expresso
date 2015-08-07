@@ -10,12 +10,15 @@ import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
+import static com.sri.ai.util.Util.getFirst;
 import static com.sri.ai.util.Util.list;
 import static java.lang.Math.max;
-import static java.util.Collections.emptyList;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
@@ -26,11 +29,12 @@ import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
+import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
-import com.sri.ai.util.collect.FunctionIterator;
 
 /**
  * An {@link Expression} with efficient internal representation for operations on being expanded by a splitter (literal in constraint constraintTheory) and
@@ -45,29 +49,88 @@ public class SingleVariableEqualityConstraint extends AbstractExpressionWrapper 
 	private static final long serialVersionUID = 1L;
 	
 	private Expression variable;
-	private Expression value;
+	private Expression boundValue;
 	private ArrayList<Expression> disequals;
+	private Collection<Expression> externalLiterals; // literals not on variable
 	private int numberOfUniquelyNamedConstantDisequals; // -1 if not computed yet
+
+	private EqualityConstraintTheory constraintTheory;
 	
-	public SingleVariableEqualityConstraint(Expression variable) {
-		this(variable, null, new ArrayList<Expression>(), 0);
+	public SingleVariableEqualityConstraint(Expression variable, TermTheory termTheory) {
+		this(variable, null, new ArrayList<Expression>(), Util.set(), 0, termTheory);
 	}
 	
-	public SingleVariableEqualityConstraint(Expression variable, Expression value) {
-		this(variable, value, null, 0);
+	public SingleVariableEqualityConstraint(Expression variable, Expression boundValue, TermTheory termTheory) {
+		this(variable, boundValue, null, Util.set(), 0, termTheory);
 	}
 	
-	public SingleVariableEqualityConstraint(Expression variable, ArrayList<Expression> disequals, int numberOfUniquelyNamedConstantDisequals) {
-		this(variable, null, disequals, numberOfUniquelyNamedConstantDisequals);
+	public SingleVariableEqualityConstraint(Expression variable, ArrayList<Expression> disequals, int numberOfUniquelyNamedConstantDisequals, TermTheory termTheory) {
+		this(variable, null, disequals, Util.set(), numberOfUniquelyNamedConstantDisequals, termTheory);
 	}
 
-	public SingleVariableEqualityConstraint(Expression variable, Expression value, ArrayList<Expression> disequals, int numberOfUniquelyNamedConstantDisequals) {
+	public SingleVariableEqualityConstraint(Expression variable, Expression boundValue, ArrayList<Expression> disequals, Collection<Expression> externalLiterals, int numberOfUniquelyNamedConstantDisequals, TermTheory termTheory) {
 		this.variable = variable;
-		this.value = value;
+		this.boundValue = boundValue;
 		this.disequals = disequals;
+		this.externalLiterals = externalLiterals;
 		this.numberOfUniquelyNamedConstantDisequals = numberOfUniquelyNamedConstantDisequals;
+		this.constraintTheory = new EqualityConstraintTheory(termTheory);
+	}
+	
+	/**
+	 * Returns the expression the variable is bound to, or <code>null</code> if none.
+	 */
+	public Expression getBoundValue() {
+		return boundValue;
+	}
+	
+	/**
+	 * Returns the expressions the variable is constrained to be disequal from.
+	 * @return
+	 */
+	public List<Expression> getDisequals() {
+		return Collections.unmodifiableList(disequals);
+	}
+	
+	/**
+	 * Returns the literals that are part of this constraint, but not defined on the variable.
+	 * @return
+	 */
+	public Collection<Expression> getExternalLiterals() {
+		return Collections.unmodifiableCollection(externalLiterals);
 	}
 
+	private SingleVariableEqualityConstraint makeWithNewExternalLiterals(Collection<Expression> newExternalLiterals) {
+		if (newExternalLiterals == externalLiterals) {
+			return this;
+		}
+		else {
+			SingleVariableEqualityConstraint result = 
+					new SingleVariableEqualityConstraint(
+							variable, boundValue, disequals, newExternalLiterals, numberOfUniquelyNamedConstantDisequals, constraintTheory.getTermTheory());
+			return result;
+		}
+	}
+
+	private SingleVariableEqualityConstraint makeWithAdditionalExternalLiteral(Expression additionalExternalLiteral) {
+		Collection<Expression> newExternalLiterals = new LinkedHashSet<>(externalLiterals);
+		newExternalLiterals.add(additionalExternalLiteral);
+		SingleVariableEqualityConstraint result = makeWithNewExternalLiterals(newExternalLiterals);
+		return result;
+	}
+	
+	private SingleVariableEqualityConstraint makeWithAdditionalExternalLiterals(Collection<Expression> additionalExternalLiterals) {
+		Collection<Expression> newExternalLiterals = new LinkedHashSet<>(externalLiterals);
+		newExternalLiterals.addAll(additionalExternalLiterals);
+		SingleVariableEqualityConstraint result = makeWithNewExternalLiterals(newExternalLiterals);
+		return result;
+	}
+	
+	@Override
+	public ConstraintTheory getConstraintTheory() {
+		return constraintTheory;
+	}
+	
 	@Override
 	public Expression getVariable() {
 		return variable;
@@ -76,12 +139,17 @@ public class SingleVariableEqualityConstraint extends AbstractExpressionWrapper 
 	@Override
 	public Expression pickSplitter(RewritingProcess process) {
 		Expression result;
-		if (value != null) {
-			result = null;
+		Expression externalLiteral = getFirst(getExternalLiterals());
+		if (externalLiteral != null) {
+			result = externalLiteral;
+		}
+		else if (getBoundValue() != null) {
+			result = null; // there are no disequals stored if we already have a binding
 		}
 		else {
 			// before we count the models, we need to know that all disequals are disequal to each other too.
 			Constraint contextualConstraint = process.getDPLLContextualConstraint();
+			List<Expression> disequals = getDisequals();
 			for (int i = 0; i != disequals.size(); i++) {
 				for (int j = i + 1; j != disequals.size(); j++) {
 					Expression disequality = Disequality.makeWithConstantSimplification(disequals.get(i), disequals.get(j), process);
@@ -97,39 +165,59 @@ public class SingleVariableEqualityConstraint extends AbstractExpressionWrapper 
 	}
 
 	@Override
-	public ApplicationResult incorporate(Expression literal, RewritingProcess process) {
-		ApplicationResult result;
-		if ( ! literal.hasFunctor(EQUALITY) && ! literal.hasFunctor(DISEQUALITY)) {
+	public SingleVariableEqualityConstraint simplifyGiven(Expression externalLiteral, RewritingProcess process) {
+		SingleVariableEqualityConstraint result;
+		
+		if (externalLiterals.contains(externalLiteral)) {
+			Collection<Expression> newExternalLiterals = new LinkedHashSet<>(externalLiterals);
+			newExternalLiterals.remove(externalLiteral);
+			result = makeWithNewExternalLiterals(newExternalLiterals);
+		}
+		else {
+			result = this;
+		}
+		
+		return result;
+	}
+
+	@Override
+	public SingleVariableEqualityConstraint conjoin(Expression literal, RewritingProcess process) {
+		SingleVariableEqualityConstraint result;
+		
+		if (externalLiterals.contains(literal)) {
+			result = this;
+		}
+		else if ( ! literal.hasFunctor(EQUALITY) && ! literal.hasFunctor(DISEQUALITY)) {
 			if (literal.equals(TRUE)) {
-				result = redundantLiteralResult();
+				result = this;
 			}
 			else if (literal.equals(FALSE)) {
 				result = null;
 			}
 			else {
-				result = new DefaultApplicationResult(this, list(literal));
+				result = makeWithAdditionalExternalLiteral(literal);
 			}
 		}
 		else {
 			Expression other = termToWhichVariableIsEqualedToOrNull(literal);
 			if (other == null) {
-				result = new DefaultApplicationResult(this, list(literal));
+				result = makeWithAdditionalExternalLiteral(literal);
 			}
 			else {
-				boolean variableIsBound = value != null;
+				boolean variableIsBound = boundValue != null;
 				boolean splitterIsEquality = literal.hasFunctor(EQUALITY);
 				if (variableIsBound) {
 					if (splitterIsEquality ) {
-						if (other.equals(value)) {
-							result = redundantLiteralResult();
+						if (other.equals(boundValue)) {
+							result = this;
 						}
 						else {
 							result = keepValueAndEnforceOtherToBeEqualToIt(other, process);
 						}
 					}
 					else { // splitter is disequality
-						if (other.equals(value)) {
-							result = null; // contradiction, for splitter is disequality to the same value the variable is bound to
+						if (other.equals(boundValue)) {
+							result = null; // contradiction, for splitter is disequality to the same boundValue the variable is bound to
 						}
 						else { 
 							result = keepValueAndEnforceOtherToBeNotEqualToIt(other, process);
@@ -146,6 +234,7 @@ public class SingleVariableEqualityConstraint extends AbstractExpressionWrapper 
 				}
 			}
 		}
+
 		return result;
 	}
 
@@ -164,28 +253,21 @@ public class SingleVariableEqualityConstraint extends AbstractExpressionWrapper 
 	}
 
 	/**
-	 * @return
-	 */
-	protected DefaultApplicationResult redundantLiteralResult() {
-		return new DefaultApplicationResult(this, emptyList());
-	}
-
-	/**
 	 * @param other
 	 * @param process
 	 * @return
 	 */
-	protected ApplicationResult keepValueAndEnforceOtherToBeEqualToIt(Expression other, RewritingProcess process) {
-		ApplicationResult result;
-		Expression impliedEquality = Equality.makeWithConstantSimplification(value, other, process);
+	protected SingleVariableEqualityConstraint keepValueAndEnforceOtherToBeEqualToIt(Expression other, RewritingProcess process) {
+		SingleVariableEqualityConstraint result;
+		Expression impliedEquality = Equality.makeWithConstantSimplification(boundValue, other, process);
 		if (impliedEquality.equals(TRUE)) {
-			result = redundantLiteralResult();
+			result = this;
 		}
 		else if (impliedEquality.equals(FALSE)) {
 			result = null;
 		}
 		else {
-			result = new DefaultApplicationResult(this, list(impliedEquality)); // implies value = other
+			result = makeWithAdditionalExternalLiteral(impliedEquality); // implies boundValue = other
 		}
 		return result;
 	}
@@ -195,14 +277,14 @@ public class SingleVariableEqualityConstraint extends AbstractExpressionWrapper 
 	 * @param process
 	 * @return
 	 */
-	protected ApplicationResult keepValueAndEnforceOtherToBeNotEqualToIt(Expression other, RewritingProcess process) {
-		ApplicationResult result;
-		Collection<Expression> impliedLiterals = nonTrivialFormulasBuiltFromTerm1AndEachTerm2OrNull(value, list(other), disequalityMaker(process));
+	protected SingleVariableEqualityConstraint keepValueAndEnforceOtherToBeNotEqualToIt(Expression other, RewritingProcess process) {
+		SingleVariableEqualityConstraint result;
+		Collection<Expression> impliedLiterals = nonTrivialFormulasBuiltFromTerm1AndEachTerm2OrNull(boundValue, list(other), disequalityMaker(process));
 		if (impliedLiterals == null) {
 			result = null;
 		}
 		else {
-			result = new DefaultApplicationResult(this, impliedLiterals); // implies value != other
+			result = makeWithAdditionalExternalLiterals(impliedLiterals); // implies boundValue != other
 		}
 		return result;
 	}
@@ -212,14 +294,15 @@ public class SingleVariableEqualityConstraint extends AbstractExpressionWrapper 
 	 * @param process
 	 * @return
 	 */
-	protected ApplicationResult takeValueAndEnforceDisequalsToBeNotEqualToIt(Expression other, RewritingProcess process) {
-		ApplicationResult result;
+	protected SingleVariableEqualityConstraint takeValueAndEnforceDisequalsToBeNotEqualToIt(Expression other, RewritingProcess process) {
+		SingleVariableEqualityConstraint result;
 		Collection<Expression> impliedLiterals = nonTrivialFormulasBuiltFromTerm1AndEachTerm2OrNull(other, disequals, disequalityMaker(process));
 		if (impliedLiterals == null) {
 			result = null;
 		}
 		else {
-			result = new DefaultApplicationResult(new SingleVariableEqualityConstraint(variable, other), impliedLiterals);
+			SingleVariableEqualityConstraint constraintBindingVariableToOther = new SingleVariableEqualityConstraint(variable, other, constraintTheory.getTermTheory());
+			result = constraintBindingVariableToOther.makeWithAdditionalExternalLiterals(impliedLiterals);
 		}
 		return result;
 	}
@@ -228,10 +311,10 @@ public class SingleVariableEqualityConstraint extends AbstractExpressionWrapper 
 	 * @param other
 	 * @return
 	 */
-	protected ApplicationResult takeNewDisequal(Expression other, RewritingProcess process) {
-		ApplicationResult result;
+	protected SingleVariableEqualityConstraint takeNewDisequal(Expression other, RewritingProcess process) {
+		SingleVariableEqualityConstraint result;
 		if (disequals.contains(other)) {
-			result = redundantLiteralResult(); // redundant
+			result = this; // redundant
 		}
 		else {
 			if (process.isUniquelyNamedConstant(other)) {
@@ -244,8 +327,8 @@ public class SingleVariableEqualityConstraint extends AbstractExpressionWrapper 
 			else {
 				ArrayList<Expression> newDisequals = new ArrayList<>(disequals);
 				newDisequals.add(other);
-				SingleVariableEqualityConstraint newConstraint = new SingleVariableEqualityConstraint(variable, newDisequals, getNumberOfUniquelyNamedConstantDisequals(process));
-				result = new DefaultApplicationResult(newConstraint, emptyList());
+				SingleVariableEqualityConstraint newConstraint = new SingleVariableEqualityConstraint(variable, newDisequals, getNumberOfUniquelyNamedConstantDisequals(process), constraintTheory.getTermTheory());
+				result = newConstraint;
 			}
 		}
 		return result;
@@ -320,30 +403,32 @@ public class SingleVariableEqualityConstraint extends AbstractExpressionWrapper 
 
 	@Override
 	protected Expression computeInnerExpression() {
-		Expression result;
-		if (value != null) {
-			result = apply(EQUALITY, variable, value);
+		List<Expression> conjuncts = list();
+		if (boundValue != null) {
+			conjuncts.add(apply(EQUALITY, variable, boundValue));
 		}
 		else {
-			result = And.make(new FunctionIterator<Expression, Expression>(disequals, d -> apply(DISEQUALITY, variable, d)));
+			Util.mapIntoList(disequals, d -> apply(DISEQUALITY, variable, d), conjuncts);
 		}
+		conjuncts.addAll(externalLiterals);
+		Expression result = And.make(conjuncts);
 		return result;
 	}
 
 	@Override
 	public Expression clone() {
-		SingleVariableEqualityConstraint result = new SingleVariableEqualityConstraint(variable, value, disequals, numberOfUniquelyNamedConstantDisequals);
+		SingleVariableEqualityConstraint result = new SingleVariableEqualityConstraint(variable, boundValue, disequals, Util.set(), numberOfUniquelyNamedConstantDisequals, constraintTheory.getTermTheory());
 		return result;
 	}
 
 	@Override
 	public Expression modelCount(RewritingProcess process) {
 		Expression result;
-		if (value != null) {
+		if (getBoundValue() != null) {
 			result = ONE;
 		}
 		else {
-			long numberOfNonAvailableValues = disequals.size();
+			long numberOfNonAvailableValues = getDisequals().size();
 			long variableDomainSize = getVariableDomainSize(process);
 			if (variableDomainSize == -1) {
 				Expression variableDomain = getVariableDomain(process);
@@ -357,7 +442,8 @@ public class SingleVariableEqualityConstraint extends AbstractExpressionWrapper 
 		return result;
 	}
 
-	protected Expression getVariableDomain(RewritingProcess process) {
+	@Override
+	public Expression getVariableDomain(RewritingProcess process) {
 		Expression variableType = process.getContextualSymbolType(variable);
 		if (variableType == null) {
 			variableType = new DefaultSyntacticFunctionApplication(TYPE, variable);
@@ -367,12 +453,8 @@ public class SingleVariableEqualityConstraint extends AbstractExpressionWrapper 
 	
 	protected long cachedIndexDomainSize = -1;
 
-	/**
-	 * Returns the variable domain size, if determined, or -1 otherwise.
-	 * @param process
-	 * @return
-	 */
-	protected long getVariableDomainSize(RewritingProcess process) {
+	@Override
+	public long getVariableDomainSize(RewritingProcess process) {
 		if (cachedIndexDomainSize == -1) {
 			cachedIndexDomainSize = getTypeCardinality(variable, process);
 		}

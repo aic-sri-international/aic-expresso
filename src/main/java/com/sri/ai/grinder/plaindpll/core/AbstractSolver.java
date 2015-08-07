@@ -135,7 +135,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		Pair<Expression, IndexExpressionsSet> inputAndIndexExpressions = problemType.getExpressionAndIndexExpressionsFromRewriterProblemArgument(expression, process);
 		Expression input = inputAndIndexExpressions.first;
 		IndexExpressionsSet indexExpressions = inputAndIndexExpressions.second;
-		Expression simplifiedInput = inputTheory.simplify(input, process); // TODO: eventually this will should not be needed as simplification should be lazy 
+		Expression simplifiedInput = inputTheory.simplify(input, process); // TODO: eventually this should not be needed as simplification should be lazy 
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
 		Expression result = solve(simplifiedInput, indices, subProcess);

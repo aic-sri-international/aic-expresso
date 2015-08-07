@@ -216,14 +216,6 @@ public abstract class AbstractNonEqualitiesConstraint extends AbstractRuleOfProd
 
 	protected abstract void incorporateFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process);
 
-	/**
-	 * Given a function mapping each term either to itself or to another term meant to represent it
-	 * (determined, most likely, by a system of equalities somewhere),
-	 * apply it to the present constraint, possibly destructively if that means much better performance.
-	 * Terms with distinct representatives should not appear in the resulting constraint.
-	 * @param getRepresentative
-	 * @param process
-	 */
 	@Override
 	public void updateRepresentativesDestructively(Function<Expression, Expression> getRepresentative, RewritingProcess process) {
 		// copies entries to a list because original one is altered during iteration.
