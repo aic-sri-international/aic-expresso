@@ -42,7 +42,10 @@ import java.util.Collection;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.library.Equality;
+import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
+import com.sri.ai.util.base.NullaryFunction;
 @Beta
 /** 
  * A {@link ConstraintTheory} for equality literals.
@@ -66,5 +69,19 @@ public class EqualityConstraintTheory extends AbstractEqualityConstraintTheory {
 	@Override
 	protected NonEqualitiesConstraint makeNonEqualitiesConstraint(Collection<Expression> indices) {
 		return new DisequalitiesConstraint(this, indices);
+	}
+
+	@Override
+	public SingleVariableConstraint makeSingleVariableConstraint() {
+		throw new Error("Not implemented");
+	}
+
+	@Override
+	public Expression makeRandomAtom(NullaryFunction<String> getType, Function<String, Expression> getVariable, Function<String, Expression> getConstant) {
+		String type = getType.apply();
+		Expression term1 = Math.random() > 0.5? getVariable.apply(type) : getConstant.apply(type);
+		Expression term2 = Math.random() > 0.5? getVariable.apply(type) : getConstant.apply(type);
+		Expression result = Equality.make(term1, term2);
+		return result;
 	}
 }

@@ -64,11 +64,13 @@ import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
-import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
+import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.plaindpll.core.AbstractConstraintTheory;
+import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
+import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.math.Rational;
 
 @Beta
@@ -115,6 +117,11 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	@Override
 	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
 		return syntacticFormTypeSimplifiers;
+	}
+
+	@Override
+	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
+		return false; // nothing else is interpreted
 	}
 
 	@Override
@@ -308,5 +315,16 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 							And.make(mapIntoArrayList(negatedPropositions, Not::make)));
 			return result;
 		}
+	}
+
+	@Override
+	public SingleVariableConstraint makeSingleVariableConstraint() {
+		throw new Error("Not implemented");
+	}
+
+	@Override
+	public Expression makeRandomAtom(NullaryFunction<String> getType, Function<String, Expression> getVariable, Function<String, Expression> getConstant) {
+		Expression result = Math.random() > 0.5? getVariable.apply("Boolean") : getConstant.apply("Boolean");
+		return result;
 	}
 }

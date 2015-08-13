@@ -179,7 +179,7 @@ public class SingleVariableEqualityConstraintWithModelCounting extends AbstractE
 	}
 
 	@Override
-	public Expression clone() {
+	public SingleVariableEqualityConstraintWithModelCounting clone() {
 		SingleVariableEqualityConstraint newInnerExpression = (SingleVariableEqualityConstraint) innerConstraint.clone();
 		SingleVariableEqualityConstraintWithModelCounting result = new SingleVariableEqualityConstraintWithModelCounting(newInnerExpression);
 		return result;

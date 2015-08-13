@@ -20,7 +20,7 @@ public interface SingleVariableConstraint extends Expression {
 	ConstraintTheory getConstraintTheory();
 	
 	/**
-	 * @return the variable constrained by this constraint.
+	 * @return the variable term constrained by this constraint.
 	 */
 	Expression getVariable();
 	
@@ -87,4 +87,6 @@ public interface SingleVariableConstraint extends Expression {
 	 * @return an expression representing the model count
 	 */
 	Expression modelCount(RewritingProcess process);
+	
+	SingleVariableConstraint clone();
 }

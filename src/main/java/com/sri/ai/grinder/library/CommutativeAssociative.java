@@ -212,7 +212,7 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 		return result;
 	}
 
-	public static Expression make(Object functor, Collection<Expression> arguments, Expression absorbingElement, Expression neutralElement, boolean isIdempotent) {
+	public static Expression make(Object functor, Collection<? extends Expression> arguments, Expression absorbingElement, Expression neutralElement, boolean isIdempotent) {
 		return make(functor, arguments.iterator(), absorbingElement, neutralElement, isIdempotent);
 	}
 	
@@ -223,7 +223,7 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 	 * If the arguments are being computed on the fly (for example, the iterator is a UnaryFunctionIterator),
 	 * this can save a lot of time.
 	 */
-	public static Expression make(Object functor, Iterator<Expression> argumentsIterator, Expression absorbingElement, Expression neutralElement, boolean isIdempotent) {
+	public static Expression make(Object functor, Iterator<? extends Expression> argumentsIterator, Expression absorbingElement, Expression neutralElement, boolean isIdempotent) {
 		absorbingElement = Expressions.wrap(absorbingElement);
 		List<Expression> arguments = new LinkedList<Expression>();
 		while (argumentsIterator.hasNext()) {

@@ -5,6 +5,7 @@ import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.helper.GrinderUtil.getType;
 import static com.sri.ai.grinder.helper.GrinderUtil.getTypeCardinality;
 import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
@@ -37,7 +38,7 @@ import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 
 /**
- * An {@link Expression} with efficient internal representation for operations on being expanded by a splitter (literal in constraint constraintTheory) and
+ * An {@link Expression} with efficient internal representation for operations on being expanded by a splitter (literal in constraintTheory) and
  * model counting.
  * This interface is defined for use primarily by {@link SGDPLLT}.
  * 
@@ -416,7 +417,7 @@ public class SingleVariableEqualityConstraint extends AbstractExpressionWrapper 
 	}
 
 	@Override
-	public Expression clone() {
+	public SingleVariableEqualityConstraint clone() {
 		SingleVariableEqualityConstraint result = new SingleVariableEqualityConstraint(variable, boundValue, disequals, Util.set(), numberOfUniquelyNamedConstantDisequals, constraintTheory.getTermTheory());
 		return result;
 	}
@@ -444,7 +445,7 @@ public class SingleVariableEqualityConstraint extends AbstractExpressionWrapper 
 
 	@Override
 	public Expression getVariableDomain(RewritingProcess process) {
-		Expression variableType = process.getContextualSymbolType(variable);
+		Expression variableType = getType(variable, process);
 		if (variableType == null) {
 			variableType = new DefaultSyntacticFunctionApplication(TYPE, variable);
 		}

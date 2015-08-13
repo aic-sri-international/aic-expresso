@@ -130,8 +130,15 @@ public class And extends BooleanCommutativeAssociative {
 	 * Same as {@link CommutativeAssociative#make(Object, List, Object, boolean)},
 	 * but not requiring the functor, neutral element, absorbing element, and idempotency.
 	 */
-	public static Expression make(List<Expression> arguments) {
+	public static Expression make(List<? extends Expression> arguments) {
 		return CommutativeAssociative.make("and", arguments, Expressions.FALSE, Expressions.TRUE, true);
+	}
+
+	/**
+	 * Same as {@link And#make(List)} but on a Collection, copied to a list.
+	 */
+	public static Expression make(Collection<? extends Expression> arguments) {
+		return make(new ArrayList<>(arguments));
 	}
 
 	/**

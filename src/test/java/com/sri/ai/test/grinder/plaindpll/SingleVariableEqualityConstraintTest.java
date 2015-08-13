@@ -65,7 +65,7 @@ public class SingleVariableEqualityConstraintTest {
 		
 		Expression expectedConstraint;
 		SingleVariableConstraint actual;
-		RewritingProcess process = DPLLUtil.makeProcess(map("X", "MyType"), map("MyType", "3"));
+		RewritingProcess process = DPLLUtil.makeProcess(map("X", "MyType", "p", "'->'(MyType,MyType)"), map("MyType", "3"));
 		
 		actual = make("X", "X = 10", process);
 		expectedConstraint = parse("X = 10");
@@ -113,6 +113,10 @@ public class SingleVariableEqualityConstraintTest {
 		
 		actual = make("X", "X = Y and X != 10 and X != 11 and X != 12", process);
 		expectedConstraint = parse("X = Y and Y != 10 and Y != 11 and Y != 12");
+		assertEquals(expectedConstraint, actual);
+		
+		actual = make("p(X)", "p(X) = Y and p(X) != 10 and p(X) != 11 and p(X) != 12", process);
+		expectedConstraint = parse("p(X) = Y and Y != 10 and Y != 11 and Y != 12");
 		assertEquals(expectedConstraint, actual);
 		
 		actual = make("X", "X = Y and a != a", process);

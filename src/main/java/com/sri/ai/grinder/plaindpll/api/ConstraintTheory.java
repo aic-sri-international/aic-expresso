@@ -41,10 +41,12 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
+import com.sri.ai.util.base.NullaryFunction;
 
 /**
  * An interface for constraint theories to be plugged into SGDPLL(T).
@@ -61,6 +63,15 @@ import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
 @Beta
 public interface ConstraintTheory extends Theory {
 	
+	/**
+	 * Indicates whether an expression is an application of a function belonging to this theory,
+	 * or a constant belonging to this theory.
+	 * @param term
+	 * @param process
+	 * @return
+	 */
+	boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process);
+
 	/**
 	 * Indicates whether an expression is to be considered a variable term in this constraintTheory.
 	 * @param term
@@ -136,4 +147,25 @@ public interface ConstraintTheory extends Theory {
 	 * @return
 	 */
 	Constraint makeConstraint(Collection<Expression> indices);
+
+	/**
+	 * Make a new single-variable constraint for this constraint theory.
+	 * @return
+	 */
+	SingleVariableConstraint makeSingleVariableConstraint();
+	
+	/**
+	 * Returns a random atom in this constraint theory based on
+	 * given types and, for each type, variables and constants,
+	 * provided in the form of a {@link NullaryFunction} providing a random type,
+	 * and two {@link Function}s receiving the type
+	 * and providing a random symbol in that type.
+	 * This is useful for making random constraints for correctness and performance testing.
+	 * @param getType randomly returns a String naming a type in the problem in question 
+	 * @param getVariable randomly returns an Expression representing a variable in the problem in question, of the given type
+	 * @param getConstant randomly returns an Expression representing a constant in the problem in question, of the given type
+	 * @return a random literal in this constraint theory.
+	 */
+	Expression makeRandomAtom(
+			NullaryFunction<String> getType, Function<String, Expression> getVariable, Function<String, Expression> getConstant);
 }

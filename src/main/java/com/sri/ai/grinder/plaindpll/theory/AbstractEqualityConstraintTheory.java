@@ -90,6 +90,12 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 		this.termTheory = termTheory;
 	}
 
+	@Override
+	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
+		boolean result = expression.hasFunctor(EQUALITY) || expression.hasFunctor(DISEQUALITY);
+		return result;
+	}
+	
 	public TermTheory getTermTheory() {
 		return termTheory;
 	}

@@ -45,6 +45,7 @@ import static com.sri.ai.grinder.library.Equality.isEquality;
 import java.util.Collection;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
@@ -52,8 +53,10 @@ import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
+import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.plaindpll.core.AbstractConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
+import com.sri.ai.util.base.NullaryFunction;
 
 @Beta
 /** 
@@ -90,6 +93,12 @@ public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheor
 		return result;
 	}
 	
+	@Override
+	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
+		boolean result = constraintTheoryWithEquality.isInterpretedInThisTheoryBesidesBooleanConnectives(expression, process);
+		return result;
+	}
+
 	@Override
 	public boolean isVariableTerm(Expression term, RewritingProcess process) {
 		return constraintTheoryWithEquality.isVariableTerm(term, process);
@@ -272,5 +281,22 @@ public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheor
 							new DefaultRewritingProcess(null));
 			return result;
 		}
+	}
+
+	@Override
+	public SingleVariableConstraint makeSingleVariableConstraint() {
+		throw new Error("Not implemented");
+	}
+
+	@Override
+	public Expression makeRandomAtom(NullaryFunction<String> getType, Function<String, Expression> getVariable, Function<String, Expression> getConstant) {
+		Expression result;
+		if (Math.random() > 0.5) {
+			result = Math.random() > 0.5? getVariable.apply("Boolean") : getConstant.apply("Boolean");
+		}
+		else {
+			result = constraintTheoryWithEquality.makeRandomAtom(getType, getVariable, getConstant);
+		}
+		return result;
 	}
 }
