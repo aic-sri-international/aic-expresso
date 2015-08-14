@@ -57,6 +57,7 @@ import com.sri.ai.grinder.plaindpll.api.Solver;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
 import com.sri.ai.grinder.plaindpll.theory.AbstractConstraint;
+import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
 import com.sri.ai.util.Util;
 
 /**
@@ -75,11 +76,11 @@ public class ExpressionConstraint extends AbstractConstraint {
 	private Collection<Expression> supportedIndices;
 	private ConstraintTheory theory;
 	
-	private ExpressionConstraint(ConstraintTheory theory, Collection<Expression> supportedIndices, Expression expression) {
+	private ExpressionConstraint(ConstraintTheory constraintTheory, Collection<Expression> supportedIndices, Expression expression) {
 		Util.myAssert(() -> expression != null, () -> getClass().getSimpleName() + " cannot wrap a null value.");
 		this.baseExpression = expression instanceof ExpressionConstraint? ((ExpressionConstraint) expression).baseExpression : expression;
 		this.supportedIndices = supportedIndices;
-		this.theory = theory;
+		this.theory = constraintTheory;
 	}
 	
 	/**
@@ -195,7 +196,7 @@ public class ExpressionConstraint extends AbstractConstraint {
 	private Solver cachedSolver;
 	public Solver getSolver() {
 		if (cachedSolver == null) {
-			cachedSolver = new SGDPLLT(theory, new ModelCounting()); 
+			cachedSolver = new SGDPLLT(new DefaultInputTheory(theory), new ModelCounting()); 
 		}
 		return cachedSolver;
 	}

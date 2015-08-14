@@ -54,6 +54,7 @@ import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
 import com.sri.ai.grinder.plaindpll.problemtype.Sum;
+import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
 import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.FunctionalTermTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
@@ -83,7 +84,7 @@ public class ContradictionByTypeSizeTest extends AbstractSymbolicSymbolEqualityD
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new SGDPLLT(new EqualityConstraintTheory(new FunctionalTermTheory()), new ModelCounting());
+		return new SGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new FunctionalTermTheory())), new ModelCounting());
 	}
 
 	@Test
@@ -95,7 +96,7 @@ public class ContradictionByTypeSizeTest extends AbstractSymbolicSymbolEqualityD
 		Expression expected;
 		Expression result;
 		
-		SGDPLLT solver = new SGDPLLT(new EqualityConstraintTheory(new SymbolTermTheory()), new Sum());
+		SGDPLLT solver = new SGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new Sum());
 		
 		expression = parse("if F = bob then 1 else 2");
 		expected   = parse("1");

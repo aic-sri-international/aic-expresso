@@ -58,6 +58,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
+import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
 import com.sri.ai.grinder.plaindpll.theory.PropositionalConstraintTheory;
 import com.sri.ai.util.Util;
 
@@ -71,7 +72,7 @@ public class PropositionalLogicModelCountingDPLLTest {
 	}
 
 	protected Rewriter makeRewriter() {
-		return new SGDPLLT(new PropositionalConstraintTheory(), new ModelCounting());
+		return new SGDPLLT(new DefaultInputTheory(new PropositionalConstraintTheory()), new ModelCounting());
 	}
 
 	@Test

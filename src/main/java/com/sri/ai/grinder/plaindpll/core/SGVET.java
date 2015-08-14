@@ -68,6 +68,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
+import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
 import com.sri.ai.util.base.PairOf;
 
@@ -103,13 +104,13 @@ public class SGVET extends AbstractSolver {
 	
 	private SGDPLLT subSolver;
 	
-	public SGVET(ConstraintTheory theory, SemiRingProblemType problemType) {
-		this(theory, problemType, null);
+	public SGVET(InputTheory inputTheory, SemiRingProblemType problemType) {
+		this(inputTheory, problemType, null);
 	}
 
-	public SGVET(ConstraintTheory theory, SemiRingProblemType problemType, CountsDeclaration countsDeclaration) {
-		super(theory, problemType, countsDeclaration);
-		this.subSolver = new SGDPLLT(theory, problemType, countsDeclaration);
+	public SGVET(InputTheory inputTheory, SemiRingProblemType problemType, CountsDeclaration countsDeclaration) {
+		super(inputTheory, problemType, countsDeclaration);
+		this.subSolver = new SGDPLLT(inputTheory, problemType, countsDeclaration);
 		subSolver.debug = false;
 		subSolver.debugLevel = 6;
 	}

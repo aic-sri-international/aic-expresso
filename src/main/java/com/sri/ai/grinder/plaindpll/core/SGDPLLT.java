@@ -53,8 +53,8 @@ import com.sri.ai.grinder.helper.concurrent.BranchRewriteTask;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
-import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
+import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.base.QuarternaryFunction;
@@ -99,12 +99,12 @@ public class SGDPLLT extends AbstractSolver {
 	 */
 	public final static boolean earlyExternalizationOfFreeVariableSplittersOptimization = true; // IMPORTANT: unit tests will break if set to false. However DPLL stress tests can still be used. As of this writing (12/4/2014) the false setting was slightly slower.
 	
-	public SGDPLLT(ConstraintTheory theory, GroupProblemType problemType) {
-		this(theory, problemType, null);
+	public SGDPLLT(InputTheory inputTheory, GroupProblemType problemType) {
+		this(inputTheory, problemType, null);
 	}
 
-	public SGDPLLT(ConstraintTheory theory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
-		super(theory, problemType, countsDeclaration);
+	public SGDPLLT(InputTheory inputTheory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
+		super(inputTheory, problemType, countsDeclaration);
 	}
 
 	@Override

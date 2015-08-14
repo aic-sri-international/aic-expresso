@@ -47,6 +47,7 @@ import com.sri.ai.grinder.library.equality.RandomSatisfiabilityProblemGenerator;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
+import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
 import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 
@@ -55,7 +56,7 @@ public class SymbolEqualitySatisfiabilityDPLLStressTest extends AbstractSymbolic
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new SGDPLLT(new EqualityConstraintTheory(new SymbolTermTheory()), new Satisfiability(), new CountsDeclaration(10));
+		return new SGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new Satisfiability(), new CountsDeclaration(10));
 	}
 
 	@Override

@@ -54,6 +54,7 @@ import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLTParallelizer;
 import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
+import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
 import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 
@@ -128,7 +129,7 @@ public class SGDPLLTParallelizerTest {
 	protected void runTest(Expression expression, List<String> expected, Collection<String> indices, int level) {
 		List<String> collected = list();
 		SGDPLLTParallelizer.Collector collector = (e, i, c, p) -> collected.add(e + ", " + i + ", " + c);
-		SGDPLLTParallelizer parallelizer = new SGDPLLTParallelizer(new EqualityConstraintTheory(new SymbolTermTheory()), new ModelCounting(), collector, level);
+		SGDPLLTParallelizer parallelizer = new SGDPLLTParallelizer(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new ModelCounting(), collector, level);
 		List<Expression> indexExpressions = mapIntoList(indices, Expressions::parse);
 		parallelizer.solve(expression, indexExpressions, new DefaultRewritingProcess(null));
 		// System.out.println("Collected:\n" + join(collected, "\n"));

@@ -10,6 +10,7 @@ import com.sri.ai.grinder.plaindpll.core.ExpressionConstraint;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
 import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
+import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
 import com.sri.ai.util.Util;
 
 /**
@@ -91,7 +92,7 @@ public interface Constraint extends Expression {
 	 * Specific constraint implementations will typically have more efficient ways to do it.
 	 */
 	default Constraint project(Collection<Expression> eliminatedIndices, RewritingProcess process) {
-		Solver projector = new SGDPLLT(getConstraintTheory(), new Satisfiability());
+		Solver projector = new SGDPLLT(new DefaultInputTheory(getConstraintTheory()), new Satisfiability());
 		Expression resultExpression = projector.solve(this, eliminatedIndices, process); // this was the motivation for making Constraint implement Expression
 		// note that solvers should be aware that their input or part of their input may be a Constraint, and take advantage of the internal representations already present in them, instead of simply converting them to an Expression and redoing all the work.
 		Collection<Expression> remainingSupportedIndices = Util.subtract(getSupportedIndices(), eliminatedIndices);

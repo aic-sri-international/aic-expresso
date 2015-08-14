@@ -45,7 +45,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.plaindpll.api.Theory;
-import com.sri.ai.grinder.plaindpll.theory.DefaultTheory;
+import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
 import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 
@@ -152,7 +152,7 @@ public class SimplifyFormulaTest {
 
 	private void runTest(Expression expression, Expression expected) {
 		Expression actual;
-		Theory theory = new DefaultTheory(new EqualityConstraintTheory(new SymbolTermTheory()));
+		Theory theory = new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory()));
 		actual = theory.simplify(expression, new DefaultRewritingProcess(expression, null));
 		Assert.assertEquals(expected, actual);
 	}

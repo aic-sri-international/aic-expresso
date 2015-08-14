@@ -46,6 +46,7 @@ import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
+import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.util.collect.PredicateIterator;
 
 /**
@@ -82,25 +83,25 @@ public class SGDPLLTParallelizer extends SGDPLLT {
 	/**
 	 * Constructor similar to {@link SGDPLLT#SGDPLLT(ConstraintTheory, GroupProblemType),
 	 * but receiving the collector function and the collecting depth.
-	 * @param theory
+	 * @param inputTheory
 	 * @param problemType
 	 * @param collector
 	 * @param collectingDepth
 	 */
-	public SGDPLLTParallelizer(ConstraintTheory theory, GroupProblemType problemType, Collector collector, int collectingDepth) {
-		this(theory, problemType, null, collector, collectingDepth);
+	public SGDPLLTParallelizer(InputTheory inputTheory, GroupProblemType problemType, Collector collector, int collectingDepth) {
+		this(inputTheory, problemType, null, collector, collectingDepth);
 	}
 
 	/**
 	 * Constructor similar to {@link SGDPLLT#SGDPLLT(ConstraintTheory, GroupProblemType, CountsDeclaration),
 	 * but receiving the collector function and the collecting depth.
-	 * @param theory
+	 * @param inputTheory
 	 * @param problemType
 	 * @param collector
 	 * @param collectingDepth
 	 */
-	public SGDPLLTParallelizer(ConstraintTheory theory, GroupProblemType problemType, CountsDeclaration countsDeclaration, Collector collector, int collectingDepth) {
-		super(theory, problemType, countsDeclaration);
+	public SGDPLLTParallelizer(InputTheory inputTheory, GroupProblemType problemType, CountsDeclaration countsDeclaration, Collector collector, int collectingDepth) {
+		super(inputTheory, problemType, countsDeclaration);
 		this.collector = collector;
 		this.collectingDepth = collectingDepth;
 	}

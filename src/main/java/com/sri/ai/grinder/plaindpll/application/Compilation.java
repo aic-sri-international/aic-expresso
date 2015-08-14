@@ -46,9 +46,11 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
+import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.grinder.plaindpll.api.Solver;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.Max;
+import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
 import com.sri.ai.util.Util;
 
 /**
@@ -58,11 +60,11 @@ import com.sri.ai.util.Util;
  */
 public class Compilation {
 
-	public static Expression compile(Expression inputExpression, ConstraintTheory theory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Function<Solver, Solver> solverListener) {
+	public static Expression compile(Expression inputExpression, InputTheory inputTheory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Function<Solver, Solver> solverListener) {
 		GroupProblemType problemType = new Max(); // the problem type actually does not matter, because we are not going to have any indices.
 		
 		// The solver for the parameters above.
-		SGDPLLT solver = new SGDPLLT(theory, problemType);
+		SGDPLLT solver = new SGDPLLT(inputTheory, problemType);
 		if (solverListener != null) {
 			solverListener.apply(solver);
 		}
@@ -81,7 +83,7 @@ public class Compilation {
 		return result;
 	}
 
-	public static Expression compile(Expression inputExpression, ConstraintTheory theory, Map<String, String> mapFromTypeNameToSizeString, Map<String, String> mapFromVariableNameToTypeName) {
-		return compile(inputExpression, theory, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, null);
+	public static Expression compile(Expression inputExpression, InputTheory inputTheory, Map<String, String> mapFromTypeNameToSizeString, Map<String, String> mapFromVariableNameToTypeName) {
+		return compile(inputExpression, inputTheory, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, null);
 	}
 }

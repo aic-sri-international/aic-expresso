@@ -61,9 +61,8 @@ import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
+import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.grinder.plaindpll.api.Solver;
-import com.sri.ai.grinder.plaindpll.api.Theory;
-import com.sri.ai.grinder.plaindpll.theory.DefaultTheory;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
@@ -90,7 +89,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	}
 	
 	/** The background theory for the solver's input in the algorithm. */
-	protected Theory inputTheory;
+	protected InputTheory inputTheory;
 	
 	/** The background theory for constraints in the algorithm. */
 	protected ConstraintTheory constraintTheory;
@@ -101,20 +100,20 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	/** A {@link CountsDeclaration} encapsulating sort size information. */
 	protected CountsDeclaration countsDeclaration;
 	
-	public AbstractSolver(ConstraintTheory theory, GroupProblemType problemType) {
-		this(theory, problemType, null);
+	public AbstractSolver(InputTheory inputTheory, GroupProblemType problemType) {
+		this(inputTheory, problemType, null);
 	}
 
-	public AbstractSolver(ConstraintTheory constraintTheory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
-		this.inputTheory = new DefaultTheory(constraintTheory);
-		this.constraintTheory = constraintTheory;
+	public AbstractSolver(InputTheory inputTheory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
+		this.inputTheory = inputTheory;
+		this.constraintTheory = inputTheory.getConstraintTheory();
 		this.problemType = problemType;
 		this.countsDeclaration = countsDeclaration;
 	}
 	
 	@Override
 	public
-	Theory getInputTheory() {
+	InputTheory getInputTheory() {
 		return inputTheory;
 	}
 	

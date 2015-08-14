@@ -46,6 +46,7 @@ import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.Sum;
+import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
 import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 import com.sri.ai.util.Util;
@@ -90,7 +91,7 @@ public class HelloWorlds {
 		Map<String, String> mapFromSymbolNameToTypeName = Util.map("X", "Everything", "Y", "Everything", "Z", "Everything");
 		
 		/* The solver for the parameters above. */
-		SGDPLLT solver = new SGDPLLT(theory, problemType);
+		SGDPLLT solver = new SGDPLLT(new DefaultInputTheory(theory), problemType);
 		
 		/* Solve the problem. */
 		Expression result = solver.solve(expression, indices, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString);

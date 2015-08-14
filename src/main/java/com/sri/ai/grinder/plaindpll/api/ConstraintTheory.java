@@ -49,7 +49,7 @@ import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
 import com.sri.ai.util.base.NullaryFunction;
 
 /**
- * An interface for constraint theories to be plugged into SGDPLL(T).
+ * An interface for constraint theories to be plugged into quantifier problems.
  * <p>
  * One of its tasks is to select and manipulate <i>splitters</i>.
  * A splitter is a literal on which DPLL splits the possible interpretations of an expression (see {@link SGDPLLT}).

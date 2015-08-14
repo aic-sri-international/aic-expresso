@@ -35,21 +35,37 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.plaindpll;
+package com.sri.ai.grinder.plaindpll.api;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.plaindpll.core.SGDPLLTMapReduce;
-import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
-import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
-import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
-import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
+import com.google.common.base.Function;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.util.base.NullaryFunction;
 
+/**
+ * An interface for input theories to be plugged into quantifier problems.
+ * <p>
+ * An input theory is a {@link Theory} specialized in input expressions inside quantifiers.
+ * As such, it knows about generating random examples of them.
+ * 
+ * @author braz
+ *
+ */
 @Beta
-public class SymbolEqualityModelCountingSGDPLLMapReduceTest extends SymbolEqualityModelCountingDPLLTest {
+public interface InputTheory extends Theory {
 	
-	@Override
-	protected Rewriter makeRewriter() {
-		return new SGDPLLTMapReduce(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new ModelCounting());
-	}
+	/** The constraint theory for the literals in the input expressions. */
+	ConstraintTheory getConstraintTheory();
+	
+	/**
+	 * Generates a random input expression in this theory, of a given target type.
+	 * @param targetType the type of the resulting random expression 
+	 * @param getType randomly returns a String naming a type in the problem in question 
+	 * @param getVariable randomly returns an Expression representing a variable in the problem in question, of the given type
+	 * @param getConstant randomly returns an Expression representing a constant in the problem in question, of the given type
+	 * @return a random expression in this input theory
+	 */
+	Expression getRandomInputExpression(
+			String targetType,
+			NullaryFunction<String> getType, Function<String, Expression> getVariable, Function<String, Expression> getConstant);
 }

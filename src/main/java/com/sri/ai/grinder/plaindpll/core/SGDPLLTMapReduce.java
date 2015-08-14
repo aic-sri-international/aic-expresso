@@ -45,7 +45,9 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
+import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.grinder.plaindpll.api.Solver;
+import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
 import com.sri.ai.util.base.Wrapper;
 
 /**
@@ -59,8 +61,8 @@ import com.sri.ai.util.base.Wrapper;
 @Beta
 public class SGDPLLTMapReduce extends AbstractSolver {
 
-	public SGDPLLTMapReduce(ConstraintTheory theory, GroupProblemType problemType) {
-		super(theory, problemType);
+	public SGDPLLTMapReduce(InputTheory inputTheory, GroupProblemType problemType) {
+		super(inputTheory, problemType);
 	}
 
 	@Override
@@ -71,7 +73,7 @@ public class SGDPLLTMapReduce extends AbstractSolver {
 		final Wrapper<Expression> accumulatedSolution = new Wrapper<>(getProblemType().getGroup().additiveIdentityElement()); // starts with "zero"
 		// Wrapper is used because one cannot use a non-final object inside a closure as seen below.
 		
-		Solver solver = new SGDPLLT(getConstraintTheory(), getProblemType());
+		Solver solver = new SGDPLLT(getInputTheory(), getProblemType());
 		
 		SGDPLLTParallelizer.Collector collector =
 				(e, i, c, p) -> {
@@ -87,7 +89,7 @@ public class SGDPLLTMapReduce extends AbstractSolver {
 					// System.out.println("Accumulated solution now is: " + accumulatedSolution.value);	
 				};
 
-		SGDPLLTParallelizer parallelizer = new SGDPLLTParallelizer(getConstraintTheory(), getProblemType(), collector, depth);
+		SGDPLLTParallelizer parallelizer = new SGDPLLTParallelizer(getInputTheory(), getProblemType(), collector, depth);
 		
 		parallelizer.solve(expression, indices, constraint, process);
 		

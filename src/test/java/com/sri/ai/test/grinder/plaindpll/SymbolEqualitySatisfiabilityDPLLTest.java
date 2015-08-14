@@ -52,6 +52,7 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
+import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
 import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 
@@ -224,6 +225,6 @@ public class SymbolEqualitySatisfiabilityDPLLTest extends AbstractSymbolicSymbol
 	}
 
 	protected Rewriter makeRewriter() {
-		return new SGDPLLT(new EqualityConstraintTheory(new SymbolTermTheory()), new Satisfiability());
+		return new SGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new Satisfiability());
 	}
 }
