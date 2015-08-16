@@ -729,7 +729,7 @@ public class GrinderUtil {
 			result = coDomain;
 		}
 		else {
-			throw new Error("Categorical implemented only for symbols and function applications, but attempted on " + expression);
+			throw new Error("Type implemented only for symbols and function applications, but attempted on " + expression);
 		}
 		return result;
 	}
@@ -1145,7 +1145,7 @@ public class GrinderUtil {
 	 * Returns the cardinality of the type of a given variable in the given process,
 	 * trying to find {@link TypeSizeOfSymbolOrType} object in the process global objects
 	 * under key {@link CardinalityOfType#PROCESS_GLOBAL_OBJECT_KEY_DOMAIN_SIZE_OF_SYMBOL_OR_TYPE}
-	 * or, failing that, to look for <code>| Categorical |</code>, for <code>Categorical</code> the type of the variable,
+	 * or, failing that, to look for <code>| Type |</code>, for <code>Type</code> the type of the variable,
 	 * in the process global objects.
 	 * If the size cannot be determined, returns -1.
 	 * @param symbol a variable
@@ -1167,7 +1167,7 @@ public class GrinderUtil {
 			}
 		}
 	
-		// If that didn't work, we try to find a value for | Categorical | in the process's global objects.
+		// If that didn't work, we try to find a value for | Type | in the process's global objects.
 		if (result == -1) {
 			Expression variableType = process.getContextualSymbolType(symbol);
 			if (variableType != null) {

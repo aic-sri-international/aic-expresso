@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.plaindpll.core;
 
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.getFirstOrNull;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
@@ -61,7 +60,6 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
-import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.FunctionIterator;

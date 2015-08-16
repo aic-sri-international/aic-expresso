@@ -653,7 +653,7 @@ public class AbstractRewritePanel extends JPanel {
 	private void addModulesAndProviders() {
 		// Important Expected Rewrite Behavior
 		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Plain Substitution",new PlainSubstitution()));
-		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Cardinality Categorical of Logical Variable", new CardinalityOfType()));
+		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Cardinality of Type of Logical Variable", new CardinalityOfType()));
 		rewriterEnableList.add(new LeafEnableItem<Rewriter>("Absorbing Element", new AbsorbingElement(
 				"and", "false",
 				"or", "true",

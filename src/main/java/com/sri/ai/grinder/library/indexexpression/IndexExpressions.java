@@ -31,7 +31,7 @@ import com.sri.ai.util.base.Pair;
  * Examples are
  * <ul>
  * <li> The <code>X</code> in the expression <code>there exists X : p(X)</code>
- * <li> The <code>X in Categorical</code> in the expression <code>there exists X in Categorical : p(X)</code>
+ * <li> The <code>X in Type</code> in the expression <code>there exists X in Type : p(X)</code>
  * <li> The <code>q(X)</code> in the expression <code>there exists q(X) : p(q(X))</code>
  * <li> The <code>q(X) in {1,2,3}</code> in the expression <code>there exists q(X) in {1,2,3} : p(q(X))</code>
  * <li> The <code>q(X) in {1,2,3}</code> in the expression <code>{ (on q(X) in {1,2,3}) q(X) + 2 | q(X) != 2 }</code>
