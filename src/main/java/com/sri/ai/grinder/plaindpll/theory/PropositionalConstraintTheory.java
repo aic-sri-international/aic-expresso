@@ -70,7 +70,6 @@ import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
-import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.math.Rational;
 
 @Beta
@@ -318,13 +317,14 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint() {
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable) {
 		throw new Error("Not implemented");
 	}
 
 	@Override
-	public Expression makeRandomAtom(NullaryFunction<String> getType, Function<String, Expression> getVariable, Function<String, Expression> getConstant) {
-		Expression result = Math.random() > 0.5? getVariable.apply("Boolean") : getConstant.apply("Boolean");
-		return result;
+	public Expression makeRandomAtomOn(Expression variable) {
+//		Expression result = Math.random() > 0.5? getVariable.apply("Boolean") : getConstant.apply("Boolean");
+//		return result;
+		return null;
 	}
 }

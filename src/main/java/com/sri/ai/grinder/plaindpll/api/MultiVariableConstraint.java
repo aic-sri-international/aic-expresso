@@ -79,16 +79,7 @@ public class MultiVariableConstraint extends AbstractExpressionWrapper {
 	}
 	
 	private Expression getVariableFor(Expression literal, RewritingProcess process) {
-		Expression result = min(getAllVariables(literal, process), (e1, e2) -> e1.compareTo(e2));
-		return result;
-	}
-
-	private Collection<Expression> getAllVariables(Expression expression, RewritingProcess process) {
-		Iterator<Expression> variables =
-				new PredicateIterator<Expression>(
-						new SubExpressionsDepthFirstIterator(expression),
-						e -> ! constraintTheory.isInterpretedInThisTheoryBesidesBooleanConnectives(e, process));
-		Collection<Expression> result = addAllToList(variables);
+		Expression result = min(constraintTheory.getVariablesIn(literal, process), (e1, e2) -> e1.compareTo(e2));
 		return result;
 	}
 
@@ -99,7 +90,7 @@ public class MultiVariableConstraint extends AbstractExpressionWrapper {
 	protected SingleVariableConstraint getConstraintFor(Expression variable) {
 		SingleVariableConstraint result = fromVariableToItsConstraint.get(variable);
 		if (result == null) {
-			result = constraintTheory.makeSingleVariableConstraint();
+			result = constraintTheory.makeSingleVariableConstraint(variable);
 		}
 		return result;
 	}

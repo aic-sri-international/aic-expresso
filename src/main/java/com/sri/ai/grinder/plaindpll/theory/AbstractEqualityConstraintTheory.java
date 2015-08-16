@@ -86,10 +86,15 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 	// which is either a variable symbol, or an uninterpreted function application such as p(a, b, X).
 	// It can also be seen as an indexed variable (typically represented as x_i, y_i,j etc).
 
+	/**
+	 * Creates this equality constraint theory with given term theory.
+	 * @param termTheory
+	 */
 	public AbstractEqualityConstraintTheory(TermTheory termTheory) {
+		super();
 		this.termTheory = termTheory;
 	}
-
+	
 	@Override
 	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
 		boolean result = expression.hasFunctor(EQUALITY) || expression.hasFunctor(DISEQUALITY);

@@ -43,7 +43,7 @@ public interface SingleVariableConstraint extends Expression {
 	Collection<Expression> getExternalLiterals();
 
 	/**
-	 * Returns an {@link SingleVariableConstraint} representing a constraint equivalent to this one given that 'externalLiteral' is true.
+	 * Returns an {@link ConstraintTheoryTester} representing a constraint equivalent to this one given that 'externalLiteral' is true.
 	 * For example, <code>x != 3 and y = 3</code> is equivalent to <code>x != 3</code> under <code>y = 3</code>.
 	 * While this method could in principle be defined for literals that are not external,
 	 * that is, literals on the variable of this single-variable constraint,
@@ -61,7 +61,7 @@ public interface SingleVariableConstraint extends Expression {
 	SingleVariableConstraint simplifyGiven(Expression externalLiteral, RewritingProcess process);
 	
 	/**
-	 * Returns an {@link SingleVariableConstraint} representing the conjunction of this constraint and a given literal,
+	 * Returns an {@link ConstraintTheoryTester} representing the conjunction of this constraint and a given literal,
 	 * or null if they are contradictory.
 	 * @param literal the literal
 	 * @param process the rewriting process

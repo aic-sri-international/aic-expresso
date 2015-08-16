@@ -35,52 +35,39 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.theory;
+package com.sri.ai.expresso.api;
 
-import java.util.Collection;
+import java.util.Iterator;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
-import com.sri.ai.grinder.plaindpll.api.TermTheory;
-@Beta
-/** 
- * A {@link ConstraintTheory} for equality literals.
+
+/**
+ * Represents the type of expressions.
+ * 
+ * @author braz
  */
-public class EqualityConstraintTheory extends AbstractEqualityConstraintTheory {
+@Beta
+public interface Type {
 
-	public EqualityConstraintTheory(TermTheory termTheory) {
-		super(termTheory);
-	}
-
-	@Override
-	protected String getCorrespondingSplitterFunctorOtherThanEqualityOrNull(Expression expression) {
-		return null;
-	}
-
-	@Override
-	protected Function<Expression, Expression> getNonEqualitySplitterApplier(boolean splitterSign, Expression splitter) {
-		return null;
-	}
-
-	@Override
-	protected NonEqualitiesConstraint makeNonEqualitiesConstraint(Collection<Expression> indices) {
-		return new DisequalitiesConstraint(this, indices);
-	}
-
-	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable) {
-		throw new Error("Not implemented");
-	}
-
-	@Override
-	public Expression makeRandomAtomOn(Expression variable) {
-//		String type = getType.apply();
-//		Expression term1 = Math.random() > 0.5? getVariable.apply(type) : getConstant.apply(type);
-//		Expression term2 = Math.random() > 0.5? getVariable.apply(type) : getConstant.apply(type);
-//		Expression result = Equality.make(term1, term2);
-//		return result;
-		return null;
-	}
+	/** The name of the type -- typically, the string used to describe it in a program. */
+	String getName();
+	
+	/**
+	 * Provides an iterator ranging over constants for the elements of this type.
+	 * @return
+	 */
+	Iterator<Expression> iterator();
+	
+	/**
+	 * Indicates whether a constant represents an element of this type.
+	 * @param constant
+	 * @return
+	 */
+	boolean contains(Expression constant);
+	
+	/**
+	 * Returns the number of elements in the type, if finite, or -1 if infinite.
+	 * @return
+	 */
+	int size();
 }

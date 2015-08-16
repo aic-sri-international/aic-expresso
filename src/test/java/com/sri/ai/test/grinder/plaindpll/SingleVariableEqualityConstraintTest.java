@@ -48,6 +48,7 @@ import org.junit.Test;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
@@ -65,7 +66,7 @@ public class SingleVariableEqualityConstraintTest {
 		
 		Expression expectedConstraint;
 		SingleVariableConstraint actual;
-		RewritingProcess process = DPLLUtil.makeProcess(map("X", "MyType", "p", "'->'(MyType,MyType)"), map("MyType", "3"));
+		RewritingProcess process = DPLLUtil.extendProcessWith(map("X", "MyType", "p", "'->'(MyType,MyType)"), map("MyType", "3"), new DefaultRewritingProcess(null));
 		
 		actual = make("X", "X = 10", process);
 		expectedConstraint = parse("X = 10");
@@ -150,7 +151,7 @@ public class SingleVariableEqualityConstraintTest {
 		
 		Expression expectedConstraint;
 		SingleVariableConstraint actual;
-		RewritingProcess process = DPLLUtil.makeProcess(map("X", "MyType"), map("MyType", "3"));
+		RewritingProcess process = DPLLUtil.extendProcessWith(map("X", "MyType"), map("MyType", "3"), new DefaultRewritingProcess(null));
 		
 		actual = make("X", "X = 10 and Y != 3", process);
 		actual = actual.simplifyGiven(parse("Y != 3"), process);

@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.api;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,6 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.core.RewriteOnce;
 import com.sri.ai.grinder.core.RewriterLookup;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
@@ -260,4 +262,16 @@ public interface RewritingProcess {
 	Constraint getDPLLContextualConstraint();
 
 	RewritingProcess extendDPLLContextualConstraint(boolean splitterSign, Expression splitter);
+	
+	RewritingProcess put(Type type);
+
+	default RewritingProcess put(Collection<Type> types) {
+		RewritingProcess result = this;
+		for (Type type : types) {
+			result = result.put(type);
+		}
+		return result;
+	}
+	
+	Type getType(String name);
 }

@@ -3644,9 +3644,9 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			new CardinalityData(
 					parse("X = a"),
 					false,
-					"| {(on X in Type) tuple(X) | X != a } |",
+					"| {(on X in Categorical) tuple(X) | X != a } |",
 					new CountsDeclaration(10),
-					"(| Type |-1, 9)"),	
+					"(| Categorical |-1, 9)"),	
 			//
 			// Basic: Examples from paper: 
 		    // 'Lifted Arbitrary AbstractEqualityConstraint Solving for Lifted Probabilistic Inference'.

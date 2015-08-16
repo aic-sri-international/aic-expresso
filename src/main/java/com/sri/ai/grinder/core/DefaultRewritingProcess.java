@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.core;
 
+import static com.sri.ai.util.Util.map;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -52,6 +54,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.ChildRewriterCallIntercepter;
@@ -136,6 +139,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	//
 	private ConcurrentHashMap<Object, Object>               globalObjects       = null;
 	private ConcurrentHashMap<Class<?>, Rewriter>           lookedUpModuleCache = null;
+	private Map<String, Type> types = new LinkedHashMap<String, Type>();
 	
 	/**
 	 * A class determining how rewriters are indexed in the rewriter caches.
@@ -233,7 +237,8 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				new ConcurrentHashMap<RewriterKey, ExpressionCache>(),
 				new ConcurrentHashMap<Class<?>, Rewriter>(),
 				new AtomicBoolean(false), 
-				true);
+				true,
+				map());
 	}
 
 	public DefaultRewritingProcess(Expression rootExpression,
@@ -255,7 +260,8 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				new ConcurrentHashMap<RewriterKey, ExpressionCache>(),
 				new ConcurrentHashMap<Class<?>, Rewriter>(),
 				new AtomicBoolean(false), 
-				true);
+				true,
+				map());
 	}
 
 	// END-Constructors
@@ -647,7 +653,8 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				parentProcess.rewriterCaches,
 				parentProcess.lookedUpModuleCache,
 				parentProcess.interrupted, 
-				false /* isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess */				
+				false /* isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess */,
+				parentProcess.types
 				);
 		
 	}
@@ -672,7 +679,8 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				new ConcurrentHashMap<RewriterKey, ExpressionCache>(),
 				new ConcurrentHashMap<Class<?>, Rewriter>(),
 				process.interrupted,
-				process.getIsResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess());
+				process.getIsResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess(),
+				process.types);
 	}
 	
 	private void initialize(DefaultRewritingProcess parentProcess,
@@ -687,7 +695,8 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			ConcurrentHashMap<RewriterKey, ExpressionCache> rewriterCaches,
 			ConcurrentHashMap<Class<?>, Rewriter> lookedUpModuleCache,
 			AtomicBoolean interrupted,
-			boolean isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess) {
+			boolean isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess,
+			Map<String, Type> types) {
 		this.id                   = _uniqueIdGenerator.addAndGet(1L);
 		this.parentProcess        = parentProcess;
 		this.rootExpression       = rootExpression;
@@ -712,6 +721,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		if (this.isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess) {
 			notifyReadinessOfRewritingProcess();
 		}
+		this.types = types;
 	}
 	
 	private ExpressionCache getRewriterCache(Rewriter rewriter) {
@@ -756,5 +766,18 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			result.dpllConstraint = newConstraint;
 		}
 		return result;
+	}
+
+	@Override
+	public RewritingProcess put(Type type) {
+		DefaultRewritingProcess result = new DefaultRewritingProcess(this);
+		result.types = new LinkedHashMap<String, Type>(result.types);
+		result.types.put(type.getName(), type);
+		return result;
+	}
+
+	@Override
+	public Type getType(String name) {
+		return types.get(name);
 	}
 }
