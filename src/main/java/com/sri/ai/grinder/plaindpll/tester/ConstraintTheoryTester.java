@@ -1,20 +1,17 @@
 package com.sri.ai.grinder.plaindpll.tester;
 
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.helper.GrinderUtil.isSatisfiableByBruteForce;
 import static com.sri.ai.util.Util.join;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
-import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
 
@@ -40,38 +37,26 @@ public class ConstraintTheoryTester {
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
 		for (int i = 0; i != numberOfTests; i++) {
-			Expression variable = makeSymbol("X");
+			Expression variable = makeSymbol(constraintTheory.getTestingVariable());
 			SingleVariableConstraint constraint = constraintTheory.makeSingleVariableConstraint(variable);
 			Collection<Expression> literals = new LinkedHashSet<>();
 			
 			for (int j = 0; constraint != null && j != maxNumberOfLiterals; j++) {
-				Expression literal = constraintTheory.makeRandomLiteralOn(variable);
+				Expression literal = constraintTheory.makeRandomLiteralOn();
 				literals.add(literal);
 				constraint = constraint.conjoin(literal, process);
 				if (constraint == null) {
-					Map<Expression, Expression> satisfyingAssignment = satisfiable(literals, constraintTheory, process);
+					Expression formula = And.make(literals);
+					Map<Expression, Expression> satisfyingAssignment = isSatisfiableByBruteForce(formula, constraintTheory, process);
 					if (satisfyingAssignment != null) {
 						throwFailure(constraintTheory, literals, satisfyingAssignment);
 					}
 				}
+				// if constraint is not null, the conjunction of literals may or may not be satisfiable,
+				// because solvers are allowed to be incomplete regarding satisfiability,
+				// so in this case we do not test either way.
 			}			
 		}
-	}
-
-	private static Map<Expression, Expression> satisfiable(Collection<Expression> literals, ConstraintTheory constraintTheory, RewritingProcess process) {
-		Map<Expression, Expression> satisfyingAssignment = null;
-		Expression conjunction = And.make(literals);
-		Collection<Expression> variables = constraintTheory.getVariablesIn(conjunction, process);
-		Iterator<Map<Expression, Expression>> assignmentsIterator = new AssignmentsIterator(variables, process);
-		while (satisfyingAssignment == null && assignmentsIterator.hasNext()) {
-			Map<Expression, Expression> assignment = assignmentsIterator.next();
-//			Expression conjunctionWithValuesReplaced = replaceAll(conjunction, assignment);
-//			Expression value = constraintTheory.simplify(conjunctionWithValuesReplaced, process);
-//			if (value.equals(TRUE)) {
-//				satisfyingAssignment = assignment;
-//			}
-		}
-		return satisfyingAssignment;
 	}
 
 	private static void throwFailure(ConstraintTheory constraintTheory, Collection<Expression> literals, Map<Expression, Expression> satisfyingAssignment) throws Error {

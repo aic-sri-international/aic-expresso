@@ -289,7 +289,7 @@ public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheor
 	}
 
 	@Override
-	public Expression makeRandomAtomOn(Expression variable) {
+	public Expression makeRandomAtomOn() {
 //		Expression result;
 //		if (Math.random() > 0.5) {
 //			result = Math.random() > 0.5? getVariable.apply("Boolean") : getConstant.apply("Boolean");

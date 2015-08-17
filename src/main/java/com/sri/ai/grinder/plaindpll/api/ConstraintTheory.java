@@ -38,7 +38,9 @@
 package com.sri.ai.grinder.plaindpll.api;
 
 import static com.sri.ai.grinder.library.equality.formula.FormulaUtil.functorIsALogicalConnectiveIncludingConditionals;
+import static com.sri.ai.grinder.library.equality.formula.FormulaUtil.isInterpretedInPropositionalLogicIncludingConditionals;
 import static com.sri.ai.util.Util.addAllToSet;
+import static com.sri.ai.util.Util.thereExists;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -52,8 +54,10 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.PredicateIterator;
 
 /**
@@ -174,8 +178,9 @@ public interface ConstraintTheory extends Theory {
 	default Collection<Expression> getVariablesIn(Expression expression, RewritingProcess process) {
 		Iterator<Expression> subExpressionsIterator = new SubExpressionsDepthFirstIterator(expression);
 		Predicate<Expression> isVariable =
-				e -> !functorIsALogicalConnectiveIncludingConditionals(e)  
-				&& !isInterpretedInThisTheoryBesidesBooleanConnectives(e, process);
+				e -> !isInterpretedInPropositionalLogicIncludingConditionals(e)  
+				&& !isInterpretedInThisTheoryBesidesBooleanConnectives(e, process)
+				&& !thereExists(process.getTypes(), t -> t.contains(e));
 		Iterator<Expression> variablesIterator = PredicateIterator.make(subExpressionsIterator, isVariable);
 		LinkedHashSet<Expression> variables = addAllToSet(variablesIterator);
 		return variables;
@@ -185,10 +190,10 @@ public interface ConstraintTheory extends Theory {
 	//////////// AUTOMATIC TESTING 
 	
 	/** Sets variables to be used in randomly generated literals. */
-	void setVariableNamesAndTypeNamesForTesting(Map<String, String> variableNamesForTesting);
+	void setTermStringsAndTypeNamesForTesting(Map<String, String> variableNamesForTesting);
 	
 	/** Gets variables to be used in randomly generated literals. */
-	Map<String, String> getVariableNamesAndTypeNamesForTesting();
+	Map<String, String> getTermStringsAndTypeNamesForTesting();
 
 	/** Returns a set of types appropriate for testing this constraint theory. */
 	Collection<Type> getTypesForTesting();
@@ -196,22 +201,28 @@ public interface ConstraintTheory extends Theory {
 	/** Sets a set of types appropriate for testing this constraint theory. */
 	void setTypesForTesting(Collection<Type> newTypesForTesting);
 	
+	/**
+	 * Returns the variable on which testing literals are generated.
+	 * @return the variable on which testing literals are generated
+	 */
+	String getTestingVariable();
+	
+	void setTestingVariable(String newTestingVariable);
+	
 	RewritingProcess extendWithTestingInformation(RewritingProcess process);
 	
 	/**
 	 * Returns a random atom in this constraint theory on a given variable.
 	 * This is useful for making random constraints for correctness and performance testing.
-	 * @param variable 
 	 */
-	Expression makeRandomAtomOn(Expression variable);
+	Expression makeRandomAtomOn();
 
 	/**
 	 * Returns a random literal in this constraint theory on a given variable.
 	 * This is useful for making random constraints for correctness and performance testing.
-	 * @param variable 
 	 */
-	default Expression makeRandomLiteralOn(Expression variable) {
-		Expression atom = makeRandomAtomOn(variable);
+	default Expression makeRandomLiteralOn() {
+		Expression atom = makeRandomAtomOn();
 		Expression literal = Math.random() > 0.5? atom : Not.make(atom);
 		return literal;
 	}

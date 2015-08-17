@@ -37,6 +37,13 @@
  */
 package com.sri.ai.test.grinder.helper;
 
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.helper.GrinderUtil.isSatisfiableByBruteForce;
+import static com.sri.ai.util.Util.map;
+import static org.junit.Assert.*;
+
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -45,6 +52,9 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Basic;
+import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
+import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
+import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 import com.sri.ai.test.grinder.TestData;
 
@@ -199,5 +209,49 @@ public class GrinderUtilTest extends AbstractGrinderTest {
 		};
 		
 		perform(tests);
+	}
+	
+	@Test
+	public void testIsSatisfiableByBruteForce() {
+		Expression formula;
+		Map<Expression, Expression> expected;
+
+		formula = parse("X = sometype1 or X = sometype2");
+		expected = map(makeSymbol("X"), makeSymbol("sometype1"));
+		runTestIsSatisfiableByBruteForce(formula, expected);
+
+		formula = parse("X = sometype1 or Y = sometype2");
+		expected = map(makeSymbol("X"), makeSymbol("sometype1"), makeSymbol("Y"), makeSymbol("sometype1")); // value of Y is irrelevant.
+		runTestIsSatisfiableByBruteForce(formula, expected);
+
+		formula = parse("X = sometype1 and X = sometype2");
+		expected = null;
+		runTestIsSatisfiableByBruteForce(formula, expected);
+
+		formula = parse("X = sometype1 and Y = sometype2");
+		expected = map(makeSymbol("X"), makeSymbol("sometype1"), makeSymbol("Y"), makeSymbol("sometype2"));
+		runTestIsSatisfiableByBruteForce(formula, expected);
+
+		formula = parse("X = sometype1 and X != sometype2");
+		expected = map(makeSymbol("X"), makeSymbol("sometype1"));
+		runTestIsSatisfiableByBruteForce(formula, expected);
+
+		formula = parse("X = sometype1 and X != sometype1");
+		expected = null;
+		runTestIsSatisfiableByBruteForce(formula, expected);
+
+		formula = parse("X = sometype1 and (X != sometype1 or X != sometype2)");
+		expected = map(makeSymbol("X"), makeSymbol("sometype1"));
+		runTestIsSatisfiableByBruteForce(formula, expected);
+	}
+
+	protected void runTestIsSatisfiableByBruteForce(Expression formula, Map<Expression, Expression> expected) {
+		ConstraintTheory constraintTheory;
+		RewritingProcess process;
+		Map<Expression, Expression> actual;
+		constraintTheory = new EqualityConstraintTheory(new SymbolTermTheory());
+		process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
+		actual = isSatisfiableByBruteForce(formula, constraintTheory, process);
+		assertEquals(expected, actual);
 	}
 }

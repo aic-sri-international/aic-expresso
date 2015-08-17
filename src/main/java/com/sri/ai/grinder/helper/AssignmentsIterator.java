@@ -37,9 +37,6 @@
  */
 package com.sri.ai.grinder.helper;
 
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.util.Util.join;
-import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 
 import java.util.Collection;
@@ -48,11 +45,8 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.collect.CartesianProductIterator;
 
@@ -83,20 +77,5 @@ public class AssignmentsIterator extends CartesianProductIterator<Expression, Ex
 			fromVariableToIteratorMaker.put(variable, () -> type.iterator());
 		}
 		return fromVariableToIteratorMaker;
-	}
-	
-	public static void main(String[] args) {
-		RewritingProcess process = new DefaultRewritingProcess(null);
-		Type myType = new Categorical("People", 4, list(makeSymbol("oscar"), makeSymbol("mary")));
-		Symbol x = makeSymbol("X");
-		Symbol y = makeSymbol("Y");
-		Symbol myTypeExpression = makeSymbol(myType.getName());
-
-		process = process.put(myType);
-		process = GrinderUtil.extendContextualSymbols(map(x, myTypeExpression, y, myTypeExpression), process);
-		
-		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(list(x, y), process);
-		
-		System.out.println(join("\n", assignmentsIterator));	
 	}
 }

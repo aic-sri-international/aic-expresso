@@ -37,13 +37,19 @@
  */
 package com.sri.ai.grinder.plaindpll.theory;
 
+import static com.sri.ai.util.Util.pickUniformly;
+
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
+import com.sri.ai.util.collect.PredicateIterator;
 @Beta
 /** 
  * A {@link ConstraintTheory} for equality literals.
@@ -75,12 +81,13 @@ public class EqualityConstraintTheory extends AbstractEqualityConstraintTheory {
 	}
 
 	@Override
-	public Expression makeRandomAtomOn(Expression variable) {
-//		String type = getType.apply();
-//		Expression term1 = Math.random() > 0.5? getVariable.apply(type) : getConstant.apply(type);
-//		Expression term2 = Math.random() > 0.5? getVariable.apply(type) : getConstant.apply(type);
-//		Expression result = Equality.make(term1, term2);
-//		return result;
-		return null;
+	public Expression makeRandomAtomOn() {
+		Map<String, String> termsAndTypes = getTermStringsAndTypeNamesForTesting();
+		String type = termsAndTypes.get(getTestingVariable());
+		Set<String> allTerms = termsAndTypes.keySet();
+		PredicateIterator<String> termStringOfSameType = PredicateIterator.make(allTerms, s -> termsAndTypes.get(s).equals(type));
+		String otherTermString = pickUniformly(termStringOfSameType);
+		Expression result = Equality.make(getTestingVariable(), otherTermString);
+		return result;
 	}
 }

@@ -62,7 +62,10 @@ import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.Equivalence;
+import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractConstraintTheory;
@@ -97,7 +100,9 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 	
 	@Override
 	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
-		boolean result = expression.hasFunctor(EQUALITY) || expression.hasFunctor(DISEQUALITY);
+		boolean result = 
+				expression.hasFunctor(EQUALITY) || expression.hasFunctor(DISEQUALITY) ||
+				expression.equals(EQUALITY) || expression.equals(DISEQUALITY);
 		return result;
 	}
 	
@@ -122,7 +127,25 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 					Disequality.simplify(f, process),
 
 					FunctorConstants.NOT,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-					Not.simplify(f)
+					Not.simplify(f),
+
+					FunctorConstants.AND,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					And.simplify(f),
+
+					FunctorConstants.OR,              (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Or.simplify(f),
+
+					FunctorConstants.NOT,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Not.simplify(f),
+
+					FunctorConstants.IF_THEN_ELSE,    (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					IfThenElse.simplify(f),
+
+					FunctorConstants.EQUIVALENCE,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Equivalence.simplify(f),
+
+					FunctorConstants.IMPLICATION,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Implication.simplify(f)
 					//,
 
 					// Soon to be used for difference arithmetic

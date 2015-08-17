@@ -274,4 +274,6 @@ public interface RewritingProcess {
 	}
 	
 	Type getType(String name);
+	
+	Collection<Type> getTypes();
 }

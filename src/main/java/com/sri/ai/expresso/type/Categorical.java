@@ -87,7 +87,7 @@ public class Categorical implements Type {
 	private Iterator<Expression> unknownConstantsIterator() {
 		return FunctionIterator.make(
 				new IntegerIterator(knownConstants.size() + 1, cardinality + 1),
-				i -> makeSymbol(lowerCaseName + "-" + i));
+				i -> makeSymbol(lowerCaseName + + i));
 	}
 
 	@Override
@@ -100,8 +100,8 @@ public class Categorical implements Type {
 		boolean result;
 		try {
 			result = constant.getValue() instanceof String &&
-				((String) constant.getValue()).startsWith(name + "-") &&
-				Integer.valueOf(((String) constant.getValue()).substring(name.length())).intValue() > 0;
+				((String) constant.getValue()).startsWith(lowerCaseName) &&
+				Integer.valueOf(((String) constant.getValue()).substring(lowerCaseName.length())).intValue() > 0;
 		}
 		catch (NumberFormatException e) { result = false; }
 				

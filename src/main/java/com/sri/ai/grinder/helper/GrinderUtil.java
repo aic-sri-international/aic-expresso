@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.helper;
 
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.library.FunctorConstants.CARTESIAN_PRODUCT;
 import static com.sri.ai.util.Util.list;
@@ -61,6 +62,7 @@ import com.sri.ai.expresso.api.LambdaExpression;
 import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.helper.MapReplacementFunction;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
@@ -86,6 +88,7 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.function.InjectiveModule;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
+import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.ui.TreeUtil;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.Configuration;
@@ -1199,5 +1202,34 @@ public class GrinderUtil {
 				type.equals(parse("bool")) ||
 				type.equals(parse("boolean")));
 		return result;
+	}
+
+	/**
+	 * Finds a satisfying assignment to the (generalized) variables in a formula belonging to
+	 * the given constraint theory,
+	 * by iterating over all assignments
+	 * until a satisfying one is found, or returns null.
+	 * Naturally, this may not stop if any of the types involved is infinite.
+	 * The appropriate types must be in the {@link RewritingProcess} from the {@link RewritingProcess#getType(String)} method,
+	 * and the symbols in the formula must be registered as contextual symbols in the process such that
+	 * the generalized variable expressions map to their types through {@link getType}.
+	 * @param formula
+	 * @param constraintTheory
+	 * @param process
+	 * @return a map representing a satisfying assignment, or null.
+	 */
+	public static Map<Expression, Expression> isSatisfiableByBruteForce(Expression formula, ConstraintTheory constraintTheory, RewritingProcess process) {
+		Map<Expression, Expression> satisfyingAssignment = null;
+		Collection<Expression> variables = constraintTheory.getVariablesIn(formula, process);
+		Iterator<Map<Expression, Expression>> assignmentsIterator = new AssignmentsIterator(variables, process);
+		while (satisfyingAssignment == null && assignmentsIterator.hasNext()) {
+			Map<Expression, Expression> assignment = assignmentsIterator.next();
+			Expression formulaWithValuesReplaced = formula.replaceAllOccurrences(new MapReplacementFunction(assignment), process);
+			Expression value = constraintTheory.simplify(formulaWithValuesReplaced, process);
+			if (value.equals(TRUE)) {
+				satisfyingAssignment = assignment;
+			}
+		}
+		return satisfyingAssignment;
 	}
 }

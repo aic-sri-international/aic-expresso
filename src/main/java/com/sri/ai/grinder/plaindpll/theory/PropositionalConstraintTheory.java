@@ -322,7 +322,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public Expression makeRandomAtomOn(Expression variable) {
+	public Expression makeRandomAtomOn() {
 //		Expression result = Math.random() > 0.5? getVariable.apply("Boolean") : getConstant.apply("Boolean");
 //		return result;
 		return null;

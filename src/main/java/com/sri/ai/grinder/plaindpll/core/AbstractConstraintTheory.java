@@ -73,12 +73,13 @@ abstract public class AbstractConstraintTheory extends AbstractTheory implements
 
 	/**
 	 * Initializes types for testing to be the collection of a single type, <code>new Categorical("SomeType", 10, list())</code>,
-	 * and variables for testing to <code>X, Y, Z, W</code> of type <code>SomeType</code>.
+	 * and variables for testing to <code>X, Y, Z, W</code> of type <code>SomeType</code>,
+	 * of which <code>X</code> is the main testing variable on which testing literals are generated.
 	 */
 	public AbstractConstraintTheory() {
 		super();
 		setTypesForTesting(list(new Categorical("SomeType", 10, list())));
-		setVariableNamesAndTypeNamesForTesting(map("X", "SomeType", "Y", "SomeType", "Z", "SomeType", "W", "SomeType"));
+		setTermStringsAndTypeNamesForTesting(map("X", "SomeType", "Y", "SomeType", "Z", "SomeType", "W", "SomeType"));
 	}
 	
 	/**
@@ -353,6 +354,10 @@ abstract public class AbstractConstraintTheory extends AbstractTheory implements
 
 	private Collection<Type> typesForTesting = null;
 	
+	private String testingVariable = null;
+	
+	private Map<String, String> termStringsAndTypeNamesForTesting;
+	
 	@Override
 	public Collection<Type> getTypesForTesting() {
 		if (typesForTesting == null) {
@@ -366,16 +371,14 @@ abstract public class AbstractConstraintTheory extends AbstractTheory implements
 		typesForTesting = newTypesForTesting;
 	}
 	
-	private Map<String, String> variableNamesAndTypeNamesForTesting;
-	
 	@Override
-	public void setVariableNamesAndTypeNamesForTesting(Map<String, String> variableNamesForTesting) {
-		this.variableNamesAndTypeNamesForTesting = variableNamesForTesting;
+	public void setTermStringsAndTypeNamesForTesting(Map<String, String> variableNamesForTesting) {
+		this.termStringsAndTypeNamesForTesting = variableNamesForTesting;
 	}
 	
 	@Override
-	public Map<String, String> getVariableNamesAndTypeNamesForTesting() {
-		return Collections.unmodifiableMap(variableNamesAndTypeNamesForTesting);
+	public Map<String, String> getTermStringsAndTypeNamesForTesting() {
+		return Collections.unmodifiableMap(termStringsAndTypeNamesForTesting);
 	}
 
 	@Override
@@ -385,7 +388,17 @@ abstract public class AbstractConstraintTheory extends AbstractTheory implements
 		for (Type type : typesForTesting) {
 			mapFromTypeNameToSizeString.put(type.getName(), Integer.toString(type.size()));
 		}
-		result = DPLLUtil.extendProcessWith(variableNamesAndTypeNamesForTesting, mapFromTypeNameToSizeString, result);
+		result = DPLLUtil.extendProcessWith(termStringsAndTypeNamesForTesting, mapFromTypeNameToSizeString, result);
 		return result;
+	}
+
+	@Override
+	public String getTestingVariable() {
+		return testingVariable;
+	}
+
+	@Override
+	public void setTestingVariable(String newTestingVariable) {
+		this.testingVariable = newTestingVariable;
 	}
 }

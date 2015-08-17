@@ -66,20 +66,20 @@ public class AssignmentsIteratorTest  {
 		String expected =
 				"{X=oscar, Y=oscar}\n" + 
 				"{X=mary, Y=oscar}\n" + 
-				"{X=people-3, Y=oscar}\n" + 
-				"{X=people-4, Y=oscar}\n" + 
+				"{X=people3, Y=oscar}\n" + 
+				"{X=people4, Y=oscar}\n" + 
 				"{X=oscar, Y=mary}\n" + 
 				"{X=mary, Y=mary}\n" + 
-				"{X=people-3, Y=mary}\n" + 
-				"{X=people-4, Y=mary}\n" + 
-				"{X=oscar, Y=people-3}\n" + 
-				"{X=mary, Y=people-3}\n" + 
-				"{X=people-3, Y=people-3}\n" + 
-				"{X=people-4, Y=people-3}\n" + 
-				"{X=oscar, Y=people-4}\n" + 
-				"{X=mary, Y=people-4}\n" + 
-				"{X=people-3, Y=people-4}\n" + 
-				"{X=people-4, Y=people-4}";
+				"{X=people3, Y=mary}\n" + 
+				"{X=people4, Y=mary}\n" + 
+				"{X=oscar, Y=people3}\n" + 
+				"{X=mary, Y=people3}\n" + 
+				"{X=people3, Y=people3}\n" + 
+				"{X=people4, Y=people3}\n" + 
+				"{X=oscar, Y=people4}\n" + 
+				"{X=mary, Y=people4}\n" + 
+				"{X=people3, Y=people4}\n" + 
+				"{X=people4, Y=people4}";
 
 		Symbol myTypeExpression = makeSymbol(myType.getName());
 		process = process.put(myType);
@@ -127,16 +127,16 @@ public class AssignmentsIteratorTest  {
 		String expected =
 				"{X=oscar, Y=fido}\n" + 
 				"{X=mary, Y=fido}\n" + 
-				"{X=people-3, Y=fido}\n" + 
-				"{X=people-4, Y=fido}\n" + 
+				"{X=people3, Y=fido}\n" + 
+				"{X=people4, Y=fido}\n" + 
 				"{X=oscar, Y=purrs}\n" + 
 				"{X=mary, Y=purrs}\n" + 
-				"{X=people-3, Y=purrs}\n" + 
-				"{X=people-4, Y=purrs}\n" + 
-				"{X=oscar, Y=pets-3}\n" + 
-				"{X=mary, Y=pets-3}\n" + 
-				"{X=people-3, Y=pets-3}\n" + 
-				"{X=people-4, Y=pets-3}";
+				"{X=people3, Y=purrs}\n" + 
+				"{X=people4, Y=purrs}\n" + 
+				"{X=oscar, Y=pets3}\n" + 
+				"{X=mary, Y=pets3}\n" + 
+				"{X=people3, Y=pets3}\n" + 
+				"{X=people4, Y=pets3}";
 
 		Symbol myPeopleTypeExpression = makeSymbol(peopleType.getName());
 		Symbol myPetsTypeExpression = makeSymbol(petsType.getName());

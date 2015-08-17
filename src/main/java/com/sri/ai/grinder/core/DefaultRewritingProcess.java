@@ -40,6 +40,8 @@ package com.sri.ai.grinder.core;
 import static com.sri.ai.util.Util.map;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -779,5 +781,10 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	@Override
 	public Type getType(String name) {
 		return types.get(name);
+	}
+
+	@Override
+	public Collection<Type> getTypes() {
+		return Collections.unmodifiableCollection(types.values());
 	}
 }

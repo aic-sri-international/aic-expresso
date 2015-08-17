@@ -515,11 +515,39 @@ public class FormulaUtil {
 			Expressions.makeSymbol(FunctorConstants.IMPLIED),     Expressions.makeSymbol(FunctorConstants.IMPLICATION),
 			Expressions.makeSymbol(FunctorConstants.EQUIVALENCE));
 
+	final public static Set<Expression> PROPOSITIONAL_FORMULAS_PRIMITIVE_SYMBOLS_INCLUDING_CONDITIONALS =
+	Util.set(
+			Expressions.TRUE,                                     Expressions.FALSE,
+			Expressions.makeSymbol(FunctorConstants.NOT),         Expressions.makeSymbol(FunctorConstants.IF_THEN_ELSE),
+			Expressions.makeSymbol(FunctorConstants.AND),         Expressions.makeSymbol(FunctorConstants.OR),
+			Expressions.makeSymbol(FunctorConstants.IMPLIED),     Expressions.makeSymbol(FunctorConstants.IMPLICATION),
+			Expressions.makeSymbol(FunctorConstants.EQUIVALENCE));
+
 	/**
 	 * Indicates whether an expression is logical connective application, including if then else
 	 * (does not check sub-expressions).
 	 */
 	public static boolean functorIsALogicalConnectiveIncludingConditionals(Expression formula) {
+		boolean result = LOGICAL_CONNECTIVES_INCLUDING_CONDITIONALS.contains(formula.getFunctor());
+		return result;
+	}
+
+	/**
+	 * Indicates whether this is a symbol in interpreted propositional logic (including if-then-else),
+	 * or the function application of one.
+	 */
+	public static boolean isInterpretedInPropositionalLogicIncludingConditionals(Expression formula) {
+		boolean result = 
+				PROPOSITIONAL_FORMULAS_PRIMITIVE_SYMBOLS_INCLUDING_CONDITIONALS.contains(formula) ||
+				PROPOSITIONAL_FORMULAS_PRIMITIVE_SYMBOLS_INCLUDING_CONDITIONALS.contains(formula.getFunctor());
+		return result;
+	}
+
+	/**
+	 * Indicates whether an expression is logical connective application, including if then else
+	 * (does not check sub-expressions).
+	 */
+	public static boolean isApplicationOfBooleanConnective(Expression formula) {
 		boolean result = LOGICAL_CONNECTIVES_INCLUDING_CONDITIONALS.contains(formula.getFunctor());
 		return result;
 	}
