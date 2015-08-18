@@ -216,32 +216,32 @@ public class GrinderUtilTest extends AbstractGrinderTest {
 		Expression formula;
 		Map<Expression, Expression> expected;
 
-		formula = parse("X = sometype1 or X = sometype2");
-		expected = map(makeSymbol("X"), makeSymbol("sometype1"));
+		formula = parse("X = a or X = b");
+		expected = map(makeSymbol("X"), makeSymbol("a"));
 		runTestIsSatisfiableByBruteForce(formula, expected);
 
-		formula = parse("X = sometype1 or Y = sometype2");
-		expected = map(makeSymbol("X"), makeSymbol("sometype1"), makeSymbol("Y"), makeSymbol("sometype1")); // value of Y is irrelevant.
+		formula = parse("X = a or Y = b");
+		expected = map(makeSymbol("X"), makeSymbol("a"), makeSymbol("Y"), makeSymbol("a")); // value of Y is irrelevant.
 		runTestIsSatisfiableByBruteForce(formula, expected);
 
-		formula = parse("X = sometype1 and X = sometype2");
+		formula = parse("X = a and X = b");
 		expected = null;
 		runTestIsSatisfiableByBruteForce(formula, expected);
 
-		formula = parse("X = sometype1 and Y = sometype2");
-		expected = map(makeSymbol("X"), makeSymbol("sometype1"), makeSymbol("Y"), makeSymbol("sometype2"));
+		formula = parse("X = a and Y = b");
+		expected = map(makeSymbol("X"), makeSymbol("a"), makeSymbol("Y"), makeSymbol("b"));
 		runTestIsSatisfiableByBruteForce(formula, expected);
 
-		formula = parse("X = sometype1 and X != sometype2");
-		expected = map(makeSymbol("X"), makeSymbol("sometype1"));
+		formula = parse("X = a and X != b");
+		expected = map(makeSymbol("X"), makeSymbol("a"));
 		runTestIsSatisfiableByBruteForce(formula, expected);
 
-		formula = parse("X = sometype1 and X != sometype1");
+		formula = parse("X = a and X != a");
 		expected = null;
 		runTestIsSatisfiableByBruteForce(formula, expected);
 
-		formula = parse("X = sometype1 and (X != sometype1 or X != sometype2)");
-		expected = map(makeSymbol("X"), makeSymbol("sometype1"));
+		formula = parse("X = a and (X != a or X != b)");
+		expected = map(makeSymbol("X"), makeSymbol("a"));
 		runTestIsSatisfiableByBruteForce(formula, expected);
 	}
 

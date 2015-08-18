@@ -57,16 +57,16 @@ public class SingleVariableEqualityConstraint extends AbstractExpressionWrapper 
 
 	private EqualityConstraintTheory constraintTheory;
 	
-	public SingleVariableEqualityConstraint(Expression variable, TermTheory termTheory) {
-		this(variable, null, new ArrayList<Expression>(), Util.set(), 0, termTheory);
+	public SingleVariableEqualityConstraint(Expression variable) {
+		this(variable, null, new ArrayList<Expression>(), Util.set(), 0, null);
 	}
 	
-	public SingleVariableEqualityConstraint(Expression variable, Expression boundValue, TermTheory termTheory) {
-		this(variable, boundValue, null, Util.set(), 0, termTheory);
+	public SingleVariableEqualityConstraint(Expression variable, Expression boundValue) {
+		this(variable, boundValue, null, Util.set(), 0, null);
 	}
 	
-	public SingleVariableEqualityConstraint(Expression variable, ArrayList<Expression> disequals, int numberOfUniquelyNamedConstantDisequals, TermTheory termTheory) {
-		this(variable, null, disequals, Util.set(), numberOfUniquelyNamedConstantDisequals, termTheory);
+	public SingleVariableEqualityConstraint(Expression variable, ArrayList<Expression> disequals, int numberOfUniquelyNamedConstantDisequals) {
+		this(variable, null, disequals, Util.set(), numberOfUniquelyNamedConstantDisequals, null);
 	}
 
 	public SingleVariableEqualityConstraint(Expression variable, Expression boundValue, ArrayList<Expression> disequals, Collection<Expression> externalLiterals, int numberOfUniquelyNamedConstantDisequals, TermTheory termTheory) {
@@ -302,7 +302,7 @@ public class SingleVariableEqualityConstraint extends AbstractExpressionWrapper 
 			result = null;
 		}
 		else {
-			SingleVariableEqualityConstraint constraintBindingVariableToOther = new SingleVariableEqualityConstraint(variable, other, constraintTheory.getTermTheory());
+			SingleVariableEqualityConstraint constraintBindingVariableToOther = new SingleVariableEqualityConstraint(variable, other);
 			result = constraintBindingVariableToOther.makeWithAdditionalExternalLiterals(impliedLiterals);
 		}
 		return result;
@@ -328,7 +328,7 @@ public class SingleVariableEqualityConstraint extends AbstractExpressionWrapper 
 			else {
 				ArrayList<Expression> newDisequals = new ArrayList<>(disequals);
 				newDisequals.add(other);
-				SingleVariableEqualityConstraint newConstraint = new SingleVariableEqualityConstraint(variable, newDisequals, getNumberOfUniquelyNamedConstantDisequals(process), constraintTheory.getTermTheory());
+				SingleVariableEqualityConstraint newConstraint = new SingleVariableEqualityConstraint(variable, newDisequals, getNumberOfUniquelyNamedConstantDisequals(process));
 				result = newConstraint;
 			}
 		}

@@ -99,9 +99,11 @@ public class Categorical implements Type {
 	private boolean isUnknownConstant(Expression constant) {
 		boolean result;
 		try {
+			int unknownConstantIndex = -1;
 			result = constant.getValue() instanceof String &&
 				((String) constant.getValue()).startsWith(lowerCaseName) &&
-				Integer.valueOf(((String) constant.getValue()).substring(lowerCaseName.length())).intValue() > 0;
+				(unknownConstantIndex = Integer.valueOf(((String) constant.getValue()).substring(lowerCaseName.length())).intValue()) > knownConstants.size() &&
+				unknownConstantIndex < cardinality + 1;
 		}
 		catch (NumberFormatException e) { result = false; }
 				

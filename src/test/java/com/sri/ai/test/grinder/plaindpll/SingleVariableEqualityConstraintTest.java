@@ -53,7 +53,6 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.plaindpll.theory.SingleVariableEqualityConstraint;
-import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 
 @Beta
@@ -179,7 +178,7 @@ public class SingleVariableEqualityConstraintTest {
 		Expression expression = parse(expressionString);
 		Collection<Expression> conjuncts = And.getConjuncts(expression);
 
-		SingleVariableConstraint result = new SingleVariableEqualityConstraint(variable, new SymbolTermTheory());
+		SingleVariableConstraint result = new SingleVariableEqualityConstraint(variable);
 		for (Expression conjunct : conjuncts) {
 			result = result.conjoin(conjunct, process);
 			if (result == null) {

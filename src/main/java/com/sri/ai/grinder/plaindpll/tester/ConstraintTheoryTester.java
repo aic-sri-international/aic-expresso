@@ -14,6 +14,8 @@ import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
+import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
+import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 
 /**
  * A class for testing a {@link ConstraintTheory} and its unsatisfiability detection.
@@ -41,20 +43,29 @@ public class ConstraintTheoryTester {
 			SingleVariableConstraint constraint = constraintTheory.makeSingleVariableConstraint(variable);
 			Collection<Expression> literals = new LinkedHashSet<>();
 			
+			System.out.println("\nStarting new conjunction");	
 			for (int j = 0; constraint != null && j != maxNumberOfLiterals; j++) {
 				Expression literal = constraintTheory.makeRandomLiteralOn();
 				literals.add(literal);
+				System.out.println("Added " + literal + ", current conjunction: " + And.make(literals));	
 				constraint = constraint.conjoin(literal, process);
 				if (constraint == null) {
+					System.out.println("Solver thinks it is unsatisfiable");	
 					Expression formula = And.make(literals);
 					Map<Expression, Expression> satisfyingAssignment = isSatisfiableByBruteForce(formula, constraintTheory, process);
 					if (satisfyingAssignment != null) {
 						throwFailure(constraintTheory, literals, satisfyingAssignment);
 					}
+					else {
+						System.out.println("Brute-force satisfiability test agrees that it is unsatisfiable.");	
+					}
 				}
-				// if constraint is not null, the conjunction of literals may or may not be satisfiable,
-				// because solvers are allowed to be incomplete regarding satisfiability,
-				// so in this case we do not test either way.
+				else {
+					// if constraint is not null, the conjunction of literals may or may not be satisfiable,
+					// because solvers are allowed to be incomplete regarding satisfiability,
+					// so in this case we do not test either way.
+					System.out.println("Solver does not know yet if it is satisfiable or not");	
+				}
 			}			
 		}
 	}
@@ -64,5 +75,9 @@ public class ConstraintTheoryTester {
 				join(literals, " and ") + " is satisfiable but " + 
 				constraintTheory.getClass().getSimpleName() + "'s says it is not. " +
 				"Satisfying assignment is " + satisfyingAssignment);
+	}
+	
+	public static void main(String[] args) {
+		test(new EqualityConstraintTheory(new SymbolTermTheory()), 10, 10);
 	}
 }

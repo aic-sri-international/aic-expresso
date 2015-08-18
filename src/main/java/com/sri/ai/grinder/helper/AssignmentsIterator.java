@@ -73,7 +73,13 @@ public class AssignmentsIterator extends CartesianProductIterator<Expression, Ex
 		Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker = map();
 		for (Expression variable : variables) {
 			Expression typeDescription = GrinderUtil.getType(variable, process);
+			if (typeDescription == null) {
+				throw new Error("Variable " + variable + " is not registered in rewriting process (has no type).");
+			}
 			Type type = process.getType(typeDescription.toString());
+			if (type == null) {
+				throw new Error("Variable " + variable + " has type " + typeDescription + " but rewriting process contains no type with this name.");
+			}
 			fromVariableToIteratorMaker.put(variable, () -> type.iterator());
 		}
 		return fromVariableToIteratorMaker;

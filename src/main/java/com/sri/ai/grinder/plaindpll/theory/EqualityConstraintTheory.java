@@ -77,12 +77,12 @@ public class EqualityConstraintTheory extends AbstractEqualityConstraintTheory {
 
 	@Override
 	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable) {
-		throw new Error("Not implemented");
+		return new SingleVariableEqualityConstraint(variable);
 	}
 
 	@Override
 	public Expression makeRandomAtomOn() {
-		Map<String, String> termsAndTypes = getTermStringsAndTypeNamesForTesting();
+		Map<String, String> termsAndTypes = getVariableNamesAndTypeNamesForTesting();
 		String type = termsAndTypes.get(getTestingVariable());
 		Set<String> allTerms = termsAndTypes.keySet();
 		PredicateIterator<String> termStringOfSameType = PredicateIterator.make(allTerms, s -> termsAndTypes.get(s).equals(type));

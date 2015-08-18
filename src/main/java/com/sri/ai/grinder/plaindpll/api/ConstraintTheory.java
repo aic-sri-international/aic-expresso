@@ -190,10 +190,10 @@ public interface ConstraintTheory extends Theory {
 	//////////// AUTOMATIC TESTING 
 	
 	/** Sets variables to be used in randomly generated literals. */
-	void setTermStringsAndTypeNamesForTesting(Map<String, String> variableNamesForTesting);
+	void setVariableNamesAndTypeNamesForTesting(Map<String, String> variableNamesForTesting);
 	
 	/** Gets variables to be used in randomly generated literals. */
-	Map<String, String> getTermStringsAndTypeNamesForTesting();
+	Map<String, String> getVariableNamesAndTypeNamesForTesting();
 
 	/** Returns a set of types appropriate for testing this constraint theory. */
 	Collection<Type> getTypesForTesting();
