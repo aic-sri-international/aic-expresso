@@ -38,6 +38,7 @@
 package com.sri.ai.expresso.api;
 
 import java.util.Iterator;
+import java.util.Random;
 
 import com.google.common.annotations.Beta;
 
@@ -53,17 +54,24 @@ public interface Type {
 	String getName();
 	
 	/**
-	 * Provides an iterator ranging over constants for the elements of this type.
+	 * Provides an iterator ranging over uniquely named constants for the elements of this type.
 	 * @return
 	 */
 	Iterator<Expression> iterator();
 	
 	/**
-	 * Indicates whether a constant represents an element of this type.
-	 * @param constant
+	 * Indicates whether a uniquely named constant represents an element of this type.
+	 * @param uniquelyNamedConstant
 	 * @return
 	 */
-	boolean contains(Expression constant);
+	boolean contains(Expression uniquelyNamedConstant);
+	
+	/**
+	 * Samples one of the type's uniquely named constants.
+	 * This is useful for generating synthetic problems.
+	 * @return
+	 */
+	Expression sampleConstant(Random random);
 	
 	/**
 	 * Returns the number of elements in the type, if finite, or -1 if infinite.

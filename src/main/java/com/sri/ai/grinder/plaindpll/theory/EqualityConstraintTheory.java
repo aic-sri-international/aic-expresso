@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.plaindpll.theory;
 
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.pickUniformly;
 
 import java.util.Collection;
@@ -46,6 +47,7 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
@@ -81,13 +83,26 @@ public class EqualityConstraintTheory extends AbstractEqualityConstraintTheory {
 	}
 
 	@Override
-	public Expression makeRandomAtomOn() {
-		Map<String, String> termsAndTypes = getVariableNamesAndTypeNamesForTesting();
-		String type = termsAndTypes.get(getTestingVariable());
-		Set<String> allTerms = termsAndTypes.keySet();
-		PredicateIterator<String> termStringOfSameType = PredicateIterator.make(allTerms, s -> termsAndTypes.get(s).equals(type));
-		String otherTermString = pickUniformly(termStringOfSameType);
-		Expression result = Equality.make(getTestingVariable(), otherTermString);
+	public boolean singleVariableConstraintIsComplete() {
+		return true; // SingleVariableEqualityConstraint is complete
+	}
+
+	@Override
+	public Expression makeRandomAtomOn(RewritingProcess process) {
+		Map<String, String> variablesAndTypes = getVariableNamesAndTypeNamesForTesting();
+		String typeName = variablesAndTypes.get(getTestingVariable());
+		Set<String> allVariables = variablesAndTypes.keySet();
+		PredicateIterator<String> isNameOfVariableOfSameType = PredicateIterator.make(allVariables, s -> variablesAndTypes.get(s).equals(typeName));
+		Expression otherTerm;
+		if (getRandomGenerator().nextBoolean()) {
+			otherTerm = makeSymbol(pickUniformly(isNameOfVariableOfSameType, getRandomGenerator()));
+		}
+		else {
+			otherTerm = process.getType(typeName).sampleConstant(getRandomGenerator());
+		}
+		Expression result =
+				getRandomGenerator().nextBoolean()?
+				Equality.make(getTestingVariable(), otherTerm) : Equality.make(otherTerm, getTestingVariable());
 		return result;
 	}
 }

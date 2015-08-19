@@ -89,4 +89,6 @@ public interface SingleVariableConstraint extends Expression {
 	Expression modelCount(RewritingProcess process);
 	
 	SingleVariableConstraint clone();
+
+	String debuggingDescription(RewritingProcess process);
 }

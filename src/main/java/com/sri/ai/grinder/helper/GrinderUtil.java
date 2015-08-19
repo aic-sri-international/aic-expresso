@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.helper;
 
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.library.FunctorConstants.CARTESIAN_PRODUCT;
 import static com.sri.ai.util.Util.list;
@@ -60,6 +61,7 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.LambdaExpression;
 import com.sri.ai.expresso.api.QuantifiedExpression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.MapReplacementFunction;
@@ -710,6 +712,13 @@ public class GrinderUtil {
 		Expression result;
 		if (expression.getSyntacticFormType().equals("Symbol")) {
 			result = process.getContextualSymbolType(expression);
+			
+			if (result == null) {
+				Type type = Util.getFirstSatisfyingPredicateOrNull(process.getTypes(), t -> t.contains(expression));
+				if (type != null) {
+					result = makeSymbol(type.getName());
+				}
+			}
 		}
 		else if (expression.getSyntacticFormType().equals("Function application")) {
 			Expression functionType = getType(expression.getFunctor(), process);

@@ -40,8 +40,9 @@ package com.sri.ai.expresso.type;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.myAssert;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -61,7 +62,7 @@ public class Categorical implements Type {
 	private String name;
 	private String lowerCaseName;
 	private int cardinality;
-	private Collection<Expression> knownConstants;
+	private ArrayList<Expression> knownConstants;
 	
 	/**
 	 * Creates a categorical type of given name, cardinality and known constants;
@@ -71,8 +72,10 @@ public class Categorical implements Type {
 	 * @param cardinality
 	 * @param knownConstants
 	 */
-	public Categorical(String name, int cardinality, Collection<Expression> knownConstants) {
-		myAssert(() -> knownConstants.size() <= cardinality, () -> "Cardinality of " + name + " is declared to be less than number of known uniquely named constants");
+	public Categorical(String name, int cardinality, ArrayList<Expression> knownConstants) {
+		myAssert(
+				() -> knownConstants.size() <= cardinality,
+				() -> "Cardinality of " + name + " is declared to be less than number of known uniquely named constants");
 		this.name = name;
 		this.lowerCaseName = name.toLowerCase();
 		this.cardinality = cardinality;
@@ -102,11 +105,34 @@ public class Categorical implements Type {
 			int unknownConstantIndex = -1;
 			result = constant.getValue() instanceof String &&
 				((String) constant.getValue()).startsWith(lowerCaseName) &&
-				(unknownConstantIndex = Integer.valueOf(((String) constant.getValue()).substring(lowerCaseName.length())).intValue()) > knownConstants.size() &&
+				(unknownConstantIndex = indexOfUniquelyNamedConstant(constant)) > knownConstants.size() &&
 				unknownConstantIndex < cardinality + 1;
 		}
 		catch (NumberFormatException e) { result = false; }
 				
+		return result;
+	}
+
+	/**
+	 * Returns the index of a given unknown constant, or throws a {@link NumberFormatException}.
+	 * @param constant
+	 * @return
+	 */
+	protected int indexOfUniquelyNamedConstant(Expression constant) {
+		int result = Integer.valueOf(((String) constant.getValue()).substring(lowerCaseName.length())).intValue();
+		return result;
+	}
+
+	@Override
+	public Expression sampleConstant(Random random) {
+		Expression result;
+		int index = random.nextInt(size()) + 1;
+		if (index <= knownConstants.size()) {
+			result = knownConstants.get(index - 1);
+		}
+		else {
+			result = makeSymbol(lowerCaseName + index);
+		}
 		return result;
 	}
 

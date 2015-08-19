@@ -46,6 +46,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
@@ -159,6 +160,12 @@ public interface ConstraintTheory extends Theory {
 	SingleVariableConstraint makeSingleVariableConstraint(Expression variable);
 	
 	/**
+	 * Indicates whether single-variable constraint solver is complete (for its variable).
+	 * @return whether single-variable constraint solver is complete (for its variable).
+	 */
+	boolean singleVariableConstraintIsComplete();
+	
+	/**
 	 * Indicates whether an expression is an application of a function belonging to this theory,
 	 * or a constant belonging to this theory.
 	 * @param term
@@ -178,7 +185,8 @@ public interface ConstraintTheory extends Theory {
 	default Collection<Expression> getVariablesIn(Expression expression, RewritingProcess process) {
 		Iterator<Expression> subExpressionsIterator = new SubExpressionsDepthFirstIterator(expression);
 		Predicate<Expression> isVariable =
-				e -> !isInterpretedInPropositionalLogicIncludingConditionals(e)  
+				e -> !process.isUniquelyNamedConstant(expression)
+				&& !isInterpretedInPropositionalLogicIncludingConditionals(e)  
 				&& !isInterpretedInThisTheoryBesidesBooleanConnectives(e, process)
 				&& !thereExists(process.getTypes(), t -> t.contains(e));
 		Iterator<Expression> variablesIterator = PredicateIterator.make(subExpressionsIterator, isVariable);
@@ -188,6 +196,10 @@ public interface ConstraintTheory extends Theory {
 
 	
 	//////////// AUTOMATIC TESTING 
+	
+	void setRandomGenerator(Random random);
+	
+	Random getRandomGenerator();
 	
 	/** Sets variables to be used in randomly generated literals. */
 	void setVariableNamesAndTypeNamesForTesting(Map<String, String> variableNamesForTesting);
@@ -214,15 +226,17 @@ public interface ConstraintTheory extends Theory {
 	/**
 	 * Returns a random atom in this constraint theory on a given variable.
 	 * This is useful for making random constraints for correctness and performance testing.
+	 * @param process TODO
 	 */
-	Expression makeRandomAtomOn();
+	Expression makeRandomAtomOn(RewritingProcess process);
 
 	/**
 	 * Returns a random literal in this constraint theory on a given variable.
 	 * This is useful for making random constraints for correctness and performance testing.
+	 * @param process TODO
 	 */
-	default Expression makeRandomLiteralOn() {
-		Expression atom = makeRandomAtomOn();
+	default Expression makeRandomLiteralOn(RewritingProcess process) {
+		Expression atom = makeRandomAtomOn(process);
 		Expression literal = Math.random() > 0.5? atom : Not.make(atom);
 		return literal;
 	}

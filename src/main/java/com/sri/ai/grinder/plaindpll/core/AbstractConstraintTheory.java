@@ -42,16 +42,17 @@ import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.getFirstOrNull;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
-import static com.sri.ai.util.Util.mapIntoList;
+import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.throwSafeguardError;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
@@ -62,7 +63,6 @@ import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
-import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
@@ -86,7 +86,7 @@ abstract public class AbstractConstraintTheory extends AbstractTheory implements
 	 */
 	public AbstractConstraintTheory() {
 		super();
-		List<Expression> knownConstants = mapIntoList(list("a", "b", "c", "d"), s -> makeSymbol(s));
+		ArrayList<Expression> knownConstants = mapIntoArrayList(list("a", "b", "c", "d"), s -> makeSymbol(s));
 		setTypesForTesting(list(new Categorical("SomeType", 5, knownConstants)));
 		setVariableNamesAndTypeNamesForTesting(map("X", "SomeType", "Y", "SomeType", "Z", "SomeType"));
 		setTestingVariable("X");
@@ -361,12 +361,26 @@ abstract public class AbstractConstraintTheory extends AbstractTheory implements
 	 * The tie-breaker used for choosing order within the same group (indices, free variables and constants).
 	 */
 	public static final Comparator<Expression> choosingOrderTieBreaker = (a, b) -> a.toString().compareTo(b.toString());
+	
+	private Random random;
 
 	private Collection<Type> typesForTesting = null;
 	
 	private String testingVariable = null;
 	
 	private Map<String, String> variableNamesAndTypeNamesForTesting;
+	
+	@Override
+	public
+	void setRandomGenerator(Random newRandom) {
+		this.random = newRandom;
+	}
+	
+	@Override
+	public
+	Random getRandomGenerator() {
+		return random;
+	}
 	
 	@Override
 	public Collection<Type> getTypesForTesting() {
@@ -410,16 +424,5 @@ abstract public class AbstractConstraintTheory extends AbstractTheory implements
 	@Override
 	public void setTestingVariable(String newTestingVariable) {
 		this.testingVariable = newTestingVariable;
-	}
-
-	/**
-	 * We override the default version because disequality literals must be represented as <code>T1 != T2</code> in this theory,
-	 * and the default version of random literal generation would only negate atoms, representing disequalities as <code>not (T1 = T2)</code>. 	
-	 */
-	@Override
-	public Expression makeRandomLiteralOn() {
-		Expression atom = makeRandomAtomOn();
-		Expression literal = atom.hasFunctor(EQUALITY)? Math.random() > 0.5? atom : Disequality.make(atom.get(0), atom.get(1)) : atom;
-		return literal;
 	}
 }

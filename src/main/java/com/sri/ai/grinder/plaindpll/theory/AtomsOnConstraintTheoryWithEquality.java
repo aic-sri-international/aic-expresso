@@ -289,7 +289,13 @@ public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheor
 	}
 
 	@Override
-	public Expression makeRandomAtomOn() {
+	public boolean singleVariableConstraintIsComplete() {
+		// TODO Auto-generated method stub
+		throw new Error("Not implemented");
+	}
+
+	@Override
+	public Expression makeRandomAtomOn(RewritingProcess process) {
 //		Expression result;
 //		if (Math.random() > 0.5) {
 //			result = Math.random() > 0.5? getVariable.apply("Boolean") : getConstant.apply("Boolean");
