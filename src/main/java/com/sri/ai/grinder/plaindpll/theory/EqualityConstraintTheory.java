@@ -83,7 +83,7 @@ public class EqualityConstraintTheory extends AbstractEqualityConstraintTheory {
 	}
 
 	@Override
-	public boolean singleVariableConstraintIsComplete() {
+	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
 		return true; // SingleVariableEqualityConstraint is complete
 	}
 

@@ -1,3 +1,40 @@
+/*
+ * Copyright (c) 2013, SRI International
+ * All rights reserved.
+ * Licensed under the The BSD 3-Clause License;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ * 
+ * http://opensource.org/licenses/BSD-3-Clause
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 
+ * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ * 
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * 
+ * Neither the name of the aic-expresso nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.sri.ai.grinder.plaindpll.tester;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
@@ -25,7 +62,7 @@ import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
 public class ConstraintTheoryTester {
 	
 	private static void output(String message) {
-		//System.out.println(message);
+		System.out.println(message);
 	}
 
 	/**
@@ -34,16 +71,16 @@ public class ConstraintTheoryTester {
 	 * and see if those detected as unsatisfiable by the corresponding solver
 	 * are indeed unsatisfiable (checked by brute force).
 	 * Throws an {@link Error} with the failure description if a test fails.
-	 * 
+	 * @param random TODO
 	 * @param constraintTheory
+	 * @param outputCount TODO
 	 */
-	public static void test(ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals) {
+	public static void test(Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
-		constraintTheory.setRandomGenerator(new Random(0));
+		constraintTheory.setRandomGenerator(random);
 		
-		for (int i = 0; i != numberOfTests; i++) {
-			//if (i % 100 == 0) { System.out.println(i + " "); }	
+		for (int i = 1; i != numberOfTests + 1; i++) {
 			Expression variable = makeSymbol(constraintTheory.getTestingVariable());
 			SingleVariableConstraint constraint = constraintTheory.makeSingleVariableConstraint(variable);
 			Collection<Expression> literals = new LinkedHashSet<>();
@@ -57,7 +94,7 @@ public class ConstraintTheoryTester {
 				if (constraint == null) {
 					solverSaysItIsUnsatisfiable(literals, constraintTheory, process);
 				}
-				else if (constraintTheory.singleVariableConstraintIsComplete()) {
+				else if (constraintTheory.singleVariableConstraintIsCompleteWithRespectToItsVariable()) {
 					solverSaysItIsSatisfiable(literals, constraint, constraintTheory, process);
 				}
 				else {
@@ -66,7 +103,10 @@ public class ConstraintTheoryTester {
 					// so in this case we do not test either way.
 					output("Solver does not know yet if it is satisfiable or not. Current state is " + constraint.debuggingDescription(process));
 				}
-			}			
+			}
+			if (outputCount && i % 100 == 0) {
+				System.out.println("Tested " + i + " examples for " + constraintTheory.getClass().getSimpleName());
+			}	
 		}
 	}
 

@@ -289,7 +289,7 @@ public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheor
 	}
 
 	@Override
-	public boolean singleVariableConstraintIsComplete() {
+	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
 		// TODO Auto-generated method stub
 		throw new Error("Not implemented");
 	}

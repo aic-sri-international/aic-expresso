@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.plaindpll.api;
 
-import static com.sri.ai.grinder.library.equality.formula.FormulaUtil.functorIsALogicalConnectiveIncludingConditionals;
 import static com.sri.ai.grinder.library.equality.formula.FormulaUtil.isInterpretedInPropositionalLogicIncludingConditionals;
 import static com.sri.ai.util.Util.addAllToSet;
 import static com.sri.ai.util.Util.thereExists;
@@ -55,10 +54,8 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Not;
-import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
-import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.PredicateIterator;
 
 /**
@@ -163,7 +160,7 @@ public interface ConstraintTheory extends Theory {
 	 * Indicates whether single-variable constraint solver is complete (for its variable).
 	 * @return whether single-variable constraint solver is complete (for its variable).
 	 */
-	boolean singleVariableConstraintIsComplete();
+	boolean singleVariableConstraintIsCompleteWithRespectToItsVariable();
 	
 	/**
 	 * Indicates whether an expression is an application of a function belonging to this theory,

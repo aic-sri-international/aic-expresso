@@ -418,9 +418,6 @@ public abstract class AbstractExpression implements Expression {
 	/////// DEFAULT SYMBOL-SPECIFIC METHODS (ONLY SYMBOLS NEED TO OVERRIDE THESE)
 	
 	@Override
-	abstract public Expression clone();
-
-	@Override
 	public Object getValue() {
 		return null;
 	}

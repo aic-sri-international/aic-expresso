@@ -37,6 +37,8 @@
  */
 package com.sri.ai.test.grinder.plaindpll;
 
+import java.util.Random;
+
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
@@ -48,7 +50,12 @@ public class SingleVariableEqualityConstraintTest {
 
 	@Test
 	public void test() {
-		ConstraintTheoryTester.test(new EqualityConstraintTheory(null), 1000, 30);
+		ConstraintTheoryTester.test(
+				new Random(1),
+				new EqualityConstraintTheory(null),
+				2000 /* number of tests */,
+				20 /* number of literals per test */,
+				true /* output count */);
 	}
 	
 //	@Test
