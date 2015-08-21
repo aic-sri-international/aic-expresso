@@ -42,6 +42,7 @@ import static com.sri.ai.util.Util.pickUniformly;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
@@ -79,7 +80,7 @@ public class EqualityConstraintTheory extends AbstractEqualityConstraintTheory {
 
 	@Override
 	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable) {
-		return new SingleVariableEqualityConstraint(variable);
+		return new SingleVariableEqualityConstraint(variable, this);
 	}
 
 	@Override
@@ -88,20 +89,20 @@ public class EqualityConstraintTheory extends AbstractEqualityConstraintTheory {
 	}
 
 	@Override
-	public Expression makeRandomAtomOn(RewritingProcess process) {
+	public Expression makeRandomAtomOn(Random random, RewritingProcess process) {
 		Map<String, String> variablesAndTypes = getVariableNamesAndTypeNamesForTesting();
 		String typeName = variablesAndTypes.get(getTestingVariable());
 		Set<String> allVariables = variablesAndTypes.keySet();
 		PredicateIterator<String> isNameOfVariableOfSameType = PredicateIterator.make(allVariables, s -> variablesAndTypes.get(s).equals(typeName));
 		Expression otherTerm;
-		if (getRandomGenerator().nextBoolean()) {
-			otherTerm = makeSymbol(pickUniformly(isNameOfVariableOfSameType, getRandomGenerator()));
+		if (random.nextBoolean()) {
+			otherTerm = makeSymbol(pickUniformly(isNameOfVariableOfSameType, random));
 		}
 		else {
-			otherTerm = process.getType(typeName).sampleConstant(getRandomGenerator());
+			otherTerm = process.getType(typeName).sampleConstant(random);
 		}
 		Expression result =
-				getRandomGenerator().nextBoolean()?
+				random.nextBoolean()?
 				Equality.make(getTestingVariable(), otherTerm) : Equality.make(otherTerm, getTestingVariable());
 		return result;
 	}

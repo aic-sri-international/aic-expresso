@@ -194,10 +194,6 @@ public interface ConstraintTheory extends Theory {
 	
 	//////////// AUTOMATIC TESTING 
 	
-	void setRandomGenerator(Random random);
-	
-	Random getRandomGenerator();
-	
 	/** Sets variables to be used in randomly generated literals. */
 	void setVariableNamesAndTypeNamesForTesting(Map<String, String> variableNamesForTesting);
 	
@@ -223,17 +219,19 @@ public interface ConstraintTheory extends Theory {
 	/**
 	 * Returns a random atom in this constraint theory on a given variable.
 	 * This is useful for making random constraints for correctness and performance testing.
-	 * @param process TODO
+	 * @param random a random generator
+	 * @param process a rewriting process
 	 */
-	Expression makeRandomAtomOn(RewritingProcess process);
+	Expression makeRandomAtomOn(Random random, RewritingProcess process);
 
 	/**
 	 * Returns a random literal in this constraint theory on a given variable.
 	 * This is useful for making random constraints for correctness and performance testing.
-	 * @param process TODO
+	 * @param random a random generator
+	 * @param process a rewriting process
 	 */
-	default Expression makeRandomLiteralOn(RewritingProcess process) {
-		Expression atom = makeRandomAtomOn(process);
+	default Expression makeRandomLiteralOn(Random random, RewritingProcess process) {
+		Expression atom = makeRandomAtomOn(random, process);
 		Expression literal = Math.random() > 0.5? atom : Not.make(atom);
 		return literal;
 	}

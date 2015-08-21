@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.util.base.Pair;
 
@@ -63,8 +64,9 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	}
 
 	@Override
-	public void afterInsertingNewAtom(boolean sign, Expression atom) {
+	public AbstractSingleVariableConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process) {
 		// nothing to do;
+		return this;
 	}
 
 	@Override
@@ -85,7 +87,7 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	}
 
 	@Override
-	public Pair<Boolean, Expression> fromLiteralToSignAndAtom(Expression literal) {
+	public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndAtom(Expression literal) {
 		Pair<Boolean, Expression> result;
 		if (literal.hasFunctor(NOT)) {
 			result = Pair.make(false, literal.get(0));
@@ -102,7 +104,7 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	}
 
 	@Override
-	public boolean impliesLiteralWithDifferentAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2) {
+	public boolean impliesLiteralWithDifferentAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
 		throw new Error("This method should not have been invoked because this class's thereAreImplicationsBetweenDifferentAtoms returns 'false'.");
 	}
 
@@ -110,5 +112,10 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	public SingleVariablePropositionalConstraint clone() {
 		SingleVariablePropositionalConstraint result = new SingleVariablePropositionalConstraint(this);
 		return result;
+	}
+
+	@Override
+	public String debuggingDescription(RewritingProcess process) {
+		return toString();
 	}
 }

@@ -62,7 +62,28 @@ import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
 public class ConstraintTheoryTester {
 	
 	private static void output(String message) {
-		System.out.println(message);
+		// System.out.println(message); // uncomment out if detailed output is desired.
+	}
+
+	/**
+	 * Measures the time taken to run a given number of tests with a maximum number of literals,
+	 * without brute-force correctness testing.
+	 * Throws an {@link Error} with the failure description if a test fails.
+	 * @param random
+	 * @param constraintTheory
+	 * @param numberOfTests
+	 * @param maxNumberOfLiterals
+	 * @param outputCount
+	 */
+	public static long measureTime(Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+		
+		long start = System.currentTimeMillis();
+		test(random, constraintTheory, numberOfTests, maxNumberOfLiterals, outputCount, false /* no correctness */);
+		long result = System.currentTimeMillis() - start;
+		if (outputCount) {
+			System.out.println("Total time: " + result + " ms.");
+		}	
+		return result;
 	}
 
 	/**
@@ -71,37 +92,44 @@ public class ConstraintTheoryTester {
 	 * and see if those detected as unsatisfiable by the corresponding solver
 	 * are indeed unsatisfiable (checked by brute force).
 	 * Throws an {@link Error} with the failure description if a test fails.
-	 * @param random TODO
+	 * @param random
 	 * @param constraintTheory
-	 * @param outputCount TODO
+	 * @param numberOfTests
+	 * @param maxNumberOfLiterals
+	 * @param outputCount
 	 */
 	public static void test(Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+		test(random, constraintTheory, numberOfTests, maxNumberOfLiterals, true, outputCount);
+	}
+	
+	private static void test(Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
-		constraintTheory.setRandomGenerator(random);
 		
 		for (int i = 1; i != numberOfTests + 1; i++) {
 			Expression variable = makeSymbol(constraintTheory.getTestingVariable());
 			SingleVariableConstraint constraint = constraintTheory.makeSingleVariableConstraint(variable);
 			Collection<Expression> literals = new LinkedHashSet<>();
 			
-			output("\nStarting new conjunction");	
+			output("\n\nStarting new conjunction");	
 			for (int j = 0; constraint != null && j != maxNumberOfLiterals; j++) {
-				Expression literal = constraintTheory.makeRandomLiteralOn(process);
+				Expression literal = constraintTheory.makeRandomLiteralOn(random, process);
 				literals.add(literal);
-				output("Added " + literal + ", current conjunction: " + And.make(literals));	
+				output("\nAdded " + literal + " (current conjunction: " + And.make(literals) + ")");	
 				constraint = constraint.conjoin(literal, process);
-				if (constraint == null) {
-					solverSaysItIsUnsatisfiable(literals, constraintTheory, process);
-				}
-				else if (constraintTheory.singleVariableConstraintIsCompleteWithRespectToItsVariable()) {
-					solverSaysItIsSatisfiable(literals, constraint, constraintTheory, process);
-				}
-				else {
-					// if constraint is not null, the conjunction of literals may or may not be satisfiable,
-					// because solvers are allowed to be incomplete regarding satisfiability,
-					// so in this case we do not test either way.
-					output("Solver does not know yet if it is satisfiable or not. Current state is " + constraint.debuggingDescription(process));
+				if (testCorrectness) {
+					if (constraint == null) {
+						solverSaysItIsUnsatisfiable(literals, constraintTheory, process);
+					}
+					else if (constraintTheory.singleVariableConstraintIsCompleteWithRespectToItsVariable()) {
+						solverSaysItIsSatisfiable(literals, constraint, constraintTheory, process);
+					}
+					else {
+						// if constraint is not null, the conjunction of literals may or may not be satisfiable,
+						// because solvers are allowed to be incomplete regarding satisfiability,
+						// so in this case we do not test either way.
+						output("Solver does not know yet if it is satisfiable or not. Current state is " + constraint.debuggingDescription(process));
+					}
 				}
 			}
 			if (outputCount && i % 100 == 0) {
@@ -118,14 +146,15 @@ public class ConstraintTheoryTester {
 	 * @throws Error
 	 */
 	protected static void solverSaysItIsSatisfiable(Collection<Expression> literals, SingleVariableConstraint constraint, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
-		output("Solver thinks it is satisfiable");	
+		output("Solver thinks it is satisfiable. Current constraint is " + constraint.debuggingDescription(process));	
 		Expression formula = And.make(literals);
 		Map<Expression, Expression> satisfyingAssignment = isSatisfiableByBruteForce(formula, constraintTheory, process);
 		if (satisfyingAssignment == null) {
-			throw new Error(
-			join(literals, " and ") + " is unsatisfiable (by brute-force) but " + 
+			String message = join(literals, " and ") + " is unsatisfiable (by brute-force) but " + 
 			constraintTheory.getClass().getSimpleName() + "'s says it is satisfiable. " +
-			"Current constraint is " + constraint.debuggingDescription(process));
+			"Current constraint is " + constraint.debuggingDescription(process);
+			output(message);
+			throw new Error(message);
 		}
 		else {
 			output("Brute-force satisfiability test agrees that it is satisfiable. Constraint is " + constraint.debuggingDescription(process));	
@@ -139,14 +168,15 @@ public class ConstraintTheoryTester {
 	 * @throws Error
 	 */
 	protected static void solverSaysItIsUnsatisfiable(Collection<Expression> literals, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
-		output("Solver thinks it is unsatisfiable");	
+		output("Solver thinks it is unsatisfiable.");	
 		Expression formula = And.make(literals);
 		Map<Expression, Expression> satisfyingAssignment = isSatisfiableByBruteForce(formula, constraintTheory, process);
 		if (satisfyingAssignment != null) {
-			throw new Error(
-			join(literals, " and ") + " is satisfiable (by brute-force) but " + 
+			String message = join(literals, " and ") + " is satisfiable (by brute-force) but " + 
 			constraintTheory.getClass().getSimpleName() + "'s says it is not. " +
-			"Satisfying assignment is " + satisfyingAssignment + ".");
+			"Satisfying assignment is " + satisfyingAssignment + ".";
+			output(message);
+			throw new Error(message);
 		}
 		else {
 			output("Brute-force satisfiability test agrees that it is unsatisfiable.");	

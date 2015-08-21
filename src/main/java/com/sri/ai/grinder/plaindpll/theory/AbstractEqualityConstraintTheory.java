@@ -52,6 +52,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
@@ -666,9 +667,9 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 	 * and the default version of random literal generation would only negate atoms, representing disequalities as <code>not (T1 = T2)</code>. 	
 	 */
 	@Override
-	public Expression makeRandomLiteralOn(RewritingProcess process) {
-		Expression atom = makeRandomAtomOn(process);
-		Expression literal = atom.hasFunctor(EQUALITY)? getRandomGenerator().nextBoolean()? atom : Disequality.make(atom.get(0), atom.get(1)) : atom;
+	public Expression makeRandomLiteralOn(Random random, RewritingProcess process) {
+		Expression atom = makeRandomAtomOn(random, process);
+		Expression literal = atom.hasFunctor(EQUALITY)? random.nextBoolean()? atom : Disequality.make(atom.get(0), atom.get(1)) : atom;
 		return literal;
 	}
 }

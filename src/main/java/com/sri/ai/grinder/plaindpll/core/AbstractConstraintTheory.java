@@ -362,25 +362,11 @@ abstract public class AbstractConstraintTheory extends AbstractTheory implements
 	 */
 	public static final Comparator<Expression> choosingOrderTieBreaker = (a, b) -> a.toString().compareTo(b.toString());
 	
-	private Random random;
-
 	private Collection<Type> typesForTesting = null;
 	
 	private String testingVariable = null;
 	
 	private Map<String, String> variableNamesAndTypeNamesForTesting;
-	
-	@Override
-	public
-	void setRandomGenerator(Random newRandom) {
-		this.random = newRandom;
-	}
-	
-	@Override
-	public
-	Random getRandomGenerator() {
-		return random;
-	}
 	
 	@Override
 	public Collection<Type> getTypesForTesting() {

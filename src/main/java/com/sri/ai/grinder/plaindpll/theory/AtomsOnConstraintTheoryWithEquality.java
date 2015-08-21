@@ -43,6 +43,7 @@ import static com.sri.ai.grinder.helper.GrinderUtil.isBooleanTyped;
 import static com.sri.ai.grinder.library.Equality.isEquality;
 
 import java.util.Collection;
+import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -295,7 +296,7 @@ public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheor
 	}
 
 	@Override
-	public Expression makeRandomAtomOn(RewritingProcess process) {
+	public Expression makeRandomAtomOn(Random random, RewritingProcess process) {
 //		Expression result;
 //		if (Math.random() > 0.5) {
 //			result = Math.random() > 0.5? getVariable.apply("Boolean") : getConstant.apply("Boolean");

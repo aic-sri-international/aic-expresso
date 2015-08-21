@@ -37,11 +37,13 @@
  */
 package com.sri.ai.grinder.plaindpll.theory;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.grinder.helper.GrinderUtil.getType;
 import static com.sri.ai.grinder.helper.GrinderUtil.getTypeCardinality;
 import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
 import static com.sri.ai.util.Util.list;
-import static com.sri.ai.util.Util.removeNonDestructively;
+import static com.sri.ai.util.Util.removeFromSetNonDestructively;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -155,11 +157,14 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	
 	/**
 	 * Extending classes define this method to perform whatever bookkeeping is needed
-	 * after a new atom has been inserted.
+	 * after a new atom has been inserted, returning null in case of a detected contradiction
+	 * or this object otherwise.
 	 * @param sign
 	 * @param atom
+	 * @param process 
+	 * @return 
 	 */
-	abstract public void afterInsertingNewAtom(boolean sign, Expression atom);
+	abstract public AbstractSingleVariableConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process);
 
 	/**
 	 * Returns the literal corresponding to the negation of the given atom
@@ -182,7 +187,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 * @param literal
 	 * @return
 	 */
-	abstract public Pair<Boolean, Expression> fromLiteralToSignAndAtom(Expression literal);
+	abstract public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndAtom(Expression literal);
 
 	/** Indicates whether there are interactions between distinct atoms in current theory. */
 	abstract public boolean thereAreImplicationsBetweenDifferentAtoms();
@@ -194,9 +199,10 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 * @param atom1
 	 * @param sign2
 	 * @param atom2
+	 * @param process
 	 * @return
 	 */
-	abstract public boolean impliesLiteralWithDifferentAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2);
+	abstract public boolean impliesLiteralWithDifferentAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process);
 
 	@Override
 	public ConstraintTheory getConstraintTheory() {
@@ -216,11 +222,17 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	@Override
 	public SingleVariableConstraint conjoin(Expression literal, RewritingProcess process) {
 		AbstractSingleVariableConstraint result;
-		if (isExternalLiteral(literal)) {
+		if (literal.equals(TRUE)) {
+			result = this;
+		}
+		else if (literal.equals(FALSE)) {
+			result = null;
+		}
+		else if (isExternalLiteral(literal)) {
 			result = copyWithNewExternalLiteral(literal);
 		}
 		else {
-			Pair<Boolean, Expression> signAndAtom = fromLiteralToSignAndAtom(literal);
+			Pair<Boolean, Expression> signAndAtom = fromLiteralOnVariableToSignAndAtom(literal);
 			boolean    sign = signAndAtom.first;
 			Expression atom = signAndAtom.second;
 			Set<Expression>     sameSignAtoms = sign? positiveAtoms : negativeAtoms;
@@ -241,18 +253,18 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 				// while equalities between two variables never affect literals based on distinct atoms.
 				
 				boolean oppositeSign = sign? false : true;
-				if (    Util.thereExists(positiveAtoms, p -> impliesLiteralWithDifferentAtom(true,  p, sign, atom)) ||
-						Util.thereExists(negativeAtoms, p -> impliesLiteralWithDifferentAtom(false, p, sign, atom))) {
+				if (    Util.thereExists(positiveAtoms, p -> impliesLiteralWithDifferentAtom(true,  p, sign, atom, process)) ||
+						Util.thereExists(negativeAtoms, p -> impliesLiteralWithDifferentAtom(false, p, sign, atom, process))) {
 					result = this; // redundant
 				}
-				else if (Util.thereExists(positiveAtoms, p -> impliesLiteralWithDifferentAtom(true,  p, oppositeSign, atom)) ||
-						Util. thereExists(negativeAtoms, p -> impliesLiteralWithDifferentAtom(false, p, oppositeSign, atom))) {
+				else if (Util.thereExists(positiveAtoms, p -> impliesLiteralWithDifferentAtom(true,  p, oppositeSign, atom, process)) ||
+						Util. thereExists(negativeAtoms, p -> impliesLiteralWithDifferentAtom(false, p, oppositeSign, atom, process))) {
 					result = null; // contradiction
 				}
 				else {
 					// remove redundant literals and add new one
-					Set<Expression> newPositiveAtoms = removeNonDestructively(positiveAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, true,  p));
-					Set<Expression> newNegativeAtoms = removeNonDestructively(negativeAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, false, p));
+					Set<Expression> newPositiveAtoms = removeFromSetNonDestructively(positiveAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, true,  p, process));
+					Set<Expression> newNegativeAtoms = removeFromSetNonDestructively(negativeAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, false, p, process));
 					if (sign) {
 						newPositiveAtoms.add(atom);
 					}
@@ -260,7 +272,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 						newNegativeAtoms.add(atom);
 					}
 					result = copyWithNewPositiveAndNegativeAtoms(newPositiveAtoms, newNegativeAtoms);
-					result.afterInsertingNewAtom(sign, atom);
+					result = result.afterInsertingNewAtom(sign, atom, process);
 				}
 			}
 			else {
@@ -290,10 +302,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 		throw new Error("Not implemented");
 	}
 
-	@Override
-	public String debuggingDescription(RewritingProcess process) {
-		return toString();
-	}
+	abstract public String debuggingDescription(RewritingProcess process);
 
 	@Override
 	protected Expression computeInnerExpression() {

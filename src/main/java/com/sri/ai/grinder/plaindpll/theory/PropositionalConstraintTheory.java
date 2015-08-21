@@ -51,6 +51,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
@@ -339,7 +340,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public Expression makeRandomAtomOn(RewritingProcess process) {
+	public Expression makeRandomAtomOn(Random random, RewritingProcess process) {
 		return makeSymbol(getTestingVariable());
 	}
 }
