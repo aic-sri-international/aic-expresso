@@ -90,7 +90,7 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.library.function.InjectiveModule;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
-import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
+import com.sri.ai.grinder.plaindpll.api.NewConstraintTheory;
 import com.sri.ai.grinder.ui.TreeUtil;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.Configuration;
@@ -1227,7 +1227,7 @@ public class GrinderUtil {
 	 * @param process
 	 * @return a map representing a satisfying assignment, or null.
 	 */
-	public static Map<Expression, Expression> isSatisfiableByBruteForce(Expression formula, ConstraintTheory constraintTheory, RewritingProcess process) {
+	public static Map<Expression, Expression> isSatisfiableByBruteForce(Expression formula, NewConstraintTheory constraintTheory, RewritingProcess process) {
 		Map<Expression, Expression> satisfyingAssignment = null;
 		Collection<Expression> variables = constraintTheory.getVariablesIn(formula, process);
 		Iterator<Map<Expression, Expression>> assignmentsIterator = new AssignmentsIterator(variables, process);

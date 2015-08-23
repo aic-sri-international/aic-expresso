@@ -219,11 +219,13 @@ public class SymbolEqualitySatisfiabilityDPLLTest extends AbstractSymbolicSymbol
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 	}
 
+	@Override
 	protected Expression makeProblem(Expression expression, IndexExpressionsSet indexExpressions) {
 		Expression problem = new DefaultExistentiallyQuantifiedFormula(indexExpressions, expression);
 		return problem;
 	}
 
+	@Override
 	protected Rewriter makeRewriter() {
 		return new SGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new Satisfiability());
 	}

@@ -37,26 +37,13 @@
  */
 package com.sri.ai.grinder.plaindpll.api;
 
-import static com.sri.ai.grinder.library.equality.formula.FormulaUtil.isInterpretedInPropositionalLogicIncludingConditionals;
-import static com.sri.ai.util.Util.addAllToSet;
-import static com.sri.ai.util.Util.thereExists;
-
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Random;
-
 import com.google.common.annotations.Beta;
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
-import com.sri.ai.util.collect.PredicateIterator;
 
 /**
  * An interface for constraint theories to be plugged into quantifier problems.
@@ -148,91 +135,4 @@ public interface ConstraintTheory extends Theory {
 	 * @return
 	 */
 	Constraint makeConstraint(Collection<Expression> indices);
-
-	/**
-	 * Make a new single-variable constraint for this constraint theory.
-	 * @param variable 
-	 * @return
-	 */
-	SingleVariableConstraint makeSingleVariableConstraint(Expression variable);
-	
-	/**
-	 * Indicates whether single-variable constraint solver is complete (for its variable).
-	 * @return whether single-variable constraint solver is complete (for its variable).
-	 */
-	boolean singleVariableConstraintIsCompleteWithRespectToItsVariable();
-	
-	/**
-	 * Indicates whether an expression is an application of a function belonging to this theory,
-	 * or a constant belonging to this theory.
-	 * @param term
-	 * @param process
-	 * @return
-	 */
-	boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process);
-	
-	/**
-	 * Provides a collection of all generalized variables (according to this theory) in a given expression,
-	 * where a generalized variable is an expression that is not a boolean connective or an interpreted element in this theory
-	 * (see {@link #isInterpretedInThisTheoryBesidesBooleanConnectives(Expression, RewritingProcess)}).
-	 * @param expression
-	 * @param process
-	 * @return
-	 */
-	default Collection<Expression> getVariablesIn(Expression expression, RewritingProcess process) {
-		Iterator<Expression> subExpressionsIterator = new SubExpressionsDepthFirstIterator(expression);
-		Predicate<Expression> isVariable =
-				e -> !process.isUniquelyNamedConstant(expression)
-				&& !isInterpretedInPropositionalLogicIncludingConditionals(e)  
-				&& !isInterpretedInThisTheoryBesidesBooleanConnectives(e, process)
-				&& !thereExists(process.getTypes(), t -> t.contains(e));
-		Iterator<Expression> variablesIterator = PredicateIterator.make(subExpressionsIterator, isVariable);
-		LinkedHashSet<Expression> variables = addAllToSet(variablesIterator);
-		return variables;
-	}
-
-	
-	//////////// AUTOMATIC TESTING 
-	
-	/** Sets variables to be used in randomly generated literals. */
-	void setVariableNamesAndTypeNamesForTesting(Map<String, String> variableNamesForTesting);
-	
-	/** Gets variables to be used in randomly generated literals. */
-	Map<String, String> getVariableNamesAndTypeNamesForTesting();
-
-	/** Returns a set of types appropriate for testing this constraint theory. */
-	Collection<Type> getTypesForTesting();
-	
-	/** Sets a set of types appropriate for testing this constraint theory. */
-	void setTypesForTesting(Collection<Type> newTypesForTesting);
-	
-	/**
-	 * Returns the variable on which testing literals are generated.
-	 * @return the variable on which testing literals are generated
-	 */
-	String getTestingVariable();
-	
-	void setTestingVariable(String newTestingVariable);
-	
-	RewritingProcess extendWithTestingInformation(RewritingProcess process);
-	
-	/**
-	 * Returns a random atom in this constraint theory on a given variable.
-	 * This is useful for making random constraints for correctness and performance testing.
-	 * @param random a random generator
-	 * @param process a rewriting process
-	 */
-	Expression makeRandomAtomOn(Random random, RewritingProcess process);
-
-	/**
-	 * Returns a random literal in this constraint theory on a given variable.
-	 * This is useful for making random constraints for correctness and performance testing.
-	 * @param random a random generator
-	 * @param process a rewriting process
-	 */
-	default Expression makeRandomLiteralOn(Random random, RewritingProcess process) {
-		Expression atom = makeRandomAtomOn(random, process);
-		Expression literal = Math.random() > 0.5? atom : Not.make(atom);
-		return literal;
-	}
 }

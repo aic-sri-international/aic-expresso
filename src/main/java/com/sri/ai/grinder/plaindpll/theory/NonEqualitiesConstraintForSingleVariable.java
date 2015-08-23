@@ -23,6 +23,7 @@ public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 	/** Returns the single variable against which all other terms are constrained. */
 	Expression getVariable();
 
+	@Override
 	NonEqualitiesConstraintForSingleVariable clone();
 	
 	/**

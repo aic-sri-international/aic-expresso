@@ -50,11 +50,11 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
-import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
+import com.sri.ai.grinder.plaindpll.api.NewConstraintTheory;
+import com.sri.ai.grinder.plaindpll.api.SingleVariableNewConstraint;
 
 /**
- * A class for testing a {@link ConstraintTheory} and its unsatisfiability detection.
+ * A class for testing a {@link NewConstraintTheory} and its unsatisfiability detection.
  * 
  * @author braz
  *
@@ -75,7 +75,7 @@ public class ConstraintTheoryTester {
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
-	public static long measureTime(Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+	public static long measureTime(Random random, NewConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
 		long start = System.currentTimeMillis();
 		test(random, constraintTheory, numberOfTests, maxNumberOfLiterals, outputCount, false /* no correctness */);
@@ -98,17 +98,17 @@ public class ConstraintTheoryTester {
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
-	public static void test(Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+	public static void test(Random random, NewConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		test(random, constraintTheory, numberOfTests, maxNumberOfLiterals, true, outputCount);
 	}
 	
-	private static void test(Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
+	private static void test(Random random, NewConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
 		for (int i = 1; i != numberOfTests + 1; i++) {
 			Expression variable = makeSymbol(constraintTheory.getTestingVariable());
-			SingleVariableConstraint constraint = constraintTheory.makeSingleVariableConstraint(variable);
+			SingleVariableNewConstraint constraint = constraintTheory.makeSingleVariableConstraint(variable);
 			Collection<Expression> literals = new LinkedHashSet<>();
 			
 			output("\n\nStarting new conjunction");	
@@ -145,7 +145,7 @@ public class ConstraintTheoryTester {
 	 * @param process
 	 * @throws Error
 	 */
-	protected static void solverSaysItIsSatisfiable(Collection<Expression> literals, SingleVariableConstraint constraint, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
+	protected static void solverSaysItIsSatisfiable(Collection<Expression> literals, SingleVariableNewConstraint constraint, NewConstraintTheory constraintTheory, RewritingProcess process) throws Error {
 		output("Solver thinks it is satisfiable. Current constraint is " + constraint.debuggingDescription(process));	
 		Expression formula = And.make(literals);
 		Map<Expression, Expression> satisfyingAssignment = isSatisfiableByBruteForce(formula, constraintTheory, process);
@@ -167,7 +167,7 @@ public class ConstraintTheoryTester {
 	 * @param process
 	 * @throws Error
 	 */
-	protected static void solverSaysItIsUnsatisfiable(Collection<Expression> literals, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
+	protected static void solverSaysItIsUnsatisfiable(Collection<Expression> literals, NewConstraintTheory constraintTheory, RewritingProcess process) throws Error {
 		output("Solver thinks it is unsatisfiable.");	
 		Expression formula = And.make(literals);
 		Map<Expression, Expression> satisfyingAssignment = isSatisfiableByBruteForce(formula, constraintTheory, process);

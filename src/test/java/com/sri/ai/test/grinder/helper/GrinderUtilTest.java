@@ -52,9 +52,8 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Basic;
-import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
-import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
-import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
+import com.sri.ai.grinder.plaindpll.api.NewConstraintTheory;
+import com.sri.ai.grinder.plaindpll.theory.EqualityNewConstraintTheory;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 import com.sri.ai.test.grinder.TestData;
 
@@ -246,10 +245,10 @@ public class GrinderUtilTest extends AbstractGrinderTest {
 	}
 
 	protected void runTestIsSatisfiableByBruteForce(Expression formula, Map<Expression, Expression> expected) {
-		ConstraintTheory constraintTheory;
+		NewConstraintTheory constraintTheory;
 		RewritingProcess process;
 		Map<Expression, Expression> actual;
-		constraintTheory = new EqualityConstraintTheory(new SymbolTermTheory());
+		constraintTheory = new EqualityNewConstraintTheory(null);
 		process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		actual = isSatisfiableByBruteForce(formula, constraintTheory, process);
 		assertEquals(expected, actual);

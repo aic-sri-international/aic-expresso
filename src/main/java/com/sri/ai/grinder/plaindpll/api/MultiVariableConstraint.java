@@ -1,24 +1,19 @@
 package com.sri.ai.grinder.plaindpll.api;
 
-import static com.sri.ai.util.Util.addAllToList;
 import static com.sri.ai.util.Util.getFirstNonNullResultOrNull;
 import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.mapValuesNonDestructively;
 import static com.sri.ai.util.Util.min;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
-import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.number.Times;
-import com.sri.ai.util.collect.PredicateIterator;
 
 /**
  * An {@link Constraint} on multiple variables.
@@ -30,20 +25,20 @@ public class MultiVariableConstraint extends AbstractExpressionWrapper {
 
 	private static final long serialVersionUID = 1L;
 	
-	private ConstraintTheory constraintTheory;
-	private Map<Expression, SingleVariableConstraint> fromVariableToItsConstraint;
+	private NewConstraintTheory constraintTheory;
+	private Map<Expression, SingleVariableNewConstraint> fromVariableToItsConstraint;
 	
-	private MultiVariableConstraint(ConstraintTheory constraintTheory, Map<Expression, SingleVariableConstraint> fromVariableToItsConstraint) {
+	private MultiVariableConstraint(NewConstraintTheory constraintTheory, Map<Expression, SingleVariableNewConstraint> fromVariableToItsConstraint) {
 		this.constraintTheory = constraintTheory;
 		this.fromVariableToItsConstraint = fromVariableToItsConstraint;
 	}
 	
-	private MultiVariableConstraint makeWithNewFromVariableToItsConstraint(Map<Expression, SingleVariableConstraint> newFromVariableToItsConstraint) {
+	private MultiVariableConstraint makeWithNewFromVariableToItsConstraint(Map<Expression, SingleVariableNewConstraint> newFromVariableToItsConstraint) {
 		return new MultiVariableConstraint(constraintTheory, newFromVariableToItsConstraint);
 	}
 	
 	public MultiVariableConstraint simplifyGiven(Expression literal, RewritingProcess process) {
-		Map<Expression, SingleVariableConstraint> updatedFromVariableToItsConstraint =
+		Map<Expression, SingleVariableNewConstraint> updatedFromVariableToItsConstraint =
 				mapValuesNonDestructively(fromVariableToItsConstraint, c -> c.simplifyGiven(literal, process));
 
 		MultiVariableConstraint result;
@@ -61,8 +56,8 @@ public class MultiVariableConstraint extends AbstractExpressionWrapper {
 		MultiVariableConstraint result;
 		
 		Expression variable = getVariableFor(literal, process);
-		SingleVariableConstraint singleVariableConstraint = getConstraintFor(variable);
-		SingleVariableConstraint newSingleVariableConstraint = singleVariableConstraint.conjoin(literal, process);
+		SingleVariableNewConstraint singleVariableConstraint = getConstraintFor(variable);
+		SingleVariableNewConstraint newSingleVariableConstraint = singleVariableConstraint.conjoin(literal, process);
 		if (newSingleVariableConstraint == null) {
 			result = null;	
 		}
@@ -70,7 +65,7 @@ public class MultiVariableConstraint extends AbstractExpressionWrapper {
 			result = this;
 		}
 		else {
-			Map<Expression, SingleVariableConstraint> newFromVariableToItsConstraint = new LinkedHashMap<>(fromVariableToItsConstraint);
+			Map<Expression, SingleVariableNewConstraint> newFromVariableToItsConstraint = new LinkedHashMap<>(fromVariableToItsConstraint);
 			newFromVariableToItsConstraint.put(variable, newSingleVariableConstraint);
 			result = makeWithNewFromVariableToItsConstraint(newFromVariableToItsConstraint);
 		}
@@ -87,8 +82,8 @@ public class MultiVariableConstraint extends AbstractExpressionWrapper {
 	 * @param variable
 	 * @return
 	 */
-	protected SingleVariableConstraint getConstraintFor(Expression variable) {
-		SingleVariableConstraint result = fromVariableToItsConstraint.get(variable);
+	protected SingleVariableNewConstraint getConstraintFor(Expression variable) {
+		SingleVariableNewConstraint result = fromVariableToItsConstraint.get(variable);
 		if (result == null) {
 			result = constraintTheory.makeSingleVariableConstraint(variable);
 		}

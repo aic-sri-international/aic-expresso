@@ -186,7 +186,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 
 	@Override
 	public Expression clone() {
-		return new DefaultFunctionApplication(getFunctor(), (ArrayList<Expression>) getArguments());
+		return new DefaultFunctionApplication(getFunctor(), getArguments());
 	}
 	
 	private static class IndexAddress implements SubExpressionAddress {

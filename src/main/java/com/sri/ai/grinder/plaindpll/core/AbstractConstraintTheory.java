@@ -37,32 +37,20 @@
  */
 package com.sri.ai.grinder.plaindpll.core;
 
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.getFirstOrNull;
-import static com.sri.ai.util.Util.list;
-import static com.sri.ai.util.Util.map;
-import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.throwSafeguardError;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
-import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
@@ -77,21 +65,6 @@ import com.sri.ai.util.collect.PredicateIterator;
  */
 abstract public class AbstractConstraintTheory extends AbstractTheory implements ConstraintTheory {
 
-	/**
-	 * Initializes types for testing to be the collection of a single type,
-	 * a {@link Categorical} {@link Type} named <code>SomeType</code>
-	 * with domain size 5 and known constants <code>a, b, c, d</code>,
-	 * variables for testing to <code>X, Y, Z</code> of type <code>SomeType</code>,
-	 * of which <code>X</code> is the main testing variable on which testing literals are generated.
-	 */
-	public AbstractConstraintTheory() {
-		super();
-		ArrayList<Expression> knownConstants = mapIntoArrayList(list("a", "b", "c", "d"), s -> makeSymbol(s));
-		setTypesForTesting(list(new Categorical("SomeType", 5, knownConstants)));
-		setVariableNamesAndTypeNamesForTesting(map("X", "SomeType", "Y", "SomeType", "Z", "SomeType"));
-		setTestingVariable("X");
-	}
-	
 	/**
 	 * Default implementation that simplifies an expression by exhaustively simplifying its top expression with
 	 * the simplifiers provided by {@link #getFunctionApplicationSimplifiers()} and {@link #getSyntacticFormTypeSimplifiers()},
@@ -361,54 +334,4 @@ abstract public class AbstractConstraintTheory extends AbstractTheory implements
 	 * The tie-breaker used for choosing order within the same group (indices, free variables and constants).
 	 */
 	public static final Comparator<Expression> choosingOrderTieBreaker = (a, b) -> a.toString().compareTo(b.toString());
-	
-	private Collection<Type> typesForTesting = null;
-	
-	private String testingVariable = null;
-	
-	private Map<String, String> variableNamesAndTypeNamesForTesting;
-	
-	@Override
-	public Collection<Type> getTypesForTesting() {
-		if (typesForTesting == null) {
-			return null;
-		}
-		return Collections.unmodifiableCollection(typesForTesting);
-	}
-
-	@Override
-	public void setTypesForTesting(Collection<Type> newTypesForTesting) {
-		typesForTesting = newTypesForTesting;
-	}
-	
-	@Override
-	public void setVariableNamesAndTypeNamesForTesting(Map<String, String> variableNamesForTesting) {
-		this.variableNamesAndTypeNamesForTesting = variableNamesForTesting;
-	}
-	
-	@Override
-	public Map<String, String> getVariableNamesAndTypeNamesForTesting() {
-		return Collections.unmodifiableMap(variableNamesAndTypeNamesForTesting);
-	}
-
-	@Override
-	public RewritingProcess extendWithTestingInformation(RewritingProcess process) {
-		RewritingProcess result = process.put(getTypesForTesting());
-		Map<String, String> mapFromTypeNameToSizeString = map();
-		for (Type type : typesForTesting) {
-			mapFromTypeNameToSizeString.put(type.getName(), Integer.toString(type.size()));
-		}
-		result = DPLLUtil.extendProcessWith(variableNamesAndTypeNamesForTesting, mapFromTypeNameToSizeString, result);
-		return result;
-	}
-
-	@Override
-	public String getTestingVariable() {
-		return testingVariable;
-	}
-
-	@Override
-	public void setTestingVariable(String newTestingVariable) {
-		this.testingVariable = newTestingVariable;
-	}
 }

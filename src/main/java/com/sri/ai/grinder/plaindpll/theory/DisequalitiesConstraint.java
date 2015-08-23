@@ -19,6 +19,7 @@ public class DisequalitiesConstraint extends AbstractNonEqualitiesConstraint  {
 		super(theory, supportedIndices);
 	}
 	
+	@Override
 	protected DisequalitiesConstraint cloneWithoutNonEqualitiesForSingleVariables() {
 		return new DisequalitiesConstraint(theory, supportedIndices);
 	}
@@ -49,6 +50,7 @@ public class DisequalitiesConstraint extends AbstractNonEqualitiesConstraint  {
 	 * Indicates whether the constraints represented ever product splitters that need to be satisfied (default is true).
 	 * @return
 	 */
+	@Override
 	protected boolean constraintsDoNotProduceSplittersToBeSatisfied() {
 		return true; // all literals are disequality ones, so there are splitters whose negations need to be satisfied, but not positive ones.
 	}
@@ -57,10 +59,12 @@ public class DisequalitiesConstraint extends AbstractNonEqualitiesConstraint  {
 	 * Indicates whether the constraints represented ever product splitters that need to be <i>not</i> satisfied (default is false).
 	 * @return
 	 */
+	@Override
 	protected boolean constraintsDoNotProduceSplittersToBeNotSatisfied() {
 		return false;
 	}
 
+	@Override
 	protected NonEqualitiesConstraintForSingleVariable makeNonEqualitiesConstraintForVariable(Expression variable) {
 		NonEqualitiesConstraintForSingleVariable result = new DisequalitiesConstraintForSingleVariable(variable, getConstraintTheory(), getSupportedIndices());
 		return result;

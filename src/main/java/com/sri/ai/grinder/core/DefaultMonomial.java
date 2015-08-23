@@ -370,6 +370,7 @@ public class DefaultMonomial extends AbstractExpressionWrapper implements Monomi
 	//
 	// PROTECTED
 	//
+	@Override
 	protected Expression computeInnerExpression() {
 		Expression result;
 		

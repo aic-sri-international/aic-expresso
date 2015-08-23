@@ -43,7 +43,7 @@ import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.plaindpll.tester.ConstraintTheoryTester;
-import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
+import com.sri.ai.grinder.plaindpll.theory.EqualityNewConstraintTheory;
 
 @Beta
 public class SingleVariableEqualityConstraintTest {
@@ -52,7 +52,7 @@ public class SingleVariableEqualityConstraintTest {
 	public void test() {
 		ConstraintTheoryTester.test(
 				new Random(1),
-				new EqualityConstraintTheory(null),
+				new EqualityNewConstraintTheory(null),
 				20000 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);

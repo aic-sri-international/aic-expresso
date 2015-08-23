@@ -9,6 +9,7 @@ import com.sri.ai.grinder.plaindpll.api.Constraint;
 @SuppressWarnings("serial")
 public abstract class AbstractConstraint extends AbstractExpressionWrapper implements Constraint {
 	
+	@Override
 	public abstract AbstractConstraint clone();
 	
 	// TODO: give safeguarded default implementations for these methods

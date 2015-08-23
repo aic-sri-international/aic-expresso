@@ -174,6 +174,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
 	 */
+	@Override
 	public Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process) {
 		// TODO: should replace this oldConstraint by a copy constructor creating a sub-process, but surprisingly there is no complete copy constructor available in DefaultRewritingProcess.
 		Constraint oldConstraint = process.getDPLLContextualConstraint();
@@ -191,6 +192,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		return result;
 	}
 
+	@Override
 	public Expression solve(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		checkInterrupted();
 		

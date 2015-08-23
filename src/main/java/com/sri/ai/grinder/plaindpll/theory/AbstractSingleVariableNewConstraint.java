@@ -57,8 +57,8 @@ import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
-import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
+import com.sri.ai.grinder.plaindpll.api.NewConstraintTheory;
+import com.sri.ai.grinder.plaindpll.api.SingleVariableNewConstraint;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
@@ -78,7 +78,7 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public abstract class AbstractSingleVariableConstraint extends AbstractExpressionWrapper implements SingleVariableConstraint {
+public abstract class AbstractSingleVariableNewConstraint extends AbstractExpressionWrapper implements SingleVariableNewConstraint {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -86,14 +86,14 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	private Set<Expression> positiveAtoms;
 	private Set<Expression> negativeAtoms;
 	private Collection<Expression> externalLiterals; // literals not on variable
-	private ConstraintTheory constraintTheory;
+	private NewConstraintTheory constraintTheory;
 	
-	public AbstractSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory) {
+	public AbstractSingleVariableNewConstraint(Expression variable, NewConstraintTheory constraintTheory) {
 		this(variable, Util.set(), Util.set(), Util.set(), constraintTheory);
 	}
 	
-	public AbstractSingleVariableConstraint(Expression variable, Set<Expression> positiveAtoms, Set<Expression> negativeAtoms,
-			Collection<Expression> externalLiterals, ConstraintTheory constraintTheory) {
+	public AbstractSingleVariableNewConstraint(Expression variable, Set<Expression> positiveAtoms, Set<Expression> negativeAtoms,
+			Collection<Expression> externalLiterals, NewConstraintTheory constraintTheory) {
 		this.variable = variable;
 		this.positiveAtoms = positiveAtoms;
 		this.negativeAtoms = negativeAtoms;
@@ -115,7 +115,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 * copy constructor.
 	 * @param other
 	 */
-	protected AbstractSingleVariableConstraint (AbstractSingleVariableConstraint other) {
+	protected AbstractSingleVariableNewConstraint (AbstractSingleVariableNewConstraint other) {
 		this.variable = other.variable;
 		this.positiveAtoms = other.positiveAtoms;
 		this.negativeAtoms = other.negativeAtoms;
@@ -124,34 +124,34 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	}
 	
 	@Override
-	abstract public AbstractSingleVariableConstraint clone();
+	abstract public AbstractSingleVariableNewConstraint clone();
 	
-	public AbstractSingleVariableConstraint copyWithNewPositiveAtom(Expression atom) {
-		AbstractSingleVariableConstraint result = clone();
+	public AbstractSingleVariableNewConstraint copyWithNewPositiveAtom(Expression atom) {
+		AbstractSingleVariableNewConstraint result = clone();
 		Set<Expression> newPositiveAtoms = new LinkedHashSet<Expression>(positiveAtoms);
 		newPositiveAtoms.add(atom);
 		result.positiveAtoms = newPositiveAtoms;
 		return result;
 	}
 
-	public AbstractSingleVariableConstraint copyWithNewNegativeAtom(Expression atom) {
-		AbstractSingleVariableConstraint result = clone();
+	public AbstractSingleVariableNewConstraint copyWithNewNegativeAtom(Expression atom) {
+		AbstractSingleVariableNewConstraint result = clone();
 		Set<Expression> newNegativeAtoms = new LinkedHashSet<Expression>(negativeAtoms);
 		newNegativeAtoms.add(atom);
 		result.negativeAtoms = newNegativeAtoms;
 		return result;
 	}
 
-	public AbstractSingleVariableConstraint copyWithNewExternalLiteral(Expression newExternalLiteral) {
-		AbstractSingleVariableConstraint result = clone();
+	public AbstractSingleVariableNewConstraint copyWithNewExternalLiteral(Expression newExternalLiteral) {
+		AbstractSingleVariableNewConstraint result = clone();
 		Collection<Expression> newExternalLiterals = new LinkedHashSet<Expression>(externalLiterals);
 		newExternalLiterals.add(newExternalLiteral);
 		result.externalLiterals = newExternalLiterals;
 		return result;
 	}
 
-	public AbstractSingleVariableConstraint copyWithNewPositiveAndNegativeAtoms(Set<Expression> newPositiveAtoms, Set<Expression> newNegativeAtoms) {
-		AbstractSingleVariableConstraint result = clone();
+	public AbstractSingleVariableNewConstraint copyWithNewPositiveAndNegativeAtoms(Set<Expression> newPositiveAtoms, Set<Expression> newNegativeAtoms) {
+		AbstractSingleVariableNewConstraint result = clone();
 		result.positiveAtoms = newPositiveAtoms;
 		result.negativeAtoms = newNegativeAtoms;
 		return result;
@@ -166,7 +166,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 * @param process 
 	 * @return 
 	 */
-	abstract public AbstractSingleVariableConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process);
+	abstract public AbstractSingleVariableNewConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process);
 
 	/**
 	 * Returns the literal corresponding to the negation of the given atom
@@ -207,7 +207,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	abstract public boolean impliesLiteralWithDifferentAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process);
 
 	@Override
-	public ConstraintTheory getConstraintTheory() {
+	public NewConstraintTheory getConstraintTheory() {
 		return constraintTheory;
 	}
 
@@ -222,8 +222,8 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	}
 
 	@Override
-	public SingleVariableConstraint conjoin(Expression literal, RewritingProcess process) {
-		AbstractSingleVariableConstraint result;
+	public SingleVariableNewConstraint conjoin(Expression literal, RewritingProcess process) {
+		AbstractSingleVariableNewConstraint result;
 		if (literal.equals(TRUE)) {
 			result = this;
 		}
@@ -290,7 +290,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	}
 
 	@Override
-	public SingleVariableConstraint simplifyGiven(Expression externalLiteral, RewritingProcess process) {
+	public SingleVariableNewConstraint simplifyGiven(Expression externalLiteral, RewritingProcess process) {
 		throw new Error("Not implemented");
 	}
 

@@ -44,7 +44,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
-import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.util.collect.PredicateIterator;
@@ -125,12 +124,14 @@ public class SGDPLLTParallelizer extends SGDPLLT {
 	/**
 	 *  Restricts splitters to index-containing ones only.
 	 */
+	@Override
 	protected Iterator<Expression> getSplittersIterator(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		Iterator<Expression> splittersIterator = super.getSplittersIterator(expression, indices, constraint, process);
 		Iterator<Expression> indexSplittersIterator = new PredicateIterator<>(splittersIterator, e -> containsIndex(e, indices));
 		return indexSplittersIterator;
 	}
 
+	@Override
 	public Expression solve(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		Expression result;
 		int level = getLevel(process);

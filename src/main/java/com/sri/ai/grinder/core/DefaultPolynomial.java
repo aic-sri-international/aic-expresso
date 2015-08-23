@@ -598,6 +598,7 @@ public class DefaultPolynomial extends AbstractExpressionWrapper implements
 	//
 	// PROTECTED
 	//
+	@Override
 	protected Expression computeInnerExpression() {
 		Expression result;
 		

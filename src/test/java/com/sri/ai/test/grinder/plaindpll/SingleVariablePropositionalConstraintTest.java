@@ -43,7 +43,7 @@ import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.plaindpll.tester.ConstraintTheoryTester;
-import com.sri.ai.grinder.plaindpll.theory.PropositionalConstraintTheory;
+import com.sri.ai.grinder.plaindpll.theory.PropositionalNewConstraintTheory;
 
 @Beta
 public class SingleVariablePropositionalConstraintTest {
@@ -52,7 +52,7 @@ public class SingleVariablePropositionalConstraintTest {
 	public void test() {
 		ConstraintTheoryTester.test(
 				new Random(1),
-				new PropositionalConstraintTheory(),
+				new PropositionalNewConstraintTheory(),
 				3 /* number of tests - only literals are P and not P, and 3 tests already create all cases*/,
 				2 /* number of literals per test */,
 				true /* output count */);

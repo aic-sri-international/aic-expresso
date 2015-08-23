@@ -390,6 +390,7 @@ public class SGDPLLT extends AbstractSolver {
 		return debug && getLevel(process) < debugLevel;
 	}
 
+	@Override
 	protected Expression addSymbolicResults(Expression solution1, Expression solution2, RewritingProcess process) {
 		long start = 0;
 		if (debug(process)) {

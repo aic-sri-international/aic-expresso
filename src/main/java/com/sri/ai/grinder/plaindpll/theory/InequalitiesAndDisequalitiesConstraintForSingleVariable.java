@@ -24,10 +24,8 @@ import java.util.Set;
 
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
 import com.sri.ai.util.Util;
@@ -503,6 +501,7 @@ x > y: don't add splitter
 			this.greatest = greatest;
 			this.strict = strict;
 		}
+		@Override
 		public String toString() {
 			return Util.join(list(least, separator, greatest)) + (strict? "strict" : "");
 		}

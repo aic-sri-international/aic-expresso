@@ -52,8 +52,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
@@ -97,14 +95,6 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 	public AbstractEqualityConstraintTheory(TermTheory termTheory) {
 		super();
 		this.termTheory = termTheory;
-	}
-	
-	@Override
-	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
-		boolean result = 
-				expression.hasFunctor(EQUALITY) || expression.hasFunctor(DISEQUALITY) ||
-				expression.equals(EQUALITY) || expression.equals(DISEQUALITY);
-		return result;
 	}
 	
 	public TermTheory getTermTheory() {
@@ -660,16 +650,5 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 		}
 
 		////////// END OF EQUALITY CONSTRAINTS MAINTENANCE
-	}
-
-	/**
-	 * We override the default version because disequality literals must be represented as <code>T1 != T2</code> in this theory,
-	 * and the default version of random literal generation would only negate atoms, representing disequalities as <code>not (T1 = T2)</code>. 	
-	 */
-	@Override
-	public Expression makeRandomLiteralOn(Random random, RewritingProcess process) {
-		Expression atom = makeRandomAtomOn(random, process);
-		Expression literal = atom.hasFunctor(EQUALITY)? random.nextBoolean()? atom : Disequality.make(atom.get(0), atom.get(1)) : atom;
-		return literal;
 	}
 }

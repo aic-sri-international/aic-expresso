@@ -89,6 +89,7 @@ public class DefaultInputTheory extends AbstractTheory implements InputTheory {
 		this.constraintTheory = constraintTheory;
 	}
 
+	@Override
 	public ConstraintTheory getConstraintTheory() {
 		return constraintTheory;
 	}

@@ -43,18 +43,14 @@ import static com.sri.ai.grinder.helper.GrinderUtil.isBooleanTyped;
 import static com.sri.ai.grinder.library.Equality.isEquality;
 
 import java.util.Collection;
-import java.util.Random;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
-import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.plaindpll.core.AbstractConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
 
@@ -94,12 +90,6 @@ public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheor
 		return result;
 	}
 	
-	@Override
-	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
-		boolean result = constraintTheoryWithEquality.isInterpretedInThisTheoryBesidesBooleanConnectives(expression, process);
-		return result;
-	}
-
 	@Override
 	public boolean isVariableTerm(Expression term, RewritingProcess process) {
 		return constraintTheoryWithEquality.isVariableTerm(term, process);
@@ -282,29 +272,5 @@ public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheor
 							new DefaultRewritingProcess(null));
 			return result;
 		}
-	}
-
-	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable) {
-		throw new Error("Not implemented");
-	}
-
-	@Override
-	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
-		// TODO Auto-generated method stub
-		throw new Error("Not implemented");
-	}
-
-	@Override
-	public Expression makeRandomAtomOn(Random random, RewritingProcess process) {
-//		Expression result;
-//		if (Math.random() > 0.5) {
-//			result = Math.random() > 0.5? getVariable.apply("Boolean") : getConstant.apply("Boolean");
-//		}
-//		else {
-//			result = constraintTheoryWithEquality.makeRandomAtom();
-//		}
-//		return result;
-		return null;
 	}
 }

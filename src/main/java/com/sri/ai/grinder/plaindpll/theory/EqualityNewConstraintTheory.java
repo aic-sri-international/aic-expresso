@@ -37,34 +37,56 @@
  */
 package com.sri.ai.grinder.plaindpll.theory;
 
-import java.util.Collection;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.util.Util.pickUniformly;
+
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.Equality;
+import com.sri.ai.grinder.plaindpll.api.SingleVariableNewConstraint;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
+import com.sri.ai.util.collect.PredicateIterator;
 @Beta
 /** 
  * A {@link ConstraintTheory} for equality literals.
  */
-public class EqualityConstraintTheory extends AbstractEqualityConstraintTheory {
+public class EqualityNewConstraintTheory extends AbstractEqualityNewConstraintTheory {
 
-	public EqualityConstraintTheory(TermTheory termTheory) {
+	public EqualityNewConstraintTheory(TermTheory termTheory) {
 		super(termTheory);
 	}
 
 	@Override
-	protected String getCorrespondingSplitterFunctorOtherThanEqualityOrNull(Expression expression) {
-		return null;
+	public SingleVariableNewConstraint makeSingleVariableConstraint(Expression variable) {
+		return new SingleVariableEqualityNewConstraint(variable, this);
 	}
 
 	@Override
-	protected Function<Expression, Expression> getNonEqualitySplitterApplier(boolean splitterSign, Expression splitter) {
-		return null;
+	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
+		return true; // SingleVariableEqualityConstraint is complete
 	}
 
 	@Override
-	protected NonEqualitiesConstraint makeNonEqualitiesConstraint(Collection<Expression> indices) {
-		return new DisequalitiesConstraint(this, indices);
+	public Expression makeRandomAtomOn(Random random, RewritingProcess process) {
+		Map<String, String> variablesAndTypes = getVariableNamesAndTypeNamesForTesting();
+		String typeName = variablesAndTypes.get(getTestingVariable());
+		Set<String> allVariables = variablesAndTypes.keySet();
+		PredicateIterator<String> isNameOfVariableOfSameType = PredicateIterator.make(allVariables, s -> variablesAndTypes.get(s).equals(typeName));
+		Expression otherTerm;
+		if (random.nextBoolean()) {
+			otherTerm = makeSymbol(pickUniformly(isNameOfVariableOfSameType, random));
+		}
+		else {
+			otherTerm = process.getType(typeName).sampleConstant(random);
+		}
+		Expression result =
+				random.nextBoolean()?
+				Equality.make(getTestingVariable(), otherTerm) : Equality.make(otherTerm, getTestingVariable());
+		return result;
 	}
 }

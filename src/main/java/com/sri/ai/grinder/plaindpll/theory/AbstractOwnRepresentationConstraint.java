@@ -31,6 +31,7 @@ public abstract class AbstractOwnRepresentationConstraint extends AbstractConstr
 		this.supportedIndices = supportedIndices;
 	}
 	
+	@Override
 	public abstract AbstractOwnRepresentationConstraint clone();
 	
 	@Override
@@ -78,5 +79,6 @@ public abstract class AbstractOwnRepresentationConstraint extends AbstractConstr
 	 * Modify this constraint's inner representation to include this splitter,
 	 * which has already been checked for redundancy or inconsistency with the constraint.
 	 */
+	@Override
 	public abstract void incorporateNonTrivialNormalizedSplitterDestructively(boolean splitterSign, Expression splitter, RewritingProcess process);
 }

@@ -71,6 +71,7 @@ public abstract class AbstractNonEqualitiesConstraint extends AbstractRuleOfProd
 	 */
 	abstract protected DisequalitiesConstraint cloneWithoutNonEqualitiesForSingleVariables();
 
+	@Override
 	public TermTheory getTermTheory() {
 		return getConstraintTheory().getTermTheory();
 	}
@@ -238,6 +239,7 @@ public abstract class AbstractNonEqualitiesConstraint extends AbstractRuleOfProd
 	 */
 	abstract protected boolean constraintsDoNotProduceSplittersToBeNotSatisfied();
 
+	@Override
 	protected Collection<Expression> getSplittersToBeSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
 		Collection<Expression> result = new LinkedList<Expression>();
 		if ( ! constraintsDoNotProduceSplittersToBeSatisfied()) {
@@ -254,6 +256,7 @@ public abstract class AbstractNonEqualitiesConstraint extends AbstractRuleOfProd
 		return result;
 	}
 
+	@Override
 	protected Collection<Expression> getSplittersToBeNotSatisfied(Collection<Expression> indicesSubSet, RewritingProcess process) {
 		Collection<Expression> result = new LinkedHashSet<Expression>();
 		if ( ! constraintsDoNotProduceSplittersToBeNotSatisfied()) {

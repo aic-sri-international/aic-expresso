@@ -220,6 +220,7 @@ public abstract class AbstractIntensionalSet extends AbstractQuantifiedExpressio
 
 	abstract public AbstractIntensionalSet make(IndexExpressionsSet indexExpressions, Expression head, Expression condition);
 	
+	@Override
 	public String makeToString() {
 		String result;
 		result = getOpeningBrackets() + " ( on " + getIndexExpressions().getSubExpressionString() + " ) " + getHead()

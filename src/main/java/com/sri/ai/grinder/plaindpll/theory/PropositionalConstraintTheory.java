@@ -41,9 +41,6 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.TWO;
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.util.Util.list;
-import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.mapIntoArrayList;
 
 import java.util.ArrayList;
@@ -51,14 +48,12 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
@@ -69,7 +64,6 @@ import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
-import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.plaindpll.core.AbstractConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
@@ -82,14 +76,6 @@ import com.sri.ai.util.math.Rational;
  * A {@link ConstraintTheory} for propositional logic.
  */
 public class PropositionalConstraintTheory extends AbstractConstraintTheory {
-
-	public PropositionalConstraintTheory() {
-		super();
-		ArrayList<Expression> knownConstants = mapIntoArrayList(list("true", "false"), s -> makeSymbol(s));
-		setTypesForTesting(list(new Categorical("Boolean", 2, knownConstants)));
-		setVariableNamesAndTypeNamesForTesting(map("P", "Boolean", "Q", "Boolean", "R", "Boolean"));
-		setTestingVariable("P");
-	}
 
 	@Override
 	protected boolean usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers() {
@@ -129,11 +115,6 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	@Override
 	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
 		return syntacticFormTypeSimplifiers;
-	}
-
-	@Override
-	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
-		return false; // nothing else is interpreted
 	}
 
 	@Override
@@ -225,6 +206,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 			this.negatedPropositions = new LinkedHashSet<Expression>(another.negatedPropositions);
 		}
 
+		@Override
 		public PropositionalConstraint clone() {
 			return new PropositionalConstraint(this);
 		}
@@ -327,20 +309,5 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 							And.make(mapIntoArrayList(negatedPropositions, Not::make)));
 			return result;
 		}
-	}
-
-	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable) {
-		return new SingleVariablePropositionalConstraint(variable, this);
-	}
-
-	@Override
-	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
-		return true;
-	}
-
-	@Override
-	public Expression makeRandomAtomOn(Random random, RewritingProcess process) {
-		return makeSymbol(getTestingVariable());
 	}
 }

@@ -66,6 +66,7 @@ public interface Solver extends Rewriter {
 	Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process);
 
 	/** Makes a default, appropriate rewriting process for use with this solver as a rewriter. */
+	@Override
 	RewritingProcess makeRewritingProcess(Expression expression);
 
 	/**

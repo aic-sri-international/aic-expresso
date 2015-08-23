@@ -34,6 +34,7 @@ public abstract class AbstractRuleOfProductConstraint extends AbstractOwnReprese
 		super(supportedIndices);
 	}
 	
+	@Override
 	public abstract AbstractRuleOfProductConstraint clone();
 	
 	/**

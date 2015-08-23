@@ -201,11 +201,13 @@ public class SymbolEqualityTautologicalityDPLLTest extends AbstractSymbolicSymbo
 		runSymbolicAndNonSymbolicTests(expression, indices, expected);
 	}
 
+	@Override
 	protected Expression makeProblem(Expression expression, IndexExpressionsSet indexExpressions) {
 		Expression problem = new DefaultUniversallyQuantifiedFormula(indexExpressions, expression);
 		return problem;
 	}
 
+	@Override
 	protected SGDPLLT makeRewriter() {
 		return new SGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new Validity());
 	}

@@ -7,10 +7,8 @@ import java.util.Collection;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.util.base.BinaryFunction;
-import com.sri.ai.util.base.BinaryPredicate;
 import com.sri.ai.util.collect.ArraySet;
 
 /**

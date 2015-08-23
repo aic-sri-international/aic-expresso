@@ -64,6 +64,7 @@ public class SignedSplitter  {
 		return splitter;
 	}
 	
+	@Override
 	public String toString() {
 		return "Signed splitter " + (splitterSign? "" : "neg ") + splitter;
 	}
