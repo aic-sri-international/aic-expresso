@@ -26,14 +26,14 @@ public class MultiVariableConstraint extends AbstractExpressionWrapper {
 	private static final long serialVersionUID = 1L;
 	
 	private NewConstraintTheory constraintTheory;
-	private Map<Expression, SingleVariableNewConstraint> fromVariableToItsConstraint;
+	private Map<Expression, SingleVariableConstraint> fromVariableToItsConstraint;
 	
-	private MultiVariableConstraint(NewConstraintTheory constraintTheory, Map<Expression, SingleVariableNewConstraint> fromVariableToItsConstraint) {
+	private MultiVariableConstraint(NewConstraintTheory constraintTheory, Map<Expression, SingleVariableConstraint> fromVariableToItsConstraint) {
 		this.constraintTheory = constraintTheory;
 		this.fromVariableToItsConstraint = fromVariableToItsConstraint;
 	}
 	
-	private MultiVariableConstraint makeWithNewFromVariableToItsConstraint(Map<Expression, SingleVariableNewConstraint> newFromVariableToItsConstraint) {
+	private MultiVariableConstraint makeWithNewFromVariableToItsConstraint(Map<Expression, SingleVariableConstraint> newFromVariableToItsConstraint) {
 		return new MultiVariableConstraint(constraintTheory, newFromVariableToItsConstraint);
 	}
 	
@@ -41,8 +41,8 @@ public class MultiVariableConstraint extends AbstractExpressionWrapper {
 		MultiVariableConstraint result;
 		
 		Expression variable = getVariableFor(literal, process);
-		SingleVariableNewConstraint singleVariableConstraint = getConstraintFor(variable);
-		SingleVariableNewConstraint newSingleVariableConstraint = singleVariableConstraint.conjoin(literal, process);
+		SingleVariableConstraint singleVariableConstraint = getConstraintFor(variable);
+		SingleVariableConstraint newSingleVariableConstraint = singleVariableConstraint.conjoin(literal, process);
 		if (newSingleVariableConstraint == null) {
 			result = null;	
 		}
@@ -50,7 +50,7 @@ public class MultiVariableConstraint extends AbstractExpressionWrapper {
 			result = this;
 		}
 		else {
-			Map<Expression, SingleVariableNewConstraint> newFromVariableToItsConstraint = new LinkedHashMap<>(fromVariableToItsConstraint);
+			Map<Expression, SingleVariableConstraint> newFromVariableToItsConstraint = new LinkedHashMap<>(fromVariableToItsConstraint);
 			newFromVariableToItsConstraint.put(variable, newSingleVariableConstraint);
 			result = makeWithNewFromVariableToItsConstraint(newFromVariableToItsConstraint);
 		}
@@ -67,8 +67,8 @@ public class MultiVariableConstraint extends AbstractExpressionWrapper {
 	 * @param variable
 	 * @return
 	 */
-	protected SingleVariableNewConstraint getConstraintFor(Expression variable) {
-		SingleVariableNewConstraint result = fromVariableToItsConstraint.get(variable);
+	protected SingleVariableConstraint getConstraintFor(Expression variable) {
+		SingleVariableConstraint result = fromVariableToItsConstraint.get(variable);
 		if (result == null) {
 			result = constraintTheory.makeSingleVariableConstraint(variable);
 		}

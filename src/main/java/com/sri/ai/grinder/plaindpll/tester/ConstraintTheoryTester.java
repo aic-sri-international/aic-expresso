@@ -51,7 +51,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.api.NewConstraintTheory;
-import com.sri.ai.grinder.plaindpll.api.SingleVariableNewConstraint;
+import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
 
 /**
  * A class for testing a {@link NewConstraintTheory} and its unsatisfiability detection.
@@ -108,7 +108,7 @@ public class ConstraintTheoryTester {
 		
 		for (int i = 1; i != numberOfTests + 1; i++) {
 			Expression variable = makeSymbol(constraintTheory.getTestingVariable());
-			SingleVariableNewConstraint constraint = constraintTheory.makeSingleVariableConstraint(variable);
+			SingleVariableConstraint constraint = constraintTheory.makeSingleVariableConstraint(variable);
 			Collection<Expression> literals = new LinkedHashSet<>();
 			
 			output("\n\nStarting new conjunction");	
@@ -145,7 +145,7 @@ public class ConstraintTheoryTester {
 	 * @param process
 	 * @throws Error
 	 */
-	protected static void solverSaysItIsSatisfiable(Collection<Expression> literals, SingleVariableNewConstraint constraint, NewConstraintTheory constraintTheory, RewritingProcess process) throws Error {
+	protected static void solverSaysItIsSatisfiable(Collection<Expression> literals, SingleVariableConstraint constraint, NewConstraintTheory constraintTheory, RewritingProcess process) throws Error {
 		output("Solver thinks it is satisfiable. Current constraint is " + constraint.debuggingDescription(process));	
 		Expression formula = And.make(literals);
 		Map<Expression, Expression> satisfyingAssignment = isSatisfiableByBruteForce(formula, constraintTheory, process);

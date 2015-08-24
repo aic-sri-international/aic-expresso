@@ -54,32 +54,32 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public class SingleVariableEqualityNewConstraint extends AbstractSingleVariableNewConstraint {
+public class SingleVariableEqualityConstraint extends AbstractSingleVariableConstraint {
 
 	private static final long serialVersionUID = 1L;
 	
 	private int numberOfConstants;
 
-	public SingleVariableEqualityNewConstraint(Expression variable, NewConstraintTheory constraintTheory) {
+	public SingleVariableEqualityConstraint(Expression variable, NewConstraintTheory constraintTheory) {
 		super(variable, constraintTheory);
 		this.numberOfConstants = 0;
 	}
 
-	public SingleVariableEqualityNewConstraint(SingleVariableEqualityNewConstraint other) {
+	public SingleVariableEqualityConstraint(SingleVariableEqualityConstraint other) {
 		super(other);
 		this.numberOfConstants = other.numberOfConstants;
 	}
 
 	@Override
-	public SingleVariableEqualityNewConstraint clone() {
-		SingleVariableEqualityNewConstraint result = new SingleVariableEqualityNewConstraint(this);
+	public SingleVariableEqualityConstraint clone() {
+		SingleVariableEqualityConstraint result = new SingleVariableEqualityConstraint(this);
 		result.numberOfConstants = numberOfConstants;
 		return result;
 	}
 
 	@Override
-	public SingleVariableEqualityNewConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process) {
-		SingleVariableEqualityNewConstraint result = this;
+	public SingleVariableEqualityConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process) {
+		SingleVariableEqualityConstraint result = this;
 		if (!sign && process.isUniquelyNamedConstant(atom.get(1))) {
 			numberOfConstants++;
 			if (numberOfConstants == getVariableDomainSize(process)) {

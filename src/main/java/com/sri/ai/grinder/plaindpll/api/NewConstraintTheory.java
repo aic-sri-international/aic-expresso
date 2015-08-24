@@ -77,7 +77,7 @@ public interface NewConstraintTheory extends Theory {
 	 * @param variable 
 	 * @return
 	 */
-	SingleVariableNewConstraint makeSingleVariableConstraint(Expression variable);
+	SingleVariableConstraint makeSingleVariableConstraint(Expression variable);
 	
 	/**
 	 * Indicates whether single-variable constraint solver is complete (for its variable).

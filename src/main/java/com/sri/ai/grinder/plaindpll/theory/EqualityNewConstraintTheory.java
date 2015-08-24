@@ -48,7 +48,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.grinder.plaindpll.api.SingleVariableNewConstraint;
+import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.util.collect.PredicateIterator;
 @Beta
@@ -62,8 +62,8 @@ public class EqualityNewConstraintTheory extends AbstractEqualityNewConstraintTh
 	}
 
 	@Override
-	public SingleVariableNewConstraint makeSingleVariableConstraint(Expression variable) {
-		return new SingleVariableEqualityNewConstraint(variable, this);
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable) {
+		return new SingleVariableEqualityConstraint(variable, this);
 	}
 
 	@Override

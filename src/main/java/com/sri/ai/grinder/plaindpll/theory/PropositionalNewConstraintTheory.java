@@ -58,7 +58,7 @@ import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
-import com.sri.ai.grinder.plaindpll.api.SingleVariableNewConstraint;
+import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
 import com.sri.ai.grinder.plaindpll.core.AbstractNewConstraintTheory;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
@@ -123,8 +123,8 @@ public class PropositionalNewConstraintTheory extends AbstractNewConstraintTheor
 	}
 
 	@Override
-	public SingleVariableNewConstraint makeSingleVariableConstraint(Expression variable) {
-		return new SingleVariablePropositionalNewConstraint(variable, this);
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable) {
+		return new SingleVariablePropositionalConstraint(variable, this);
 	}
 
 	@Override

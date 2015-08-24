@@ -48,7 +48,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
  * @author braz
  *
  */
-public interface SingleVariableNewConstraint extends Expression {
+public interface SingleVariableConstraint extends Expression {
 
 	/**
 	 * Returns the {@link ConstraintTheory} for this constraint.
@@ -86,7 +86,7 @@ public interface SingleVariableNewConstraint extends Expression {
 	 * @param process the rewriting process
 	 * @return the application result or <code>null</code> if contradiction.
 	 */
-	SingleVariableNewConstraint conjoin(Expression literal, RewritingProcess process);
+	SingleVariableConstraint conjoin(Expression literal, RewritingProcess process);
 	
 	String debuggingDescription(RewritingProcess process);
 }
