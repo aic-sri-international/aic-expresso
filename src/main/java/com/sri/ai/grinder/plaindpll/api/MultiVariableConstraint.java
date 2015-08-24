@@ -37,21 +37,6 @@ public class MultiVariableConstraint extends AbstractExpressionWrapper {
 		return new MultiVariableConstraint(constraintTheory, newFromVariableToItsConstraint);
 	}
 	
-	public MultiVariableConstraint simplifyGiven(Expression literal, RewritingProcess process) {
-		Map<Expression, SingleVariableNewConstraint> updatedFromVariableToItsConstraint =
-				mapValuesNonDestructively(fromVariableToItsConstraint, c -> c.simplifyGiven(literal, process));
-
-		MultiVariableConstraint result;
-		if (updatedFromVariableToItsConstraint != fromVariableToItsConstraint) {
-			result = makeWithNewFromVariableToItsConstraint(updatedFromVariableToItsConstraint);
-		}
-		else {
-			result = this;
-		}
-		
-		return result;
-	}
-	
 	MultiVariableConstraint conjoin(Expression literal, RewritingProcess process) {
 		MultiVariableConstraint result;
 		
@@ -90,17 +75,6 @@ public class MultiVariableConstraint extends AbstractExpressionWrapper {
 		return result;
 	}
 	
-	public Expression pickSplitter(RewritingProcess process) {
-		Expression result = getFirstNonNullResultOrNull(fromVariableToItsConstraint.values(), c -> c.pickSplitter(process));
-		return result;
-	}
-
-	public Expression modelCount(RewritingProcess process) {
-		ArrayList<Expression> counts = mapIntoArrayList(fromVariableToItsConstraint.values(), c -> c.modelCount(process));
-		Expression result = Times.make(counts);
-		return result;
-	}
-
 	@Override
 	protected Expression computeInnerExpression() {
 		Expression result = And.make(fromVariableToItsConstraint.values());

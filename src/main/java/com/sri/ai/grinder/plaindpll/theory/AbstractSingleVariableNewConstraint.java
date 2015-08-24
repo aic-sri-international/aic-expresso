@@ -290,21 +290,6 @@ public abstract class AbstractSingleVariableNewConstraint extends AbstractExpres
 	}
 
 	@Override
-	public SingleVariableNewConstraint simplifyGiven(Expression externalLiteral, RewritingProcess process) {
-		throw new Error("Not implemented");
-	}
-
-	@Override
-	public Expression pickSplitter(RewritingProcess process) {
-		throw new Error("Not implemented");
-	}
-
-	@Override
-	public Expression modelCount(RewritingProcess process) {
-		throw new Error("Not implemented");
-	}
-
-	@Override
 	abstract public String debuggingDescription(RewritingProcess process);
 
 	@Override
