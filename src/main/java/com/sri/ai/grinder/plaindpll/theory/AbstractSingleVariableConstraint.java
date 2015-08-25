@@ -123,6 +123,44 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	@Override
 	abstract public AbstractSingleVariableConstraint clone();
 	
+	//////////// THEORY RULES
+	
+	/**
+	 * Returns the literal corresponding to the negation of the given atom
+	 * (which is known to be false).
+	 * Typically this will just return the application of NOT to the atom,
+	 * but some languages may have more conventional ways of representing these
+	 * negations (for example, not(X = a) -> X != a).
+	 * @param negativeAtom
+	 * @return
+	 */
+	abstract public Expression fromNegativeAtomToLiteral(Expression negativeAtom);
+
+	/**
+	 * Defines how a literal is decomposed into sign and atom.
+	 * Atom representations should be normalized (equivalent atoms should always be represented by the same expressions).
+	 * For example, <code>X != a</code> could be decomposed into <code>false</code> and <code>X = a</code>.
+	 * @param variable
+	 * @param literal
+	 * @return
+	 */
+	abstract public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndAtom(Expression variable, Expression literal);
+
+	/** Indicates whether there are interactions between distinct atoms in current theory. */
+	abstract public boolean atomMayImplyLiteralsOnDifferentAtoms();
+
+	/**
+	 * Indicates whether, according to the current theory, sign1 atom1 implies sign2 atom2,
+	 * where atom1 and atom2 can be assumed distinct (the result is not defined otherwise).
+	 * @param sign1
+	 * @param atom1
+	 * @param sign2
+	 * @param atom2
+	 * @param process
+	 * @return
+	 */
+	abstract public boolean impliesLiteralWithDifferentAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process);
+
 	public AbstractSingleVariableConstraint copyWithNewPositiveAtom(Expression atom) {
 		AbstractSingleVariableConstraint result = clone();
 		Set<Expression> newPositiveAtoms = new LinkedHashSet<Expression>(positiveAtoms);
@@ -183,7 +221,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 			result = copyWithNewExternalLiteral(literal);
 		}
 		else {
-			Pair<Boolean, Expression> signAndAtom = constraintTheory.fromLiteralOnVariableToSignAndAtom(getVariable(), literal);
+			Pair<Boolean, Expression> signAndAtom = fromLiteralOnVariableToSignAndAtom(getVariable(), literal);
 			boolean    sign = signAndAtom.first;
 			Expression atom = signAndAtom.second;
 			Set<Expression>     sameSignAtoms = sign? positiveAtoms : negativeAtoms;
@@ -194,7 +232,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 			else if (oppositeSignAtoms.contains(atom)) {
 				result = null; // contradiction
 			}
-			else if (constraintTheory.atomMayImplyLiteralsOnDifferentAtoms()) {
+			else if (atomMayImplyLiteralsOnDifferentAtoms()) {
 				// OPTIMIZATION
 				// Here it would pay to have the database of atoms to be indexed by theory-specific properties
 				// such that only relevant atoms are checked, depending on properties of the new literal.
@@ -204,18 +242,18 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 				// while equalities between two variables never affect literals based on distinct atoms.
 				
 				boolean oppositeSign = sign? false : true;
-				if (    thereExists(positiveAtoms, p -> constraintTheory.impliesLiteralWithDifferentAtom(true,  p, sign, atom, process)) ||
-						thereExists(negativeAtoms, p -> constraintTheory.impliesLiteralWithDifferentAtom(false, p, sign, atom, process))) {
+				if (    thereExists(positiveAtoms, p -> impliesLiteralWithDifferentAtom(true,  p, sign, atom, process)) ||
+						thereExists(negativeAtoms, p -> impliesLiteralWithDifferentAtom(false, p, sign, atom, process))) {
 					result = this; // redundant
 				}
-				else if (thereExists(positiveAtoms, p -> constraintTheory.impliesLiteralWithDifferentAtom(true,  p, oppositeSign, atom, process)) ||
-						thereExists(negativeAtoms, p -> constraintTheory.impliesLiteralWithDifferentAtom(false, p, oppositeSign, atom, process))) {
+				else if (thereExists(positiveAtoms, p -> impliesLiteralWithDifferentAtom(true,  p, oppositeSign, atom, process)) ||
+						thereExists(negativeAtoms, p -> impliesLiteralWithDifferentAtom(false, p, oppositeSign, atom, process))) {
 					result = null; // contradiction
 				}
 				else {
 					// remove redundant literals and add new one
-					Set<Expression> newPositiveAtoms = removeFromSetNonDestructively(positiveAtoms, p -> constraintTheory.impliesLiteralWithDifferentAtom(sign, atom, true,  p, process));
-					Set<Expression> newNegativeAtoms = removeFromSetNonDestructively(negativeAtoms, p -> constraintTheory.impliesLiteralWithDifferentAtom(sign, atom, false, p, process));
+					Set<Expression> newPositiveAtoms = removeFromSetNonDestructively(positiveAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, true,  p, process));
+					Set<Expression> newNegativeAtoms = removeFromSetNonDestructively(negativeAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, false, p, process));
 					if (sign) {
 						newPositiveAtoms.add(atom);
 					}
@@ -242,7 +280,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	protected Expression computeInnerExpression() {
 		List<Expression> conjuncts = list();
 		conjuncts.addAll(positiveAtoms);
-		Util.mapIntoList(negativeAtoms, n -> constraintTheory.fromNegativeAtomToLiteral(n), conjuncts);
+		Util.mapIntoList(negativeAtoms, n -> fromNegativeAtomToLiteral(n), conjuncts);
 		conjuncts.addAll(externalLiterals);
 		Expression result = And.make(conjuncts);
 		return result;
