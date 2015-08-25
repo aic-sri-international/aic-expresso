@@ -55,6 +55,7 @@ import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.PredicateIterator;
 
 /**
@@ -77,7 +78,7 @@ public interface NewConstraintTheory extends Theory {
 	 * @param variable 
 	 * @return
 	 */
-	SingleVariableConstraint makeSingleVariableConstraint(Expression variable);
+	SingleVariableNewConstraint makeSingleVariableConstraint(Expression variable);
 	
 	/**
 	 * Indicates whether single-variable constraint solver is complete (for its variable).
@@ -144,7 +145,26 @@ public interface NewConstraintTheory extends Theory {
 	 * @param random a random generator
 	 * @param process a rewriting process
 	 */
-	Expression makeRandomAtomOn(Random random, RewritingProcess process);
+	Expression makeRandomAtomOn(String variable, Random random, RewritingProcess process);
+	
+	/**
+	 * Same as {@link #makeRandomAtomOn(String, Random, RewritingProcess),
+	 * but applied randomly to one of the testing variables.
+	 */
+	default Expression makeRandomAtom(Random random, RewritingProcess process) {
+		String variableToBeUsed = Util.pickUniformly(getVariableNamesAndTypeNamesForTesting().keySet().iterator(), random);
+		Expression result = makeRandomAtomOn(variableToBeUsed, random, process);
+		return result;
+	}
+	
+	/**
+	 * Same as {@link #makeRandomAtomOn(String, Random, RewritingProcess) for testing variable
+	 * (returned by {@link #getTestingVariable()}).
+	 */
+	default Expression makeRandomAtomOnTestingVariable(Random random, RewritingProcess process) {
+		Expression result = makeRandomAtomOn(getTestingVariable(), random, process);
+		return result;
+	}
 
 	/**
 	 * Returns a random literal in this constraint theory on a given variable.
@@ -152,9 +172,31 @@ public interface NewConstraintTheory extends Theory {
 	 * @param random a random generator
 	 * @param process a rewriting process
 	 */
-	default Expression makeRandomLiteralOn(Random random, RewritingProcess process) {
-		Expression atom = makeRandomAtomOn(random, process);
-		Expression literal = Math.random() > 0.5? atom : Not.make(atom);
+	default Expression makeRandomLiteralOnTestingVariable(Random random, RewritingProcess process) {
+		String variable = getTestingVariable();
+		return makeRandomLiteralOn(variable, random, process);
+	}
+
+	/**
+	 * @param variable
+	 * @param random
+	 * @param process
+	 * @return
+	 */
+	default Expression makeRandomLiteralOn(String variable, Random random, RewritingProcess process) {
+		Expression atom = makeRandomAtomOn(variable, random, process);
+		Expression literal = random.nextBoolean()? atom : Not.make(atom);
 		return literal;
 	}
+
+	/**
+	 * Same as {@link #makeRandomLiteralOn(String, Random, RewritingProcess),
+	 * but applied randomly to one of the testing variables.
+	 */
+	default Expression makeRandomLiteral(Random random, RewritingProcess process) {
+		String variableToBeUsed = Util.pickUniformly(getVariableNamesAndTypeNamesForTesting().keySet().iterator(), random);
+		Expression result = makeRandomLiteralOn(variableToBeUsed, random, process);
+		return result;
+	}
+	
 }

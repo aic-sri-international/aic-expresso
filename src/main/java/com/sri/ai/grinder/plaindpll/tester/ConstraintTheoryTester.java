@@ -50,8 +50,10 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.plaindpll.api.NewConstraint;
 import com.sri.ai.grinder.plaindpll.api.NewConstraintTheory;
-import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
+import com.sri.ai.grinder.plaindpll.core.MultiVariableNewConstraint;
+import com.sri.ai.util.base.NullaryFunction;
 
 /**
  * A class for testing a {@link NewConstraintTheory} and its unsatisfiability detection.
@@ -66,7 +68,7 @@ public class ConstraintTheoryTester {
 	}
 
 	/**
-	 * Measures the time taken to run a given number of tests with a maximum number of literals,
+	 * Measures the time taken to run a given number of single-variable constraint tests with a maximum number of literals,
 	 * without brute-force correctness testing.
 	 * Throws an {@link Error} with the failure description if a test fails.
 	 * @param random
@@ -75,10 +77,10 @@ public class ConstraintTheoryTester {
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
-	public static long measureTime(Random random, NewConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+	public static long measureTimeSingleVariableConstraints(Random random, NewConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
 		long start = System.currentTimeMillis();
-		test(random, constraintTheory, numberOfTests, maxNumberOfLiterals, outputCount, false /* no correctness */);
+		testSingleVariableConstraints(random, constraintTheory, numberOfTests, maxNumberOfLiterals, outputCount, false /* no correctness */);
 		long result = System.currentTimeMillis() - start;
 		if (outputCount) {
 			System.out.println("Total time: " + result + " ms.");
@@ -87,7 +89,7 @@ public class ConstraintTheoryTester {
 	}
 
 	/**
-	 * Given a constraint theory and a number <code>n</code> of tests,
+	 * Given a constraint theory and a number <code>n</code> of single-variable constraint tests,
 	 * generates <code>n</code> formulas in the theory
 	 * and see if those detected as unsatisfiable by the corresponding solver
 	 * are indeed unsatisfiable (checked by brute force).
@@ -98,22 +100,79 @@ public class ConstraintTheoryTester {
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
-	public static void test(Random random, NewConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
-		test(random, constraintTheory, numberOfTests, maxNumberOfLiterals, true, outputCount);
+	public static void testSingleVariableConstraints(Random random, NewConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+		testSingleVariableConstraints(random, constraintTheory, numberOfTests, maxNumberOfLiterals, true, outputCount);
 	}
 	
-	private static void test(Random random, NewConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
+	private static void testSingleVariableConstraints(Random random, NewConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
+		NullaryFunction<NewConstraint> makeConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.getTestingVariable()));
+
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
+		NullaryFunction<Expression> makeRandomLiteral = () -> constraintTheory.makeRandomLiteralOnTestingVariable(random, process);
+
+		boolean isComplete = constraintTheory.singleVariableConstraintIsCompleteWithRespectToItsVariable();
+
+		test(constraintTheory, makeConstraint, makeRandomLiteral, isComplete, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
+	}
+
+	/**
+	 * Given a constraint theory and a number <code>n</code> of multi-variable constraint tests,
+	 * generates <code>n</code> formulas in the theory
+	 * and see if those detected as unsatisfiable by the corresponding solver
+	 * are indeed unsatisfiable (checked by brute force).
+	 * Throws an {@link Error} with the failure description if a test fails.
+	 * @param random
+	 * @param constraintTheory
+	 * @param numberOfTests
+	 * @param maxNumberOfLiterals
+	 * @param outputCount
+	 */
+	public static void testMultiVariableConstraints(Random random, NewConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+		testMultiVariableConstraints(random, constraintTheory, numberOfTests, maxNumberOfLiterals, true, outputCount);
+	}
+	
+	private static void testMultiVariableConstraints(Random random, NewConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
+		
+		NullaryFunction<NewConstraint> makeConstraint = () -> new MultiVariableNewConstraint(constraintTheory);
+
+		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
+		
+		NullaryFunction<Expression> makeRandomLiteral = () -> constraintTheory.makeRandomLiteral(random, process);
+
+		boolean isComplete = false; // multi-variable implementation is current incomplete for all theories
+
+		test(constraintTheory, makeConstraint, makeRandomLiteral, isComplete, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
+	}
+
+	/**
+	 * Given a constraint theory, generators for constraints, random variables,
+	 * whether the constraint solver is complete,
+	 * and a number <code>n</code> of tests,
+	 * generates <code>n</code> formulas in the theory
+	 * and see if those detected as unsatisfiable by the corresponding solver
+	 * are indeed unsatisfiable (checked by brute force).
+	 * Throws an {@link Error} with the failure description if a test fails.
+	 * @param constraintTheory
+	 * @param makeConstraint a thunk generating new constraints
+	 * @param makeRandomLiteral a think generating appropriate new literals
+	 * @param isComplete whether the constraint solver always returns <code>null</code> for unsatisfiable conjunctions of literals
+	 * @param numberOfTests the number of tests to run
+	 * @param maxNumberOfLiterals the maximum number of literals to add to each test conjunction
+	 * @param testCorrectness actually tests the result, as opposed to simply running tests (for measuring time, for example)
+	 * @param outputCount whether to output the test count
+	 * @param process a rewriting process
+	 * @throws Error
+	 */
+	public static void test(NewConstraintTheory constraintTheory, NullaryFunction<NewConstraint> makeConstraint, NullaryFunction<Expression> makeRandomLiteral, boolean isComplete, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount, RewritingProcess process) throws Error {
 		for (int i = 1; i != numberOfTests + 1; i++) {
-			Expression variable = makeSymbol(constraintTheory.getTestingVariable());
-			SingleVariableConstraint constraint = constraintTheory.makeSingleVariableConstraint(variable);
+			NewConstraint constraint = makeConstraint.apply();
 			Collection<Expression> literals = new LinkedHashSet<>();
 			
 			output("\n\nStarting new conjunction");	
 			for (int j = 0; constraint != null && j != maxNumberOfLiterals; j++) {
-				Expression literal = constraintTheory.makeRandomLiteralOn(random, process);
+				Expression literal = makeRandomLiteral.apply();
 				literals.add(literal);
 				output("\nAdded " + literal + " (current conjunction: " + And.make(literals) + ")");	
 				constraint = constraint.conjoin(literal, process);
@@ -121,14 +180,15 @@ public class ConstraintTheoryTester {
 					if (constraint == null) {
 						solverSaysItIsUnsatisfiable(literals, constraintTheory, process);
 					}
-					else if (constraintTheory.singleVariableConstraintIsCompleteWithRespectToItsVariable()) {
-						solverSaysItIsSatisfiable(literals, constraint, constraintTheory, process);
-					}
 					else {
-						// if constraint is not null, the conjunction of literals may or may not be satisfiable,
-						// because solvers are allowed to be incomplete regarding satisfiability,
-						// so in this case we do not test either way.
-						output("Solver does not know yet if it is satisfiable or not. Current constraint is " + constraint);
+						if (isComplete) {
+							solverSaysItIsSatisfiable(literals, constraint, constraintTheory, process);
+						}
+						else {
+							// if constraint is not null, the conjunction of literals may or may not be satisfiable,
+							// because solver is incomplete, so in this case we do not check.
+							output("Solver does not know yet if it is satisfiable or not. Current constraint is " + constraint);
+						}
 					}
 				}
 			}
@@ -145,7 +205,7 @@ public class ConstraintTheoryTester {
 	 * @param process
 	 * @throws Error
 	 */
-	protected static void solverSaysItIsSatisfiable(Collection<Expression> literals, SingleVariableConstraint constraint, NewConstraintTheory constraintTheory, RewritingProcess process) throws Error {
+	protected static void solverSaysItIsSatisfiable(Collection<Expression> literals, NewConstraint constraint, NewConstraintTheory constraintTheory, RewritingProcess process) throws Error {
 		output("Solver thinks it is satisfiable. Current constraint is " + constraint);	
 		Expression formula = And.make(literals);
 		Map<Expression, Expression> satisfyingAssignment = isSatisfiableByBruteForce(formula, constraintTheory, process);

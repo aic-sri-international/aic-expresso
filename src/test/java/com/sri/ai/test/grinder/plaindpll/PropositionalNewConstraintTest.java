@@ -35,31 +35,36 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.api;
+package com.sri.ai.test.grinder.plaindpll;
 
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import java.util.Random;
+
+import org.junit.Test;
+
+import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.plaindpll.tester.ConstraintTheoryTester;
+import com.sri.ai.grinder.plaindpll.theory.PropositionalNewConstraintTheory;
 
-/**
- * An {@link Expression} with efficient internal representation for incrementally deciding satisfiability of a boolean formulas on literals in a certain theory.
- * 
- * @author braz
- *
- */
-public interface SingleVariableConstraint extends Expression {
+@Beta
+public class PropositionalNewConstraintTest {
 
-	/**
-	 * @return the variable term constrained by this constraint.
-	 */
-	Expression getVariable();
+	@Test
+	public void testSingleVariableConstraints() {
+		ConstraintTheoryTester.testSingleVariableConstraints(
+				new Random(1),
+				new PropositionalNewConstraintTheory(),
+				3 /* number of tests - only literals are P and not P, and 3 tests already create all cases */,
+				2 /* number of literals per test */,
+				true /* output count */);
+	}
 
-	/**
-	 * Returns an {@link ConstraintTheoryTester} representing the conjunction of this constraint and a given literal,
-	 * or null if they are contradictory.
-	 * @param literal the literal
-	 * @param process the rewriting process
-	 * @return the application result or <code>null</code> if contradiction.
-	 */
-	SingleVariableConstraint conjoin(Expression literal, RewritingProcess process);
+	@Test
+	public void testMultiVariableConstraints() {
+		ConstraintTheoryTester.testMultiVariableConstraints(
+				new Random(1),
+				new PropositionalNewConstraintTheory(),
+				100 /* number of tests - many more possibilities when we have multiple variables */,
+				10 /* number of literals per test */,
+				true /* output count */);
+	}
 }

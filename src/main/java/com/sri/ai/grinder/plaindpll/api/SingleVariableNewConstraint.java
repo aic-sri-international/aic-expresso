@@ -35,26 +35,23 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.plaindpll;
+package com.sri.ai.grinder.plaindpll.api;
 
-import java.util.Random;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewritingProcess;
 
-import org.junit.Test;
+/**
+ * An {@link Expression} with efficient internal representation for incrementally deciding satisfiability of a boolean formulas on literals in a certain theory.
+ * 
+ * @author braz
+ *
+ */
+public interface SingleVariableNewConstraint extends Expression, NewConstraint {
 
-import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.plaindpll.tester.ConstraintTheoryTester;
-import com.sri.ai.grinder.plaindpll.theory.EqualityNewConstraintTheory;
-
-@Beta
-public class SingleVariableEqualityConstraintTest {
-
-	@Test
-	public void test() {
-		ConstraintTheoryTester.test(
-				new Random(1),
-				new EqualityNewConstraintTheory(null),
-				20000 /* number of tests */,
-				30 /* number of literals per test */,
-				true /* output count */);
-	}
+	/**
+	 * @return the variable term constrained by this constraint.
+	 */
+	Expression getVariable();
+	
+	SingleVariableNewConstraint conjoin(Expression literal, RewritingProcess process);
 }

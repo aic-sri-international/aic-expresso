@@ -51,26 +51,26 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public class SingleVariablePropositionalConstraint extends AbstractSingleVariableConstraint {
+public class SingleVariablePropositionalNewConstraint extends AbstractSingleVariableNewConstraint {
 
 	private static final long serialVersionUID = 1L;
 
-	public SingleVariablePropositionalConstraint(Expression variable, NewConstraintTheory constraintTheory) {
+	public SingleVariablePropositionalNewConstraint(Expression variable, NewConstraintTheory constraintTheory) {
 		super(variable, constraintTheory);
 	}
 
-	public SingleVariablePropositionalConstraint(SingleVariablePropositionalConstraint other) {
+	public SingleVariablePropositionalNewConstraint(SingleVariablePropositionalNewConstraint other) {
 		super(other);
 	}
 
 	@Override
-	public SingleVariablePropositionalConstraint clone() {
-		SingleVariablePropositionalConstraint result = new SingleVariablePropositionalConstraint(this);
+	public SingleVariablePropositionalNewConstraint clone() {
+		SingleVariablePropositionalNewConstraint result = new SingleVariablePropositionalNewConstraint(this);
 		return result;
 	}
 
 	@Override
-	public AbstractSingleVariableConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process) {
+	public AbstractSingleVariableNewConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process) {
 		return this;
 	}
 

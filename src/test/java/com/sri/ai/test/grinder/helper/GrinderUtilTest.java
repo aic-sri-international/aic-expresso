@@ -248,7 +248,7 @@ public class GrinderUtilTest extends AbstractGrinderTest {
 		NewConstraintTheory constraintTheory;
 		RewritingProcess process;
 		Map<Expression, Expression> actual;
-		constraintTheory = new EqualityNewConstraintTheory(null);
+		constraintTheory = new EqualityNewConstraintTheory();
 		process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		actual = isSatisfiableByBruteForce(formula, constraintTheory, process);
 		assertEquals(expected, actual);

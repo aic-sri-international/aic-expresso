@@ -43,18 +43,28 @@ import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.plaindpll.tester.ConstraintTheoryTester;
-import com.sri.ai.grinder.plaindpll.theory.PropositionalNewConstraintTheory;
+import com.sri.ai.grinder.plaindpll.theory.EqualityNewConstraintTheory;
 
 @Beta
-public class SingleVariablePropositionalConstraintTest {
+public class EqualityNewConstraintTest {
 
 	@Test
-	public void test() {
-		ConstraintTheoryTester.test(
+	public void testSingleVariableConstraints() {
+		ConstraintTheoryTester.testSingleVariableConstraints(
 				new Random(1),
-				new PropositionalNewConstraintTheory(),
-				3 /* number of tests - only literals are P and not P, and 3 tests already create all cases*/,
-				2 /* number of literals per test */,
+				new EqualityNewConstraintTheory(),
+				20000 /* number of tests */,
+				30 /* number of literals per test */,
+				true /* output count */);
+	}
+
+	@Test
+	public void testMultiVariableConstraints() {
+		ConstraintTheoryTester.testMultiVariableConstraints(
+				new Random(1),
+				new EqualityNewConstraintTheory(),
+				20000 /* number of tests */,
+				30 /* number of literals per test */,
 				true /* output count */);
 	}
 }

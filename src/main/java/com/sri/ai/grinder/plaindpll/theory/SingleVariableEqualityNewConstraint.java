@@ -39,10 +39,13 @@ package com.sri.ai.grinder.plaindpll.theory;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.helper.GrinderUtil.getTypeCardinality;
+import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
+import static com.sri.ai.grinder.library.FunctorConstants.NOT;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.plaindpll.api.NewConstraintTheory;
@@ -55,32 +58,32 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public class SingleVariableEqualityConstraint extends AbstractSingleVariableConstraint {
+public class SingleVariableEqualityNewConstraint extends AbstractSingleVariableNewConstraint {
 
 	private static final long serialVersionUID = 1L;
 	
 	private int numberOfConstants;
 
-	public SingleVariableEqualityConstraint(Expression variable, NewConstraintTheory constraintTheory) {
+	public SingleVariableEqualityNewConstraint(Expression variable, NewConstraintTheory constraintTheory) {
 		super(variable, constraintTheory);
 		this.numberOfConstants = 0;
 	}
 
-	public SingleVariableEqualityConstraint(SingleVariableEqualityConstraint other) {
+	public SingleVariableEqualityNewConstraint(SingleVariableEqualityNewConstraint other) {
 		super(other);
 		this.numberOfConstants = other.numberOfConstants;
 	}
 
 	@Override
-	public SingleVariableEqualityConstraint clone() {
-		SingleVariableEqualityConstraint result = new SingleVariableEqualityConstraint(this);
+	public SingleVariableEqualityNewConstraint clone() {
+		SingleVariableEqualityNewConstraint result = new SingleVariableEqualityNewConstraint(this);
 		result.numberOfConstants = numberOfConstants;
 		return result;
 	}
 
 	@Override
-	public SingleVariableEqualityConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process) {
-		SingleVariableEqualityConstraint result = this;
+	public SingleVariableEqualityNewConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process) {
+		SingleVariableEqualityNewConstraint result = this;
 		if (!sign && process.isUniquelyNamedConstant(atom.get(1))) {
 			numberOfConstants++;
 			if (numberOfConstants == getVariableDomainSize(process)) {
@@ -99,6 +102,9 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	@Override
 	public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndAtom(Expression variable, Expression literal) {
 		Pair<Boolean, Expression> result;
+		
+		literal = moveNotIn(literal);
+		
 		Expression other = termToWhichVariableIsEqualedToOrNull(variable, literal);
 		if (other == null) {
 			throw new Error("Invalid literal for equality theory received: " + literal);
@@ -106,6 +112,21 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 		Expression atom = apply(EQUALITY, variable, other);
 		result = Pair.make(literal.hasFunctor(EQUALITY), atom);
 		return result;
+	}
+
+	private Expression moveNotIn(Expression literal) throws Error {
+		if (literal.hasFunctor(NOT)) {
+			if (literal.get(0).hasFunctor(EQUALITY)) {
+				literal = Expressions.apply(DISEQUALITY, literal.get(0).get(0), literal.get(0).get(1));
+			}
+			else if (literal.get(0).hasFunctor(DISEQUALITY)) {
+				literal = Expressions.apply(EQUALITY, literal.get(0).get(0), literal.get(0).get(1));
+			}
+			else {
+				throw new Error("Invalid literal for equality theory received: " + literal);
+			}
+		}
+		return literal;
 	}
 
 	private Expression termToWhichVariableIsEqualedToOrNull(Expression variable, Expression equalityLiteral) {

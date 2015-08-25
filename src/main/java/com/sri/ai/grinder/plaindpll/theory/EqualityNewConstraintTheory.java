@@ -38,6 +38,8 @@
 package com.sri.ai.grinder.plaindpll.theory;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
+import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.pickUniformly;
 
 import java.util.Map;
@@ -47,34 +49,97 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
-import com.sri.ai.grinder.plaindpll.api.TermTheory;
+import com.sri.ai.grinder.library.FunctorConstants;
+import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.Equivalence;
+import com.sri.ai.grinder.library.boole.Implication;
+import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.library.boole.Or;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.plaindpll.api.SingleVariableNewConstraint;
+import com.sri.ai.grinder.plaindpll.core.AbstractNewConstraintTheory;
+import com.sri.ai.util.Util;
+import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.collect.PredicateIterator;
-@Beta
-/** 
- * A {@link ConstraintTheory} for equality literals.
- */
-public class EqualityNewConstraintTheory extends AbstractEqualityNewConstraintTheory {
 
-	public EqualityNewConstraintTheory(TermTheory termTheory) {
-		super(termTheory);
+/** 
+ * A {@link NewConstraintTheory} for equality literals.
+ */
+@Beta
+public class EqualityNewConstraintTheory extends AbstractNewConstraintTheory {
+
+	@Override
+	protected boolean usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers() {
+		return true;
+	}
+
+	private static Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers =
+			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
+					FunctorConstants.EQUALITY,        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Equality.simplify(f, process),
+
+					FunctorConstants.DISEQUALITY,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Disequality.simplify(f, process),
+
+					FunctorConstants.NOT,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Not.simplify(f),
+
+					FunctorConstants.AND,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					And.simplify(f),
+
+					FunctorConstants.OR,              (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Or.simplify(f),
+
+					FunctorConstants.NOT,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Not.simplify(f),
+
+					FunctorConstants.IF_THEN_ELSE,    (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					IfThenElse.simplify(f),
+
+					FunctorConstants.EQUIVALENCE,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Equivalence.simplify(f),
+
+					FunctorConstants.IMPLICATION,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+					Implication.simplify(f)
+					);
+
+	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers =
+			Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map();
+
+	@Override
+	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers() {
+		return functionApplicationSimplifiers;
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable) {
-		return new SingleVariableEqualityConstraint(variable, this);
+	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
+		return syntacticFormTypeSimplifiers;
+	}
+
+	@Override
+	public SingleVariableNewConstraint makeSingleVariableConstraint(Expression variable) {
+		return new SingleVariableEqualityNewConstraint(variable, this);
 	}
 
 	@Override
 	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
-		return true; // SingleVariableEqualityConstraint is complete
+		return true; // SingleVariableEqualityNewConstraint is complete
 	}
 
 	@Override
-	public Expression makeRandomAtomOn(Random random, RewritingProcess process) {
+	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
+		boolean result = 
+				expression.hasFunctor(EQUALITY) || expression.hasFunctor(DISEQUALITY) ||
+				expression.equals(EQUALITY) || expression.equals(DISEQUALITY);
+		return result;
+	}
+
+	@Override
+	public Expression makeRandomAtomOn(String variable, Random random, RewritingProcess process) {
 		Map<String, String> variablesAndTypes = getVariableNamesAndTypeNamesForTesting();
-		String typeName = variablesAndTypes.get(getTestingVariable());
+		String typeName = variablesAndTypes.get(variable);
 		Set<String> allVariables = variablesAndTypes.keySet();
 		PredicateIterator<String> isNameOfVariableOfSameType = PredicateIterator.make(allVariables, s -> variablesAndTypes.get(s).equals(typeName));
 		Expression otherTerm;
@@ -86,7 +151,18 @@ public class EqualityNewConstraintTheory extends AbstractEqualityNewConstraintTh
 		}
 		Expression result =
 				random.nextBoolean()?
-				Equality.make(getTestingVariable(), otherTerm) : Equality.make(otherTerm, getTestingVariable());
+				Equality.make(variable, otherTerm) : Equality.make(otherTerm, variable);
 		return result;
+	}
+
+	/**
+	 * We override the default version because disequality literals must be represented as <code>T1 != T2</code> in this theory,
+	 * and the default version of random literal generation would only negate atoms, representing disequalities as <code>not (T1 = T2)</code>. 	
+	 */
+	@Override
+	public Expression makeRandomLiteralOn(String variable, Random random, RewritingProcess process) {
+		Expression atom = makeRandomAtomOn(variable, random, process);
+		Expression literal = atom.hasFunctor(EQUALITY)? random.nextBoolean()? atom : Disequality.make(atom.get(0), atom.get(1)) : atom;
+		return literal;
 	}
 }

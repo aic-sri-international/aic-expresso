@@ -57,7 +57,7 @@ import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.plaindpll.api.SingleVariableConstraint;
+import com.sri.ai.grinder.plaindpll.api.SingleVariableNewConstraint;
 import com.sri.ai.grinder.plaindpll.core.AbstractNewConstraintTheory;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
@@ -122,8 +122,8 @@ public class PropositionalNewConstraintTheory extends AbstractNewConstraintTheor
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable) {
-		return new SingleVariablePropositionalConstraint(variable, this);
+	public SingleVariableNewConstraint makeSingleVariableConstraint(Expression variable) {
+		return new SingleVariablePropositionalNewConstraint(variable, this);
 	}
 
 	@Override
@@ -132,7 +132,7 @@ public class PropositionalNewConstraintTheory extends AbstractNewConstraintTheor
 	}
 
 	@Override
-	public Expression makeRandomAtomOn(Random random, RewritingProcess process) {
-		return makeSymbol(getTestingVariable());
+	public Expression makeRandomAtomOn(String variable, Random random, RewritingProcess process) {
+		return makeSymbol(variable);
 	}
 }
