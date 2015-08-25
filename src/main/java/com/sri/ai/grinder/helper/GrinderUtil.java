@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.library.FunctorConstants.CARTESIAN_PRODUCT;
+import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
 import static com.sri.ai.util.Util.list;
 
 import java.util.ArrayList;
@@ -62,6 +63,7 @@ import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.LambdaExpression;
 import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.MapReplacementFunction;
@@ -1240,5 +1242,20 @@ public class GrinderUtil {
 			}
 		}
 		return satisfyingAssignment;
+	}
+
+	/**
+	 * Returns the variable type description as registered in the rewriting process,
+	 * or an expression of the form <code>Type(variable)</code>.
+	 * @param variable
+	 * @param process
+	 * @return
+	 */
+	public static Expression getVariableType(Expression variable, RewritingProcess process) {
+		Expression variableType = getType(variable, process);
+		if (variableType == null) {
+			variableType = new DefaultSyntacticFunctionApplication(TYPE, variable);
+		}
+		return variableType;
 	}
 }

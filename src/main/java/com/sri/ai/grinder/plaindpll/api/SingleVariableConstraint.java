@@ -37,10 +37,9 @@
  */
 package com.sri.ai.grinder.plaindpll.api;
 
-import java.util.Collection;
-
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.plaindpll.tester.ConstraintTheoryTester;
 
 /**
  * An {@link Expression} with efficient internal representation for incrementally deciding satisfiability of a boolean formulas on literals in a certain theory.
@@ -51,33 +50,9 @@ import com.sri.ai.grinder.api.RewritingProcess;
 public interface SingleVariableConstraint extends Expression {
 
 	/**
-	 * Returns the {@link ConstraintTheory} for this constraint.
-	 * @return the constraint theory.
-	 */
-	NewConstraintTheory getConstraintTheory();
-	
-	/**
 	 * @return the variable term constrained by this constraint.
 	 */
 	Expression getVariable();
-	
-	/**
-	 * Returns the type of the variable.
-	 */
-	Expression getVariableDomain(RewritingProcess process);
-
-	/**
-	 * Returns the variable domain size, if determined, or -1 otherwise.
-	 * @param process
-	 * @return
-	 */
-	long getVariableDomainSize(RewritingProcess process);
-
-	/**
-	 * Returns the literals that are part of this constraint, but not defined on the variable.
-	 * @return
-	 */
-	Collection<Expression> getExternalLiterals();
 
 	/**
 	 * Returns an {@link ConstraintTheoryTester} representing the conjunction of this constraint and a given literal,
@@ -87,6 +62,4 @@ public interface SingleVariableConstraint extends Expression {
 	 * @return the application result or <code>null</code> if contradiction.
 	 */
 	SingleVariableConstraint conjoin(Expression literal, RewritingProcess process);
-	
-	String debuggingDescription(RewritingProcess process);
 }

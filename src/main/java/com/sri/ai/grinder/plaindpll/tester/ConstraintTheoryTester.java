@@ -128,7 +128,7 @@ public class ConstraintTheoryTester {
 						// if constraint is not null, the conjunction of literals may or may not be satisfiable,
 						// because solvers are allowed to be incomplete regarding satisfiability,
 						// so in this case we do not test either way.
-						output("Solver does not know yet if it is satisfiable or not. Current state is " + constraint.debuggingDescription(process));
+						output("Solver does not know yet if it is satisfiable or not. Current constraint is " + constraint);
 					}
 				}
 			}
@@ -146,18 +146,18 @@ public class ConstraintTheoryTester {
 	 * @throws Error
 	 */
 	protected static void solverSaysItIsSatisfiable(Collection<Expression> literals, SingleVariableConstraint constraint, NewConstraintTheory constraintTheory, RewritingProcess process) throws Error {
-		output("Solver thinks it is satisfiable. Current constraint is " + constraint.debuggingDescription(process));	
+		output("Solver thinks it is satisfiable. Current constraint is " + constraint);	
 		Expression formula = And.make(literals);
 		Map<Expression, Expression> satisfyingAssignment = isSatisfiableByBruteForce(formula, constraintTheory, process);
 		if (satisfyingAssignment == null) {
 			String message = join(literals, " and ") + " is unsatisfiable (by brute-force) but " + 
 			constraintTheory.getClass().getSimpleName() + "'s says it is satisfiable. " +
-			"Current constraint is " + constraint.debuggingDescription(process);
+			"Current constraint is " + constraint;
 			output(message);
 			throw new Error(message);
 		}
 		else {
-			output("Brute-force satisfiability test agrees that it is satisfiable. Constraint is " + constraint.debuggingDescription(process));	
+			output("Brute-force satisfiability test agrees that it is satisfiable. Constraint is " + constraint);	
 		}
 	}
 

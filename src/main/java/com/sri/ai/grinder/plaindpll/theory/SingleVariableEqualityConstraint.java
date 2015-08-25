@@ -37,15 +37,12 @@
  */
 package com.sri.ai.grinder.plaindpll.theory;
 
-import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
+import static com.sri.ai.grinder.helper.GrinderUtil.getTypeCardinality;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.plaindpll.api.NewConstraintTheory;
-import com.sri.ai.util.base.Pair;
 
 /**
  * An equality constraint solver.
@@ -89,60 +86,12 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 		return result;
 	}
 
-	@Override
-	public Expression fromNegativeAtomToLiteral(Expression negativeAtom) {
-		Expression result = Disequality.make(negativeAtom.get(0), negativeAtom.get(1));
-		return result;
-	}
+	protected long cachedIndexDomainSize = -1;
 
-	@Override
-	public boolean isExternalLiteral(Expression literal) {
-		boolean result =
-				!literal.get(0).equals(getVariable()) &&
-				!literal.get(1).equals(getVariable());
-		return result;
-	}
-
-	@Override
-	public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndAtom(Expression literal) {
-		Pair<Boolean, Expression> result;
-		Expression other = termToWhichVariableIsEqualedToOrNull(literal);
-		if (other == null) {
-			throw new Error("Invalid literal for equality theory received: " + literal);
+	public long getVariableDomainSize(RewritingProcess process) {
+		if (cachedIndexDomainSize == -1) {
+			cachedIndexDomainSize = getTypeCardinality(getVariable(), process);
 		}
-		Expression atom = apply(EQUALITY, getVariable(), other);
-		result = Pair.make(literal.hasFunctor(EQUALITY), atom);
-		return result;
-	}
-
-	private Expression termToWhichVariableIsEqualedToOrNull(Expression equalityLiteral) {
-		Expression result;
-		if (equalityLiteral.get(0).equals(getVariable())) {
-			result = equalityLiteral.get(1);
-		}
-		else if (equalityLiteral.get(1).equals(getVariable())) {
-			result = equalityLiteral.get(0);
-		}
-		else {
-			result = null;
-		}
-		return result;
-	}
-
-	@Override
-	public boolean thereAreImplicationsBetweenDifferentAtoms() {
-		return true;
-	}
-
-	@Override
-	public boolean impliesLiteralWithDifferentAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
-		// X = c1 implies X != c2 for every other constant c2
-		boolean result = sign1 && !sign2 && process.isUniquelyNamedConstant(atom1.get(1)) && process.isUniquelyNamedConstant(atom2.get(1));
-		return result;
-	}
-
-	@Override
-	public String debuggingDescription(RewritingProcess process) {
-		return toString() +  ", #constantDisequals/domainSize: " + numberOfConstants + "/" + getVariableDomainSize(process);
+		return cachedIndexDomainSize;
 	}
 }

@@ -37,6 +37,8 @@
  */
 package com.sri.ai.expresso.helper;
 
+import static com.sri.ai.util.Util.thereExists;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1210,5 +1212,17 @@ public class Expressions {
 	 */
 	public static boolean equalArgumentsInSameOrder(Expression expression1, Expression expression2) {
 		return expression1.getArguments().equals(expression2.getArguments());
+	}
+
+	/**
+	 * Indicates whether the first expression has the second one as a sub-expression.
+	 * @param literal
+	 * @param variable
+	 * @param process
+	 * @return
+	 */
+	public static boolean contains(Expression literal, Expression variable, RewritingProcess process) {
+		boolean result = thereExists(new SubExpressionsDepthFirstIterator(literal), s -> s.equals(variable));
+		return result;
 	}
 }

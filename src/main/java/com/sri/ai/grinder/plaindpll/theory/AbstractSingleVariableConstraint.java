@@ -39,21 +39,18 @@ package com.sri.ai.grinder.plaindpll.theory;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.grinder.helper.GrinderUtil.getType;
-import static com.sri.ai.grinder.helper.GrinderUtil.getTypeCardinality;
-import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
+import static com.sri.ai.expresso.helper.Expressions.contains;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.removeFromSetNonDestructively;
+import static com.sri.ai.util.Util.thereExists;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
@@ -157,6 +154,11 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 		return result;
 	}
 	
+	@Override
+	public Expression getVariable() {
+		return variable;
+	}
+
 	/**
 	 * Extending classes define this method to perform whatever bookkeeping is needed
 	 * after a new atom has been inserted, returning null in case of a detected contradiction
@@ -168,59 +170,6 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 */
 	abstract public AbstractSingleVariableConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process);
 
-	/**
-	 * Returns the literal corresponding to the negation of the given atom
-	 * (which is known to be false).
-	 * Typically this will just return the application of NOT to the atom,
-	 * but some languages may have more conventional ways of representing these
-	 * negations (for example, not(X = a) -> X != a).
-	 * @param negativeAtom
-	 * @return
-	 */
-	abstract public Expression fromNegativeAtomToLiteral(Expression negativeAtom);
-
-	/** Indicates whether a literal is external to this constraint or not, that is, whether it involves the main variable. */
-	abstract public boolean isExternalLiteral(Expression literal);
-
-	/**
-	 * Defines how a literal is decomposed into sign and atom.
-	 * Atom representations should be normalized (equivalent atoms should always be represented by the same expressions).
-	 * For example, <code>X != a</code> could be decomposed into <code>false</code> and <code>X = a</code>.
-	 * @param literal
-	 * @return
-	 */
-	abstract public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndAtom(Expression literal);
-
-	/** Indicates whether there are interactions between distinct atoms in current theory. */
-	abstract public boolean thereAreImplicationsBetweenDifferentAtoms();
-
-	/**
-	 * Indicates whether, according to the current theory, sign1 atom1 implies sign2 atom2,
-	 * where atom1 and atom2 can be assumed distinct (the result is not defined otherwise).
-	 * @param sign1
-	 * @param atom1
-	 * @param sign2
-	 * @param atom2
-	 * @param process
-	 * @return
-	 */
-	abstract public boolean impliesLiteralWithDifferentAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process);
-
-	@Override
-	public NewConstraintTheory getConstraintTheory() {
-		return constraintTheory;
-	}
-
-	@Override
-	public Expression getVariable() {
-		return variable;
-	}
-
-	@Override
-	public Collection<Expression> getExternalLiterals() {
-		return Collections.unmodifiableCollection(externalLiterals);
-	}
-
 	@Override
 	public SingleVariableConstraint conjoin(Expression literal, RewritingProcess process) {
 		AbstractSingleVariableConstraint result;
@@ -230,11 +179,11 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 		else if (literal.equals(FALSE)) {
 			result = null;
 		}
-		else if (isExternalLiteral(literal)) {
+		else if (!contains(literal, getVariable(), process)) {
 			result = copyWithNewExternalLiteral(literal);
 		}
 		else {
-			Pair<Boolean, Expression> signAndAtom = fromLiteralOnVariableToSignAndAtom(literal);
+			Pair<Boolean, Expression> signAndAtom = constraintTheory.fromLiteralOnVariableToSignAndAtom(getVariable(), literal);
 			boolean    sign = signAndAtom.first;
 			Expression atom = signAndAtom.second;
 			Set<Expression>     sameSignAtoms = sign? positiveAtoms : negativeAtoms;
@@ -245,7 +194,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 			else if (oppositeSignAtoms.contains(atom)) {
 				result = null; // contradiction
 			}
-			else if (thereAreImplicationsBetweenDifferentAtoms()) {
+			else if (constraintTheory.atomMayImplyLiteralsOnDifferentAtoms()) {
 				// OPTIMIZATION
 				// Here it would pay to have the database of atoms to be indexed by theory-specific properties
 				// such that only relevant atoms are checked, depending on properties of the new literal.
@@ -255,18 +204,18 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 				// while equalities between two variables never affect literals based on distinct atoms.
 				
 				boolean oppositeSign = sign? false : true;
-				if (    Util.thereExists(positiveAtoms, p -> impliesLiteralWithDifferentAtom(true,  p, sign, atom, process)) ||
-						Util.thereExists(negativeAtoms, p -> impliesLiteralWithDifferentAtom(false, p, sign, atom, process))) {
+				if (    thereExists(positiveAtoms, p -> constraintTheory.impliesLiteralWithDifferentAtom(true,  p, sign, atom, process)) ||
+						thereExists(negativeAtoms, p -> constraintTheory.impliesLiteralWithDifferentAtom(false, p, sign, atom, process))) {
 					result = this; // redundant
 				}
-				else if (Util.thereExists(positiveAtoms, p -> impliesLiteralWithDifferentAtom(true,  p, oppositeSign, atom, process)) ||
-						Util. thereExists(negativeAtoms, p -> impliesLiteralWithDifferentAtom(false, p, oppositeSign, atom, process))) {
+				else if (thereExists(positiveAtoms, p -> constraintTheory.impliesLiteralWithDifferentAtom(true,  p, oppositeSign, atom, process)) ||
+						thereExists(negativeAtoms, p -> constraintTheory.impliesLiteralWithDifferentAtom(false, p, oppositeSign, atom, process))) {
 					result = null; // contradiction
 				}
 				else {
 					// remove redundant literals and add new one
-					Set<Expression> newPositiveAtoms = removeFromSetNonDestructively(positiveAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, true,  p, process));
-					Set<Expression> newNegativeAtoms = removeFromSetNonDestructively(negativeAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, false, p, process));
+					Set<Expression> newPositiveAtoms = removeFromSetNonDestructively(positiveAtoms, p -> constraintTheory.impliesLiteralWithDifferentAtom(sign, atom, true,  p, process));
+					Set<Expression> newNegativeAtoms = removeFromSetNonDestructively(negativeAtoms, p -> constraintTheory.impliesLiteralWithDifferentAtom(sign, atom, false, p, process));
 					if (sign) {
 						newPositiveAtoms.add(atom);
 					}
@@ -290,34 +239,12 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	}
 
 	@Override
-	abstract public String debuggingDescription(RewritingProcess process);
-
-	@Override
 	protected Expression computeInnerExpression() {
 		List<Expression> conjuncts = list();
 		conjuncts.addAll(positiveAtoms);
-		Util.mapIntoList(negativeAtoms, n -> fromNegativeAtomToLiteral(n), conjuncts);
+		Util.mapIntoList(negativeAtoms, n -> constraintTheory.fromNegativeAtomToLiteral(n), conjuncts);
 		conjuncts.addAll(externalLiterals);
 		Expression result = And.make(conjuncts);
 		return result;
-	}
-
-	@Override
-	public Expression getVariableDomain(RewritingProcess process) {
-		Expression variableType = getType(variable, process);
-		if (variableType == null) {
-			variableType = new DefaultSyntacticFunctionApplication(TYPE, variable);
-		}
-		return variableType;
-	}
-
-	protected long cachedIndexDomainSize = -1;
-
-	@Override
-	public long getVariableDomainSize(RewritingProcess process) {
-		if (cachedIndexDomainSize == -1) {
-			cachedIndexDomainSize = getTypeCardinality(variable, process);
-		}
-		return cachedIndexDomainSize;
 	}
 }

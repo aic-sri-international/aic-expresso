@@ -37,13 +37,9 @@
  */
 package com.sri.ai.grinder.plaindpll.theory;
 
-import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.grinder.library.FunctorConstants.NOT;
-
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.api.NewConstraintTheory;
-import com.sri.ai.util.base.Pair;
 
 /**
  * A single-variable propositional constraint.
@@ -65,57 +61,12 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 
 	@Override
 	public AbstractSingleVariableConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process) {
-		// nothing to do;
 		return this;
-	}
-
-	@Override
-	public Expression fromNegativeAtomToLiteral(Expression negativeAtom) {
-		return apply(NOT, negativeAtom);
-	}
-
-	@Override
-	public boolean isExternalLiteral(Expression literal) {
-		boolean result;
-		if (literal.hasFunctor(NOT)) {
-			result = ! literal.get(0).equals(getVariable());
-		}
-		else {
-			result = ! literal.equals(getVariable());
-		}
-		return result;
-	}
-
-	@Override
-	public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndAtom(Expression literal) {
-		Pair<Boolean, Expression> result;
-		if (literal.hasFunctor(NOT)) {
-			result = Pair.make(false, literal.get(0));
-		}
-		else {
-			result = Pair.make(true, literal);
-		}
-		return result;
-	}
-
-	@Override
-	public boolean thereAreImplicationsBetweenDifferentAtoms() {
-		return false;
-	}
-
-	@Override
-	public boolean impliesLiteralWithDifferentAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
-		throw new Error("This method should not have been invoked because this class's thereAreImplicationsBetweenDifferentAtoms returns 'false'.");
 	}
 
 	@Override
 	public SingleVariablePropositionalConstraint clone() {
 		SingleVariablePropositionalConstraint result = new SingleVariablePropositionalConstraint(this);
 		return result;
-	}
-
-	@Override
-	public String debuggingDescription(RewritingProcess process) {
-		return toString();
 	}
 }

@@ -55,6 +55,7 @@ import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
+import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.collect.PredicateIterator;
 
 /**
@@ -114,7 +115,44 @@ public interface NewConstraintTheory extends Theory {
 		return variables;
 	}
 
+	//////////// THEORY RULES
 	
+	/**
+	 * Returns the literal corresponding to the negation of the given atom
+	 * (which is known to be false).
+	 * Typically this will just return the application of NOT to the atom,
+	 * but some languages may have more conventional ways of representing these
+	 * negations (for example, not(X = a) -> X != a).
+	 * @param negativeAtom
+	 * @return
+	 */
+	abstract public Expression fromNegativeAtomToLiteral(Expression negativeAtom);
+
+	/**
+	 * Defines how a literal is decomposed into sign and atom.
+	 * Atom representations should be normalized (equivalent atoms should always be represented by the same expressions).
+	 * For example, <code>X != a</code> could be decomposed into <code>false</code> and <code>X = a</code>.
+	 * @param variable
+	 * @param literal
+	 * @return
+	 */
+	abstract public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndAtom(Expression variable, Expression literal);
+
+	/** Indicates whether there are interactions between distinct atoms in current theory. */
+	abstract public boolean atomMayImplyLiteralsOnDifferentAtoms();
+
+	/**
+	 * Indicates whether, according to the current theory, sign1 atom1 implies sign2 atom2,
+	 * where atom1 and atom2 can be assumed distinct (the result is not defined otherwise).
+	 * @param sign1
+	 * @param atom1
+	 * @param sign2
+	 * @param atom2
+	 * @param process
+	 * @return
+	 */
+	abstract public boolean impliesLiteralWithDifferentAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process);
+
 	//////////// AUTOMATIC TESTING 
 	
 	/** Sets variables to be used in randomly generated literals. */
