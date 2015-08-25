@@ -1,4 +1,4 @@
-package com.sri.ai.grinder.plaindpll.core;
+package com.sri.ai.grinder.sgdpll2.core;
 
 import static com.sri.ai.util.Util.min;
 
@@ -9,10 +9,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
-import com.sri.ai.grinder.plaindpll.api.NewConstraint;
-import com.sri.ai.grinder.plaindpll.api.NewConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.SingleVariableNewConstraint;
+import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.util.Util;
 
 /**
@@ -21,29 +20,29 @@ import com.sri.ai.util.Util;
  * @author braz
  *
  */
-public class MultiVariableNewConstraint extends AbstractExpressionWrapper implements NewConstraint {
+public class MultiVariableConstraint extends AbstractExpressionWrapper implements Constraint {
 
 	private static final long serialVersionUID = 1L;
 	
-	private NewConstraintTheory constraintTheory;
+	private ConstraintTheory constraintTheory;
 	private Map<Expression, SingleVariableNewConstraint> fromVariableToItsConstraint;
 
-	public MultiVariableNewConstraint(NewConstraintTheory constraintTheory) {
+	public MultiVariableConstraint(ConstraintTheory constraintTheory) {
 		this(constraintTheory, Util.map());
 	}
 	
-	private MultiVariableNewConstraint(NewConstraintTheory constraintTheory, Map<Expression, SingleVariableNewConstraint> fromVariableToItsConstraint) {
+	private MultiVariableConstraint(ConstraintTheory constraintTheory, Map<Expression, SingleVariableNewConstraint> fromVariableToItsConstraint) {
 		this.constraintTheory = constraintTheory;
 		this.fromVariableToItsConstraint = fromVariableToItsConstraint;
 	}
 	
-	private MultiVariableNewConstraint makeWithNewFromVariableToItsConstraint(Map<Expression, SingleVariableNewConstraint> newFromVariableToItsConstraint) {
-		return new MultiVariableNewConstraint(constraintTheory, newFromVariableToItsConstraint);
+	private MultiVariableConstraint makeWithNewFromVariableToItsConstraint(Map<Expression, SingleVariableNewConstraint> newFromVariableToItsConstraint) {
+		return new MultiVariableConstraint(constraintTheory, newFromVariableToItsConstraint);
 	}
 	
 	@Override
-	public NewConstraint conjoin(Expression literal, RewritingProcess process) {
-		MultiVariableNewConstraint result;
+	public Constraint conjoin(Expression literal, RewritingProcess process) {
+		MultiVariableConstraint result;
 		
 		Expression variable = getVariableFor(literal, process);
 		SingleVariableNewConstraint singleVariableConstraint = getConstraintFor(variable);
@@ -88,7 +87,7 @@ public class MultiVariableNewConstraint extends AbstractExpressionWrapper implem
 
 	@Override
 	public Expression clone() {
-		MultiVariableNewConstraint result = new MultiVariableNewConstraint(constraintTheory, new LinkedHashMap<>(fromVariableToItsConstraint));
+		MultiVariableConstraint result = new MultiVariableConstraint(constraintTheory, new LinkedHashMap<>(fromVariableToItsConstraint));
 		return result;
 	}
 

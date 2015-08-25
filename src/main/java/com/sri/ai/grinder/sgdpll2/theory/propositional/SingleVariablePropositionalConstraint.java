@@ -35,14 +35,15 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.theory;
+package com.sri.ai.grinder.sgdpll2.theory.propositional;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.plaindpll.api.NewConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.core.AbstractSingleVariableConstraint;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -51,26 +52,26 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public class SingleVariablePropositionalNewConstraint extends AbstractSingleVariableNewConstraint {
+public class SingleVariablePropositionalConstraint extends AbstractSingleVariableConstraint {
 
 	private static final long serialVersionUID = 1L;
 
-	public SingleVariablePropositionalNewConstraint(Expression variable, NewConstraintTheory constraintTheory) {
+	public SingleVariablePropositionalConstraint(Expression variable, ConstraintTheory constraintTheory) {
 		super(variable, constraintTheory);
 	}
 
-	public SingleVariablePropositionalNewConstraint(SingleVariablePropositionalNewConstraint other) {
+	public SingleVariablePropositionalConstraint(SingleVariablePropositionalConstraint other) {
 		super(other);
 	}
 
 	@Override
-	public SingleVariablePropositionalNewConstraint clone() {
-		SingleVariablePropositionalNewConstraint result = new SingleVariablePropositionalNewConstraint(this);
+	public SingleVariablePropositionalConstraint clone() {
+		SingleVariablePropositionalConstraint result = new SingleVariablePropositionalConstraint(this);
 		return result;
 	}
 
 	@Override
-	public AbstractSingleVariableNewConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process) {
+	public AbstractSingleVariableConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process) {
 		return this;
 	}
 

@@ -35,24 +35,24 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.plaindpll;
+package com.sri.ai.test.grinder.sgdpll2;
 
 import java.util.Random;
 
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.plaindpll.tester.ConstraintTheoryTester;
-import com.sri.ai.grinder.plaindpll.theory.PropositionalNewConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
+import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
 
 @Beta
-public class PropositionalNewConstraintTest {
+public class PropositionalConstraintTest {
 
 	@Test
 	public void testSingleVariableConstraints() {
 		ConstraintTheoryTester.testSingleVariableConstraints(
-				new Random(1),
-				new PropositionalNewConstraintTheory(),
+				new Random(),
+				new PropositionalConstraintTheory(),
 				3 /* number of tests - only literals are P and not P, and 3 tests already create all cases */,
 				2 /* number of literals per test */,
 				true /* output count */);
@@ -61,8 +61,8 @@ public class PropositionalNewConstraintTest {
 	@Test
 	public void testMultiVariableConstraints() {
 		ConstraintTheoryTester.testMultiVariableConstraints(
-				new Random(1),
-				new PropositionalNewConstraintTheory(),
+				new Random(),
+				new PropositionalConstraintTheory(),
 				100 /* number of tests - many more possibilities when we have multiple variables */,
 				10 /* number of literals per test */,
 				true /* output count */);

@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.core;
+package com.sri.ai.grinder.sgdpll2.core;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.list;
@@ -53,14 +53,15 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.plaindpll.api.NewConstraintTheory;
+import com.sri.ai.grinder.plaindpll.core.AbstractTheory;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 
 @Beta
 /** 
  * Basic implementation of some methods of {@link ConstraintTheory}.
  */
-abstract public class AbstractNewConstraintTheory extends AbstractTheory implements NewConstraintTheory {
+abstract public class AbstractConstraintTheory extends AbstractTheory implements ConstraintTheory {
 
 	/**
 	 * Initializes types for testing to be the collection of a single type,
@@ -69,7 +70,7 @@ abstract public class AbstractNewConstraintTheory extends AbstractTheory impleme
 	 * variables for testing to <code>X, Y, Z</code> of type <code>SomeType</code>,
 	 * of which <code>X</code> is the main testing variable on which testing literals are generated.
 	 */
-	public AbstractNewConstraintTheory() {
+	public AbstractConstraintTheory() {
 		super();
 		ArrayList<Expression> knownConstants = mapIntoArrayList(list("a", "b", "c", "d"), s -> makeSymbol(s));
 		setTypesForTesting(list(new Categorical("SomeType", 5, knownConstants)));

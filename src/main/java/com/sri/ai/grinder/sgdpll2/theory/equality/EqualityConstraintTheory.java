@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.theory;
+package com.sri.ai.grinder.sgdpll2.theory.equality;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
@@ -59,16 +59,16 @@ import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.SingleVariableNewConstraint;
-import com.sri.ai.grinder.plaindpll.core.AbstractNewConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.core.AbstractConstraintTheory;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.collect.PredicateIterator;
 
 /** 
- * A {@link NewConstraintTheory} for equality literals.
+ * A {@link ConstraintTheory} for equality literals.
  */
 @Beta
-public class EqualityNewConstraintTheory extends AbstractNewConstraintTheory {
+public class EqualityConstraintTheory extends AbstractConstraintTheory {
 
 	@Override
 	protected boolean usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers() {
@@ -120,12 +120,12 @@ public class EqualityNewConstraintTheory extends AbstractNewConstraintTheory {
 
 	@Override
 	public SingleVariableNewConstraint makeSingleVariableConstraint(Expression variable) {
-		return new SingleVariableEqualityNewConstraint(variable, this);
+		return new SingleVariableEqualityConstraint(variable, this);
 	}
 
 	@Override
 	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
-		return true; // SingleVariableEqualityNewConstraint is complete
+		return true; // SingleVariableEqualityConstraint is complete
 	}
 
 	@Override

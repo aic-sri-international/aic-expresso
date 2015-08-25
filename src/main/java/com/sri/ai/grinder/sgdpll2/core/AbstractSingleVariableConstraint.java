@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.theory;
+package com.sri.ai.grinder.sgdpll2.core;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
@@ -54,9 +54,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.plaindpll.api.NewConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.SingleVariableNewConstraint;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
@@ -75,7 +75,7 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public abstract class AbstractSingleVariableNewConstraint extends AbstractExpressionWrapper implements SingleVariableNewConstraint {
+public abstract class AbstractSingleVariableConstraint extends AbstractExpressionWrapper implements SingleVariableNewConstraint {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -83,14 +83,14 @@ public abstract class AbstractSingleVariableNewConstraint extends AbstractExpres
 	private Set<Expression> positiveAtoms;
 	private Set<Expression> negativeAtoms;
 	private Collection<Expression> externalLiterals; // literals not on variable
-	private NewConstraintTheory constraintTheory;
+	private ConstraintTheory constraintTheory;
 	
-	public AbstractSingleVariableNewConstraint(Expression variable, NewConstraintTheory constraintTheory) {
+	public AbstractSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory) {
 		this(variable, Util.set(), Util.set(), Util.set(), constraintTheory);
 	}
 	
-	public AbstractSingleVariableNewConstraint(Expression variable, Set<Expression> positiveAtoms, Set<Expression> negativeAtoms,
-			Collection<Expression> externalLiterals, NewConstraintTheory constraintTheory) {
+	public AbstractSingleVariableConstraint(Expression variable, Set<Expression> positiveAtoms, Set<Expression> negativeAtoms,
+			Collection<Expression> externalLiterals, ConstraintTheory constraintTheory) {
 		this.variable = variable;
 		this.positiveAtoms = positiveAtoms;
 		this.negativeAtoms = negativeAtoms;
@@ -112,7 +112,7 @@ public abstract class AbstractSingleVariableNewConstraint extends AbstractExpres
 	 * copy constructor.
 	 * @param other
 	 */
-	protected AbstractSingleVariableNewConstraint (AbstractSingleVariableNewConstraint other) {
+	protected AbstractSingleVariableConstraint (AbstractSingleVariableConstraint other) {
 		this.variable = other.variable;
 		this.positiveAtoms = other.positiveAtoms;
 		this.negativeAtoms = other.negativeAtoms;
@@ -121,7 +121,7 @@ public abstract class AbstractSingleVariableNewConstraint extends AbstractExpres
 	}
 	
 	@Override
-	abstract public AbstractSingleVariableNewConstraint clone();
+	abstract public AbstractSingleVariableConstraint clone();
 	
 	//////////// THEORY RULES
 	
@@ -161,32 +161,32 @@ public abstract class AbstractSingleVariableNewConstraint extends AbstractExpres
 	 */
 	abstract public boolean impliesLiteralWithDifferentAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process);
 
-	public AbstractSingleVariableNewConstraint copyWithNewPositiveAtom(Expression atom) {
-		AbstractSingleVariableNewConstraint result = clone();
+	public AbstractSingleVariableConstraint copyWithNewPositiveAtom(Expression atom) {
+		AbstractSingleVariableConstraint result = clone();
 		Set<Expression> newPositiveAtoms = new LinkedHashSet<Expression>(positiveAtoms);
 		newPositiveAtoms.add(atom);
 		result.positiveAtoms = newPositiveAtoms;
 		return result;
 	}
 
-	public AbstractSingleVariableNewConstraint copyWithNewNegativeAtom(Expression atom) {
-		AbstractSingleVariableNewConstraint result = clone();
+	public AbstractSingleVariableConstraint copyWithNewNegativeAtom(Expression atom) {
+		AbstractSingleVariableConstraint result = clone();
 		Set<Expression> newNegativeAtoms = new LinkedHashSet<Expression>(negativeAtoms);
 		newNegativeAtoms.add(atom);
 		result.negativeAtoms = newNegativeAtoms;
 		return result;
 	}
 
-	public AbstractSingleVariableNewConstraint copyWithNewExternalLiteral(Expression newExternalLiteral) {
-		AbstractSingleVariableNewConstraint result = clone();
+	public AbstractSingleVariableConstraint copyWithNewExternalLiteral(Expression newExternalLiteral) {
+		AbstractSingleVariableConstraint result = clone();
 		Collection<Expression> newExternalLiterals = new LinkedHashSet<Expression>(externalLiterals);
 		newExternalLiterals.add(newExternalLiteral);
 		result.externalLiterals = newExternalLiterals;
 		return result;
 	}
 
-	public AbstractSingleVariableNewConstraint copyWithNewPositiveAndNegativeAtoms(Set<Expression> newPositiveAtoms, Set<Expression> newNegativeAtoms) {
-		AbstractSingleVariableNewConstraint result = clone();
+	public AbstractSingleVariableConstraint copyWithNewPositiveAndNegativeAtoms(Set<Expression> newPositiveAtoms, Set<Expression> newNegativeAtoms) {
+		AbstractSingleVariableConstraint result = clone();
 		result.positiveAtoms = newPositiveAtoms;
 		result.negativeAtoms = newNegativeAtoms;
 		return result;
@@ -206,11 +206,11 @@ public abstract class AbstractSingleVariableNewConstraint extends AbstractExpres
 	 * @param process 
 	 * @return 
 	 */
-	abstract public AbstractSingleVariableNewConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process);
+	abstract public AbstractSingleVariableConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process);
 
 	@Override
 	public SingleVariableNewConstraint conjoin(Expression literal, RewritingProcess process) {
-		AbstractSingleVariableNewConstraint result;
+		AbstractSingleVariableConstraint result;
 		if (literal.equals(TRUE)) {
 			result = this;
 		}

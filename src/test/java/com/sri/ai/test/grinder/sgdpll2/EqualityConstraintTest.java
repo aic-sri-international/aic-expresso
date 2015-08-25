@@ -35,25 +35,25 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.plaindpll;
+package com.sri.ai.test.grinder.sgdpll2;
 
 import java.util.Random;
 
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.plaindpll.tester.ConstraintTheoryTester;
-import com.sri.ai.grinder.plaindpll.theory.EqualityNewConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
+import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 
 @Beta
-public class EqualityNewConstraintTest {
+public class EqualityConstraintTest {
 
 	@Test
 	public void testSingleVariableConstraints() {
 		ConstraintTheoryTester.testSingleVariableConstraints(
-				new Random(1),
-				new EqualityNewConstraintTheory(),
-				20000 /* number of tests */,
+				new Random(),
+				new EqualityConstraintTheory(),
+				500 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -61,9 +61,9 @@ public class EqualityNewConstraintTest {
 	@Test
 	public void testMultiVariableConstraints() {
 		ConstraintTheoryTester.testMultiVariableConstraints(
-				new Random(1),
-				new EqualityNewConstraintTheory(),
-				20000 /* number of tests */,
+				new Random(),
+				new EqualityConstraintTheory(),
+				2000 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}

@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.api;
+package com.sri.ai.grinder.sgdpll2.api;
 
 import static com.sri.ai.grinder.library.equality.formula.FormulaUtil.isInterpretedInPropositionalLogicIncludingConditionals;
 import static com.sri.ai.util.Util.addAllToSet;
@@ -54,6 +54,8 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.plaindpll.api.SingleVariableNewConstraint;
+import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.PredicateIterator;
@@ -71,7 +73,7 @@ import com.sri.ai.util.collect.PredicateIterator;
  *
  */
 @Beta
-public interface NewConstraintTheory extends Theory {
+public interface ConstraintTheory extends Theory {
 	
 	/**
 	 * Make a new single-variable constraint for this constraint theory.

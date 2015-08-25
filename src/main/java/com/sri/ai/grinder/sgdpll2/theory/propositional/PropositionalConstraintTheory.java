@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.theory;
+package com.sri.ai.grinder.sgdpll2.theory.propositional;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.list;
@@ -58,7 +58,7 @@ import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.SingleVariableNewConstraint;
-import com.sri.ai.grinder.plaindpll.core.AbstractNewConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.core.AbstractConstraintTheory;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 
@@ -66,9 +66,9 @@ import com.sri.ai.util.base.BinaryFunction;
 /** 
  * A {@link ConstraintTheory} for propositional logic.
  */
-public class PropositionalNewConstraintTheory extends AbstractNewConstraintTheory {
+public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 
-	public PropositionalNewConstraintTheory() {
+	public PropositionalConstraintTheory() {
 		super();
 		ArrayList<Expression> knownConstants = mapIntoArrayList(list("true", "false"), s -> makeSymbol(s));
 		setTypesForTesting(list(new Categorical("Boolean", 2, knownConstants)));
@@ -123,7 +123,7 @@ public class PropositionalNewConstraintTheory extends AbstractNewConstraintTheor
 
 	@Override
 	public SingleVariableNewConstraint makeSingleVariableConstraint(Expression variable) {
-		return new SingleVariablePropositionalNewConstraint(variable, this);
+		return new SingleVariablePropositionalConstraint(variable, this);
 	}
 
 	@Override
