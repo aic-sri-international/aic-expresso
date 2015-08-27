@@ -52,7 +52,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.plaindpll.core.AbstractSimplifier;
+import com.sri.ai.grinder.plaindpll.core.AbstractMapsBasedSimplifier;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 
@@ -60,7 +60,7 @@ import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 /** 
  * Basic implementation of some methods of {@link ConstraintTheory}.
  */
-abstract public class AbstractConstraintTheory extends AbstractSimplifier implements ConstraintTheory {
+abstract public class AbstractConstraintTheory extends AbstractMapsBasedSimplifier implements ConstraintTheory {
 
 	/**
 	 * Initializes types for testing to be the collection of a single type,

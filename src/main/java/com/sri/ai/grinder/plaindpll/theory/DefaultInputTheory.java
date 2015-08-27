@@ -67,7 +67,7 @@ import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
-import com.sri.ai.grinder.plaindpll.core.AbstractSimplifier;
+import com.sri.ai.grinder.plaindpll.core.AbstractMapsBasedSimplifier;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
 import com.sri.ai.grinder.plaindpll.problemtype.Validity;
@@ -81,7 +81,7 @@ import com.sri.ai.util.base.NullaryFunction;
  *
  */
 @Beta
-public class DefaultInputTheory extends AbstractSimplifier implements InputTheory {
+public class DefaultInputTheory extends AbstractMapsBasedSimplifier implements InputTheory {
 	
 	protected ConstraintTheory constraintTheory;
 	private static Rewriter plus = new Plus();

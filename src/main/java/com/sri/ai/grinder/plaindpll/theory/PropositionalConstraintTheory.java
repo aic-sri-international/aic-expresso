@@ -56,7 +56,6 @@ import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Equivalence;
@@ -286,7 +285,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 							Expressions.FALSE
 							: s;
 
-			Expression result = Simplifier.simplifyWithExtraSyntacticFormTypeSimplifiers(
+			Expression result = MapsBasedSimplifier.simplifyWithExtraSyntacticFormTypeSimplifiers(
 					expression,
 					getFunctionApplicationSimplifiers(),
 					getSyntacticFormTypeSimplifiers(),

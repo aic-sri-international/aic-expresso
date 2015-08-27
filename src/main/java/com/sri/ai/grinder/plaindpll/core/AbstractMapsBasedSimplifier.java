@@ -46,13 +46,18 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.plaindpll.theory.MapsBasedSimplifier;
 import com.sri.ai.util.base.BinaryFunction;
 
 @Beta
 /** 
- * Basic implementation of simplification methods of {@link Simplifier}.
+ * Basic implementation of {@link Simplifier},
+ * based on extensions providing maps from functor or syntactic form types to
+ * elementary simplifiers in the form of {@link BinaryFunction}s
+ * from an {@link Expression} and {@link RewritingProcess} to an {@link Expression},
+ * which are applied exhaustively, in a top-down manner, to expressions to be simplified 
  */
-abstract public class AbstractSimplifier implements Simplifier {
+abstract public class AbstractMapsBasedSimplifier implements Simplifier {
 
 	protected abstract boolean usesDefaultImplementationOfSimplifyByOverridingMakeFunctionApplicationSimplifiersAndMakeSyntacticFormTypeSimplifiers();
 	
@@ -66,7 +71,7 @@ abstract public class AbstractSimplifier implements Simplifier {
 		throwSafeguardError( // OPTIMIZATION: much of this, if not all or even extra information, could be obtained by reflection inside throwAppropriateSafeguardError
 				getClass().getSimpleName(),
 				"makeFunctionApplicationSimplifiers",
-				"AbstractSimplifier",
+				"AbstractMapsBasedSimplifier",
 				"simplify(Expression, RewritingProcess)");
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}
@@ -81,7 +86,7 @@ abstract public class AbstractSimplifier implements Simplifier {
 		throwSafeguardError(
 				getClass().getSimpleName(),
 				"makeSyntacticFormTypeSimplifiers",
-				"AbstractSimplifier",
+				"AbstractMapsBasedSimplifier",
 				"simplify(Expression, RewritingProcess)");
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}
@@ -119,6 +124,6 @@ abstract public class AbstractSimplifier implements Simplifier {
 		myAssert(
 				() -> usesDefaultImplementationOfSimplifyByOverridingMakeFunctionApplicationSimplifiersAndMakeSyntacticFormTypeSimplifiers(),
 				() -> getClass() + " is using default implementation of simplify, even though its usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers method returns false");
-		return Simplifier.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), process);
+		return MapsBasedSimplifier.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), process);
 	}
 }
