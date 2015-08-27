@@ -39,9 +39,11 @@ package com.sri.ai.grinder.plaindpll.api;
 
 import java.util.Collection;
 import java.util.Iterator;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
 
@@ -58,7 +60,7 @@ import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
  *
  */
 @Beta
-public interface ConstraintTheory extends Theory {
+public interface ConstraintTheory extends Simplifier {
 	
 	/**
 	 * Indicates whether an expression is to be considered a variable term in this constraintTheory.

@@ -44,6 +44,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Simplifier;
 
 /**
  * The interface for any rewriting solving symbolic generalized summation problems.
@@ -54,7 +55,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 public interface Solver extends Rewriter {
 
 	/** Returns the input theory used by this solver. */
-	Theory getInputTheory();
+	Simplifier getInputTheory();
 	
 	/** Returns the constraint theory used by this solver. */
 	ConstraintTheory getConstraintTheory();

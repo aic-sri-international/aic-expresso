@@ -41,7 +41,6 @@ import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.mapIntoArrayList;
-import static com.sri.ai.util.Util.myAssert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,7 +52,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.plaindpll.core.AbstractTheory;
+import com.sri.ai.grinder.plaindpll.core.AbstractSimplifier;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 
@@ -61,7 +60,7 @@ import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 /** 
  * Basic implementation of some methods of {@link ConstraintTheory}.
  */
-abstract public class AbstractConstraintTheory extends AbstractTheory implements ConstraintTheory {
+abstract public class AbstractConstraintTheory extends AbstractSimplifier implements ConstraintTheory {
 
 	/**
 	 * Initializes types for testing to be the collection of a single type,
@@ -78,24 +77,6 @@ abstract public class AbstractConstraintTheory extends AbstractTheory implements
 		setTestingVariable("X");
 	}
 	
-	/**
-	 * Default implementation that simplifies an expression by exhaustively simplifying its top expression with
-	 * the simplifiers provided by {@link #makeFunctionApplicationSimplifiers()} and {@link #makeSyntacticFormTypeSimplifiers()},
-	 * then simplifying its sub-expressions,
-	 * and again exhaustively simplifying its top expression.
-	 * @param expression
-	 * @param topSimplifier
-	 * @param process
-	 * @return
-	 */
-	@Override
-	public Expression simplify(Expression expression, RewritingProcess process) {
-		myAssert(
-				() -> usesDefaultImplementationOfSimplifyByOverridingMakeFunctionApplicationSimplifiersAndMakeSyntacticFormTypeSimplifiers(),
-				() -> getClass() + " is using default implementation of simplify, even though its usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers method returns false");
-		return DPLLUtil.simplify(expression, makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers(), process);
-	}
-
 	private Collection<Type> typesForTesting = null;
 	
 	private String testingVariable = null;

@@ -42,7 +42,6 @@ import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getInd
 import static com.sri.ai.util.Util.filter;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.myAssert;
-import static com.sri.ai.util.Util.putAll;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,7 +52,6 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
@@ -72,8 +70,6 @@ import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
 import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.BinaryFunction;
-import com.sri.ai.util.collect.StackedHashMap;
 
 /**
  * Implements utility methods to be used by {@link SGDPLLT} and associated classes.
@@ -94,101 +90,6 @@ import com.sri.ai.util.collect.StackedHashMap;
  */
 @Beta
 public class DPLLUtil {
-
-	/**
-	 * Simplifies the top expression of an equality-logic-with-quantifiers formula until it cannot be simplified anymore.
-	 * Always returns either a symbol or a function application (quantified formulas have their top quantifiers eliminated).
-	 * @param expression
-	 * @param functionApplicationSimplifiers
-	 * @param syntacticFormTypeSimplifiers
-	 * @param process
-	 * @return
-	 */
-	protected static Expression topSimplifyExhaustively(Expression expression, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers, RewritingProcess process) {
-		
-		Expression previous;
-		do {
-			expression = topSimplifyOnce(previous = expression, functionApplicationSimplifiers, syntacticFormTypeSimplifiers, process);
-		} while (expression != previous);
-		
-		return expression;
-	}
-
-	private static Expression topSimplifyOnce(Expression expression, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers, RewritingProcess process) {
-		BinaryFunction<Expression, RewritingProcess, Expression> simplifier;
-		if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
-			simplifier = functionApplicationSimplifiers.get(expression.getFunctor().getValue());
-		}
-		else {
-			simplifier = syntacticFormTypeSimplifiers.get(expression.getSyntacticFormType());
-		}
-		
-		if (simplifier != null) {
-			expression = simplifier.apply(expression, process);
-		}
-		
-		return expression;
-	}
-
-	/**
-	 * @param functionApplicationSimplifiers
-	 * @param syntacticFormSimplifiers
-	 * @return
-	 */
-	public static BinaryFunction<Expression, RewritingProcess, Expression> makeTopExhaustiveSimplifier(Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormSimplifiers) {
-		BinaryFunction<Expression, RewritingProcess, Expression>
-			topExhaustivelySimplifier =
-			(e, p) -> topSimplifyExhaustively(e, functionApplicationSimplifiers, syntacticFormSimplifiers, p);
-		return topExhaustivelySimplifier;
-	}
-
-	/**
-	 * Simplifies an expression based on two maps of simplifiers.
-	 * The first map of simplifiers is a map from functor values (Strings) to a binary function taking a function application of that functor and a rewriting process,
-	 * and performing a simplification on it (or returning the same instance).
-	 * The second map of simplifiers is a map from syntactic type forms (Strings) to a binary function taking an expression of that type and a rewriting process,
-	 * and performing a simplification on it (or returning the same instance).
-	 * These two maps are then used to create a top exhaustive simplifier
-	 * (made with {@link #makeTopExhaustiveSimplifier(Map, Map)}) for use with {@link DPLLUtil#simplify(Expression, BinaryFunction, RewritingProcess).
-	 * @param expression
-	 * @param functionApplicationSimplifiers
-	 * @param syntacticFormSimplifiers
-	 * @param process
-	 * @return
-	 */
-	public static Expression simplify(Expression expression, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormSimplifiers, RewritingProcess process) {
-		BinaryFunction<Expression, RewritingProcess, Expression> topExhaustiveSimplifier = makeTopExhaustiveSimplifier(functionApplicationSimplifiers, syntacticFormSimplifiers);
-		Expression result = simplify(expression, topExhaustiveSimplifier, process);
-		return result;
-	}
-
-	/**
-	 * Simplifies an expression by exhaustively simplifying its top expression with given top simplifier, then simplifying its sub-expressions,
-	 * and again exhaustively simplifying its top expression.
-	 * @param expression
-	 * @param topSimplifier
-	 * @param process
-	 * @return
-	 */
-	public static Expression simplify(
-			Expression expression,
-			BinaryFunction<Expression, RewritingProcess, Expression> topSimplifier,
-			RewritingProcess process) {
-		
-		Expression result = expression;
-		result = topSimplifier.apply(result, process);
-		if (result.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
-			List<Expression> originalArguments = result.getArguments();
-			ArrayList<Expression> simplifiedArguments =
-					Util.mapIntoArrayList(originalArguments, e -> simplify(e, topSimplifier, process));
-			if ( ! Util.sameInstancesInSameIterableOrder(originalArguments, simplifiedArguments)) { // this check speeds cardinality algorithm by about 25%; it is also required for correctness wrt not returning a new instance that is equal to the input.
-				result = Expressions.apply(result.getFunctor(), simplifiedArguments);
-			}
-			result = topSimplifier.apply(result, process);
-		}
-	
-		return result;
-	}
 
 	/**
 	 * A method provided for use with {@link Rewriter} code using contextual constraints.
@@ -289,32 +190,6 @@ public class DPLLUtil {
 
 	public static boolean isSplitter(Expression literal, ConstraintTheory theory, RewritingProcess process) {
 		boolean result = theory.makeSplitterIfPossible(literal, Util.list(), process) != null;
-		return result;
-	}
-
-	/**
-	 * Simplify an expression given maps of function application and syntactic form type simplifiers,
-	 * and an extra simplifier for a given syntactic form type.
-	 * @param expression
-	 * @param functionApplicationSimplifiers
-	 * @param syntacticFormTypeSimplifiers
-	 * @param process
-	 * @param syntacticTypeForm
-	 * @param simplifier
-	 * @return
-	 */
-	public static Expression simplifyWithExtraSyntacticFormTypeSimplifiers(
-			Expression expression,
-			Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers,
-			RewritingProcess process,
-			Object... syntacticFormTypesAndBinaryFunctionsFromExpressionRewritingProcessToExpression) {
-		
-		Map<String, BinaryFunction<Expression, RewritingProcess, Expression>>
-		mySyntacticFormTypeSimplifiers = new StackedHashMap<String, BinaryFunction<Expression, RewritingProcess, Expression>>(syntacticFormTypeSimplifiers);
-		
-		putAll(mySyntacticFormTypeSimplifiers, syntacticFormTypesAndBinaryFunctionsFromExpressionRewritingProcessToExpression);
-		
-		Expression result = simplify(expression, functionApplicationSimplifiers, mySyntacticFormTypeSimplifiers, process);
 		return result;
 	}
 

@@ -59,6 +59,7 @@ import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -326,7 +327,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 		
 		@Override
 		public Expression normalizeExpressionWithoutLiterals(Expression expression, RewritingProcess process) {
-			Expression result = DPLLUtil.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap(), process);
+			Expression result = Simplifier.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap(), process);
 			return result;
 		}
 
@@ -465,7 +466,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 			BinaryFunction<Expression, RewritingProcess, Expression> representativeReplacer =
 					(BinaryFunction<Expression, RewritingProcess, Expression>) (s, p) -> getRepresentative(s, p);
 
-					Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifiers(
+					Expression result = Simplifier.simplifyWithExtraSyntacticFormTypeSimplifiers(
 							expression,
 							theory.makeFunctionApplicationSimplifiers(),
 							theory.makeSyntacticFormTypeSimplifiers(),

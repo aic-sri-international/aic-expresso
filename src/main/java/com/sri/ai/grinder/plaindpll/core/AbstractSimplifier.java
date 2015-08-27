@@ -45,22 +45,20 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.plaindpll.api.Theory;
-import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.util.base.BinaryFunction;
 
 @Beta
 /** 
- * Basic implementation of simplification methods of {@link Theory}.
+ * Basic implementation of simplification methods of {@link Simplifier}.
  */
-abstract public class AbstractTheory implements Theory {
+abstract public class AbstractSimplifier implements Simplifier {
 
 	protected abstract boolean usesDefaultImplementationOfSimplifyByOverridingMakeFunctionApplicationSimplifiersAndMakeSyntacticFormTypeSimplifiers();
 	
 	/**
 	 * Invoked only one to make a map from functors's getValue() values (Strings) to a function mapping a
-	 * function application of that functor and a rewriting process to an equivalent, simplified formula
-	 * according to this constraintTheoryWithEquality.
+	 * function application of that functor and a rewriting process to an equivalent, simplified expression.
 	 * Only required if {@link #simplify(Expression, RewritingProcess)} is not overridden by code not using it. 
 	 * @return
 	 */
@@ -68,15 +66,14 @@ abstract public class AbstractTheory implements Theory {
 		throwSafeguardError( // OPTIMIZATION: much of this, if not all or even extra information, could be obtained by reflection inside throwAppropriateSafeguardError
 				getClass().getSimpleName(),
 				"makeFunctionApplicationSimplifiers",
-				"AbstractConstraintTheory",
+				"AbstractSimplifier",
 				"simplify(Expression, RewritingProcess)");
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}
 
 	/**
 	 * Invoked only one to make a map from syntactic form types (Strings) to a function mapping a
-	 * function application of that functor and a rewriting process to an equivalent, simplified formula
-	 * according to this constraintTheoryWithEquality.
+	 * function application of that functor and a rewriting process to an equivalent, simplified expression.
 	 * Only required if {@link #simplify(Expression, RewritingProcess)} is not overridden by code not using it. 
 	 * @return
 	 */
@@ -84,7 +81,7 @@ abstract public class AbstractTheory implements Theory {
 		throwSafeguardError(
 				getClass().getSimpleName(),
 				"makeSyntacticFormTypeSimplifiers",
-				"AbstractConstraintTheory",
+				"AbstractSimplifier",
 				"simplify(Expression, RewritingProcess)");
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}
@@ -122,6 +119,6 @@ abstract public class AbstractTheory implements Theory {
 		myAssert(
 				() -> usesDefaultImplementationOfSimplifyByOverridingMakeFunctionApplicationSimplifiersAndMakeSyntacticFormTypeSimplifiers(),
 				() -> getClass() + " is using default implementation of simplify, even though its usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers method returns false");
-		return DPLLUtil.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), process);
+		return Simplifier.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), process);
 	}
 }

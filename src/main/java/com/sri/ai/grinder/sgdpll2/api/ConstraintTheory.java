@@ -53,8 +53,8 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.library.boole.Not;
-import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.sgdpll2.core.SingleVariableConstraint;
 import com.sri.ai.util.Util;
@@ -73,7 +73,7 @@ import com.sri.ai.util.collect.PredicateIterator;
  *
  */
 @Beta
-public interface ConstraintTheory extends Theory {
+public interface ConstraintTheory extends Simplifier {
 	
 	/**
 	 * Make a new single-variable constraint for this constraint theory.

@@ -56,6 +56,7 @@ import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Equivalence;
@@ -67,7 +68,6 @@ import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
-import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.math.Rational;
@@ -286,7 +286,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 							Expressions.FALSE
 							: s;
 
-			Expression result = DPLLUtil.simplifyWithExtraSyntacticFormTypeSimplifiers(
+			Expression result = Simplifier.simplifyWithExtraSyntacticFormTypeSimplifiers(
 					expression,
 					getFunctionApplicationSimplifiers(),
 					getSyntacticFormTypeSimplifiers(),

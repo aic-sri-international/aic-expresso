@@ -35,37 +35,50 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.api;
+package com.sri.ai.grinder.plaindpll.theory;
+
+import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.util.base.NullaryFunction;
+import com.sri.ai.grinder.plaindpll.core.AbstractSimplifier;
+import com.sri.ai.util.base.BinaryFunction;
 
 /**
- * An interface for input theories to be plugged into quantifier problems.
- * <p>
- * An input theory is a {@link Simplifier} specialized in input expressions inside quantifiers.
- * As such, it knows about generating random examples of them.
+ * A default {@link Simplifier} receiving its simplifiers at construction time.
  * 
  * @author braz
  *
  */
 @Beta
-public interface InputTheory extends Simplifier {
+public class DefaultSimplifier extends AbstractSimplifier {
 	
-	ConstraintTheory getConstraintTheory();
+	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers;
+	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers;
 	
-	/**
-	 * Generates a random input expression in this theory, of a given target type.
-	 * @param targetType the type of the resulting random expression 
-	 * @param getType randomly returns a String naming a type in the problem in question 
-	 * @param getVariable randomly returns an Expression representing a variable in the problem in question, of the given type
-	 * @param getConstant randomly returns an Expression representing a constant in the problem in question, of the given type
-	 * @return a random expression in this input theory
-	 */
-	Expression getRandomInputExpression(
-			String targetType,
-			NullaryFunction<String> getType, Function<String, Expression> getVariable, Function<String, Expression> getConstant);
+	public DefaultSimplifier(
+			Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers,
+			Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers) {
+		
+		super();
+		this.functionApplicationSimplifiers = functionApplicationSimplifiers;
+		this.syntacticFormTypeSimplifiers = syntacticFormTypeSimplifiers;
+	}
+
+	@Override
+	protected boolean usesDefaultImplementationOfSimplifyByOverridingMakeFunctionApplicationSimplifiersAndMakeSyntacticFormTypeSimplifiers() {
+		return true;
+	}
+
+	@Override
+	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeFunctionApplicationSimplifiers() {
+		return functionApplicationSimplifiers;
+	}
+
+	@Override
+	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeSyntacticFormTypeSimplifiers() {
+		return syntacticFormTypeSimplifiers;
+	}
 }
