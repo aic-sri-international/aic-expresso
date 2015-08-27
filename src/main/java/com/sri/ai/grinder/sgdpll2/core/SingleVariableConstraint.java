@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.api;
+package com.sri.ai.grinder.sgdpll2.core;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -47,12 +47,12 @@ import com.sri.ai.grinder.sgdpll2.api.Constraint;
  * @author braz
  *
  */
-public interface SingleVariableNewConstraint extends Expression, Constraint {
+public interface SingleVariableConstraint extends Expression, Constraint {
 
 	/**
 	 * @return the variable term constrained by this constraint.
 	 */
 	Expression getVariable();
 	
-	SingleVariableNewConstraint conjoin(Expression literal, RewritingProcess process);
+	SingleVariableConstraint conjoin(Expression literal, RewritingProcess process);
 }

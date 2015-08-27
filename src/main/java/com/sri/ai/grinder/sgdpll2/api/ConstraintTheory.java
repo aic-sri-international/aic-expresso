@@ -54,9 +54,9 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Not;
-import com.sri.ai.grinder.plaindpll.api.SingleVariableNewConstraint;
 import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
+import com.sri.ai.grinder.sgdpll2.core.SingleVariableConstraint;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.PredicateIterator;
 
@@ -80,7 +80,7 @@ public interface ConstraintTheory extends Theory {
 	 * @param variable 
 	 * @return
 	 */
-	SingleVariableNewConstraint makeSingleVariableConstraint(Expression variable);
+	SingleVariableConstraint makeSingleVariableConstraint(Expression variable);
 	
 	/**
 	 * Indicates whether single-variable constraint solver is complete (for its variable).
@@ -96,6 +96,8 @@ public interface ConstraintTheory extends Theory {
 	 * @return
 	 */
 	boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process);
+	
+	Expression getLiteralNegation(Expression literal);
 	
 	/**
 	 * Provides a collection of all generalized variables (according to this theory) in a given expression,

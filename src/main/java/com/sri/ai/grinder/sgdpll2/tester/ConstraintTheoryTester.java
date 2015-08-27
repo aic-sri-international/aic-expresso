@@ -52,7 +52,7 @@ import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.core.MultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.DefaultMultiVariableConstraint;
 import com.sri.ai.util.base.NullaryFunction;
 
 /**
@@ -135,7 +135,7 @@ public class ConstraintTheoryTester {
 	
 	private static void testMultiVariableConstraints(Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
-		NullaryFunction<Constraint> makeConstraint = () -> new MultiVariableConstraint(constraintTheory);
+		NullaryFunction<Constraint> makeConstraint = () -> new DefaultMultiVariableConstraint(constraintTheory);
 
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		

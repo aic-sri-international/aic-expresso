@@ -40,7 +40,7 @@ package com.sri.ai.expresso.api;
 import com.google.common.annotations.Beta;
 
 /**
- * An {@link QuantifiedExpression} of the form <code>IDENTIFIER <index expressions> : <body></code>.
+ * An {@link ContextDependentProblem} of the form <code>IDENTIFIER <index expressions> : <body></code>.
  * Meant as a base interface for quantified formulas and lambda expressions.
  * 
  * @author braz

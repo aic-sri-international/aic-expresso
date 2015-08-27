@@ -93,6 +93,11 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 		}
 		return result;
 	}
+	
+	@Override
+	public SingleVariableEqualityConstraint conjoin(Expression literal, RewritingProcess process) {
+		return (SingleVariableEqualityConstraint) super.conjoin(literal, process);
+	}
 
 	@Override
 	public Expression fromNegativeAtomToLiteral(Expression negativeAtom) {

@@ -41,20 +41,18 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.contains;
 import static com.sri.ai.util.Util.list;
-import static com.sri.ai.util.Util.removeFromSetNonDestructively;
+import static com.sri.ai.util.Util.removeFromArrayListNonDestructively;
 import static com.sri.ai.util.Util.thereExists;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.plaindpll.api.SingleVariableNewConstraint;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.util.Util;
@@ -75,22 +73,22 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public abstract class AbstractSingleVariableConstraint extends AbstractExpressionWrapper implements SingleVariableNewConstraint {
+public abstract class AbstractSingleVariableConstraint extends AbstractExpressionWrapper implements SingleVariableConstraint {
 
 	private static final long serialVersionUID = 1L;
 	
 	private Expression variable;
-	private Set<Expression> positiveAtoms;
-	private Set<Expression> negativeAtoms;
-	private Collection<Expression> externalLiterals; // literals not on variable
+	private ArrayList<Expression> positiveAtoms;
+	private ArrayList<Expression> negativeAtoms;
+	private ArrayList<Expression> externalLiterals; // literals not on variable
 	private ConstraintTheory constraintTheory;
 	
 	public AbstractSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory) {
-		this(variable, Util.set(), Util.set(), Util.set(), constraintTheory);
+		this(variable, Util.arrayList(), Util.arrayList(), Util.arrayList(), constraintTheory);
 	}
 	
-	public AbstractSingleVariableConstraint(Expression variable, Set<Expression> positiveAtoms, Set<Expression> negativeAtoms,
-			Collection<Expression> externalLiterals, ConstraintTheory constraintTheory) {
+	public AbstractSingleVariableConstraint(Expression variable, ArrayList<Expression> positiveAtoms, ArrayList<Expression> negativeAtoms,
+			ArrayList<Expression> externalLiterals, ConstraintTheory constraintTheory) {
 		this.variable = variable;
 		this.positiveAtoms = positiveAtoms;
 		this.negativeAtoms = negativeAtoms;
@@ -123,6 +121,24 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	@Override
 	abstract public AbstractSingleVariableConstraint clone();
 	
+	//////////// GETTERS
+	
+	public List<Expression> getPositiveAtoms() {
+		return Collections.unmodifiableList(positiveAtoms);
+	}
+
+	public List<Expression> getNegativeAtoms() {
+		return Collections.unmodifiableList(negativeAtoms);
+	}
+
+	public List<Expression> getExternalLiterals() {
+		return Collections.unmodifiableList(externalLiterals);
+	}
+
+	public ConstraintTheory getConstraintTheory() {
+		return constraintTheory;
+	}
+
 	//////////// THEORY RULES
 	
 	/**
@@ -163,7 +179,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 
 	public AbstractSingleVariableConstraint copyWithNewPositiveAtom(Expression atom) {
 		AbstractSingleVariableConstraint result = clone();
-		Set<Expression> newPositiveAtoms = new LinkedHashSet<Expression>(positiveAtoms);
+		ArrayList<Expression> newPositiveAtoms = new ArrayList<Expression>(positiveAtoms);
 		newPositiveAtoms.add(atom);
 		result.positiveAtoms = newPositiveAtoms;
 		return result;
@@ -171,7 +187,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 
 	public AbstractSingleVariableConstraint copyWithNewNegativeAtom(Expression atom) {
 		AbstractSingleVariableConstraint result = clone();
-		Set<Expression> newNegativeAtoms = new LinkedHashSet<Expression>(negativeAtoms);
+		ArrayList<Expression> newNegativeAtoms = new ArrayList<Expression>(negativeAtoms);
 		newNegativeAtoms.add(atom);
 		result.negativeAtoms = newNegativeAtoms;
 		return result;
@@ -179,13 +195,13 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 
 	public AbstractSingleVariableConstraint copyWithNewExternalLiteral(Expression newExternalLiteral) {
 		AbstractSingleVariableConstraint result = clone();
-		Collection<Expression> newExternalLiterals = new LinkedHashSet<Expression>(externalLiterals);
+		ArrayList<Expression> newExternalLiterals = new ArrayList<Expression>(externalLiterals);
 		newExternalLiterals.add(newExternalLiteral);
 		result.externalLiterals = newExternalLiterals;
 		return result;
 	}
 
-	public AbstractSingleVariableConstraint copyWithNewPositiveAndNegativeAtoms(Set<Expression> newPositiveAtoms, Set<Expression> newNegativeAtoms) {
+	public AbstractSingleVariableConstraint copyWithNewPositiveAndNegativeAtoms(ArrayList<Expression> newPositiveAtoms, ArrayList<Expression> newNegativeAtoms) {
 		AbstractSingleVariableConstraint result = clone();
 		result.positiveAtoms = newPositiveAtoms;
 		result.negativeAtoms = newNegativeAtoms;
@@ -209,7 +225,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	abstract public AbstractSingleVariableConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process);
 
 	@Override
-	public SingleVariableNewConstraint conjoin(Expression literal, RewritingProcess process) {
+	public SingleVariableConstraint conjoin(Expression literal, RewritingProcess process) {
 		AbstractSingleVariableConstraint result;
 		if (literal.equals(TRUE)) {
 			result = this;
@@ -224,8 +240,8 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 			Pair<Boolean, Expression> signAndAtom = fromLiteralOnVariableToSignAndAtom(getVariable(), literal);
 			boolean    sign = signAndAtom.first;
 			Expression atom = signAndAtom.second;
-			Set<Expression>     sameSignAtoms = sign? positiveAtoms : negativeAtoms;
-			Set<Expression> oppositeSignAtoms = sign? negativeAtoms : positiveAtoms;
+			ArrayList<Expression>     sameSignAtoms = sign? positiveAtoms : negativeAtoms;
+			ArrayList<Expression> oppositeSignAtoms = sign? negativeAtoms : positiveAtoms;
 			if (sameSignAtoms.contains(atom)) {
 				result = this; // redundant
 			}
@@ -252,8 +268,10 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 				}
 				else {
 					// remove redundant literals and add new one
-					Set<Expression> newPositiveAtoms = removeFromSetNonDestructively(positiveAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, true,  p, process));
-					Set<Expression> newNegativeAtoms = removeFromSetNonDestructively(negativeAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, false, p, process));
+					ArrayList<Expression> newPositiveAtoms = 
+							removeFromArrayListNonDestructively(positiveAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, true,  p, process));
+					ArrayList<Expression> newNegativeAtoms = 
+							removeFromArrayListNonDestructively(negativeAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, false, p, process));
 					if (sign) {
 						newPositiveAtoms.add(atom);
 					}

@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.sgdpll2.theory.propositional;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.library.FunctorConstants.NOT;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.mapIntoArrayList;
@@ -57,8 +58,8 @@ import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.plaindpll.api.SingleVariableNewConstraint;
 import com.sri.ai.grinder.sgdpll2.core.AbstractConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.core.SingleVariableConstraint;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 
@@ -122,7 +123,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public SingleVariableNewConstraint makeSingleVariableConstraint(Expression variable) {
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable) {
 		return new SingleVariablePropositionalConstraint(variable, this);
 	}
 
@@ -134,5 +135,17 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	@Override
 	public Expression makeRandomAtomOn(String variable, Random random, RewritingProcess process) {
 		return makeSymbol(variable);
+	}
+
+	@Override
+	public Expression getLiteralNegation(Expression literal) {
+		Expression result;
+		if (literal.hasFunctor(NOT)) {
+			result = literal;
+		}
+		else {
+			result = Not.make(literal);
+		}
+		return result;
 	}
 }

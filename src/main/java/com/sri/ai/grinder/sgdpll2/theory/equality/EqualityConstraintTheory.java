@@ -37,9 +37,13 @@
  */
 package com.sri.ai.grinder.sgdpll2.theory.equality;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
+import static com.sri.ai.grinder.library.FunctorConstants.NOT;
 import static com.sri.ai.util.Util.pickUniformly;
 
 import java.util.Map;
@@ -58,8 +62,8 @@ import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.plaindpll.api.SingleVariableNewConstraint;
 import com.sri.ai.grinder.sgdpll2.core.AbstractConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.core.SingleVariableConstraint;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.collect.PredicateIterator;
@@ -119,7 +123,7 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public SingleVariableNewConstraint makeSingleVariableConstraint(Expression variable) {
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable) {
 		return new SingleVariableEqualityConstraint(variable, this);
 	}
 
@@ -164,5 +168,30 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 		Expression atom = makeRandomAtomOn(variable, random, process);
 		Expression literal = atom.hasFunctor(EQUALITY)? random.nextBoolean()? atom : Disequality.make(atom.get(0), atom.get(1)) : atom;
 		return literal;
+	}
+
+	@Override
+	public Expression getLiteralNegation(Expression literal) {
+		// TODO: merge this with solver's literal manipulation methods
+		Expression result;
+		if (literal.hasFunctor(NOT) && (literal.get(0).hasFunctor(EQUALITY) || literal.get(0).hasFunctor(DISEQUALITY))) {
+			result = literal;
+		}
+		else if (literal.hasFunctor(EQUALITY)) {
+			result = apply(DISEQUALITY, literal.get(0), literal.get(1));
+		}
+		else if (literal.hasFunctor(DISEQUALITY)) {
+			result = apply(EQUALITY, literal.get(0), literal.get(1));
+		} 
+		else if (literal.equals(TRUE)) {
+			result = FALSE;
+		} 
+		else if (literal.equals(FALSE)) {
+			result = TRUE;
+		} 
+		else {
+			throw new Error("Invalid literal: " + literal);
+		}
+		return result;
 	}
 }
