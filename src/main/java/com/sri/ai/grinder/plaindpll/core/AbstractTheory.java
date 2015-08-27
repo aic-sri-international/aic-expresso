@@ -55,43 +55,61 @@ import com.sri.ai.util.base.BinaryFunction;
  */
 abstract public class AbstractTheory implements Theory {
 
-	protected abstract boolean usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers();
+	protected abstract boolean usesDefaultImplementationOfSimplifyByOverridingMakeFunctionApplicationSimplifiersAndMakeSyntacticFormTypeSimplifiers();
 	
 	/**
-	 * Provides a map from functors's getValue() values (Strings) to a function mapping a
+	 * Invoked only one to make a map from functors's getValue() values (Strings) to a function mapping a
 	 * function application of that functor and a rewriting process to an equivalent, simplified formula
 	 * according to this constraintTheoryWithEquality.
 	 * Only required if {@link #simplify(Expression, RewritingProcess)} is not overridden by code not using it. 
 	 * @return
 	 */
-	protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers() {
+	protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeFunctionApplicationSimplifiers() {
 		throwSafeguardError( // OPTIMIZATION: much of this, if not all or even extra information, could be obtained by reflection inside throwAppropriateSafeguardError
 				getClass().getSimpleName(),
-				"getFunctionApplicationSimplifiers",
+				"makeFunctionApplicationSimplifiers",
 				"AbstractConstraintTheory",
 				"simplify(Expression, RewritingProcess)");
 		return null; // never used, as safeguardCheck throws an error no matter what.
 	}
 
 	/**
-	 * Provides a map from syntactic form types (Strings) to a function mapping a
+	 * Invoked only one to make a map from syntactic form types (Strings) to a function mapping a
 	 * function application of that functor and a rewriting process to an equivalent, simplified formula
 	 * according to this constraintTheoryWithEquality.
 	 * Only required if {@link #simplify(Expression, RewritingProcess)} is not overridden by code not using it. 
 	 * @return
 	 */
-	protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
+	protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeSyntacticFormTypeSimplifiers() {
 		throwSafeguardError(
 				getClass().getSimpleName(),
-				"getSyntacticFormTypeSimplifiers",
+				"makeSyntacticFormTypeSimplifiers",
 				"AbstractConstraintTheory",
 				"simplify(Expression, RewritingProcess)");
 		return null; // never used, as safeguardCheck throws an error no matter what.
+	}
+
+	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers;
+	
+	protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers() {
+		if (functionApplicationSimplifiers == null) {
+			functionApplicationSimplifiers = makeFunctionApplicationSimplifiers();
+		}
+		return functionApplicationSimplifiers;
+	}
+
+	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers;
+
+	protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
+		if (syntacticFormTypeSimplifiers == null) {
+			syntacticFormTypeSimplifiers = makeSyntacticFormTypeSimplifiers();
+		}
+		return syntacticFormTypeSimplifiers;
 	}
 
 	/**
 	 * Default implementation that simplifies an expression by exhaustively simplifying its top expression with
-	 * the simplifiers provided by {@link #getFunctionApplicationSimplifiers()} and {@link #getSyntacticFormTypeSimplifiers()},
+	 * the simplifiers provided by {@link #makeFunctionApplicationSimplifiers()} and {@link #makeSyntacticFormTypeSimplifiers()},
 	 * then simplifying its sub-expressions,
 	 * and again exhaustively simplifying its top expression.
 	 * @param expression
@@ -102,7 +120,7 @@ abstract public class AbstractTheory implements Theory {
 	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {
 		myAssert(
-				() -> usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers(),
+				() -> usesDefaultImplementationOfSimplifyByOverridingMakeFunctionApplicationSimplifiersAndMakeSyntacticFormTypeSimplifiers(),
 				() -> getClass() + " is using default implementation of simplify, even though its usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers method returns false");
 		return DPLLUtil.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), process);
 	}

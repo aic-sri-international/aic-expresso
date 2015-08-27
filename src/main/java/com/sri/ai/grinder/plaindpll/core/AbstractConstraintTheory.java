@@ -66,24 +66,6 @@ import com.sri.ai.util.collect.PredicateIterator;
 abstract public class AbstractConstraintTheory extends AbstractTheory implements ConstraintTheory {
 
 	/**
-	 * Default implementation that simplifies an expression by exhaustively simplifying its top expression with
-	 * the simplifiers provided by {@link #getFunctionApplicationSimplifiers()} and {@link #getSyntacticFormTypeSimplifiers()},
-	 * then simplifying its sub-expressions,
-	 * and again exhaustively simplifying its top expression.
-	 * @param expression
-	 * @param topSimplifier
-	 * @param process
-	 * @return
-	 */
-	@Override
-	public Expression simplify(Expression expression, RewritingProcess process) {
-		myAssert(
-				() -> usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers(),
-				() -> getClass() + " is using default implementation of simplify, even though its usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers method returns false");
-		return DPLLUtil.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), process);
-	}
-
-	/**
 	 * This default implementation searches the entire splitter and its sub-expressions for an index;
 	 * theories with more restricted splitters may want to implement more efficient versions.
 	 */

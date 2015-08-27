@@ -80,7 +80,7 @@ abstract public class AbstractConstraintTheory extends AbstractTheory implements
 	
 	/**
 	 * Default implementation that simplifies an expression by exhaustively simplifying its top expression with
-	 * the simplifiers provided by {@link #getFunctionApplicationSimplifiers()} and {@link #getSyntacticFormTypeSimplifiers()},
+	 * the simplifiers provided by {@link #makeFunctionApplicationSimplifiers()} and {@link #makeSyntacticFormTypeSimplifiers()},
 	 * then simplifying its sub-expressions,
 	 * and again exhaustively simplifying its top expression.
 	 * @param expression
@@ -91,9 +91,9 @@ abstract public class AbstractConstraintTheory extends AbstractTheory implements
 	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {
 		myAssert(
-				() -> usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers(),
+				() -> usesDefaultImplementationOfSimplifyByOverridingMakeFunctionApplicationSimplifiersAndMakeSyntacticFormTypeSimplifiers(),
 				() -> getClass() + " is using default implementation of simplify, even though its usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers method returns false");
-		return DPLLUtil.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), process);
+		return DPLLUtil.simplify(expression, makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers(), process);
 	}
 
 	private Collection<Type> typesForTesting = null;

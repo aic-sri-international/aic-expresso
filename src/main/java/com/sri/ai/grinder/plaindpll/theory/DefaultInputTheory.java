@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.plaindpll.theory;
 
+import static com.sri.ai.util.Util.map;
+
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
@@ -69,7 +71,6 @@ import com.sri.ai.grinder.plaindpll.core.AbstractTheory;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
 import com.sri.ai.grinder.plaindpll.problemtype.Validity;
-import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.NullaryFunction;
 
@@ -95,81 +96,76 @@ public class DefaultInputTheory extends AbstractTheory implements InputTheory {
 	}
 
 	private static Rewriter times = new Times();
-	private static Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers = Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
-						FunctorConstants.EQUALITY,        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						Equality.simplify(f, process),
-	
-						FunctorConstants.DISEQUALITY,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						Disequality.simplify(f, process),
-	
-						FunctorConstants.AND,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						And.simplify(f),
-	
-						FunctorConstants.OR,              (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						Or.simplify(f),
-	
-						FunctorConstants.NOT,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						Not.simplify(f),
-	
-						FunctorConstants.IF_THEN_ELSE,    (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						IfThenElse.simplify(f),
-	
-						FunctorConstants.EQUIVALENCE,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						Equivalence.simplify(f),
-	
-						FunctorConstants.IMPLICATION,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						Implication.simplify(f),
-	
-						FunctorConstants.CARDINALITY,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						{ Expression type = (Expression) process.getGlobalObject(f); return type == null? f : type; },
-	
-						FunctorConstants.TIMES,           (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						times.rewrite(f, process),
-	
-						FunctorConstants.DIVISION,        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						Division.simplify(f),
-	
-						FunctorConstants.PLUS,            (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						plus.rewrite(f, process),
-	
-						FunctorConstants.MINUS,           (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						(f.numberOfArguments() == 2? Minus.simplify(f) : f),
-	
-						FunctorConstants.LESS_THAN,                 (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						LessThan.simplify(f),
-	
-						FunctorConstants.LESS_THAN_OR_EQUAL_TO,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						LessThanOrEqualTo.simplify(f),
-	
-						FunctorConstants.GREATER_THAN,              (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						GreaterThan.simplify(f),
-	
-						FunctorConstants.GREATER_THAN_OR_EQUAL_TO,  (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						GreaterThanOrEqualTo.simplify(f)
-	
-						);
-
 	@Override
-	protected boolean usesDefaultImplementationOfSimplifyByOverridingGetFunctionApplicationSimplifiersAndGetSyntacticFormTypeSimplifiers() {
+	protected boolean usesDefaultImplementationOfSimplifyByOverridingMakeFunctionApplicationSimplifiersAndMakeSyntacticFormTypeSimplifiers() {
 		return true;
 	}
 
-	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers = Util.<String, BinaryFunction<Expression, RewritingProcess, Expression>>map(
-						ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						(new SGDPLLT(this, new Validity())).rewrite(f, process),
-	
-						ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
-						(new SGDPLLT(this, new Satisfiability())).rewrite(f, process)
-						);
-
 	@Override
-	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers() {
-		return functionApplicationSimplifiers;
+	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeFunctionApplicationSimplifiers() {
+		return map(
+				FunctorConstants.EQUALITY,        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				Equality.simplify(f, process),
+
+				FunctorConstants.DISEQUALITY,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				Disequality.simplify(f, process),
+
+				FunctorConstants.AND,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				And.simplify(f),
+
+				FunctorConstants.OR,              (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				Or.simplify(f),
+
+				FunctorConstants.NOT,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				Not.simplify(f),
+
+				FunctorConstants.IF_THEN_ELSE,    (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				IfThenElse.simplify(f),
+
+				FunctorConstants.EQUIVALENCE,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				Equivalence.simplify(f),
+
+				FunctorConstants.IMPLICATION,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				Implication.simplify(f),
+
+				FunctorConstants.CARDINALITY,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				{ Expression type = (Expression) process.getGlobalObject(f); return type == null? f : type; },
+
+				FunctorConstants.TIMES,           (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				times.rewrite(f, process),
+
+				FunctorConstants.DIVISION,        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				Division.simplify(f),
+
+				FunctorConstants.PLUS,            (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				plus.rewrite(f, process),
+
+				FunctorConstants.MINUS,           (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				(f.numberOfArguments() == 2? Minus.simplify(f) : f),
+
+				FunctorConstants.LESS_THAN,                 (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				LessThan.simplify(f),
+
+				FunctorConstants.LESS_THAN_OR_EQUAL_TO,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				LessThanOrEqualTo.simplify(f),
+
+				FunctorConstants.GREATER_THAN,              (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				GreaterThan.simplify(f),
+
+				FunctorConstants.GREATER_THAN_OR_EQUAL_TO,  (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				GreaterThanOrEqualTo.simplify(f)
+				);
 	}
 
 	@Override
-	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
-		return syntacticFormTypeSimplifiers;
+	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeSyntacticFormTypeSimplifiers() {
+		return map(
+				ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				(new SGDPLLT(this, new Validity())).rewrite(f, process),
+
+				ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				(new SGDPLLT(this, new Satisfiability())).rewrite(f, process)
+				);
 	}
 
 	@Override
