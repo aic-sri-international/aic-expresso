@@ -44,11 +44,9 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
-import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.collect.FunctionIterator;
 
 /**
@@ -66,25 +64,25 @@ public class MergingMapBasedSimplifier extends DefaultMapBasedSimplifier {
 	}
 
 	private static
-	Iterator<Map<String, BinaryFunction<Expression, RewritingProcess, Expression>>>
+	Iterator<Map<String, Simplifier>>
 	functionApplicationSimplifiersIterator(MapBasedSimplifier... simplifiers) {
 		return FunctionIterator.make(simplifiersList(simplifiers), fromSimplifierToFunctionApplicationSimplifiers());
 	}
 
 	private static
-	Iterator<Map<String, BinaryFunction<Expression, RewritingProcess, Expression>>>
+	Iterator<Map<String, Simplifier>>
 	syntacticFormTypeSimplifiers(MapBasedSimplifier... simplifiers) {
 		return FunctionIterator.make(simplifiersList(simplifiers), fromSimplifierToSyntacticFormTypeSimplifiers());
 	}
 
 	private static
-	Function<MapBasedSimplifier, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>>>
+	Function<MapBasedSimplifier, Map<String, Simplifier>>
 	fromSimplifierToFunctionApplicationSimplifiers() {
 		return s -> s.getFunctionApplicationSimplifiers();
 	}
 
 	private static
-	Function<MapBasedSimplifier, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>>>
+	Function<MapBasedSimplifier, Map<String, Simplifier>>
 	fromSimplifierToSyntacticFormTypeSimplifiers() {
 		return s -> s.getSyntacticFormTypeSimplifiers();
 	}

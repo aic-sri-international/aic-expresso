@@ -153,7 +153,7 @@ public class SimplifyFormulaTest {
 	private void runTest(Expression expression, Expression expected) {
 		Expression actual;
 		Simplifier theory = new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory()));
-		actual = theory.simplify(expression, new DefaultRewritingProcess(expression, null));
+		actual = theory.apply(expression, new DefaultRewritingProcess(expression, null));
 		Assert.assertEquals(expected, actual);
 	}
 

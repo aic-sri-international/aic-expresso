@@ -134,7 +134,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		Pair<Expression, IndexExpressionsSet> inputAndIndexExpressions = problemType.getExpressionAndIndexExpressionsFromRewriterProblemArgument(expression, process);
 		Expression input = inputAndIndexExpressions.first;
 		IndexExpressionsSet indexExpressions = inputAndIndexExpressions.second;
-		Expression simplifiedInput = inputTheory.simplify(input, process); // TODO: eventually this should not be needed as simplification should be lazy 
+		Expression simplifiedInput = inputTheory.apply(input, process); // TODO: eventually this should not be needed as simplification should be lazy 
 		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
 		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
 		Expression result = solve(simplifiedInput, indices, subProcess);
@@ -182,7 +182,7 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		process.initializeDPLLContextualConstraint(contextualConstraint);
 
 		Constraint constraint = constraintTheory.makeConstraint(indices);
-		Expression simplifiedInput = inputTheory.simplify(input, process);
+		Expression simplifiedInput = inputTheory.apply(input, process);
 		Expression result = solve(simplifiedInput, indices, constraint, process);
 		if (result == null) { // constraint is unsatisfiable, so result is identity element.
 			result = problemType.getGroup().additiveIdentityElement();

@@ -49,8 +49,8 @@ import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
@@ -62,31 +62,33 @@ import com.sri.ai.util.collect.StackedHashMap;
 @Beta
 public class DefaultMapBasedSimplifier implements MapBasedSimplifier {
 	
-	protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers;
-	protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers;
+	protected Map<String, Simplifier> functionApplicationSimplifiers;
+	protected Map<String, Simplifier> syntacticFormTypeSimplifiers;
 
 	public DefaultMapBasedSimplifier(
-			Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers,
-			Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers) {
+			Map<String, Simplifier> functionApplicationSimplifiers,
+			Map<String, Simplifier> syntacticFormTypeSimplifiers) {
 		
 		super();
 		this.functionApplicationSimplifiers = functionApplicationSimplifiers;
 		this.syntacticFormTypeSimplifiers = syntacticFormTypeSimplifiers;
 	}
 
-	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers() {
+	@Override
+	public Map<String, Simplifier> getFunctionApplicationSimplifiers() {
 		return functionApplicationSimplifiers;
 	}
 
-	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
+	@Override
+	public Map<String, Simplifier> getSyntacticFormTypeSimplifiers() {
 		return syntacticFormTypeSimplifiers;
 	}
 
-	public void setFunctionApplicationSimplifiers(Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers) {
+	public void setFunctionApplicationSimplifiers(Map<String, Simplifier> functionApplicationSimplifiers) {
 		this.functionApplicationSimplifiers = functionApplicationSimplifiers;
 	}
 
-	public void setSyntacticFormTypeSimplifiers(Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers) {
+	public void setSyntacticFormTypeSimplifiers(Map<String, Simplifier> syntacticFormTypeSimplifiers) {
 		this.syntacticFormTypeSimplifiers = syntacticFormTypeSimplifiers;
 	}
 
@@ -101,7 +103,7 @@ public class DefaultMapBasedSimplifier implements MapBasedSimplifier {
 	 * @return
 	 */
 	@Override
-	public Expression simplify(Expression expression, RewritingProcess process) {
+	public Expression apply(Expression expression, RewritingProcess process) {
 		return DefaultMapBasedSimplifier.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), process);
 	}
 
@@ -114,7 +116,7 @@ public class DefaultMapBasedSimplifier implements MapBasedSimplifier {
 	 * @param process
 	 * @return
 	 */
-	public static Expression topSimplifyExhaustively(Expression expression, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers, RewritingProcess process) {
+	public static Expression topSimplifyExhaustively(Expression expression, Map<String, Simplifier> functionApplicationSimplifiers, Map<String, Simplifier> syntacticFormTypeSimplifiers, RewritingProcess process) {
 		
 		Expression previous;
 		do {
@@ -124,8 +126,8 @@ public class DefaultMapBasedSimplifier implements MapBasedSimplifier {
 		return expression;
 	}
 
-	public static Expression topSimplifyOnce(Expression expression, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers, RewritingProcess process) {
-		BinaryFunction<Expression, RewritingProcess, Expression> simplifier;
+	public static Expression topSimplifyOnce(Expression expression, Map<String, Simplifier> functionApplicationSimplifiers, Map<String, Simplifier> syntacticFormTypeSimplifiers, RewritingProcess process) {
+		Simplifier simplifier;
 		if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 			simplifier = functionApplicationSimplifiers.get(expression.getFunctor().getValue());
 		}
@@ -140,8 +142,8 @@ public class DefaultMapBasedSimplifier implements MapBasedSimplifier {
 		return expression;
 	}
 
-	public static BinaryFunction<Expression, RewritingProcess, Expression> makeTopExhaustiveSimplifier(Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormSimplifiers) {
-		BinaryFunction<Expression, RewritingProcess, Expression>
+	public static Simplifier makeTopExhaustiveSimplifier(Map<String, Simplifier> functionApplicationSimplifiers, Map<String, Simplifier> syntacticFormSimplifiers) {
+		Simplifier
 			topExhaustivelySimplifier =
 			(e, p) -> topSimplifyExhaustively(e, functionApplicationSimplifiers, syntacticFormSimplifiers, p);
 		return topExhaustivelySimplifier;
@@ -161,8 +163,8 @@ public class DefaultMapBasedSimplifier implements MapBasedSimplifier {
 	 * @param process
 	 * @return
 	 */
-	public static Expression simplify(Expression expression, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormSimplifiers, RewritingProcess process) {
-		BinaryFunction<Expression, RewritingProcess, Expression> topExhaustiveSimplifier = makeTopExhaustiveSimplifier(functionApplicationSimplifiers, syntacticFormSimplifiers);
+	public static Expression simplify(Expression expression, Map<String, Simplifier> functionApplicationSimplifiers, Map<String, Simplifier> syntacticFormSimplifiers, RewritingProcess process) {
+		Simplifier topExhaustiveSimplifier = makeTopExhaustiveSimplifier(functionApplicationSimplifiers, syntacticFormSimplifiers);
 		Expression result = simplify(expression, topExhaustiveSimplifier, process);
 		return result;
 	}
@@ -177,7 +179,7 @@ public class DefaultMapBasedSimplifier implements MapBasedSimplifier {
 	 */
 	public static Expression simplify(
 			Expression expression,
-			BinaryFunction<Expression, RewritingProcess, Expression> topSimplifier,
+			Simplifier topSimplifier,
 			RewritingProcess process) {
 		
 		Expression result = expression;
@@ -208,12 +210,12 @@ public class DefaultMapBasedSimplifier implements MapBasedSimplifier {
 	 */
 	public static Expression simplifyWithExtraSyntacticFormTypeSimplifiers(
 			Expression expression,
-			Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers, Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers,
+			Map<String, Simplifier> functionApplicationSimplifiers, Map<String, Simplifier> syntacticFormTypeSimplifiers,
 			RewritingProcess process,
 			Object... syntacticFormTypesAndBinaryFunctionsFromExpressionRewritingProcessToExpression) {
 		
-		Map<String, BinaryFunction<Expression, RewritingProcess, Expression>>
-		mySyntacticFormTypeSimplifiers = new StackedHashMap<String, BinaryFunction<Expression, RewritingProcess, Expression>>(syntacticFormTypeSimplifiers);
+		Map<String, Simplifier>
+		mySyntacticFormTypeSimplifiers = new StackedHashMap<String, Simplifier>(syntacticFormTypeSimplifiers);
 		
 		putAll(mySyntacticFormTypeSimplifiers, syntacticFormTypesAndBinaryFunctionsFromExpressionRewritingProcessToExpression);
 		

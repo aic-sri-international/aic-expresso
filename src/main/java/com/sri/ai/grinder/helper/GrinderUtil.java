@@ -1236,7 +1236,7 @@ public class GrinderUtil {
 		while (satisfyingAssignment == null && assignmentsIterator.hasNext()) {
 			Map<Expression, Expression> assignment = assignmentsIterator.next();
 			Expression formulaWithValuesReplaced = formula.replaceAllOccurrences(new MapReplacementFunction(assignment), process);
-			Expression value = constraintTheory.simplify(formulaWithValuesReplaced, process);
+			Expression value = constraintTheory.apply(formulaWithValuesReplaced, process);
 			if (value.equals(TRUE)) {
 				satisfyingAssignment = assignment;
 			}

@@ -114,8 +114,8 @@ public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheor
 	}
 
 	@Override
-	public Expression simplify(Expression expression, RewritingProcess process) {
-		return constraintTheoryWithEquality.simplify(expression, process);
+	public Expression apply(Expression expression, RewritingProcess process) {
+		return constraintTheoryWithEquality.apply(expression, process);
 	}
 	
 	@Override

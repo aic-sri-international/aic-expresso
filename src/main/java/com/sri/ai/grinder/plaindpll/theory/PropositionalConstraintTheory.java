@@ -58,6 +58,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultMapBasedSimplifier;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
@@ -71,7 +72,6 @@ import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractRuleOfProductConstraint;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.math.Rational;
 
 @Beta
@@ -90,35 +90,35 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 	
 	@Override
-	public Expression simplify(Expression expression, RewritingProcess process) {
-		Expression result = getSimplifier().simplify(expression, process);
+	public Expression apply(Expression expression, RewritingProcess process) {
+		Expression result = getSimplifier().apply(expression, process);
 		return result;
 	}
 
-	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeFunctionApplicationSimplifiers() {
+	public Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return 	map(
-				FunctorConstants.AND,            (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.AND,            (Simplifier) (f, process) ->
 				And.simplify(f),
 
-				FunctorConstants.OR,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.OR,             (Simplifier) (f, process) ->
 				Or.simplify(f),
 
-				FunctorConstants.NOT,            (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.NOT,            (Simplifier) (f, process) ->
 				Not.simplify(f),
 
-				FunctorConstants.IF_THEN_ELSE,   (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.IF_THEN_ELSE,   (Simplifier) (f, process) ->
 				IfThenElse.simplify(f),
 
-				FunctorConstants.EQUIVALENCE,    (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.EQUIVALENCE,    (Simplifier) (f, process) ->
 				Equivalence.simplify(f),
 
-				FunctorConstants.IMPLICATION,    (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.IMPLICATION,    (Simplifier) (f, process) ->
 				Implication.simplify(f)
 				);
 
 	}
 
-	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeSyntacticFormTypeSimplifiers() {
+	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
 		return map();
 	}
 
@@ -287,8 +287,8 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 		@Override
 		public Expression normalizeExpressionWithoutLiterals(Expression expression, RewritingProcess process) {
 			String syntacticTypeForm = "Symbol";
-			BinaryFunction<Expression, RewritingProcess, Expression> valueReplacer =
-					(BinaryFunction<Expression, RewritingProcess, Expression>)
+			Simplifier valueReplacer =
+					(Simplifier)
 					(s, p) ->
 			assertedPropositions.contains(s)?
 					Expressions.TRUE

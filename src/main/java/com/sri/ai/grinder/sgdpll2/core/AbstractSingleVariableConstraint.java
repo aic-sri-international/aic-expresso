@@ -135,6 +135,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 		return Collections.unmodifiableList(externalLiterals);
 	}
 
+	@Override
 	public ConstraintTheory getConstraintTheory() {
 		return constraintTheory;
 	}

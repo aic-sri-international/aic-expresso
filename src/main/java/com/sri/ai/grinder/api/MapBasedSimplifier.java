@@ -40,8 +40,6 @@ package com.sri.ai.grinder.api;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.util.base.BinaryFunction;
 
 @Beta
 /** 
@@ -52,7 +50,7 @@ import com.sri.ai.util.base.BinaryFunction;
  */
 public interface MapBasedSimplifier extends Simplifier {
 
-	Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers();
+	Map<String, Simplifier> getFunctionApplicationSimplifiers();
 
-	Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers();
+	Map<String, Simplifier> getSyntacticFormTypeSimplifiers();
 }

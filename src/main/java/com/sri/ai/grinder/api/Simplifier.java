@@ -1,6 +1,7 @@
 package com.sri.ai.grinder.api;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.util.base.BinaryFunction;
 
 /**
  * A Simplifier knows just enough about the symbols in a language to simplify it in a shallow way,
@@ -12,12 +13,5 @@ import com.sri.ai.expresso.api.Expression;
  * @author braz
  *
  */
-public interface Simplifier {
-	/**
-	 * Simplifies expression.
-	 * @param expression
-	 * @param process
-	 * @return
-	 */
-	Expression simplify(Expression expression, RewritingProcess process);
+public interface Simplifier extends BinaryFunction<Expression, RewritingProcess, Expression> {
 }

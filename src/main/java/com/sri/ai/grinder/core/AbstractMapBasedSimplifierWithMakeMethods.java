@@ -42,7 +42,7 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.util.base.BinaryFunction;
+import com.sri.ai.grinder.api.Simplifier;
 
 @Beta
 /** 
@@ -64,7 +64,7 @@ abstract public class AbstractMapBasedSimplifierWithMakeMethods extends DefaultM
 	 * Only required if {@link #simplify(Expression, RewritingProcess)} is not overridden by code not using it. 
 	 * @return
 	 */
-	abstract protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeFunctionApplicationSimplifiers();
+	abstract protected Map<String, Simplifier> makeFunctionApplicationSimplifiers();
 
 	/**
 	 * Invoked only one to make a map from syntactic form types (Strings) to a function mapping a
@@ -72,16 +72,18 @@ abstract public class AbstractMapBasedSimplifierWithMakeMethods extends DefaultM
 	 * Only required if {@link #simplify(Expression, RewritingProcess)} is not overridden by code not using it. 
 	 * @return
 	 */
-	abstract protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeSyntacticFormTypeSimplifiers();
+	abstract protected Map<String, Simplifier> makeSyntacticFormTypeSimplifiers();
 
-	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers() {
+	@Override
+	public Map<String, Simplifier> getFunctionApplicationSimplifiers() {
 		if (functionApplicationSimplifiers == null) {
 			functionApplicationSimplifiers = makeFunctionApplicationSimplifiers();
 		}
 		return functionApplicationSimplifiers;
 	}
 
-	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
+	@Override
+	public Map<String, Simplifier> getSyntacticFormTypeSimplifiers() {
 		if (syntacticFormTypeSimplifiers == null) {
 			syntacticFormTypeSimplifiers = makeSyntacticFormTypeSimplifiers();
 		}

@@ -45,7 +45,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.AbstractMapBasedSimplifierWithMakeMethods;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
@@ -71,7 +71,6 @@ import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
 import com.sri.ai.grinder.plaindpll.problemtype.Validity;
-import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.NullaryFunction;
 
 /**
@@ -98,68 +97,68 @@ public class DefaultInputTheory extends AbstractMapBasedSimplifierWithMakeMethod
 	private static Rewriter times = new Times();
 
 	@Override
-	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeFunctionApplicationSimplifiers() {
+	public Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(
-				FunctorConstants.EQUALITY,        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.EQUALITY,        (Simplifier) (f, process) ->
 				Equality.simplify(f, process),
 
-				FunctorConstants.DISEQUALITY,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.DISEQUALITY,     (Simplifier) (f, process) ->
 				Disequality.simplify(f, process),
 
-				FunctorConstants.AND,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.AND,             (Simplifier) (f, process) ->
 				And.simplify(f),
 
-				FunctorConstants.OR,              (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.OR,              (Simplifier) (f, process) ->
 				Or.simplify(f),
 
-				FunctorConstants.NOT,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.NOT,             (Simplifier) (f, process) ->
 				Not.simplify(f),
 
-				FunctorConstants.IF_THEN_ELSE,    (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.IF_THEN_ELSE,    (Simplifier) (f, process) ->
 				IfThenElse.simplify(f),
 
-				FunctorConstants.EQUIVALENCE,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.EQUIVALENCE,     (Simplifier) (f, process) ->
 				Equivalence.simplify(f),
 
-				FunctorConstants.IMPLICATION,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.IMPLICATION,     (Simplifier) (f, process) ->
 				Implication.simplify(f),
 
-				FunctorConstants.CARDINALITY,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.CARDINALITY,     (Simplifier) (f, process) ->
 				{ Expression type = (Expression) process.getGlobalObject(f); return type == null? f : type; },
 
-				FunctorConstants.TIMES,           (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.TIMES,           (Simplifier) (f, process) ->
 				times.rewrite(f, process),
 
-				FunctorConstants.DIVISION,        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.DIVISION,        (Simplifier) (f, process) ->
 				Division.simplify(f),
 
-				FunctorConstants.PLUS,            (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.PLUS,            (Simplifier) (f, process) ->
 				plus.rewrite(f, process),
 
-				FunctorConstants.MINUS,           (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.MINUS,           (Simplifier) (f, process) ->
 				(f.numberOfArguments() == 2? Minus.simplify(f) : f),
 
-				FunctorConstants.LESS_THAN,                 (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.LESS_THAN,                 (Simplifier) (f, process) ->
 				LessThan.simplify(f),
 
-				FunctorConstants.LESS_THAN_OR_EQUAL_TO,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.LESS_THAN_OR_EQUAL_TO,     (Simplifier) (f, process) ->
 				LessThanOrEqualTo.simplify(f),
 
-				FunctorConstants.GREATER_THAN,              (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.GREATER_THAN,              (Simplifier) (f, process) ->
 				GreaterThan.simplify(f),
 
-				FunctorConstants.GREATER_THAN_OR_EQUAL_TO,  (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.GREATER_THAN_OR_EQUAL_TO,  (Simplifier) (f, process) ->
 				GreaterThanOrEqualTo.simplify(f)
 				);
 	}
 
 	@Override
-	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeSyntacticFormTypeSimplifiers() {
+	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
 		return map(
-				ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				ForAll.SYNTACTIC_FORM_TYPE,                             (Simplifier) (f, process) ->
 				(new SGDPLLT(this, new Validity())).rewrite(f, process),
 
-				ThereExists.SYNTACTIC_FORM_TYPE,                        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				ThereExists.SYNTACTIC_FORM_TYPE,                        (Simplifier) (f, process) ->
 				(new SGDPLLT(this, new Satisfiability())).rewrite(f, process)
 				);
 	}

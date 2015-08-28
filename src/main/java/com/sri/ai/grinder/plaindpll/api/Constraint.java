@@ -121,7 +121,7 @@ public interface Constraint extends Expression {
 	 */
 	default boolean directlyImpliesLiteral(Expression literal, RewritingProcess process) {
 		boolean result;
-		Expression simplifiedLiteral = getConstraintTheory().simplify(literal, process);
+		Expression simplifiedLiteral = getConstraintTheory().apply(literal, process);
 		if (simplifiedLiteral.getSyntacticFormType().equals("Symbol")) {
 			result = simplifiedLiteral.equals(TRUE);
 		}

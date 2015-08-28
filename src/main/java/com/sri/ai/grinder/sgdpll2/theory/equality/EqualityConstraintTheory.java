@@ -39,7 +39,6 @@ package com.sri.ai.grinder.sgdpll2.theory.equality;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
@@ -53,8 +52,10 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultMapBasedSimplifier;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
@@ -68,7 +69,6 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.AbstractConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.SingleVariableConstraint;
-import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.collect.PredicateIterator;
 
 /** 
@@ -80,46 +80,46 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 	private MapBasedSimplifier simplifier;
 	
 	@Override
-	public Expression simplify(Expression expression, RewritingProcess process) {
+	public Expression apply(Expression expression, RewritingProcess process) {
 		if (simplifier == null) {
 			 simplifier = new DefaultMapBasedSimplifier(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());			
 		}
-		Expression result = simplifier.simplify(expression, process);
+		Expression result = simplifier.apply(expression, process);
 		return result;
 	}
 
-	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeFunctionApplicationSimplifiers() {
+	public Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(
-				FunctorConstants.EQUALITY,        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.EQUALITY,        (Simplifier) (f, process) ->
 				Equality.simplify(f, process),
 
-				FunctorConstants.DISEQUALITY,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.DISEQUALITY,     (Simplifier) (f, process) ->
 				Disequality.simplify(f, process),
 
-				FunctorConstants.NOT,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.NOT,             (Simplifier) (f, process) ->
 				Not.simplify(f),
 
-				FunctorConstants.AND,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.AND,             (Simplifier) (f, process) ->
 				And.simplify(f),
 
-				FunctorConstants.OR,              (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.OR,              (Simplifier) (f, process) ->
 				Or.simplify(f),
 
-				FunctorConstants.NOT,             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.NOT,             (Simplifier) (f, process) ->
 				Not.simplify(f),
 
-				FunctorConstants.IF_THEN_ELSE,    (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.IF_THEN_ELSE,    (Simplifier) (f, process) ->
 				IfThenElse.simplify(f),
 
-				FunctorConstants.EQUIVALENCE,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.EQUIVALENCE,     (Simplifier) (f, process) ->
 				Equivalence.simplify(f),
 
-				FunctorConstants.IMPLICATION,     (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
+				FunctorConstants.IMPLICATION,     (Simplifier) (f, process) ->
 				Implication.simplify(f)
 				);
 	}
 
-	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeSyntacticFormTypeSimplifiers() {
+	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
 		return map();
 	}
 
@@ -179,10 +179,10 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 			result = literal;
 		}
 		else if (literal.hasFunctor(EQUALITY)) {
-			result = apply(DISEQUALITY, literal.get(0), literal.get(1));
+			result = Expressions.apply(DISEQUALITY, literal.get(0), literal.get(1));
 		}
 		else if (literal.hasFunctor(DISEQUALITY)) {
-			result = apply(EQUALITY, literal.get(0), literal.get(1));
+			result = Expressions.apply(EQUALITY, literal.get(0), literal.get(1));
 		} 
 		else if (literal.equals(TRUE)) {
 			result = FALSE;
