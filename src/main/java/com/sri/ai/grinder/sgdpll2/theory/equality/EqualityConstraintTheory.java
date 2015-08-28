@@ -43,7 +43,6 @@ import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
-import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.pickUniformly;
 
 import java.util.Map;
@@ -55,17 +54,11 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.DefaultMapBasedSimplifier;
+import com.sri.ai.grinder.core.MergingMapBasedSimplifier;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.library.boole.Equivalence;
-import com.sri.ai.grinder.library.boole.Implication;
-import com.sri.ai.grinder.library.boole.Not;
-import com.sri.ai.grinder.library.boole.Or;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.boole.BooleanSimplifier;
+import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.AbstractConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.SingleVariableConstraint;
@@ -77,50 +70,12 @@ import com.sri.ai.util.collect.PredicateIterator;
 @Beta
 public class EqualityConstraintTheory extends AbstractConstraintTheory {
 
-	private MapBasedSimplifier simplifier;
+	private MapBasedSimplifier simplifier = new MergingMapBasedSimplifier(new EqualitySimplifier(), new BooleanSimplifier());
 	
 	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
-		if (simplifier == null) {
-			 simplifier = new DefaultMapBasedSimplifier(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());			
-		}
+	public Expression simplify(Expression expression, RewritingProcess process) {
 		Expression result = simplifier.apply(expression, process);
 		return result;
-	}
-
-	public Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
-		return map(
-				FunctorConstants.EQUALITY,        (Simplifier) (f, process) ->
-				Equality.simplify(f, process),
-
-				FunctorConstants.DISEQUALITY,     (Simplifier) (f, process) ->
-				Disequality.simplify(f, process),
-
-				FunctorConstants.NOT,             (Simplifier) (f, process) ->
-				Not.simplify(f),
-
-				FunctorConstants.AND,             (Simplifier) (f, process) ->
-				And.simplify(f),
-
-				FunctorConstants.OR,              (Simplifier) (f, process) ->
-				Or.simplify(f),
-
-				FunctorConstants.NOT,             (Simplifier) (f, process) ->
-				Not.simplify(f),
-
-				FunctorConstants.IF_THEN_ELSE,    (Simplifier) (f, process) ->
-				IfThenElse.simplify(f),
-
-				FunctorConstants.EQUIVALENCE,     (Simplifier) (f, process) ->
-				Equivalence.simplify(f),
-
-				FunctorConstants.IMPLICATION,     (Simplifier) (f, process) ->
-				Implication.simplify(f)
-				);
-	}
-
-	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
-		return map();
 	}
 
 	@Override

@@ -44,7 +44,6 @@ import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.mapIntoArrayList;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
@@ -52,15 +51,8 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.DefaultMapBasedSimplifier;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.library.boole.Equivalence;
-import com.sri.ai.grinder.library.boole.Implication;
+import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.boole.Not;
-import com.sri.ai.grinder.library.boole.Or;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll2.core.AbstractConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.SingleVariableConstraint;
 
@@ -83,41 +75,12 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 		setTestingVariable("P");
 	}
 
-	private MapBasedSimplifier simplifier;
+	private MapBasedSimplifier simplifier = new BooleanSimplifier();
 	
 	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
-		if (simplifier == null) {
-			 simplifier = new DefaultMapBasedSimplifier(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());			
-		}
+	public Expression simplify(Expression expression, RewritingProcess process) {
 		Expression result = simplifier.apply(expression, process);
 		return result;
-	}
-
-	public Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
-		return map(
-				FunctorConstants.AND,            (Simplifier) (f, process) ->
-				And.simplify(f),
-
-				FunctorConstants.OR,             (Simplifier) (f, process) ->
-				Or.simplify(f),
-
-				FunctorConstants.NOT,            (Simplifier) (f, process) ->
-				Not.simplify(f),
-
-				FunctorConstants.IF_THEN_ELSE,   (Simplifier) (f, process) ->
-				IfThenElse.simplify(f),
-
-				FunctorConstants.EQUIVALENCE,    (Simplifier) (f, process) ->
-				Equivalence.simplify(f),
-
-				FunctorConstants.IMPLICATION,    (Simplifier) (f, process) ->
-				Implication.simplify(f)
-				);
-	}
-
-	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
-		return map();
 	}
 
 	@Override

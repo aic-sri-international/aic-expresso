@@ -35,71 +35,41 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.theory;
+package com.sri.ai.grinder.library.set;
 
 import static com.sri.ai.util.Util.map;
 
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.MergingMapBasedSimplifier;
-import com.sri.ai.grinder.library.GeneralSimplifier;
-import com.sri.ai.grinder.library.boole.ForAll;
-import com.sri.ai.grinder.library.boole.ThereExists;
-import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
-import com.sri.ai.grinder.plaindpll.api.InputTheory;
-import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
-import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
-import com.sri.ai.grinder.plaindpll.problemtype.Validity;
-import com.sri.ai.util.base.NullaryFunction;
+import com.sri.ai.grinder.core.DefaultMapBasedSimplifier;
+import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
- * A default {@link InputTheory} with commonly used functions.
+ * A {@link MapBasedSimplifier} with a cardinality simplifier
+ * (cardinalities (must be registered in rewriting process's global objects as a function application of <code>| . |</code>).)
  * 
  * @author braz
  *
  */
 @Beta
-public class DefaultInputTheory implements InputTheory {
+public class CardinalitySimplifier extends DefaultMapBasedSimplifier {
 	
-	protected ConstraintTheory constraintTheory;
-
-	private Simplifier simplifier;
-	
-	public DefaultInputTheory(ConstraintTheory constraintTheory) {
-		this.constraintTheory = constraintTheory;
-		this.simplifier = new MergingMapBasedSimplifier(map(), makeSyntacticFormTypeSimplifiers(), new GeneralSimplifier());
+	public CardinalitySimplifier() {
+		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());
 	}
 	
-	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
+	public static Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(
-				ForAll.SYNTACTIC_FORM_TYPE,                             (Simplifier) (f, process) ->
-				(new SGDPLLT(this, new Validity())).rewrite(f, process),
-
-				ThereExists.SYNTACTIC_FORM_TYPE,                        (Simplifier) (f, process) ->
-				(new SGDPLLT(this, new Satisfiability())).rewrite(f, process)
+				FunctorConstants.CARDINALITY,     (Simplifier) (f, process) ->
+				{ Expression type = (Expression) process.getGlobalObject(f); return type == null? f : type; }
 				);
 	}
 
-	@Override
-	public ConstraintTheory getConstraintTheory() {
-		return constraintTheory;
-	}
-
-	@Override
-	public Expression simplify(Expression expression, RewritingProcess process) {
-		return simplifier.apply(expression, process);
-	}
-
-	@Override
-	public Expression getRandomInputExpression(
-			String targetType,
-			NullaryFunction<String> getType, Function<String, Expression> getVariable, Function<String, Expression> getConstant) {
-		// TODO Auto-generated method stub
-		return null;
+	public static Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
+		return map();
 	}
 }

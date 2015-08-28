@@ -37,6 +37,9 @@
  */
 package com.sri.ai.grinder.core;
 
+import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.union;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -46,8 +49,8 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.FunctionIterator;
+import com.sri.ai.util.collect.NestedIterator;
 
 /**
  * A basic {@link MapBasedSimplifier} receiving its elementary simplifiers from other {@link MapBasedSimplifier}s.
@@ -59,8 +62,34 @@ import com.sri.ai.util.collect.FunctionIterator;
 public class MergingMapBasedSimplifier extends DefaultMapBasedSimplifier {
 	
 	public MergingMapBasedSimplifier(MapBasedSimplifier... simplifiers) {
-		super(Util.union(functionApplicationSimplifiersIterator(simplifiers)), Util.union(syntacticFormTypeSimplifiers(simplifiers)));
+		super(
+				union ( functionApplicationSimplifiersIterator(simplifiers) ),
+				union ( syntacticFormTypeSimplifiersIterator(simplifiers) ));
 				
+	}
+
+	public MergingMapBasedSimplifier(
+			Map<String, Simplifier> functionApplicationSimplifiers,
+			Map<String, Simplifier> syntacticFormTypeSimplifiers,
+			MapBasedSimplifier... simplifiers) {
+		super(
+				union ( functionApplicationSimplifiersIterator(functionApplicationSimplifiers, simplifiers) ),
+				union ( syntacticFormTypeSimplifiersIterator(syntacticFormTypeSimplifiers, simplifiers) ));
+				
+	}
+
+	@SuppressWarnings("unchecked")
+	private static
+	Iterator<Map<String, Simplifier>>
+	functionApplicationSimplifiersIterator(Map<String, Simplifier> functionApplicationSimplifiers, MapBasedSimplifier... simplifiers) {
+		return new NestedIterator<>(list(functionApplicationSimplifiers), functionApplicationSimplifiersIterator(simplifiers));
+	}
+
+	@SuppressWarnings("unchecked")
+	private static
+	Iterator<Map<String, Simplifier>>
+	syntacticFormTypeSimplifiersIterator(Map<String, Simplifier> syntacticFormTypeSimplifiers, MapBasedSimplifier... simplifiers) {
+		return new NestedIterator<>(list(syntacticFormTypeSimplifiers), syntacticFormTypeSimplifiersIterator(simplifiers));
 	}
 
 	private static
@@ -71,7 +100,7 @@ public class MergingMapBasedSimplifier extends DefaultMapBasedSimplifier {
 
 	private static
 	Iterator<Map<String, Simplifier>>
-	syntacticFormTypeSimplifiers(MapBasedSimplifier... simplifiers) {
+	syntacticFormTypeSimplifiersIterator(MapBasedSimplifier... simplifiers) {
 		return FunctionIterator.make(simplifiersList(simplifiers), fromSimplifierToSyntacticFormTypeSimplifiers());
 	}
 

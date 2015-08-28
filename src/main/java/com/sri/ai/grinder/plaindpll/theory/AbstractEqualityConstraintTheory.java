@@ -44,7 +44,6 @@ import static com.sri.ai.grinder.core.DefaultMapBasedSimplifier.simplifyWithExtr
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.filter;
-import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Collection;
@@ -62,15 +61,11 @@ import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultMapBasedSimplifier;
-import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.library.boole.Equivalence;
-import com.sri.ai.grinder.library.boole.Implication;
-import com.sri.ai.grinder.library.boole.Not;
-import com.sri.ai.grinder.library.boole.Or;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.grinder.plaindpll.core.AbstractConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
@@ -99,7 +94,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 	public AbstractEqualityConstraintTheory(TermTheory termTheory) {
 		super();
 		this.termTheory = termTheory;
-		this.simplifier = new DefaultMapBasedSimplifier(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());
+		this.simplifier = new EqualitySimplifier();
 	}
 	
 	public TermTheory getTermTheory() {
@@ -110,68 +105,6 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 	public Expression simplify(Expression expression, RewritingProcess process) {
 		Expression result = simplifier.apply(expression, process);
 		return result;
-	}
-
-	public Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
-		return map(
-				FunctorConstants.EQUALITY,        (Simplifier) (f, process) ->
-				Equality.simplify(f, process),
-
-				FunctorConstants.DISEQUALITY,     (Simplifier) (f, process) ->
-				Disequality.simplify(f, process),
-
-				FunctorConstants.NOT,             (Simplifier) (f, process) ->
-				Not.simplify(f),
-
-				FunctorConstants.AND,             (Simplifier) (f, process) ->
-				And.simplify(f),
-
-				FunctorConstants.OR,              (Simplifier) (f, process) ->
-				Or.simplify(f),
-
-				FunctorConstants.NOT,             (Simplifier) (f, process) ->
-				Not.simplify(f),
-
-				FunctorConstants.IF_THEN_ELSE,    (Simplifier) (f, process) ->
-				IfThenElse.simplify(f),
-
-				FunctorConstants.EQUIVALENCE,     (Simplifier) (f, process) ->
-				Equivalence.simplify(f),
-
-				FunctorConstants.IMPLICATION,     (Simplifier) (f, process) ->
-				Implication.simplify(f)
-				//,
-
-				// Soon to be used for difference arithmetic
-//				FunctorConstants.PLUS,            (Simplifier) (f, process) ->
-//				plus.rewrite(f, process),
-//
-//				FunctorConstants.MINUS,           (Simplifier) (f, process) ->
-//				(f.numberOfArguments() == 2? Minus.simplify(f) : f),
-//
-//				FunctorConstants.LESS_THAN,                 (Simplifier) (f, process) ->
-//				LessThan.simplify(f),
-//
-//				FunctorConstants.LESS_THAN_OR_EQUAL_TO,     (Simplifier) (f, process) ->
-//				LessThanOrEqualTo.simplify(f),
-//
-//				FunctorConstants.GREATER_THAN,              (Simplifier) (f, process) ->
-//				GreaterThan.simplify(f),
-//
-//				FunctorConstants.GREATER_THAN_OR_EQUAL_TO,  (Simplifier) (f, process) ->
-//				GreaterThanOrEqualTo.simplify(f)
-
-				);
-	}
-
-	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
-		return map(
-//				ForAll.SYNTACTIC_FORM_TYPE,                             (Simplifier) (f, process) ->
-//				(new SGDPLLT(this, new Validity())).rewrite(f, process),
-//
-//				ThereExists.SYNTACTIC_FORM_TYPE,                        (Simplifier) (f, process) ->
-//				(new SGDPLLT(this, new Satisfiability())).rewrite(f, process)
-				);
 	}
 
 	@Override
@@ -467,8 +400,8 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 
 					Expression result = simplifyWithExtraSyntacticFormTypeSimplifiers(
 							expression,
-							theory.makeFunctionApplicationSimplifiers(),
-							theory.makeSyntacticFormTypeSimplifiers(),
+							theory.simplifier.getFunctionApplicationSimplifiers(),
+							theory.simplifier.getSyntacticFormTypeSimplifiers(),
 							process, syntacticTypeForm,
 							representativeReplacer);
 
