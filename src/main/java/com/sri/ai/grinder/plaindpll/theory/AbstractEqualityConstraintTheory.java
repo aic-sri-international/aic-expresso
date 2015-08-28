@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.grinder.core.DefaultMapBasedSimplifier.simplifyWithExtraSyntacticFormTypeSimplifiers;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.filter;
@@ -475,7 +476,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 			BinaryFunction<Expression, RewritingProcess, Expression> representativeReplacer =
 					(BinaryFunction<Expression, RewritingProcess, Expression>) (s, p) -> getRepresentative(s, p);
 
-					Expression result = DefaultMapBasedSimplifier.simplifyWithExtraSyntacticFormTypeSimplifiers(
+					Expression result = simplifyWithExtraSyntacticFormTypeSimplifiers(
 							expression,
 							theory.makeFunctionApplicationSimplifiers(),
 							theory.makeSyntacticFormTypeSimplifiers(),

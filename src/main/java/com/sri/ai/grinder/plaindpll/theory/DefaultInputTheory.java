@@ -46,7 +46,7 @@ import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractMapBasedSimplifier;
+import com.sri.ai.grinder.core.AbstractMapBasedSimplifierWithMakeMethods;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -81,7 +81,7 @@ import com.sri.ai.util.base.NullaryFunction;
  *
  */
 @Beta
-public class DefaultInputTheory extends AbstractMapBasedSimplifier implements InputTheory {
+public class DefaultInputTheory extends AbstractMapBasedSimplifierWithMakeMethods implements InputTheory {
 	
 	protected ConstraintTheory constraintTheory;
 	private static Rewriter plus = new Plus();

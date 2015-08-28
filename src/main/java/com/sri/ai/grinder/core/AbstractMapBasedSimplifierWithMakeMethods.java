@@ -41,7 +41,6 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.util.base.BinaryFunction;
 
@@ -49,10 +48,16 @@ import com.sri.ai.util.base.BinaryFunction;
 /** 
  * Basic implementation of {@link MapBasedSimplifier}
  * delegating the creating of elementary simplifier maps to
- * two abstract methods.  
+ * two abstract methods.
+ * This is useful if the elementary simplifiers depend on <code>this</code> during construction time,
+ * which prevents them to be given to {@link DefaultMapBasedSimplifier} via <code>super</code>.
  */
-abstract public class AbstractMapBasedSimplifier implements MapBasedSimplifier {
+abstract public class AbstractMapBasedSimplifierWithMakeMethods extends DefaultMapBasedSimplifier {
 
+	public AbstractMapBasedSimplifierWithMakeMethods() {
+		super(null, null);
+	}
+	
 	/**
 	 * Invoked only one to make a map from functors's getValue() values (Strings) to a function mapping a
 	 * function application of that functor and a rewriting process to an equivalent, simplified expression.
@@ -69,11 +74,6 @@ abstract public class AbstractMapBasedSimplifier implements MapBasedSimplifier {
 	 */
 	abstract protected Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeSyntacticFormTypeSimplifiers();
 
-	
-	
-	
-	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers;
-	
 	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers() {
 		if (functionApplicationSimplifiers == null) {
 			functionApplicationSimplifiers = makeFunctionApplicationSimplifiers();
@@ -81,33 +81,10 @@ abstract public class AbstractMapBasedSimplifier implements MapBasedSimplifier {
 		return functionApplicationSimplifiers;
 	}
 
-	
-	
-	
-	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers;
-
 	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers() {
 		if (syntacticFormTypeSimplifiers == null) {
 			syntacticFormTypeSimplifiers = makeSyntacticFormTypeSimplifiers();
 		}
 		return syntacticFormTypeSimplifiers;
-	}
-
-	
-	
-	
-	/**
-	 * Default implementation that simplifies an expression by exhaustively simplifying its top expression with
-	 * the simplifiers provided by {@link #makeFunctionApplicationSimplifiers()} and {@link #makeSyntacticFormTypeSimplifiers()},
-	 * then simplifying its sub-expressions,
-	 * and again exhaustively simplifying its top expression.
-	 * @param expression
-	 * @param topSimplifier
-	 * @param process
-	 * @return
-	 */
-	@Override
-	public Expression simplify(Expression expression, RewritingProcess process) {
-		return DefaultMapBasedSimplifier.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers(), process);
 	}
 }
