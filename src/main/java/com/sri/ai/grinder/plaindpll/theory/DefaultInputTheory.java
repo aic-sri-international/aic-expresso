@@ -45,8 +45,9 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.AbstractMapBasedSimplifierWithMakeMethods;
+import com.sri.ai.grinder.core.DefaultMapBasedSimplifier;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -80,23 +81,30 @@ import com.sri.ai.util.base.NullaryFunction;
  *
  */
 @Beta
-public class DefaultInputTheory extends AbstractMapBasedSimplifierWithMakeMethods implements InputTheory {
+public class DefaultInputTheory implements InputTheory {
 	
 	protected ConstraintTheory constraintTheory;
-	private static Rewriter plus = new Plus();
+
+	private Simplifier simplifier;
 	
 	public DefaultInputTheory(ConstraintTheory constraintTheory) {
 		this.constraintTheory = constraintTheory;
+		this.simplifier = new DefaultMapBasedSimplifier(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());
 	}
-
+	
 	@Override
 	public ConstraintTheory getConstraintTheory() {
 		return constraintTheory;
 	}
 
+	@Override
+	public Expression simplify(Expression expression, RewritingProcess process) {
+		return simplifier.apply(expression, process);
+	}
+
+	private static Rewriter plus = new Plus();
 	private static Rewriter times = new Times();
 
-	@Override
 	public Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(
 				FunctorConstants.EQUALITY,        (Simplifier) (f, process) ->
@@ -152,7 +160,6 @@ public class DefaultInputTheory extends AbstractMapBasedSimplifierWithMakeMethod
 				);
 	}
 
-	@Override
 	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
 		return map(
 				ForAll.SYNTACTIC_FORM_TYPE,                             (Simplifier) (f, process) ->

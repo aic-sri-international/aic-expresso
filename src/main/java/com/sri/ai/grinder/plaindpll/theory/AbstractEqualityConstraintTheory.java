@@ -85,6 +85,7 @@ import com.sri.ai.util.collect.StackedHashMap;
 public abstract class AbstractEqualityConstraintTheory extends AbstractConstraintTheory {
 
 	public TermTheory termTheory;
+	private MapBasedSimplifier simplifier;
 
 	// Important:
 	// this class generalizes the notion of a variable to a "generalized variable" (simply referred by as "variable"),
@@ -98,27 +99,16 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 	public AbstractEqualityConstraintTheory(TermTheory termTheory) {
 		super();
 		this.termTheory = termTheory;
+		this.simplifier = new DefaultMapBasedSimplifier(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());
 	}
 	
 	public TermTheory getTermTheory() {
 		return termTheory;
 	}
 	
-//	private static Rewriter plus  = new Plus();
-//	private static Rewriter times = new Times();
-
-	private MapBasedSimplifier simplifier;
-	
-	protected MapBasedSimplifier getSimplifier() {
-		if (simplifier == null) {
-			 simplifier = new DefaultMapBasedSimplifier(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());			
-		}
-		return simplifier;
-	}
-	
 	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
-		Expression result = getSimplifier().apply(expression, process);
+	public Expression simplify(Expression expression, RewritingProcess process) {
+		Expression result = simplifier.apply(expression, process);
 		return result;
 	}
 
@@ -304,7 +294,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 			Expression representative2 = equalities.getRepresentative(splitter.get(1), process);
 			
 			Expression normalizedSplitter = Expressions.apply(splitter.getFunctor(), representative1, representative2);
-			Expression normalizedSplitterSimplification = getConstraintTheory().apply(normalizedSplitter, process); // careful, this may not be a splitter itself because X = true is simplified to X
+			Expression normalizedSplitterSimplification = getConstraintTheory().simplify(normalizedSplitter, process); // careful, this may not be a splitter itself because X = true is simplified to X
 			if (Expressions.isBooleanSymbol(normalizedSplitterSimplification)) {
 				result = normalizedSplitterSimplification;
 			}
@@ -321,7 +311,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 			if (syntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap == null) {
 
 				syntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap = 
-						new StackedHashMap<String, Simplifier>(getSimplifier().getSyntacticFormTypeSimplifiers());
+						new StackedHashMap<String, Simplifier>(simplifier.getSyntacticFormTypeSimplifiers());
 				
 				Simplifier representativeReplacer = (s, p) -> equalities.getRepresentative(s, p);
 
@@ -336,7 +326,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 		
 		@Override
 		public Expression normalizeExpressionWithoutLiterals(Expression expression, RewritingProcess process) {
-			Expression result = DefaultMapBasedSimplifier.simplify(expression, getSimplifier().getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap(), process);
+			Expression result = DefaultMapBasedSimplifier.simplify(expression, simplifier.getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap(), process);
 			return result;
 		}
 

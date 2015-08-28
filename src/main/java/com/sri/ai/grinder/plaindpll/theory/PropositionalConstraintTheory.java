@@ -81,17 +81,15 @@ import com.sri.ai.util.math.Rational;
 public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 
 	private MapBasedSimplifier simplifier;
-	
-	protected MapBasedSimplifier getSimplifier() {
-		if (simplifier == null) {
-			 simplifier = new DefaultMapBasedSimplifier(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());			
-		}
-		return simplifier;
+
+	public PropositionalConstraintTheory() {
+		super();
+		this.simplifier = new DefaultMapBasedSimplifier(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());
 	}
 	
 	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
-		Expression result = getSimplifier().apply(expression, process);
+	public Expression simplify(Expression expression, RewritingProcess process) {
+		Expression result = simplifier.apply(expression, process);
 		return result;
 	}
 
@@ -298,8 +296,8 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 
 			Expression result = simplifyWithExtraSyntacticFormTypeSimplifiers(
 					expression,
-					getSimplifier().getFunctionApplicationSimplifiers(),
-					getSimplifier().getSyntacticFormTypeSimplifiers(),
+					simplifier.getFunctionApplicationSimplifiers(),
+					simplifier.getSyntacticFormTypeSimplifiers(),
 					process, syntacticTypeForm,
 					valueReplacer);
 			

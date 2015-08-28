@@ -364,7 +364,7 @@ public class SGDPLLT extends AbstractSolver {
 
 	protected Expression simplifyExpressionGivenSplitter(boolean splitterSign, Expression splitter, Expression expression, RewritingProcess process) {
 		Expression afterApplyingSplitter = constraintTheory.applySplitterToExpression(splitterSign, splitter, expression, process);
-		Expression result = getInputTheory().apply(afterApplyingSplitter, process);
+		Expression result = getInputTheory().simplify(afterApplyingSplitter, process);
 		return result;
 	}
 	

@@ -43,6 +43,7 @@ import static com.sri.ai.grinder.helper.GrinderUtil.isBooleanTyped;
 import static com.sri.ai.grinder.library.Equality.isEquality;
 
 import java.util.Collection;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -114,8 +115,8 @@ public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheor
 	}
 
 	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
-		return constraintTheoryWithEquality.apply(expression, process);
+	public Expression simplify(Expression expression, RewritingProcess process) {
+		return constraintTheoryWithEquality.simplify(expression, process);
 	}
 	
 	@Override

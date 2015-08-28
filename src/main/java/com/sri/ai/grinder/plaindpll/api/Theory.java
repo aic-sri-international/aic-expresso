@@ -40,26 +40,23 @@ package com.sri.ai.grinder.plaindpll.api;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
 
 /**
  * An interface for theories.
- * <p>
+ * At the very minimum, a theory knows how to simplify expressions involving symbols defined by it.
  * 
  * @author braz
  *
  */
 @Beta
-public interface Theory extends Simplifier {
-	
+public interface Theory {
+
 	/**
-	 * A alias for {@link #apply(Expression, RewritingProcess)}
-	 * that makes its purpose more clear.
+	 * A method simplifying an expression according to this theory.
+	 * It must at a minimum replace expressions defined by their known arguments.
 	 * @param expression
 	 * @param process
 	 * @return
 	 */
-	default Expression simplify(Expression expression, RewritingProcess process) {
-		return apply(expression, process);
-	}
+	Expression simplify(Expression expression, RewritingProcess process);
 }
