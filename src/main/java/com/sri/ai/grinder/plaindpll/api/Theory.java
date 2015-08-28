@@ -38,34 +38,28 @@
 package com.sri.ai.grinder.plaindpll.api;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.util.base.NullaryFunction;
 
 /**
- * An interface for input theories to be plugged into quantifier problems.
+ * An interface for theories.
  * <p>
- * An input theory is a {@link Simplifier} specialized in input expressions inside quantifiers.
- * As such, it knows about generating random examples of them.
  * 
  * @author braz
  *
  */
 @Beta
-public interface InputTheory extends Theory {
-	
-	ConstraintTheory getConstraintTheory();
+public interface Theory extends Simplifier {
 	
 	/**
-	 * Generates a random input expression in this theory, of a given target type.
-	 * @param targetType the type of the resulting random expression 
-	 * @param getType randomly returns a String naming a type in the problem in question 
-	 * @param getVariable randomly returns an Expression representing a variable in the problem in question, of the given type
-	 * @param getConstant randomly returns an Expression representing a constant in the problem in question, of the given type
-	 * @return a random expression in this input theory
+	 * A alias for {@link #apply(Expression, RewritingProcess)}
+	 * that makes its purpose more clear.
+	 * @param expression
+	 * @param process
+	 * @return
 	 */
-	Expression getRandomInputExpression(
-			String targetType,
-			NullaryFunction<String> getType, Function<String, Expression> getVariable, Function<String, Expression> getConstant);
+	default Expression simplify(Expression expression, RewritingProcess process) {
+		return apply(expression, process);
+	}
 }
