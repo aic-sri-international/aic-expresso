@@ -53,7 +53,9 @@ import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultMapBasedSimplifier;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -75,12 +77,17 @@ import com.sri.ai.util.collect.PredicateIterator;
 @Beta
 public class EqualityConstraintTheory extends AbstractConstraintTheory {
 
+	private MapBasedSimplifier simplifier;
+	
 	@Override
-	protected boolean usesDefaultImplementationOfSimplifyByOverridingMakeFunctionApplicationSimplifiersAndMakeSyntacticFormTypeSimplifiers() {
-		return true;
+	public Expression simplify(Expression expression, RewritingProcess process) {
+		if (simplifier == null) {
+			 simplifier = new DefaultMapBasedSimplifier(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());			
+		}
+		Expression result = simplifier.simplify(expression, process);
+		return result;
 	}
 
-	@Override
 	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeFunctionApplicationSimplifiers() {
 		return map(
 				FunctorConstants.EQUALITY,        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
@@ -112,7 +119,6 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 				);
 	}
 
-	@Override
 	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeSyntacticFormTypeSimplifiers() {
 		return map();
 	}

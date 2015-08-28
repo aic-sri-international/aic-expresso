@@ -46,6 +46,7 @@ import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.AbstractMapBasedSimplifier;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -67,7 +68,6 @@ import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
-import com.sri.ai.grinder.plaindpll.core.AbstractMapsBasedSimplifier;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
 import com.sri.ai.grinder.plaindpll.problemtype.Validity;
@@ -81,7 +81,7 @@ import com.sri.ai.util.base.NullaryFunction;
  *
  */
 @Beta
-public class DefaultInputTheory extends AbstractMapsBasedSimplifier implements InputTheory {
+public class DefaultInputTheory extends AbstractMapBasedSimplifier implements InputTheory {
 	
 	protected ConstraintTheory constraintTheory;
 	private static Rewriter plus = new Plus();
@@ -96,10 +96,6 @@ public class DefaultInputTheory extends AbstractMapsBasedSimplifier implements I
 	}
 
 	private static Rewriter times = new Times();
-	@Override
-	protected boolean usesDefaultImplementationOfSimplifyByOverridingMakeFunctionApplicationSimplifiersAndMakeSyntacticFormTypeSimplifiers() {
-		return true;
-	}
 
 	@Override
 	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeFunctionApplicationSimplifiers() {

@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.theory;
+package com.sri.ai.grinder.core;
 
 import static com.sri.ai.util.Util.putAll;
 
@@ -48,35 +48,29 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.plaindpll.core.AbstractMapsBasedSimplifier;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
- * A concrete {@link AbstractMapsBasedSimplifier} receiving its elementary simplifiers at construction time.
+ * A concrete {@link MapBasedSimplifier} receiving its elementary simplifiers at construction time.
  * 
  * @author braz
  *
  */
 @Beta
-public class MapsBasedSimplifier extends AbstractMapsBasedSimplifier {
+public class DefaultMapBasedSimplifier extends AbstractMapBasedSimplifier {
 	
 	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers;
 	private Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers;
 	
-	public MapsBasedSimplifier(
+	public DefaultMapBasedSimplifier(
 			Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> functionApplicationSimplifiers,
 			Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> syntacticFormTypeSimplifiers) {
 		
 		super();
 		this.functionApplicationSimplifiers = functionApplicationSimplifiers;
 		this.syntacticFormTypeSimplifiers = syntacticFormTypeSimplifiers;
-	}
-
-	@Override
-	protected boolean usesDefaultImplementationOfSimplifyByOverridingMakeFunctionApplicationSimplifiersAndMakeSyntacticFormTypeSimplifiers() {
-		return true;
 	}
 
 	@Override

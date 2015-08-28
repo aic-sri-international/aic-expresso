@@ -35,36 +35,24 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.sgdpll2;
+package com.sri.ai.grinder.api;
 
-import java.util.Random;
-
-import org.junit.Test;
+import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
-import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.util.base.BinaryFunction;
 
 @Beta
-public class EqualityConstraintTest {
+/** 
+ * An type of {@link Simplifier} based on maps from functor or syntactic form types to
+ * elementary simplifiers in the form of {@link BinaryFunction}s
+ * from an {@link Expression} and {@link RewritingProcess} to an {@link Expression},
+ * which are applied exhaustively, in a top-down manner, to expressions to be simplified. 
+ */
+public interface MapBasedSimplifier extends Simplifier {
 
-	@Test
-	public void testSingleVariableConstraints() {
-		ConstraintTheoryTester.testSingleVariableConstraints(
-				new Random(),
-				new EqualityConstraintTheory(),
-				100 /* number of tests */,
-				30 /* number of literals per test */,
-				true /* output count */);
-	}
+	Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getFunctionApplicationSimplifiers();
 
-	@Test
-	public void testMultiVariableConstraints() {
-		ConstraintTheoryTester.testMultiVariableConstraints(
-				new Random(),
-				new EqualityConstraintTheory(),
-				500 /* number of tests */,
-				30 /* number of literals per test */,
-				true /* output count */);
-	}
+	Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> getSyntacticFormTypeSimplifiers();
 }

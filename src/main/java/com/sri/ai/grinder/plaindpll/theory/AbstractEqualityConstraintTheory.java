@@ -58,7 +58,9 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultMapBasedSimplifier;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -105,14 +107,23 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 //	private static Rewriter plus  = new Plus();
 //	private static Rewriter times = new Times();
 
+	private MapBasedSimplifier simplifier;
+	
+	protected MapBasedSimplifier getSimplifier() {
+		if (simplifier == null) {
+			 simplifier = new DefaultMapBasedSimplifier(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());			
+		}
+		return simplifier;
+	}
+	
 	@Override
-	protected boolean usesDefaultImplementationOfSimplifyByOverridingMakeFunctionApplicationSimplifiersAndMakeSyntacticFormTypeSimplifiers() {
-		return true;
+	public Expression simplify(Expression expression, RewritingProcess process) {
+		Expression result = getSimplifier().simplify(expression, process);
+		return result;
 	}
 
-	@Override
 	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeFunctionApplicationSimplifiers() {
-		return 			map(
+		return map(
 				FunctorConstants.EQUALITY,        (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
 				Equality.simplify(f, process),
 
@@ -163,7 +174,6 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 				);
 	}
 
-	@Override
 	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeSyntacticFormTypeSimplifiers() {
 		return map(
 //				ForAll.SYNTACTIC_FORM_TYPE,                             (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
@@ -311,7 +321,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 			if (syntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap == null) {
 
 				syntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap = 
-						new StackedHashMap<String, BinaryFunction<Expression, RewritingProcess, Expression>>(getSyntacticFormTypeSimplifiers());
+						new StackedHashMap<String, BinaryFunction<Expression, RewritingProcess, Expression>>(getSimplifier().getSyntacticFormTypeSimplifiers());
 				
 				BinaryFunction<Expression, RewritingProcess, Expression> representativeReplacer = (s, p) -> equalities.getRepresentative(s, p);
 
@@ -326,7 +336,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 		
 		@Override
 		public Expression normalizeExpressionWithoutLiterals(Expression expression, RewritingProcess process) {
-			Expression result = MapsBasedSimplifier.simplify(expression, getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap(), process);
+			Expression result = DefaultMapBasedSimplifier.simplify(expression, getSimplifier().getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap(), process);
 			return result;
 		}
 
@@ -465,7 +475,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 			BinaryFunction<Expression, RewritingProcess, Expression> representativeReplacer =
 					(BinaryFunction<Expression, RewritingProcess, Expression>) (s, p) -> getRepresentative(s, p);
 
-					Expression result = MapsBasedSimplifier.simplifyWithExtraSyntacticFormTypeSimplifiers(
+					Expression result = DefaultMapBasedSimplifier.simplifyWithExtraSyntacticFormTypeSimplifiers(
 							expression,
 							theory.makeFunctionApplicationSimplifiers(),
 							theory.makeSyntacticFormTypeSimplifiers(),

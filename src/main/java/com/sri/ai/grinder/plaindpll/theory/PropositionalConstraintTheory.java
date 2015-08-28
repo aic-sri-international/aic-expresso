@@ -55,7 +55,9 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultMapBasedSimplifier;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Equivalence;
@@ -77,12 +79,21 @@ import com.sri.ai.util.math.Rational;
  */
 public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 
+	private MapBasedSimplifier simplifier;
+	
+	protected MapBasedSimplifier getSimplifier() {
+		if (simplifier == null) {
+			 simplifier = new DefaultMapBasedSimplifier(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());			
+		}
+		return simplifier;
+	}
+	
 	@Override
-	protected boolean usesDefaultImplementationOfSimplifyByOverridingMakeFunctionApplicationSimplifiersAndMakeSyntacticFormTypeSimplifiers() {
-		return true;
+	public Expression simplify(Expression expression, RewritingProcess process) {
+		Expression result = getSimplifier().simplify(expression, process);
+		return result;
 	}
 
-	@Override
 	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeFunctionApplicationSimplifiers() {
 		return 	map(
 				FunctorConstants.AND,            (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
@@ -106,7 +117,6 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 
 	}
 
-	@Override
 	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeSyntacticFormTypeSimplifiers() {
 		return map();
 	}
@@ -285,10 +295,10 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 							Expressions.FALSE
 							: s;
 
-			Expression result = MapsBasedSimplifier.simplifyWithExtraSyntacticFormTypeSimplifiers(
+			Expression result = DefaultMapBasedSimplifier.simplifyWithExtraSyntacticFormTypeSimplifiers(
 					expression,
-					getFunctionApplicationSimplifiers(),
-					getSyntacticFormTypeSimplifiers(),
+					getSimplifier().getFunctionApplicationSimplifiers(),
+					getSimplifier().getSyntacticFormTypeSimplifiers(),
 					process, syntacticTypeForm,
 					valueReplacer);
 			

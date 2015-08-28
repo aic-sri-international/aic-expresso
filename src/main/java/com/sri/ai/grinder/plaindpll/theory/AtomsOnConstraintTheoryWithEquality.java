@@ -114,11 +114,6 @@ public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheor
 	}
 
 	@Override
-	protected boolean usesDefaultImplementationOfSimplifyByOverridingMakeFunctionApplicationSimplifiersAndMakeSyntacticFormTypeSimplifiers() {
-		return false;
-	}
-
-	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {
 		return constraintTheoryWithEquality.simplify(expression, process);
 	}

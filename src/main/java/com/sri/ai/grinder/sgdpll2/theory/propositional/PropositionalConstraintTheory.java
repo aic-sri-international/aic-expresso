@@ -50,7 +50,9 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.Categorical;
+import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultMapBasedSimplifier;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.Equivalence;
@@ -68,6 +70,11 @@ import com.sri.ai.util.base.BinaryFunction;
  */
 public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 
+	/**
+	 * Constructor overrides default constructor in order to define
+	 * testing symbols <code>P, Q, R</code> of type <code>Boolean</code>,
+	 * and main testing variable as <code>P</code>.
+	 */
 	public PropositionalConstraintTheory() {
 		super();
 		ArrayList<Expression> knownConstants = mapIntoArrayList(list("true", "false"), s -> makeSymbol(s));
@@ -76,12 +83,17 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 		setTestingVariable("P");
 	}
 
+	private MapBasedSimplifier simplifier;
+	
 	@Override
-	protected boolean usesDefaultImplementationOfSimplifyByOverridingMakeFunctionApplicationSimplifiersAndMakeSyntacticFormTypeSimplifiers() {
-		return true;
+	public Expression simplify(Expression expression, RewritingProcess process) {
+		if (simplifier == null) {
+			 simplifier = new DefaultMapBasedSimplifier(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());			
+		}
+		Expression result = simplifier.simplify(expression, process);
+		return result;
 	}
 
-	@Override
 	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeFunctionApplicationSimplifiers() {
 		return map(
 				FunctorConstants.AND,            (BinaryFunction<Expression, RewritingProcess, Expression>) (f, process) ->
@@ -104,7 +116,6 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 				);
 	}
 
-	@Override
 	public Map<String, BinaryFunction<Expression, RewritingProcess, Expression>> makeSyntacticFormTypeSimplifiers() {
 		return map();
 	}

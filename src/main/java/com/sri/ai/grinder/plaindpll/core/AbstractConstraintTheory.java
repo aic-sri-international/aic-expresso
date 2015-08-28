@@ -63,7 +63,7 @@ import com.sri.ai.util.collect.PredicateIterator;
 /** 
  * Basic implementation of some methods of {@link ConstraintTheory}.
  */
-abstract public class AbstractConstraintTheory extends AbstractMapsBasedSimplifier implements ConstraintTheory {
+abstract public class AbstractConstraintTheory implements ConstraintTheory {
 
 	/**
 	 * This default implementation searches the entire splitter and its sub-expressions for an index;
