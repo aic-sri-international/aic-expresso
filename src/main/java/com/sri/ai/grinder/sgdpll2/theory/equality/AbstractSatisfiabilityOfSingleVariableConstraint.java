@@ -38,12 +38,9 @@
 package com.sri.ai.grinder.sgdpll2.theory.equality;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblem;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 
@@ -57,33 +54,20 @@ import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
  *
  */
 @Beta
-public abstract class AbstractSatisfiabilityOfSingleVariableConstraint implements ContextDependentProblem {
+public abstract class AbstractSatisfiabilityOfSingleVariableConstraint extends AbstractContextDependentProblemWithPropagatedLiterals {
 
 	protected SingleVariableConstraint constraint;
-
+	
+	public AbstractSatisfiabilityOfSingleVariableConstraint(SingleVariableConstraint constraint) {
+		this.constraint = constraint;
+	}
+	
 	public SingleVariableConstraint getConstraint() {
 		return constraint;
 	}
-
-	protected abstract Iterable<Expression> splitters();
-
-	public AbstractSatisfiabilityOfSingleVariableConstraint() {
-		super();
-	}
-
+	
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, RewritingProcess process) {
-	
-		for (Expression propagatedLiteral : splitters()) {
-			if (contextualConstraint.contradictoryWith(propagatedLiteral, process)) {
-				return new Solution(FALSE);
-			}
-			else if (!contextualConstraint.implies(propagatedLiteral, process)) {
-				return new ItDependsOn(propagatedLiteral);
-			}
-		}
-	
-		// the contextual constraint guarantees all propagated literals are satisfied, so there is a satisfying value for variable for the given context.
-		return new Solution(TRUE); 
+	protected Expression solutionIfPropagatedLiteralsAreNotSatisfied() {
+		return FALSE;
 	}
 }

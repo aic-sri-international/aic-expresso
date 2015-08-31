@@ -128,7 +128,6 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 
 	@Override
 	public Expression getLiteralNegation(Expression literal) {
-		// TODO: merge this with solver's literal manipulation methods
 		Expression result;
 		if (literal.hasFunctor(NOT) && (literal.get(0).hasFunctor(EQUALITY) || literal.get(0).hasFunctor(DISEQUALITY))) {
 			result = literal;
