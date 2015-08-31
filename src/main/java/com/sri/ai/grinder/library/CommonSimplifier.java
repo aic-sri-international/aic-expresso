@@ -59,9 +59,9 @@ import com.sri.ai.grinder.library.set.CardinalitySimplifier;
  *
  */
 @Beta
-public class GeneralSimplifier extends MergingMapBasedSimplifier {
+public class CommonSimplifier extends MergingMapBasedSimplifier {
 	
-	public GeneralSimplifier() {
+	public CommonSimplifier() {
 		super(
 				new BooleanSimplifier(),
 				new NumericSimplifier(),

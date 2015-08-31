@@ -1229,7 +1229,7 @@ public class GrinderUtil {
 	 * @param process
 	 * @return a map representing a satisfying assignment, or null.
 	 */
-	public static Map<Expression, Expression> isSatisfiableByBruteForce(Expression formula, ConstraintTheory constraintTheory, RewritingProcess process) {
+	public static Map<Expression, Expression> getSatisfyingAssignmentByBruteForce(Expression formula, ConstraintTheory constraintTheory, RewritingProcess process) {
 		Map<Expression, Expression> satisfyingAssignment = null;
 		Collection<Expression> variables = constraintTheory.getVariablesIn(formula, process);
 		Iterator<Map<Expression, Expression>> assignmentsIterator = new AssignmentsIterator(variables, process);

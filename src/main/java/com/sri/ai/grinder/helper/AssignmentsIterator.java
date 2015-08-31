@@ -45,8 +45,11 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.collect.CartesianProductIterator;
 
@@ -63,25 +66,56 @@ public class AssignmentsIterator extends CartesianProductIterator<Expression, Ex
 		super(makeMapFromVariablesToIteratorMakers(variables, process));
 	}
 
-	/**
-	 * @param variables
-	 * @param process
-	 * @return 
-	 */
+	public AssignmentsIterator(IndexExpressionsSet indexExpressionsSet, RewritingProcess process) {
+		super(makeMapFromVariablesToIteratorMakersFrom(indexExpressionsSet, process));
+	}
+
 	private static Map<Expression, NullaryFunction<Iterator<Expression>>>
 	makeMapFromVariablesToIteratorMakers(Collection<Expression> variables, RewritingProcess process) {
 		Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker = map();
 		for (Expression variable : variables) {
 			Expression typeDescription = GrinderUtil.getType(variable, process);
-			if (typeDescription == null) {
-				throw new Error("Variable " + variable + " is not registered in rewriting process (has no type).");
-			}
-			Type type = process.getType(typeDescription.toString());
-			if (type == null) {
-				throw new Error("Variable " + variable + " has type " + typeDescription + " but rewriting process contains no type with this name.");
-			}
-			fromVariableToIteratorMaker.put(variable, () -> type.iterator());
+			putVariableAndIteratorMakerIn(fromVariableToIteratorMaker, variable, typeDescription, process);
 		}
 		return fromVariableToIteratorMaker;
+	}
+
+	private static Map<Expression, NullaryFunction<Iterator<Expression>>>
+	makeMapFromVariablesToIteratorMakersFrom(IndexExpressionsSet indexExpressionsSet, RewritingProcess process) {
+		Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker = map();
+		ExtensionalIndexExpressionsSet extensionalIndexExpressionsSet;
+		try {
+			extensionalIndexExpressionsSet = (ExtensionalIndexExpressionsSet) indexExpressionsSet;
+		}
+		catch (ClassCastException e) {
+			throw new Error("AssignmentsIterator defined for extensional index expressions sets only.");
+		}
+		for (Expression indexExpression : extensionalIndexExpressionsSet.getList()) {
+			Expression variable = IndexExpressions.getIndex(indexExpression);
+			Expression typeDescription = IndexExpressions.getType(indexExpression);
+			if (typeDescription == null) {
+				typeDescription = GrinderUtil.getType(variable, process);
+			}
+			putVariableAndIteratorMakerIn(fromVariableToIteratorMaker, variable, typeDescription, process);
+		}
+		return fromVariableToIteratorMaker;
+	}
+
+	/**
+	 * @param fromVariableToIteratorMaker
+	 * @param variable
+	 * @param typeDescription
+	 * @param process
+	 * @throws Error
+	 */
+	private static void putVariableAndIteratorMakerIn(Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker, Expression variable, Expression typeDescription, RewritingProcess process) throws Error {
+		if (typeDescription == null) {
+			throw new Error("Variable " + variable + " is not registered in rewriting process (has no type).");
+		}
+		Type type = process.getType(typeDescription.toString());
+		if (type == null) {
+			throw new Error("Variable " + variable + " has type " + typeDescription + " but rewriting process contains no type with this name.");
+		}
+		fromVariableToIteratorMaker.put(variable, () -> type.iterator());
 	}
 }

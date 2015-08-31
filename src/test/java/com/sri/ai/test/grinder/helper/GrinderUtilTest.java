@@ -38,7 +38,7 @@
 package com.sri.ai.test.grinder.helper;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.grinder.helper.GrinderUtil.isSatisfiableByBruteForce;
+import static com.sri.ai.grinder.helper.GrinderUtil.getSatisfyingAssignmentByBruteForce;
 import static com.sri.ai.util.Util.map;
 import static org.junit.Assert.*;
 
@@ -250,7 +250,7 @@ public class GrinderUtilTest extends AbstractGrinderTest {
 		Map<Expression, Expression> actual;
 		constraintTheory = new EqualityConstraintTheory();
 		process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
-		actual = isSatisfiableByBruteForce(formula, constraintTheory, process);
+		actual = getSatisfyingAssignmentByBruteForce(formula, constraintTheory, process);
 		assertEquals(expected, actual);
 	}
 }

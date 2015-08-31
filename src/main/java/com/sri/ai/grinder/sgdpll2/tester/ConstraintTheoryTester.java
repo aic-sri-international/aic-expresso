@@ -37,8 +37,8 @@
  */
 package com.sri.ai.grinder.sgdpll2.tester;
 
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.grinder.helper.GrinderUtil.isSatisfiableByBruteForce;
 import static com.sri.ai.util.Util.join;
 
 import java.util.Collection;
@@ -49,7 +49,10 @@ import java.util.Random;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.library.CommonInterpreter;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.library.boole.ThereExists;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.DefaultMultiVariableConstraint;
@@ -208,8 +211,10 @@ public class ConstraintTheoryTester {
 	protected static void solverSaysItIsSatisfiable(Collection<Expression> literals, Constraint constraint, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
 		output("Solver thinks it is satisfiable. Current constraint is " + constraint);	
 		Expression formula = And.make(literals);
-		Map<Expression, Expression> satisfyingAssignment = isSatisfiableByBruteForce(formula, constraintTheory, process);
-		if (satisfyingAssignment == null) {
+		boolean isUnsatisfiable = !ConstraintTheoryTester.isSatisfiableByBruteForce(formula, constraintTheory, process);;
+//		Map<Expression, Expression> satisfyingAssignment = getSatisfyingAssignmentByBruteForce(formula, constraintTheory, process);
+//		boolean isUnsatisfiable = satisfyingAssignment == null;
+		if (isUnsatisfiable) {
 			String message = join(literals, " and ") + " is unsatisfiable (by brute-force) but " + 
 			constraintTheory.getClass().getSimpleName() + "'s says it is satisfiable. " +
 			"Current constraint is " + constraint;
@@ -230,16 +235,40 @@ public class ConstraintTheoryTester {
 	protected static void solverSaysItIsUnsatisfiable(Collection<Expression> literals, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
 		output("Solver thinks it is unsatisfiable.");	
 		Expression formula = And.make(literals);
-		Map<Expression, Expression> satisfyingAssignment = isSatisfiableByBruteForce(formula, constraintTheory, process);
-		if (satisfyingAssignment != null) {
+		boolean isSatisfiable = ConstraintTheoryTester.isSatisfiableByBruteForce(formula, constraintTheory, process);;
+//		Map<Expression, Expression> satisfyingAssignment = getSatisfyingAssignmentByBruteForce(formula, constraintTheory, process);
+//		boolean isSatisfiable = satisfyingAssignment != null;
+		if (isSatisfiable) {
 			String message = join(literals, " and ") + " is satisfiable (by brute-force) but " + 
-			constraintTheory.getClass().getSimpleName() + "'s says it is not. " +
-			"Satisfying assignment is " + satisfyingAssignment + ".";
+			constraintTheory.getClass().getSimpleName() + "'s says it is not. "
+//			+ "Satisfying assignment is " + satisfyingAssignment + "."
+			;
 			output(message);
 			throw new Error(message);
 		}
 		else {
 			output("Brute-force satisfiability test agrees that it is unsatisfiable.");	
 		}
+	}
+
+	/**
+	 * Determines whether a formula is satisfiable by adding existential quantifiers for each of its variables
+	 * (according to the constraint theory provided) and evaluating it.
+	 * @param formula
+	 * @param constraintTheory
+	 * @param process
+	 * @return whether the formula is satisfiable.
+	 */
+	public static boolean isSatisfiableByBruteForce(Expression formula, ConstraintTheory constraintTheory, RewritingProcess process) {
+		Map<String, String> variableNamesAndTypeNamesForTesting = constraintTheory.getVariableNamesAndTypeNamesForTesting();
+		Expression quantifiedFormula = formula;
+		Collection<Expression> variables = constraintTheory.getVariablesIn(formula, process);
+		for (Expression variable : variables) {
+			Expression type = makeSymbol(variableNamesAndTypeNamesForTesting.get(variable));
+			quantifiedFormula = ThereExists.make(IndexExpressions.makeIndexExpression(variable, type), quantifiedFormula);
+		}
+		Expression evaluation = new CommonInterpreter().apply(quantifiedFormula, process);
+		boolean result = evaluation.equals(TRUE);
+		return result;
 	}
 }
