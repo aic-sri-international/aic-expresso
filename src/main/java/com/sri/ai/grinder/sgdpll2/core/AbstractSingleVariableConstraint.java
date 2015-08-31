@@ -144,6 +144,18 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	//////////// THEORY RULES
 	
 	/**
+	 * Defines how a literal is decomposed into sign and atom.
+	 * Atom representations should be normalized (equivalent atoms should always be represented by the same expressions).
+	 * For example, <code>X != a</code> could be decomposed into <code>false</code> and <code>X = a</code>.
+	 * Note that the notion of "atom" is internal to a single-variable constraint with a specific variable.
+	 * Other constraints may produce different atoms from the same literals.
+	 * @param variable
+	 * @param literal
+	 * @return
+	 */
+	abstract public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndAtom(Expression variable, Expression literal);
+
+	/**
 	 * Returns the literal corresponding to the negation of the given atom
 	 * (which is known to be false).
 	 * Typically this will just return the application of NOT to the atom,
@@ -154,22 +166,13 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 */
 	abstract public Expression fromNegativeAtomToLiteral(Expression negativeAtom);
 
-	/**
-	 * Defines how a literal is decomposed into sign and atom.
-	 * Atom representations should be normalized (equivalent atoms should always be represented by the same expressions).
-	 * For example, <code>X != a</code> could be decomposed into <code>false</code> and <code>X = a</code>.
-	 * @param variable
-	 * @param literal
-	 * @return
-	 */
-	abstract public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndAtom(Expression variable, Expression literal);
-
-	/** Indicates whether there are interactions between distinct atoms in current theory. */
+	/** Indicates whether there are interactions between distinct atoms (for this constraint and variable). */
 	abstract public boolean atomMayImplyLiteralsOnDifferentAtoms();
 
 	/**
 	 * Indicates whether, according to the current theory, sign1 atom1 implies sign2 atom2,
 	 * where atom1 and atom2 can be assumed distinct (the result is not defined otherwise).
+	 * Remember that the notion of "atom" is specific to this constraint and variable.
 	 * @param sign1
 	 * @param atom1
 	 * @param sign2
