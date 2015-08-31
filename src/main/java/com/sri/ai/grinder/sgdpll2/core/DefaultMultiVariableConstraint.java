@@ -11,6 +11,8 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.util.Util;
 
 /**

@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.theory.equality;
+package com.sri.ai.grinder.sgdpll2.core;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
 
@@ -45,8 +45,10 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblem;
-import com.sri.ai.grinder.sgdpll2.core.DefaultMultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.MultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.theory.equality.SatisfiabilityOfSingleVariableEqualityConstraint;
+import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstraint;
 
 /**
  * Solves a {@link ContextDependentProblem} by successively conditioning the context on provided splitters.

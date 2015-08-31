@@ -56,7 +56,6 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
-import com.sri.ai.grinder.sgdpll2.core.SingleVariableConstraint;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.PredicateIterator;
 

@@ -60,8 +60,8 @@ import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.AbstractConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.core.SingleVariableConstraint;
 import com.sri.ai.util.collect.PredicateIterator;
 
 /** 

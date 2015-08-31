@@ -76,17 +76,17 @@ public class SatisfiabilityOfSingleVariableEqualityConstraint extends AbstractSa
 	}
 	
 	@Override
-	protected Iterable<Expression> propagatedLiterals() {
+	protected Iterable<Expression> splitters() {
 		
 		Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator = pairsOfEqualsToVariableIterator();
-		Iterator<Expression> propagatedEqualities = FunctionIterator.make(pairsOfEqualsToVariableIterator, p -> Equality.make(p.first, p.second));
+		Iterator<Expression> splitterEqualities = FunctionIterator.make(pairsOfEqualsToVariableIterator, p -> Equality.make(p.first, p.second));
 		
 		Iterator<PairOf<Expression>> pairsOfEqualAndDisequalToVariableIterator = pairsOfEqualAndDisequalToVariableIterator();
-		Iterator<Expression> propagatedDisequalities = FunctionIterator.make(pairsOfEqualAndDisequalToVariableIterator, p -> Disequality.make(p.first, p.second));
+		Iterator<Expression> splitterDisequalities = FunctionIterator.make(pairsOfEqualAndDisequalToVariableIterator, p -> Disequality.make(p.first, p.second));
 		
-		Iterator<Expression> propagatedLiteralsIterator = new NestedIterator<>(propagatedEqualities, propagatedDisequalities);
+		Iterator<Expression> splittersIterator = new NestedIterator<>(splitterEqualities, splitterDisequalities);
 
-		Iterable<Expression> result = in(propagatedLiteralsIterator);
+		Iterable<Expression> result = in(splittersIterator);
 		
 		return result;
 	}

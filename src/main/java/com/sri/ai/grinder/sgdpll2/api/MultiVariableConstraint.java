@@ -1,8 +1,7 @@
-package com.sri.ai.grinder.sgdpll2.core;
+package com.sri.ai.grinder.sgdpll2.api;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
 
 /**
  * An {@link Constraint} keeping consistency of multiple variables.

@@ -45,13 +45,13 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblem;
-import com.sri.ai.grinder.sgdpll2.core.SingleVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 
 /**
  * A step solver for the problem <code>there exists X : C</code>,
  * for <code>C</code> a {@link SingleVariableConstraint},
  * which can involve free variables and is therefore a {@link ContextDependentProblem}.
- * This class is based on propagated literals generated according to the specific theory.
+ * This class is based on splitters generated according to the specific theory.
  * 
  * @author braz
  *
@@ -65,7 +65,7 @@ public abstract class AbstractSatisfiabilityOfSingleVariableConstraint implement
 		return constraint;
 	}
 
-	protected abstract Iterable<Expression> propagatedLiterals();
+	protected abstract Iterable<Expression> splitters();
 
 	public AbstractSatisfiabilityOfSingleVariableConstraint() {
 		super();
@@ -74,7 +74,7 @@ public abstract class AbstractSatisfiabilityOfSingleVariableConstraint implement
 	@Override
 	public SolutionStep step(Constraint contextualConstraint, RewritingProcess process) {
 	
-		for (Expression propagatedLiteral : propagatedLiterals()) {
+		for (Expression propagatedLiteral : splitters()) {
 			if (contextualConstraint.contradictoryWith(propagatedLiteral, process)) {
 				return new Solution(FALSE);
 			}

@@ -53,8 +53,8 @@ import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.AbstractConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.core.SingleVariableConstraint;
 
 @Beta
 /** 
