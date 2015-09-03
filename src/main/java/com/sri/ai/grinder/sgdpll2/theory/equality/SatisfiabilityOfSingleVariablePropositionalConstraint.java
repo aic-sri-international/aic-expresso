@@ -37,37 +37,32 @@
  */
 package com.sri.ai.grinder.sgdpll2.theory.equality;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import java.util.Collections;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblem;
-import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.theory.propositional.SingleVariablePropositionalConstraint;
 
 /**
- * A step solver for the problem <code>there exists X : C</code>,
- * for <code>C</code> a {@link SingleVariableConstraint},
- * which can involve free variables and is therefore a {@link ContextDependentProblem}.
- * This class is based on splitters generated according to the specific theory.
+ * A {@link AbstractSatisfiabilityOfConstraint} for a {@link SingleVariablePropositionalConstraint}.
  * 
  * @author braz
  *
  */
 @Beta
-public abstract class AbstractSatisfiabilityOfSingleVariableConstraint extends AbstractContextDependentProblemWithPropagatedLiterals {
+public class SatisfiabilityOfSingleVariablePropositionalConstraint extends AbstractSatisfiabilityOfConstraint {
 
-	protected SingleVariableConstraint constraint;
-	
-	public AbstractSatisfiabilityOfSingleVariableConstraint(SingleVariableConstraint constraint) {
-		this.constraint = constraint;
-	}
-	
-	public SingleVariableConstraint getConstraint() {
-		return constraint;
+	public SatisfiabilityOfSingleVariablePropositionalConstraint(SingleVariablePropositionalConstraint constraint) {
+		super(constraint);
 	}
 	
 	@Override
-	protected Expression solutionIfPropagatedLiteralsAreNotSatisfied() {
-		return FALSE;
+	public SingleVariablePropositionalConstraint getConstraint() {
+		return (SingleVariablePropositionalConstraint) constraint;
+	}
+	
+	@Override
+	protected Iterable<Expression> propagatedLiterals() {
+		return Collections.emptyList();
 	}
 }

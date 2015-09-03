@@ -1,9 +1,14 @@
 package com.sri.ai.grinder.sgdpll2.theory.equality;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.util.Util.list;
+
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblem;
+import com.sri.ai.util.Util;
 
 public abstract class AbstractContextDependentProblemWithPropagatedLiterals implements ContextDependentProblem {
 
@@ -23,10 +28,9 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiterals impl
 	protected abstract Expression solutionIfPropagatedLiteralsAreNotSatisfied();
 
 	/**
-	 * The step solution once it's been determined that the propagated literals are consistent with the contextual constraint.
-	 * @return The step solution once it's been determined that the propagated literals are consistent with the contextual constraint.
+	 * The solution to be provided if all propagated literals and splitter DNF are satisfied..
 	 */
-	protected abstract SolutionStep stepGivenPropagatedLiteralsAreSatisfied(Constraint contextualConstraint, RewritingProcess process);
+	protected abstract Expression solutionIfPropagatedLiteralsAndSplittersDNFAreSatisfied();
 
 	@Override
 	public SolutionStep step(Constraint contextualConstraint, RewritingProcess process) {
@@ -40,8 +44,46 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiterals impl
 			}
 		}
 	
-		// the contextual constraint guarantees all propagated literals are satisfied, so there is a satisfying value for variable for the given context.
-		SolutionStep result = stepGivenPropagatedLiteralsAreSatisfied(contextualConstraint, process);
+		Expression splitter = getFirstNecessaryButUndefinedSplitter(contextualConstraint, process);
+		if (splitter != null) {
+			return new ItDependsOn(splitter);
+		}
+		
+		SolutionStep result = new Solution(solutionIfPropagatedLiteralsAndSplittersDNFAreSatisfied());
 		return result; 
 	}
+
+	private Expression getFirstNecessaryButUndefinedSplitter(Constraint contextualConstraint, RewritingProcess process) {
+		for (Iterable<Expression> disjunct : Util.<Iterable<Expression>>list()) {
+			for (Expression conjunct : disjunct) {
+				Expression valueGivenContextualConstraint = getValueGivenContextualConstraint(conjunct, contextualConstraint, process);
+				if (valueGivenContextualConstraint == null) {
+					return conjunct;
+				}
+				else if (valueGivenContextualConstraint.equals(FALSE)) {
+					break; // disjunct is false, move on to next one
+				}
+				else {
+					// conjunct already satisfied, move on to next conjunct
+				}
+			}
+		}
+		return null;
+	}
+
+	private Expression getValueGivenContextualConstraint(Expression literal, Constraint contextualConstraint, RewritingProcess process) {
+		if (contextualConstraint.contradictoryWith(literal, process)) {
+			return FALSE;
+		}
+		else if (contextualConstraint.implies(literal, process)) {
+			return TRUE;
+		}
+		else {
+			return null;
+		}
+	}
+	
+//	private SolutionStep getStepFromSplittersDNF() {
+//		
+//	}
 }

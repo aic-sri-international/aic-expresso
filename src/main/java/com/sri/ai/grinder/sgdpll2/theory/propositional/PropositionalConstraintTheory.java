@@ -47,14 +47,17 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblem;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.AbstractConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.theory.equality.SatisfiabilityOfSingleVariablePropositionalConstraint;
 
 @Beta
 /** 
@@ -86,6 +89,11 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	@Override
 	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
 		return false; // nothing else is interpreted
+	}
+
+	@Override
+	public Function<SingleVariableConstraint, ContextDependentProblem> getMakerOfSatisfiabilityOfSingleVariableConstraintProblem() {
+		return s -> new SatisfiabilityOfSingleVariablePropositionalConstraint((SingleVariablePropositionalConstraint) s);
 	}
 
 	@Override

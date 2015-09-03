@@ -40,59 +40,62 @@ package com.sri.ai.grinder.sgdpll2.core;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblem;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.theory.equality.SatisfiabilityOfSingleVariableEqualityConstraint;
-import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstraint;
+import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
 
 /**
- * Solves a {@link ContextDependentProblem} by successively conditioning the context on provided splitters.
+ * A multi-variable constraint whose {@link #conjoin(com.sri.ai.expresso.api.Expression, RewritingProcess)}
+ * is guaranteed to return <code>null</code> if it becomes unsatisfiable.
  * 
  * @author braz
  *
  */
 @Beta
-public class ContextDependentProblemSolver {
+public class CompleteMultiVariableConstraint extends MultiVariableConstraintWithCheckedProperty {
 
-	public static Expression solve(ContextDependentProblem problem, MultiVariableConstraint contextualConstraint, RewritingProcess process) {
-		ContextDependentProblem.SolutionStep step = problem.step(contextualConstraint, process);
-		if (step.itDepends()) {
-			Expression splitter = step.getExpression();
-			MultiVariableConstraint subContextualConstraint1 = contextualConstraint.conjoin(splitter, process);
-			Expression subSolution1 = solve(problem, subContextualConstraint1, process);
-			
-			Expression splitterNegation = contextualConstraint.getConstraintTheory().getLiteralNegation(splitter);
-			MultiVariableConstraint subContextualConstraint2 = contextualConstraint.conjoin(splitterNegation, process);
-			Expression subSolution2 = solve(problem, subContextualConstraint2, process);
-			
-			return IfThenElse.make(splitter, subSolution1, subSolution2, true);
-		}
-		else {
-			return step.getExpression();
-		}
+	private static final long serialVersionUID = 1L;
+
+	public CompleteMultiVariableConstraint(ConstraintTheory constraintTheory) {
+		super(constraintTheory, constraintTheory.getMakerOfSatisfiabilityOfSingleVariableConstraintProblem());
 	}
-	
+
 	public static void main(String[] args) {
+		MultiVariableConstraint constraint;
+		RewritingProcess process;
 		
-		DefaultRewritingProcess process = new DefaultRewritingProcess(null);
+		constraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory());
+		process = new DefaultRewritingProcess(null);
 
-		SingleVariableEqualityConstraint constraint = new SingleVariableEqualityConstraint(parse("X"), new EqualityConstraintTheory());
+		System.out.println("constraint: " + constraint);	
+		constraint = constraint.conjoin(parse("Z != Y"), process);
+		System.out.println("constraint: " + constraint);	
+		constraint = constraint.conjoin(parse("W != Z"), process);
+		System.out.println("constraint: " + constraint);	
 		constraint = constraint.conjoin(parse("X = Y"), process);
+		System.out.println("constraint: " + constraint);	
+		constraint = constraint.conjoin(parse("X = W"), process);
+		System.out.println("constraint: " + constraint);	
 		constraint = constraint.conjoin(parse("X = Z"), process);
-		constraint = constraint.conjoin(parse("X != W"), process);
-		constraint = constraint.conjoin(parse("X != U"), process);
-		
-		ContextDependentProblem problem = new SatisfiabilityOfSingleVariableEqualityConstraint(constraint);
+		System.out.println("constraint: " + constraint);	
 
-		MultiVariableConstraint contextualConstraint = new DefaultMultiVariableConstraint(new EqualityConstraintTheory());
-		
-		Expression result = solve(problem, contextualConstraint, process);
-		
-		System.out.println("result: " + result);	
+		constraint = new CompleteMultiVariableConstraint(new PropositionalConstraintTheory());
+		process = new DefaultRewritingProcess(null);
+
+		System.out.println("constraint: " + constraint);	
+		constraint = constraint.conjoin(parse("P"), process);
+		System.out.println("constraint: " + constraint);	
+		constraint = constraint.conjoin(parse("Q"), process);
+		System.out.println("constraint: " + constraint);	
+		constraint = constraint.conjoin(parse("not R"), process);
+		System.out.println("constraint: " + constraint);	
+		constraint = constraint.conjoin(parse("not S"), process);
+		System.out.println("constraint: " + constraint);	
+		constraint = constraint.conjoin(parse("not P"), process);
+		System.out.println("constraint: " + constraint);	
+	
 	}
 }

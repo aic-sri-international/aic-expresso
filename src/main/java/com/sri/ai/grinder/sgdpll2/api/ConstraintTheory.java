@@ -48,6 +48,7 @@ import java.util.Map;
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
@@ -95,7 +96,20 @@ public interface ConstraintTheory extends Theory {
 	 * @return
 	 */
 	boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process);
+
+	/**
+	 * Returns a function mapping single-variable constraints in this theory to
+	 * a {@link ContextDependentProblem} deciding its satisfiability.
+	 * @return a function mapping single-variable constraints in this theory to
+	 * a {@link ContextDependentProblem} deciding its satisfiability.
+	 */
+	Function<SingleVariableConstraint, ContextDependentProblem> getMakerOfSatisfiabilityOfSingleVariableConstraintProblem();
 	
+	/**
+	 * Returns the negation of a literal
+	 * @param literal the literal
+	 * @return the negation of literal
+	 */
 	Expression getLiteralNegation(Expression literal);
 	
 	/**

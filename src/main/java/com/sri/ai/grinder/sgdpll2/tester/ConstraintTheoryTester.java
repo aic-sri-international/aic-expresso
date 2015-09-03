@@ -55,6 +55,7 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.core.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.DefaultMultiVariableConstraint;
 import com.sri.ai.util.base.NullaryFunction;
 
@@ -67,7 +68,7 @@ import com.sri.ai.util.base.NullaryFunction;
 public class ConstraintTheoryTester {
 	
 	private static void output(String message) {
-		// System.out.println(message); // uncomment out if detailed output is desired.
+		//System.out.println(message); // uncomment out if detailed output is desired.
 	}
 
 	/**
@@ -107,7 +108,8 @@ public class ConstraintTheoryTester {
 		testSingleVariableConstraints(random, constraintTheory, numberOfTests, maxNumberOfLiterals, true, outputCount);
 	}
 	
-	private static void testSingleVariableConstraints(Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
+	private static void testSingleVariableConstraints(
+			Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
 		NullaryFunction<Constraint> makeConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.getTestingVariable()));
 
@@ -136,7 +138,8 @@ public class ConstraintTheoryTester {
 		testMultiVariableConstraints(random, constraintTheory, numberOfTests, maxNumberOfLiterals, true, outputCount);
 	}
 	
-	private static void testMultiVariableConstraints(Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
+	private static void testMultiVariableConstraints(
+			Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
 		NullaryFunction<Constraint> makeConstraint = () -> new DefaultMultiVariableConstraint(constraintTheory);
 
@@ -145,6 +148,36 @@ public class ConstraintTheoryTester {
 		NullaryFunction<Expression> makeRandomLiteral = () -> constraintTheory.makeRandomLiteral(random, process);
 
 		boolean isComplete = false; // multi-variable implementation is current incomplete for all theories
+
+		test(constraintTheory, makeConstraint, makeRandomLiteral, isComplete, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
+	}
+
+	/**
+	 * Given a constraint theory and a number <code>n</code> of multi-variable constraint tests,
+	 * generates <code>n</code> formulas in the theory
+	 * and see if those detected as unsatisfiable by the corresponding solver
+	 * are indeed unsatisfiable (checked by brute force).
+	 * Throws an {@link Error} with the failure description if a test fails.
+	 * @param random
+	 * @param constraintTheory
+	 * @param numberOfTests
+	 * @param maxNumberOfLiterals
+	 * @param outputCount
+	 */
+	public static void testCompleteMultiVariableConstraints(Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+		testCompleteMultiVariableConstraints(random, constraintTheory, numberOfTests, maxNumberOfLiterals, true, outputCount);
+	}
+	
+	private static void testCompleteMultiVariableConstraints(
+			Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
+		
+		NullaryFunction<Constraint> makeConstraint = () -> new CompleteMultiVariableConstraint(constraintTheory);
+
+		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
+		
+		NullaryFunction<Expression> makeRandomLiteral = () -> constraintTheory.makeRandomLiteral(random, process);
+
+		boolean isComplete = true;
 
 		test(constraintTheory, makeConstraint, makeRandomLiteral, isComplete, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
 	}
@@ -178,27 +211,32 @@ public class ConstraintTheoryTester {
 				Expression literal = makeRandomLiteral.apply();
 				literals.add(literal);
 				output("\nAdded " + literal + " (current conjunction: " + And.make(literals) + ")");	
-				constraint = constraint.conjoin(literal, process);
-				if (testCorrectness) {
-					if (constraint == null) {
-						solverSaysItIsUnsatisfiable(literals, constraintTheory, process);
-					}
-					else {
-						if (isComplete) {
-							solverSaysItIsSatisfiable(literals, constraint, constraintTheory, process);
-						}
-						else {
-							// if constraint is not null, the conjunction of literals may or may not be satisfiable,
-							// because solver is incomplete, so in this case we do not check.
-							output("Solver does not know yet if it is satisfiable or not. Current constraint is " + constraint);
-						}
-					}
-				}
+				constraint = conjoin(literal, constraint, constraintTheory, isComplete, testCorrectness, literals, process);
 			}
 			if (outputCount && i % 100 == 0) {
 				System.out.println("Tested " + i + " examples for " + constraintTheory.getClass().getSimpleName());
 			}	
 		}
+	}
+
+	private static Constraint conjoin(Expression literal, Constraint constraint, ConstraintTheory constraintTheory, boolean isComplete, boolean testCorrectness, Collection<Expression> literals, RewritingProcess process) throws Error {
+		Constraint newConstraint = constraint.conjoin(literal, process);
+		if (testCorrectness) {
+			if (newConstraint == null) {
+				solverSaysItIsUnsatisfiable(literals, constraintTheory, process);
+			}
+			else {
+				if (isComplete) {
+					solverSaysItIsSatisfiable(literals, newConstraint, constraintTheory, process);
+				}
+				else {
+					// if constraint is not null, the conjunction of literals may or may not be satisfiable,
+					// because solver is incomplete, so in this case we do not check.
+					output("Solver does not know yet if it is satisfiable or not. Current constraint is " + newConstraint);
+				}
+			}
+		}
+		return newConstraint;
 	}
 
 	/**

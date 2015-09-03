@@ -67,4 +67,14 @@ public class PropositionalConstraintTest {
 				10 /* number of literals per test */,
 				true /* output count */);
 	}
+
+	@Test
+	public void testCompleteMultiVariableConstraints() {
+		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
+				new Random(),
+				new PropositionalConstraintTheory(),
+				100 /* number of tests */,
+				30 /* number of literals per test */,
+				true /* output count */);
+	}
 }

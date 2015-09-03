@@ -50,6 +50,7 @@ import java.util.Random;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
@@ -60,6 +61,7 @@ import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblem;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.AbstractConstraintTheory;
 import com.sri.ai.util.collect.PredicateIterator;
@@ -86,6 +88,11 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 	@Override
 	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
 		return true; // SingleVariableEqualityConstraint is complete
+	}
+
+	@Override
+	public Function<SingleVariableConstraint, ContextDependentProblem> getMakerOfSatisfiabilityOfSingleVariableConstraintProblem() {
+		return s -> new SatisfiabilityOfSingleVariableEqualityConstraint((SingleVariableEqualityConstraint) s);
 	}
 
 	@Override

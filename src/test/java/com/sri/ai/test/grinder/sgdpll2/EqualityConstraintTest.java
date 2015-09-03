@@ -67,4 +67,14 @@ public class EqualityConstraintTest {
 				30 /* number of literals per test */,
 				true /* output count */);
 	}
+
+//	@Test
+//	public void testCompleteMultiVariableConstraints() {
+//		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
+//				new Random(2),
+//				new EqualityConstraintTheory(),
+//				20000 /* number of tests */,
+//				50 /* number of literals per test */,
+//				true /* output count */);
+//	}
 }

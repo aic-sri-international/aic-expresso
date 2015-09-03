@@ -37,7 +37,6 @@
  */
 package com.sri.ai.grinder.sgdpll2.theory.equality;
 
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.base.PairOf.makePairOf;
@@ -46,11 +45,8 @@ import java.util.Iterator;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblem;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.base.PairOf;
 import com.sri.ai.util.collect.CartesianProductIterator;
@@ -59,15 +55,13 @@ import com.sri.ai.util.collect.NestedIterator;
 import com.sri.ai.util.collect.PairOfElementsInListIterator;
 
 /**
- * A step solver for the problem <code>there exists X : C</code>,
- * for <code>C</code> a {@link SingleVariableEqualityConstraint},
- * which can involve free variables and is therefore a {@link ContextDependentProblem}.
+ * A {@link AbstractSatisfiabilityOfConstraint} for a {@link SingleVariableEqualityConstraint}.
  * 
  * @author braz
  *
  */
 @Beta
-public class SatisfiabilityOfSingleVariableEqualityConstraint extends AbstractSatisfiabilityOfSingleVariableConstraint {
+public class SatisfiabilityOfSingleVariableEqualityConstraint extends AbstractSatisfiabilityOfConstraint {
 
 	public SatisfiabilityOfSingleVariableEqualityConstraint(SingleVariableEqualityConstraint constraint) {
 		super(constraint);
@@ -113,10 +107,5 @@ public class SatisfiabilityOfSingleVariableEqualityConstraint extends AbstractSa
 				FunctionIterator.make(pairsOfPositiveAndNegativeAtomsIterator, m -> makePairOf(m.get("equal").get(1), m.get("disequal").get(1)));
 		
 		return pairsOfEqualAndDisequalIterator;
-	}
-
-	@Override
-	protected SolutionStep stepGivenPropagatedLiteralsAreSatisfied(Constraint contextualConstraint, RewritingProcess process) {
-		return new Solution(TRUE);
 	}
 }

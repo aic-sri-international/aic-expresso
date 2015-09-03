@@ -35,37 +35,44 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.api;
+package com.sri.ai.grinder.sgdpll2.theory.equality;
+
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
+import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblem;
 
+/**
+ * A step solver for the satisfiability of a {@link Constraint},
+ * which can involve free variables and is therefore a {@link ContextDependentProblem}.
+ * This class is based on splitters generated according to the specific theory.
+ * 
+ * @author braz
+ *
+ */
 @Beta
-public interface Constraint extends Expression {
+public abstract class AbstractSatisfiabilityOfConstraint extends AbstractContextDependentProblemWithPropagatedLiterals {
 
-	/**
-	 * Returns an {@link ConstraintTheoryTester} representing the conjunction of this constraint and a given literal,
-	 * or null if they are contradictory.
-	 * @param literal the literal
-	 * @param process the rewriting process
-	 * @return the application result or <code>null</code> if contradiction.
-	 */
-	Constraint conjoin(Expression literal, RewritingProcess process);
+	protected Constraint constraint;
 	
-	ConstraintTheory getConstraintTheory();
+	public AbstractSatisfiabilityOfConstraint(Constraint constraint) {
+		this.constraint = constraint;
+	}
 	
-	default boolean implies(Expression literal, RewritingProcess process) {
-		Expression literalNegation = getConstraintTheory().getLiteralNegation(literal);
-		boolean result = contradictoryWith(literalNegation, process);
-		return result;
+	public Constraint getConstraint() {
+		return constraint;
+	}
+	
+	@Override
+	protected Expression solutionIfPropagatedLiteralsAreNotSatisfied() {
+		return FALSE;
 	}
 
-	default boolean contradictoryWith(Expression literal, RewritingProcess process) {
-		Constraint conjunction = conjoin(literal, process);
-		boolean result = conjunction == null;
-		return result;
+	@Override
+	protected Expression solutionIfPropagatedLiteralsAndSplittersDNFAreSatisfied() {
+		return TRUE;
 	}
-
 }
