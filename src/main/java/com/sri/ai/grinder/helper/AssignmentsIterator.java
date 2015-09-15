@@ -51,7 +51,7 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.base.NullaryFunction;
-import com.sri.ai.util.collect.CartesianProductIterator;
+import com.sri.ai.util.collect.CartesianProductInMapIterator;
 
 /**
  * An iterator over assignments to expressions according to their {@link Type} as defined
@@ -60,7 +60,7 @@ import com.sri.ai.util.collect.CartesianProductIterator;
  * @author braz
  */
 @Beta
-public class AssignmentsIterator extends CartesianProductIterator<Expression, Expression> {
+public class AssignmentsIterator extends CartesianProductInMapIterator<Expression, Expression> {
 
 	public AssignmentsIterator(Collection<Expression> variables, RewritingProcess process) {
 		super(makeMapFromVariablesToIteratorMakers(variables, process));

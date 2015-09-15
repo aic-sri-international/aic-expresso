@@ -71,7 +71,7 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	}
 
 	@Override
-	public AbstractSingleVariableConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process) {
+	public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process) {
 		return this;
 	}
 

@@ -227,7 +227,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 * @param process 
 	 * @return 
 	 */
-	abstract public AbstractSingleVariableConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process);
+	abstract public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process);
 
 	@Override
 	public SingleVariableConstraint conjoin(Expression literal, RewritingProcess process) {
@@ -254,47 +254,73 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 				result = null; // contradiction
 			}
 			else if (atomMayImplyLiteralsOnDifferentAtoms()) {
-				// OPTIMIZATION
-				// Here it would pay to have the database of atoms to be indexed by theory-specific properties
-				// such that only relevant atoms are checked, depending on properties of the new literal.
-				// For example, in equality theory,
-				// X = a can only make redundant literals X != T1 for T1 some distinct constant,
-				// and can only be contradictory with X = T2 for T2 some distinct constant,
-				// while equalities between two variables never affect literals based on distinct atoms.
-				
-				boolean oppositeSign = sign? false : true;
-				if (    thereExists(positiveAtoms, p -> impliesLiteralWithDifferentAtom(true,  p, sign, atom, process)) ||
-						thereExists(negativeAtoms, p -> impliesLiteralWithDifferentAtom(false, p, sign, atom, process))) {
-					result = this; // redundant
-				}
-				else if (thereExists(positiveAtoms, p -> impliesLiteralWithDifferentAtom(true,  p, oppositeSign, atom, process)) ||
-						thereExists(negativeAtoms, p -> impliesLiteralWithDifferentAtom(false, p, oppositeSign, atom, process))) {
-					result = null; // contradiction
-				}
-				else {
-					// remove redundant literals and add new one
-					ArrayList<Expression> newPositiveAtoms = 
-							removeFromArrayListNonDestructively(positiveAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, true,  p, process));
-					ArrayList<Expression> newNegativeAtoms = 
-							removeFromArrayListNonDestructively(negativeAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, false, p, process));
-					if (sign) {
-						newPositiveAtoms.add(atom);
-					}
-					else {
-						newNegativeAtoms.add(atom);
-					}
-					result = copyWithNewPositiveAndNegativeAtoms(newPositiveAtoms, newNegativeAtoms);
-					result = result.afterInsertingNewAtom(sign, atom, process);
-				}
+				result = conjoinNonTrivialPossiblyDependentLiteral(sign, atom, process);
 			}
 			else {
-				if (sign) {
-					result = copyWithNewPositiveAtom(atom);
-				}
-				else {
-					result = copyWithNewNegativeAtom(atom);
-				}
+				result = conjoinNonTrivialIndependentLiteral(sign, atom, process);
 			}
+		}
+		return result;
+	}
+
+	/**
+	 * @param sign
+	 * @param atom
+	 * @param process
+	 * @return
+	 */
+	private AbstractSingleVariableConstraint conjoinNonTrivialPossiblyDependentLiteral(boolean sign, Expression atom, RewritingProcess process) {
+		AbstractSingleVariableConstraint result;
+		// OPTIMIZATION
+		// Here it would pay to have the database of atoms to be indexed by theory-specific properties
+		// such that only relevant atoms are checked, depending on properties of the new literal.
+		// For example, in equality theory,
+		// X = a can only make redundant literals X != T1 for T1 some distinct constant,
+		// and can only be contradictory with X = T2 for T2 some distinct constant,
+		// while equalities between two variables never affect literals based on distinct atoms.
+		
+		boolean oppositeSign = sign? false : true;
+		if (    thereExists(positiveAtoms, p -> impliesLiteralWithDifferentAtom(true,  p, sign, atom, process)) ||
+				thereExists(negativeAtoms, p -> impliesLiteralWithDifferentAtom(false, p, sign, atom, process))) {
+			result = this; // redundant
+		}
+		else if (thereExists(positiveAtoms, p -> impliesLiteralWithDifferentAtom(true,  p, oppositeSign, atom, process)) ||
+				 thereExists(negativeAtoms, p -> impliesLiteralWithDifferentAtom(false, p, oppositeSign, atom, process))) {
+			result = null; // contradiction
+		}
+		else {
+			// remove redundant literals and add new one
+			ArrayList<Expression> newPositiveAtoms = 
+					removeFromArrayListNonDestructively(positiveAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, true,  p, process));
+			ArrayList<Expression> newNegativeAtoms = 
+					removeFromArrayListNonDestructively(negativeAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, false, p, process));
+			if (sign) {
+				newPositiveAtoms.add(atom);
+			}
+			else {
+				newNegativeAtoms.add(atom);
+			}
+			result = copyWithNewPositiveAndNegativeAtoms(newPositiveAtoms, newNegativeAtoms);
+			result = result.destructiveUpdateOrNullAfterInsertingNewAtom(sign, atom, process);
+		}
+		return result;
+	}
+
+	/**
+	 * @param sign
+	 * @param atom
+	 * @param process
+	 * @return
+	 */
+	private AbstractSingleVariableConstraint conjoinNonTrivialIndependentLiteral(boolean sign, Expression atom, RewritingProcess process) {
+		AbstractSingleVariableConstraint result;
+		if (sign) {
+			result = copyWithNewPositiveAtom(atom);
+			result = result.destructiveUpdateOrNullAfterInsertingNewAtom(sign, atom, process);
+		}
+		else {
+			result = copyWithNewNegativeAtom(atom);
+			result = result.destructiveUpdateOrNullAfterInsertingNewAtom(sign, atom, process);
 		}
 		return result;
 	}

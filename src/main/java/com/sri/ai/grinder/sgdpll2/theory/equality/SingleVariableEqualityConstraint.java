@@ -63,40 +63,49 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 
 	private static final long serialVersionUID = 1L;
 	
-	private int numberOfConstants;
+	private int numberOfDisequalitiesFromConstantsSeenSoFar;
 
 	public SingleVariableEqualityConstraint(Expression variable, ConstraintTheory constraintTheory) {
 		super(variable, constraintTheory);
-		this.numberOfConstants = 0;
+		this.numberOfDisequalitiesFromConstantsSeenSoFar = 0;
 	}
 
 	public SingleVariableEqualityConstraint(SingleVariableEqualityConstraint other) {
 		super(other);
-		this.numberOfConstants = other.numberOfConstants;
+		this.numberOfDisequalitiesFromConstantsSeenSoFar = other.numberOfDisequalitiesFromConstantsSeenSoFar;
 	}
 
 	@Override
 	public SingleVariableEqualityConstraint clone() {
 		SingleVariableEqualityConstraint result = new SingleVariableEqualityConstraint(this);
-		result.numberOfConstants = numberOfConstants;
+		result.numberOfDisequalitiesFromConstantsSeenSoFar = numberOfDisequalitiesFromConstantsSeenSoFar;
 		return result;
 	}
 
 	@Override
-	public SingleVariableEqualityConstraint afterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process) {
+	public SingleVariableEqualityConstraint destructiveUpdateOrNullAfterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process) {
 		SingleVariableEqualityConstraint result = this;
 		if (!sign && process.isUniquelyNamedConstant(atom.get(1))) {
-			numberOfConstants++;
-			if (numberOfConstants == getVariableDomainSize(process)) {
+			numberOfDisequalitiesFromConstantsSeenSoFar++;
+			if (numberOfDisequalitiesFromConstantsSeenSoFar == getVariableDomainSize(process)) {
 				result = null;
 			}
 		}
 		return result;
 	}
 	
+	/**
+	 * @return the number of disequalities between the variable and uniquely named constants that have been conjoined to this constraint so far
+	 * (some of these disequalities may have been eliminated by a conjunction with an equality that implies them).
+	 */
+	public int getNumberOfDisequalitiesFromConstantsSeenSoFar() {
+		return numberOfDisequalitiesFromConstantsSeenSoFar;
+	}
+	
 	@Override
 	public SingleVariableEqualityConstraint conjoin(Expression literal, RewritingProcess process) {
-		return (SingleVariableEqualityConstraint) super.conjoin(literal, process);
+		SingleVariableEqualityConstraint result = (SingleVariableEqualityConstraint) super.conjoin(literal, process);
+		return result;
 	}
 
 	@Override

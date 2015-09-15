@@ -37,10 +37,13 @@
  */
 package com.sri.ai.grinder.sgdpll2.theory.equality;
 
+import static com.sri.ai.util.Util.list;
+
 import java.util.Collections;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.theory.propositional.SingleVariablePropositionalConstraint;
 
 /**
@@ -64,5 +67,11 @@ public class SatisfiabilityOfSingleVariablePropositionalConstraint extends Abstr
 	@Override
 	protected Iterable<Expression> propagatedLiterals() {
 		return Collections.emptyList();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	protected Iterable<Iterable<Expression>> getPropagatedCNF(RewritingProcess process) {
+		return list();
 	}
 }

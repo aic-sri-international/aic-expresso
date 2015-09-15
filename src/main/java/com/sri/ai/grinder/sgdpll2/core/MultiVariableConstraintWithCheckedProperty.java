@@ -87,9 +87,6 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 		this.contextDependentProblemMaker = contextualConstraint.contextDependentProblemMaker;
 		this.contextualConstraint = contextualConstraint;
 		this.singleVariableConstraint = singleVariableConstraint;
-		if (singleVariableConstraint.equals(TRUE)) {
-			System.out.println("Bleh: ");	
-		}
 	}
 
 	@Override
@@ -177,7 +174,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 				result = contextualConstraint;
 			}
 			else {
-				result = And.make(singleVariableConstraint, contextualConstraint);
+				result = And.make(contextualConstraint, singleVariableConstraint);
 			}
 		}
 		return result;

@@ -90,7 +90,7 @@ public class Categorical implements Type {
 	private Iterator<Expression> unknownConstantsIterator() {
 		return FunctionIterator.make(
 				new IntegerIterator(knownConstants.size() + 1, cardinality + 1),
-				i -> makeSymbol(lowerCaseName + + i));
+				i -> makeSymbol(lowerCaseName + i));
 	}
 
 	@Override

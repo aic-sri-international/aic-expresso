@@ -67,12 +67,12 @@ public abstract class AbstractSatisfiabilityOfConstraint extends AbstractContext
 	}
 	
 	@Override
-	protected Expression solutionIfPropagatedLiteralsAreNotSatisfied() {
+	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied() {
 		return FALSE;
 	}
 
 	@Override
-	protected Expression solutionIfPropagatedLiteralsAndSplittersDNFAreSatisfied() {
+	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied() {
 		return TRUE;
 	}
 }

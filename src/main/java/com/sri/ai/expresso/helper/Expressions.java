@@ -37,6 +37,7 @@
  */
 package com.sri.ai.expresso.helper;
 
+import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.thereExists;
 
 import java.util.ArrayList;
@@ -104,6 +105,7 @@ import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.base.SingletonListMaker;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.IntegerIterator;
+import com.sri.ai.util.collect.ZipIterator;
 import com.sri.ai.util.math.Rational;
 
 /**
@@ -1223,6 +1225,21 @@ public class Expressions {
 	 */
 	public static boolean contains(Expression literal, Expression variable, RewritingProcess process) {
 		boolean result = thereExists(new SubExpressionsDepthFirstIterator(literal), s -> s.equals(variable));
+		return result;
+	}
+
+	/**
+	 * Returns a list of applications of a functor to successive lists of arguments, formed from the next elements of a list of iterators.
+	 * For example, <code>zipApply("+", list(list(1, 2, 3).iterator(), list(4, 5, 6).iterator()))</code>
+	 * is <code>list(parse("1 + 4"), parse("2 + 5"), parse("3 + 6"))</code>.
+	 * @param functor
+	 * @param argumentIterators
+	 * @return a list of applications of a functor to successive lists of arguments, formed from the next elements of a list of iterators.
+	 */
+	public static List<Expression> zipApply(String functor, List<Iterator<?>> argumentIterators) {
+		List<Expression> result = mapIntoList(
+				new ZipIterator(argumentIterators),
+				arguments -> apply(functor, arguments));
 		return result;
 	}
 }

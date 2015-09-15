@@ -37,22 +37,38 @@
  */
 package com.sri.ai.grinder.sgdpll2.theory.equality;
 
+import static com.sri.ai.expresso.helper.Expressions.zipApply;
+import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
+import static com.sri.ai.util.Util.arrayList;
+import static com.sri.ai.util.Util.arrayListFrom;
 import static com.sri.ai.util.Util.in;
-import static com.sri.ai.util.Util.map;
+import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.thereExists;
+import static com.sri.ai.util.Util.toLinkedHashSet;
 import static com.sri.ai.util.base.PairOf.makePairOf;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.library.Disequality;
+import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.util.base.NullaryFunction;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.PairOf;
 import com.sri.ai.util.collect.CartesianProductIterator;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.NestedIterator;
 import com.sri.ai.util.collect.PairOfElementsInListIterator;
+import com.sri.ai.util.collect.PermutationIterator;
+import com.sri.ai.util.collect.PredicateIterator;
+import com.sri.ai.util.collect.SubsetsOfKIterator;
 
 /**
  * A {@link AbstractSatisfiabilityOfConstraint} for a {@link SingleVariableEqualityConstraint}.
@@ -76,14 +92,14 @@ public class SatisfiabilityOfSingleVariableEqualityConstraint extends AbstractSa
 	protected Iterable<Expression> propagatedLiterals() {
 		
 		Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator = pairsOfEqualsToVariableIterator();
-		Iterator<Expression> splitterEqualities = FunctionIterator.make(pairsOfEqualsToVariableIterator, p -> Equality.make(p.first, p.second));
+		Iterator<Expression> propagatedEqualities = FunctionIterator.make(pairsOfEqualsToVariableIterator, p -> Equality.make(p.first, p.second));
 		
-		Iterator<PairOf<Expression>> pairsOfEqualAndDisequalToVariableIterator = pairsOfEqualAndDisequalToVariableIterator();
-		Iterator<Expression> splitterDisequalities = FunctionIterator.make(pairsOfEqualAndDisequalToVariableIterator, p -> Disequality.make(p.first, p.second));
+		Iterator<Expression> propagatedDisequalities =
+				FunctionIterator.make(arrayListsOfEqualAndDisequalToVariableIterator(), p -> Expressions.apply(DISEQUALITY, p));
 		
-		Iterator<Expression> splittersIterator = new NestedIterator<>(splitterEqualities, splitterDisequalities);
+		Iterator<Expression> propagatedLiteralsIterator = new NestedIterator<>(propagatedEqualities, propagatedDisequalities);
 
-		Iterable<Expression> result = in(splittersIterator);
+		Iterable<Expression> result = in(propagatedLiteralsIterator);
 		
 		return result;
 	}
@@ -97,15 +113,98 @@ public class SatisfiabilityOfSingleVariableEqualityConstraint extends AbstractSa
 		return pairsOfEqualsToVariableIterator;
 	}
 
-	protected Iterator<PairOf<Expression>> pairsOfEqualAndDisequalToVariableIterator() {
-		CartesianProductIterator<String, Expression> pairsOfPositiveAndNegativeAtomsIterator =
-				new CartesianProductIterator<>(map(
-						"equal",    (NullaryFunction<Iterator<Expression>>) () -> getConstraint().getPositiveAtoms().iterator(),
-						"disequal", (NullaryFunction<Iterator<Expression>>) () -> getConstraint().getNegativeAtoms().iterator()));
+	@SuppressWarnings("unchecked")
+	protected Iterator<ArrayList<Expression>> arrayListsOfEqualAndDisequalToVariableIterator() {
 		
-		Iterator<PairOf<Expression>> pairsOfEqualAndDisequalIterator =
-				FunctionIterator.make(pairsOfPositiveAndNegativeAtomsIterator, m -> makePairOf(m.get("equal").get(1), m.get("disequal").get(1)));
+		Function<ArrayList<Expression>, ArrayList<Expression>> extractSecondArguments =
+				equalityAndDisequality -> arrayList(equalityAndDisequality.get(0).get(1), equalityAndDisequality.get(1).get(1));
+				
+		Iterator<ArrayList<Expression>> result =
+				FunctionIterator.make(
+				new CartesianProductIterator<Expression>(
+						() -> getConstraint().getPositiveAtoms().iterator(),
+						() -> getConstraint().getNegativeAtoms().iterator()),
+						extractSecondArguments);
 		
-		return pairsOfEqualAndDisequalIterator;
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	protected Iterable<Iterable<Expression>> getPropagatedCNF(RewritingProcess process) {
+		if ( ! variableIsBoundToUniquelyNamedConstant(process)) {
+			// the following logic only holds if the variable is not bound to a uniquely named constants,
+			// since that eliminates all disequalities to other uniquely named constants as redundant
+
+			ArrayList<Expression> variableDisequals = getVariableDisequals(process);
+
+			if (getConstraint().getVariableDomainSize(process) != -1 &&
+					variableDisequals.size() + getConstraint().getNumberOfDisequalitiesFromConstantsSeenSoFar()
+					>= getConstraint().getVariableDomainSize(process)) {
+				// the following procedure can be very expensive but the condition above will rarely be satisfied
+
+				Set<Expression> constantDisequals = getConstantDisequals(process);
+
+				Expression typeDescription = GrinderUtil.getType(getConstraint().getVariable(), process);
+				Type type = process.getType(typeDescription.toString());
+				ArrayList<Expression> remainingConstants =
+						arrayListFrom(new PredicateIterator(type.iterator(), c -> ! constantDisequals.contains(c)));
+
+				CartesianProductIterator<ArrayList<Expression>> subsetOfVariableDisequalsAndRemainingConstantsPermutationIterator
+				= new CartesianProductIterator<ArrayList<Expression>>(
+						() -> new SubsetsOfKIterator<Expression>(variableDisequals, remainingConstants.size()),
+						() -> new PermutationIterator<Expression>(remainingConstants));
+
+				FunctionIterator<ArrayList<ArrayList<Expression>>, Iterable<Expression>> disjunctsIterator =
+						FunctionIterator.make(
+								subsetOfVariableDisequalsAndRemainingConstantsPermutationIterator,
+								(ArrayList<ArrayList<Expression>> subsetAndPermutation)
+								->
+								zipApply(
+										DISEQUALITY,
+										list(
+												subsetAndPermutation.get(0).iterator(),
+												subsetAndPermutation.get(1).iterator()))
+								);
+
+				Iterable<Iterable<Expression>> conjuncts = in(disjunctsIterator);
+
+				return conjuncts;
+			}
+		}
+
+		
+		// otherwise, nothing is implied.
+		return list();
+	}
+
+	/**
+	 * @param process
+	 * @return
+	 */
+	private boolean variableIsBoundToUniquelyNamedConstant(RewritingProcess process) {
+		return thereExists(getConstraint().getPositiveAtoms(), l -> process.isUniquelyNamedConstant(l.get(1)));
+	}
+
+	/**
+	 * @param process
+	 * @return
+	 */
+	private ArrayList<Expression> getVariableDisequals(RewritingProcess process) {
+		return getConstraint().getNegativeAtoms().stream().
+		map(e -> e.get(1)). // second arguments of Variable != Term
+		filter(e -> ! process.isUniquelyNamedConstant(e)). // only Variables
+		collect(Util.toArrayList(10));
+	}
+
+	/**
+	 * @param process
+	 * @return
+	 */
+	private LinkedHashSet<Expression> getConstantDisequals(RewritingProcess process) {
+		return getConstraint().getNegativeAtoms().stream().
+		map(e -> e.get(1)). // second arguments of Variable != Term
+		filter(e -> process.isUniquelyNamedConstant(e)). // only constants
+		collect(toLinkedHashSet());
 	}
 }

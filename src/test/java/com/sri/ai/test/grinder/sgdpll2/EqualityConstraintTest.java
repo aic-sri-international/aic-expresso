@@ -37,11 +37,20 @@
  */
 package com.sri.ai.test.grinder.sgdpll2;
 
+import static com.sri.ai.expresso.helper.Expressions.parse;
+import static org.junit.Assert.assertEquals;
+
 import java.util.Random;
 
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 
@@ -68,13 +77,51 @@ public class EqualityConstraintTest {
 				true /* output count */);
 	}
 
-//	@Test
-//	public void testCompleteMultiVariableConstraints() {
-//		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
-//				new Random(2),
-//				new EqualityConstraintTheory(),
-//				20000 /* number of tests */,
-//				50 /* number of literals per test */,
-//				true /* output count */);
-//	}
+	@Test
+	public void testCompleteMultiVariableConstraints() {
+		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
+				new Random(),
+				new EqualityConstraintTheory(),
+				1000 /* number of tests */,
+				50 /* number of literals per test */,
+				true /* output count */);
+	}
+
+	@Test
+	public void testSpecialCases() {
+		// This test is to make sure that some more tricky cases are indeed tested,
+		// even though hopefully the large amount of generated random problems include them.
+
+		String conjunction;
+		Expression expected;
+		
+		conjunction = "X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
+		expected = null;
+		runTest(conjunction, expected);
+		
+		conjunction = "X = Y and X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
+		expected = null;
+		runTest(conjunction, expected);
+		
+		conjunction = "X = a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
+		expected = parse("(W = d) and (Z = c) and (X = a) and (X != Z) and (X != W)");
+		runTest(conjunction, expected);
+	}
+
+	/**
+	 * @param conjunction
+	 * @param expected
+	 */
+	private void runTest(String conjunction, Expression expected) {
+		MultiVariableConstraint constraint;
+		RewritingProcess process;
+		EqualityConstraintTheory constraintTheory = new EqualityConstraintTheory();
+		constraint = new CompleteMultiVariableConstraint(constraintTheory);
+		process = new DefaultRewritingProcess(null);
+		process = constraintTheory.extendWithTestingInformation(process);
+		for (Expression literal : And.getConjuncts(parse(conjunction))) {
+			constraint = constraint.conjoin(literal, process);
+		}
+		assertEquals(expected, constraint);
+	}
 }
