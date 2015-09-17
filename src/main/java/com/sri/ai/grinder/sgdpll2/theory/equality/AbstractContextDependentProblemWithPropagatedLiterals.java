@@ -7,6 +7,7 @@ import static com.sri.ai.util.Util.iterator;
 
 import java.util.Iterator;
 
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
@@ -50,7 +51,11 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiterals impl
 	@Override
 	public SolutionStep step(Constraint contextualConstraint, RewritingProcess process) {
 	
-		Iterator<Iterable<Expression>> propagatedLiteralsCNF = FunctionIterator.make(propagatedLiterals(), l -> in(iterator(l)));
+		Iterator<Iterable<Expression>> propagatedLiteralsCNF = FunctionIterator.make(propagatedLiterals(), new Function<Expression, Iterable<Expression>>() {
+			public Iterable<Expression> apply(Expression l) {
+				return in(iterator(l));
+			}
+		});
 		
 		Iterable<Iterable<Expression>> propagatedCNF =
 				in(NestedIterator.<Iterable<Expression>>make(propagatedLiteralsCNF, getPropagatedCNF(process).iterator()));

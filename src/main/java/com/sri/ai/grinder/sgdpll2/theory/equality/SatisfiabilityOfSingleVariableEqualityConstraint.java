@@ -108,7 +108,12 @@ public class SatisfiabilityOfSingleVariableEqualityConstraint extends AbstractSa
 		PairOfElementsInListIterator<Expression> pairsOfPositiveAtomsIterator = new PairOfElementsInListIterator<>(getConstraint().getPositiveAtoms());
 		
 		Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator =
-				FunctionIterator.make(pairsOfPositiveAtomsIterator, p -> makePairOf(p.first.get(1), p.second.get(1)));
+				FunctionIterator.make(pairsOfPositiveAtomsIterator, new Function<PairOf<Expression>, PairOf<Expression>>() {
+					@Override
+					public PairOf<Expression> apply(PairOf<Expression> p) {
+						return makePairOf(p.first.get(1), p.second.get(1));
+					}
+				});
 		
 		return pairsOfEqualsToVariableIterator;
 	}
