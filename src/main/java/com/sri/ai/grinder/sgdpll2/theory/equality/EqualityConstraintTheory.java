@@ -61,9 +61,9 @@ import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblem;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.AbstractConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractConstraintTheory;
 import com.sri.ai.util.collect.PredicateIterator;
 
 /** 
@@ -91,8 +91,8 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public Function<SingleVariableConstraint, ContextDependentProblem> getMakerOfSatisfiabilityOfSingleVariableConstraintProblem() {
-		return s -> new SatisfiabilityOfSingleVariableEqualityConstraint((SingleVariableEqualityConstraint) s);
+	public Function<SingleVariableConstraint, ContextDependentProblemStepSolver> getMakerOfSatisfiabilityOfSingleVariableConstraintProblem() {
+		return s -> new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver((SingleVariableEqualityConstraint) s);
 	}
 
 	@Override

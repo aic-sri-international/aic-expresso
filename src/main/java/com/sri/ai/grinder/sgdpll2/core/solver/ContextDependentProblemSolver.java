@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.core;
+package com.sri.ai.grinder.sgdpll2.core.solver;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
 
@@ -44,14 +44,15 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblem;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.theory.equality.SatisfiabilityOfSingleVariableEqualityConstraint;
+import com.sri.ai.grinder.sgdpll2.theory.equality.SatisfiabilityOfSingleVariableEqualityConstraintStepSolver;
 import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstraint;
 
 /**
- * Solves a {@link ContextDependentProblem} by successively conditioning the context on provided splitters.
+ * Solves a {@link ContextDependentProblemStepSolver} by successively conditioning the context on provided splitters.
  * 
  * @author braz
  *
@@ -59,8 +60,8 @@ import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstrai
 @Beta
 public class ContextDependentProblemSolver {
 
-	public static Expression solve(ContextDependentProblem problem, MultiVariableConstraint contextualConstraint, RewritingProcess process) {
-		ContextDependentProblem.SolutionStep step = problem.step(contextualConstraint, process);
+	public static Expression solve(ContextDependentProblemStepSolver problem, MultiVariableConstraint contextualConstraint, RewritingProcess process) {
+		ContextDependentProblemStepSolver.SolutionStep step = problem.step(contextualConstraint, process);
 		if (step.itDepends()) {
 			Expression splitter = step.getExpression();
 			MultiVariableConstraint subContextualConstraint1 = contextualConstraint.conjoin(splitter, process);
@@ -87,9 +88,9 @@ public class ContextDependentProblemSolver {
 		constraint = constraint.conjoin(parse("X != W"), process);
 		constraint = constraint.conjoin(parse("X != U"), process);
 		
-		ContextDependentProblem problem = new SatisfiabilityOfSingleVariableEqualityConstraint(constraint);
+		ContextDependentProblemStepSolver problem = new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(constraint);
 
-		MultiVariableConstraint contextualConstraint = new DefaultMultiVariableConstraint(new EqualityConstraintTheory());
+		MultiVariableConstraint contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory());
 		
 		Expression result = solve(problem, contextualConstraint, process);
 		

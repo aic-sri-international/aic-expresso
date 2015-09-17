@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.core;
+package com.sri.ai.grinder.sgdpll2.core.constraint;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
 

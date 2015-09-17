@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.core;
+package com.sri.ai.grinder.sgdpll2.core.constraint;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
@@ -51,14 +51,15 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblem;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentProblemSolver;
 
 /**
  * An {@link Constraint} on multiple variables,
  * with the ability to ensure all single-variable constraints that are part of it
- * have a property determined by a {@link ContextDependentProblem}.
+ * have a property determined by a {@link ContextDependentProblemStepSolver}.
  * 
  * @author braz
  *
@@ -71,10 +72,10 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 	private ConstraintTheory constraintTheory;
 	private MultiVariableConstraintWithCheckedProperty contextualConstraint;
 	private SingleVariableConstraint singleVariableConstraint;
-	private Function<SingleVariableConstraint, ContextDependentProblem> contextDependentProblemMaker;
+	private Function<SingleVariableConstraint, ContextDependentProblemStepSolver> contextDependentProblemMaker;
 	
 	public MultiVariableConstraintWithCheckedProperty(
-			ConstraintTheory constraintTheory, Function<SingleVariableConstraint, ContextDependentProblem> contextDependentProblemMaker) {
+			ConstraintTheory constraintTheory, Function<SingleVariableConstraint, ContextDependentProblemStepSolver> contextDependentProblemMaker) {
 		this.constraintTheory = constraintTheory;
 		this.contextDependentProblemMaker = contextDependentProblemMaker;
 		this.contextualConstraint = null;
@@ -147,7 +148,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 
 	private MultiVariableConstraintWithCheckedProperty check(RewritingProcess process) {
 		MultiVariableConstraintWithCheckedProperty result;
-		ContextDependentProblem problem = contextDependentProblemMaker.apply(singleVariableConstraint);
+		ContextDependentProblemStepSolver problem = contextDependentProblemMaker.apply(singleVariableConstraint);
 		Expression solution = ContextDependentProblemSolver.solve(problem, contextualConstraint, process);
 		if (solution.equals(FALSE)) { // the single-variable constraint is unsatisfiable in all contexts, so it is unsatisfiable.
 			result = null;

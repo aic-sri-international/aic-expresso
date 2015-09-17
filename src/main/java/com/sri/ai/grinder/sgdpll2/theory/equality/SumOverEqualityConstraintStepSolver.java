@@ -37,41 +37,31 @@
  */
 package com.sri.ai.grinder.sgdpll2.theory.equality;
 
-import static com.sri.ai.util.Util.list;
-
-import java.util.Collections;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.sgdpll2.theory.propositional.SingleVariablePropositionalConstraint;
+import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.core.solver.AbstractQuantifierStepSolver;
 
 /**
- * A {@link AbstractSatisfiabilityOfConstraint} for a {@link SingleVariablePropositionalConstraint}.
+ * A step solver for sums with equality constraints.
  * 
  * @author braz
  *
  */
 @Beta
-public class SatisfiabilityOfSingleVariablePropositionalConstraint extends AbstractSatisfiabilityOfConstraint {
+public class SumOverEqualityConstraintStepSolver extends AbstractQuantifierStepSolver {
 
-	public SatisfiabilityOfSingleVariablePropositionalConstraint(SingleVariablePropositionalConstraint constraint) {
-		super(constraint);
-	}
-	
 	@Override
-	public SingleVariablePropositionalConstraint getConstraint() {
-		return (SingleVariablePropositionalConstraint) constraint;
-	}
-	
-	@Override
-	protected Iterable<Expression> propagatedLiterals() {
-		return Collections.emptyList();
+	protected Expression getUndefinedLiteralFromQuantifiedExpression(Constraint contextualConstraint, RewritingProcess process) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected Iterable<Iterable<Expression>> getPropagatedCNF(RewritingProcess process) {
-		return list();
+	protected SolutionStep stepGivenLiteralFreeQuantifiedExpression(Constraint contextualConstraint, RewritingProcess process) {
+		// TODO Auto-generated method stub
+		return null;
 	}
+
 }

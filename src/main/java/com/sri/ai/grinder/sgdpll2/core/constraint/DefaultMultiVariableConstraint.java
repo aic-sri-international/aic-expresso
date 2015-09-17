@@ -1,4 +1,4 @@
-package com.sri.ai.grinder.sgdpll2.core;
+package com.sri.ai.grinder.sgdpll2.core.constraint;
 
 import static com.sri.ai.util.Util.min;
 

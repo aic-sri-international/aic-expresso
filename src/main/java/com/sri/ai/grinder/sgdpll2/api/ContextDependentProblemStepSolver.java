@@ -42,7 +42,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 
 /**
- * An interface for problems involving free variables constrained by a contextual {@link Constraint}.
+ * An interface for step-solvers for problems involving free variables constrained by a contextual {@link Constraint}.
  * The problem may either have the same solution for all free variable assignments under the context, or not.
  * Method {@link #step(Constraint, RewritingProcess)} returns a {@link SolutionStep},
  * which is either a {@link Solution} with {@link Solution#getExpression()} returning the solution,
@@ -55,10 +55,10 @@ import com.sri.ai.grinder.api.RewritingProcess;
  *
  */
 @Beta
-public interface ContextDependentProblem {
+public interface ContextDependentProblemStepSolver {
 
 	/**
-	 * A solution step of a {@link ContextDependentProblem}.
+	 * A solution step of a {@link ContextDependentProblemStepSolver}.
 	 * If {@link #itDepends()} returns <code>true</code>, the solution cannot be determined
 	 * unless the contextual constraint be restricted according to the literal returned by {@link #getExpression()}.
 	 * Otherwise, the expression returned by {@link #getExpression()} is the solution.

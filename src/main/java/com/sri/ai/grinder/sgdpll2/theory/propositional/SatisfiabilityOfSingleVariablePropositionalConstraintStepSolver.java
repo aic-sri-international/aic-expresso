@@ -35,44 +35,43 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.theory.equality;
+package com.sri.ai.grinder.sgdpll2.theory.propositional;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.util.Util.list;
+
+import java.util.Collections;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblem;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.sgdpll2.core.solver.AbstractSatisfiabilityOfConstraintStepSolver;
 
 /**
- * A step solver for the satisfiability of a {@link Constraint},
- * which can involve free variables and is therefore a {@link ContextDependentProblem}.
- * This class is based on splitters generated according to the specific theory.
+ * A {@link AbstractSatisfiabilityOfConstraintStepSolver} for a {@link SingleVariablePropositionalConstraint}.
  * 
  * @author braz
  *
  */
 @Beta
-public abstract class AbstractSatisfiabilityOfConstraint extends AbstractContextDependentProblemWithPropagatedLiterals {
+public class SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver extends AbstractSatisfiabilityOfConstraintStepSolver {
 
-	protected Constraint constraint;
-	
-	public AbstractSatisfiabilityOfConstraint(Constraint constraint) {
-		this.constraint = constraint;
-	}
-	
-	public Constraint getConstraint() {
-		return constraint;
+	public SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver(SingleVariablePropositionalConstraint constraint) {
+		super(constraint);
 	}
 	
 	@Override
-	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied() {
-		return FALSE;
+	public SingleVariablePropositionalConstraint getConstraint() {
+		return (SingleVariablePropositionalConstraint) constraint;
+	}
+	
+	@Override
+	protected Iterable<Expression> propagatedLiterals() {
+		return Collections.emptyList();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied() {
-		return TRUE;
+	protected Iterable<Iterable<Expression>> getPropagatedCNF(RewritingProcess process) {
+		return list();
 	}
 }

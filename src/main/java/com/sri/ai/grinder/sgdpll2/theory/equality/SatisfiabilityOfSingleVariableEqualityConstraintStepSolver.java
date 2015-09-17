@@ -60,6 +60,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Equality;
+import com.sri.ai.grinder.sgdpll2.core.solver.AbstractSatisfiabilityOfConstraintStepSolver;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.PairOf;
 import com.sri.ai.util.collect.CartesianProductIterator;
@@ -71,15 +72,15 @@ import com.sri.ai.util.collect.PredicateIterator;
 import com.sri.ai.util.collect.SubsetsOfKIterator;
 
 /**
- * A {@link AbstractSatisfiabilityOfConstraint} for a {@link SingleVariableEqualityConstraint}.
+ * A {@link AbstractSatisfiabilityOfConstraintStepSolver} for a {@link SingleVariableEqualityConstraint}.
  * 
  * @author braz
  *
  */
 @Beta
-public class SatisfiabilityOfSingleVariableEqualityConstraint extends AbstractSatisfiabilityOfConstraint {
+public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends AbstractSatisfiabilityOfConstraintStepSolver {
 
-	public SatisfiabilityOfSingleVariableEqualityConstraint(SingleVariableEqualityConstraint constraint) {
+	public SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(SingleVariableEqualityConstraint constraint) {
 		super(constraint);
 	}
 	

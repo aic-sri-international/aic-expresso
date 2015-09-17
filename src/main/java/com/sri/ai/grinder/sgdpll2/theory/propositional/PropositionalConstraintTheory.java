@@ -54,10 +54,9 @@ import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.boole.Not;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblem;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.AbstractConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.theory.equality.SatisfiabilityOfSingleVariablePropositionalConstraint;
+import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractConstraintTheory;
 
 @Beta
 /** 
@@ -92,8 +91,8 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public Function<SingleVariableConstraint, ContextDependentProblem> getMakerOfSatisfiabilityOfSingleVariableConstraintProblem() {
-		return s -> new SatisfiabilityOfSingleVariablePropositionalConstraint((SingleVariablePropositionalConstraint) s);
+	public Function<SingleVariableConstraint, ContextDependentProblemStepSolver> getMakerOfSatisfiabilityOfSingleVariableConstraintProblem() {
+		return s -> new SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver((SingleVariablePropositionalConstraint) s);
 	}
 
 	@Override

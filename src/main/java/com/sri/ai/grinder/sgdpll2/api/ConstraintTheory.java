@@ -99,14 +99,18 @@ public interface ConstraintTheory extends Theory {
 
 	/**
 	 * Returns a function mapping single-variable constraints in this theory to
-	 * a {@link ContextDependentProblem} deciding its satisfiability.
+	 * a {@link ContextDependentProblemStepSolver} deciding its satisfiability.
 	 * @return a function mapping single-variable constraints in this theory to
-	 * a {@link ContextDependentProblem} deciding its satisfiability.
+	 * a {@link ContextDependentProblemStepSolver} deciding its satisfiability.
 	 */
-	Function<SingleVariableConstraint, ContextDependentProblem> getMakerOfSatisfiabilityOfSingleVariableConstraintProblem();
+	Function<SingleVariableConstraint, ContextDependentProblemStepSolver> getMakerOfSatisfiabilityOfSingleVariableConstraintProblem();
 	
 	/**
-	 * Returns the negation of a literal
+	 * Returns the negation of a literal.
+	 * While one could simply add or remove a <code>not</code> in the original literal,
+	 * this methods provides a way of generating theory-specific representations at the generic level of the {@link ConstraintTheory} interface.
+	 * For example, for equality
+	 * we may prefer the negation of <code>X = a</code> to be represented as <code>X != a</code> instead of <code> not X = a</code>.
 	 * @param literal the literal
 	 * @return the negation of literal
 	 */

@@ -55,8 +55,8 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.core.CompleteMultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.DefaultMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.constraint.DefaultMultiVariableConstraint;
 import com.sri.ai.util.base.NullaryFunction;
 
 /**

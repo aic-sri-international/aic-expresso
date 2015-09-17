@@ -50,7 +50,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 
