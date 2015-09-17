@@ -516,6 +516,19 @@ public class Expressions {
 		return result;
 	}
 	
+	public static boolean isQuotedConstantString(Expression expression) {
+		boolean result = false;
+		if (expression.getSyntacticFormType().equals("Symbol") &&
+				expression.getValue() instanceof String) {
+			String sValue = expression.toString();
+			if ((sValue.startsWith("'") && sValue.endsWith("'")) ||
+				(sValue.startsWith("\"") && sValue.endsWith("\""))) {
+				result = true;
+			}
+		}
+		return result;
+	}
+	
 	/** Indicates whether an expression is a Symbol representing a boolean constant. */
 	public static boolean isBooleanSymbol(Expression expression) {
 		boolean result = expression.equals(TRUE) || expression.equals(FALSE);
