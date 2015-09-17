@@ -43,6 +43,7 @@ import static com.sri.ai.util.Util.iterator;
 import java.util.Iterator;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
@@ -94,7 +95,14 @@ public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepS
 	@Override
 	public SolutionStep step(Constraint contextualConstraint, RewritingProcess process) {
 	
-		Iterator<Iterable<Expression>> propagatedLiteralsCNF = FunctionIterator.make(propagatedLiterals(), l -> in(iterator(l)));
+//		Function<Expression, Iterable<Expression>> makeUnitClause = l -> in(iterator(l));
+//		above lambda somehow not working at Ciaran's environment, replacing with seemingly identical anonymous class object below
+		Function<Expression, Iterable<Expression>> makeUnitClause = new Function<Expression, Iterable<Expression>>() {
+			public Iterable<Expression> apply(Expression l) {
+				return in(iterator(l));
+			}
+		};
+		Iterator<Iterable<Expression>> propagatedLiteralsCNF = FunctionIterator.make(propagatedLiterals(), makeUnitClause);
 		
 		Iterable<Iterable<Expression>> propagatedCNF =
 				in(NestedIterator.<Iterable<Expression>>make(propagatedLiteralsCNF, getPropagatedCNF(process).iterator()));

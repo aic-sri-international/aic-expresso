@@ -108,8 +108,16 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	protected Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator() {
 		PairOfElementsInListIterator<Expression> pairsOfPositiveAtomsIterator = new PairOfElementsInListIterator<>(getConstraint().getPositiveAtoms());
 		
+//		Function<PairOf<Expression>, PairOf<Expression>> makePairOfSecondArguments = p -> makePairOf(p.first.get(1), p.second.get(1));
+// above lambda somehow not working at Ciaran's environment, replacing with seemingly identical anonymous class object below		
+		Function<PairOf<Expression>, PairOf<Expression>> makePairOfSecondArguments = new Function<PairOf<Expression>, PairOf<Expression>>() {
+			@Override
+			public PairOf<Expression> apply(PairOf<Expression> p) {
+				return makePairOf(p.first.get(1), p.second.get(1));
+			}
+		};
 		Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator =
-				FunctionIterator.make(pairsOfPositiveAtomsIterator, p -> makePairOf(p.first.get(1), p.second.get(1)));
+				FunctionIterator.make(pairsOfPositiveAtomsIterator, makePairOfSecondArguments);
 		
 		return pairsOfEqualsToVariableIterator;
 	}
