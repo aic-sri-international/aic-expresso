@@ -93,13 +93,15 @@ public class ExpressionsTest extends AbstractGrinderTest {
 		e = parse("\"a string\"");
 		Assert.assertTrue(Expressions.isQuotedConstantString(e));
 		
+		// Expected to be false as after parsing the String does
+		// not need to be quoted and is treated as a symbol
 		e = parse("'aString'");
-		// TODO - not supported currently as we don't track that a parsed string without spaces was originally quoted.
-		// Assert.assertTrue(Expressions.isQuotedConstantString(e));
+		Assert.assertFalse(Expressions.isQuotedConstantString(e));
 		
+		// Expected to be false as after parsing the String does
+		// not need to be quoted and is treated as a symbol
 		e = parse("\"aString\"");
-		// TODO - not supported currently as we don't track that a parsed string without spaces was originally quoted.
-		// Assert.assertTrue(Expressions.isQuotedConstantString(e));
+		Assert.assertFalse(Expressions.isQuotedConstantString(e));
 		
 		e = parse("aString");
 		Assert.assertFalse(Expressions.isQuotedConstantString(e));
