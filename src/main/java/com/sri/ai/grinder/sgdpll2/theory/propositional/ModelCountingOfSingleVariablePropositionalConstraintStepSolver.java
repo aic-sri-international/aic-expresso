@@ -44,7 +44,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
-import com.sri.ai.grinder.sgdpll2.core.solver.AbstractModelCountingStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.AbstractModelCountingWithPropagatedAndDefiningLiteralsStepSolver;
 
 /**
  * A {@link AbstractModelCountingOfConstraintStepSolver} for a {@link SingleVariablePropositionalConstraint}.
@@ -53,7 +53,7 @@ import com.sri.ai.grinder.sgdpll2.core.solver.AbstractModelCountingStepSolver;
  *
  */
 @Beta
-public class ModelCountingOfSingleVariablePropositionalConstraintStepSolver extends AbstractModelCountingStepSolver {
+public class ModelCountingOfSingleVariablePropositionalConstraintStepSolver extends AbstractModelCountingWithPropagatedAndDefiningLiteralsStepSolver {
 
 	public ModelCountingOfSingleVariablePropositionalConstraintStepSolver(SingleVariablePropositionalConstraint constraint) {
 		super(constraint);

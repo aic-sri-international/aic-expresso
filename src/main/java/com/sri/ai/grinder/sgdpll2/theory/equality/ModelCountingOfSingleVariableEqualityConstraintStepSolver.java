@@ -57,7 +57,7 @@ import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
-import com.sri.ai.grinder.sgdpll2.core.solver.AbstractModelCountingStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.AbstractModelCountingOfSingleVariableWithPropagatedAndDefiningLiteralsConstraintStepSolver;
 import com.sri.ai.util.base.PairOf;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.PairOfElementsInListIterator;
@@ -69,7 +69,7 @@ import com.sri.ai.util.collect.PairOfElementsInListIterator;
  *
  */
 @Beta
-public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends AbstractModelCountingStepSolver {
+public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends AbstractModelCountingOfSingleVariableWithPropagatedAndDefiningLiteralsConstraintStepSolver {
 
 	public ModelCountingOfSingleVariableEqualityConstraintStepSolver(SingleVariableEqualityConstraint constraint) {
 		super(constraint);
@@ -78,18 +78,6 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 	@Override
 	public SingleVariableEqualityConstraint getConstraint() {
 		return (SingleVariableEqualityConstraint) super.getConstraint();
-	}
-	
-	@Override
-	protected boolean indicateWhetherGetPropagatedCNFWillBeOverridden() {
-		return true;
-	}
-
-	@Override
-	public Iterable<Iterable<Expression>> getPropagatedCNF(RewritingProcess process) {
-		SatisfiabilityOfSingleVariableEqualityConstraintStepSolver satisfiability =
-				new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(getConstraint());
-		return satisfiability.getPropagatedCNF(process);
 	}
 	
 	@Override

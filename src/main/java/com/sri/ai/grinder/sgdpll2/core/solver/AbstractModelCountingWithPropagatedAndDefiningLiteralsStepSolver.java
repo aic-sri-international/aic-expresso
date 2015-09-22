@@ -53,14 +53,19 @@ import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
  *
  */
 @Beta
-public abstract class AbstractModelCountingStepSolver extends AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver {
+public abstract class AbstractModelCountingWithPropagatedAndDefiningLiteralsStepSolver extends AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver {
 
-	public AbstractModelCountingStepSolver(Constraint constraint) {
+	public AbstractModelCountingWithPropagatedAndDefiningLiteralsStepSolver(Constraint constraint) {
 		super(constraint);
 	}
 	
 	@Override
 	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied() {
 		return ZERO;
+	}
+
+	@Override
+	protected boolean indicateWhetherGetPropagatedCNFWillBeOverridden() {
+		return true;
 	}
 }
