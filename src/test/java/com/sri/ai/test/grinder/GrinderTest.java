@@ -810,7 +810,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		expected     = parse("if false then false else (if W = 10 then false else 10 = | type(X) |)");
 		testSemanticSubstitute(replacements, process);
 
-		// Test stack overflow condition.
+		// DefaultMethodReuseTest stack overflow condition.
 		expression   = parse("sick(john)");
 		replacements = Util.map(parse("sick(john)"), parse("sick(john)"));
 		expected     = parse("sick(john)");
@@ -1245,7 +1245,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		expected =   parse("if X = Y then {(on X = a) f(X = Y)} else g(false)");
 		evaluationTest(process);
 		
-		// Test For: ALBP-78
+		// DefaultMethodReuseTest For: ALBP-78
 		expressionString = "if X = a and Y = b then if p(a) and q(a, b) then E1 else E2 else if p(X) and q(X, Y) then E1 else E2";
 		expected =   parse("if X = a and Y = b then if p(a) and q(a, b) then E1 else E2 else if p(X) and q(X, Y) then E1 else E2");
 		evaluationTest(process);
@@ -1785,7 +1785,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		evaluationTest();
 	}
 
-	//@Test
+	//@DefaultMethodReuseTest
 	public void testProcessorSpeed() {
 		for (int i = 0; i != 1500000000; i++) {
 			if (i % 1000 == 0) {

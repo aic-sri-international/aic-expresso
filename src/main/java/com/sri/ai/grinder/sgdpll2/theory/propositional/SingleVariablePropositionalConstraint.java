@@ -101,4 +101,9 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	public boolean impliesLiteralWithDifferentAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
 		throw new Error("This method should not have been invoked because this class's atomMayImplyLiteralsOnDifferentAtoms returns 'false'.");
 	}
+	
+	@Override
+	public SingleVariablePropositionalConstraint conjoin(Expression formula, RewritingProcess process) {
+		return (SingleVariablePropositionalConstraint) super.conjoin(formula, process);
+	}
 }

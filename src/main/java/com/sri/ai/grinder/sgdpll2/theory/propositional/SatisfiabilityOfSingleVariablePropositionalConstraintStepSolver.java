@@ -37,23 +37,21 @@
  */
 package com.sri.ai.grinder.sgdpll2.theory.propositional;
 
-import static com.sri.ai.util.Util.list;
-
-import java.util.Collections;
+import java.util.LinkedList;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.sgdpll2.core.solver.AbstractSatisfiabilityOfConstraintStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.AbstractSatisfiabilityStepSolver;
 
 /**
- * A {@link AbstractSatisfiabilityOfConstraintStepSolver} for a {@link SingleVariablePropositionalConstraint}.
+ * A {@link AbstractSatisfiabilityStepSolver} for a {@link SingleVariablePropositionalConstraint}.
  * 
  * @author braz
  *
  */
 @Beta
-public class SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver extends AbstractSatisfiabilityOfConstraintStepSolver {
+public class SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver extends AbstractSatisfiabilityStepSolver {
 
 	public SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver(SingleVariablePropositionalConstraint constraint) {
 		super(constraint);
@@ -61,17 +59,16 @@ public class SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver ext
 	
 	@Override
 	public SingleVariablePropositionalConstraint getConstraint() {
-		return (SingleVariablePropositionalConstraint) constraint;
+		return (SingleVariablePropositionalConstraint) super.getConstraint();
 	}
 	
 	@Override
-	protected Iterable<Expression> propagatedLiterals() {
-		return Collections.emptyList();
+	protected boolean indicateWhetherGetPropagatedCNFWillBeOverridden() {
+		return true;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected Iterable<Iterable<Expression>> getPropagatedCNF(RewritingProcess process) {
-		return list();
+	public Iterable<Iterable<Expression>> getPropagatedCNF(RewritingProcess process) {
+		return new LinkedList<Iterable<Expression>>();
 	}
 }

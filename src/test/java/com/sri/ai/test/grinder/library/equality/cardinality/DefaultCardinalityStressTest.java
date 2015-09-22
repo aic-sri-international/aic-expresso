@@ -71,7 +71,7 @@ public class DefaultCardinalityStressTest extends AbstractCardinalityRewritersSt
 				{"|{{(on X) tuple(X) | Z = a or (Y != a and X != a) }}|", "if Z = a then 10 else if Y = a then 0 else 9"}
 		}));
 
-		// Note: An example of using expected on a Parametric Stress Test
+		// Note: An example of using expected on a Parametric Stress DefaultMethodReuseTest
 		result.add(new ParametricCardinalityStressTestData(
 				"DNF",
 				"Equality",

@@ -38,13 +38,12 @@
 package com.sri.ai.grinder.sgdpll2.theory.equality;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.core.solver.AbstractQuantifierStepSolver;
 
 /**
- * A step solver for sums with equality constraints.
+ * A {@link AbstractQuantifierStepSolver} for sums with equality constraints.
  * 
  * @author braz
  *
@@ -53,13 +52,7 @@ import com.sri.ai.grinder.sgdpll2.core.solver.AbstractQuantifierStepSolver;
 public class SumOverEqualityConstraintStepSolver extends AbstractQuantifierStepSolver {
 
 	@Override
-	protected Expression getUndefinedLiteralFromQuantifiedExpression(Constraint contextualConstraint, RewritingProcess process) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected SolutionStep stepGivenLiteralFreeQuantifiedExpression(Constraint contextualConstraint, RewritingProcess process) {
+	protected SolutionStep stepGivenLiteralFreeBody(Constraint contextualConstraint, RewritingProcess process) {
 		// TODO Auto-generated method stub
 		return null;
 	}

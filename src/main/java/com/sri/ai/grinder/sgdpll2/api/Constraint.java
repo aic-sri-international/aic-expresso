@@ -37,6 +37,9 @@
  */
 package com.sri.ai.grinder.sgdpll2.api;
 
+import static com.sri.ai.grinder.library.boole.And.getConjuncts;
+import static com.sri.ai.util.Util.myAssert;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -45,27 +48,89 @@ import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 @Beta
 public interface Constraint extends Expression {
 
-	/**
-	 * Returns an {@link ConstraintTheoryTester} representing the conjunction of this constraint and a given literal,
-	 * or null if they are contradictory.
-	 * @param literal the literal
-	 * @param process the rewriting process
-	 * @return the application result or <code>null</code> if contradiction.
-	 */
-	Constraint conjoin(Expression literal, RewritingProcess process);
-	
 	ConstraintTheory getConstraintTheory();
 	
+	/**
+	 * Tests whether a literal is contradictory with this constraint
+	 * by checking whether conjoining it with the literal's negation produces a contradiction.
+	 * @param literal
+	 * @param process
+	 * @return
+	 */
 	default boolean implies(Expression literal, RewritingProcess process) {
 		Expression literalNegation = getConstraintTheory().getLiteralNegation(literal);
 		boolean result = contradictoryWith(literalNegation, process);
 		return result;
 	}
 
-	default boolean contradictoryWith(Expression literal, RewritingProcess process) {
-		Constraint conjunction = conjoin(literal, process);
+	/**
+	 * Tests whether a formula is contradictory with this constraint
+	 * by checking whether conjoining them produces a contradiction.
+	 * @param formula
+	 * @param process
+	 * @return
+	 */
+	default boolean contradictoryWith(Expression formula, RewritingProcess process) {
+		Constraint conjunction = conjoin(formula, process);
 		boolean result = conjunction == null;
 		return result;
 	}
 
+	/**
+	 * Returns an {@link ConstraintTheoryTester} representing the conjunction of this constraint and
+	 * a given formula, or null if they are contradictory.
+	 * <p>
+	 * At this point, the formula should be either a literal, or a {@link Constraint}.
+	 * <p>
+	 * Extensions may want to override this method if there are more efficient ways
+	 * of conjoining with (certain types of) constraints than simply treating them as a formula
+	 * 
+	 * @param formula the formula to be conjoined.
+	 * @param process the rewriting process
+	 * @return the application result or <code>null</code> if contradiction.
+	 */
+	default Constraint conjoin(Expression formula, RewritingProcess process) {
+		myAssert(
+				() -> getConstraintTheory().isLiteral(formula, process) || formula instanceof Constraint,
+				() -> this.getClass() + " currently only supports conjoining with literals and constraints, but received " + formula);
+		
+		Constraint result;
+	
+		if (formula instanceof Constraint) {
+			result = conjoinWithConjunctiveClause(formula, process); // for now, all Constraints are conjunctions. This will probably change in the future.
+		}
+		else {
+			result = conjoinWithLiteral(formula, process);
+		}
+	
+		return result;
+	}
+
+	/**
+	 * Returns the result of conjoining this constraint with all literal conjuncts of a given conjunctive clause
+	 * (note that if <code>conjunction</code> is not an application of <code>and</code>,
+	 * it will be considered a unit conjunction with itself the only conjunct.
+	 * @param conjunctiveClause
+	 * @param process
+	 * @return the result of conjoining this constraint with all conjuncts of a given conjunction
+	 */
+	default Constraint conjoinWithConjunctiveClause(Expression conjunctiveClause, RewritingProcess process) {
+		Constraint result = this;
+		for (Expression literal : getConjuncts(conjunctiveClause)) {
+			result = result.conjoin(literal, process);
+		}
+		return result;
+	}
+
+	/**
+	 * Returns an {@link ConstraintTheoryTester} representing the conjunction of this constraint and
+	 * a given literal, or null if they are contradictory.
+	 * <p>
+	 * At this point, the formula should be either a literal, or a {@link Constraint}.
+	 * 
+	 * @param literal the literal to be conjoined.
+	 * @param process the rewriting process
+	 * @return the application result or <code>null</code> if contradiction.
+	 */
+	Constraint conjoinWithLiteral(Expression literal, RewritingProcess process);
 }

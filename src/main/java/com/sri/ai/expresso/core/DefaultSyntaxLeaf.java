@@ -288,7 +288,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		} 
 		else {
 			anotherSymbol = createSyntaxLeaf(another);
-			// Test again, as may have had self returned from the symbol table.
+			// DefaultMethodReuseTest again, as may have had self returned from the symbol table.
 			if (this == anotherSymbol) {
 				return true;
 			}
@@ -321,7 +321,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		} 
 		else {
 			anotherSymbol = createSyntaxLeaf(another);
-			// Test again, as may have had self returned from the symbol table.
+			// DefaultMethodReuseTest again, as may have had self returned from the symbol table.
 			if (this == anotherSymbol) {
 				return 0;
 			}

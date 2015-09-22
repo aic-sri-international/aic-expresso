@@ -50,7 +50,6 @@ import java.util.Random;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
@@ -81,6 +80,12 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
+	public boolean isNonTrivialLiteral(Expression expression, RewritingProcess process) {
+		boolean result = expression.hasFunctor(EQUALITY) || expression.hasFunctor(DISEQUALITY);
+		return result;
+	}
+	
+	@Override
 	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable) {
 		return new SingleVariableEqualityConstraint(variable, this);
 	}
@@ -91,8 +96,13 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public Function<SingleVariableConstraint, ContextDependentProblemStepSolver> getMakerOfSatisfiabilityOfSingleVariableConstraintProblem() {
-		return s -> new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver((SingleVariableEqualityConstraint) s);
+	public ContextDependentProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint) {
+		return new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver((SingleVariableEqualityConstraint) constraint);
+	}
+
+	@Override
+	public ContextDependentProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint) {
+		return new ModelCountingOfSingleVariableEqualityConstraintStepSolver((SingleVariableEqualityConstraint) constraint);
 	}
 
 	@Override

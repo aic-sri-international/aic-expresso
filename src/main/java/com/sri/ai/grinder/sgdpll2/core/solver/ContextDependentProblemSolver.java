@@ -44,6 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
@@ -60,16 +61,16 @@ import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstrai
 @Beta
 public class ContextDependentProblemSolver {
 
-	public static Expression solve(ContextDependentProblemStepSolver problem, MultiVariableConstraint contextualConstraint, RewritingProcess process) {
-		ContextDependentProblemStepSolver.SolutionStep step = problem.step(contextualConstraint, process);
+	public static Expression solve(ContextDependentProblemStepSolver stepSolver, Constraint contextualConstraint, RewritingProcess process) {
+		ContextDependentProblemStepSolver.SolutionStep step = stepSolver.step(contextualConstraint, process);
 		if (step.itDepends()) {
 			Expression splitter = step.getExpression();
-			MultiVariableConstraint subContextualConstraint1 = contextualConstraint.conjoin(splitter, process);
-			Expression subSolution1 = solve(problem, subContextualConstraint1, process);
+			Constraint subContextualConstraint1 = contextualConstraint.conjoin(splitter, process);
+			Expression subSolution1 = solve(stepSolver, subContextualConstraint1, process);
 			
 			Expression splitterNegation = contextualConstraint.getConstraintTheory().getLiteralNegation(splitter);
-			MultiVariableConstraint subContextualConstraint2 = contextualConstraint.conjoin(splitterNegation, process);
-			Expression subSolution2 = solve(problem, subContextualConstraint2, process);
+			Constraint subContextualConstraint2 = contextualConstraint.conjoin(splitterNegation, process);
+			Expression subSolution2 = solve(stepSolver, subContextualConstraint2, process);
 			
 			return IfThenElse.make(splitter, subSolution1, subSolution2, true);
 		}

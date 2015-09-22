@@ -37,8 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpll2.core.solver;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -46,33 +45,22 @@ import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 
 /**
- * A step solver for the satisfiability of a {@link Constraint},
- * which can involve free variables and is therefore a {@link ContextDependentProblemStepSolver}.
+ * An abstract step solver for model counting step solvers.
+ * This problem may involve free variables and is therefore a {@link ContextDependentProblemStepSolver}.
  * This class is based on splitters generated according to the specific theory.
  * 
  * @author braz
  *
  */
 @Beta
-public abstract class AbstractSatisfiabilityOfConstraintStepSolver extends AbstractContextDependentProblemWithPropagatedLiteralsStepSolver {
+public abstract class AbstractModelCountingStepSolver extends AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver {
 
-	protected Constraint constraint;
-	
-	public AbstractSatisfiabilityOfConstraintStepSolver(Constraint constraint) {
-		this.constraint = constraint;
-	}
-	
-	public Constraint getConstraint() {
-		return constraint;
+	public AbstractModelCountingStepSolver(Constraint constraint) {
+		super(constraint);
 	}
 	
 	@Override
 	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied() {
-		return FALSE;
-	}
-
-	@Override
-	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied() {
-		return TRUE;
+		return ZERO;
 	}
 }

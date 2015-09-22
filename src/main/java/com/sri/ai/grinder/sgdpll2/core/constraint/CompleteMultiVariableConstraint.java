@@ -37,15 +37,9 @@
  */
 package com.sri.ai.grinder.sgdpll2.core.constraint;
 
-import static com.sri.ai.expresso.helper.Expressions.parse;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
 
 /**
  * A multi-variable constraint whose {@link #conjoin(com.sri.ai.expresso.api.Expression, RewritingProcess)}
@@ -60,42 +54,6 @@ public class CompleteMultiVariableConstraint extends MultiVariableConstraintWith
 	private static final long serialVersionUID = 1L;
 
 	public CompleteMultiVariableConstraint(ConstraintTheory constraintTheory) {
-		super(constraintTheory, constraintTheory.getMakerOfSatisfiabilityOfSingleVariableConstraintProblem());
-	}
-
-	public static void main(String[] args) {
-		MultiVariableConstraint constraint;
-		RewritingProcess process;
-		
-		constraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory());
-		process = new DefaultRewritingProcess(null);
-
-		System.out.println("constraint: " + constraint);	
-		constraint = constraint.conjoin(parse("Z != Y"), process);
-		System.out.println("constraint: " + constraint);	
-		constraint = constraint.conjoin(parse("W != Z"), process);
-		System.out.println("constraint: " + constraint);	
-		constraint = constraint.conjoin(parse("X = Y"), process);
-		System.out.println("constraint: " + constraint);	
-		constraint = constraint.conjoin(parse("X = W"), process);
-		System.out.println("constraint: " + constraint);	
-		constraint = constraint.conjoin(parse("X = Z"), process);
-		System.out.println("constraint: " + constraint);	
-
-		constraint = new CompleteMultiVariableConstraint(new PropositionalConstraintTheory());
-		process = new DefaultRewritingProcess(null);
-
-		System.out.println("constraint: " + constraint);	
-		constraint = constraint.conjoin(parse("P"), process);
-		System.out.println("constraint: " + constraint);	
-		constraint = constraint.conjoin(parse("Q"), process);
-		System.out.println("constraint: " + constraint);	
-		constraint = constraint.conjoin(parse("not R"), process);
-		System.out.println("constraint: " + constraint);	
-		constraint = constraint.conjoin(parse("not S"), process);
-		System.out.println("constraint: " + constraint);	
-		constraint = constraint.conjoin(parse("not P"), process);
-		System.out.println("constraint: " + constraint);	
-	
+		super(constraintTheory, s -> constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(s));
 	}
 }

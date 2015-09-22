@@ -42,9 +42,13 @@ import static com.sri.ai.grinder.helper.GrinderUtil.getTypeCardinality;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
+import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
+
+import java.util.Iterator;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
@@ -103,8 +107,8 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	}
 	
 	@Override
-	public SingleVariableEqualityConstraint conjoin(Expression literal, RewritingProcess process) {
-		SingleVariableEqualityConstraint result = (SingleVariableEqualityConstraint) super.conjoin(literal, process);
+	public SingleVariableEqualityConstraint conjoinWithLiteral(Expression literal, RewritingProcess process) {
+		SingleVariableEqualityConstraint result = (SingleVariableEqualityConstraint) super.conjoinWithLiteral(literal, process);
 		return result;
 	}
 
@@ -170,6 +174,26 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 		return result;
 	}
 
+	/**
+	 * Returns an iterator to terms constrained to be equal to variable.
+	 * @return
+	 */
+	public Iterator<Expression> getEquals() {
+		return getPositiveAtoms().stream().
+		map(e -> e.get(1)) // second arguments of Variable = Term
+		.iterator();
+	}
+
+	/**
+	 * Returns an iterator to terms constrained to be disequal to variable.
+	 * @return
+	 */
+	public Iterator<Expression> getDisequalsIterator() {
+		return getNegativeAtoms().stream().
+		map(e -> e.get(1)) // second arguments of Variable != Term
+		.iterator();
+	}
+
 	protected long cachedIndexDomainSize = -1;
 
 	public long getVariableDomainSize(RewritingProcess process) {
@@ -177,5 +201,18 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 			cachedIndexDomainSize = getTypeCardinality(getVariable(), process);
 		}
 		return cachedIndexDomainSize;
+	}
+	
+	public Expression getVariableDomain(RewritingProcess process) {
+		Expression variableType = process.getContextualSymbolType(getVariable());
+		if (variableType == null) {
+			variableType = new DefaultSyntacticFunctionApplication(TYPE, getVariable());
+		}
+		return variableType;
+	}
+
+	@Override
+	public SingleVariableEqualityConstraint conjoin(Expression formula, RewritingProcess process) {
+		return (SingleVariableEqualityConstraint) super.conjoin(formula, process);
 	}
 }

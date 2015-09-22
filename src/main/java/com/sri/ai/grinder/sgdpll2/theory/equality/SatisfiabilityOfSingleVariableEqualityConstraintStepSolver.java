@@ -60,7 +60,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.grinder.sgdpll2.core.solver.AbstractSatisfiabilityOfConstraintStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.AbstractSatisfiabilityStepSolver;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.PairOf;
 import com.sri.ai.util.collect.CartesianProductIterator;
@@ -72,13 +72,13 @@ import com.sri.ai.util.collect.PredicateIterator;
 import com.sri.ai.util.collect.SubsetsOfKIterator;
 
 /**
- * A {@link AbstractSatisfiabilityOfConstraintStepSolver} for a {@link SingleVariableEqualityConstraint}.
+ * A {@link AbstractSatisfiabilityStepSolver} for a {@link SingleVariableEqualityConstraint}.
  * 
  * @author braz
  *
  */
 @Beta
-public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends AbstractSatisfiabilityOfConstraintStepSolver {
+public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends AbstractSatisfiabilityStepSolver {
 
 	public SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(SingleVariableEqualityConstraint constraint) {
 		super(constraint);
@@ -86,11 +86,16 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	
 	@Override
 	public SingleVariableEqualityConstraint getConstraint() {
-		return (SingleVariableEqualityConstraint) constraint;
+		return (SingleVariableEqualityConstraint) super.getConstraint();
 	}
 	
 	@Override
-	protected Iterable<Expression> propagatedLiterals() {
+	protected boolean indicateWhetherGetPropagatedCNFWillBeOverridden() {
+		return false;
+	}
+
+	@Override
+	protected Iterable<Expression> getPropagatedLiterals() {
 		
 		Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator = pairsOfEqualsToVariableIterator();
 		Iterator<Expression> propagatedEqualities = FunctionIterator.make(pairsOfEqualsToVariableIterator, p -> Equality.make(p.first, p.second));
@@ -98,7 +103,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 		Iterator<Expression> propagatedDisequalities =
 				FunctionIterator.make(arrayListsOfEqualAndDisequalToVariableIterator(), p -> Expressions.apply(DISEQUALITY, p));
 		
-		Iterator<Expression> propagatedLiteralsIterator = new NestedIterator<>(propagatedEqualities, propagatedDisequalities);
+		Iterator<Expression> propagatedLiteralsIterator = new NestedIterator<>(getConstraint().getExternalLiterals(), propagatedEqualities, propagatedDisequalities);
 
 		Iterable<Expression> result = in(propagatedLiteralsIterator);
 		
@@ -106,20 +111,70 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	}
 
 	protected Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator() {
-		PairOfElementsInListIterator<Expression> pairsOfPositiveAtomsIterator = new PairOfElementsInListIterator<>(getConstraint().getPositiveAtoms());
+		PairOfElementsInListIterator<Expression> pairsOfPositiveAtomsIterator = 
+				new PairOfElementsInListIterator<>(getConstraint().getPositiveAtoms());
 		
-//		Function<PairOf<Expression>, PairOf<Expression>> makePairOfSecondArguments = p -> makePairOf(p.first.get(1), p.second.get(1));
+		Function<PairOf<Expression>, PairOf<Expression>> makePairOfSecondArguments = p -> makePairOf(p.first.get(1), p.second.get(1));
 // above lambda somehow not working at Ciaran's environment, replacing with seemingly identical anonymous class object below		
-		Function<PairOf<Expression>, PairOf<Expression>> makePairOfSecondArguments = new Function<PairOf<Expression>, PairOf<Expression>>() {
-			@Override
-			public PairOf<Expression> apply(PairOf<Expression> p) {
-				return makePairOf(p.first.get(1), p.second.get(1));
-			}
-		};
+//		Function<PairOf<Expression>, PairOf<Expression>> makePairOfSecondArguments = new Function<PairOf<Expression>, PairOf<Expression>>() {
+//			@Override
+//			public PairOf<Expression> apply(PairOf<Expression> p) {
+//				return makePairOf(p.first.get(1), p.second.get(1));
+//			}
+//		};
 		Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator =
 				FunctionIterator.make(pairsOfPositiveAtomsIterator, makePairOfSecondArguments);
 		
 		return pairsOfEqualsToVariableIterator;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess process) {
+		if ( ! variableIsBoundToUniquelyNamedConstant(process)) {
+			// the following logic only holds if the variable is not bound to a uniquely named constants,
+			// since that eliminates all disequalities to other uniquely named constants as redundant
+	
+			ArrayList<Expression> variableDisequals = getVariableDisequals(process);
+	
+			if (getConstraint().getVariableDomainSize(process) != -1 &&
+					variableDisequals.size() + getConstraint().getNumberOfDisequalitiesFromConstantsSeenSoFar()
+					>= getConstraint().getVariableDomainSize(process)) {
+				// the following procedure can be very expensive but the condition above will rarely be satisfied
+	
+				Set<Expression> constantDisequals = getConstantDisequals(process);
+	
+				Expression typeDescription = GrinderUtil.getType(getConstraint().getVariable(), process);
+				Type type = process.getType(typeDescription.toString());
+				ArrayList<Expression> remainingConstants =
+						arrayListFrom(new PredicateIterator(type.iterator(), c -> ! constantDisequals.contains(c)));
+	
+				CartesianProductIterator<ArrayList<Expression>> subsetOfVariableDisequalsAndRemainingConstantsPermutationIterator
+				= new CartesianProductIterator<ArrayList<Expression>>(
+						() -> new SubsetsOfKIterator<Expression>(variableDisequals, remainingConstants.size()),
+						() -> new PermutationIterator<Expression>(remainingConstants));
+	
+				FunctionIterator<ArrayList<ArrayList<Expression>>, Iterable<Expression>> disjunctsIterator =
+						FunctionIterator.make(
+								subsetOfVariableDisequalsAndRemainingConstantsPermutationIterator,
+								(ArrayList<ArrayList<Expression>> subsetAndPermutation)
+								->
+								zipApply(
+										DISEQUALITY,
+										list(
+												subsetAndPermutation.get(0).iterator(),
+												subsetAndPermutation.get(1).iterator()))
+								);
+	
+				Iterable<Iterable<Expression>> conjuncts = in(disjunctsIterator);
+	
+				return conjuncts;
+			}
+		}
+	
+		
+		// otherwise, nothing is implied.
+		return list();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -136,55 +191,6 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 						extractSecondArguments);
 		
 		return result;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	protected Iterable<Iterable<Expression>> getPropagatedCNF(RewritingProcess process) {
-		if ( ! variableIsBoundToUniquelyNamedConstant(process)) {
-			// the following logic only holds if the variable is not bound to a uniquely named constants,
-			// since that eliminates all disequalities to other uniquely named constants as redundant
-
-			ArrayList<Expression> variableDisequals = getVariableDisequals(process);
-
-			if (getConstraint().getVariableDomainSize(process) != -1 &&
-					variableDisequals.size() + getConstraint().getNumberOfDisequalitiesFromConstantsSeenSoFar()
-					>= getConstraint().getVariableDomainSize(process)) {
-				// the following procedure can be very expensive but the condition above will rarely be satisfied
-
-				Set<Expression> constantDisequals = getConstantDisequals(process);
-
-				Expression typeDescription = GrinderUtil.getType(getConstraint().getVariable(), process);
-				Type type = process.getType(typeDescription.toString());
-				ArrayList<Expression> remainingConstants =
-						arrayListFrom(new PredicateIterator(type.iterator(), c -> ! constantDisequals.contains(c)));
-
-				CartesianProductIterator<ArrayList<Expression>> subsetOfVariableDisequalsAndRemainingConstantsPermutationIterator
-				= new CartesianProductIterator<ArrayList<Expression>>(
-						() -> new SubsetsOfKIterator<Expression>(variableDisequals, remainingConstants.size()),
-						() -> new PermutationIterator<Expression>(remainingConstants));
-
-				FunctionIterator<ArrayList<ArrayList<Expression>>, Iterable<Expression>> disjunctsIterator =
-						FunctionIterator.make(
-								subsetOfVariableDisequalsAndRemainingConstantsPermutationIterator,
-								(ArrayList<ArrayList<Expression>> subsetAndPermutation)
-								->
-								zipApply(
-										DISEQUALITY,
-										list(
-												subsetAndPermutation.get(0).iterator(),
-												subsetAndPermutation.get(1).iterator()))
-								);
-
-				Iterable<Iterable<Expression>> conjuncts = in(disjunctsIterator);
-
-				return conjuncts;
-			}
-		}
-
-		
-		// otherwise, nothing is implied.
-		return list();
 	}
 
 	/**

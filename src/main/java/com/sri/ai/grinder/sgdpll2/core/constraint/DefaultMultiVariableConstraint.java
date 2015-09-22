@@ -1,6 +1,7 @@
 package com.sri.ai.grinder.sgdpll2.core.constraint;
 
 import static com.sri.ai.util.Util.min;
+import static com.sri.ai.util.Util.myAssert;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -42,7 +43,7 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 	}
 	
 	@Override
-	public DefaultMultiVariableConstraint conjoin(Expression literal, RewritingProcess process) {
+	public DefaultMultiVariableConstraint conjoinWithLiteral(Expression literal, RewritingProcess process) {
 		DefaultMultiVariableConstraint result;
 		
 		Expression variable = getVariableFor(literal, process);
@@ -95,5 +96,23 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 	@Override
 	public ConstraintTheory getConstraintTheory() {
 		return constraintTheory;
+	}
+
+	@Override
+	public MultiVariableConstraint conjoin(Expression formula, RewritingProcess process) {
+		myAssert(
+				() -> getConstraintTheory().isLiteral(formula, process) || formula instanceof Constraint,
+				() -> this.getClass() + " currently only supports conjoining with literals and constraints, but received " + formula);
+		
+		MultiVariableConstraint result;
+
+		if (formula instanceof Constraint) {
+			result = (MultiVariableConstraint) conjoinWithConjunctiveClause(formula, process);
+		}
+		else {
+			result = conjoinWithLiteral(formula, process);
+		}
+
+		return result;
 	}
 }

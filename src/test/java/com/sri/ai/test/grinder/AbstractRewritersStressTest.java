@@ -189,7 +189,7 @@ public abstract class AbstractRewritersStressTest extends AbstractGrinderTest {
 				}
 				System.out.println("");
 			}
-			outputTotals(rewriters, "Stress Test Suite", totalTimes);
+			outputTotals(rewriters, "Stress DefaultMethodReuseTest Suite", totalTimes);
 		}
 		outputTotals(rewriters, "Grand", grandTotalTimes);
 		

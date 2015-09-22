@@ -176,7 +176,7 @@ abstract public class AbstractGrinderTest {
 	
 		boolean succeded = areEqual(actual, expected);
 		if ( succeded ) {
-			System.out.println("Test successful.");
+			System.out.println("DefaultMethodReuseTest successful.");
 		} 
 		else {
 			System.out.println("Expected: " + expected);

@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.helper;
 
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.library.FunctorConstants.CARTESIAN_PRODUCT;
@@ -712,6 +713,16 @@ public class GrinderUtil {
 	 */
 	public static Expression getType(Expression expression, RewritingProcess process) {
 		Expression result;
+		
+		// TODO: hard-coded symbols: to be made more flexible at some point
+		switch(expression.toString()) {
+		case FunctorConstants.NOT : return apply("->", "Boolean", "Boolean");
+		case FunctorConstants.AND : return apply("->", Util.fill(expression.numberOfArguments(), "Boolean"));
+		case FunctorConstants.OR : return apply("->", Util.fill(expression.numberOfArguments(), "Boolean"));
+		case FunctorConstants.IMPLICATION : apply("->", "Boolean", "Boolean");
+		case FunctorConstants.EQUIVALENCE : apply("->", "Boolean", "Boolean");
+		}
+		
 		if (expression.getSyntacticFormType().equals("Symbol")) {
 			result = process.getContextualSymbolType(expression);
 			
@@ -724,6 +735,9 @@ public class GrinderUtil {
 		}
 		else if (expression.getSyntacticFormType().equals("Function application")) {
 			Expression functionType = getType(expression.getFunctor(), process);
+			if (functionType == null) {
+				throw new Error("Type of '" + expression.getFunctor() + "' required, but unknown to rewriting process.");
+			}
 			Util.myAssert(() -> functionType.hasFunctor("->"), () -> "Functor " + expression.getFunctor() + " in expression " + expression + " should have functional type be an expression with functor '->', but has type instead equal to " + functionType);
 			
 			List<Expression> argumentsTypesList;

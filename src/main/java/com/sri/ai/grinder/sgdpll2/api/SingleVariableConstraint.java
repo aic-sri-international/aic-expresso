@@ -54,5 +54,7 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 	Expression getVariable();
 	
 	@Override
-	SingleVariableConstraint conjoin(Expression literal, RewritingProcess process);
+	default SingleVariableConstraint conjoin(Expression formula, RewritingProcess process) {
+		return (SingleVariableConstraint) Constraint.super.conjoin(formula, process);
+	}
 }

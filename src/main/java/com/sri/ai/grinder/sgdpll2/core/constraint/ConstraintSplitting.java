@@ -11,7 +11,15 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
 
 /**
- * A helper class containing information regarding the splitting a constraint by a literal in the most efficient way possible.
+ * A helper class containing information regarding the splitting a constraint by a literal in the most efficient way possible,
+ * optionally under a contextual constraint.
+ * <p>
+ * The contextual constraint is used to decide which of the two possible fragments is satisfiable or not.
+ * It is not conjoined in the constraints provided by {@link #getConstraintAndLiteral()}
+ * and {@link #getConstraintAndLiteralNegation()}.
+ * <p>
+ * Whether satisfiability given the contextual constraint is detected or not
+ * depends on the completeness of the particular implementation of the given contextual constraint.
  * <p>
  * Four results are possible:
  * <ul>
@@ -40,12 +48,12 @@ public class ConstraintSplitting  {
 		CONSTRAINT_IS_CONTRADICTORY
 	}
 	
-	private Result result;
+	private Result     result;
 	private Constraint constraint;
 	private Expression literal;
 	private Constraint constraintAndLiteral;
 	private Constraint constraintAndLiteralNegation;
-	
+
 	/**
 	 * Splits given constraint by given literal and stores the result and other information (see methods).
 	 * @param constraint
@@ -53,14 +61,36 @@ public class ConstraintSplitting  {
 	 * @param process
 	 */
 	public ConstraintSplitting(Constraint constraint, Expression literal, RewritingProcess process) {
+		this(constraint, literal, null, process);
+	}
+	
+	/**
+	 * Splits given constraint by given literal under a contextual constraint and stores the result and other information (see methods).
+	 * @param constraint
+	 * @param literal
+	 * @param process
+	 */
+	public ConstraintSplitting(Constraint constraint, Expression literal, Constraint contextualConstraint, RewritingProcess process) {
 		this.constraint = constraint;
 		this.literal = literal;
 		Expression literalNegation   = constraint.getConstraintTheory().getLiteralNegation(literal);
 		constraintAndLiteral         = constraint.conjoin(        literal, process);
 		constraintAndLiteralNegation = constraint.conjoin(literalNegation, process);
 		
-		if (constraintAndLiteral != null) {
-			if (constraintAndLiteralNegation != null) {
+		Constraint constraintAndLiteralAndContextualConstraint;
+		Constraint constraintAndLiteralNegationAndContextualConstraint;
+
+		if (contextualConstraint != null) {
+			constraintAndLiteralAndContextualConstraint = contextualConstraint.conjoin(constraintAndLiteral, process);
+			constraintAndLiteralNegationAndContextualConstraint = contextualConstraint.conjoin(constraintAndLiteralNegation, process);
+		}
+		else {
+			constraintAndLiteralAndContextualConstraint = constraintAndLiteral;
+			constraintAndLiteralNegationAndContextualConstraint = constraintAndLiteralNegation;
+		}
+		
+		if (constraintAndLiteralAndContextualConstraint != null) {
+			if (constraintAndLiteralNegationAndContextualConstraint != null) {
 				result = LITERAL_IS_UNDEFINED;
 			}
 			else {
@@ -68,7 +98,7 @@ public class ConstraintSplitting  {
 			}
 		}
 		else {
-			if (constraintAndLiteralNegation != null) {
+			if (constraintAndLiteralNegationAndContextualConstraint != null) {
 				result = LITERAL_IS_FALSE;
 			}
 			else {
@@ -90,6 +120,26 @@ public class ConstraintSplitting  {
 	/** The original literal. */
 	public Expression getLiteral() {
 		return literal;
+	}
+	
+	/**
+	 * Return conjunction of constraint and literal
+	 * (contextual constraint is not conjoined; it is only used to decide whether
+	 * conjunction of constraint and literal is satisfiable).
+	 * @return
+	 */
+	public Constraint getConstraintAndLiteral() {
+		return constraintAndLiteral;
+	}
+	
+	/**
+	 * Return conjunction of constraint and literal negation
+	 * (contextual constraint is not conjoined; it is only used to decide whether
+	 * conjunction of constraint and literal is satisfiable).
+	 * @return
+	 */
+	public Constraint getConstraintAndLiteralNegation() {
+		return constraintAndLiteralNegation;
 	}
 	
 	/**

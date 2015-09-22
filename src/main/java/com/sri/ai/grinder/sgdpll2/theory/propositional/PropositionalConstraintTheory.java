@@ -47,11 +47,11 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
@@ -86,18 +86,29 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
+	public boolean isNonTrivialLiteral(Expression expression, RewritingProcess process) {
+		boolean result = GrinderUtil.isBooleanTyped(expression, process);
+		return result;
+	}
+	
+	@Override
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable) {
+		return new SingleVariablePropositionalConstraint(variable, this);
+	}
+
+	@Override
 	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
 		return false; // nothing else is interpreted
 	}
 
 	@Override
-	public Function<SingleVariableConstraint, ContextDependentProblemStepSolver> getMakerOfSatisfiabilityOfSingleVariableConstraintProblem() {
-		return s -> new SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver((SingleVariablePropositionalConstraint) s);
+	public ContextDependentProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint) {
+		return new SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver((SingleVariablePropositionalConstraint) constraint);
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable) {
-		return new SingleVariablePropositionalConstraint(variable, this);
+	public ContextDependentProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint) {
+		throw new Error("Not implemented yet");
 	}
 
 	@Override

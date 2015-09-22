@@ -88,7 +88,17 @@ public class EqualityConstraintTest {
 	}
 
 	@Test
-	public void testSpecialCases() {
+	public void testModelCountingForSingleVariableConstraints() {
+		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
+				new Random(),
+				new EqualityConstraintTheory(),
+				500 /* number of tests */,
+				30 /* number of literals per test */,
+				true /* output count */);
+	}
+
+	@Test
+	public void testCompleteSatisfiabilitySpecialCases() {
 		// This test is to make sure that some more tricky cases are indeed tested,
 		// even though hopefully the large amount of generated random problems include them.
 
@@ -97,28 +107,25 @@ public class EqualityConstraintTest {
 		
 		conjunction = "X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
 		expected = null;
-		runTest(conjunction, expected);
+		runCompleteSatisfiabilityTest(conjunction, expected);
 		
 		conjunction = "X = Y and X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
 		expected = null;
-		runTest(conjunction, expected);
+		runCompleteSatisfiabilityTest(conjunction, expected);
 		
 		conjunction = "X = a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
 		expected = parse("(W = d) and (Z = c) and (X = a) and (X != Z) and (X != W)");
-		runTest(conjunction, expected);
+		runCompleteSatisfiabilityTest(conjunction, expected);
 	}
 
 	/**
 	 * @param conjunction
 	 * @param expected
 	 */
-	private void runTest(String conjunction, Expression expected) {
-		MultiVariableConstraint constraint;
-		RewritingProcess process;
+	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected) {
 		EqualityConstraintTheory constraintTheory = new EqualityConstraintTheory();
-		constraint = new CompleteMultiVariableConstraint(constraintTheory);
-		process = new DefaultRewritingProcess(null);
-		process = constraintTheory.extendWithTestingInformation(process);
+		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);
+		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
 			constraint = constraint.conjoin(literal, process);
 		}

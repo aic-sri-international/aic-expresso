@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.sgdpll2.api;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.grinder.library.equality.formula.FormulaUtil.isInterpretedInPropositionalLogicIncludingConditionals;
 import static com.sri.ai.util.Util.addAllToSet;
 import static com.sri.ai.util.Util.thereExists;
@@ -48,7 +50,6 @@ import java.util.Map;
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
@@ -76,6 +77,28 @@ import com.sri.ai.util.collect.PredicateIterator;
 public interface ConstraintTheory extends Theory {
 	
 	/**
+	 * Indicates whether an expression is a literal in this theory.
+	 * @param expression
+	 * @param process
+	 * @return 
+	 * @return
+	 */
+	default boolean isLiteral(Expression expression, RewritingProcess process) {
+		if (expression.equals(TRUE) || expression.equals(FALSE)) {
+			return true;
+		}
+		return isNonTrivialLiteral(expression, process);
+	}
+	
+	/**
+	 * Indicates whether an expression is a non-trivial literal in this theory.
+	 * @param expression
+	 * @param process
+	 * @return
+	 */
+	boolean isNonTrivialLiteral(Expression expression, RewritingProcess process);
+	
+	/**
 	 * Make a new single-variable constraint for this constraint theory.
 	 * @param variable 
 	 * @return
@@ -98,12 +121,18 @@ public interface ConstraintTheory extends Theory {
 	boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process);
 
 	/**
-	 * Returns a function mapping single-variable constraints in this theory to
+	 * Given a single-variable constraint in this theory, returns
 	 * a {@link ContextDependentProblemStepSolver} deciding its satisfiability.
-	 * @return a function mapping single-variable constraints in this theory to
-	 * a {@link ContextDependentProblemStepSolver} deciding its satisfiability.
+	 * @return a {@link ContextDependentProblemStepSolver} deciding a constraint's satisfiability.
 	 */
-	Function<SingleVariableConstraint, ContextDependentProblemStepSolver> getMakerOfSatisfiabilityOfSingleVariableConstraintProblem();
+	ContextDependentProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint);
+	
+	/**
+	 * Given a single-variable constraint in this theory, returns
+	 * a {@link ContextDependentProblemStepSolver} computing its model count.
+	 * @return a {@link ContextDependentProblemStepSolver} computing a constraint's model count.
+	 */
+	ContextDependentProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint);
 	
 	/**
 	 * Returns the negation of a literal.

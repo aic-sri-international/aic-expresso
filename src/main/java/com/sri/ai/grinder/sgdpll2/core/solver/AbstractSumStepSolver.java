@@ -35,71 +35,39 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core;
+package com.sri.ai.grinder.sgdpll2.core.solver;
+
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewriterTest;
-import com.sri.ai.grinder.api.RewriterTestAttribute;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 
 /**
- * Default implementation of the RewriterTest interface.
+ * A step solver for a sum over an index with a {@link Constraint} of a body expression.
+ * This problem may involve free variables and is therefore a {@link ContextDependentProblemStepSolver}.
+ * This class is based on splitters generated according to the specific theory.
  * 
  * @author braz
- * @author oreilly
  *
  */
 @Beta
-public class DefaultRewriterTest implements RewriterTest {
-	protected RewriterTestAttribute attribute = null;
-	protected Object                value     = null;
+public abstract class AbstractSumStepSolver extends AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver {
+
+	private Expression body;
 	
-	public DefaultRewriterTest(RewriterTestAttribute attribute, Object value) {
-		this.attribute = attribute;
-		this.value     = value;
+	public AbstractSumStepSolver(Constraint constraint, Expression body) {
+		super(constraint);
+		this.body = body;
 	}
 	
-	//
-	// START-RewriterTest
-	@Override
-	public RewriterTestAttribute getAttribute() {
-		return attribute;
+	public Expression getBody() {
+		return body;
 	}
 	
 	@Override
-	public Object getValue() {
-		return value;
-	}
-	
-	@Override
-	public boolean apply(Expression expression, RewritingProcess process) {
-		Object expressionAttributeValue = getAttribute().getValue(expression, process);
-		boolean result = expressionAttributeValue.equals(getValue());
-		//System.out.println("DefaultMethodReuseTest and value: " + this + ", " + expressionAttributeValue);	
-		return result;
-	}
-	// END-RewiterTest
-	//
-	
-	@Override
-	public String toString() {
-		return "(attribute="+attribute+", value="+value+")";
-	}
-	
-	@Override
-	public int hashCode() {
-		return attribute.hashCode() + value.hashCode();
-	}
-	
-	@Override
-	public boolean equals(Object o) {
-		
-		if (o != null && o instanceof RewriterTest) {
-			RewriterTest ort = (RewriterTest) o;
-			return this.attribute == ort.getAttribute() && this.value.equals(ort.getValue());
-		}
-		
-		return false;
+	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied() {
+		return ZERO;
 	}
 }

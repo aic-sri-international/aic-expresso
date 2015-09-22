@@ -90,10 +90,14 @@ public class CommonInterpreter implements Simplifier {
 	 * @param extendingAssignment new value of assignments
 	 * @return
 	 */
-	public CommonInterpreter interpreterExtendedWith(Map<Expression, Expression> extendingAssignment) {
+	public CommonInterpreter extendWith(Map<Expression, Expression> extendingAssignment) {
 		return new CommonInterpreter(new StackedHashMap<>(extendingAssignment, assignment));
 	}
 
+	public Map<Expression, Expression> getAssignment() {
+		return assignment;
+	}
+	
 	public Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map();
 	}
@@ -117,7 +121,7 @@ public class CommonInterpreter implements Simplifier {
 		process = extendContextualSymbolsWithIndexExpressions(formula.getIndexExpressions(), process);
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(formula.getIndexExpressions(), process);
 		for (Map<Expression, Expression> values : in(assignmentsIterator)) {
-			Expression bodyEvaluation = interpreterExtendedWith(values).apply(formula.getBody(), process);
+			Expression bodyEvaluation = extendWith(values).apply(formula.getBody(), process);
 			if (bodyEvaluation.equals(shortCircuitingValue(formula))) {
 				return shortCircuitingValue(formula);
 			}

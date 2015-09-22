@@ -230,19 +230,19 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	abstract public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process);
 
 	@Override
-	public SingleVariableConstraint conjoin(Expression literal, RewritingProcess process) {
+	public SingleVariableConstraint conjoinWithLiteral(Expression formula, RewritingProcess process) {
 		AbstractSingleVariableConstraint result;
-		if (literal.equals(TRUE)) {
+		if (formula.equals(TRUE)) {
 			result = this;
 		}
-		else if (literal.equals(FALSE)) {
+		else if (formula.equals(FALSE)) {
 			result = null;
 		}
-		else if (!contains(literal, getVariable(), process)) {
-			result = copyWithNewExternalLiteral(literal);
+		else if (!contains(formula, getVariable(), process)) {
+			result = copyWithNewExternalLiteral(formula);
 		}
 		else {
-			Pair<Boolean, Expression> signAndAtom = fromLiteralOnVariableToSignAndAtom(getVariable(), literal);
+			Pair<Boolean, Expression> signAndAtom = fromLiteralOnVariableToSignAndAtom(getVariable(), formula);
 			boolean    sign = signAndAtom.first;
 			Expression atom = signAndAtom.second;
 			ArrayList<Expression>     sameSignAtoms = sign? positiveAtoms : negativeAtoms;

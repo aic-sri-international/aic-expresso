@@ -51,5 +51,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 public interface MultiVariableConstraint extends Constraint {
 	
 	@Override
-	MultiVariableConstraint conjoin(Expression literal, RewritingProcess process);
+	default MultiVariableConstraint conjoin(Expression formula, RewritingProcess process) {
+		return (MultiVariableConstraint) Constraint.super.conjoin(formula, process);
+	}
 }

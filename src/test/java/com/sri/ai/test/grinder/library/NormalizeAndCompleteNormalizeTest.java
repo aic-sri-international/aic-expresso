@@ -145,7 +145,7 @@ public class NormalizeAndCompleteNormalizeTest extends AbstractGrinderTest {
 							"p(a)"),
 				//
 				// Replaces --E' by E' 
-				// Test for resolved issue: JIRA ALBP-69
+				// DefaultMethodReuseTest for resolved issue: JIRA ALBP-69
 				new NormalizeTestData(
 							"--2",
 							"2"),
@@ -169,11 +169,11 @@ public class NormalizeAndCompleteNormalizeTest extends AbstractGrinderTest {
 				// "-2" directly I get the function appliction
 				// -(2), which is correct but does not compare
 				// correctly, so using (-2) gets around this.
-				// Test for resolved issue: JIRA ALBP-69
+				// DefaultMethodReuseTest for resolved issue: JIRA ALBP-69
 				new NormalizeTestData(
 							"0-(-2)",
 							"2"),
-				// Test for resolved issue: JIRA ALBP-69
+				// DefaultMethodReuseTest for resolved issue: JIRA ALBP-69
 				new NormalizeTestData(
 							"0-p(a)",
 							"-p(a)"),

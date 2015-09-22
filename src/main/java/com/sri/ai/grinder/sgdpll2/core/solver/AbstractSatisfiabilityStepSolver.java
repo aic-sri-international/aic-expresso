@@ -35,71 +35,39 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core;
+package com.sri.ai.grinder.sgdpll2.core.solver;
+
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewriterTest;
-import com.sri.ai.grinder.api.RewriterTestAttribute;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 
 /**
- * Default implementation of the RewriterTest interface.
+ * A step solver for the satisfiability of a {@link Constraint},
+ * which can involve free variables and is therefore a {@link ContextDependentProblemStepSolver}.
+ * This class is based on splitters generated according to the specific theory.
  * 
  * @author braz
- * @author oreilly
  *
  */
 @Beta
-public class DefaultRewriterTest implements RewriterTest {
-	protected RewriterTestAttribute attribute = null;
-	protected Object                value     = null;
-	
-	public DefaultRewriterTest(RewriterTestAttribute attribute, Object value) {
-		this.attribute = attribute;
-		this.value     = value;
-	}
-	
-	//
-	// START-RewriterTest
-	@Override
-	public RewriterTestAttribute getAttribute() {
-		return attribute;
+public abstract class AbstractSatisfiabilityStepSolver extends AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver {
+
+	public AbstractSatisfiabilityStepSolver(Constraint constraint) {
+		super(constraint);
 	}
 	
 	@Override
-	public Object getValue() {
-		return value;
+	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied() {
+		return FALSE;
 	}
-	
+
 	@Override
-	public boolean apply(Expression expression, RewritingProcess process) {
-		Object expressionAttributeValue = getAttribute().getValue(expression, process);
-		boolean result = expressionAttributeValue.equals(getValue());
-		//System.out.println("DefaultMethodReuseTest and value: " + this + ", " + expressionAttributeValue);	
-		return result;
-	}
-	// END-RewiterTest
-	//
-	
-	@Override
-	public String toString() {
-		return "(attribute="+attribute+", value="+value+")";
-	}
-	
-	@Override
-	public int hashCode() {
-		return attribute.hashCode() + value.hashCode();
-	}
-	
-	@Override
-	public boolean equals(Object o) {
-		
-		if (o != null && o instanceof RewriterTest) {
-			RewriterTest ort = (RewriterTest) o;
-			return this.attribute == ort.getAttribute() && this.value.equals(ort.getValue());
-		}
-		
-		return false;
+	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint contextualConstraint, RewritingProcess process) {
+		return TRUE;
 	}
 }
