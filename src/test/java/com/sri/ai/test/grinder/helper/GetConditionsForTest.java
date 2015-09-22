@@ -157,7 +157,7 @@ public class GetConditionsForTest {
 		
 		boolean success = expected.equals(actual) || expected2 != null && expected2.equals(actual);
 		if (!success) {
-			System.err.println("DefaultMethodReuseTest failed for getConditionsForVariable");
+			System.err.println("Test failed for getConditionsForVariable");
 			System.err.println(expression);
 			System.err.println("should have been transformed to");
 			System.err.println(expected);
@@ -226,7 +226,7 @@ public class GetConditionsForTest {
 		
 		boolean success = expected.equals(actual) || expected2 != null && expected2.equals(actual);
 		if (!success) {
-			System.err.println("DefaultMethodReuseTest failed for getConditionsForVariable");
+			System.err.println("Test failed for getConditionsForVariable");
 			System.err.println(expression);
 			System.err.println("should have been transformed to");
 			System.err.println(expected);
@@ -242,7 +242,7 @@ public class GetConditionsForTest {
 	}
 
 
-	//@DefaultMethodReuseTest // algorithm is incorrect
+	//@Test // algorithm is incorrect
 	public void testGetImpliedValueFromBDD() {
 		variable   = parse("X");
 		
@@ -336,7 +336,7 @@ public class GetConditionsForTest {
 		System.out.println(expression + "\n   (using BDD) " + bdd + "\n   -> " + actual + "\n");
 		boolean success = Util.equals(expected, actual);
 		if (!success) {
-			System.err.println("DefaultMethodReuseTest failed for getImpliedValueFromBDD");
+			System.err.println("Test failed for getImpliedValueFromBDD");
 			System.err.println(expression);
 			System.err.println("should have resulted in");
 			System.err.println(expected);

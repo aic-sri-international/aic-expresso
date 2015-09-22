@@ -76,7 +76,7 @@ public class DefaultRewriterTest implements RewriterTest {
 	public boolean apply(Expression expression, RewritingProcess process) {
 		Object expressionAttributeValue = getAttribute().getValue(expression, process);
 		boolean result = expressionAttributeValue.equals(getValue());
-		//System.out.println("DefaultMethodReuseTest and value: " + this + ", " + expressionAttributeValue);	
+		//System.out.println("Test and value: " + this + ", " + expressionAttributeValue);	
 		return result;
 	}
 	// END-RewiterTest

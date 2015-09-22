@@ -727,7 +727,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"not(for all G : G = g)",
 					"there exists G : not(G = g)"),						
 			//
-			// Illegal Argument DefaultMethodReuseTest
+			// Illegal Argument Test
 			new MoveNotInData(true,
 					"X = t",
 					"N/A"),
@@ -1625,7 +1625,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					new CountsDeclaration(10),
 					"true"),
 			//
-			// Formerly Illegal Arguments DefaultMethodReuseTest, now valid with support of if then else in formulas
+			// Formerly Illegal Arguments Test, now valid with support of if then else in formulas
 			new TautologyData(false,
 					"if a = a then true else false",
 					new CountsDeclaration(10),
@@ -1872,7 +1872,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					new CountsDeclaration(10),
 					"false"),
 			//
-			// Formerly Illegal Arguments DefaultMethodReuseTest, now valid with support of if then else in formulas
+			// Formerly Illegal Arguments Test, now valid with support of if then else in formulas
 			new ContradictionData(false,
 					"if a != a then true else false",
 					new CountsDeclaration(10),
@@ -3049,7 +3049,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					new CountsDeclaration("X", "10", "Y", "10"),
 					"10"),
 			//
-			// Illegal Argument DefaultMethodReuseTest
+			// Illegal Argument Test
 			new Cardinality1ConjunctionData(true,
 					"| {(on ) tuple(X) | and(X = a, X != b) } |",
 					CardinalityRewriter.Quantification.NONE,
@@ -3244,7 +3244,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					new CountsDeclaration("X", "10", "Y", "10"),
 					"10"),
 			//
-			// Illegal Argument DefaultMethodReuseTest
+			// Illegal Argument Test
 			new Cardinality1Data(true,
 					"| {(on ) tuple(X) | and(X = a, X != b) } |",
 					CardinalityRewriter.Quantification.NONE,

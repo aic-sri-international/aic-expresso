@@ -162,11 +162,11 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	public void testEscapeSequences() {
 		String string;
 		
-		string = "'DefaultMethodReuseTest \\u0061'";
-		test(string, Expressions.makeSymbol("DefaultMethodReuseTest a"));
+		string = "'Test \\u0061'";
+		test(string, Expressions.makeSymbol("Test a"));
 		
-		string = "\"DefaultMethodReuseTest \\u0061\"";
-		test(string, Expressions.makeSymbol("DefaultMethodReuseTest a"));
+		string = "\"Test \\u0061\"";
+		test(string, Expressions.makeSymbol("Test a"));
 
 		string = "'Testing the  preservation \\t of	whitespace\\ncharacters.'";
 		test(string, Expressions.makeSymbol("Testing the  preservation 	 of	whitespace\ncharacters."));
@@ -202,7 +202,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "3 // This is a test.\n + 4";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 3, 4));
 
-		string = "// DefaultMethodReuseTest\n 3 // This is a test.\n + 4 // DefaultMethodReuseTest";
+		string = "// Test\n 3 // This is a test.\n + 4 // Test";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 3, 4));
 
 		string = "3 /* This is a test. */";
@@ -660,7 +660,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 						),
 				"x", "y"));
 
-		// DefaultMethodReuseTest for illegal strings.
+		// Test for illegal strings.
 		string = "< x";
 		testFail(string);
 
@@ -795,7 +795,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "'{{ . }}'(a, b, c)";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . }}", "a", "b", "c"));
 
-		// DefaultMethodReuseTest illegal strings.
+		// Test illegal strings.
 		string = "{{ foo";
 		testFail(string);
 
@@ -901,7 +901,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "'{ . }'(a, b, c)";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "a", "b", "c"));
 
-		// DefaultMethodReuseTest illegal strings.
+		// Test illegal strings.
 		string = "{ foo";
 		testFail(string);
 

@@ -100,13 +100,13 @@ public class DefaultMonomialTest {
 		
 		Assert.assertEquals(new Rational(4), makeMonomial("y*4*x^2").getNumericConstantFactor());
 		
-		// DefaultMethodReuseTest that numerical constants are multiplied together
+		// Test that numerical constants are multiplied together
 		Assert.assertEquals(new Rational(8), makeMonomial("y^3*2*x^2*4").getNumericConstantFactor());
 		
-		// DefaultMethodReuseTest edge case where the numeric constant is represented as a power	
+		// Test edge case where the numeric constant is represented as a power	
 		Assert.assertEquals(new Rational(8), makeMonomial("2^3*x^2").getNumericConstantFactor());
 		
-		// DefaultMethodReuseTest edge case where the numeric constant is represented as a power and a separate constant
+		// Test edge case where the numeric constant is represented as a power and a separate constant
 		Assert.assertEquals(new Rational(24), makeMonomial("2^3*x^2*3").getNumericConstantFactor());
 	}
 	
@@ -728,7 +728,7 @@ public class DefaultMonomialTest {
 	}
 	
 	//
-	// Additional DefaultMethodReuseTest
+	// Additional Test
 	@Test
 	public void testEquals() {
 		Assert.assertTrue(makeMonomial("0").equals(makeMonomial("0")));

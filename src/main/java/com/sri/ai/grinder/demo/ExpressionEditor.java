@@ -417,7 +417,7 @@ public class ExpressionEditor extends JPanel {
 	    			else if (isVariable(token)) {
 	    				style = styledDocument.getStyle(STYLE_VARIABLE);
 	    			}
-	    			// Note: DefaultMethodReuseTest isSymbol after isNumber and isVariable as both of them are 
+	    			// Note: Test isSymbol after isNumber and isVariable as both of them are 
 	    			// types of symbols.
 	    			else if (isSymbol(token)) {
 	    				style = styledDocument.getStyle(STYLE_SYMBOL);
