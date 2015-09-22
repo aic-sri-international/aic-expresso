@@ -48,6 +48,7 @@ import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.equality.SatisfiabilityOfSingleVariableEqualityConstraintStepSolver;
 import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstraint;
@@ -65,14 +66,25 @@ public class ContextDependentProblemSolver {
 		ContextDependentProblemStepSolver.SolutionStep step = stepSolver.step(contextualConstraint, process);
 		if (step.itDepends()) {
 			Expression splitter = step.getExpression();
-			Constraint subContextualConstraint1 = contextualConstraint.conjoin(splitter, process);
-			Expression subSolution1 = solve(stepSolver, subContextualConstraint1, process);
-			
-			Expression splitterNegation = contextualConstraint.getConstraintTheory().getLiteralNegation(splitter);
-			Constraint subContextualConstraint2 = contextualConstraint.conjoin(splitterNegation, process);
-			Expression subSolution2 = solve(stepSolver, subContextualConstraint2, process);
-			
-			return IfThenElse.make(splitter, subSolution1, subSolution2, true);
+			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, splitter, process);
+			switch (split.getResult()) {
+			case CONSTRAINT_IS_CONTRADICTORY:
+				return null;
+			case LITERAL_IS_UNDEFINED:
+				Expression subSolution1 = solve(stepSolver, split.getConstraintAndLiteral(), process);
+				Expression subSolution2 = solve(stepSolver, split.getConstraintAndLiteralNegation(), process);
+				if (subSolution1 == null || subSolution2 == null) {
+					return null;
+				}
+				else {
+					return IfThenElse.make(splitter, subSolution1, subSolution2, true);
+				}
+			case LITERAL_IS_TRUE:
+			case LITERAL_IS_FALSE:
+				return solve(stepSolver, split.getConstraintConjoinedWithDefinedValueOfLiteral(), process);
+			default:
+				throw new Error("Undefined value");
+			}
 		}
 		else {
 			return step.getExpression();

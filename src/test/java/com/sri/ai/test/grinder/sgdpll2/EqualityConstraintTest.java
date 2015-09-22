@@ -92,7 +92,7 @@ public class EqualityConstraintTest {
 		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
 				new Random(),
 				new EqualityConstraintTheory(),
-				500 /* number of tests */,
+				200 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}

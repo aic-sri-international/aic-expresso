@@ -37,11 +37,8 @@
  */
 package com.sri.ai.grinder.sgdpll2.theory.propositional;
 
-import java.util.LinkedList;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.core.solver.AbstractSatisfiabilityStepSolver;
 
 /**
@@ -64,11 +61,11 @@ public class SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver ext
 	
 	@Override
 	protected boolean indicateWhetherGetPropagatedCNFWillBeOverridden() {
-		return true;
+		return false;
 	}
 
 	@Override
-	public Iterable<Iterable<Expression>> getPropagatedCNF(RewritingProcess process) {
-		return new LinkedList<Iterable<Expression>>();
+	public Iterable<Expression> getPropagatedLiterals() {
+		return getConstraint().getExternalLiterals();
 	}
 }

@@ -35,56 +35,56 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.sgdpll2;
+package com.sri.ai.grinder.sgdpll2.theory.propositional;
 
-import java.util.Random;
-
-import org.junit.Test;
+import static com.sri.ai.expresso.helper.Expressions.ONE;
+import static com.sri.ai.expresso.helper.Expressions.TWO;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
-import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.core.solver.AbstractModelCountingStepSolver;
 
+/**
+ * A {@link AbstractModelCountingOfConstraintStepSolver} for a {@link SingleVariablePropositionalConstraint}.
+ * 
+ * @author braz
+ *
+ */
 @Beta
-public class PropositionalConstraintTest {
+public class ModelCountingOfSingleVariablePropositionalConstraintStepSolver extends AbstractModelCountingStepSolver {
 
-	@Test
-	public void testSingleVariableConstraints() {
-		ConstraintTheoryTester.testSingleVariableConstraints(
-				new Random(),
-				new PropositionalConstraintTheory(),
-				3 /* number of tests - only literals are P and not P, and 3 tests already create all cases */,
-				2 /* number of literals per test */,
-				true /* output count */);
+	public ModelCountingOfSingleVariablePropositionalConstraintStepSolver(SingleVariablePropositionalConstraint constraint) {
+		super(constraint);
+	}
+	
+	@Override
+	public SingleVariablePropositionalConstraint getConstraint() {
+		return (SingleVariablePropositionalConstraint) super.getConstraint();
+	}
+	
+	@Override
+	protected boolean indicateWhetherGetPropagatedCNFWillBeOverridden() {
+		return true;
 	}
 
-	@Test
-	public void testMultiVariableConstraints() {
-		ConstraintTheoryTester.testMultiVariableConstraints(
-				new Random(),
-				new PropositionalConstraintTheory(),
-				100 /* number of tests - many more possibilities when we have multiple variables */,
-				10 /* number of literals per test */,
-				true /* output count */);
+	@Override
+	public Iterable<Iterable<Expression>> getPropagatedCNF(RewritingProcess process) {
+		SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver satisfiability =
+				new SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver(getConstraint());
+		return satisfiability.getPropagatedCNF(process);
 	}
-
-	@Test
-	public void testModelCountingForSingleVariableConstraints() {
-		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
-				new Random(1),
-				new PropositionalConstraintTheory(),
-				300 /* number of tests */,
-				30 /* number of literals per test */,
-				true /* output count */);
-	}
-
-	@Test
-	public void testCompleteMultiVariableConstraints() {
-		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
-				new Random(),
-				new PropositionalConstraintTheory(),
-				100 /* number of tests */,
-				30 /* number of literals per test */,
-				true /* output count */);
+	
+	@Override
+	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(
+			Constraint contextualConstraint, RewritingProcess process) {
+		
+		boolean variableIsNotConstrained = 
+				getConstraint().getPositiveAtoms().isEmpty() && getConstraint().getNegativeAtoms().isEmpty();
+		
+		Expression result = variableIsNotConstrained? TWO : ONE;
+		
+		return result;
 	}
 }

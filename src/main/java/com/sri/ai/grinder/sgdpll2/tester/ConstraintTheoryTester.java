@@ -78,7 +78,7 @@ import com.sri.ai.util.base.NullaryFunction;
 public class ConstraintTheoryTester {
 	
 	private static void output(String message) {
-//		System.out.println(message); // uncomment out if detailed output is desired.
+		// System.out.println(message); // uncomment out if detailed output is desired.
 	}
 
 	/**

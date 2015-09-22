@@ -108,7 +108,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 
 	@Override
 	public ContextDependentProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint) {
-		throw new Error("Not implemented yet");
+		return new ModelCountingOfSingleVariablePropositionalConstraintStepSolver((SingleVariablePropositionalConstraint) constraint);
 	}
 
 	@Override
@@ -125,7 +125,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	public Expression getLiteralNegation(Expression literal) {
 		Expression result;
 		if (literal.hasFunctor(NOT)) {
-			result = literal;
+			result = literal.get(0);
 		}
 		else {
 			result = Not.make(literal);
