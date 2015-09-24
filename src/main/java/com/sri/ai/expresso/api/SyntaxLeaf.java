@@ -47,4 +47,5 @@ import com.google.common.annotations.Beta;
 @Beta
 public interface SyntaxLeaf extends SyntaxTree {
 	String getValueType();
+	boolean isQuoted();
 }

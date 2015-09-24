@@ -93,15 +93,11 @@ public class ExpressionsTest extends AbstractGrinderTest {
 		e = parse("\"a string\"");
 		Assert.assertTrue(Expressions.isQuotedConstantString(e));
 		
-		// Expected to be false as after parsing the String does
-		// not need to be quoted and is treated as a symbol
 		e = parse("'aString'");
-		Assert.assertFalse(Expressions.isQuotedConstantString(e));
-		
-		// Expected to be false as after parsing the String does
-		// not need to be quoted and is treated as a symbol
+		Assert.assertTrue(Expressions.isQuotedConstantString(e));
+
 		e = parse("\"aString\"");
-		Assert.assertFalse(Expressions.isQuotedConstantString(e));
+		Assert.assertTrue(Expressions.isQuotedConstantString(e));
 		
 		e = parse("aString");
 		Assert.assertFalse(Expressions.isQuotedConstantString(e));

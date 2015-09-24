@@ -46,7 +46,6 @@ import java.util.Map;
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.NotNull;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -407,17 +406,6 @@ public class ExpressionVisitor extends AntlrGrinderBaseVisitor<Expression> {
 	// PROTECTED
 	//
 	protected Expression newSymbol(String text) {
-		// Remove quotes from around quoted strings
-		if ((text.startsWith("'") && text.endsWith("'"))
-				|| (text.startsWith("\"") && text.endsWith("\""))) {
-			text = text.substring(1, text.length() - 1);
-		}
-		
-		// Ensure escapes are applied.
-		text = StringEscapeUtils.unescapeJava(text);
-
-		text = new String(text);
-
 		Expression result = Expressions.makeSymbol(text);
 		return result;
 	}

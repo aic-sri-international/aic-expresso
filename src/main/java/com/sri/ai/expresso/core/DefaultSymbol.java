@@ -66,14 +66,17 @@ import com.sri.ai.util.math.Rational;
 public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Symbol {
 	private static final long serialVersionUID = 1L;
 	
-	private Object value;
-	
 	// this field is merely a cache; this Expression class is not based on syntax trees like previous ones did; it merely provides a syntax tree when requested.
 	private SyntaxLeaf cachedSyntaxTree;
 
 	@Override
 	public Object getValue() {
-		return value;
+		return cachedSyntaxTree.getValue();
+	}
+	
+	@Override
+	public boolean isQuoted() {
+		return cachedSyntaxTree.isQuoted();
 	}
 
 	@Override
@@ -170,28 +173,8 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 	}
 
 	// Note: End users can only instantiate Symbols via the factory method.
-	private DefaultSymbol(Object value) {
-		
-		if (value instanceof Number && !(value instanceof Rational)) {
-			value = new Rational(((Number)value).doubleValue());
-		} 
-		else if (value.equals("true")) {
-			value = Boolean.TRUE;
-		} 
-		else if (value.equals("false")) {
-			value = Boolean.FALSE;
-		} 
-		else if (value instanceof String) {
-			try {
-				value = new Rational((String)value);
-			}
-			catch (NumberFormatException e) {
-				// ignore
-			}
-		}
-	
+	private DefaultSymbol(Object value) {	
 		cachedSyntaxTree = DefaultSyntaxLeaf.createSyntaxLeaf(value);
-		this.value = value;
 	}
 
 	public static void flushGlobalSymbolTable() {

@@ -370,7 +370,7 @@ public class Expressions {
 			result = (Expression) object;
 		}
 		else {
-			result = DefaultSymbol.createSymbol(object);
+			result = makeSymbol(object);
 		}
 		return result;
 	}
@@ -380,7 +380,6 @@ public class Expressions {
 	 */
 	public static Symbol makeSymbol(Object object) {
 		return DefaultSymbol.createSymbol(object);
-//		return ExpressionOnSyntaxLeaf.createSymbol(object);
 	}
 	
 	static private Parser parser = new AntlrGrinderParserWrapper();
@@ -520,11 +519,7 @@ public class Expressions {
 		boolean result = false;
 		if (expression.getSyntacticFormType().equals("Symbol") &&
 				expression.getValue() instanceof String) {
-			String sValue = expression.toString();
-			if ((sValue.startsWith("'") && sValue.endsWith("'")) ||
-				(sValue.startsWith("\"") && sValue.endsWith("\""))) {
-				result = true;
-			}
+			result = ((Symbol) expression).isQuoted();
 		}
 		return result;
 	}

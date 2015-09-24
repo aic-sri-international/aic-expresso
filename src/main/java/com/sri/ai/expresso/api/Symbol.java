@@ -52,4 +52,11 @@ public interface Symbol extends Expression {
 	 */
 	@Override
 	public Object getValue();
+	
+	/**
+	 * 
+	 * @return true if the symbol is quoted, false otherwise. 
+	 * i.e. a constant string, e.g. 'a Symbol' or "a Symbol" or "aSymbol".
+	 */
+	boolean isQuoted();
 }

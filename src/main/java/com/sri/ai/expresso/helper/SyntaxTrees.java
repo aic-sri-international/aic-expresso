@@ -129,10 +129,6 @@ public class SyntaxTrees {
 		return result;
 	}
 
-	public static String makeStringValuedSymbolParseSafe(String string) {
-		return DefaultSyntaxLeaf.makeStringValuedSymbolParseSafe(string);
-	}
-
 	static private Parser parser = new AntlrGrinderParserWrapper();
 	
 	/**

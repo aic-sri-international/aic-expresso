@@ -59,7 +59,6 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.core.SyntaxTreeBasedSubExpressionAddress;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
-import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.Library;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -145,48 +144,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		assertEquals(expected, rounded);
 	}
 	
-	@Test
-	public void testMakeStringValuedSymbolParseSafe() {
-		String s;
-		
-		// No change
-		s = SyntaxTrees.makeStringValuedSymbolParseSafe("aSymbol");
-		Assert.assertEquals("aSymbol", s);
-		
-		s = SyntaxTrees.makeStringValuedSymbolParseSafe("aSymbol'");
-		Assert.assertEquals("aSymbol'", s);
-		
-		s = SyntaxTrees.makeStringValuedSymbolParseSafe("aSymbol'''");
-		Assert.assertEquals("aSymbol'''", s);
-		
-		// spaces
-		s = SyntaxTrees.makeStringValuedSymbolParseSafe("I have a space");
-		Assert.assertEquals("'I have a space'", s);
-		
-		// ' not escaped
-		s = SyntaxTrees.makeStringValuedSymbolParseSafe("I have'nt a space");
-		Assert.assertEquals("'I have\\'nt a space'", s);
-		
-		// ' is escaped
-		s = SyntaxTrees.makeStringValuedSymbolParseSafe("I have\\'nt a space");
-		Assert.assertEquals("'I have\\'nt a space'", s);
-		
-		// ' not escaped
-		s = SyntaxTrees.makeStringValuedSymbolParseSafe("I have\\\\'nt a space");
-		Assert.assertEquals("'I have\\\\\\'nt a space'", s);
-		
-		// ' not escaped
-		s = SyntaxTrees.makeStringValuedSymbolParseSafe("i'have");
-		Assert.assertEquals("'i\\'have'", s);
-		
-		// ' is escaped
-		s = SyntaxTrees.makeStringValuedSymbolParseSafe("i\\'have");
-		Assert.assertEquals("'i\\'have'", s);
-		
-		// ' not escaped
-		s = SyntaxTrees.makeStringValuedSymbolParseSafe("i\\\\'have");
-		Assert.assertEquals("'i\\\\\\'have'", s);
-	}
+
 
 	@Test
 	public void testMakeUniqueVariable() {
@@ -237,7 +195,6 @@ public class GrinderTest extends AbstractGrinderTest {
 		expressionString = "((1 + 2) * (1 + 2)) + ((1 + 2) * (1 + 2))"; // should reuse equivalency results
 		expected   = Expressions.makeSymbol(18);
 		evaluationTest();
-
 	}
 	
 	@Test
@@ -1075,7 +1032,7 @@ public class GrinderTest extends AbstractGrinderTest {
 		
 		List<ExpressionAndContext> expressionsAndContext = null;
 		Expression expression = parse("aConstantSymbol");
-		RewritingProcess process = new DefaultRewritingProcess(expression, evaluator);
+		new DefaultRewritingProcess(expression, evaluator);
 		
 		expression = parse("if A = B then aAndBEqual else aAndBNotEqual");
 		expressionsAndContext = Util.listFrom(expression.getImmediateSubExpressionsAndContextsIterator());

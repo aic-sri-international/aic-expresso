@@ -175,13 +175,16 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, Expressions.makeSymbol("Testing the  preservation 	 of	whitespace\ncharacters."));
 
 		string = "'This is a test *()#@$%!-_=+<>,./?:;\\'\"\\\"\\\\'";
-		test(string, Expressions.makeSymbol("This is a test *()#@$%!-_=+<>,./?:;'\"\"\\"));
+		test(string, Expressions.makeSymbol("This is a test *()#@$%!-_=+<>,./?:;'\"\"\\\\"));
 
 		string = "\"This is a test *()#@$%!-_=+<>,./?:;\\''\\\"\\\"\\\\\"";
-		test(string, Expressions.makeSymbol("This is a test *()#@$%!-_=+<>,./?:;''\"\"\\"));
+		test(string, Expressions.makeSymbol("This is a test *()#@$%!-_=+<>,./?:;''\"\"\\\\"));
 		
 		string = "foo(bar1', 'bar2\\'', bar3''')";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "bar1'", "bar2'", "bar3'''"));
+		
+		string = "\"not'aSymbol\"";
+		test(string, Expressions.makeSymbol("not'aSymbol"));
 	}
 	
 	@Test 
