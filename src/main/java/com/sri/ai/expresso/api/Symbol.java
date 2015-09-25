@@ -51,12 +51,5 @@ public interface Symbol extends Expression {
 	 * Returns the value of an expression if it is based on a symbol.
 	 */
 	@Override
-	public Object getValue();
-	
-	/**
-	 * 
-	 * @return true if the symbol is quoted, false otherwise. 
-	 * i.e. a constant string, e.g. 'a Symbol' or "a Symbol" or "aSymbol".
-	 */
-	boolean isQuoted();
+	Object getValue();
 }

@@ -84,24 +84,6 @@ public class ExpressionsTest extends AbstractGrinderTest {
 		e = parse("{(on X) X} and X");
 		Assert.assertEquals(Util.set(parse("and"), parse("X")), Expressions.freeSymbols(e, process));
 	}
-	
-	@Test
-	public void testIsQuotedConstantString() {
-		Expression e = parse("'a String'");
-		Assert.assertTrue(Expressions.isQuotedConstantString(e));
-		
-		e = parse("\"a string\"");
-		Assert.assertTrue(Expressions.isQuotedConstantString(e));
-		
-		e = parse("'aString'");
-		Assert.assertTrue(Expressions.isQuotedConstantString(e));
-
-		e = parse("\"aString\"");
-		Assert.assertTrue(Expressions.isQuotedConstantString(e));
-		
-		e = parse("aString");
-		Assert.assertFalse(Expressions.isQuotedConstantString(e));
-	}
 
 	@Test
 	public void testSubExpressionInstance() {

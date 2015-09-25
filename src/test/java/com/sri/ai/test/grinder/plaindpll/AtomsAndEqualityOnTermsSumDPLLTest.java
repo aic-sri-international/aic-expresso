@@ -99,45 +99,45 @@ public class AtomsAndEqualityOnTermsSumDPLLTest extends AbstractSymbolicSymbolEq
 		expression = parse("if atom(X) then 1 else if not atom(X) then 2 else 0");
 		indices    = list();
 		expected   = parse("if atom(X) then 1 else 2");
-		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("->(Everything, Boolean)"));
 		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 
 		expression = parse("if atom(X) or not atom(X) then 1 else 0");
 		indices    = list();
 		expected   = parse("1");
-		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("->(Everything, Boolean)"));
 		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 
 		expression = parse("(if atom(X) then 1 else 0) + (if not atom(X) then 1 else 0)");
 		indices    = list();
 		expected   = parse("1");
-		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("->(Everything, Boolean)"));
 		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 
 		expression = parse("(if atom(X) then 0.3 else 0.7) + (if not atom(X) then 0.9 else 0.1)");
 		indices    = list();
 		expected   = parse("if atom(X) then 0.4 else 1.6");
-		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("->(Everything, Boolean)"));
 		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 
 		expression = parse("(if atom(X) then 0.3 else 0.7) * (if not atom(X) then 0.9 else 0.1)");
 		indices    = list();
 		expected   = parse("if atom(X) then 0.03 else 0.63");
-		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(Everything, Boolean)"));
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("->(Everything, Boolean)"));
 		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 
 		expression = parse("(if atom(X,Y) then 0.3 else 0.7) * (if not atom(X,Y) then 0.9 else 0.1)");
 		indices    = list();
 		expected   = parse("if atom(X, Y) then 0.03 else 0.63");
-		freeSymbolsAndTypes = Util.map(parse("atom"), parse("'->'(x(Everything, Everything), Boolean)"));
+		freeSymbolsAndTypes = Util.map(parse("atom"), parse("->(x(Everything, Everything), Boolean)"));
 		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 
 		expression = parse("(if atom1(X) then 1 else 0) + (if not atom2(X) then 1 else 0)");
 		indices    = list();
 		expected   = parse("if atom1(X) then if atom2(X) then 1 else 2 else if atom2(X) then 0 else 1");
 		freeSymbolsAndTypes = Util.map(
-				parse("atom1"), parse("'->'(Everything, Boolean)"),
-				parse("atom2"), parse("'->'(Everything, Boolean)"));
+				parse("atom1"), parse("->(Everything, Boolean)"),
+				parse("atom2"), parse("->(Everything, Boolean)"));
 		runSymbolicAndNonSymbolicTests(expression, indices, freeSymbolsAndTypes, expected);
 
 //		expression = parse("atom(X) or not atom(Y)");

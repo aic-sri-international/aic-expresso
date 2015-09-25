@@ -57,7 +57,7 @@ public class ThereExists {
 	
 	/* Note: changes in this class's representation must be reflected in {@link QuantifierSubExpressionAndScopedVariableProvider}. */
 
-	public static final String LABEL = "there exists . : .";
+	public static final String LABEL = "'there exists . : .'";
 
 	public static Expression make(IndexExpressionsSet indexExpressions, Expression body) {
 		Expression current = body;

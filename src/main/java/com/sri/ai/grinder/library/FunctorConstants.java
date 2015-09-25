@@ -43,6 +43,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.LambdaExpression;
 import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.ThereExists;
 
@@ -56,9 +57,10 @@ public class FunctorConstants {
 	public final static String PRODUCT = "product";
 	public final static String SUM = "sum";
 	public final static String MAX = "max";
-	public static final String IF_THEN_ELSE = "if . then . else .";
+	public static final String IF_THEN_ELSE = "'if . then . else .'";
 	public final static String THERE_EXISTS  = ThereExists.LABEL;
 	public final static String FOR_ALL  = ForAll.LABEL;
+	public final static String LAMBDA_EXPRESSION = LambdaExpression.ROOT;
 	public final static String PLUS  = "+";
 	public static final String MINUS = "-";
 	public final static String TIMES  = "*";
@@ -83,7 +85,7 @@ public class FunctorConstants {
 	public final static String CARDINALITY = "| . |";
 	public final static String ON  = "( on . )";
 	public final static String LEFT_DOT_RIGHT  = "[ . ]";
-	public final static String KLEENE_LIST  = "kleene list";
+	public final static String KLEENE_LIST  = "'kleene list'";
 
 	public final static String EQUALITY     = "=";
 	public final static String DISEQUALITY  = "!=";

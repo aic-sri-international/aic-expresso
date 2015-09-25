@@ -41,7 +41,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.translate.AggregateTranslator;
 import org.apache.commons.lang3.text.translate.CharSequenceTranslator;
 import org.apache.commons.lang3.text.translate.EntityArrays;
@@ -119,16 +118,10 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 	
 	//
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
-	private boolean quoted = false;;
 	
 	@Override
 	public Object getValue() {
 		return valueOrRootSyntaxTree;
-	}
-	
-	@Override
-	public boolean isQuoted() {
-		return quoted;
 	}
 
 	@Override
@@ -200,9 +193,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 			result = _globalSymbolTable.getIfPresent(inputValue);
 		} 
 		
-		if (result == null) {
-			boolean quoted = false;
-			
+		if (result == null) {			
 			if (value instanceof Number && !(value instanceof Rational)) {
 				value = new Rational(((Number)value).doubleValue());
 			} 
@@ -212,38 +203,19 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 			else if (value.equals("false")) {
 				value = Boolean.FALSE;
 			} 
-			else if (value instanceof String) {
-				String svalue = (String) value;
-				if ((svalue.startsWith("'") && svalue.endsWith("'"))
-						|| 
-					(svalue.startsWith("\"") && svalue.endsWith("\""))) {
-					svalue = svalue.substring(1, svalue.length() - 1);
-					quoted = true;
-				}
-				else if (svalue.contains(" ")) {
-					// Must be quoted if it contains spaces
-					quoted = true;
-				}
-				else if (StringUtils.stripEnd(svalue, "'").contains("'")) {
-					// Note: trailing ''' are allowed for symbol names, e.g. aSymbol'
-					// but embedded are not.
-					quoted = true;
-				}
+			else if (value instanceof String) {				
+				value = UNESCAPE_STRING_VALUE.translate((String) value);
 				
-				value = UNESCAPE_STRING_VALUE.translate(svalue);
-				
-				if (!quoted) {
-					// not quoted, therefore attempt to implicitly convert to a Rational value if possible.
-					try {
-						value = new Rational((String)value);
-					}
-					catch (NumberFormatException e) {
-						// ignore
-					}
+				// attempt to implicitly convert to a Rational value if possible.
+				try {
+					value = new Rational((String)value);
+				}
+				catch (NumberFormatException e) {
+					// ignore
 				}
 			}
 			
-			result = new DefaultSyntaxLeaf(value, quoted);
+			result = new DefaultSyntaxLeaf(value);
 			if (useGlobalSymbolTable && !(!_cacheNumericSymbols && result.getValue() instanceof Number)) {
 				_globalSymbolTable.put(inputValue, result);
 			}
@@ -403,12 +375,6 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		String result = "";
 		if (valueOrRootSyntaxTree instanceof String) {
 			result = ESCAPE_STRING_VALUE.translate((String)valueOrRootSyntaxTree);
-			if (isQuoted()) {
-				if (!(result.startsWith("'") && result.endsWith("'")) &&
-					!(result.startsWith("\"") && result.endsWith("\""))) {
-					result = "'"+result+"'";
-				}
-			}
 		}
 		else if (valueOrRootSyntaxTree instanceof Expression) {
 			result = "<" + valueOrRootSyntaxTree + ">";
@@ -454,7 +420,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 
 	@Override
 	public SyntaxTree clone() {
-		return new DefaultSyntaxLeaf(getValue(), isQuoted());
+		return new DefaultSyntaxLeaf(getValue());
 	}
 
 	private static boolean dontAcceptSymbolValueToBeExpression = true;
@@ -468,7 +434,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 	// PRIVATE METHODS
 	//
 	// Note: Can only instantiate Symbols via the factory method.
-	private DefaultSyntaxLeaf(Object value, boolean quoted) {
+	private DefaultSyntaxLeaf(Object value) {
 		if (value instanceof Expression) {
 			if (dontAcceptSymbolValueToBeExpression) {
 				throw new Error("DefaultSyntaxLeaf received an expression: " + value);
@@ -476,7 +442,6 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		}
 		
 		this.valueOrRootSyntaxTree = value;
-		this.quoted                = quoted;
 	}
 	
 	private static String removeTrailingZerosToRight(String number) {

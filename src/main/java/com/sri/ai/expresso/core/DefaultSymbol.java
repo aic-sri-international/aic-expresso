@@ -73,11 +73,6 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 	public Object getValue() {
 		return cachedSyntaxTree.getValue();
 	}
-	
-	@Override
-	public boolean isQuoted() {
-		return cachedSyntaxTree.isQuoted();
-	}
 
 	@Override
 	public Iterator<ExpressionAndContext> getImmediateSubExpressionsAndContextsIterator() {

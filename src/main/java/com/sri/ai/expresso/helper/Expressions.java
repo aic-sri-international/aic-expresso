@@ -398,7 +398,7 @@ public class Expressions {
 	 */
 	public
 	static List<Expression> ensureListFromKleeneList(Expression listOrSingleElementOfList) {
-		boolean isKleeneList = listOrSingleElementOfList != null && listOrSingleElementOfList.hasFunctor("kleene list");
+		boolean isKleeneList = listOrSingleElementOfList != null && listOrSingleElementOfList.hasFunctor(FunctorConstants.KLEENE_LIST);
 		return (isKleeneList ? listOrSingleElementOfList.getArguments() : Lists.newArrayList(listOrSingleElementOfList));
 	}
 
@@ -411,7 +411,7 @@ public class Expressions {
 		if (list.size() == 1) {
 			return list.get(0);
 		}
-		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", list);
+		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, list);
 	}
 
 	/**
@@ -512,15 +512,6 @@ public class Expressions {
 	public static boolean isNumber(Expression expression) {
 		boolean result = expression.getSyntacticFormType().equals("Symbol") &&
 				expression.getValue() instanceof Number;
-		return result;
-	}
-	
-	public static boolean isQuotedConstantString(Expression expression) {
-		boolean result = false;
-		if (expression.getSyntacticFormType().equals("Symbol") &&
-				expression.getValue() instanceof String) {
-			result = ((Symbol) expression).isQuoted();
-		}
 		return result;
 	}
 	

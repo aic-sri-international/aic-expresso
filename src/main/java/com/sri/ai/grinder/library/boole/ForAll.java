@@ -57,7 +57,7 @@ public class ForAll {
 
 	/* Note: changes in this class's representation must be reflected in {@link QuantifierSubExpressionAndScopedVariableProvider}. */
 
-	public static final String LABEL = "for all . : .";
+	public static final String LABEL = "'for all . : .'";
 
 	public static Expression make(IndexExpressionsSet indexExpressions, Expression body) {
 		Expression current = body;

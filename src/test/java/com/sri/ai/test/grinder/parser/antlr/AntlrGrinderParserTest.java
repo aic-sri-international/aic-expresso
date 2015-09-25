@@ -55,6 +55,7 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.helper.FunctionSignature;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 import com.sri.ai.test.grinder.AbstractParserTest;
 
@@ -133,7 +134,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, Expressions.makeSymbol("1foo"));
 
 		string = "'foo1'";
-		test(string, Expressions.makeSymbol("foo1"));
+		test(string, Expressions.makeSymbol("'foo1'"));
 
 		string = "foo1'";
 		test(string, Expressions.makeSymbol("foo1'"));
@@ -142,10 +143,10 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, Expressions.makeSymbol("foo1'''"));
 
 		string = "'This is a test.'";
-		test(string, Expressions.makeSymbol("This is a test."));
+		test(string, Expressions.makeSymbol("'This is a test.'"));
 
 		string = "\"This is a test.\"";
-		test(string, Expressions.makeSymbol("This is a test."));
+		test(string, Expressions.makeSymbol("\"This is a test.\""));
 
 		// Testing illegal symbol names.
 		string = "foo1'bar";
@@ -163,28 +164,28 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		String string;
 		
 		string = "'Test \\u0061'";
-		test(string, Expressions.makeSymbol("Test a"));
+		test(string, Expressions.makeSymbol("'Test a'"));
 		
 		string = "\"Test \\u0061\"";
-		test(string, Expressions.makeSymbol("Test a"));
+		test(string, Expressions.makeSymbol("\"Test a\""));
 
 		string = "'Testing the  preservation \\t of	whitespace\\ncharacters.'";
-		test(string, Expressions.makeSymbol("Testing the  preservation 	 of	whitespace\ncharacters."));
+		test(string, Expressions.makeSymbol("'Testing the  preservation 	 of	whitespace\ncharacters.'"));
 
 		string = "\"Testing the  preservation \\t of	whitespace\\ncharacters.\"";
-		test(string, Expressions.makeSymbol("Testing the  preservation 	 of	whitespace\ncharacters."));
+		test(string, Expressions.makeSymbol("\"Testing the  preservation 	 of	whitespace\ncharacters.\""));
 
 		string = "'This is a test *()#@$%!-_=+<>,./?:;\\'\"\\\"\\\\'";
-		test(string, Expressions.makeSymbol("This is a test *()#@$%!-_=+<>,./?:;'\"\"\\\\"));
+		test(string, Expressions.makeSymbol("'This is a test *()#@$%!-_=+<>,./?:;'\"\"\\\\'"));
 
 		string = "\"This is a test *()#@$%!-_=+<>,./?:;\\''\\\"\\\"\\\\\"";
-		test(string, Expressions.makeSymbol("This is a test *()#@$%!-_=+<>,./?:;''\"\"\\\\"));
+		test(string, Expressions.makeSymbol("\"This is a test *()#@$%!-_=+<>,./?:;''\"\"\\\\\""));
 		
 		string = "foo(bar1', 'bar2\\'', bar3''')";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "bar1'", "bar2'", "bar3'''"));
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "bar1'", "'bar2''", "bar3'''"));
 		
 		string = "\"not'aSymbol\"";
-		test(string, Expressions.makeSymbol("not'aSymbol"));
+		test(string, Expressions.makeSymbol("\"not'aSymbol\""));
 	}
 	
 	@Test 
@@ -234,7 +235,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, Expressions.makeSymbol("1foo"));
 
 		string = "('foo1')";
-		test(string, Expressions.makeSymbol("foo1"));
+		test(string, Expressions.makeSymbol("'foo1'"));
 
 		string = "(foo1')";
 		test(string, Expressions.makeSymbol("foo1'"));
@@ -318,13 +319,13 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "bar", "hello")));
 
 		string = "'foo bar'()";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo bar"));
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("'foo bar'"));
 
 		string = "'foo bar'(a)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo bar", "a"));
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("'foo bar'", "a"));
 
 		string = "'foo bar'(a, b, c)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo bar", "a", "b", "c"));
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("'foo bar'", "a", "b", "c"));
 		
 		string = "foo(bar(X))";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", 
@@ -341,7 +342,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 		string = "(lambda x : y)(a, b, c)";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("lambda . : .", "x", "y"), "a", "b", "c"));
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.LAMBDA_EXPRESSION, "x", "y"), "a", "b", "c"));
 
 		// Testing illegal strings.
 		string = "foo(1,)";
@@ -362,26 +363,26 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		String string;
 		string = "(foo, bar)";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "foo", "bar")));
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "foo", "bar")));
 
 		string = "(x, y, z)";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y", "z")));
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y", "z")));
 
 		string = "(a in b, x + y + z, i, j, k)";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "a", "b"), 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "x", "y", "z"), 
 						"i", "j", "k")));
 
-		string = "'( . )'()";
+		string = "tuple()";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )"));
 
-		string = "'( . )'(a)";
+		string = "tuple(a)";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", "a"));
 
-		string = "'( . )'(a, b, c)";
+		string = "tuple(a, b, c)";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", "a", "b", "c"));
 
 		// Testing illegal strings.
@@ -634,7 +635,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, Expressions.makeSymbol(
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y")), 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y")), 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "x", "y"), 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", "y"))));
 
@@ -652,11 +653,11 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 		string = "< if x > y then x else y >";
 		test(string, Expressions.makeSymbol(
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">", "x", "y"), "x", "y")));
 		
 		string = "if <x> > <y> then x else y";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .",
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE,
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">",
 						Expressions.makeSymbol(Expressions.makeSymbol("x")),
 						Expressions.makeSymbol(Expressions.makeSymbol("y"))
@@ -687,30 +688,21 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "| {} |";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| . |", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }",
-						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list"))));
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST))));
 
 		string = "| { foo, bar } |";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| . |", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }",
-						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "foo", "bar"))));
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "foo", "bar"))));
 
 		string = "| ({ foo, bar }) |";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| . |", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }",
-						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "foo", "bar"))));
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "foo", "bar"))));
 
 		string = "| 1 + 2 |";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| . |", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 1, 2)));
-
-		string = "'| . |'()";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| . |"));
-
-		string = "'| . |'(a)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| . |", "a"));
-
-		string = "'| . |'(a, b, c)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| . |", "a", "b", "c"));
 
 		// Testing illegal strings.
 		string = "| 1, 2, |";
@@ -736,7 +728,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(
 						functionSignatures,
 						"[ . ]",
-						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", "X", "1", "0")), null));
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, "X", "1", "0")), null));
 		
 		string = "{{ foo }}";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . }}", "foo"));
@@ -764,39 +756,30 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(
 						functionSignatures,
 						"[ . ]", 
-						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "a"), "1", "0")), 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", "true")));
 
 		string = "{{ (on foo, fooz) bar }}";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "foo", "fooz")), 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "foo", "fooz")), 
 						"bar", null));
 
 		string = "{{ (on foo, fooz) bar | barz }}";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "foo", "fooz")), 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "foo", "fooz")), 
 						"bar", Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", "barz")));
 
 		string = "{{ foo, bar, foo + bar }}";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . }}", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "foo", "bar", 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "foo", "bar", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "foo", "bar"))));
 
 		string = "{{}}";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . }}", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list")));
-
-		string = "'{{ . }}'()";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . }}"));
-
-		string = "'{{ . }}'(a)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . }}", "a"));
-
-		string = "'{{ . }}'(a, b, c)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . }}", "a", "b", "c"));
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST)));
 
 		// Test illegal strings.
 		string = "{{ foo";
@@ -869,7 +852,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(
 						functionSignatures,
 						"[ . ]", 
-						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "a"), "1", "0")), 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", "true")));
 		popParserFunctionSignatures();
@@ -877,32 +860,23 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "{ (on foo, fooz) bar }";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "foo", "fooz")), 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "foo", "fooz")), 
 						"bar", null));
 
 		string = "{ (on foo, fooz) bar | barz }";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "foo", "fooz")), 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "foo", "fooz")), 
 						"bar", Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", "barz")));
 
 		string = "{ foo, bar, foo + bar }";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "foo", "bar", 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "foo", "bar", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "foo", "bar"))));
 
 		string = "{}";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list")));
-
-		string = "'{ . }'()";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }"));
-
-		string = "'{ . }'(a)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "a"));
-
-		string = "'{ . }'(a, b, c)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "a", "b", "c"));
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST)));
 
 		// Test illegal strings.
 		string = "{ foo";
@@ -950,22 +924,18 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(
 				functionSignatures,
 				"[ . ]", Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y"))));
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y"))));
 
-		// The "function application" forms of bracketed expressions below are a relic of the time when
-		// there was confusion between syntax trees and function applications,
-		// and which AntlrGrinderParserWrapper still uses.
-		// In time, this should not be valid anymore.
-
-		string = "'[ . ]'(a)";
+		string = "[ a ]";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(
 				functionSignatures,
 				"[ . ]", "a"));
 
-		string = "'[ . ]'(a, b, c)";
+		string = "[ (a, b, c) ]";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTreesWithRandomPredicatesSignatures(
 				functionSignatures,
-				"[ . ]", "a", "b", "c"));
+				"[ . ]", Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c"))));
 
 		// Testing illegal strings.
 		string = "[]";
@@ -1006,9 +976,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of factor", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . }}", "x")));
 
-		string = "'neighbors of factor'(a)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of factor", "a"));
-
 		string = "neighbors of factor neighbors of factor x";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of factor", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of factor", "x")));
@@ -1038,7 +1005,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of variable", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . }}", "x")));
 
-		string = "'neighbors of variable'(a)";
+		string = "neighbors of variable a";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of variable", "a"));
 
 		string = "neighbors of variable neighbors of variable x";
@@ -1066,9 +1033,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "neighbors of {{x}} from y";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of . from .", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . }}", "x"), "y"));
-
-		string = "'neighbors of . from .'(a, b)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of . from .", "a", "b"));
 
 		string = "neighbors of neighbors of x from y from neighbors of a from b";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("neighbors of . from .", 
@@ -1107,12 +1071,12 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "not(x, y)";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("not", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
-						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y"))));
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y"))));
 
 		string = "not {x, y, z}";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("not", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y", "z"))));
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y", "z"))));
 
 		string = "not (x + y)";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("not", 
@@ -1169,7 +1133,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "-(x, y)";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
-						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y"))));
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y"))));
 
 		string = "-x - y";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 
@@ -1190,7 +1154,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "- {x, y, z}";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y", "z"))));
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y", "z"))));
 
 		string = "- x + y";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 
@@ -1388,7 +1352,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		string = "-(x, y)";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
-						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y"))));
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y"))));
 	}
 
 	@Test
@@ -1641,18 +1605,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "x", "y")), "y"));
 
-		string = "'<'(x)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "x"));
-
-		string = "'<'";
-		test(string, Expressions.makeSymbol("<"));
-
-		string = "'<'()";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<"));
-
-		string = "'<'(x, y)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "x", "y"));
-
 		// Testing illegal strings.
 		string = "x <";
 		testFail(string);
@@ -1735,18 +1687,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">", 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "x", "y")), "y"));
-
-		string = "'>'(x)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">", "x"));
-
-		string = "'>'";
-		test(string, Expressions.makeSymbol(">"));
-
-		string = "'>'()";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">"));
-
-		string = "'>'(x, y)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">", "x", "y"));
 
 		// Testing illegal strings.
 		string = "x >";
@@ -2050,14 +1990,11 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	public void testExists () {
 		String string;
 		string = "there exists a : b";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("there exists . : .", "a", "b"));
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS, "a", "b"));
 		
 		string = "there exists a : there exists b : c";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("there exists . : .", "a", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("there exists . : .", "b", "c")));
-		
-		string = "'there exists . : .'(a, b)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("there exists . : .", "a", "b"));
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS, "a", 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS, "b", "c")));
 
 		// Testing illegal strings
 		string = "there exi a : b";
@@ -2077,57 +2014,57 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	public void testForAll () {
 		String string;
 		string = "for all x : y";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("for all . : .", "x", "y"));
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.FOR_ALL, "x", "y"));
 
 		string = "for all x = 5 : a";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("for all . : .", 
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.FOR_ALL, 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "x", "5"), "a"));
 
 		string = "for all x : for all y : for all z : true";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("for all . : .", "x", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("for all . : .", "y", 
-						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("for all . : .", "z", "true"))));
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.FOR_ALL, "x", 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.FOR_ALL, "y", 
+						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.FOR_ALL, "z", "true"))));
 
 		string = "for all Y : (for all X : ((X != Y) => (there exists W : (there exists Z : ((Z != a) => (Alpha = Beta))))))";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("for all . : .", "Y", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("for all . : .", "X", 
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.FOR_ALL, "Y", 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.FOR_ALL, "X", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=>", 
 								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "Y"), 
-								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("there exists . : .", "W", 
-										Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("there exists . : .", "Z", 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS, "W", 
+										Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS, "Z", 
 												Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=>", 
 														Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Z", "a"), 
 														Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Alpha", "Beta"))))))));
 
 		string = "for all Y : for all X : X != Y => there exists W : there exists Z : (Z != a => Alpha = Beta)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("for all . : .", "Y", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("for all . : .", "X", 
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.FOR_ALL, "Y", 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.FOR_ALL, "X", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=>", 
 								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "Y"), 
-								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("there exists . : .", "W", 
-										Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("there exists . : .", "Z", 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS, "W", 
+										Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS, "Z", 
 												Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=>", 
 														Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Z", "a"), 
 														Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Alpha", "Beta"))))))));
 
 		string = "for all Y : for all X : X != Y => (there exists W : there exists Z : Z != a => Alpha = Beta)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("for all . : .", "Y", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("for all . : .", "X", 
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.FOR_ALL, "Y", 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.FOR_ALL, "X", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=>", 
 								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "Y"), 
-								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("there exists . : .", "W", 
-										Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("there exists . : .", "Z", 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS, "W", 
+										Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS, "Z", 
 												Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=>", 
 														Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Z", "a"), 
 														Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Alpha", "Beta"))))))));
 
 		string = "for all Y : for all X : X != Y => there exists W : there exists Z : Z != a => Alpha = Beta";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("for all . : .", "Y", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("for all . : .", "X", 
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.FOR_ALL, "Y", 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.FOR_ALL, "X", 
 						Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=>", 
 								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "Y"), 
-								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("there exists . : .", "W", 
-										Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("there exists . : .", "Z", 
+								Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS, "W", 
+										Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.THERE_EXISTS, "Z", 
 												Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=>", 
 														Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Z", "a"), 
 														Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Alpha", "Beta"))))))));
@@ -2137,11 +2074,8 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	public void testIfThenElse () {
 		String string;
 		string = "if a then b else c";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 				"a", "b", "c"));
-
-		string = "'if . then . else .'(a, b, c)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", "a", "b", "c"));
 
 		// Testing illegal strings
 		string = "if a then b";
@@ -2170,16 +2104,16 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	public void testLambda () {
 		String string;
 		string = "lambda x : a";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("lambda . : .", "x", "a"));
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.LAMBDA_EXPRESSION, "x", "a"));
 
 		string = "lambda x, y, z : a";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("lambda . : .", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y", "z"), "a"));
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.LAMBDA_EXPRESSION, 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y", "z"), "a"));
 
 		string = "lambda x, y, z : lambda a : b";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("lambda . : .", 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y", "z"), 
-				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("lambda . : .", "a", "b")));
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.LAMBDA_EXPRESSION, 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y", "z"), 
+				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.LAMBDA_EXPRESSION, "a", "b")));
 
 		// Testing illegal strings
 		string = "lambda a :";
@@ -2190,9 +2124,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	public void testMessage () {
 		String string;
 		string = "message to a from b";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("message to . from .", "a", "b"));
-
-		string = "'message to . from .'(a, b)";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("message to . from .", "a", "b"));
 
 		// Testing illegal strings
@@ -2216,9 +2147,6 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	public void testPreviousMessage () {
 		String string;
 		string = "previous message to a from b";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("previous message to . from .", "a", "b"));
-
-		string = "'previous message to . from .'(a, b)";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("previous message to . from .", "a", "b"));
 
 		// Testing illegal strings
@@ -2329,7 +2257,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	public void testGrinder () {
 		String expression;
 		expression = "if X = 1 then 0.0003 + 0.000000000001 else 0.150004 + 0.1 + 0.776699029126213691398561";
-		test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+		test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "1"), 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "0.0003", "0.000000000001"), 
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "0.150004", "0.1", "0.776699029126213691398561")));
@@ -2607,16 +2535,16 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("not", "x")));
 
 			expression = "'index of . in .'(b, f(a,b))";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("index of . in .", "b", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("'index of . in .'", "b", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "a", "b")));
 
 			expression = "'index of . in .'(c, f(a,b))";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("index of . in .", "c", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("'index of . in .'", "c", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "a", "b")));
 
 			expression = "'index of . in .'(c, f(a,b)) > 0";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("index of . in .", "c", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("'index of . in .'", "c", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "a", "b")), "0"));
 
 			expression = "x + 2";
@@ -2766,7 +2694,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			test(expression, Expressions.makeSymbol("aConstantSymbol"));
 
 			expression = "if A = B then aAndBEqual else aAndBNotEqual";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .",
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE,
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "A", "B"),
 					"aAndBEqual", "aAndBNotEqual"));
 
@@ -2779,26 +2707,26 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 
 			expression = "if true then 1 else 2";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					"true", 1, 2));
 
 			expression = "if false then 1 else 2";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					"false", 1, 2));
 
 			expression = "if X then 1 else 2";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					"X", 1, 2));
 
 
 			expression = "f(a, b, c, if Y = 2 then X else X + 1, d, e, f)";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "a", "b", "c",
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .",
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE,
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", 2), "X",
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", 1)), 
 							"d", "e", "f"));
 			expression = "if Y = 2 then f(a, b, c, X, d, e, f) else f(a, b, c, X + 1, d, e, f)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .",
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE,
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "2"),
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "a", "b", "c", "X", "d", "e", "f"),
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "a", "b", "c", 
@@ -2807,14 +2735,14 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X) if Y = 2 then X else X + 1 | X != a}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "X"),
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", 2), "X", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", 1)),
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"))));
 
 			expression = "if Y = 2 then {(on X) X | X != a} else {(on X) X + 1 | X != a}";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", 2),
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "X"), "X", 
@@ -2829,7 +2757,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X) if X = 2 then X else X + 1 | X != a}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "X"),
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", 2), "X", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", 1)),
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
@@ -2838,7 +2766,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X) if p(Y) = 2 then X else X + 1 | X != a}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "X"),
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "Y"), 2), "X", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", 1)),
@@ -2846,7 +2774,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"))));
 
 			expression = "if p(Y) = 2 then {(on X) X | X != a} else {(on X) X + 1 | X != a}";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "Y"), 2),
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
@@ -2863,7 +2791,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X) if p(X) = 2 then X else X + 1 | X != a}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "X"),
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 2), "X", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", 1)),
@@ -2874,7 +2802,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "a"),
 											"Set1", "Set2"))),
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"),
@@ -2886,7 +2814,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 //			test(expression, Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 //					Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 //							Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
-//									Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+//									Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 //											Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "a"),
 //											"Set1", "Set2"))),
 //					Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("p", "X"),
@@ -2894,7 +2822,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 //							Expressions.makeExpressionBasedOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"))));
 
 			expression = "if Y = a then {(on X in Set1) p(X) | X != a} else {(on X in Set2) p(X) | X != a}";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .",
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE,
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "a"),
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }",
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )",
@@ -2912,9 +2840,9 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on Y, X in (if Y = a then Set1 else Set2)) p(X) | X != a}"; // lack of ()'s around if then else makes parse fail, not sure why. Entered in bug database.
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "Y",
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "Y",
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
-											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "a"),
 													"Set1", "Set2")))),
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"),
@@ -2922,18 +2850,18 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"))));
 
 			expression = "if X = a then X != a else X = Y";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .",
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE,
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"),
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"),
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y")));
 
 			expression = "if X = a then false else X = Y";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .",
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE,
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"),
 					"false", Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y")));
 
 			expression = "if X = a then f(X != a, 1, 2) else g(X = Y, a, b)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), "1", "2"), 
@@ -2941,21 +2869,21 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y"), "a", "b")));
 
 			expression = "if X = a then f(false, 1, 2) else g(X = Y, a, b)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "false", "1", "2"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("g", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y"), "a", "b")));
 
 			expression = "if X != a or Y != b then X != a else false";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("or", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Y", "b")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), "false"));
 
 			expression = "if X != a or Y != b then X != a or Y != b or Z != c else false";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("or", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Y", "b")), 
@@ -2970,19 +2898,19 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Y", "b")));
 
 			expression = "if X != a then X != a and Y = d else true";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "d")), "true"));
 
 			expression = "if X != a then Y = d else true";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "d"), "true"));
 
 			expression = "if X != a or Y != b then f(X != a or Y != b or Z != c) else true";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("or", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Y", "b")), 
@@ -2993,14 +2921,14 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Z", "c"))), "true"));
 
 			expression = "if X != a or Y != b then f(true) else true";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("or", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Y", "b")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "true"), "true"));
 
 			expression = "if X != a or Y != b then not(X != a or Y != b or Z != c) else true";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("or", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Y", "b")), 
@@ -3011,135 +2939,135 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Z", "c"))), "true"));
 
 			expression = "if X != a or Y != b then false else true";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("or", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Y", "b")), "false", "true"));
 
 			expression = "if A and B then if A then 1 else 0 else 1";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", "A", "B"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", "A", "1", "0"), "1"));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, "A", "1", "0"), "1"));
 
 			expression = "1";
 			test(expression, Expressions.makeSymbol("1"));
 
 			expression = "if X = a then if p(X) then E1 else E2 else if p(X) then E1 else E2";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), "E1", "E2"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), "E1", "E2")));
 
 			expression = "if X = a then if p(a) then E1 else E2 else if p(X) then E1 else E2";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "a"), "E1", "E2"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), "E1", "E2")));
 
 			expression = "if X = a and Y = b then if p(X, Y) then E1 else E2 else if p(X, Y) then E1 else E2";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "b")), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), "E1", "E2"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), "E1", "E2")));
 
 			expression = "if X = a and Y = b then if p(a, b) then E1 else E2 else if p(X, Y) then E1 else E2";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "b")), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "a", "b"), "E1", "E2"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), "E1", "E2")));
 
 			expression = "if X = a and Y = b then if p(X) and q(Y) then E1 else E2 else if p(X) and q(Y) then E1 else E2";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "b")), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("q", "Y")), "E1", "E2"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("q", "Y")), "E1", "E2")));
 
 			expression = "if X = a and Y = b then if p(a) and q(b) then E1 else E2 else if p(X) and q(Y) then E1 else E2";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "b")), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "a"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("q", "b")), "E1", "E2"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("q", "Y")), "E1", "E2")));
 
 			expression = "if X = a and Y = b then if p(X) and q(X, Y) then E1 else E2 else if p(X) and q(X, Y) then E1 else E2";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "b")), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("q", "X", "Y")), "E1", "E2"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("q", "X", "Y")), "E1", "E2")));
 
 			expression = ("if X = a and Y = b then if p(a) and q(a, b) then E1 else E2 else if p(X) and q(X, Y) then E1 else E2");
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "b")), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "a"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("q", "a", "b")), "E1", "E2"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("q", "X", "Y")), "E1", "E2")));
 
 			expression = "if even(X) then f(X) else X + 1";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("even", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", "1")));
 
 			expression = "if X = a then 1 else 2";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), "1", "2"));
 
 			expression = "if X = a then f(X) else X + 1";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", "1")));
 
 			expression = "if X = a then f(a) else X + 1";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", "1")));
 
 			expression = "if X = a and Y = b then f(X,Y) else X + Y";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "b")), 
@@ -3147,7 +3075,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", "Y")));
 
 			expression = "if X = a and Y = b then f(a, b) else X + Y";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "b")), 
@@ -3155,7 +3083,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", "Y")));
 
 			expression = "if X = Z = a and Y = W then f(X,Y,Z) else X + Y";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Z", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "W")), 
@@ -3163,7 +3091,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", "Y")));
 
 			expression = "if X = Z = a and W = Y then f(a, W, a) else X + Y";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Z", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "W", "Y")), 
@@ -3171,7 +3099,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", "Y")));
 
 			expression = "if X = Z = a and W != Y then f(X,W,Z) else X + Y";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Z", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "W", "Y")), 
@@ -3179,7 +3107,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", "Y")));
 
 			expression = "if X = Z = a and W != Y then f(a, W, a) else X + Y";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Z", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "W", "Y")), 
@@ -3187,7 +3115,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", "Y")));
 
 			expression = "if X = Z and W != Y then f(X,W,Z) else X + Y";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Z"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "W", "Y")), 
@@ -3195,7 +3123,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", "Y")));
 
 			expression = "if X = Z and W != Y then f(X,W,Z) + {(on Z) foo(Z)} else Z + Y";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Z"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "W", "Y")), 
@@ -3207,7 +3135,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "Z", "Y")));
 
 			expression = "if X = Z and W != Y then f(X, W, X) + {(on Z) foo(X)} else Z + Y";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Z"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "W", "Y")), 
@@ -3219,7 +3147,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "Z", "Y")));
 
 			expression = "if X = Z = a or W != Y then f(X,W,Z) else X + Y";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("or", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Z", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "W", "Y")), 
@@ -3227,7 +3155,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", "Y")));
 
 			expression = "if X = Z = a or W != Y then f(X,W,Z) else X + W";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("or", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Z", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "W", "Y")), 
@@ -3235,7 +3163,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", "W")));
 
 			expression = "if X != a then {(on X) X != a} else {(on Y) X != a}";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "X"), 
@@ -3245,7 +3173,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), null)));
 
 			expression = "if X != a then {(on X) X != a} else {(on Y) false}";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "X"), 
@@ -3254,24 +3182,24 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "Y"), "false", null)));
 
 			expression = "if X != a then X + 1 else 42";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", "1"), "42"));
 
 			expression = "if X != a then X + 1 else f(X)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", "1"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X")));
 
 			expression = "if X != a then X + 1 else f(a)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", "1"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "a")));
 
 			expression = "if X != a or Y != b then X + Y else f(X,Y)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("or", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Y", "b")), 
@@ -3279,7 +3207,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", "Y")));
 
 			expression = "if X != a or Y != b then  X + Y else f(a, b)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("or", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Y", "b")), 
@@ -3287,7 +3215,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "a", "b")));
 
 			expression = "if X != Z or W != Y then f(X,W,Z) else foo(X, Z, W, Y)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("or", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "Z"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "W", "Y")), 
@@ -3295,7 +3223,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "X", "Z", "W", "Y")));
 
 			expression = "if X != Z or W != Y then f(X, W, Z) else foo(X, X, W, W)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("or", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "Z"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "W", "Y")), 
@@ -3303,7 +3231,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "X", "X", "W", "W")));
 
 			expression = "if X != a and W != Y then f(X,W,Z) else X + Y";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "W", "Y")), 
@@ -3311,14 +3239,14 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "X", "Y")));
 
 			expression = "if X != a then {(on X) X != a} else 1";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "X"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), null), "1"));
 
 			expression = "if X = a then {(on Y) X != a} else {(on X) X != a}";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "Y"), 
@@ -3328,7 +3256,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), null)));
 
 			expression = "if X = a then {(on Y) false} else {(on X) X != a}";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "Y"), "false", null), 
@@ -3337,7 +3265,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), null)));
 
 			expression = "if X < 3 then f(X < 2, X < 3, X < 4) else g(X < 2, X < 3, X < 4)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "3"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "2"), 
@@ -3349,7 +3277,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "4"))));
 
 			expression = "if X < 3 then f(X < 2, true, true)     else g(false, false, X < 4)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "3"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "2"), "true", "true"), 
@@ -3357,7 +3285,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "4"))));
 
 			expression = "if X < 3 then f(X <= 2, X <= 3, X <= 4) else g(X <= 2, X <= 3, X <= 4)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "3"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<=", "X", "2"), 
@@ -3369,7 +3297,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<=", "X", "4"))));
 
 			expression = "if X < 3 then f(X <= 2, true, true) else g(false, X <= 3, X <= 4)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "3"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<=", "X", "2"), "true", "true"), 
@@ -3378,7 +3306,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<=", "X", "4"))));
 
 			expression = "if X < 3 then f(X > 2, X > 3, X > 4) else g(X > 2, X > 3, X > 4)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "3"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">", "X", "2"), 
@@ -3390,7 +3318,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">", "X", "4"))));
 
 			expression = "if X < 3 then f(X > 2, false, false) else g(true, X > 3, X > 4)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "3"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">", "X", "2"), "false", "false"), 
@@ -3399,7 +3327,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">", "X", "4"))));
 
 			expression = "if X < 3 then f(X >= 2, X >= 3, X >= 4) else g(X >= 2, X >= 3, X >= 4)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "3"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">=", "X", "2"), 
@@ -3411,7 +3339,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">=", "X", "4"))));
 
 			expression = "if X < 3 then f(X >= 2, false, false) else g(true, true, X >= 4)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "3"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">=", "X", "2"), "false", "false"), 
@@ -3419,7 +3347,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">=", "X", "4"))));
 
 			expression = "if X <= 3 then f(X < 2, X < 3, X < 4) else g(X < 2, X < 3, X < 4)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<=", "X", "3"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "2"), 
@@ -3431,7 +3359,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "4"))));
 
 			expression = "if X <= 3 then f(X < 2, X < 3, true)     else g(false, false, X < 4)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<=", "X", "3"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "2"), 
@@ -3440,7 +3368,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<", "X", "4"))));
 
 			expression = "if X <= 3 then f(X <= 2, X <= 3, X <= 4) else g(X <= 2, X <= 3, X <= 4)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<=", "X", "3"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<=", "X", "2"), 
@@ -3452,7 +3380,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<=", "X", "4"))));
 
 			expression = "if X <= 3 then f(X <= 2, true, true) else g(false, false, X <= 4)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<=", "X", "3"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<=", "X", "2"), "true", "true"), 
@@ -3460,7 +3388,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<=", "X", "4"))));
 
 			expression = "if X <= 3 then f(X > 2, X > 3, X > 4) else g(X > 2, X > 3, X > 4)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<=", "X", "3"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">", "X", "2"), 
@@ -3472,7 +3400,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">", "X", "4"))));
 
 			expression = "if X <= 3 then f(X > 2, false, false) else g(true, true, X > 4)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<=", "X", "3"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">", "X", "2"), "false", "false"), 
@@ -3480,7 +3408,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">", "X", "4"))));
 
 			expression = "if X <= 3 then f(X >= 2, X >= 3, X >= 4) else g(X >= 2, X >= 3, X >= 4)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<=", "X", "3"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">=", "X", "2"), 
@@ -3492,7 +3420,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">=", "X", "4"))));
 
 			expression = "if X <= 3 then f(X >= 2, X >= 3, false) else g(true, true, X >= 4)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("<=", "X", "3"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">=", "X", "2"), 
@@ -3501,7 +3429,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">=", "X", "4"))));
 
 			expression = "if even(X) then f(even(X)) else g(even(X))";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("even", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("even", "X")), 
@@ -3509,13 +3437,13 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("even", "X"))));
 
 			expression = "if even(X) then f(true) else g(false)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("even", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "true"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("g", "false")));
 
 			expression = "if even(X) then f(even(Y)) else g(even(X))";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("even", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("even", "Y")), 
@@ -3523,16 +3451,16 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("even", "X"))));
 
 			expression = "if even(X) then f(if Y = X then true else even(Y)) else g(false)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("even", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "X"), "true", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("even", "Y"))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("g", "false")));
 
 			expression = "if even(X) then {(on even(a)) f(even(Y))} else g(even(X))";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("even", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
@@ -3543,13 +3471,13 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("even", "X"))));
 
 			expression = "if even(X) then {(on even(a)) f(if Y != a and Y = X then true else even(Y))} else g(false)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("even", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("even", "a")), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Y", "a"), 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "X")), "true", 
@@ -3557,7 +3485,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("g", "false")));
 
 			expression = "if X = Y then f(X = Y) else g(X = Y)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y")), 
@@ -3565,13 +3493,13 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y"))));
 
 			expression = "if X = Y then f(true) else g(false)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "true"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("g", "false")));
 
 			expression = "if X = Y then f(X = Z) else g(X = Y)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Z")), 
@@ -3579,14 +3507,14 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y"))));
 
 			expression = "if X = Y then f(X = Z) else g(false)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Z")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("g", "false")));
 
 			expression = "if X = Y then {(on X = a) f(X = Y)} else g(X = Y)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
@@ -3597,7 +3525,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y"))));
 
 			expression = "if X = Y then {(on X = a) f(X = Y)} else g(false)";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
@@ -3607,29 +3535,29 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("g", "false")));
 
 			expression = "if X = a and Y = b then if p(a) and q(a, b) then E1 else E2 else if p(X) and q(X, Y) then E1 else E2";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "b")), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "a"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("q", "a", "b")), "E1", "E2"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("q", "X", "Y")), "E1", "E2")));
 
 			expression = "if X = a and Y = b then if p(a) and q(a, b) then E1 else E2 else if p(X) and q(X, Y) then E1 else E2";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "b")), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "a"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("q", "a", "b")), "E1", "E2"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("q", "X", "Y")), "E1", "E2")));
@@ -3639,7 +3567,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Person", "World")), 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Person", "rich"), "2000", "50"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Person", "american")))));
@@ -3693,7 +3621,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X, Y) f(X,Y) | X != a }";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", "Y"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"))));
@@ -3707,7 +3635,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X, Y) f(X,Y) | X != a }";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", "Y"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"))));
@@ -3715,7 +3643,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X', Y) f(X',Y) | X' != a }";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X'", "Y")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X'", "Y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X'", "Y"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X'", "a"))));
@@ -3752,7 +3680,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X, Y) f(X,Y) | X != a }";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", "Y"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"))));
@@ -3763,7 +3691,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X', Y') f(X',Y') | X' != a }";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X'", "Y'")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X'", "Y'")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X'", "Y'"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X'", "a"))));
@@ -3771,7 +3699,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X, Y) f(X,Y) | X != a }";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", "Y"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"))));
@@ -3784,7 +3712,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X', Y) f(X',Y) | X' != a }";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X'", "Y")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X'", "Y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X'", "Y"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X'", "a"))));
@@ -3792,7 +3720,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X, X') f(X,X') | X != a }";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "X'")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "X'")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", "X'"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"))));
@@ -3803,7 +3731,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X'', X') f(X'',X') | X'' != a }";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X''", "X'")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X''", "X'")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X''", "X'"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X''", "a"))));
@@ -3811,7 +3739,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X, X') f(X,X') | X != a }";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "X'")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "X'")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", "X'"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"))));
@@ -3822,7 +3750,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X'', X''') f(X'',X''') | X'' != a }";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X''", "X'''")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X''", "X'''")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X''", "X'''"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X''", "a"))));
@@ -3832,7 +3760,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "Z"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")), 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y")), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", "Y", "Z"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"))), 
@@ -3849,7 +3777,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "Z'"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X'", "Y")), 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X'", "Y")), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X'", "Y", "Z'"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X'", "a"))), 
@@ -3861,7 +3789,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "Z"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "Z'", "Y")), 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "Z'", "Y")), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", "Y", "Z'"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"))), 
@@ -3878,7 +3806,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "Z'''"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "Z''", "Y")), 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "Z''", "Y")), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", "Y", "Z''"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"))), 
@@ -3888,7 +3816,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X, p(Z)) f(X,Y) | X != a }";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "Z"))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", "Y"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
@@ -3910,27 +3838,27 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3")))), 
+											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3")))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", "false")));
 
 			expression = "{ }";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST)));
 
 			expression = "{(on X in {1,2,3} - {1}, Y in {1,2} union {3}) p(X,Y) + 1 + 1 | true and Z}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3")), 
+															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3")), 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "1"))), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Y", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("union", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2")), 
+															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2")), 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "3"))))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), "1", "1"), 
@@ -3940,13 +3868,13 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X in {2,3}, Y in {1,2,3}) p(X,Y) + 2 | Z}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "2", "3"))), 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "2", "3"))), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Y", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3"))))), 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3"))))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), "2"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", "Z")));
@@ -3954,11 +3882,11 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X in {1,2,3} - {1}, Y) p(X,Y) + 1 + 1}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3")), 
+															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3")), 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "1"))), "Y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), "1", "1"), null));
@@ -3966,23 +3894,23 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X in {2,3}, Y) p(X,Y) + 2}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "2", "3"))), "Y")), 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "2", "3"))), "Y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), "2"), null));
 
 			expression = "{(on X,Y) p(X,Y) + 2}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), "2"), null));
 
 			boolean oldValue = DefaultSyntaxLeaf.setDontAcceptSymbolValueToBeExpression(false);
 			expression = "if V = (<X>) then {(on X) p(X,Y) + 2} else 0";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "V", 
 							Expressions.makeSymbol(Expressions.makeSymbol("X"))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
@@ -3994,56 +3922,56 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X, Y in {1,2,3}) p(X,Y) + 2}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Y", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3"))))), 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3"))))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), "2"), null));
 
 			expression = "{(on X, Y in {1,2,3}) p(X,Y) + 2}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Y", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3"))))), 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3"))))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), "2"), null));
 
 			expression = "{(on X, Z, Y in {1,2,3}) p(X,Y) + 2}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Z", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Z", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Y", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3"))))), 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3"))))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), "2"), null));
 
 			expression = "{(on X in set1, Z in set2, Y in {1,2,3}) p(X,Y) + 2}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", "set1"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Z", "set2"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Y", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3"))))), 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3"))))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), "2"), null));
 
 			oldValue = DefaultSyntaxLeaf.setDontAcceptSymbolValueToBeExpression(false);
 			expression = "if V = (<X>) then {(on X, Y in {1,2,3}) p(X,Y) + 2} else 0";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "V", 
 							Expressions.makeSymbol(Expressions.makeSymbol("X"))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Y", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3"))))), 
+															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3"))))), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), "2"), null), "0"));
 			DefaultSyntaxLeaf.setDontAcceptSymbolValueToBeExpression(oldValue);
@@ -4051,7 +3979,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X,Y) f(X) | Z = X}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Z", "X"))));
@@ -4062,7 +3990,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3")))), "0", 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3")))), "0", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "2")))));
 
@@ -4072,7 +4000,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3")))), "1", 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3")))), "1", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "2")))));
 
@@ -4087,7 +4015,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on ) foo(X) | X != a and X != b}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST)), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
@@ -4095,34 +4023,34 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "b")))));
 
 			expression = "if X != a and X != b then {foo(X)} else {}";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "b")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "X")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST))));
 
 			expression = "{(on X in {1,2,3}) p(X) | false}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3")))), 
+											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3")))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", "false")));
 
 			expression = "{ }";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST)));
 
 			expression = "{(on X in {a,b,c}) foo(X) | X != a and X != b}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c")))), 
+											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c")))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
@@ -4133,29 +4061,29 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					"if first({a,b,c}) != a and first({a,b,c}) != b then { foo(first({a,b,c})) } else {}," +
 					"{(on X in rest({a,b,c})) foo(X) | X != a and X != b})";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("partition", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("first", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c"))), "a"), 
+															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c"))), "a"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("first", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c"))), "b")), 
+															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c"))), "b")), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("first", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c"))))), 
+															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c"))))), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list"))), 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("rest", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c"))))), 
+															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c"))))), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "X"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
@@ -4166,13 +4094,13 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X in {a,b,c}, Y in {1,2,3}) foo(X,Y) | X != a and Y != 1}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c"))), 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c"))), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Y", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3"))))), 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3"))))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "X", "Y"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
@@ -4187,28 +4115,28 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Y", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3")))), 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3")))), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("first", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c"))), "Y"), 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c"))), "Y"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("first", 
 															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-																	Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c"))), "a"), 
+																	Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c"))), "a"), 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Y", "1")))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("rest", 
 															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-																	Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c")))), 
+																	Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c")))), 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Y", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3"))))), 
+															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3"))))), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "X", "Y"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
@@ -4219,14 +4147,14 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X in rest({a,b,c}), Y in {1,2,3}, Z) foo(X,Y) | X != a and Y != 1}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("rest", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c")))), 
+															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c")))), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Y", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3"))), "Z")), 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3"))), "Z")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "X", "Y"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
@@ -4239,33 +4167,33 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("partition", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("rest", 
 															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-																	Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c")))), "Z")), 
+																	Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c")))), "Z")), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "X", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("first", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3")))), 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3")))), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("first", 
 															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-																	Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3"))), "1")))), 
+																	Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3"))), "1")))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("rest", 
 															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-																	Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c")))), 
+																	Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c")))), 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Y", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("rest", 
 															Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-																	Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3")))), "Z")), 
+																	Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3")))), "Z")), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "X", "Y"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
@@ -4277,7 +4205,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list")))), 
+											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST)))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
@@ -4287,18 +4215,18 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X in {1,2,3}, Y in {a,b,c}) p(X,Y)}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3"))), 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3"))), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Y", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c"))))), 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c"))))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X", "Y"), null));
 
 			expression = "{p(1,a), p(1,b), p(1,c), p(2,a), p(2,b), p(2,c), p(3,a), p(3,b), p(3,c)}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "1", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "1", "b"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "1", "c"), 
@@ -4312,7 +4240,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X) if X = 2 then p(X) else q(X) | X != a}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "X"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "2"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("q", "X")), 
@@ -4341,7 +4269,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X) if Y = 2 then p(X) else q(X) | X != a}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "X"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "2"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("q", "X")), 
@@ -4354,7 +4282,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Person", "World")), 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Person", "rich"), "2000", "50"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Person", "american")))));
@@ -4385,7 +4313,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X) if X = 2 and something then p(X) else q(X) | X != a}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "X"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "2"), "something"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
@@ -4397,7 +4325,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("partition", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "X"), 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", "something", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, "something", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("q", "X")), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
@@ -4514,7 +4442,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "b"), 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("for all", 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("'for all'", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "Z"), 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("blah", "Z"), null))))));
@@ -4530,7 +4458,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "Z"), "a"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "Z"), "b"), 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("for all", 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("'for all'", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "Z"), 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("blah", "Z"), null)), 
@@ -4540,7 +4468,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", "some set")), 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", "'some set'")), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"))), 
@@ -4549,7 +4477,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X in 'some set') p(X) | X != a}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", "some set")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", "'some set'")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"))));
@@ -4611,75 +4539,75 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 			expression = "{ }";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST)));
 
 			expression = "{a, b, c}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c")));
 
 			expression = "{a, a, b}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "a", "b")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "a", "b")));
 
 			expression = "{a, b}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b")));
 
 			expression = "{a, b, b}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "b")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "b")));
 
 			expression = "{a, b, b, a}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "b", "a")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "b", "a")));
 
 			expression = "{a, b, b, a, b}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "b", "a", "b")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "b", "a", "b")));
 
 			expression = "{X, Y}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y")));
 
 			expression = "if X = Y then {X} else {X,Y}";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y"))));
 
 			expression = "{X, Y, a}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y", "a")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y", "a")));
 
 			expression = 
 					"if X = Y " +
 					"then if X = a then {X} else {X,a} " +
 					"else if X = a then {X,Y} else if Y = a then {X,Y} else {X,Y,a}";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "X"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "a"))), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "a"))), 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")), 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Y", "a"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")), 
+											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y")), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y", "a"))))));
+											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y", "a"))))));
 
 			expression = "partition({}, X, {}, Y)";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("partition", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list")), "X", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST)), "X", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list")), "Y"));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST)), "Y"));
 
 			expression = "partition(X, Y)";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("partition", "X", "Y"));
@@ -4687,26 +4615,26 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "partition({}, X, {1}, Y, {2,3})";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("partition", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list")), "X", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST)), "X", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "1"), "Y", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "2", "3"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "2", "3"))));
 
 			expression = "partition({1,2,3}, X, Y)";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("partition", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3")), "X", "Y"));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3")), "X", "Y"));
 
 			expression = "partition({}, {})";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("partition", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST)), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST))));
 
 			expression = "{}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST)));
 
 			expression = "partition(X)";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("partition", "X"));
@@ -4716,33 +4644,33 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 			expression = "(1, 2)";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2")));
 
 			expression = "(X, Y) = (X, Y, Z)";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y", "Z"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y", "Z"))));
 
 			expression = "tuple(X, Y) = (X, Y, Z)";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("tuple", "X", "Y"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y", "Z"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y", "Z"))));
 
 			expression = "(X, Y) = tuple(X, Y, Z)";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("tuple", "X", "Y", "Z")));
 
 			expression = "(X, Y, Z) = (a, b, c)";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y", "Z")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y", "Z")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c"))));
 
 			expression = "X = a and Y = b and Z = c";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
@@ -4759,12 +4687,12 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("tuple", "X", "Y", "Z"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c"))));
 
 			expression = "(X, Y, Z) = tuple(a, b, c)";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y", "Z")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y", "Z")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("tuple", "a", "b", "c")));
 
 			expression = "first(list(a,b,c))";
@@ -4809,56 +4737,56 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 
 			expression = "{x, y}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y")));
 
 			expression = "{x, y} union {z}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("union", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "z")));
 
 			expression = "{x, y, z}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y", "z")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y", "z")));
 
 			expression = "{x, y} union {}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("union", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST))));
 
 			expression = "{} union {x, y} union {}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("union", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST)), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST))));
 
 			expression = "A union {x, y} union {}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("union", "A", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST))));
 
 			expression = "A union {x, y}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("union", "A", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y"))));
 
 			expression = "A union {x, y} union {z} union B";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("union", "A", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "z"), "B"));
 
 			expression = "A union {x, y, z} union B";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("union", "A", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "x", "y", "z")), "B"));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "x", "y", "z")), "B"));
 
 
 			expression = "sum({{(on X) c}})";
@@ -4911,24 +4839,24 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "sum({{1,2,3}})";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("sum", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . }}", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3"))));
 
 
 			expression = "{}-{d}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST)), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "d")));
 
 			expression = "{}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST)));
 
 			expression = "{d}-{}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "d"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST))));
 
 			expression = "{d}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "d"));
@@ -4936,29 +4864,29 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{a,b,c}-{d}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "d")));
 
 			expression = "{a,b,c}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c")));
 
 			expression = "{a,b,c}-{b}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "b")));
 
 			expression = "{a,c}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "c")));
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "c")));
 
 			expression = "{a,b,c}-{b,a}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "b", "a"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "b", "a"))));
 
 			expression = "{c}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "c"));
@@ -4966,48 +4894,48 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{a,b,c}-{a,b,c}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c"))));
 
 			expression = "{{a,b,c}}-{{a,X,c}}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . }}", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "b", "c")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "b", "c")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . }}", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "a", "X", "c"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "a", "X", "c"))));
 
 			expression = "if X = b then {} else { b }";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "b"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST)), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "b")));
 
 			expression = "{{X,a,b,Y,Y}}-{{X,X,Y,a}}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . }}", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "a", "b", "Y", "Y")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "a", "b", "Y", "Y")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . }}", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "X", "Y", "a"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "X", "Y", "a"))));
 
 			expression = "if X = b then { Y } else if X = Y then { b } else {{ b, Y }}";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "b"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "Y"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", "b"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . }}", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "b", "Y")))));
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "b", "Y")))));
 
 			expression = "{(on X in {1,2,3}, Y in D) f(X) | X = Z}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3"))), 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3"))), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Y", "D"))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
@@ -5022,10 +4950,10 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X in {1,2,3}, Y in D) f(X) | X = Z and h(X)}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3"))), 
+													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3"))), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "Y", "D"))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
@@ -5046,7 +4974,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "1", "2", "3")))), 
+											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "1", "2", "3")))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
@@ -5054,12 +4982,12 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("h", "X")))));
 
 			expression = "if h(Z) then {f(Z)} else {}";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("h", "Z"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "Z")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . }", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list"))));
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST))));
 
 			expression = "{{ ( on Y in People ) sum({{ ( on p(a1, Y) ) p(a1, Y) }}) | Y = a2 }}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", 
@@ -5082,10 +5010,10 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "a1", "a2"), null))));
 
 			expression = "if Z = a then f(lambda Z : g(Z)) else 0";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "Z", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("lambda . : .", "Z", 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.LAMBDA_EXPRESSION, "Z", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("g", "Z"))), "0"));
 
 			expression = "list(Z)";
@@ -5096,22 +5024,22 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X")));
 
 			expression = "if X = a then lambda f(X) : f(X) else 1";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("lambda . : .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.LAMBDA_EXPRESSION, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X")), "1"));
 
 			expression = "if X = a then lambda f(a) : f(a) else 1";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("lambda . : .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.LAMBDA_EXPRESSION, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "a"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "a")), "1"));
 
 			expression = "(lambda f(X) : 2 + f(X))(1)";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("lambda . : .", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.LAMBDA_EXPRESSION, 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("+", "2", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X"))), "1"));
@@ -5136,7 +5064,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("product", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")), 
+											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y")), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", "Y"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
@@ -5164,7 +5092,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("product", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")), 
+											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y")), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", "Y"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a")))), 
@@ -5212,14 +5140,14 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("product", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y", "V")), 
+											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y", "V")), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", "Y", "V"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a")))), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("product", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "W", "Z")), 
+											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "W", "Z")), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("g", "Z", "W"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "Z", "a"))))));
@@ -5303,7 +5231,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("product", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")), 
+											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y")), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", "Y"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
@@ -5320,7 +5248,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("product", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")), 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y")), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", "Y"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
@@ -5333,7 +5261,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("product", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{{ . . . }}", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", "X", "Y")), 
+											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, "X", "Y")), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("| . |", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "W"), "W", null)), 
@@ -5343,18 +5271,18 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "Y")))))));
 
 			expression = "if X = a then type(X) else nothing";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("type", "X"), "nothing"));
 
 			expression = "if X = a then f(X, type(X)) else nothing";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "X", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("type", "X")), "nothing"));
 
 			expression = "if X = a then f(a, type(X)) else nothing";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("if . then . else .", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.IF_THEN_ELSE, 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("=", "X", "a"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "a", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("type", "X")), "nothing"));
