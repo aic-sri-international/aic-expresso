@@ -102,7 +102,7 @@ public class SyntaxTrees {
 	}
 	
 	public static SyntaxLeaf makeSyntaxLeaf(Object value) {
-		SyntaxLeaf result = DefaultSyntaxLeaf.createSyntaxLeaf(value);
+		SyntaxLeaf result = DefaultSyntaxLeaf.createSyntaxLeaf(value, false);
 		return result;
 	}
 

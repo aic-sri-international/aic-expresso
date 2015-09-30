@@ -66,12 +66,16 @@ import com.sri.ai.util.math.Rational;
 public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Symbol {
 	private static final long serialVersionUID = 1L;
 	
-	// this field is merely a cache; this Expression class is not based on syntax trees like previous ones did; it merely provides a syntax tree when requested.
-	private SyntaxLeaf cachedSyntaxTree;
+	private SyntaxLeaf syntxLeaf;
 
 	@Override
 	public Object getValue() {
-		return cachedSyntaxTree.getValue();
+		return syntxLeaf.getValue();
+	}
+	
+	@Override
+	public boolean isStringLiteral() {
+		return syntxLeaf.isStringLiteral();
 	}
 
 	@Override
@@ -86,7 +90,7 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 
 	@Override
 	public SyntaxTree getSyntaxTree() {
-		return cachedSyntaxTree;
+		return syntxLeaf;
 	}
 
 	@Override
@@ -142,8 +146,12 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 		}
 		throw new Error("Expression.rationalValue() invoked on " + this + ", which is not a number.");
 	}
-
+	
 	public static Symbol createSymbol(Object value) {
+		return createSymbol(value, false);
+	}
+
+	public static Symbol createSymbol(Object value, boolean isStringLiteral) {
 		Symbol result = null;
 		// If global symbol table to be used and the symbol's value is not
 		// an expression - i.e. quoted expressions of the form:
@@ -152,29 +160,40 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 		// parsed correctly.
 		if (useGlobalSymbolTable && !(value instanceof Expression)) {
 			
-			result = globalSymbolTable.getIfPresent(value);
+			if (isStringLiteral) {
+				result = globalStringLiteralTable.getIfPresent(value);
+			}
+			else {
+				result = globalSymbolTable.getIfPresent(value);
+			}
 			if (result == null) {
-				result = new DefaultSymbol(value);
+				result = new DefaultSymbol(value, isStringLiteral);
 				if (!(!cacheNumericSymbols && result.getValue() instanceof Number)) {
-					globalSymbolTable.put(value, result);
+					if (isStringLiteral) {
+						globalStringLiteralTable.put(value, result);
+					}
+					else {
+						globalSymbolTable.put(value, result);
+					}
 				}
 			}
 		} 
 		else {
-			result = new DefaultSymbol(value);
+			result = new DefaultSymbol(value, isStringLiteral);
 		}
 		
 		return result;
 	}
 
 	// Note: End users can only instantiate Symbols via the factory method.
-	private DefaultSymbol(Object value) {	
-		cachedSyntaxTree = DefaultSyntaxLeaf.createSyntaxLeaf(value);
+	private DefaultSymbol(Object value, boolean isStringLiteral) {	
+		syntxLeaf = DefaultSyntaxLeaf.createSyntaxLeaf(value, isStringLiteral);
 	}
 
 	public static void flushGlobalSymbolTable() {
 		if (AICUtilConfiguration.isRecordCacheStatistics()) {
 			System.out.println("Global Symbol Table Cache Stats="+globalSymbolTable.stats());
+			System.out.println("Global String Literal Table Cache Stats="+globalStringLiteralTable.stats());
 		}
 		// Causes relevant flags to be reset.
 		useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
@@ -183,7 +202,11 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 		if (globalSymbolTable != null) {
 			globalSymbolTable.invalidateAll();
 		}
-		globalSymbolTable = newSymbolTable();
+		if (globalStringLiteralTable != null) {
+			globalStringLiteralTable.invalidateAll();
+		}
+		globalSymbolTable        = newSymbolTable();
+		globalStringLiteralTable = newSymbolTable();
 		// Add well known symbols to the table
 		// The Booleans.
 		globalSymbolTable.put(true,          SYMBOL_TRUE);
@@ -276,8 +299,9 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 
 	private static boolean                      cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
 
-	private static Cache<Object, Symbol>        globalSymbolTable    = newSymbolTable();
-
+	private static Cache<Object, Symbol>        globalSymbolTable         = newSymbolTable();
+	private static Cache<Object, Symbol>        globalStringLiteralTable  = newSymbolTable();
+	
 	static {
 		flushGlobalSymbolTable();
 	}

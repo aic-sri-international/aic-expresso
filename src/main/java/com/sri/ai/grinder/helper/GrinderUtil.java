@@ -1212,7 +1212,7 @@ public class GrinderUtil {
 
 	
 	static final Expression _booleanType1 = parse("Boolean");
-	static final Expression _booleanType2 = parse("->(Boolean)");
+	static final Expression _booleanType2 = parse("'->'(Boolean)");
 	static final Expression _booleanType3 = parse("bool");
 	static final Expression _booleanType4 = parse("boolean");
 	/**

@@ -52,4 +52,13 @@ public interface Symbol extends Expression {
 	 */
 	@Override
 	Object getValue();
+	
+	/**
+	 * Determine if the value of the Symbol is a string literal.
+	 *
+	 * @return true if the Symbol represents a String literal 
+	 * (i.e. parsed with surrounding double quotes,
+	 *  quoted symbols use single quotes and are not string literals), false otherwise.
+	 */
+	boolean isStringLiteral();
 }

@@ -167,4 +167,22 @@ public class ExpressionsTest extends AbstractGrinderTest {
 		Collections.sort(list);
 		assertEquals(Util.list(a, c, b), list);
 	}
+	
+	@Test
+	public void testIsStringLitareal() {
+	  Expression e = parse("'a String'");
+	  Assert.assertFalse(Expressions.isStringLiteral(e));
+
+	  e = parse("\"a string\"");
+	  Assert.assertTrue(Expressions.isStringLiteral(e));
+
+	  e = parse("aString");
+	  Assert.assertFalse(Expressions.isStringLiteral(e));
+	  
+	  e = parse("'aString'");
+	  Assert.assertFalse(Expressions.isStringLiteral(e));
+
+	  e = parse("\"aString\"");
+	  Assert.assertTrue(Expressions.isStringLiteral(e));
+	}
 }

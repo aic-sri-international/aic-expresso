@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.sri.ai.expresso.api.Expression;
@@ -134,7 +135,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, Expressions.makeSymbol("1foo"));
 
 		string = "'foo1'";
-		test(string, Expressions.makeSymbol("'foo1'"));
+		test(string, Expressions.makeSymbol("foo1"));
 
 		string = "foo1'";
 		test(string, Expressions.makeSymbol("foo1'"));
@@ -143,10 +144,13 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, Expressions.makeSymbol("foo1'''"));
 
 		string = "'This is a test.'";
+		test(string, Expressions.makeSymbol("This is a test."));
+		
+		string = "'\\'This is a test.\\''";
 		test(string, Expressions.makeSymbol("'This is a test.'"));
-
-		string = "\"This is a test.\"";
-		test(string, Expressions.makeSymbol("\"This is a test.\""));
+		
+		string = "'foo@'";
+		test(string, Expressions.makeSymbol("foo@"));
 
 		// Testing illegal symbol names.
 		string = "foo1'bar";
@@ -160,32 +164,217 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 	}
 	
 	@Test
+	public void testStringLiteral () {
+		String string;
+		
+		string = "\"aSymbolicStringLiteral\"";
+		test(string, Expressions.makeStringLiteral("aSymbolicStringLiteral"));
+		
+		string = "\"This is a test.\"";
+		test(string, Expressions.makeStringLiteral("This is a test."));
+		
+		string = "\"\\\"This is a test.\\\"\"";
+		test(string, Expressions.makeStringLiteral("\"This is a test.\""));
+		
+		string = "\"not'aSymbol\"";
+		test(string, Expressions.makeStringLiteral("not'aSymbol"));
+	}
+	
+	@Test
+	public void testParseToStringAndParseAgain() {
+		String string;
+		Expression expr1, expr2;
+		
+		string = "abc";
+		expr1 = parser.parse(string);
+		Assert.assertEquals(string, expr1.toString());
+		expr2 = parser.parse(expr1.toString());
+		Assert.assertEquals(expr1, expr2);
+		Assert.assertEquals(string, expr2.toString());
+		
+		string = "abc'";
+		expr1 = parser.parse(string);
+		Assert.assertEquals(string, expr1.toString());
+		expr2 = parser.parse(expr1.toString());
+		Assert.assertEquals(expr1, expr2);
+		Assert.assertEquals(string, expr2.toString());
+		
+		string = "abc''";
+		expr1 = parser.parse(string);
+		Assert.assertEquals(string, expr1.toString());
+		expr2 = parser.parse(expr1.toString());
+		Assert.assertEquals(expr1, expr2);
+		Assert.assertEquals(string, expr2.toString());
+		
+		string = "abc'''";
+		expr1 = parser.parse(string);
+		Assert.assertEquals(string, expr1.toString());
+		expr2 = parser.parse(expr1.toString());
+		Assert.assertEquals(expr1, expr2);
+		Assert.assertEquals(string, expr2.toString());
+		
+		// Note: Single Quote can be dropped in this case
+		string = "'abc'";
+		expr1 = parser.parse(string);
+		Assert.assertEquals("abc", expr1.toString());
+		expr2 = parser.parse(expr1.toString());
+		Assert.assertEquals(expr1, expr2);
+		Assert.assertEquals("abc", expr2.toString());
+		
+		// Note: Single quote cannot be dropped in this case (due to not being a legal symbolic name with single quotes removed)
+		string = "'abc@'";
+		expr1 = parser.parse(string);
+		Assert.assertEquals(string, expr1.toString());
+		expr2 = parser.parse(expr1.toString());
+		Assert.assertEquals(expr1, expr2);
+		Assert.assertEquals(string, expr2.toString());
+		
+		string = "abc'";
+		expr1 = parser.parse(string);
+		Assert.assertEquals(string, expr1.toString());
+		expr2 = parser.parse(expr1.toString());
+		Assert.assertEquals(expr1, expr2);
+		Assert.assertEquals(string, expr2.toString());
+		
+		// Note: again the single quote can be dropped in this case.
+		string = "'abc\\''";
+		expr1 = parser.parse(string);
+		Assert.assertEquals("abc'", expr1.toString());
+		expr2 = parser.parse(expr1.toString());
+		Assert.assertEquals(expr1, expr2);
+		Assert.assertEquals("abc'", expr2.toString());
+		
+		string = "\"abc\\'\"";
+		expr1 = parser.parse(string);
+		Assert.assertEquals(string, expr1.toString());
+		expr2 = parser.parse(expr1.toString());
+		Assert.assertEquals(expr1, expr2);
+		Assert.assertEquals(string, expr2.toString());
+		
+		// Note: escaping of single quotes will occur
+		string = "\"abc'\"";
+		expr1 = parser.parse(string);
+		Assert.assertEquals("\"abc\\'\"", expr1.toString());
+		expr2 = parser.parse(expr1.toString());
+		Assert.assertEquals(expr1, expr2);
+		Assert.assertEquals("\"abc\\'\"", expr2.toString());
+		
+		string = "'a symbol literal with spaces'";
+		expr1 = parser.parse(string);
+		Assert.assertEquals(string, expr1.toString());
+		expr2 = parser.parse(expr1.toString());
+		Assert.assertEquals(expr1, expr2);
+		Assert.assertEquals(string, expr2.toString());
+		
+		string = "\"a string literal with spaces\"";
+		expr1 = parser.parse(string);
+		Assert.assertEquals(string, expr1.toString());
+		expr2 = parser.parse(expr1.toString());
+		Assert.assertEquals(expr1, expr2);
+		Assert.assertEquals(string, expr2.toString());
+		
+		// Note: single quote will be escaped
+		string = "\"a string literal's with unescaped single quote\"";
+		expr1 = parser.parse(string);
+		Assert.assertEquals("\"a string literal\\'s with unescaped single quote\"", expr1.toString());
+		expr2 = parser.parse(expr1.toString());
+		Assert.assertEquals(expr1, expr2);
+		Assert.assertEquals("\"a string literal\\'s with unescaped single quote\"", expr2.toString());
+		
+		// Note: single quote already escaped
+		string = "\"a string literal\\'s with escaped single quote\"";
+		expr1 = parser.parse(string);
+		Assert.assertEquals(string, expr1.toString());
+		expr2 = parser.parse(expr1.toString());
+		Assert.assertEquals(expr1, expr2);
+		Assert.assertEquals(string, expr2.toString());
+		
+		// Note: single quote will be escaped
+		string = "\"a string literal\\\\'s with unescaped single quote\"";
+		expr1 = parser.parse(string);
+		Assert.assertEquals("\"a string literal\\\\\\'s with unescaped single quote\"", expr1.toString());
+		expr2 = parser.parse(expr1.toString());
+		Assert.assertEquals(expr1, expr2);
+		Assert.assertEquals("\"a string literal\\\\\\'s with unescaped single quote\"", expr2.toString());
+		
+		// Note: single quote already be escaped
+		string = "\"a string literal\\\\\\'s with unescaped single quote\"";
+		expr1 = parser.parse(string);
+		Assert.assertEquals(string, expr1.toString());
+		expr2 = parser.parse(expr1.toString());
+		Assert.assertEquals(expr1, expr2);
+		Assert.assertEquals(string, expr2.toString());
+		
+		//
+		// Special symbolic names that don't need single quotes as they are used in infix function expressions
+		String[] specialSymbolicNames = new String[] {
+				"+", "-", "*", "/", "^",
+				"<=>", "=>", "<=",
+				"=", "!=",
+				"<=", ">="
+		};
+		for (String specialSymbolicName : specialSymbolicNames) {
+			string = specialSymbolicName;
+			expr1 = parser.parse(string);
+			Assert.assertEquals(string, expr1.toString());
+			expr2 = parser.parse(expr1.toString());
+			Assert.assertEquals(expr1, expr2);
+			Assert.assertEquals(string, expr2.toString());
+		}
+		// < and > cannot be parsed independently due to be used to quote expressions
+		string = "<";
+		expr1 = Expressions.makeSymbol("<");
+		Assert.assertEquals(string, expr1.toString());
+		string = ">";
+		expr1 = Expressions.makeSymbol(">");
+		Assert.assertEquals(string, expr1.toString());
+	}
+	
+	@Test
+	public void testSymbolNotEqualStringLiteral() {
+		Expression expr1, expr2;
+		
+		expr1 = parser.parse("a");
+		expr2 = parser.parse("'a'");
+		Assert.assertEquals(expr1, expr2);
+		
+		expr1 = parser.parse("a");
+		expr2 = parser.parse("\"a\"");
+		Assert.assertNotEquals(expr1, expr2);
+		
+		expr1 = parser.parse("'a'");
+		expr2 = parser.parse("\"a\"");
+		Assert.assertNotEquals(expr1, expr2);
+		
+		expr1 = parser.parse("'a b\\' c'");
+		expr2 = parser.parse("\"a b\\' c\"");
+		Assert.assertNotEquals(expr1, expr2);
+	}
+	
+	@Test
 	public void testEscapeSequences() {
 		String string;
 		
 		string = "'Test \\u0061'";
-		test(string, Expressions.makeSymbol("'Test a'"));
+		test(string, Expressions.makeSymbol("Test a"));
 		
 		string = "\"Test \\u0061\"";
-		test(string, Expressions.makeSymbol("\"Test a\""));
+		test(string, Expressions.makeStringLiteral("Test a"));
 
 		string = "'Testing the  preservation \\t of	whitespace\\ncharacters.'";
-		test(string, Expressions.makeSymbol("'Testing the  preservation 	 of	whitespace\ncharacters.'"));
+		test(string, Expressions.makeSymbol("Testing the  preservation 	 of	whitespace\ncharacters."));
 
 		string = "\"Testing the  preservation \\t of	whitespace\\ncharacters.\"";
-		test(string, Expressions.makeSymbol("\"Testing the  preservation 	 of	whitespace\ncharacters.\""));
+		test(string, Expressions.makeStringLiteral("Testing the  preservation 	 of	whitespace\ncharacters."));
 
 		string = "'This is a test *()#@$%!-_=+<>,./?:;\\'\"\\\"\\\\'";
-		test(string, Expressions.makeSymbol("'This is a test *()#@$%!-_=+<>,./?:;'\"\"\\\\'"));
+		test(string, Expressions.makeSymbol("This is a test *()#@$%!-_=+<>,./?:;'\"\"\\\\"));
 
 		string = "\"This is a test *()#@$%!-_=+<>,./?:;\\''\\\"\\\"\\\\\"";
-		test(string, Expressions.makeSymbol("\"This is a test *()#@$%!-_=+<>,./?:;''\"\"\\\\\""));
+		test(string, Expressions.makeStringLiteral("This is a test *()#@$%!-_=+<>,./?:;''\"\"\\\\"));
 		
 		string = "foo(bar1', 'bar2\\'', bar3''')";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "bar1'", "'bar2''", "bar3'''"));
-		
-		string = "\"not'aSymbol\"";
-		test(string, Expressions.makeSymbol("\"not'aSymbol\""));
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "bar1'", "bar2'", "bar3'''"));
 	}
 	
 	@Test 
@@ -235,7 +424,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 		test(string, Expressions.makeSymbol("1foo"));
 
 		string = "('foo1')";
-		test(string, Expressions.makeSymbol("'foo1'"));
+		test(string, Expressions.makeSymbol("foo1"));
 
 		string = "(foo1')";
 		test(string, Expressions.makeSymbol("foo1'"));
@@ -319,13 +508,13 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 				Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "bar", "hello")));
 
 		string = "'foo bar'()";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("'foo bar'"));
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo bar"));
 
 		string = "'foo bar'(a)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("'foo bar'", "a"));
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo bar", "a"));
 
 		string = "'foo bar'(a, b, c)";
-		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("'foo bar'", "a", "b", "c"));
+		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo bar", "a", "b", "c"));
 		
 		string = "foo(bar(X))";
 		test(string, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", 
@@ -2535,16 +2724,16 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("not", "x")));
 
 			expression = "'index of . in .'(b, f(a,b))";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("'index of . in .'", "b", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("index of . in .", "b", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "a", "b")));
 
 			expression = "'index of . in .'(c, f(a,b))";
-			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("'index of . in .'", "c", 
+			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("index of . in .", "c", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "a", "b")));
 
 			expression = "'index of . in .'(c, f(a,b)) > 0";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(">", 
-					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("'index of . in .'", "c", 
+					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("index of . in .", "c", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("f", "a", "b")), "0"));
 
 			expression = "x + 2";
@@ -4442,7 +4631,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("and", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "b"), 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("'for all'", 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("for all", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "Z"), 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("blah", "Z"), null))))));
@@ -4458,7 +4647,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "Z"), "a"), 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("foo", "Z"), "b"), 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("'for all'", 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("for all", 
 											Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", "Z"), 
 													Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("blah", "Z"), null)), 
@@ -4468,7 +4657,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("-", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", "'some set'")), 
+									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", "some set")), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 									Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"))), 
@@ -4477,7 +4666,7 @@ public class AntlrGrinderParserTest extends AbstractParserTest {
 			expression = "{(on X in 'some set') p(X) | X != a}";
 			test(expression, Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("{ . . . }", 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("( on . )", 
-							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", "'some set'")), 
+							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("in", "X", "some set")), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("p", "X"), 
 					Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("|", 
 							Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("!=", "X", "a"))));

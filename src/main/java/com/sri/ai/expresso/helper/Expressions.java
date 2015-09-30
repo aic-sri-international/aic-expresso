@@ -382,6 +382,29 @@ public class Expressions {
 		return DefaultSymbol.createSymbol(object);
 	}
 	
+	public static Symbol makeStringLiteral(String object) {
+		return DefaultSymbol.createSymbol(object, true);
+	}
+	
+	public static Symbol parseTextAndMakeSymbolOrStringLiteral(String symbolValue) {
+		boolean isSingleQuoted = symbolValue.startsWith("'") && symbolValue.endsWith("'");
+		boolean isDoubleQuoted = symbolValue.startsWith("\"") && symbolValue.endsWith("\"");
+		
+		if (isSingleQuoted || isDoubleQuoted) {
+			// When parsing, whether a single quoted symbol or a string literal (i.e. double quoted)
+			// the value is that within the quotes and not the quotes themselves.
+			symbolValue = symbolValue.substring(1, symbolValue.length() - 1);
+		}
+		Symbol result;
+		if (isDoubleQuoted) {
+			result = makeStringLiteral(symbolValue);
+		}
+		else {
+			result = makeSymbol(symbolValue);
+		}
+		return result;
+	}
+	
 	static private Parser parser = new AntlrGrinderParserWrapper();
 
 	/**
@@ -512,6 +535,12 @@ public class Expressions {
 	public static boolean isNumber(Expression expression) {
 		boolean result = expression.getSyntacticFormType().equals("Symbol") &&
 				expression.getValue() instanceof Number;
+		return result;
+	}
+	
+	public static boolean isStringLiteral(Expression expression) {
+		boolean result = expression.getSyntacticFormType().equals("Symbol") &&
+				((Symbol)expression).isStringLiteral();
 		return result;
 	}
 	
