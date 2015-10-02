@@ -101,7 +101,7 @@ public class ExtensionalSet {
 	}
 	
 	public static List<Expression> getElements(Expression setExpression) {
-		return Expressions.ensureListFromKleeneList(Expressions.makeFromSyntaxTree(setExpression.getSyntaxTree().getSubTree(0))); // does need to be sub tree
+		return setExpression.getSubExpressions();
 	}
 
 	public static int cardinality(Expression expression) {
