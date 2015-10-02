@@ -185,4 +185,16 @@ public class ExpressionsTest extends AbstractGrinderTest {
 	  e = parse("\"aString\"");
 	  Assert.assertTrue(Expressions.isStringLiteral(e));
 	}
+	
+	@Test
+	public void testMakeFromSyntaxTree() {
+		// Ensure String Literals are preserved
+		Expression extSetExpr            = parse("{a, 'b', \"c\", d}");		
+		Expression fromSyntaxTreeSetExpr = Expressions.makeFromSyntaxTree(extSetExpr.getSyntaxTree());
+		
+		Assert.assertEquals(Expressions.makeSymbol("a"), fromSyntaxTreeSetExpr.get(0));
+		Assert.assertEquals(Expressions.makeSymbol("b"), fromSyntaxTreeSetExpr.get(1));
+		Assert.assertEquals(Expressions.makeStringLiteral("c"), fromSyntaxTreeSetExpr.get(2));
+		Assert.assertEquals(Expressions.makeSymbol("d"), fromSyntaxTreeSetExpr.get(3));
+	}
 }

@@ -147,7 +147,14 @@ public class Expressions {
 			return result;
 		}
 		if (syntaxTree instanceof SyntaxLeaf) {
-			Expression result = Expressions.makeSymbol(syntaxTree.getValue());
+			SyntaxLeaf syntaxLeaf = (SyntaxLeaf) syntaxTree;
+			Expression result;
+			if (syntaxLeaf.isStringLiteral()) {
+				result = Expressions.makeStringLiteral((String)syntaxLeaf.getValue());
+			}
+			else {
+				result = Expressions.makeSymbol(syntaxLeaf.getValue());
+			}
 //			Expression result = new ExpressionOnSyntaxLeaf(syntaxTree);
 			return result;
 		}
