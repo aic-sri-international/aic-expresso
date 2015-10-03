@@ -423,6 +423,11 @@ public abstract class AbstractExpression implements Expression {
 	}
 
 	@Override
+	public boolean isStringLiteral() {
+		return false;
+	}
+
+	@Override
 	public boolean booleanValue() {
 		return false;
 	}

@@ -225,6 +225,15 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	 */
 	public Object getValue();
 
+	/**
+	 * Determine if the value of the Symbol is a string literal.
+	 *
+	 * @return true if the Symbol represents a String literal 
+	 * (i.e. parsed with surrounding double quotes,
+	 *  quoted symbols use single quotes and are not string literals), false otherwise.
+	 */
+	boolean isStringLiteral();
+
 	/** 
 	 * Returns the value of the symbol as a boolean.
 	 * An error is thrown if the value of the symbol is not a boolean.

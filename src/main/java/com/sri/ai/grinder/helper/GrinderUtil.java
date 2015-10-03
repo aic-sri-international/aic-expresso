@@ -63,6 +63,7 @@ import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.LambdaExpression;
 import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
@@ -714,7 +715,8 @@ public class GrinderUtil {
 	public static Expression getType(Expression expression, RewritingProcess process) {
 		Expression result;
 		
-		// TODO: hard-coded symbols: to be made more flexible at some point
+		// TODO: this method is very hard-coded to a specific language; need to clean this up
+		
 		if (FormulaUtil.isApplicationOfBooleanConnective(expression)) {
 			result = makeSymbol("Boolean");
 		}
@@ -737,6 +739,9 @@ public class GrinderUtil {
 			}
 			else if (expression.getValue() instanceof Number) {
 				result = makeSymbol("Number");
+			}
+			else if (expression.getValue() instanceof String && expression.isStringLiteral()) {
+				result = makeSymbol("String");
 			}
 			else if (expression.getValue() instanceof Boolean) {
 				result = makeSymbol("Boolean");

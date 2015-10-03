@@ -60,5 +60,6 @@ public interface Symbol extends Expression {
 	 * (i.e. parsed with surrounding double quotes,
 	 *  quoted symbols use single quotes and are not string literals), false otherwise.
 	 */
+	@Override
 	boolean isStringLiteral();
 }
