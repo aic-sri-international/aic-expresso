@@ -38,7 +38,6 @@
 package com.sri.ai.grinder.helper;
 
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.library.FunctorConstants.CARTESIAN_PRODUCT;
@@ -63,6 +62,7 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.LambdaExpression;
 import com.sri.ai.expresso.api.QuantifiedExpression;
+import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
@@ -715,21 +715,40 @@ public class GrinderUtil {
 		Expression result;
 		
 		// TODO: hard-coded symbols: to be made more flexible at some point
-		switch(expression.toString()) {
-		case FunctorConstants.NOT : return apply("->", "Boolean", "Boolean");
-		case FunctorConstants.AND : return apply("->", Util.fill(expression.numberOfArguments(), "Boolean"));
-		case FunctorConstants.OR : return apply("->", Util.fill(expression.numberOfArguments(), "Boolean"));
-		case FunctorConstants.IMPLICATION : apply("->", "Boolean", "Boolean");
-		case FunctorConstants.EQUIVALENCE : apply("->", "Boolean", "Boolean");
+		if (FormulaUtil.isApplicationOfBooleanConnective(expression)) {
+			result = makeSymbol("Boolean");
 		}
-		
-		if (expression.getSyntacticFormType().equals("Symbol")) {
-			result = process.getContextualSymbolType(expression);
-			
-			if (result == null) {
-				Type type = Util.getFirstSatisfyingPredicateOrNull(process.getTypes(), t -> t.contains(expression));
-				if (type != null) {
-					result = makeSymbol(type.getName());
+		else if (IfThenElse.isIfThenElse(expression)) {
+			Expression thenType = getType(IfThenElse.thenBranch(expression), process);
+			Expression elseType = getType(IfThenElse.elseBranch(expression), process);
+			if (thenType != null && thenType.equals(elseType)) {
+				result = thenType;
+			}
+			else {
+				throw new Error(expression + " then and else branches have different types (" + thenType + " and " + elseType + " respectively).");
+			}
+		}
+		else if (expression.getSyntacticFormType().equals("Symbol")) {
+			if (expression.getValue() instanceof Integer) {
+				result = makeSymbol("Integer");
+			}
+			else if (expression.getValue() instanceof Double) {
+				result = makeSymbol("Real");
+			}
+			else if (expression.getValue() instanceof Number) {
+				result = makeSymbol("Number");
+			}
+			else if (expression.getValue() instanceof Boolean) {
+				result = makeSymbol("Boolean");
+			}
+			else {
+				result = process.getContextualSymbolType(expression);
+
+				if (result == null) {
+					Type type = Util.getFirstSatisfyingPredicateOrNull(process.getTypes(), t -> t.contains(expression));
+					if (type != null) {
+						result = makeSymbol(type.getName());
+					}
 				}
 			}
 		}
@@ -756,8 +775,11 @@ public class GrinderUtil {
 
 			result = coDomain;
 		}
+		else if (expression instanceof QuantifiedExpressionWithABody){
+			return getType(((QuantifiedExpressionWithABody) expression).getBody(), process);
+		}
 		else {
-			throw new Error("Type implemented only for symbols and function applications, but attempted on " + expression);
+			throw new Error("GrinderUtil.getType does not yet know how to determine the type of this sort of expression: " + expression);
 		}
 		return result;
 	}

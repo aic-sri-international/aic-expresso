@@ -51,6 +51,18 @@ public interface Constraint extends Expression {
 	ConstraintTheory getConstraintTheory();
 	
 	/**
+	 * Returns an {@link ConstraintTheoryTester} representing the conjunction of this constraint and
+	 * a given literal, or null if they are contradictory.
+	 * <p>
+	 * At this point, the formula should be either a literal, or a {@link Constraint}.
+	 * 
+	 * @param literal the literal to be conjoined.
+	 * @param process the rewriting process
+	 * @return the application result or <code>null</code> if contradiction.
+	 */
+	Constraint conjoinWithLiteral(Expression literal, RewritingProcess process);
+	
+	/**
 	 * Tests whether a literal is contradictory with this constraint
 	 * by checking whether conjoining it with the literal's negation produces a contradiction.
 	 * @param literal
@@ -118,19 +130,10 @@ public interface Constraint extends Expression {
 		Constraint result = this;
 		for (Expression literal : getConjuncts(conjunctiveClause)) {
 			result = result.conjoin(literal, process);
+			if (result == null) {
+				break;
+			}
 		}
 		return result;
 	}
-
-	/**
-	 * Returns an {@link ConstraintTheoryTester} representing the conjunction of this constraint and
-	 * a given literal, or null if they are contradictory.
-	 * <p>
-	 * At this point, the formula should be either a literal, or a {@link Constraint}.
-	 * 
-	 * @param literal the literal to be conjoined.
-	 * @param process the rewriting process
-	 * @return the application result or <code>null</code> if contradiction.
-	 */
-	Constraint conjoinWithLiteral(Expression literal, RewritingProcess process);
 }

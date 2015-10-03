@@ -70,7 +70,9 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  */
 @Beta
-public interface RewritingProcess {
+public interface RewritingProcess extends Cloneable {
+
+	RewritingProcess clone();
 	
 	/** Indicates whether a given expression is a uniquely named constant (assumed to be distinct from all other uniquely named constants). */
 	boolean isUniquelyNamedConstant(Expression expression);

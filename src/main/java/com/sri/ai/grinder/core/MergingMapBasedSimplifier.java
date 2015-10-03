@@ -61,6 +61,12 @@ import com.sri.ai.util.collect.NestedIterator;
 @Beta
 public class MergingMapBasedSimplifier extends DefaultMapBasedSimplifier {
 	
+	/**
+	 * Creates a simplifiers from the function and syntactic form simplifiers of given simplifiers.
+	 * @param additionalFunctionApplicationSimplifiers
+	 * @param additionalSyntacticFormTypeSimplifiers
+	 * @param simplifiers
+	 */
 	public MergingMapBasedSimplifier(MapBasedSimplifier... simplifiers) {
 		super(
 				union ( functionApplicationSimplifiersIterator(simplifiers) ),
@@ -68,13 +74,19 @@ public class MergingMapBasedSimplifier extends DefaultMapBasedSimplifier {
 				
 	}
 
+	/**
+	 * Adds function and syntactic form simplifiers to those of given simplifiers.
+	 * @param additionalFunctionApplicationSimplifiers
+	 * @param additionalSyntacticFormTypeSimplifiers
+	 * @param simplifiers
+	 */
 	public MergingMapBasedSimplifier(
-			Map<String, Simplifier> functionApplicationSimplifiers,
-			Map<String, Simplifier> syntacticFormTypeSimplifiers,
+			Map<String, Simplifier> additionalFunctionApplicationSimplifiers,
+			Map<String, Simplifier> additionalSyntacticFormTypeSimplifiers,
 			MapBasedSimplifier... simplifiers) {
 		super(
-				union ( functionApplicationSimplifiersIterator(functionApplicationSimplifiers, simplifiers) ),
-				union ( syntacticFormTypeSimplifiersIterator(syntacticFormTypeSimplifiers, simplifiers) ));
+				union ( functionApplicationSimplifiersIterator(additionalFunctionApplicationSimplifiers, simplifiers) ),
+				union ( syntacticFormTypeSimplifiersIterator(additionalSyntacticFormTypeSimplifiers, simplifiers) ));
 				
 	}
 

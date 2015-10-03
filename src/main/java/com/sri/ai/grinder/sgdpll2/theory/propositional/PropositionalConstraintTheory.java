@@ -87,8 +87,13 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 
 	@Override
 	public boolean isNonTrivialLiteral(Expression expression, RewritingProcess process) {
-		boolean result = GrinderUtil.isBooleanTyped(expression, process);
-		return result;
+		return GrinderUtil.isBooleanTyped(expression, process);
+//		boolean result = 
+//				(expression.getSyntacticFormType().equals("Function application")
+//						||
+//						expression.getSyntacticFormType().equals("Symbol"))
+//				&& GrinderUtil.isBooleanTyped(expression, process);
+//		return result;
 	}
 	
 	@Override

@@ -133,7 +133,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 	public ConstraintTheory getConstraintTheory() {
 		return constraintTheory;
 	}
-
+	
 	@Override
 	public MultiVariableConstraintWithCheckedProperty conjoin(Expression formula, RewritingProcess process) {
 		MultiVariableConstraintWithCheckedProperty result;

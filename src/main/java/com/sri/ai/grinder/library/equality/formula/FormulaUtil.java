@@ -499,6 +499,13 @@ public class FormulaUtil {
 		return result;
 	}
 
+	final public static Set<Expression> LOGICAL_CONNECTIVES =
+	Util.set(
+			Expressions.makeSymbol(FunctorConstants.NOT),         
+			Expressions.makeSymbol(FunctorConstants.AND),         Expressions.makeSymbol(FunctorConstants.OR),
+			Expressions.makeSymbol(FunctorConstants.IMPLIED),     Expressions.makeSymbol(FunctorConstants.IMPLICATION),
+			Expressions.makeSymbol(FunctorConstants.EQUIVALENCE));
+
 	final public static Set<Expression> LOGICAL_CONNECTIVES_INCLUDING_CONDITIONALS =
 	Util.set(
 			Expressions.makeSymbol(FunctorConstants.NOT),         Expressions.makeSymbol(FunctorConstants.IF_THEN_ELSE),
@@ -544,10 +551,18 @@ public class FormulaUtil {
 	}
 
 	/**
+	 * Indicates whether an expression is logical connective application.
+	 */
+	public static boolean isApplicationOfBooleanConnective(Expression formula) {
+		boolean result = LOGICAL_CONNECTIVES.contains(formula.getFunctor());
+		return result;
+	}
+
+	/**
 	 * Indicates whether an expression is logical connective application, including if then else
 	 * (does not check sub-expressions).
 	 */
-	public static boolean isApplicationOfBooleanConnective(Expression formula) {
+	public static boolean isApplicationOfBooleanConnectiveIncludingConditionals(Expression formula) {
 		boolean result = LOGICAL_CONNECTIVES_INCLUDING_CONDITIONALS.contains(formula.getFunctor());
 		return result;
 	}

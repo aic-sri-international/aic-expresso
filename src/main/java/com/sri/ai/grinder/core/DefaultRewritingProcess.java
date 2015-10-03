@@ -685,6 +685,12 @@ public class DefaultRewritingProcess implements RewritingProcess {
 				process.types);
 	}
 	
+	
+	@Override
+	public DefaultRewritingProcess clone() {
+		return new DefaultRewritingProcess(this);
+	}
+	
 	private void initialize(DefaultRewritingProcess parentProcess,
 			Expression rootExpression,
 			Rewriter rootRewriter,

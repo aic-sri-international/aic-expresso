@@ -37,7 +37,9 @@
  */
 package com.sri.ai.grinder.core;
 
+import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.putAll;
+import static com.sri.ai.util.Util.sameInstancesInSameIterableOrder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +52,6 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
@@ -187,8 +188,8 @@ public class DefaultMapBasedSimplifier implements MapBasedSimplifier {
 		if (result.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 			List<Expression> originalArguments = result.getArguments();
 			ArrayList<Expression> simplifiedArguments =
-					Util.mapIntoArrayList(originalArguments, e -> simplify(e, topSimplifier, process));
-			if ( ! Util.sameInstancesInSameIterableOrder(originalArguments, simplifiedArguments)) { // this check speeds cardinality algorithm by about 25%; it is also required for correctness wrt not returning a new instance that is equal to the input.
+					mapIntoArrayList(originalArguments, e -> simplify(e, topSimplifier, process));
+			if ( ! sameInstancesInSameIterableOrder(originalArguments, simplifiedArguments)) { // this check speeds cardinality algorithm by about 25%; it is also required for correctness wrt not returning a new instance that is equal to the input.
 				result = Expressions.apply(result.getFunctor(), simplifiedArguments);
 			}
 			result = topSimplifier.apply(result, process);
@@ -204,20 +205,19 @@ public class DefaultMapBasedSimplifier implements MapBasedSimplifier {
 	 * @param functionApplicationSimplifiers
 	 * @param syntacticFormTypeSimplifiers
 	 * @param process
-	 * @param syntacticTypeForm
-	 * @param simplifier
+	 * @param additionalSyntacticFormTypesAndSimplifiers additional syntactic form types and corresponding simplifiers
 	 * @return
 	 */
 	public static Expression simplifyWithExtraSyntacticFormTypeSimplifiers(
 			Expression expression,
 			Map<String, Simplifier> functionApplicationSimplifiers, Map<String, Simplifier> syntacticFormTypeSimplifiers,
 			RewritingProcess process,
-			Object... syntacticFormTypesAndBinaryFunctionsFromExpressionRewritingProcessToExpression) {
+			Object... additionalSyntacticFormTypesAndSimplifiers) {
 		
 		Map<String, Simplifier>
 		mySyntacticFormTypeSimplifiers = new StackedHashMap<String, Simplifier>(syntacticFormTypeSimplifiers);
 		
-		putAll(mySyntacticFormTypeSimplifiers, syntacticFormTypesAndBinaryFunctionsFromExpressionRewritingProcessToExpression);
+		putAll(mySyntacticFormTypeSimplifiers, additionalSyntacticFormTypesAndSimplifiers);
 		
 		Expression result = simplify(expression, functionApplicationSimplifiers, mySyntacticFormTypeSimplifiers, process);
 		return result;

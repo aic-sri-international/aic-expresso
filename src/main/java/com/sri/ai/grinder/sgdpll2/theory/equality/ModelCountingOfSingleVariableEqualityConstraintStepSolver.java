@@ -102,7 +102,7 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 			Constraint contextualConstraint, RewritingProcess process) {
 		
 		Expression result;
-		if (getConstraint().getEquals().hasNext()) { // variable is bound to some value
+		if (getConstraint().getEqualsIterator().hasNext()) { // variable is bound to some value
 			result = ONE;
 		}
 		else {

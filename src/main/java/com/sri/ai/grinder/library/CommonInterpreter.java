@@ -44,34 +44,40 @@ import static com.sri.ai.grinder.helper.GrinderUtil.extendContextualSymbolsWithI
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.map;
+import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.ExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
-import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.api.UniversallyQuantifiedFormula;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.core.MergingMapBasedSimplifier;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
+import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.plaindpll.group.BooleansWithConjunctionGroup;
+import com.sri.ai.grinder.plaindpll.group.BooleansWithDisjunctionGroup;
+import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
+import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
- * An extension of {@link CommonSimplifier} associated with an assignment to {@link Symbol}s,
- * and augmented with elementary simplifiers that replace symbols by their value in the assignment, if present.
- * 
+ * A {@link Simplifier} re-using {@link CommonSimplifier},
+ * and augmented with elementary simplifiers that replace symbols
+ * by their value in an associated given assignment.
+
  * @author braz
  *
  */
 @Beta
 public class CommonInterpreter implements Simplifier {
 
+	public static final String COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT = "sgdpll2 contextual constraint";
 	private Map<Expression, Expression> assignment;
 	private Simplifier simplifier;
 	
@@ -81,10 +87,50 @@ public class CommonInterpreter implements Simplifier {
 
 	public CommonInterpreter(Map<Expression, Expression> assignment) {
 		this.assignment = assignment;
-		this.simplifier = new MergingMapBasedSimplifier(
-				makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers(), new CommonSimplifier());
+		this.simplifier = new CommonInterpreterSimplifier();
 	}
 	
+	private class CommonInterpreterSimplifier extends MergingMapBasedSimplifier {
+		
+		public CommonInterpreterSimplifier() {
+			super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers(), new CommonSimplifier());
+		}
+
+		@Override
+		public Expression apply(Expression expression, RewritingProcess process) {
+			myAssert(
+					() -> process.getGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT) != null,
+					() -> this.getClass() + " requires the rewriting process to contain a contextual constraint under global object key " + COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT
+					);
+			
+			Expression result;
+			Constraint contextualConstraint = (Constraint) process.getGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT);
+			if (contextualConstraint.getConstraintTheory().isLiteral(expression, process)) {
+				ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, expression, process);
+				switch(split.getResult()) {
+				case CONSTRAINT_IS_CONTRADICTORY:
+					return null;
+				case LITERAL_IS_TRUE:
+					return TRUE;
+				case LITERAL_IS_FALSE:
+					return FALSE;
+				case LITERAL_IS_UNDEFINED:
+				default:
+					break;
+				}
+			}
+			
+			result = super.apply(expression, process);
+			return result;
+		}
+		
+	}
+	@Override
+	public Expression apply(Expression expression, RewritingProcess process) {
+		Expression result = simplifier.apply(expression, process);
+		return result;
+	}
+
 	/**
 	 * Creates a new interpreter with current assignment extended by new ones.
 	 * @param extendingAssignment new value of assignments
@@ -111,56 +157,38 @@ public class CommonInterpreter implements Simplifier {
 					}
 					return result;
 				},
-				"There exists", (Simplifier) (s, p) -> evaluateQuantifiedExpression(s, p),
-				"For all",      (Simplifier) (s, p) -> evaluateQuantifiedExpression(s, p)
+				"There exists", (Simplifier) (s, p) -> evaluateQuantifiedExpression(s, new BooleansWithDisjunctionGroup(), p),
+				"For all",      (Simplifier) (s, p) -> evaluateQuantifiedExpression(s, new BooleansWithConjunctionGroup(), p)
 				);
 	}
 
-	private Expression evaluateQuantifiedExpression(Expression expression, RewritingProcess process) {
+	private Expression evaluateQuantifiedExpression(Expression expression, AssociativeCommutativeGroup group, RewritingProcess process) {
 		QuantifiedExpressionWithABody formula = (QuantifiedExpressionWithABody) expression;
 		process = extendContextualSymbolsWithIndexExpressions(formula.getIndexExpressions(), process);
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(formula.getIndexExpressions(), process);
 		for (Map<Expression, Expression> values : in(assignmentsIterator)) {
 			Expression bodyEvaluation = extendWith(values).apply(formula.getBody(), process);
-			if (bodyEvaluation.equals(shortCircuitingValue(formula))) {
-				return shortCircuitingValue(formula);
+			if ( ! bodyEvaluation.getSyntacticFormType().equals("Symbol")) {
+				throw new Error("Quantifier body must evaluate to constant but evaluated to " + bodyEvaluation);
+			}
+			if (group.isAdditiveAbsorbingElement(bodyEvaluation)) {
+				return bodyEvaluation;
 			}
 		}
-		return identityValue(formula);
+		return group.additiveIdentityElement();
 	}
 
-	private Expression shortCircuitingValue(QuantifiedExpression expression) {
-		if (expression instanceof ExistentiallyQuantifiedFormula) {
-			return TRUE;
-		}
-		else if (expression instanceof UniversallyQuantifiedFormula) {
-			return FALSE;
-		}
-		throw new Error("shortCircuitingValue: unregistered quantified expression: " + expression);
-	}
-
-	private Expression identityValue(QuantifiedExpression expression) {
-		if (expression instanceof ExistentiallyQuantifiedFormula) {
-			return FALSE;
-		}
-		else if (expression instanceof UniversallyQuantifiedFormula) {
-			return TRUE;
-		}
-		throw new Error("shortCircuitingValue: unregistered quantified expression: " + expression);
-	}
-
-	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
-		return simplifier.apply(expression, process);
-	}
-	
 	public static void main(String[] args) {
 		CommonInterpreter interpreter = new CommonInterpreter(map(parse("Hurrah"), parse("awesome")));
 		RewritingProcess process = new DefaultRewritingProcess(null);
+		Constraint contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory());
+		contextualConstraint = contextualConstraint.conjoin(parse("W != 3"), process);
+		process.putGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
 		process = process.put(new Categorical("Population", 5, arrayList(parse("tom")))); // two pitfalls: immutable process and need for arrayList rather than just list
 		process = process.put(new Categorical("Numbers", 3, arrayList(parse("1"), parse("2"), parse("3"))));
-		Expression expression = parse("false and there exists X in Numbers : X = 3 and X + 1 = 1 + X");
-//		Expression expression = parse("if for all X in Population : (there exists Y in Population : Y != X) then Hurrah else not Hurrah");
+//		Expression expression = parse("false and there exists X in Numbers : X = 3 and X + 1 = 1 + X");
+//		Expression expression = parse("if for all X in Population : (there exists Y in Population : Y != X and W != 3) then Hurrah else not Hurrah");
+		Expression expression = parse("there exists Y in Population : Y != X and W != 3");
 		Expression result = interpreter.apply(expression, process);
 		System.out.println("result: " + result);
 	}

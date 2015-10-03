@@ -343,6 +343,7 @@ public class ConstraintTheoryTester {
 			Expression type = makeSymbol(variableNamesAndTypeNamesForTesting.get(variable));
 			quantifiedFormula = ThereExists.make(IndexExpressions.makeIndexExpression(variable, type), quantifiedFormula);
 		}
+		process.putGlobalObject(CommonInterpreter.COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(constraintTheory));
 		Expression evaluation = new CommonInterpreter().apply(quantifiedFormula, process);
 		boolean result = evaluation.equals(TRUE);
 		return result;
@@ -447,6 +448,7 @@ public class ConstraintTheoryTester {
 		AssignmentsIterator testingVariableAssignmentsIterator = new AssignmentsIterator(list(testingVariable), process);
 		for (Map<Expression, Expression> testingVariableAssignment : in(testingVariableAssignmentsIterator)) {
 			CommonInterpreter completeInterpreter = interpreter.extendWith(testingVariableAssignment);
+			process.putGlobalObject(CommonInterpreter.COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(constraint.getConstraintTheory()));
 			Expression value = completeInterpreter.apply(constraint, process);
 			if (value.equals(TRUE)) {
 				modelCount++;
