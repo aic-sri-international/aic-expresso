@@ -1232,6 +1232,11 @@ public class GrinderUtil {
 		return result;
 	}
 
+	
+	static final Expression _booleanType1 = parse("Boolean");
+	static final Expression _booleanType2 = parse("'->'(Boolean)");
+	static final Expression _booleanType3 = parse("bool");
+	static final Expression _booleanType4 = parse("boolean");
 	/**
 	 * Indicates whether an expression is boolean-typed by having its {@link getType}
 	 * type be "Boolean", "'->'(Boolean)", or "bool", or "boolean".
@@ -1244,10 +1249,10 @@ public class GrinderUtil {
 		boolean result =
 				type != null &&
 				(
-				type.equals(parse("Boolean")) ||
-				type.equals(parse("'->'(Boolean)")) ||
-				type.equals(parse("bool")) ||
-				type.equals(parse("boolean")));
+				type.equals(_booleanType1) ||
+				type.equals(_booleanType2) ||
+				type.equals(_booleanType3) ||
+				type.equals(_booleanType4));
 		return result;
 	}
 

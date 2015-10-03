@@ -52,6 +52,7 @@ import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.core.DefaultCompoundSyntaxTree;
 import com.sri.ai.expresso.core.DefaultSyntaxLeaf;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.FunctionIterator;
@@ -101,7 +102,7 @@ public class SyntaxTrees {
 	}
 	
 	public static SyntaxLeaf makeSyntaxLeaf(Object value) {
-		SyntaxLeaf result = DefaultSyntaxLeaf.createSyntaxLeaf(value);
+		SyntaxLeaf result = DefaultSyntaxLeaf.createSyntaxLeaf(value, false);
 		return result;
 	}
 
@@ -111,7 +112,7 @@ public class SyntaxTrees {
 	 */
 	public
 	static List<SyntaxTree> ensureListFromKleeneList(SyntaxTree listOrSingleElementOfList) {
-		boolean isListName = listOrSingleElementOfList != null && listOrSingleElementOfList.getLabel().equals("kleene list");
+		boolean isListName = listOrSingleElementOfList != null && listOrSingleElementOfList.getLabel().equals(FunctorConstants.KLEENE_LIST);
 		return (isListName ? listOrSingleElementOfList.getImmediateSubTrees() : Lists.newArrayList(listOrSingleElementOfList));
 	}
 
@@ -125,12 +126,8 @@ public class SyntaxTrees {
 		if (objects.size() == 1 ) {
 			return SyntaxTrees.wrap(Util.getFirst(objects));
 		}
-		CompoundSyntaxTree result = SyntaxTrees.makeCompoundSyntaxTree("kleene list", objects);
+		CompoundSyntaxTree result = SyntaxTrees.makeCompoundSyntaxTree(FunctorConstants.KLEENE_LIST, objects);
 		return result;
-	}
-
-	public static String makeStringValuedSymbolParseSafe(String string) {
-		return DefaultSyntaxLeaf.makeStringValuedSymbolParseSafe(string);
 	}
 
 	static private Parser parser = new AntlrGrinderParserWrapper();

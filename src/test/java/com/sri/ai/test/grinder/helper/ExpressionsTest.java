@@ -84,28 +84,6 @@ public class ExpressionsTest extends AbstractGrinderTest {
 		e = parse("{(on X) X} and X");
 		Assert.assertEquals(Util.set(parse("and"), parse("X")), Expressions.freeSymbols(e, process));
 	}
-	
-	@Test
-	public void testIsQuotedConstantString() {
-		Expression e = parse("'a String'");
-		Assert.assertTrue(Expressions.isQuotedConstantString(e));
-		
-		e = parse("\"a string\"");
-		Assert.assertTrue(Expressions.isQuotedConstantString(e));
-		
-		// Expected to be false as after parsing the String does
-		// not need to be quoted and is treated as a symbol
-		e = parse("'aString'");
-		Assert.assertFalse(Expressions.isQuotedConstantString(e));
-		
-		// Expected to be false as after parsing the String does
-		// not need to be quoted and is treated as a symbol
-		e = parse("\"aString\"");
-		Assert.assertFalse(Expressions.isQuotedConstantString(e));
-		
-		e = parse("aString");
-		Assert.assertFalse(Expressions.isQuotedConstantString(e));
-	}
 
 	@Test
 	public void testSubExpressionInstance() {
@@ -188,5 +166,35 @@ public class ExpressionsTest extends AbstractGrinderTest {
 		list = Util.list(a, b, c);
 		Collections.sort(list);
 		assertEquals(Util.list(a, c, b), list);
+	}
+	
+	@Test
+	public void testIsStringLitareal() {
+	  Expression e = parse("'a String'");
+	  Assert.assertFalse(Expressions.isStringLiteral(e));
+
+	  e = parse("\"a string\"");
+	  Assert.assertTrue(Expressions.isStringLiteral(e));
+
+	  e = parse("aString");
+	  Assert.assertFalse(Expressions.isStringLiteral(e));
+	  
+	  e = parse("'aString'");
+	  Assert.assertFalse(Expressions.isStringLiteral(e));
+
+	  e = parse("\"aString\"");
+	  Assert.assertTrue(Expressions.isStringLiteral(e));
+	}
+	
+	@Test
+	public void testMakeFromSyntaxTree() {
+		// Ensure String Literals are preserved
+		Expression extSetExpr            = parse("{a, 'b', \"c\", d}");		
+		Expression fromSyntaxTreeSetExpr = Expressions.makeFromSyntaxTree(extSetExpr.getSyntaxTree());
+		
+		Assert.assertEquals(Expressions.makeSymbol("a"), fromSyntaxTreeSetExpr.get(0));
+		Assert.assertEquals(Expressions.makeSymbol("b"), fromSyntaxTreeSetExpr.get(1));
+		Assert.assertEquals(Expressions.makeStringLiteral("c"), fromSyntaxTreeSetExpr.get(2));
+		Assert.assertEquals(Expressions.makeSymbol("d"), fromSyntaxTreeSetExpr.get(3));
 	}
 }

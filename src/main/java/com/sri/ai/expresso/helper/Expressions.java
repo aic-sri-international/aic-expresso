@@ -147,7 +147,14 @@ public class Expressions {
 			return result;
 		}
 		if (syntaxTree instanceof SyntaxLeaf) {
-			Expression result = Expressions.makeSymbol(syntaxTree.getValue());
+			SyntaxLeaf syntaxLeaf = (SyntaxLeaf) syntaxTree;
+			Expression result;
+			if (syntaxLeaf.isStringLiteral()) {
+				result = Expressions.makeStringLiteral((String)syntaxLeaf.getValue());
+			}
+			else {
+				result = Expressions.makeSymbol(syntaxLeaf.getValue());
+			}
 //			Expression result = new ExpressionOnSyntaxLeaf(syntaxTree);
 			return result;
 		}
@@ -370,7 +377,7 @@ public class Expressions {
 			result = (Expression) object;
 		}
 		else {
-			result = DefaultSymbol.createSymbol(object);
+			result = makeSymbol(object);
 		}
 		return result;
 	}
@@ -380,7 +387,29 @@ public class Expressions {
 	 */
 	public static Symbol makeSymbol(Object object) {
 		return DefaultSymbol.createSymbol(object);
-//		return ExpressionOnSyntaxLeaf.createSymbol(object);
+	}
+	
+	public static Symbol makeStringLiteral(String object) {
+		return DefaultSymbol.createSymbol(object, true);
+	}
+	
+	public static Symbol parseTextAndMakeSymbolOrStringLiteral(String symbolValue) {
+		boolean isSingleQuoted = symbolValue.startsWith("'") && symbolValue.endsWith("'");
+		boolean isDoubleQuoted = symbolValue.startsWith("\"") && symbolValue.endsWith("\"");
+		
+		if (isSingleQuoted || isDoubleQuoted) {
+			// When parsing, whether a single quoted symbol or a string literal (i.e. double quoted)
+			// the value is that within the quotes and not the quotes themselves.
+			symbolValue = symbolValue.substring(1, symbolValue.length() - 1);
+		}
+		Symbol result;
+		if (isDoubleQuoted) {
+			result = makeStringLiteral(symbolValue);
+		}
+		else {
+			result = makeSymbol(symbolValue);
+		}
+		return result;
 	}
 	
 	static private Parser parser = new AntlrGrinderParserWrapper();
@@ -399,7 +428,7 @@ public class Expressions {
 	 */
 	public
 	static List<Expression> ensureListFromKleeneList(Expression listOrSingleElementOfList) {
-		boolean isKleeneList = listOrSingleElementOfList != null && listOrSingleElementOfList.hasFunctor("kleene list");
+		boolean isKleeneList = listOrSingleElementOfList != null && listOrSingleElementOfList.hasFunctor(FunctorConstants.KLEENE_LIST);
 		return (isKleeneList ? listOrSingleElementOfList.getArguments() : Lists.newArrayList(listOrSingleElementOfList));
 	}
 
@@ -412,7 +441,7 @@ public class Expressions {
 		if (list.size() == 1) {
 			return list.get(0);
 		}
-		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees("kleene list", list);
+		return Expressions.makeExpressionOnSyntaxTreeWithLabelAndSubTrees(FunctorConstants.KLEENE_LIST, list);
 	}
 
 	/**
@@ -516,16 +545,9 @@ public class Expressions {
 		return result;
 	}
 	
-	public static boolean isQuotedConstantString(Expression expression) {
-		boolean result = false;
-		if (expression.getSyntacticFormType().equals("Symbol") &&
-				expression.getValue() instanceof String) {
-			String sValue = expression.toString();
-			if ((sValue.startsWith("'") && sValue.endsWith("'")) ||
-				(sValue.startsWith("\"") && sValue.endsWith("\""))) {
-				result = true;
-			}
-		}
+	public static boolean isStringLiteral(Expression expression) {
+		boolean result = expression.getSyntacticFormType().equals("Symbol") &&
+				((Symbol)expression).isStringLiteral();
 		return result;
 	}
 	

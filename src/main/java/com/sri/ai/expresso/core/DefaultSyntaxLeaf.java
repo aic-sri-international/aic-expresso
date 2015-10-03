@@ -38,10 +38,19 @@
 package com.sri.ai.expresso.core;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.translate.AggregateTranslator;
+import org.apache.commons.lang3.text.translate.CharSequenceTranslator;
+import org.apache.commons.lang3.text.translate.EntityArrays;
+import org.apache.commons.lang3.text.translate.JavaUnicodeEscaper;
+import org.apache.commons.lang3.text.translate.LookupTranslator;
+import org.apache.commons.lang3.text.translate.OctalUnescaper;
+import org.apache.commons.lang3.text.translate.UnicodeUnescaper;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
@@ -54,6 +63,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.SyntaxTrees;
+import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.util.AICUtilConfiguration;
 import com.sri.ai.util.base.BinaryProcedure;
 import com.sri.ai.util.math.Rational;
@@ -85,12 +95,66 @@ import com.sri.ai.util.math.Rational;
 @Beta
 public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf  {
 	
+	// ([a-zA-Z] | [0-9] | '_') ([a-zA-Z] | [0-9] | '_')* ('\'')*
+	public static Pattern UNQUOTED_SYMBOLIC_NAME = Pattern.compile("[[a-z][A-Z][0-9]_]+[']*");
+	private static final Set<String> _specialFunctorSymbols;
+	static
+	{
+		_specialFunctorSymbols = new HashSet<>();
+		_specialFunctorSymbols.add(FunctorConstants.PLUS);
+		_specialFunctorSymbols.add(FunctorConstants.MINUS);
+		_specialFunctorSymbols.add(FunctorConstants.TIMES);
+		_specialFunctorSymbols.add(FunctorConstants.DIVISION);
+		_specialFunctorSymbols.add(FunctorConstants.EXPONENTIATION);
+		_specialFunctorSymbols.add(FunctorConstants.EQUIVALENCE);
+		_specialFunctorSymbols.add(FunctorConstants.IMPLICATION);
+		_specialFunctorSymbols.add(FunctorConstants.IMPLIED);
+		_specialFunctorSymbols.add(FunctorConstants.EQUAL);
+		_specialFunctorSymbols.add(FunctorConstants.INEQUALITY);
+		_specialFunctorSymbols.add(FunctorConstants.GREATER_THAN);
+		_specialFunctorSymbols.add(FunctorConstants.LESS_THAN);
+		_specialFunctorSymbols.add(FunctorConstants.LESS_THAN_OR_EQUAL_TO);
+		_specialFunctorSymbols.add(FunctorConstants.GREATER_THAN_OR_EQUAL_TO);
+	}
+	
+	public static final CharSequenceTranslator UNESCAPE_STRING_VALUE = 
+		        new AggregateTranslator(
+		            new OctalUnescaper(),     // .between('\1', '\377'),
+		            new UnicodeUnescaper(),
+		            new LookupTranslator(EntityArrays.JAVA_CTRL_CHARS_UNESCAPE()),
+		            new LookupTranslator(
+		                      new String[][] { 
+		                            {"\\\\", "\\"},
+		                            {"\\\"", "\""},
+		                            {"\\'", "'"},
+		                            {"\\", ""}
+		                      })
+		        );
+	
+    public static final CharSequenceTranslator ESCAPE_STRING_VALUE = 
+            new LookupTranslator(
+              new String[][] { 
+            	{"'", "\\'"},
+                {"\"", "\\\""},
+                {"\\", "\\\\"},
+            }).with(
+              new LookupTranslator(EntityArrays.JAVA_CTRL_CHARS_ESCAPE())
+            ).with(
+              JavaUnicodeEscaper.outsideOf(32, 0x7f) 
+          );
+	
 	//
+    private boolean isStringLiteral = false;
 	private int hashCode = -1; // lazy init and re-use the calculated hashCode.
 	
 	@Override
 	public Object getValue() {
 		return valueOrRootSyntaxTree;
+	}
+	
+	@Override
+	public boolean isStringLiteral() {
+		return isStringLiteral;
 	}
 
 	@Override
@@ -149,74 +213,63 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		return oldValue;
 	}
 	
-	public static SyntaxLeaf createSyntaxLeaf(Object value) {
+	public static SyntaxLeaf createSyntaxLeaf(Object inputValue, boolean isStringLiteral) {	
+		Object     value  = inputValue;
 		SyntaxLeaf result = null;
 		// If global symbol table to be used and the symbol's value is not
 		// an expression - i.e. quoted expressions of the form:
 		// <X>
 		// as these need to be instantiated each time in order to be
 		// parsed correctly.
-		if (_useGlobalSymbolTable &&
-			!(value instanceof Expression)) {
-			
-			result = _globalSymbolTable.getIfPresent(value);
-			if (result == null) {
-				result = new DefaultSyntaxLeaf(value);
-				if (!(!_cacheNumericSymbols && result.getValue() instanceof Number)) {
-					_globalSymbolTable.put(value, result);
-				}
+		boolean useGlobalSymbolTable = _useGlobalSymbolTable && !(inputValue instanceof Expression);
+		if (useGlobalSymbolTable) {
+			if (isStringLiteral) {
+				result = _globalStringLiteralTable.getIfPresent(inputValue);
+			}
+			else {
+				result = _globalSymbolTable.getIfPresent(inputValue);
 			}
 		} 
-		else {
-			result = new DefaultSyntaxLeaf(value);
+		
+		if (result == null) {			
+			if (value instanceof Number && !(value instanceof Rational)) {
+				value = new Rational(((Number)value).doubleValue());
+			} 
+			else if (value.equals("true")) {
+				value = Boolean.TRUE;
+			} 
+			else if (value.equals("false")) {
+				value = Boolean.FALSE;
+			} 
+			else if (value instanceof String) {				
+				value = UNESCAPE_STRING_VALUE.translate((String) value);
+				
+				if (!isStringLiteral) {
+					// attempt to implicitly convert to a Rational value if possible.
+					try {
+						value = new Rational((String)value);
+					}
+					catch (NumberFormatException e) {
+						// ignore
+					}
+				}
+			}
+			
+			result = new DefaultSyntaxLeaf(value, isStringLiteral);
+			if (useGlobalSymbolTable && !(!_cacheNumericSymbols && result.getValue() instanceof Number)) {
+				if (isStringLiteral) {
+					_globalStringLiteralTable.put(inputValue, result);
+				}
+				else {
+					_globalSymbolTable.put(inputValue, result);
+				}
+			}
 		}
 		
 		return result;
 	}
 	
-	/**
-	 * Escape a String that is intended to be converted to a symbol of value
-	 * string so that it can be parsed safely.
-	 * 
-	 * @param aStringSymbol
-	 *            a string that is intended to be used to instantiate a string
-	 *            valued symbol.
-	 * @return a string that can be safely parsed with surrounding ' and
-	 *         embedded escape characters, as necessary.
-	 */
-	public static String makeStringValuedSymbolParseSafe(String aStringSymbol) {
-		String result = aStringSymbol;
-		boolean containsSpace       = aStringSymbol.contains(" ");
-		// Note: trailing ''' are allowed for symbol names, e.g. aSymbol'
-		boolean containsSingleQuote = StringUtils.stripEnd(aStringSymbol, "'").contains("'");
-		
-		if (containsSpace || containsSingleQuote) {
-			StringBuilder sb = new StringBuilder();
-			if (!aStringSymbol.startsWith("'")) {
-				sb.insert(0, "'");
-			}
-			sb.append(aStringSymbol);
-			if (!aStringSymbol.endsWith("'")) {
-				sb.append("'");
-			}
-			
-			String substring;
-			for (int i = 1; i < sb.length()-1; i++) {
-				substring = sb.substring(i, i+1);
-				if ("'".equals(substring)) {
-					if (!escapedAlready(sb, i)) {
-						sb.insert(i, "\\");
-						// move forward an additional 1 as have inserted
-						i++; 
-					}
-				} 
-	 		}
-			
-			result = sb.toString();
-		}
-		
-		return result;
-	}
+
 
 	@Override
 	public Iterator<SyntaxTree> getImmediateSubTreesIncludingRootOneIterator() {
@@ -267,7 +320,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 	@Override
 	public int hashCode() {
 		if (hashCode == -1) {
-			hashCode = getValue().hashCode();
+			hashCode = getValue().hashCode() + (isStringLiteral() ? 11 : 0);
 		}
 		return hashCode;
 	}
@@ -287,7 +340,12 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 			anotherSymbol = (SyntaxLeaf) another;
 		} 
 		else {
-			anotherSymbol = createSyntaxLeaf(another);
+			if (isStringLiteral()) {
+				// If this is a string literal the other object will not be
+				// coerced into one so they are not equal.
+				return false;
+			}
+			anotherSymbol = createSyntaxLeaf(another, false);
 			// Test again, as may have had self returned from the symbol table.
 			if (this == anotherSymbol) {
 				return true;
@@ -295,7 +353,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		}
 		
 		if (hashCode() == anotherSymbol.hashCode()) {
-			return getValue().equals(anotherSymbol.getValue());
+			return isStringLiteral() == anotherSymbol.isStringLiteral() && getValue().equals(anotherSymbol.getValue());
 		}
 		return false;
 	}
@@ -320,7 +378,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 			anotherSymbol = (SyntaxLeaf) another;
 		} 
 		else {
-			anotherSymbol = createSyntaxLeaf(another);
+			anotherSymbol = createSyntaxLeaf(another, false);
 			// Test again, as may have had self returned from the symbol table.
 			if (this == anotherSymbol) {
 				return 0;
@@ -366,7 +424,16 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 	public String toStringWithoutCaching() {
 		String result = "";
 		if (valueOrRootSyntaxTree instanceof String) {
-			result = makeStringValuedSymbolParseSafe((String)valueOrRootSyntaxTree);
+			result = (String) valueOrRootSyntaxTree;
+			if (isStringLiteral()) {
+				result = ESCAPE_STRING_VALUE.translate((String)valueOrRootSyntaxTree);
+				// Ensure is output as a String again
+				result = "\"" + result + "\"";
+			}
+			else if (isSymbolValueQuotingRequired(result)) {
+				result = ESCAPE_STRING_VALUE.translate((String)valueOrRootSyntaxTree);
+				result = "'" + result + "'";
+			}
 		}
 		else if (valueOrRootSyntaxTree instanceof Expression) {
 			result = "<" + valueOrRootSyntaxTree + ">";
@@ -412,7 +479,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 
 	@Override
 	public SyntaxTree clone() {
-		return DefaultSyntaxLeaf.createSyntaxLeaf(getValue());
+		return new DefaultSyntaxLeaf(getValue(), isStringLiteral());
 	}
 
 	private static boolean dontAcceptSymbolValueToBeExpression = true;
@@ -426,26 +493,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 	// PRIVATE METHODS
 	//
 	// Note: Can only instantiate Symbols via the factory method.
-	private DefaultSyntaxLeaf(Object value) {
-		
-		if (value instanceof Number && !(value instanceof Rational)) {
-			value = new Rational(((Number)value).doubleValue());
-		} 
-		else if (value.equals("true")) {
-			value = Boolean.TRUE;
-		} 
-		else if (value.equals("false")) {
-			value = Boolean.FALSE;
-		} 
-		else if (value instanceof String) {
-			try {
-				value = new Rational((String)value);
-			}
-			catch (NumberFormatException e) {
-				// ignore
-			}
-		}
-
+	private DefaultSyntaxLeaf(Object value, boolean isStringLiteral) {
 		if (value instanceof Expression) {
 			if (dontAcceptSymbolValueToBeExpression) {
 				throw new Error("DefaultSyntaxLeaf received an expression: " + value);
@@ -453,6 +501,16 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		}
 		
 		this.valueOrRootSyntaxTree = value;
+		this.isStringLiteral       = isStringLiteral;
+	}
+	
+	private static boolean isSymbolValueQuotingRequired(String symbolValue) {
+		boolean result = false;
+		
+		if (!_specialFunctorSymbols.contains(symbolValue)) {
+			result = !UNQUOTED_SYMBOLIC_NAME.matcher(symbolValue).matches();
+		}
+		return result;
 	}
 	
 	private static String removeTrailingZerosToRight(String number) {
@@ -496,27 +554,6 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		return result;
 	}
 	
-	private static boolean escapedAlready(StringBuilder sb, int pos) {
-		boolean escaped = false;
-		
-		int numberEscapes = 0;
-		for (int i = pos-1; i >= 0; i--) {
-			if ("\\".equals(sb.substring(i, i+1))) {
-				numberEscapes++;
-			} 
-			else {
-				break;
-			}
-		}
-		
-		// If escaped and the number of sequential escapes is odd.
-		if (numberEscapes > 0 && (numberEscapes % 2) == 1) {
-			escaped = true;
-		}
-		
-		return escaped;
-	}
-	
 	public static int _displayNumericPrecision                = ExpressoConfiguration.getDisplayNumericPrecisionForSymbols();
 	public static int _displayScientificGreaterNIntegerPlaces = ExpressoConfiguration.getDisplayScientificGreaterNIntegerPlaces();
 	public static int _displayScientificAfterNDecimalPlaces   = ExpressoConfiguration.getDisplayScientificAfterNDecimalPlaces();
@@ -529,8 +566,15 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 		_useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
 		_cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
 		
-		_globalSymbolTable.invalidateAll();
-		_globalSymbolTable = newSymbolTable();
+		if (_globalSymbolTable != null) {
+			_globalSymbolTable.invalidateAll();
+		}
+		if (_globalStringLiteralTable != null) {
+			_globalStringLiteralTable.invalidateAll();
+		}
+		
+		_globalSymbolTable        = newSymbolTable();
+		_globalStringLiteralTable = newSymbolTable();
 		// Add well known symbols to the table
 		// The Booleans.
 		_globalSymbolTable.put(true,          SYMBOL_TRUE);
@@ -607,9 +651,10 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 	private static final SyntaxLeaf SYMBOL_8     = SyntaxTrees.makeSyntaxLeaf(new Rational(8));
 	private static final SyntaxLeaf SYMBOL_9     = SyntaxTrees.makeSyntaxLeaf(new Rational(9));
 	//
-	private static boolean                      _useGlobalSymbolTable = ExpressoConfiguration.isUseGlobalSymbolTable();
-	private static boolean                      _cacheNumericSymbols  = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
-	private static Cache<Object, SyntaxLeaf>        _globalSymbolTable    = newSymbolTable();
+	private static boolean                      _useGlobalSymbolTable     = ExpressoConfiguration.isUseGlobalSymbolTable();
+	private static boolean                      _cacheNumericSymbols      = ExpressoConfiguration.isGlobalSymbolTableToCacheNumerics();
+	private static Cache<Object, SyntaxLeaf>    _globalSymbolTable        = newSymbolTable();
+	private static Cache<Object, SyntaxLeaf>    _globalStringLiteralTable = newSymbolTable();
 
 	static {
 		flushGlobalSymbolTable();
