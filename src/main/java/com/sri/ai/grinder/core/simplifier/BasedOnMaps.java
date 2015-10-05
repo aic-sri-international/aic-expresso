@@ -35,41 +35,71 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.set;
-
-import static com.sri.ai.util.Util.map;
+package com.sri.ai.grinder.core.simplifier;
 
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.DefaultMapBasedSimplifier;
-import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
- * A {@link MapBasedSimplifier} with a cardinality simplifier
- * (cardinalities (must be registered in rewriting process's global objects as a function application of <code>| . |</code>).)
+ * A basic {@link MapBasedSimplifier} receiving its elementary simplifiers at construction time
+ * and applying them only once to the top expression only.
  * 
  * @author braz
  *
  */
 @Beta
-public class CardinalitySimplifier extends DefaultMapBasedSimplifier {
+public class BasedOnMaps implements MapBasedSimplifier {
 	
-	public CardinalitySimplifier() {
-		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());
-	}
-	
-	public static Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
-		return map(
-				FunctorConstants.CARDINALITY,     (Simplifier) (f, process) ->
-				{ Expression type = (Expression) process.getGlobalObject(f); return type == null? f : type; }
-				);
+	protected Map<String, Simplifier> functionApplicationSimplifiers;
+	protected Map<String, Simplifier> syntacticFormTypeSimplifiers;
+
+	public BasedOnMaps(
+			Map<String, Simplifier> functionApplicationSimplifiers,
+			Map<String, Simplifier> syntacticFormTypeSimplifiers) {
+		
+		super();
+		this.functionApplicationSimplifiers = functionApplicationSimplifiers;
+		this.syntacticFormTypeSimplifiers = syntacticFormTypeSimplifiers;
 	}
 
-	public static Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
-		return map();
+	@Override
+	public Map<String, Simplifier> getFunctionApplicationSimplifiers() {
+		return functionApplicationSimplifiers;
+	}
+
+	@Override
+	public Map<String, Simplifier> getSyntacticFormTypeSimplifiers() {
+		return syntacticFormTypeSimplifiers;
+	}
+
+	public void setFunctionApplicationSimplifiers(Map<String, Simplifier> functionApplicationSimplifiers) {
+		this.functionApplicationSimplifiers = functionApplicationSimplifiers;
+	}
+
+	public void setSyntacticFormTypeSimplifiers(Map<String, Simplifier> syntacticFormTypeSimplifiers) {
+		this.syntacticFormTypeSimplifiers = syntacticFormTypeSimplifiers;
+	}
+
+	@Override
+	public Expression apply(Expression expression, RewritingProcess process) {
+		Simplifier simplifier;
+		if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
+			simplifier = getFunctionApplicationSimplifiers().get(expression.getFunctor().getValue());
+		}
+		else {
+			simplifier = getSyntacticFormTypeSimplifiers().get(expression.getSyntacticFormType());
+		}
+		
+		if (simplifier != null) {
+			expression = simplifier.apply(expression, process);
+		}
+		
+		return expression;
 	}
 }

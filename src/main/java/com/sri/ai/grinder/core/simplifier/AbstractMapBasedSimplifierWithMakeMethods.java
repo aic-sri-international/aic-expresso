@@ -35,41 +35,58 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.set;
-
-import static com.sri.ai.util.Util.map;
+package com.sri.ai.grinder.core.simplifier;
 
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.MapBasedSimplifier;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.DefaultMapBasedSimplifier;
-import com.sri.ai.grinder.library.FunctorConstants;
 
-/**
- * A {@link MapBasedSimplifier} with a cardinality simplifier
- * (cardinalities (must be registered in rewriting process's global objects as a function application of <code>| . |</code>).)
- * 
- * @author braz
- *
- */
 @Beta
-public class CardinalitySimplifier extends DefaultMapBasedSimplifier {
-	
-	public CardinalitySimplifier() {
-		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());
+/** 
+ * Basic implementation of {@link MapBasedSimplifier}
+ * delegating the creating of elementary simplifier maps to
+ * two abstract methods.
+ * This is useful if the elementary simplifiers depend on <code>this</code> during construction time,
+ * which prevents them to be given to {@link DefaultMapBasedSimplifier} via <code>super</code>.
+ */
+abstract public class AbstractMapBasedSimplifierWithMakeMethods extends DefaultMapBasedSimplifier {
+
+	public AbstractMapBasedSimplifierWithMakeMethods() {
+		super(null, null);
 	}
 	
-	public static Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
-		return map(
-				FunctorConstants.CARDINALITY,     (Simplifier) (f, process) ->
-				{ Expression type = (Expression) process.getGlobalObject(f); return type == null? f : type; }
-				);
+	/**
+	 * Invoked only one to make a map from functors's getValue() values (Strings) to a function mapping a
+	 * function application of that functor and a rewriting process to an equivalent, simplified expression.
+	 * Only required if {@link #simplify(Expression, RewritingProcess)} is not overridden by code not using it. 
+	 * @return
+	 */
+	abstract protected Map<String, Simplifier> makeFunctionApplicationSimplifiers();
+
+	/**
+	 * Invoked only one to make a map from syntactic form types (Strings) to a function mapping a
+	 * function application of that functor and a rewriting process to an equivalent, simplified expression.
+	 * Only required if {@link #simplify(Expression, RewritingProcess)} is not overridden by code not using it. 
+	 * @return
+	 */
+	abstract protected Map<String, Simplifier> makeSyntacticFormTypeSimplifiers();
+
+	@Override
+	public Map<String, Simplifier> getFunctionApplicationSimplifiers() {
+		if (functionApplicationSimplifiers == null) {
+			functionApplicationSimplifiers = makeFunctionApplicationSimplifiers();
+		}
+		return functionApplicationSimplifiers;
 	}
 
-	public static Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
-		return map();
+	@Override
+	public Map<String, Simplifier> getSyntacticFormTypeSimplifiers() {
+		if (syntacticFormTypeSimplifiers == null) {
+			syntacticFormTypeSimplifiers = makeSyntacticFormTypeSimplifiers();
+		}
+		return syntacticFormTypeSimplifiers;
 	}
 }

@@ -63,7 +63,6 @@ import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.LambdaExpression;
 import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
-import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;

@@ -35,58 +35,56 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core;
+package com.sri.ai.grinder.core.simplifier;
 
-import java.util.Map;
+import static com.sri.ai.util.Util.mapIntoArrayList;
+import static com.sri.ai.util.Util.sameInstancesInSameIterableOrder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.FunctionApplication;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 
-@Beta
-/** 
- * Basic implementation of {@link MapBasedSimplifier}
- * delegating the creating of elementary simplifier maps to
- * two abstract methods.
- * This is useful if the elementary simplifiers depend on <code>this</code> during construction time,
- * which prevents them to be given to {@link DefaultMapBasedSimplifier} via <code>super</code>.
+/**
+ * A {@link Simplifier} that recursively applies a base simplifier <code>S</code> to a given expression.
+ * <p>
+ * Note that typically it makes sense that <code>S</code> is a <i>top</i> simplifier,
+ * that is, a simplifier that does not recurse into sub-expressions,
+ * since that is precisely what {@link Recursive} is meant to do.
+ * <p>
+ * TODO: CURRENTLY only applies to sub-expressions of function applications!
+ * @author braz
+ *
  */
-abstract public class AbstractMapBasedSimplifierWithMakeMethods extends DefaultMapBasedSimplifier {
-
-	public AbstractMapBasedSimplifierWithMakeMethods() {
-		super(null, null);
-	}
+@Beta
+public class Recursive implements Simplifier {
 	
-	/**
-	 * Invoked only one to make a map from functors's getValue() values (Strings) to a function mapping a
-	 * function application of that functor and a rewriting process to an equivalent, simplified expression.
-	 * Only required if {@link #simplify(Expression, RewritingProcess)} is not overridden by code not using it. 
-	 * @return
-	 */
-	abstract protected Map<String, Simplifier> makeFunctionApplicationSimplifiers();
+	private Simplifier base;
 
-	/**
-	 * Invoked only one to make a map from syntactic form types (Strings) to a function mapping a
-	 * function application of that functor and a rewriting process to an equivalent, simplified expression.
-	 * Only required if {@link #simplify(Expression, RewritingProcess)} is not overridden by code not using it. 
-	 * @return
-	 */
-	abstract protected Map<String, Simplifier> makeSyntacticFormTypeSimplifiers();
-
-	@Override
-	public Map<String, Simplifier> getFunctionApplicationSimplifiers() {
-		if (functionApplicationSimplifiers == null) {
-			functionApplicationSimplifiers = makeFunctionApplicationSimplifiers();
-		}
-		return functionApplicationSimplifiers;
+	public Recursive(Simplifier topSimplifier) {
+		super();
+		this.base = topSimplifier;
 	}
 
 	@Override
-	public Map<String, Simplifier> getSyntacticFormTypeSimplifiers() {
-		if (syntacticFormTypeSimplifiers == null) {
-			syntacticFormTypeSimplifiers = makeSyntacticFormTypeSimplifiers();
+	public Expression apply(Expression expression, RewritingProcess process) {
+		Expression result = expression;
+		result = base.apply(result, process);
+		if (result.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
+			List<Expression> originalArguments = result.getArguments();
+			ArrayList<Expression> simplifiedArguments =
+					mapIntoArrayList(originalArguments, e -> apply(e, process));
+			if ( ! sameInstancesInSameIterableOrder(originalArguments, simplifiedArguments)) { // this check speeds cardinality algorithm by about 25%; it is also required for correctness wrt not returning a new instance that is equal to the input.
+				result = Expressions.apply(result.getFunctor(), simplifiedArguments);
+			}
+			result = base.apply(result, process);
 		}
-		return syntacticFormTypeSimplifiers;
+	
+		return result;
 	}
 }

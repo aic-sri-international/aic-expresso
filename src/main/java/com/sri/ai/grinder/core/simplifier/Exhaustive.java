@@ -35,41 +35,37 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.set;
-
-import static com.sri.ai.util.Util.map;
-
-import java.util.Map;
+package com.sri.ai.grinder.core.simplifier;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.MapBasedSimplifier;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.DefaultMapBasedSimplifier;
-import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
- * A {@link MapBasedSimplifier} with a cardinality simplifier
- * (cardinalities (must be registered in rewriting process's global objects as a function application of <code>| . |</code>).)
+ * A {@link Simplifier} exhaustively applying another.
  * 
  * @author braz
  *
  */
 @Beta
-public class CardinalitySimplifier extends DefaultMapBasedSimplifier {
+public class Exhaustive implements Simplifier {
+
+	private Simplifier base;
 	
-	public CardinalitySimplifier() {
-		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());
-	}
-	
-	public static Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
-		return map(
-				FunctorConstants.CARDINALITY,     (Simplifier) (f, process) ->
-				{ Expression type = (Expression) process.getGlobalObject(f); return type == null? f : type; }
-				);
+	public Exhaustive(Simplifier base) {
+		super();
+		this.base = base;
 	}
 
-	public static Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
-		return map();
+	@Override
+	public Expression apply(Expression expression, RewritingProcess process) {
+		Expression previous;
+		do {
+			previous = expression;
+			expression = base.apply(expression, process);
+		} while (expression != previous);
+		
+		return expression;
 	}
 }

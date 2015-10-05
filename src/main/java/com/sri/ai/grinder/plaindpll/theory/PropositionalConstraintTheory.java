@@ -41,7 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.TWO;
-import static com.sri.ai.grinder.core.DefaultMapBasedSimplifier.simplifyWithExtraSyntacticFormTypeSimplifiers;
+import static com.sri.ai.grinder.core.simplifier.DefaultMapBasedSimplifier.simplifyWithExtraSyntacticFormTypeSimplifiers;
 import static com.sri.ai.util.Util.mapIntoArrayList;
 
 import java.util.ArrayList;

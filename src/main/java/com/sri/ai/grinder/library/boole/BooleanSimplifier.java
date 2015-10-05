@@ -44,7 +44,7 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.DefaultMapBasedSimplifier;
+import com.sri.ai.grinder.core.simplifier.DefaultMapBasedSimplifier;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 
