@@ -1,6 +1,7 @@
 package com.sri.ai.grinder.sgdpll2.core.solver;
 
 import static com.sri.ai.expresso.helper.Expressions.isSubExpressionOf;
+import static com.sri.ai.grinder.library.CommonInterpreter.simplifyGivenContextualConstraint;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.condition;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.elseBranch;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.isIfThenElse;
@@ -33,10 +34,12 @@ public abstract class AbstractQuantifierStepSolver implements ContextDependentPr
 	private Expression body;
 	
 	/**
-	 * Abstract method defining how this quantified expression, known to have no literals in its body,
-	 * is to be solved.
+	 * Abstract method defining a quantified expression with a given index constraint and literal-free body is to be solved.
+	 * @param indexConstraint the index constraint
+	 * @param literalFreeBody literal-free body
 	 */
-	protected abstract SolutionStep stepGivenLiteralFreeBody(Constraint contextualConstraint, RewritingProcess process);
+	protected abstract SolutionStep stepGivenLiteralFreeBody(
+			Constraint contextualConstraint, SingleVariableConstraint indexConstraint, Expression literalFreeBody, RewritingProcess process);
 
 	public AbstractQuantifierStepSolver clone() {
 		AbstractQuantifierStepSolver result = null;
@@ -89,7 +92,8 @@ public abstract class AbstractQuantifierStepSolver implements ContextDependentPr
 			}
 		}
 		else {
-			result = stepGivenLiteralFreeBody(contextualConstraint, process);
+			Expression literalFreeBody = simplifyGivenContextualConstraint(body, contextualConstraint, process);
+			result = stepGivenLiteralFreeBody(contextualConstraint, indexConstraint, literalFreeBody, process);
 		}
 		
 		return result;

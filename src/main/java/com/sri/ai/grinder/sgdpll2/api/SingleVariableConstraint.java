@@ -39,6 +39,7 @@ package com.sri.ai.grinder.sgdpll2.api;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentProblemSolver;
 
 /**
  * An {@link Expression} with efficient internal representation for incrementally deciding satisfiability of a boolean formulas on literals in a certain theory.
@@ -56,5 +57,17 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 	@Override
 	default SingleVariableConstraint conjoin(Expression formula, RewritingProcess process) {
 		return (SingleVariableConstraint) Constraint.super.conjoin(formula, process);
+	}
+	
+	/**
+	 * Returns the model count of this single-variable constraint under a contextual constraint and process.
+	 * @param contextualConstraint
+	 * @param process
+	 * @return
+	 */
+	default Expression modelCount(Constraint contextualConstraint, RewritingProcess process) {
+		ContextDependentProblemStepSolver modelCountingStepSolver = getConstraintTheory().getSingleVariableConstraintModelCountingStepSolver(this);
+		Expression modelCount = ContextDependentProblemSolver.solve(modelCountingStepSolver, contextualConstraint, process);
+		return modelCount;
 	}
 }

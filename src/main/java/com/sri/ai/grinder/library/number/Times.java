@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.library.number;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -94,6 +95,13 @@ public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly {
 		return Util.productArbitraryPrecision(listOfConstants);
 	}
 	
+	/**
+	 * Makes a product, automatically accounting for neutral element occurrences.
+	 */
+	public static Expression make(Expression... arguments) {
+		return CommutativeAssociative.make("*", Arrays.asList(arguments), Expressions.ZERO, Expressions.ONE, false);
+	}
+
 	/**
 	 * Makes a product, automatically accounting for neutral element occurrences.
 	 */

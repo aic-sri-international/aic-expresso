@@ -35,26 +35,30 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.theory.equality;
+package com.sri.ai.grinder.sgdpll2.core.solver;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.number.Times;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
-import com.sri.ai.grinder.sgdpll2.core.solver.AbstractQuantifierStepSolver;
+import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 
 /**
- * A {@link AbstractQuantifierStepSolver} for sums with equality constraints.
+ * A {@link AbstractQuantifierStepSolver} for sums with body in which the index occurs in literals only.
  * 
  * @author braz
  *
  */
 @Beta
-public class SumOverEqualityConstraintStepSolver extends AbstractQuantifierStepSolver {
+public class SumOnBodyWithIndexInLiteralsOnlyStepSolver extends AbstractQuantifierStepSolver {
 
 	@Override
-	protected SolutionStep stepGivenLiteralFreeBody(Constraint contextualConstraint, RewritingProcess process) {
-		// TODO Auto-generated method stub
-		return null;
+	protected SolutionStep stepGivenLiteralFreeBody(
+			Constraint contextualConstraint, SingleVariableConstraint indexConstraint, Expression literalFreeBody, RewritingProcess process) {
+		
+		Expression result = Times.make(literalFreeBody, indexConstraint.modelCount(contextualConstraint, process));
+		return new Solution(result);
 	}
 
 }

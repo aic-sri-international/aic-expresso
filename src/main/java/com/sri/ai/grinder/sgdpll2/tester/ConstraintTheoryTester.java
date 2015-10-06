@@ -41,7 +41,6 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.getVariables;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentProblemSolver.solve;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.list;
@@ -63,7 +62,6 @@ import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.DefaultMultiVariableConstraint;
@@ -383,14 +381,18 @@ public class ConstraintTheoryTester {
 			RewritingProcess process)
 					throws Error {
 		
+		testProblem("model counting", constraint, constraintTheory, process);
+	}
+
+	private static void testProblem(String problemName, Constraint constraint, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
 		SingleVariableConstraint singleVariableConstraint = (SingleVariableConstraint) constraint;
 		Expression symbolicSolution = computeModelCountBySolver(singleVariableConstraint, constraintTheory, process);
 		output("Constraint: " + singleVariableConstraint);
-		output("Symbolic model count by solver: " + symbolicSolution);
+		output("Symbolic result of " + problemName + " by solver: " + symbolicSolution);
 		
 		if (singleVariableConstraint == null) {
 			if ( ! symbolicSolution.equals(ZERO)) {
-				throw new Error("Constraint is contradiction, but model counting solver does not produce 0, but instead " + symbolicSolution);
+				throw new Error("Constraint is contradiction, but symbolic solver does not produce 0, but instead " + symbolicSolution);
 			}
 		}
 		else {
@@ -401,20 +403,20 @@ public class ConstraintTheoryTester {
 			AssignmentsIterator assignmentsIterator = new AssignmentsIterator(freeVariables, process);
 			for (Map<Expression, Expression> assignment : in(assignmentsIterator)) {
 				CommonInterpreter interpreter = new CommonInterpreter(assignment);
-				Expression modelCountByBruteForce = makeSymbol(countModelsByBruteForce(testingVariable, constraint, interpreter, process));
-				Expression modelCountBySolver = interpreter.apply(symbolicSolution, process);
+				Expression bruteForceResultUnderAssignment = makeSymbol(countModelsByBruteForce(testingVariable, constraint, interpreter, process));
+				Expression symbolicResultUnderAssignment = interpreter.apply(symbolicSolution, process);
 				output("Under free variables assignment " + assignment);
-				output("Symbolic    model count becomes " + modelCountBySolver);
-				output("Brute force model count becomes " + modelCountByBruteForce + "\n");
-				if ( ! modelCountBySolver.equals(modelCountByBruteForce)) {
+				output("Symbolic    result becomes " + symbolicResultUnderAssignment);
+				output("Brute force result becomes " + bruteForceResultUnderAssignment + "\n");
+				if ( ! symbolicResultUnderAssignment.equals(bruteForceResultUnderAssignment)) {
 					throw new Error(
-							"Model counting testing error:\n"
+							"Testing of " + problemName + " error:\n"
 									+ "Constraint: " + constraint + "\n"
 									+ "Testing variable: " + testingVariable + "\n"
 									+ "Symbolic solution: " + symbolicSolution + "\n"
 									+ "Under assignment to free variables: " + assignment + "\n"
-									+ "Model count by solver: " + modelCountBySolver + "\n"
-									+ "Model count by brute force: " + modelCountByBruteForce + "\n"
+									+ "Result by solver: " + symbolicResultUnderAssignment + "\n"
+									+ "Result by brute force: " + bruteForceResultUnderAssignment + "\n"
 							);
 				}
 			}
@@ -428,11 +430,10 @@ public class ConstraintTheoryTester {
 	 * @return
 	 */
 	private static Expression computeModelCountBySolver(SingleVariableConstraint singleVariableConstraint, ConstraintTheory constraintTheory, RewritingProcess process) {
-		ContextDependentProblemStepSolver modelCountingStepSolver = 
-				constraintTheory.getSingleVariableConstraintModelCountingStepSolver(singleVariableConstraint);
-		
-		Constraint contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
-		Expression symbolicSolution = solve(modelCountingStepSolver, contextualConstraint, process);
+		Expression symbolicSolution = 
+				singleVariableConstraint == null?
+						ZERO
+						: singleVariableConstraint.modelCount(new CompleteMultiVariableConstraint(constraintTheory), process);
 		return symbolicSolution;
 	}
 
