@@ -75,7 +75,7 @@ import com.sri.ai.util.collect.NestedIterator;
  * In fact, propagated literals can be seen as a special case of defining literals
  * (ones for which the solution if case of unsatisfiability happens to be fixed),
  * and they are distinguished here for convenience purposes only.
- * Once all defining literals are checked to be defined,
+ * MapBased all defining literals are checked to be defined,
  * the abstract method {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint, RewritingProcess)}
  * is invoked to provide the problem's solution.
  * <p>

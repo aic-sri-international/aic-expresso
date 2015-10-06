@@ -181,7 +181,10 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 		}
 		else {
 			Collection<Expression> variablesInLiteral = constraintTheory.getVariablesIn(literal, process);
-			if (singleVariableConstraint != null) {
+			if (variablesInLiteral.isEmpty()) {
+				result = conjoinWithLiteral(constraintTheory.simplify(literal, process), process);
+			}
+			else if (singleVariableConstraint != null) {
 				SingleVariableConstraint newSingleVariableConstraint;
 				Constraint newContextualConstraint;
 				if (variablesInLiteral.contains(singleVariableConstraint.getVariable())) {

@@ -43,20 +43,19 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.DefaultMapBasedSimplifier;
+import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMapBasedSimplifier;
 import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
- * A {@link MapBasedSimplifier} with a cardinality simplifier
+ * A {@link Simplifier} with a cardinality simplifier
  * (cardinalities (must be registered in rewriting process's global objects as a function application of <code>| . |</code>).)
  * 
  * @author braz
  *
  */
 @Beta
-public class CardinalitySimplifier extends DefaultMapBasedSimplifier {
+public class CardinalitySimplifier extends RecursiveExhaustiveMapBasedSimplifier {
 	
 	public CardinalitySimplifier() {
 		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());

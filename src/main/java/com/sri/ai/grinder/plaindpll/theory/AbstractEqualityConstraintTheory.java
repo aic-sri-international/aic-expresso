@@ -40,7 +40,6 @@ package com.sri.ai.grinder.plaindpll.theory;
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
-import static com.sri.ai.grinder.core.simplifier.DefaultMapBasedSimplifier.simplifyWithExtraSyntacticFormTypeSimplifiers;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.filter;
@@ -60,7 +59,6 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.DefaultMapBasedSimplifier;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.And;
@@ -259,7 +257,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 		
 		@Override
 		public Expression normalizeExpressionWithoutLiterals(Expression expression, RewritingProcess process) {
-			Expression result = DefaultMapBasedSimplifier.simplify(expression, simplifier.getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap(), process);
+			Expression result = MapBasedSimplifier.simplify(expression, simplifier.getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiersIncludingRepresentativesInThisConstraintMap(), process);
 			return result;
 		}
 
@@ -398,7 +396,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 			Simplifier representativeReplacer =
 					(Simplifier) (s, p) -> getRepresentative(s, p);
 
-					Expression result = simplifyWithExtraSyntacticFormTypeSimplifiers(
+					Expression result = MapBasedSimplifier.simplifyWithExtraSyntacticFormTypeSimplifiers(
 							expression,
 							theory.simplifier.getFunctionApplicationSimplifiers(),
 							theory.simplifier.getSyntacticFormTypeSimplifiers(),

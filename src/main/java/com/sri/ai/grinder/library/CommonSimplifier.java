@@ -38,15 +38,15 @@
 package com.sri.ai.grinder.library;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.api.MapBasedSimplifier;
-import com.sri.ai.grinder.core.MergingMapBasedSimplifier;
+import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMergedMapBasedSimplifier;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.library.number.NumericSimplifier;
 import com.sri.ai.grinder.library.set.CardinalitySimplifier;
 
 /**
- * A {@link MapBasedSimplifier} aggregating:
+ * A {@link Simplifier} aggregating:
  * 
  * <ul>
  * <li> {@link EqualitySimplifier}: equality and disequality (<code>=, !=</code>)
@@ -59,7 +59,7 @@ import com.sri.ai.grinder.library.set.CardinalitySimplifier;
  *
  */
 @Beta
-public class CommonSimplifier extends MergingMapBasedSimplifier {
+public class CommonSimplifier extends RecursiveExhaustiveMergedMapBasedSimplifier {
 	
 	public CommonSimplifier() {
 		super(

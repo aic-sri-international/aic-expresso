@@ -73,13 +73,30 @@ public class Recursive implements Simplifier {
 
 	@Override
 	public Expression apply(Expression expression, RewritingProcess process) {
+		Expression result = apply(base, expression, process);
+		return result;
+		// The reason we use static apply here is to enforce that the 'apply' using recursively is the static one that
+		// only uses the base simplifier, as opposed to Recursive.apply, which could be overloaded and doing something else.
+		// In fact, originally this is how this class was written, which created a vast difference in performance that was
+		// hard to spot.
+	}
+
+	/**
+	 * Applies base simplifier to top expression, then sub-expressions, and finally top expression again.
+	 * 
+	 * @param base
+	 * @param expression
+	 * @param process
+	 * @return
+	 */
+	private static Expression apply(Simplifier base, Expression expression, RewritingProcess process) {
 		Expression result = expression;
 		result = base.apply(result, process);
 		if (result.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
 			List<Expression> originalArguments = result.getArguments();
 			ArrayList<Expression> simplifiedArguments =
-					mapIntoArrayList(originalArguments, e -> apply(e, process));
-			if ( ! sameInstancesInSameIterableOrder(originalArguments, simplifiedArguments)) { // this check speeds cardinality algorithm by about 25%; it is also required for correctness wrt not returning a new instance that is equal to the input.
+					mapIntoArrayList(originalArguments, e -> apply(base, e, process));
+			if ( ! sameInstancesInSameIterableOrder(originalArguments, simplifiedArguments)) { // this check speeds up cardinality algorithm by about 25%; it is also required for correctness wrt not returning a new instance that is equal to the input.
 				result = Expressions.apply(result.getFunctor(), simplifiedArguments);
 			}
 			result = base.apply(result, process);
@@ -87,4 +104,5 @@ public class Recursive implements Simplifier {
 	
 		return result;
 	}
+	
 }

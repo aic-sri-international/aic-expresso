@@ -55,7 +55,9 @@ import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
-import com.sri.ai.grinder.core.MergingMapBasedSimplifier;
+import com.sri.ai.grinder.core.simplifier.Exhaustive;
+import com.sri.ai.grinder.core.simplifier.MergedMapBasedSimplifier;
+import com.sri.ai.grinder.core.simplifier.Recursive;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.plaindpll.group.BooleansWithConjunctionGroup;
@@ -87,10 +89,10 @@ public class CommonInterpreter implements Simplifier {
 
 	public CommonInterpreter(Map<Expression, Expression> assignment) {
 		this.assignment = assignment;
-		this.simplifier = new CommonInterpreterSimplifier();
+		this.simplifier = new Recursive(new Exhaustive(new CommonInterpreterSimplifier()));
 	}
 	
-	private class CommonInterpreterSimplifier extends MergingMapBasedSimplifier {
+	private class CommonInterpreterSimplifier extends MergedMapBasedSimplifier {
 		
 		public CommonInterpreterSimplifier() {
 			super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers(), new CommonSimplifier());
@@ -98,29 +100,29 @@ public class CommonInterpreter implements Simplifier {
 
 		@Override
 		public Expression apply(Expression expression, RewritingProcess process) {
-			myAssert(
-					() -> process.getGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT) != null,
-					() -> this.getClass() + " requires the rewriting process to contain a contextual constraint under global object key " + COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT
-					);
+//			myAssert(
+//					() -> process.getGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT) != null,
+//					() -> this.getClass() + " requires the rewriting process to contain a contextual constraint under global object key " + COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT
+//					);
+//			
+//			Constraint contextualConstraint = (Constraint) process.getGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT);
+//			if (contextualConstraint.getConstraintTheory().isLiteral(expression, process)) {
+//				ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, expression, process);
+//				switch(split.getResult()) {
+//				case CONSTRAINT_IS_CONTRADICTORY:
+//					return null;
+//				case LITERAL_IS_TRUE:
+//					return TRUE;
+//				case LITERAL_IS_FALSE:
+//					return FALSE;
+//				case LITERAL_IS_UNDEFINED:
+//				default:
+//					break;
+//				}
+//			}
 			
-			Expression result;
-			Constraint contextualConstraint = (Constraint) process.getGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT);
-			if (contextualConstraint.getConstraintTheory().isLiteral(expression, process)) {
-				ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, expression, process);
-				switch(split.getResult()) {
-				case CONSTRAINT_IS_CONTRADICTORY:
-					return null;
-				case LITERAL_IS_TRUE:
-					return TRUE;
-				case LITERAL_IS_FALSE:
-					return FALSE;
-				case LITERAL_IS_UNDEFINED:
-				default:
-					break;
-				}
-			}
-			
-			result = super.apply(expression, process);
+			Expression result = super.apply(expression, process);
+
 			return result;
 		}
 		
@@ -186,9 +188,9 @@ public class CommonInterpreter implements Simplifier {
 		process.putGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
 		process = process.put(new Categorical("Population", 5, arrayList(parse("tom")))); // two pitfalls: immutable process and need for arrayList rather than just list
 		process = process.put(new Categorical("Numbers", 3, arrayList(parse("1"), parse("2"), parse("3"))));
-//		Expression expression = parse("false and there exists X in Numbers : X = 3 and X + 1 = 1 + X");
+		Expression expression = parse("false and there exists X in Numbers : X = 3 and X + 1 = 1 + X");
 //		Expression expression = parse("if for all X in Population : (there exists Y in Population : Y != X and W != 3) then Hurrah else not Hurrah");
-		Expression expression = parse("there exists Y in Population : Y != X and W != 3");
+//		Expression expression = parse("there exists Y in Population : Y != tom and W != 3");
 		Expression result = interpreter.apply(expression, process);
 		System.out.println("result: " + result);
 	}

@@ -42,14 +42,13 @@ import static com.sri.ai.util.Util.map;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.DefaultMapBasedSimplifier;
+import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMapBasedSimplifier;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 
 /**
- * A {@link MapBasedSimplifier} with commonly boolean connectives plus conditionals:
+ * A {@link Simplifier} with commonly boolean connectives plus conditionals:
  * 
  * <ul>
  * <li> boolean connectives (<code>and, or, not, <=>, =></code>)
@@ -60,7 +59,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
  *
  */
 @Beta
-public class BooleanSimplifier extends DefaultMapBasedSimplifier {
+public class BooleanSimplifier extends RecursiveExhaustiveMapBasedSimplifier {
 	
 	public BooleanSimplifier() {
 		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());

@@ -35,68 +35,50 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.number;
-
-import static com.sri.ai.util.Util.map;
+package com.sri.ai.grinder.core.simplifier;
 
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMapBasedSimplifier;
-import com.sri.ai.grinder.library.FunctorConstants;
 
-/**
- * A {@link Simplifier} with common numeric functions:
- * 
- * <ul>
- * <li> arithmetic (<code>+, -, *, /</code>)
- * <li> inequalities (<code><, <=, >=, ></code>)
- * </ul>
- * 
- * @author braz
- *
- */
 @Beta
-public class NumericSimplifier extends RecursiveExhaustiveMapBasedSimplifier {
-	
-	public NumericSimplifier() {
-		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());
-	}
-	
-	private static Rewriter plus = new Plus();
-	private static Rewriter times = new Times();
+/** 
+ * Basic implementation of {@link MapBasedSimplifier}
+ * delegating the creation of elementary simplifier maps to
+ * two abstract methods.
+ * This is useful if the elementary simplifiers depend on <code>this</code> during construction time,
+ * which prevents them to be given to {@link RecursiveExhaustiveMapBasedSimplifier} via <code>super</code>.
+ */
+abstract public class AbstractMapBasedSimplifier implements MapBasedSimplifier {
 
-	public static Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
-		return map(
-				FunctorConstants.TIMES,           (Simplifier) (f, process) ->
-				times.rewrite(f, process),
+	protected Map<String, Simplifier> functionApplicationSimplifiers;
+	protected Map<String, Simplifier> syntacticFormTypeSimplifiers;
 
-				FunctorConstants.DIVISION,        (Simplifier) (f, process) ->
-				Division.simplify(f),
-
-				FunctorConstants.PLUS,            (Simplifier) (f, process) ->
-				plus.rewrite(f, process),
-
-				FunctorConstants.MINUS,           (Simplifier) (f, process) ->
-				(f.numberOfArguments() == 2? Minus.simplify(f) : f),
-
-				FunctorConstants.LESS_THAN,                 (Simplifier) (f, process) ->
-				LessThan.simplify(f),
-
-				FunctorConstants.LESS_THAN_OR_EQUAL_TO,     (Simplifier) (f, process) ->
-				LessThanOrEqualTo.simplify(f),
-
-				FunctorConstants.GREATER_THAN,              (Simplifier) (f, process) ->
-				GreaterThan.simplify(f),
-
-				FunctorConstants.GREATER_THAN_OR_EQUAL_TO,  (Simplifier) (f, process) ->
-				GreaterThanOrEqualTo.simplify(f)
-				);
+	public AbstractMapBasedSimplifier(
+			Map<String, Simplifier> functionApplicationSimplifiers,
+			Map<String, Simplifier> syntacticFormTypeSimplifiers) {
+		
+		this.functionApplicationSimplifiers = functionApplicationSimplifiers;
+		this.syntacticFormTypeSimplifiers = syntacticFormTypeSimplifiers;
 	}
 
-	public static Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
-		return map();
+	@Override
+	public Map<String, Simplifier> getFunctionApplicationSimplifiers() {
+		return functionApplicationSimplifiers;
+	}
+
+	@Override
+	public Map<String, Simplifier> getSyntacticFormTypeSimplifiers() {
+		return syntacticFormTypeSimplifiers;
+	}
+
+	public void setFunctionApplicationSimplifiers(Map<String, Simplifier> functionApplicationSimplifiers) {
+		this.functionApplicationSimplifiers = functionApplicationSimplifiers;
+	}
+
+	public void setSyntacticFormTypeSimplifiers(Map<String, Simplifier> syntacticFormTypeSimplifiers) {
+		this.syntacticFormTypeSimplifiers = syntacticFormTypeSimplifiers;
 	}
 }

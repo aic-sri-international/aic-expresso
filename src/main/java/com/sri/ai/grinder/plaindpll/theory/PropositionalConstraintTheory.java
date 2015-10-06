@@ -41,7 +41,6 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.TWO;
-import static com.sri.ai.grinder.core.simplifier.DefaultMapBasedSimplifier.simplifyWithExtraSyntacticFormTypeSimplifiers;
 import static com.sri.ai.util.Util.mapIntoArrayList;
 
 import java.util.ArrayList;
@@ -77,7 +76,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 
 	public PropositionalConstraintTheory() {
 		super();
-		this.simplifier = new BooleanSimplifier();//new DefaultMapBasedSimplifier(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());
+		this.simplifier = new BooleanSimplifier();//new RecursiveExhaustiveMapBasedSimplifier(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());
 	}
 	
 	@Override
@@ -260,7 +259,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 							Expressions.FALSE
 							: s;
 
-			Expression result = simplifyWithExtraSyntacticFormTypeSimplifiers(
+			Expression result = MapBasedSimplifier.simplifyWithExtraSyntacticFormTypeSimplifiers(
 					expression,
 					simplifier.getFunctionApplicationSimplifiers(),
 					simplifier.getSyntacticFormTypeSimplifiers(),

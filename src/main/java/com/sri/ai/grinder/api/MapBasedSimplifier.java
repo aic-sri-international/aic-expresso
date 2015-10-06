@@ -37,9 +37,14 @@
  */
 package com.sri.ai.grinder.api;
 
+import static com.sri.ai.util.Util.putAll;
+
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMapBasedSimplifier;
+import com.sri.ai.util.collect.StackedHashMap;
 
 @Beta
 /** 
@@ -53,4 +58,44 @@ public interface MapBasedSimplifier extends Simplifier {
 	Map<String, Simplifier> getFunctionApplicationSimplifiers();
 
 	Map<String, Simplifier> getSyntacticFormTypeSimplifiers();
+
+	/**
+	 * Simplify an expression given maps of function application and syntactic form type simplifiers,
+	 * and an extra simplifier for a given syntactic form type.
+	 * @param expression
+	 * @param functionApplicationSimplifiers
+	 * @param syntacticFormTypeSimplifiers
+	 * @param process
+	 * @param additionalSyntacticFormTypesAndSimplifiers additional syntactic form types and corresponding simplifiers
+	 * @return
+	 */
+	public static Expression simplifyWithExtraSyntacticFormTypeSimplifiers(
+			Expression expression,
+			Map<String, Simplifier> functionApplicationSimplifiers, Map<String, Simplifier> syntacticFormTypeSimplifiers,
+			RewritingProcess process,
+			Object... additionalSyntacticFormTypesAndSimplifiers) {
+		
+		Map<String, Simplifier>
+		mySyntacticFormTypeSimplifiers = new StackedHashMap<String, Simplifier>(syntacticFormTypeSimplifiers);
+		
+		putAll(mySyntacticFormTypeSimplifiers, additionalSyntacticFormTypesAndSimplifiers);
+		
+		Expression result = simplify(expression, functionApplicationSimplifiers, mySyntacticFormTypeSimplifiers, process);
+		return result;
+	}
+
+	/**
+	 * Simplifies an expression based on two maps of simplifiers by creating an instance of {@link RecursiveExhaustiveMapBasedSimplifier}
+	 * with them and applies it to the expression.
+	 * @param expression
+	 * @param functionApplicationSimplifiers
+	 * @param syntacticFormSimplifiers
+	 * @param process
+	 * @return
+	 */
+	public static Expression simplify(Expression expression, Map<String, Simplifier> functionApplicationSimplifiers, Map<String, Simplifier> syntacticFormSimplifiers, RewritingProcess process) {
+		RecursiveExhaustiveMapBasedSimplifier simplifier = new RecursiveExhaustiveMapBasedSimplifier(functionApplicationSimplifiers, syntacticFormSimplifiers);
+		Expression result = simplifier.apply(expression, process);
+		return result;
+	}
 }

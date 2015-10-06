@@ -37,69 +37,49 @@
  */
 package com.sri.ai.grinder.core.simplifier;
 
+import static com.sri.ai.util.Util.union;
+
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.FunctionApplication;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
-import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 
 /**
- * A basic {@link MapBasedSimplifier} receiving its elementary simplifiers at construction time
- * and applying them only once to the top expression only.
+ * A basic {@link MapBased} receiving its elementary simplifiers from other {@link MapBasedSimplifier}s.
  * 
  * @author braz
  *
  */
 @Beta
-public class BasedOnMaps implements MapBasedSimplifier {
+public class MergedMapBasedSimplifier extends MapBased {
 	
-	protected Map<String, Simplifier> functionApplicationSimplifiers;
-	protected Map<String, Simplifier> syntacticFormTypeSimplifiers;
-
-	public BasedOnMaps(
-			Map<String, Simplifier> functionApplicationSimplifiers,
-			Map<String, Simplifier> syntacticFormTypeSimplifiers) {
-		
-		super();
-		this.functionApplicationSimplifiers = functionApplicationSimplifiers;
-		this.syntacticFormTypeSimplifiers = syntacticFormTypeSimplifiers;
+	/**
+	 * Creates a simplifiers from the function and syntactic form simplifiers of given simplifiers.
+	 * @param additionalFunctionApplicationSimplifiers
+	 * @param additionalSyntacticFormTypeSimplifiers
+	 * @param simplifiers
+	 */
+	public MergedMapBasedSimplifier(MapBasedSimplifier... simplifiers) {
+		super(
+				union ( Merge.functionApplicationSimplifiersIterator(simplifiers) ),
+				union ( Merge.syntacticFormTypeSimplifiersIterator(simplifiers) ));
+				
 	}
 
-	@Override
-	public Map<String, Simplifier> getFunctionApplicationSimplifiers() {
-		return functionApplicationSimplifiers;
-	}
-
-	@Override
-	public Map<String, Simplifier> getSyntacticFormTypeSimplifiers() {
-		return syntacticFormTypeSimplifiers;
-	}
-
-	public void setFunctionApplicationSimplifiers(Map<String, Simplifier> functionApplicationSimplifiers) {
-		this.functionApplicationSimplifiers = functionApplicationSimplifiers;
-	}
-
-	public void setSyntacticFormTypeSimplifiers(Map<String, Simplifier> syntacticFormTypeSimplifiers) {
-		this.syntacticFormTypeSimplifiers = syntacticFormTypeSimplifiers;
-	}
-
-	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
-		Simplifier simplifier;
-		if (expression.getSyntacticFormType().equals(FunctionApplication.SYNTACTIC_FORM_TYPE)) {
-			simplifier = getFunctionApplicationSimplifiers().get(expression.getFunctor().getValue());
-		}
-		else {
-			simplifier = getSyntacticFormTypeSimplifiers().get(expression.getSyntacticFormType());
-		}
-		
-		if (simplifier != null) {
-			expression = simplifier.apply(expression, process);
-		}
-		
-		return expression;
+	/**
+	 * Adds function and syntactic form simplifiers to those of given simplifiers.
+	 * @param additionalFunctionApplicationSimplifiers
+	 * @param additionalSyntacticFormTypeSimplifiers
+	 * @param simplifiers
+	 */
+	public MergedMapBasedSimplifier(
+			Map<String, Simplifier> additionalFunctionApplicationSimplifiers,
+			Map<String, Simplifier> additionalSyntacticFormTypeSimplifiers,
+			MapBasedSimplifier... simplifiers) {
+		super(
+				union ( Merge.functionApplicationSimplifiersIterator(additionalFunctionApplicationSimplifiers, simplifiers) ),
+				union ( Merge.syntacticFormTypeSimplifiersIterator(additionalSyntacticFormTypeSimplifiers, simplifiers) ));
+				
 	}
 }

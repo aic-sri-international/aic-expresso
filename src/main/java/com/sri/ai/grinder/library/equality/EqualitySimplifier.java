@@ -42,21 +42,20 @@ import static com.sri.ai.util.Util.map;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.DefaultMapBasedSimplifier;
+import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMapBasedSimplifier;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
- * A {@link MapBasedSimplifier} with equality functions (<code>=, !=</code>)
+ * A {@link Simplifier} with equality functions (<code>=, !=</code>)
  * 
  * @author braz
  *
  */
 @Beta
-public class EqualitySimplifier extends DefaultMapBasedSimplifier {
+public class EqualitySimplifier extends RecursiveExhaustiveMapBasedSimplifier {
 	
 	public EqualitySimplifier() {
 		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());

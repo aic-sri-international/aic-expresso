@@ -52,9 +52,9 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.MergingMapBasedSimplifier;
+import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMergedMapBasedSimplifier;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
@@ -71,7 +71,7 @@ import com.sri.ai.util.collect.PredicateIterator;
 @Beta
 public class EqualityConstraintTheory extends AbstractConstraintTheory {
 
-	private MapBasedSimplifier simplifier = new MergingMapBasedSimplifier(new EqualitySimplifier(), new BooleanSimplifier());
+	private Simplifier simplifier = new RecursiveExhaustiveMergedMapBasedSimplifier(new EqualitySimplifier(), new BooleanSimplifier());
 	
 	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {

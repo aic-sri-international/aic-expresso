@@ -49,8 +49,8 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.Categorical;
-import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.boole.Not;
@@ -77,7 +77,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 		setTestingVariable("P");
 	}
 
-	private MapBasedSimplifier simplifier = new BooleanSimplifier();
+	private Simplifier simplifier = new BooleanSimplifier();
 	
 	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {
@@ -88,12 +88,6 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	@Override
 	public boolean isNonTrivialLiteral(Expression expression, RewritingProcess process) {
 		return GrinderUtil.isBooleanTyped(expression, process);
-//		boolean result = 
-//				(expression.getSyntacticFormType().equals("Function application")
-//						||
-//						expression.getSyntacticFormType().equals("Symbol"))
-//				&& GrinderUtil.isBooleanTyped(expression, process);
-//		return result;
 	}
 	
 	@Override

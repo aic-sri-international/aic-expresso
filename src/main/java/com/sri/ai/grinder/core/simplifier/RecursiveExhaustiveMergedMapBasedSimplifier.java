@@ -35,32 +35,24 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.core;
+package com.sri.ai.grinder.core.simplifier;
 
-import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.union;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.DefaultMapBasedSimplifier;
-import com.sri.ai.util.collect.FunctionIterator;
-import com.sri.ai.util.collect.NestedIterator;
 
 /**
- * A basic {@link MapBasedSimplifier} receiving its elementary simplifiers from other {@link MapBasedSimplifier}s.
+ * A basic {@link RecursiveExhaustiveMapBasedSimplifier} receiving its elementary simplifiers from other {@link MapBasedSimplifier}s.
  * 
  * @author braz
  *
  */
 @Beta
-public class MergingMapBasedSimplifier extends DefaultMapBasedSimplifier {
+public class RecursiveExhaustiveMergedMapBasedSimplifier extends RecursiveExhaustiveMapBasedSimplifier {
 	
 	/**
 	 * Creates a simplifiers from the function and syntactic form simplifiers of given simplifiers.
@@ -68,10 +60,10 @@ public class MergingMapBasedSimplifier extends DefaultMapBasedSimplifier {
 	 * @param additionalSyntacticFormTypeSimplifiers
 	 * @param simplifiers
 	 */
-	public MergingMapBasedSimplifier(MapBasedSimplifier... simplifiers) {
+	public RecursiveExhaustiveMergedMapBasedSimplifier(MapBasedSimplifier... simplifiers) {
 		super(
-				union ( functionApplicationSimplifiersIterator(simplifiers) ),
-				union ( syntacticFormTypeSimplifiersIterator(simplifiers) ));
+				union ( Merge.functionApplicationSimplifiersIterator(simplifiers) ),
+				union ( Merge.syntacticFormTypeSimplifiersIterator(simplifiers) ));
 				
 	}
 
@@ -81,55 +73,13 @@ public class MergingMapBasedSimplifier extends DefaultMapBasedSimplifier {
 	 * @param additionalSyntacticFormTypeSimplifiers
 	 * @param simplifiers
 	 */
-	public MergingMapBasedSimplifier(
+	public RecursiveExhaustiveMergedMapBasedSimplifier(
 			Map<String, Simplifier> additionalFunctionApplicationSimplifiers,
 			Map<String, Simplifier> additionalSyntacticFormTypeSimplifiers,
 			MapBasedSimplifier... simplifiers) {
 		super(
-				union ( functionApplicationSimplifiersIterator(additionalFunctionApplicationSimplifiers, simplifiers) ),
-				union ( syntacticFormTypeSimplifiersIterator(additionalSyntacticFormTypeSimplifiers, simplifiers) ));
+				union ( Merge.functionApplicationSimplifiersIterator(additionalFunctionApplicationSimplifiers, simplifiers) ),
+				union ( Merge.syntacticFormTypeSimplifiersIterator(additionalSyntacticFormTypeSimplifiers, simplifiers) ));
 				
-	}
-
-	@SuppressWarnings("unchecked")
-	private static
-	Iterator<Map<String, Simplifier>>
-	functionApplicationSimplifiersIterator(Map<String, Simplifier> functionApplicationSimplifiers, MapBasedSimplifier... simplifiers) {
-		return new NestedIterator<>(list(functionApplicationSimplifiers), functionApplicationSimplifiersIterator(simplifiers));
-	}
-
-	@SuppressWarnings("unchecked")
-	private static
-	Iterator<Map<String, Simplifier>>
-	syntacticFormTypeSimplifiersIterator(Map<String, Simplifier> syntacticFormTypeSimplifiers, MapBasedSimplifier... simplifiers) {
-		return new NestedIterator<>(list(syntacticFormTypeSimplifiers), syntacticFormTypeSimplifiersIterator(simplifiers));
-	}
-
-	private static
-	Iterator<Map<String, Simplifier>>
-	functionApplicationSimplifiersIterator(MapBasedSimplifier... simplifiers) {
-		return FunctionIterator.make(simplifiersList(simplifiers), fromSimplifierToFunctionApplicationSimplifiers());
-	}
-
-	private static
-	Iterator<Map<String, Simplifier>>
-	syntacticFormTypeSimplifiersIterator(MapBasedSimplifier... simplifiers) {
-		return FunctionIterator.make(simplifiersList(simplifiers), fromSimplifierToSyntacticFormTypeSimplifiers());
-	}
-
-	private static
-	Function<MapBasedSimplifier, Map<String, Simplifier>>
-	fromSimplifierToFunctionApplicationSimplifiers() {
-		return s -> s.getFunctionApplicationSimplifiers();
-	}
-
-	private static
-	Function<MapBasedSimplifier, Map<String, Simplifier>>
-	fromSimplifierToSyntacticFormTypeSimplifiers() {
-		return s -> s.getSyntacticFormTypeSimplifiers();
-	}
-
-	private static List<MapBasedSimplifier> simplifiersList(MapBasedSimplifier... simplifiers) {
-		return Arrays.asList(simplifiers);
 	}
 }
