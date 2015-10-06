@@ -130,7 +130,7 @@ public class RewriteOnce extends AbstractRewriter {
 	public void rewritingProcessFinalized(RewritingProcess process) {
 		if (AICUtilConfiguration.isRecordCacheStatistics()) {
 			for (Map.Entry<Rewriter, CacheMap<Pair<IdentityWrapper, Expression>, Object>> entry : deadEndsByRewriter.entrySet()) {
-				System.out.println(String.format("Rewrite MapBased Dead Ends Cache Stats for %-80s are %s", entry.getKey().getName(), entry.getValue().stats()));
+				System.out.println(String.format("Rewrite Once Dead Ends Cache Stats for %-80s are %s", entry.getKey().getName(), entry.getValue().stats()));
 			}
 		}
 		deadEndsByRewriter.clear();

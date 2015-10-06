@@ -33,6 +33,13 @@ public abstract class AbstractQuantifierStepSolver implements ContextDependentPr
 	
 	private Expression body;
 	
+	public AbstractQuantifierStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint indexConstraint, Expression body) {
+		super();
+		this.group = group;
+		this.indexConstraint = indexConstraint;
+		this.body = body;
+	}
+
 	/**
 	 * Abstract method defining a quantified expression with a given index constraint and literal-free body is to be solved.
 	 * @param indexConstraint the index constraint
@@ -81,21 +88,26 @@ public abstract class AbstractQuantifierStepSolver implements ContextDependentPr
 		SolutionStep result;
 
 		Constraint contextualConstraintForBody = contextualConstraint.conjoin(getIndexConstraint(), process);
-		Expression literalInBody = getNonDefinedLiteral(getBody(), contextualConstraintForBody, process);
-		
-		if (literalInBody != null) {
-			if (isSubExpressionOf(getIndex(), literalInBody)) {
-				result = resultIfLiteralContainsIndex(contextualConstraint, literalInBody, process);
-			}
-			else {
-				result = new ItDependsOn(literalInBody);
-			}
+		if (contextualConstraintForBody == null) {
+			result = new Solution(group.additiveIdentityElement());
 		}
 		else {
-			Expression literalFreeBody = simplifyGivenContextualConstraint(body, contextualConstraint, process);
-			result = stepGivenLiteralFreeBody(contextualConstraint, indexConstraint, literalFreeBody, process);
+			Expression literalInBody = getNonDefinedLiteral(getBody(), contextualConstraintForBody, process);
+
+			if (literalInBody != null) {
+				if (isSubExpressionOf(getIndex(), literalInBody)) {
+					result = resultIfLiteralContainsIndex(contextualConstraint, literalInBody, process);
+				}
+				else {
+					result = new ItDependsOn(literalInBody);
+				}
+			}
+			else {
+				Expression literalFreeBody = simplifyGivenContextualConstraint(body, contextualConstraint, process);
+				result = stepGivenLiteralFreeBody(contextualConstraint, indexConstraint, literalFreeBody, process);
+			}
 		}
-		
+
 		return result;
 	}
 

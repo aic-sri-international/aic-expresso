@@ -269,7 +269,9 @@ public class CommonInterpreter implements Simplifier {
 		Object oldConstraint = process.getGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT);
 		process.putGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
 		Expression simplifiedBody = interpreter.apply(expression, process);
-		process.putGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT, oldConstraint);
+		if (oldConstraint != null) {
+			process.putGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT, oldConstraint);
+		}
 		return simplifiedBody;
 	}
 

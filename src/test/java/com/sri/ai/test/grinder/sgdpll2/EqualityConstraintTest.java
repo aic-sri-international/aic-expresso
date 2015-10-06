@@ -98,6 +98,16 @@ public class EqualityConstraintTest {
 	}
 
 	@Test
+	public void testSumForSingleVariableConstraints() {
+		ConstraintTheoryTester.testSumForSingleVariableConstraints(
+				new Random(),
+				new EqualityConstraintTheory(),
+				200 /* number of tests */,
+				30 /* number of literals per test */,
+				true /* output count */);
+	}
+
+	@Test
 	public void testCompleteSatisfiabilitySpecialCases() {
 		// This test is to make sure that some more tricky cases are indeed tested,
 		// even though hopefully the large amount of generated random problems include them.

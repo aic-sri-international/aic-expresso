@@ -453,7 +453,7 @@ public class DefaultSyntaxLeaf extends AbstractSyntaxTree implements SyntaxLeaf 
 				
 				String formattedAbsResult = removeTrailingZerosToRight(absValue.toStringDotRelative(displayNumericPrecision));
 				
-				// MapBased we have precision taken care of, now determine if we should instead
+				// Once we have precision taken care of, now determine if we should instead
 				// output the result in scientific notation.
 				int[] integerAndFractionalPartSizes = getIntegerAndFractionalPartSizes(formattedAbsResult);
 				if (integerAndFractionalPartSizes[0] > _displayScientificGreaterNIntegerPlaces ||

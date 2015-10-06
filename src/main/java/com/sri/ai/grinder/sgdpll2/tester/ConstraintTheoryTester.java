@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.sgdpll2.tester;
 
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.TWO;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.getVariables;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
@@ -54,6 +55,7 @@ import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.library.CommonInterpreter;
@@ -65,7 +67,10 @@ import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.DefaultMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentProblemSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.SumOnBodyWithIndexInLiteralsOnlyStepSolver;
 import com.sri.ai.util.base.NullaryFunction;
+import com.sri.ai.util.math.Rational;
 
 /**
  * A class for testing a {@link ConstraintTheory} and its unsatisfiability detection.
@@ -76,7 +81,7 @@ import com.sri.ai.util.base.NullaryFunction;
 public class ConstraintTheoryTester {
 	
 	private static void output(String message) {
-		// System.out.println(message); // uncomment out if detailed output is desired.
+		System.out.println(message); // uncomment out if detailed output is desired.
 	}
 
 	/**
@@ -256,7 +261,7 @@ public class ConstraintTheoryTester {
 		else {
 			// if constraint is not null, the conjunction of literals may or may not be satisfiable,
 			// because solver is incomplete, so in this case we do not check.
-			output("Solver does not know yet if it is satisfiable or not. Current constraint is " + constraint);
+			output("SolverUnderAssignment does not know yet if it is satisfiable or not. Current constraint is " + constraint);
 		}
 	}
 
@@ -283,7 +288,7 @@ public class ConstraintTheoryTester {
 	 * @throws Error
 	 */
 	protected static void solverSaysItIsSatisfiable(Collection<Expression> literals, Constraint constraint, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
-		output("Solver thinks it is satisfiable. Current constraint is " + constraint);	
+		output("SolverUnderAssignment thinks it is satisfiable. Current constraint is " + constraint);	
 		Expression formula = And.make(literals);
 		boolean isUnsatisfiable = !ConstraintTheoryTester.isSatisfiableByBruteForce(formula, constraintTheory, process);;
 //		Map<Expression, Expression> satisfyingAssignment = getSatisfyingAssignmentByBruteForce(formula, constraintTheory, process);
@@ -307,7 +312,7 @@ public class ConstraintTheoryTester {
 	 * @throws Error
 	 */
 	protected static void solverSaysItIsUnsatisfiable(Collection<Expression> literals, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
-		output("Solver thinks it is unsatisfiable.");	
+		output("SolverUnderAssignment thinks it is unsatisfiable.");	
 		Expression formula = And.make(literals);
 		boolean isSatisfiable = ConstraintTheoryTester.isSatisfiableByBruteForce(formula, constraintTheory, process);
 //		Map<Expression, Expression> satisfyingAssignment = getSatisfyingAssignmentByBruteForce(formula, constraintTheory, process);
@@ -375,18 +380,137 @@ public class ConstraintTheoryTester {
 	}
 
 	private static void testModelCounting(
-			Constraint constraint,
+			Constraint singleVariableConstraint,
 			ConstraintTheory constraintTheory,
 			Collection<Expression> literals,
 			RewritingProcess process)
 					throws Error {
-		
-		testProblem("model counting", constraint, constraintTheory, process);
+		Simplifier symbolicSolver = (e, p) -> computeModelCountBySolver((SingleVariableConstraint) e, p);
+		SolverUnderAssignment bruteForceSolver = (e, i, p) -> bruteForceModelCounterUnderAssignment(e, i, p);
+		testProblem("model counting", (SingleVariableConstraint) singleVariableConstraint, symbolicSolver, bruteForceSolver, process);
 	}
 
-	private static void testProblem(String problemName, Constraint constraint, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
-		SingleVariableConstraint singleVariableConstraint = (SingleVariableConstraint) constraint;
-		Expression symbolicSolution = computeModelCountBySolver(singleVariableConstraint, constraintTheory, process);
+	/**
+	 * @param singleVariableConstraint
+	 * @param process
+	 * @return
+	 */
+	private static Expression computeModelCountBySolver(SingleVariableConstraint singleVariableConstraint, RewritingProcess process) {
+		Expression symbolicSolution = 
+				singleVariableConstraint == null?
+						ZERO
+						: singleVariableConstraint.modelCount(new CompleteMultiVariableConstraint(singleVariableConstraint.getConstraintTheory()), process);
+		return symbolicSolution;
+	}
+
+	/**
+	 * @param testingVariable
+	 * @param singleVariableConstraint
+	 * @param interpreter
+	 * @param process
+	 */
+	private static Expression bruteForceModelCounterUnderAssignment(SingleVariableConstraint singleVariableConstraint, CommonInterpreter interpreter, RewritingProcess process) {
+		output("Computing model count by brute force of: " + singleVariableConstraint);
+		int modelCount = 0;
+		Expression testingVariable = singleVariableConstraint.getVariable();
+		AssignmentsIterator testingVariableAssignmentsIterator = new AssignmentsIterator(list(testingVariable), process);
+		for (Map<Expression, Expression> testingVariableAssignment : in(testingVariableAssignmentsIterator)) {
+			CommonInterpreter completeInterpreter = interpreter.extendWith(testingVariableAssignment);
+			process.putGlobalObject(CommonInterpreter.COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(singleVariableConstraint.getConstraintTheory()));
+			Expression value = completeInterpreter.apply(singleVariableConstraint, process);
+			if (value.equals(TRUE)) {
+				modelCount++;
+			}
+			//			output("For " + completeInterpreter.getAssignment() + ",");
+			//			output("value is " + value);
+			//			output("Model count is " + modelCount + "\n");
+		}
+		return makeSymbol(modelCount);
+	}
+
+	/**
+	 * Given a constraint theory and a number <code>n</code> of single-variable constraint tests,
+	 * generates <code>n</code> formulas in the theory
+	 * and see if the model counting solver works (checked by brute force).
+	 * Throws an {@link Error} with the failure description if a test fails.
+	 * @param random
+	 * @param constraintTheory
+	 * @param numberOfTests
+	 * @param maxNumberOfLiterals
+	 * @param outputCount
+	 */
+	public static void testSumForSingleVariableConstraints(Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+		testSumForSingleVariableConstraints(random, constraintTheory, numberOfTests, maxNumberOfLiterals, true, outputCount);
+	}
+	
+	private static void testSumForSingleVariableConstraints(
+			Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
+		
+		NullaryFunction<Constraint> makeConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.getTestingVariable()));
+
+		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
+		
+		NullaryFunction<Expression> makeRandomLiteral = () -> constraintTheory.makeRandomLiteral(random, process);
+
+		test(ConstraintTheoryTester::testSum, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
+	}
+
+	private static void testSum(
+			Constraint singleVariableConstraint,
+			ConstraintTheory constraintTheory,
+			Collection<Expression> literals,
+			RewritingProcess process)
+					throws Error {
+		Simplifier symbolicSolver = (e, p) -> computeSumBySolver((SingleVariableConstraint) e, TWO, p);
+		SolverUnderAssignment bruteForceSolver = (e, i, p) -> bruteForceSumUnderAssignment(e, TWO, i, p);
+		testProblem("sum", (SingleVariableConstraint) singleVariableConstraint, symbolicSolver, bruteForceSolver, process);
+	}
+
+	/**
+	 * @param singleVariableConstraint
+	 * @param process
+	 * @return
+	 */
+	private static Expression computeSumBySolver(SingleVariableConstraint singleVariableConstraint, Expression body, RewritingProcess process) {
+		if (singleVariableConstraint == null) {
+			return ZERO;
+		}
+		else {
+			SumOnBodyWithIndexInLiteralsOnlyStepSolver stepSolver = new SumOnBodyWithIndexInLiteralsOnlyStepSolver(singleVariableConstraint, body);
+			Expression result = ContextDependentProblemSolver.solve(stepSolver, new CompleteMultiVariableConstraint(singleVariableConstraint.getConstraintTheory()), process);
+			return result;
+		}
+	}
+
+	/**
+	 * @param testingVariable
+	 * @param singleVariableConstraint
+	 * @param interpreter
+	 * @param process
+	 */
+	private static Expression bruteForceSumUnderAssignment(SingleVariableConstraint singleVariableConstraint, Expression body, CommonInterpreter interpreter, RewritingProcess process) {
+		Expression testingVariable = singleVariableConstraint.getVariable();
+		output("Computing sum by brute force of " + testingVariable + " : " + singleVariableConstraint + " over " + body);
+		int total = 0;
+		AssignmentsIterator testingVariableAssignmentsIterator = new AssignmentsIterator(list(testingVariable), process);
+		for (Map<Expression, Expression> testingVariableAssignment : in(testingVariableAssignmentsIterator)) {
+			CommonInterpreter completeInterpreter = interpreter.extendWith(testingVariableAssignment);
+			process.putGlobalObject(CommonInterpreter.COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(singleVariableConstraint.getConstraintTheory()));
+			Expression constraintValue = completeInterpreter.apply(singleVariableConstraint, process);
+			if (constraintValue.equals(TRUE)) {
+				Expression bodyValue = completeInterpreter.apply(body, process);
+				total += ((Rational)bodyValue.getValue()).intValue();
+			}
+		}
+		return makeSymbol(total);
+	}
+
+	private static interface SolverUnderAssignment {
+		Expression apply(SingleVariableConstraint singleVariableConstraint, CommonInterpreter interpreter, RewritingProcess process);
+	}
+
+	private static void testProblem(String problemName, SingleVariableConstraint singleVariableConstraint, Simplifier symbolicSolver, SolverUnderAssignment bruteForceSolver, RewritingProcess process) throws Error {
+		Expression symbolicSolution = symbolicSolver.apply(singleVariableConstraint, process);
 		output("Constraint: " + singleVariableConstraint);
 		output("Symbolic result of " + problemName + " by solver: " + symbolicSolution);
 		
@@ -396,14 +520,14 @@ public class ConstraintTheoryTester {
 			}
 		}
 		else {
-			Set<Expression> allVariables = getVariables(constraint, process);
+			Set<Expression> allVariables = getVariables(singleVariableConstraint, process);
 			Expression testingVariable = singleVariableConstraint.getVariable();
 			Collection<Expression> freeVariables = removeFromSetNonDestructively(allVariables, v -> v.equals(testingVariable));
 
 			AssignmentsIterator assignmentsIterator = new AssignmentsIterator(freeVariables, process);
 			for (Map<Expression, Expression> assignment : in(assignmentsIterator)) {
 				CommonInterpreter interpreter = new CommonInterpreter(assignment);
-				Expression bruteForceResultUnderAssignment = makeSymbol(countModelsByBruteForce(testingVariable, constraint, interpreter, process));
+				Expression bruteForceResultUnderAssignment = bruteForceSolver.apply(singleVariableConstraint, interpreter, process);
 				Expression symbolicResultUnderAssignment = interpreter.apply(symbolicSolution, process);
 				output("Under free variables assignment " + assignment);
 				output("Symbolic    result becomes " + symbolicResultUnderAssignment);
@@ -411,7 +535,7 @@ public class ConstraintTheoryTester {
 				if ( ! symbolicResultUnderAssignment.equals(bruteForceResultUnderAssignment)) {
 					throw new Error(
 							"Testing of " + problemName + " error:\n"
-									+ "Constraint: " + constraint + "\n"
+									+ "Constraint: " + singleVariableConstraint + "\n"
 									+ "Testing variable: " + testingVariable + "\n"
 									+ "Symbolic solution: " + symbolicSolution + "\n"
 									+ "Under assignment to free variables: " + assignment + "\n"
@@ -421,43 +545,5 @@ public class ConstraintTheoryTester {
 				}
 			}
 		}
-	}
-
-	/**
-	 * @param singleVariableConstraint
-	 * @param constraintTheory
-	 * @param process
-	 * @return
-	 */
-	private static Expression computeModelCountBySolver(SingleVariableConstraint singleVariableConstraint, ConstraintTheory constraintTheory, RewritingProcess process) {
-		Expression symbolicSolution = 
-				singleVariableConstraint == null?
-						ZERO
-						: singleVariableConstraint.modelCount(new CompleteMultiVariableConstraint(constraintTheory), process);
-		return symbolicSolution;
-	}
-
-	/**
-	 * @param testingVariable
-	 * @param constraint
-	 * @param interpreter
-	 * @param process
-	 */
-	private static int countModelsByBruteForce(Expression testingVariable, Constraint constraint, CommonInterpreter interpreter, RewritingProcess process) {
-		output("Computing model count by brute force of: " + constraint);
-		int modelCount = 0;
-		AssignmentsIterator testingVariableAssignmentsIterator = new AssignmentsIterator(list(testingVariable), process);
-		for (Map<Expression, Expression> testingVariableAssignment : in(testingVariableAssignmentsIterator)) {
-			CommonInterpreter completeInterpreter = interpreter.extendWith(testingVariableAssignment);
-			process.putGlobalObject(CommonInterpreter.COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(constraint.getConstraintTheory()));
-			Expression value = completeInterpreter.apply(constraint, process);
-			if (value.equals(TRUE)) {
-				modelCount++;
-			}
-//			output("For " + completeInterpreter.getAssignment() + ",");
-//			output("value is " + value);
-//			output("Model count is " + modelCount + "\n");
-		}
-		return modelCount;
 	}
 }

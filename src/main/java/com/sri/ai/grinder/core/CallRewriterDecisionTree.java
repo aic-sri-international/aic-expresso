@@ -82,7 +82,7 @@ import com.sri.ai.util.base.Pair;
  * represented as a Java object, they are simply conceptual aids.
  * </p>
  * <p>
- * MapBased we are given the A_i,j, V_i,j, C_i and R_i, we need to create a decision
+ * Once we are given the A_i,j, V_i,j, C_i and R_i, we need to create a decision
  * tree. This means picking up an attribute to be the root test of the decision
  * tree.
  * </p>
@@ -117,7 +117,7 @@ import com.sri.ai.util.base.Pair;
  * each of them should be computed only once.
  * </p>
  * <p>
- * MapBased we decide on the root attribute, we have under each possible value a
+ * Once we decide on the root attribute, we have under each possible value a
  * different list of rewriters with their reified tests. So now we run the
  * algorithm recursively for each of those lists. The base case occurs when
  * there are no more reified tests to use or, if there are, that no attribute
