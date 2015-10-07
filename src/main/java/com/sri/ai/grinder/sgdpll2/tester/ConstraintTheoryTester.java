@@ -81,7 +81,7 @@ import com.sri.ai.util.math.Rational;
 public class ConstraintTheoryTester {
 	
 	private static void output(String message) {
-		System.out.println(message); // uncomment out if detailed output is desired.
+//		System.out.println(message); // uncomment out if detailed output is desired.
 	}
 
 	/**
