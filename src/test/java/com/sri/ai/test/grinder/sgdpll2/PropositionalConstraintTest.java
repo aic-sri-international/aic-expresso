@@ -42,6 +42,7 @@ import java.util.Random;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
 
@@ -80,10 +81,12 @@ public class PropositionalConstraintTest {
 
 	@Test
 	public void testSumForSingleVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+		
 		ConstraintTheoryTester.testSumForSingleVariableConstraints(
 				new Random(),
 				new PropositionalConstraintTheory(),
-				10 /* number of tests */,
+				30 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}

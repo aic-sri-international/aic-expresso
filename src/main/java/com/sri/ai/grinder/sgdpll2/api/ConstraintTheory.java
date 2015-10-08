@@ -199,7 +199,7 @@ public interface ConstraintTheory extends Theory {
 	
 	/**
 	 * Same as {@link #makeRandomAtomOn(String, Random, RewritingProcess),
-	 * but applied randomly to one of the testing variables.
+	 * but applied randomly to one of the test variables.
 	 */
 	default Expression makeRandomAtom(Random random, RewritingProcess process) {
 		String variableToBeUsed = Util.pickUniformly(getVariableNamesAndTypeNamesForTesting().keySet().iterator(), random);
@@ -217,7 +217,7 @@ public interface ConstraintTheory extends Theory {
 	}
 
 	/**
-	 * Returns a random literal in this constraint theory on a given variable.
+	 * Returns a random literal in this constraint theory on the testing variable.
 	 * This is useful for making random constraints for correctness and performance testing.
 	 * @param random a random generator
 	 * @param process a rewriting process

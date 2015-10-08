@@ -103,7 +103,7 @@ public abstract class AbstractQuantifierStepSolver implements ContextDependentPr
 				}
 			}
 			else {
-				Expression literalFreeBody = simplifyGivenContextualConstraint(body, contextualConstraint, process);
+				Expression literalFreeBody = simplifyGivenContextualConstraint(body, contextualConstraintForBody, process);
 				result = stepGivenLiteralFreeBody(contextualConstraint, indexConstraint, literalFreeBody, process);
 			}
 		}
@@ -192,7 +192,7 @@ public abstract class AbstractQuantifierStepSolver implements ContextDependentPr
 				break;
 			case LITERAL_IS_UNDEFINED:
 				Expression subSolution1 = combine(thenBranch(solution1), solution2, split.getConstraintAndLiteral(), process);
-				Expression subSolution2 = combine(elseBranch(solution1), solution2, split.getConstraintAndLiteral(), process);
+				Expression subSolution2 = combine(elseBranch(solution1), solution2, split.getConstraintAndLiteralNegation(), process);
 				result = IfThenElse.make(condition(solution1), subSolution1, subSolution2, true);
 				break;
 			case LITERAL_IS_TRUE:
@@ -205,7 +205,7 @@ public abstract class AbstractQuantifierStepSolver implements ContextDependentPr
 			}
 		}
 		else if (isIfThenElse(solution2)) {
-			// solution1 op (if C2 then B1 else B2) ---> if C2 then (solution1 op A2) else (solution1 op A2)
+			// solution1 op (if C2 then B1 else B2) ---> if C2 then (solution1 op B2) else (solution1 op B2)
 			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, condition(solution2), process);
 			switch (split.getResult()) {
 			case CONSTRAINT_IS_CONTRADICTORY:
@@ -213,14 +213,14 @@ public abstract class AbstractQuantifierStepSolver implements ContextDependentPr
 				break;
 			case LITERAL_IS_UNDEFINED:
 				Expression subSolution1 = combine(solution1, thenBranch(solution2), split.getConstraintAndLiteral(), process);
-				Expression subSolution2 = combine(solution1, elseBranch(solution2), split.getConstraintAndLiteral(), process);
+				Expression subSolution2 = combine(solution1, elseBranch(solution2), split.getConstraintAndLiteralNegation(), process);
 				result = IfThenElse.make(condition(solution2), subSolution1, subSolution2, true);
 				break;
 			case LITERAL_IS_TRUE:
 				result = combine(solution1, thenBranch(solution2), split.getConstraintAndLiteral(), process);
 				break;
 			case LITERAL_IS_FALSE:
-				result = combine(solution1, elseBranch(solution2), split.getConstraintAndLiteral(), process);
+				result = combine(solution1, elseBranch(solution2), split.getConstraintAndLiteralNegation(), process);
 				break;
 			default: throw new Error("Unrecognized result for " + ConstraintSplitting.class + ": " + split.getResult());
 			}

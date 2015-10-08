@@ -107,6 +107,11 @@ public interface ContextDependentProblemStepSolver {
 		public boolean itDepends() {
 			return true;
 		}
+		
+		@Override
+		public String toString() {
+			return "It depends on " + getExpression();
+		}
 	}
 	
 	
@@ -119,6 +124,11 @@ public interface ContextDependentProblemStepSolver {
 		@Override
 		public boolean itDepends() {
 			return false;
+		}
+
+		@Override
+		public String toString() {
+			return getExpression().toString();
 		}
 	}
 }

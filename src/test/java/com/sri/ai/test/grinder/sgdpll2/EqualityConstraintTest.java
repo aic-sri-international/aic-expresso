@@ -48,6 +48,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
@@ -99,10 +100,12 @@ public class EqualityConstraintTest {
 
 	@Test
 	public void testSumForSingleVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+		
 		ConstraintTheoryTester.testSumForSingleVariableConstraints(
 				new Random(),
 				new EqualityConstraintTheory(),
-				200 /* number of tests */,
+				75 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}
