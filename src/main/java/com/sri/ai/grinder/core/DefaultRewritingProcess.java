@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.core;
 
 import static com.sri.ai.util.Util.map;
+import static com.sri.ai.util.Util.myAssert;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -72,6 +73,7 @@ import com.sri.ai.util.base.IdentityWrapper;
 import com.sri.ai.util.base.IsInstanceOf;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.base.Pair;
+import com.sri.ai.util.collect.StackedHashMap;
 
 /**
  * A default implementation of {@link RewritingProcess}. By default, the
@@ -475,6 +477,16 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	}
 
 	@Override
+	public RewritingProcess extendGlobalObjects(Map<Object, Object> objects, RewritingProcess process) {
+		// OPTIMIZATION: this can be made much more efficient by making processes immutable and keeping a reference to the original pointer.
+		myAssert(() -> process instanceof DefaultRewritingProcess, () -> "Not implemented for other implementations of " + RewritingProcess.class);
+		DefaultRewritingProcess result = new DefaultRewritingProcess((DefaultRewritingProcess) process);
+		Map<Object, Object> newGlobalObjects = new StackedHashMap<>(objects, result.getGlobalObjects());
+		result.setGlobalObjects(newGlobalObjects);
+		return result;
+	}
+
+	@Override
 	public Expression rewritingPreProcessing(Rewriter rewriter, Expression expression) {
 		Expression cached = getCached(rewriter, expression);
 		
@@ -547,6 +559,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 
 	@Override
 	public void setGlobalObjects(Map<Object, Object> newMap) {
+		// TODO: change method to take ConcurrentHashMap and set globalObjects to it, instead of copying.
 		globalObjects.clear();
 		globalObjects.putAll(newMap);
 	}

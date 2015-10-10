@@ -66,6 +66,12 @@ import com.sri.ai.util.base.Pair;
  * are assumed to have been part of the process in the past, but are considered
  * irrelevant now).
  * <p>
+ * TODO: FIXME: Clones or sub-processes are current sharing global objects with their parents.
+ * This means there is no way of adding a new global object to the child without affecting the parent,
+ * which is unexpected and error-prone.
+ * However, simply copying the old global objects to a new map and modifying the copy
+ * will be much more expensive.
+ * {@link StackedHashMap} could help but it should be modified to "collapse" after its height reaches a limit.
  * 
  * @author braz
  */
@@ -178,6 +184,14 @@ public interface RewritingProcess extends Cloneable {
 			Map<Expression, Expression> subProcessContextualSymbolsAndTypes,
 			Expression contextualConstraint);
 
+	/**
+	 * Creates a new rewriting process identical to a given one but for additional global objects.
+	 * @param objects
+	 * @param process
+	 * @return
+	 */
+	RewritingProcess extendGlobalObjects(Map<Object, Object> objects, RewritingProcess process);
+	
 	/**
 	 * A method to be called by rewriters in advance of their own rewriting.
 	 * Rewriters are required to directly return its returned value if it is not <code>null</code>.

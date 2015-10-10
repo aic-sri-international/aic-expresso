@@ -54,12 +54,12 @@ import com.sri.ai.grinder.api.Simplifier;
  *
  */
 @Beta
-public class MapBased extends AbstractMapBasedSimplifier {
+public class DefaultMapBasedSimplifier extends AbstractMapBasedSimplifier {
 	
 	protected Map<String, Simplifier> functionApplicationSimplifiers;
 	protected Map<String, Simplifier> syntacticFormTypeSimplifiers;
 
-	public MapBased(
+	public DefaultMapBasedSimplifier(
 			Map<String, Simplifier> functionApplicationSimplifiers,
 			Map<String, Simplifier> syntacticFormTypeSimplifiers) {
 		

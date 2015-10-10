@@ -44,7 +44,6 @@ import static com.sri.ai.grinder.helper.GrinderUtil.extendContextualSymbolsWithI
 import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.map;
-import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Map;
 
@@ -54,12 +53,10 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.expresso.type.Categorical;
+import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
-import com.sri.ai.grinder.core.simplifier.Exhaustive;
-import com.sri.ai.grinder.core.simplifier.MergedMapBasedSimplifier;
-import com.sri.ai.grinder.core.simplifier.Recursive;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.plaindpll.group.BooleansWithConjunctionGroup;
@@ -67,137 +64,86 @@ import com.sri.ai.grinder.plaindpll.group.BooleansWithDisjunctionGroup;
 import com.sri.ai.grinder.plaindpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.util.collect.StackedHashMap;
 
 /**
- * A {@link Simplifier} re-using {@link CommonSimplifier},
- * and augmented with these functionalities:
- * <ul>
- * <li> replacing symbols by their value in an associated given assignment.
- * <li> (optionally, and turned off by default since it is expensive)
- * simplifying literals according to a contextual constraint
- * (note that the contextual constraint is <i>not</i> updated with constraints
- * in the interpreted expression itself.
- * For example, <code>if X = a then X = a else true</code> does <i>not</i> get simplified
- * under an empty contextual constraint).
- * <li> solving universal and existential quantifiers by brute-force enumeration
- * (will therefore not stop if quantifier's index has infinite type).
- * This throws an exception if the body of the quantifier contains free variables
- * not simplified away by the current assignment or contextual constraint.
- * </ul>
+ * An implementation of {@link AbstractInterpreter} re-using {@link CommonSimplifier}
+ * (provided by {@link #makeAnotherMapBasedSimplifier()},
+ * and augmented with brute-force (that is, enumerative) solvers for
+ * summations, and universal and existentially quantified formulas.
+ * <p>
+ * Additionally, it takes an assignment to symbols as a constructing parameter,
+ * and throws an error when a symbol with unassigned value is found.
  *
  * @author braz
  *
  */
 @Beta
-public class CommonInterpreter implements Simplifier {
+public class EnumerationCommonInterpreter extends AbstractInterpreter {
 
-	public static final String COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT = "sgdpll2 contextual constraint";
+	public static final String COMMON_INTERPRETER_ASSIGNMENT = "EnumerationCommonInterpreter assignment";
+	
 	private Map<Expression, Expression> assignment;
-	private Simplifier simplifier;
-	private boolean simplifyGivenConstraint;
 	
 	/**
-	 * Constructs {@link CommonInterpreter} with an empty initial assignment and
+	 * Constructs {@link EnumerationCommonInterpreter} with an empty initial assignment and
 	 * <i>not</i> simplifying literals according to contextual constraint.
-	 * @param assignment
-	 * @param simplifyGivenConstraint
 	 */
-	public CommonInterpreter() {
+	public EnumerationCommonInterpreter() {
 		this(map());
 	}
 
 	/**
-	 * Constructs {@link CommonInterpreter} with an initial assignment and
+	 * Constructs {@link EnumerationCommonInterpreter} with an empty initial assignment and
+	 * <simplifying literals according to contextual constraint.
+	 */
+	public EnumerationCommonInterpreter(boolean simplifyGivenConstraint) {
+		this(map(), simplifyGivenConstraint);
+	}
+
+	/**
+	 * Constructs {@link EnumerationCommonInterpreter} with an initial assignment and
 	 * <i>not</i> simplifying literals according to contextual constraint.
 	 * @param assignment
 	 * @param simplifyGivenConstraint
 	 */
-	public CommonInterpreter(Map<Expression, Expression> assignment) {
+	public EnumerationCommonInterpreter(Map<Expression, Expression> assignment) {
 		this(assignment, false);
 	}
 	
 	/**
-	 * Constructs {@link CommonInterpreter} with an initial assignment and
+	 * Constructs {@link EnumerationCommonInterpreter} with an initial assignment and
 	 * sets it to simplify literals according to contextual constraint stored in
-	 * <code>process</code>'s global object under {@link #COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT}.
+	 * <code>process</code>'s global object under {@link #INTERPRETER_CONTEXTUAL_CONSTRAINT}.
 	 * @param assignment
 	 * @param simplifyGivenConstraint
 	 */
-	public CommonInterpreter(Map<Expression, Expression> assignment, boolean simplifyGivenConstraint) {
+	public EnumerationCommonInterpreter(Map<Expression, Expression> assignment, boolean simplifyGivenConstraint) {
+		super(simplifyGivenConstraint);
 		this.assignment = assignment;
-		this.simplifier = new Recursive(new Exhaustive(new CommonInterpreterSimplifier()));
-		this.simplifyGivenConstraint = simplifyGivenConstraint;
 	}
 	
-	private class CommonInterpreterSimplifier extends MergedMapBasedSimplifier {
-		
-		public CommonInterpreterSimplifier() {
-			super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers(), new CommonSimplifier());
-		}
-
-		@Override
-		public Expression apply(Expression expression, RewritingProcess process) {
-			myAssert(
-					() -> process.getGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT) != null,
-					() -> this.getClass() + " requires the rewriting process to contain a contextual constraint under global object key " + COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT
-					);
-			
-			if (simplifyGivenConstraint) {
-				Constraint contextualConstraint = (Constraint) process.getGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT);
-				if (contextualConstraint.getConstraintTheory().isLiteral(expression, process)) {
-					ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, expression, process);
-					switch(split.getResult()) {
-					case CONSTRAINT_IS_CONTRADICTORY:
-						return null;
-					case LITERAL_IS_TRUE:
-						return TRUE;
-					case LITERAL_IS_FALSE:
-						return FALSE;
-					case LITERAL_IS_UNDEFINED:
-					default:
-						break;
-					}
-				}
-			}
-			
-			Expression result = super.apply(expression, process);
-
-			return result;
-		}
-		
-	}
-	@Override
-	public Expression apply(Expression expression, RewritingProcess process) {
-		Expression result = simplifier.apply(expression, process);
-		return result;
-	}
-
 	/**
 	 * Creates a new interpreter with current assignment extended by new ones.
 	 * @param extendingAssignment new value of assignments
+	 * @param process the rewriting process
 	 * @return
 	 */
-	public CommonInterpreter extendWith(Map<Expression, Expression> extendingAssignment) {
-		return new CommonInterpreter(new StackedHashMap<>(extendingAssignment, assignment), simplifyGivenConstraint);
+	public AbstractInterpreter extendWith(Map<Expression, Expression> extendingAssignment, RewritingProcess process) {
+		return new EnumerationCommonInterpreter(new StackedHashMap<>(extendingAssignment, assignment), simplifyGivenConstraint);
 	}
 
-	public Map<Expression, Expression> getAssignment() {
-		return assignment;
-	}
-	
 	public Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(
 				FunctorConstants.SUM, (Simplifier)
 				(s, p) -> {
 					IntensionalSet intensionalSet = (IntensionalSet)s.get(0);
 					return evaluateGroupOperationForAllIndicesAssignmentOnBody(
+							new SymbolicPlusGroup(),
 							intensionalSet.getIndexExpressions(),
 							intensionalSet.getCondition(),
 							intensionalSet.getHead(),
-							new SymbolicPlusGroup(),
 							p);
 				}
 				);
@@ -217,15 +163,20 @@ public class CommonInterpreter implements Simplifier {
 				);
 	}
 
+	@Override
+	public MapBasedSimplifier makeAnotherMapBasedSimplifier() {
+		return new CommonSimplifier();
+	}
+
 	private Expression evaluateQuantifiedExpression(Expression expression, AssociativeCommutativeGroup group, RewritingProcess process) {
 		QuantifiedExpressionWithABody quantifiedExpression = (QuantifiedExpressionWithABody) expression;
 		Expression body = quantifiedExpression.getBody();
 		IndexExpressionsSet indexExpressions = quantifiedExpression.getIndexExpressions();
-		return evaluateGroupOperationForAllIndicesAssignmentOnBody(indexExpressions, TRUE, body, group, process);
+		return evaluateGroupOperationForAllIndicesAssignmentOnBody(group, indexExpressions, TRUE, body, process);
 	}
 
 	private Expression evaluateGroupOperationForAllIndicesAssignmentOnBody(
-			IndexExpressionsSet indexExpressions, Expression indicesCondition, Expression body, AssociativeCommutativeGroup group, RewritingProcess process) throws Error {
+			AssociativeCommutativeGroup group, IndexExpressionsSet indexExpressions, Expression indicesCondition, Expression body, RewritingProcess process) throws Error {
 		
 		process = extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
 		Expression value = group.additiveIdentityElement();
@@ -244,14 +195,8 @@ public class CommonInterpreter implements Simplifier {
 		return value;
 	}
 
-	/**
-	 * @param expression
-	 * @param values
-	 * @param process
-	 * @throws Error
-	 */
-	public Expression evaluateGivenValuesAndCheckForBeingAConstant(Expression expression, Map<Expression, Expression> values, RewritingProcess process) throws Error {
-		Expression expressionEvaluation = extendWith(values).apply(expression, process);
+	private Expression evaluateGivenValuesAndCheckForBeingAConstant(Expression expression, Map<Expression, Expression> values, RewritingProcess process) throws Error {
+		Expression expressionEvaluation = extendWith(values, process).apply(expression, process);
 		if ( ! expressionEvaluation.getSyntacticFormType().equals("Symbol")) {
 			throw new Error("Quantifier body must evaluate to constant but evaluated to " + expressionEvaluation);
 		}
@@ -259,34 +204,30 @@ public class CommonInterpreter implements Simplifier {
 	}
 
 	/**
+	 * Simplifies a given expression with a {@link EnumerationCommonInterpreter} using enumeration under given contextual constraint.
 	 * @param expression
 	 * @param contextualConstraint
 	 * @param process
 	 * @return
 	 */
 	public static Expression simplifyGivenContextualConstraint(Expression expression, Constraint contextualConstraint, RewritingProcess process) {
-		CommonInterpreter interpreter = new CommonInterpreter(map(), true /* simplify given contextual constraint */);
-		Object oldConstraint = process.getGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT);
-		process.putGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
-		Expression simplifiedBody = interpreter.apply(expression, process);
-		if (oldConstraint != null) {
-			process.putGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT, oldConstraint);
-		}
-		return simplifiedBody;
+		AbstractInterpreter interpreter = new EnumerationCommonInterpreter(true /* simplify given contextual constraint */);
+		Expression result = interpreter.simplifyUnderContextualConstraint(expression, contextualConstraint, process);
+		return result;
 	}
 
 	public static void main(String[] args) {
-		CommonInterpreter interpreter = new CommonInterpreter(map(parse("Hurrah"), parse("awesome")), true);
+		AbstractInterpreter interpreter = new EnumerationCommonInterpreter(map(parse("Hurrah"), parse("awesome")), true);
 		RewritingProcess process = new DefaultRewritingProcess(null);
 		Constraint contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory());
 		contextualConstraint = contextualConstraint.conjoin(parse("W != 3"), process);
-		process.putGlobalObject(COMMON_INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
+		process.putGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
 		process = process.put(new Categorical("Population", 5, arrayList(parse("tom")))); // two pitfalls: immutable process and need for arrayList rather than just list
 		process = process.put(new Categorical("Numbers", 3, arrayList(parse("1"), parse("2"), parse("3"))));
 //		Expression expression = parse("false and there exists X in Numbers : X = 3 and X + 1 = 1 + X");
-//		Expression expression = parse("if for all X in Population : (there exists Y in Population : Y != X and W != 3) then Hurrah else not Hurrah");
+		Expression expression = parse("if for all X in Population : (there exists Y in Population : Y != X and W != 3) then Hurrah else not Hurrah");
 //		Expression expression = parse("there exists Y in Population : Y != tom and W != 3");
-		Expression expression = parse("sum({{(on Y in Population) 2 | Y != tom and W != 3}})");
+//		Expression expression = parse("sum({{(on Y in Population) 2 | Y != tom and W != 3}})");
 		Expression result = interpreter.apply(expression, process);
 		System.out.println("result: " + result);
 	}

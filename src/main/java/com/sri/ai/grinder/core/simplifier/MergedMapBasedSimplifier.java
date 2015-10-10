@@ -46,13 +46,13 @@ import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.Simplifier;
 
 /**
- * A basic {@link MapBased} receiving its elementary simplifiers from other {@link MapBasedSimplifier}s.
+ * A basic {@link DefaultMapBasedSimplifier} receiving its elementary simplifiers from other {@link MapBasedSimplifier}s.
  * 
  * @author braz
  *
  */
 @Beta
-public class MergedMapBasedSimplifier extends MapBased {
+public class MergedMapBasedSimplifier extends DefaultMapBasedSimplifier {
 	
 	/**
 	 * Creates a simplifiers from the function and syntactic form simplifiers of given simplifiers.

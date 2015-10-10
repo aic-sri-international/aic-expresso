@@ -1,7 +1,7 @@
 package com.sri.ai.grinder.sgdpll2.core.solver;
 
 import static com.sri.ai.expresso.helper.Expressions.isSubExpressionOf;
-import static com.sri.ai.grinder.library.CommonInterpreter.simplifyGivenContextualConstraint;
+import static com.sri.ai.grinder.library.EnumerationCommonInterpreter.simplifyGivenContextualConstraint;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.condition;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.elseBranch;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.isIfThenElse;
