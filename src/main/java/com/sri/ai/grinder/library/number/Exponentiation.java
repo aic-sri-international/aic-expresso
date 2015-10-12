@@ -88,6 +88,17 @@ public class Exponentiation extends AbstractRewriter {
 		return result;
 	}
 
+	/**
+	 * Makes an exponentiation function application.
+	 * @param base the base of the exponentiation
+	 * @param power the power of the exponentiation
+	 * @return the exponentiation function application
+	 */
+	public static Expression make(Expression base, Expression power) {
+		Expression result = apply(EXPONENTIATION_FUNCTOR, base, power);
+		return result;
+	}
+
 	public Exponentiation() {
 		this.setReifiedTests(new HasKind(FunctorConstants.EXPONENTIATION),
 				             new HasNumberOfArguments(2));

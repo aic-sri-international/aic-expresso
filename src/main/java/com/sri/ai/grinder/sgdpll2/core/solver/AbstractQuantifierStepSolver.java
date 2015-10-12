@@ -1,7 +1,7 @@
 package com.sri.ai.grinder.sgdpll2.core.solver;
 
 import static com.sri.ai.expresso.helper.Expressions.isSubExpressionOf;
-import static com.sri.ai.grinder.library.EnumerationCommonInterpreter.simplifyGivenContextualConstraint;
+import static com.sri.ai.grinder.interpreter.BruteForceCommonInterpreter.simplifyGivenContextualConstraint;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.condition;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.elseBranch;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.isIfThenElse;
@@ -14,6 +14,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
@@ -71,12 +72,24 @@ public abstract class AbstractQuantifierStepSolver implements ContextDependentPr
 		return result;
 	}
 
+	public AssociativeCommutativeGroup getGroup() {
+		return group;
+	}
+	
 	public Expression getBody() {
 		return body;
 	}
 	
 	public SingleVariableConstraint getIndexConstraint() {
 		return indexConstraint;
+	}
+	
+	/**
+	 * Convenience method for <code>indexConstraint.getConstraintTheory()</code>.
+	 * @return
+	 */
+	public ConstraintTheory getConstraintTheory() {
+		return indexConstraint.getConstraintTheory();
 	}
 	
 	public Expression getIndex() {

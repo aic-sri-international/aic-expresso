@@ -40,33 +40,54 @@ package com.sri.ai.grinder.sgdpll2.core.solver;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.number.Times;
-import com.sri.ai.grinder.plaindpll.group.SymbolicPlusGroup;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 
 /**
- * A {@link AbstractQuantifierStepSolver} for sums with body in which the index occurs in literals only.
- * This is done by simply multiplying the body by {@link SingleVariableConstraint#modelCount(Constraint, RewritingProcess)}
- * (no if-then-externalization is performed).
+ * A {@link AbstractQuantifierStepSolver} for quantifiers based on a group, and with body in which the index occurs in literals only.
+ * This step solver first provides all the literals in the body as {@link ContextDependentProblemStepSolver#ItDepends} steps.
+ * If at any point the constraint becomes unsatisfiable, the group's identity element is returned
+ * (the above is all done by {@link AbstractQuantifierStepSolver}.
+ * If we reach a point in which there are no further undefined literals in the body and the constraint is satisfiable,
+ * one of two things happens:
+ * <ul>
+ * <li> if the group is idempotent, simplify group's identity.
+ * <li> if the group is not idempotent, 
+ * applies {@link AssociativeCommutativeGroup#addNTimes(Expression, Expression, RewritingProcess)} to
+ * the literal-free body and {@link SingleVariableConstraint#modelCount(Constraint, RewritingProcess)},
+ * followed by {@link ConstraintTheory#simplify(Expression, RewritingProcess)}.
+ * No if then else externalization is performed.
+ * </ul>
+ * 
  * 
  * @author braz
  *
  */
 @Beta
-public class SumOnBodyWithIndexInLiteralsOnlyStepSolver extends AbstractQuantifierStepSolver {
+public class QuantifierOnBodyWithIndexInLiteralsOnlyStepSolver extends AbstractQuantifierStepSolver {
 
-	public SumOnBodyWithIndexInLiteralsOnlyStepSolver(SingleVariableConstraint indexConstraint, Expression body) {
-		super(new SymbolicPlusGroup(), indexConstraint, body);
+	public QuantifierOnBodyWithIndexInLiteralsOnlyStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint indexConstraint, Expression body) {
+		super(group, indexConstraint, body);
 	}
 
 	@Override
 	protected SolutionStep stepGivenLiteralFreeBody(
 			Constraint contextualConstraint, SingleVariableConstraint indexConstraint, Expression literalFreeBody, RewritingProcess process) {
 		
-		Expression result = Times.make(literalFreeBody, indexConstraint.modelCount(contextualConstraint, process));
-		result = indexConstraint.getConstraintTheory().simplify(result, process);
+		Expression result;
+		if (getGroup().isIdempotent()) {
+			Expression conditionForSatisfiability = indexConstraint.satisfiability(contextualConstraint, process);
+			result = IfThenElse.make(conditionForSatisfiability, literalFreeBody, getGroup().additiveIdentityElement());
+		}
+		else {
+			result = getGroup().addNTimes(literalFreeBody, indexConstraint.modelCount(contextualConstraint, process), process);
+			result = getConstraintTheory().simplify(result, process);
+		}
+		
 		return new Solution(result);
 	}
-
 }

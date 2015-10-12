@@ -60,6 +60,18 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 	}
 	
 	/**
+	 * Returns the satisfiability of this single-variable constraint under a contextual constraint and process.
+	 * @param contextualConstraint
+	 * @param process
+	 * @return
+	 */
+	default Expression satisfiability(Constraint contextualConstraint, RewritingProcess process) {
+		ContextDependentProblemStepSolver satisfiabilityStepSolver = getConstraintTheory().getSingleVariableConstraintSatisfiabilityStepSolver(this);
+		Expression satisfiability = ContextDependentProblemSolver.solve(satisfiabilityStepSolver, contextualConstraint, process);
+		return satisfiability;
+	}
+	
+	/**
 	 * Returns the model count of this single-variable constraint under a contextual constraint and process.
 	 * @param contextualConstraint
 	 * @param process

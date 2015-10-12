@@ -44,7 +44,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.plaindpll.group.SymbolicNumbersWithMaxGroup;
+import com.sri.ai.grinder.plaindpll.group.SymbolicMaxGroup;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
@@ -58,7 +58,7 @@ import com.sri.ai.util.base.Pair;
 public class Max extends AbstractGroupProblemType {
 	
 	public Max() {
-		super(new SymbolicNumbersWithMaxGroup());
+		super(new SymbolicMaxGroup());
 	}
 
 	@Override

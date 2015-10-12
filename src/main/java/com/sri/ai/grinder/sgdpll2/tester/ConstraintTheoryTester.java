@@ -59,18 +59,20 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
-import com.sri.ai.grinder.library.AbstractInterpreter;
-import com.sri.ai.grinder.library.EnumerationCommonInterpreter;
+import com.sri.ai.grinder.interpreter.AbstractInterpreter;
+import com.sri.ai.grinder.interpreter.BruteForceCommonInterpreter;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.plaindpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.DefaultMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentProblemSolver;
-import com.sri.ai.grinder.sgdpll2.core.solver.SumOnBodyWithIndexInLiteralsOnlyStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierOnBodyWithIndexInLiteralsOnlyStepSolver;
 import com.sri.ai.util.base.NullaryFunction;
 import com.sri.ai.util.math.Rational;
 
@@ -353,7 +355,7 @@ public class ConstraintTheoryTester {
 			quantifiedFormula = ThereExists.make(IndexExpressions.makeIndexExpression(variable, type), quantifiedFormula);
 		}
 		process.putGlobalObject(AbstractInterpreter.INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(constraintTheory));
-		Expression evaluation = new EnumerationCommonInterpreter().apply(quantifiedFormula, process);
+		Expression evaluation = new BruteForceCommonInterpreter().apply(quantifiedFormula, process);
 		boolean result = evaluation.equals(TRUE);
 		return result;
 	}
@@ -395,7 +397,7 @@ public class ConstraintTheoryTester {
 		
 		SingleVariableConstraint singleVariableConstraint = (SingleVariableConstraint) constraint;
 		Simplifier symbolicSolver = (e, p) -> computeModelCountBySolver((SingleVariableConstraint) e, p);
-		Function<EnumerationCommonInterpreter, Expression> fromInterpreterWithAssignmentToBruteForceSolution = interpreter -> bruteForceModelCounterUnderAssignment(singleVariableConstraint, interpreter, process);
+		Function<BruteForceCommonInterpreter, Expression> fromInterpreterWithAssignmentToBruteForceSolution = interpreter -> bruteForceModelCounterUnderAssignment(singleVariableConstraint, interpreter, process);
 		Expression symbolicSolution = symbolicSolver.apply(singleVariableConstraint, process);
 		String problemDescription = constraint == null?
 				"model counting over contradiction"
@@ -422,7 +424,7 @@ public class ConstraintTheoryTester {
 	 * @param interpreter
 	 * @param process
 	 */
-	private static Expression bruteForceModelCounterUnderAssignment(SingleVariableConstraint singleVariableConstraint, EnumerationCommonInterpreter interpreter, RewritingProcess process) {
+	private static Expression bruteForceModelCounterUnderAssignment(SingleVariableConstraint singleVariableConstraint, BruteForceCommonInterpreter interpreter, RewritingProcess process) {
 		output("Computing model count by brute force of: " + singleVariableConstraint);
 		int modelCount = 0;
 		Expression testingVariable = singleVariableConstraint.getVariable();
@@ -500,7 +502,7 @@ public class ConstraintTheoryTester {
 		Expression symbolicSolution = computeSumBySolver(singleVariableConstraint, body, process);
 		output("Symbolic solution: " + symbolicSolution);
 		
-		Function<EnumerationCommonInterpreter, Expression> fromInterpreterWithAssignmentToBruteForceSolution = interpreter -> bruteForceSumUnderAssignment(singleVariableConstraint, body, interpreter, process);
+		Function<BruteForceCommonInterpreter, Expression> fromInterpreterWithAssignmentToBruteForceSolution = interpreter -> bruteForceSumUnderAssignment(singleVariableConstraint, body, interpreter, process);
 
 		testCountingProblem(problemDescription, singleVariableConstraint, body, symbolicSolution, fromInterpreterWithAssignmentToBruteForceSolution, process);
 	}
@@ -515,7 +517,11 @@ public class ConstraintTheoryTester {
 			return ZERO;
 		}
 		else {
-			SumOnBodyWithIndexInLiteralsOnlyStepSolver stepSolver = new SumOnBodyWithIndexInLiteralsOnlyStepSolver(singleVariableConstraint, body);
+			ContextDependentProblemStepSolver stepSolver =
+					new QuantifierOnBodyWithIndexInLiteralsOnlyStepSolver(
+							new SymbolicPlusGroup(),
+							singleVariableConstraint,
+							body);
 			Expression result = ContextDependentProblemSolver.solve(stepSolver, new CompleteMultiVariableConstraint(singleVariableConstraint.getConstraintTheory()), process);
 			return result;
 		}
@@ -527,7 +533,7 @@ public class ConstraintTheoryTester {
 	 * @param interpreter
 	 * @param process
 	 */
-	private static Expression bruteForceSumUnderAssignment(SingleVariableConstraint singleVariableConstraint, Expression body, EnumerationCommonInterpreter interpreter, RewritingProcess process) {
+	private static Expression bruteForceSumUnderAssignment(SingleVariableConstraint singleVariableConstraint, Expression body, BruteForceCommonInterpreter interpreter, RewritingProcess process) {
 		Expression testingVariable = singleVariableConstraint.getVariable();
 		output("Computing sum by brute force of " + testingVariable + " : " + singleVariableConstraint + " over " + body);
 		int total = 0;
@@ -544,7 +550,7 @@ public class ConstraintTheoryTester {
 		return makeSymbol(total);
 	}
 
-	private static void testCountingProblem(String problemDescription, SingleVariableConstraint indexConstraint, Expression bodyOrNull, Expression symbolicSolution, Function<EnumerationCommonInterpreter, Expression> fromInterpreterWithAssignmentToBruteForceSolution, RewritingProcess process) throws Error {
+	private static void testCountingProblem(String problemDescription, SingleVariableConstraint indexConstraint, Expression bodyOrNull, Expression symbolicSolution, Function<BruteForceCommonInterpreter, Expression> fromInterpreterWithAssignmentToBruteForceSolution, RewritingProcess process) throws Error {
 		output("Problem: " + problemDescription);
 		output("Symbolic result: " + symbolicSolution);
 		
@@ -567,7 +573,7 @@ public class ConstraintTheoryTester {
 
 	/**
 	 * Compares, for each assignment to given free variables, if value of a symbolic solution
-	 * is the same as the solution by a brute force solver, given a {@link EnumerationCommonInterpreter} with that same assignment.
+	 * is the same as the solution by a brute force solver, given a {@link BruteForceCommonInterpreter} with that same assignment.
 	 * @param problemDescription
 	 * @param freeVariables
 	 * @param symbolicSolution
@@ -575,10 +581,10 @@ public class ConstraintTheoryTester {
 	 * @param process
 	 * @throws Error
 	 */
-	private static void testSymbolicVsBruteForceComputation(String problemDescription, Collection<Expression> freeVariables, Expression symbolicSolution, Function<EnumerationCommonInterpreter, Expression> fromInterpreterWithAssignmentToBruteForceSolution, RewritingProcess process) throws Error {
+	private static void testSymbolicVsBruteForceComputation(String problemDescription, Collection<Expression> freeVariables, Expression symbolicSolution, Function<BruteForceCommonInterpreter, Expression> fromInterpreterWithAssignmentToBruteForceSolution, RewritingProcess process) throws Error {
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(freeVariables, process);
 		for (Map<Expression, Expression> assignment : in(assignmentsIterator)) {
-			EnumerationCommonInterpreter interpreter = new EnumerationCommonInterpreter(assignment);
+			BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter(assignment);
 			Expression bruteForceResultUnderAssignment = fromInterpreterWithAssignmentToBruteForceSolution.apply(interpreter);
 			Expression symbolicResultUnderAssignment = interpreter.apply(symbolicSolution, process);
 			output("Under free variables assignment " + assignment);

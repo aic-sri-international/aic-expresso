@@ -35,7 +35,7 @@ public abstract class AbstractSymbolicNumbersGroup implements AssociativeCommuta
 	 * @param n
 	 * @return
 	 */
-	protected abstract Expression addNTimesWithUnconditionalValueAndNAndNDistinctFromZero(Expression valueToBeAdded, Expression n);
+	protected abstract Expression addNTimesWithUnconditionalValueAndNDistinctFromZero(Expression valueToBeAdded, Expression n);
 
 	@Override
 	public Expression addNTimes(Expression valueToBeAdded, Expression n, RewritingProcess process) {
@@ -62,7 +62,7 @@ public abstract class AbstractSymbolicNumbersGroup implements AssociativeCommuta
 			result = IfThenElse.make(condition, newThenBranch, newElseBranch);
 		}
 		else {
-			result = addNTimesWithUnconditionalValueAndNAndNDistinctFromZero(valueToBeAdded, n);
+			result = addNTimesWithUnconditionalValueAndNDistinctFromZero(valueToBeAdded, n);
 		}
 		return result;
 	}

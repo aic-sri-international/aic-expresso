@@ -102,4 +102,9 @@ public class BooleansWithDisjunctionGroup implements AssociativeCommutativeGroup
 		}
 		return result;
 	}
+
+	@Override
+	public boolean isIdempotent() {
+		return true;
+	}
 }

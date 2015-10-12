@@ -71,4 +71,7 @@ public interface AssociativeCommutativeGroup {
 	 * The result of adding a value to itself n times, where both value and n may be symbolic expressions.
 	 */
 	Expression addNTimes(Expression value, Expression n, RewritingProcess process);
+
+	/** Indicates whether group's operator is idempotent. */
+	boolean isIdempotent();
 }
