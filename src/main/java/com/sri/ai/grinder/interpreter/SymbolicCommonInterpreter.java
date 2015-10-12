@@ -126,7 +126,8 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 //		Expression expression = parse("if for all X in Population : (there exists Y in Population : Y != X and W != 3) then Hurrah else not Hurrah");
 //		Expression expression = parse("there exists Y in Population : Y != tom and W != 3");
 //		Expression expression = parse("sum({{(on Y in Population) 2 | for all X in Population : (X = tom) => Y != X and W != 3 and Z != 2}})");
-		Expression expression = parse("product({{(on Y in Population) 2 | Y != tom and W != 3}})");
+		Expression expression = parse("sum({{(on Y in Population, Z in Numbers) 2 | for all X in Population : (X = tom) => Y != X and W != 3 and Z != 2}})");
+//		Expression expression = parse("product({{(on Y in Population) 2 | Y != tom and W != 3}})");
 //		Expression expression = parse("max({{(on Y in Population) 2 | for all X in Population : (X = tom) => Y != X and W != 3 and Z != 2}})");
 		Expression result = interpreter.apply(expression, process);
 		System.out.println("result: " + result);
