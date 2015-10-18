@@ -94,20 +94,32 @@ public abstract class AbstractCommonInterpreter extends AbstractInterpreter {
 	
 	public Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(
-				SUM,     (Simplifier) (s, p) -> evaluateAggregateOverIntensionalSet(new SymbolicPlusGroup(),  s, p),
-				PRODUCT, (Simplifier) (s, p) -> evaluateAggregateOverIntensionalSet(new SymbolicTimesGroup(), s, p),
-				MAX,     (Simplifier) (s, p) -> evaluateAggregateOverIntensionalSet(new SymbolicMaxGroup(),   s, p)
+				SUM,     simplifierFor(new SymbolicPlusGroup()),
+				PRODUCT, simplifierFor(new SymbolicTimesGroup()),
+				MAX,     simplifierFor(new SymbolicMaxGroup())
 				);
+	}
+
+	private Simplifier simplifierFor(AssociativeCommutativeGroup group) {
+		return (Simplifier) (s, p) -> evaluateAggregateOverIntensionalSet(group,  s, p);
 	}
 
 	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
 		return map(
-				"There exists", (Simplifier) (s, p) -> evaluateQuantifiedExpression(s, new BooleansWithDisjunctionGroup(), p),
-				"For all",      (Simplifier) (s, p) -> evaluateQuantifiedExpression(s, new BooleansWithConjunctionGroup(), p)
+				"There exists", simplifierForQuantificationOn(new BooleansWithDisjunctionGroup()),
+				"For all",      simplifierForQuantificationOn(new BooleansWithConjunctionGroup())
 				);
 	}
 
-	private Expression evaluateAggregateOverIntensionalSet(AssociativeCommutativeGroup group, Expression expression, RewritingProcess process) throws Error {
+	private Simplifier simplifierForQuantificationOn(AssociativeCommutativeGroup group) {
+		return (Simplifier) (s, p) -> evaluateQuantifiedExpression(s, group, p);
+	}
+
+	private Expression evaluateAggregateOverIntensionalSet(
+			AssociativeCommutativeGroup group,
+			Expression expression,
+			RewritingProcess process) throws Error {
+		
 		IntensionalSet intensionalSet = (IntensionalSet)expression.get(0);
 		ExtensionalIndexExpressionsSet indexExpressions = (ExtensionalIndexExpressionsSet) intensionalSet.getIndexExpressions();
 		// the set is intensional, but not the set of index expressions!
@@ -117,7 +129,11 @@ public abstract class AbstractCommonInterpreter extends AbstractInterpreter {
 		return result;
 	}
 
-	private Expression evaluateQuantifiedExpression(Expression expression, AssociativeCommutativeGroup group, RewritingProcess process) {
+	private Expression evaluateQuantifiedExpression(
+			Expression expression,
+			AssociativeCommutativeGroup group,
+			RewritingProcess process) {
+		
 		QuantifiedExpressionWithABody quantifiedExpression = (QuantifiedExpressionWithABody) expression;
 		Expression body = quantifiedExpression.getBody();
 		ExtensionalIndexExpressionsSet indexExpressions = (ExtensionalIndexExpressionsSet) quantifiedExpression.getIndexExpressions();

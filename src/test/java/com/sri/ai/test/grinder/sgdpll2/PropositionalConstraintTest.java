@@ -64,7 +64,7 @@ public class PropositionalConstraintTest {
 		ConstraintTheoryTester.testMultiVariableConstraints(
 				new Random(),
 				new PropositionalConstraintTheory(),
-				10 /* number of tests - many more possibilities when we have multiple variables */,
+				100 /* number of tests - many more possibilities when we have multiple variables */,
 				10 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -74,7 +74,7 @@ public class PropositionalConstraintTest {
 		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
 				new Random(),
 				new PropositionalConstraintTheory(),
-				10 /* number of tests */,
+				100 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -86,7 +86,7 @@ public class PropositionalConstraintTest {
 		ConstraintTheoryTester.testSumForSingleVariableConstraints(
 				new Random(),
 				new PropositionalConstraintTheory(),
-				30 /* number of tests */,
+				300 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -96,7 +96,7 @@ public class PropositionalConstraintTest {
 		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
 				new Random(),
 				new PropositionalConstraintTheory(),
-				10 /* number of tests */,
+				100 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}

@@ -40,6 +40,8 @@ package com.sri.ai.grinder.sgdpll2.api;
 import static com.sri.ai.grinder.library.boole.And.getConjuncts;
 import static com.sri.ai.util.Util.myAssert;
 
+import java.util.List;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -127,11 +129,18 @@ public interface Constraint extends Expression {
 	 * @return the result of conjoining this constraint with all conjuncts of a given conjunction
 	 */
 	default Constraint conjoinWithConjunctiveClause(Expression conjunctiveClause, RewritingProcess process) {
-		Constraint result = this;
-		for (Expression literal : getConjuncts(conjunctiveClause)) {
-			result = result.conjoin(literal, process);
-			if (result == null) {
-				break;
+		Constraint result;
+		List<Expression> conjuncts = getConjuncts(conjunctiveClause);
+		if (conjuncts.size() == 1) { // this is necessary to avoid an infinite loop
+			result = conjoinWithLiteral(conjuncts.get(0), process);
+		}
+		else {
+			result = this;
+			for (Expression literal : conjuncts) {
+				result = result.conjoin(literal, process);
+				if (result == null) {
+					break;
+				}
 			}
 		}
 		return result;

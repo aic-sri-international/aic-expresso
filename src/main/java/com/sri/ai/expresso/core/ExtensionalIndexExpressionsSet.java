@@ -41,6 +41,7 @@ import static com.sri.ai.util.Util.mapIntoArrayList;
 import static com.sri.ai.util.Util.replaceElementsNonDestructively;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -67,6 +68,10 @@ public class ExtensionalIndexExpressionsSet implements IndexExpressionsSet {
 	public ExtensionalIndexExpressionsSet(List<Expression> indexExpressions) {
 		super();
 		list = new ArrayList<Expression>(indexExpressions);
+	}
+	
+	public ExtensionalIndexExpressionsSet(Expression... indexExpressions) {
+		this(Arrays.asList(indexExpressions));
 	}
 	
 	public List<Expression> getList() {

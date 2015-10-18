@@ -56,6 +56,7 @@ import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentProblemSolver;
+import com.sri.ai.util.base.Pair;
 
 /**
  * An {@link Constraint} on multiple variables,
@@ -137,36 +138,49 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 	@Override
 	public MultiVariableConstraintWithCheckedProperty conjoin(Expression formula, RewritingProcess process) {
 		MultiVariableConstraintWithCheckedProperty result;
-
-		result = conjoinSpecializedForConstraintsIfApplicable(formula, process);
 		
-		if (result == null) { // fall back to default implementation
+		Pair<Boolean, MultiVariableConstraintWithCheckedProperty> specializedResult
+		= conjoinSpecializedForConstraintsIfApplicable(formula, process);
+		
+		if (specializedResult.first) {
+			result = specializedResult.second;
+		}
+		else { // fall back to default implementation
 			result = (MultiVariableConstraintWithCheckedProperty) MultiVariableConstraint.super.conjoin(formula, process);
 		}
 		
 		return result;
 	}
 
-	private MultiVariableConstraintWithCheckedProperty conjoinSpecializedForConstraintsIfApplicable(Expression formula, RewritingProcess process) {
-		MultiVariableConstraintWithCheckedProperty result = null;
+	/**
+	 * Returns a pair indicating whether specialized conjoin for constraints applies to this case and,
+	 * if so, provides the result of this conjoining.
+	 * @param formula
+	 * @param process
+	 * @return
+	 */
+	private Pair<Boolean, MultiVariableConstraintWithCheckedProperty> conjoinSpecializedForConstraintsIfApplicable(Expression formula, RewritingProcess process) {
+		Pair<Boolean, MultiVariableConstraintWithCheckedProperty> result = new Pair<>(false, null);
 		
 		if (formula instanceof SingleVariableConstraint) {
 			SingleVariableConstraint formulaAsSingleVariableConstraint = (SingleVariableConstraint) formula;
 			if ( ! contains(this, formulaAsSingleVariableConstraint.getVariable(), process)) {
-				result = makeAndCheck(this, formulaAsSingleVariableConstraint, contextDependentProblemStepSolverMaker, process);
+				result = Pair.make(true, makeAndCheck(this, formulaAsSingleVariableConstraint, contextDependentProblemStepSolverMaker, process));
 				// if the variable is new to this constraint, we can simply tack on its constraint under it. 
 			}
 		}
 		else if (formula instanceof MultiVariableConstraintWithCheckedProperty) {
 			MultiVariableConstraintWithCheckedProperty formulaAsMultiVariableConstraint = (MultiVariableConstraintWithCheckedProperty) formula;
-			result = this;
+			MultiVariableConstraintWithCheckedProperty conjunction = this;
 			if (formulaAsMultiVariableConstraint.contextualConstraint != null) {
-				result = conjoin(formulaAsMultiVariableConstraint.contextualConstraint, process);
+				conjunction = conjunction.conjoin(formulaAsMultiVariableConstraint.contextualConstraint, process);
 			}
 			if (formulaAsMultiVariableConstraint.singleVariableConstraint != null) {
-				result = conjoinSpecializedForConstraintsIfApplicable(formulaAsMultiVariableConstraint.singleVariableConstraint, process);
+				conjunction = conjunction.conjoin(formulaAsMultiVariableConstraint.singleVariableConstraint, process);
 			}
+			result = Pair.make(true, conjunction);
 		}
+		
 		return result;
 	}
 

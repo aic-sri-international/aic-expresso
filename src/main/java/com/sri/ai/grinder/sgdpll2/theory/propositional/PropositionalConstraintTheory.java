@@ -54,6 +54,7 @@ import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractConstraintTheory;
@@ -87,7 +88,18 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 
 	@Override
 	public boolean isNonTrivialLiteral(Expression expression, RewritingProcess process) {
-		return GrinderUtil.isBooleanTyped(expression, process);
+		boolean result = isNonTrivialAtom(expression, process) || isNonTrivialNegativeLiteral(expression, process);
+		return result;
+	}
+
+	private static boolean isNonTrivialAtom(Expression expression, RewritingProcess process) {
+		boolean result = GrinderUtil.isBooleanTyped(expression, process) && !FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(expression);
+		return result;
+	}
+	
+	private static boolean isNonTrivialNegativeLiteral(Expression expression, RewritingProcess process) {
+		boolean result = expression.hasFunctor(NOT) && isNonTrivialAtom(expression.get(0), process);
+		return result;
 	}
 	
 	@Override

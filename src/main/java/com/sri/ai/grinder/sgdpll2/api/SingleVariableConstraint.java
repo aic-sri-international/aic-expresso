@@ -54,6 +54,38 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 	 */
 	Expression getVariable();
 	
+	/**
+	 * Returns a {@link SingleVariableConstraint} on a given variable, according to a given constraint theory,
+	 * equivalent to given formula (or null if formula is inconsistent)
+	 * -- the formula object itself is returned if it happens to be a
+	 * {@link SingleVariableConstraint} on same variable and theory.
+	 * @param variable
+	 * @param formula
+	 * @return
+	 */
+	public static SingleVariableConstraint make(
+			ConstraintTheory constraintTheory,
+			Expression variable,
+			Expression formula,
+			RewritingProcess process) {
+		
+		SingleVariableConstraint result = null;
+		if (formula instanceof SingleVariableConstraint) {
+			SingleVariableConstraint formulasAsConstraint = (SingleVariableConstraint) formula;
+			if (formulasAsConstraint.getVariable().equals(variable) &&
+					formulasAsConstraint.getConstraintTheory().equals(constraintTheory)) {
+				result = formulasAsConstraint;
+			}
+		}
+		
+		// if formula is not appropriate constraint, create a new one and conjoin with formula
+		if (result == null) {
+			result = constraintTheory.makeSingleVariableConstraint(variable).conjoin(formula, process);
+		}
+		
+		return result;
+	}
+	
 	@Override
 	default SingleVariableConstraint conjoin(Expression formula, RewritingProcess process) {
 		return (SingleVariableConstraint) Constraint.super.conjoin(formula, process);

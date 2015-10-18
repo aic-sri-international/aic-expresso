@@ -64,6 +64,8 @@ public class ContextDependentProblemSolver {
 
 	public static Expression solve(ContextDependentProblemStepSolver stepSolver, Constraint contextualConstraint, RewritingProcess process) {
 		ContextDependentProblemStepSolver.SolutionStep step = stepSolver.step(contextualConstraint, process);
+//		System.out.println("Step: " + step);
+//		System.out.println("Contextual constraint: " + contextualConstraint);	
 		if (step.itDepends()) {
 			Expression splitter = step.getExpression();
 			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, splitter, process);
