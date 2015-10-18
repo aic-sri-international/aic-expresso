@@ -61,7 +61,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
@@ -73,17 +72,12 @@ import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreter;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
-import com.sri.ai.grinder.plaindpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.DefaultMultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentProblemSolver;
-import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierOnBodyWithIndexInLiteralsOnlyStepSolver;
 import com.sri.ai.util.base.NullaryFunction;
-import com.sri.ai.util.math.Rational;
 
 /**
  * A class for testing a {@link ConstraintTheory} and its unsatisfiability detection.
@@ -507,29 +501,6 @@ public class ConstraintTheoryTester {
 		testSum(singleVariableConstraint, body, process);
 	}
 
-	private static void testSum1(
-			SingleVariableConstraint singleVariableConstraint, Expression body, RewritingProcess process) throws Error {
-		
-		String problemDescription = singleVariableConstraint == null?
-				"sum over contradiction"
-				: "sum_{ " + singleVariableConstraint.getVariable() + " : " + singleVariableConstraint + "} " + body;
-		output(problemDescription);
-		
-		Expression symbolicSolution = computeSumBySolver(singleVariableConstraint, body, process);
-		output("Symbolic solution: " + symbolicSolution);
-		
-		Function<BruteForceCommonInterpreter, Expression> fromInterpreterWithAssignmentToBruteForceSolution
-		= interpreter -> bruteForceSumUnderAssignment(singleVariableConstraint, body, interpreter, process);
-
-		testCountingProblem(
-				problemDescription,
-				singleVariableConstraint,
-				body,
-				symbolicSolution,
-				fromInterpreterWithAssignmentToBruteForceSolution,
-				process);
-	}
-
 	private static void testSum(
 			SingleVariableConstraint singleVariableConstraint, Expression body, RewritingProcess process) throws Error {
 
@@ -550,8 +521,7 @@ public class ConstraintTheoryTester {
 			SymbolicCommonInterpreter symbolicInterpreter = new SymbolicCommonInterpreter(constraintTheory);
 			CompleteMultiVariableConstraint trueContextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
 			process.putGlobalObject(SymbolicCommonInterpreter.INTERPRETER_CONTEXTUAL_CONSTRAINT, trueContextualConstraint);
-//			Expression symbolicSolution = symbolicInterpreter.apply(problem, process);
-			Expression symbolicSolution = computeSumBySolver(singleVariableConstraint, body, process);
+			Expression symbolicSolution = symbolicInterpreter.apply(problem, process);
 			output("Symbolic solution: " + symbolicSolution);
 
 			Collection<Expression> freeVariables = getFreeVariableMinusIndex(singleVariableConstraint, body, process);
@@ -580,51 +550,6 @@ public class ConstraintTheoryTester {
 		allVariables.addAll(getVariables(body, process));
 		Collection<Expression> freeVariables = removeFromSetNonDestructively(allVariables, v -> v.equals(testingVariable));
 		return freeVariables;
-	}
-
-	/**
-	 * @param singleVariableConstraint
-	 * @param process
-	 * @return
-	 */
-	private static Expression computeSumBySolver(SingleVariableConstraint singleVariableConstraint, Expression body, RewritingProcess process) {
-		if (singleVariableConstraint == null) {
-			return ZERO;
-		}
-		else {
-			ContextDependentProblemStepSolver stepSolver =
-					new QuantifierOnBodyWithIndexInLiteralsOnlyStepSolver(
-							new SymbolicPlusGroup(),
-							singleVariableConstraint,
-							body);
-			ConstraintTheory constraintTheory = singleVariableConstraint.getConstraintTheory();
-			Constraint trueContextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
-			Expression result = ContextDependentProblemSolver.solve(stepSolver, trueContextualConstraint, process);
-			return result;
-		}
-	}
-
-	/**
-	 * @param testingVariable
-	 * @param singleVariableConstraint
-	 * @param interpreter
-	 * @param process
-	 */
-	private static Expression bruteForceSumUnderAssignment(SingleVariableConstraint singleVariableConstraint, Expression body, BruteForceCommonInterpreter interpreter, RewritingProcess process) {
-		Expression testingVariable = singleVariableConstraint.getVariable();
-		output("Computing sum by brute force of " + testingVariable + " : " + singleVariableConstraint + " over " + body);
-		int total = 0;
-		AssignmentsIterator testingVariableAssignmentsIterator = new AssignmentsIterator(list(testingVariable), process);
-		for (Map<Expression, Expression> testingVariableAssignment : in(testingVariableAssignmentsIterator)) {
-			AbstractInterpreter completeInterpreter = interpreter.extendWith(testingVariableAssignment, process);
-			process.putGlobalObject(AbstractInterpreter.INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(singleVariableConstraint.getConstraintTheory()));
-			Expression constraintValue = completeInterpreter.apply(singleVariableConstraint, process);
-			if (constraintValue.equals(TRUE)) {
-				Expression bodyValue = completeInterpreter.apply(body, process);
-				total += ((Rational)bodyValue.getValue()).intValue();
-			}
-		}
-		return makeSymbol(total);
 	}
 
 	private static void testCountingProblem(

@@ -105,8 +105,8 @@ public class EqualityConstraintTest {
 		ConstraintTheoryTester.testSumForSingleVariableConstraints(
 				new Random(),
 				new EqualityConstraintTheory(),
-				75 /* number of tests */,
-				30 /* number of literals per test */,
+				30 /* number of tests */,
+				20 /* number of literals per test */,
 				true /* output count */);
 	}
 
