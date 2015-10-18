@@ -37,17 +37,45 @@
  */
 package com.sri.ai.grinder.plaindpll.problemtype;
 
-import com.sri.ai.grinder.plaindpll.group.SymbolicPlusTimesSemiRing;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.IndexExpressionsSet;
+import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
+import com.sri.ai.util.base.Pair;
 
 /**
- * The sum-product problem type.
+ * An abstract extension of {@link AbstractGroupProblemType}
+ * for problems represented by quantified formulas.
  * 
  * @author braz
  *
  */
-public class SumProduct extends AbstractSemiRingProblemType {
-
-	public SumProduct() {
-		super(new Sum(new SymbolicPlusTimesSemiRing()));
+abstract public class AbstractGroupProblemTypeWithQuantifiedFormula extends AbstractGroupProblemType {
+	
+	public AbstractGroupProblemTypeWithQuantifiedFormula(AssociativeCommutativeGroup group) {
+		super(group);
 	}
+	
+	@Override
+	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(
+			Expression expression, RewritingProcess process) {
+		
+		QuantifiedExpressionWithABody quantifiedFormula = (QuantifiedExpressionWithABody) expression;
+		Pair<Expression, IndexExpressionsSet> formulaAndIndices = 
+				Pair.make(quantifiedFormula.getBody(), quantifiedFormula.getIndexExpressions());
+		return formulaAndIndices;
+	}
+	
+	// @Override
+	public Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body) {
+		Expression indexExpression = IndexExpressions.makeIndexExpression(index, indexType);
+		Expression bodyEncodingConstraint = IfThenElse.make(constraint, body, additiveIdentityElement());
+		Expression result = makeQuantifiedExpression(indexExpression, bodyEncodingConstraint);
+		return result;
+	}
+
+	abstract public Expression makeQuantifiedExpression(Expression indexExpression, Expression bodyEncodingConstraint);
 }

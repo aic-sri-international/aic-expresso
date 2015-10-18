@@ -137,7 +137,7 @@ public class SGDPLLTParallelizer extends SGDPLLT {
 		int level = getLevel(process);
 		if (itIsTimeToCollect(level, expression, indices, constraint, process)) {
 			collector.collect(expression, indices, constraint, process);
-			result = problemType.getGroup().additiveIdentityElement(); // dummy solution
+			result = problemType.additiveIdentityElement(); // dummy solution
 		}
 		else {
 			result = super.solve(expression, indices, constraint, process);

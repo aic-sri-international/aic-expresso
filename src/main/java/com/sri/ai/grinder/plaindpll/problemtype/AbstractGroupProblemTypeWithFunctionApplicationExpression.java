@@ -37,47 +37,54 @@
  */
 package com.sri.ai.grinder.plaindpll.problemtype;
 
-import static com.sri.ai.expresso.helper.Expressions.ONE;
-import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.makeIndexExpression;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.expresso.api.IntensionalSet;
+import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
+import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
-import com.sri.ai.grinder.plaindpll.group.SymbolicPlusGroup;
+import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
+
 /**
- * Satisfiability uses the boolean group and does not boolean formulas
- * (applies the group additive operation, disjunction, directly on them).
+ * An abstract implementation of {@link AbstractGroupProblemType}
+ * for problem types based on function applications of an operator on an intensional set,
+ * such as <code>sum({{ (on X in Numbers, Y in Numbers) 3*X | Y != 2}})<code>.
+ * It requires extensions to define its functor's string.
  * 
  * @author braz
  *
  */
-public class ModelCounting extends AbstractGroupProblemTypeWithFunctionApplicationExpression {
-
-	public ModelCounting() {
-		super(new SymbolicPlusGroup());
-	}
+abstract public class AbstractGroupProblemTypeWithFunctionApplicationExpression extends AbstractGroupProblemType {
 	
-	@Override
-	public String getFunctorString() {
-		return FunctorConstants.CARDINALITY;
+	abstract public String getFunctorString();
+	
+	public AbstractGroupProblemTypeWithFunctionApplicationExpression(AssociativeCommutativeGroup group) {
+		super(group);
 	}
 
-	/**
-	 * We override this method for model counting because the we must use ONE,
-	 * instead of getHead(), to build the body as done by super's implementation.
-	 */
 	@Override
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		CardinalityUtil.assertIsCardinalityOfIndexedFormulaExpression(expression);
+		Util.myAssert(() -> expression.hasFunctor(getFunctorString()), () -> "Expression expected to be application of " + getFunctorString() + " but is " + expression);
 		IntensionalSet set = (IntensionalSet) expression.get(0);
-		Expression body = IfThenElse.make(set.getCondition(), ONE, ZERO);
+		Expression body = IfThenElse.make(set.getCondition(), set.getHead(), additiveIdentityElement());
 		Pair<Expression, IndexExpressionsSet> result = Pair.make(body, set.getIndexExpressions());
 		return result;
+	}
+
+	//@Override
+	public Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body) {
+		Expression indexExpression = makeIndexExpression(index, indexType);
+		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(indexExpression); 
+		DefaultIntensionalMultiSet set =
+				new DefaultIntensionalMultiSet(indexExpressionsSet, body, constraint);
+		Expression problem = apply(getFunctorString(), set);
+		return problem;
 	}
 }

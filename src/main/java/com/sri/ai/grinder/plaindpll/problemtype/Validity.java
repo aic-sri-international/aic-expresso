@@ -38,11 +38,8 @@
 package com.sri.ai.grinder.plaindpll.problemtype;
 
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.UniversallyQuantifiedFormula;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.grinder.plaindpll.group.BooleansWithConjunctionGroup;
-import com.sri.ai.util.base.Pair;
 
 /**
  * Declares the problem type of determining whether a formula is always valid.
@@ -50,16 +47,14 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public class Validity extends AbstractGroupProblemType {
-
+public class Validity extends AbstractGroupProblemTypeWithQuantifiedFormula {
 	public Validity() {
 		super(new BooleansWithConjunctionGroup());
 	}
-	
+
 	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		UniversallyQuantifiedFormula universal = (UniversallyQuantifiedFormula) expression;
-		Pair<Expression, IndexExpressionsSet> formulaAndIndices = Pair.make(universal.getBody(), universal.getIndexExpressions());
-		return formulaAndIndices;
+	public Expression makeQuantifiedExpression(Expression indexExpression, Expression body) {
+		DefaultUniversallyQuantifiedFormula result = new DefaultUniversallyQuantifiedFormula(indexExpression, body);
+		return result;
 	}
 }

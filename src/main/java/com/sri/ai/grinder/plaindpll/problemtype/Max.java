@@ -37,16 +37,9 @@
  */
 package com.sri.ai.grinder.plaindpll.problemtype;
 
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import static com.sri.ai.grinder.library.FunctorConstants.MAX;
+
 import com.sri.ai.grinder.plaindpll.group.SymbolicMaxGroup;
-import com.sri.ai.util.Util;
-import com.sri.ai.util.base.Pair;
 
 
 /**
@@ -55,17 +48,13 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public class Max extends AbstractGroupProblemType {
+public class Max extends AbstractGroupProblemTypeWithFunctionApplicationExpression {
 	
 	public Max() {
 		super(new SymbolicMaxGroup());
 	}
 
-	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		Util.myAssert(() -> expression.hasFunctor(FunctorConstants.MAX), () -> "Expression expected to be application of " + FunctorConstants.MAX + " but is " + expression);
-		IntensionalSet set = (IntensionalSet) expression.get(0);
-		Pair<Expression, IndexExpressionsSet> result = Pair.make(IfThenElse.make(set.getCondition(), set.getHead(), Expressions.MINUS_INFINITY), set.getIndexExpressions());
-		return result;
+	public String getFunctorString() {
+		return MAX;
 	}
 }

@@ -37,6 +37,8 @@
  */
 package com.sri.ai.expresso.core;
 
+import static com.sri.ai.util.Util.arrayList;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.ExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.api.Expression;
@@ -55,6 +57,10 @@ public class DefaultExistentiallyQuantifiedFormula extends AbstractQuantifiedExp
 	
 	public DefaultExistentiallyQuantifiedFormula(IndexExpressionsSet indexExpressions, Expression body) {
 		super(indexExpressions, body);
+	}
+
+	public DefaultExistentiallyQuantifiedFormula(Expression indexExpression, Expression body) {
+		super(new ExtensionalIndexExpressionsSet(arrayList(indexExpression)), body);
 	}
 
 	@Override

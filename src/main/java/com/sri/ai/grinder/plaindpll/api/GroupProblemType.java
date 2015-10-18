@@ -44,20 +44,17 @@ import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.util.base.Pair;
 
 /**
- * Defines a group-type problem by specifying how to extract an expression and indices to be given to a {@link Solver} from a given problem expression.
- * For example, satisfiability converts expressions of the type <code>there exists X, Y : X != Y</code> to expression <code>X != Y</code> and indices <code>X, Y</code>.
+ * A group problem type is a group that knows how to convert quantifier-elimination type problems involving its
+ * operations to {@link Expression}s representing those problems, and vice-versa.
+ * <p>
+ * For example, satisfiability converts expressions of the type <code>there exists X, Y : X != Y</code> to expression
+ * <code>X != Y</code> and indices <code>X, Y</code>.
  * 
  * @author braz
  *
  */
-public interface GroupProblemType {
+public interface GroupProblemType extends AssociativeCommutativeGroup {
 
-	/**
-	 * Returns the group this problem type is based in.
-	 * @return the group this problem type is based in.
-	 */
-	AssociativeCommutativeGroup getGroup();
-	
 	/**
 	 * Gets an expression passed to a rewriter solving this type of problem, and returns a pair containing the expression
 	 * and indices for DPLL to solve.
@@ -66,5 +63,17 @@ public interface GroupProblemType {
 	 * @param process
 	 * @return
 	 */
-	Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process);
+	Pair<Expression, IndexExpressionsSet>
+	getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process);
+
+//	/**
+//	 * Generates an expression representing of problem of this type, given its components. 
+//	 * @param index
+//	 * @param constraint
+//	 * @param body
+//	 * @param process
+//	 * @return
+//	 */
+//	Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body);
+
 }

@@ -511,8 +511,6 @@ public class ConstraintTheoryTester {
 			DefaultIntensionalMultiSet set =
 					new DefaultIntensionalMultiSet(indexExpressionsSet, body, singleVariableConstraint);
 			Expression problem = apply(SUM, set);
-			// TODO: make sure algorithm can use the fact that condition is already a Constraint, instead of simply
-			// an Expression yet to be conjoined with an empty constraint
 			
 			String problemDescription = problem.toString();
 			output(problemDescription);
@@ -544,7 +542,7 @@ public class ConstraintTheoryTester {
 	 * @param process
 	 * @return
 	 */
-	public static Collection<Expression> getFreeVariableMinusIndex(SingleVariableConstraint constraint, Expression body, RewritingProcess process) {
+	private static Collection<Expression> getFreeVariableMinusIndex(SingleVariableConstraint constraint, Expression body, RewritingProcess process) {
 		Expression testingVariable = constraint.getVariable();
 		Set<Expression> allVariables = getVariables(constraint, process);
 		allVariables.addAll(getVariables(body, process));

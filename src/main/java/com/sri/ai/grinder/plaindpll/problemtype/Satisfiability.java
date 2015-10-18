@@ -37,12 +37,9 @@
  */
 package com.sri.ai.grinder.plaindpll.problemtype;
 
-import com.sri.ai.expresso.api.ExistentiallyQuantifiedFormula;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.expresso.core.DefaultExistentiallyQuantifiedFormula;
 import com.sri.ai.grinder.plaindpll.group.BooleansWithDisjunctionGroup;
-import com.sri.ai.util.base.Pair;
 
 /**
  * Declares the problem type of determining whether a formula has a model.
@@ -50,16 +47,14 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public class Satisfiability extends AbstractGroupProblemType {
-	
+public class Satisfiability extends AbstractGroupProblemTypeWithQuantifiedFormula {
 	public Satisfiability() {
 		super(new BooleansWithDisjunctionGroup());
 	}
-	
+
 	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		ExistentiallyQuantifiedFormula existential = (ExistentiallyQuantifiedFormula) expression;
-		Pair<Expression, IndexExpressionsSet> formulaAndIndices = Pair.make(existential.getBody(), existential.getIndexExpressions());
-		return formulaAndIndices;
+	public Expression makeQuantifiedExpression(Expression indexExpression, Expression body) {
+		DefaultExistentiallyQuantifiedFormula result = new DefaultExistentiallyQuantifiedFormula(indexExpression, body);
+		return result;
 	}
 }

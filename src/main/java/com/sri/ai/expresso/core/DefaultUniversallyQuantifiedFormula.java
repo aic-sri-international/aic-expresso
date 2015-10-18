@@ -37,6 +37,8 @@
  */
 package com.sri.ai.expresso.core;
 
+import static com.sri.ai.util.Util.arrayList;
+
 import java.util.List;
 
 import com.google.common.annotations.Beta;
@@ -61,6 +63,10 @@ public class DefaultUniversallyQuantifiedFormula extends AbstractQuantifiedExpre
 
 	public DefaultUniversallyQuantifiedFormula(List<Expression> indexExpressions, Expression body) {
 		this(new ExtensionalIndexExpressionsSet(indexExpressions), body);
+	}
+
+	public DefaultUniversallyQuantifiedFormula(Expression indexExpression, Expression body) {
+		super(new ExtensionalIndexExpressionsSet(arrayList(indexExpression)), body);
 	}
 
 	@Override

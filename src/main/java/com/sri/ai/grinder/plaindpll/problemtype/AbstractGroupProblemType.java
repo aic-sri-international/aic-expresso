@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.plaindpll.problemtype;
 
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 
@@ -49,14 +51,48 @@ import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
  */
 abstract public class AbstractGroupProblemType implements GroupProblemType {
 	
+	// The reason we choose to implement {@link GroupProblemType}s by keeping an internal group field,
+	// as opposed to extending {@link AssociativeCommutativeGroup} classes,
+	// is that we want to write implementations for the methods of {@link GroupProblemType}
+	// in a generic way, and only once, to be shared among the multiple implementations.
+	// If we extended {@link AssociativeCommutativeGroup} classes, we would not
+	// be able to also extend abstract {@link GroupProblemType} classes with this generic code.
+	// By keeping instead a group field, we can have such abstract classes and define
+	// an implementation of {@link GroupProblemType} for each type of group
+	// that simply indicates which group goes with it.
+	
 	private AssociativeCommutativeGroup group;
 	
 	public AbstractGroupProblemType(AssociativeCommutativeGroup group) {
 		this.group = group;
 	}
 
-	@Override
 	public AssociativeCommutativeGroup getGroup() {
 		return group;
+	}
+
+	@Override
+	public Expression additiveIdentityElement() { 
+		return getGroup().additiveIdentityElement();
+	}
+
+	@Override
+	public boolean isAdditiveAbsorbingElement(Expression value) {
+		return getGroup().isAdditiveAbsorbingElement(value);
+	}
+
+	@Override
+	public Expression add(Expression value1, Expression value2, RewritingProcess process) {
+		return getGroup().add(value1, value2, process);
+	}
+
+	@Override
+	public Expression addNTimes(Expression value, Expression n, RewritingProcess process) {
+		return getGroup().addNTimes(value, n, process);
+	}
+
+	@Override
+	public boolean isIdempotent() {
+		return getGroup().isIdempotent();
 	}
 }

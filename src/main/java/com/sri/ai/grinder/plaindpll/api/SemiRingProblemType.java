@@ -41,10 +41,11 @@ import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeSemiRing;
 
 
 /**
- * Same as {@link GroupProblemType}, but offering {@link AssociativeCommutativeSemiRing} as well.
+ * Same as {@link GroupProblemType}, but offering {@link AssociativeCommutativeSemiRing} functionality as well.
  * 
  * @author braz
  *
  */
 public interface SemiRingProblemType extends AssociativeCommutativeSemiRing, GroupProblemType {
+	
 }

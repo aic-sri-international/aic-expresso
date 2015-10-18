@@ -37,17 +37,9 @@
  */
 package com.sri.ai.grinder.plaindpll.problemtype;
 
-import static com.sri.ai.expresso.helper.Expressions.ZERO;
-
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.api.IntensionalSet;
-import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.plaindpll.group.SymbolicPlusGroup;
-import com.sri.ai.util.Util;
-import com.sri.ai.util.base.Pair;
 
 /**
  * The sum problem type.
@@ -55,17 +47,27 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public class Sum extends AbstractGroupProblemType {
+public class Sum extends AbstractGroupProblemTypeWithFunctionApplicationExpression {
 
+	/**
+	 * Creates a sum problem type based on a {@link SymbolicPlusGroup} group.
+	 */
 	public Sum() {
 		super(new SymbolicPlusGroup());
 	}
 	
+	/**
+	 * Creates a sum problem type based on a given group.
+	 * This is useful for extensions that need to be based on an instance of some extension of
+	 * {@link AssociativeCommutativeGroup} such as {@link AssociativeCommutativeSemiRing}.
+	 * This is something need for problem types passed to {@link AbstractSemiRingProblemType}.
+	 */
+	protected Sum(AssociativeCommutativeGroup group) {
+		super(group);
+	}
+	
 	@Override
-	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
-		Util.myAssert(() -> expression.hasFunctor(FunctorConstants.SUM), () -> "Expression expected to be application of " + FunctorConstants.SUM + " but is " + expression);
-		IntensionalSet set = (IntensionalSet) expression.get(0);
-		Pair<Expression, IndexExpressionsSet> result = Pair.make(IfThenElse.make(set.getCondition(), set.getHead(), ZERO), set.getIndexExpressions());
-		return result;
+	public String getFunctorString() {
+		return FunctorConstants.SUM;
 	}
 }
