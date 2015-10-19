@@ -81,7 +81,7 @@ public class QuantifierOnBodyWithIndexInLiteralsOnlyStepSolver extends AbstractQ
 		Expression result;
 		if (getGroup().isIdempotent()) {
 			Expression conditionForSatisfiability = indexConstraint.satisfiability(contextualConstraint, process);
-			result = IfThenElse.make(conditionForSatisfiability, literalFreeBody, getGroup().additiveIdentityElement());
+			result = IfThenElse.makeWithoutConditionalCondition(conditionForSatisfiability, literalFreeBody, getGroup().additiveIdentityElement());
 		}
 		else {
 			result = getGroup().addNTimes(literalFreeBody, indexConstraint.modelCount(contextualConstraint, process), process);

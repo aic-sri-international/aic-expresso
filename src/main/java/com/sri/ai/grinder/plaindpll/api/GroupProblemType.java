@@ -66,14 +66,14 @@ public interface GroupProblemType extends AssociativeCommutativeGroup {
 	Pair<Expression, IndexExpressionsSet>
 	getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process);
 
-//	/**
-//	 * Generates an expression representing of problem of this type, given its components. 
-//	 * @param index
-//	 * @param constraint
-//	 * @param body
-//	 * @param process
-//	 * @return
-//	 */
-//	Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body);
+	/**
+	 * Generates an expression representing of problem of this type, given its components. 
+	 * @param index
+	 * @param constraint
+	 * @param body
+	 * @param process
+	 * @return
+	 */
+	Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body);
 
 }

@@ -78,12 +78,11 @@ abstract public class AbstractGroupProblemTypeWithFunctionApplicationExpression 
 		return result;
 	}
 
-	//@Override
+	@Override
 	public Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body) {
 		Expression indexExpression = makeIndexExpression(index, indexType);
 		IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(indexExpression); 
-		DefaultIntensionalMultiSet set =
-				new DefaultIntensionalMultiSet(indexExpressionsSet, body, constraint);
+		DefaultIntensionalMultiSet set = new DefaultIntensionalMultiSet(indexExpressionsSet, body, constraint);
 		Expression problem = apply(getFunctorString(), set);
 		return problem;
 	}

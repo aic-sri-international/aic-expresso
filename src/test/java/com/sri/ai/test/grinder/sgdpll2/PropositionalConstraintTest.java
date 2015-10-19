@@ -43,6 +43,8 @@ import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.plaindpll.problemtype.Max;
+import com.sri.ai.grinder.plaindpll.problemtype.Sum;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
 
@@ -83,11 +85,27 @@ public class PropositionalConstraintTest {
 	public void testSumForSingleVariableConstraints() {
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
-		ConstraintTheoryTester.testSumForSingleVariableConstraints(
+		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
 				new Random(),
+				new Sum(),
 				new PropositionalConstraintTheory(),
 				300 /* number of tests */,
 				30 /* number of literals per test */,
+				3, /* body depth */
+				true /* output count */);
+	}
+
+	@Test
+	public void testMaxForSingleVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+		
+		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
+				new Random(),
+				new Max(),
+				new PropositionalConstraintTheory(),
+				300 /* number of tests */,
+				30 /* number of literals per test */,
+				3, /* body depth */
 				true /* output count */);
 	}
 

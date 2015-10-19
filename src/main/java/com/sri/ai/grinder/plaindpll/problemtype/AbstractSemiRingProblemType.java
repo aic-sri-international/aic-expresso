@@ -150,4 +150,9 @@ public abstract class AbstractSemiRingProblemType implements SemiRingProblemType
 	public Pair<Expression, IndexExpressionsSet> getExpressionAndIndexExpressionsFromRewriterProblemArgument(Expression expression, RewritingProcess process) {
 		return groupProblemType.getExpressionAndIndexExpressionsFromRewriterProblemArgument(expression, process);
 	}
+
+	@Override
+	public Expression makeProblemExpression(Expression index, Expression indexType, Expression constraint, Expression body) {
+		return groupProblemType.makeProblemExpression(index, indexType, constraint, body);
+	}
 }

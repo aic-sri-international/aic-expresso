@@ -90,6 +90,29 @@ public class IfThenElse extends AbstractRewriter {
 	}
 	
 	/**
+	 * Returns an expression equivalent to <code>if booleanExpression then thenBranch else elseBranch</code>,
+	 * that is <i>not</i> an if-then-else expression with another if-then-else as condition
+	 * (this could happen if booleanExpression is an if-then-else itself).
+	 * Note that if such nested if then else expressions occur in the then and else branches, they will
+	 * not be modified.
+	 * @param condition
+	 * @param thenBranch
+	 * @param elseBranch
+	 * @return
+	 */
+	public static Expression makeWithoutConditionalCondition(Expression condition, Expression thenBranch, Expression elseBranch) {
+		if (isIfThenElse(condition)) {
+			Expression newThen = makeWithoutConditionalCondition(thenBranch(condition), thenBranch, elseBranch);
+			Expression newElse = makeWithoutConditionalCondition(elseBranch(condition), thenBranch, elseBranch);
+			Expression newConditionalBoolean = makeIfDistinctFrom(condition, condition(condition), newThen, newElse);
+			return newConditionalBoolean;
+		}
+		else { // not conditional 
+			return make(condition, thenBranch, elseBranch);
+		}
+	}
+
+	/**
 	 * Same as {@link #makeIfDistinctFrom(Expression, Expression, Expression, Expression, boolean)}
 	 * with last argument equal to to true.
 	 */

@@ -50,6 +50,8 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.plaindpll.problemtype.Max;
+import com.sri.ai.grinder.plaindpll.problemtype.Sum;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
@@ -102,11 +104,27 @@ public class EqualityConstraintTest {
 	public void testSumForSingleVariableConstraints() {
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
-		ConstraintTheoryTester.testSumForSingleVariableConstraints(
+		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
 				new Random(),
+				new Sum(),
 				new EqualityConstraintTheory(),
 				30 /* number of tests */,
 				20 /* number of literals per test */,
+				3, /* body depth */
+				true /* output count */);
+	}
+
+	@Test
+	public void testMaxForSingleVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+		
+		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
+				new Random(),
+				new Max(),
+				new EqualityConstraintTheory(),
+				30 /* number of tests */,
+				20 /* number of literals per test */,
+				3, /* body depth */
 				true /* output count */);
 	}
 

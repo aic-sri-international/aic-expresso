@@ -39,11 +39,8 @@ package com.sri.ai.grinder.sgdpll2.tester;
 
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
-import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.getVariables;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.grinder.library.FunctorConstants.SUM;
-import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.makeIndexExpression;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.list;
@@ -58,9 +55,6 @@ import java.util.function.Function;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.IndexExpressionsSet;
-import com.sri.ai.expresso.core.DefaultIntensionalMultiSet;
-import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
@@ -72,6 +66,7 @@ import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreter;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
+import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.sgdpll2.api.Constraint;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
@@ -447,70 +442,66 @@ public class ConstraintTheoryTester {
 	}
 
 	/**
-	 * Given a constraint theory and a number <code>n</code> of single-variable constraint tests,
-	 * generates <code>n</code> formulas in the theory
-	 * and see if the model counting solver works (checked by brute force).
+	 * Given a list of problem types, a constraint theory and a number <code>n</code> of single-variable constraint tests,
+	 * generates <code>n</code> problems with given body depth (number of levels of if then else expressions)
+	 * and checks if {@link SymbolicCommonInterpreter} works (checked by brute force).
 	 * Throws an {@link Error} with the failure description if a test fails.
 	 * @param random
+	 * @param problemTypes
 	 * @param constraintTheory
 	 * @param numberOfTests
 	 * @param maxNumberOfLiterals
+	 * @param bodyDepth
 	 * @param outputCount
 	 */
-	public static void testSumForSingleVariableConstraints(
+	public static void testGroupProblemForSingleVariableConstraints(
 			Random random,
+			GroupProblemType problemType,
 			ConstraintTheory constraintTheory,
 			int numberOfTests,
 			int maxNumberOfLiterals,
-			boolean outputCount) {
-		
-		testSumForSingleVariableConstraints(random, constraintTheory, numberOfTests, maxNumberOfLiterals, true, outputCount);
-	}
-	
-	private static void testSumForSingleVariableConstraints(
-			Random random,
-			ConstraintTheory constraintTheory,
-			int numberOfTests,
-			int maxNumberOfLiterals,
-			boolean testCorrectness,
+			int bodyDepth,
 			boolean outputCount) {
 		
 		NullaryFunction<Constraint> makeConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.getTestingVariable()));
-
+		
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
 		NullaryFunction<Expression> makeRandomLiteral = () -> constraintTheory.makeRandomLiteral(random, process);
-
-		test(random, ConstraintTheoryTester::testSum, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
+		
+		Tester tester = (r, c, cT, ls, p) -> testGroupProblem(r, c, problemType, cT, ls, bodyDepth, p);
+		
+		test(random, tester, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, true, outputCount, process);
 	}
-
-	private static void testSum(
+	
+	private static void testGroupProblem(
 			Random random,
 			Constraint constraint,
+			GroupProblemType problemType,
 			ConstraintTheory constraintTheory,
 			Collection<Expression> literals,
+			int bodyDepth,
 			RewritingProcess process)
 					throws Error {
 		
 		SingleVariableConstraint singleVariableConstraint = (SingleVariableConstraint) constraint;
 		
-		int bodyDepth = 3;
 		NullaryFunction<Expression> leafGenerator = () -> makeSymbol(random.nextInt(10) - 5);
 		Expression body = new RandomConditionalExpressionGenerator(random, constraintTheory, bodyDepth, leafGenerator, process).apply();
 		
-		testSum(singleVariableConstraint, body, process);
+		testGroupProblem(problemType, singleVariableConstraint, body, process);
 	}
 
-	private static void testSum(
-			SingleVariableConstraint singleVariableConstraint, Expression body, RewritingProcess process) throws Error {
+	private static void testGroupProblem(
+			GroupProblemType problemType,
+			SingleVariableConstraint singleVariableConstraint,
+			Expression body,
+			RewritingProcess process) throws Error {
 
 		if (singleVariableConstraint != null) { // TODO: this would be much more elegant if we did not represent contradictions by null
 			Expression index = singleVariableConstraint.getVariable();
-			Expression indexExpression = makeIndexExpression(index, GrinderUtil.getType(index, process));
-			IndexExpressionsSet indexExpressionsSet = new ExtensionalIndexExpressionsSet(indexExpression); 
-			DefaultIntensionalMultiSet set =
-					new DefaultIntensionalMultiSet(indexExpressionsSet, body, singleVariableConstraint);
-			Expression problem = apply(SUM, set);
+			Expression indexType = GrinderUtil.getType(index, process);
+			Expression problem = problemType.makeProblemExpression(index, indexType, singleVariableConstraint, body);
 			
 			String problemDescription = problem.toString();
 			output(problemDescription);
