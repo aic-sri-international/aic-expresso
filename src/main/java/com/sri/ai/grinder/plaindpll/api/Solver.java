@@ -46,28 +46,12 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 
 /**
- * The interface for any rewriting solving symbolic generalized summation problems.
+ * The interface for a rewriter solving symbolic quantification problems for a fixed quantifier and theory.
  * 
  * @author braz
  *
  */
 public interface Solver extends Rewriter {
-
-	/** Returns the input theory used by this solver. */
-	InputTheory getInputTheory();
-	
-	/** Returns the constraint theory used by this solver. */
-	ConstraintTheory getConstraintTheory();
-	
-	/** Returns the problem type solved by this solver. */
-	GroupProblemType getProblemType();
-	
-	/** Solves a problem encoded in the given expression. */
-	Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process);
-
-	/** Makes a default, appropriate rewriting process for use with this solver as a rewriter. */
-	@Override
-	RewritingProcess makeRewritingProcess(Expression expression);
 
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression
@@ -96,6 +80,4 @@ public interface Solver extends Rewriter {
 			Predicate<Expression> isUniquelyNamedConstantPredicate);
 
 	void interrupt();
-	
-	void setDebug(boolean b);
 }

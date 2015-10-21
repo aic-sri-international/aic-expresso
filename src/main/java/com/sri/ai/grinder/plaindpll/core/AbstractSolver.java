@@ -83,7 +83,6 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	private RewritingProcess topLevelRewritingProcess;
 	private boolean interrupted = false;
 	
-	@Override
 	public void setDebug(boolean newValue) {
 		this.debug = newValue;
 	}
@@ -111,21 +110,15 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		this.countsDeclaration = countsDeclaration;
 	}
 	
-	@Override
-	public
-	InputTheory getInputTheory() {
+	public InputTheory getInputTheory() {
 		return inputTheory;
 	}
 	
-	@Override
-	public
-	ConstraintTheory getConstraintTheory() {
+	public ConstraintTheory getConstraintTheory() {
 		return constraintTheory;
 	}
 	
-	@Override
-	public
-	GroupProblemType getProblemType() {
+	public GroupProblemType getProblemType() {
 		return problemType;
 	}
 

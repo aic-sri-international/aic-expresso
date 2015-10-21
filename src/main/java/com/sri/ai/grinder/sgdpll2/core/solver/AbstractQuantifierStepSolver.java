@@ -109,9 +109,6 @@ public abstract class AbstractQuantifierStepSolver implements ContextDependentPr
 
 			if (literalInBody != null) {
 				if (isSubExpressionOf(getIndex(), literalInBody)) {
-//					System.out.println("index: " + getIndex());
-//					System.out.println("Body: " + getBody());	
-//					System.out.println("Literal in body: " + literalInBody);	
 					result = resultIfLiteralContainsIndex(contextualConstraint, literalInBody, process);
 				}
 				else {

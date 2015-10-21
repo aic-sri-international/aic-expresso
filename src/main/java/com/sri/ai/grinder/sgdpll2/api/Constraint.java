@@ -145,4 +145,25 @@ public interface Constraint extends Expression {
 		}
 		return result;
 	}
+//	
+//	/**
+//	 * Given a sub-set of supported indices, projects the constraint onto the remaining ones.
+//	 * Resulting constraint still supports all original indices.
+//	 * Default implementation uses symbolic satisfiability through {@link SGDPLLT}.
+//	 * Specific constraint implementations will typically have more efficient ways to do it.
+//	 */
+//	default Constraint project(Collection<Expression> eliminatedIndices, RewritingProcess process) {
+//		Expression resultExpression =
+//				SymbolicSolver.solve(
+//						new BooleansWithConjunctionGroup(),
+//						eliminatedIndices,
+//						condition,
+//						body,
+//						getConstraintTheory().makeSingleVariableConstraint(null),
+//						process);
+//		// note that solvers should be aware that their input or part of their input may be a Constraint, and take advantage of the internal representations already present in them, instead of simply converting them to an Expression and redoing all the work.
+//		Collection<Expression> remainingSupportedIndices = Util.subtract(getSupportedIndices(), eliminatedIndices);
+//		Constraint result = ExpressionConstraint.wrap(getConstraintTheory(), remainingSupportedIndices, resultExpression);
+//		return result;
+//	}
 }

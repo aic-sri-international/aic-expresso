@@ -69,6 +69,7 @@ import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
+import com.sri.ai.grinder.plaindpll.api.Solver;
 import com.sri.ai.util.base.PairOf;
 
 /**
@@ -101,7 +102,7 @@ public class SGVET extends AbstractSolver {
 
 	public boolean basicOutput = false;
 	
-	private SGDPLLT subSolver;
+	private Solver subSolver;
 	
 	public SGVET(InputTheory inputTheory, SemiRingProblemType problemType) {
 		this(inputTheory, problemType, null);
@@ -110,8 +111,6 @@ public class SGVET extends AbstractSolver {
 	public SGVET(InputTheory inputTheory, SemiRingProblemType problemType, CountsDeclaration countsDeclaration) {
 		super(inputTheory, problemType, countsDeclaration);
 		this.subSolver = new SGDPLLT(inputTheory, problemType, countsDeclaration);
-		subSolver.debug = false;
-		subSolver.debugLevel = 6;
 	}
 
 	@Override
@@ -150,7 +149,8 @@ public class SGVET extends AbstractSolver {
 			partition = null;
 		}
 		else {
-			Expression factoredConditionalsExpression = factoredConditionalsWithAbsorbingElseClause(expression, process);
+			Expression factoredConditionalsExpression =
+					factoredConditionalsWithAbsorbingElseClause(expression, process);
 			partition = pickPartition(factoredConditionalsExpression, indices, constraint, process);
 		}
 		
