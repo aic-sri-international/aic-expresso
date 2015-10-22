@@ -167,19 +167,6 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 		return expressionEvaluation;
 	}
 
-	/**
-	 * Simplifies a given expression with a {@link BruteForceCommonInterpreter} using enumeration under given contextual constraint.
-	 * @param expression
-	 * @param contextualConstraint
-	 * @param process
-	 * @return
-	 */
-	public static Expression simplifyGivenContextualConstraint(Expression expression, Constraint contextualConstraint, RewritingProcess process) {
-		AbstractInterpreter interpreter = new BruteForceCommonInterpreter(true /* simplify given contextual constraint */);
-		Expression result = interpreter.simplifyUnderContextualConstraint(expression, contextualConstraint, process);
-		return result;
-	}
-
 	public static void main(String[] args) {
 		AbstractInterpreter interpreter = new BruteForceCommonInterpreter(map(parse("Hurrah"), parse("awesome")), true);
 		RewritingProcess process = new DefaultRewritingProcess(null);

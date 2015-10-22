@@ -1,12 +1,10 @@
 package com.sri.ai.grinder.sgdpll2.core.solver;
 
 import static com.sri.ai.expresso.helper.Expressions.isSubExpressionOf;
-import static com.sri.ai.grinder.interpreter.BruteForceCommonInterpreter.simplifyGivenContextualConstraint;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.condition;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.elseBranch;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.isIfThenElse;
 import static com.sri.ai.grinder.library.controlflow.IfThenElse.thenBranch;
-import static com.sri.ai.util.Util.getFirstNonNullResultOrNull;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -20,25 +18,58 @@ import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 
 /**
- * An abstract implementation for step solvers for quantified expressions.
+ * An abstract implementation for step solvers for quantified expressions
+ * (the quantification being based on an associative commutative group's operation).
+ * <p>
+ * This is done by extending {@link AbstractLiteralConditionerStepSolver} based on the body expression,
+ * picking literals in it according to the contextual constraint conjoined with the index constraint,
+ * and "intercepting" literals containing the indices and splitting the quantifier
+ * based on that, solving the two resulting sub-problems.
+ * <p>
+ * For example, if we have <code>sum({{ (on X in SomeType) if Y != bob then 2 else 3 | X != john }})</code>
+ * under contextual constraint <code>Z = alice</code>,
+ * {@link AbstractLiteralConditionerStepSolver#step(Constraint, RewritingProcess)} is
+ * invoked with contextual constraint <code>Z = alice and X != john</code>.
+ * The solution step will depend on literal <code>Y != bob</code>.
+ * <p>
+ * If however the quantified expression is
+ * <code>sum({{ (on X in SomeType) if X != bob then 2 else 3 | X != john }})</code>,
+ * the solution step will not be one depending on a literal, but a definite solution equivalent to
+ * <code>sum({{ (on X in SomeType) 2 | X != john and X != bob}}) +
+ *       sum({{ (on X in SomeType) 3 | X != john and X = bob}})</code>.
+ * <p>
+ * Because these two sub-problems have literal-free bodies <code>2</code> and <code>3</code>,
+ * they will be solved by the extension's
+ * {@link #stepGivenLiteralFreeBody(Constraint, SingleVariableConstraint, Expression, RewritingProcess)}
+ * (which for sums with constant bodies will be equal to the model count of the index constraint
+ * under the contextual constraint times the constant).
+ * <p>
+ * Extending classes must define method
+ * {@link #stepGivenLiteralFreeBody(Constraint, SingleVariableConstraint, Expression, RewritingProcess)
+ * to solve the case in which the body is its given literal-free version,
+ * for the given contextual constraint and index constraint.
+ * <p>
+ * At the time of this writing,
+ * {@link AbstractLiteralConditionerStepSolver} supports only expressions that are composed of
+ * function applications or symbols only,
+ * so this extension inherits this restriction if that is still in place.
  * 
  * @author braz
  *
  */
 @Beta
-public abstract class AbstractQuantifierStepSolver implements ContextDependentProblemStepSolver, Cloneable {
+public abstract class AbstractQuantifierStepSolver extends AbstractLiteralConditionerStepSolver implements Cloneable {
+
+	private static final String ABSTRACT_QUANTIFIER_STEP_SOLVER_CONTEXTUAL_CONSTRAINT = "AbstractQuantifierStepSolver2_ContextualConstraint";
 
 	private AssociativeCommutativeGroup group;
 	
 	private SingleVariableConstraint indexConstraint;
 	
-	private Expression body;
-	
 	public AbstractQuantifierStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint indexConstraint, Expression body) {
-		super();
+		super(body);
 		this.group = group;
 		this.indexConstraint = indexConstraint;
-		this.body = body;
 	}
 
 	/**
@@ -47,7 +78,10 @@ public abstract class AbstractQuantifierStepSolver implements ContextDependentPr
 	 * @param literalFreeBody literal-free body
 	 */
 	protected abstract SolutionStep stepGivenLiteralFreeBody(
-			Constraint contextualConstraint, SingleVariableConstraint indexConstraint, Expression literalFreeBody, RewritingProcess process);
+			Constraint contextualConstraint,
+			SingleVariableConstraint indexConstraint,
+			Expression literalFreeBody,
+			RewritingProcess process);
 
 	public AbstractQuantifierStepSolver clone() {
 		AbstractQuantifierStepSolver result = null;
@@ -67,17 +101,12 @@ public abstract class AbstractQuantifierStepSolver implements ContextDependentPr
 	protected AbstractQuantifierStepSolver makeWithNewIndexConstraint(SingleVariableConstraint newIndexConstraint) {
 		AbstractQuantifierStepSolver result = clone();
 		result.group = group;
-		result.body = body;
 		result.indexConstraint = newIndexConstraint;
 		return result;
 	}
 
 	public AssociativeCommutativeGroup getGroup() {
 		return group;
-	}
-	
-	public Expression getBody() {
-		return body;
 	}
 	
 	public SingleVariableConstraint getIndexConstraint() {
@@ -105,56 +134,36 @@ public abstract class AbstractQuantifierStepSolver implements ContextDependentPr
 			result = new Solution(group.additiveIdentityElement());
 		}
 		else {
-			Expression literalInBody = getNonDefinedLiteral(getBody(), contextualConstraintForBody, process);
-
-			if (literalInBody != null) {
-				if (isSubExpressionOf(getIndex(), literalInBody)) {
-					result = resultIfLiteralContainsIndex(contextualConstraint, literalInBody, process);
-				}
-				else {
-					result = new ItDependsOn(literalInBody);
-				}
+			/**
+			 * We invoke super method with contextualConstraintForBody,
+			 * but we want to have contextualConstraint available if the body expression
+			 * is already literal-free (because then we need to invoke {@link AbstractQuantifierStepSolver#stepgivenLiteralFreeBody(Constraint, SingleVariableConstraint, Expression, RewritingProcess)}.
+			 * The not-very-elegant solution is to "smuggle" it in the process's global objects.
+			 */
+			process.putGlobalObject(ABSTRACT_QUANTIFIER_STEP_SOLVER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
+			SolutionStep superSolutionStep = super.step(contextualConstraintForBody, process);
+			
+			// Now we "intercept" literals containing the index and split the quantifier based on it
+			if (superSolutionStep.itDepends() && isSubExpressionOf(getIndex(), superSolutionStep.getExpression())) {
+				Expression literalOnIndex = superSolutionStep.getExpression();
+				result = resultIfLiteralContainsIndex(contextualConstraint, literalOnIndex, process);
 			}
 			else {
-				Expression literalFreeBody = simplifyGivenContextualConstraint(body, contextualConstraintForBody, process);
-				result = stepGivenLiteralFreeBody(contextualConstraint, indexConstraint, literalFreeBody, process);
+				result = superSolutionStep;
 			}
 		}
 
 		return result;
 	}
 
-	/**
-	 * Returns a literal in an expression not implied by contextual constraint,
-	 * or <code>null</code> if there is none.
-	 * @param expression an expression
-	 * @param contextualConstraint a contextual constraint
-	 * @param process a rewriting process
-	 * @return a literal in the expression, which value is not implied by contextual constraint,
-	 * or <code>null</code> if there is none.
-	 */
-	private Expression getNonDefinedLiteral(Expression expression, Constraint contextualConstraint, RewritingProcess process) {
-		Expression result;
-		if (isNonDefinedLiteral(expression, contextualConstraint, process)) {
-			result = expression;
-		}
-		else {
-			result = getFirstNonNullResultOrNull(
-					expression.getSubExpressions(),
-					s -> getNonDefinedLiteral(s, contextualConstraint, process));
-		}
+	@Override
+	protected SolutionStep stepGivenLiteralFreeExpression(
+			Expression literalFreeExpression,
+			Constraint contextualConstraintForBody,
+			RewritingProcess process) {
+		Constraint contextualConstraint = (Constraint) process.getGlobalObject(ABSTRACT_QUANTIFIER_STEP_SOLVER_CONTEXTUAL_CONSTRAINT);
+		SolutionStep result = stepGivenLiteralFreeBody(contextualConstraint, indexConstraint, literalFreeExpression, process);
 		return result;
-	}
-
-	private boolean isNonDefinedLiteral(Expression expression, Constraint contextualConstraint, RewritingProcess process) {
-		if (contextualConstraint.getConstraintTheory().isLiteral(expression, process)) {
-			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, expression, process);
-			boolean undefined = split.getResult() == ConstraintSplitting.Result.LITERAL_IS_UNDEFINED;
-			return undefined;
-		}
-		else {
-			return false;
-		}
 	}
 
 	private SolutionStep resultIfLiteralContainsIndex(Constraint contextualConstraint, Expression literal, RewritingProcess process) {
