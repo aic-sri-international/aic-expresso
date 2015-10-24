@@ -43,16 +43,13 @@ import static com.sri.ai.util.Util.list;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
-import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
@@ -64,7 +61,6 @@ import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.grinder.plaindpll.api.Solver;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
-import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -114,12 +110,23 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		return inputTheory;
 	}
 	
+	@Override
 	public ConstraintTheory getConstraintTheory() {
 		return constraintTheory;
 	}
 	
 	public GroupProblemType getProblemType() {
 		return problemType;
+	}
+	
+	@Override
+	public	Expression simplify(Expression expression, RewritingProcess process) {
+		return getInputTheory().simplify(expression, process);
+	}
+
+	@Override
+	public Expression getAdditiveIdentityElement() {
+		return problemType.additiveIdentityElement();
 	}
 
 	@Override
@@ -142,46 +149,6 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		if (countsDeclaration != null) {
 			countsDeclaration.setup(result);
 		}
-		return result;
-	}
-
-	@Override
-	public Expression solve(
-			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
-		return solve(expression, indices, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, new PrologConstantPredicate());
-	}
-	
-	@Override
-	public Expression solve(
-			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
-			Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		
-		topLevelRewritingProcess = DPLLUtil.makeProcess(constraintTheory, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
-		Expression result = solve(expression, indices, topLevelRewritingProcess);
-		topLevelRewritingProcess = null;
-		return result;
-	}
-
-	/**
-	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
-	 */
-	@Override
-	public Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process) {
-		// TODO: should replace this oldConstraint by a copy constructor creating a sub-process, but surprisingly there is no complete copy constructor available in DefaultRewritingProcess.
-		Constraint oldConstraint = process.getDPLLContextualConstraint();
-		Constraint contextualConstraint = constraintTheory.makeConstraint(Util.list()); // contextual constraint does not involve any indices -- defined on free variables only
-		process.initializeDPLLContextualConstraint(contextualConstraint);
-
-		Constraint constraint = constraintTheory.makeConstraint(indices);
-		Expression simplifiedInput = inputTheory.simplify(input, process);
-		Expression result = solve(simplifiedInput, indices, constraint, process);
-		if (result == null) { // constraint is unsatisfiable, so result is identity element.
-			result = problemType.additiveIdentityElement();
-		}
-		
-		process.initializeDPLLContextualConstraint(oldConstraint);
 		return result;
 	}
 

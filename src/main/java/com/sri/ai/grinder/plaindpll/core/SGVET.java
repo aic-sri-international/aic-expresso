@@ -187,7 +187,8 @@ public class SGVET extends AbstractSolver {
 			
 			partition.expressionsOnIndexAndNot.second.add(indexSubProblemSolution);
 			Expression remainingSubProblemExpression = product(partition.expressionsOnIndexAndNot.second, process);
-			Constraint constraintOnRemainingIndices = constraint.project(partition.index, process);
+			Constraint trueConstraintOnRemainingIndices = constraint.getConstraintTheory().makeConstraint(partition.remainingIndices);
+			Constraint constraintOnRemainingIndices = trueConstraintOnRemainingIndices; // the constraint is already represented in indexSubProblemSolution
 			result = solve(remainingSubProblemExpression, partition.remainingIndices, constraintOnRemainingIndices, process);
 			result = getProblemType().multiply(result, process);
 		}

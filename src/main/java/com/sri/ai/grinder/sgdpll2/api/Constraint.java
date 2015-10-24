@@ -145,6 +145,33 @@ public interface Constraint extends Expression {
 		}
 		return result;
 	}
+	
+//	/**
+//	 * Returns, in time constant in the size of the constraint,
+//	 * a pair of {@link Constraint}s whose conjunction is equivalent to this constraint,
+//	 * such that the given variables only occur in the second one.
+//	 * <p>
+//	 * Note that there may be multiple such decompositions,
+//	 * and that <code>Pair(new {@link ExpressionConstraint}(TRUE), this)</code> is such a decomposition.
+//	 * Implementations must seek to minimize the size of the second constraint while keeping
+//	 * time constant in the size of the original constraint.
+//	 * <p>
+//	 * The point of this operation is to isolate the variables in the second constraint,
+//	 * while preserving as much internal efficient representation about the remaining variables
+//	 * in the first constraint.
+//	 * <p>
+//	 * For example, suppose we have a complex, efficiently represented constraint
+//	 * <code>C</code> on variables <code>X,Y</code>, which gets conjoined with an
+//	 * also efficiently represented constraint <code>C'</code> in <code>Z</code>
+//	 * (which could involve <code>X</code> or <code>Y</code> or both),
+//	 * producing a new constraint <code>C''</code>.
+//	 * Ideally, the internal representation of <code>C''</code> preserves
+//	 * the original efficient representations.
+//	 * If now we want to compute, say, <code>there exists Z : C''</code>
+//	 * @return
+//	 */
+//	PairOf<Constraint> decomposeInConstantTime(Collection<Expression> variables);
+	
 //	
 //	/**
 //	 * Given a sub-set of supported indices, projects the constraint onto the remaining ones.

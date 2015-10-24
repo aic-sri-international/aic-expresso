@@ -44,6 +44,9 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.PrologConstantPredicate;
+import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
+import com.sri.ai.util.Util;
 
 /**
  * The interface for a rewriter solving symbolic quantification problems for a fixed quantifier and theory.
@@ -54,6 +57,26 @@ import com.sri.ai.grinder.api.RewritingProcess;
 public interface Solver extends Rewriter {
 
 	/**
+	 * Returns the constraint theory used by this solver.
+	 * @return
+	 */
+	ConstraintTheory getConstraintTheory();
+	
+	/**
+	 * Local simplification of an expression according to the theory used by this solver.
+	 * @param expression
+	 * @param process
+	 * @return
+	 */
+	Expression simplify(Expression expression, RewritingProcess process);
+	
+	/**
+	 * Returns the additive identity element of the group used by this solver.
+	 * @return
+	 */
+	Expression getAdditiveIdentityElement();
+	
+	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression
 	 * over the provided set of indices under given non-null constraint.
 	 */
@@ -62,22 +85,48 @@ public interface Solver extends Rewriter {
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
 	 */
-	Expression solve(Expression expression, Collection<Expression> indices, RewritingProcess process);
+	default Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process) {
+		// TODO: should replace this oldConstraint by a copy constructor creating a sub-process, but surprisingly there is no complete copy constructor available in DefaultRewritingProcess.
+		Constraint oldConstraint = process.getDPLLContextualConstraint();
+		Constraint contextualConstraint = getConstraintTheory().makeConstraint(Util.list()); // contextual constraint does not involve any indices -- defined on free variables only
+		process.initializeDPLLContextualConstraint(contextualConstraint);
+
+		Constraint constraint = getConstraintTheory().makeConstraint(indices);
+		Expression simplifiedInput = simplify(input, process);
+		Expression result = solve(simplifiedInput, indices, constraint, process);
+		if (result == null) { // constraint is unsatisfiable, so result is identity element.
+			result = getAdditiveIdentityElement();
+		}
+		
+		process.initializeDPLLContextualConstraint(oldConstraint);
+		return result;
+	}
 
 	/**
 	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
 	 */
-	Expression solve(
+	default Expression solve(
 			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString);
+			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
+		return solve(expression, indices, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, new PrologConstantPredicate());
+	}
 
 	/**
 	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
 	 */
-	Expression solve(
+	default Expression solve(
 			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
-			Predicate<Expression> isUniquelyNamedConstantPredicate);
-
+			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
+			Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		
+		RewritingProcess topLevelRewritingProcess =
+				DPLLUtil.makeProcess(
+						getConstraintTheory(),
+						mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString,
+						isUniquelyNamedConstantPredicate);
+		Expression result = solve(expression, indices, topLevelRewritingProcess);
+		return result;
+	}
+	
 	void interrupt();
 }

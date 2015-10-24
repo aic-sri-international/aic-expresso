@@ -90,6 +90,11 @@ public interface Constraint extends Expression {
 	 * Resulting constraint still supports all original indices.
 	 * Default implementation uses symbolic satisfiability through {@link SGDPLLT}.
 	 * Specific constraint implementations will typically have more efficient ways to do it.
+	 * Note: at some point this <i>seemed</i> essential for variable elimination
+	 * until I realized that solving the problem for the eliminated variable using the whole
+	 * constraint produces a solution that already encodes the conditions on the remaining
+	 * variables, so the project is actually unneeded in that case.
+	 * Leaving it here for now in case it comes up as a convenience.
 	 */
 	default Constraint project(Collection<Expression> eliminatedIndices, RewritingProcess process) {
 		Solver projector = new SGDPLLT(new DefaultInputTheory(getConstraintTheory()), new Satisfiability());
