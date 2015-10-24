@@ -41,7 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.ZERO;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 
 /**
@@ -55,7 +55,7 @@ import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 @Beta
 public abstract class AbstractModelCountingWithPropagatedAndDefiningLiteralsStepSolver extends AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver {
 
-	public AbstractModelCountingWithPropagatedAndDefiningLiteralsStepSolver(Constraint constraint) {
+	public AbstractModelCountingWithPropagatedAndDefiningLiteralsStepSolver(Constraint2 constraint) {
 		super(constraint);
 	}
 	

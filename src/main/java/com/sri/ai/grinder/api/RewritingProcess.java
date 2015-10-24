@@ -48,7 +48,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.core.RewriteOnce;
 import com.sri.ai.grinder.core.RewriterLookup;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.util.base.IdentityWrapper;
 import com.sri.ai.util.base.Pair;
 
@@ -273,9 +273,9 @@ public interface RewritingProcess extends Cloneable {
 	 */
 	void interrupt();
 
-	void initializeDPLLContextualConstraint(Constraint constraint);
+	void initializeDPLLContextualConstraint(Constraint1 constraint);
 
-	Constraint getDPLLContextualConstraint();
+	Constraint1 getDPLLContextualConstraint();
 
 	RewritingProcess extendDPLLContextualConstraint(boolean splitterSign, Expression splitter);
 	

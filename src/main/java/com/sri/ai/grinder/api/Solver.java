@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.api;
+package com.sri.ai.grinder.api;
 
 import static com.sri.ai.util.Util.list;
 
@@ -44,10 +44,7 @@ import java.util.Map;
 
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Rewriter;
-import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
-import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 
 /**
  * The interface for a rewriter solving symbolic quantification problems for a fixed quantifier and theory.
@@ -78,6 +75,19 @@ public interface Solver extends Rewriter {
 	 */
 	Expression getAdditiveIdentityElement();
 	
+	/**
+	 * Makes an appropriate rewriting process with the given data.
+	 * @param constraint
+	 * @param mapFromSymbolNameToTypeName
+	 * @param mapFromTypeNameToSizeString
+	 * @param isUniquelyNamedConstantPredicate
+	 * @return
+	 */
+	RewritingProcess makeProcess(
+			Constraint constraint,
+			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
+			Predicate<Expression> isUniquelyNamedConstantPredicate);
+
 	/**
 	 * Stop solver in case it runs in a different thread.
 	 */
@@ -112,10 +122,10 @@ public interface Solver extends Rewriter {
 			Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		
 		RewritingProcess topLevelRewritingProcess =
-				DPLLUtil.makeProcess(
-						makeTrueConstraint(list()),
+				makeProcess(makeTrueConstraint(list()),
 						mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString,
 						isUniquelyNamedConstantPredicate);
+		
 		Expression result = solve(expression, indices, topLevelRewritingProcess);
 		return result;
 	}

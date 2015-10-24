@@ -52,7 +52,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.concurrent.BranchRewriteTask;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.util.AICUtilConfiguration;
@@ -69,7 +69,7 @@ import com.sri.ai.util.collect.NestedIterator;
  * @author braz
  *
  */
-public class SGDPLLT extends PlainDPLLSolver {
+public class SGDPLLT extends AbstractPlainDPLLSolver {
 	
 	public int debugLevel = 3;
 	
@@ -108,7 +108,7 @@ public class SGDPLLT extends PlainDPLLSolver {
 	}
 
 	@Override
-	protected Expression solveAfterBookkeepingAndBodyConstraintCheck(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	protected Expression solveAfterBookkeepingAndBodyConstraintCheck(Expression expression, Collection<Expression> indices, Constraint1 constraint, RewritingProcess process) {
 		
 		long startTime = 0;
 		if (debug(process)) {
@@ -179,7 +179,7 @@ public class SGDPLLT extends PlainDPLLSolver {
 	}
 
 	/** Picks splitter from either expression or constraint; assumes constraint is not <code>null</code>. */
-	protected Expression pickSplitter(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	protected Expression pickSplitter(Expression expression, Collection<Expression> indices, Constraint1 constraint, RewritingProcess process) {
 		Expression splitter = getFirstOrNull(getSplittersIterator(expression, indices, constraint, process));
 		return splitter;
 	}
@@ -193,7 +193,7 @@ public class SGDPLLT extends PlainDPLLSolver {
 	 * @param process
 	 * @return
 	 */
-	protected Iterator<Expression> getSplittersIterator(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	protected Iterator<Expression> getSplittersIterator(Expression expression, Collection<Expression> indices, Constraint1 constraint, RewritingProcess process) {
 		Iterator<Expression> splittersFromExpressionIterator = constraintTheory.pickSplitterInExpressionIterator(expression, constraint, process);
 		NullaryFunction<List<Expression>> splittersFromConstraintNullaryFunction = () -> singletonListIfNotNullOrEmptyListIfNull(constraint.pickSplitter(indices, process));
 		Iterator<Expression> result = new NestedIterator<>(splittersFromExpressionIterator, splittersFromConstraintNullaryFunction);
@@ -205,7 +205,7 @@ public class SGDPLLT extends PlainDPLLSolver {
 	 */
 	private static interface Combiner extends QuarternaryFunction<Expression, Expression, Expression, RewritingProcess, Expression> {};
 
-	private Expression solveBasedOnSplitting(Expression splitter, Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	private Expression solveBasedOnSplitting(Expression splitter, Expression expression, Collection<Expression> indices, Constraint1 constraint, RewritingProcess process) {
 		
 		// Keep in mind that splitter may already be implied as true or false by constraintTheoryWithEquality constraint.
 		// This should not happen if the constraintTheoryWithEquality application of splitters to expressions only replaced them by true or false,
@@ -251,7 +251,7 @@ public class SGDPLLT extends PlainDPLLSolver {
 		return result;
 	}
 
-	private List<Expression> computeSubSolutions(Expression splitter, Expression expression, Collection<Expression> indices, Constraint constraint, Combiner combiner, Combiner additionCombiner, boolean splitterMustBeInContextualConstraint, RewritingProcess process) {
+	private List<Expression> computeSubSolutions(Expression splitter, Expression expression, Collection<Expression> indices, Constraint1 constraint, Combiner combiner, Combiner additionCombiner, boolean splitterMustBeInContextualConstraint, RewritingProcess process) {
 		List<Expression> solutions;
 		// Only call branch and merge if threading is enabled as the 'noNeedToComputeNegation' optimization
 		// is very effective in the non-threaded case (cannot be supported effectively in branch/merge mechanism).
@@ -264,13 +264,13 @@ public class SGDPLLT extends PlainDPLLSolver {
 		return solutions;
 	}
 
-	private List<Expression> computeSubSolutionsByBranchAndMerge(Expression splitter, Expression expression, Collection<Expression> indices, Constraint constraint, boolean splitterMustBeInContextualConstraint, RewritingProcess process) {
+	private List<Expression> computeSubSolutionsByBranchAndMerge(Expression splitter, Expression expression, Collection<Expression> indices, Constraint1 constraint, boolean splitterMustBeInContextualConstraint, RewritingProcess process) {
 		List<Expression> solutions;
 		// TODO - make Constraint implementations thread safe			
 					// Avoid java.util.ConcurrentModificationExceptions by cloning up front 
 					// as Constraint implementations appear to be non-thread safe currently.
-					Constraint positiveContraint  = constraint.clone();
-					Constraint negativeConstraint = constraint.clone();
+					Constraint1 positiveContraint  = constraint.clone();
+					Constraint1 negativeConstraint = constraint.clone();
 					solutions = GrinderUtil.branchAndMergeTasks(new BranchRewriteTask[] {
 						new BranchRewriteTask((expressions, rwprocess) -> {
 							Expression result = solveUnderSplitter(true, splitter, expression, indices, positiveContraint, splitterMustBeInContextualConstraint, process);
@@ -286,7 +286,7 @@ public class SGDPLLT extends PlainDPLLSolver {
 		return solutions;
 	}
 
-	private List<Expression> computeSubSolutionsSequentially(Expression splitter, Expression expression, Collection<Expression> indices, Constraint constraint, Combiner combiner, Combiner additionCombiner, RewritingProcess process, boolean splitterMustBeInContextualConstraint) {
+	private List<Expression> computeSubSolutionsSequentially(Expression splitter, Expression expression, Collection<Expression> indices, Constraint1 constraint, Combiner combiner, Combiner additionCombiner, RewritingProcess process, boolean splitterMustBeInContextualConstraint) {
 		List<Expression> solutions;
 		Expression solutionUnderSplitter = solveUnderSplitter(true, splitter, expression, indices, constraint, splitterMustBeInContextualConstraint, process);
 		// NOTE: to turn off this optimization just set noNeedToComputeNegation = false; however, it is a very effective optimization so leave enabled by default.
@@ -339,7 +339,7 @@ public class SGDPLLT extends PlainDPLLSolver {
 	 * @param process
 	 * @return
 	 */
-	private Expression solveUnderSplitter(boolean splitterSign, Expression splitter, Expression expression, Collection<Expression> indices, Constraint constraint, boolean splitterInContextualConstraint, RewritingProcess process) {
+	private Expression solveUnderSplitter(boolean splitterSign, Expression splitter, Expression expression, Collection<Expression> indices, Constraint1 constraint, boolean splitterInContextualConstraint, RewritingProcess process) {
 		Expression result;
 		myAssert(() -> process.getDPLLContextualConstraint() != null, () -> "SGDPLL(T) should not operate under a contradictory contextual constraint");
 		RewritingProcess processUnderSplitter = splitterInContextualConstraint? process.extendDPLLContextualConstraint(splitterSign, splitter) : process;
@@ -348,7 +348,7 @@ public class SGDPLLT extends PlainDPLLSolver {
 			// subtle note about past bug: until February 2015 this check for returning null was done on constraint, not contextual constraint. That is incorrect, however, because the fact that a splitter turns the constraint inconsistent does not mean that the splitter is false. That would be the case only if the constraint was always required to hold, which is not the case. However, that check was indirectly covering the cases in which the splitter was contradictory with the *contextual* constraint, which *is* required to always hold, so it was being useful. To make things harder to detect, it seems that with the theories we then had it was hard to produce an example that exposed the bug, that is, an example in which the splitter was inconsistent with the constraint but *not* with the contextual constraint. The problem only surfaced when I started returning null for model counts equal to 0 (also inconsistent): sum_X X != a and Y != X for |X| = 2 creates a constraint with 0 models after application of splitter Y != a, but that does *not* mean that Y != a is necessarily false! Yet, using model count 0 inconsistency for the constraint was leading the algorithm to believe that. It is only when we check against the contextual constraint (which at that point is just 'true' and not inconsistent with Y != a) that things work again.
 		}
 		else {
-			Constraint constraintUnderSplitter = constraint.incorporate(splitterSign, splitter, process);
+			Constraint1 constraintUnderSplitter = constraint.incorporate(splitterSign, splitter, process);
 			if (constraintUnderSplitter == null) { // it would be more elegant to place this check this inside 'solve' (which as of now assumes the given constraint is never null), but placing the check here avoids unnecessary applications of the splitter to expression.
 				result = problemType.additiveIdentityElement();
 			}

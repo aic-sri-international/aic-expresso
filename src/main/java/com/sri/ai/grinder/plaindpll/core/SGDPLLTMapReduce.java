@@ -42,10 +42,10 @@ import java.util.Collection;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.api.Solver;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
-import com.sri.ai.grinder.plaindpll.api.Solver;
 import com.sri.ai.util.base.Wrapper;
 
 /**
@@ -57,14 +57,14 @@ import com.sri.ai.util.base.Wrapper;
  *
  */
 @Beta
-public class SGDPLLTMapReduce extends PlainDPLLSolver {
+public class SGDPLLTMapReduce extends AbstractPlainDPLLSolver {
 
 	public SGDPLLTMapReduce(InputTheory inputTheory, GroupProblemType problemType) {
 		super(inputTheory, problemType);
 	}
 
 	@Override
-	protected Expression solveAfterBookkeepingAndBodyConstraintCheck(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	protected Expression solveAfterBookkeepingAndBodyConstraintCheck(Expression expression, Collection<Expression> indices, Constraint1 constraint, RewritingProcess process) {
 		
 		int depth = 3;
 		

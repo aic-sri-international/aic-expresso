@@ -44,11 +44,12 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 
 @Beta
-public interface Constraint extends Expression {
+public interface Constraint2 extends Constraint {
 
 	ConstraintTheory getConstraintTheory();
 	
@@ -56,13 +57,13 @@ public interface Constraint extends Expression {
 	 * Returns an {@link ConstraintTheoryTester} representing the conjunction of this constraint and
 	 * a given literal, or null if they are contradictory.
 	 * <p>
-	 * At this point, the formula should be either a literal, or a {@link Constraint}.
+	 * At this point, the formula should be either a literal, or a {@link Constraint2}.
 	 * 
 	 * @param literal the literal to be conjoined.
 	 * @param process the rewriting process
 	 * @return the application result or <code>null</code> if contradiction.
 	 */
-	Constraint conjoinWithLiteral(Expression literal, RewritingProcess process);
+	Constraint2 conjoinWithLiteral(Expression literal, RewritingProcess process);
 	
 	/**
 	 * Tests whether a literal is contradictory with this constraint
@@ -85,7 +86,7 @@ public interface Constraint extends Expression {
 	 * @return
 	 */
 	default boolean contradictoryWith(Expression formula, RewritingProcess process) {
-		Constraint conjunction = conjoin(formula, process);
+		Constraint2 conjunction = conjoin(formula, process);
 		boolean result = conjunction == null;
 		return result;
 	}
@@ -94,7 +95,7 @@ public interface Constraint extends Expression {
 	 * Returns an {@link ConstraintTheoryTester} representing the conjunction of this constraint and
 	 * a given formula, or null if they are contradictory.
 	 * <p>
-	 * At this point, the formula should be either a literal, or a {@link Constraint}.
+	 * At this point, the formula should be either a literal, or a {@link Constraint2}.
 	 * <p>
 	 * Extensions may want to override this method if there are more efficient ways
 	 * of conjoining with (certain types of) constraints than simply treating them as a formula
@@ -103,14 +104,14 @@ public interface Constraint extends Expression {
 	 * @param process the rewriting process
 	 * @return the application result or <code>null</code> if contradiction.
 	 */
-	default Constraint conjoin(Expression formula, RewritingProcess process) {
+	default Constraint2 conjoin(Expression formula, RewritingProcess process) {
 		myAssert(
-				() -> getConstraintTheory().isLiteral(formula, process) || formula instanceof Constraint,
+				() -> getConstraintTheory().isLiteral(formula, process) || formula instanceof Constraint2,
 				() -> this.getClass() + " currently only supports conjoining with literals and constraints, but received " + formula);
 		
-		Constraint result;
+		Constraint2 result;
 	
-		if (formula instanceof Constraint) {
+		if (formula instanceof Constraint2) {
 			result = conjoinWithConjunctiveClause(formula, process); // for now, all Constraints are conjunctions. This will probably change in the future.
 		}
 		else {
@@ -128,8 +129,8 @@ public interface Constraint extends Expression {
 	 * @param process
 	 * @return the result of conjoining this constraint with all conjuncts of a given conjunction
 	 */
-	default Constraint conjoinWithConjunctiveClause(Expression conjunctiveClause, RewritingProcess process) {
-		Constraint result;
+	default Constraint2 conjoinWithConjunctiveClause(Expression conjunctiveClause, RewritingProcess process) {
+		Constraint2 result;
 		List<Expression> conjuncts = getConjuncts(conjunctiveClause);
 		if (conjuncts.size() == 1) { // this is necessary to avoid an infinite loop
 			result = conjoinWithLiteral(conjuncts.get(0), process);

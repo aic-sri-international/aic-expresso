@@ -42,16 +42,16 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 
 /**
- * An {@link Constraint} keeping consistency of multiple variables.
+ * An {@link Constraint2} keeping consistency of multiple variables.
  * 
  * @author braz
  *
  */
 @Beta
-public interface MultiVariableConstraint extends Constraint {
+public interface MultiVariableConstraint extends Constraint2 {
 	
 	@Override
 	default MultiVariableConstraint conjoin(Expression formula, RewritingProcess process) {
-		return (MultiVariableConstraint) Constraint.super.conjoin(formula, process);
+		return (MultiVariableConstraint) Constraint2.super.conjoin(formula, process);
 	}
 }

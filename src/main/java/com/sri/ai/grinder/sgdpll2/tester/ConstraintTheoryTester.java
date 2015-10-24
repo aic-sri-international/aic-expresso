@@ -67,7 +67,7 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
@@ -127,7 +127,7 @@ public class ConstraintTheoryTester {
 	private static void testSingleVariableConstraints(
 			Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
-		NullaryFunction<Constraint> makeConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.getTestingVariable()));
+		NullaryFunction<Constraint2> makeConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.getTestingVariable()));
 
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
@@ -159,7 +159,7 @@ public class ConstraintTheoryTester {
 	private static void testMultiVariableConstraints(
 			Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
-		NullaryFunction<Constraint> makeConstraint = () -> new DefaultMultiVariableConstraint(constraintTheory);
+		NullaryFunction<Constraint2> makeConstraint = () -> new DefaultMultiVariableConstraint(constraintTheory);
 
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
@@ -187,7 +187,7 @@ public class ConstraintTheoryTester {
 	private static void testCompleteMultiVariableConstraints(
 			Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
-		NullaryFunction<Constraint> makeConstraint = () -> new CompleteMultiVariableConstraint(constraintTheory);
+		NullaryFunction<Constraint2> makeConstraint = () -> new CompleteMultiVariableConstraint(constraintTheory);
 
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
@@ -197,7 +197,7 @@ public class ConstraintTheoryTester {
 	}
 
 	private static interface Tester {
-		void run(Random random, Constraint constraint, ConstraintTheory constraintTheory, Collection<Expression> literals, RewritingProcess process) throws Error;		
+		void run(Random random, Constraint2 constraint, ConstraintTheory constraintTheory, Collection<Expression> literals, RewritingProcess process) throws Error;		
 	}
 
 	/**
@@ -223,7 +223,7 @@ public class ConstraintTheoryTester {
 			Random random,
 			Tester tester,
 			ConstraintTheory constraintTheory,
-			NullaryFunction<Constraint> makeConstraint,
+			NullaryFunction<Constraint2> makeConstraint,
 			NullaryFunction<Expression> makeRandomLiteral,
 			int numberOfTests,
 			int maxNumberOfLiterals,
@@ -232,7 +232,7 @@ public class ConstraintTheoryTester {
 			RewritingProcess process) throws Error {
 		
 		for (int i = 1; i != numberOfTests + 1; i++) {
-			Constraint constraint = makeConstraint.apply();
+			Constraint2 constraint = makeConstraint.apply();
 			Collection<Expression> literals = new LinkedHashSet<>();
 			
 			output("\n\nStarting new conjunction");	
@@ -254,7 +254,7 @@ public class ConstraintTheoryTester {
 
 	private static void testIncompleteSatisfiability(
 			Random random,
-			Constraint constraint,
+			Constraint2 constraint,
 			ConstraintTheory constraintTheory,
 			Collection<Expression> literals,
 			RewritingProcess process)
@@ -272,7 +272,7 @@ public class ConstraintTheoryTester {
 
 	private static void testCompleteSatisfiability(
 			Random random,
-			Constraint constraint,
+			Constraint2 constraint,
 			ConstraintTheory constraintTheory,
 			Collection<Expression> literals,
 			RewritingProcess process)
@@ -293,7 +293,7 @@ public class ConstraintTheoryTester {
 	 * @param process
 	 * @throws Error
 	 */
-	protected static void solverSaysItIsSatisfiable(Collection<Expression> literals, Constraint constraint, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
+	protected static void solverSaysItIsSatisfiable(Collection<Expression> literals, Constraint2 constraint, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
 		output("SolverUnderAssignment thinks it is satisfiable. Current constraint is " + constraint);	
 		Expression formula = And.make(literals);
 		boolean isUnsatisfiable = !ConstraintTheoryTester.isSatisfiableByBruteForce(formula, constraintTheory, process);;
@@ -376,7 +376,7 @@ public class ConstraintTheoryTester {
 	private static void testModelCountingForSingleVariableConstraints(
 			Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
-		NullaryFunction<Constraint> makeConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.getTestingVariable()));
+		NullaryFunction<Constraint2> makeConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.getTestingVariable()));
 
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
@@ -387,7 +387,7 @@ public class ConstraintTheoryTester {
 
 	private static void testModelCounting(
 			Random random,
-			Constraint constraint,
+			Constraint2 constraint,
 			ConstraintTheory constraintTheory,
 			Collection<Expression> literals,
 			RewritingProcess process)
@@ -463,7 +463,7 @@ public class ConstraintTheoryTester {
 			int bodyDepth,
 			boolean outputCount) {
 		
-		NullaryFunction<Constraint> makeConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.getTestingVariable()));
+		NullaryFunction<Constraint2> makeConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.getTestingVariable()));
 		
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
@@ -476,7 +476,7 @@ public class ConstraintTheoryTester {
 	
 	private static void testGroupProblem(
 			Random random,
-			Constraint constraint,
+			Constraint2 constraint,
 			GroupProblemType problemType,
 			ConstraintTheory constraintTheory,
 			Collection<Expression> literals,

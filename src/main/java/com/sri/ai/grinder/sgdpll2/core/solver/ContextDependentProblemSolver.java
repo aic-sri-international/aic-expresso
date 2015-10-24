@@ -44,7 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
@@ -62,7 +62,7 @@ import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstrai
 @Beta
 public class ContextDependentProblemSolver {
 
-	public static Expression solve(ContextDependentProblemStepSolver stepSolver, Constraint contextualConstraint, RewritingProcess process) {
+	public static Expression solve(ContextDependentProblemStepSolver stepSolver, Constraint2 contextualConstraint, RewritingProcess process) {
 		ContextDependentProblemStepSolver.SolutionStep step = stepSolver.step(contextualConstraint, process);
 //		System.out.println("Step: " + step);
 //		System.out.println("Contextual constraint: " + contextualConstraint);	

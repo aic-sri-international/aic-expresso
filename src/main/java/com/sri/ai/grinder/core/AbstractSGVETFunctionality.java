@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.core;
+package com.sri.ai.grinder.core;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.isSubExpressionOf;
@@ -64,10 +64,12 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Solver;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
-import com.sri.ai.grinder.plaindpll.api.Solver;
+import com.sri.ai.grinder.plaindpll.core.AbstractPlainDPLLSolver;
+import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.util.base.PairOf;
 
 /**
@@ -93,16 +95,16 @@ import com.sri.ai.util.base.PairOf;
  * args_j for the various functions f_j will typically involve other indices which,
  * at the level of the sub-problem, are free variables.
  * <p>
- * This used to be an extension of {@link PlainDPLLSolver} but was abstracted for reuse by
- * implementations of {@link Solver} that are not extensions of {@link PlainDPLLSolver};
+ * This used to be an extension of {@link AbstractPlainDPLLSolver} but was abstracted for reuse by
+ * implementations of {@link Solver} that are not extensions of {@link AbstractPlainDPLLSolver};
  * it now only concerns itself with implementing ways to do Variable Elimination,
- * without committing to the specifics of {@link PlainDPLLSolver}.
- * This way, it can be used as an internal field of extensions of {@link PlainDPLLSolver},
+ * without committing to the specifics of {@link AbstractPlainDPLLSolver}.
+ * This way, it can be used as an internal field of extensions of {@link AbstractPlainDPLLSolver},
  * but can also be used in the same way by implementations of {@link Solver}
- * that are not extensions of {@link PlainDPLLSolver} and which choose to implement
+ * that are not extensions of {@link AbstractPlainDPLLSolver} and which choose to implement
  * the remaining functionality of Solver in other ways.
  * This can be seen as a simulated form of multiple inheritance
- * (some classes will inherit from {@link PlainDPLLSolver} and "inherit" from this class by encapsulated object).
+ * (some classes will inherit from {@link AbstractPlainDPLLSolver} and "inherit" from this class by encapsulated object).
  * 
  * @author braz
  *
@@ -126,7 +128,7 @@ public abstract class AbstractSGVETFunctionality {
 	 */
 	public abstract boolean isVariable(Expression subExpression, RewritingProcess process);
 
-	abstract protected Constraint makeTrueConstraint(List<Expression> remainingIndices);
+	abstract protected Constraint1 makeTrueConstraint(List<Expression> remainingIndices);
 
 	public boolean getDebug() {
 		return debug;
@@ -144,7 +146,7 @@ public abstract class AbstractSGVETFunctionality {
 		subSolver.interrupt();
 	}
 	
-	public Expression solve(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	public Expression solve(Expression expression, Collection<Expression> indices, Constraint1 constraint, RewritingProcess process) {
 			
 			Expression result;
 			if (getDebug()) {
@@ -187,7 +189,6 @@ public abstract class AbstractSGVETFunctionality {
 				// The following transformation is:  sum_C E   =   sum_{true} if C then E else 0
 				Expression indexSubProblemExpressionWithConstraint = IfThenElse.make(constraint, indexSubProblemExpression, getProblemType().multiplicativeAbsorbingElement());
 				Expression indexSubProblemSolution = subSolver.solve(indexSubProblemExpressionWithConstraint, partition.index, process);
-	//			Expression indexSubProblemSolution = subSolver.solve(indexSubProblemExpression, partition.index, constraint, process);
 				
 				if (basicOutput) {
 					System.out.println("Solution   : " + indexSubProblemSolution + "\n");	
@@ -195,8 +196,8 @@ public abstract class AbstractSGVETFunctionality {
 				
 				partition.expressionsOnIndexAndNot.second.add(indexSubProblemSolution);
 				Expression remainingSubProblemExpression = product(partition.expressionsOnIndexAndNot.second, process);
-				Constraint trueConstraintOnRemainingIndices = makeTrueConstraint(partition.remainingIndices);
-				Constraint constraintOnRemainingIndices = trueConstraintOnRemainingIndices; // the constraint is already represented in indexSubProblemSolution
+				Constraint1 trueConstraintOnRemainingIndices = makeTrueConstraint(partition.remainingIndices);
+				Constraint1 constraintOnRemainingIndices = trueConstraintOnRemainingIndices; // the constraint is already represented in indexSubProblemSolution
 				result = solve(remainingSubProblemExpression, partition.remainingIndices, constraintOnRemainingIndices, process);
 				result = getProblemType().multiply(result, process);
 			}

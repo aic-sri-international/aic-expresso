@@ -42,7 +42,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
@@ -58,7 +58,7 @@ import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
  * <li> if the group is idempotent, simplify group's identity.
  * <li> if the group is not idempotent, 
  * applies {@link AssociativeCommutativeGroup#addNTimes(Expression, Expression, RewritingProcess)} to
- * the literal-free body and {@link SingleVariableConstraint#modelCount(Constraint, RewritingProcess)},
+ * the literal-free body and {@link SingleVariableConstraint#modelCount(Constraint2, RewritingProcess)},
  * followed by {@link ConstraintTheory#simplify(Expression, RewritingProcess)}.
  * No if then else externalization is performed.
  * </ul>
@@ -76,7 +76,7 @@ public class QuantifierOnBodyWithIndexInLiteralsOnlyStepSolver extends AbstractQ
 
 	@Override
 	protected SolutionStep stepGivenLiteralFreeBody(
-			Constraint contextualConstraint, SingleVariableConstraint indexConstraint, Expression literalFreeBody, RewritingProcess process) {
+			Constraint2 contextualConstraint, SingleVariableConstraint indexConstraint, Expression literalFreeBody, RewritingProcess process) {
 		
 		Expression result;
 		if (getGroup().isIdempotent()) {

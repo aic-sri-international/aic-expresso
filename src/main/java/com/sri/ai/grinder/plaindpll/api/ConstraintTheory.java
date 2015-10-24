@@ -105,7 +105,7 @@ public interface ConstraintTheory extends Theory {
 	 * @param process
 	 * @return
 	 */
-	Iterator<Expression> pickSplitterInExpressionIterator(Expression expression, Constraint constraint, RewritingProcess process);
+	Iterator<Expression> pickSplitterInExpressionIterator(Expression expression, Constraint1 constraint, RewritingProcess process);
 
 	/**
 	 * Indicates whether a splitter interpretation depends on the interpretation of some index.
@@ -122,7 +122,7 @@ public interface ConstraintTheory extends Theory {
 	 * @param process
 	 * @return
 	 */
-	Expression applyConstraintToSolution(Constraint constraint, Expression solution, RewritingProcess process);
+	Expression applyConstraintToSolution(Constraint1 constraint, Expression solution, RewritingProcess process);
 
 	/**
 	 * Indicates whether the application of a constraint on a splitter can result in true, false, or the splitter itself;
@@ -135,5 +135,5 @@ public interface ConstraintTheory extends Theory {
 	 * Make a new constraint for this constraintTheoryWithEquality over a set of indices (equivalent to all assignments to those indices).
 	 * @return
 	 */
-	Constraint makeConstraint(Collection<Expression> indices);
+	Constraint1 makeConstraint(Collection<Expression> indices);
 }

@@ -52,7 +52,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
@@ -181,13 +181,13 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 		return result;
 	}
 
-	public Expression pickSplitterInExpression(Expression expression, Constraint constraint, RewritingProcess process) {
+	public Expression pickSplitterInExpression(Expression expression, Constraint1 constraint, RewritingProcess process) {
 		Expression result = getFirstOrNull(pickSplitterInExpressionIterator(expression, constraint, process));
 		return result;
 	}
 
 	@Override
-	public Iterator<Expression> pickSplitterInExpressionIterator(Expression expression, Constraint constraint, RewritingProcess process) {
+	public Iterator<Expression> pickSplitterInExpressionIterator(Expression expression, Constraint1 constraint, RewritingProcess process) {
 		Function<Expression, Expression> makerOfSplitterOrNull = e -> makeSplitterIfPossible(e, constraint.getSupportedIndices(), process);
 		Iterator<Expression> subExpressionIterator = new SubExpressionsDepthFirstIterator(expression);
 		Iterator<Expression> splittersOrNullIterator = new FunctionIterator<>(subExpressionIterator, makerOfSplitterOrNull);
@@ -231,14 +231,14 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 
 
 	@Override
-	public Expression applyConstraintToSolution(Constraint constraint, Expression solution, RewritingProcess process) {
+	public Expression applyConstraintToSolution(Constraint1 constraint, Expression solution, RewritingProcess process) {
 		Expression result;
 		
 		if (DPLLUtil.isConditionalSolution(solution, this, process)) {
 			Expression solutionSplitter = IfThenElse.condition(solution);
-			Constraint constraintUnderSolutionSplitter = constraint.incorporate(true, solutionSplitter, process);
+			Constraint1 constraintUnderSolutionSplitter = constraint.incorporate(true, solutionSplitter, process);
 			if (constraintUnderSolutionSplitter != null) {
-				Constraint constraintUnderSolutionSplitterNegation = constraint.incorporate(false, solutionSplitter, process);
+				Constraint1 constraintUnderSolutionSplitterNegation = constraint.incorporate(false, solutionSplitter, process);
 				if (constraintUnderSolutionSplitterNegation != null) {
 					Expression newSolutionSplitter = constraint.normalizeSplitterGivenConstraint(solutionSplitter, process);
 					Expression thenBranch = IfThenElse.thenBranch(solution);
@@ -262,7 +262,7 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 				}
 			}
 			else {
-				Constraint constraintUnderSolutionSplitterNegation = constraint.incorporate(false, solutionSplitter, process);
+				Constraint1 constraintUnderSolutionSplitterNegation = constraint.incorporate(false, solutionSplitter, process);
 				if (constraintUnderSolutionSplitterNegation != null) {
 					Expression elseBranch = IfThenElse.elseBranch(solution);
 					Expression newElseBranch = applyConstraintToSolution(constraintUnderSolutionSplitterNegation, elseBranch, process);

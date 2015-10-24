@@ -50,7 +50,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
@@ -59,7 +59,7 @@ import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentProblemSolver;
 import com.sri.ai.util.base.Pair;
 
 /**
- * An {@link Constraint} on multiple variables,
+ * An {@link Constraint2} on multiple variables,
  * with the ability to ensure all single-variable constraints that are part of it
  * have a property determined by a {@link ContextDependentProblemStepSolver}.
  * 
@@ -72,12 +72,12 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 	private static final long serialVersionUID = 1L;
 	
 	private ConstraintTheory constraintTheory;
-	private Constraint contextualConstraint;
+	private Constraint2 contextualConstraint;
 	private SingleVariableConstraint singleVariableConstraint;
 	private Function<SingleVariableConstraint, ContextDependentProblemStepSolver> contextDependentProblemStepSolverMaker;
 	
 	/**
-	 * Creates a new {@link MultiVariableConstraintWithCheckedProperty} from a {@link SingleVariableConstraint} and a {@link Constraint},
+	 * Creates a new {@link MultiVariableConstraintWithCheckedProperty} from a {@link SingleVariableConstraint} and a {@link Constraint2},
 	 * returning null if either is null.
 	 * @param newContextualConstraint
 	 * @param newSingleVariableConstraint
@@ -85,7 +85,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 	 * @return
 	 */
 	public static MultiVariableConstraintWithCheckedProperty makeAndCheck(
-			Constraint newContextualConstraint,
+			Constraint2 newContextualConstraint,
 			SingleVariableConstraint newSingleVariableConstraint,
 			Function<SingleVariableConstraint, ContextDependentProblemStepSolver> contextDependentProblemStepSolverMaker,
 			RewritingProcess process) {
@@ -121,7 +121,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 	 * @param singleVariableConstraint
 	 */
 	private MultiVariableConstraintWithCheckedProperty(
-			Constraint contextualConstraint,
+			Constraint2 contextualConstraint,
 			SingleVariableConstraint singleVariableConstraint,
 			Function<SingleVariableConstraint, ContextDependentProblemStepSolver> contextDependentProblemMaker) {
 		this.constraintTheory = contextualConstraint.getConstraintTheory();
@@ -200,7 +200,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 			}
 			else if (singleVariableConstraint != null) {
 				SingleVariableConstraint newSingleVariableConstraint;
-				Constraint newContextualConstraint;
+				Constraint2 newContextualConstraint;
 				if (variablesInLiteral.contains(singleVariableConstraint.getVariable())) {
 					newSingleVariableConstraint = singleVariableConstraint.conjoin(literal, process);
 					newContextualConstraint = contextualConstraint;

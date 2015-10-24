@@ -50,10 +50,10 @@ import java.util.Collections;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Solver;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
-import com.sri.ai.grinder.plaindpll.api.Solver;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
 import com.sri.ai.grinder.plaindpll.theory.AbstractConstraint;
@@ -61,9 +61,9 @@ import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
 import com.sri.ai.util.Util;
 
 /**
- * An implementation of {@link Constraint} based on an baseExpression representing it
+ * An implementation of {@link Constraint1} based on an baseExpression representing it
  * (current only boolean formulas on the literals of a given constraintTheory are supported).
- * Note that this expressions or its sub-expressions can be implementations of {@link Constraint} themselves,
+ * Note that this expressions or its sub-expressions can be implementations of {@link Constraint1} themselves,
  * and when this is the case, this implementation exploits their efficient internal representations for its own purposes.
  * 
  * @author braz
@@ -84,8 +84,8 @@ public class ExpressionConstraint extends AbstractConstraint {
 	}
 	
 	/**
-	 * A "constructor" of a {@link Constraint} based on an {@link Expression}.
-	 * The reason this is not a regular Constraint is that if baseExpression is already a {@link Constraint},
+	 * A "constructor" of a {@link Constraint1} based on an {@link Expression}.
+	 * The reason this is not a regular Constraint is that if baseExpression is already a {@link Constraint1},
 	 * it is directly returned, instead of wrapped in a new instance.
 	 * In that case, no check is performed to see if the given constraintTheory and supported indices are
 	 * the same as baseExpression's, but they should be.
@@ -94,11 +94,11 @@ public class ExpressionConstraint extends AbstractConstraint {
 	 * @param baseExpression
 	 * @return
 	 */
-	public static Constraint wrap(ConstraintTheory theory, Collection<Expression> supportedIndices, Expression expression) {
+	public static Constraint1 wrap(ConstraintTheory theory, Collection<Expression> supportedIndices, Expression expression) {
 		myAssert(() -> expression != null, () -> "ExpressionConstraint cannot wrap a null value.");
-		Constraint result;
-		if (expression instanceof Constraint) {
-			result = (Constraint) expression;
+		Constraint1 result;
+		if (expression instanceof Constraint1) {
+			result = (Constraint1) expression;
 		}
 		else {
 			result = new ExpressionConstraint(theory, supportedIndices, expression);
@@ -107,12 +107,12 @@ public class ExpressionConstraint extends AbstractConstraint {
 	}
 	
 	/**
-	 * If baseExpression is {@link Constraint}, return it; otherwise, wrap it in {@link ExpressionConstraint} and return that.
+	 * If baseExpression is {@link Constraint1}, return it; otherwise, wrap it in {@link ExpressionConstraint} and return that.
 	 * @param baseExpression
 	 * @return
 	 */
-	public Constraint wrap(Expression expression) {
-		Constraint result = wrap(theory, supportedIndices, expression);
+	public Constraint1 wrap(Expression expression) {
+		Constraint1 result = wrap(theory, supportedIndices, expression);
 		return result;
 	}
 
@@ -137,21 +137,21 @@ public class ExpressionConstraint extends AbstractConstraint {
 	}
 
 	@Override
-	public Constraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		Constraint result;
+	public Constraint1 incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		Constraint1 result;
 		Expression splitterIfAny;
-		if (baseExpression instanceof Constraint) {
-			result = ((Constraint) baseExpression).incorporate(splitterSign, splitter, process);
+		if (baseExpression instanceof Constraint1) {
+			result = ((Constraint1) baseExpression).incorporate(splitterSign, splitter, process);
 		}
 		else if (baseExpression.equals(FALSE)) {
 			result = wrap(FALSE);
 		}
 		else if (baseExpression.equals(TRUE)) {
-			Constraint newConstraint = theory.makeConstraint(supportedIndices);
+			Constraint1 newConstraint = theory.makeConstraint(supportedIndices);
 			result = newConstraint.incorporate(splitterSign, splitter, process);
 		}
 		else if ((splitterIfAny = theory.makeSplitterIfPossible(baseExpression, supportedIndices, process)) != null) {
-			Constraint newConstraint = theory.makeConstraint(supportedIndices);
+			Constraint1 newConstraint = theory.makeConstraint(supportedIndices);
 			newConstraint.incorporate(true, splitterIfAny, process);
 			result = newConstraint.incorporate(splitterSign, splitter, process);
 		}
@@ -170,8 +170,8 @@ public class ExpressionConstraint extends AbstractConstraint {
 	public Expression pickSplitter(Collection<Expression> indicesSubSet, RewritingProcess process) {
 		Expression result;
 		Expression splitterIfAny;
-		if (baseExpression instanceof Constraint) {
-			result = ((Constraint) baseExpression).pickSplitter(indicesSubSet, process);
+		if (baseExpression instanceof Constraint1) {
+			result = ((Constraint1) baseExpression).pickSplitter(indicesSubSet, process);
 		}
 		else if (baseExpression.equals(FALSE) || baseExpression.equals(TRUE)) {
 			result = null;

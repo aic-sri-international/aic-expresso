@@ -47,7 +47,7 @@ import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentProblemSolver;
  * @author braz
  *
  */
-public interface SingleVariableConstraint extends Expression, Constraint {
+public interface SingleVariableConstraint extends Expression, Constraint2 {
 
 	/**
 	 * @return the variable term constrained by this constraint.
@@ -88,7 +88,7 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 	
 	@Override
 	default SingleVariableConstraint conjoin(Expression formula, RewritingProcess process) {
-		return (SingleVariableConstraint) Constraint.super.conjoin(formula, process);
+		return (SingleVariableConstraint) Constraint2.super.conjoin(formula, process);
 	}
 	
 	/**
@@ -97,7 +97,7 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 	 * @param process
 	 * @return
 	 */
-	default Expression satisfiability(Constraint contextualConstraint, RewritingProcess process) {
+	default Expression satisfiability(Constraint2 contextualConstraint, RewritingProcess process) {
 		ContextDependentProblemStepSolver satisfiabilityStepSolver = getConstraintTheory().getSingleVariableConstraintSatisfiabilityStepSolver(this);
 		Expression satisfiability = ContextDependentProblemSolver.solve(satisfiabilityStepSolver, contextualConstraint, process);
 		return satisfiability;
@@ -109,7 +109,7 @@ public interface SingleVariableConstraint extends Expression, Constraint {
 	 * @param process
 	 * @return
 	 */
-	default Expression modelCount(Constraint contextualConstraint, RewritingProcess process) {
+	default Expression modelCount(Constraint2 contextualConstraint, RewritingProcess process) {
 		ContextDependentProblemStepSolver modelCountingStepSolver = getConstraintTheory().getSingleVariableConstraintModelCountingStepSolver(this);
 		Expression modelCount = ContextDependentProblemSolver.solve(modelCountingStepSolver, contextualConstraint, process);
 		return modelCount;

@@ -62,13 +62,14 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.Implication;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.Validity;
 import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
 import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.util.Util;
 
 /**
@@ -195,7 +196,7 @@ public class DPLLUtil {
 
 	/**
 	 * Applies a constraint equivalent to given signed splitter using
-	 * {@link ConstraintTheory#applyConstraintToSolution(com.sri.ai.grinder.plaindpll.api.ConstraintTheory.Constraint, Expression, RewritingProcess)}.
+	 * {@link ConstraintTheory#applyConstraintToSolution(com.sri.ai.grinder.plaindpll.api.ConstraintTheory.Constraint1, Expression, RewritingProcess)}.
 	 * @param splitterSign
 	 * @param splitter
 	 * @param solution
@@ -204,7 +205,7 @@ public class DPLLUtil {
 	 * @return an equivalent solution
 	 */
 	public static Expression applySplitterToSolution(boolean splitterSign, Expression splitter, Expression solution, ConstraintTheory theory, RewritingProcess process) {
-		Constraint constraint = theory.makeConstraint(Collections.emptyList()); // no indices in solutions
+		Constraint1 constraint = theory.makeConstraint(Collections.emptyList()); // no indices in solutions
 		constraint = constraint.incorporate(splitterSign, splitter, process);
 		Expression result = theory.applyConstraintToSolution(constraint, solution, process);
 		return result;
@@ -216,14 +217,20 @@ public class DPLLUtil {
 	}
 
 	public static RewritingProcess makeProcess(ConstraintTheory constraintTheory, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		Constraint trueConstraintOnNoIndices = constraintTheory.makeConstraint(list());
+		Constraint1 trueConstraintOnNoIndices = constraintTheory.makeConstraint(list());
 		return makeProcess(trueConstraintOnNoIndices, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
 	}
 
-	public static RewritingProcess makeProcess(Constraint trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+	public static RewritingProcess makeProcess(Constraint1 trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, new DefaultRewritingProcess(null));			
 		result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		result.initializeDPLLContextualConstraint(trueConstraintOnNoIndices);
+		return result;
+	}
+
+	public static RewritingProcess makeProcess(Constraint2 trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, new DefaultRewritingProcess(null));			
+		result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		return result;
 	}
 

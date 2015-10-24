@@ -26,7 +26,7 @@ import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
 import com.sri.ai.util.Util;
 
@@ -51,7 +51,7 @@ public class InequalitiesAndDisequalitiesConstraintForSingleVariable extends Abs
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Expression pickSplitterGivenExternalConstraint(Collection<Expression> indicesSubSet, Constraint externalConstraint, RewritingProcess process) {
+	public Expression pickSplitterGivenExternalConstraint(Collection<Expression> indicesSubSet, Constraint1 externalConstraint, RewritingProcess process) {
 		Expression splitter = null;
 		
 		// lower separator needs to be unique
@@ -104,7 +104,7 @@ public class InequalitiesAndDisequalitiesConstraintForSingleVariable extends Abs
 		return splitter;
 	}
 
-	private Expression getSplitterOfTermNotConstrainedToSatisfyOpenBound(Collection<Expression> terms, String relation, Expression bound, Constraint externalConstraint, RewritingProcess process) {
+	private Expression getSplitterOfTermNotConstrainedToSatisfyOpenBound(Collection<Expression> terms, String relation, Expression bound, Constraint1 externalConstraint, RewritingProcess process) {
 		Expression splitter;
 		Expression termNotConstrainedToSatisfyOpenBound = getTermNotConstrainedToSatisfyOpenBoundOrNull(terms, relation, bound, externalConstraint, process);
 		if (termNotConstrainedToSatisfyOpenBound != null) {
@@ -116,7 +116,7 @@ public class InequalitiesAndDisequalitiesConstraintForSingleVariable extends Abs
 		return splitter;
 	}
 
-	private Expression getTermNotConstrainedToSatisfyOpenBoundOrNull(Collection<Expression> terms, String relation, Expression bound, Constraint externalConstraint, RewritingProcess process) {
+	private Expression getTermNotConstrainedToSatisfyOpenBoundOrNull(Collection<Expression> terms, String relation, Expression bound, Constraint1 externalConstraint, RewritingProcess process) {
 		Expression termNotConstrainedToSatisfyOpenBound = 
 				getFirstSatisfyingPredicateOrNull(
 						terms,
@@ -131,7 +131,7 @@ public class InequalitiesAndDisequalitiesConstraintForSingleVariable extends Abs
 	}
 
 	@Override
-	public void incorporateDestructively(boolean splitterSign, Expression splitter, Constraint externalConstraint, RewritingProcess process) {
+	public void incorporateDestructively(boolean splitterSign, Expression splitter, Constraint1 externalConstraint, RewritingProcess process) {
 		// TODO Auto-generated method stub
 		
 	}

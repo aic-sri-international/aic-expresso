@@ -50,7 +50,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 import com.sri.ai.util.collect.FunctionIterator;
@@ -76,10 +76,10 @@ import com.sri.ai.util.collect.NestedIterator;
  * (ones for which the solution if case of unsatisfiability happens to be fixed),
  * and they are distinguished here for convenience purposes only.
  * Once all defining literals are checked to be defined,
- * the abstract method {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint, RewritingProcess)}
+ * the abstract method {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint2, RewritingProcess)}
  * is invoked to provide the problem's solution.
  * <p>
- * Such problems will typically involve a {@link Constraint}, so this class provides
+ * Such problems will typically involve a {@link Constraint2}, so this class provides
  * methods for storing that as well.
  * 
  * @author braz
@@ -88,13 +88,13 @@ import com.sri.ai.util.collect.NestedIterator;
 @Beta
 public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver implements ContextDependentProblemStepSolver {
 
-	protected Constraint constraint;
+	protected Constraint2 constraint;
 	
-	public AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver(Constraint constraint) {
+	public AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver(Constraint2 constraint) {
 		this.constraint = constraint;
 	}
 	
-	public Constraint getConstraint() {
+	public Constraint2 getConstraint() {
 		return constraint;
 	}
 	
@@ -178,10 +178,10 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	 */
 	protected abstract Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied();
 
-	protected abstract Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint contextualConstraint, RewritingProcess process);
+	protected abstract Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint2 contextualConstraint, RewritingProcess process);
 
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, RewritingProcess process) {
+	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
 
 		if (getConstraint() == null) {
 			return new Solution(solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied());
@@ -213,10 +213,10 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	 * The solution to be provided if all propagated literals and splitter DNF are satisfied.
 	 * Default implementation checks defining literals and, if they are all defined,
 	 * delegates to abstract method
-	 * {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint, RewritingProcess)}.
+	 * {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint2, RewritingProcess)}.
 	 * @param process
 	 */
-	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint contextualConstraint, RewritingProcess process) {
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint2 contextualConstraint, RewritingProcess process) {
 		SolutionStep definingLiteralsAreDefinedStep = 
 				conjunctiveClauseIsDefined(getDefiningLiterals(process), contextualConstraint, process);
 		
@@ -248,7 +248,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the CNF is satisfied is already determined positively or negatively, respectively.
 	 */
-	public static SolutionStep cnfIsSatisfied(Iterable<Iterable<Expression>> cnf, Constraint contextualConstraint, RewritingProcess process) {
+	public static SolutionStep cnfIsSatisfied(Iterable<Iterable<Expression>> cnf, Constraint2 contextualConstraint, RewritingProcess process) {
 		for (Iterable<Expression> clause : cnf) {
 			boolean clauseIsSatisfied = false;
 			for (Expression literal : clause) {
@@ -294,7 +294,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the conjunctive clause is satisfied is already determined positively or negatively, respectively.
 	 */
-	protected static SolutionStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Constraint contextualConstraint, RewritingProcess process) {
+	protected static SolutionStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Constraint2 contextualConstraint, RewritingProcess process) {
 		for (Expression literal : conjunctiveClause) {
 			ConstraintSplitting contextualConstraintSplitting = new ConstraintSplitting(contextualConstraint, literal, process);
 

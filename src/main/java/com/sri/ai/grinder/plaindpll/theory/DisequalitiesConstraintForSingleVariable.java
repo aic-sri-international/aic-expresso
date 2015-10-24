@@ -24,7 +24,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.number.Minus;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.collect.ArrayHashSet;
@@ -72,7 +72,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	}
 	
 	@Override
-	public void incorporateDestructively(boolean splitterSign, Expression splitter, Constraint externalConstraint, RewritingProcess process) {
+	public void incorporateDestructively(boolean splitterSign, Expression splitter, Constraint1 externalConstraint, RewritingProcess process) {
 		myAssert(() -> ! splitterSign && isEquality(splitter), () -> getClass() + " only allowed to take negative equality literals (disequalities) but got " + (splitterSign? "" : "not ") + " " + splitter);
 		Expression term;
 		if (splitter.get(0).equals(variable)) {
@@ -88,14 +88,14 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 		incorporateDisequalDestructively(term, externalConstraint, process);
 	}
 
-	private void incorporateDisequalDestructively(Expression term, Constraint externalConstraint, RewritingProcess process) throws Contradiction {
+	private void incorporateDisequalDestructively(Expression term, Constraint1 externalConstraint, RewritingProcess process) throws Contradiction {
 		boolean termIsNewDisequal = disequals.add(term);
 		if (termIsNewDisequal) {
 			updateUniqueValuedDisequalsWithNewDisequal(term, externalConstraint, process);
 		}
 	}
 	
-	private void updateUniqueValuedDisequalsWithNewDisequal(Expression newDisequal, Constraint externalConstraint, RewritingProcess process) throws Contradiction {
+	private void updateUniqueValuedDisequalsWithNewDisequal(Expression newDisequal, Constraint1 externalConstraint, RewritingProcess process) throws Contradiction {
 		
 		int indexOfFirstNotNecessarilyDisequalTermToNewDisequal;
 		int newDisequalIndex = disequals.size() - 1;
@@ -131,7 +131,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	}
 	
 	@Override
-	public Expression pickSplitterGivenExternalConstraint(Collection<Expression> indicesSubSet, Constraint externalConstraint, RewritingProcess process) {
+	public Expression pickSplitterGivenExternalConstraint(Collection<Expression> indicesSubSet, Constraint1 externalConstraint, RewritingProcess process) {
 
 		Expression result;
 		
@@ -152,7 +152,7 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 	}
 
 	private Expression getSplitterTowardDisequalityOfTwoTerms(
-			Expression term1, Expression term2, Constraint externalConstraint, RewritingProcess process) {
+			Expression term1, Expression term2, Constraint1 externalConstraint, RewritingProcess process) {
 		
 		Expression result = null;
 		Expression splitter = getTermTheory().getSplitterTowardDisunifyingDistinctTerms(term1, term2, process); // if function applications, we need to disunify arguments first, for instance.

@@ -5,11 +5,11 @@ import java.util.Collections;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.core.Contradiction;
 
 /**
- * An abstract class implementing a {@link Constraint} that represents its own constraint,
+ * An abstract class implementing a {@link Constraint1} that represents its own constraint,
  * instead of simply translating splitters to base constraint objects,
  * and translating solutions from them.
  * <p>
@@ -40,8 +40,8 @@ public abstract class AbstractOwnRepresentationConstraint extends AbstractConstr
 	}
 
 	@Override
-	public Constraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
-		Constraint result;
+	public Constraint1 incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
+		Constraint1 result;
 
 		Expression normalizedSplitterGivenConstraint = normalizeSplitterGivenConstraint(splitter, process);
 		
@@ -69,7 +69,7 @@ public abstract class AbstractOwnRepresentationConstraint extends AbstractConstr
 		// to Constraint).
 	}
 
-	private Constraint incorporateNonTrivialNormalizedSplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
+	private Constraint1 incorporateNonTrivialNormalizedSplitter(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		AbstractOwnRepresentationConstraint newConstraint = clone();
 		newConstraint.incorporateNonTrivialNormalizedSplitterDestructively(splitterSign, splitter, process);
 		return newConstraint;

@@ -56,7 +56,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
 import com.sri.ai.grinder.plaindpll.theory.term.SymbolTermTheory;
 
@@ -78,7 +78,7 @@ public class ModelCountOnIndicesSubSetTest {
 		
 		totalIndices    = list(X, Y);
 		countingIndices = list(X, Y);
-		Constraint constraint = theory.makeConstraint(totalIndices);
+		Constraint1 constraint = theory.makeConstraint(totalIndices);
 		constraint = constraint.incorporate(false, parse("X = Y"), process);
 		constraint = constraint.incorporate(false, parse("Y = Z"), process);
 		expected = parse("81");

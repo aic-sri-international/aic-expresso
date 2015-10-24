@@ -3,11 +3,11 @@ package com.sri.ai.grinder.plaindpll.theory;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 
-/** An class implementing basic {@link Constraint} functionality. */	
+/** An class implementing basic {@link Constraint1} functionality. */	
 @SuppressWarnings("serial")
-public abstract class AbstractConstraint extends AbstractExpressionWrapper implements Constraint {
+public abstract class AbstractConstraint extends AbstractExpressionWrapper implements Constraint1 {
 	
 	@Override
 	public abstract AbstractConstraint clone();

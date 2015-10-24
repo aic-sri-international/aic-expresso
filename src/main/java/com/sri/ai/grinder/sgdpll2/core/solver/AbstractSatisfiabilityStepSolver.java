@@ -43,11 +43,11 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 
 /**
- * A step solver for the satisfiability of a {@link Constraint},
+ * A step solver for the satisfiability of a {@link Constraint2},
  * which can involve free variables and is therefore a {@link ContextDependentProblemStepSolver}.
  * This class is based on splitters generated according to the specific theory.
  * 
@@ -57,7 +57,7 @@ import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 @Beta
 public abstract class AbstractSatisfiabilityStepSolver extends AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver {
 
-	public AbstractSatisfiabilityStepSolver(Constraint constraint) {
+	public AbstractSatisfiabilityStepSolver(Constraint2 constraint) {
 		super(constraint);
 	}
 	
@@ -67,7 +67,7 @@ public abstract class AbstractSatisfiabilityStepSolver extends AbstractContextDe
 	}
 
 	@Override
-	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint contextualConstraint, RewritingProcess process) {
+	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint2 contextualConstraint, RewritingProcess process) {
 		return TRUE;
 	}
 }

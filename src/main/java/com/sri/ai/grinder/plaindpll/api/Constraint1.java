@@ -5,7 +5,9 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import java.util.Collection;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Solver;
 import com.sri.ai.grinder.plaindpll.core.ExpressionConstraint;
 import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.plaindpll.core.SignedSplitter;
@@ -21,9 +23,9 @@ import com.sri.ai.util.Util;
  * @author braz
  *
  */
-public interface Constraint extends Expression {
+public interface Constraint1 extends Constraint {
 
-	Constraint clone();
+	Constraint1 clone();
 	
 	/** The constraintTheory to which this constraint belongs. */
 	ConstraintTheory getConstraintTheory();
@@ -45,10 +47,10 @@ public interface Constraint extends Expression {
 	 * @param process the rewriting process
 	 * @param the conjunction of this constraint and the given splitter, or <code>null</code> if that is contradictory.
 	 */
-	public abstract Constraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process);
+	public abstract Constraint1 incorporate(boolean splitterSign, Expression splitter, RewritingProcess process);
 
 	/** Same as {@link #incorporate(boolean, Expression, RewritingProcess)} but using {@link SignedSplitter}. */
-	default Constraint incorporate(SignedSplitter signedSplitter, RewritingProcess process) {
+	default Constraint1 incorporate(SignedSplitter signedSplitter, RewritingProcess process) {
 		return incorporate(signedSplitter.getSplitterSign(), signedSplitter.getSplitter(), process);
 	}
 
@@ -59,7 +61,7 @@ public interface Constraint extends Expression {
 	 * This option is available for performance reasons; sometimes during setup stages,
 	 * it is much more efficient to make several changes to the same object
 	 * instead of creating an instance after each change.
-	 * This violates the immutability assumption about {@link Expression} and {@link Constraint}
+	 * This violates the immutability assumption about {@link Expression} and {@link Constraint1}
 	 * and should only be used for setup purposes, before an object is released by its creator
 	 * to the world at large (because then it may be assumed immutable by other objects holding it,
 	 * and should behave immutable from then on).
@@ -96,12 +98,12 @@ public interface Constraint extends Expression {
 	 * variables, so the project is actually unneeded in that case.
 	 * Leaving it here for now in case it comes up as a convenience.
 	 */
-	default Constraint project(Collection<Expression> eliminatedIndices, RewritingProcess process) {
+	default Constraint1 project(Collection<Expression> eliminatedIndices, RewritingProcess process) {
 		Solver projector = new SGDPLLT(new DefaultInputTheory(getConstraintTheory()), new Satisfiability());
 		Expression resultExpression = projector.solve(this, eliminatedIndices, process); // this was the motivation for making Constraint implement Expression
 		// note that solvers should be aware that their input or part of their input may be a Constraint, and take advantage of the internal representations already present in them, instead of simply converting them to an Expression and redoing all the work.
 		Collection<Expression> remainingSupportedIndices = Util.subtract(getSupportedIndices(), eliminatedIndices);
-		Constraint result = ExpressionConstraint.wrap(getConstraintTheory(), remainingSupportedIndices, resultExpression);
+		Constraint1 result = ExpressionConstraint.wrap(getConstraintTheory(), remainingSupportedIndices, resultExpression);
 		return result;
 	}
 

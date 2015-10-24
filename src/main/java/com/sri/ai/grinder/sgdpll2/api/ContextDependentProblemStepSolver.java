@@ -42,9 +42,9 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 
 /**
- * An interface for step-solvers for problems involving free variables constrained by a contextual {@link Constraint}.
+ * An interface for step-solvers for problems involving free variables constrained by a contextual {@link Constraint2}.
  * The problem may either have the same solution for all free variable assignments under the context, or not.
- * Method {@link #step(Constraint, RewritingProcess)} returns a {@link SolutionStep},
+ * Method {@link #step(Constraint2, RewritingProcess)} returns a {@link SolutionStep},
  * which is either a {@link Solution} with {@link Solution#getExpression()} returning the solution,
  * or a {@link ItDependsOn} with {@link ItDependsOn#getExpression()} returning a literal
  * that, if used to split the contextual constraint
@@ -78,7 +78,7 @@ public interface ContextDependentProblemStepSolver {
 	 * @param process
 	 * @return
 	 */
-	SolutionStep step(Constraint contextualConstraint, RewritingProcess process);
+	SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process);
 
 	public static abstract class AbstractSolutionStep implements SolutionStep {
 

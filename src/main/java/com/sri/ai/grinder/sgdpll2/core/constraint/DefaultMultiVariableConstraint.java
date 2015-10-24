@@ -10,14 +10,14 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.util.Util;
 
 /**
- * An {@link Constraint} on multiple variables.
+ * An {@link Constraint2} on multiple variables.
  * 
  * @author braz
  *
@@ -101,12 +101,12 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 	@Override
 	public MultiVariableConstraint conjoin(Expression formula, RewritingProcess process) {
 		myAssert(
-				() -> getConstraintTheory().isLiteral(formula, process) || formula instanceof Constraint,
+				() -> getConstraintTheory().isLiteral(formula, process) || formula instanceof Constraint2,
 				() -> this.getClass() + " currently only supports conjoining with literals and constraints, but received " + formula);
 		
 		MultiVariableConstraint result;
 
-		if (formula instanceof Constraint) {
+		if (formula instanceof Constraint2) {
 			result = (MultiVariableConstraint) conjoinWithConjunctiveClause(formula, process);
 		}
 		else {

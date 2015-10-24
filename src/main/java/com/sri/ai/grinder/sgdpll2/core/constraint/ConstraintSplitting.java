@@ -8,7 +8,7 @@ import static com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting.Res
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 
 /**
  * A helper class containing information regarding the splitting a constraint by a literal in the most efficient way possible,
@@ -49,10 +49,10 @@ public class ConstraintSplitting  {
 	}
 	
 	private Result     result;
-	private Constraint constraint;
+	private Constraint2 constraint;
 	private Expression literal;
-	private Constraint constraintAndLiteral;
-	private Constraint constraintAndLiteralNegation;
+	private Constraint2 constraintAndLiteral;
+	private Constraint2 constraintAndLiteralNegation;
 
 	/**
 	 * Splits given constraint by given literal and stores the result and other information (see methods).
@@ -60,7 +60,7 @@ public class ConstraintSplitting  {
 	 * @param literal
 	 * @param process
 	 */
-	public ConstraintSplitting(Constraint constraint, Expression literal, RewritingProcess process) {
+	public ConstraintSplitting(Constraint2 constraint, Expression literal, RewritingProcess process) {
 		this(constraint, literal, null, process);
 	}
 	
@@ -70,15 +70,15 @@ public class ConstraintSplitting  {
 	 * @param literal
 	 * @param process
 	 */
-	public ConstraintSplitting(Constraint constraint, Expression literal, Constraint contextualConstraint, RewritingProcess process) {
+	public ConstraintSplitting(Constraint2 constraint, Expression literal, Constraint2 contextualConstraint, RewritingProcess process) {
 		this.constraint = constraint;
 		this.literal = literal;
 		Expression literalNegation   = constraint.getConstraintTheory().getLiteralNegation(literal);
 		constraintAndLiteral         = constraint.conjoin(        literal, process);
 		constraintAndLiteralNegation = constraint.conjoin(literalNegation, process);
 		
-		Constraint constraintAndLiteralAndContextualConstraint;
-		Constraint constraintAndLiteralNegationAndContextualConstraint;
+		Constraint2 constraintAndLiteralAndContextualConstraint;
+		Constraint2 constraintAndLiteralNegationAndContextualConstraint;
 
 		if (contextualConstraint != null) {
 			constraintAndLiteralAndContextualConstraint = contextualConstraint.conjoin(constraintAndLiteral, process);
@@ -113,7 +113,7 @@ public class ConstraintSplitting  {
 	}
 	
 	/** The original constraint being split. */
-	public Constraint getConstraint() {
+	public Constraint2 getConstraint() {
 		return constraint;
 	}
 	
@@ -128,7 +128,7 @@ public class ConstraintSplitting  {
 	 * conjunction of constraint and literal is satisfiable).
 	 * @return
 	 */
-	public Constraint getConstraintAndLiteral() {
+	public Constraint2 getConstraintAndLiteral() {
 		return constraintAndLiteral;
 	}
 	
@@ -138,7 +138,7 @@ public class ConstraintSplitting  {
 	 * conjunction of constraint and literal is satisfiable).
 	 * @return
 	 */
-	public Constraint getConstraintAndLiteralNegation() {
+	public Constraint2 getConstraintAndLiteralNegation() {
 		return constraintAndLiteralNegation;
 	}
 	
@@ -148,7 +148,7 @@ public class ConstraintSplitting  {
 	 * Otherwise, returns null.
 	 * @return
 	 */
-	public Constraint getConstraintConjoinedWithDefinedValueOfLiteral() {
+	public Constraint2 getConstraintConjoinedWithDefinedValueOfLiteral() {
 		switch (getResult()) {
 		case LITERAL_IS_TRUE:
 			return constraintAndLiteral;

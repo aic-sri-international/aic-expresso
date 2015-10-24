@@ -7,7 +7,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.interpreter.AbstractInterpreter;
 import com.sri.ai.grinder.interpreter.BruteForceCommonInterpreter;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 
@@ -34,7 +34,7 @@ public abstract class AbstractLiteralConditionerStepSolver implements ContextDep
 	 */
 	protected abstract SolutionStep stepGivenLiteralFreeExpression(
 			Expression literalFreeExpression,
-			Constraint contextualConstraint,
+			Constraint2 contextualConstraint,
 			RewritingProcess process);
 
 	public Expression getExpression() {
@@ -42,7 +42,7 @@ public abstract class AbstractLiteralConditionerStepSolver implements ContextDep
 	}
 
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, RewritingProcess process) {
+	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
 		SolutionStep result;
 
 			Expression literalInExpression = getNonDefinedLiteral(expression, contextualConstraint, process);
@@ -67,7 +67,7 @@ public abstract class AbstractLiteralConditionerStepSolver implements ContextDep
 	 * @return a literal in the expression, which value is not implied by contextual constraint,
 	 * or <code>null</code> if there is none.
 	 */
-	private Expression getNonDefinedLiteral(Expression expression, Constraint contextualConstraint, RewritingProcess process) {
+	private Expression getNonDefinedLiteral(Expression expression, Constraint2 contextualConstraint, RewritingProcess process) {
 		Expression result;
 		if (isNonDefinedLiteral(expression, contextualConstraint, process)) {
 			result = expression;
@@ -80,7 +80,7 @@ public abstract class AbstractLiteralConditionerStepSolver implements ContextDep
 		return result;
 	}
 
-	private boolean isNonDefinedLiteral(Expression expression, Constraint contextualConstraint, RewritingProcess process) {
+	private boolean isNonDefinedLiteral(Expression expression, Constraint2 contextualConstraint, RewritingProcess process) {
 		if (contextualConstraint.getConstraintTheory().isLiteral(expression, process)) {
 			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, expression, process);
 			boolean undefined = split.getResult() == ConstraintSplitting.Result.LITERAL_IS_UNDEFINED;
@@ -99,7 +99,7 @@ public abstract class AbstractLiteralConditionerStepSolver implements ContextDep
 	 * @return
 	 */
 	public static Expression simplifyGivenContextualConstraint(
-			Expression expression, Constraint contextualConstraint, RewritingProcess process) {
+			Expression expression, Constraint2 contextualConstraint, RewritingProcess process) {
 		// TODO: make the simplifier be a parameter for {@link AbstractLiteralConditionerStepSolver}
 		AbstractInterpreter interpreter = new BruteForceCommonInterpreter(true /* simplify given contextual constraint */);
 		Expression result = interpreter.simplifyUnderContextualConstraint(expression, contextualConstraint, process);

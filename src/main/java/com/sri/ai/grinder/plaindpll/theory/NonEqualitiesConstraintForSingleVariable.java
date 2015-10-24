@@ -6,7 +6,7 @@ import java.util.List;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 
 /** 
  * Represents a conjunction of literals of binary constraint operators between a variable and
@@ -14,11 +14,11 @@ import com.sri.ai.grinder.plaindpll.api.Constraint;
  * This interface is defined for constraints used inside an EqualityConstraintTheoryConstraint
  * in addition to equalities themselves.
  * This is a pretty-specific, performance-based interface meant to be used inside {@link NonEqualitiesConstraint} implementations.
- * It does not behave like a stand-alone {@link Constraint} implementation because its picking and incorporation of splitters
+ * It does not behave like a stand-alone {@link Constraint1} implementation because its picking and incorporation of splitters
  * are done by alternative methods that take the containing (enveloping constraint).
  * The original methods should throw an error if invoked.
  */	
-public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
+public interface NonEqualitiesConstraintForSingleVariable extends Constraint1 {
 
 	/** Returns the single variable against which all other terms are constrained. */
 	Expression getVariable();
@@ -35,7 +35,7 @@ public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 	 * @param process
 	 * @return
 	 */
-	Expression pickSplitterGivenExternalConstraint(Collection<Expression> indicesSubSet, Constraint externalConstraint, RewritingProcess process);
+	Expression pickSplitterGivenExternalConstraint(Collection<Expression> indicesSubSet, Constraint1 externalConstraint, RewritingProcess process);
 
 	/**
 	 * Same as {@link #incorporateDestructively(boolean, Expression, RewritingProcess)} but taking
@@ -49,7 +49,7 @@ public interface NonEqualitiesConstraintForSingleVariable extends Constraint {
 	 * @param externalConstraint
 	 * @param process
 	 */
-	void incorporateDestructively(boolean splitterSign, Expression splitter, Constraint externalConstraint, RewritingProcess process);
+	void incorporateDestructively(boolean splitterSign, Expression splitter, Constraint1 externalConstraint, RewritingProcess process);
 
 	/**
 	 * Same as {@link #updateRepresentativesDestructively(boolean, Expression, RewritingProcess)} but taking

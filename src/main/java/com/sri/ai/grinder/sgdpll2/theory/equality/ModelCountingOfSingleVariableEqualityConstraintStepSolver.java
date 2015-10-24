@@ -56,7 +56,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.number.Minus;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.core.solver.AbstractModelCountingOfSingleVariableWithPropagatedAndDefiningLiteralsConstraintStepSolver;
 import com.sri.ai.util.base.PairOf;
 import com.sri.ai.util.collect.FunctionIterator;
@@ -99,7 +99,7 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 
 	@Override
 	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(
-			Constraint contextualConstraint, RewritingProcess process) {
+			Constraint2 contextualConstraint, RewritingProcess process) {
 		
 		Expression result;
 		if (getConstraint().getEqualsIterator().hasNext()) { // variable is bound to some value
@@ -120,7 +120,7 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 		return result;
 	}
 
-	private int computeNumberOfUniqueDisequals(Constraint contextualConstraint, RewritingProcess process) {
+	private int computeNumberOfUniqueDisequals(Constraint2 contextualConstraint, RewritingProcess process) {
 		ArrayList<Expression> disequals = arrayListFrom(getConstraint().getDisequalsIterator());
 		Set<Expression> equalToAPreviousDisequal = set();
 		for (int i = 0; i < disequals.size() - 1; i++) {

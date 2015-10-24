@@ -7,7 +7,7 @@ import java.util.Collection;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.collect.ArraySet;
 
@@ -63,7 +63,7 @@ class DisequalitiesSplitterSearchLowerBound {
 
 	public Expression getCurrentSplitter(
 			ArraySet<Expression> disequals, ArraySet<Expression> uniquelyValuedDisequals,
-			Constraint externalConstraint, 
+			Constraint1 externalConstraint, 
 			BinaryFunction<Expression, Expression, Expression> getSplitterTowardDisequalityOfTwoTerms,
 			RewritingProcess process) {
 		if (needsToBeSearched(externalConstraint, process)) {
@@ -72,13 +72,13 @@ class DisequalitiesSplitterSearchLowerBound {
 		return currentSplitter;
 	}
 	
-	private boolean needsToBeSearched(Constraint externalConstraint, RewritingProcess process) {
+	private boolean needsToBeSearched(Constraint1 externalConstraint, RewritingProcess process) {
 		// needs to be search if it has not been searched yet, or if it's obsolete for the current non-equalities
 		boolean result = currentSplitter == null || ! nonNullCurrentSplitterStillValid(externalConstraint, process);
 		return result;
 	}
 
-	private boolean nonNullCurrentSplitterStillValid(Constraint externalConstraint, RewritingProcess process) {
+	private boolean nonNullCurrentSplitterStillValid(Constraint1 externalConstraint, RewritingProcess process) {
 		boolean result = ! externalConstraint.directlyImpliesLiteral(apply(DISEQUALITY, currentSplitter.get(0), currentSplitter.get(1)), process);
 		return result;
 	}

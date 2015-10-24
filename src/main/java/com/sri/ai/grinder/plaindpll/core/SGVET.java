@@ -42,7 +42,7 @@ import java.util.Collection;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
 
@@ -72,7 +72,7 @@ import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
  * @author braz
  *
  */
-public class SGVET extends PlainDPLLSolver {
+public class SGVET extends AbstractPlainDPLLSolver {
 
 	private PlainDPLLSGVETFunctionality veFunctionality;
 	
@@ -87,7 +87,7 @@ public class SGVET extends PlainDPLLSolver {
 
 	@Override
 	protected Expression solveAfterBookkeepingAndBodyConstraintCheck(
-			Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+			Expression expression, Collection<Expression> indices, Constraint1 constraint, RewritingProcess process) {
 
 		return veFunctionality.solve(expression, indices, constraint, process);
 	}

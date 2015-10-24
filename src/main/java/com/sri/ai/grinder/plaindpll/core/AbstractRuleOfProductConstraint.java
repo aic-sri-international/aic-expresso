@@ -11,13 +11,13 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.number.Times;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.theory.AbstractOwnRepresentationConstraint;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.util.Util;
 
 /**
- * An abstract {@link Constraint} implementation that lays the groundwork for
+ * An abstract {@link Constraint1} implementation that lays the groundwork for
  * computing model counts based on the rule of product, that is,
  * iterating over each index, computing the number of possible values for it
  * given the previous choices, and multiplying them all.

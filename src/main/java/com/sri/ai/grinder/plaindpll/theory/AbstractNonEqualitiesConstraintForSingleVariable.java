@@ -9,7 +9,7 @@ import java.util.Collection;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.api.TermTheory;
 import com.sri.ai.util.Util;
 
@@ -65,7 +65,7 @@ public abstract class AbstractNonEqualitiesConstraintForSingleVariable extends A
 	}
 
 	@Override
-	public Constraint incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
+	public Constraint1 incorporate(boolean splitterSign, Expression splitter, RewritingProcess process) {
 		Util.myAssert(() -> false, () -> (new Object(){}).getClass().getEnclosingMethod() + " disabled for " + getClass().getSimpleName() + "; use version that takes exterior constraint instead"); // more robust to method renaming
 		return null;
 	}

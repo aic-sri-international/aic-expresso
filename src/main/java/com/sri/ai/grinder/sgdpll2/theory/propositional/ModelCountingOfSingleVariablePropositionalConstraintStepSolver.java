@@ -43,7 +43,7 @@ import static com.sri.ai.expresso.helper.Expressions.TWO;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.core.solver.AbstractModelCountingWithPropagatedAndDefiningLiteralsStepSolver;
 
 /**
@@ -78,7 +78,7 @@ public class ModelCountingOfSingleVariablePropositionalConstraintStepSolver exte
 	
 	@Override
 	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(
-			Constraint contextualConstraint, RewritingProcess process) {
+			Constraint2 contextualConstraint, RewritingProcess process) {
 		
 		boolean variableIsNotConstrained = 
 				getConstraint().getPositiveAtoms().isEmpty() && getConstraint().getNegativeAtoms().isEmpty();

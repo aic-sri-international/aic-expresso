@@ -55,7 +55,7 @@ import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.util.collect.StackedHashMap;
@@ -170,7 +170,7 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 	public static void main(String[] args) {
 		AbstractInterpreter interpreter = new BruteForceCommonInterpreter(map(parse("Hurrah"), parse("awesome")), true);
 		RewritingProcess process = new DefaultRewritingProcess(null);
-		Constraint contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory());
+		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory());
 		contextualConstraint = contextualConstraint.conjoin(parse("W != 3"), process);
 		process.putGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
 		process = process.put(new Categorical("Population", 5, arrayList(parse("tom")))); // two pitfalls: immutable process and need for arrayList rather than just list

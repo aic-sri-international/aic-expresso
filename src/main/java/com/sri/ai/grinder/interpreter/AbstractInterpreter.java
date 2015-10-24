@@ -51,7 +51,7 @@ import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.simplifier.Exhaustive;
 import com.sri.ai.grinder.core.simplifier.MergedMapBasedSimplifier;
 import com.sri.ai.grinder.core.simplifier.Recursive;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 
 /**
@@ -122,7 +122,7 @@ public abstract class AbstractInterpreter implements MapBasedSimplifier {
 					);
 			
 			if (simplifyGivenConstraint) {
-				Constraint contextualConstraint = (Constraint) process.getGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT);
+				Constraint2 contextualConstraint = (Constraint2) process.getGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT);
 				if (contextualConstraint.getConstraintTheory().isLiteral(expression, process)) {
 					ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, expression, process);
 					switch(split.getResult()) {
@@ -165,7 +165,7 @@ public abstract class AbstractInterpreter implements MapBasedSimplifier {
 	 * @param process
 	 * @return
 	 */
-	public Expression simplifyUnderContextualConstraint(Expression expression, Constraint contextualConstraint, RewritingProcess process) {
+	public Expression simplifyUnderContextualConstraint(Expression expression, Constraint2 contextualConstraint, RewritingProcess process) {
 		Object oldConstraint = process.getGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT);
 		process.putGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
 		Expression simplifiedBody = apply(expression, process);

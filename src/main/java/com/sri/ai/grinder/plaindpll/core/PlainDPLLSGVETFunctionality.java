@@ -41,8 +41,9 @@ import java.util.List;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.AbstractSGVETFunctionality;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
@@ -71,7 +72,7 @@ public class PlainDPLLSGVETFunctionality extends AbstractSGVETFunctionality {
 	}
 
 	@Override
-	protected Constraint makeTrueConstraint(List<Expression> indices) {
+	protected Constraint1 makeTrueConstraint(List<Expression> indices) {
 		return constraintTheory.makeConstraint(indices);
 	}
 }

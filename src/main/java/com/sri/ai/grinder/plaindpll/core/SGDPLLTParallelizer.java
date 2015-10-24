@@ -43,7 +43,7 @@ import java.util.Iterator;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
-import com.sri.ai.grinder.plaindpll.api.Constraint;
+import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.util.collect.PredicateIterator;
@@ -72,7 +72,7 @@ public class SGDPLLTParallelizer extends SGDPLLT {
 	 *
 	 */
 	public static interface Collector {
-		void collect(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process);
+		void collect(Expression expression, Collection<Expression> indices, Constraint1 constraint, RewritingProcess process);
 	}
 	
 	private Collector collector;
@@ -125,14 +125,14 @@ public class SGDPLLTParallelizer extends SGDPLLT {
 	 *  Restricts splitters to index-containing ones only.
 	 */
 	@Override
-	protected Iterator<Expression> getSplittersIterator(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	protected Iterator<Expression> getSplittersIterator(Expression expression, Collection<Expression> indices, Constraint1 constraint, RewritingProcess process) {
 		Iterator<Expression> splittersIterator = super.getSplittersIterator(expression, indices, constraint, process);
 		Iterator<Expression> indexSplittersIterator = new PredicateIterator<>(splittersIterator, e -> containsIndex(e, indices));
 		return indexSplittersIterator;
 	}
 
 	@Override
-	public Expression solveAfterBookkeeping(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	public Expression solveAfterBookkeeping(Expression expression, Collection<Expression> indices, Constraint1 constraint, RewritingProcess process) {
 		Expression result;
 		int level = getLevel(process);
 		if (itIsTimeToCollect(level, expression, indices, constraint, process)) {
@@ -154,7 +154,7 @@ public class SGDPLLTParallelizer extends SGDPLLT {
 	 * @param process
 	 * @return
 	 */
-	protected boolean itIsTimeToCollect(int level, Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	protected boolean itIsTimeToCollect(int level, Expression expression, Collection<Expression> indices, Constraint1 constraint, RewritingProcess process) {
 		boolean result = pickSplitter(expression, indices, constraint, process) == null || level == collectingDepth;
 		return result;
 	}

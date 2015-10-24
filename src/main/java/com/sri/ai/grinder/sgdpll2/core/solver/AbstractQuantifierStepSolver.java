@@ -11,7 +11,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
-import com.sri.ai.grinder.sgdpll2.api.Constraint;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
@@ -28,7 +28,7 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  * <p>
  * For example, if we have <code>sum({{ (on X in SomeType) if Y != bob then 2 else 3 | X != john }})</code>
  * under contextual constraint <code>Z = alice</code>,
- * {@link AbstractLiteralConditionerStepSolver#step(Constraint, RewritingProcess)} is
+ * {@link AbstractLiteralConditionerStepSolver#step(Constraint2, RewritingProcess)} is
  * invoked with contextual constraint <code>Z = alice and X != john</code>.
  * The solution step will depend on literal <code>Y != bob</code>.
  * <p>
@@ -40,12 +40,12 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  * <p>
  * Because these two sub-problems have literal-free bodies <code>2</code> and <code>3</code>,
  * they will be solved by the extension's
- * {@link #stepGivenLiteralFreeBody(Constraint, SingleVariableConstraint, Expression, RewritingProcess)}
+ * {@link #stepGivenLiteralFreeBody(Constraint2, SingleVariableConstraint, Expression, RewritingProcess)}
  * (which for sums with constant bodies will be equal to the model count of the index constraint
  * under the contextual constraint times the constant).
  * <p>
  * Extending classes must define method
- * {@link #stepGivenLiteralFreeBody(Constraint, SingleVariableConstraint, Expression, RewritingProcess)
+ * {@link #stepGivenLiteralFreeBody(Constraint2, SingleVariableConstraint, Expression, RewritingProcess)
  * to solve the case in which the body is its given literal-free version,
  * for the given contextual constraint and index constraint.
  * <p>
@@ -78,7 +78,7 @@ public abstract class AbstractQuantifierStepSolver extends AbstractLiteralCondit
 	 * @param literalFreeBody literal-free body
 	 */
 	protected abstract SolutionStep stepGivenLiteralFreeBody(
-			Constraint contextualConstraint,
+			Constraint2 contextualConstraint,
 			SingleVariableConstraint indexConstraint,
 			Expression literalFreeBody,
 			RewritingProcess process);
@@ -126,10 +126,10 @@ public abstract class AbstractQuantifierStepSolver extends AbstractLiteralCondit
 	}
 	
 	@Override
-	public SolutionStep step(Constraint contextualConstraint, RewritingProcess process) {
+	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
 		SolutionStep result;
 
-		Constraint contextualConstraintForBody = contextualConstraint.conjoin(getIndexConstraint(), process);
+		Constraint2 contextualConstraintForBody = contextualConstraint.conjoin(getIndexConstraint(), process);
 		if (contextualConstraintForBody == null) {
 			result = new Solution(group.additiveIdentityElement());
 		}
@@ -159,14 +159,14 @@ public abstract class AbstractQuantifierStepSolver extends AbstractLiteralCondit
 	@Override
 	protected SolutionStep stepGivenLiteralFreeExpression(
 			Expression literalFreeExpression,
-			Constraint contextualConstraintForBody,
+			Constraint2 contextualConstraintForBody,
 			RewritingProcess process) {
-		Constraint contextualConstraint = (Constraint) process.getGlobalObject(ABSTRACT_QUANTIFIER_STEP_SOLVER_CONTEXTUAL_CONSTRAINT);
+		Constraint2 contextualConstraint = (Constraint2) process.getGlobalObject(ABSTRACT_QUANTIFIER_STEP_SOLVER_CONTEXTUAL_CONSTRAINT);
 		SolutionStep result = stepGivenLiteralFreeBody(contextualConstraint, indexConstraint, literalFreeExpression, process);
 		return result;
 	}
 
-	private SolutionStep resultIfLiteralContainsIndex(Constraint contextualConstraint, Expression literal, RewritingProcess process) {
+	private SolutionStep resultIfLiteralContainsIndex(Constraint2 contextualConstraint, Expression literal, RewritingProcess process) {
 		
 		// if the splitter contains the index, we must split the quantifier:
 		// Quant_x:C Body  --->   (Quant_{x:C and L} Body) op (Quant_{x:C and not L} Body)
@@ -196,14 +196,14 @@ public abstract class AbstractQuantifierStepSolver extends AbstractLiteralCondit
 		return result;
 	}
 
-	private Expression solveSubProblem(Constraint newIndexConstraint, Constraint contextualConstraint, RewritingProcess process) {
+	private Expression solveSubProblem(Constraint2 newIndexConstraint, Constraint2 contextualConstraint, RewritingProcess process) {
 		SingleVariableConstraint newIndexConstraintAsSingleVariableConstraint = (SingleVariableConstraint) newIndexConstraint;
 		ContextDependentProblemStepSolver subProblem = makeWithNewIndexConstraint(newIndexConstraintAsSingleVariableConstraint);
 		Expression result = ContextDependentProblemSolver.solve(subProblem, contextualConstraint, process);
 		return result;
 	}
 
-	protected Expression combine(Expression solution1, Expression solution2, Constraint contextualConstraint, RewritingProcess process) {
+	protected Expression combine(Expression solution1, Expression solution2, Constraint2 contextualConstraint, RewritingProcess process) {
 		Expression result;
 		if (isIfThenElse(solution1)) {
 			// (if C1 then A1 else A2) op solution2 ---> if C1 then (A1 op solution2) else (A2 op solution2)
