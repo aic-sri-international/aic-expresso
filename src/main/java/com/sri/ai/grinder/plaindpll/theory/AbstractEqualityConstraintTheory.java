@@ -155,7 +155,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 	abstract protected NonEqualitiesConstraint makeNonEqualitiesConstraint(Collection<Expression> indices);
 
 	@Override
-	public boolean isVariableTerm(Expression term, RewritingProcess process) {
+	public boolean isVariable(Expression term, RewritingProcess process) {
 		return termTheory.isVariableTerm(term, process);
 	}
 
@@ -572,7 +572,7 @@ public abstract class AbstractEqualityConstraintTheory extends AbstractConstrain
 		}
 
 		private boolean isVariableTerm(Expression term, RewritingProcess process) {
-			return getConstraintTheory().isVariableTerm(term, process);
+			return getConstraintTheory().isVariable(term, process);
 		}
 
 		////////// END OF EQUALITY CONSTRAINTS MAINTENANCE

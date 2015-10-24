@@ -154,14 +154,31 @@ public interface ConstraintTheory extends Theory {
 	 */
 	default Collection<Expression> getVariablesIn(Expression expression, RewritingProcess process) {
 		Iterator<Expression> subExpressionsIterator = new SubExpressionsDepthFirstIterator(expression);
-		Predicate<Expression> isVariable =
-				e -> !process.isUniquelyNamedConstant(expression)
-				&& !isInterpretedInPropositionalLogicIncludingConditionals(e)  
-				&& !isInterpretedInThisTheoryBesidesBooleanConnectives(e, process)
-				&& !thereExists(process.getTypes(), t -> t.contains(e));
-		Iterator<Expression> variablesIterator = PredicateIterator.make(subExpressionsIterator, isVariable);
+		Predicate<Expression> isVariablePredicate = e -> isVariable(e, process);
+		Iterator<Expression> variablesIterator = PredicateIterator.make(subExpressionsIterator, isVariablePredicate);
 		LinkedHashSet<Expression> variables = addAllToSet(variablesIterator);
 		return variables;
+	}
+
+	/**
+	 * Indicates whether an expression is considered a variable in this theory,
+	 * meaning that it is not a constants of any of the registered types in process
+	 * (per {@link RewritingProcess#getTypes()} and {@link RewritingProcess#isUniquelyNamedConstant(Expression)}),
+	 * it is not interpreted in propositional logic
+	 * (per {@link FormulaUtil#isInterpretedInPropositionalLogicIncludingConditionals(Expression)}),
+	 * and is not interpreted in this theory besides boolean connectives
+	 * (per {@link #isInterpretedInThisTheoryBesidesBooleanConnectives(Expression, RewritingProcess)}.
+	 * @param expression
+	 * @param process
+	 * @return
+	 */
+	default boolean isVariable(Expression expression, RewritingProcess process) {
+		boolean result =
+				!process.isUniquelyNamedConstant(expression)
+				&& !isInterpretedInPropositionalLogicIncludingConditionals(expression)  
+				&& !isInterpretedInThisTheoryBesidesBooleanConnectives(expression, process)
+				&& !thereExists(process.getTypes(), t -> t.contains(expression));
+		return result;
 	}
 
 	//////////// AUTOMATIC TESTING 

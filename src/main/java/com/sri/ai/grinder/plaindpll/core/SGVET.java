@@ -37,40 +37,14 @@
  */
 package com.sri.ai.grinder.plaindpll.core;
 
-import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.expresso.helper.Expressions.isSubExpressionOf;
-import static com.sri.ai.grinder.library.boole.And.getConjuncts;
-import static com.sri.ai.grinder.library.boole.And.isConjunction;
-import static com.sri.ai.grinder.library.controlflow.IfThenElse.condition;
-import static com.sri.ai.grinder.library.controlflow.IfThenElse.elseBranch;
-import static com.sri.ai.grinder.library.controlflow.IfThenElse.isIfThenElse;
-import static com.sri.ai.grinder.library.controlflow.IfThenElse.thenBranch;
-import static com.sri.ai.util.Util.argmin;
-import static com.sri.ai.util.Util.collectToLists;
-import static com.sri.ai.util.Util.getFirst;
-import static com.sri.ai.util.Util.list;
-import static com.sri.ai.util.Util.mapIntoList;
-import static com.sri.ai.util.Util.nonDestructivelyExpandElementsIfFunctionReturnsNonNullCollection;
-import static com.sri.ai.util.Util.removeNonDestructively;
-
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
-import com.sri.ai.grinder.plaindpll.api.Solver;
-import com.sri.ai.util.base.PairOf;
 
 /**
  * A Variable Elimination algorithm generalized in the same manner
@@ -98,11 +72,9 @@ import com.sri.ai.util.base.PairOf;
  * @author braz
  *
  */
-public class SGVET extends AbstractSolver {
+public class SGVET extends PlainDPLLSolver {
 
-	public boolean basicOutput = false;
-	
-	private Solver subSolver;
+	private PlainDPLLSGVETFunctionality veFunctionality;
 	
 	public SGVET(InputTheory inputTheory, SemiRingProblemType problemType) {
 		this(inputTheory, problemType, null);
@@ -110,215 +82,30 @@ public class SGVET extends AbstractSolver {
 
 	public SGVET(InputTheory inputTheory, SemiRingProblemType problemType, CountsDeclaration countsDeclaration) {
 		super(inputTheory, problemType, countsDeclaration);
-		this.subSolver = new SGDPLLT(inputTheory, problemType, countsDeclaration);
+		this.veFunctionality = new PlainDPLLSGVETFunctionality(inputTheory, problemType, countsDeclaration);
 	}
 
 	@Override
-	public SemiRingProblemType getProblemType() {
-		return (SemiRingProblemType) problemType;
-	}
-	
-	private static class Partition {
-		private List<Expression> index;
-		private List<Expression> remainingIndices;
-		private PairOf<List<Expression>> expressionsOnIndexAndNot;
+	protected Expression solveAfterBookkeepingAndBodyConstraintCheck(
+			Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 
-		public Partition(Expression index, List<Expression> remainingIndices, PairOf<List<Expression>> expressionsOnIndex) {
-			super();
-			this.index = list(index);
-			this.remainingIndices = remainingIndices;
-			this.expressionsOnIndexAndNot = expressionsOnIndex;
-		}
-		
-		public boolean isTrivial() {
-			boolean result = expressionsOnIndexAndNot.first.isEmpty() || expressionsOnIndexAndNot.second.isEmpty();
-			return result;
-		}
+		return veFunctionality.solve(expression, indices, constraint, process);
+	}
+
+	@Override
+	public boolean getDebug() {
+		return veFunctionality.getDebug();
 	}
 	
 	@Override
-	protected Expression solveAfterBookkeepingAndBodyConstraintCheck(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
-		Expression result;
-		if (debug) {
-			System.out.println("SGVE(T) input: " + expression);	
-			System.out.println("Width        : " + width(expression, process));
-		}
-		
-		Partition partition;
-		if (indices.size() < 1) {
-			partition = null;
-		}
-		else {
-			Expression factoredConditionalsExpression =
-					factoredConditionalsWithAbsorbingElseClause(expression, process);
-			partition = pickPartition(factoredConditionalsExpression, indices, constraint, process);
-		}
-		
-		if (partition == null) {
-			if (basicOutput) {
-				System.out.println("No partition");	
-			}
-			result = subSolver.solve(expression, indices, constraint, process);
-		}
-		else {
-			Expression indexSubProblemExpression = product(partition.expressionsOnIndexAndNot.first, process);
-			if (basicOutput) {
-				System.out.println("Eliminating: " + getFirst(partition.index));	
-				System.out.println("From       : " + indexSubProblemExpression);	
-				System.out.println("Width      : " + width(indexSubProblemExpression, process) + " out of " + indices.size() + " indices");	
-			}
-
-			// We now invoke the subsolver for summing the index out of the factors it is in.
-			// Ideally, we would reuse the current constraint, but the set of index has changed and the current constraint may
-			// use an internal representation that depends on its previous set of indices.
-			// In the future, we should try to re-use that internal representation and re-index it appropriately, but for now
-			// we rewrite the program in a way that the current constraint becomes a part of the input expression.
-			// This will be equivalent to using it as a constraint, but will cause the constraint to be re-built.
-			// BTW, the call to "project" below will also re-process the constraint for the same reason: re-indexing.
-			// In the future it should also re-use the representation.
-			// The following transformation is:  sum_C E   =   sum_{true} if C then E else 0
-			Expression indexSubProblemExpressionWithConstraint = IfThenElse.make(constraint, indexSubProblemExpression, getProblemType().multiplicativeAbsorbingElement());
-			Expression indexSubProblemSolution = subSolver.solve(indexSubProblemExpressionWithConstraint, partition.index, process);
-//			Expression indexSubProblemSolution = subSolver.solve(indexSubProblemExpression, partition.index, constraint, process);
-			
-			if (basicOutput) {
-				System.out.println("Solution   : " + indexSubProblemSolution + "\n");	
-			}
-			
-			partition.expressionsOnIndexAndNot.second.add(indexSubProblemSolution);
-			Expression remainingSubProblemExpression = product(partition.expressionsOnIndexAndNot.second, process);
-			Constraint trueConstraintOnRemainingIndices = constraint.getConstraintTheory().makeConstraint(partition.remainingIndices);
-			Constraint constraintOnRemainingIndices = trueConstraintOnRemainingIndices; // the constraint is already represented in indexSubProblemSolution
-			result = solve(remainingSubProblemExpression, partition.remainingIndices, constraintOnRemainingIndices, process);
-			result = getProblemType().multiply(result, process);
-		}
-		
-		return result;
+	public void setDebug(boolean newValue) {
+		veFunctionality.setDebug(newValue);
 	}
 
-	private Partition pickPartition(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
-		Partition result;
-		if (indices.isEmpty()) {
-			result = null;
-		}
-		else {
-			List<Expression> factors = getProblemType().getFactors(expression);
-			List<Partition> allPartitions = mapIntoList(indices, makePartition(indices, factors));
-			result = argmin(allPartitions, width(process)); // min-fill heuristics
-			if (result.isTrivial()) {
-				result = null; // no need to incur in the overhead for partitioning
-			}
-		}
-		return result;
-	}
-
-	public Function<Expression, Partition> makePartition(Collection<Expression> indices, List<Expression> expressions) {
-		return index -> {
-			checkInterrupted();
-			return pickPartitionForIndex(index, indices, expressions);
-		};
-	}
-
-	public Partition pickPartitionForIndex(Expression index, Collection<Expression> indices, List<Expression> expressions) {
-		Partition result;
-		List<Expression> remainingIndices = removeNonDestructively(indices, index);
-		Predicate<Expression> containsIndex = e -> isSubExpressionOf(index, e);
-		PairOf<List<Expression>> onIndexAndNot = collectToLists(expressions, containsIndex);
-		result = new Partition(index, remainingIndices, onIndexAndNot);
-		return result;
-	}
-	
-	public Function<Partition, Integer> width(RewritingProcess process) {
-		return partition -> width(partition, process);
-	}
-
-	private int width(Partition partition, RewritingProcess process) {
-		Expression product = product(partition.expressionsOnIndexAndNot.first, process);
-		int result = width(product, process);
-		return result;
-	}
-
-	private int width(Expression expression, RewritingProcess process) {
-		Set<Expression> variables = new LinkedHashSet<Expression>();
-		Iterator<Expression> iterator = new SubExpressionsDepthFirstIterator(expression);
-		while (iterator.hasNext()) {
-			Expression subExpression = iterator.next();
-			if (constraintTheory.isVariableTerm(subExpression, process)) {
-				variables.add(subExpression);
-			}
-		}
-		int result = variables.size();
-		return result;
-	}
-
-	public Expression factoredConditionalsWithAbsorbingElseClause(Expression expression, RewritingProcess process) {
-		List<Expression> factors = getProblemType().getFactors(expression);
-		List<Expression> factorsAfterFactoringConditionals = factoredConditionalsWithAbsorbingElseClause(factors);
-		Expression result;
-		if (factorsAfterFactoringConditionals == factors) {
-			result = expression;
-		}
-		else {
-			result = product(factorsAfterFactoringConditionals, process);
-		}
-		return result;
-	}
-	
-	private List<Expression> factoredConditionalsWithAbsorbingElseClause(List<Expression> factors) {
-		List<Expression> result =
-				nonDestructivelyExpandElementsIfFunctionReturnsNonNullCollection(
-						factors,
-						this::factorConditionalIfPossible);
-		return result;
-	}
-	
-	private List<Expression> factorConditionalIfPossible(Expression expression) {
-		List<Expression> result = null;
-		Expression nthRoot;
-		if (isIfThenElse(expression) && elseBranchIsAbsorbing(expression)
-				&&
-				conditionIsConjunction(expression)
-				&&
-				(nthRoot = getNthRoot(numberOfConjuncts(expression), thenBranch(expression)))
-				!= null) {
-
-			result = mapIntoList(
-					getConjuncts(condition(expression)),
-					(Expression c) -> IfThenElse.make(c, nthRoot, multiplicativeAbsorbingElement()));
-		}
-		return result; 
-	}
-
-	public boolean conditionIsConjunction(Expression expression) {
-		return isConjunction(condition(expression));
-	}
-
-	public boolean elseBranchIsAbsorbing(Expression expression) {
-		return elseBranch(expression).equals(multiplicativeAbsorbingElement());
-	}
-
-	public Expression multiplicativeAbsorbingElement() {
-		return getProblemType().multiplicativeAbsorbingElement();
-	}
-
-	public int numberOfConjuncts(Expression expression) {
-		return condition(expression).numberOfArguments();
-	}
-
-	private Expression getNthRoot(int n, Expression expression) {
-		return getProblemType().getNthRoot(n, expression);
-	}
-
-	private Expression product(Collection<Expression> factors, RewritingProcess process) {
-		Expression multiplication = apply(getProblemType().multiplicativeFunctor(), factors);
-		Expression result = getProblemType().multiply(multiplication, process);
-		return result;
-	}
-	
 	@Override 
 	public void interrupt() {
 		super.interrupt();
-		subSolver.interrupt();
+		veFunctionality.interrupt();
 	}
 
 	@Override

@@ -67,7 +67,7 @@ public interface ConstraintTheory extends Theory {
 	 * @param process
 	 * @return
 	 */
-	boolean isVariableTerm(Expression term, RewritingProcess process);
+	boolean isVariable(Expression term, RewritingProcess process);
 
 	/**
 	 * Simplifies an expression given the assumption that a splitter is true or false, depending on given sign.

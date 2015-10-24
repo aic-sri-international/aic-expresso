@@ -73,13 +73,19 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-abstract public class AbstractSolver extends AbstractHierarchicalRewriter implements Solver {
+abstract public class PlainDPLLSolver extends AbstractHierarchicalRewriter implements Solver {
 
-	public boolean debug = false;
+	private boolean debug = false;
 	
 	private RewritingProcess topLevelRewritingProcess;
 	private boolean interrupted = false;
 	
+	@Override
+	public boolean getDebug() {
+		return debug;
+	}
+
+	@Override
 	public void setDebug(boolean newValue) {
 		this.debug = newValue;
 	}
@@ -96,11 +102,11 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	/** A {@link CountsDeclaration} encapsulating sort size information. */
 	protected CountsDeclaration countsDeclaration;
 	
-	public AbstractSolver(InputTheory inputTheory, GroupProblemType problemType) {
+	public PlainDPLLSolver(InputTheory inputTheory, GroupProblemType problemType) {
 		this(inputTheory, problemType, null);
 	}
 
-	public AbstractSolver(InputTheory inputTheory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
+	public PlainDPLLSolver(InputTheory inputTheory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
 		this.inputTheory = inputTheory;
 		this.constraintTheory = inputTheory.getConstraintTheory();
 		this.problemType = problemType;

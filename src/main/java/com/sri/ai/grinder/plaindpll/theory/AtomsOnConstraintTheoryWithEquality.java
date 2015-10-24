@@ -92,14 +92,14 @@ public class AtomsOnConstraintTheoryWithEquality extends AbstractConstraintTheor
 	}
 	
 	@Override
-	public boolean isVariableTerm(Expression term, RewritingProcess process) {
-		return constraintTheoryWithEquality.isVariableTerm(term, process);
+	public boolean isVariable(Expression term, RewritingProcess process) {
+		return constraintTheoryWithEquality.isVariable(term, process);
 	}
 
 	@Override
 	public Expression makeSplitterIfPossible(Expression expression, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
-		if (constraintTheoryWithEquality.isVariableTerm(expression, process) && isBooleanTyped(expression, process)) {
+		if (constraintTheoryWithEquality.isVariable(expression, process) && isBooleanTyped(expression, process)) {
 			result = expression;
 		}
 		else {

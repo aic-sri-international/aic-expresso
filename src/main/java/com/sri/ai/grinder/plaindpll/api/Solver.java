@@ -82,6 +82,10 @@ public interface Solver extends Rewriter {
 	 * Stop solver in case it runs in a different thread.
 	 */
 	void interrupt();
+	
+	boolean getDebug();
+	
+	void setDebug(boolean newDebugValue);
 
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them

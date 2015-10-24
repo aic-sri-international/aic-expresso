@@ -69,7 +69,7 @@ import com.sri.ai.util.collect.NestedIterator;
  * @author braz
  *
  */
-public class SGDPLLT extends AbstractSolver {
+public class SGDPLLT extends PlainDPLLSolver {
 	
 	public int debugLevel = 3;
 	
@@ -387,7 +387,7 @@ public class SGDPLLT extends AbstractSolver {
 	}
 
 	private boolean debug(RewritingProcess process) {
-		return debug && getLevel(process) < debugLevel;
+		return getDebug() && getLevel(process) < debugLevel;
 	}
 
 	@Override

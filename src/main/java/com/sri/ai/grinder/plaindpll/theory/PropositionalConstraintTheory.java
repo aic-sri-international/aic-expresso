@@ -86,7 +86,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public boolean isVariableTerm(Expression term, RewritingProcess process) {
+	public boolean isVariable(Expression term, RewritingProcess process) {
 		return isProposition(term, process);
 	}
 

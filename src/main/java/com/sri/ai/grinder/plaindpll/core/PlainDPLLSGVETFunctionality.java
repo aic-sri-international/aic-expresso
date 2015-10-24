@@ -37,62 +37,41 @@
  */
 package com.sri.ai.grinder.plaindpll.core;
 
-import java.util.Collection;
+import java.util.List;
 
-import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.plaindpll.api.Constraint;
-import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
+import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
-import com.sri.ai.grinder.plaindpll.api.Solver;
-import com.sri.ai.util.base.Wrapper;
+import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
 
 /**
- * A skeleton for a parallel version of {@link SGDPLLT},
- * using {@link SGDPLLTParallelizer} to break a problem into multiple sub-problems (map)
- * and {@link #addSymbolicResults(Expression, Expression)} to combine them (reduce).
  * 
  * @author braz
  *
  */
-@Beta
-public class SGDPLLTMapReduce extends PlainDPLLSolver {
+public class PlainDPLLSGVETFunctionality extends AbstractSGVETFunctionality {
 
-	public SGDPLLTMapReduce(InputTheory inputTheory, GroupProblemType problemType) {
-		super(inputTheory, problemType);
+	private ConstraintTheory constraintTheory;
+	
+	public PlainDPLLSGVETFunctionality(InputTheory inputTheory, SemiRingProblemType problemType) {
+		this(inputTheory, problemType, null);
+	}
+
+	public PlainDPLLSGVETFunctionality(InputTheory inputTheory, SemiRingProblemType problemType, CountsDeclaration countsDeclaration) {
+		super(new SGDPLLT(inputTheory, problemType, countsDeclaration), problemType);
+		this.constraintTheory = inputTheory.getConstraintTheory();
 	}
 
 	@Override
-	protected Expression solveAfterBookkeepingAndBodyConstraintCheck(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
-		
-		int depth = 3;
-		
-		final Wrapper<Expression> accumulatedSolution = new Wrapper<>(getProblemType().additiveIdentityElement()); // starts with "zero"
-		// Wrapper is used because one cannot use a non-final object inside a closure as seen below.
-		
-		Solver solver = new SGDPLLT(getInputTheory(), getProblemType());
-		
-		SGDPLLTParallelizer.Collector collector =
-				(e, i, c, p) -> {
-					// System.out.println("Received sum_{" + i + " : " + c + "} " + e);	
+	public boolean isVariable(Expression expression, RewritingProcess process) {
+		return constraintTheory.isVariable(expression, process);
+	}
 
-					Expression solution = solver.solve(e, i, c, p);
-
-					// System.out.println("Solution is " + solution);	
-					// System.out.println("Accumulated solution was   : " + accumulatedSolution.value);
-
-					accumulatedSolution.value = addSymbolicResults(accumulatedSolution.value, solution);
-
-					// System.out.println("Accumulated solution now is: " + accumulatedSolution.value);	
-				};
-
-		SGDPLLTParallelizer parallelizer = new SGDPLLTParallelizer(getInputTheory(), getProblemType(), collector, depth);
-		
-		parallelizer.solve(expression, indices, constraint, process);
-		
-		Expression result = accumulatedSolution.value;
-		
-		return result;
+	@Override
+	protected Constraint makeTrueConstraint(List<Expression> indices) {
+		return constraintTheory.makeConstraint(indices);
 	}
 }

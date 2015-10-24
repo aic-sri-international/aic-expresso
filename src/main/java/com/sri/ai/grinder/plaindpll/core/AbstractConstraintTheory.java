@@ -117,7 +117,7 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 			// remember that equality can have an arbitrary number of terms
 			Expression variable  = Util.getFirstSatisfyingPredicateOrNull(
 					expression.getArguments(),
-					e -> isVariableTerm(e, process));
+					e -> isVariable(e, process));
 			if (variable != null) {
 				Expression termDistinctFromVariable = Util.getFirstSatisfyingPredicateOrNull(
 						expression.getArguments(),
@@ -151,7 +151,7 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 		else if (indices.contains(termDistinctFromVariable)) {
 			result = Expressions.apply(splitterFunctor, termDistinctFromVariable, variable);
 		}
-		else if (isVariableTerm(variable, process)) {
+		else if (isVariable(variable, process)) {
 			result = Expressions.apply(splitterFunctor, variable, termDistinctFromVariable);
 		}
 		else {
@@ -172,7 +172,7 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 
 	public Expression makeSplitterFromFunctorAndTwoDistinctTermsOneOfWhichIsAVariable(String functor, Expression term1, Expression term2, Collection<Expression> indices, RewritingProcess process) {
 		Expression result;
-		if (isVariableTerm(term1, process)) {
+		if (isVariable(term1, process)) {
 			result = makeSplitterFromFunctorAndVariableAndTermDistinctFromVariable(functor, term1, term2, indices, process);
 		}
 		else {

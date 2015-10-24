@@ -212,7 +212,7 @@ public abstract class AbstractNonEqualitiesConstraint extends AbstractRuleOfProd
 	}
 
 	private boolean isVariableTerm(Expression term, RewritingProcess process) {
-		return getConstraintTheory().isVariableTerm(term, process);
+		return getConstraintTheory().isVariable(term, process);
 	}
 
 	protected abstract void incorporateFirstTermAsDisequalOfSecondTermDestructively(Expression term1, Expression term2, RewritingProcess process);
