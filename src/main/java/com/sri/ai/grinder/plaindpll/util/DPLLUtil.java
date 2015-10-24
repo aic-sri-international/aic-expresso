@@ -216,9 +216,14 @@ public class DPLLUtil {
 	}
 
 	public static RewritingProcess makeProcess(ConstraintTheory constraintTheory, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		Constraint trueConstraintOnNoIndices = constraintTheory.makeConstraint(list());
+		return makeProcess(trueConstraintOnNoIndices, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
+	}
+
+	public static RewritingProcess makeProcess(Constraint trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, new DefaultRewritingProcess(null));			
 		result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
-		result.initializeDPLLContextualConstraint(constraintTheory.makeConstraint(list()));
+		result.initializeDPLLContextualConstraint(trueConstraintOnNoIndices);
 		return result;
 	}
 

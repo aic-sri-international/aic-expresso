@@ -108,7 +108,7 @@ public class SGDPLLT extends AbstractSolver {
 	}
 
 	@Override
-	protected Expression solveAfterBookkeeping(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	protected Expression solveAfterBookkeepingAndBodyConstraintCheck(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		
 		long startTime = 0;
 		if (debug(process)) {
@@ -355,7 +355,7 @@ public class SGDPLLT extends AbstractSolver {
 			else {
 				incrementLevel(processUnderSplitter, process);
 				Expression expressionUnderSplitter = simplifyExpressionGivenSplitter(splitterSign, splitter, expression, process);
-				result = solve(expressionUnderSplitter, indices, constraintUnderSplitter, processUnderSplitter);
+				result = solveAfterBookkeeping(expressionUnderSplitter, indices, constraintUnderSplitter, processUnderSplitter);
 				decrementLevel(processUnderSplitter);
 			}
 		}

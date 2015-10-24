@@ -132,7 +132,7 @@ public class SGDPLLTParallelizer extends SGDPLLT {
 	}
 
 	@Override
-	public Expression solve(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	public Expression solveAfterBookkeeping(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		Expression result;
 		int level = getLevel(process);
 		if (itIsTimeToCollect(level, expression, indices, constraint, process)) {
@@ -140,7 +140,7 @@ public class SGDPLLTParallelizer extends SGDPLLT {
 			result = problemType.additiveIdentityElement(); // dummy solution
 		}
 		else {
-			result = super.solve(expression, indices, constraint, process);
+			result = super.solveAfterBookkeeping(expression, indices, constraint, process);
 		}
 		return result;
 	}

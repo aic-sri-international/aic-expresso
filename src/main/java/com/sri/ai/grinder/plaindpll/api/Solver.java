@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.plaindpll.api;
 
+import static com.sri.ai.util.Util.list;
+
 import java.util.Collection;
 import java.util.Map;
 
@@ -46,7 +48,6 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
-import com.sri.ai.util.Util;
 
 /**
  * The interface for a rewriter solving symbolic quantification problems for a fixed quantifier and theory.
@@ -57,10 +58,11 @@ import com.sri.ai.util.Util;
 public interface Solver extends Rewriter {
 
 	/**
-	 * Returns the constraint theory used by this solver.
+	 * Returns a true constraint for a problem with given indices.
+	 * @param indices
 	 * @return
 	 */
-	ConstraintTheory getConstraintTheory();
+	Constraint makeTrueConstraint(Collection<Expression> indices);
 	
 	/**
 	 * Local simplification of an expression according to the theory used by this solver.
@@ -77,38 +79,24 @@ public interface Solver extends Rewriter {
 	Expression getAdditiveIdentityElement();
 	
 	/**
-	 * Returns the summation (or the provided semiring additive operation) of an expression
-	 * over the provided set of indices under given non-null constraint.
+	 * Stop solver in case it runs in a different thread.
 	 */
-	Expression solve(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process);
+	void interrupt();
+
+	/**
+	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them
+	 */
+	Expression solve(Expression input, Collection<Expression> indices, Constraint constraint, RewritingProcess process);
+
+	////////// Convenience methods
 	
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
 	 */
 	default Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process) {
-		// TODO: should replace this oldConstraint by a copy constructor creating a sub-process, but surprisingly there is no complete copy constructor available in DefaultRewritingProcess.
-		Constraint oldConstraint = process.getDPLLContextualConstraint();
-		Constraint contextualConstraint = getConstraintTheory().makeConstraint(Util.list()); // contextual constraint does not involve any indices -- defined on free variables only
-		process.initializeDPLLContextualConstraint(contextualConstraint);
-
-		Constraint constraint = getConstraintTheory().makeConstraint(indices);
-		Expression simplifiedInput = simplify(input, process);
-		Expression result = solve(simplifiedInput, indices, constraint, process);
-		if (result == null) { // constraint is unsatisfiable, so result is identity element.
-			result = getAdditiveIdentityElement();
-		}
-		
-		process.initializeDPLLContextualConstraint(oldConstraint);
+		Constraint constraint = makeTrueConstraint(indices);
+		Expression result = solve(input, indices, constraint, process);
 		return result;
-	}
-
-	/**
-	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
-	 */
-	default Expression solve(
-			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
-		return solve(expression, indices, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, new PrologConstantPredicate());
 	}
 
 	/**
@@ -121,12 +109,19 @@ public interface Solver extends Rewriter {
 		
 		RewritingProcess topLevelRewritingProcess =
 				DPLLUtil.makeProcess(
-						getConstraintTheory(),
+						makeTrueConstraint(list()),
 						mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString,
 						isUniquelyNamedConstantPredicate);
 		Expression result = solve(expression, indices, topLevelRewritingProcess);
 		return result;
 	}
-	
-	void interrupt();
+
+	/**
+	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
+	 */
+	default Expression solve(
+			Expression expression, Collection<Expression> indices,
+			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
+		return solve(expression, indices, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, new PrologConstantPredicate());
+	}
 }

@@ -64,7 +64,7 @@ public class SGDPLLTMapReduce extends AbstractSolver {
 	}
 
 	@Override
-	protected Expression solveAfterBookkeeping(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	protected Expression solveAfterBookkeepingAndBodyConstraintCheck(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		
 		int depth = 3;
 		

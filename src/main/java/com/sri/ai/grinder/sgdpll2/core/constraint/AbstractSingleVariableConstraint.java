@@ -53,7 +53,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.AbstractExpressionWrapper;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
-import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.util.Util;
@@ -67,8 +66,6 @@ import com.sri.ai.util.base.Pair;
  * defined by extensions knowledgeable of specific theories
  * in order to detect further redundancies and inconsistencies,
  * thus decreasing the effort to define theory solvers. 
- * 
- * This interface is defined for use primarily by {@link SGDPLLT}.
  * 
  * @author braz
  *

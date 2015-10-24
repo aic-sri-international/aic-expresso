@@ -61,6 +61,7 @@ import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.grinder.plaindpll.api.Solver;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
+import com.sri.ai.util.Util;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -110,7 +111,6 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		return inputTheory;
 	}
 	
-	@Override
 	public ConstraintTheory getConstraintTheory() {
 		return constraintTheory;
 	}
@@ -127,6 +127,11 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 	@Override
 	public Expression getAdditiveIdentityElement() {
 		return problemType.additiveIdentityElement();
+	}
+	
+	@Override
+	public Constraint makeTrueConstraint(Collection<Expression> indices) {
+		return getConstraintTheory().makeConstraint(indices);
 	}
 
 	@Override
@@ -152,35 +157,71 @@ abstract public class AbstractSolver extends AbstractHierarchicalRewriter implem
 		return result;
 	}
 
-	@Override
-	public Expression solve(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	/**
+	 * Checks if the expression is a constraint and the constraint is TRUE,
+	 * and if so inverts them so as to not have to form the body constraint all over again,
+	 * and then invokes {@link #solveAfterBookkeepingAndBodyConstraintCheck(Expression, Collection, Constraint, RewritingProcess)}.
+	 * Extensions which know that the process already has the contextual constraint
+	 * and that the expression is already simplified should invoke this method
+	 * when needing to solve sub-problems, instead of
+	 * {@link #solve(Expression, Collection, Constraint, RewritingProcess)}
+	 * in order not to repeat that effort.
+	 */
+	protected Expression solveAfterBookkeeping(
+			Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+		
 		checkInterrupted();
 		
 		Expression result;
 		if (expression instanceof Constraint && constraint.equals(TRUE)) {
-			result = solveAfterBookkeeping(TRUE, indices, (Constraint) expression, process);
-			// OPTIMIZATION: perhaps it is worth it checking whether expression is a conjunction with a Constraint conjunct.
+			result = solveAfterBookkeepingAndBodyConstraintCheck(TRUE, indices, (Constraint) expression, process);
+			// OPTIMIZATION: the right way to do this would be to allow splitters to be whole Constraints when found,
+			// and have constraint conjunction to recognize that case.
 		}
 		else {
-			result = solveAfterBookkeeping(expression, indices, constraint, process);
+			result = solveAfterBookkeepingAndBodyConstraintCheck(expression, indices, constraint, process);
 		}
 		
 		return result;
 	}
+	
+	/**
+	 * @param input
+	 * @param indices
+	 * @param constraint
+	 * @param process
+	 * @return
+	 */
+	public Expression solve(Expression input, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+		// TODO: should replace this oldConstraint by a copy constructor creating a sub-process, but surprisingly there is no complete copy constructor available in DefaultRewritingProcess.
+		Constraint oldConstraint = process.getDPLLContextualConstraint();
+		Constraint contextualConstraint = getConstraintTheory().makeConstraint(Util.list()); // contextual constraint does not involve any indices -- defined on free variables only
+		process.initializeDPLLContextualConstraint(contextualConstraint);
+
+		Expression simplifiedInput = simplify(input, process);
+		Expression result = solveAfterBookkeeping(simplifiedInput, indices, constraint, process);
+		if (result == null) { // constraint is unsatisfiable, so result is identity element.
+			result = getAdditiveIdentityElement();
+		}
+		
+		process.initializeDPLLContextualConstraint(oldConstraint);
+		return result;
+	}
+
 
 	/**
 	 * The actual solving method provided by specific solvers.
-	 * The only current difference between this method and {@link #solve(Expression, Collection, Constraint, RewritingProcess)}
-	 * is that the latter checks whether the given expression is a {@link Constraint} and the given constraint is TRUE,
-	 * in which case it optimizes solving by "splitting on the entire constraint at once",
-	 * that is, replacing <code>sum_TRUE E</code> by <code>sum_E TRUE</code>, thus leveraging the already constructed internal representations of E.
+	 * Must use the contextual constraint in the process provided by {@link RewritingProcess#getDPLLContextualConstraint()}.
+	 * May assume expression is already simplified.
+	 * May assume expression is not an instance of Constraint.
+	 * Returns null if the contextual constraint is found to be contradictory.
 	 * @param expression
 	 * @param indices
 	 * @param constraint
 	 * @param process
 	 * @return
 	 */
-	protected abstract Expression solveAfterBookkeeping(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process);
+	protected abstract Expression solveAfterBookkeepingAndBodyConstraintCheck(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process);
 
 	/**
 	 * Same as {@link addSymbolicResults(Expression, Expression, RewritingProcess)}

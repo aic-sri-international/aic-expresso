@@ -57,7 +57,6 @@ import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.plaindpll.api.Theory;
-import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.PredicateIterator;
 
@@ -65,7 +64,7 @@ import com.sri.ai.util.collect.PredicateIterator;
  * An interface for constraint theories to be plugged into quantifier problems.
  * <p>
  * One of its tasks is to select and manipulate <i>splitters</i>.
- * A splitter is a literal on which DPLL splits the possible interpretations of an expression (see {@link SGDPLLT}).
+ * A splitter is a literal on which DPLL splits the possible interpretations of an expression.
  * The constraintTheoryWithEquality needs to know how to simplify expressions based on the fact that a splitter is true or false,
  * as well as how to simplify a <i>solution</i> based on a splitter's being true or false into a simpler solution.
  * A solution is an if-then-else expression in which all conditions are splitters.

@@ -137,7 +137,7 @@ public class SGVET extends AbstractSolver {
 	}
 	
 	@Override
-	protected Expression solveAfterBookkeeping(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	protected Expression solveAfterBookkeepingAndBodyConstraintCheck(Expression expression, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
 		Expression result;
 		if (debug) {
 			System.out.println("SGVE(T) input: " + expression);	
