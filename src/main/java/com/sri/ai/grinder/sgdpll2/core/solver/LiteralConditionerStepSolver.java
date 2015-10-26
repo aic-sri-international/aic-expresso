@@ -5,14 +5,24 @@ import static com.sri.ai.util.Util.getFirstNonNullResultOrNull;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.interpreter.AbstractInterpreter;
-import com.sri.ai.grinder.interpreter.BruteForceCommonInterpreter;
+import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
+import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreter;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 
 /**
- * An abstract implementation for step solvers based on conditioning on the literals of a given expression.
+ * An implementation for step solvers based on conditioning on the literals of a given expression.
+ * <p>
+ * The default operation after conditioning on all literals in the expression
+ * is simply to return its value within its context (that is, given
+ * the particular sequence of choice for the literals so far).
+ * This will create a decision-tree equivalent to the original expression,
+ * given the initial contextual constraint.
+ * <p>
+ * However, this class is also meant to be used by the overriding of
+ * {@link #stepGivenLiteralFreeExpression(Expression, Constraint2, RewritingProcess)}
+ * for many other possible tasks, one of them being quantifier elimination.
  * <p>
  * Currently supports only expressions that are composed of function applications or symbols only.
  * 
@@ -20,22 +30,28 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  *
  */
 @Beta
-public abstract class AbstractLiteralConditionerStepSolver implements ContextDependentProblemStepSolver {
+public class LiteralConditionerStepSolver implements ContextDependentProblemStepSolver {
 
 	private Expression expression;
+	private SimplifierUnderContextualConstraint simplifierUnderContextualConstraint;
 	
-	public AbstractLiteralConditionerStepSolver(Expression expression) {
+	public LiteralConditionerStepSolver(Expression expression, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint) {
 		super();
 		this.expression = expression;
+		this.simplifierUnderContextualConstraint = simplifierUnderContextualConstraint;
 	}
 
 	/**
-	 * Abstract method defining what to do once we obtain a literal-free expression.
+	 * Method defining what to do once we obtain a literal-free expression,
+	 * with default implementation simply returning a solution containing
+	 * the literal-free expression.
 	 */
-	protected abstract SolutionStep stepGivenLiteralFreeExpression(
+	protected SolutionStep stepGivenLiteralFreeExpression(
 			Expression literalFreeExpression,
 			Constraint2 contextualConstraint,
-			RewritingProcess process);
+			RewritingProcess process) {
+		return new Solution(literalFreeExpression);
+	}
 
 	public Expression getExpression() {
 		return expression;
@@ -92,17 +108,15 @@ public abstract class AbstractLiteralConditionerStepSolver implements ContextDep
 	}
 
 	/**
-	 * Simplifies a given expression with a {@link BruteForceCommonInterpreter} using enumeration under given contextual constraint.
+	 * Simplifies a given expression with a {@link SymbolicCommonInterpreter} using enumeration under given contextual constraint.
 	 * @param expression
 	 * @param contextualConstraint
 	 * @param process
 	 * @return
 	 */
-	public static Expression simplifyGivenContextualConstraint(
+	public Expression simplifyGivenContextualConstraint(
 			Expression expression, Constraint2 contextualConstraint, RewritingProcess process) {
-		// TODO: make the simplifier be a parameter for {@link AbstractLiteralConditionerStepSolver}
-		AbstractInterpreter interpreter = new BruteForceCommonInterpreter(true /* simplify given contextual constraint */);
-		Expression result = interpreter.simplifyUnderContextualConstraint(expression, contextualConstraint, process);
+		Expression result = simplifierUnderContextualConstraint.simplifyUnderContextualConstraint(expression, contextualConstraint, process);
 		return result;
 	}
 }

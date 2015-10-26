@@ -41,6 +41,10 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.library.FunctorConstants.CARTESIAN_PRODUCT;
+import static com.sri.ai.grinder.library.FunctorConstants.DIVISION;
+import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
+import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
+import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
 import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
 import static com.sri.ai.util.Util.list;
 
@@ -104,6 +108,7 @@ import com.sri.ai.util.collect.StackedHashMap;
 import com.sri.ai.util.concurrent.BranchAndMerge;
 import com.sri.ai.util.concurrent.CancelOutstandingOnFailure;
 import com.sri.ai.util.concurrent.CancelOutstandingOnSuccess;
+import com.sri.ai.util.math.Rational;
 
 /**
  * General purpose utility routines related to grinder libraries.
@@ -729,12 +734,25 @@ public class GrinderUtil {
 				throw new Error(expression + " then and else branches have different types (" + thenType + " and " + elseType + " respectively).");
 			}
 		}
+		else if (isArithmeticFunctionApplication(expression)) {
+			if (Util.thereExists(expression.getArguments(), e -> Util.equals(getType(e, process), "Real"))) {
+				result = makeSymbol("Real");
+			}
+			else {
+				result = makeSymbol("Integer");
+			}
+		}
 		else if (expression.getSyntacticFormType().equals("Symbol")) {
 			if (expression.getValue() instanceof Integer) {
 				result = makeSymbol("Integer");
 			}
 			else if (expression.getValue() instanceof Double) {
 				result = makeSymbol("Real");
+			}
+			else if (expression.getValue() instanceof Rational) {
+				Rational rational = (Rational) expression.getValue();
+				boolean isInteger = rational.isInteger();
+				result = makeSymbol(isInteger? "Integer" : "Real");
 			}
 			else if (expression.getValue() instanceof Number) {
 				result = makeSymbol("Number");
@@ -785,6 +803,15 @@ public class GrinderUtil {
 		else {
 			throw new Error("GrinderUtil.getType does not yet know how to determine the type of this sort of expression: " + expression);
 		}
+		return result;
+	}
+
+	private static Collection<String> arithmeticFunctors = Util.set(PLUS, TIMES, MINUS, DIVISION);
+	
+	public static boolean isArithmeticFunctionApplication(Expression expression) {
+		boolean result =
+				expression.getSyntacticFormType().equals("Function application")
+				&& arithmeticFunctors.contains(expression.getFunctor().toString());
 		return result;
 	}
 
@@ -993,7 +1020,7 @@ public class GrinderUtil {
 	/**
 	 * Returns a list of index expressions corresponding to the given indices and their types per the context, if any.
 	 */
-	public static IndexExpressionsSet makeIndexExpressionsForIndicesInListAndTypesInContext(Collection<Expression> indices, RewritingProcess process) {
+	public static ExtensionalIndexExpressionsSet makeIndexExpressionsForIndicesInListAndTypesInContext(Collection<Expression> indices, RewritingProcess process) {
 		List<Expression> indexExpressions = new LinkedList<Expression>();
 		for (Expression index : indices) {
 			Expression type = process.getContextualSymbolType(index);

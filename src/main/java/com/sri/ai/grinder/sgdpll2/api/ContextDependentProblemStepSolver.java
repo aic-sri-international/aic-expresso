@@ -40,6 +40,7 @@ package com.sri.ai.grinder.sgdpll2.api;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentProblemSolver;
 
 /**
  * An interface for step-solvers for problems involving free variables constrained by a contextual {@link Constraint2}.
@@ -80,6 +81,19 @@ public interface ContextDependentProblemStepSolver {
 	 */
 	SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process);
 
+	/**
+	 * Convenience method invoking
+	 * {@link ContextDependentProblemSolver#solve(ContextDependentProblemStepSolver, Constraint2, RewritingProcess)}
+	 * on this step solver.
+	 * @param contextualConstraint
+	 * @param process
+	 * @return
+	 */
+	default Expression solve(Constraint2 contextualConstraint, RewritingProcess process) {
+		Expression result = ContextDependentProblemSolver.solve(this, contextualConstraint, process);
+		return result;
+	}
+	
 	public static abstract class AbstractSolutionStep implements SolutionStep {
 
 		private Expression expression;

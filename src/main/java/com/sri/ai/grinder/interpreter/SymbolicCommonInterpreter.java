@@ -46,6 +46,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.CommonSimplifier;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
@@ -105,9 +106,15 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 		Expression quantifierFreeBody = apply(body, process);
 		Expression quantifierFreeIndicesCondition = apply(indicesCondition, process);
 
+		SimplifierUnderContextualConstraint simplifierUnderContextualConstraint =
+				simplifyGivenConstraint?
+						this
+						: new SymbolicCommonInterpreter(constraintTheory, true);
+		
 		Expression result =
 				solve(
 						group,
+						simplifierUnderContextualConstraint,
 						indexExpressions,
 						quantifierFreeIndicesCondition,
 						quantifierFreeBody,

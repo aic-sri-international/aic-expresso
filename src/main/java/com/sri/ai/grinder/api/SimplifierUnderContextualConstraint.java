@@ -35,30 +35,33 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.api;
+package com.sri.ai.grinder.api;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 
 /**
- * An interface for theories.
- * At the very minimum, a theory knows how to simplify expressions involving symbols defined by it.
- * 
+ * A {@link Simplifier} that offers a way to simplify under a contextual constraint.
+ * <p>
+ * This interface allow implementations to encapsulate how they store the contextual constraint
+ * in the rewriting process, offering a simple method for that.
+ * <p>
+ * Eventually, storing a contextual constraint in a rewriting process should be simple enough
+ * that this will not be necessary anymore.
+ *
  * @author braz
  *
  */
 @Beta
-public interface Theory {
+public interface SimplifierUnderContextualConstraint extends Simplifier {
 
 	/**
-	 * A method simplifying an expression according to this theory.
-	 * It must at a minimum replace expressions
-	 * by their values, if their values are defined by some of their arguments
-	 * (such as <code>X + 0</code> being equal to <code>X</code>.
+	 * Simplifies a given expression using enumeration under given contextual constraint.
 	 * @param expression
+	 * @param contextualConstraint
 	 * @param process
 	 * @return
 	 */
-	Expression simplify(Expression expression, RewritingProcess process);
+	Expression simplifyUnderContextualConstraint(Expression expression, Constraint2 contextualConstraint, RewritingProcess process);
 }

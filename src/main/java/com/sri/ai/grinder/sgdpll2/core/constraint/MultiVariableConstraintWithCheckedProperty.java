@@ -228,7 +228,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 	private MultiVariableConstraintWithCheckedProperty check(RewritingProcess process) {
 		MultiVariableConstraintWithCheckedProperty result;
 		ContextDependentProblemStepSolver problem = contextDependentProblemStepSolverMaker.apply(singleVariableConstraint);
-		Expression solution = ContextDependentProblemSolver.solve(problem, contextualConstraint, process);
+		Expression solution = problem.solve(contextualConstraint, process);
 		if (solution.equals(FALSE)) { // the single-variable constraint is unsatisfiable in all contexts, so it is unsatisfiable.
 			result = null;
 		}

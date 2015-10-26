@@ -99,7 +99,7 @@ public interface SingleVariableConstraint extends Expression, Constraint2 {
 	 */
 	default Expression satisfiability(Constraint2 contextualConstraint, RewritingProcess process) {
 		ContextDependentProblemStepSolver satisfiabilityStepSolver = getConstraintTheory().getSingleVariableConstraintSatisfiabilityStepSolver(this);
-		Expression satisfiability = ContextDependentProblemSolver.solve(satisfiabilityStepSolver, contextualConstraint, process);
+		Expression satisfiability = satisfiabilityStepSolver.solve(contextualConstraint, process);
 		return satisfiability;
 	}
 	
@@ -111,7 +111,7 @@ public interface SingleVariableConstraint extends Expression, Constraint2 {
 	 */
 	default Expression modelCount(Constraint2 contextualConstraint, RewritingProcess process) {
 		ContextDependentProblemStepSolver modelCountingStepSolver = getConstraintTheory().getSingleVariableConstraintModelCountingStepSolver(this);
-		Expression modelCount = ContextDependentProblemSolver.solve(modelCountingStepSolver, contextualConstraint, process);
+		Expression modelCount = modelCountingStepSolver.solve(contextualConstraint, process);
 		return modelCount;
 	}
 }

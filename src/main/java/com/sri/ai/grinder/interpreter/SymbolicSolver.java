@@ -38,21 +38,32 @@
 package com.sri.ai.grinder.interpreter;
 
 import static com.sri.ai.grinder.helper.GrinderUtil.extendContextualSymbolsWithIndexExpressions;
+import static com.sri.ai.grinder.helper.GrinderUtil.makeIndexExpressionsForIndicesInListAndTypesInContext;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndex;
 import static com.sri.ai.util.Util.getLast;
 
+import java.util.Collection;
+import java.util.Map;
+
 import com.google.common.annotations.Beta;
+import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
+import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
+import com.sri.ai.grinder.api.Solver;
+import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
+import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
+import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentProblemSolver;
-import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierOnBodyWithIndexInLiteralsOnlyStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.solver.LiteralConditionerStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -62,7 +73,85 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public class SymbolicSolver  {
+public class SymbolicSolver extends AbstractHierarchicalRewriter implements Solver {
+
+	public SymbolicSolver(SimplifierUnderContextualConstraint simplifier, GroupProblemType problemType, ConstraintTheory constraintTheory) {
+		super();
+		this.simplifier = simplifier;
+		this.problemType = problemType;
+		this.constraintTheory = constraintTheory;
+	}
+
+	private SimplifierUnderContextualConstraint simplifier;
+	private GroupProblemType problemType;
+	private ConstraintTheory constraintTheory;
+	private boolean interrupted = false;
+	private boolean debug = false;
+	
+	@Override
+	public Constraint makeTrueConstraint(Collection<Expression> indices) {
+		return new CompleteMultiVariableConstraint(constraintTheory);
+	}
+
+	@Override
+	public Expression simplify(Expression expression, RewritingProcess process) {
+		return simplifier.apply(expression, process);
+	}
+
+	@Override
+	public Expression getAdditiveIdentityElement() {
+		return problemType.additiveIdentityElement();
+	}
+
+	@Override
+	public RewritingProcess makeProcess(
+			Constraint constraint, 
+			Map<String, String> mapFromSymbolNameToTypeName,
+			Map<String, String> mapFromTypeNameToSizeString,
+			Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		
+		return DPLLUtil.makeProcess(
+				(Constraint2) constraint,
+				mapFromSymbolNameToTypeName,
+				mapFromTypeNameToSizeString,
+				isUniquelyNamedConstantPredicate) ;
+	}
+
+	
+	@Override
+	public void interrupt() {
+		interrupted = true;
+	}
+	
+	protected void checkInterrupted() {
+		if (interrupted) {
+			throw new RuntimeException("Solver Interrupted");
+		}
+	}
+
+	@Override
+	public boolean getDebug() {
+		return debug;
+	}
+
+	@Override
+	public void setDebug(boolean newDebugValue) {
+		debug = true;
+	}
+
+	@Override
+	public Expression solve(Expression input, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInContext(indices, process);
+		Constraint2 trueContextualConstraint = (Constraint2) makeTrueConstraint(indices);
+		Expression result = solve(problemType, simplifier, indexExpressionsSet, constraint, input, trueContextualConstraint, process);
+		return result;
+	}
+
+	@Override
+	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		Expression result = new SymbolicCommonInterpreter(constraintTheory).apply(expression, process);
+		return result;
+	}
 
 	/**
 	 * Solves an aggregate operation based on a group operation.
@@ -79,6 +168,7 @@ public class SymbolicSolver  {
 	 */
 	public static Expression solve(
 			AssociativeCommutativeGroup group,
+			SimplifierUnderContextualConstraint simplifierUnderContextualConstraint,
 			ExtensionalIndexExpressionsSet indexExpressions,
 			Expression quantifierFreeIndicesCondition,
 			Expression quantifierFreeBody,
@@ -109,11 +199,14 @@ public class SymbolicSolver  {
 					i == numberOfIndices - 1?
 							lastIndexConstraint
 							: constraintTheory.makeSingleVariableConstraint(index);
-			ContextDependentProblemStepSolver solver =
-					new QuantifierOnBodyWithIndexInLiteralsOnlyStepSolver(
-							group, constraintForThisIndex, currentBody);
-			currentBody = ContextDependentProblemSolver.solve(solver, contextualConstraint, process);
+			currentBody =
+					new QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver
+					(group, simplifierUnderContextualConstraint, constraintForThisIndex, currentBody).
+					solve(contextualConstraint, process);
 		}
+		
+		// Normalize final result.
+		currentBody = new LiteralConditionerStepSolver(currentBody, simplifierUnderContextualConstraint).solve(contextualConstraint, process);
 		
 		return currentBody;
 	}

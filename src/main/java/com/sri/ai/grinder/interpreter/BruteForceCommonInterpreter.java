@@ -97,7 +97,6 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 	 * Constructs {@link BruteForceCommonInterpreter} with an initial assignment and
 	 * <i>not</i> simplifying literals according to contextual constraint.
 	 * @param assignment
-	 * @param simplifyGivenConstraint
 	 */
 	public BruteForceCommonInterpreter(Map<Expression, Expression> assignment) {
 		this(assignment, false);

@@ -40,6 +40,7 @@ package com.sri.ai.grinder.sgdpll2.core.solver;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
@@ -48,10 +49,10 @@ import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 
 /**
- * A {@link AbstractQuantifierStepSolver} for quantifiers based on a group, and with body in which the index occurs in literals only.
+ * A {@link AbstractQuantifierEliminationStepSolver} for quantifiers based on a group, and with body in which the index occurs in literals only.
  * This step solver first provides all the literals in the body as {@link ContextDependentProblemStepSolver#ItDepends} steps.
  * If at any point the constraint becomes unsatisfiable, the group's identity element is returned
- * (the above is all done by {@link AbstractQuantifierStepSolver}.
+ * (the above is all done by {@link AbstractQuantifierEliminationStepSolver}.
  * If we reach a point in which there are no further undefined literals in the body and the constraint is satisfiable,
  * one of two things happens:
  * <ul>
@@ -68,14 +69,14 @@ import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
  *
  */
 @Beta
-public class QuantifierOnBodyWithIndexInLiteralsOnlyStepSolver extends AbstractQuantifierStepSolver {
+public class QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver extends AbstractQuantifierEliminationStepSolver {
 
-	public QuantifierOnBodyWithIndexInLiteralsOnlyStepSolver(AssociativeCommutativeGroup group, SingleVariableConstraint indexConstraint, Expression body) {
-		super(group, indexConstraint, body);
+	public QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver(AssociativeCommutativeGroup group, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, SingleVariableConstraint indexConstraint, Expression body) {
+		super(group, simplifierUnderContextualConstraint, indexConstraint, body);
 	}
 
 	@Override
-	protected SolutionStep stepGivenLiteralFreeBody(
+	protected SolutionStep eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
 			Constraint2 contextualConstraint, SingleVariableConstraint indexConstraint, Expression literalFreeBody, RewritingProcess process) {
 		
 		Expression result;

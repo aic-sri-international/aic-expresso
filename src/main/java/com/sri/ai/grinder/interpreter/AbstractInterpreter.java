@@ -48,6 +48,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
 import com.sri.ai.grinder.core.simplifier.Exhaustive;
 import com.sri.ai.grinder.core.simplifier.MergedMapBasedSimplifier;
 import com.sri.ai.grinder.core.simplifier.Recursive;
@@ -67,7 +68,7 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  *
  */
 @Beta
-public abstract class AbstractInterpreter implements MapBasedSimplifier {
+public abstract class AbstractInterpreter implements MapBasedSimplifier, SimplifierUnderContextualConstraint {
 
 	public static final String INTERPRETER_CONTEXTUAL_CONSTRAINT = "sgdpll2 contextual constraint";
 	
@@ -165,6 +166,7 @@ public abstract class AbstractInterpreter implements MapBasedSimplifier {
 	 * @param process
 	 * @return
 	 */
+	@Override
 	public Expression simplifyUnderContextualConstraint(Expression expression, Constraint2 contextualConstraint, RewritingProcess process) {
 		Object oldConstraint = process.getGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT);
 		process.putGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
