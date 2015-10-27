@@ -39,7 +39,6 @@ package com.sri.ai.grinder.sgdpll2.api;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentProblemSolver;
 
 /**
  * An {@link Expression} with efficient internal representation for incrementally deciding satisfiability of a boolean formulas on literals in a certain theory.
@@ -80,7 +79,7 @@ public interface SingleVariableConstraint extends Expression, Constraint2 {
 		
 		// if formula is not appropriate constraint, create a new one and conjoin with formula
 		if (result == null) {
-			result = constraintTheory.makeSingleVariableConstraint(variable).conjoin(formula, process);
+			result = constraintTheory.makeSingleVariableConstraint(variable, process).conjoin(formula, process);
 		}
 		
 		return result;
@@ -98,7 +97,7 @@ public interface SingleVariableConstraint extends Expression, Constraint2 {
 	 * @return
 	 */
 	default Expression satisfiability(Constraint2 contextualConstraint, RewritingProcess process) {
-		ContextDependentProblemStepSolver satisfiabilityStepSolver = getConstraintTheory().getSingleVariableConstraintSatisfiabilityStepSolver(this);
+		ContextDependentProblemStepSolver satisfiabilityStepSolver = getConstraintTheory().getSingleVariableConstraintSatisfiabilityStepSolver(this, process);
 		Expression satisfiability = satisfiabilityStepSolver.solve(contextualConstraint, process);
 		return satisfiability;
 	}
@@ -110,7 +109,7 @@ public interface SingleVariableConstraint extends Expression, Constraint2 {
 	 * @return
 	 */
 	default Expression modelCount(Constraint2 contextualConstraint, RewritingProcess process) {
-		ContextDependentProblemStepSolver modelCountingStepSolver = getConstraintTheory().getSingleVariableConstraintModelCountingStepSolver(this);
+		ContextDependentProblemStepSolver modelCountingStepSolver = getConstraintTheory().getSingleVariableConstraintModelCountingStepSolver(this, process);
 		Expression modelCount = modelCountingStepSolver.solve(contextualConstraint, process);
 		return modelCount;
 	}

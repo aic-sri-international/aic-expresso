@@ -109,10 +109,10 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	public RewritingProcess extendWithTestingInformation(RewritingProcess process) {
 		RewritingProcess result = process.put(getTypesForTesting());
 		Map<String, String> mapFromTypeNameToSizeString = map();
-		for (Type type : typesForTesting) {
+		for (Type type : getTypesForTesting()) {
 			mapFromTypeNameToSizeString.put(type.getName(), Integer.toString(type.size()));
 		}
-		result = DPLLUtil.extendProcessWith(variableNamesAndTypeNamesForTesting, mapFromTypeNameToSizeString, result);
+		result = DPLLUtil.extendProcessWith(getVariableNamesAndTypeNamesForTesting(), mapFromTypeNameToSizeString, result);
 		return result;
 	}
 

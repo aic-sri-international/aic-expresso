@@ -73,7 +73,7 @@ public class ConstraintSplitting  {
 	public ConstraintSplitting(Constraint2 constraint, Expression literal, Constraint2 contextualConstraint, RewritingProcess process) {
 		this.constraint = constraint;
 		this.literal = literal;
-		Expression literalNegation   = constraint.getConstraintTheory().getLiteralNegation(literal);
+		Expression literalNegation   = constraint.getConstraintTheory().getLiteralNegation(literal, process);
 		constraintAndLiteral         = constraint.conjoin(        literal, process);
 		constraintAndLiteralNegation = constraint.conjoin(literalNegation, process);
 		

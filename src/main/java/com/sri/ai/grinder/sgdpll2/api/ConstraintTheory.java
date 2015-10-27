@@ -39,8 +39,10 @@ package com.sri.ai.grinder.sgdpll2.api;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.grinder.library.boole.And.getConjuncts;
 import static com.sri.ai.grinder.library.equality.formula.FormulaUtil.isInterpretedInPropositionalLogicIncludingConditionals;
 import static com.sri.ai.util.Util.addAllToSet;
+import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.thereExists;
 
 import java.util.Collection;
@@ -56,6 +58,7 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.collect.PredicateIterator;
@@ -89,6 +92,11 @@ public interface ConstraintTheory extends Theory {
 		return isNonTrivialLiteral(expression, process);
 	}
 	
+	default boolean isConjunctiveClause(Expression formula, RewritingProcess process) {
+		boolean result = forAll(getConjuncts(formula), c -> isLiteral(c, process));
+		return result;
+	}
+
 	/**
 	 * Indicates whether an expression is a non-trivial literal in this theory.
 	 * @param expression
@@ -100,9 +108,10 @@ public interface ConstraintTheory extends Theory {
 	/**
 	 * Make a new single-variable constraint for this constraint theory.
 	 * @param variable 
+	 * @param process
 	 * @return
 	 */
-	SingleVariableConstraint makeSingleVariableConstraint(Expression variable);
+	SingleVariableConstraint makeSingleVariableConstraint(Expression variable, RewritingProcess process);
 	
 	/**
 	 * Indicates whether single-variable constraint solver is complete (for its variable).
@@ -122,16 +131,18 @@ public interface ConstraintTheory extends Theory {
 	/**
 	 * Given a single-variable constraint in this theory, returns
 	 * a {@link ContextDependentProblemStepSolver} deciding its satisfiability.
+	 * @param process TODO
 	 * @return a {@link ContextDependentProblemStepSolver} deciding a constraint's satisfiability.
 	 */
-	ContextDependentProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint);
+	ContextDependentProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, RewritingProcess process);
 	
 	/**
 	 * Given a single-variable constraint in this theory, returns
 	 * a {@link ContextDependentProblemStepSolver} computing its model count.
+	 * @param process TODO
 	 * @return a {@link ContextDependentProblemStepSolver} computing a constraint's model count.
 	 */
-	ContextDependentProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint);
+	ContextDependentProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, RewritingProcess process);
 	
 	/**
 	 * Returns the negation of a literal.
@@ -140,9 +151,10 @@ public interface ConstraintTheory extends Theory {
 	 * For example, for equality
 	 * we may prefer the negation of <code>X = a</code> to be represented as <code>X != a</code> instead of <code> not X = a</code>.
 	 * @param literal the literal
+	 * @param process TODO
 	 * @return the negation of literal
 	 */
-	Expression getLiteralNegation(Expression literal);
+	Expression getLiteralNegation(Expression literal, RewritingProcess process);
 	
 	/**
 	 * Provides a collection of all generalized variables (according to this theory) in a given expression,

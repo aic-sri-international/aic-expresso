@@ -35,25 +35,37 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.core.constraint;
+package com.sri.ai.grinder.core.simplifier;
+
+import java.util.Collection;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.api.Simplifier;
 
 /**
- * A multi-variable constraint whose {@link #conjoin(com.sri.ai.expresso.api.Expression, RewritingProcess)}
- * is guaranteed to return <code>null</code> if it becomes unsatisfiable.
+ * A {@link Simplifier} applying a list of {@link Simplifier}s.
  * 
  * @author braz
  *
  */
 @Beta
-public class CompleteMultiVariableConstraint extends MultiVariableConstraintWithCheckedProperty {
+public class Pipeline implements Simplifier {
 
-	private static final long serialVersionUID = 1L;
+	private Collection<Simplifier> simplifiers;
+	
+	public Pipeline(Collection<Simplifier> simplifiers) {
+		super();
+		this.simplifiers = simplifiers;
+	}
 
-	public CompleteMultiVariableConstraint(ConstraintTheory constraintTheory) {
-		super(constraintTheory, (c, p) -> constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(c, p));
+	@Override
+	public Expression apply(Expression expression, RewritingProcess process) {
+		Expression current = expression;
+		for (Simplifier simplifier : simplifiers) {
+			current = simplifier.apply(current, process);
+		}
+		return current;
 	}
 }

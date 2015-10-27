@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.sgdpll2.api;
 
 import static com.sri.ai.grinder.library.boole.And.getConjuncts;
+import static com.sri.ai.grinder.library.boole.And.isConjunction;
 import static com.sri.ai.util.Util.myAssert;
 
 import java.util.List;
@@ -73,7 +74,7 @@ public interface Constraint2 extends Constraint {
 	 * @return
 	 */
 	default boolean implies(Expression literal, RewritingProcess process) {
-		Expression literalNegation = getConstraintTheory().getLiteralNegation(literal);
+		Expression literalNegation = getConstraintTheory().getLiteralNegation(literal, process);
 		boolean result = contradictoryWith(literalNegation, process);
 		return result;
 	}
@@ -106,18 +107,30 @@ public interface Constraint2 extends Constraint {
 	 */
 	default Constraint2 conjoin(Expression formula, RewritingProcess process) {
 		myAssert(
-				() -> getConstraintTheory().isLiteral(formula, process) || formula instanceof Constraint2,
-				() -> this.getClass() + " currently only supports conjoining with literals and constraints, but received " + formula);
+				() -> isValidConjoinant(formula, process),
+				() -> this.getClass() + " currently only supports conjoining with literals, conjunctive clauses, and constraints, but received " + formula);
 		
 		Constraint2 result;
 	
-		if (formula instanceof Constraint2) {
+		if (formula instanceof Constraint2 || isConjunction(formula)) {
 			result = conjoinWithConjunctiveClause(formula, process); // for now, all Constraints are conjunctions. This will probably change in the future.
 		}
 		else {
 			result = conjoinWithLiteral(formula, process);
 		}
 	
+		return result;
+	}
+
+	/**
+	 * @param formula
+	 * @param process
+	 * @return
+	 */
+	default boolean isValidConjoinant(Expression formula, RewritingProcess process) {
+		boolean result =
+				formula instanceof Constraint2
+				|| getConstraintTheory().isConjunctiveClause(formula, process);
 		return result;
 	}
 

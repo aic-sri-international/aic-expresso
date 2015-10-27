@@ -35,25 +35,48 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.core.constraint;
+package com.sri.ai.test.grinder.sgdpll2;
+
+import static com.sri.ai.expresso.helper.Expressions.parse;
+
+import org.junit.Test;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreter;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.theory.CompoundConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
 
-/**
- * A multi-variable constraint whose {@link #conjoin(com.sri.ai.expresso.api.Expression, RewritingProcess)}
- * is guaranteed to return <code>null</code> if it becomes unsatisfiable.
- * 
- * @author braz
- *
- */
 @Beta
-public class CompleteMultiVariableConstraint extends MultiVariableConstraintWithCheckedProperty {
+public class CompoundConstraintTheoryTest {
 
-	private static final long serialVersionUID = 1L;
-
-	public CompleteMultiVariableConstraint(ConstraintTheory constraintTheory) {
-		super(constraintTheory, (c, p) -> constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(c, p));
+	@Test
+	public void basicTests() {
+		
+		ConstraintTheory compound =
+				new CompoundConstraintTheory(
+						"SomeType", new EqualityConstraintTheory(),
+						"Boolean", new PropositionalConstraintTheory());
+		
+		Expression condition = parse("X = Y and Y = X and P and not Q and P and X = a and X != b");
+		
+		Constraint2 constraint = new CompleteMultiVariableConstraint(compound);
+		RewritingProcess process = compound.extendWithTestingInformation(new DefaultRewritingProcess(null));
+		constraint = constraint.conjoin(condition, process);
+		System.out.println("Constraint: " + constraint);
+		
+		Simplifier interpreter = new SymbolicCommonInterpreter(compound);
+		Expression input = parse(
+				"product({{(on X in SomeType) if X = c then 2 else 3 | X = Y and Y = X and P and not Q and P and X != a and X != b}})");
+		process.putGlobalObject(SymbolicCommonInterpreter.INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(compound));
+		Expression result = interpreter.apply(input, process);
+		System.out.println("Result: " + result);	
 	}
 }

@@ -86,7 +86,7 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 	}
 	
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable) {
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, RewritingProcess process) {
 		return new SingleVariableEqualityConstraint(variable, this);
 	}
 
@@ -96,12 +96,12 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint) {
+	public ContextDependentProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
 		return new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver((SingleVariableEqualityConstraint) constraint);
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint) {
+	public ContextDependentProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
 		return new ModelCountingOfSingleVariableEqualityConstraintStepSolver((SingleVariableEqualityConstraint) constraint);
 	}
 
@@ -144,7 +144,7 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public Expression getLiteralNegation(Expression literal) {
+	public Expression getLiteralNegation(Expression literal, RewritingProcess process) {
 		Expression result;
 		if (literal.hasFunctor(NOT) && (literal.get(0).hasFunctor(EQUALITY) || literal.get(0).hasFunctor(DISEQUALITY))) {
 			result = literal;

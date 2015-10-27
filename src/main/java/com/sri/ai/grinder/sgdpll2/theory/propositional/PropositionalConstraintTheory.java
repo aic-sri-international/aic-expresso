@@ -103,7 +103,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 	
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable) {
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, RewritingProcess process) {
 		return new SingleVariablePropositionalConstraint(variable, this);
 	}
 
@@ -113,12 +113,12 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint) {
+	public ContextDependentProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
 		return new SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver((SingleVariablePropositionalConstraint) constraint);
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint) {
+	public ContextDependentProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
 		return new ModelCountingOfSingleVariablePropositionalConstraintStepSolver((SingleVariablePropositionalConstraint) constraint);
 	}
 
@@ -133,7 +133,7 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public Expression getLiteralNegation(Expression literal) {
+	public Expression getLiteralNegation(Expression literal, RewritingProcess process) {
 		Expression result;
 		if (literal.hasFunctor(NOT)) {
 			result = literal.get(0);

@@ -42,6 +42,7 @@ import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.library.FunctorConstants.CARTESIAN_PRODUCT;
 import static com.sri.ai.grinder.library.FunctorConstants.DIVISION;
+import static com.sri.ai.grinder.library.FunctorConstants.EXPONENTIATION;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
 import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
@@ -734,7 +735,7 @@ public class GrinderUtil {
 				throw new Error(expression + " then and else branches have different types (" + thenType + " and " + elseType + " respectively).");
 			}
 		}
-		else if (isArithmeticFunctionApplication(expression)) {
+		else if (isNumericFunctionApplication(expression)) {
 			if (Util.thereExists(expression.getArguments(), e -> Util.equals(getType(e, process), "Real"))) {
 				result = makeSymbol("Real");
 			}
@@ -806,9 +807,9 @@ public class GrinderUtil {
 		return result;
 	}
 
-	private static Collection<String> arithmeticFunctors = Util.set(PLUS, TIMES, MINUS, DIVISION);
+	private static Collection<String> arithmeticFunctors = Util.set(PLUS, TIMES, MINUS, DIVISION, EXPONENTIATION);
 	
-	public static boolean isArithmeticFunctionApplication(Expression expression) {
+	public static boolean isNumericFunctionApplication(Expression expression) {
 		boolean result =
 				expression.getSyntacticFormType().equals("Function application")
 				&& arithmeticFunctors.contains(expression.getFunctor().toString());

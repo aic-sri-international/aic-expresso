@@ -50,7 +50,7 @@ import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstrai
  * that assumes the only propagated CNF will be those for satisfiability.
  * <p>
  * This class relies on the constraint theory providing a {@link ContextDependentProblemStepSolver} for satisfiability
- * (through {@link ConstraintTheory#getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint)})
+ * (through {@link ConstraintTheory#getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint, RewritingProcess)})
  * that is an extension of {@link AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver},
  * because it delegates the generation of the propagated CNF to
  * {@link AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver#getPropagatedCNF(RewritingProcess)}.
@@ -80,7 +80,7 @@ public abstract class AbstractModelCountingOfSingleVariableWithPropagatedAndDefi
 	public Iterable<Iterable<Expression>> getPropagatedCNF(RewritingProcess process) {
 		ConstraintTheory constraintTheory = getConstraint().getConstraintTheory();
 		ContextDependentProblemStepSolver satisfiability =
-				constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(getConstraint());
+				constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(getConstraint(), process);
 		AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver satisfiabilityWithPropagatedLiterals;
 		try {
 			satisfiabilityWithPropagatedLiterals =

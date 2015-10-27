@@ -47,7 +47,7 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 		DefaultMultiVariableConstraint result;
 		
 		Expression variable = getVariableFor(literal, process);
-		SingleVariableConstraint singleVariableConstraint = getConstraintFor(variable);
+		SingleVariableConstraint singleVariableConstraint = getConstraintFor(variable, process);
 		SingleVariableConstraint newSingleVariableConstraint = singleVariableConstraint.conjoin(literal, process);
 		if (newSingleVariableConstraint == null) {
 			result = null;	
@@ -73,10 +73,10 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 	 * @param variable
 	 * @return
 	 */
-	protected SingleVariableConstraint getConstraintFor(Expression variable) {
+	protected SingleVariableConstraint getConstraintFor(Expression variable, RewritingProcess process) {
 		SingleVariableConstraint result = fromVariableToItsConstraint.get(variable);
 		if (result == null) {
-			result = constraintTheory.makeSingleVariableConstraint(variable);
+			result = constraintTheory.makeSingleVariableConstraint(variable, process);
 		}
 		return result;
 	}
