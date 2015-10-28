@@ -38,15 +38,17 @@
 package com.sri.ai.grinder.sgdpll2.theory;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.check;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
-import static com.sri.ai.util.Util.map;
+import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.thereExists;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -72,10 +74,10 @@ import com.sri.ai.util.Util;
 @Beta
 public class CompoundConstraintTheory extends AbstractConstraintTheory {
 
-	private Map<String, ConstraintTheory> fromTypeToConstraintTheories;
+	private List<ConstraintTheory> fromTypeToConstraintTheories;
 	
-	public CompoundConstraintTheory(Object... typeStringsAndSubConstraintTheories) {
-		this.fromTypeToConstraintTheories = map(typeStringsAndSubConstraintTheories);
+	public CompoundConstraintTheory(ConstraintTheory... typeStringsAndSubConstraintTheories) {
+		this.fromTypeToConstraintTheories = list(typeStringsAndSubConstraintTheories);
 		Util.myAssert(() -> fromTypeToConstraintTheories.size() != 0, () -> getClass() + " needs to receive at least one sub-constraint theory but got none.");
 		aggregateTestingInformation();
 	}
@@ -107,18 +109,33 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 		this.setTestingVariable(firstConstraintTheory.getTestingVariable());
 	}
 	
+	@Override
+	public boolean isSuitableFor(Expression variable, RewritingProcess process) {
+		boolean result = thereExists(getConstraintTheories(), t -> t.isSuitableFor(variable, process));
+		return result;
+	}
+	
 	public Collection<ConstraintTheory> getConstraintTheories() {
-		return fromTypeToConstraintTheories.values();
+		return fromTypeToConstraintTheories;
 	}
 
 	private ConstraintTheory getConstraintTheory(Expression variable, RewritingProcess process) {
-		Expression type = GrinderUtil.getType(variable, process);
-		if (type == null) {
-			throw new Error(getClass() + " could not identify the type of " + variable + " and therefore not its sub-constraint theory either.");
-		}
-		else {
-			return fromTypeToConstraintTheories.get(type.toString());
-		}
+		ConstraintTheory result =
+				getFirstSatisfyingPredicateOrNull(
+						getConstraintTheories(),
+						t -> t.isSuitableFor(variable, process));
+
+		check(() -> result != null, () -> "There is no sub-constraint theory suitable for " + variable + ", which has type " + GrinderUtil.getType(variable, process));
+		
+		return result;
+		
+//		Expression type = GrinderUtil.getType(variable, process);
+//		if (type == null) {
+//			throw new Error(getClass() + " could not identify the type of " + variable + " and therefore not its sub-constraint theory either.");
+//		}
+//		else {
+//			return fromTypeToConstraintTheories.get(type.toString());
+//		}
 	}
 	
 	@Override

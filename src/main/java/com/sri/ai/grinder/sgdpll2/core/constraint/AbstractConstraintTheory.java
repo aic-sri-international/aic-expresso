@@ -112,7 +112,11 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 		for (Type type : getTypesForTesting()) {
 			mapFromTypeNameToSizeString.put(type.getName(), Integer.toString(type.size()));
 		}
-		result = DPLLUtil.extendProcessWith(getVariableNamesAndTypeNamesForTesting(), mapFromTypeNameToSizeString, result);
+		
+		// we only need to provide the variables types, and not the known constant types, because the latter will be extracted from the already registered types.
+		Map<String, String> mapFromSymbolNamesToTypeNames = getVariableNamesAndTypeNamesForTesting();
+		
+		result = DPLLUtil.extendProcessWith(mapFromSymbolNamesToTypeNames, mapFromTypeNameToSizeString, result.getIsUniquelyNamedConstantPredicate(), result);
 		return result;
 	}
 

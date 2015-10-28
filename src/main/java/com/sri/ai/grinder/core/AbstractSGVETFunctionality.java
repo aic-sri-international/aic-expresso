@@ -168,7 +168,7 @@ public abstract class AbstractSGVETFunctionality {
 				if (basicOutput) {
 					System.out.println("No partition");	
 				}
-				result = subSolver.solve(expression, indices, constraint, process);
+				result = subSolver.solve(indices, constraint, expression, process);
 			}
 			else {
 				Expression indexSubProblemExpression = product(partition.expressionsOnIndexAndNot.first, process);

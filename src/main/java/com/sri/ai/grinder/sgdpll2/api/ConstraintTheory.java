@@ -77,6 +77,8 @@ import com.sri.ai.util.collect.PredicateIterator;
  */
 @Beta
 public interface ConstraintTheory extends Theory {
+
+	boolean isSuitableFor(Expression variable, RewritingProcess process);
 	
 	/**
 	 * Indicates whether an expression is a literal in this theory.

@@ -77,12 +77,12 @@ public class SymbolicSolver extends AbstractHierarchicalRewriter implements Solv
 
 	public SymbolicSolver(SimplifierUnderContextualConstraint simplifier, GroupProblemType problemType, ConstraintTheory constraintTheory) {
 		super();
-		this.simplifier = simplifier;
+		this.simplifierUnderContextualConstraint = simplifier;
 		this.problemType = problemType;
 		this.constraintTheory = constraintTheory;
 	}
 
-	private SimplifierUnderContextualConstraint simplifier;
+	private SimplifierUnderContextualConstraint simplifierUnderContextualConstraint;
 	private GroupProblemType problemType;
 	private ConstraintTheory constraintTheory;
 	private boolean interrupted = false;
@@ -95,7 +95,7 @@ public class SymbolicSolver extends AbstractHierarchicalRewriter implements Solv
 
 	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {
-		return simplifier.apply(expression, process);
+		return simplifierUnderContextualConstraint.apply(expression, process);
 	}
 
 	@Override
@@ -140,10 +140,12 @@ public class SymbolicSolver extends AbstractHierarchicalRewriter implements Solv
 	}
 
 	@Override
-	public Expression solve(Expression input, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process) {
 		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInContext(indices, process);
 		Constraint2 trueContextualConstraint = (Constraint2) makeTrueConstraint(indices);
-		Expression result = solve(problemType, simplifier, indexExpressionsSet, constraint, input, trueContextualConstraint, process);
+		Expression quantifierFreeConstraint = simplifierUnderContextualConstraint.simplifyUnderContextualConstraint(constraint, trueContextualConstraint, process);
+		Expression quantifierFreeBody = simplifierUnderContextualConstraint.simplifyUnderContextualConstraint(body, trueContextualConstraint, process);
+		Expression result = solve(problemType, simplifierUnderContextualConstraint, indexExpressionsSet, quantifierFreeConstraint, quantifierFreeBody, trueContextualConstraint, process);
 		return result;
 	}
 
@@ -178,31 +180,36 @@ public class SymbolicSolver extends AbstractHierarchicalRewriter implements Solv
 		ConstraintTheory constraintTheory = contextualConstraint.getConstraintTheory();
 		
 		process = extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
+		
+		Expression currentBody = quantifierFreeBody;
+		
 		int numberOfIndices = indexExpressions.getList().size();
 		
-		// Re-use {@link SingleVariableConstraint} if condition is one.
-		// TODO: eventually we want the algorithm to work so that it splitters may be entire constraints,
-		// if they are found. Then this encoding would become superfluous,
-		// and the condition could always be safely encoded in the body, since it would then be picked and re-used.
-		// This would also re-use body if it happens to be a constraint.
-		Pair<Expression, SingleVariableConstraint> bodyAndLastIndexConstraint =
-				SymbolicSolver.encodeConditionAsLastIndexConstraintIfPossibleOrInBodyOtherwise(
-						group, indexExpressions, quantifierFreeIndicesCondition, quantifierFreeBody, constraintTheory, process);
-		Expression currentBody = bodyAndLastIndexConstraint.first;
-		SingleVariableConstraint lastIndexConstraint = bodyAndLastIndexConstraint.second;
-		
-		
-		for (int i = numberOfIndices - 1; i >= 0; i--) { // evaluate from inside out; this may change in the future
-			Expression indexExpression = indexExpressions.getList().get(i);
-			Expression index = getIndex(indexExpression);
-			SingleVariableConstraint constraintForThisIndex =
-					i == numberOfIndices - 1?
-							lastIndexConstraint
-							: constraintTheory.makeSingleVariableConstraint(index, process);
-			currentBody =
-					new QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver
-					(group, simplifierUnderContextualConstraint, constraintForThisIndex, currentBody).
-					solve(contextualConstraint, process);
+		if (numberOfIndices != 0) {
+			// Re-use {@link SingleVariableConstraint} if condition is one.
+			// TODO: eventually we want the algorithm to work so that it splitters may be entire constraints,
+			// if they are found. Then this encoding would become superfluous,
+			// and the condition could always be safely encoded in the body, since it would then be picked and re-used.
+			// This would also re-use body if it happens to be a constraint.
+			Pair<Expression, SingleVariableConstraint> bodyAndLastIndexConstraint =
+					SymbolicSolver.encodeConditionAsLastIndexConstraintIfPossibleOrInBodyOtherwise(
+							group, indexExpressions, quantifierFreeIndicesCondition, quantifierFreeBody, constraintTheory, process);
+			currentBody = bodyAndLastIndexConstraint.first;
+			SingleVariableConstraint lastIndexConstraint = bodyAndLastIndexConstraint.second;
+
+
+			for (int i = numberOfIndices - 1; i >= 0; i--) { // evaluate from inside out; this may change in the future
+				Expression indexExpression = indexExpressions.getList().get(i);
+				Expression index = getIndex(indexExpression);
+				SingleVariableConstraint constraintForThisIndex =
+						i == numberOfIndices - 1?
+								lastIndexConstraint
+								: constraintTheory.makeSingleVariableConstraint(index, process);
+				currentBody =
+						new QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver
+						(group, simplifierUnderContextualConstraint, constraintForThisIndex, currentBody).
+						solve(contextualConstraint, process);
+			}
 		}
 		
 		// Normalize final result.

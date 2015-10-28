@@ -43,6 +43,7 @@ import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
+import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.pickUniformly;
 
 import java.util.Map;
@@ -52,9 +53,11 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMergedMapBasedSimplifier;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
@@ -65,6 +68,7 @@ import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractConstraintTheory;
 import com.sri.ai.util.collect.PredicateIterator;
 
+
 /** 
  * A {@link ConstraintTheory} for equality literals.
  */
@@ -74,14 +78,46 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 	private Simplifier simplifier = new RecursiveExhaustiveMergedMapBasedSimplifier(new EqualitySimplifier(), new BooleanSimplifier());
 	
 	@Override
+	public boolean isSuitableFor(Expression variable, RewritingProcess process) {
+		Expression type = GrinderUtil.getType(variable, process);
+		boolean result = 
+				type.equals("Integer") || isNonBooleanCategoricalType(type, process);
+		return result;
+	}
+
+	private boolean isNonBooleanCategoricalType(Expression type, RewritingProcess process) {
+		boolean result = !type.equals("Boolean") && process.getType(type.toString()) instanceof Categorical;
+		return result;
+	}
+	
+	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {
 		Expression result = simplifier.apply(expression, process);
 		return result;
 	}
 
+	private boolean assumeEqualitiesAreAlwaysLiteralsOfThisTheory = true;
+	
 	@Override
 	public boolean isNonTrivialLiteral(Expression expression, RewritingProcess process) {
-		boolean result = expression.hasFunctor(EQUALITY) || expression.hasFunctor(DISEQUALITY);
+		boolean hasEqualityFunctor = expression.hasFunctor(EQUALITY) || expression.hasFunctor(DISEQUALITY);
+		boolean result = hasEqualityFunctor;
+		
+		if (assumeEqualitiesAreAlwaysLiteralsOfThisTheory) {
+			result = hasEqualityFunctor;
+		}
+		else {
+			// the following is good, but expensive
+			result = hasEqualityFunctor
+					&&
+					forAll(
+							expression.getArguments(),
+							e -> {
+								Expression type = GrinderUtil.getType(e, process);
+								return type.equals("Integer") || process.getType(type.toString()) instanceof Categorical;
+							});
+		}
+		
 		return result;
 	}
 	

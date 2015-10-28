@@ -37,8 +37,13 @@
  */
 package com.sri.ai.grinder.plaindpll.util;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.freeVariablesAndTypes;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndexExpressionsFromSymbolsAndTypes;
+import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.filter;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.myAssert;
@@ -52,8 +57,10 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
@@ -222,14 +229,14 @@ public class DPLLUtil {
 	}
 
 	public static RewritingProcess makeProcess(Constraint1 trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, new DefaultRewritingProcess(null));			
+		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate, new DefaultRewritingProcess(null));			
 		result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		result.initializeDPLLContextualConstraint(trueConstraintOnNoIndices);
 		return result;
 	}
 
 	public static RewritingProcess makeProcess(Constraint2 trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, new DefaultRewritingProcess(null));			
+		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate, new DefaultRewritingProcess(null));			
 		result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		return result;
 	}
@@ -240,22 +247,54 @@ public class DPLLUtil {
 	 * @param process
 	 * @return
 	 */
-	public static RewritingProcess extendProcessWith(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, RewritingProcess process) {
+	public static RewritingProcess extendProcessWith(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate, RewritingProcess process) {
 		List<Expression> symbolDeclarations = new ArrayList<>();
 		for (Map.Entry<String, String> variableNameAndTypeName : mapFromSymbolNameToTypeName.entrySet()) {
 			String symbolName = variableNameAndTypeName.getKey();
-			String typeName     = variableNameAndTypeName.getValue();
+			String typeName   = variableNameAndTypeName.getValue();
 			
-			symbolDeclarations.add(Expressions.parse(symbolName + " in " + typeName));
+			symbolDeclarations.add(parse(symbolName + " in " + typeName));
 		}
 		process = GrinderUtil.extendContextualSymbolsWithIndexExpressions(symbolDeclarations, process);
 					
 		for (Map.Entry<String, String> typeNameAndSizeString : mapFromTypeNameToSizeString.entrySet()) {
 			String typeName   = typeNameAndSizeString.getKey();
 			String sizeString = typeNameAndSizeString.getValue();
-			process.putGlobalObject(Expressions.parse("|" + typeName + "|"), Expressions.parse(sizeString));
+
+			Type alreadyPresent = process.getType(typeName);
+			if (alreadyPresent == null) {
+				if (typeName.equals("Boolean")) {
+					process = process.put(new Categorical("Boolean", 2, arrayList(TRUE, FALSE)));
+				}
+				else {
+					ArrayList<Expression> knownConstants = getKnownUniquelyNamedConstaintsOf(typeName, mapFromSymbolNameToTypeName, isUniquelyNamedConstantPredicate, process);
+					process = process.put(new Categorical(typeName, Integer.parseInt(sizeString), knownConstants));
+				}
+			}
+
+			process.putGlobalObject(parse("|" + typeName + "|"), parse(sizeString));
 		}
+		
 		return process;
+	}
+
+	/**
+	 * @param typeName
+	 * @param mapFromSymbolNameToTypeName
+	 * @param process
+	 * @return
+	 */
+	public static ArrayList<Expression> getKnownUniquelyNamedConstaintsOf(String typeName, Map<String, String> mapFromSymbolNameToTypeName, Predicate<Expression> isUniquelyNamedConstantPredicate, RewritingProcess process) {
+		ArrayList<Expression> knownConstants = new ArrayList<Expression>();
+		for (Map.Entry<String, String> symbolNameAndTypeName : mapFromSymbolNameToTypeName.entrySet()) {
+			if (symbolNameAndTypeName.getValue().equals(typeName)) {
+				Expression symbol = makeSymbol(symbolNameAndTypeName.getKey());
+				if (isUniquelyNamedConstantPredicate.apply(symbol)) {
+					knownConstants.add(symbol);
+				}
+			}
+		}
+		return knownConstants;
 	}
 
 	/**

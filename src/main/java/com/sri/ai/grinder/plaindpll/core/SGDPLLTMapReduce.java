@@ -77,7 +77,7 @@ public class SGDPLLTMapReduce extends AbstractPlainDPLLSolver {
 				(e, i, c, p) -> {
 					// System.out.println("Received sum_{" + i + " : " + c + "} " + e);	
 
-					Expression solution = solver.solve(e, i, c, p);
+					Expression solution = solver.solve(i, c, e, p);
 
 					// System.out.println("Solution is " + solution);	
 					// System.out.println("Accumulated solution was   : " + accumulatedSolution.value);
@@ -89,7 +89,7 @@ public class SGDPLLTMapReduce extends AbstractPlainDPLLSolver {
 
 		SGDPLLTParallelizer parallelizer = new SGDPLLTParallelizer(getInputTheory(), getProblemType(), collector, depth);
 		
-		parallelizer.solve(expression, indices, constraint, process);
+		parallelizer.solve(indices, constraint, expression, process);
 		
 		Expression result = accumulatedSolution.value;
 		

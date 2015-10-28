@@ -94,17 +94,14 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 	protected Expression evaluateAggregateOperation(
 			AssociativeCommutativeGroup group,
 			ExtensionalIndexExpressionsSet indexExpressions,
-			Expression indicesCondition,
-			Expression body,
+			Expression quantifierFreeIndicesCondition,
+			Expression quantifierFreeBody,
 			RewritingProcess process) throws Error {
 
 		Constraint2 contextualConstraint = 
 				simplifyGivenConstraint?
 						(Constraint2) process.getGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT)
 						: new CompleteMultiVariableConstraint(constraintTheory);
-
-		Expression quantifierFreeBody = apply(body, process);
-		Expression quantifierFreeIndicesCondition = apply(indicesCondition, process);
 
 		SimplifierUnderContextualConstraint simplifierUnderContextualConstraint =
 				simplifyGivenConstraint?

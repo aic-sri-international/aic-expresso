@@ -65,6 +65,12 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractConstraintTheory;
  */
 public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 
+	@Override
+	public boolean isSuitableFor(Expression variable, RewritingProcess process) {
+		boolean result = isNonTrivialAtom(variable, process);
+		return result;
+	}
+	
 	/**
 	 * Constructor overrides default constructor in order to define
 	 * testing symbols <code>P, Q, R</code> of type <code>Boolean</code>,

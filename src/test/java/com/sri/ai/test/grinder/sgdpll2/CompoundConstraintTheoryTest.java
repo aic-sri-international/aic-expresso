@@ -62,8 +62,8 @@ public class CompoundConstraintTheoryTest {
 		
 		ConstraintTheory compound =
 				new CompoundConstraintTheory(
-						"SomeType", new EqualityConstraintTheory(),
-						"Boolean", new PropositionalConstraintTheory());
+						new EqualityConstraintTheory(),
+						new PropositionalConstraintTheory());
 		
 		Expression condition = parse("X = Y and Y = X and P and not Q and P and X = a and X != b");
 		

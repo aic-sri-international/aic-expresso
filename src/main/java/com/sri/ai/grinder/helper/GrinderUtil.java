@@ -40,6 +40,7 @@ package com.sri.ai.grinder.helper;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.CARTESIAN_PRODUCT;
 import static com.sri.ai.grinder.library.FunctorConstants.DIVISION;
 import static com.sri.ai.grinder.library.FunctorConstants.EXPONENTIATION;
@@ -731,9 +732,15 @@ public class GrinderUtil {
 			if (thenType != null && thenType.equals(elseType)) {
 				result = thenType;
 			}
-			else {
-				throw new Error(expression + " then and else branches have different types (" + thenType + " and " + elseType + " respectively).");
+			else if (thenType != null && elseType != null && (thenType.equals("Integer") && elseType.equals("Real") || thenType.equals("Real") && elseType.equals("Integer"))) {
+				result = makeSymbol("Real");
 			}
+			else {
+				throw new Error(expression + " then and else branches have no, or different, types (" + thenType + " and " + elseType + " respectively).");
+			}
+		}
+		else if (expression.hasFunctor(CARDINALITY)) {
+			result = makeSymbol("Integer");
 		}
 		else if (isNumericFunctionApplication(expression)) {
 			if (Util.thereExists(expression.getArguments(), e -> Util.equals(getType(e, process), "Real"))) {

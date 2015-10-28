@@ -100,6 +100,9 @@ public class SymbolicPlusGroup extends AbstractSymbolicNumbersGroup {
 		else if (valueToBeAdded.equals(ONE)) { // optimization
 			result = n;
 		}
+		else if (n.equals(ONE)) { // optimization
+			result = valueToBeAdded;
+		}
 		else {
 			Rational valueToBeAddedRationalValue = valueToBeAdded.rationalValue();
 			Rational nRationalValue = n.rationalValue();

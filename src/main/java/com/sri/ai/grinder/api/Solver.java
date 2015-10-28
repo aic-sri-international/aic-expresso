@@ -100,7 +100,7 @@ public interface Solver extends Rewriter {
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them
 	 */
-	Expression solve(Expression input, Collection<Expression> indices, Constraint constraint, RewritingProcess process);
+	Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process);
 
 	////////// Convenience methods
 	
@@ -109,7 +109,7 @@ public interface Solver extends Rewriter {
 	 */
 	default Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process) {
 		Constraint constraint = makeTrueConstraint(indices);
-		Expression result = solve(input, indices, constraint, process);
+		Expression result = solve(indices, constraint, input, process);
 		return result;
 	}
 

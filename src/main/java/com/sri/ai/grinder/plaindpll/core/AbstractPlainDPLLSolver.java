@@ -186,7 +186,7 @@ abstract public class AbstractPlainDPLLSolver extends AbstractHierarchicalRewrit
 	 * Extensions which know that the process already has the contextual constraint
 	 * and that the expression is already simplified should invoke this method
 	 * when needing to solve sub-problems, instead of
-	 * {@link #solve(Expression, Collection, Constraint1, RewritingProcess)}
+	 * {@link #solve(Collection, Constraint1, Expression, RewritingProcess)}
 	 * in order not to repeat that effort.
 	 */
 	protected Expression solveAfterBookkeeping(
@@ -208,19 +208,19 @@ abstract public class AbstractPlainDPLLSolver extends AbstractHierarchicalRewrit
 	}
 	
 	/**
-	 * @param input
 	 * @param indices
 	 * @param constraint
+	 * @param body
 	 * @param process
 	 * @return
 	 */
-	public Expression solve(Expression input, Collection<Expression> indices, Constraint constraint, RewritingProcess process) {
+	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process) {
 		// TODO: should replace this oldConstraint by a copy constructor creating a sub-process, but surprisingly there is no complete copy constructor available in DefaultRewritingProcess.
 		Constraint1 oldConstraint = process.getDPLLContextualConstraint();
 		Constraint1 contextualConstraint = getConstraintTheory().makeConstraint(Util.list()); // contextual constraint does not involve any indices -- defined on free variables only
 		process.initializeDPLLContextualConstraint(contextualConstraint);
 
-		Expression simplifiedInput = simplify(input, process);
+		Expression simplifiedInput = simplify(body, process);
 		Expression result = solveAfterBookkeeping(simplifiedInput, indices, (Constraint1) constraint, process);
 		if (result == null) { // constraint is unsatisfiable, so result is identity element.
 			result = getAdditiveIdentityElement();
