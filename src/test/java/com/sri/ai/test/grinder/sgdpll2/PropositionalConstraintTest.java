@@ -56,7 +56,7 @@ public class PropositionalConstraintTest {
 		ConstraintTheoryTester.testSingleVariableConstraints(
 				new Random(),
 				new PropositionalConstraintTheory(),
-				3 /* number of tests - only literals are P and not P, and 3 tests already create all cases */,
+				30 /* number of tests - only literals are P and not P, and 3 tests already create all cases */,
 				2 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -89,7 +89,7 @@ public class PropositionalConstraintTest {
 				new Random(),
 				new Sum(),
 				new PropositionalConstraintTheory(),
-				300 /* number of tests */,
+				100 /* number of tests */,
 				30 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);
@@ -103,7 +103,7 @@ public class PropositionalConstraintTest {
 				new Random(),
 				new Max(),
 				new PropositionalConstraintTheory(),
-				300 /* number of tests */,
+				100 /* number of tests */,
 				30 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);

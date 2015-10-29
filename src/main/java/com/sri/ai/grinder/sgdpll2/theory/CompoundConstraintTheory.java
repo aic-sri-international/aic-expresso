@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.util.Util.check;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
+import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.thereExists;
@@ -104,9 +105,6 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 			}
 		}
 		setVariableNamesAndTypeNamesForTesting(variableNamesAndTypeNamesForTesting);
-		
-		ConstraintTheory firstConstraintTheory = Util.getFirst(getConstraintTheories());
-		this.setTestingVariable(firstConstraintTheory.getTestingVariable());
 	}
 	
 	@Override
@@ -145,9 +143,9 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, RewritingProcess process) {
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, RewritingProcess process) {
 		ConstraintTheory constraintTheoryForVariable = getConstraintTheory(variable, process);
-		SingleVariableConstraint result = constraintTheoryForVariable.makeSingleVariableConstraint(variable, process);
+		SingleVariableConstraint result = constraintTheoryForVariable.makeSingleVariableConstraint(variable, constraintTheory, process);
 		return result;
 	}
 
@@ -208,5 +206,11 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 		Simplifier exhaustivelyOfAll = new Exhaustive(new Pipeline(simplifiers));
 		Expression result = exhaustivelyOfAll.apply(expression, process);
 		return result;
+	}
+	
+	@Override
+	public
+	String toString() {
+		return "Compound constraint theory (" + join(getConstraintTheories()) + ")";
 	}
 }

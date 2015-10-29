@@ -79,7 +79,7 @@ public interface SingleVariableConstraint extends Expression, Constraint2 {
 		
 		// if formula is not appropriate constraint, create a new one and conjoin with formula
 		if (result == null) {
-			result = constraintTheory.makeSingleVariableConstraint(variable, process).conjoin(formula, process);
+			result = constraintTheory.makeSingleVariableConstraint(variable, constraintTheory, process).conjoin(formula, process);
 		}
 		
 		return result;

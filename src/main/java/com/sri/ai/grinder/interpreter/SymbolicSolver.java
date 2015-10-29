@@ -204,7 +204,7 @@ public class SymbolicSolver extends AbstractHierarchicalRewriter implements Solv
 				SingleVariableConstraint constraintForThisIndex =
 						i == numberOfIndices - 1?
 								lastIndexConstraint
-								: constraintTheory.makeSingleVariableConstraint(index, process);
+								: constraintTheory.makeSingleVariableConstraint(index, constraintTheory, process);
 				currentBody =
 						new QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver
 						(group, simplifierUnderContextualConstraint, constraintForThisIndex, currentBody).
@@ -253,7 +253,7 @@ public class SymbolicSolver extends AbstractHierarchicalRewriter implements Solv
 		
 		// did not work out because condition is not SingleVariableConstraint on last index
 		body = IfThenElse.make(quantifierFreeIndicesCondition, quantifierFreeBody, group.additiveIdentityElement());
-		lastIndexConstraint = constraintTheory.makeSingleVariableConstraint(lastIndex, process);
+		lastIndexConstraint = constraintTheory.makeSingleVariableConstraint(lastIndex, constraintTheory, process);
 		Pair<Expression, SingleVariableConstraint> bodyAndLastIndexConstraint = Pair.make(body, lastIndexConstraint);
 		
 		return bodyAndLastIndexConstraint;

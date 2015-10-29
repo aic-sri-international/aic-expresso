@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.sgdpll2.core.constraint;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.util.Util.camelCaseToSpacedString;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.mapIntoArrayList;
@@ -73,12 +74,9 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 		ArrayList<Expression> knownConstants = mapIntoArrayList(list("a", "b", "c", "d"), s -> makeSymbol(s));
 		setTypesForTesting(list(new Categorical("SomeType", 5, knownConstants)));
 		setVariableNamesAndTypeNamesForTesting(map("X", "SomeType", "Y", "SomeType", "Z", "SomeType"));
-		setTestingVariable("X");
 	}
 	
 	private Collection<Type> typesForTesting = null;
-	
-	private String testingVariable = null;
 	
 	private Map<String, String> variableNamesAndTypeNamesForTesting;
 	
@@ -119,14 +117,10 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 		result = DPLLUtil.extendProcessWith(mapFromSymbolNamesToTypeNames, mapFromTypeNameToSizeString, result.getIsUniquelyNamedConstantPredicate(), result);
 		return result;
 	}
-
+	
 	@Override
-	public String getTestingVariable() {
-		return testingVariable;
-	}
-
-	@Override
-	public void setTestingVariable(String newTestingVariable) {
-		this.testingVariable = newTestingVariable;
+	public
+	String toString() {
+		return camelCaseToSpacedString(getClass().getSimpleName());
 	}
 }

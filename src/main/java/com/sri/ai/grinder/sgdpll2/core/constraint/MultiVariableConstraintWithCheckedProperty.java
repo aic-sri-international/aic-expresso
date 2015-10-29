@@ -228,7 +228,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 			}
 			else {
 				Expression firstVariable = getFirstOrNull(variablesInLiteral);
-				SingleVariableConstraint newSingleVariableConstraint = constraintTheory.makeSingleVariableConstraint(firstVariable, process);
+				SingleVariableConstraint newSingleVariableConstraint = constraintTheory.makeSingleVariableConstraint(firstVariable, constraintTheory, process);
 				newSingleVariableConstraint = newSingleVariableConstraint.conjoin(literal, process);
 				result = new MultiVariableConstraintWithCheckedProperty(this, newSingleVariableConstraint, contextDependentProblemStepSolverMaker);
 				// the use of 'this' here does not mean that *this* constraint has to be provided as the contextual constraint.

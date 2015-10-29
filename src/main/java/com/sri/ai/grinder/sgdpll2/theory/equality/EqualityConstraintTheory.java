@@ -122,8 +122,8 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 	}
 	
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, RewritingProcess process) {
-		return new SingleVariableEqualityConstraint(variable, this);
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, RewritingProcess process) {
+		return new SingleVariableEqualityConstraint(variable, constraintTheory);
 	}
 
 	@Override

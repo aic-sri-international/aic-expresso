@@ -57,7 +57,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.util.Util;
@@ -110,10 +109,11 @@ public interface ConstraintTheory extends Theory {
 	/**
 	 * Make a new single-variable constraint for this constraint theory.
 	 * @param variable 
+	 * @param constraintTheory the constraint theory of the application (not necessarily <code>this</code> because <code>this</code> may be a sub-constraint theory in a compound one
 	 * @param process
 	 * @return
 	 */
-	SingleVariableConstraint makeSingleVariableConstraint(Expression variable, RewritingProcess process);
+	SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, RewritingProcess process);
 	
 	/**
 	 * Indicates whether single-variable constraint solver is complete (for its variable).
@@ -210,14 +210,15 @@ public interface ConstraintTheory extends Theory {
 	void setTypesForTesting(Collection<Type> newTypesForTesting);
 	
 	/**
-	 * Returns the variable on which testing literals are generated.
-	 * @return the variable on which testing literals are generated
+	 * Picks one of the testing variables returned by {@link #getTestingVariables()}
+	 * with uniform probability.
+	 * @param random
+	 * @return
 	 */
-	String getTestingVariable();
-	
-	void setTestingVariable(String newTestingVariable);
-	
-	RewritingProcess extendWithTestingInformation(RewritingProcess process);
+	default String pickTestingVariableAtRandom(Random random) {
+		String result = Util.pickUniformly(getVariableNamesAndTypeNamesForTesting().keySet(), random);
+		return result;
+	}
 	
 	/**
 	 * Returns a random atom in this constraint theory on a given variable.
@@ -239,22 +240,11 @@ public interface ConstraintTheory extends Theory {
 	
 	/**
 	 * Same as {@link #makeRandomAtomOn(String, Random, RewritingProcess) for testing variable
-	 * (returned by {@link #getTestingVariable()}).
+	 * (returned by {@link #pickTestingVariableAtRandom()}).
 	 */
 	default Expression makeRandomAtomOnTestingVariable(Random random, RewritingProcess process) {
-		Expression result = makeRandomAtomOn(getTestingVariable(), random, process);
+		Expression result = makeRandomAtomOn(pickTestingVariableAtRandom(random), random, process);
 		return result;
-	}
-
-	/**
-	 * Returns a random literal in this constraint theory on the testing variable.
-	 * This is useful for making random constraints for correctness and performance testing.
-	 * @param random a random generator
-	 * @param process a rewriting process
-	 */
-	default Expression makeRandomLiteralOnTestingVariable(Random random, RewritingProcess process) {
-		String variable = getTestingVariable();
-		return makeRandomLiteralOn(variable, random, process);
 	}
 
 	/**
@@ -265,7 +255,7 @@ public interface ConstraintTheory extends Theory {
 	 */
 	default Expression makeRandomLiteralOn(String variable, Random random, RewritingProcess process) {
 		Expression atom = makeRandomAtomOn(variable, random, process);
-		Expression literal = random.nextBoolean()? atom : Not.make(atom);
+		Expression literal = random.nextBoolean()? atom : getLiteralNegation(atom, process);
 		return literal;
 	}
 
@@ -274,9 +264,11 @@ public interface ConstraintTheory extends Theory {
 	 * but applied randomly to one of the testing variables.
 	 */
 	default Expression makeRandomLiteral(Random random, RewritingProcess process) {
-		String variableToBeUsed = Util.pickUniformly(getVariableNamesAndTypeNamesForTesting().keySet().iterator(), random);
+		String variableToBeUsed = pickTestingVariableAtRandom(random);
 		Expression result = makeRandomLiteralOn(variableToBeUsed, random, process);
 		return result;
 	}
+
+	RewritingProcess extendWithTestingInformation(RewritingProcess process);
 	
 }

@@ -52,6 +52,23 @@ import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 @Beta
 public interface Constraint2 extends Constraint {
 
+	/**
+	 * Returns the general constraint theory used in the application.
+	 * 
+	 * TODO
+	 * This method should probably be eliminated.
+	 * It used to be "the constraint's theory", but that meaning got blurred when compound constraint theories got introduced,
+	 * because then the application constraint theory could be a compound theory, whereas a single-variable constraint
+	 * could be specific to just one of the sub-constraint theories.
+	 * This caused problems because throughout the code we rely on this method to obtain the application's constraint theory;
+	 * when dealing with a single-variable constraint, this would instead give us its specific sub-constraint theory.
+	 * We changed it by making the method hold the general application constraint theory even for single-variable constraints.
+	 * This solved the problem but rendered the method misleading, since it does not represent a property of the constraint itself.
+	 * It is now just a convenience method that spares us the trouble of passing the constraint theory everywhere
+	 * but, like stated above, at the cost of being misleading.
+	 * 
+	 * @return the application's constraint theory.
+	 */
 	ConstraintTheory getConstraintTheory();
 	
 	/**

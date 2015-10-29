@@ -55,6 +55,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractConstraintTheory;
@@ -81,7 +82,6 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 		ArrayList<Expression> knownConstants = mapIntoArrayList(list("true", "false"), s -> makeSymbol(s));
 		setTypesForTesting(list(new Categorical("Boolean", 2, knownConstants)));
 		setVariableNamesAndTypeNamesForTesting(map("P", "Boolean", "Q", "Boolean", "R", "Boolean"));
-		setTestingVariable("P");
 	}
 
 	private Simplifier simplifier = new BooleanSimplifier();
@@ -109,8 +109,8 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 	
 	@Override
-	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, RewritingProcess process) {
-		return new SingleVariablePropositionalConstraint(variable, this);
+	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, RewritingProcess process) {
+		return new SingleVariablePropositionalConstraint(variable, constraintTheory);
 	}
 
 	@Override

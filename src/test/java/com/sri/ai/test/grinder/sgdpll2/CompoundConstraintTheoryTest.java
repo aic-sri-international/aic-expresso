@@ -38,6 +38,11 @@
 package com.sri.ai.test.grinder.sgdpll2;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.map;
+import static org.junit.Assert.assertEquals;
+
+import java.util.Map;
+import java.util.Random;
 
 import org.junit.Test;
 
@@ -46,10 +51,16 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreter;
+import com.sri.ai.grinder.library.boole.And;
+import com.sri.ai.grinder.plaindpll.problemtype.Max;
+import com.sri.ai.grinder.plaindpll.problemtype.Sum;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 import com.sri.ai.grinder.sgdpll2.theory.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
@@ -71,6 +82,8 @@ public class CompoundConstraintTheoryTest {
 		RewritingProcess process = compound.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		constraint = constraint.conjoin(condition, process);
 		System.out.println("Constraint: " + constraint);
+		Expression expected = parse("not Q and P and (X = Y) and (X = a)");
+		assertEquals(expected, constraint);
 		
 		Simplifier interpreter = new SymbolicCommonInterpreter(compound);
 		Expression input = parse(
@@ -78,5 +91,120 @@ public class CompoundConstraintTheoryTest {
 		process.putGlobalObject(SymbolicCommonInterpreter.INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(compound));
 		Expression result = interpreter.apply(input, process);
 		System.out.println("Result: " + result);	
+		Expression expectedProduct = parse("if P then if not Q then if Y = c then 2 else if Y != a then if Y != b then 3 else 1 else 1 else 1 else 1");
+		assertEquals(expectedProduct, result);
 	}
+	
+	@Test
+	public void testSingleVariableConstraints() {
+		ConstraintTheoryTester.testSingleVariableConstraints(
+				new Random(),
+				new CompoundConstraintTheory(new EqualityConstraintTheory(), new PropositionalConstraintTheory()),
+				100 /* number of tests */,
+				30 /* number of literals per test */,
+				true /* output count */);
+	}
+
+	@Test
+	public void testMultiVariableConstraints() {
+		ConstraintTheoryTester.testMultiVariableConstraints(
+				new Random(),
+				new CompoundConstraintTheory(new EqualityConstraintTheory(), new PropositionalConstraintTheory()),
+				500 /* number of tests */,
+				30 /* number of literals per test */,
+				true /* output count */);
+	}
+
+	@Test
+	public void testCompleteMultiVariableConstraints() {
+		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
+				new Random(),
+				new CompoundConstraintTheory(new EqualityConstraintTheory(), new PropositionalConstraintTheory()),
+				1000 /* number of tests */,
+				50 /* number of literals per test */,
+				true /* output count */);
+	}
+
+	@Test
+	public void testModelCountingForSingleVariableConstraints() {
+		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
+				new Random(),
+				new CompoundConstraintTheory(new EqualityConstraintTheory(), new PropositionalConstraintTheory()),
+				200 /* number of tests */,
+				30 /* number of literals per test */,
+				true /* output count */);
+	}
+
+	@Test
+	public void testSumForSingleVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+		
+		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
+				new Random(),
+				new Sum(),
+				new CompoundConstraintTheory(new EqualityConstraintTheory(), new PropositionalConstraintTheory()),
+				30 /* number of tests */,
+				20 /* number of literals per test */,
+				3, /* body depth */
+				true /* output count */);
+	}
+
+	@Test
+	public void testMaxForSingleVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+		
+		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
+				new Random(),
+				new Max(),
+				new CompoundConstraintTheory(new EqualityConstraintTheory(), new PropositionalConstraintTheory()),
+				30 /* number of tests */,
+				20 /* number of literals per test */,
+				3, /* body depth */
+				true /* output count */);
+	}
+
+	@Test
+	public void testCompleteSatisfiabilitySpecialCases() {
+		// This test is to make sure that some more tricky cases are indeed tested,
+		// even though hopefully the large amount of generated random problems include them.
+		
+		// These are copied from the equality constraint theory test,
+		// so it is really just to check whether things hold up
+		// if equality constraint theory is embedded in a compound constraint theory.
+
+		String conjunction;
+		Expression expected;
+		Map<String, String> variableNamesAndTypeNamesForTesting = // need W besides the other defaults -- somehow not doing this in equality theory alone does not cause a problem, probably because the type for W is never needed when we have only equality theory
+				map("X", "SomeType", "Y", "SomeType", "Z", "SomeType", "W", "SomeType");
+
+		
+		conjunction = "X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
+		expected = null;
+		runCompleteSatisfiabilityTest(conjunction, expected, variableNamesAndTypeNamesForTesting);
+		
+		conjunction = "X = Y and X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
+		expected = null;
+		runCompleteSatisfiabilityTest(conjunction, expected, variableNamesAndTypeNamesForTesting);
+		
+		conjunction = "X = a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
+		expected = parse("(W = d) and (Z = c) and (X = a) and (X != Z) and (X != W)");
+		runCompleteSatisfiabilityTest(conjunction, expected, variableNamesAndTypeNamesForTesting);
+	}
+
+	/**
+	 * @param conjunction
+	 * @param expected
+	 */
+	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, Map<String, String> variableNamesAndTypeNamesForTesting) {
+		EqualityConstraintTheory equalityTheory = new EqualityConstraintTheory();
+		equalityTheory.setVariableNamesAndTypeNamesForTesting(variableNamesAndTypeNamesForTesting);
+		ConstraintTheory constraintTheory = new CompoundConstraintTheory(equalityTheory, new PropositionalConstraintTheory());
+		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);
+		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
+		for (Expression literal : And.getConjuncts(parse(conjunction))) {
+			constraint = constraint.conjoin(literal, process);
+		}
+		assertEquals(expected, constraint);
+	}
+	
 }

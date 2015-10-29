@@ -84,6 +84,8 @@ import com.sri.ai.grinder.helper.concurrent.CallableRewriteOnBranch;
 import com.sri.ai.grinder.helper.concurrent.CallableRewriteOnConditionedBranch;
 import com.sri.ai.grinder.helper.concurrent.RewriteOnBranch;
 import com.sri.ai.grinder.helper.concurrent.ShortCircuitOnValue;
+import com.sri.ai.grinder.library.Disequality;
+import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.IsVariable;
 import com.sri.ai.grinder.library.SemanticSubstitute;
@@ -724,6 +726,9 @@ public class GrinderUtil {
 		// TODO: this method is very hard-coded to a specific language; need to clean this up
 		
 		if (FormulaUtil.isApplicationOfBooleanConnective(expression)) {
+			result = makeSymbol("Boolean");
+		}
+		else if (Equality.isEquality(expression) || Disequality.isDisequality(expression)) {
 			result = makeSymbol("Boolean");
 		}
 		else if (IfThenElse.isIfThenElse(expression)) {

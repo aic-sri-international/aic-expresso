@@ -1,5 +1,6 @@
 package com.sri.ai.grinder.sgdpll2.core.constraint;
 
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.util.Util.min;
 import static com.sri.ai.util.Util.myAssert;
 
@@ -46,25 +47,37 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 	public DefaultMultiVariableConstraint conjoinWithLiteral(Expression literal, RewritingProcess process) {
 		DefaultMultiVariableConstraint result;
 		
-		Expression variable = getVariableFor(literal, process);
-		SingleVariableConstraint singleVariableConstraint = getConstraintFor(variable, process);
-		SingleVariableConstraint newSingleVariableConstraint = singleVariableConstraint.conjoin(literal, process);
-		if (newSingleVariableConstraint == null) {
-			result = null;	
-		}
-		else if (newSingleVariableConstraint == singleVariableConstraint) {
-			result = this;
+		Expression variable = getSomeVariableFor(literal, process);
+		if (variable == null) {
+			// the literal has no variables.
+			Expression literalEvaluation = getConstraintTheory().simplify(literal, process);
+			if (literalEvaluation.equals(TRUE)) {
+				result = this;
+			}
+			else {
+				result = null;
+			}
 		}
 		else {
-			Map<Expression, SingleVariableConstraint> newFromVariableToItsConstraint = new LinkedHashMap<>(fromVariableToItsConstraint);
-			newFromVariableToItsConstraint.put(variable, newSingleVariableConstraint);
-			result = makeWithNewFromVariableToItsConstraint(newFromVariableToItsConstraint);
+			SingleVariableConstraint singleVariableConstraint = getConstraintFor(variable, process);
+			SingleVariableConstraint newSingleVariableConstraint = singleVariableConstraint.conjoin(literal, process);
+			if (newSingleVariableConstraint == null) {
+				result = null;	
+			}
+			else if (newSingleVariableConstraint == singleVariableConstraint) {
+				result = this;
+			}
+			else {
+				Map<Expression, SingleVariableConstraint> newFromVariableToItsConstraint = new LinkedHashMap<>(fromVariableToItsConstraint);
+				newFromVariableToItsConstraint.put(variable, newSingleVariableConstraint);
+				result = makeWithNewFromVariableToItsConstraint(newFromVariableToItsConstraint);
+			}
 		}
 		
 		return result;
 	}
 	
-	private Expression getVariableFor(Expression literal, RewritingProcess process) {
+	private Expression getSomeVariableFor(Expression literal, RewritingProcess process) {
 		Expression result = min(constraintTheory.getVariablesIn(literal, process), (e1, e2) -> e1.compareTo(e2));
 		return result;
 	}
@@ -76,7 +89,7 @@ public class DefaultMultiVariableConstraint extends AbstractExpressionWrapper im
 	protected SingleVariableConstraint getConstraintFor(Expression variable, RewritingProcess process) {
 		SingleVariableConstraint result = fromVariableToItsConstraint.get(variable);
 		if (result == null) {
-			result = constraintTheory.makeSingleVariableConstraint(variable, process);
+			result = constraintTheory.makeSingleVariableConstraint(variable, constraintTheory, process);
 		}
 		return result;
 	}

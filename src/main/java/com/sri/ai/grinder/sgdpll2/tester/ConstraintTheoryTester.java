@@ -83,6 +83,8 @@ import com.sri.ai.util.base.NullaryFunction;
 @Beta
 public class ConstraintTheoryTester {
 	
+	private static final int NUMBER_OF_TESTS_TO_INDICATE_ON_CONSOLE = 50;
+
 	private static void output(String message) {
 //		System.out.println(message); // uncomment out if detailed output is desired.
 	}
@@ -129,15 +131,17 @@ public class ConstraintTheoryTester {
 		
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
-		NullaryFunction<Constraint2> makeConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.getTestingVariable()), process);
+		NullaryFunction<Constraint2> makeConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.pickTestingVariableAtRandom(random)), constraintTheory, process);
 
-		NullaryFunction<Expression> makeRandomLiteral = () -> constraintTheory.makeRandomLiteralOnTestingVariable(random, process);
+		Function<Constraint2, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), random, process);
 
 		boolean isComplete = constraintTheory.singleVariableConstraintIsCompleteWithRespectToItsVariable();
 
 		Tester tester = isComplete? ConstraintTheoryTester::testCompleteSatisfiability : ConstraintTheoryTester::testIncompleteSatisfiability;
 		
-		test(random, tester, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
+		String problemName = (isComplete? "complete" : "incomplete") + " satisfiability for single-variable constraints";
+		
+		test(random, problemName, tester, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
 	}
 
 	/**
@@ -163,9 +167,9 @@ public class ConstraintTheoryTester {
 
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
-		NullaryFunction<Expression> makeRandomLiteral = () -> constraintTheory.makeRandomLiteral(random, process);
+		Function<Constraint2, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteral(random, process);
 
-		test(random, ConstraintTheoryTester::testIncompleteSatisfiability, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
+		test(random, "incomplete satisfiability", ConstraintTheoryTester::testIncompleteSatisfiability, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
 	}
 
 	/**
@@ -191,9 +195,9 @@ public class ConstraintTheoryTester {
 
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
-		NullaryFunction<Expression> makeRandomLiteral = () -> constraintTheory.makeRandomLiteral(random, process);
+		Function<Constraint2, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteral(random, process);
 
-		test(random, ConstraintTheoryTester::testCompleteSatisfiability, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
+		test(random, "complete satisfiability", ConstraintTheoryTester::testCompleteSatisfiability, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
 	}
 
 	private static interface Tester {
@@ -211,7 +215,7 @@ public class ConstraintTheoryTester {
 	 * @param tester the {@link Tester}
 	 * @param constraintTheory
 	 * @param makeConstraint a thunk generating new constraints
-	 * @param makeRandomLiteral a think generating appropriate new literals
+	 * @param makeRandomLiteralGivenConstraint a function generating appropriate new literals (given generated constraint if needed)
 	 * @param numberOfTests the number of tests to run
 	 * @param maxNumberOfLiterals the maximum number of literals to add to each test conjunction
 	 * @param testCorrectness actually tests the result, as opposed to simply running tests (for measuring time, for example)
@@ -221,10 +225,11 @@ public class ConstraintTheoryTester {
 	 */
 	public static void test(
 			Random random,
+			String problemName,
 			Tester tester,
 			ConstraintTheory constraintTheory,
 			NullaryFunction<Constraint2> makeConstraint,
-			NullaryFunction<Expression> makeRandomLiteral,
+			Function<Constraint2, Expression> makeRandomLiteralGivenConstraint,
 			int numberOfTests,
 			int maxNumberOfLiterals,
 			boolean testCorrectness,
@@ -237,7 +242,7 @@ public class ConstraintTheoryTester {
 			
 			output("\n\nStarting new conjunction");	
 			for (int j = 0; constraint != null && j != maxNumberOfLiterals; j++) {
-				Expression literal = makeRandomLiteral.apply();
+				Expression literal = makeRandomLiteralGivenConstraint.apply(constraint);
 				literals.add(literal);
 				output("\nAdded " + literal + " (current conjunction: " + And.make(literals) + ")");
 				constraint = constraint.conjoin(literal, process);
@@ -246,8 +251,8 @@ public class ConstraintTheoryTester {
 				}
 			}
 			
-			if (outputCount && i % 100 == 0) {
-				System.out.println("Tested " + i + " examples for " + constraintTheory.getClass().getSimpleName());
+			if (outputCount && i % NUMBER_OF_TESTS_TO_INDICATE_ON_CONSOLE == 0) {
+				System.out.println("Tested (comparing against brute-force solution) " + i + " examples of " + problemName + " for " + constraintTheory);
 			}	
 		}
 	}
@@ -378,11 +383,11 @@ public class ConstraintTheoryTester {
 		
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
-		NullaryFunction<Constraint2> makeConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.getTestingVariable()), process);
+		NullaryFunction<Constraint2> makeConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.pickTestingVariableAtRandom(random)), constraintTheory, process);
 
-		NullaryFunction<Expression> makeRandomLiteral = () -> constraintTheory.makeRandomLiteral(random, process);
+		Function<Constraint2, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), random, process);
 
-		test(random, ConstraintTheoryTester::testModelCounting, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
+		test(random, "model counting", ConstraintTheoryTester::testModelCounting, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
 	}
 
 	private static void testModelCounting(
@@ -465,13 +470,15 @@ public class ConstraintTheoryTester {
 		
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
-		NullaryFunction<Constraint2> makeConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.getTestingVariable()), process);
+		NullaryFunction<Constraint2> makeConstraint = () -> constraintTheory.makeSingleVariableConstraint(makeSymbol(constraintTheory.pickTestingVariableAtRandom(random)), constraintTheory, process);
 		
-		NullaryFunction<Expression> makeRandomLiteral = () -> constraintTheory.makeRandomLiteral(random, process);
+		Function<Constraint2, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), random, process);
 		
 		Tester tester = (r, c, cT, ls, p) -> testGroupProblem(r, c, problemType, cT, ls, bodyDepth, p);
 		
-		test(random, tester, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, true, outputCount, process);
+		String problemName = "quantification of " + problemType.getClass().getSimpleName();
+		
+		test(random, problemName, tester, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, true, outputCount, process);
 	}
 	
 	private static void testGroupProblem(
