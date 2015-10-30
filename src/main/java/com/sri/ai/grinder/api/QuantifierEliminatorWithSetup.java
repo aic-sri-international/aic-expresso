@@ -47,13 +47,16 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
 
 /**
- * The interface for a rewriter solving symbolic quantification problems for a fixed quantifier and theory.
+ * A {@link QuantifierEliminator} offering methods for setup information
+ * (symbol names and types, and type sizes).
  * 
  * @author braz
  *
  */
-public interface Solver extends Rewriter {
+public interface QuantifierEliminatorWithSetup extends QuantifierEliminator {
 
+	// TODO: these should be moved to abstract implementation instead of left in the interface (see comments below)
+	
 	/**
 	 * Returns a true constraint for a problem with given indices.
 	 * @param indices
@@ -89,20 +92,17 @@ public interface Solver extends Rewriter {
 			Predicate<Expression> isUniquelyNamedConstantPredicate);
 
 	/**
-	 * Stop solver in case it runs in a different thread.
-	 */
-	void interrupt();
-	
-	boolean getDebug();
-	
-	void setDebug(boolean newDebugValue);
-
-	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them
 	 */
+	@Override
 	Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process);
 
 	////////// Convenience methods
+	// TODO: These should be left as interface methods, not implemented, once we get rid of PlainDPLL package;
+	// They should be in AbstractQuantifierEliminatorWithSetup class, but the classes in that package
+	// would require a lot of work to use that because of the lack of multiple inheritance
+	// (they are already inheriting from abstract hierarchical rewriters because they
+	// are required to implement Rewriter as well.
 	
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.

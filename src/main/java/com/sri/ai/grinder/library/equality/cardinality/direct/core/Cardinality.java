@@ -62,7 +62,7 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.CardinalityRewrite
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.grinder.library.set.Sets;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
-import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
+import com.sri.ai.grinder.plaindpll.core.PlainSGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
 import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
 import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
@@ -80,7 +80,7 @@ import com.sri.ai.grinder.plaindpll.util.SolutionPostProcessing;
 @Beta
 public class Cardinality extends AbstractCardinalityRewriter {
 	
-	private Rewriter plainCardinality = GrinderUtil.usePlain? new SGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new ModelCounting()) : null;
+	private Rewriter plainCardinality = GrinderUtil.usePlain? new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new ModelCounting()) : null;
 
 	private Expression usePlainCardinality(Expression cardinalityOfIndexedFormulaExpression, RewritingProcess process) {
 		Expression result;

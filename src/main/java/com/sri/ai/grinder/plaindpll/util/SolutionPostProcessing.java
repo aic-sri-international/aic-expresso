@@ -42,11 +42,11 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
-import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
+import com.sri.ai.grinder.plaindpll.core.PlainSGDPLLT;
 
 
 /**
- * A collection of utility methods for post-processing {@link SGDPLLT} solutions.
+ * A collection of utility methods for post-processing {@link PlainSGDPLLT} solutions.
  * 
  * @author braz
  *

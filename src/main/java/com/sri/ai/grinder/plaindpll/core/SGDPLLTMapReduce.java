@@ -42,14 +42,14 @@ import java.util.Collection;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Solver;
+import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
 import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.util.base.Wrapper;
 
 /**
- * A skeleton for a parallel version of {@link SGDPLLT},
+ * A skeleton for a parallel version of {@link PlainSGDPLLT},
  * using {@link SGDPLLTParallelizer} to break a problem into multiple sub-problems (map)
  * and {@link #addSymbolicResults(Expression, Expression)} to combine them (reduce).
  * 
@@ -57,21 +57,21 @@ import com.sri.ai.util.base.Wrapper;
  *
  */
 @Beta
-public class SGDPLLTMapReduce extends AbstractPlainDPLLSolver {
+public class SGDPLLTMapReduce extends AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter {
 
 	public SGDPLLTMapReduce(InputTheory inputTheory, GroupProblemType problemType) {
 		super(inputTheory, problemType);
 	}
 
 	@Override
-	protected Expression solveAfterBookkeepingAndBodyConstraintCheck(Expression expression, Collection<Expression> indices, Constraint1 constraint, RewritingProcess process) {
+	protected Expression solveAfterBookkeepingAndBodyConstraintCheck(Collection<Expression> indices, Constraint1 constraint, Expression body, RewritingProcess process) {
 		
 		int depth = 3;
 		
 		final Wrapper<Expression> accumulatedSolution = new Wrapper<>(getProblemType().additiveIdentityElement()); // starts with "zero"
 		// Wrapper is used because one cannot use a non-final object inside a closure as seen below.
 		
-		Solver solver = new SGDPLLT(getInputTheory(), getProblemType());
+		QuantifierEliminatorWithSetup solver = new PlainSGDPLLT(getInputTheory(), getProblemType());
 		
 		SGDPLLTParallelizer.Collector collector =
 				(e, i, c, p) -> {
@@ -89,7 +89,7 @@ public class SGDPLLTMapReduce extends AbstractPlainDPLLSolver {
 
 		SGDPLLTParallelizer parallelizer = new SGDPLLTParallelizer(getInputTheory(), getProblemType(), collector, depth);
 		
-		parallelizer.solve(indices, constraint, expression, process);
+		parallelizer.solve(indices, constraint, body, process);
 		
 		Expression result = accumulatedSolution.value;
 		

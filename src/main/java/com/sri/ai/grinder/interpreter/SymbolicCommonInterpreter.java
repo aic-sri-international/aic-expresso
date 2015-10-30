@@ -38,7 +38,7 @@
 package com.sri.ai.grinder.interpreter;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.interpreter.SymbolicSolver.solve;
+import static com.sri.ai.grinder.interpreter.SGDPLLT.solve;
 import static com.sri.ai.util.Util.arrayList;
 
 import com.google.common.annotations.Beta;

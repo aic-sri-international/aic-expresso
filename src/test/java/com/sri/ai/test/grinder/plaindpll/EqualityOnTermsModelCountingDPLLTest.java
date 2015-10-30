@@ -53,7 +53,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
+import com.sri.ai.grinder.plaindpll.core.PlainSGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.ModelCounting;
 import com.sri.ai.grinder.plaindpll.theory.DefaultInputTheory;
 import com.sri.ai.grinder.plaindpll.theory.EqualityConstraintTheory;
@@ -71,7 +71,7 @@ public class EqualityOnTermsModelCountingDPLLTest extends AbstractSymbolicSymbol
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new SGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new FunctionalTermTheory())), new ModelCounting());
+		return new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new FunctionalTermTheory())), new ModelCounting());
 	}
 
 	@Test

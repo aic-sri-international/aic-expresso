@@ -37,33 +37,39 @@
  */
 package com.sri.ai.grinder.plaindpll.core;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Map;
 
+import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.AbstractSGVETFunctionality;
+import com.sri.ai.grinder.core.AbstractSGVETQuantifierEliminatorWithSetup;
 import com.sri.ai.grinder.library.equality.cardinality.core.CountsDeclaration;
 import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
+import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 
 /**
  * 
  * @author braz
  *
  */
-public class PlainDPLLSGVETFunctionality extends AbstractSGVETFunctionality {
+public class PlainDPLLSGVET extends AbstractSGVETQuantifierEliminatorWithSetup {
 
 	private ConstraintTheory constraintTheory;
+	private InputTheory inputTheory;
 	
-	public PlainDPLLSGVETFunctionality(InputTheory inputTheory, SemiRingProblemType problemType) {
+	public PlainDPLLSGVET(InputTheory inputTheory, SemiRingProblemType problemType) {
 		this(inputTheory, problemType, null);
 	}
 
-	public PlainDPLLSGVETFunctionality(InputTheory inputTheory, SemiRingProblemType problemType, CountsDeclaration countsDeclaration) {
-		super(new SGDPLLT(inputTheory, problemType, countsDeclaration), problemType);
+	public PlainDPLLSGVET(InputTheory inputTheory, SemiRingProblemType problemType, CountsDeclaration countsDeclaration) {
+		super(new PlainSGDPLLT(inputTheory, problemType, countsDeclaration), problemType);
 		this.constraintTheory = inputTheory.getConstraintTheory();
+		this.inputTheory = inputTheory;
 	}
 
 	@Override
@@ -72,7 +78,35 @@ public class PlainDPLLSGVETFunctionality extends AbstractSGVETFunctionality {
 	}
 
 	@Override
-	protected Constraint1 makeTrueConstraint(List<Expression> indices) {
+	public Constraint1 makeTrueConstraint(Collection<Expression> indices) {
 		return constraintTheory.makeConstraint(indices);
 	}
+	
+	
+	public InputTheory getInputTheory() {
+		return inputTheory;
+	}
+	
+	public ConstraintTheory getConstraintTheory() {
+		return constraintTheory;
+	}
+	
+	@Override
+	public	Expression simplify(Expression expression, RewritingProcess process) {
+		return getInputTheory().simplify(expression, process);
+	}
+
+	@Override
+	public RewritingProcess makeProcess(
+			Constraint constraint,
+			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
+			Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		
+		RewritingProcess result = DPLLUtil.makeProcess(
+						(Constraint1) constraint,
+						mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString,
+						isUniquelyNamedConstantPredicate);
+		return result;
+	}
+
 }

@@ -43,11 +43,11 @@ import java.util.function.Function;
 
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.api.Solver;
+import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.api.InputTheory;
-import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
+import com.sri.ai.grinder.plaindpll.core.PlainSGDPLLT;
 import com.sri.ai.grinder.plaindpll.problemtype.Max;
 import com.sri.ai.util.Util;
 
@@ -58,11 +58,11 @@ import com.sri.ai.util.Util;
  */
 public class Compilation {
 
-	public static Expression compile(Expression inputExpression, InputTheory inputTheory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Function<Solver, Solver> solverListener) {
+	public static Expression compile(Expression inputExpression, InputTheory inputTheory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Function<QuantifierEliminatorWithSetup, QuantifierEliminatorWithSetup> solverListener) {
 		GroupProblemType problemType = new Max(); // the problem type actually does not matter, because we are not going to have any indices.
 		
 		// The solver for the parameters above.
-		SGDPLLT solver = new SGDPLLT(inputTheory, problemType);
+		PlainSGDPLLT solver = new PlainSGDPLLT(inputTheory, problemType);
 		if (solverListener != null) {
 			solverListener.apply(solver);
 		}

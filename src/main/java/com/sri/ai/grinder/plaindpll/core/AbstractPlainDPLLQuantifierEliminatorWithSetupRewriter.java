@@ -51,7 +51,7 @@ import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Solver;
+import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -76,7 +76,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-abstract public class AbstractPlainDPLLSolver extends AbstractHierarchicalRewriter implements Solver {
+abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter extends AbstractHierarchicalRewriter implements QuantifierEliminatorWithSetup {
 
 	private boolean debug = false;
 	
@@ -105,11 +105,11 @@ abstract public class AbstractPlainDPLLSolver extends AbstractHierarchicalRewrit
 	/** A {@link CountsDeclaration} encapsulating sort size information. */
 	protected CountsDeclaration countsDeclaration;
 	
-	public AbstractPlainDPLLSolver(InputTheory inputTheory, GroupProblemType problemType) {
+	public AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter(InputTheory inputTheory, GroupProblemType problemType) {
 		this(inputTheory, problemType, null);
 	}
 
-	public AbstractPlainDPLLSolver(InputTheory inputTheory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
+	public AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter(InputTheory inputTheory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
 		this.inputTheory = inputTheory;
 		this.constraintTheory = inputTheory.getConstraintTheory();
 		this.problemType = problemType;
@@ -144,18 +144,6 @@ abstract public class AbstractPlainDPLLSolver extends AbstractHierarchicalRewrit
 	}
 
 	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Pair<Expression, IndexExpressionsSet> inputAndIndexExpressions = problemType.getExpressionAndIndexExpressionsFromRewriterProblemArgument(expression, process);
-		Expression input = inputAndIndexExpressions.first;
-		IndexExpressionsSet indexExpressions = inputAndIndexExpressions.second;
-		Expression simplifiedInput = inputTheory.simplify(input, process); // TODO: eventually this should not be needed as simplification should be lazy 
-		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
-		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
-		Expression result = solve(simplifiedInput, indices, subProcess);
-		return result;
-	}
-
-	@Override
 	public RewritingProcess makeProcess(
 			Constraint constraint,
 			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
@@ -182,7 +170,7 @@ abstract public class AbstractPlainDPLLSolver extends AbstractHierarchicalRewrit
 	/**
 	 * Checks if the expression is a constraint and the constraint is TRUE,
 	 * and if so inverts them so as to not have to form the body constraint all over again,
-	 * and then invokes {@link #solveAfterBookkeepingAndBodyConstraintCheck(Expression, Collection, Constraint1, RewritingProcess)}.
+	 * and then invokes {@link #solveAfterBookkeepingAndBodyConstraintCheck(Collection, Constraint1, Expression, RewritingProcess)}.
 	 * Extensions which know that the process already has the contextual constraint
 	 * and that the expression is already simplified should invoke this method
 	 * when needing to solve sub-problems, instead of
@@ -190,18 +178,18 @@ abstract public class AbstractPlainDPLLSolver extends AbstractHierarchicalRewrit
 	 * in order not to repeat that effort.
 	 */
 	protected Expression solveAfterBookkeeping(
-			Expression expression, Collection<Expression> indices, Constraint1 constraint, RewritingProcess process) {
+			Collection<Expression> indices, Constraint1 constraint, Expression body, RewritingProcess process) {
 		
 		checkInterrupted();
 		
 		Expression result;
-		if (expression instanceof Constraint1 && constraint.equals(TRUE)) {
-			result = solveAfterBookkeepingAndBodyConstraintCheck(TRUE, indices, (Constraint1) expression, process);
+		if (body instanceof Constraint1 && constraint.equals(TRUE)) {
+			result = solveAfterBookkeepingAndBodyConstraintCheck(indices, (Constraint1) body, TRUE, process);
 			// OPTIMIZATION: the right way to do this would be to allow splitters to be whole Constraints when found,
 			// and have constraint conjunction to recognize that case.
 		}
 		else {
-			result = solveAfterBookkeepingAndBodyConstraintCheck(expression, indices, constraint, process);
+			result = solveAfterBookkeepingAndBodyConstraintCheck(indices, constraint, body, process);
 		}
 		
 		return result;
@@ -221,7 +209,7 @@ abstract public class AbstractPlainDPLLSolver extends AbstractHierarchicalRewrit
 		process.initializeDPLLContextualConstraint(contextualConstraint);
 
 		Expression simplifiedInput = simplify(body, process);
-		Expression result = solveAfterBookkeeping(simplifiedInput, indices, (Constraint1) constraint, process);
+		Expression result = solveAfterBookkeeping(indices, (Constraint1) constraint, simplifiedInput, process);
 		if (result == null) { // constraint is unsatisfiable, so result is identity element.
 			result = getAdditiveIdentityElement();
 		}
@@ -237,13 +225,13 @@ abstract public class AbstractPlainDPLLSolver extends AbstractHierarchicalRewrit
 	 * May assume expression is already simplified.
 	 * May assume expression is not an instance of Constraint.
 	 * Returns null if the contextual constraint is found to be contradictory.
-	 * @param expression
 	 * @param indices
 	 * @param constraint
+	 * @param body
 	 * @param process
 	 * @return
 	 */
-	protected abstract Expression solveAfterBookkeepingAndBodyConstraintCheck(Expression expression, Collection<Expression> indices, Constraint1 constraint, RewritingProcess process);
+	protected abstract Expression solveAfterBookkeepingAndBodyConstraintCheck(Collection<Expression> indices, Constraint1 constraint, Expression body, RewritingProcess process);
 
 	/**
 	 * Same as {@link addSymbolicResults(Expression, Expression, RewritingProcess)}
@@ -374,5 +362,18 @@ abstract public class AbstractPlainDPLLSolver extends AbstractHierarchicalRewrit
 		if (interrupted) {
 			throw new RuntimeException("Solver Interrupted");
 		}
+	}
+
+	// TODO: must remove; this is implemented Rewriter for some old-style tests
+	@Override
+	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		Pair<Expression, IndexExpressionsSet> inputAndIndexExpressions = problemType.getExpressionAndIndexExpressionsFromRewriterProblemArgument(expression, process);
+		Expression input = inputAndIndexExpressions.first;
+		IndexExpressionsSet indexExpressions = inputAndIndexExpressions.second;
+		Expression simplifiedInput = inputTheory.simplify(input, process); // TODO: eventually this should not be needed as simplification should be lazy 
+		List<Expression> indices = IndexExpressions.getIndices(indexExpressions);
+		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
+		Expression result = solve(simplifiedInput, indices, subProcess);
+		return result;
 	}
 }

@@ -49,11 +49,11 @@ import com.sri.ai.grinder.plaindpll.api.InputTheory;
 import com.sri.ai.util.collect.PredicateIterator;
 
 /**
- * An extension of {@link SGDPLLT} that operates as usual until one of two things happen:
+ * An extension of {@link PlainSGDPLLT} that operates as usual until one of two things happen:
  * either a certain depth is reached, or we have no index-containing splitter literals left.
  * At this point, instead of invoking itself recursively, it invokes a given collector function on that sub-problem
  * and determines a zero "don't care solution" (therefore, the returned expression will not be a solution to the original problem).
- * This allows the collections of sub-problems at a certain depth while using {@link SGDPLLT}'s machinery for problem splitting.
+ * This allows the collections of sub-problems at a certain depth while using {@link PlainSGDPLLT}'s machinery for problem splitting.
  * These sub-problems can then be solved and their solutions combined in some alternative way (for example, on a cluster with map-reduce).
  * The splitting is restricted to index-containing splitters only, because the sub-solutions from a splitting on free variables
  * need to be combined as the branches of an if-then-else solutions, with a condition that would <i>not</i> be available to
@@ -62,7 +62,7 @@ import com.sri.ai.util.collect.PredicateIterator;
  * @author braz
  *
  */
-public class SGDPLLTParallelizer extends SGDPLLT {
+public class SGDPLLTParallelizer extends PlainSGDPLLT {
 
 	/**
 	 * An interface for the collector functor to be provided to this collecting solver.
@@ -132,15 +132,15 @@ public class SGDPLLTParallelizer extends SGDPLLT {
 	}
 
 	@Override
-	public Expression solveAfterBookkeeping(Expression expression, Collection<Expression> indices, Constraint1 constraint, RewritingProcess process) {
+	public Expression solveAfterBookkeeping(Collection<Expression> indices, Constraint1 constraint, Expression body, RewritingProcess process) {
 		Expression result;
 		int level = getLevel(process);
-		if (itIsTimeToCollect(level, expression, indices, constraint, process)) {
-			collector.collect(expression, indices, constraint, process);
+		if (itIsTimeToCollect(level, body, indices, constraint, process)) {
+			collector.collect(body, indices, constraint, process);
 			result = problemType.additiveIdentityElement(); // dummy solution
 		}
 		else {
-			result = super.solveAfterBookkeeping(expression, indices, constraint, process);
+			result = super.solveAfterBookkeeping(indices, constraint, body, process);
 		}
 		return result;
 	}

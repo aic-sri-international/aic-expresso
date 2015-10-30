@@ -52,8 +52,7 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
-import com.sri.ai.grinder.api.Solver;
-import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.core.AbstractQuantifierEliminatorWithSetup;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
@@ -67,15 +66,15 @@ import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierEliminationOnBodyWithInd
 import com.sri.ai.util.base.Pair;
 
 /**
- * A collection of static methods for solving aggregate operations symbolically.
+ * A {@link QuantifierEliminatorWithSetup} implementing the SGDPLL(T) algorithm.
  *
  * @author braz
  *
  */
 @Beta
-public class SymbolicSolver extends AbstractHierarchicalRewriter implements Solver {
+public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 
-	public SymbolicSolver(SimplifierUnderContextualConstraint simplifier, GroupProblemType problemType, ConstraintTheory constraintTheory) {
+	public SGDPLLT(SimplifierUnderContextualConstraint simplifier, GroupProblemType problemType, ConstraintTheory constraintTheory) {
 		super();
 		this.simplifierUnderContextualConstraint = simplifier;
 		this.problemType = problemType;
@@ -149,11 +148,11 @@ public class SymbolicSolver extends AbstractHierarchicalRewriter implements Solv
 		return result;
 	}
 
-	@Override
-	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-		Expression result = new SymbolicCommonInterpreter(constraintTheory).apply(expression, process);
-		return result;
-	}
+//	@Override
+//	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+//		Expression result = new SymbolicCommonInterpreter(constraintTheory).apply(expression, process);
+//		return result;
+//	}
 
 	/**
 	 * Solves an aggregate operation based on a group operation.
@@ -192,7 +191,7 @@ public class SymbolicSolver extends AbstractHierarchicalRewriter implements Solv
 			// and the condition could always be safely encoded in the body, since it would then be picked and re-used.
 			// This would also re-use body if it happens to be a constraint.
 			Pair<Expression, SingleVariableConstraint> bodyAndLastIndexConstraint =
-					SymbolicSolver.encodeConditionAsLastIndexConstraintIfPossibleOrInBodyOtherwise(
+					SGDPLLT.encodeConditionAsLastIndexConstraintIfPossibleOrInBodyOtherwise(
 							group, indexExpressions, quantifierFreeIndicesCondition, quantifierFreeBody, constraintTheory, process);
 			currentBody = bodyAndLastIndexConstraint.first;
 			SingleVariableConstraint lastIndexConstraint = bodyAndLastIndexConstraint.second;

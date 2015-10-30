@@ -35,71 +35,67 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.plaindpll.theory;
+package com.sri.ai.grinder.sgdpll2.core.solver;
 
-import static com.sri.ai.util.Util.map;
-
+import java.util.Collection;
 import java.util.Map;
 
-import com.google.common.annotations.Beta;
-import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMergedMapBasedSimplifier;
-import com.sri.ai.grinder.library.CommonSimplifier;
-import com.sri.ai.grinder.library.boole.ForAll;
-import com.sri.ai.grinder.library.boole.ThereExists;
-import com.sri.ai.grinder.plaindpll.api.ConstraintTheory;
-import com.sri.ai.grinder.plaindpll.api.InputTheory;
-import com.sri.ai.grinder.plaindpll.core.PlainSGDPLLT;
-import com.sri.ai.grinder.plaindpll.problemtype.Satisfiability;
-import com.sri.ai.grinder.plaindpll.problemtype.Validity;
-import com.sri.ai.util.base.NullaryFunction;
+import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
+import com.sri.ai.grinder.core.AbstractSGVETQuantifierEliminatorWithSetup;
+import com.sri.ai.grinder.interpreter.SGDPLLT;
+import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
+import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 
 /**
- * A default {@link InputTheory} with commonly used functions.
  * 
  * @author braz
  *
  */
-@Beta
-public class DefaultInputTheory implements InputTheory {
-	
-	protected ConstraintTheory constraintTheory;
+public class SGVET extends AbstractSGVETQuantifierEliminatorWithSetup {
 
-	private Simplifier simplifier;
+	private ConstraintTheory constraintTheory;
 	
-	public DefaultInputTheory(ConstraintTheory constraintTheory) {
+	public SGVET(SimplifierUnderContextualConstraint simplifier, SemiRingProblemType problemType, ConstraintTheory constraintTheory) {
+		super(new SGDPLLT(simplifier, problemType, constraintTheory), problemType);
 		this.constraintTheory = constraintTheory;
-		this.simplifier = new RecursiveExhaustiveMergedMapBasedSimplifier(map(), makeSyntacticFormTypeSimplifiers(), new CommonSimplifier());
-	}
-	
-	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
-		return map(
-				ForAll.SYNTACTIC_FORM_TYPE,                             (Simplifier) (f, process) ->
-				(new PlainSGDPLLT(this, new Validity())).rewrite(f, process),
-
-				ThereExists.SYNTACTIC_FORM_TYPE,                        (Simplifier) (f, process) ->
-				(new PlainSGDPLLT(this, new Satisfiability())).rewrite(f, process)
-				);
 	}
 
 	@Override
+	public boolean isVariable(Expression expression, RewritingProcess process) {
+		return constraintTheory.isVariable(expression, process);
+	}
+
+	@Override
+	public Constraint makeTrueConstraint(Collection<Expression> indices) {
+		return new CompleteMultiVariableConstraint(constraintTheory);
+	}
+	
 	public ConstraintTheory getConstraintTheory() {
 		return constraintTheory;
 	}
-
+	
 	@Override
-	public Expression simplify(Expression expression, RewritingProcess process) {
-		return simplifier.apply(expression, process);
+	public	Expression simplify(Expression expression, RewritingProcess process) {
+		return ((SGDPLLT) subSolver).simplify(expression, process);
 	}
 
 	@Override
-	public Expression getRandomInputExpression(
-			String targetType,
-			NullaryFunction<String> getType, Function<String, Expression> getVariable, Function<String, Expression> getConstant) {
-		// TODO Auto-generated method stub
-		return null;
+	public RewritingProcess makeProcess(
+			Constraint constraint,
+			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
+			Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		
+		RewritingProcess result = DPLLUtil.makeProcess(
+						(Constraint2) constraint,
+						mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString,
+						isUniquelyNamedConstantPredicate);
+		return result;
 	}
 }

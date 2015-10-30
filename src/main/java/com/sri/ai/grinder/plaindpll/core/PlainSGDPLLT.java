@@ -69,7 +69,7 @@ import com.sri.ai.util.collect.NestedIterator;
  * @author braz
  *
  */
-public class SGDPLLT extends AbstractPlainDPLLSolver {
+public class PlainSGDPLLT extends AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter {
 	
 	public int debugLevel = 3;
 	
@@ -99,23 +99,23 @@ public class SGDPLLT extends AbstractPlainDPLLSolver {
 	 */
 	public final static boolean earlyExternalizationOfFreeVariableSplittersOptimization = true; // IMPORTANT: unit tests will break if set to false. However DPLL stress tests can still be used. As of this writing (12/4/2014) the false setting was slightly slower.
 	
-	public SGDPLLT(InputTheory inputTheory, GroupProblemType problemType) {
+	public PlainSGDPLLT(InputTheory inputTheory, GroupProblemType problemType) {
 		this(inputTheory, problemType, null);
 	}
 
-	public SGDPLLT(InputTheory inputTheory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
+	public PlainSGDPLLT(InputTheory inputTheory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
 		super(inputTheory, problemType, countsDeclaration);
 	}
 
 	@Override
-	protected Expression solveAfterBookkeepingAndBodyConstraintCheck(Expression expression, Collection<Expression> indices, Constraint1 constraint, RewritingProcess process) {
+	protected Expression solveAfterBookkeepingAndBodyConstraintCheck(Collection<Expression> indices, Constraint1 constraint, Expression body, RewritingProcess process) {
 		
 		long startTime = 0;
 		if (debug(process)) {
 			startTime = System.currentTimeMillis();
 			System.out.println("Solving");
 			System.out.println("level                : " + getLevel(process));	
-			System.out.println("expression           : " + shortString(expression));
+			System.out.println("expression           : " + shortString(body));
 			System.out.println("constraint           : " + constraint);
 			System.out.println("contextual constraint: " + process.getDPLLContextualConstraint());
 			System.out.println("\n");
@@ -125,13 +125,13 @@ public class SGDPLLT extends AbstractPlainDPLLSolver {
 		
 		myAssert(() -> constraint != null, () -> "solve(Expression, Constraint, RewritingProcess) must only be given non-null expressions");
 		
-		Expression splitter = pickSplitter(expression, indices, constraint, process);
+		Expression splitter = pickSplitter(body, indices, constraint, process);
 
 		if (splitter != null) {
-			result = solveBasedOnSplitting(splitter, expression, indices, constraint, process);
+			result = solveBasedOnSplitting(splitter, body, indices, constraint, process);
 		}
 		else {
-			Expression unconditionalValue = normalizeUnconditionalExpression(expression, process);
+			Expression unconditionalValue = normalizeUnconditionalExpression(body, process);
 			Expression numberOfOccurrences = constraint.modelCount(indices, process);
 			result = problemType.addNTimes(unconditionalValue, numberOfOccurrences, process);
 		}
@@ -140,7 +140,7 @@ public class SGDPLLT extends AbstractPlainDPLLSolver {
 			long endTime = System.currentTimeMillis();
 			System.out.println("Solved in " + (endTime - startTime) + " ms");
 			System.out.println("level                : " + getLevel(process));	
-			System.out.println("expression           : " + shortString(expression));
+			System.out.println("expression           : " + shortString(body));
 			System.out.println("constraint           : " + constraint);
 			System.out.println("contextual constraint: " + process.getDPLLContextualConstraint());
 			System.out.println("result               : " + shortString(result));
@@ -355,7 +355,7 @@ public class SGDPLLT extends AbstractPlainDPLLSolver {
 			else {
 				incrementLevel(processUnderSplitter, process);
 				Expression expressionUnderSplitter = simplifyExpressionGivenSplitter(splitterSign, splitter, expression, process);
-				result = solveAfterBookkeeping(expressionUnderSplitter, indices, constraintUnderSplitter, processUnderSplitter);
+				result = solveAfterBookkeeping(indices, constraintUnderSplitter, expressionUnderSplitter, processUnderSplitter);
 				decrementLevel(processUnderSplitter);
 			}
 		}

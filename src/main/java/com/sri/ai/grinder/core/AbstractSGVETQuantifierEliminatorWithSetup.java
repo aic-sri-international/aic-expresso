@@ -57,30 +57,32 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
+import com.sri.ai.grinder.api.Constraint;
+import com.sri.ai.grinder.api.QuantifierEliminator;
+import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Solver;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
-import com.sri.ai.grinder.plaindpll.api.Constraint1;
 import com.sri.ai.grinder.plaindpll.api.SemiRingProblemType;
-import com.sri.ai.grinder.plaindpll.core.AbstractPlainDPLLSolver;
-import com.sri.ai.grinder.plaindpll.core.SGDPLLT;
+import com.sri.ai.grinder.plaindpll.core.AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter;
+import com.sri.ai.grinder.plaindpll.core.PlainSGDPLLT;
 import com.sri.ai.util.base.PairOf;
 
 /**
  * A Variable Elimination algorithm generalized in the same manner
- * {@link SGDPLLT} is generalized from DPLL,
+ * {@link PlainSGDPLLT} is generalized from DPLL,
  * that is, it can produce symbolic answers and it does not need
  * to only solve problems with the operations from its classic version
  * (for the case of VE, sum and product, or max and product).
  * <p>
  * It relies on a partial decomposition of the problem, producing instances
- * to be solved by a {@link SGDPLLT}, in the following manner:
+ * to be solved by a {@link PlainSGDPLLT}, in the following manner:
  * <pre>
  * sum_{i1,...,i_n} prod_j f_j(args_j)
  * =
@@ -90,50 +92,44 @@ import com.sri.ai.util.base.PairOf;
  * <pre>
  * sum_{i_n} prod_{j : args_j contains i_n} f_j(args_j)
  * </pre>
- * with {@link SGDPLLT}.
- * Note that the symbolic capability of {@link SGDPLLT} is crucial here, as
+ * with {@link PlainSGDPLLT}.
+ * Note that the symbolic capability of {@link PlainSGDPLLT} is crucial here, as
  * args_j for the various functions f_j will typically involve other indices which,
  * at the level of the sub-problem, are free variables.
  * <p>
- * This used to be an extension of {@link AbstractPlainDPLLSolver} but was abstracted for reuse by
- * implementations of {@link Solver} that are not extensions of {@link AbstractPlainDPLLSolver};
+ * This used to be an extension of {@link AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter} but was abstracted for reuse by
+ * implementations of {@link QuantifierEliminatorWithSetup} that are not extensions of {@link AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter};
  * it now only concerns itself with implementing ways to do Variable Elimination,
- * without committing to the specifics of {@link AbstractPlainDPLLSolver}.
- * This way, it can be used as an internal field of extensions of {@link AbstractPlainDPLLSolver},
- * but can also be used in the same way by implementations of {@link Solver}
- * that are not extensions of {@link AbstractPlainDPLLSolver} and which choose to implement
+ * without committing to the specifics of {@link AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter}.
+ * This way, it can be used as an internal field of extensions of {@link AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter},
+ * but can also be used in the same way by implementations of {@link QuantifierEliminatorWithSetup}
+ * that are not extensions of {@link AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter} and which choose to implement
  * the remaining functionality of Solver in other ways.
  * This can be seen as a simulated form of multiple inheritance
- * (some classes will inherit from {@link AbstractPlainDPLLSolver} and "inherit" from this class by encapsulated object).
+ * (some classes will inherit from {@link AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter} and "inherit" from this class by encapsulated object).
  * 
  * @author braz
  *
  */
-public abstract class AbstractSGVETFunctionality {
+public abstract class AbstractSGVETQuantifierEliminatorWithSetup implements QuantifierEliminatorWithSetup {
 
-	private Solver subSolver;
-	private SemiRingProblemType problemType;
+	protected QuantifierEliminator subSolver;
+	protected SemiRingProblemType problemType;
 	private boolean debug;
 	
-	public AbstractSGVETFunctionality(Solver subSolver, SemiRingProblemType problemType) {
+	public AbstractSGVETQuantifierEliminatorWithSetup(QuantifierEliminatorWithSetup subSolver, SemiRingProblemType problemType) {
 		this.subSolver = subSolver;
 		this.problemType = problemType;
 	}
 
-	/**
-	 * Indicates whether an expression is a variable in the constraint theory used by this solver.
-	 * @param expression
-	 * @param process
-	 * @return
-	 */
 	public abstract boolean isVariable(Expression subExpression, RewritingProcess process);
 
-	abstract protected Constraint1 makeTrueConstraint(List<Expression> remainingIndices);
-
+	@Override
 	public boolean getDebug() {
 		return debug;
 	}
 	
+	@Override
 	public void setDebug(boolean newValue) {
 		debug = newValue;;
 	}
@@ -142,16 +138,18 @@ public abstract class AbstractSGVETFunctionality {
 		return problemType;
 	}
 	
+	@Override
 	public void interrupt() {
 		subSolver.interrupt();
 	}
 	
-	public Expression solve(Expression expression, Collection<Expression> indices, Constraint1 constraint, RewritingProcess process) {
+	@Override
+	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process) {
 			
 			Expression result;
 			if (getDebug()) {
-				System.out.println("SGVE(T) input: " + expression);	
-				System.out.println("Width        : " + width(expression, process));
+				System.out.println("SGVE(T) input: " + body);	
+				System.out.println("Width        : " + width(body, process));
 			}
 			
 			Partition partition;
@@ -160,7 +158,7 @@ public abstract class AbstractSGVETFunctionality {
 			}
 			else {
 				Expression factoredConditionalsExpression =
-						factoredConditionalsWithAbsorbingElseClause(expression, process);
+						factoredConditionalsWithAbsorbingElseClause(body, process);
 				partition = pickPartition(factoredConditionalsExpression, indices, process);
 			}
 			
@@ -168,7 +166,7 @@ public abstract class AbstractSGVETFunctionality {
 				if (basicOutput) {
 					System.out.println("No partition");	
 				}
-				result = subSolver.solve(indices, constraint, expression, process);
+				result = subSolver.solve(indices, constraint, body, process);
 			}
 			else {
 				Expression indexSubProblemExpression = product(partition.expressionsOnIndexAndNot.first, process);
@@ -196,9 +194,9 @@ public abstract class AbstractSGVETFunctionality {
 				
 				partition.expressionsOnIndexAndNot.second.add(indexSubProblemSolution);
 				Expression remainingSubProblemExpression = product(partition.expressionsOnIndexAndNot.second, process);
-				Constraint1 trueConstraintOnRemainingIndices = makeTrueConstraint(partition.remainingIndices);
-				Constraint1 constraintOnRemainingIndices = trueConstraintOnRemainingIndices; // the constraint is already represented in indexSubProblemSolution
-				result = solve(remainingSubProblemExpression, partition.remainingIndices, constraintOnRemainingIndices, process);
+				Constraint trueConstraintOnRemainingIndices = makeTrueConstraint(partition.remainingIndices);
+				Constraint constraintOnRemainingIndices = trueConstraintOnRemainingIndices; // the constraint is already represented in indexSubProblemSolution
+				result = solve(partition.remainingIndices, constraintOnRemainingIndices, remainingSubProblemExpression, process);
 				result = getProblemType().multiply(result, process);
 			}
 			
@@ -344,5 +342,85 @@ public abstract class AbstractSGVETFunctionality {
 	@Override
 	public String toString() {
 		return "SGVE(T)";
+	}
+	
+	
+	//////////////////// copy of AbstractQuantifierEliminatorWithSetup
+	
+	
+	
+	/**
+	 * Returns a true constraint for a problem with given indices.
+	 * @param indices
+	 * @return
+	 */
+	public abstract Constraint makeTrueConstraint(Collection<Expression> indices);
+	
+	/**
+	 * Local simplification of an expression according to the theory used by this solver.
+	 * @param expression
+	 * @param process
+	 * @return
+	 */
+	public abstract Expression simplify(Expression expression, RewritingProcess process);
+	
+	/**
+	 * Returns the additive identity element of the group used by this solver.
+	 * @return
+	 */
+	@Override
+	public Expression getAdditiveIdentityElement() {
+		return problemType.additiveIdentityElement();
+	}
+	
+	/**
+	 * Makes an appropriate rewriting process with the given data.
+	 * @param constraint
+	 * @param mapFromSymbolNameToTypeName
+	 * @param mapFromTypeNameToSizeString
+	 * @param isUniquelyNamedConstantPredicate
+	 * @return
+	 */
+	public abstract RewritingProcess makeProcess(
+			Constraint constraint,
+			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
+			Predicate<Expression> isUniquelyNamedConstantPredicate);
+
+	/**
+	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
+	 */
+	@Override
+	public Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process) {
+		Constraint constraint = makeTrueConstraint(indices);
+		Expression result = solve(indices, constraint, input, process);
+		return result;
+	}
+
+	/**
+	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
+	 */
+	@Override
+	public Expression solve(
+			Expression expression, Collection<Expression> indices,
+			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
+			Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		
+		RewritingProcess topLevelRewritingProcess =
+				makeProcess(makeTrueConstraint(list()),
+						mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString,
+						isUniquelyNamedConstantPredicate);
+		
+		Expression result = solve(expression, indices, topLevelRewritingProcess);
+		return result;
+	}
+
+	/**
+	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
+	 */
+	@Override
+	public Expression solve(
+			Expression expression, Collection<Expression> indices,
+			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
+		return solve(expression, indices, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, new PrologConstantPredicate());
 	}
 }
