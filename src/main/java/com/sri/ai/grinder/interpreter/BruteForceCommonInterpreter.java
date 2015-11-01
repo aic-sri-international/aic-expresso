@@ -56,6 +56,7 @@ import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.util.collect.StackedHashMap;
@@ -81,16 +82,16 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 	 * Constructs {@link BruteForceCommonInterpreter} with an empty initial assignment and
 	 * <i>not</i> simplifying literals according to contextual constraint.
 	 */
-	public BruteForceCommonInterpreter() {
-		this(map());
+	public BruteForceCommonInterpreter(ConstraintTheory constraintTheory) {
+		this(constraintTheory, map());
 	}
 
 	/**
 	 * Constructs {@link BruteForceCommonInterpreter} with an empty initial assignment and
 	 * <simplifying literals according to contextual constraint.
 	 */
-	public BruteForceCommonInterpreter(boolean simplifyGivenConstraint) {
-		this(map(), simplifyGivenConstraint);
+	public BruteForceCommonInterpreter(ConstraintTheory constraintTheory, boolean simplifyGivenConstraint) {
+		this(constraintTheory, map(), simplifyGivenConstraint);
 	}
 
 	/**
@@ -98,8 +99,8 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 	 * <i>not</i> simplifying literals according to contextual constraint.
 	 * @param assignment
 	 */
-	public BruteForceCommonInterpreter(Map<Expression, Expression> assignment) {
-		this(assignment, false);
+	public BruteForceCommonInterpreter(ConstraintTheory constraintTheory, Map<Expression, Expression> assignment) {
+		this(constraintTheory, assignment, false);
 	}
 	
 	/**
@@ -109,8 +110,8 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 	 * @param assignment
 	 * @param simplifyGivenConstraint
 	 */
-	public BruteForceCommonInterpreter(Map<Expression, Expression> assignment, boolean simplifyGivenConstraint) {
-		super(simplifyGivenConstraint);
+	public BruteForceCommonInterpreter(ConstraintTheory constraintTheory, Map<Expression, Expression> assignment, boolean simplifyGivenConstraint) {
+		super(constraintTheory, simplifyGivenConstraint);
 		this.assignment = assignment;
 	}
 	
@@ -121,7 +122,7 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 	 * @return
 	 */
 	public AbstractInterpreter extendWith(Map<Expression, Expression> extendingAssignment, RewritingProcess process) {
-		return new BruteForceCommonInterpreter(new StackedHashMap<>(extendingAssignment, assignment), simplifyGivenConstraint);
+		return new BruteForceCommonInterpreter(constraintTheory, new StackedHashMap<>(extendingAssignment, assignment), simplifyGivenConstraint);
 	}
 
 	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
@@ -167,9 +168,10 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 	}
 
 	public static void main(String[] args) {
-		AbstractInterpreter interpreter = new BruteForceCommonInterpreter(map(parse("Hurrah"), parse("awesome")), true);
+		EqualityConstraintTheory testingConstraintTheory = new EqualityConstraintTheory();
+		AbstractInterpreter interpreter = new BruteForceCommonInterpreter(testingConstraintTheory, map(parse("Hurrah"), parse("awesome")), true);
 		RewritingProcess process = new DefaultRewritingProcess(null);
-		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory());
+		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(testingConstraintTheory);
 		contextualConstraint = contextualConstraint.conjoin(parse("W != 3"), process);
 		process.putGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
 		process = process.put(new Categorical("Population", 5, arrayList(parse("tom")))); // two pitfalls: immutable process and need for arrayList rather than just list

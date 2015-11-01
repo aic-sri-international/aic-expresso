@@ -99,10 +99,6 @@ public class PlainSGDPLLT extends AbstractPlainDPLLQuantifierEliminatorWithSetup
 	 */
 	public final static boolean earlyExternalizationOfFreeVariableSplittersOptimization = true; // IMPORTANT: unit tests will break if set to false. However DPLL stress tests can still be used. As of this writing (12/4/2014) the false setting was slightly slower.
 	
-	public PlainSGDPLLT(InputTheory inputTheory, GroupProblemType problemType) {
-		this(inputTheory, problemType, null);
-	}
-
 	public PlainSGDPLLT(InputTheory inputTheory, GroupProblemType problemType, CountsDeclaration countsDeclaration) {
 		super(inputTheory, problemType, countsDeclaration);
 	}

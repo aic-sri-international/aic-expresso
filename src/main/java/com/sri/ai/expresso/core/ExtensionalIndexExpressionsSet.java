@@ -104,4 +104,9 @@ public class ExtensionalIndexExpressionsSet implements IndexExpressionsSet {
 		}
 		return newIndexExpressions;
 	}
+	
+	@Override
+	public String toString() {
+		return list.toString();
+	}
 }

@@ -71,7 +71,7 @@ public class SGDPLLTMapReduce extends AbstractPlainDPLLQuantifierEliminatorWithS
 		final Wrapper<Expression> accumulatedSolution = new Wrapper<>(getProblemType().additiveIdentityElement()); // starts with "zero"
 		// Wrapper is used because one cannot use a non-final object inside a closure as seen below.
 		
-		QuantifierEliminatorWithSetup solver = new PlainSGDPLLT(getInputTheory(), getProblemType());
+		QuantifierEliminatorWithSetup solver = new PlainSGDPLLT(getInputTheory(), getProblemType(), null);
 		
 		SGDPLLTParallelizer.Collector collector =
 				(e, i, c, p) -> {

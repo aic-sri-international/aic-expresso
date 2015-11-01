@@ -71,7 +71,7 @@ public class SymbolEqualitySumDPLLTest extends AbstractSymbolicSymbolEqualityDPL
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new Sum());
+		return new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new Sum(), null);
 	}
 
 	@Test

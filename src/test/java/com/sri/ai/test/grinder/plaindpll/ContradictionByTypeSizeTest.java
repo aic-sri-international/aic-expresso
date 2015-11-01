@@ -84,7 +84,7 @@ public class ContradictionByTypeSizeTest extends AbstractSymbolicSymbolEqualityD
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new FunctionalTermTheory())), new ModelCounting());
+		return new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new FunctionalTermTheory())), new ModelCounting(), null);
 	}
 
 	@Test
@@ -96,7 +96,7 @@ public class ContradictionByTypeSizeTest extends AbstractSymbolicSymbolEqualityD
 		Expression expected;
 		Expression result;
 		
-		PlainSGDPLLT solver = new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new Sum());
+		PlainSGDPLLT solver = new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new Sum(), null);
 		
 		expression = parse("if F = bob then 1 else 2");
 		expected   = parse("1");

@@ -71,7 +71,7 @@ public class EqualityOnTermsModelCountingDPLLTest extends AbstractSymbolicSymbol
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new FunctionalTermTheory())), new ModelCounting());
+		return new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new FunctionalTermTheory())), new ModelCounting(), null);
 	}
 
 	@Test

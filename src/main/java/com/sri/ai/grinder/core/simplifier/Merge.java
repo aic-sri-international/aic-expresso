@@ -60,18 +60,32 @@ import com.sri.ai.util.collect.NestedIterator;
 @Beta
 public class Merge  {
 
+	/**
+	 * Iterates over function application simplifiers, <b>going over the {@link MapBasedSimplifier}s first</b>
+	 * to create an effect of overriding.
+	 * @param functionApplicationSimplifiers
+	 * @param simplifiers
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static
 	Iterator<Map<String, Simplifier>>
 	functionApplicationSimplifiersIterator(Map<String, Simplifier> functionApplicationSimplifiers, MapBasedSimplifier... simplifiers) {
-		return new NestedIterator<>(list(functionApplicationSimplifiers), functionApplicationSimplifiersIterator(simplifiers));
+		return new NestedIterator<>(functionApplicationSimplifiersIterator(simplifiers), list(functionApplicationSimplifiers));
 	}
 
+	/**
+	 * Iterates over syntact form type simplifiers, <b>going over the {@link MapBasedSimplifier}s first</b>
+	 * to create an effect of overriding.
+	 * @param syntacticFormTypeSimplifiers
+	 * @param simplifiers
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static
 	Iterator<Map<String, Simplifier>>
 	syntacticFormTypeSimplifiersIterator(Map<String, Simplifier> syntacticFormTypeSimplifiers, MapBasedSimplifier... simplifiers) {
-		return new NestedIterator<>(list(syntacticFormTypeSimplifiers), syntacticFormTypeSimplifiersIterator(simplifiers));
+		return new NestedIterator<>(syntacticFormTypeSimplifiersIterator(simplifiers), list(syntacticFormTypeSimplifiers));
 	}
 
 	public static

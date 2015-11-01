@@ -122,6 +122,7 @@ import com.sri.ai.util.math.Rational;
 @Beta
 public class GrinderUtil {
 
+	public static boolean useSGDPLL2 = false;
 	public static boolean usePlain = true;
 
 	/**

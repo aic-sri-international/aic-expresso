@@ -196,7 +196,7 @@ public class ExpressionConstraint extends AbstractConstraint {
 	private QuantifierEliminatorWithSetup cachedSolver;
 	public QuantifierEliminatorWithSetup getSolver() {
 		if (cachedSolver == null) {
-			cachedSolver = new PlainSGDPLLT(new DefaultInputTheory(theory), new ModelCounting()); 
+			cachedSolver = new PlainSGDPLLT(new DefaultInputTheory(theory), new ModelCounting(), null); 
 		}
 		return cachedSolver;
 	}

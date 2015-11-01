@@ -6,7 +6,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
-import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreter;
+import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
@@ -14,15 +14,21 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 /**
  * An implementation for step solvers based on conditioning on the literals of a given expression.
  * <p>
- * The default operation after conditioning on all literals in the expression
- * is simply to return its value within its context (that is, given
- * the particular sequence of choice for the literals so far).
- * This will create a decision-tree equivalent to the original expression,
- * given the initial contextual constraint.
+ * This step solver either returns a step solution containing an literal in the expression
+ * as of yet not defined by the contextual constraint
+ * or, if that all literals are defined by the contextual constraint,
+ * it simplifies it (thus generating a literal-free expression equivalent to the original
+ * one given the contextual constraint) and returns a step solution containing it.
+ * <p> 
+ * The treatment of the literal-free expression can be extended by
+ * overriding {@link #stepGivenLiteralFreeExpression(Expression, Constraint2, RewritingProcess)},
+ * which is invoked on the literal-free expression, contextual constraint (including the literals conditioning)
+ * and the rewriting process.
+ * Its default (as stated above) is simply returning the given literal-free expression (the leaf).
  * <p>
- * However, this class is also meant to be used by the overriding of
- * {@link #stepGivenLiteralFreeExpression(Expression, Constraint2, RewritingProcess)}
- * for many other possible tasks, one of them being quantifier elimination.
+ * In order to simplify the original expression into one without literals given a contextual constraint,
+ * this class requires that a {@link SimplifierUnderContextualConstraint} be provided
+ * that knows how to simplify the functions appearing the expression.
  * <p>
  * Currently supports only expressions that are composed of function applications or symbols only.
  * 
@@ -50,6 +56,7 @@ public class LiteralConditionerStepSolver implements ContextDependentProblemStep
 			Expression literalFreeExpression,
 			Constraint2 contextualConstraint,
 			RewritingProcess process) {
+		
 		return new Solution(literalFreeExpression);
 	}
 
@@ -108,13 +115,13 @@ public class LiteralConditionerStepSolver implements ContextDependentProblemStep
 	}
 
 	/**
-	 * Simplifies a given expression with a {@link SymbolicCommonInterpreter} using enumeration under given contextual constraint.
+	 * Simplifies a given expression with a {@link SymbolicCommonInterpreterWithLiteralConditioning} using enumeration under given contextual constraint.
 	 * @param expression
 	 * @param contextualConstraint
 	 * @param process
 	 * @return
 	 */
-	public Expression simplifyGivenContextualConstraint(
+	private Expression simplifyGivenContextualConstraint(
 			Expression expression, Constraint2 contextualConstraint, RewritingProcess process) {
 		Expression result = simplifierUnderContextualConstraint.simplifyUnderContextualConstraint(expression, contextualConstraint, process);
 		return result;

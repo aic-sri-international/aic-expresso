@@ -71,7 +71,7 @@ public class SymbolEqualityModelCountingDPLLTest extends AbstractSymbolicSymbolE
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new ModelCounting());
+		return new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new ModelCounting(), null);
 	}
 
 	@Test

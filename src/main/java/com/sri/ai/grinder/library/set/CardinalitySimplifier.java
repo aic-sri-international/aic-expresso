@@ -49,7 +49,7 @@ import com.sri.ai.grinder.library.FunctorConstants;
 
 /**
  * A {@link Simplifier} with a cardinality simplifier
- * (cardinalities (must be registered in rewriting process's global objects as a function application of <code>| . |</code>).)
+ * (cardinalities (must be registered in rewriting process's global objects as a function application of <code>| . |</code>).))
  * 
  * @author braz
  *

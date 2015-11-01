@@ -22,7 +22,7 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  * An abstract implementation for step solvers for quantified expressions
  * (the quantification being based on an associative commutative group's operation).
  * <p>
- * This is done by extending {@link LiteralConditionerStepSolver} based on the body expression,
+ * This is done by applying a {@link LiteralConditionerStepSolver} on the body expression,
  * picking literals in it according to the contextual constraint conjoined with the index constraint,
  * and "intercepting" literals containing the indices and splitting the quantifier
  * based on that, solving the two resulting sub-problems.
@@ -59,18 +59,21 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  *
  */
 @Beta
-public abstract class AbstractQuantifierEliminationStepSolver extends LiteralConditionerStepSolver implements Cloneable {
-
-	private static final String ABSTRACT_QUANTIFIER_STEP_SOLVER_CONTEXTUAL_CONSTRAINT = "AbstractQuantifierStepSolver2_ContextualConstraint";
+public abstract class AbstractQuantifierEliminationStepSolver implements ContextDependentProblemStepSolver, Cloneable {
 
 	private AssociativeCommutativeGroup group;
 	
 	private SingleVariableConstraint indexConstraint;
+
+	private Expression body;
+	
+	private SimplifierUnderContextualConstraint simplifierUnderContextualConstraint;
 	
 	public AbstractQuantifierEliminationStepSolver(AssociativeCommutativeGroup group, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, SingleVariableConstraint indexConstraint, Expression body) {
-		super(body, simplifierUnderContextualConstraint);
 		this.group = group;
 		this.indexConstraint = indexConstraint;
+		this.body = body;
+		this.simplifierUnderContextualConstraint = simplifierUnderContextualConstraint;
 	}
 
 	/**
@@ -135,35 +138,26 @@ public abstract class AbstractQuantifierEliminationStepSolver extends LiteralCon
 			result = new Solution(group.additiveIdentityElement());
 		}
 		else {
-			/**
-			 * We invoke super method with contextualConstraintForBody,
-			 * but we want to have contextualConstraint available if the body expression
-			 * is already literal-free (because then we need to invoke {@link AbstractQuantifierStepSolver#stepgivenLiteralFreeBody(Constraint, SingleVariableConstraint, Expression, RewritingProcess)}.
-			 * The not-very-elegant solution is to "smuggle" it in the process's global objects.
-			 */
-			process.putGlobalObject(ABSTRACT_QUANTIFIER_STEP_SOLVER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
-			SolutionStep superSolutionStep = super.step(contextualConstraintForBody, process);
+			LiteralConditionerStepSolver bodySolver = new LiteralConditionerStepSolver(body, simplifierUnderContextualConstraint);
+			SolutionStep bodyStep = bodySolver.step(contextualConstraintForBody, process);
 			
-			// Now we "intercept" literals containing the index and split the quantifier based on it
-			if (superSolutionStep.itDepends() && isSubExpressionOf(getIndex(), superSolutionStep.getExpression())) {
-				Expression literalOnIndex = superSolutionStep.getExpression();
-				result = resultIfLiteralContainsIndex(contextualConstraint, literalOnIndex, process);
+			if (bodyStep.itDepends()) {
+				// "intercept" literals containing the index and split the quantifier based on it
+				if (isSubExpressionOf(getIndex(), bodyStep.getExpression())) {
+					Expression literalOnIndex = bodyStep.getExpression();
+					result = resultIfLiteralContainsIndex(contextualConstraint, literalOnIndex, process);
+				}
+				else { // not on index, just pass it on
+					result = bodyStep;
+				}
 			}
-			else {
-				result = superSolutionStep;
+			else { // body is already literal free
+				result =
+						eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
+								contextualConstraint, indexConstraint, bodyStep.getExpression(), process);
 			}
 		}
 
-		return result;
-	}
-
-	@Override
-	protected SolutionStep stepGivenLiteralFreeExpression(
-			Expression literalFreeExpression,
-			Constraint2 contextualConstraintForBody,
-			RewritingProcess process) {
-		Constraint2 contextualConstraint = (Constraint2) process.getGlobalObject(ABSTRACT_QUANTIFIER_STEP_SOLVER_CONTEXTUAL_CONSTRAINT);
-		SolutionStep result = eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(contextualConstraint, indexConstraint, literalFreeExpression, process);
 		return result;
 	}
 

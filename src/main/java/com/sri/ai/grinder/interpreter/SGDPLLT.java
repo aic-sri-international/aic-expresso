@@ -210,6 +210,9 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 						solve(contextualConstraint, process);
 			}
 		}
+		else {
+			currentBody = IfThenElse.make(quantifierFreeIndicesCondition, currentBody, group.additiveIdentityElement());
+		}
 		
 		// Normalize final result.
 		currentBody = new LiteralConditionerStepSolver(currentBody, simplifierUnderContextualConstraint).solve(contextualConstraint, process);

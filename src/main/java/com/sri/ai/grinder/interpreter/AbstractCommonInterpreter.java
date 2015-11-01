@@ -37,7 +37,9 @@
  */
 package com.sri.ai.grinder.interpreter;
 
+import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.MAX;
 import static com.sri.ai.grinder.library.FunctorConstants.PRODUCT;
 import static com.sri.ai.grinder.library.FunctorConstants.SUM;
@@ -60,6 +62,7 @@ import com.sri.ai.grinder.plaindpll.group.BooleansWithDisjunctionGroup;
 import com.sri.ai.grinder.plaindpll.group.SymbolicMaxGroup;
 import com.sri.ai.grinder.plaindpll.group.SymbolicPlusGroup;
 import com.sri.ai.grinder.plaindpll.group.SymbolicTimesGroup;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 
 /**
  * An implementation of {@link AbstractInterpreter} re-using {@link CommonSimplifier}
@@ -78,8 +81,8 @@ public abstract class AbstractCommonInterpreter extends AbstractInterpreter {
 	 * Constructs {@link AbstractCommonInterpreter}
 	 * <i>not</i> simplifying literals according to contextual constraint.
 	 */
-	public AbstractCommonInterpreter() {
-		this(false);
+	public AbstractCommonInterpreter(ConstraintTheory constraintTheory) {
+		this(constraintTheory, false);
 	}
 	
 	/**
@@ -88,20 +91,51 @@ public abstract class AbstractCommonInterpreter extends AbstractInterpreter {
 	 * <code>process</code>'s global object under {@link #INTERPRETER_CONTEXTUAL_CONSTRAINT}.
 	 * @param simplifyGivenConstraint
 	 */
-	public AbstractCommonInterpreter(boolean simplifyGivenConstraint) {
-		super(simplifyGivenConstraint);
+	public AbstractCommonInterpreter(ConstraintTheory constraintTheory, boolean simplifyGivenConstraint) {
+		super(constraintTheory, simplifyGivenConstraint);
 	}
 	
 	public Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
 		return map(
-				SUM,     simplifierFor(new SymbolicPlusGroup()),
-				PRODUCT, simplifierFor(new SymbolicTimesGroup()),
-				MAX,     simplifierFor(new SymbolicMaxGroup())
+				SUM,         simplifierFor(new SymbolicPlusGroup()),
+				PRODUCT,     simplifierFor(new SymbolicTimesGroup()),
+				MAX,         simplifierFor(new SymbolicMaxGroup()),
+				CARDINALITY, simplifierCardinality()
 				);
 	}
 
 	private Simplifier simplifierFor(AssociativeCommutativeGroup group) {
-		return (Simplifier) (s, p) -> evaluateAggregateOverIntensionalSet(group,  s, p);
+		return (e, p) -> evaluateAggregateOverIntensionalSet(group, e, p);
+	}
+	
+	private Simplifier simplifierCardinality() {
+		return (e, p) -> {
+			Expression result;
+			if (e.get(0).getSyntacticFormType().equals("Intensional set")) {
+				IntensionalSet set = (IntensionalSet) e.get(0);
+				ExtensionalIndexExpressionsSet indexExpressions =
+						(ExtensionalIndexExpressionsSet) set.getIndexExpressions();
+				Expression simplifiedSetCondition = apply(set.getCondition(), p);
+				result =
+						evaluateAggregateOperation(
+								new SymbolicPlusGroup(),
+								indexExpressions,
+								simplifiedSetCondition,
+								ONE,
+								p);
+			}
+			else { // reproduce the default cardinality simplifier present in CommonSimplifier.
+				Expression cardinality = (Expression) p.getGlobalObject(e);
+				if (cardinality != null) {
+					result = cardinality;
+				}
+				else {
+					result = e;
+				}
+			}
+
+			return result;
+		};
 	}
 
 	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
@@ -112,7 +146,7 @@ public abstract class AbstractCommonInterpreter extends AbstractInterpreter {
 	}
 
 	private Simplifier simplifierForQuantificationOn(AssociativeCommutativeGroup group) {
-		return (Simplifier) (s, p) -> evaluateQuantifiedExpression(s, group, p);
+		return (Simplifier) (e, p) -> evaluateQuantifiedExpression(e, group, p);
 	}
 
 	private Expression evaluateAggregateOverIntensionalSet(

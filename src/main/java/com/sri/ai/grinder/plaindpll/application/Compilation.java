@@ -62,7 +62,7 @@ public class Compilation {
 		GroupProblemType problemType = new Max(); // the problem type actually does not matter, because we are not going to have any indices.
 		
 		// The solver for the parameters above.
-		PlainSGDPLLT solver = new PlainSGDPLLT(inputTheory, problemType);
+		PlainSGDPLLT solver = new PlainSGDPLLT(inputTheory, problemType, null);
 		if (solverListener != null) {
 			solverListener.apply(solver);
 		}

@@ -76,7 +76,7 @@ public class AtomsAndEqualityOnTermsModelCountingDPLLTest extends AbstractSymbol
 	protected Rewriter makeRewriter() {
 		return new PlainSGDPLLT(
 				new DefaultInputTheory(new AtomsOnConstraintTheoryWithEquality(new EqualityConstraintTheory(new FunctionalTermTheory()))),
-				new ModelCounting());
+				new ModelCounting(), null);
 	}
 
 	@Test

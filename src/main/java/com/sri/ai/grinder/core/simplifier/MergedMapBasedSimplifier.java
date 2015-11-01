@@ -55,7 +55,8 @@ import com.sri.ai.grinder.api.Simplifier;
 public class MergedMapBasedSimplifier extends DefaultMapBasedSimplifier {
 	
 	/**
-	 * Creates a simplifiers from the function and syntactic form simplifiers of given simplifiers.
+	 * Creates a simplifiers from the function and syntactic form simplifiers of given simplifiers,
+	 * with the additional ones overriding the ones in the {@link MapBasedSimplifier}s.
 	 * @param additionalFunctionApplicationSimplifiers
 	 * @param additionalSyntacticFormTypeSimplifiers
 	 * @param simplifiers
@@ -68,7 +69,9 @@ public class MergedMapBasedSimplifier extends DefaultMapBasedSimplifier {
 	}
 
 	/**
-	 * Adds function and syntactic form simplifiers to those of given simplifiers.
+	 * Adds function and syntactic form simplifiers to those of given simplifiers,
+	 * with the additional ones overriding the ones in the {@link MapBasedSimplifier}s.
+	 * to create an effect of overriding.
 	 * @param additionalFunctionApplicationSimplifiers
 	 * @param additionalSyntacticFormTypeSimplifiers
 	 * @param simplifiers

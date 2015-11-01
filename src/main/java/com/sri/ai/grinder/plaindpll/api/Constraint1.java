@@ -99,7 +99,7 @@ public interface Constraint1 extends Constraint {
 	 * Leaving it here for now in case it comes up as a convenience.
 	 */
 	default Constraint1 project(Collection<Expression> eliminatedIndices, RewritingProcess process) {
-		QuantifierEliminatorWithSetup projector = new PlainSGDPLLT(new DefaultInputTheory(getConstraintTheory()), new Satisfiability());
+		QuantifierEliminatorWithSetup projector = new PlainSGDPLLT(new DefaultInputTheory(getConstraintTheory()), new Satisfiability(), null);
 		Expression resultExpression = projector.solve(this, eliminatedIndices, process); // this was the motivation for making Constraint implement Expression
 		// note that solvers should be aware that their input or part of their input may be a Constraint, and take advantage of the internal representations already present in them, instead of simply converting them to an Expression and redoing all the work.
 		Collection<Expression> remainingSupportedIndices = Util.subtract(getSupportedIndices(), eliminatedIndices);

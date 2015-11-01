@@ -78,10 +78,10 @@ public class DefaultInputTheory implements InputTheory {
 	public Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
 		return map(
 				ForAll.SYNTACTIC_FORM_TYPE,                             (Simplifier) (f, process) ->
-				(new PlainSGDPLLT(this, new Validity())).rewrite(f, process),
+				(new PlainSGDPLLT(this, new Validity(), null)).rewrite(f, process),
 
 				ThereExists.SYNTACTIC_FORM_TYPE,                        (Simplifier) (f, process) ->
-				(new PlainSGDPLLT(this, new Satisfiability())).rewrite(f, process)
+				(new PlainSGDPLLT(this, new Satisfiability(), null)).rewrite(f, process)
 				);
 	}
 

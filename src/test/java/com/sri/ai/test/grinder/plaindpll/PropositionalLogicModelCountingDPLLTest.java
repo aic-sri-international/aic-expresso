@@ -72,7 +72,7 @@ public class PropositionalLogicModelCountingDPLLTest {
 	}
 
 	protected Rewriter makeRewriter() {
-		return new PlainSGDPLLT(new DefaultInputTheory(new PropositionalConstraintTheory()), new ModelCounting());
+		return new PlainSGDPLLT(new DefaultInputTheory(new PropositionalConstraintTheory()), new ModelCounting(), null);
 	}
 
 	@Test

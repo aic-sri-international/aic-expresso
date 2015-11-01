@@ -43,7 +43,9 @@ import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
 import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
+import static com.sri.ai.util.Util.list;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import com.google.common.annotations.Beta;
@@ -52,6 +54,7 @@ import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
+import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractSingleVariableConstraint;
 import com.sri.ai.util.base.Pair;
@@ -108,8 +111,29 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	
 	@Override
 	public SingleVariableEqualityConstraint conjoinWithLiteral(Expression literal, RewritingProcess process) {
-		SingleVariableEqualityConstraint result = (SingleVariableEqualityConstraint) super.conjoinWithLiteral(literal, process);
+		Collection<Expression> binaryEqualities = breakMultiTermEquality(literal, process);
+		SingleVariableEqualityConstraint result = null; // initial value never used, but compiler does not realize it
+		for (Expression binaryEquality : binaryEqualities) {
+			result = (SingleVariableEqualityConstraint) super.conjoinWithLiteral(binaryEquality, process);
+			if (result == null) {
+				break;
+			}
+		}
 		return result;
+	}
+
+	private Collection<Expression> breakMultiTermEquality(Expression literal, RewritingProcess process) {
+		if (literal.hasFunctor(EQUALITY) && literal.numberOfArguments() > 2) {
+			Collection<Expression> result = list();
+			for (int i = 0; i != literal.numberOfArguments() - 2; i++) {
+				Expression binaryLiteral = Equality.make(literal.get(i), literal.get(i + 1));
+				result.add(binaryLiteral);
+			}
+			return result;
+		}
+		else {
+			return list(literal);
+		}
 	}
 
 	@Override

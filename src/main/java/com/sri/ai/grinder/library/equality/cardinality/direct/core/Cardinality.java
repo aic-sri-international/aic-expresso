@@ -49,6 +49,7 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.helper.Trace;
+import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.ForAll;
 import com.sri.ai.grinder.library.boole.Not;
@@ -80,8 +81,16 @@ import com.sri.ai.grinder.plaindpll.util.SolutionPostProcessing;
 @Beta
 public class Cardinality extends AbstractCardinalityRewriter {
 	
-	private Rewriter plainCardinality = GrinderUtil.usePlain? new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new ModelCounting()) : null;
+	private Rewriter plainCardinality =
+			GrinderUtil.usePlain?
+					new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new ModelCounting(), null) : null;
 
+	private Expression useSGDPLL2(Expression cardinalityOfIndexedFormulaExpression, RewritingProcess process) {
+		SymbolicCommonInterpreterWithLiteralConditioning interpreter = new SymbolicCommonInterpreterWithLiteralConditioning(new com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory());
+		Expression result = interpreter.apply(cardinalityOfIndexedFormulaExpression, process);
+		return result;
+	}
+					
 	private Expression usePlainCardinality(Expression cardinalityOfIndexedFormulaExpression, RewritingProcess process) {
 		Expression result;
 		
@@ -123,7 +132,10 @@ public class Cardinality extends AbstractCardinalityRewriter {
 			CardinalityRewriter.Quantification quantification = CardinalityRewriter.Quantification.getQuantificationForSymbol(quantificationSymbol);
 			cardinalityOfIndexedFormulaExpression = CardinalityUtil.removeIfThenElsesFromFormula(cardinalityOfIndexedFormulaExpression, process);
 			
-			if (GrinderUtil.usePlain) {
+			if (GrinderUtil.useSGDPLL2) {
+				result = useSGDPLL2(cardinalityOfIndexedFormulaExpression, process);
+			}
+			else if (GrinderUtil.usePlain) {
 				result = usePlainCardinality(cardinalityOfIndexedFormulaExpression, process);
 			}
 			else {

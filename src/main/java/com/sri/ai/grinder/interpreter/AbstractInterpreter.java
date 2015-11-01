@@ -39,7 +39,6 @@ package com.sri.ai.grinder.interpreter;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Map;
 
@@ -53,6 +52,8 @@ import com.sri.ai.grinder.core.simplifier.Exhaustive;
 import com.sri.ai.grinder.core.simplifier.MergedMapBasedSimplifier;
 import com.sri.ai.grinder.core.simplifier.Recursive;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 
 /**
@@ -63,6 +64,8 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  * This simplifier is based on the elementary simplifiers provided by abstract methods {@link #makeFunctionApplicationSimplifiers()},
  * the ones provided by {@link #makeSyntacticFormTypeSimplifiers()}, and another {@link MapBasedSimplifier}
  * provided by abstract method {@link #makeAnotherMapBasedSimplifier()}.
+ * The simplifiers in the latter are overridden by the simplifiers in the first two to create
+ * an overriding effect.
  *
  * @author braz
  *
@@ -75,13 +78,15 @@ public abstract class AbstractInterpreter implements MapBasedSimplifier, Simplif
 	private MapBasedSimplifier basicSimplifier;
 	private Simplifier simplifier;
 	protected boolean simplifyGivenConstraint;
+	protected ConstraintTheory constraintTheory;
+	private Constraint2 trueConstraint;
 	
 	/**
 	 * Constructs {@link AbstractInterpreter} with 
 	 * <i>not</i> simplifying literals according to contextual constraint.
 	 */
-	public AbstractInterpreter() {
-		this(false);
+	public AbstractInterpreter(ConstraintTheory constraintTheory) {
+		this(constraintTheory, false);
 	}
 
 	/**
@@ -90,10 +95,12 @@ public abstract class AbstractInterpreter implements MapBasedSimplifier, Simplif
 	 * <code>process</code>'s global object under {@link #INTERPRETER_CONTEXTUAL_CONSTRAINT}.
 	 * @param simplifyGivenConstraint
 	 */
-	public AbstractInterpreter(boolean simplifyGivenConstraint) {
+	public AbstractInterpreter(ConstraintTheory constraintTheory, boolean simplifyGivenConstraint) {
 		this.basicSimplifier = new InternalSimplifier();
 		this.simplifier = new Recursive(new Exhaustive(this.basicSimplifier));
 		this.simplifyGivenConstraint = simplifyGivenConstraint;
+		this.constraintTheory = constraintTheory;
+		this.trueConstraint = new CompleteMultiVariableConstraint(constraintTheory);
 	}
 
 	@Override
@@ -117,13 +124,11 @@ public abstract class AbstractInterpreter implements MapBasedSimplifier, Simplif
 
 		@Override
 		public Expression apply(Expression expression, RewritingProcess process) {
-			myAssert(
-					() -> process.getGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT) != null,
-					() -> this.getClass() + " requires the rewriting process to contain a contextual constraint under global object key " + INTERPRETER_CONTEXTUAL_CONSTRAINT
-					);
-			
 			if (simplifyGivenConstraint) {
 				Constraint2 contextualConstraint = (Constraint2) process.getGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT);
+				if (contextualConstraint == null) {
+					contextualConstraint = trueConstraint;
+				}
 				if (contextualConstraint.getConstraintTheory().isLiteral(expression, process)) {
 					ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, expression, process);
 					switch(split.getResult()) {

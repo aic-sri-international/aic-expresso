@@ -52,7 +52,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreter;
+import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.problemtype.Max;
 import com.sri.ai.grinder.plaindpll.problemtype.Sum;
@@ -85,10 +85,10 @@ public class CompoundConstraintTheoryTest {
 		Expression expected = parse("not Q and P and (X = Y) and (X = a)");
 		assertEquals(expected, constraint);
 		
-		Simplifier interpreter = new SymbolicCommonInterpreter(compound);
+		Simplifier interpreter = new SymbolicCommonInterpreterWithLiteralConditioning(compound);
 		Expression input = parse(
 				"product({{(on X in SomeType) if X = c then 2 else 3 | X = Y and Y = X and P and not Q and P and X != a and X != b}})");
-		process.putGlobalObject(SymbolicCommonInterpreter.INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(compound));
+		process.putGlobalObject(SymbolicCommonInterpreterWithLiteralConditioning.INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(compound));
 		Expression result = interpreter.apply(input, process);
 		System.out.println("Result: " + result);	
 		Expression expectedProduct = parse("if P then if not Q then if Y = c then 2 else if Y != a then if Y != b then 3 else 1 else 1 else 1 else 1");
@@ -143,7 +143,7 @@ public class CompoundConstraintTheoryTest {
 				new Random(),
 				new Sum(),
 				new CompoundConstraintTheory(new EqualityConstraintTheory(), new PropositionalConstraintTheory()),
-				30 /* number of tests */,
+				10 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);
@@ -157,7 +157,7 @@ public class CompoundConstraintTheoryTest {
 				new Random(),
 				new Max(),
 				new CompoundConstraintTheory(new EqualityConstraintTheory(), new PropositionalConstraintTheory()),
-				30 /* number of tests */,
+				10 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);

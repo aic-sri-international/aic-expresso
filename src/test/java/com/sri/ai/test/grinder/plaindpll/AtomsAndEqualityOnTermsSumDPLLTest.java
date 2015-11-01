@@ -76,7 +76,7 @@ public class AtomsAndEqualityOnTermsSumDPLLTest extends AbstractSymbolicSymbolEq
 	protected Rewriter makeRewriter() {
 		return new PlainSGDPLLT(
 				new DefaultInputTheory(new AtomsOnConstraintTheoryWithEquality(new EqualityConstraintTheory(new FunctionalTermTheory()))),
-				new Sum());
+				new Sum(), null);
 	}
 
 	@Test

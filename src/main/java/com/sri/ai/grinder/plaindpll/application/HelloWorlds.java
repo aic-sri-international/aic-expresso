@@ -91,7 +91,7 @@ public class HelloWorlds {
 		Map<String, String> mapFromSymbolNameToTypeName = Util.map("X", "Everything", "Y", "Everything", "Z", "Everything");
 		
 		/* The solver for the parameters above. */
-		PlainSGDPLLT solver = new PlainSGDPLLT(new DefaultInputTheory(theory), problemType);
+		PlainSGDPLLT solver = new PlainSGDPLLT(new DefaultInputTheory(theory), problemType, null);
 		
 		/* Solve the problem. */
 		Expression result = solver.solve(expression, indices, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString);

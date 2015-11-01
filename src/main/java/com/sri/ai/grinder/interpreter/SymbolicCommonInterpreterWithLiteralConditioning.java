@@ -38,98 +38,71 @@
 package com.sri.ai.grinder.interpreter;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.interpreter.SGDPLLT.solve;
 import static com.sri.ai.util.Util.arrayList;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.CommonSimplifier;
-import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.solver.LiteralConditionerStepSolver;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 
 /**
- * An extension of {@link AbstractInterpreter} re-using {@link CommonSimplifier}
- * (provided by {@link #makeAnotherMapBasedSimplifier()},
- * and augmented with symbolic solvers for
- * summations, and universal and existentially quantified formulas.
+ * An extension of {@link SymbolicCommonInterpreter} whose results
+ * are decision trees on its literals.
  *
  * @author braz
  *
  */
 @Beta
-public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
+public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCommonInterpreter {
 
-	private ConstraintTheory constraintTheory;
-	
 	/**
-	 * Constructs {@link SymbolicCommonInterpreter} with a constraint theory and
+	 * Constructs {@link SymbolicCommonInterpreterWithLiteralConditioning} with a constraint theory and
 	 * <i>not</i> simplifying literals according to contextual constraint.
 	 * @param constraintTheory
 	 */
-	public SymbolicCommonInterpreter(ConstraintTheory constraintTheory) {
+	public SymbolicCommonInterpreterWithLiteralConditioning(ConstraintTheory constraintTheory) {
 		this(constraintTheory, false);
 	}
 
 	/**
-	 * Constructs {@link SymbolicCommonInterpreter} with a constraint theory and
+	 * Constructs {@link SymbolicCommonInterpreterWithLiteralConditioning} with a constraint theory and
 	 * setting it to simplify literals according to contextual constraint stored in
 	 * <code>process</code>'s global object under {@link #INTERPRETER_CONTEXTUAL_CONSTRAINT}.
 	 * @param constraintTheory
 	 * @param simplifyGivenConstraint
 	 */
-	public SymbolicCommonInterpreter(ConstraintTheory constraintTheory, boolean simplifyGivenConstraint) {
+	public SymbolicCommonInterpreterWithLiteralConditioning(ConstraintTheory constraintTheory, boolean simplifyGivenConstraint) {
 		super(constraintTheory, simplifyGivenConstraint);
-		this.constraintTheory = constraintTheory;
 	}
 	
-	public ConstraintTheory getConstraintTheory() {
-		return constraintTheory;
-	}
-	
-	@Override
-	protected Expression evaluateAggregateOperation(
-			AssociativeCommutativeGroup group,
-			ExtensionalIndexExpressionsSet indexExpressions,
-			Expression quantifierFreeIndicesCondition,
-			Expression quantifierFreeBody,
-			RewritingProcess process) throws Error {
-
-		Constraint2 contextualConstraint = 
-				simplifyGivenConstraint?
-						(Constraint2) process.getGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT)
-						: new CompleteMultiVariableConstraint(constraintTheory);
-
-		SimplifierUnderContextualConstraint simplifierUnderContextualConstraint =
-				simplifyGivenConstraint?
-						this
-						: new SymbolicCommonInterpreter(constraintTheory, true);
-		
-		Expression result =
-				solve(
-						group,
-						simplifierUnderContextualConstraint,
-						indexExpressions,
-						quantifierFreeIndicesCondition,
-						quantifierFreeBody,
-						contextualConstraint,
-						process);
-		
+	/**
+	 * We override this interpreter to go the extra mile and condition on literals in the
+	 * result of super's interpretation, since we expect a symbolic interpreter
+	 * to condition on the literals in order to make the expression succint.
+	 */
+	@Override public Expression apply(Expression expression, RewritingProcess process) {
+		Expression interpretationResult = super.apply(expression, process);
+		Constraint2 trueConstraint = new CompleteMultiVariableConstraint(getConstraintTheory());
+		SymbolicCommonInterpreter simplifierUnderContextualConstraint =
+				new SymbolicCommonInterpreter(getConstraintTheory(), true /* simplify given constraint */);
+		LiteralConditionerStepSolver stepSolver =
+				new LiteralConditionerStepSolver(interpretationResult, simplifierUnderContextualConstraint);
+		Expression result = stepSolver.solve(trueConstraint, process);
 		return result;
 	}
-
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		AbstractInterpreter interpreter = new SymbolicCommonInterpreter(new EqualityConstraintTheory(), true);
+		AbstractInterpreter interpreter = new SymbolicCommonInterpreterWithLiteralConditioning(new EqualityConstraintTheory(), true);
 		RewritingProcess process = new DefaultRewritingProcess(null);
 		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory());
 		contextualConstraint = contextualConstraint.conjoin(parse("W != 3"), process);

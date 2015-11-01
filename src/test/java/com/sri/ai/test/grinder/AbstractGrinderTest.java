@@ -37,6 +37,8 @@
  */
 package com.sri.ai.test.grinder;
 
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -55,17 +57,21 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Parser;
 import com.sri.ai.expresso.api.SyntaxLeaf;
 import com.sri.ai.expresso.api.SyntaxTree;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.library.Basic;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
 import com.sri.ai.grinder.parser.antlr.AntlrGrinderParserWrapper;
+import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.ui.TreeUtil;
 import com.sri.ai.util.Configuration;
+import com.sri.ai.util.base.Pair;
 import com.sri.ai.util.concurrent.BranchAndMerge;
 
 
@@ -213,25 +219,26 @@ abstract public class AbstractGrinderTest {
 		
 		Expression topExpression;
 		RewritingProcess process;
-		Expression actual;
 		
 		String assertFailed = null;
 		int run = 0;
-		for (int i = begin; i < end; i++) {
-			topExpression = tests[i].getTopExpression();
+		boolean done = false;
+		for (int i = begin; !done && i < end; i++) {
+			TestData test = tests[i];
+			topExpression = test.getTopExpression();
 			process = makeRewritingProcess(topExpression);
 
 			process = GrinderUtil.extendContextualSymbolsWithFreeSymbolsInExpressionwithUnknownTypeForSetUpPurposesOnly(
-					Tuple.make(topExpression, tests[i].contextualConstraint),
+					Tuple.make(topExpression, test.contextualConstraint),
 					process);
 			
-			process = GrinderUtil.extendContextualConstraint(tests[i].contextualConstraint, process);
+			process = GrinderUtil.extendContextualConstraint(test.contextualConstraint, process);
 
-			Expression expectedExpressions = parse(tests[i].expected);
-			Assert.assertNotNull("Unable to parse expected expression: "+tests[i].expected, expectedExpressions);
-			if (tests[i].isIllegalArgumentTest) {
+			Expression expectedExpressions = parse(test.expected);
+			Assert.assertNotNull("Unable to parse expected expression: "+test.expected, expectedExpressions);
+			if (test.isIllegalArgumentTest) {
 				try {
-					actual = tests[i].callRewrite(process);
+					actual = test.callRewrite(process);
 					fail("tests[i]=" + i + ", " + topExpression + " should have thrown an IllegalArgumentException.");
 				} catch (IllegalArgumentException iae) {
 					// ok this is expected
@@ -241,25 +248,10 @@ abstract public class AbstractGrinderTest {
 			}
 			else {
 				System.out.println("tests["+ i +"] rewriting "+topExpression);
-				long startTime = System.currentTimeMillis();
- 				actual = tests[i].callRewrite(process);
-				long rewroteIn = System.currentTimeMillis()-startTime;
-				totalRewriteTime += rewroteIn;
-				System.out.println("tests["+ i +" rewrote in "+(rewroteIn)+"ms]:"+topExpression + "\n--->\n" + actual);
-				boolean succeded = tests[i].expected.equals(IGNORE_EXPECTED) || areEqual(actual, expectedExpressions);
-				
-				if ( !succeded ) {
-					assertFailed = "ERROR tests[i]=" + i + ", " + topExpression 
-							+ "\nexpected=" + tests[i].expected
-							+ "\n but was=" + actual;
-					if (GrinderConfiguration.isWaitUntilUIClosedEnabled()) {					
-						System.err.println(assertFailed);
-					}
-					else {
-						Assert.fail(assertFailed);
-					}
-					break;
-				}
+				Pair<Long, String> timeAndAssertFailed = runRegularTest(test, i, topExpression, expectedExpressions, process);
+				totalRewriteTime += timeAndAssertFailed.first;
+				assertFailed = timeAndAssertFailed.second;
+				done = timeAndAssertFailed.second != null;
 			}
 			run++;
 		}
@@ -274,6 +266,48 @@ abstract public class AbstractGrinderTest {
 			Assert.fail(assertFailed);
 		}
 		return totalRewriteTime;
+	}
+
+	/**
+	 * @param test
+	 * @param i
+	 * @param topExpression
+	 * @param expectedExpression
+	 * @param process
+	 * @return
+	 */
+	private Pair<Long, String> runRegularTest(TestData test, int i, Expression topExpression, Expression expectedExpression, RewritingProcess process) {
+		long startTime = System.currentTimeMillis();
+		Expression actual = test.callRewrite(process);
+		long rewroteIn = System.currentTimeMillis()-startTime;
+		System.out.println("tests["+ i +" rewrote in "+(rewroteIn)+"ms]:"+topExpression + "\n--->\n" + actual);
+		boolean succeded = test.expected.equals(IGNORE_EXPECTED) || areEqual(actual, expectedExpression);
+		if (!succeded) {
+			// not identical expressions, trying for equivalence
+			// It would be more natural to evaluate actual = expected
+			// but the equality theory does not yet support equalities among complex expressions
+			SymbolicCommonInterpreterWithLiteralConditioning interpreter = new SymbolicCommonInterpreterWithLiteralConditioning(new EqualityConstraintTheory());
+			Expression subtraction = Expressions.apply(MINUS, actual, expectedExpression);
+			Expression subtractionResult = interpreter.apply(subtraction, process);
+			if (subtractionResult.equals(ZERO)) {
+				succeded = true;
+			}
+		}
+
+		String message = null;
+		if ( !succeded ) {
+			message = "ERROR tests[i]=" + i + ", " + topExpression 
+					+ "\nexpected=" + test.expected
+					+ "\n but was=" + actual;
+			if (GrinderConfiguration.isWaitUntilUIClosedEnabled()) {					
+				System.err.println(message);
+			}
+			else {
+				Assert.fail(message);
+			}
+		}
+		Pair<Long, String> timeAndAssertFailed = Pair.make(rewroteIn, message);
+		return timeAndAssertFailed;
 	}
 	
 	/**

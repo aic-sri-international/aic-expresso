@@ -71,7 +71,7 @@ public class SymbolEqualityMaxDPLLTest extends AbstractSymbolicSymbolEqualityDPL
 
 	@Override
 	protected Rewriter makeRewriter() {
-		return new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new Max());
+		return new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new Max(), null);
 	}
 
 	@Test

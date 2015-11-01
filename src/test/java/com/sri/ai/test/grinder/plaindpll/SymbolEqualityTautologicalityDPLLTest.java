@@ -209,6 +209,6 @@ public class SymbolEqualityTautologicalityDPLLTest extends AbstractSymbolicSymbo
 
 	@Override
 	protected PlainSGDPLLT makeRewriter() {
-		return new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new Validity());
+		return new PlainSGDPLLT(new DefaultInputTheory(new EqualityConstraintTheory(new SymbolTermTheory())), new Validity(), null);
 	}
 }

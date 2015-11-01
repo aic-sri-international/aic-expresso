@@ -62,7 +62,7 @@ import com.sri.ai.grinder.helper.AssignmentsIterator;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.interpreter.AbstractInterpreter;
 import com.sri.ai.grinder.interpreter.BruteForceCommonInterpreter;
-import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreter;
+import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.library.boole.ThereExists;
 import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
@@ -358,7 +358,7 @@ public class ConstraintTheoryTester {
 			quantifiedFormula = ThereExists.make(IndexExpressions.makeIndexExpression(variable, type), quantifiedFormula);
 		}
 		process.putGlobalObject(AbstractInterpreter.INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(constraintTheory));
-		Expression evaluation = new BruteForceCommonInterpreter().apply(quantifiedFormula, process);
+		Expression evaluation = new BruteForceCommonInterpreter(constraintTheory).apply(quantifiedFormula, process);
 		boolean result = evaluation.equals(TRUE);
 		return result;
 	}
@@ -449,7 +449,7 @@ public class ConstraintTheoryTester {
 	/**
 	 * Given a list of problem types, a constraint theory and a number <code>n</code> of single-variable constraint tests,
 	 * generates <code>n</code> problems with given body depth (number of levels of if then else expressions)
-	 * and checks if {@link SymbolicCommonInterpreter} works (checked by brute force).
+	 * and checks if {@link SymbolicCommonInterpreterWithLiteralConditioning} works (checked by brute force).
 	 * Throws an {@link Error} with the failure description if a test fails.
 	 * @param random
 	 * @param problemTypes
@@ -514,16 +514,16 @@ public class ConstraintTheoryTester {
 			output(problemDescription);
 			
 			ConstraintTheory constraintTheory = singleVariableConstraint.getConstraintTheory();
-			SymbolicCommonInterpreter symbolicInterpreter = new SymbolicCommonInterpreter(constraintTheory);
+			SymbolicCommonInterpreterWithLiteralConditioning symbolicInterpreter = new SymbolicCommonInterpreterWithLiteralConditioning(constraintTheory);
 			CompleteMultiVariableConstraint trueContextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
-			process.putGlobalObject(SymbolicCommonInterpreter.INTERPRETER_CONTEXTUAL_CONSTRAINT, trueContextualConstraint);
+			process.putGlobalObject(SymbolicCommonInterpreterWithLiteralConditioning.INTERPRETER_CONTEXTUAL_CONSTRAINT, trueContextualConstraint);
 			Expression symbolicSolution = symbolicInterpreter.apply(problem, process);
 			output("Symbolic solution: " + symbolicSolution);
 
 			Collection<Expression> freeVariables = getFreeVariableMinusIndex(singleVariableConstraint, body, process);
 			Function<BruteForceCommonInterpreter, Expression> bruteForceGivenFreeVariables = i -> i.apply(problem, process);
 			testSymbolicVsBruteForceComputation(
-					problemDescription, freeVariables, symbolicSolution, bruteForceGivenFreeVariables, process);
+					constraintTheory, problemDescription, freeVariables, symbolicSolution, bruteForceGivenFreeVariables, process);
 			// A more elegant approach would be to create a "for all free variables : symbolic = problem" expression
 			// and solve it by brute force instead of using testSymbolicVsBruteForceComputation
 			// which replicates the brute force interpreter to some extent.
@@ -572,7 +572,9 @@ public class ConstraintTheoryTester {
 			}
 			Collection<Expression> freeVariables = removeFromSetNonDestructively(allVariables, v -> v.equals(testingVariable));
 
-			testSymbolicVsBruteForceComputation(problemDescription, freeVariables, symbolicSolution, fromInterpreterWithAssignmentToBruteForceSolution, process);
+			ConstraintTheory constraintTheory = indexConstraint.getConstraintTheory();
+
+			testSymbolicVsBruteForceComputation(constraintTheory, problemDescription, freeVariables, symbolicSolution, fromInterpreterWithAssignmentToBruteForceSolution, process);
 		}
 	}
 
@@ -587,6 +589,7 @@ public class ConstraintTheoryTester {
 	 * @throws Error
 	 */
 	private static void testSymbolicVsBruteForceComputation(
+			ConstraintTheory constraintTheory,
 			String problemDescription,
 			Collection<Expression> freeVariables,
 			Expression symbolicSolution,
@@ -595,7 +598,7 @@ public class ConstraintTheoryTester {
 		
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(freeVariables, process);
 		for (Map<Expression, Expression> assignment : in(assignmentsIterator)) {
-			BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter(assignment);
+			BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter(constraintTheory, assignment);
 			Expression bruteForceResultUnderAssignment = fromInterpreterWithAssignmentToBruteForceSolution.apply(interpreter);
 			Expression symbolicResultUnderAssignment = interpreter.apply(symbolicSolution, process);
 			output("Under free variables assignment " + assignment);

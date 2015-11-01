@@ -129,7 +129,10 @@ public interface Constraint2 extends Constraint {
 		
 		Constraint2 result;
 	
-		if (formula instanceof Constraint2 || isConjunction(formula)) {
+		if (formula == null) {
+			result = null;
+		}
+		else if (formula instanceof Constraint2 || isConjunction(formula)) {
 			result = conjoinWithConjunctiveClause(formula, process); // for now, all Constraints are conjunctions. This will probably change in the future.
 		}
 		else {
@@ -146,7 +149,8 @@ public interface Constraint2 extends Constraint {
 	 */
 	default boolean isValidConjoinant(Expression formula, RewritingProcess process) {
 		boolean result =
-				formula instanceof Constraint2
+				formula == null
+				|| formula instanceof Constraint2
 				|| getConstraintTheory().isConjunctiveClause(formula, process);
 		return result;
 	}
