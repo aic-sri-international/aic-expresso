@@ -98,9 +98,18 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 	protected Expression evaluateAggregateOperation(
 			AssociativeCommutativeGroup group,
 			ExtensionalIndexExpressionsSet indexExpressions,
-			Expression quantifierFreeIndicesCondition,
-			Expression quantifierFreeBody,
+			Expression indicesConditions,
+			Expression body,
 			RewritingProcess process) throws Error {
+
+		// TODO: OPTIMIZATION: this *severely* slows down the algorithm
+		// we need to organize things so that we do not depend of pre-simplifications like this
+		// but do them once on the fly.
+		Expression quantifierFreeBody = apply(body, process);
+		Expression quantifierFreeIndicesCondition = apply(indicesConditions, process);
+
+//		Expression quantifierFreeBody = body;
+//		Expression quantifierFreeIndicesCondition = indicesConditions;
 
 		Constraint2 contextualConstraint = 
 				simplifyGivenConstraint?
@@ -134,13 +143,14 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory());
 		contextualConstraint = contextualConstraint.conjoin(parse("W != 3"), process);
 		process.putGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
-		process = process.put(new Categorical("Population", 500000, arrayList(parse("tom")))); // two pitfalls: immutable process and need for arrayList rather than just list
-		process = process.put(new Categorical("Numbers", 3, arrayList(parse("1"), parse("2"), parse("3"))));
+		process = process.put(new Categorical("Population", 1000, arrayList(parse("tom")))); // two pitfalls: immutable process and need for arrayList rather than just list
+		process = process.put(new Categorical("Numbers", -1, arrayList(parse("1"), parse("2"), parse("3"))));
 //		Expression expression = parse("there exists X in Numbers : X = 3 and X + 1 = 1 + X");
 //		Expression expression = parse("if for all X in Population : (there exists Y in Population : Y != X and W != 3) then Hurrah else not Hurrah");
 //		Expression expression = parse("there exists Y in Population : Y != tom and W != 3");
-		Expression expression = parse("sum({{(on Y in Population) 2 | for all X in Population : (X = tom) => Y != X and W != 3 and Z != 2}})");
+//		Expression expression = parse("sum({{(on Y in Population) 2 | for all X in Population : (X = tom) => Y != X and W != 3 and Z != 2}})");
 //		Expression expression = parse("sum({{(on Y in Population, Z in Numbers) 2 | Y != tom and Z != 2}})");
+		Expression expression = parse("sum({{(on Y in Population) sum({{(on Z in Numbers) 2 | Z != 2 and Z != 3}}) | Y != tom}})");
 //		Expression expression = parse("sum({{(on Y in Population, Z in Numbers) 2 | (for all X in Population : (X = tom) => Y != X) and W != 3 and Z != 2}})");
 //		Expression expression = parse("product({{(on Y in Population) 2 | Y != tom and W != 3}})");
 //		Expression expression = parse("max({{(on Y in Population) 2 | for all X in Population : (X = tom) => Y != X and W != 3 and Z != 2}})");

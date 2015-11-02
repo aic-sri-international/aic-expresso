@@ -283,15 +283,7 @@ abstract public class AbstractGrinderTest {
 		System.out.println("tests["+ i +" rewrote in "+(rewroteIn)+"ms]:"+topExpression + "\n--->\n" + actual);
 		boolean succeded = test.expected.equals(IGNORE_EXPECTED) || areEqual(actual, expectedExpression);
 		if (!succeded) {
-			// not identical expressions, trying for equivalence
-			// It would be more natural to evaluate actual = expected
-			// but the equality theory does not yet support equalities among complex expressions
-			SymbolicCommonInterpreterWithLiteralConditioning interpreter = new SymbolicCommonInterpreterWithLiteralConditioning(new EqualityConstraintTheory());
-			Expression subtraction = Expressions.apply(MINUS, actual, expectedExpression);
-			Expression subtractionResult = interpreter.apply(subtraction, process);
-			if (subtractionResult.equals(ZERO)) {
-				succeded = true;
-			}
+			succeded = test.testEquivalenceOfNonIdenticalExpressions(expectedExpression, actual, process);
 		}
 
 		String message = null;

@@ -113,6 +113,9 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 				Expression variableDomainCardinality = apply(CARDINALITY, variableDomain);
 				result = Minus.make(variableDomainCardinality, makeSymbol(numberOfNonAvailableValues));
 			}
+			else if (variableDomainSize == -2) {
+				result = makeSymbol("infinity");
+			}
 			else {
 				result = makeSymbol(max(0, variableDomainSize - numberOfNonAvailableValues));
 			}

@@ -35,47 +35,34 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.expresso.api;
-
-import java.util.Iterator;
-import java.util.Random;
+package com.sri.ai.grinder.interpreter;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.grinder.api.Rewriter;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 
 /**
- * Represents the type of expressions.
- * 
+ * A {@link Rewriter} for {@link SGDPLLT}.
+ *
  * @author braz
+ *
  */
 @Beta
-public interface Type {
+public class SGDPLLTRewriter extends AbstractHierarchicalRewriter {
 
-	/** The name of the type -- typically, the string used to describe it in a program. */
-	String getName();
+	private SymbolicCommonInterpreter solver;
 	
-	/**
-	 * Provides an iterator ranging over uniquely named constants for the elements of this type.
-	 * @return
-	 */
-	Iterator<Expression> iterator();
+	public SGDPLLTRewriter(ConstraintTheory constraintTheory) {
+		this.solver = new SymbolicCommonInterpreter(constraintTheory);
+	}
 	
-	/**
-	 * Indicates whether a uniquely named constant represents an element of this type.
-	 * @param uniquelyNamedConstant
-	 * @return
-	 */
-	boolean contains(Expression uniquelyNamedConstant);
-	
-	/**
-	 * Samples one of the type's uniquely named constants.
-	 * This is useful for generating synthetic problems.
-	 * @return
-	 */
-	Expression sampleConstant(Random random);
-	
-	/**
-	 * Returns the number of elements in the type, if finite, or -1 if unknown, or -2 infinite.
-	 * @return
-	 */
-	int size();
+	@Override
+	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		Expression result = solver.apply(expression, process);
+		return result;
+	}
+
 }

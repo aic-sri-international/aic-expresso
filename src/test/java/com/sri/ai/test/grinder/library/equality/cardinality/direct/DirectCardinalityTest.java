@@ -37,6 +37,8 @@
  */
 package com.sri.ai.test.grinder.library.equality.cardinality.direct;
 
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
+import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -54,6 +56,7 @@ import com.sri.ai.grinder.core.ExhaustiveRewriter;
 import com.sri.ai.grinder.core.KindAttribute;
 import com.sri.ai.grinder.core.TotalRewriter;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.library.DirectCardinalityComputationFactory;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.equality.cardinality.CardinalityUtil;
@@ -73,12 +76,36 @@ import com.sri.ai.grinder.library.equality.cardinality.direct.core.SortPair;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.TopImpliedCertainty;
 import com.sri.ai.grinder.library.equality.cardinality.direct.core.WorstCaseNumberOfDisjuncts;
 import com.sri.ai.grinder.library.set.tuple.Tuple;
+import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.test.grinder.AbstractGrinderTest;
 import com.sri.ai.test.grinder.TestData;
 import com.sri.ai.util.Configuration;
 import com.sri.ai.util.base.Pair;
 
 public class DirectCardinalityTest extends AbstractGrinderTest {
+	
+	private static abstract class CardinalityTestData extends TestData {
+
+		public CardinalityTestData(boolean isIllegalArgumentTest, String expected) {
+			super(isIllegalArgumentTest, expected);
+		}
+
+		public CardinalityTestData(boolean isIllegalArgumentTest, Expression contextualConstraint, String expected) {
+			super(isIllegalArgumentTest, contextualConstraint, expected);
+		}
+
+		@Override
+		public boolean testEquivalenceOfNonIdenticalExpressions(Expression expected, Expression actual, RewritingProcess process) {
+			// not identical expressions, trying for equivalence
+			// It would be more natural to evaluate actual = expected
+			// but the equality theory does not yet support equalities among complex expressions
+			SymbolicCommonInterpreterWithLiteralConditioning interpreter = new SymbolicCommonInterpreterWithLiteralConditioning(new EqualityConstraintTheory());
+			Expression subtraction = Expressions.apply(MINUS, actual, expected);
+			Expression subtractionResult = interpreter.apply(subtraction, process);
+			boolean result = subtractionResult.equals(ZERO);
+			return result;
+		}
+	}
 	
 	@Override
 	public RewritingProcess makeRewritingProcess(Expression topExpression) {
@@ -1384,7 +1411,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"there exists X in People : X' != Y and (X' != dave and Y = dave or Y = dave and X' != dave) and not (X' = bob) and X'' != Y' and (X' = X'' and Y = Y' or X' = Y' and Y = X'') and (X'' != X' or Y' != Y)",
 					new CountsDeclaration("X", "10"),
 					/* order normalization: */
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							"(X' != dave) and (Y = dave) and (X' != bob) and (X' = Y') and (X'' = dave)"
 //							"(X' != dave) and (Y = dave) and (X' != bob) and (Y' != dave) and (X' = Y') and (X'' = dave)"
 //							"(Y = dave) and (Y' != dave) and (Y' != bob) and (X' = Y') and (X'' = dave)"
@@ -2183,7 +2210,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | or(and(X != a and X != b), and(X = c, X != c))} |",
 					CardinalityRewriter.Quantification.THERE_EXISTS,
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain? "8" : "10"),
+					GrinderUtil.usePlainSGDPLLT? "8" : "10"),
 			new Cardinality1DisjunctionData(false,
 					"| {(on X) tuple(X) | or(and(X != a and X != b))} |",
 					CardinalityRewriter.Quantification.FOR_ALL,
@@ -2301,7 +2328,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | or(and(X != a, X != Y), and(X != a, X != Z))} |",
 					CardinalityRewriter.Quantification.NONE,
 					new CountsDeclaration(2),
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							  "if Y = a then 1 else if Z = a then 1 else 0"
 							  : "anyof("+ // These seem to be incorrect:
 							  "(if Y = a then 1 else (if Z = a then 1 else (if Y = Z then 0 else 1))),"+
@@ -2475,7 +2502,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 	
 	@Test
 	public void testCardinalityImplication() {
-		class CardinalityImplicationData extends TestData {
+		class CardinalityImplicationData extends CardinalityTestData {
 			private String                      E;
 			private Expression                  exprE;
 			private CardinalityRewriter.Quantification quantification    = null;
@@ -2527,7 +2554,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | (X = a) => (Y != b) } |",
 					CardinalityRewriter.Quantification.FOR_ALL,
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain? "if Y = b then 9 else 10" : "if Y = b then 0 else 10"),
+					GrinderUtil.usePlainSGDPLLT? "if Y = b then 9 else 10" : "if Y = b then 0 else 10"),
 				new CardinalityImplicationData(false,
 					"| {(on X) tuple(X) | (X = b) => (X != a) } |",
 					new CountsDeclaration(10),
@@ -2540,7 +2567,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | (X = a) => (Y != b) } |",
 					CardinalityRewriter.Quantification.THERE_EXISTS,
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain? "if Y = b then 9 else 10" : "10"),
+					GrinderUtil.usePlainSGDPLLT? "if Y = b then 9 else 10" : "10"),
 				new CardinalityImplicationData(false,
 					"| {(on X) tuple(X) | (X = a) => (X != b) } |",
 					new CountsDeclaration(10),
@@ -2607,12 +2634,12 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | (X = a) <=> (Y != b) } |",
 					CardinalityRewriter.Quantification.THERE_EXISTS,
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain? "if Y = b then 9 else 1" : "anyof( 10, if Y = b then 10 else 1 )"),
+					GrinderUtil.usePlainSGDPLLT? "if Y = b then 9 else 1" : "anyof( 10, if Y = b then 10 else 1 )"),
 				new CardinalityEquivalenceData(false,
 					"| {(on X) tuple(X) | (X = a) <=> (Y != b) } |",
 					CardinalityRewriter.Quantification.FOR_ALL,
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain? "if Y = b then 9 else 1"
+					GrinderUtil.usePlainSGDPLLT? "if Y = b then 9 else 1"
 							: "anyof( 0, if Y = b then 0 else 1 )"),
 			};
 		perform(tests);
@@ -2842,7 +2869,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | X != a and Y = a } |",
 					CardinalityRewriter.Quantification.FOR_ALL,
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							"if Y = a then 9 else 0" // PlainCardinalityDPLL computes exact cardinality
 							: "0"),
 			// #21:
@@ -2850,7 +2877,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | X != a and Y != a and Y != b} |",
 					CardinalityRewriter.Quantification.FOR_ALL,
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							"if Y != a and Y != b then 9 else 0" // PlainCardinalityDPLL computes exact cardinality
 							: "0"),
 			//
@@ -2879,7 +2906,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | X != a and Y = a } |",
 					CardinalityRewriter.Quantification.THERE_EXISTS,
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							"if Y = a then 9 else 0" // PlainCardinalityDPLL computes exact cardinality
 							: "if Y = a then 10 else 0"),
 			// #27:
@@ -2887,7 +2914,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | X != a and Y != a and Y != b} |",
 					CardinalityRewriter.Quantification.THERE_EXISTS,
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							"if (Y != a and Y != b) then 9 else 0" // PlainCardinalityDPLL computes exact cardinality
 							: "if (Y != a and Y != b) then 10 else 0"),
 			//
@@ -2976,14 +3003,14 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | and(and(X != a, X != b)) } |",
 					CardinalityRewriter.Quantification.FOR_ALL,
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							"8" // PlainCardinalityDPLL computes exact cardinality
 							: "0"),
 			new Cardinality1ConjunctionData(false,
 					"| {(on X) tuple(X) | and(and(X != a, X != b)) } |",
 					CardinalityRewriter.Quantification.THERE_EXISTS,
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							"8" // PlainCardinalityDPLL computes exact cardinality
 							: "10"),
 			new Cardinality1ConjunctionData(false,
@@ -3134,7 +3161,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | and(X != a, X != b) } |",
 					CardinalityRewriter.Quantification.THERE_EXISTS,
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain? "8" : "10"),
+					GrinderUtil.usePlainSGDPLLT? "8" : "10"),
 			new Cardinality1Data(false,
 					"| {(on X) tuple(X) | X = a } |",
 					CardinalityRewriter.Quantification.FOR_ALL,
@@ -3144,7 +3171,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | and(X != a, X != b) } |",
 					CardinalityRewriter.Quantification.FOR_ALL,
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain? "8" : "0"),
+					GrinderUtil.usePlainSGDPLLT? "8" : "0"),
 			//
 			// Basic: if F is disjunction F1 or F2
 				// OF INTEREST FOR TOP_SIMPLIFY
@@ -3157,12 +3184,12 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | or(X != a, X = b) } |",
 					CardinalityRewriter.Quantification.THERE_EXISTS,
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain? "9" : "10"),
+					GrinderUtil.usePlainSGDPLLT? "9" : "10"),
 			new Cardinality1Data(false,
 					"| {(on X) tuple(X) | or(X != a, X = b) } |",
 					CardinalityRewriter.Quantification.FOR_ALL,
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain? "9" : "0"),
+					GrinderUtil.usePlainSGDPLLT? "9" : "0"),
 			//
 			// Basic: if F is "not G"
 			new Cardinality1Data(false,
@@ -3179,7 +3206,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | not(X = a) } |",
 					CardinalityRewriter.Quantification.THERE_EXISTS,
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain? "9" : "10"),
+					GrinderUtil.usePlainSGDPLLT? "9" : "10"),
 			new Cardinality1Data(false,
 					"| {(on X) tuple(X) | not(X != a) } |",
 					CardinalityRewriter.Quantification.THERE_EXISTS,
@@ -3189,7 +3216,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | not(X = a) } |",
 					CardinalityRewriter.Quantification.FOR_ALL,
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain? "9" : "0"),
+					GrinderUtil.usePlainSGDPLLT? "9" : "0"),
 			new Cardinality1Data(false,
 					"| {(on X) tuple(X) | not(X != a) } |",
 					CardinalityRewriter.Quantification.FOR_ALL,
@@ -3396,7 +3423,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 	
 	@Test
 	public void testEqualityInConjunction() {
-		class EqualityInConjunctionData extends TestData {
+		class EqualityInConjunctionData extends CardinalityTestData {
 			private String E;
 			private Expression exprE;
 			private CountsDeclaration countsDeclaration = null;
@@ -3426,7 +3453,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 				return result;
 			}
 		}
-		
+
 		TestData[] tests = new TestData[] {
 			//
 			// Basic: trivial cases
@@ -3734,7 +3761,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on Z) tuple(Z) | X != a and X != Y and Z != Y and Z != b } |",
 					new CountsDeclaration("Z", "10", "X", "10", "Y", "10"),
 					// "if X != a and X != Y then if Y = b then | type(Z) - {b} | else | type(Z) - {b,Y} | else 0"
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							"(if X = a then 0 else if X = Y then 0 else if Y = b then | type(Z) | - 1 else | type(Z) | - 2, if X = a then 0 else if X = Y then 0 else if Y = b then 9 else 8)"
 //							  "(if X = a then 0 else if Y = a then | type(Z) | - 2 else if X = Y then 0 else if Y = b then | type(Z) | - 1 else | type(Z) | - 2, if X = a then 0 else if Y = a then 8 else if X = Y then 0 else if Y = b then 9 else 8)"
 							: "(if (X != a) and (X != Y) then if Y = b then | type(Z) | - 1 else | type(Z) | - 2 else 0, if (X != a) and (X != Y) then if Y = b then 9 else 8 else 0)"),
@@ -3819,7 +3846,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					// "|{{(on Y) 5 | X!=Y and Y!=Z and Y!=A}}|"
 					"| {(on Y) tuple(Y) |  X != Y and Y != Z and Y != A } |",
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							//"(if X = Z then if Z = A then | type(Y) | - 1 else | type(Y) | - 2 else if X = A then | type(Y) | - 2 else if Z = A then | type(Y) | - 2 else | type(Y) | - 3, if X = Z then if Z = A then 9 else 8 else if X = A then 8 else if Z = A then 8 else 7)"  
 							  "(if Z = X then if A = X then | type(Y) | - 1 else | type(Y) | - 2 else if A = X then | type(Y) | - 2 else if A = Z then | type(Y) | - 2 else | type(Y) | - 3, if Z = X then if A = X then 9 else 8 else if A = X then 8 else if A = Z then 8 else 7)"
 							: "(if (X = Z) or (X = A) then if Z = A then | type(Y) | - 1 else | type(Y) | - 2 else if Z = A then | type(Y) | - 2 else | type(Y) | - 3, if (X = Z) or (X = A) then if Z = A then 9 else 8 else if Z = A then 8 else 7)"),
@@ -3849,7 +3876,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) |  for all Y: X = Y } |",
 					new CountsDeclaration("X", "10", "Y", "10"),
 					// "if |type(Y)| <= 1 then |People| else 0"
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 					  "(0,0)" // uses GrinderConfiguration.isAssumeDomainsAlwaysLarge() to conclude that | type(Y) | > 1, as it should
 					: "( (if | type(Y) | = 1 then | type(X) | else 0), 0 )"),
 			new CardinalityData(false,
@@ -3857,7 +3884,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) |  for all Y: X = Y } |",
 					new CountsDeclaration("X", "10", "Y", "1"),
 					// "if |type(Y)| <= 1 then |People| else 0"
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							  "(0,"  // uses GrinderConfiguration.isAssumeDomainsAlwaysLarge() to conclude that | type(Y) | > 1, as it should
 							  + "10)"
 							: "( (if | type(Y) | = 1 then | type(X) | else 0), 10 )"),
@@ -3901,7 +3928,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					new CountsDeclaration("X", "10", "Y", "3", "Z", "2"),
 					// "if | type(Y) | > 1 then | People | else 0"
 					// Note: first result looks wrong but is ok as we are working with ASSUME_DOMAIN_ALWAYS_LARGE assumption
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							  "(|type(X)|,"  // uses GrinderConfiguration.isAssumeDomainsAlwaysLarge() to conclude that | type(Y) | > 0, as it should
 							  + "10)"
 							: "( (if | type(Y) | > 0 then | type(X) | else 0), 10 )"),
@@ -3910,7 +3937,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | there exists Y : there exists Z: X != Y and Y = Z } |",
 					new CountsDeclaration("X", "10", "Y", "1", "Z", "2"),
 					// "if | type(Y) | > 1 then | People | else 0"
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							  "(|type(X)|,"  // uses GrinderConfiguration.isAssumeDomainsAlwaysLarge() to conclude that | type(Y) | > 0, as it should
 							  + "0)"
 					// Note: first result looks wrong but is ok as we are working with ASSUME_DOMAIN_ALWAYS_LARGE assumption
@@ -3948,7 +3975,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | there exists Y : X != Y and Y != Z } |",
 					new CountsDeclaration("X", "10", "Y", "3", "Z", "1"),
 					// "if X = Z then if | type(Y) | > 1 then | People | else 0 else if | type(Y) | > 2 then | People | else 0"
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							  "(|type(X)|,"  // uses GrinderConfiguration.isAssumeDomainsAlwaysLarge() to conclude that | type(Y) | > 0, as it should
 							  + "10)"
 							  // Note: first result looks wrong but is ok as we are working with ASSUME_DOMAIN_ALWAYS_LARGE assumption
@@ -3958,7 +3985,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | there exists Y : X != Y and Y != Z } |",
 					new CountsDeclaration("X", "10", "Y", "2", "Z", "1"),
 					// "if X = Z then if | type(Y) | > 1 then | People | else 0 else if | type(Y) | > 2 then | People | else 0"
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							  "(|type(X)|,"  // uses GrinderConfiguration.isAssumeDomainsAlwaysLarge() to conclude that | type(Y) | > 0, as it should
 							  + "anyof(1,10))" // tricky example: for there to exist a Y, Z and X must be same value, because type(Y) has only two elements. DIFFERENT SOLVERS WILL PRODUCE DIFFERENT RESULTS BECAUSE THE PROBLEM DOES NOT FOLLOW THE REQUIRED ASSUMPTIONS! It is still a useful test to have around
 							: 					// Note: first result looks wrong but is ok as we are working with ASSUME_DOMAIN_ALWAYS_LARGE assumption
@@ -3968,7 +3995,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) | there exists Y : X != Y and Y != Z } |",
 					new CountsDeclaration("X", "10", "Y", "1", "Z", "1"),
 					// "if X = Z then if | type(Y) | > 1 then | People | else 0 else if | type(Y) | > 2 then | People | else 0"
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							  "(|type(X)|,"  // uses GrinderConfiguration.isAssumeDomainsAlwaysLarge() to conclude that | type(Y) | > 0, as it should
 							  + "0)"
 							: 					// Note: first result looks wrong but is ok as we are working with ASSUME_DOMAIN_ALWAYS_LARGE assumption
@@ -4071,7 +4098,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					"| {(on X) tuple(X) |there exists Y : X != Y } |",
 					new CountsDeclaration("X", "11", "Y", "2"),
 					// "if |type(Y)| > 1 then |People| else 0
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							  "(|type(X)|," // uses GrinderConfiguration.isAssumeDomainsAlwaysLarge() to conclude that | type(Y) | > 0, as it should
 							  + "11)"
 					// Note: first result looks wrong but is ok as we are working with ASSUME_DOMAIN_ALWAYS_LARGE assumption
@@ -4080,7 +4107,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			new CardinalityData(false,
 					"| {(on X, Y, Z) tuple(X, Y, Z) | X!=a and Y!=b and Z!=W and Y!=X and X!=Z } |",
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain? // TODO: not sure if answers are equivalent
+					GrinderUtil.usePlainSGDPLLT? // TODO: not sure if answers are equivalent
 							  //"(if W = b then (| type(Y) | - 1) * (| type(Z) | - 1) + | type(X) | + -2 + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 4) * (| type(Y) | - 3) * (| type(Z) | - 2) else if W = a then (| type(Y) | - 1) * (| type(Z) | - 2) + | type(X) | + -2 + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 4) * (| type(Y) | - 3) * (| type(Z) | - 2) else (| type(Y) | - 1) * (| type(Z) | - 2) + | type(X) | + -4 + (| type(X) | - 3) * (| type(Y) | - 2) + | type(X) | + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 4) * (| type(Z) | - 3) + (| type(X) | - 3) * (| type(Z) | - 3) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 4) * (| type(Y) | - 4) * (| type(Z) | - 3), if W = b then 593 else if W = a then 584 else 592)"
 							  //"(if W = a then (| type(X) | - 2) * (| type(Z) | - 1) + (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Y) | - 3) * (| type(Z) | - 2) else if W = b then | type(X) | + -1 + (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 2) * (| type(Y) | - 2) + (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 3) * (| type(Z) | - 2) else | type(X) | + -1 + (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 2) * (| type(Y) | - 2) + (| type(X) | - 2) * (| type(Z) | - 3) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Y) | - 3) * (| type(Z) | - 3), if W = a then 584 else if W = b then 593 else 592)"
 							    "(  if W = a then (| type(X) | - 2) * (| type(Z) | - 1) + (| type(X) | - 2) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Y) | - 3) * (| type(Z) | - 2) else if W = b then | type(X) | + -1 + (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 2) * (| type(Y) | - 2) + (| type(X) | - 2) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Y) | - 3) * (| type(Z) | - 2) else | type(X) | + -1 + (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 2) * (| type(Y) | - 2) + (| type(X) | - 2) * (| type(Y) | - 3) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Y) | - 3) * (| type(Z) | - 3), if W = a then 584 else if W = b then 593 else 592)"
@@ -4090,7 +4117,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			new CardinalityData(false,
 					"| { (on X, Y, Z) tuple(X, Y, Z) |  X != a and X != V and X != Y and Y != Z and X != Z } |",
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							//"(if V = a then (| type(X) | - 2) * (| type(Z) | - 1) + (| type(X) | - 2) * (| type(Y) | - 1) + (| type(X) | - 3) * (| type(Y) | - 2) * (| type(Z) | - 1) else | type(X) | + -4 + (| type(X) | - 3) * (| type(Z) | - 2) + | type(X) | + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 4) * (| type(Y) | - 3) * (| type(Z) | - 2), if V = a then 648 else 576)"
 							"(if V = a then (| type(X) | - 2) * (| type(Z) | - 1) + (| type(X) | - 2) * (| type(Y) | - 1) + (| type(X) | - 3) * (| type(Y) | - 2) * (| type(Z) | - 1) else | type(X) | + -4 + (| type(X) | - 3) * (| type(Z) | - 2) + | type(X) | + (| type(X) | - 3) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 4) * (| type(Y) | - 3) * (| type(Z) | - 2), if V = a then 648 else 576)"
 							: "( (if V = a then (| type(X) | - 1) * (| type(Y) | - 1) * (| type(Z) | - 2) else (| type(X) | - 2) * (| type(Y) | - 1) * (| type(Z) | - 2)), (if V = a then 648 else 576) )"),
@@ -4098,7 +4125,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			new CardinalityData(false,
 					"| { (on X, Y, Z) tuple(X, Y, Z) |  X != a and X != V and X != Y and Y != Z and Y != b and Z != v } |",
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							//"(if V = a then (| type(X) | - 1) * (| type(Z) | - 2) + (| type(X) | - 2) * (| type(Y) | - 2) + (| type(X) | - 2) * (| type(Y) | - 2) + (| type(X) | - 2) * (| type(Y) | - 3) * (| type(Z) | - 3) else if V = v then (| type(X) | - 2) * (| type(Z) | - 1) + (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 3) * (| type(Y) | - 4) * (| type(Z) | - 3) else if V = b then (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Y) | - 3) * (| type(Z) | - 3) else (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 3) * (| type(Y) | - 4) * (| type(Z) | - 4), if V = a then 592 else if V = v then 528 else if V = b then 519 else 527)"
 							"(if V = a then (| type(X) | - 1) * (| type(Z) | - 2) + (| type(X) | - 2) * (| type(Y) | - 2) + (| type(X) | - 2) * (| type(Y) | - 2) + (| type(X) | - 2) * (| type(Y) | - 3) * (| type(Z) | - 3) else if V = v then (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 2) * (| type(Z) | - 1) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 3) * (| type(Y) | - 4) * (| type(Z) | - 3) else if V = b then (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Y) | - 3) * (| type(Z) | - 3) else (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 3) * (| type(Y) | - 4) * (| type(Z) | - 4), if V = a then 592 else if V = v then 528 else if V = b then 519 else 527)"
 							//"(if V = a then (| type(X) | - 1) * (| type(Z) | - 2) + (| type(X) | - 2) * (| type(Y) | - 2) + (| type(X) | - 2) * (| type(Y) | - 2) + (| type(X) | - 2) * (| type(Y) | - 3) * (| type(Z) | - 3) else if V = v then (| type(X) | - 2) * (| type(Z) | - 1) + (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 3) * (| type(Y) | - 4) * (| type(Z) | - 3) else if V = b then (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Y) | - 2) + (| type(X) | - 3) * (| type(Y) | - 3) * (| type(Z) | - 3) else (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 2) * (| type(Z) | - 2) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 3) * (| type(Y) | - 3) + (| type(X) | - 3) * (| type(Y) | - 4) * (| type(Z) | - 4), if V = a then 592 else if V = v then 528 else if V = b then 519 else 527)"
@@ -4112,7 +4139,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			new CardinalityData(false,
 					"| { (on X, Y) tuple(X, Y) |  X != a and ( X = Z <=> Y != b ) and Y != X } |",
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							"(if Z = b then | type(Y) | + -3 + | type(X) | else if Z = a then | type(X) | - 2 else | type(Y) | + -5 + | type(X) |, if Z = b then 17 else if Z = a then 8 else 15)"
 							//"(if Z = b then | type(Y) | + -4 + | type(X) | else if Z = a then | type(X) | - 2 else | type(Y) | + -5 + | type(X) |, if Z = b then 16 else if Z = a then 8 else 15)"
 							  //"(if Z = a then | type(X) | - 2 else if Z = b then | type(Y) | + -3 + | type(X) | else | type(Y) | + -5 + | type(X) |, if Z = a then 8 else if Z = b then 17 else 15)"
@@ -4125,7 +4152,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 					new CountsDeclaration("X", "11", "Y", "1"),
 					// "if |type(Y)| > 1 then |People| else 0
 					// Note: first result looks wrong but is ok as we are working with ASSUME_DOMAIN_ALWAYS_LARGE assumption
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							  "(|type(X)|," // uses GrinderConfiguration.isAssumeDomainsAlwaysLarge() to conclude that | type(Y) | > 0, as it should
 							  + "0)"
 					// Note: first result looks wrong but is ok as we are working with ASSUME_DOMAIN_ALWAYS_LARGE assumption
@@ -4133,7 +4160,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			new CardinalityData(false,
 					"| {(on X, Y, Z, V) tuple(X, Y, Z, V) | X != Y and W != X and Z != V and X'=Y'} |",
 					new CountsDeclaration(10),
-					GrinderUtil.usePlain?
+					GrinderUtil.usePlainSGDPLLT?
 							  "(if X' = Y' then (| type(X) | - 1) * | type(Z) | * (| type(V) | - 1) + (| type(X) | - 2) * (| type(Y) | - 1) * | type(Z) | * (| type(V) | - 1) else 0, if X' = Y' then 7290 else 0)"
 							: "( anyof( (if X' = Y' then (| type(X) | - 1) * (| type(Y) | - 1) * | type(V) | * (| type(Z) | - 1) else 0), " +
 					"(if X' = Y' then (| type(X) | - 1 + (| type(Y) | - 1) * (| type(X) | - 2)) * | type(V) | * (| type(Z) | - 1) else 0), " +
@@ -4198,7 +4225,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 	
 	@Test
 	public void testCardinalityKnownSizesRequired() {
-		class KnownCardinalityData extends TestData {
+		class KnownCardinalityData extends CardinalityTestData {
 			private String E;
 			private Expression exprE;
 			private CountsDeclaration countsDeclaration = null;

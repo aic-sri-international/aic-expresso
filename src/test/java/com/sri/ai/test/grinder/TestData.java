@@ -59,4 +59,15 @@ public abstract class TestData {
 	public abstract Expression getTopExpression();
 	
 	public abstract Expression callRewrite(RewritingProcess process);
+
+	/**
+	 * Decides equivalence of expected and actual expressions, with default returning false.
+	 * @param expected
+	 * @param actual
+	 * @param process
+	 * @return
+	 */
+	public boolean testEquivalenceOfNonIdenticalExpressions(Expression expected, Expression actual, RewritingProcess process) {
+		return false;
+	}
 }

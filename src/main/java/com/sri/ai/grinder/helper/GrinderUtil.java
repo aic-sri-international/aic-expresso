@@ -122,8 +122,7 @@ import com.sri.ai.util.math.Rational;
 @Beta
 public class GrinderUtil {
 
-	public static boolean useSGDPLL2 = false;
-	public static boolean usePlain = true;
+	public static boolean usePlainSGDPLLT = true;
 
 	/**
 	 * The key of a global object of rewriting processes that prevents the check again free variables in additional constraints
@@ -1243,6 +1242,7 @@ public class GrinderUtil {
 	 * or, failing that, to look for <code>| Type |</code>, for <code>Type</code> the type of the variable,
 	 * in the process global objects.
 	 * If the size cannot be determined, returns -1.
+	 * If the size is infinite, returns -2.
 	 * @param symbol a variable
 	 * @param process the rewriting process
 	 * @return the cardinality of the type of the variable according to the process or -1 if it cannot be determined.
@@ -1270,6 +1270,17 @@ public class GrinderUtil {
 				Expression typeCardinalityValue = (Expression) process.getGlobalObject(typeCardinality);
 				if (typeCardinalityValue != null) {
 					result = typeCardinalityValue.intValueExact();
+				}
+			}
+		}
+		
+		// If that didn't work, we try find the Type object:
+		if (result == -1) {
+			Expression variableType = process.getContextualSymbolType(symbol);
+			if (variableType != null) {
+				Type type = process.getType(variableType.toString());
+				if (type != null) {
+					result = type.size(); // includes possibility of -2
 				}
 			}
 		}

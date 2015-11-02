@@ -94,7 +94,8 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 		SingleVariableEqualityConstraint result = this;
 		if (!sign && process.isUniquelyNamedConstant(atom.get(1))) {
 			numberOfDisequalitiesFromConstantsSeenSoFar++;
-			if (numberOfDisequalitiesFromConstantsSeenSoFar == getVariableDomainSize(process)) {
+			long variableDomainSize = getVariableDomainSize(process);
+			if (variableDomainSize >= 0 && numberOfDisequalitiesFromConstantsSeenSoFar == variableDomainSize) {
 				result = null;
 			}
 		}

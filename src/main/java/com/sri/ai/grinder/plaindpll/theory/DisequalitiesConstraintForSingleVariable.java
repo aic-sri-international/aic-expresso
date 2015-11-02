@@ -194,7 +194,8 @@ public class DisequalitiesConstraintForSingleVariable extends AbstractNonEqualit
 
 	@Override
 	public Expression normalizeSplitterGivenConstraint(Expression splitter, RewritingProcess process) {
-		myAssert(() -> splitter.hasFunctor(EQUALITY), () -> getClass() + " may only receive equality splitters.");
+		myAssert(() -> splitter.hasFunctor(EQUALITY), () -> 
+		getClass() + " may only receive equality splitters.");
 		
 		Expression result;
 		

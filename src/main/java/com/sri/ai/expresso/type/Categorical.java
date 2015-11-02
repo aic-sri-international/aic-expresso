@@ -69,12 +69,12 @@ public class Categorical implements Type {
 	 * unknown constants, if requested, as named "<name>-1", ... "<name>-n",
 	 * where name is the lower-case version of given name, and n is cardinality minus number of known constants.
 	 * @param name
-	 * @param cardinality
+	 * @param cardinality number of elements in type (-1 if unknown, -2 if infinite)
 	 * @param knownConstants
 	 */
 	public Categorical(String name, int cardinality, ArrayList<Expression> knownConstants) {
 		myAssert(
-				() -> knownConstants.size() <= cardinality,
+				() -> cardinality == -1 || cardinality == -2 || knownConstants.size() <= cardinality,
 				() -> "Cardinality of " + name + " is declared to be less than number of known uniquely named constants");
 		this.name = name;
 		this.lowerCaseName = name.toLowerCase();

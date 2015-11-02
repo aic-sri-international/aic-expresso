@@ -1,6 +1,7 @@
 package com.sri.ai.grinder.sgdpll2.core.solver;
 
 import static com.sri.ai.util.Util.getFirstNonNullResultOrNull;
+import static com.sri.ai.util.Util.myAssert;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -96,6 +97,10 @@ public class LiteralConditionerStepSolver implements ContextDependentProblemStep
 			result = expression;
 		}
 		else {
+			myAssert(
+					() -> expression.getSyntacticFormType().equals("Function application") || expression.getSyntacticFormType().equals("Symbol"),
+					() -> this.getClass() + ": applies to function applications or symbols only, but got " + expression );
+			
 			result = getFirstNonNullResultOrNull(
 					expression.getSubExpressions(),
 					s -> getNonDefinedLiteral(s, contextualConstraint, process));
