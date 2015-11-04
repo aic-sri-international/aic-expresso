@@ -37,17 +37,15 @@
  */
 package com.sri.ai.grinder.api;
 
-import static com.sri.ai.util.Util.list;
-
 import java.util.Collection;
 import java.util.Map;
 
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.core.PrologConstantPredicate;
 
 /**
- * A {@link QuantifierEliminator} offering methods for setup information
+ * A {@link QuantifierEliminator} with convenience methods
+ * that know about setup information
  * (symbol names and types, and type sizes).
  * 
  * @author braz
@@ -55,87 +53,26 @@ import com.sri.ai.grinder.core.PrologConstantPredicate;
  */
 public interface QuantifierEliminatorWithSetup extends QuantifierEliminator {
 
-	// TODO: these should be moved to abstract implementation instead of left in the interface (see comments below)
-	
 	/**
-	 * Returns a true constraint for a problem with given indices.
-	 * @param indices
-	 * @return
+	 * Convenience substitute for {@link #solve(Expression, Constraint, Collection, RewritingProcess)}
+	 * assuming a true contextual constraint.
 	 */
-	Constraint makeTrueConstraint(Collection<Expression> indices);
-	
+	Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process);
+
 	/**
-	 * Local simplification of an expression according to the theory used by this solver.
-	 * @param expression
-	 * @param process
-	 * @return
+	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess
+	 * given the data required to build it.
 	 */
-	Expression simplify(Expression expression, RewritingProcess process);
-	
-	/**
-	 * Returns the additive identity element of the group used by this solver.
-	 * @return
-	 */
-	Expression getAdditiveIdentityElement();
-	
-	/**
-	 * Makes an appropriate rewriting process with the given data.
-	 * @param constraint
-	 * @param mapFromSymbolNameToTypeName
-	 * @param mapFromTypeNameToSizeString
-	 * @param isUniquelyNamedConstantPredicate
-	 * @return
-	 */
-	RewritingProcess makeProcess(
-			Constraint constraint,
+	Expression solve(
+			Expression expression, Collection<Expression> indices,
 			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
 			Predicate<Expression> isUniquelyNamedConstantPredicate);
 
 	/**
-	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them
+	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess
+	 * given the data required to build it.
 	 */
-	@Override
-	Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process);
-
-	////////// Convenience methods
-	// TODO: These should be left as interface methods, not implemented, once we get rid of PlainDPLL package;
-	// They should be in AbstractQuantifierEliminatorWithSetup class, but the classes in that package
-	// would require a lot of work to use that because of the lack of multiple inheritance
-	// (they are already inheriting from abstract hierarchical rewriters because they
-	// are required to implement Rewriter as well.
-	
-	/**
-	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
-	 */
-	default Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process) {
-		Constraint constraint = makeTrueConstraint(indices);
-		Expression result = solve(indices, constraint, input, process);
-		return result;
-	}
-
-	/**
-	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
-	 */
-	default Expression solve(
+	Expression solve(
 			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
-			Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		
-		RewritingProcess topLevelRewritingProcess =
-				makeProcess(makeTrueConstraint(list()),
-						mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString,
-						isUniquelyNamedConstantPredicate);
-		
-		Expression result = solve(expression, indices, topLevelRewritingProcess);
-		return result;
-	}
-
-	/**
-	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
-	 */
-	default Expression solve(
-			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
-		return solve(expression, indices, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, new PrologConstantPredicate());
-	}
+			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString);
 }

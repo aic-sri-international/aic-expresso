@@ -52,20 +52,27 @@ import com.sri.ai.grinder.api.RewritingProcess;
 /**
  * A {@link QuantifierEliminator} offering methods for setup information
  * (symbol names and types, and type sizes).
+ * <p>
+ * Extensions to this class must routinely invoke {@link #checkInterrupted()}
+ * during its operation so as to allow interruption ordered by client code.
  * 
  * @author braz
  *
  */
 public abstract class AbstractQuantifierEliminatorWithSetup implements QuantifierEliminatorWithSetup {
 
-	// TODO: change abstract methods to protected
-	
+	private boolean interrupted = false;
+	private boolean debug = false;
+	private RewritingProcess topLevelRewritingProcess;
+
+	//// Abstract methods
+ 
 	/**
 	 * Returns a true constraint for a problem with given indices.
 	 * @param indices
 	 * @return
 	 */
-	public abstract Constraint makeTrueConstraint(Collection<Expression> indices);
+	protected abstract Constraint makeTrueConstraint(Collection<Expression> indices);
 	
 	/**
 	 * Local simplification of an expression according to the theory used by this solver.
@@ -73,13 +80,13 @@ public abstract class AbstractQuantifierEliminatorWithSetup implements Quantifie
 	 * @param process
 	 * @return
 	 */
-	public abstract Expression simplify(Expression expression, RewritingProcess process);
+	protected abstract Expression simplify(Expression expression, RewritingProcess process);
 	
 	/**
 	 * Returns the additive identity element of the group used by this solver.
 	 * @return
 	 */
-	public abstract Expression getAdditiveIdentityElement();
+	protected abstract Expression getAdditiveIdentityElement();
 	
 	/**
 	 * Makes an appropriate rewriting process with the given data.
@@ -89,7 +96,7 @@ public abstract class AbstractQuantifierEliminatorWithSetup implements Quantifie
 	 * @param isUniquelyNamedConstantPredicate
 	 * @return
 	 */
-	public abstract RewritingProcess makeProcess(
+	protected abstract RewritingProcess makeProcess(
 			Constraint constraint,
 			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
 			Predicate<Expression> isUniquelyNamedConstantPredicate);
@@ -100,9 +107,36 @@ public abstract class AbstractQuantifierEliminatorWithSetup implements Quantifie
 	@Override
 	public abstract Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process);
 	
+
+	//// Implemented methods
+	
+	public void interrupt() {
+		interrupted = true;
+		if (topLevelRewritingProcess != null) {
+			topLevelRewritingProcess.interrupt();
+		}
+	}
+	
 	/**
-	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
+	 * Extensions must periodically invoke this method, so algorithm stops if so ordered by user.
+	 * @return 
 	 */
+	public void checkInterrupted() {
+		if (interrupted) {
+			throw new RuntimeException("Solver Interrupted");
+		}
+	}
+	
+	@Override
+	public boolean getDebug() {
+		return debug;
+	}
+
+	@Override
+	public void setDebug(boolean newDebugValue) {
+		debug = true;
+	}
+
 	@Override
 	public Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process) {
 		Constraint constraint = makeTrueConstraint(indices);
@@ -110,16 +144,13 @@ public abstract class AbstractQuantifierEliminatorWithSetup implements Quantifie
 		return result;
 	}
 
-	/**
-	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
-	 */
 	@Override
 	public Expression solve(
 			Expression expression, Collection<Expression> indices,
 			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
 			Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		
-		RewritingProcess topLevelRewritingProcess =
+		topLevelRewritingProcess =
 				makeProcess(makeTrueConstraint(list()),
 						mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString,
 						isUniquelyNamedConstantPredicate);
@@ -128,9 +159,6 @@ public abstract class AbstractQuantifierEliminatorWithSetup implements Quantifie
 		return result;
 	}
 
-	/**
-	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
-	 */
 	@Override
 	public Expression solve(
 			Expression expression, Collection<Expression> indices,

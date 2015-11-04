@@ -53,6 +53,7 @@ import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
 import com.sri.ai.grinder.core.AbstractHierarchicalRewriter;
+import com.sri.ai.grinder.core.AbstractQuantifierEliminatorWithSetup;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
@@ -78,21 +79,6 @@ import com.sri.ai.util.base.Pair;
  */
 abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter extends AbstractHierarchicalRewriter implements QuantifierEliminatorWithSetup {
 
-	private boolean debug = false;
-	
-	private RewritingProcess topLevelRewritingProcess;
-	private boolean interrupted = false;
-	
-	@Override
-	public boolean getDebug() {
-		return debug;
-	}
-
-	@Override
-	public void setDebug(boolean newValue) {
-		this.debug = newValue;
-	}
-	
 	/** The background theory for the solver's input in the algorithm. */
 	protected InputTheory inputTheory;
 	
@@ -128,34 +114,6 @@ abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter ext
 		return problemType;
 	}
 	
-	@Override
-	public	Expression simplify(Expression expression, RewritingProcess process) {
-		return getInputTheory().simplify(expression, process);
-	}
-
-	@Override
-	public Expression getAdditiveIdentityElement() {
-		return problemType.additiveIdentityElement();
-	}
-	
-	@Override
-	public Constraint1 makeTrueConstraint(Collection<Expression> indices) {
-		return getConstraintTheory().makeConstraint(indices);
-	}
-
-	@Override
-	public RewritingProcess makeProcess(
-			Constraint constraint,
-			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
-			Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		
-		RewritingProcess result = DPLLUtil.makeProcess(
-						(Constraint1) constraint,
-						mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString,
-						isUniquelyNamedConstantPredicate);
-		return result;
-	}
-
 	@Override
 	public RewritingProcess makeRewritingProcess(Expression expression) {
 		Rewriter rewriterWithModules = new Simplify();
@@ -195,30 +153,6 @@ abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter ext
 		return result;
 	}
 	
-	/**
-	 * @param indices
-	 * @param constraint
-	 * @param body
-	 * @param process
-	 * @return
-	 */
-	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process) {
-		// TODO: should replace this oldConstraint by a copy constructor creating a sub-process, but surprisingly there is no complete copy constructor available in DefaultRewritingProcess.
-		Constraint1 oldConstraint = process.getDPLLContextualConstraint();
-		Constraint1 contextualConstraint = getConstraintTheory().makeConstraint(Util.list()); // contextual constraint does not involve any indices -- defined on free variables only
-		process.initializeDPLLContextualConstraint(contextualConstraint);
-
-		Expression simplifiedInput = simplify(body, process);
-		Expression result = solveAfterBookkeeping(indices, (Constraint1) constraint, simplifiedInput, process);
-		if (result == null) { // constraint is unsatisfiable, so result is identity element.
-			result = getAdditiveIdentityElement();
-		}
-		
-		process.initializeDPLLContextualConstraint(oldConstraint);
-		return result;
-	}
-
-
 	/**
 	 * The actual solving method provided by specific solvers.
 	 * Must use the contextual constraint in the process provided by {@link RewritingProcess#getDPLLContextualConstraint()}.
@@ -349,21 +283,6 @@ abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter ext
 		return result;
 	}
 	
-	@Override
-	public void interrupt() {
-		interrupted = true;
-		RewritingProcess topProcess = topLevelRewritingProcess;
-		if (topProcess != null) {
-			topProcess.interrupt();
-		}
-	}
-	
-	protected void checkInterrupted() {
-		if (interrupted) {
-			throw new RuntimeException("Solver Interrupted");
-		}
-	}
-
 	// TODO: must remove; this is implemented Rewriter for some old-style tests
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
@@ -375,5 +294,97 @@ abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter ext
 		RewritingProcess subProcess = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
 		Expression result = solve(simplifiedInput, indices, subProcess);
 		return result;
+	}
+
+	//// QuantifierEliminatorWithSetup:
+	
+	/**
+	 * "Multiple inheritance" by composition
+	 * We would like to inherit the implementation in {@link AbstractQuantifierEliminatorWithSetup}
+	 * but this class already inherits from {@link AbstractHierarchicalRewriter}.
+	 * There we create this instance of {@link AbstractQuantifierEliminatorWithSetup}
+	 * and direct the appropriate methods to it.
+	 */
+	private AbstractQuantifierEliminatorWithSetup innerAbstractQuantifierEliminatorWithSetup = new AbstractQuantifierEliminatorWithSetup() {
+	
+		@Override
+		public Constraint makeTrueConstraint(Collection<Expression> indices) {
+			return getConstraintTheory().makeConstraint(indices);
+		}
+	
+		@Override
+		public Expression simplify(Expression expression, RewritingProcess process) {
+			return getInputTheory().simplify(expression, process);
+		}
+	
+		@Override
+		public Expression getAdditiveIdentityElement() {
+			return problemType.additiveIdentityElement();
+		}
+	
+		@Override
+		public RewritingProcess makeProcess(Constraint constraint, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+			RewritingProcess result = DPLLUtil.makeProcess(
+					(Constraint1) constraint,
+					mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString,
+					isUniquelyNamedConstantPredicate);
+			return result;
+		}
+	
+		@Override
+		public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process) {
+			// TODO: should replace this oldConstraint by a copy constructor creating a sub-process, but surprisingly there is no complete copy constructor available in DefaultRewritingProcess.
+			Constraint1 oldConstraint = process.getDPLLContextualConstraint();
+			Constraint1 contextualConstraint = getConstraintTheory().makeConstraint(Util.list()); // contextual constraint does not involve any indices -- defined on free variables only
+			process.initializeDPLLContextualConstraint(contextualConstraint);
+	
+			Expression simplifiedInput = simplify(body, process);
+			Expression result = solveAfterBookkeeping(indices, (Constraint1) constraint, simplifiedInput, process);
+			if (result == null) { // constraint is unsatisfiable, so result is identity element.
+				result = getAdditiveIdentityElement();
+			}
+			
+			process.initializeDPLLContextualConstraint(oldConstraint);
+			return result;
+		}
+		
+	};
+
+	@Override
+	public void interrupt() {
+		innerAbstractQuantifierEliminatorWithSetup.interrupt();
+	}
+
+	protected void checkInterrupted() {
+		innerAbstractQuantifierEliminatorWithSetup.checkInterrupted();
+	}
+
+	@Override
+	public boolean getDebug() {
+		return innerAbstractQuantifierEliminatorWithSetup.getDebug();
+	}
+
+	@Override
+	public void setDebug(boolean newValue) {
+		innerAbstractQuantifierEliminatorWithSetup.setDebug(newValue);
+	}
+
+	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process) {
+		return innerAbstractQuantifierEliminatorWithSetup.solve(indices, constraint, body, process);
+	}
+
+	@Override
+	public Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process) {
+		return innerAbstractQuantifierEliminatorWithSetup.solve(input, indices, process);
+	}
+
+	@Override
+	public Expression solve(Expression expression, Collection<Expression> indices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		return innerAbstractQuantifierEliminatorWithSetup.solve(expression, indices, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
+	}
+
+	@Override
+	public Expression solve(Expression expression, Collection<Expression> indices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
+		return innerAbstractQuantifierEliminatorWithSetup.solve(expression, indices, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString);
 	}
 }

@@ -57,7 +57,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Function;
@@ -111,11 +110,10 @@ import com.sri.ai.util.base.PairOf;
  * @author braz
  *
  */
-public abstract class AbstractSGVETQuantifierEliminatorWithSetup implements QuantifierEliminatorWithSetup {
+public abstract class AbstractSGVETQuantifierEliminatorWithSetup extends AbstractQuantifierEliminatorWithSetup {
 
 	protected QuantifierEliminator subSolver;
 	protected SemiRingProblemType problemType;
-	private boolean debug;
 	
 	public AbstractSGVETQuantifierEliminatorWithSetup(QuantifierEliminatorWithSetup subSolver, SemiRingProblemType problemType) {
 		this.subSolver = subSolver;
@@ -124,87 +122,80 @@ public abstract class AbstractSGVETQuantifierEliminatorWithSetup implements Quan
 
 	public abstract boolean isVariable(Expression subExpression, RewritingProcess process);
 
-	@Override
-	public boolean getDebug() {
-		return debug;
-	}
-	
-	@Override
-	public void setDebug(boolean newValue) {
-		debug = newValue;;
-	}
-	
 	public SemiRingProblemType getProblemType() {
 		return problemType;
 	}
 	
 	@Override
 	public void interrupt() {
+		super.interrupt();
 		subSolver.interrupt();
 	}
 	
 	@Override
 	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process) {
 			
-			Expression result;
-			if (getDebug()) {
-				System.out.println("SGVE(T) input: " + body);	
-				System.out.println("Width        : " + width(body, process));
-			}
-			
-			Partition partition;
-			if (indices.size() < 1) {
-				partition = null;
-			}
-			else {
-				Expression factoredConditionalsExpression =
-						factoredConditionalsWithAbsorbingElseClause(body, process);
-				partition = pickPartition(factoredConditionalsExpression, indices, process);
-			}
-			
-			if (partition == null) {
-				if (basicOutput) {
-					System.out.println("No partition");	
-				}
-				result = subSolver.solve(indices, constraint, body, process);
-			}
-			else {
-				Expression indexSubProblemExpression = product(partition.expressionsOnIndexAndNot.first, process);
-				if (basicOutput) {
-					System.out.println("Eliminating: " + getFirst(partition.index));	
-					System.out.println("From       : " + indexSubProblemExpression);	
-					System.out.println("Width      : " + width(indexSubProblemExpression, process) + " out of " + indices.size() + " indices");	
-				}
-	
-				// We now invoke the subsolver for summing the index out of the factors it is in.
-				// Ideally, we would reuse the current constraint, but the set of index has changed and the current constraint may
-				// use an internal representation that depends on its previous set of indices.
-				// In the future, we should try to re-use that internal representation and re-index it appropriately, but for now
-				// we rewrite the program in a way that the current constraint becomes a part of the input expression.
-				// This will be equivalent to using it as a constraint, but will cause the constraint to be re-built.
-				// BTW, the call to "project" below will also re-process the constraint for the same reason: re-indexing.
-				// In the future it should also re-use the representation.
-				// The following transformation is:  sum_C E   =   sum_{true} if C then E else 0
-				Expression indexSubProblemExpressionWithConstraint = IfThenElse.make(constraint, indexSubProblemExpression, getProblemType().multiplicativeAbsorbingElement());
-				Expression indexSubProblemSolution = subSolver.solve(indexSubProblemExpressionWithConstraint, partition.index, process);
-				
-				if (basicOutput) {
-					System.out.println("Solution   : " + indexSubProblemSolution + "\n");	
-				}
-				
-				partition.expressionsOnIndexAndNot.second.add(indexSubProblemSolution);
-				Expression remainingSubProblemExpression = product(partition.expressionsOnIndexAndNot.second, process);
-				Constraint trueConstraintOnRemainingIndices = makeTrueConstraint(partition.remainingIndices);
-				Constraint constraintOnRemainingIndices = trueConstraintOnRemainingIndices; // the constraint is already represented in indexSubProblemSolution
-				result = solve(partition.remainingIndices, constraintOnRemainingIndices, remainingSubProblemExpression, process);
-				result = getProblemType().multiply(result, process);
-			}
-			
-			return result;
+		checkInterrupted();
+		
+		Expression result;
+		if (getDebug()) {
+			System.out.println("SGVE(T) input: " + body);	
+			System.out.println("Width        : " + width(body, process));
 		}
 
+		Partition partition;
+		if (indices.size() < 1) {
+			partition = null;
+		}
+		else {
+			Expression factoredConditionalsExpression =
+					factoredConditionalsWithAbsorbingElseClause(body, process);
+			partition = pickPartition(factoredConditionalsExpression, indices, process);
+		}
+
+		if (partition == null) {
+			if (basicOutput) {
+				System.out.println("No partition");	
+			}
+			result = subSolver.solve(indices, constraint, body, process);
+		}
+		else {
+			Expression indexSubProblemExpression = product(partition.expressionsOnIndexAndNot.first, process);
+			if (basicOutput) {
+				System.out.println("Eliminating: " + getFirst(partition.index));	
+				System.out.println("From       : " + indexSubProblemExpression);	
+				System.out.println("Width      : " + width(indexSubProblemExpression, process) + " out of " + indices.size() + " indices");	
+			}
+
+			// We now invoke the subsolver for summing the index out of the factors it is in.
+			// Ideally, we would reuse the current constraint, but the set of index has changed and the current constraint may
+			// use an internal representation that depends on its previous set of indices.
+			// In the future, we should try to re-use that internal representation and re-index it appropriately, but for now
+			// we rewrite the program in a way that the current constraint becomes a part of the input expression.
+			// This will be equivalent to using it as a constraint, but will cause the constraint to be re-built.
+			// BTW, the call to "project" below will also re-process the constraint for the same reason: re-indexing.
+			// In the future it should also re-use the representation.
+			// The following transformation is:  sum_C E   =   sum_{true} if C then E else 0
+			Expression indexSubProblemExpressionWithConstraint = IfThenElse.make(constraint, indexSubProblemExpression, getProblemType().multiplicativeAbsorbingElement());
+			Expression indexSubProblemSolution = subSolver.solve(indexSubProblemExpressionWithConstraint, partition.index, process);
+
+			if (basicOutput) {
+				System.out.println("Solution   : " + indexSubProblemSolution + "\n");	
+			}
+
+			partition.expressionsOnIndexAndNot.second.add(indexSubProblemSolution);
+			Expression remainingSubProblemExpression = product(partition.expressionsOnIndexAndNot.second, process);
+			Constraint trueConstraintOnRemainingIndices = makeTrueConstraint(partition.remainingIndices);
+			Constraint constraintOnRemainingIndices = trueConstraintOnRemainingIndices; // the constraint is already represented in indexSubProblemSolution
+			result = solve(partition.remainingIndices, constraintOnRemainingIndices, remainingSubProblemExpression, process);
+			result = getProblemType().multiply(result, process);
+		}
+
+		return result;
+	}
+
 	public boolean basicOutput = false;
-	
+
 	private static class Partition {
 		private List<Expression> index;
 		private List<Expression> remainingIndices;
@@ -339,31 +330,6 @@ public abstract class AbstractSGVETQuantifierEliminatorWithSetup implements Quan
 		return result;
 	}
 	
-	@Override
-	public String toString() {
-		return "SGVE(T)";
-	}
-	
-	
-	//////////////////// copy of AbstractQuantifierEliminatorWithSetup
-	
-	
-	
-	/**
-	 * Returns a true constraint for a problem with given indices.
-	 * @param indices
-	 * @return
-	 */
-	public abstract Constraint makeTrueConstraint(Collection<Expression> indices);
-	
-	/**
-	 * Local simplification of an expression according to the theory used by this solver.
-	 * @param expression
-	 * @param process
-	 * @return
-	 */
-	public abstract Expression simplify(Expression expression, RewritingProcess process);
-	
 	/**
 	 * Returns the additive identity element of the group used by this solver.
 	 * @return
@@ -372,55 +338,9 @@ public abstract class AbstractSGVETQuantifierEliminatorWithSetup implements Quan
 	public Expression getAdditiveIdentityElement() {
 		return problemType.additiveIdentityElement();
 	}
-	
-	/**
-	 * Makes an appropriate rewriting process with the given data.
-	 * @param constraint
-	 * @param mapFromSymbolNameToTypeName
-	 * @param mapFromTypeNameToSizeString
-	 * @param isUniquelyNamedConstantPredicate
-	 * @return
-	 */
-	public abstract RewritingProcess makeProcess(
-			Constraint constraint,
-			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
-			Predicate<Expression> isUniquelyNamedConstantPredicate);
 
-	/**
-	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices.
-	 */
 	@Override
-	public Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process) {
-		Constraint constraint = makeTrueConstraint(indices);
-		Expression result = solve(indices, constraint, input, process);
-		return result;
-	}
-
-	/**
-	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
-	 */
-	@Override
-	public Expression solve(
-			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
-			Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		
-		RewritingProcess topLevelRewritingProcess =
-				makeProcess(makeTrueConstraint(list()),
-						mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString,
-						isUniquelyNamedConstantPredicate);
-		
-		Expression result = solve(expression, indices, topLevelRewritingProcess);
-		return result;
-	}
-
-	/**
-	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess.
-	 */
-	@Override
-	public Expression solve(
-			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
-		return solve(expression, indices, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, new PrologConstantPredicate());
+	public String toString() {
+		return "SGVE(T)";
 	}
 }

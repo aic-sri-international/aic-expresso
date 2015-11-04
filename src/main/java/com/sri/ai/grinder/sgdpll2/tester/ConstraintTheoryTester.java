@@ -86,7 +86,7 @@ public class ConstraintTheoryTester {
 	private static final int NUMBER_OF_TESTS_TO_INDICATE_ON_CONSOLE = 50;
 
 	private static void output(String message) {
-		System.out.println(message); // uncomment out if detailed output is desired.
+		//System.out.println(message); // uncomment out if detailed output is desired.
 	}
 
 	/**

@@ -17,7 +17,7 @@ public interface QuantifierEliminator {
 	Expression solve(Expression input, Collection<Expression> indices, RewritingProcess process);
 
 	void interrupt();
-
+	
 	boolean getDebug();
 
 	void setDebug(boolean newValue);

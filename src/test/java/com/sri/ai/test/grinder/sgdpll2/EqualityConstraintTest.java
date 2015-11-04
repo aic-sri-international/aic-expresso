@@ -85,7 +85,7 @@ public class EqualityConstraintTest {
 		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
 				new Random(),
 				new EqualityConstraintTheory(),
-				1000 /* number of tests */,
+				200 /* number of tests */,
 				50 /* number of literals per test */,
 				true /* output count */);
 	}

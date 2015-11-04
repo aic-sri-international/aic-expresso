@@ -50,6 +50,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.Constraint;
+import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
 import com.sri.ai.grinder.core.AbstractQuantifierEliminatorWithSetup;
@@ -84,8 +85,6 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 	private SimplifierUnderContextualConstraint simplifierUnderContextualConstraint;
 	private GroupProblemType problemType;
 	private ConstraintTheory constraintTheory;
-	private boolean interrupted = false;
-	private boolean debug = false;
 	
 	@Override
 	public Constraint makeTrueConstraint(Collection<Expression> indices) {
@@ -118,27 +117,6 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 
 	
 	@Override
-	public void interrupt() {
-		interrupted = true;
-	}
-	
-	protected void checkInterrupted() {
-		if (interrupted) {
-			throw new RuntimeException("Solver Interrupted");
-		}
-	}
-
-	@Override
-	public boolean getDebug() {
-		return debug;
-	}
-
-	@Override
-	public void setDebug(boolean newDebugValue) {
-		debug = true;
-	}
-
-	@Override
 	public Expression solve(Collection<Expression> indices, Constraint constraint, Expression body, RewritingProcess process) {
 		ExtensionalIndexExpressionsSet indexExpressionsSet = makeIndexExpressionsForIndicesInListAndTypesInContext(indices, process);
 		Constraint2 trueContextualConstraint = (Constraint2) makeTrueConstraint(indices);
@@ -147,12 +125,6 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 		Expression result = solve(problemType, simplifierUnderContextualConstraint, indexExpressionsSet, quantifierFreeConstraint, quantifierFreeBody, trueContextualConstraint, process);
 		return result;
 	}
-
-//	@Override
-//	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
-//		Expression result = new SymbolicCommonInterpreter(constraintTheory).apply(expression, process);
-//		return result;
-//	}
 
 	/**
 	 * Solves an aggregate operation based on a group operation.
