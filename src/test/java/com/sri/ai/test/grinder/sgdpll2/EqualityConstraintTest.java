@@ -55,6 +55,7 @@ import com.sri.ai.grinder.plaindpll.problemtype.Sum;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
+import com.sri.ai.grinder.sgdpll2.theory.equality.AbstractConstrainTheoryWithFunctionApplicationAtoms;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 
 @Beta
@@ -154,7 +155,7 @@ public class EqualityConstraintTest {
 	 * @param expected
 	 */
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected) {
-		EqualityConstraintTheory constraintTheory = new EqualityConstraintTheory(true);
+		AbstractConstrainTheoryWithFunctionApplicationAtoms constraintTheory = new EqualityConstraintTheory(true);
 		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {

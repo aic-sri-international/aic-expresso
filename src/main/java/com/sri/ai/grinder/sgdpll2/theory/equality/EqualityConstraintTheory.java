@@ -37,52 +37,34 @@
  */
 package com.sri.ai.grinder.sgdpll2.theory.equality;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
-import static com.sri.ai.grinder.library.FunctorConstants.NOT;
-import static com.sri.ai.util.Util.forAll;
-import static com.sri.ai.util.Util.pickUniformly;
-
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import static com.sri.ai.util.Util.set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMergedMapBasedSimplifier;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.Disequality;
-import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractConstraintTheory;
-import com.sri.ai.util.collect.PredicateIterator;
+import com.sri.ai.grinder.sgdpll2.theory.CompoundConstraintTheory;
 
 
 /** 
  * A {@link ConstraintTheory} for equality literals.
  */
 @Beta
-public class EqualityConstraintTheory extends AbstractConstraintTheory {
+public class EqualityConstraintTheory extends AbstractConstrainTheoryWithFunctionApplicationAtoms {
 
-	private boolean assumeAllEqualitiesAreLiteralsInThisTheory;
-	
-	private Simplifier simplifier = new RecursiveExhaustiveMergedMapBasedSimplifier(new EqualitySimplifier(), new BooleanSimplifier());
-	
 	/**
 	 * Creates an equality theory that does <i>not</i> assume equality literals are literal of this theory
 	 * (this is more expensive -- use for a more efficiency setting if all equalities belong to this theory).
-	 * @param assumeAllEqualitiesAreLiteralsInThisTheory TODO
 	 */
 	public EqualityConstraintTheory() {
 		this(false);
@@ -93,58 +75,44 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 	 * It takes an argument indicating whether all equalities and disequalities are literals in this theory;
 	 * this may not be the case if a {@link CompoundConstraintTheory} mixing multiple theories involving
 	 * equalities is being used.
-	 * @param assumeAllEqualitiesAreLiteralsInThisTheory
+	 * @param assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory
 	 * whether all equalities and disequalities can be safely assumed to belong to this theory
 	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).
 	 */
-	public EqualityConstraintTheory(boolean assumeAllEqualitiesAreLiteralsInThisTheory) {
-		super();
-		this.assumeAllEqualitiesAreLiteralsInThisTheory = assumeAllEqualitiesAreLiteralsInThisTheory;
+	public EqualityConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory) {
+		super(
+				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
+				new RecursiveExhaustiveMergedMapBasedSimplifier(new EqualitySimplifier(), new BooleanSimplifier()),
+				set(EQUALITY, DISEQUALITY));
 	}
 	
 	@Override
-	public Expression simplify(Expression expression, RewritingProcess process) {
-		Expression result = simplifier.apply(expression, process);
+	protected boolean isValidArgument(Expression expression, RewritingProcess process) {
+		Expression type = GrinderUtil.getType(expression, process);
+		boolean result = isNonBooleanCategoricalType(type, process);
 		return result;
 	}
-
-	@Override
-	public boolean isSuitableFor(Expression variable, RewritingProcess process) {
-		Expression type = GrinderUtil.getType(variable, process);
-		boolean result = 
-				type.equals("Integer") || isNonBooleanCategoricalType(type, process);
-		return result;
-	}
-
+	
 	private boolean isNonBooleanCategoricalType(Expression type, RewritingProcess process) {
 		boolean result = !type.equals("Boolean") && process.getType(type.toString()) instanceof Categorical;
 		return result;
 	}
-	
+
 	@Override
-	public boolean isNonTrivialLiteral(Expression expression, RewritingProcess process) {
-		boolean hasEqualityFunctor = expression.hasFunctor(EQUALITY) || expression.hasFunctor(DISEQUALITY);
-		boolean result = hasEqualityFunctor;
-		
-		if (assumeAllEqualitiesAreLiteralsInThisTheory) {
-			result = hasEqualityFunctor;
+	protected Expression getNonTrivialAtomNegation(Expression atom) {
+		Expression result;
+		if (atom.hasFunctor(EQUALITY)) {
+			result = Expressions.apply(DISEQUALITY, atom.get(0), atom.get(1));
+		}
+		else if (atom.hasFunctor(DISEQUALITY)) {
+			result = Expressions.apply(EQUALITY, atom.get(0), atom.get(1));
 		}
 		else {
-			// the following is good, but expensive
-			result = hasEqualityFunctor
-					&&
-					forAll(
-							expression.getArguments(),
-							e -> {
-								Expression type = GrinderUtil.getType(e, process);
-								boolean myResult = !isNonBooleanCategoricalType(type, process);
-								return myResult;
-							});
+			result = null;
 		}
-		
 		return result;
 	}
-	
+
 	@Override
 	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, RewritingProcess process) {
 		return new SingleVariableEqualityConstraint(variable, constraintTheory);
@@ -163,67 +131,5 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 	@Override
 	public ContextDependentProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
 		return new ModelCountingOfSingleVariableEqualityConstraintStepSolver((SingleVariableEqualityConstraint) constraint);
-	}
-
-	@Override
-	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
-		boolean result = 
-				expression.hasFunctor(EQUALITY) || expression.hasFunctor(DISEQUALITY) ||
-				expression.equals(EQUALITY) || expression.equals(DISEQUALITY);
-		return result;
-	}
-
-	@Override
-	public Expression makeRandomAtomOn(String variable, Random random, RewritingProcess process) {
-		Map<String, String> variablesAndTypes = getVariableNamesAndTypeNamesForTesting();
-		String typeName = variablesAndTypes.get(variable);
-		Set<String> allVariables = variablesAndTypes.keySet();
-		PredicateIterator<String> isNameOfVariableOfSameType = PredicateIterator.make(allVariables, s -> variablesAndTypes.get(s).equals(typeName));
-		Expression otherTerm;
-		if (random.nextBoolean()) {
-			otherTerm = makeSymbol(pickUniformly(isNameOfVariableOfSameType, random));
-		}
-		else {
-			otherTerm = process.getType(typeName).sampleConstant(random);
-		}
-		Expression result =
-				random.nextBoolean()?
-				Equality.make(variable, otherTerm) : Equality.make(otherTerm, variable);
-		return result;
-	}
-
-	/**
-	 * We override the default version because disequality literals must be represented as <code>T1 != T2</code> in this theory,
-	 * and the default version of random literal generation would only negate atoms, representing disequalities as <code>not (T1 = T2)</code>. 	
-	 */
-	@Override
-	public Expression makeRandomLiteralOn(String variable, Random random, RewritingProcess process) {
-		Expression atom = makeRandomAtomOn(variable, random, process);
-		Expression literal = atom.hasFunctor(EQUALITY)? random.nextBoolean()? atom : Disequality.make(atom.get(0), atom.get(1)) : atom;
-		return literal;
-	}
-
-	@Override
-	public Expression getLiteralNegation(Expression literal, RewritingProcess process) {
-		Expression result;
-		if (literal.hasFunctor(NOT) && (literal.get(0).hasFunctor(EQUALITY) || literal.get(0).hasFunctor(DISEQUALITY))) {
-			result = literal;
-		}
-		else if (literal.hasFunctor(EQUALITY)) {
-			result = Expressions.apply(DISEQUALITY, literal.get(0), literal.get(1));
-		}
-		else if (literal.hasFunctor(DISEQUALITY)) {
-			result = Expressions.apply(EQUALITY, literal.get(0), literal.get(1));
-		} 
-		else if (literal.equals(TRUE)) {
-			result = FALSE;
-		} 
-		else if (literal.equals(FALSE)) {
-			result = TRUE;
-		} 
-		else {
-			throw new Error("Invalid literal: " + literal);
-		}
-		return result;
 	}
 }
