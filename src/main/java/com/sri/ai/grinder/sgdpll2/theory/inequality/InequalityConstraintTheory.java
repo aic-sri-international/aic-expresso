@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.theory.equality;
+package com.sri.ai.grinder.sgdpll2.theory.inequality;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
@@ -62,6 +62,7 @@ import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
+import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
@@ -70,63 +71,34 @@ import com.sri.ai.util.collect.PredicateIterator;
 
 
 /** 
- * A {@link ConstraintTheory} for equality literals.
+ * A {@link ConstraintTheory} for integer inequality literals.
  */
 @Beta
-public class EqualityConstraintTheory extends AbstractConstraintTheory {
+public class InequalityConstraintTheory extends AbstractConstraintTheory {
 
-	private boolean assumeAllEqualitiesAreLiteralsInThisTheory;
+	private Simplifier simplifier = new RecursiveExhaustiveMergedMapBasedSimplifier(new EqualitySimplifier(), new InequalitySimplifier(), new BooleanSimplifier());
 	
-	private Simplifier simplifier = new RecursiveExhaustiveMergedMapBasedSimplifier(new EqualitySimplifier(), new BooleanSimplifier());
-	
-	/**
-	 * Creates an equality theory that does <i>not</i> assume equality literals are literal of this theory
-	 * (this is more expensive -- use for a more efficiency setting if all equalities belong to this theory).
-	 * @param assumeAllEqualitiesAreLiteralsInThisTheory TODO
-	 */
-	public EqualityConstraintTheory() {
-		this(false);
+	@Override
+	public boolean isSuitableFor(Expression variable, RewritingProcess process) {
+		Expression type = GrinderUtil.getType(variable, process);
+		boolean result = type.equals("Integer");
+		return result;
 	}
-	
-	/**
-	 * Creates an equality theory.
-	 * It takes an argument indicating whether all equalities and disequalities are literals in this theory;
-	 * this may not be the case if a {@link CompoundConstraintTheory} mixing multiple theories involving
-	 * equalities is being used.
-	 * @param assumeAllEqualitiesAreLiteralsInThisTheory
-	 * whether all equalities and disequalities can be safely assumed to belong to this theory
-	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).
-	 */
-	public EqualityConstraintTheory(boolean assumeAllEqualitiesAreLiteralsInThisTheory) {
-		super();
-		this.assumeAllEqualitiesAreLiteralsInThisTheory = assumeAllEqualitiesAreLiteralsInThisTheory;
-	}
-	
+
 	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {
 		Expression result = simplifier.apply(expression, process);
 		return result;
 	}
 
-	@Override
-	public boolean isSuitableFor(Expression variable, RewritingProcess process) {
-		Expression type = GrinderUtil.getType(variable, process);
-		boolean result = 
-				type.equals("Integer") || isNonBooleanCategoricalType(type, process);
-		return result;
-	}
-
-	private boolean isNonBooleanCategoricalType(Expression type, RewritingProcess process) {
-		boolean result = !type.equals("Boolean") && process.getType(type.toString()) instanceof Categorical;
-		return result;
-	}
+	private boolean assumeEqualitiesAreAlwaysLiteralsOfThisTheory = true;
 	
 	@Override
 	public boolean isNonTrivialLiteral(Expression expression, RewritingProcess process) {
 		boolean hasEqualityFunctor = expression.hasFunctor(EQUALITY) || expression.hasFunctor(DISEQUALITY);
 		boolean result = hasEqualityFunctor;
 		
-		if (assumeAllEqualitiesAreLiteralsInThisTheory) {
+		if (assumeEqualitiesAreAlwaysLiteralsOfThisTheory) {
 			result = hasEqualityFunctor;
 		}
 		else {
@@ -137,8 +109,7 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 							expression.getArguments(),
 							e -> {
 								Expression type = GrinderUtil.getType(e, process);
-								boolean myResult = !isNonBooleanCategoricalType(type, process);
-								return myResult;
+								return type.equals("Integer") || process.getType(type.toString()) instanceof Categorical;
 							});
 		}
 		
@@ -147,22 +118,22 @@ public class EqualityConstraintTheory extends AbstractConstraintTheory {
 	
 	@Override
 	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, RewritingProcess process) {
-		return new SingleVariableEqualityConstraint(variable, constraintTheory);
+		return new SingleVariableInequalityConstraint(variable, constraintTheory);
 	}
 
 	@Override
 	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
-		return true; // SingleVariableEqualityConstraint is complete
+		return true; // SingleVariableInequalityConstraint is complete
 	}
 
 	@Override
 	public ContextDependentProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
-		return new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver((SingleVariableEqualityConstraint) constraint);
+		return new SatisfiabilityOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
 	}
 
 	@Override
 	public ContextDependentProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
-		return new ModelCountingOfSingleVariableEqualityConstraintStepSolver((SingleVariableEqualityConstraint) constraint);
+		return new ModelCountingOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
 	}
 
 	@Override

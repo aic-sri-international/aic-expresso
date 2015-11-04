@@ -138,9 +138,9 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		AbstractInterpreter interpreter = new SymbolicCommonInterpreter(new EqualityConstraintTheory(), true);
+		AbstractInterpreter interpreter = new SymbolicCommonInterpreter(new EqualityConstraintTheory(true), true);
 		RewritingProcess process = new DefaultRewritingProcess(null);
-		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory());
+		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory(true));
 		contextualConstraint = contextualConstraint.conjoin(parse("W != 3"), process);
 		process.putGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
 		process = process.put(new Categorical("Population", 1000, arrayList(parse("tom")))); // two pitfalls: immutable process and need for arrayList rather than just list

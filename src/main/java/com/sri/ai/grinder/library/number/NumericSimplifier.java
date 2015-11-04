@@ -87,16 +87,16 @@ public class NumericSimplifier extends RecursiveExhaustiveMapBasedSimplifier {
 				exponentiation.rewrite(f, process),
 
 				FunctorConstants.LESS_THAN,       (Simplifier) (f, process) ->
-				LessThan.simplify(f),
+				LessThan.simplify(f, process),
 
 				FunctorConstants.LESS_THAN_OR_EQUAL_TO,     (Simplifier) (f, process) ->
-				LessThanOrEqualTo.simplify(f),
+				LessThanOrEqualTo.simplify(f, process),
 
 				FunctorConstants.GREATER_THAN,              (Simplifier) (f, process) ->
-				GreaterThan.simplify(f),
+				GreaterThan.simplify(f, process),
 
 				FunctorConstants.GREATER_THAN_OR_EQUAL_TO,  (Simplifier) (f, process) ->
-				GreaterThanOrEqualTo.simplify(f)
+				GreaterThanOrEqualTo.simplify(f, process)
 				);
 	}
 

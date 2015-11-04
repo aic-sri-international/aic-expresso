@@ -46,6 +46,7 @@ import java.util.LinkedHashSet;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.library.BinaryOperator;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -77,9 +78,10 @@ public class LessThan extends BinaryOperator {
 	/**
 	 * Receives an application of {@link FunctorConstants.LESS_THAN} and evaluates it if possible.
 	 * @param lessThanApplication
+	 * @param process TODO
 	 * @return
 	 */
-	public static Expression simplify(Expression lessThanApplication) {
+	public static Expression simplify(Expression lessThanApplication, RewritingProcess process) {
 		Expression result;
 		if (isNumber(lessThanApplication.get(0)) && isNumber(lessThanApplication.get(1))) {
 			result = makeSymbol(lessThan(lessThanApplication.get(0).rationalValue(), lessThanApplication.get(1).rationalValue()));

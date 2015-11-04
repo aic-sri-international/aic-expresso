@@ -42,6 +42,7 @@ import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMergedMapBasedSimplifier;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
+import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.library.number.NumericSimplifier;
 import com.sri.ai.grinder.library.set.CardinalitySimplifier;
 
@@ -66,6 +67,7 @@ public class CommonSimplifier extends RecursiveExhaustiveMergedMapBasedSimplifie
 				new BooleanSimplifier(),
 				new NumericSimplifier(),
 				new EqualitySimplifier(),
+				new InequalitySimplifier(),
 				new CardinalitySimplifier());
 	}
 }

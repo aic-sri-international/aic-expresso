@@ -64,7 +64,7 @@ public class EqualityConstraintTest {
 	public void testSingleVariableConstraints() {
 		ConstraintTheoryTester.testSingleVariableConstraints(
 				new Random(),
-				new EqualityConstraintTheory(),
+				new EqualityConstraintTheory(true),
 				100 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -74,7 +74,7 @@ public class EqualityConstraintTest {
 	public void testMultiVariableConstraints() {
 		ConstraintTheoryTester.testMultiVariableConstraints(
 				new Random(),
-				new EqualityConstraintTheory(),
+				new EqualityConstraintTheory(true),
 				500 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -84,7 +84,7 @@ public class EqualityConstraintTest {
 	public void testCompleteMultiVariableConstraints() {
 		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
 				new Random(),
-				new EqualityConstraintTheory(),
+				new EqualityConstraintTheory(true),
 				200 /* number of tests */,
 				50 /* number of literals per test */,
 				true /* output count */);
@@ -94,7 +94,7 @@ public class EqualityConstraintTest {
 	public void testModelCountingForSingleVariableConstraints() {
 		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
 				new Random(),
-				new EqualityConstraintTheory(),
+				new EqualityConstraintTheory(true),
 				200 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -107,8 +107,8 @@ public class EqualityConstraintTest {
 		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
 				new Random(),
 				new Sum(),
-				new EqualityConstraintTheory(),
-				30 /* number of tests */,
+				new EqualityConstraintTheory(true),
+				10 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);
@@ -121,8 +121,8 @@ public class EqualityConstraintTest {
 		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
 				new Random(),
 				new Max(),
-				new EqualityConstraintTheory(),
-				30 /* number of tests */,
+				new EqualityConstraintTheory(true),
+				10 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);
@@ -154,7 +154,7 @@ public class EqualityConstraintTest {
 	 * @param expected
 	 */
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected) {
-		EqualityConstraintTheory constraintTheory = new EqualityConstraintTheory();
+		EqualityConstraintTheory constraintTheory = new EqualityConstraintTheory(true);
 		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {

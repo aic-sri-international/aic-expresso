@@ -35,57 +35,54 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.number;
+package com.sri.ai.grinder.library.inequality;
 
-import static com.sri.ai.expresso.helper.Expressions.isNumber;
-import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.util.Util.lessThanOrEqualTo;
+import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
+import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
+import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
+import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
+import static com.sri.ai.util.Util.map;
 
-import java.util.LinkedHashSet;
+import java.util.Map;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.BinaryOperator;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.util.Util;
+import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMapBasedSimplifier;
+import com.sri.ai.grinder.library.number.GreaterThan;
+import com.sri.ai.grinder.library.number.GreaterThanOrEqualTo;
+import com.sri.ai.grinder.library.number.LessThan;
+import com.sri.ai.grinder.library.number.LessThanOrEqualTo;
 
 /**
- * Implements a rewriter for the "less than or equal to" operation.
+ * A {@link Simplifier} with inequality functions (<code>> <, >=, <=</code>)
  * 
  * @author braz
+ *
  */
 @Beta
-public class LessThanOrEqualTo extends BinaryOperator {
+public class InequalitySimplifier extends RecursiveExhaustiveMapBasedSimplifier {
+	
+	public InequalitySimplifier() {
+		super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers());
+	}
+	
+	public static Map<String, Simplifier> makeFunctionApplicationSimplifiers() {
+		return map(
+				LESS_THAN_OR_EQUAL_TO,    (Simplifier) (f, process) ->
+				LessThanOrEqualTo.simplify(f, process),
 
-	public LessThanOrEqualTo() {
-		this.functors = new LinkedHashSet<Expression>();
-		this.functors.add(Expressions.makeSymbol("<="));
-		//
-		this.firstType  = Number.class;
-		this.secondType = Number.class;
+				LESS_THAN,                (Simplifier) (f, process) ->
+				LessThan.simplify(f, process),
+				
+				GREATER_THAN_OR_EQUAL_TO, (Simplifier) (f, process) ->
+				GreaterThanOrEqualTo.simplify(f, process),
+
+				GREATER_THAN,             (Simplifier) (f, process) ->
+				GreaterThan.simplify(f, process)
+				);
 	}
-	
-	@Override
-	protected Object operation(Expression expression1, Expression expression2) {
-		return Util.lessThanOrEqualTo(expression1.rationalValue(), expression2.rationalValue());
-	}
-	
-	/**
-	 * Receives an application of {@link FunctorConstants.LESS_THAN_OR_EQUAL_TO} and evaluates it if possible.
-	 * @param lessThanOrEqualToApplication
-	 * @param process TODO
-	 * @return
-	 */
-	public static Expression simplify(Expression lessThanOrEqualToApplication, RewritingProcess process) {
-		Expression result;
-		if (isNumber(lessThanOrEqualToApplication.get(0)) && isNumber(lessThanOrEqualToApplication.get(1))) {
-			result = makeSymbol(lessThanOrEqualTo(lessThanOrEqualToApplication.get(0).rationalValue(), lessThanOrEqualToApplication.get(1).rationalValue()));
-		}
-		else {
-			result = lessThanOrEqualToApplication;
-		}
-		return result;
+
+	public static Map<String, Simplifier> makeSyntacticFormTypeSimplifiers() {
+		return map();
 	}
 }

@@ -73,7 +73,7 @@ public class CompoundConstraintTheoryTest {
 		
 		ConstraintTheory compound =
 				new CompoundConstraintTheory(
-						new EqualityConstraintTheory(),
+						new EqualityConstraintTheory(true),
 						new PropositionalConstraintTheory());
 		
 		Expression condition = parse("X = Y and Y = X and P and not Q and P and X = a and X != b");
@@ -99,7 +99,7 @@ public class CompoundConstraintTheoryTest {
 	public void testSingleVariableConstraints() {
 		ConstraintTheoryTester.testSingleVariableConstraints(
 				new Random(),
-				new CompoundConstraintTheory(new EqualityConstraintTheory(), new PropositionalConstraintTheory()),
+				new CompoundConstraintTheory(new EqualityConstraintTheory(true), new PropositionalConstraintTheory()),
 				100 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -109,7 +109,7 @@ public class CompoundConstraintTheoryTest {
 	public void testMultiVariableConstraints() {
 		ConstraintTheoryTester.testMultiVariableConstraints(
 				new Random(),
-				new CompoundConstraintTheory(new EqualityConstraintTheory(), new PropositionalConstraintTheory()),
+				new CompoundConstraintTheory(new EqualityConstraintTheory(true), new PropositionalConstraintTheory()),
 				500 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -119,7 +119,7 @@ public class CompoundConstraintTheoryTest {
 	public void testCompleteMultiVariableConstraints() {
 		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
 				new Random(),
-				new CompoundConstraintTheory(new EqualityConstraintTheory(), new PropositionalConstraintTheory()),
+				new CompoundConstraintTheory(new EqualityConstraintTheory(true), new PropositionalConstraintTheory()),
 				1000 /* number of tests */,
 				50 /* number of literals per test */,
 				true /* output count */);
@@ -129,7 +129,7 @@ public class CompoundConstraintTheoryTest {
 	public void testModelCountingForSingleVariableConstraints() {
 		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
 				new Random(),
-				new CompoundConstraintTheory(new EqualityConstraintTheory(), new PropositionalConstraintTheory()),
+				new CompoundConstraintTheory(new EqualityConstraintTheory(true), new PropositionalConstraintTheory()),
 				200 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -142,7 +142,7 @@ public class CompoundConstraintTheoryTest {
 		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
 				new Random(),
 				new Sum(),
-				new CompoundConstraintTheory(new EqualityConstraintTheory(), new PropositionalConstraintTheory()),
+				new CompoundConstraintTheory(new EqualityConstraintTheory(true), new PropositionalConstraintTheory()),
 				10 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
@@ -156,7 +156,7 @@ public class CompoundConstraintTheoryTest {
 		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
 				new Random(),
 				new Max(),
-				new CompoundConstraintTheory(new EqualityConstraintTheory(), new PropositionalConstraintTheory()),
+				new CompoundConstraintTheory(new EqualityConstraintTheory(true), new PropositionalConstraintTheory()),
 				10 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
@@ -196,7 +196,7 @@ public class CompoundConstraintTheoryTest {
 	 * @param expected
 	 */
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, Map<String, String> variableNamesAndTypeNamesForTesting) {
-		EqualityConstraintTheory equalityTheory = new EqualityConstraintTheory();
+		EqualityConstraintTheory equalityTheory = new EqualityConstraintTheory(true);
 		equalityTheory.setVariableNamesAndTypeNamesForTesting(variableNamesAndTypeNamesForTesting);
 		ConstraintTheory constraintTheory = new CompoundConstraintTheory(equalityTheory, new PropositionalConstraintTheory());
 		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);

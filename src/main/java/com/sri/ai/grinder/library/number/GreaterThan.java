@@ -46,6 +46,7 @@ import java.util.LinkedHashSet;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.HasKind;
 import com.sri.ai.grinder.library.BinaryOperator;
 import com.sri.ai.grinder.library.FunctorConstants;
@@ -77,9 +78,10 @@ public class GreaterThan extends BinaryOperator {
 	/**
 	 * Receives an application of {@link FunctorConstants.GREATER_THAN_OR_EQUAL_TO} and evaluates it if possible.
 	 * @param greaterThanOrEqualToApplication
+	 * @param process TODO
 	 * @return
 	 */
-	public static Expression simplify(Expression greaterThanOrEqualToApplication) {
+	public static Expression simplify(Expression greaterThanOrEqualToApplication, RewritingProcess process) {
 		Expression result;
 		if (isNumber(greaterThanOrEqualToApplication.get(0)) && isNumber(greaterThanOrEqualToApplication.get(1))) {
 			result = makeSymbol(greaterThanOrEqualTo(greaterThanOrEqualToApplication.get(0).rationalValue(), greaterThanOrEqualToApplication.get(1).rationalValue()));
