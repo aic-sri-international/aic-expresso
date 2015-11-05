@@ -55,7 +55,7 @@ import com.sri.ai.grinder.plaindpll.problemtype.Sum;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
-import com.sri.ai.grinder.sgdpll2.theory.equality.AbstractConstrainTheoryWithFunctionApplicationAtoms;
+import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstrainTheoryWithFunctionApplicationAtoms;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 
 @Beta

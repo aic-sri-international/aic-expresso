@@ -57,8 +57,8 @@ import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.theory.CompoundConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.theory.equality.AbstractConstrainTheoryWithFunctionApplicationAtoms;
+import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstrainTheoryWithFunctionApplicationAtoms;
+import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
 
 
 /** 

@@ -90,7 +90,7 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 	}
 
 	@Override
-	public SingleVariableInequalityConstraint destructiveUpdateOrNullAfterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process) {
+	public SingleVariableInequalityConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, RewritingProcess process) {
 		SingleVariableInequalityConstraint result = this;
 		if (!sign && process.isUniquelyNamedConstant(atom.get(1))) {
 			numberOfDisequalitiesFromConstantsSeenSoFar++;
@@ -138,13 +138,13 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 	}
 
 	@Override
-	public Expression fromNegativeAtomToLiteral(Expression negativeAtom) {
+	public Expression fromNegativeNormalizedAtomToLiteral(Expression negativeAtom) {
 		Expression result = Disequality.make(negativeAtom.get(0), negativeAtom.get(1));
 		return result;
 	}
 
 	@Override
-	public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndAtom(Expression variable, Expression literal) {
+	public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal) {
 		Pair<Boolean, Expression> result;
 		
 		literal = moveNotIn(literal);
@@ -188,12 +188,12 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 	}
 
 	@Override
-	public boolean atomMayImplyLiteralsOnDifferentAtoms() {
+	public boolean normalizedAtomMayImplyLiteralsOnDifferentAtoms() {
 		return true;
 	}
 
 	@Override
-	public boolean impliesLiteralWithDifferentAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
+	public boolean impliesLiteralWithDifferentNormalizedAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
 		// X = c1 implies X != c2 for every other constant c2
 		boolean result = sign1 && !sign2 && process.isUniquelyNamedConstant(atom1.get(1)) && process.isUniquelyNamedConstant(atom2.get(1));
 		return result;

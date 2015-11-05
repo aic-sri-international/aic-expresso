@@ -1,4 +1,4 @@
-package com.sri.ai.grinder.sgdpll2.theory.equality;
+package com.sri.ai.grinder.sgdpll2.theory.base;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
@@ -48,7 +48,7 @@ public abstract class AbstractConstrainTheoryWithFunctionApplicationAtoms extend
 	protected abstract boolean isValidArgument(Expression expression, RewritingProcess process);
 
 	/**
-	 * Must takes a non-trivial atom in the theory and return its negation.
+	 * Must take a non-trivial atom in the theory and return its negation.
 	 * @param atom
 	 * @return
 	 */
@@ -65,7 +65,7 @@ public abstract class AbstractConstrainTheoryWithFunctionApplicationAtoms extend
 	}
 
 	/**
-	 * Indicates whether an application is a function application of one of the theory functors.
+	 * Indicates whether an expression is a function application of one of the theory functors.
 	 * @param expression
 	 * @return
 	 */

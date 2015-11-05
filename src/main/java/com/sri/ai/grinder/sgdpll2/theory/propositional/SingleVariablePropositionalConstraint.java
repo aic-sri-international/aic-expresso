@@ -71,17 +71,17 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	}
 
 	@Override
-	public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process) {
+	public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, RewritingProcess process) {
 		return this;
 	}
 
 	@Override
-	public Expression fromNegativeAtomToLiteral(Expression negativeAtom) {
+	public Expression fromNegativeNormalizedAtomToLiteral(Expression negativeAtom) {
 		return apply(NOT, negativeAtom);
 	}
 
 	@Override
-	public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndAtom(Expression variable, Expression literal) {
+	public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal) {
 		Pair<Boolean, Expression> result;
 		if (literal.hasFunctor(NOT)) {
 			result = Pair.make(false, literal.get(0));
@@ -93,12 +93,12 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	}
 
 	@Override
-	public boolean atomMayImplyLiteralsOnDifferentAtoms() {
+	public boolean normalizedAtomMayImplyLiteralsOnDifferentAtoms() {
 		return false;
 	}
 
 	@Override
-	public boolean impliesLiteralWithDifferentAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
+	public boolean impliesLiteralWithDifferentNormalizedAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
 		throw new Error("This method should not have been invoked because this class's atomMayImplyLiteralsOnDifferentAtoms returns 'false'.");
 	}
 	

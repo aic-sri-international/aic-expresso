@@ -76,8 +76,8 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	private static final long serialVersionUID = 1L;
 	
 	private Expression variable;
-	private ArrayList<Expression> positiveAtoms;
-	private ArrayList<Expression> negativeAtoms;
+	private ArrayList<Expression> positiveNormalizedAtoms;
+	private ArrayList<Expression> negativeNormalizedAtoms;
 	private ArrayList<Expression> externalLiterals; // literals not on variable
 	private ConstraintTheory constraintTheory;
 	
@@ -85,11 +85,11 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 		this(variable, Util.arrayList(), Util.arrayList(), Util.arrayList(), constraintTheory);
 	}
 	
-	public AbstractSingleVariableConstraint(Expression variable, ArrayList<Expression> positiveAtoms, ArrayList<Expression> negativeAtoms,
+	public AbstractSingleVariableConstraint(Expression variable, ArrayList<Expression> positiveNormalizedAtoms, ArrayList<Expression> negativeNormalizedAtoms,
 			ArrayList<Expression> externalLiterals, ConstraintTheory constraintTheory) {
 		this.variable = variable;
-		this.positiveAtoms = positiveAtoms;
-		this.negativeAtoms = negativeAtoms;
+		this.positiveNormalizedAtoms = positiveNormalizedAtoms;
+		this.negativeNormalizedAtoms = negativeNormalizedAtoms;
 		this.externalLiterals = externalLiterals;
 		this.constraintTheory = constraintTheory;
 	}
@@ -110,8 +110,8 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 */
 	protected AbstractSingleVariableConstraint (AbstractSingleVariableConstraint other) {
 		this.variable = other.variable;
-		this.positiveAtoms = other.positiveAtoms;
-		this.negativeAtoms = other.negativeAtoms;
+		this.positiveNormalizedAtoms = other.positiveNormalizedAtoms;
+		this.negativeNormalizedAtoms = other.negativeNormalizedAtoms;
 		this.externalLiterals = other.externalLiterals;
 		this.constraintTheory = other.constraintTheory;
 	}
@@ -122,11 +122,11 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	//////////// GETTERS
 	
 	public List<Expression> getPositiveAtoms() {
-		return Collections.unmodifiableList(positiveAtoms);
+		return Collections.unmodifiableList(positiveNormalizedAtoms);
 	}
 
 	public List<Expression> getNegativeAtoms() {
-		return Collections.unmodifiableList(negativeAtoms);
+		return Collections.unmodifiableList(negativeNormalizedAtoms);
 	}
 
 	public List<Expression> getExternalLiterals() {
@@ -145,12 +145,14 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 * Atom representations should be normalized (equivalent atoms should always be represented by the same expressions).
 	 * For example, <code>X != a</code> could be decomposed into <code>false</code> and <code>X = a</code>.
 	 * Note that the notion of "atom" is internal to a single-variable constraint with a specific variable.
-	 * Other constraints may produce different atoms from the same literals.
+	 * Other constraints may produce different atoms from the same literals;
+	 * for example, <code>X = Y</code> may be normalized into <code>X = Y</code> for a constraint
+	 * on <code>X</code>, and to <code>Y = X</code> for a constraint on <code>Y</code>.
 	 * @param variable
 	 * @param literal
 	 * @return
 	 */
-	abstract public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndAtom(Expression variable, Expression literal);
+	protected abstract Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal);
 
 	/**
 	 * Returns the literal corresponding to the negation of the given atom
@@ -161,10 +163,10 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 * @param negativeAtom
 	 * @return
 	 */
-	abstract public Expression fromNegativeAtomToLiteral(Expression negativeAtom);
+	abstract public Expression fromNegativeNormalizedAtomToLiteral(Expression negativeAtom);
 
 	/** Indicates whether there are interactions between distinct atoms (for this constraint and variable). */
-	abstract public boolean atomMayImplyLiteralsOnDifferentAtoms();
+	abstract public boolean normalizedAtomMayImplyLiteralsOnDifferentAtoms();
 
 	/**
 	 * Indicates whether, according to the current theory, sign1 atom1 implies sign2 atom2,
@@ -177,21 +179,21 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 * @param process
 	 * @return
 	 */
-	abstract public boolean impliesLiteralWithDifferentAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process);
+	abstract public boolean impliesLiteralWithDifferentNormalizedAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process);
 
-	public AbstractSingleVariableConstraint copyWithNewPositiveAtom(Expression atom) {
+	public AbstractSingleVariableConstraint copyWithNewPositiveNormalizedAtom(Expression atom) {
 		AbstractSingleVariableConstraint result = clone();
-		ArrayList<Expression> newPositiveAtoms = new ArrayList<Expression>(positiveAtoms);
-		newPositiveAtoms.add(atom);
-		result.positiveAtoms = newPositiveAtoms;
+		ArrayList<Expression> newPositiveNormalizedAtoms = new ArrayList<Expression>(positiveNormalizedAtoms);
+		newPositiveNormalizedAtoms.add(atom);
+		result.positiveNormalizedAtoms = newPositiveNormalizedAtoms;
 		return result;
 	}
 
-	public AbstractSingleVariableConstraint copyWithNewNegativeAtom(Expression atom) {
+	public AbstractSingleVariableConstraint copyWithNewNegativeNormalizedAtom(Expression atom) {
 		AbstractSingleVariableConstraint result = clone();
-		ArrayList<Expression> newNegativeAtoms = new ArrayList<Expression>(negativeAtoms);
-		newNegativeAtoms.add(atom);
-		result.negativeAtoms = newNegativeAtoms;
+		ArrayList<Expression> newNegativeNormalizedAtoms = new ArrayList<Expression>(negativeNormalizedAtoms);
+		newNegativeNormalizedAtoms.add(atom);
+		result.negativeNormalizedAtoms = newNegativeNormalizedAtoms;
 		return result;
 	}
 
@@ -203,10 +205,10 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 		return result;
 	}
 
-	public AbstractSingleVariableConstraint copyWithNewPositiveAndNegativeAtoms(ArrayList<Expression> newPositiveAtoms, ArrayList<Expression> newNegativeAtoms) {
+	public AbstractSingleVariableConstraint copyWithNewPositiveAndNegativeNormalizedAtoms(ArrayList<Expression> newPositiveNormalizedAtoms, ArrayList<Expression> newNegativeNormalizedAtoms) {
 		AbstractSingleVariableConstraint result = clone();
-		result.positiveAtoms = newPositiveAtoms;
-		result.negativeAtoms = newNegativeAtoms;
+		result.positiveNormalizedAtoms = newPositiveNormalizedAtoms;
+		result.negativeNormalizedAtoms = newNegativeNormalizedAtoms;
 		return result;
 	}
 	
@@ -224,7 +226,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 * @param process 
 	 * @return 
 	 */
-	abstract public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewAtom(boolean sign, Expression atom, RewritingProcess process);
+	abstract public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, RewritingProcess process);
 
 	@Override
 	public SingleVariableConstraint conjoinWithLiteral(Expression formula, RewritingProcess process) {
@@ -239,22 +241,22 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 			result = copyWithNewExternalLiteral(formula);
 		}
 		else {
-			Pair<Boolean, Expression> signAndAtom = fromLiteralOnVariableToSignAndAtom(getVariable(), formula);
-			boolean    sign = signAndAtom.first;
-			Expression atom = signAndAtom.second;
-			ArrayList<Expression>     sameSignAtoms = sign? positiveAtoms : negativeAtoms;
-			ArrayList<Expression> oppositeSignAtoms = sign? negativeAtoms : positiveAtoms;
-			if (sameSignAtoms.contains(atom)) {
+			Pair<Boolean, Expression> signAndNormalizedAtom = fromLiteralOnVariableToSignAndNormalizedAtom(getVariable(), formula);
+			boolean    sign = signAndNormalizedAtom.first;
+			Expression normalizedAtom = signAndNormalizedAtom.second;
+			ArrayList<Expression>     sameSignNormalizedAtoms = sign? positiveNormalizedAtoms : negativeNormalizedAtoms;
+			ArrayList<Expression> oppositeSignNormalizedAtoms = sign? negativeNormalizedAtoms : positiveNormalizedAtoms;
+			if (sameSignNormalizedAtoms.contains(normalizedAtom)) {
 				result = this; // redundant
 			}
-			else if (oppositeSignAtoms.contains(atom)) {
+			else if (oppositeSignNormalizedAtoms.contains(normalizedAtom)) {
 				result = null; // contradiction
 			}
-			else if (atomMayImplyLiteralsOnDifferentAtoms()) {
-				result = conjoinNonTrivialPossiblyDependentLiteral(sign, atom, process);
+			else if (normalizedAtomMayImplyLiteralsOnDifferentAtoms()) {
+				result = conjoinNonTrivialPossiblyDependentLiteral(sign, normalizedAtom, process);
 			}
 			else {
-				result = conjoinNonTrivialIndependentLiteral(sign, atom, process);
+				result = conjoinNonTrivialIndependentLiteral(sign, normalizedAtom, process);
 			}
 		}
 		return result;
@@ -277,28 +279,28 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 		// while equalities between two variables never affect literals based on distinct atoms.
 		
 		boolean oppositeSign = sign? false : true;
-		if (    thereExists(positiveAtoms, p -> impliesLiteralWithDifferentAtom(true,  p, sign, atom, process)) ||
-				thereExists(negativeAtoms, p -> impliesLiteralWithDifferentAtom(false, p, sign, atom, process))) {
+		if (    thereExists(positiveNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(true,  p, sign, atom, process)) ||
+				thereExists(negativeNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(false, p, sign, atom, process))) {
 			result = this; // redundant
 		}
-		else if (thereExists(positiveAtoms, p -> impliesLiteralWithDifferentAtom(true,  p, oppositeSign, atom, process)) ||
-				 thereExists(negativeAtoms, p -> impliesLiteralWithDifferentAtom(false, p, oppositeSign, atom, process))) {
+		else if (thereExists(positiveNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(true,  p, oppositeSign, atom, process)) ||
+				 thereExists(negativeNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(false, p, oppositeSign, atom, process))) {
 			result = null; // contradiction
 		}
 		else {
 			// remove redundant literals and add new one
 			ArrayList<Expression> newPositiveAtoms = 
-					removeFromArrayListNonDestructively(positiveAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, true,  p, process));
+					removeFromArrayListNonDestructively(positiveNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(sign, atom, true,  p, process));
 			ArrayList<Expression> newNegativeAtoms = 
-					removeFromArrayListNonDestructively(negativeAtoms, p -> impliesLiteralWithDifferentAtom(sign, atom, false, p, process));
+					removeFromArrayListNonDestructively(negativeNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(sign, atom, false, p, process));
 			if (sign) {
 				newPositiveAtoms.add(atom);
 			}
 			else {
 				newNegativeAtoms.add(atom);
 			}
-			result = copyWithNewPositiveAndNegativeAtoms(newPositiveAtoms, newNegativeAtoms);
-			result = result.destructiveUpdateOrNullAfterInsertingNewAtom(sign, atom, process);
+			result = copyWithNewPositiveAndNegativeNormalizedAtoms(newPositiveAtoms, newNegativeAtoms);
+			result = result.destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(sign, atom, process);
 		}
 		return result;
 	}
@@ -312,12 +314,12 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	private AbstractSingleVariableConstraint conjoinNonTrivialIndependentLiteral(boolean sign, Expression atom, RewritingProcess process) {
 		AbstractSingleVariableConstraint result;
 		if (sign) {
-			result = copyWithNewPositiveAtom(atom);
-			result = result.destructiveUpdateOrNullAfterInsertingNewAtom(sign, atom, process);
+			result = copyWithNewPositiveNormalizedAtom(atom);
+			result = result.destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(sign, atom, process);
 		}
 		else {
-			result = copyWithNewNegativeAtom(atom);
-			result = result.destructiveUpdateOrNullAfterInsertingNewAtom(sign, atom, process);
+			result = copyWithNewNegativeNormalizedAtom(atom);
+			result = result.destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(sign, atom, process);
 		}
 		return result;
 	}
@@ -325,8 +327,8 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	@Override
 	protected Expression computeInnerExpression() {
 		List<Expression> conjuncts = list();
-		conjuncts.addAll(positiveAtoms);
-		Util.mapIntoList(negativeAtoms, n -> fromNegativeAtomToLiteral(n), conjuncts);
+		conjuncts.addAll(positiveNormalizedAtoms);
+		Util.mapIntoList(negativeNormalizedAtoms, n -> fromNegativeNormalizedAtomToLiteral(n), conjuncts);
 		conjuncts.addAll(externalLiterals);
 		Expression result = And.make(conjuncts);
 		return result;
