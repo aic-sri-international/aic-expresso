@@ -71,6 +71,7 @@ import com.sri.ai.util.math.Rational;
  * and detecting inconsistency when that number becomes equal to the variable's type size.
  * However, while that functionality ensures completeness for {@link SingleVariableEqualityConstraint}s,
  * it does not suffice in the presence of inequalities.
+ * <p>
  * For example, <code>X > 10 and X != 11 and X != 12 and X < 13</code> is unsatisfiable,
  * but this will not be detected by this class because the number of disequalities
  * to unique constants is only 2 (while the type of X could be much larger).
