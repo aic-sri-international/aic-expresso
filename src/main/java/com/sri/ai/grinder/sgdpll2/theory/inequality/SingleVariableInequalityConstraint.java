@@ -37,220 +37,345 @@
  */
 package com.sri.ai.grinder.sgdpll2.theory.inequality;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.ONE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.grinder.helper.GrinderUtil.getTypeCardinality;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
-import static com.sri.ai.grinder.library.FunctorConstants.NOT;
-import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
-import static com.sri.ai.util.Util.list;
+import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
+import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
+import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
+import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
+import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
+import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
 
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.Disequality;
-import com.sri.ai.grinder.library.Equality;
+import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractSingleVariableConstraint;
-import com.sri.ai.util.base.Pair;
+import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstraint;
+import com.sri.ai.util.Util;
+import com.sri.ai.util.math.Rational;
 
 /**
- * An equality constraint solver.
+ * An inequalities on integers constraint solver.
+ * <p>
+ * This extends {@link SingleVariableEqualityConstraint} so that it inherits the
+ * functionality of that class of counting disequalities to unique constraints
+ * and detecting inconsistency when that number becomes equal to the variable's type size.
+ * However, while that functionality ensures completeness for {@link SingleVariableEqualityConstraint}s,
+ * it does not suffice in the presence of inequalities.
+ * For example, <code>X > 10 and X != 11 and X != 12 and X < 13</code> is unsatisfiable,
+ * but this will not be detected by this class because the number of disequalities
+ * to unique constants is only 2 (while the type of X could be much larger).
+ * Trying to detect such inconsistencies would make the time complexity of conjoining a literal
+ * greater than linear, so we choose to leave this type of detection for when it is
+ * absolutely required.
+ * <p>
  * 
  * @author braz
  *
  */
 @Beta
-public class SingleVariableInequalityConstraint extends AbstractSingleVariableConstraint {
+public class SingleVariableInequalityConstraint extends SingleVariableEqualityConstraint {
 
 	private static final long serialVersionUID = 1L;
 	
-	private int numberOfDisequalitiesFromConstantsSeenSoFar;
+	private static final Collection<String> normalFunctors = Util.set(EQUALITY, LESS_THAN, GREATER_THAN);
+
+	private static final Map<String, String> flipFunctor =
+	Util.map(
+			EQUALITY,                 EQUALITY,
+			DISEQUALITY,              DISEQUALITY,
+			LESS_THAN,                GREATER_THAN,
+			LESS_THAN_OR_EQUAL_TO,    GREATER_THAN_OR_EQUAL_TO,
+			GREATER_THAN,             LESS_THAN,
+			GREATER_THAN_OR_EQUAL_TO, LESS_THAN_OR_EQUAL_TO
+			);
 
 	public SingleVariableInequalityConstraint(Expression variable, ConstraintTheory constraintTheory) {
 		super(variable, constraintTheory);
-		this.numberOfDisequalitiesFromConstantsSeenSoFar = 0;
 	}
 
 	public SingleVariableInequalityConstraint(SingleVariableInequalityConstraint other) {
 		super(other);
-		this.numberOfDisequalitiesFromConstantsSeenSoFar = other.numberOfDisequalitiesFromConstantsSeenSoFar;
 	}
 
 	@Override
 	public SingleVariableInequalityConstraint clone() {
 		SingleVariableInequalityConstraint result = new SingleVariableInequalityConstraint(this);
-		result.numberOfDisequalitiesFromConstantsSeenSoFar = numberOfDisequalitiesFromConstantsSeenSoFar;
 		return result;
 	}
 
 	@Override
-	public SingleVariableInequalityConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, RewritingProcess process) {
-		SingleVariableInequalityConstraint result = this;
-		if (!sign && process.isUniquelyNamedConstant(atom.get(1))) {
-			numberOfDisequalitiesFromConstantsSeenSoFar++;
-			long variableDomainSize = getVariableDomainSize(process);
-			if (variableDomainSize >= 0 && numberOfDisequalitiesFromConstantsSeenSoFar == variableDomainSize) {
-				result = null;
-			}
-		}
-		return result;
-	}
-	
-	/**
-	 * @return the number of disequalities between the variable and uniquely named constants that have been conjoined to this constraint so far
-	 * (some of these disequalities may have been eliminated by a conjunction with an equality that implies them).
-	 */
-	public int getNumberOfDisequalitiesFromConstantsSeenSoFar() {
-		return numberOfDisequalitiesFromConstantsSeenSoFar;
+	protected Collection<String> getNormalFunctors() {
+		return normalFunctors;
 	}
 	
 	@Override
-	public SingleVariableInequalityConstraint conjoinWithLiteral(Expression literal, RewritingProcess process) {
-		Collection<Expression> binaryEqualities = breakMultiTermEquality(literal, process);
-		SingleVariableInequalityConstraint result = null; // initial value never used, but compiler does not realize it
-		for (Expression binaryEquality : binaryEqualities) {
-			result = (SingleVariableInequalityConstraint) super.conjoinWithLiteral(binaryEquality, process);
-			if (result == null) {
-				break;
-			}
-		}
+	protected String getNegationFunctor(String functor) {
+		String result = InequalityConstraintTheory.negationFunctor.get(functor);
 		return result;
 	}
-
-	private Collection<Expression> breakMultiTermEquality(Expression literal, RewritingProcess process) {
-		if (literal.hasFunctor(EQUALITY) && literal.numberOfArguments() > 2) {
-			Collection<Expression> result = list();
-			for (int i = 0; i != literal.numberOfArguments() - 2; i++) {
-				Expression binaryLiteral = Equality.make(literal.get(i), literal.get(i + 1));
-				result.add(binaryLiteral);
-			}
-			return result;
-		}
-		else {
-			return list(literal);
-		}
-	}
-
+	
 	@Override
-	public Expression fromNegativeNormalizedAtomToLiteral(Expression negativeAtom) {
-		Expression result = Disequality.make(negativeAtom.get(0), negativeAtom.get(1));
+	protected String getFlipFunctor(String functor) {
+		String result = flipFunctor.get(functor);
 		return result;
 	}
-
-	@Override
-	public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal) {
-		Pair<Boolean, Expression> result;
-		
-		literal = moveNotIn(literal);
-		
-		Expression other = termToWhichVariableIsEqualedToOrNull(variable, literal);
-		if (other == null) {
-			throw new Error("Invalid literal for equality theory received: " + literal);
-		}
-		Expression atom = apply(EQUALITY, variable, other);
-		result = Pair.make(literal.hasFunctor(EQUALITY), atom);
-		return result;
-	}
-
-	private Expression moveNotIn(Expression literal) throws Error {
-		if (literal.hasFunctor(NOT)) {
-			if (literal.get(0).hasFunctor(EQUALITY)) {
-				literal = Expressions.apply(DISEQUALITY, literal.get(0).get(0), literal.get(0).get(1));
-			}
-			else if (literal.get(0).hasFunctor(DISEQUALITY)) {
-				literal = Expressions.apply(EQUALITY, literal.get(0).get(0), literal.get(0).get(1));
-			}
-			else {
-				throw new Error("Invalid literal for equality theory received: " + literal);
-			}
-		}
-		return literal;
-	}
-
-	private Expression termToWhichVariableIsEqualedToOrNull(Expression variable, Expression equalityLiteral) {
-		Expression result;
-		if (equalityLiteral.get(0).equals(variable)) {
-			result = equalityLiteral.get(1);
-		}
-		else if (equalityLiteral.get(1).equals(variable)) {
-			result = equalityLiteral.get(0);
-		}
-		else {
-			result = null;
-		}
-		return result;
-	}
-
-	@Override
-	public boolean normalizedAtomMayImplyLiteralsOnDifferentAtoms() {
-		return true;
-	}
-
+	
 	@Override
 	public boolean impliesLiteralWithDifferentNormalizedAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
-		// X = c1 implies X != c2 for every other constant c2
-		boolean result = sign1 && !sign2 && process.isUniquelyNamedConstant(atom1.get(1)) && process.isUniquelyNamedConstant(atom2.get(1));
-		return result;
-	}
-
-	/**
-	 * Returns an iterator to terms constrained to be equal to variable.
-	 * @return
-	 */
-	public Iterator<Expression> getEqualsIterator() {
-		return getPositiveAtoms().stream().
-		map(e -> e.get(1)) // second arguments of Variable = Term
-		.iterator();
-	}
-	
-	/** Returns one of the expressions to which the variable is bound to, or null if there aren't any. */
-	public Expression getABoundValueOrNull() {
-		Expression result;
-		Iterator<Expression> equalsIterator = getEqualsIterator();
-		if (equalsIterator.hasNext()) {
-			result = equalsIterator.next();
+		boolean result;
+		
+		Expression a = atom1.get(1);
+		Expression b = atom2.get(1);
+		if ((isConstant(a, process) && isConstant(b, process))     ||     a.equals(b)) { // otherwise there can be no implication
+			if (sign1) {
+				result = positiveAtom1Cases(atom1, sign2, atom2, a, b, process);
+			}
+			else {
+				result = negativeAtom1Cases(atom1, sign2, atom2, a, b, process);
+			}
 		}
 		else {
-			result = null;
+			result = false; // normalized atoms X op Y where Y is a variable say nothing about normalized atoms X op Z where Z is a term distinct from Y.
 		}
+		
+		// System.out.println((sign1? "" : "not") + " " + atom1 + "    " + (result? "implies" : "does not imply") + "    " + (sign2? "" : "not") + " " + atom2);
+		
 		return result;
 	}
 
 	/**
-	 * Returns an iterator to terms constrained to be disequal to variable.
+	 * @param atom1
+	 * @param sign2
+	 * @param atom2
+	 * @param a
+	 * @param b
+	 * @param process
 	 * @return
+	 * @throws Error
 	 */
-	public Iterator<Expression> getDisequalsIterator() {
-		return getNegativeAtoms().stream().
-		map(e -> e.get(1)) // second arguments of Variable != Term
-		.iterator();
+	private boolean positiveAtom1Cases(Expression atom1, boolean sign2, Expression atom2, Expression a, Expression b, RewritingProcess process) throws Error {
+		boolean result;
+		
+		Expression literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2;
+		Expression simplification;
+		
+		switch (atom1.getFunctor().toString()) {
+
+		case EQUALITY:
+			// X = a implies:
+			// X = b, iff a = b
+			// X < b, iff a < b
+			// X > b, iff a > b
+			// not (X = b), iff not (a = b)
+			// not (X < b), iff not (a < b)
+			// not (X > b), iff not (a > b)
+			// That is, X = a implies sign2 (X op b) iff sign2 (a op b)
+			Expression atom = apply(atom2.getFunctor(), a, b);
+			literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = sign2? atom : Not.make(atom);
+			break;
+			
+		case LESS_THAN:
+			// X < a implies:
+			// X = b, iff false (never implies a =)
+			// X < b, iff a < b
+			// X > b, iff false (never implies a >)
+			// not (X = b), iff b >= a
+			// not (X < b), that is, X >= b, iff false (never implies >=)
+			// not (X > b), that is, X <= b, iff b >= a - 1
+			if (sign2) {
+				if (atom2.hasFunctor(LESS_THAN)) {
+					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = apply(LESS_THAN, a, b);
+				}
+				else {
+					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = FALSE;
+				}
+			}
+			else {
+				switch (atom2.getFunctor().toString()) {
+				case EQUALITY:
+					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = apply(GREATER_THAN_OR_EQUAL_TO, b, a);
+					break;
+				case LESS_THAN:
+					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = FALSE;
+					break;
+				case GREATER_THAN:
+					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = apply(GREATER_THAN_OR_EQUAL_TO, b, apply(MINUS, a, ONE));
+					break;
+				default:
+					throw notNormalized(atom2);
+				}
+			}
+			
+			break;
+			
+		case GREATER_THAN:
+			// Mirror image of LESS_THAN:
+			if (sign2) {
+				if (atom2.hasFunctor(GREATER_THAN)) {
+					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = apply(GREATER_THAN, a, b);
+				}
+				else {
+					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = FALSE;
+				}
+			}
+			else {
+				switch (atom2.getFunctor().toString()) {
+				case EQUALITY:
+					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = apply(LESS_THAN_OR_EQUAL_TO, b, a);
+					break;
+				case GREATER_THAN:
+					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = FALSE;
+					break;
+				case LESS_THAN:
+					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = apply(LESS_THAN_OR_EQUAL_TO, b, apply(PLUS, a, ONE));
+					break;
+				default:
+					throw notNormalized(atom2);
+				}
+			}
+			
+			break;
+			
+		default:
+			throw notNormalized(atom1);
+		}
+
+		simplification = getConstraintTheory().simplify(literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2, process);
+		result = simplification.equals(TRUE);
+
+		return result;
 	}
 
-	protected long cachedIndexDomainSize = -1;
+	private boolean negativeAtom1Cases(Expression atom1, boolean sign2, Expression atom2, Expression a, Expression b, RewritingProcess process) {
+		boolean result;
+		
+		Expression literalOnOthersEquivalentToImplication;
+		Expression simplification;
+		
+		switch (atom1.getFunctor().toString()) {
 
-	public long getVariableDomainSize(RewritingProcess process) {
-		if (cachedIndexDomainSize == -1) {
-			cachedIndexDomainSize = getTypeCardinality(getVariable(), process);
+		case EQUALITY: // sign1 is false, therefore sign1 atom1 is a DISEQUALITY
+			// X != a implies:
+			// X = b, iff false (does not imply)
+			// X < b, iff false (does not imply)
+			// X > b, iff false (does not imply)
+			// not (X = b), iff a = b
+			// not (X < b), iff false (does not imply)
+			// not (X > b), iff false (does not imply)
+			// That is, X != a implies (X = b) iff a = b
+			Expression aEqualsB = apply(atom1.getFunctor(), a, b);
+			literalOnOthersEquivalentToImplication = !sign2 && atom2.hasFunctor(EQUALITY)? aEqualsB : FALSE;
+			break;
+			
+		case LESS_THAN: // sign1 is false, therefore sign1 atom1 is GREATER_THAN_OR_EQUAL_TO
+			// X >= a implies:
+			// X = b, iff false
+			// X < b, iff false
+			// X > b, iff b < a
+			// not (X = b), iff b < a
+			// not (X < b), that is, X >= b, iff b <= a
+			// not (X > b), that is, X <= b, iff false
+			if (sign2) {
+				if (atom2.hasFunctor(GREATER_THAN)) {
+					literalOnOthersEquivalentToImplication = apply(LESS_THAN, b, a);
+				}
+				else {
+					literalOnOthersEquivalentToImplication = FALSE;
+				}
+			}
+			else {
+				switch (atom2.getFunctor().toString()) {
+				case EQUALITY:
+					literalOnOthersEquivalentToImplication = apply(LESS_THAN, b, a);
+					break;
+				case LESS_THAN:
+					literalOnOthersEquivalentToImplication = apply(LESS_THAN_OR_EQUAL_TO, b, a);
+					break;
+				case GREATER_THAN:
+					literalOnOthersEquivalentToImplication = FALSE;
+					break;
+				default:
+					throw notNormalized(atom2);
+				}
+			}
+			
+			break;
+			
+		case GREATER_THAN:
+			// Mirror image of LESS_THAN:
+			if (sign2) {
+				if (atom2.hasFunctor(LESS_THAN)) {
+					literalOnOthersEquivalentToImplication = apply(GREATER_THAN, b, a);
+				}
+				else {
+					literalOnOthersEquivalentToImplication = FALSE;
+				}
+			}
+			else {
+				switch (atom2.getFunctor().toString()) {
+				case EQUALITY:
+					literalOnOthersEquivalentToImplication = apply(GREATER_THAN, b, a);
+					break;
+				case GREATER_THAN:
+					literalOnOthersEquivalentToImplication = apply(GREATER_THAN_OR_EQUAL_TO, b, a);
+					break;
+				case LESS_THAN:
+					literalOnOthersEquivalentToImplication = FALSE;
+					break;
+				default:
+					throw notNormalized(atom2);
+				}
+			}
+			
+			break;
+			
+		default:
+			throw notNormalized(atom1);
 		}
-		return cachedIndexDomainSize;
+
+		simplification = getConstraintTheory().simplify(literalOnOthersEquivalentToImplication, process);
+		result = simplification.equals(TRUE);
+
+		return result;
 	}
-	
-	public Expression getVariableDomain(RewritingProcess process) {
-		Expression variableType = process.getContextualSymbolType(getVariable());
-		if (variableType == null) {
-			variableType = new DefaultSyntacticFunctionApplication(TYPE, getVariable());
-		}
-		return variableType;
+
+	private Error notNormalized(Expression atom) {
+		return new Error(getClass().getSimpleName() + ": got atom that is not normalized: " + atom);
+	}
+
+	private boolean isConstant(Expression expression, RewritingProcess process) {
+		return process.isUniquelyNamedConstant(expression);
 	}
 
 	@Override
-	public SingleVariableInequalityConstraint conjoin(Expression formula, RewritingProcess process) {
-		return (SingleVariableInequalityConstraint) super.conjoin(formula, process);
+	protected AbstractSingleVariableConstraint conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, RewritingProcess process) {
+		if (normalizedAtom.get(1).getValue() instanceof Number) {
+			Rational value = (Rational) normalizedAtom.get(1).getValue();
+			if (
+					(   sign && normalizedAtom.hasFunctor(LESS_THAN)    &&  value.compareTo(0) <= 0)
+					||
+					(   sign && normalizedAtom.hasFunctor(GREATER_THAN) &&  value.compareTo(9) >= 0)
+					||
+					(   sign && normalizedAtom.hasFunctor(EQUALITY)     && (value.compareTo(0) < 0 || value.compareTo(0) > 9) )
+					||
+					( ! sign && normalizedAtom.hasFunctor(LESS_THAN)    &&  value.compareTo(9) > 0)
+					||
+					( ! sign && normalizedAtom.hasFunctor(GREATER_THAN) &&  value.compareTo(0) < 0)
+					) {
+				return null;
+			}
+		}
+	
+		return super.conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, process);
 	}
 }

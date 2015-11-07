@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.library.number;
 
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.isNumber;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.lessThanOrEqualTo;
@@ -80,7 +81,10 @@ public class LessThanOrEqualTo extends BinaryOperator {
 	 */
 	public static Expression simplify(Expression lessThanOrEqualToApplication, RewritingProcess process) {
 		Expression result;
-		if (isNumber(lessThanOrEqualToApplication.get(0)) && isNumber(lessThanOrEqualToApplication.get(1))) {
+		if (lessThanOrEqualToApplication.get(0).equals(lessThanOrEqualToApplication.get(1))) {
+			result = TRUE; // yes, it is less than or equal to itself
+		}
+		else if (isNumber(lessThanOrEqualToApplication.get(0)) && isNumber(lessThanOrEqualToApplication.get(1))) {
 			result = makeSymbol(lessThanOrEqualTo(lessThanOrEqualToApplication.get(0).rationalValue(), lessThanOrEqualToApplication.get(1).rationalValue()));
 		}
 		else {

@@ -64,6 +64,20 @@ import com.sri.ai.util.collect.PairOfElementsInListIterator;
 
 /**
  * A {@link AbstractModelCountingOfConstraintStepSolver} for a {@link SingleVariableEqualityConstraint}.
+ * <p>
+ * This solver provides literals on which satisfiability depends (because it extends {@link AbstractModelCountingOfConstraintStepSolver},
+ * and then what that class defines as "defining literals", which are literals on which satisfiability does not depend,
+ * but the model count does.
+ * <p>
+ * For this theory, these literals are none if the constraint's variable is already bound to some value.
+ * In this case, the model count is, naturally, <code>1</code>.
+ * Otherwise, the defining literals are all equalities among "disequals" of the constraint's variable otherwise, where
+ * "disequals" are the values to which the variable is constrained to be disequal from.
+ * For example, <code>X != Y and X != Z</code> is <code>|type(X)| - 1</code> if <code>Y = Z</code>,
+ * and <code>2</code> otherwise.
+ * <p>
+ * Once all such equalities have been decided, the solver simply returns the solution
+ * <code>|type(X)| - |unique disequals|</code>
  * 
  * @author braz
  *
@@ -107,9 +121,9 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 		}
 		else {
 			long numberOfNonAvailableValues = computeNumberOfUniqueDisequals(contextualConstraint, process);
-			long variableDomainSize = getConstraint().getVariableDomainSize(process);
+			long variableDomainSize = getConstraint().getVariableTypeSize(process);
 			if (variableDomainSize == -1) {
-				Expression variableDomain = getConstraint().getVariableDomain(process);
+				Expression variableDomain = getConstraint().getVariableType(process);
 				Expression variableDomainCardinality = apply(CARDINALITY, variableDomain);
 				result = Minus.make(variableDomainCardinality, makeSymbol(numberOfNonAvailableValues));
 			}

@@ -39,6 +39,7 @@ package com.sri.ai.grinder.sgdpll2.theory.equality;
 
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
+import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.set;
 
 import com.google.common.annotations.Beta;
@@ -53,7 +54,7 @@ import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstrainTheoryWithFunctionApplicationAtoms;
+import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstrainTheoryWithBinaryRelations;
 import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
 
 
@@ -61,7 +62,7 @@ import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
  * A {@link ConstraintTheory} for equality literals.
  */
 @Beta
-public class EqualityConstraintTheory extends AbstractConstrainTheoryWithFunctionApplicationAtoms {
+public class EqualityConstraintTheory extends AbstractConstrainTheoryWithBinaryRelations {
 
 	/**
 	 * Creates an equality theory that does <i>not</i> assume equality literals are literal of this theory
@@ -82,14 +83,15 @@ public class EqualityConstraintTheory extends AbstractConstrainTheoryWithFunctio
 	 */
 	public EqualityConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory) {
 		super(
+				set(EQUALITY, DISEQUALITY),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-				new RecursiveExhaustiveMergedMapBasedSimplifier(new EqualitySimplifier(), new BooleanSimplifier()),
-				set(EQUALITY, DISEQUALITY));
+				new RecursiveExhaustiveMergedMapBasedSimplifier(new EqualitySimplifier(), new BooleanSimplifier()));
 	}
 	
 	@Override
 	protected boolean isValidArgument(Expression expression, RewritingProcess process) {
 		Expression type = GrinderUtil.getType(expression, process);
+		myAssert(() -> type != null, () -> expression + " has unknown type.");
 		boolean result = isNonBooleanCategoricalType(type, process);
 		return result;
 	}

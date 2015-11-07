@@ -243,18 +243,24 @@ public class ConstraintTheoryTester {
 			output("\n\nStarting new conjunction");	
 			for (int j = 0; constraint != null && j != maxNumberOfLiterals; j++) {
 				Expression literal = makeRandomLiteralGivenConstraint.apply(constraint);
-				literals.add(literal);
-				output("\nAdded " + literal + " (current conjunction: " + And.make(literals) + ")");
-				constraint = constraint.conjoin(literal, process);
-				if (testCorrectness) {
-					tester.run(random, constraint, constraintTheory, literals, process);
-				}
+				constraint = testLiteral(random, tester, literal, constraint, testCorrectness, literals, constraintTheory, process);
 			}
 			
 			if (outputCount && i % NUMBER_OF_TESTS_TO_INDICATE_ON_CONSOLE == 0) {
 				System.out.println("Tested (comparing against brute-force solution) " + i + " examples of " + problemName + " for " + constraintTheory);
 			}	
 		}
+	}
+
+	private static Constraint2 testLiteral(Random random, Tester tester, Expression literal, Constraint2 constraint, boolean testCorrectness, Collection<Expression> literals, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
+		output("\nAdding " + literal + " (literals added so far: " + join(literals, " and ") + ")");
+		output("Constraint is " + constraint);
+		literals.add(literal);
+		Constraint2 newConstraint = constraint.conjoin(literal, process);
+		if (testCorrectness) {
+			tester.run(random, newConstraint, constraintTheory, literals, process);
+		}
+		return newConstraint;
 	}
 
 	private static void testIncompleteSatisfiability(
@@ -330,7 +336,7 @@ public class ConstraintTheoryTester {
 //		boolean isSatisfiable = satisfyingAssignment != null;
 		if (isSatisfiable) {
 			String message = join(literals, " and ") + " is satisfiable (by brute-force) but " + 
-			constraintTheory.getClass().getSimpleName() + "'s says it is not. "
+			constraintTheory.getClass().getSimpleName() + " says it is not. "
 //			+ "Satisfying assignment is " + satisfyingAssignment + "."
 			;
 			output(message);

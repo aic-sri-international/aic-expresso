@@ -35,64 +35,61 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.library.number;
+package com.sri.ai.expresso.type;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.isNumber;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.util.Util.lessThan;
+import static com.sri.ai.util.collect.FunctionIterator.functionIterator;
 
-import java.util.LinkedHashSet;
+import java.util.Iterator;
+import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.HasKind;
-import com.sri.ai.grinder.library.BinaryOperator;
-import com.sri.ai.grinder.library.FunctorConstants;
-import com.sri.ai.util.Util;
+import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.Type;
+import com.sri.ai.util.collect.IntegerIterator;
+import com.sri.ai.util.math.Rational;
 
 /**
- * Implements a rewriter for the less than operation.
+ * Represents the Integer interval [0, 9].
  * 
  * @author braz
  */
 @Beta
-public class LessThan extends BinaryOperator {
+public class Integer0To9 implements Type {
 
-	public LessThan() {
-		this.functors = new LinkedHashSet<Expression>(); 
-		this.functors.add(Expressions.makeSymbol(FunctorConstants.LESS_THAN));
-		//
-		this.firstType  = Number.class;
-		this.secondType = Number.class;
-		
-		this.setReifiedTests(new HasKind(FunctorConstants.LESS_THAN));
-	}
-	
 	@Override
-	protected Object operation(Expression expression1, Expression expression2) {
-		return Util.lessThan(expression1.rationalValue(), expression2.rationalValue());
+	public String getName() {
+		return "Integer0to9";
 	}
-	
+
 	/**
-	 * Receives an application of {@link FunctorConstants.LESS_THAN} and evaluates it if possible.
-	 * @param lessThanApplication
-	 * @param process TODO
-	 * @return
+	 * Naturally, this iterator will never iterate over all integers.
+	 * We iterate over non-negative integers only, as that may be more natural for most applications.
 	 */
-	public static Expression simplify(Expression lessThanApplication, RewritingProcess process) {
-		Expression result;
-		if (lessThanApplication.get(0).equals(lessThanApplication.get(1))) {
-			result = FALSE; // not less than itself
-		}
-		else if (isNumber(lessThanApplication.get(0)) && isNumber(lessThanApplication.get(1))) {
-			result = makeSymbol(lessThan(lessThanApplication.get(0).rationalValue(), lessThanApplication.get(1).rationalValue()));
-		}
-		else {
-			result = lessThanApplication;
-		}
+	@Override
+	public Iterator<Expression> iterator() {
+		return functionIterator(new IntegerIterator(0, 9), i -> makeSymbol(i));
+	}
+
+	@Override
+	public boolean contains(Expression uniquelyNamedConstant) {
+		boolean result =
+				uniquelyNamedConstant.getValue() instanceof Rational
+				&& ((Rational) uniquelyNamedConstant.getValue()).isInteger()
+				&& ((Rational) uniquelyNamedConstant.getValue()).compareTo(0) >= 0
+				&& ((Rational) uniquelyNamedConstant.getValue()).compareTo(10) < 0;
 		return result;
+	}
+
+	@Override
+	public Expression sampleConstant(Random random) {
+		Symbol result = makeSymbol(new Rational(random.nextInt(10)));
+		return result;
+	}
+
+	@Override
+	public int size() {
+		return 10;
 	}
 }

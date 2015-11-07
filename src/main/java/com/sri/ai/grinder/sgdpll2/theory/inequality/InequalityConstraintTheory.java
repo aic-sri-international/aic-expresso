@@ -44,10 +44,14 @@ import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
-import static com.sri.ai.util.Util.set;
+import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.map;
+
+import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.type.Integer0To9;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMergedMapBasedSimplifier;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -57,15 +61,26 @@ import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstrainTheoryWithFunctionApplicationAtoms;
+import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstrainTheoryWithBinaryRelations;
 import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
+import com.sri.ai.util.Util;
 
 
 /** 
  * A {@link ConstraintTheory} for integer inequality literals.
  */
 @Beta
-public class InequalityConstraintTheory extends AbstractConstrainTheoryWithFunctionApplicationAtoms {
+public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinaryRelations {
+
+	static final Map<String, String> negationFunctor =
+	Util.map(
+			EQUALITY,                 DISEQUALITY,
+			DISEQUALITY,              EQUALITY,
+			LESS_THAN,                GREATER_THAN_OR_EQUAL_TO,
+			LESS_THAN_OR_EQUAL_TO,    GREATER_THAN,
+			GREATER_THAN,             LESS_THAN_OR_EQUAL_TO,
+			GREATER_THAN_OR_EQUAL_TO, LESS_THAN
+			);
 
 	/**
 	 * 	 * Creates an inequality theory for integers that does <i>not</i> assume equality literals are literal of this theory
@@ -86,10 +101,13 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithFunct
 	 */
 	public InequalityConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory) {
 		super(
+				negationFunctor.keySet(),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-				new RecursiveExhaustiveMergedMapBasedSimplifier(
-						new EqualitySimplifier(), new InequalitySimplifier(), new BooleanSimplifier()),
-						set(EQUALITY, DISEQUALITY, LESS_THAN, LESS_THAN_OR_EQUAL_TO, GREATER_THAN, GREATER_THAN_OR_EQUAL_TO));
+						new RecursiveExhaustiveMergedMapBasedSimplifier(
+								new EqualitySimplifier(), new InequalitySimplifier(), new BooleanSimplifier()));
+
+		setTypesForTesting(list(new Integer0To9()));
+		setVariableNamesAndTypeNamesForTesting(map("I", "Integer0to9", "J", "Integer0to9", "K", "Integer0to9"));
 	}
 	
 	@Override
@@ -101,31 +119,9 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithFunct
 
 	@Override
 	protected Expression getNonTrivialAtomNegation(Expression atom) {
-		Expression result;
-		
-		switch (atom.getFunctor().toString()) {
-		case EQUALITY:
-			result = apply(DISEQUALITY, atom.get(0), atom.get(1));
-			break;
-		case DISEQUALITY:
-			result = apply(EQUALITY, atom.get(0), atom.get(1));
-			break;
-		case LESS_THAN:
-			result = apply(GREATER_THAN_OR_EQUAL_TO, atom.get(0), atom.get(1));
-			break;
-		case LESS_THAN_OR_EQUAL_TO:
-			result = apply(GREATER_THAN, atom.get(0), atom.get(1));
-			break;
-		case GREATER_THAN:
-			result = apply(LESS_THAN_OR_EQUAL_TO, atom.get(0), atom.get(1));
-			break;
-		case GREATER_THAN_OR_EQUAL_TO:
-			result = apply(GREATER_THAN_OR_EQUAL_TO, atom.get(0), atom.get(1));
-			break;
-		default:
-			result = null;
-		}
-		
+		String functorString = atom.getFunctor().toString();
+		String negatedFunctor = negationFunctor.get(functorString);
+		Expression result = apply(negatedFunctor, atom.get(0), atom.get(1));
 		return result;
 	}
 
@@ -136,16 +132,16 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithFunct
 
 	@Override
 	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
-		return true; // SingleVariableInequalityConstraint is complete
+		return false; // SingleVariableInequalityConstraint is complete
 	}
 
 	@Override
 	public ContextDependentProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
-		return new SatisfiabilityOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
+		return null;//new SatisfiabilityOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
 	}
 
 	@Override
 	public ContextDependentProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
-		return new ModelCountingOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
+		return null;//new ModelCountingOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
 	}
 }

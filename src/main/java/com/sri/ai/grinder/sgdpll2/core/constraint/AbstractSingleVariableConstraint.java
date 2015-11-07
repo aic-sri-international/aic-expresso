@@ -150,20 +150,20 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	 * on <code>X</code>, and to <code>Y = X</code> for a constraint on <code>Y</code>.
 	 * @param variable
 	 * @param literal
+	 * @param process TODO
 	 * @return
 	 */
-	protected abstract Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal);
+	protected abstract Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal, RewritingProcess process);
 
 	/**
-	 * Returns the literal corresponding to the negation of the given atom
-	 * (which is known to be false).
+	 * Returns the literal corresponding to the negation of the given normalized atom.
 	 * Typically this will just return the application of NOT to the atom,
-	 * but some languages may have more conventional ways of representing these
+	 * but some languages may have more conventional (and more pleasing to read) ways of representing these
 	 * negations (for example, not(X = a) -> X != a).
-	 * @param negativeAtom
+	 * @param normalizedAtom
 	 * @return
 	 */
-	abstract public Expression fromNegativeNormalizedAtomToLiteral(Expression negativeAtom);
+	abstract public Expression fromNormalizedAtomToItsNegationAsLiteral(Expression normalizedAtom);
 
 	/** Indicates whether there are interactions between distinct atoms (for this constraint and variable). */
 	abstract public boolean normalizedAtomMayImplyLiteralsOnDifferentAtoms();
@@ -218,9 +218,21 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	}
 
 	/**
-	 * Extending classes define this method to perform whatever bookkeeping is needed
+	 * Extending classes define this method to perform whatever checks are needed
 	 * after a new atom has been inserted, returning null in case of a detected contradiction
-	 * or this object otherwise.
+	 * or this object, or a simplified version of it, otherwise.
+	 * <p>
+	 * In general, this will contain whatever theory-specific checks and simplifications that go beyond
+	 * simple contradiction between normalized atoms.
+	 * <p>
+	 * One example of this method being useful is in equality theory with finite domains.
+	 * If a variable is constrained to be disequal to <code>n</code> distinct values
+	 * and its type size is equal or less than <code>n</code>, we know the constraint
+	 * is unsatisfiable.
+	 * Because {@link AbstractSingleVariableConstraint} knows nothing about equalities,
+	 * it will not detect that.
+	 * An extension defining equality constraints can define this method to perform such check.
+	 * 
 	 * @param sign
 	 * @param atom
 	 * @param process 
@@ -241,7 +253,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 			result = copyWithNewExternalLiteral(formula);
 		}
 		else {
-			Pair<Boolean, Expression> signAndNormalizedAtom = fromLiteralOnVariableToSignAndNormalizedAtom(getVariable(), formula);
+			Pair<Boolean, Expression> signAndNormalizedAtom = fromLiteralOnVariableToSignAndNormalizedAtom(getVariable(), formula, process);
 			boolean    sign = signAndNormalizedAtom.first;
 			Expression normalizedAtom = signAndNormalizedAtom.second;
 			ArrayList<Expression>     sameSignNormalizedAtoms = sign? positiveNormalizedAtoms : negativeNormalizedAtoms;
@@ -252,23 +264,40 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 			else if (oppositeSignNormalizedAtoms.contains(normalizedAtom)) {
 				result = null; // contradiction
 			}
-			else if (normalizedAtomMayImplyLiteralsOnDifferentAtoms()) {
-				result = conjoinNonTrivialPossiblyDependentLiteral(sign, normalizedAtom, process);
-			}
 			else {
-				result = conjoinNonTrivialIndependentLiteral(sign, normalizedAtom, process);
+				result = conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, process);
 			}
 		}
 		return result;
 	}
 
 	/**
+	 * Conjoin a literal described by sign and normalized atom;
+	 * this may be a useful hook for extending classes to intercept in order to perform theory-specific processing,
+	 * while having access to the literal already broken down into sign and normalized atom.
 	 * @param sign
-	 * @param atom
+	 * @param normalizedAtom
 	 * @param process
 	 * @return
 	 */
-	private AbstractSingleVariableConstraint conjoinNonTrivialPossiblyDependentLiteral(boolean sign, Expression atom, RewritingProcess process) {
+	protected AbstractSingleVariableConstraint conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, RewritingProcess process) {
+		AbstractSingleVariableConstraint result;
+		if (normalizedAtomMayImplyLiteralsOnDifferentAtoms()) {
+			result = conjoinNonTrivialPossiblyDependentSignAndNormalizedAtom(sign, normalizedAtom, process);
+		}
+		else {
+			result = conjoinNonTrivialIndependentSignAndNormalizedAtom(sign, normalizedAtom, process);
+		}
+		return result;
+	}
+
+	/**
+	 * @param sign
+	 * @param normalizedAtom
+	 * @param process
+	 * @return
+	 */
+	private AbstractSingleVariableConstraint conjoinNonTrivialPossiblyDependentSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, RewritingProcess process) {
 		AbstractSingleVariableConstraint result;
 		// OPTIMIZATION
 		// Here it would pay to have the database of atoms to be indexed by theory-specific properties
@@ -279,47 +308,47 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 		// while equalities between two variables never affect literals based on distinct atoms.
 		
 		boolean oppositeSign = sign? false : true;
-		if (    thereExists(positiveNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(true,  p, sign, atom, process)) ||
-				thereExists(negativeNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(false, p, sign, atom, process))) {
+		if (    thereExists(positiveNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(true,  p, sign, normalizedAtom, process)) ||
+				thereExists(negativeNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(false, p, sign, normalizedAtom, process))) {
 			result = this; // redundant
 		}
-		else if (thereExists(positiveNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(true,  p, oppositeSign, atom, process)) ||
-				 thereExists(negativeNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(false, p, oppositeSign, atom, process))) {
+		else if (thereExists(positiveNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(true,  p, oppositeSign, normalizedAtom, process)) ||
+				 thereExists(negativeNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(false, p, oppositeSign, normalizedAtom, process))) {
 			result = null; // contradiction
 		}
 		else {
 			// remove redundant literals and add new one
 			ArrayList<Expression> newPositiveAtoms = 
-					removeFromArrayListNonDestructively(positiveNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(sign, atom, true,  p, process));
+					removeFromArrayListNonDestructively(positiveNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(sign, normalizedAtom, true,  p, process));
 			ArrayList<Expression> newNegativeAtoms = 
-					removeFromArrayListNonDestructively(negativeNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(sign, atom, false, p, process));
+					removeFromArrayListNonDestructively(negativeNormalizedAtoms, p -> impliesLiteralWithDifferentNormalizedAtom(sign, normalizedAtom, false, p, process));
 			if (sign) {
-				newPositiveAtoms.add(atom);
+				newPositiveAtoms.add(normalizedAtom);
 			}
 			else {
-				newNegativeAtoms.add(atom);
+				newNegativeAtoms.add(normalizedAtom);
 			}
 			result = copyWithNewPositiveAndNegativeNormalizedAtoms(newPositiveAtoms, newNegativeAtoms);
-			result = result.destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(sign, atom, process);
+			result = result.destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(sign, normalizedAtom, process);
 		}
 		return result;
 	}
 
 	/**
 	 * @param sign
-	 * @param atom
+	 * @param normalizedAtom
 	 * @param process
 	 * @return
 	 */
-	private AbstractSingleVariableConstraint conjoinNonTrivialIndependentLiteral(boolean sign, Expression atom, RewritingProcess process) {
+	private AbstractSingleVariableConstraint conjoinNonTrivialIndependentSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, RewritingProcess process) {
 		AbstractSingleVariableConstraint result;
 		if (sign) {
-			result = copyWithNewPositiveNormalizedAtom(atom);
-			result = result.destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(sign, atom, process);
+			result = copyWithNewPositiveNormalizedAtom(normalizedAtom);
+			result = result.destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(sign, normalizedAtom, process);
 		}
 		else {
-			result = copyWithNewNegativeNormalizedAtom(atom);
-			result = result.destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(sign, atom, process);
+			result = copyWithNewNegativeNormalizedAtom(normalizedAtom);
+			result = result.destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(sign, normalizedAtom, process);
 		}
 		return result;
 	}
@@ -328,7 +357,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	protected Expression computeInnerExpression() {
 		List<Expression> conjuncts = list();
 		conjuncts.addAll(positiveNormalizedAtoms);
-		Util.mapIntoList(negativeNormalizedAtoms, n -> fromNegativeNormalizedAtomToLiteral(n), conjuncts);
+		Util.mapIntoList(negativeNormalizedAtoms, n -> fromNormalizedAtomToItsNegationAsLiteral(n), conjuncts);
 		conjuncts.addAll(externalLiterals);
 		Expression result = And.make(conjuncts);
 		return result;

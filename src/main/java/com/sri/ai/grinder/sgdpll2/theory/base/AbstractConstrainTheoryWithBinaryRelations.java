@@ -19,10 +19,11 @@ import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractConstraintTheory;
 import com.sri.ai.util.collect.PredicateIterator;
 
-public abstract class AbstractConstrainTheoryWithFunctionApplicationAtoms extends AbstractConstraintTheory {
+public abstract class AbstractConstrainTheoryWithBinaryRelations extends AbstractConstraintTheory {
 
 	/**
-	 * Indicates whether the theory can safely assume that all applications of its theory functors are literals in it.
+	 * Indicates whether the theory can safely assume that all applications of its theory functors are atoms in it,
+	 * regardless of their argument types (this spares the theory to do the checking).
 	 */
 	protected boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory;
 
@@ -37,8 +38,28 @@ public abstract class AbstractConstrainTheoryWithFunctionApplicationAtoms extend
 	protected Collection<String> theoryFunctors;
 
 	/**
+	 * Constructor taking the theory's functor strings,
+	 * a boolean indicating whether any application of this functors, regardless of their arguments types,
+	 * are to be considered atoms in this theory (for efficiency purposes),
+	 * and a simplifier for these functions.
+	 * @param theoryFunctors
+	 * @param assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory
+	 * @param simplifier
+	 */
+	public AbstractConstrainTheoryWithBinaryRelations(
+			Collection<String> theoryFunctors,
+			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
+			Simplifier simplifier) {
+		super();
+		this.assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory = assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory;
+		this.simplifier = simplifier;
+		this.theoryFunctors = theoryFunctors;
+	}
+
+	/**
 	 * Indicates whether an argument to the theory functors is a valid argument to form a literal in this theory.
-	 * By default, theory functor arguments are only tested by this method if {@link #assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory} is true.
+	 * By default, the type of theory functor arguments is only tested by this method if
+	 * {@link #assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory} is true.
 	 * On the other hand, {@link #isSuitableFor(Expression, RewritingProcess)} always uses this test
 	 * for deciding whether this theory is suitable for a variable (which is passed as the argument here).
 	 * @param expression
@@ -53,16 +74,6 @@ public abstract class AbstractConstrainTheoryWithFunctionApplicationAtoms extend
 	 * @return
 	 */
 	protected abstract Expression getNonTrivialAtomNegation(Expression atom);
-
-	public AbstractConstrainTheoryWithFunctionApplicationAtoms(
-			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-			Simplifier simplifier,
-			Collection<String> theoryFunctors) {
-		super();
-		this.assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory = assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory;
-		this.simplifier = simplifier;
-		this.theoryFunctors = theoryFunctors;
-	}
 
 	/**
 	 * Indicates whether an expression is a function application of one of the theory functors.
@@ -158,21 +169,19 @@ public abstract class AbstractConstrainTheoryWithFunctionApplicationAtoms extend
 	 */
 	@Override
 	public Expression getLiteralNegation(Expression literal, RewritingProcess process) {
-		Expression result = getNonTrivialAtomNegation(literal); 
+		Expression result;
 		
-		if (result == null) {
-			if (literal.hasFunctor(NOT) && isApplicationOfTheoryFunctor(literal.get(0))) {
-				result = literal;
-			}
-			else if (literal.equals(TRUE)) {
-				result = FALSE;
-			} 
-			else if (literal.equals(FALSE)) {
-				result = TRUE;
-			} 
-			else {
-				throw new Error("Invalid literal: " + literal);
-			}
+		if (literal.hasFunctor(NOT) && isApplicationOfTheoryFunctor(literal.get(0))) {
+			result = literal;
+		}
+		else if (literal.equals(TRUE)) {
+			result = FALSE;
+		} 
+		else if (literal.equals(FALSE)) {
+			result = TRUE;
+		} 
+		else {
+			result = getNonTrivialAtomNegation(literal);
 		}
 		
 		return result;

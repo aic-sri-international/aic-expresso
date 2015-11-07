@@ -137,7 +137,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	
 			ArrayList<Expression> variableDisequals = getVariableDisequals(process);
 	
-			long variableDomainSize = getConstraint().getVariableDomainSize(process);
+			long variableDomainSize = getConstraint().getVariableTypeSize(process);
 			if (variableDomainSize >= 0 &&
 					variableDisequals.size() + getConstraint().getNumberOfDisequalitiesFromConstantsSeenSoFar()
 					>= variableDomainSize) {

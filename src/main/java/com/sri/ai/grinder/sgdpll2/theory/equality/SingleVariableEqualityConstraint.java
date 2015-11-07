@@ -37,14 +37,13 @@
  */
 package com.sri.ai.grinder.sgdpll2.theory.equality;
 
-import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
-import static com.sri.ai.grinder.library.FunctorConstants.NOT;
 import static com.sri.ai.util.Util.list;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -52,8 +51,8 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.theory.base.AbstractSingleVariableConstraintWithBinaryFunctionApplicationAtoms;
-import com.sri.ai.util.base.Pair;
+import com.sri.ai.grinder.sgdpll2.theory.base.AbstractSingleVariableConstraintWithBinaryAtoms;
+import com.sri.ai.util.Util;
 
 /**
  * An equality constraint solver.
@@ -62,7 +61,7 @@ import com.sri.ai.util.base.Pair;
  *
  */
 @Beta
-public class SingleVariableEqualityConstraint extends AbstractSingleVariableConstraintWithBinaryFunctionApplicationAtoms {
+public class SingleVariableEqualityConstraint extends AbstractSingleVariableConstraintWithBinaryAtoms {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -81,7 +80,6 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	@Override
 	public SingleVariableEqualityConstraint clone() {
 		SingleVariableEqualityConstraint result = new SingleVariableEqualityConstraint(this);
-		result.numberOfDisequalitiesFromConstantsSeenSoFar = numberOfDisequalitiesFromConstantsSeenSoFar;
 		return result;
 	}
 
@@ -90,12 +88,16 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 		SingleVariableEqualityConstraint result = this;
 		if (!sign && process.isUniquelyNamedConstant(atom.get(1))) {
 			numberOfDisequalitiesFromConstantsSeenSoFar++;
-			long variableDomainSize = getVariableDomainSize(process);
+			long variableDomainSize = getVariableTypeSize(process);
 			if (variableDomainSize >= 0 && numberOfDisequalitiesFromConstantsSeenSoFar == variableDomainSize) {
 				result = null;
 			}
 		}
 		return result;
+		// this control is performed after the conjoining of literals has been performed,
+		// and one may ask why not do it as soon as the literal is received, in order to save time.
+		// the reason it is done here is so that we know for sure it is the first disequality
+		// we see against this constant, because those already seen are not re-inserted.
 	}
 	
 	/**
@@ -112,9 +114,9 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	 */
 	@Override
 	public SingleVariableEqualityConstraint conjoinWithLiteral(Expression literal, RewritingProcess process) {
-		Collection<Expression> binaryEqualities = breakMultiTermEquality(literal, process);
+		Collection<Expression> binaryLiterals = breakMultiTermEquality(literal, process);
 		SingleVariableEqualityConstraint result = null; // initial value never used, but compiler does not realize it
-		for (Expression binaryEquality : binaryEqualities) {
+		for (Expression binaryEquality : binaryLiterals) {
 			result = (SingleVariableEqualityConstraint) super.conjoinWithLiteral(binaryEquality, process);
 			if (result == null) {
 				break;
@@ -138,47 +140,34 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	}
 
 	@Override
-	public Expression fromNegativeNormalizedAtomToLiteral(Expression negativeAtom) {
+	public Expression fromNormalizedAtomToItsNegationAsLiteral(Expression negativeAtom) {
 		Expression result = Disequality.make(negativeAtom.get(0), negativeAtom.get(1));
 		return result;
 	}
 
-	/**
-	 * Given a binary function application literal, the variable occurring in it, and the other term,
-	 * return the pair of sign and normalized atom.
-	 * @param binaryFunctionApplicationLiteral
-	 * @param variable
-	 * @param other
-	 * @return
-	 */
-	protected Pair<Boolean, Expression> makeSignAndNormalizedAtom(Expression binaryFunctionApplicationLiteral, Expression variable, Expression other) {
-		Pair<Boolean, Expression> result;
-		boolean sign = binaryFunctionApplicationLiteral.hasFunctor(EQUALITY);
-		Expression normalizedAtom = apply(EQUALITY, variable, other);
-		result = Pair.make(sign, normalizedAtom);
+	private static final Collection<String> normalFunctors =
+			Util.set(EQUALITY);
+	
+	private static final Map<String, String> negationFunctor =
+			Util.map(
+					EQUALITY,                 DISEQUALITY,
+					DISEQUALITY,              EQUALITY
+					);
+
+	@Override
+	protected Collection<String> getNormalFunctors() {
+		return normalFunctors;
+	}
+	
+	@Override
+	protected String getNegationFunctor(String functor) {
+		String result = negationFunctor.get(functor);
 		return result;
 	}
-
-	/**
-	 * If literal is a negation, return an equivalent literal that is a binary function application,
-	 * or null if there is no such equivalent literal.
-	 * @param literal
-	 * @return the binary function application, or null if there is no such equivalent literal.
-	 * @throws Error if literal is not a valid literal for this theory
-	 */
-	protected Expression moveNotInOrNullIfNotPossible(Expression literal) throws Error {
-		if (literal.hasFunctor(NOT)) {
-			if (literal.get(0).hasFunctor(EQUALITY)) {
-				literal = apply(DISEQUALITY, literal.get(0).get(0), literal.get(0).get(1));
-			}
-			else if (literal.get(0).hasFunctor(DISEQUALITY)) {
-				literal = apply(EQUALITY, literal.get(0).get(0), literal.get(0).get(1));
-			}
-			else {
-				throw new Error("Invalid literal for equality theory received: " + literal);
-			}
-		}
-		return literal;
+	
+	@Override
+	protected String getFlipFunctor(String functor) {
+		return functor; // both equality and disequality are symmetrical
 	}
 
 	@Override

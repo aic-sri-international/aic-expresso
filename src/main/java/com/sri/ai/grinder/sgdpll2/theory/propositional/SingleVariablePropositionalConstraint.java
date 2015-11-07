@@ -76,12 +76,12 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 	}
 
 	@Override
-	public Expression fromNegativeNormalizedAtomToLiteral(Expression negativeAtom) {
+	public Expression fromNormalizedAtomToItsNegationAsLiteral(Expression negativeAtom) {
 		return apply(NOT, negativeAtom);
 	}
 
 	@Override
-	public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal) {
+	public Pair<Boolean, Expression> fromLiteralOnVariableToSignAndNormalizedAtom(Expression variable, Expression literal, RewritingProcess process) {
 		Pair<Boolean, Expression> result;
 		if (literal.hasFunctor(NOT)) {
 			result = Pair.make(false, literal.get(0));

@@ -42,6 +42,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Random;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
@@ -52,11 +53,13 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.problemtype.Max;
 import com.sri.ai.grinder.plaindpll.problemtype.Sum;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
-import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstrainTheoryWithFunctionApplicationAtoms;
+import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstrainTheoryWithBinaryRelations;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstraint;
 
 @Beta
 public class EqualityConstraintTest {
@@ -130,6 +133,17 @@ public class EqualityConstraintTest {
 	}
 
 	@Test
+	public void testSatisfiabilitySpecialCases() {
+		String conjunction;
+		conjunction = "X != a and X != b and X != c and X != Y and X != Z"; // looks unsatisfiable for type size 5, but it is not
+		EqualityConstraintTheory constraintTheory = new EqualityConstraintTheory();
+		Constraint2 constraint = new SingleVariableEqualityConstraint(parse("X"), constraintTheory);
+		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
+		constraint = constraint.conjoinWithConjunctiveClause(parse(conjunction), process);
+		Assert.assertNotEquals(null, constraint); // satisfiable if either Y or Z is equal to a, b, c, or each other.
+	}
+
+	@Test
 	public void testCompleteSatisfiabilitySpecialCases() {
 		// This test is to make sure that some more tricky cases are indeed tested,
 		// even though hopefully the large amount of generated random problems include them.
@@ -155,7 +169,7 @@ public class EqualityConstraintTest {
 	 * @param expected
 	 */
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected) {
-		AbstractConstrainTheoryWithFunctionApplicationAtoms constraintTheory = new EqualityConstraintTheory(true);
+		AbstractConstrainTheoryWithBinaryRelations constraintTheory = new EqualityConstraintTheory(true);
 		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {

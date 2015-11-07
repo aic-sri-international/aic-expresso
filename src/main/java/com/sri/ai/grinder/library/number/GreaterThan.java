@@ -37,9 +37,10 @@
  */
 package com.sri.ai.grinder.library.number;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.isNumber;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.util.Util.greaterThanOrEqualTo;
+import static com.sri.ai.util.Util.greaterThan;
 
 import java.util.LinkedHashSet;
 
@@ -76,18 +77,21 @@ public class GreaterThan extends BinaryOperator {
 	}
 
 	/**
-	 * Receives an application of {@link FunctorConstants.GREATER_THAN_OR_EQUAL_TO} and evaluates it if possible.
-	 * @param greaterThanOrEqualToApplication
+	 * Receives an application of {@link FunctorConstants.GREATER_THAN} and evaluates it if possible.
+	 * @param greaterThanApplication
 	 * @param process TODO
 	 * @return
 	 */
-	public static Expression simplify(Expression greaterThanOrEqualToApplication, RewritingProcess process) {
+	public static Expression simplify(Expression greaterThanApplication, RewritingProcess process) {
 		Expression result;
-		if (isNumber(greaterThanOrEqualToApplication.get(0)) && isNumber(greaterThanOrEqualToApplication.get(1))) {
-			result = makeSymbol(greaterThanOrEqualTo(greaterThanOrEqualToApplication.get(0).rationalValue(), greaterThanOrEqualToApplication.get(1).rationalValue()));
+		if (greaterThanApplication.get(0).equals(greaterThanApplication.get(1))) {
+			result = FALSE; // not greater than itself
+		}
+		else if (isNumber(greaterThanApplication.get(0)) && isNumber(greaterThanApplication.get(1))) {
+			result = makeSymbol(greaterThan(greaterThanApplication.get(0).rationalValue(), greaterThanApplication.get(1).rationalValue()));
 		}
 		else {
-			result = greaterThanOrEqualToApplication;
+			result = greaterThanApplication;
 		}
 		return result;
 	}
