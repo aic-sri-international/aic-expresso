@@ -154,7 +154,7 @@ public abstract class AbstractCommonInterpreter extends AbstractInterpreter {
 			Expression expression,
 			RewritingProcess process) throws Error {
 		
-		IntensionalSet intensionalSet = (IntensionalSet)expression.get(0);
+		IntensionalSet intensionalSet = (IntensionalSet) expression.get(0);
 		ExtensionalIndexExpressionsSet indexExpressions = (ExtensionalIndexExpressionsSet) intensionalSet.getIndexExpressions();
 		// the set is intensional, but not the set of index expressions!
 		Expression result =

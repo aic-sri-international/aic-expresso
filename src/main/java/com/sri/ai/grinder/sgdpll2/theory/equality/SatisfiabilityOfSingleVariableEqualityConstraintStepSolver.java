@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpll2.theory.equality;
 
+import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.zipApply;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.util.Util.arrayList;
@@ -46,6 +47,7 @@ import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.thereExists;
 import static com.sri.ai.util.Util.toLinkedHashSet;
 import static com.sri.ai.util.base.PairOf.makePairOf;
+import static com.sri.ai.util.collect.FunctionIterator.functionIterator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -56,7 +58,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Equality;
@@ -98,12 +99,13 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	protected Iterable<Expression> getPropagatedLiterals() {
 		
 		Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator = pairsOfEqualsToVariableIterator();
-		Iterator<Expression> propagatedEqualities = FunctionIterator.make(pairsOfEqualsToVariableIterator, p -> Equality.make(p.first, p.second));
+		Iterator<Expression> propagatedEqualities = functionIterator(pairsOfEqualsToVariableIterator, p -> Equality.make(p.first, p.second));
 		
 		Iterator<Expression> propagatedDisequalities =
-				FunctionIterator.make(arrayListsOfEqualAndDisequalToVariableIterator(), p -> Expressions.apply(DISEQUALITY, p));
+				functionIterator(arrayListsOfEqualAndDisequalToVariableIterator(), p -> apply(DISEQUALITY, p));
 		
-		Iterator<Expression> propagatedLiteralsIterator = new NestedIterator<>(getConstraint().getExternalLiterals(), propagatedEqualities, propagatedDisequalities);
+		Iterator<Expression> propagatedLiteralsIterator =
+				new NestedIterator<>(getConstraint().getExternalLiterals(), propagatedEqualities, propagatedDisequalities);
 
 		Iterable<Expression> result = in(propagatedLiteralsIterator);
 		
@@ -114,16 +116,15 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 		PairOfElementsInListIterator<Expression> pairsOfPositiveAtomsIterator = 
 				new PairOfElementsInListIterator<>(getConstraint().getPositiveAtoms());
 		
-		Function<PairOf<Expression>, PairOf<Expression>> makePairOfSecondArguments = p -> makePairOf(p.first.get(1), p.second.get(1));
+//		Function<PairOf<Expression>, PairOf<Expression>> makePairOfSecondArguments = p -> makePairOf(p.first.get(1), p.second.get(1));
 // above lambda somehow not working at Ciaran's environment, replacing with seemingly identical anonymous class object below		
-//		Function<PairOf<Expression>, PairOf<Expression>> makePairOfSecondArguments = new Function<PairOf<Expression>, PairOf<Expression>>() {
-//			@Override
-//			public PairOf<Expression> apply(PairOf<Expression> p) {
-//				return makePairOf(p.first.get(1), p.second.get(1));
-//			}
-//		};
-		Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator =
-				FunctionIterator.make(pairsOfPositiveAtomsIterator, makePairOfSecondArguments);
+		Function<PairOf<Expression>, PairOf<Expression>> makePairOfSecondArguments = new Function<PairOf<Expression>, PairOf<Expression>>() {
+			@Override
+			public PairOf<Expression> apply(PairOf<Expression> p) {
+				return makePairOf(p.first.get(1), p.second.get(1));
+			}
+		};
+		Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator = functionIterator(pairsOfPositiveAtomsIterator, makePairOfSecondArguments);
 		
 		return pairsOfEqualsToVariableIterator;
 	}
@@ -179,7 +180,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	}
 
 	@SuppressWarnings("unchecked")
-	protected Iterator<ArrayList<Expression>> arrayListsOfEqualAndDisequalToVariableIterator() {
+	private Iterator<ArrayList<Expression>> arrayListsOfEqualAndDisequalToVariableIterator() {
 		
 		Function<ArrayList<Expression>, ArrayList<Expression>> extractSecondArguments =
 				equalityAndDisequality -> arrayList(equalityAndDisequality.get(0).get(1), equalityAndDisequality.get(1).get(1));

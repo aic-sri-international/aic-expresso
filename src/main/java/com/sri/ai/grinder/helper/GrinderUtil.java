@@ -44,10 +44,14 @@ import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.CARTESIAN_PRODUCT;
 import static com.sri.ai.grinder.library.FunctorConstants.DIVISION;
 import static com.sri.ai.grinder.library.FunctorConstants.EXPONENTIATION;
+import static com.sri.ai.grinder.library.FunctorConstants.MAX;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
+import static com.sri.ai.grinder.library.FunctorConstants.PRODUCT;
+import static com.sri.ai.grinder.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
 import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
+import static com.sri.ai.util.Util.getFirstOrNull;
 import static com.sri.ai.util.Util.list;
 
 import java.util.ArrayList;
@@ -70,6 +74,7 @@ import com.sri.ai.expresso.api.LambdaExpression;
 import com.sri.ai.expresso.api.QuantifiedExpression;
 import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.core.AbstractExtensionalSet;
 import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
@@ -728,6 +733,22 @@ public class GrinderUtil {
 		if (FormulaUtil.isApplicationOfBooleanConnective(expression)) {
 			result = makeSymbol("Boolean");
 		}
+		else if (expression.getSyntacticFormType().equals("Function application") &&
+				list(SUM, PRODUCT, MAX).contains(expression.getFunctor().toString())) {
+			Expression argument = expression.get(0);
+			if (argument.getSyntacticFormType().equals("Intensional set")) {
+				Expression head = ((IntensionalSet)argument).getHead();
+				result = getType(head, process);
+			}
+			else if (argument.getSyntacticFormType().equals("Extensional set")) {
+				List<Expression> arguments = ((AbstractExtensionalSet)argument).getElementsDefinitions();
+				result = getTypeOfCollectionOfNumericExpressionsWithDefaultInteger(arguments, process);
+			}
+			else if (expression.hasFunctor(MAX)) { // MAX can also be applied to a bunch of numbers
+				result = getTypeOfCollectionOfNumericExpressionsWithDefaultInteger(expression.getArguments(), process);
+			}
+			else throw new Error(expression.getFunctor() + " defined for sets only but got " + expression.get(0));
+		}
 		else if (Equality.isEquality(expression) || Disequality.isDisequality(expression)) {
 			result = makeSymbol("Boolean");
 		}
@@ -815,6 +836,23 @@ public class GrinderUtil {
 		}
 		else {
 			throw new Error("GrinderUtil.getType does not yet know how to determine the type of this sort of expression: " + expression);
+		}
+		return result;
+	}
+
+	/**
+	 * @param arguments
+	 * @param process
+	 * @return
+	 */
+	private static Expression getTypeOfCollectionOfNumericExpressionsWithDefaultInteger(List<Expression> arguments, RewritingProcess process) {
+		Expression result;
+		Expression first = getFirstOrNull(arguments);
+		if (first == null) {
+			result = makeSymbol("Integer");
+		}
+		else {
+			result = getType(first, process);
 		}
 		return result;
 	}

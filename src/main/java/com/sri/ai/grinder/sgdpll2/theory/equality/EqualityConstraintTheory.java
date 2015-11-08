@@ -91,7 +91,9 @@ public class EqualityConstraintTheory extends AbstractConstrainTheoryWithBinaryR
 	@Override
 	protected boolean isValidArgument(Expression expression, RewritingProcess process) {
 		Expression type = GrinderUtil.getType(expression, process);
-		myAssert(() -> type != null, () -> expression + " has unknown type.");
+		myAssert(
+				() -> type != null, 
+				() -> expression + " has unknown type.");
 		boolean result = isNonBooleanCategoricalType(type, process);
 		return result;
 	}

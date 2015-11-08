@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.util.Util.myAssert;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -82,6 +83,10 @@ public class Categorical implements Type {
 		this.knownConstants = knownConstants;
 	}
 
+	public Categorical(String name, int cardinality, Expression... knownConstants) {
+		this(name, cardinality, new ArrayList<Expression>((Arrays.asList(knownConstants))));
+	}
+	
 	@Override
 	public Iterator<Expression> iterator() {
 		return new NestedIterator<>(knownConstants, unknownConstantsIterator());

@@ -182,6 +182,24 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 		return result;
 	}
 
+//	public Expression getPropagatedLiteral(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
+//		Expression result;
+//		if (sign1) {
+//			if (sign2) {
+//				// X = Y and X = Z => Y = Z
+//				result = Equality.makeWithConstantSimplification(atom1.get(1), atom2.get(1), process);
+//			}
+//			else {
+//				// X = Y and X != Z => Y != Z
+//				result = Disequality.makeWithConstantSimplification(atom1.get(1), atom2.get(1), process);
+//			}
+//		}
+//		else {
+//			result = 
+//		}
+//		return result;
+//	}
+//
 	/**
 	 * Returns an iterator to terms constrained to be equal to variable.
 	 * @return

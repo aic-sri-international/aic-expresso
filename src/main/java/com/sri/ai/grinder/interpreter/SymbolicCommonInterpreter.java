@@ -37,9 +37,11 @@
  */
 package com.sri.ai.grinder.interpreter;
 
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.interpreter.SGDPLLT.solve;
 import static com.sri.ai.util.Util.arrayList;
+import static com.sri.ai.util.Util.map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -48,12 +50,15 @@ import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.CommonSimplifier;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
 
 /**
  * An extension of {@link AbstractInterpreter} re-using {@link CommonSimplifier}
@@ -102,6 +107,8 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 			Expression body,
 			RewritingProcess process) throws Error {
 
+		process = GrinderUtil.extendContextualSymbolsWithIndexExpressions(indexExpressions, process);
+		
 		// TODO: OPTIMIZATION: this *severely* slows down the algorithm
 		// we need to organize things so that we do not depend of pre-simplifications like this
 		// but do them once on the fly.
@@ -138,13 +145,24 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		AbstractInterpreter interpreter = new SymbolicCommonInterpreter(new EqualityConstraintTheory(true), true);
+		ConstraintTheory constraintTheory =
+				new CompoundConstraintTheory(
+						new EqualityConstraintTheory(true),
+						new PropositionalConstraintTheory());
+		
+		AbstractInterpreter interpreter = new SymbolicCommonInterpreter(constraintTheory, true);
+		
 		RewritingProcess process = new DefaultRewritingProcess(null);
-		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory(true));
-		contextualConstraint = contextualConstraint.conjoin(parse("W != 3"), process);
-		process.putGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
 		process = process.put(new Categorical("Population", 1000, arrayList(parse("tom")))); // two pitfalls: immutable process and need for arrayList rather than just list
 		process = process.put(new Categorical("Numbers", -1, arrayList(parse("1"), parse("2"), parse("3"))));
+
+		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("W"), makeSymbol("Population")), process);
+		
+		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
+		contextualConstraint = contextualConstraint.conjoin(parse("W != 3"), process);
+		
+		process.putGlobalObject(INTERPRETER_CONTEXTUAL_CONSTRAINT, contextualConstraint);
+		
 //		Expression expression = parse("there exists X in Numbers : X = 3 and X + 1 = 1 + X");
 //		Expression expression = parse("if for all X in Population : (there exists Y in Population : Y != X and W != 3) then Hurrah else not Hurrah");
 //		Expression expression = parse("there exists Y in Population : Y != tom and W != 3");
