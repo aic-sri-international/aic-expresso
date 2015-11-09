@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpll2.theory.equality;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.list;
@@ -171,41 +172,32 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	}
 
 	@Override
-	public boolean normalizedAtomMayImplyLiteralsOnDifferentAtoms() {
-		return true;
-	}
-
-	@Override
-	public boolean impliesLiteralWithDifferentNormalizedAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
-		// X = c1 implies X != c2 for every other constant c2
-		boolean result = sign1 && !sign2 && process.isUniquelyNamedConstant(atom1.get(1)) && process.isUniquelyNamedConstant(atom2.get(1));
+	public Expression getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
+		Expression result;
+		if (sign1) {
+			if (sign2) {
+				// X = Y => X = Z iff Y = Z
+				result = Equality.makeWithConstantSimplification(atom1.get(1), atom2.get(1), process);
+			}
+			else {
+				// X = Y => X != Z iff Y != Z
+				result = Disequality.makeWithConstantSimplification(atom1.get(1), atom2.get(1), process);
+			}
+		}
+		else {
+			// X != Y => X = Z => false
+			// X != Y and X != Z => false
+			result = FALSE;
+		}
 		return result;
 	}
 
-//	public Expression getPropagatedLiteral(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
-//		Expression result;
-//		if (sign1) {
-//			if (sign2) {
-//				// X = Y and X = Z => Y = Z
-//				result = Equality.makeWithConstantSimplification(atom1.get(1), atom2.get(1), process);
-//			}
-//			else {
-//				// X = Y and X != Z => Y != Z
-//				result = Disequality.makeWithConstantSimplification(atom1.get(1), atom2.get(1), process);
-//			}
-//		}
-//		else {
-//			result = 
-//		}
-//		return result;
-//	}
-//
 	/**
 	 * Returns an iterator to terms constrained to be equal to variable.
 	 * @return
 	 */
 	public Iterator<Expression> getEqualsIterator() {
-		return getPositiveAtoms().stream().
+		return getPositiveNormalizedAtoms().stream().
 		map(e -> e.get(1)) // second arguments of Variable = Term
 		.iterator();
 	}
@@ -228,7 +220,7 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	 * @return
 	 */
 	public Iterator<Expression> getDisequalsIterator() {
-		return getNegativeAtoms().stream().
+		return getNegativeNormalizedAtoms().stream().
 		map(e -> e.get(1)) // second arguments of Variable != Term
 		.iterator();
 	}

@@ -53,13 +53,13 @@ import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractSingleVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractSingleVariableConstraintWithDependentNormalizedAtoms;
 import com.sri.ai.util.base.Pair;
 
 /**
  * An abstract single-variable constraint solver providing
  * functionality for theories involving only
- * binary atoms.
+ * binary atoms. It assumes there are interaction among distinct normalized atoms.
  * <p>
  * To maximize the detection of inconsistency,
  * extensions can restrict the stored atoms to be applications of
@@ -68,20 +68,24 @@ import com.sri.ai.util.base.Pair;
  * as applications of <code>=</code>, <code><</code>, and <code><=</code>,
  * converting atoms of <code>!=</code>, <code>></code>, and <code>>=</code>
  * as negations of normalized atoms.
+ * <p>
  * To achieve this, the extension must implement {@link #getNormalFunctors()}
  * to return a collection of the strings of the normal functors,
  * and {@link #getNegationFunctor(String)} to make a functor string to its negation
  * functor's string.
+ * <p>
  * To ensure that only normalized atoms are stored in the constraint,
  * the negation of a non-normal function must always be a normal functor.
  * If the theory is such that it is not always possible to negate a non-normal functor to a normal one,
  * then the extension must include all possible functors in {@link #getNormalFunctors()}.
+ * <p>
+ * Extensions must also provide a way to <i>flip</i> functors with {@link #getFlipFunctor(String)}.
  * 
  * @author braz
  *
  */
 @Beta
-public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends AbstractSingleVariableConstraint {
+public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends AbstractSingleVariableConstraintWithDependentNormalizedAtoms {
 
 	/**
 	 * The collection of functors for normalized atoms in this type of constraint.

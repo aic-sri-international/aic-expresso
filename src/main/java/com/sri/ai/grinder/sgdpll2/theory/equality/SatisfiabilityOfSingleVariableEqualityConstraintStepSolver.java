@@ -114,7 +114,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 
 	protected Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator() {
 		PairOfElementsInListIterator<Expression> pairsOfPositiveAtomsIterator = 
-				new PairOfElementsInListIterator<>(getConstraint().getPositiveAtoms());
+				new PairOfElementsInListIterator<>(getConstraint().getPositiveNormalizedAtoms());
 		
 //		Function<PairOf<Expression>, PairOf<Expression>> makePairOfSecondArguments = p -> makePairOf(p.first.get(1), p.second.get(1));
 // above lambda somehow not working at Ciaran's environment, replacing with seemingly identical anonymous class object below		
@@ -188,8 +188,8 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 		Iterator<ArrayList<Expression>> result =
 				FunctionIterator.make(
 				new CartesianProductIterator<Expression>(
-						() -> getConstraint().getPositiveAtoms().iterator(),
-						() -> getConstraint().getNegativeAtoms().iterator()),
+						() -> getConstraint().getPositiveNormalizedAtoms().iterator(),
+						() -> getConstraint().getNegativeNormalizedAtoms().iterator()),
 						extractSecondArguments);
 		
 		return result;
@@ -200,7 +200,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	 * @return
 	 */
 	private boolean variableIsBoundToUniquelyNamedConstant(RewritingProcess process) {
-		return thereExists(getConstraint().getPositiveAtoms(), l -> process.isUniquelyNamedConstant(l.get(1)));
+		return thereExists(getConstraint().getPositiveNormalizedAtoms(), l -> process.isUniquelyNamedConstant(l.get(1)));
 	}
 
 	/**
@@ -208,7 +208,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	 * @return
 	 */
 	private ArrayList<Expression> getVariableDisequals(RewritingProcess process) {
-		return getConstraint().getNegativeAtoms().stream().
+		return getConstraint().getNegativeNormalizedAtoms().stream().
 		map(e -> e.get(1)). // second arguments of Variable != Term
 		filter(e -> ! process.isUniquelyNamedConstant(e)). // only Variables
 		collect(Util.toArrayList(10));
@@ -219,7 +219,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	 * @return
 	 */
 	private LinkedHashSet<Expression> getConstantDisequals(RewritingProcess process) {
-		return getConstraint().getNegativeAtoms().stream().
+		return getConstraint().getNegativeNormalizedAtoms().stream().
 		map(e -> e.get(1)). // second arguments of Variable != Term
 		filter(e -> process.isUniquelyNamedConstant(e)). // only constants
 		collect(toLinkedHashSet());

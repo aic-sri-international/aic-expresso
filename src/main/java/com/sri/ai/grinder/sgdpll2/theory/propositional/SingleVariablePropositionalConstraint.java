@@ -44,6 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractSingleVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractSingleVariableConstraintWithIndependentNormalizedAtoms;
 import com.sri.ai.util.base.Pair;
 
 /**
@@ -52,7 +53,7 @@ import com.sri.ai.util.base.Pair;
  * @author braz
  *
  */
-public class SingleVariablePropositionalConstraint extends AbstractSingleVariableConstraint {
+public class SingleVariablePropositionalConstraint extends AbstractSingleVariableConstraintWithIndependentNormalizedAtoms {
 
 	private static final long serialVersionUID = 1L;
 
@@ -92,16 +93,6 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 		return result;
 	}
 
-	@Override
-	public boolean normalizedAtomMayImplyLiteralsOnDifferentAtoms() {
-		return false;
-	}
-
-	@Override
-	public boolean impliesLiteralWithDifferentNormalizedAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
-		throw new Error("This method should not have been invoked because this class's atomMayImplyLiteralsOnDifferentAtoms returns 'false'.");
-	}
-	
 	@Override
 	public SingleVariablePropositionalConstraint conjoin(Expression formula, RewritingProcess process) {
 		return (SingleVariablePropositionalConstraint) super.conjoin(formula, process);

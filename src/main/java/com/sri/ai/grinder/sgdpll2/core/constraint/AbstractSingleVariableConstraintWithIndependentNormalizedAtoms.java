@@ -35,56 +35,52 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.theory.propositional;
+package com.sri.ai.grinder.sgdpll2.core.constraint;
 
-import static com.sri.ai.expresso.helper.Expressions.ONE;
-import static com.sri.ai.expresso.helper.Expressions.TWO;
+import java.util.ArrayList;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.sgdpll2.api.Constraint2;
-import com.sri.ai.grinder.sgdpll2.core.solver.AbstractModelCountingWithPropagatedAndDefiningLiteralsStepSolver;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.util.Util;
 
 /**
- * A {@link AbstractModelCountingOfConstraintStepSolver} for a {@link SingleVariablePropositionalConstraint}.
+ * An extension of {@link AbstractSingleVariableConstraint}
+ * for theories in which there is no interaction between distinct normalized atoms.
+ * It simply implements {@link #conjoinNonTrivialSignAndNormalizedAtom(boolean, Expression, RewritingProcess)}
+ * to add the new atom to the constraint.
  * 
  * @author braz
  *
  */
 @Beta
-public class ModelCountingOfSingleVariablePropositionalConstraintStepSolver extends AbstractModelCountingWithPropagatedAndDefiningLiteralsStepSolver {
+public abstract class AbstractSingleVariableConstraintWithIndependentNormalizedAtoms extends AbstractSingleVariableConstraint {
 
-	public ModelCountingOfSingleVariablePropositionalConstraintStepSolver(SingleVariablePropositionalConstraint constraint) {
-		super(constraint);
+	private static final long serialVersionUID = 1L;
+	
+	public AbstractSingleVariableConstraintWithIndependentNormalizedAtoms(Expression variable, ConstraintTheory constraintTheory) {
+		this(variable, Util.arrayList(), Util.arrayList(), Util.arrayList(), constraintTheory);
 	}
 	
-	@Override
-	public SingleVariablePropositionalConstraint getConstraint() {
-		return (SingleVariablePropositionalConstraint) super.getConstraint();
-	}
-	
-	@Override
-	protected boolean indicateWhetherGetPropagatedCNFWillBeOverridden() {
-		return true;
+	public AbstractSingleVariableConstraintWithIndependentNormalizedAtoms(Expression variable, ArrayList<Expression> positiveNormalizedAtoms, ArrayList<Expression> negativeNormalizedAtoms,
+			ArrayList<Expression> externalLiterals, ConstraintTheory constraintTheory) {
+		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, constraintTheory);
 	}
 
-	@Override
-	public Iterable<Iterable<Expression>> getPropagatedCNF(RewritingProcess process) {
-		SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver satisfiability =
-				new SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver(getConstraint());
-		return satisfiability.getPropagatedCNF(process);
+	protected AbstractSingleVariableConstraintWithIndependentNormalizedAtoms (AbstractSingleVariableConstraintWithIndependentNormalizedAtoms other) {
+		super(other);
 	}
 	
 	@Override
-	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(
-			Constraint2 contextualConstraint, RewritingProcess process) {
-		
-		boolean variableIsNotConstrained = 
-				getConstraint().getPositiveNormalizedAtoms().isEmpty() && getConstraint().getNegativeNormalizedAtoms().isEmpty();
-		
-		Expression result = variableIsNotConstrained? TWO : ONE;
-		
-		return result;
+	protected AbstractSingleVariableConstraintWithIndependentNormalizedAtoms conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, RewritingProcess process) {
+		AbstractSingleVariableConstraint result;
+		if (sign) {
+			result = addPositiveNormalizedAtom(normalizedAtom);
+		}
+		else {
+			result = addNegativeNormalizedAtom(normalizedAtom);
+		}
+		return (AbstractSingleVariableConstraintWithIndependentNormalizedAtoms) result;
 	}
 }

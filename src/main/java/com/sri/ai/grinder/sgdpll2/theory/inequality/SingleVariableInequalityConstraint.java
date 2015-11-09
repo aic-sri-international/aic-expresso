@@ -39,7 +39,6 @@ package com.sri.ai.grinder.sgdpll2.theory.inequality;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
@@ -58,7 +57,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractSingleVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractSingleVariableConstraintWithDependentNormalizedAtoms;
 import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstraint;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.math.Rational;
@@ -131,235 +130,16 @@ public class SingleVariableInequalityConstraint extends SingleVariableEqualityCo
 		return result;
 	}
 	
-	@Override
-	public boolean impliesLiteralWithDifferentNormalizedAtom(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
-		boolean result;
-		
-		Expression a = atom1.get(1);
-		Expression b = atom2.get(1);
-		if ((isConstant(a, process) && isConstant(b, process))     ||     a.equals(b)) { // otherwise there can be no implication
-			if (sign1) {
-				result = positiveAtom1Cases(atom1, sign2, atom2, a, b, process);
-			}
-			else {
-				result = negativeAtom1Cases(atom1, sign2, atom2, a, b, process);
-			}
-		}
-		else {
-			result = false; // normalized atoms X op Y where Y is a variable say nothing about normalized atoms X op Z where Z is a term distinct from Y.
-		}
-		
-		// System.out.println((sign1? "" : "not") + " " + atom1 + "    " + (result? "implies" : "does not imply") + "    " + (sign2? "" : "not") + " " + atom2);
-		
-		return result;
-	}
-
-	/**
-	 * @param atom1
-	 * @param sign2
-	 * @param atom2
-	 * @param a
-	 * @param b
-	 * @param process
-	 * @return
-	 * @throws Error
-	 */
-	private boolean positiveAtom1Cases(Expression atom1, boolean sign2, Expression atom2, Expression a, Expression b, RewritingProcess process) throws Error {
-		boolean result;
-		
-		Expression literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2;
-		Expression simplification;
-		
-		switch (atom1.getFunctor().toString()) {
-
-		case EQUALITY:
-			// X = a implies:
-			// X = b, iff a = b
-			// X < b, iff a < b
-			// X > b, iff a > b
-			// not (X = b), iff not (a = b)
-			// not (X < b), iff not (a < b)
-			// not (X > b), iff not (a > b)
-			// That is, X = a implies sign2 (X op b) iff sign2 (a op b)
-			Expression atom = apply(atom2.getFunctor(), a, b);
-			literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = sign2? atom : Not.make(atom);
-			break;
-			
-		case LESS_THAN:
-			// X < a implies:
-			// X = b, iff false (never implies a =)
-			// X < b, iff a < b
-			// X > b, iff false (never implies a >)
-			// not (X = b), iff b >= a
-			// not (X < b), that is, X >= b, iff false (never implies >=)
-			// not (X > b), that is, X <= b, iff b >= a - 1
-			if (sign2) {
-				if (atom2.hasFunctor(LESS_THAN)) {
-					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = apply(LESS_THAN, a, b);
-				}
-				else {
-					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = FALSE;
-				}
-			}
-			else {
-				switch (atom2.getFunctor().toString()) {
-				case EQUALITY:
-					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = apply(GREATER_THAN_OR_EQUAL_TO, b, a);
-					break;
-				case LESS_THAN:
-					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = FALSE;
-					break;
-				case GREATER_THAN:
-					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = apply(GREATER_THAN_OR_EQUAL_TO, b, apply(MINUS, a, ONE));
-					break;
-				default:
-					throw notNormalized(atom2);
-				}
-			}
-			
-			break;
-			
-		case GREATER_THAN:
-			// Mirror image of LESS_THAN:
-			if (sign2) {
-				if (atom2.hasFunctor(GREATER_THAN)) {
-					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = apply(GREATER_THAN, a, b);
-				}
-				else {
-					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = FALSE;
-				}
-			}
-			else {
-				switch (atom2.getFunctor().toString()) {
-				case EQUALITY:
-					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = apply(LESS_THAN_OR_EQUAL_TO, b, a);
-					break;
-				case GREATER_THAN:
-					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = FALSE;
-					break;
-				case LESS_THAN:
-					literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2 = apply(LESS_THAN_OR_EQUAL_TO, b, apply(PLUS, a, ONE));
-					break;
-				default:
-					throw notNormalized(atom2);
-				}
-			}
-			
-			break;
-			
-		default:
-			throw notNormalized(atom1);
-		}
-
-		simplification = getConstraintTheory().simplify(literalEquivalentToWhetherSign1Atom1ImpliesSign2Atom2, process);
-		result = simplification.equals(TRUE);
-
-		return result;
-	}
-
-	private boolean negativeAtom1Cases(Expression atom1, boolean sign2, Expression atom2, Expression a, Expression b, RewritingProcess process) {
-		boolean result;
-		
-		Expression literalOnOthersEquivalentToImplication;
-		Expression simplification;
-		
-		switch (atom1.getFunctor().toString()) {
-
-		case EQUALITY: // sign1 is false, therefore sign1 atom1 is a DISEQUALITY
-			// X != a implies:
-			// X = b, iff false (does not imply)
-			// X < b, iff false (does not imply)
-			// X > b, iff false (does not imply)
-			// not (X = b), iff a = b
-			// not (X < b), iff false (does not imply)
-			// not (X > b), iff false (does not imply)
-			// That is, X != a implies (X = b) iff a = b
-			Expression aEqualsB = apply(atom1.getFunctor(), a, b);
-			literalOnOthersEquivalentToImplication = !sign2 && atom2.hasFunctor(EQUALITY)? aEqualsB : FALSE;
-			break;
-			
-		case LESS_THAN: // sign1 is false, therefore sign1 atom1 is GREATER_THAN_OR_EQUAL_TO
-			// X >= a implies:
-			// X = b, iff false
-			// X < b, iff false
-			// X > b, iff b < a
-			// not (X = b), iff b < a
-			// not (X < b), that is, X >= b, iff b <= a
-			// not (X > b), that is, X <= b, iff false
-			if (sign2) {
-				if (atom2.hasFunctor(GREATER_THAN)) {
-					literalOnOthersEquivalentToImplication = apply(LESS_THAN, b, a);
-				}
-				else {
-					literalOnOthersEquivalentToImplication = FALSE;
-				}
-			}
-			else {
-				switch (atom2.getFunctor().toString()) {
-				case EQUALITY:
-					literalOnOthersEquivalentToImplication = apply(LESS_THAN, b, a);
-					break;
-				case LESS_THAN:
-					literalOnOthersEquivalentToImplication = apply(LESS_THAN_OR_EQUAL_TO, b, a);
-					break;
-				case GREATER_THAN:
-					literalOnOthersEquivalentToImplication = FALSE;
-					break;
-				default:
-					throw notNormalized(atom2);
-				}
-			}
-			
-			break;
-			
-		case GREATER_THAN:
-			// Mirror image of LESS_THAN:
-			if (sign2) {
-				if (atom2.hasFunctor(LESS_THAN)) {
-					literalOnOthersEquivalentToImplication = apply(GREATER_THAN, b, a);
-				}
-				else {
-					literalOnOthersEquivalentToImplication = FALSE;
-				}
-			}
-			else {
-				switch (atom2.getFunctor().toString()) {
-				case EQUALITY:
-					literalOnOthersEquivalentToImplication = apply(GREATER_THAN, b, a);
-					break;
-				case GREATER_THAN:
-					literalOnOthersEquivalentToImplication = apply(GREATER_THAN_OR_EQUAL_TO, b, a);
-					break;
-				case LESS_THAN:
-					literalOnOthersEquivalentToImplication = FALSE;
-					break;
-				default:
-					throw notNormalized(atom2);
-				}
-			}
-			
-			break;
-			
-		default:
-			throw notNormalized(atom1);
-		}
-
-		simplification = getConstraintTheory().simplify(literalOnOthersEquivalentToImplication, process);
-		result = simplification.equals(TRUE);
-
-		return result;
-	}
-
 	private Error notNormalized(Expression atom) {
 		return new Error(getClass().getSimpleName() + ": got atom that is not normalized: " + atom);
 	}
 
-	private boolean isConstant(Expression expression, RewritingProcess process) {
-		return process.isUniquelyNamedConstant(expression);
-	}
-
+	/**
+	 * We override this method to check whether normalized atom violates the bounds of the constraint variable type,
+	 * before checking it against all the atoms already in the constraint.
+	 */
 	@Override
-	protected AbstractSingleVariableConstraint conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, RewritingProcess process) {
+	protected AbstractSingleVariableConstraintWithDependentNormalizedAtoms conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, RewritingProcess process) {
 		if (normalizedAtom.get(1).getValue() instanceof Number) {
 			Rational value = (Rational) normalizedAtom.get(1).getValue();
 			if (
@@ -378,5 +158,200 @@ public class SingleVariableInequalityConstraint extends SingleVariableEqualityCo
 		}
 	
 		return super.conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, process);
+	}
+
+	public Expression getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
+		Expression result;
+		
+		if (sign1) {
+			result = getVariableFreeFormulaEquivalentToSign1Atom1ImpliesSign2Atom2PositiveAtom1Cases(atom1, sign2, atom2, process);
+		}
+		else {
+			result = getVariableFreeFormulaEquivalentToSign1Atom1ImpliesSign2Atom2NegativeAtom1Cases(atom1, sign2, atom2, process);
+		}
+		
+		return result;
+	}
+
+	private Expression getVariableFreeFormulaEquivalentToSign1Atom1ImpliesSign2Atom2PositiveAtom1Cases(Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) throws Error {
+
+		Expression result;
+		
+		Expression a = atom1.get(1);
+		Expression b = atom2.get(1);
+
+		switch (atom1.getFunctor().toString()) {
+	
+		case EQUALITY:
+			// X = a implies:
+			// X = b, iff a = b
+			// X < b, iff a < b
+			// X > b, iff a > b
+			// not (X = b), iff not (a = b)
+			// not (X < b), iff not (a < b)
+			// not (X > b), iff not (a > b)
+			// That is, X = a implies sign2 (X op b) iff sign2 (a op b)
+			Expression atom = apply(atom2.getFunctor(), a, b);
+			result = sign2? atom : Not.make(atom);
+			break;
+			
+		case LESS_THAN:
+			// X < a implies:
+			// X = b, iff false (never implies a =)
+			// X < b, iff a < b
+			// X > b, iff false (never implies a >)
+			// not (X = b), iff b >= a
+			// not (X < b), that is, X >= b, iff false (never implies >=)
+			// not (X > b), that is, X <= b, iff b >= a - 1
+			if (sign2) {
+				if (atom2.hasFunctor(LESS_THAN)) {
+					result = apply(LESS_THAN, a, b);
+				}
+				else {
+					result = FALSE;
+				}
+			}
+			else {
+				switch (atom2.getFunctor().toString()) {
+				case EQUALITY:
+					result = apply(GREATER_THAN_OR_EQUAL_TO, b, a);
+					break;
+				case LESS_THAN:
+					result = FALSE;
+					break;
+				case GREATER_THAN:
+					result = apply(GREATER_THAN_OR_EQUAL_TO, b, apply(MINUS, a, ONE));
+					break;
+				default:
+					throw notNormalized(atom2);
+				}
+			}
+			
+			break;
+			
+		case GREATER_THAN:
+			// Mirror image of LESS_THAN:
+			if (sign2) {
+				if (atom2.hasFunctor(GREATER_THAN)) {
+					result = apply(GREATER_THAN, a, b);
+				}
+				else {
+					result = FALSE;
+				}
+			}
+			else {
+				switch (atom2.getFunctor().toString()) {
+				case EQUALITY:
+					result = apply(LESS_THAN_OR_EQUAL_TO, b, a);
+					break;
+				case GREATER_THAN:
+					result = FALSE;
+					break;
+				case LESS_THAN:
+					result = apply(LESS_THAN_OR_EQUAL_TO, b, apply(PLUS, a, ONE));
+					break;
+				default:
+					throw notNormalized(atom2);
+				}
+			}
+			
+			break;
+			
+		default:
+			throw notNormalized(atom1);
+		}
+
+		return result;
+	}
+
+	private Expression getVariableFreeFormulaEquivalentToSign1Atom1ImpliesSign2Atom2NegativeAtom1Cases(Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
+
+		Expression result;
+		
+		Expression a = atom1.get(1);
+		Expression b = atom2.get(1);
+
+		switch (atom1.getFunctor().toString()) {
+	
+		case EQUALITY: // sign1 is false, therefore sign1 atom1 is a DISEQUALITY
+			// X != a implies:
+			// X = b, iff false (does not imply)
+			// X < b, iff false (does not imply)
+			// X > b, iff false (does not imply)
+			// not (X = b), iff a = b
+			// not (X < b), iff false (does not imply)
+			// not (X > b), iff false (does not imply)
+			// That is, X != a implies (X = b) iff a = b
+			Expression aEqualsB = apply(atom1.getFunctor(), a, b);
+			result = !sign2 && atom2.hasFunctor(EQUALITY)? aEqualsB : FALSE;
+			break;
+			
+		case LESS_THAN: // sign1 is false, therefore sign1 atom1 is GREATER_THAN_OR_EQUAL_TO
+			// X >= a implies:
+			// X = b, iff false
+			// X < b, iff false
+			// X > b, iff b < a
+			// not (X = b), iff b < a
+			// not (X < b), that is, X >= b, iff b <= a
+			// not (X > b), that is, X <= b, iff false
+			if (sign2) {
+				if (atom2.hasFunctor(GREATER_THAN)) {
+					result = apply(LESS_THAN, b, a);
+				}
+				else {
+					result = FALSE;
+				}
+			}
+			else {
+				switch (atom2.getFunctor().toString()) {
+				case EQUALITY:
+					result = apply(LESS_THAN, b, a);
+					break;
+				case LESS_THAN:
+					result = apply(LESS_THAN_OR_EQUAL_TO, b, a);
+					break;
+				case GREATER_THAN:
+					result = FALSE;
+					break;
+				default:
+					throw notNormalized(atom2);
+				}
+			}
+			
+			break;
+			
+		case GREATER_THAN:
+			// Mirror image of LESS_THAN:
+			if (sign2) {
+				if (atom2.hasFunctor(LESS_THAN)) {
+					result = apply(GREATER_THAN, b, a);
+				}
+				else {
+					result = FALSE;
+				}
+			}
+			else {
+				switch (atom2.getFunctor().toString()) {
+				case EQUALITY:
+					result = apply(GREATER_THAN, b, a);
+					break;
+				case GREATER_THAN:
+					result = apply(GREATER_THAN_OR_EQUAL_TO, b, a);
+					break;
+				case LESS_THAN:
+					result = FALSE;
+					break;
+				default:
+					throw notNormalized(atom2);
+				}
+			}
+			
+			break;
+			
+		default:
+			throw notNormalized(atom1);
+		}
+	
+		return result;
 	}
 }
