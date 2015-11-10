@@ -44,6 +44,10 @@ import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.CARTESIAN_PRODUCT;
 import static com.sri.ai.grinder.library.FunctorConstants.DIVISION;
 import static com.sri.ai.grinder.library.FunctorConstants.EXPONENTIATION;
+import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
+import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_TO;
+import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
+import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.MAX;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
@@ -728,7 +732,7 @@ public class GrinderUtil {
 	public static Expression getType(Expression expression, RewritingProcess process) {
 		Expression result;
 		
-		// TODO: this method is very hard-coded to a specific language; need to clean this up
+		// TODO: this method is horribly hard-coded to a specific language; need to clean this up
 		
 		if (FormulaUtil.isApplicationOfBooleanConnective(expression)) {
 			result = makeSymbol("Boolean");
@@ -781,6 +785,9 @@ public class GrinderUtil {
 			else {
 				result = makeSymbol("Integer");
 			}
+		}
+		else if (isComparisonFunctionApplication(expression)) {
+				result = makeSymbol("Boolean");
 		}
 		else if (expression.getSyntacticFormType().equals("Symbol")) {
 			if (expression.getValue() instanceof Integer) {
@@ -869,6 +876,15 @@ public class GrinderUtil {
 		boolean result =
 				expression.getSyntacticFormType().equals("Function application")
 				&& arithmeticFunctors.contains(expression.getFunctor().toString());
+		return result;
+	}
+
+	private static Collection<String> comparisonFunctors = Util.set(LESS_THAN, LESS_THAN_OR_EQUAL_TO, GREATER_THAN, GREATER_THAN_OR_EQUAL_TO);
+	
+	public static boolean isComparisonFunctionApplication(Expression expression) {
+		boolean result =
+				expression.getSyntacticFormType().equals("Function application")
+				&& comparisonFunctors.contains(expression.getFunctor().toString());
 		return result;
 	}
 
