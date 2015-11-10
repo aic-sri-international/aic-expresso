@@ -62,8 +62,8 @@ import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCommonInterpreter {
 
 	/**
-	 * Constructs {@link SymbolicCommonInterpreterWithLiteralConditioning} with a constraint theory and
-	 * <i>not</i> simplifying literals according to contextual constraint.
+	 * Constructs {@link SymbolicCommonInterpreterWithLiteralConditioning} with a constraint theory,
+	 * which conditions on literals by does <i>not</i> simplifying literals according to contextual constraint.
 	 * @param constraintTheory
 	 */
 	public SymbolicCommonInterpreterWithLiteralConditioning(ConstraintTheory constraintTheory) {
@@ -71,8 +71,9 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 	}
 
 	/**
-	 * Constructs {@link SymbolicCommonInterpreterWithLiteralConditioning} with a constraint theory and
-	 * setting it to simplify literals according to contextual constraint stored in
+	 * Constructs {@link SymbolicCommonInterpreterWithLiteralConditioning} with a constraint theory,
+	 * which conditions on literals by <i>does</i> simplify literals according to contextual constraint.
+	 * stored in
 	 * <code>process</code>'s global object under {@link #INTERPRETER_CONTEXTUAL_CONSTRAINT}.
 	 * @param constraintTheory
 	 * @param simplifyGivenConstraint
@@ -84,7 +85,7 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 	/**
 	 * We override this interpreter to go the extra mile and condition on literals in the
 	 * result of super's interpretation, since we expect a symbolic interpreter
-	 * to condition on the literals in order to make the expression succint.
+	 * to condition on the literals in order to make the expression succinct.
 	 */
 	@Override public Expression apply(Expression expression, RewritingProcess process) {
 		Expression interpretationResult = super.apply(expression, process);

@@ -39,13 +39,21 @@ package com.sri.ai.grinder.shell;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.join;
+import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.map;
+import static com.sri.ai.util.Util.mapIntoList;
+
+import java.util.Collection;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreter;
+import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
@@ -58,14 +66,14 @@ import com.sri.ai.util.collect.ConsoleIterator;
  *
  */
 @Beta
-public class SGShell {
+public class SymbolicShell {
 
 	private static boolean debug = false;
 	
 	public static void main(String[] args) {
 		
 		SymbolicCommonInterpreter evaluator =
-				new SymbolicCommonInterpreter(
+				new SymbolicCommonInterpreterWithLiteralConditioning(
 						new CompoundConstraintTheory(
 								new EqualityConstraintTheory(false),
 								new PropositionalConstraintTheory()));
@@ -74,18 +82,41 @@ public class SGShell {
 		process = process.put(new Categorical("Boolean", 2, makeSymbol("true"), makeSymbol("false")));
 		process = process.put(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
 		
+		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("P"), makeSymbol("Boolean")), process);
+		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("Q"), makeSymbol("Boolean")), process);
+		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("R"), makeSymbol("Boolean")), process);
+		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("S"), makeSymbol("Boolean")), process);
+
+		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("X"), makeSymbol("People")), process);
+		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("Y"), makeSymbol("People")), process);
+		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("Z"), makeSymbol("People")), process);
+		
 		help();
 
 		ConsoleIterator consoleIterator = new ConsoleIterator();
 		
-		String example = "sum({{ (on X in People, Y in People)  if X = ann and Y != bob then 2 else 0  |  for all Z in People : Z = ann => X = Z }})";
-		System.out.println(consoleIterator.getPrompt() + " " + example);
-		evaluate(evaluator, example, process);
+		Collection<String> examples = list(
+				"sum({{ (on X in People)  3 }})",
+				"sum({{ (on X in People)  3 |  X != Y }})",
+				"sum({{ (on X in People, Y in People)  3 |  X != Y }})",
+				"sum({{ (on X in People)  3 |  X != Y and X != ann }})",
+				"sum({{ (on X in People, P in Boolean)  3 |  X != ann }})",
+				"sum({{ (on X in People, P in Boolean)  3 |  X != ann and not P }})",
+				"sum({{ (on X in People, Y in People)  if X = ann and Y != bob then 2 else 0  |  for all Z in People : Z = ann => X = Z }})"
+				);
+		for (String example : examples) {
+			System.out.println(consoleIterator.getPrompt() + " " + example);
+			evaluate(evaluator, example, process);
+		}
 
 		while (consoleIterator.hasNext()) {
 			String input = consoleIterator.next();
 			if (input.equals("")) {
 				System.out.println();	
+			}
+			else if (input.startsWith("show")) {
+				System.out.println(
+						join(mapIntoList(process.getContextualSymbolsAndTypes().entrySet(), e -> e.getKey() + ": " + e.getValue()), ", ") + "\n");	
 			}
 			else if (input.equals("debug")) {
 				debug = !debug;
@@ -95,7 +126,7 @@ public class SGShell {
 				help();
 			}
 			else {
-				evaluate(evaluator, input, process);
+				process = evaluate(evaluator, input, process);
 			}
 		}
 		
@@ -104,19 +135,28 @@ public class SGShell {
 
 	/**
 	 * @param evaluator
-	 * @param input
+	 * @param inputString
 	 * @param process
+	 * @return 
 	 */
-	private static void evaluate(SymbolicCommonInterpreter evaluator, String input, RewritingProcess process) {
+	private static RewritingProcess evaluate(SymbolicCommonInterpreter evaluator, String inputString, RewritingProcess process) {
 		try {
-			Expression parse = parse(input);
-			Expression result = evaluator.apply(parse, process);
+			Expression input = parse(inputString);
+			if (input.hasFunctor("var")) {
+				Expression variable = input.get(0);
+				Expression type = input.get(1);
+				process = GrinderUtil.extendContextualSymbols(map(variable, type), process);
+				System.out.println();	
+				return process;
+			}
+			Expression result = evaluator.apply(input, process);
 			System.out.println("\n" + result + "\n");
 		} catch (Error e) {
 			dealWith(e);
 		} catch (Exception e) {
 			dealWith(e);
 		}
+		return process;
 	}
 
 	private static void dealWith(Throwable e) {
@@ -136,39 +176,47 @@ public class SGShell {
 	 * 
 	 */
 	private static void help() {
-		System.out.println("********************************************************************************");
+		System.out.println("***********************************************************************************");
 		System.out.println("");
 		System.out.println("Welcome to SRI AIC expresso symbolic interpreter");
 		System.out.println("");
 		System.out.println("Pre-defined types are:");
-		System.out.println("- 'Boolean' with constants 'true' and 'false'");
-		System.out.println("- 'People' with 1,000,000 elements and constants 'ann', 'bob', and 'ciaran'");
+		System.out.println("- 'Boolean' with constants 'true' and 'false',");
+		System.out.println("                 pre-defined variables P, Q, R, S");
+		System.out.println("- 'People' with 1,000,000 elements and constants 'ann', 'bob', and 'ciaran',");
+		System.out.println("                                       pre-defined variables X, Y, Z");
 		System.out.println("");
 		System.out.println("Capitalized symbols (other than types) are considered variables");
 		System.out.println("");
 		System.out.println("The language includes:");
+		System.out.println("");
 		System.out.println("- if-then-else");
 		System.out.println("- equality (=, !=)");
 		System.out.println("- boolean operators: 'and', 'or', 'not', '=>', '<=>'");
 		System.out.println("- numeric operators: +, -, *, /, ^, <, >, <=, >=");
+		System.out.println("");
 		System.out.println("- universal and existential quantification:");
 		System.out.println("- for all X in <Type> : <Formula>");
 		System.out.println("- there exists X in <Type> : <Formula>");
-		System.out.println("- aggregates over multi-sets (denoted by {{ (Indices) Element | Condition }}):");
-		System.out.println("-     sum({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Formula> }})");
-		System.out.println("- product({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Formula> }})");
-		System.out.println("-     max({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Formula> }})");
+		System.out.println("");
+		System.out.println("- aggregates over intensionally-defined multi-sets:");
+		System.out.println("-     sum({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Condition> }})");
+		System.out.println("- product({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Condition> }})");
+		System.out.println("-     max({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Condition> }})");
+		System.out.println("- the 'on' clause indicates the set indices; all other variables are free variables");
+		System.out.println("  and the result may depend on them");
 		System.out.println("");
 		System.out.println("Global inference only works on equality and propositions");
 		System.out.println("This means the system knows P and (P => Q) implies Q,");
 		System.out.println("and that X != Y and Y = Z implies X != Z,");
 		System.out.println("but does not know that X < Y and Y < Z implies X < Z.");
 		System.out.println("");
+		System.out.println("'show' shows declared variables and their types");
 		System.out.println("'debug' toggles debugging information");
 		System.out.println("'quit', 'exit', 'hasta la vista, baby', among others, leave the application");
 		System.out.println("'help' shows this information again");
 		System.out.println("");
-		System.out.println("********************************************************************************");
+		System.out.println("***********************************************************************************");
 		System.out.println("");
 	}
 }

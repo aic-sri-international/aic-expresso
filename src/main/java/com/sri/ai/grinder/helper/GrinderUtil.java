@@ -755,14 +755,20 @@ public class GrinderUtil {
 		else if (IfThenElse.isIfThenElse(expression)) {
 			Expression thenType = getType(IfThenElse.thenBranch(expression), process);
 			Expression elseType = getType(IfThenElse.elseBranch(expression), process);
-			if (thenType != null && thenType.equals(elseType)) {
-				result = thenType;
-			}
-			else if (thenType != null && elseType != null && (thenType.equals("Integer") && elseType.equals("Real") || thenType.equals("Real") && elseType.equals("Integer"))) {
+			if (thenType != null && elseType != null && (thenType.equals("Integer") && elseType.equals("Real") || thenType.equals("Real") && elseType.equals("Integer"))) {
 				result = makeSymbol("Real");
 			}
+			else if (thenType != null && (elseType == null || thenType.equals(elseType))) {
+				result = thenType;
+			}
+			else if (elseType != null && (thenType == null || elseType.equals(thenType))) {
+				result = elseType;
+			}
+			else if (thenType == null) {
+				throw new Error("Could not determine the types of then and else branches of '" + expression + "'.");
+			}
 			else {
-				throw new Error(expression + " then and else branches have no, or different, types (" + thenType + " and " + elseType + " respectively).");
+				throw new Error("'" + expression + "' then and else branches have different types (" + thenType + " and " + elseType + " respectively).");
 			}
 		}
 		else if (expression.hasFunctor(CARDINALITY)) {
