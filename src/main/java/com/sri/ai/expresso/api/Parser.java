@@ -49,6 +49,21 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 public interface Parser {
-	Expression parse(String string);
+	interface ErrorListener {
+		void parseError(Object offendingSymbol, int line, int charPositionInLine, String msg, Exception e);
+	}
+	
+	default Expression parse(String string) {
+		return parse(string, newDefaultErrorListener());
+	}
+	
+	Expression parse(String string, ErrorListener errorListener);
+	
 	void close();
+	
+	default ErrorListener newDefaultErrorListener() {
+		return (offendingSymbol, line, charPositionInLine, msg, e) -> {
+			System.err.println("Parser Error: line " + line + ":" + charPositionInLine + " " + msg);
+		};
+	}
 }

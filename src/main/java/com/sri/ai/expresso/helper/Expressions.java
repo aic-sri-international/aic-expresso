@@ -418,7 +418,19 @@ public class Expressions {
 	 * Parse a string into an expression using {@link AntlrGrinderParserWrapper}.
 	 */
 	public static Expression parse(String string) {
-		Expression result = parser.parse(string);
+		Expression result = parse(string, parser.newDefaultErrorListener());
+		return result;
+	}
+	
+	public static Expression parse(String string, Function<String, Void> errorMessageHandler) {
+		Expression result = parse(string, (Object offendingSymbol, int line, int charPositionInLine, String msg, Exception e) -> {
+			errorMessageHandler.apply(msg);
+		});
+		return result;
+	}
+	
+	public static Expression parse(String string, Parser.ErrorListener errorListener) {
+		Expression result = parser.parse(string, errorListener);
 		return result;
 	}
 	

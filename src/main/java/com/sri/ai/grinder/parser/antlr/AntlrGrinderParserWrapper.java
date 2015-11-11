@@ -82,11 +82,10 @@ public class AntlrGrinderParserWrapper implements Parser {
 	}
 	
 	@Override
-	public Expression parse(String string) {
+	public Expression parse(String string, Parser.ErrorListener parserEerrorListener) {
 		Expression result = null;
 		try {			
-			ErrorListener lexerErrorListener = new ErrorListener("Lexer Error");
-			ErrorListener parseErrorListener = new ErrorListener("Parse Error");
+			AntlrErrorListener antlrErrorListener = new AntlrErrorListener(parserEerrorListener);
 			
 			ANTLRInputStream input = new ANTLRInputStream(string);
 			AntlrGrinderLexer lexer = new AntlrGrinderLexer(input);
@@ -96,14 +95,14 @@ public class AntlrGrinderParserWrapper implements Parser {
 
 			lexer.removeErrorListeners();
 			parser.removeErrorListeners();
-			lexer.addErrorListener(lexerErrorListener);
-			parser.addErrorListener(parseErrorListener);
+			lexer.addErrorListener(antlrErrorListener);
+			parser.addErrorListener(antlrErrorListener);
 			
 			ParseTree tree = parser.expression();
 			
 			boolean eof = parser.getInputStream().LA(1) == Recognizer.EOF;
 			
-			if (!lexerErrorListener.errorsDetected && !parseErrorListener.errorsDetected) {
+			if (!antlrErrorListener.errorsDetected) {
 				if (!eof) {
 					System.err.println("Unable to parse the complete input expression: "+input);
 				}
@@ -131,20 +130,21 @@ public class AntlrGrinderParserWrapper implements Parser {
 	//
 	// PRIVATE
 	//
-	private class ErrorListener extends BaseErrorListener {
+	private class AntlrErrorListener extends BaseErrorListener {
 		public boolean errorsDetected = false;
-		private String name;
 		
-		public ErrorListener(String name) {
-			this.name = name;
+		private Parser.ErrorListener parserEerrorListener;
+		
+		public AntlrErrorListener(Parser.ErrorListener parserEerrorListener) {
+			this.parserEerrorListener = parserEerrorListener;
 		}
 
 		@Override
 		public void syntaxError(Recognizer<?, ?> recognizer,
 				Object offendingSymbol, int line, int charPositionInLine,
 				String msg, RecognitionException e) {
-			System.err.println(name+": line " + line + ":" + charPositionInLine + " " + msg);
 			errorsDetected = true;
+			parserEerrorListener.parseError(offendingSymbol, line, charPositionInLine, msg, e);
 		}
 	}
 }

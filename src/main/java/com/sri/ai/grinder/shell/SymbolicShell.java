@@ -141,7 +141,7 @@ public class SymbolicShell {
 	 */
 	private static RewritingProcess evaluate(SymbolicCommonInterpreter evaluator, String inputString, RewritingProcess process) {
 		try {
-			Expression input = parse(inputString);
+			Expression input = parse(inputString, (errorMessage) -> {throw new Error(errorMessage);});
 			if (input.hasFunctor("var")) {
 				Expression variable = input.get(0);
 				Expression type = input.get(1);
