@@ -105,7 +105,7 @@ public class SymbolicShell {
 				"sum({{ (on X in People, Y in People)  if X = ann and Y != bob then 2 else 0  |  for all Z in People : Z = ann => X = Z }})"
 				);
 		for (String example : examples) {
-			System.out.println(consoleIterator.getPrompt() + " " + example);
+			System.out.println(consoleIterator.getPrompt() + example);
 			evaluate(evaluator, example, process);
 		}
 
