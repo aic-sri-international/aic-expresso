@@ -115,12 +115,12 @@ public class SymbolicShell {
 				System.out.println();	
 			}
 			else if (input.startsWith("show")) {
-				System.out.println(
+				System.out.println("\n" +
 						join(mapIntoList(process.getContextualSymbolsAndTypes().entrySet(), e -> e.getKey() + ": " + e.getValue()), ", ") + "\n");	
 			}
 			else if (input.equals("debug")) {
 				debug = !debug;
-				System.out.println("Debug toggled to " + debug);	
+				System.out.println("\nDebug toggled to " + debug + "\n");	
 			}
 			else if (input.equals("help")) {
 				help();
