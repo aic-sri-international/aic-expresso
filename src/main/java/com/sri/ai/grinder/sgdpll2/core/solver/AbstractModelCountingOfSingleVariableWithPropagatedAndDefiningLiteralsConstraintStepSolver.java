@@ -72,8 +72,8 @@ public abstract class AbstractModelCountingOfSingleVariableWithPropagatedAndDefi
 	}
 	
 	@Override
-	protected boolean indicateWhetherGetPropagatedCNFWillBeOverridden() {
-		return true;
+	protected boolean usingDefaultImplementationOfGetPropagatedCNF() {
+		return false;
 	}
 
 	@Override

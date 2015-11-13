@@ -65,8 +65,8 @@ public class ModelCountingOfSingleVariablePropositionalConstraintStepSolver exte
 	}
 	
 	@Override
-	protected boolean indicateWhetherGetPropagatedCNFWillBeOverridden() {
-		return true;
+	protected boolean usingDefaultImplementationOfGetPropagatedCNF() {
+		return false;
 	}
 
 	@Override

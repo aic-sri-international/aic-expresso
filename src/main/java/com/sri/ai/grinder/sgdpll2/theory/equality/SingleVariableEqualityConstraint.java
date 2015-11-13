@@ -172,6 +172,12 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	}
 
 	@Override
+	protected Expression isolateVariable(Expression atom, RewritingProcess process) {
+		// do not need to do anything, as variable is supposed to be isolated already for this theory
+		return atom;
+	}
+
+	@Override
 	public Expression getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
 		Expression result;
 		if (sign1) {

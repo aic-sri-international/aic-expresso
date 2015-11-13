@@ -40,6 +40,7 @@ package com.sri.ai.grinder.sgdpll2.theory.inequality;
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
@@ -48,42 +49,37 @@ import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
+import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Function;
+import com.google.common.collect.Multiset;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractSingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractSingleVariableConstraintWithDependentNormalizedAtoms;
-import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstraint;
+import com.sri.ai.grinder.sgdpll2.theory.base.AbstractSingleVariableConstraintWithBinaryAtoms;
 import com.sri.ai.util.Util;
+import com.sri.ai.util.base.Triple;
 import com.sri.ai.util.math.Rational;
 
 /**
  * An inequalities on integers constraint solver.
- * <p>
- * This extends {@link SingleVariableEqualityConstraint} so that it inherits the
- * functionality of that class of counting disequalities to unique constraints
- * and detecting inconsistency when that number becomes equal to the variable's type size.
- * However, while that functionality ensures completeness for {@link SingleVariableEqualityConstraint}s,
- * it does not suffice in the presence of inequalities.
- * <p>
- * For example, <code>X > 10 and X != 11 and X != 12 and X < 13</code> is unsatisfiable,
- * but this will not be detected by this class because the number of disequalities
- * to unique constants is only 2 (while the type of X could be much larger).
- * Trying to detect such inconsistencies would make the time complexity of conjoining a literal
- * greater than linear, so we choose to leave this type of detection for when it is
- * absolutely required.
- * <p>
- * 
+ *
  * @author braz
  *
  */
 @Beta
-public class SingleVariableInequalityConstraint extends SingleVariableEqualityConstraint {
+public class SingleVariableInequalityConstraint extends AbstractSingleVariableConstraintWithBinaryAtoms {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -130,8 +126,100 @@ public class SingleVariableInequalityConstraint extends SingleVariableEqualityCo
 		return result;
 	}
 	
-	private Error notNormalized(Expression atom) {
-		return new Error(getClass().getSimpleName() + ": got atom that is not normalized: " + atom);
+	@Override
+	protected Expression isolateVariable(Expression atom, RewritingProcess process) {
+		
+		Function<Expression, Error> makeDuplicateError = duplicate -> new Error(atom + " is not a difference arithmetic atom because " + duplicate + " sums with itself, but no multiples are allowed in difference arithmetic");
+		
+		Triple<Multiset<Expression>, Multiset<Expression>, Integer>
+		items0 = Plus.gatherPositiveAndNegativeTermsAndConstantInteger(atom.get(0), makeDuplicateError);
+		
+		Triple<Multiset<Expression>, Multiset<Expression>, Integer>
+		items1 = Plus.gatherPositiveAndNegativeTermsAndConstantInteger(atom.get(1), makeDuplicateError);
+		
+		Triple<Set<Expression>, Set<Expression>, Integer> result1 = subtractDifferenceLogicTriples(items0, items1, makeDuplicateError);
+		
+		Set<Expression> positiveVariables = result1.first;
+		Set<Expression> negativeVariables = result1.second;
+		int constant = result1.third.intValue();
+		
+		// now isolate variable:
+		
+		// create array for all the arguments of the sum that is going to be on the side opposite to the variable
+		ArrayList<Expression> sumArguments = new ArrayList<Expression>(positiveVariables.size() + negativeVariables.size() -1 + 1); // minus variable, plus constant
+		Expression result;
+		if (positiveVariables.contains(getVariable())) {
+			for (Expression positiveVariable : positiveVariables) { // variable will be on left-hand side: invert signs of everybody else (negative variables become positive)
+				if ( ! positiveVariable.equals(getVariable())) {
+					sumArguments.add(apply(MINUS, positiveVariable));
+				}
+			}
+			for (Expression negativeVariable : negativeVariables) {
+				sumArguments.add(negativeVariable);
+			}
+			sumArguments.add(makeSymbol(-constant));
+
+			Expression oppositeSide = Plus.make(sumArguments);
+			result = apply(atom.getFunctor(), getVariable(), oppositeSide);
+		}
+		else {
+			for (Expression positiveVariable : positiveVariables) { // variable will be on right-hand side: everybody else stays on left-hand side and keeps their sign (negative variables get the negative sign in their representation)
+				sumArguments.add(positiveVariable);
+			}
+			for (Expression negativeVariable : negativeVariables) {
+				if ( ! negativeVariable.equals(getVariable())) {
+					sumArguments.add(apply(MINUS, negativeVariable));
+				}
+			}
+			sumArguments.add(makeSymbol(constant));
+			
+			Expression oppositeSide = Plus.make(sumArguments);
+			result = apply(atom.getFunctor(), oppositeSide, getVariable());
+		}
+		
+//		System.out.println("\nAtom: " + atom);	
+//		System.out.println("Result: " + result);
+		
+		return result;
+	}
+
+	/**
+	 * Given two difference arithmetic tuples, each containing positive and negative terms and a numeric constant in a summation,
+	 * returns another tuple of the same form representing their subtraction,
+	 * or throws an Error if any of the terms appears with the same final sign multiple times
+	 * (which would require representing a multiple of it), such as in ({X}, {}, 1) - ({}, {X}, 2)
+	 * which would result in 2*X - 1.
+	 * @param positiveAndNegativeTermsAndConstant1
+	 * @param positiveAndNegativeTermsAndConstant2
+	 * @param makeDuplicateError a function getting the offending duplicate term and returning an Error to be thrown.
+	 * @return
+	 * @throws Error
+	 */
+	public static Triple<Set<Expression>, Set<Expression>, Integer> subtractDifferenceLogicTriples(Triple<Multiset<Expression>, Multiset<Expression>, Integer> positiveAndNegativeTermsAndConstant1, Triple<Multiset<Expression>, Multiset<Expression>, Integer> positiveAndNegativeTermsAndConstant2, Function<Expression, Error> makeDuplicateError) throws Error {
+		// get positiveAndNegativeTermsAndConstant2 on left-hand-side with opposite sign:
+		Triple<Multiset<Expression>, Multiset<Expression>, Integer>
+		invertedItems1 = Triple.make(positiveAndNegativeTermsAndConstant2.second, positiveAndNegativeTermsAndConstant2.first, - positiveAndNegativeTermsAndConstant2.third.intValue());
+		
+		Set<Expression> positiveVariables = new LinkedHashSet<>();
+		positiveVariables.addAll(positiveAndNegativeTermsAndConstant1.first);
+		positiveVariables.addAll(invertedItems1.first);
+		if (positiveVariables.size() != positiveAndNegativeTermsAndConstant1.first.size() + invertedItems1.first.size()) { // some variable appears twice
+			Expression intersection = getFirstSatisfyingPredicateOrNull(positiveAndNegativeTermsAndConstant1.first, e -> invertedItems1.first.contains(e));
+			throw makeDuplicateError.apply(intersection);
+		}
+		
+		Set<Expression> negativeVariables = new LinkedHashSet<>();
+		negativeVariables.addAll(positiveAndNegativeTermsAndConstant1.second);
+		negativeVariables.addAll(invertedItems1.second);
+		if (negativeVariables.size() != positiveAndNegativeTermsAndConstant1.second.size() + invertedItems1.second.size()) { // some variable appears twice
+			Expression intersection = getFirstSatisfyingPredicateOrNull(positiveAndNegativeTermsAndConstant1.second, e -> invertedItems1.second.contains(e));
+			throw makeDuplicateError.apply(intersection);
+		}
+		
+		int constant = positiveAndNegativeTermsAndConstant1.third.intValue() + invertedItems1.third.intValue();
+
+		Triple<Set<Expression>, Set<Expression>, Integer> result = Triple.make(positiveVariables, negativeVariables, constant);
+		return result;
 	}
 
 	/**
@@ -353,5 +441,14 @@ public class SingleVariableInequalityConstraint extends SingleVariableEqualityCo
 		}
 	
 		return result;
+	}
+
+	private Error notNormalized(Expression atom) {
+		return new Error(getClass().getSimpleName() + ": got atom that is not normalized: " + atom);
+	}
+
+	@Override
+	public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, RewritingProcess process) {
+		return this;
 	}
 }

@@ -111,6 +111,16 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 	 */
 	abstract protected String getFlipFunctor(String functor);
 	
+	/**
+	 * Given an atom, returns an equivalent atom in which the constraint's variable appears as either one of the arguments
+	 * For example, if <code>X</code> is the constraint's variable and we have atom <code>Y + 1 < X + 2</code>,
+	 * a valid return value is <code>Y - 1 < X</code>.
+	 * @param atom
+	 * @param process
+	 * @return
+	 */
+	abstract protected Expression isolateVariable(Expression atom, RewritingProcess process);
+
 	private static final long serialVersionUID = 1L;
 	
 	public AbstractSingleVariableConstraintWithBinaryAtoms(Expression variable, ConstraintTheory constraintTheory) {
@@ -130,11 +140,13 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 		boolean sign = signAndAtom.first;
 		Expression atom = signAndAtom.second;
 		
-		Pair<Boolean, Expression> signAndNormalFunctor = getEquivalentSignAndNormalFunctor(sign, atom);
+		Expression atomWithIsolatedVariable = isolateVariable(atom, process);
+		
+		Pair<Boolean, Expression> signAndNormalFunctor = getEquivalentSignAndNormalFunctor(sign, atomWithIsolatedVariable);
 		sign = signAndNormalFunctor.first;
 		Expression normalFunctor = signAndNormalFunctor.second;
 		
-		Expression normalizedAtom = makeNormalizedAtomOrUseOriginalIfAlreadyNormalized(normalFunctor, atom);
+		Expression normalizedAtom = makeNormalizedAtomOrUseOriginalIfAlreadyNormalized(normalFunctor, atomWithIsolatedVariable);
 		
 		result = Pair.make(sign, normalizedAtom);
 

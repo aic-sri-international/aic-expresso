@@ -209,6 +209,46 @@ public interface ConstraintTheory extends Theory {
 	/** Sets a set of types appropriate for testing this constraint theory. */
 	void setTypesForTesting(Collection<Type> newTypesForTesting);
 	
+//	/** Samples a uniquely named constant of given appropriate for testing this constraint theory. */
+//	Expression sampleUniquelyNamedConstantsForTesting(Type type);
+//	
+//	/**
+//	 * Sets an iterable of uniquely named constants for given type appropriate for testing this constraint theory.
+//	 * Note that all types must have testing uniquely named constants associated with them.
+//	 * If you want a type to simply use {@link Type#sampleConstant(Random)},
+//	 * use methods {@link #setUseTypeUniquelyNamedConstantSampling(Type, boolean)}
+//	 * or {@link #setUseTypeUniquelyNamedConstantSamplingForAllTypes(boolean)}.
+//	 */
+//	void setUniquelyNamedConstantsForTesting(Type type, Iterable<Expression> newUniquelyNamedConstantsForTesting);
+//	
+//	/**
+//	 * Indicates whether the sampling of a type's uniquely named constant for testing must
+//	 * use the types {@link Type#sampleConstant(Random)}.
+//	 * @return
+//	 */
+//	boolean getUseTypeUniquelyNamedConstantSampling(Type type);
+//	
+//	/**
+//	 * Sets the flag indicating whether the sampling of a type's uniquely named constant for testing must
+//	 * use the types {@link Type#sampleConstant(Random)}.
+//	 * @return
+//	 */
+//	void setUseTypeUniquelyNamedConstantSampling(Type type, boolean newValue);
+//	
+//	/**
+//	 * Indicates whether the sampling of <i>all</i> types uniquely named constant for testing must
+//	 * use the types {@link Type#sampleConstant(Random)}.
+//	 * @return
+//	 */
+//	boolean getUseTypeUniquelyNamedConstantSamplingForAllTypes();
+//	
+//	/**
+//	 * Sets the flag indicating whether the sampling of <i>all</i> types uniquely named constant for testing must
+//	 * use the types {@link Type#sampleConstant(Random)}.
+//	 * @return
+//	 */
+//	void setUseTypeUniquelyNamedConstantSamplingForAllTypes(boolean newValue);
+//	
 	/**
 	 * Picks one of the testing variables returned by {@link #getTestingVariables()}
 	 * with uniform probability.

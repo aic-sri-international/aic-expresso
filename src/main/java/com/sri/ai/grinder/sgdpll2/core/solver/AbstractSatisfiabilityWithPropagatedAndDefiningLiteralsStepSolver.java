@@ -44,20 +44,20 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 
 /**
- * A step solver for the satisfiability of a {@link Constraint2},
- * which can involve free variables and is therefore a {@link ContextDependentProblemStepSolver}.
- * This class is based on splitters generated according to the specific theory.
+ * A {@link AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver}
+ * specialized for satisfiability.
+ * It does that by sticking with the default assumption that there are no defining literals,
+ * and that the solution for when the propagated CNF are all satisfied is true, and false otherwise.
  * 
  * @author braz
  *
  */
 @Beta
-public abstract class AbstractSatisfiabilityStepSolver extends AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver {
+public abstract class AbstractSatisfiabilityWithPropagatedAndDefiningLiteralsStepSolver extends AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver {
 
-	public AbstractSatisfiabilityStepSolver(Constraint2 constraint) {
+	public AbstractSatisfiabilityWithPropagatedAndDefiningLiteralsStepSolver(Constraint2 constraint) {
 		super(constraint);
 	}
 	

@@ -39,16 +39,16 @@ package com.sri.ai.grinder.sgdpll2.theory.propositional;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll2.core.solver.AbstractSatisfiabilityStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.AbstractSatisfiabilityWithPropagatedAndDefiningLiteralsStepSolver;
 
 /**
- * A {@link AbstractSatisfiabilityStepSolver} for a {@link SingleVariablePropositionalConstraint}.
+ * A {@link AbstractSatisfiabilityWithPropagatedAndDefiningLiteralsStepSolver} for a {@link SingleVariablePropositionalConstraint}.
  * 
  * @author braz
  *
  */
 @Beta
-public class SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver extends AbstractSatisfiabilityStepSolver {
+public class SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver extends AbstractSatisfiabilityWithPropagatedAndDefiningLiteralsStepSolver {
 
 	public SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver(SingleVariablePropositionalConstraint constraint) {
 		super(constraint);
@@ -60,8 +60,8 @@ public class SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver ext
 	}
 	
 	@Override
-	protected boolean indicateWhetherGetPropagatedCNFWillBeOverridden() {
-		return false;
+	protected boolean usingDefaultImplementationOfGetPropagatedCNF() {
+		return true;
 	}
 
 	@Override

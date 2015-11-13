@@ -65,7 +65,7 @@ public abstract class AbstractModelCountingWithPropagatedAndDefiningLiteralsStep
 	}
 
 	@Override
-	protected boolean indicateWhetherGetPropagatedCNFWillBeOverridden() {
-		return true;
+	protected boolean usingDefaultImplementationOfGetPropagatedCNF() {
+		return false;
 	}
 }

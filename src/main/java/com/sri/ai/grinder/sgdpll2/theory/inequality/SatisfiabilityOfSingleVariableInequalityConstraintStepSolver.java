@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.theory.equality;
+package com.sri.ai.grinder.sgdpll2.theory.inequality;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.zipApply;
@@ -73,21 +73,21 @@ import com.sri.ai.util.collect.PredicateIterator;
 import com.sri.ai.util.collect.SubsetsOfKIterator;
 
 /**
- * A {@link AbstractSatisfiabilityWithPropagatedAndDefiningLiteralsStepSolver} for a {@link SingleVariableEqualityConstraint}.
+ * A {@link AbstractSatisfiabilityWithPropagatedAndDefiningLiteralsStepSolver} for a {@link SingleVariableInequalityConstraint}.
  * 
  * @author braz
  *
  */
 @Beta
-public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends AbstractSatisfiabilityWithPropagatedAndDefiningLiteralsStepSolver {
+public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver extends AbstractSatisfiabilityWithPropagatedAndDefiningLiteralsStepSolver {
 
-	public SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(SingleVariableEqualityConstraint constraint) {
+	public SatisfiabilityOfSingleVariableInequalityConstraintStepSolver(SingleVariableInequalityConstraint constraint) {
 		super(constraint);
 	}
 	
 	@Override
-	public SingleVariableEqualityConstraint getConstraint() {
-		return (SingleVariableEqualityConstraint) super.getConstraint();
+	public SingleVariableInequalityConstraint getConstraint() {
+		return (SingleVariableInequalityConstraint) super.getConstraint();
 	}
 	
 	@Override
@@ -97,6 +97,8 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 
 	@Override
 	protected Iterable<Expression> getPropagatedLiterals() {
+		
+		// X > Y and X < Z => Y + 1 < Z
 		
 		Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator = pairsOfEqualsToVariableIterator();
 		Iterator<Expression> propagatedEqualities = functionIterator(pairsOfEqualsToVariableIterator, p -> Equality.make(p.first, p.second));
@@ -132,50 +134,6 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess process) {
-		if ( ! variableIsBoundToUniquelyNamedConstant(process)) {
-			// the following logic only holds if the variable is not bound to a uniquely named constants,
-			// since that eliminates all disequalities to other uniquely named constants as redundant
-	
-			ArrayList<Expression> variableDisequals = getVariableDisequals(process);
-	
-			long variableDomainSize = getConstraint().getVariableTypeSize(process);
-			if (variableDomainSize >= 0 &&
-					variableDisequals.size() + getConstraint().getNumberOfDisequalitiesFromConstantsSeenSoFar()
-					>= variableDomainSize) {
-				// the following procedure can be very expensive but the condition above will rarely be satisfied
-	
-				Set<Expression> constantDisequals = getConstantDisequals(process);
-	
-				Expression typeDescription = GrinderUtil.getType(getConstraint().getVariable(), process);
-				Type type = process.getType(typeDescription.toString());
-				ArrayList<Expression> remainingConstants =
-						arrayListFrom(new PredicateIterator(type.iterator(), c -> ! constantDisequals.contains(c)));
-	
-				CartesianProductIterator<ArrayList<Expression>> subsetOfVariableDisequalsAndRemainingConstantsPermutationIterator
-				= new CartesianProductIterator<ArrayList<Expression>>(
-						() -> new SubsetsOfKIterator<Expression>(variableDisequals, remainingConstants.size()),
-						() -> new PermutationIterator<Expression>(remainingConstants));
-	
-				FunctionIterator<ArrayList<ArrayList<Expression>>, Iterable<Expression>> disjunctsIterator =
-						FunctionIterator.make(
-								subsetOfVariableDisequalsAndRemainingConstantsPermutationIterator,
-								(ArrayList<ArrayList<Expression>> subsetAndPermutation)
-								->
-								zipApply(
-										DISEQUALITY,
-										list(
-												subsetAndPermutation.get(0).iterator(),
-												subsetAndPermutation.get(1).iterator()))
-								);
-	
-				Iterable<Iterable<Expression>> conjuncts = in(disjunctsIterator);
-	
-				return conjuncts;
-			}
-		}
-	
-		
-		// otherwise, nothing is implied.
 		return list();
 	}
 
@@ -193,23 +151,5 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 						extractSecondArguments);
 		
 		return result;
-	}
-
-	private boolean variableIsBoundToUniquelyNamedConstant(RewritingProcess process) {
-		return thereExists(getConstraint().getPositiveNormalizedAtoms(), l -> process.isUniquelyNamedConstant(l.get(1)));
-	}
-
-	private ArrayList<Expression> getVariableDisequals(RewritingProcess process) {
-		return getConstraint().getNegativeNormalizedAtoms().stream().
-		map(e -> e.get(1)). // second arguments of Variable != Term
-		filter(e -> ! process.isUniquelyNamedConstant(e)). // only Variables
-		collect(Util.toArrayList(10));
-	}
-
-	private LinkedHashSet<Expression> getConstantDisequals(RewritingProcess process) {
-		return getConstraint().getNegativeNormalizedAtoms().stream().
-		map(e -> e.get(1)). // second arguments of Variable != Term
-		filter(e -> process.isUniquelyNamedConstant(e)). // only constants
-		collect(toLinkedHashSet());
 	}
 }

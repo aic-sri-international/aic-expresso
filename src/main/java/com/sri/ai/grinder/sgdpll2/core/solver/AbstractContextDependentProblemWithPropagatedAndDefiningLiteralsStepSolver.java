@@ -105,15 +105,18 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	 * when an extension only needs to define propagated literals,
 	 * {@link #getPropagatedLiterals()}can be used to spare a programmer the chore of defining a CNF iterable.
 	 * This method <i>must</i> be overridden if {@link #getPropagatedCNF(RewritingProcess)} is not;
-	 * abstract method {@link #indicateWhetherGetPropagatedCNFWillBeOverridden()} ensure extension programmers
+	 * abstract method {@link #usingDefaultImplementationOfGetPropagatedCNF()} ensure extension programmers
 	 * do not forget this.
+	 * If the extension's {@link #usingDefaultImplementationOfGetPropagatedCNF()} returns true,
+	 * this method must be overridden and a suitable definition provided, or an error asking for that will be thrown.
+	 * Otherwise, it should not be invoked, and if it is an error complaining about that will be thrown.
 	 */
 	protected Iterable<Expression> getPropagatedLiterals() {
-		if (indicateWhetherGetPropagatedCNFWillBeOverridden()) {
-			return null;
+		if (usingDefaultImplementationOfGetPropagatedCNF()) {
+			throw new Error("This method should have been defined in " + getClass().getSimpleName() + " but was not.");
 		}
 		else {
-			throw new Error("This method should have been overridden but was not.");
+			throw new Error("This method should not have been invoked. It is not to be invoked directly, but only by the default implementation of getPropagatedCNF, which the watch usingDefaultImplementationOfGetPropagatedCNF says is not being used.");
 		}
 	}
 	
@@ -131,15 +134,17 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 
 	/**
 	 * An abstract method forcing extensions to explicitly indicate whether they intend to
-	 * override {@link #getPropagatedCNF()}.
+	 * use the default implementation of {@link #getPropagatedCNF()}
+	 * (either by not overriding it, or by overriding, but invoking the super class implementation).
 	 * This serves as a reminder to extending classes that they must
-	 * override at least {@link #getPropagatedLiterals()},
+	 * override (define, really, as the default implementation doesn't do anything)
+	 * at least {@link #getPropagatedLiterals()},
 	 * since the default implementation of {@link #getPropagatedCNF(RewritingProcess)} uses
 	 * that and {@link #getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess)}.
 	 * 
 	 * @return
 	 */
-	abstract protected boolean indicateWhetherGetPropagatedCNFWillBeOverridden();
+	abstract protected boolean usingDefaultImplementationOfGetPropagatedCNF();
 	
 	/**
 	 * Provides whatever needs to be known for this problem to be solved, in the form of a CNF.
