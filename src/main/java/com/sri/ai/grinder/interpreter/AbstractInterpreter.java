@@ -49,8 +49,8 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
 import com.sri.ai.grinder.core.simplifier.Exhaustive;
-import com.sri.ai.grinder.core.simplifier.MergedMapBasedSimplifier;
 import com.sri.ai.grinder.core.simplifier.Recursive;
+import com.sri.ai.grinder.core.simplifier.SeriallyMergedMapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
@@ -64,8 +64,9 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  * This simplifier is based on the elementary simplifiers provided by abstract methods {@link #makeFunctionApplicationSimplifiers()},
  * the ones provided by {@link #makeSyntacticFormTypeSimplifiers()}, and another {@link MapBasedSimplifier}
  * provided by abstract method {@link #makeAnotherMapBasedSimplifier()}.
- * The simplifiers in the latter are overridden by the simplifiers in the first two to create
- * an overriding effect.
+ * The simplifiers in the latter are supplemented, not overridden, by the simplifiers in the first two to create
+ * an overriding effect, in the sense that the new ones only act once the older one has nothing else to say about the expression
+ * (that is, returns the same instance).
  *
  * @author braz
  *
@@ -113,7 +114,7 @@ public abstract class AbstractInterpreter implements MapBasedSimplifier, Simplif
 		return basicSimplifier.getSyntacticFormTypeSimplifiers();
 	}
 
-	private class InternalSimplifier extends MergedMapBasedSimplifier {
+	private class InternalSimplifier extends SeriallyMergedMapBasedSimplifier {
 
 		// The reason we use an internal simplifier as opposed to making {@link AbstractInterpreter} an extension of {@link MergedMapBasedSimplifier}
 		// is that we want the makers of sub-simplifiers to be dynamic (non-static), so this class can be extended and they can be overridden.

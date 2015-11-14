@@ -37,22 +37,29 @@
  */
 package com.sri.ai.grinder.core.simplifier;
 
-import static com.sri.ai.util.Util.union;
+import static com.sri.ai.util.Util.in;
+import static com.sri.ai.util.Util.map;
 
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.Simplifier;
 
 /**
- * A basic {@link DefaultMapBasedSimplifier} receiving its elementary simplifiers from other {@link MapBasedSimplifier}s.
+ * A {@link MapBasedSimplifier} receiving elementary simplifiers on their own or from other {@link MapBasedSimplifier}s,
+ * with a serialization collision policy, that is, if a new simplifier <code>s2</code> applies to the
+ * same function application or syntactic form as a pre-existing simplifier <code>s1</code>,
+ * then a new simplifier <code>s3(e) = if s1(e) != e then s1(e) else s2(e)</code> is created.
  * 
  * @author braz
  *
  */
 @Beta
-public class MergedMapBasedSimplifier extends DefaultMapBasedSimplifier {
+public class SeriallyMergedMapBasedSimplifier extends DefaultMapBasedSimplifier {
 	
 	/**
 	 * Creates a simplifiers from the function and syntactic form simplifiers of given simplifiers,
@@ -61,10 +68,10 @@ public class MergedMapBasedSimplifier extends DefaultMapBasedSimplifier {
 	 * @param additionalSyntacticFormTypeSimplifiers
 	 * @param simplifiers
 	 */
-	public MergedMapBasedSimplifier(MapBasedSimplifier... simplifiers) {
+	public SeriallyMergedMapBasedSimplifier(MapBasedSimplifier... simplifiers) {
 		super(
-				union ( Merge.functionApplicationSimplifiersIterator(simplifiers) ),
-				union ( Merge.syntacticFormTypeSimplifiersIterator(simplifiers) ));
+				merge ( Merge.functionApplicationSimplifiersIterator(simplifiers) ),
+				merge ( Merge.syntacticFormTypeSimplifiersIterator(simplifiers) ));
 				
 	}
 
@@ -76,13 +83,45 @@ public class MergedMapBasedSimplifier extends DefaultMapBasedSimplifier {
 	 * @param additionalSyntacticFormTypeSimplifiers
 	 * @param simplifiers
 	 */
-	public MergedMapBasedSimplifier(
+	public SeriallyMergedMapBasedSimplifier(
 			Map<String, Simplifier> additionalFunctionApplicationSimplifiers,
 			Map<String, Simplifier> additionalSyntacticFormTypeSimplifiers,
 			MapBasedSimplifier... simplifiers) {
 		super(
-				union ( Merge.functionApplicationSimplifiersIterator(additionalFunctionApplicationSimplifiers, simplifiers) ),
-				union ( Merge.syntacticFormTypeSimplifiersIterator(additionalSyntacticFormTypeSimplifiers, simplifiers) ));
+				merge ( Merge.functionApplicationSimplifiersIterator(additionalFunctionApplicationSimplifiers, simplifiers) ),
+				merge ( Merge.syntacticFormTypeSimplifiersIterator(additionalSyntacticFormTypeSimplifiers, simplifiers) ));
 				
+	}
+	
+	private static Map<String, Simplifier> merge(Iterator<Map<String, Simplifier>> simplifiersIterator) {
+		LinkedHashMap<String, Simplifier> result = map();
+		for (Map<String, Simplifier> simplifiersMap : in(simplifiersIterator)) {
+			for (Map.Entry<String, Simplifier> entry : simplifiersMap.entrySet()) {
+				String key = entry.getKey();
+				Simplifier moreRecentSimplifier = entry.getValue();
+				Simplifier previousSimplifier = result.get(key);
+				
+				Simplifier finalSimplifier;
+				if (previousSimplifier != null) {
+					finalSimplifier = serialize(moreRecentSimplifier, previousSimplifier);
+				}
+				else {
+					finalSimplifier = moreRecentSimplifier;
+				}
+				
+				result.put(key, finalSimplifier);
+			}
+		}
+		return result;
+	}
+
+	private static Simplifier serialize(Simplifier moreRecentSimplifier, Simplifier previousSimplifier) {
+		return (e, p) -> {
+			Expression result = previousSimplifier.apply(e, p);
+			if (result == e) {
+				result = moreRecentSimplifier.apply(e, p);
+			}
+			return result;
+		};
 	}
 }

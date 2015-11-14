@@ -108,7 +108,7 @@ public abstract class AbstractCommonInterpreter extends AbstractInterpreter {
 		return (e, p) -> evaluateAggregateOverIntensionalSet(group, e, p);
 	}
 	
-	private Simplifier simplifierCardinality() {
+	private Simplifier simplifierCardinality() { // reminder: CommonInterpreter already has a cardinality simplifier but AbstractInterpreter serializes multiple simplifiers for the same function
 		return (e, p) -> {
 			Expression result;
 			if (e.get(0).getSyntacticFormType().equals("Intensional set")) {
@@ -124,14 +124,8 @@ public abstract class AbstractCommonInterpreter extends AbstractInterpreter {
 								ONE,
 								p);
 			}
-			else { // reproduce the default cardinality simplifier present in CommonSimplifier.
-				Expression cardinality = (Expression) p.getGlobalObject(e);
-				if (cardinality != null) {
-					result = cardinality;
-				}
-				else {
-					result = e;
-				}
+			else {
+				result = e;
 			}
 
 			return result;

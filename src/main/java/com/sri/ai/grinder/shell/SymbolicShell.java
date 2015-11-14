@@ -206,6 +206,9 @@ public class SymbolicShell {
 		System.out.println("- the 'on' clause indicates the set indices; all other variables are free variables");
 		System.out.println("  and the result may depend on them");
 		System.out.println("");
+		System.out.println("- cardinality over intensionally-defined multi-sets:");
+		System.out.println("-      | ({{ (on X in <Type>, Y in <Type>, ...)  <Number-valued> : <Condition> }}) |");
+		System.out.println("");
 		System.out.println("Global inference only works on equality and propositions");
 		System.out.println("This means the system knows P and (P => Q) implies Q,");
 		System.out.println("and that X != Y and Y = Z implies X != Z,");

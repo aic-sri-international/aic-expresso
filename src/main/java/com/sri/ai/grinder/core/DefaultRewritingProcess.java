@@ -37,6 +37,10 @@
  */
 package com.sri.ai.grinder.core;
 
+import static com.sri.ai.expresso.helper.Expressions.INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.myAssert;
 
@@ -57,6 +61,7 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.GrinderConfiguration;
@@ -789,6 +794,10 @@ public class DefaultRewritingProcess implements RewritingProcess {
 		DefaultRewritingProcess result = new DefaultRewritingProcess(this);
 		result.types = new LinkedHashMap<String, Type>(result.types);
 		result.types.put(type.getName(), type);
+		if (type.size() != -1) {
+			Symbol sizeExpression = type.size() != -2? makeSymbol(type.size()) : (Symbol) INFINITY;
+			result.putGlobalObject(apply(CARDINALITY, type.getName()), sizeExpression);
+		}
 		return result;
 	}
 
