@@ -80,6 +80,8 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	
 	private Map<String, String> variableNamesAndTypeNamesForTesting;
 	
+	private ArrayList<String> variableNamesForTesting;
+	
 	@Override
 	public Collection<Type> getTypesForTesting() {
 		if (typesForTesting == null) {
@@ -94,8 +96,9 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	}
 	
 	@Override
-	public void setVariableNamesAndTypeNamesForTesting(Map<String, String> variableNamesForTesting) {
-		this.variableNamesAndTypeNamesForTesting = variableNamesForTesting;
+	public void setVariableNamesAndTypeNamesForTesting(Map<String, String> variableNamesAndTypesForTesting) {
+		this.variableNamesAndTypeNamesForTesting = variableNamesAndTypesForTesting;
+		this.variableNamesForTesting = new ArrayList<String>(variableNamesAndTypesForTesting.keySet());
 	}
 	
 	@Override
@@ -103,6 +106,11 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 		return Collections.unmodifiableMap(variableNamesAndTypeNamesForTesting);
 	}
 
+	@Override
+	public ArrayList<String> getVariableNamesForTesting() {
+		return variableNamesForTesting;
+	}
+	
 	@Override
 	public RewritingProcess extendWithTestingInformation(RewritingProcess process) {
 		RewritingProcess result = process.put(getTypesForTesting());

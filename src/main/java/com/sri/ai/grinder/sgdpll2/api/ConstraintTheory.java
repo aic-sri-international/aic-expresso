@@ -45,6 +45,7 @@ import static com.sri.ai.util.Util.addAllToSet;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.thereExists;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -202,6 +203,13 @@ public interface ConstraintTheory extends Theory {
 	
 	/** Gets variables to be used in randomly generated literals. */
 	Map<String, String> getVariableNamesAndTypeNamesForTesting();
+
+	/**
+	 * Returns the variable names as returned by {@link #getVariableNamesAndTypeNamesForTesting()}
+	 * as an array list (this is cached and updated as needed).
+	 * @return
+	 */
+	ArrayList<String> getVariableNamesForTesting();
 
 	/** Returns a set of types appropriate for testing this constraint theory. */
 	Collection<Type> getTypesForTesting();

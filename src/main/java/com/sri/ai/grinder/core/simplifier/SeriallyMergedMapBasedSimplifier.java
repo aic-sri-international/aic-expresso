@@ -55,6 +55,8 @@ import com.sri.ai.grinder.api.Simplifier;
  * same function application or syntactic form as a pre-existing simplifier <code>s1</code>,
  * then a new simplifier <code>s3(e) = if s1(e) != e then s1(e) else s2(e)</code> is created.
  * 
+ * @see OverridingMergedMapBasedSimplifier
+ * 
  * @author braz
  *
  */

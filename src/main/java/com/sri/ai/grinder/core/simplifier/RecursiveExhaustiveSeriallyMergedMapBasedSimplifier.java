@@ -37,8 +37,6 @@
  */
 package com.sri.ai.grinder.core.simplifier;
 
-import static com.sri.ai.util.Util.union;
-
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
@@ -46,40 +44,37 @@ import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.Simplifier;
 
 /**
- * A basic {@link RecursiveExhaustiveMapBasedSimplifier} receiving its elementary simplifiers from other {@link MapBasedSimplifier}s.
+ * A convenience for<br>
+ * <code>new {@link Recursive}(new {@link Exhaustive}(new {@link SeriallyMergedMapBasedSimplifier}(...)))</code>,<br>
+ * but with the additional advantage of being itself a {@link MapBasedSimplifier}, giving access to its elementary simplifiers.
  * 
  * @author braz
  *
  */
 @Beta
-public class RecursiveExhaustiveMergedMapBasedSimplifier extends RecursiveExhaustiveMapBasedSimplifier {
+public class RecursiveExhaustiveSeriallyMergedMapBasedSimplifier extends RecursiveExhaustiveMapBasedSimplifier {
 	
 	/**
-	 * Creates a simplifiers from the function and syntactic form simplifiers of given simplifiers.
+	 * Creates a map-based recursive exhaustive simplifier with elementary simplifiers serially merged from the ones in given map-based simplifiers.
 	 * @param additionalFunctionApplicationSimplifiers
 	 * @param additionalSyntacticFormTypeSimplifiers
 	 * @param simplifiers
 	 */
-	public RecursiveExhaustiveMergedMapBasedSimplifier(MapBasedSimplifier... simplifiers) {
-		super(
-				union ( Merge.functionApplicationSimplifiersIterator(simplifiers) ),
-				union ( Merge.syntacticFormTypeSimplifiersIterator(simplifiers) ));
-				
+	public RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(MapBasedSimplifier... simplifiers) {
+		super(new SeriallyMergedMapBasedSimplifier(simplifiers));
 	}
 
 	/**
-	 * Adds function and syntactic form simplifiers to those of given simplifiers.
+	 * Creates a map-based recursive exhaustive simplifier with elementary simplifiers serially merged from given map-based simplifiers
+	 * and additional elementary simplifiers.
 	 * @param additionalFunctionApplicationSimplifiers
 	 * @param additionalSyntacticFormTypeSimplifiers
 	 * @param simplifiers
 	 */
-	public RecursiveExhaustiveMergedMapBasedSimplifier(
+	public RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(
 			Map<String, Simplifier> additionalFunctionApplicationSimplifiers,
 			Map<String, Simplifier> additionalSyntacticFormTypeSimplifiers,
 			MapBasedSimplifier... simplifiers) {
-		super(
-				union ( Merge.functionApplicationSimplifiersIterator(additionalFunctionApplicationSimplifiers, simplifiers) ),
-				union ( Merge.syntacticFormTypeSimplifiersIterator(additionalSyntacticFormTypeSimplifiers, simplifiers) ));
-				
+		super(new SeriallyMergedMapBasedSimplifier(additionalFunctionApplicationSimplifiers, additionalSyntacticFormTypeSimplifiers, simplifiers));
 	}
 }

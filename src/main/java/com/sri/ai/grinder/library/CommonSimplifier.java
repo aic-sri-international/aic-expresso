@@ -39,7 +39,7 @@ package com.sri.ai.grinder.library;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMergedMapBasedSimplifier;
+import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
@@ -60,7 +60,7 @@ import com.sri.ai.grinder.library.set.CardinalitySimplifier;
  *
  */
 @Beta
-public class CommonSimplifier extends RecursiveExhaustiveMergedMapBasedSimplifier {
+public class CommonSimplifier extends RecursiveExhaustiveSeriallyMergedMapBasedSimplifier {
 	
 	public CommonSimplifier() {
 		super(

@@ -46,9 +46,11 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 
 /**
- * A basic {@link MapBasedSimplifier} receiving its elementary simplifiers at construction time,
- * and simplifying expressions with
- * <code>new {@link Recursive}(new {@link Exhaustive}(new {@link DefaultMapBasedSimplifier}(functionApplicationSimplifiers, syntacticFormTypeSimplifiers)))</code>.
+ * A convenience for<br> 
+ * <code>new {@link Recursive}(new {@link Exhaustive}(new {@link DefaultMapBasedSimplifier}(functionApplicationSimplifiers, syntacticFormTypeSimplifiers)))</code><br>
+ * or<br>
+ * <code>new {@link Recursive}(new {@link Exhaustive}(<{@link MapBasedSimplifier} instance>))</code><br>
+ * but with the additional advantage of being itself a {@link MapBasedSimplifier}, giving access to its elementary simplifiers.
  * 
  * @author braz
  *
@@ -56,21 +58,23 @@ import com.sri.ai.grinder.api.Simplifier;
 @Beta
 public class RecursiveExhaustiveMapBasedSimplifier extends AbstractMapBasedSimplifier {
 	
-	private Simplifier recursiveSimplifier;
+	private Simplifier recursiveExhaustiveSimplifier;
 
 	public RecursiveExhaustiveMapBasedSimplifier(
 			Map<String, Simplifier> functionApplicationSimplifiers,
 			Map<String, Simplifier> syntacticFormTypeSimplifiers) {
 		
 		super(functionApplicationSimplifiers, syntacticFormTypeSimplifiers);
-		recursiveSimplifier = new Recursive(new Exhaustive(new DefaultMapBasedSimplifier(getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers())));
+		recursiveExhaustiveSimplifier = new Recursive(new Exhaustive(new DefaultMapBasedSimplifier(getFunctionApplicationSimplifiers(), getSyntacticFormTypeSimplifiers())));
+	}
+
+	public RecursiveExhaustiveMapBasedSimplifier(MapBasedSimplifier mapBasedSimplifier) {
+		this(mapBasedSimplifier.getFunctionApplicationSimplifiers(), mapBasedSimplifier.getSyntacticFormTypeSimplifiers());
 	}
 
 	@Override
 	public Expression apply(Expression expression, RewritingProcess process) {
-		Expression result = recursiveSimplifier.apply(expression, process);
+		Expression result = recursiveExhaustiveSimplifier.apply(expression, process);
 		return result;
-		// if Java supported multiple inheritance, this would be a good example
-		// in which this class would extend Recursive as well.
 	}
 }

@@ -47,7 +47,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMergedMapBasedSimplifier;
+import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
@@ -85,7 +85,7 @@ public class EqualityConstraintTheory extends AbstractConstrainTheoryWithBinaryR
 		super(
 				set(EQUALITY, DISEQUALITY),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-				new RecursiveExhaustiveMergedMapBasedSimplifier(new EqualitySimplifier(), new BooleanSimplifier()));
+				new RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(new EqualitySimplifier(), new BooleanSimplifier()));
 	}
 	
 	@Override

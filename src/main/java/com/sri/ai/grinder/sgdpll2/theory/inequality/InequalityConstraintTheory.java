@@ -46,24 +46,24 @@ import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN_OR_EQUAL_
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
-import static com.sri.ai.util.Util.arrayList;
+import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
-import static com.sri.ai.util.Util.set;
+import static com.sri.ai.util.Util.pickKElementsWithoutReplacement;
+import static com.sri.ai.util.Util.pickUniformly;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Integer0To9;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveMergedMapBasedSimplifier;
+import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
@@ -73,6 +73,7 @@ import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstrainTheoryWithBinaryRelations;
 import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.theory.helper.DifferenceArithmeticSimplifier;
 import com.sri.ai.util.Util;
 
 
@@ -113,17 +114,42 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinar
 		super(
 				negationFunctor.keySet(),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-						new RecursiveExhaustiveMergedMapBasedSimplifier(
-								new EqualitySimplifier(), new InequalitySimplifier(), new BooleanSimplifier()));
+						new RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(
+								// it is important to include difference arithmetic simplifiers here because they ensure literals that contain a variable that cancels out (such as X - X > Y) are simplified (here, to 0 > Y) and as a consequence not passed to the single-variable constraint for that variable (here, X), because it is actually *not* a constraint on X
+								makeFunctionApplicationSimplifiersForDifferentArithmetic(),
+								map(), // no additional syntactic form simplifiers
+								
+								// basic simplification of involved interpreted functions in this theory:
+								new EqualitySimplifier(),
+								new InequalitySimplifier(),
+								new BooleanSimplifier()
+								));
 
 		setTypesForTesting(list(new Integer0To9()));
 		setVariableNamesAndTypeNamesForTesting(map("I", "Integer0to9", "J", "Integer0to9", "K", "Integer0to9"));
 	}
 	
+	private static Map<String, Simplifier> makeFunctionApplicationSimplifiersForDifferentArithmetic() {
+		Simplifier differenceArithmeticSimplifier = new DifferenceArithmeticSimplifier((expression, duplicate) -> new Error("Found difference arithmetic expression " + expression + " containing " + duplicate + " more than once"));
+		Map<String, Simplifier> functionApplicationSimplifiers =
+				map(
+						EQUALITY,                 differenceArithmeticSimplifier,
+						DISEQUALITY,              differenceArithmeticSimplifier,
+						LESS_THAN,                differenceArithmeticSimplifier,
+						LESS_THAN_OR_EQUAL_TO,    differenceArithmeticSimplifier,
+						GREATER_THAN,             differenceArithmeticSimplifier,
+						GREATER_THAN_OR_EQUAL_TO, differenceArithmeticSimplifier
+						);
+
+		// Note that this may lead equalities and disequalities *not* on integers to be passed to this simplifier, but it does not make changes to those and may actually even non-integer terms out.
+		
+		return functionApplicationSimplifiers;
+	}
+	
 	@Override
 	protected boolean isValidArgument(Expression expression, RewritingProcess process) {
 		Expression type = GrinderUtil.getType(expression, process);
-		boolean result = type.equals("Integer");
+		boolean result = type.equals("Integer0to9");
 		return result;
 	}
 
@@ -132,6 +158,13 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinar
 		String functorString = atom.getFunctor().toString();
 		String negatedFunctor = negationFunctor.get(functorString);
 		Expression result = apply(negatedFunctor, atom.get(0), atom.get(1));
+		return result;
+	}
+
+	@Override
+	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
+		boolean result = super.isInterpretedInThisTheoryBesidesBooleanConnectives(expression, process)
+				|| expression.hasFunctor(PLUS) || expression.hasFunctor(MINUS); 
 		return result;
 	}
 
@@ -155,47 +188,42 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinar
 		return null;//new ModelCountingOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
 	}
 
-//	/**
-//	 * Makes a random atom on variable by summing or subtracting terms from two random atoms generated by super class implementation.
-//	 */
-//	@Override
-//	public Expression makeRandomAtomOn(String variable, Random random, RewritingProcess process) {
-//		
-//		Expression atom1 = super.makeRandomAtomOn(variable, random, process);
-//		Expression atom2 = super.makeRandomAtomOn(variable, random, process);
-//		Expression atom3 = super.makeRandomAtomOn(variable, random, process);
-//		
-//		atom1 = rejectBooleanConstants(atom1, variable, random, process);
-//		atom2 = rejectBooleanConstants(atom2, variable, random, process);
-//		atom3 = rejectBooleanConstants(atom3, variable, random, process);
-//		
-//		Expression term1 = atom1.get(1);
-//		Expression term2 = atom2.get(1);
-//		Expression term3 = atom3.get(1);
-//		
-//		term1 = random.nextBoolean()? term1 : apply(MINUS, term1);
-//		term2 = random.nextBoolean()? term2 : apply(MINUS, term2);
-//		term3 = random.nextBoolean()? term3 : apply(MINUS, term3);
-//		
-//		Set<Expression> leftHandSideTerms  = set(makeSymbol(variable), term1);
-//		Collection<Expression> rightHandSideTerms = Util.setDifference(set(term2, term3), leftHandSideTerms);
-//
-//		ArrayList<Expression> leftHandSideArguments = new ArrayList<>();
-//		leftHandSideArguments.addAll(leftHandSideTerms);
-//		ArrayList<Expression> rightHandSideArguments = new ArrayList<>();
-//		leftHandSideArguments.addAll(rightHandSideTerms);
-//		
-//		Expression leftHandSide = Plus.make(leftHandSideArguments);
-//		Expression rightHandSide = Plus.make(rightHandSideArguments);
-//		
-//		Expression result = apply(atom1.getFunctor(), leftHandSide, rightHandSide);
-//		return result;
-//	}
-//
-//	private Expression rejectBooleanConstants(Expression atom, String variable, Random random, RewritingProcess process) {
-//		while (atom.getSyntacticFormType().equals("Symbol")) {
-//			atom = super.makeRandomAtomOn(variable, random, process);
-//		}
-//		return atom;
-//	}
+	/**
+	 * Makes a random atom on variable by summing or subtracting terms from two random atoms generated by super class implementation.
+	 */
+	@Override
+	public Expression makeRandomAtomOn(String variable, Random random, RewritingProcess process) {
+		
+		int numberOfOtherVariables = random.nextInt(3);
+		ArrayList<String> otherVariablesForAtom = pickKElementsWithoutReplacement(getVariableNamesForTesting(), numberOfOtherVariables, o -> !o.equals(variable), random);
+		
+		int numberOfVariablesToBeNegated = random.nextInt(otherVariablesForAtom.size() + 1);
+		ArrayList<String> otherVariablesToBeNegated = Util.pickKElementsWithoutReplacement(otherVariablesForAtom, numberOfVariablesToBeNegated, random);
+
+		Type type = process.getType(Util.getFirst(getVariableNamesAndTypeNamesForTesting().values()));
+		ArrayList<Expression> constants = new ArrayList<Expression>();
+		int numberOfConstants = random.nextInt(3);
+		for (int i = 0; i != numberOfConstants; i++) {
+			constants.add(type.sampleConstant(random));
+		}
+
+		ArrayList<String> variablesForAtom = new ArrayList<String>(otherVariablesForAtom);
+		variablesForAtom.add(variable);
+		ArrayList<Expression> leftHandSideArguments = Util.mapIntoArrayList(variablesForAtom, s -> makeSymbol(s));
+		Util.mapIntoList(otherVariablesToBeNegated, v -> apply(MINUS, makeSymbol(v)), leftHandSideArguments);
+
+		leftHandSideArguments.addAll(constants);
+		Expression leftHandSide = Plus.make(leftHandSideArguments);
+		String functor = pickUniformly(theoryFunctors, random);
+		Expression unsimplifiedResult = apply(functor, leftHandSide, 0);
+		
+		Expression result = simplify(unsimplifiedResult, process);
+		//System.out.println("Random literal: " + result);	
+		// Note that simplify will eliminate negated variables;
+		// however, we leave their generation and then elimination here as a sanity check,
+		// as well as a useful feature for the day when we get assurance that literals will be simplified down the line,
+		// allowing us to eliminate them here. TODO
+		
+		return result;
+	}
 }

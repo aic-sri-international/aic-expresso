@@ -48,7 +48,9 @@ import com.sri.ai.grinder.api.Simplifier;
 /**
  * A basic {@link DefaultMapBasedSimplifier} receiving its elementary simplifiers from other {@link MapBasedSimplifier}s,
  * with an overriding collision policy, that is, simplifiers for a function or syntactic form override
- * override those already present for the same element. 
+ * those already present for the same element. 
+ * 
+ * @see SeriallyMergedMapBasedSimplifier
  * 
  * @author braz
  *
