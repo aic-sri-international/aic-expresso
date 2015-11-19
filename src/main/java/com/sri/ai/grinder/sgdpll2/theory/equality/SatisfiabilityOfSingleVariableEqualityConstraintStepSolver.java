@@ -37,6 +37,7 @@
  */
 package com.sri.ai.grinder.sgdpll2.theory.equality;
 
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.zipApply;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
@@ -52,6 +53,7 @@ import static com.sri.ai.util.collect.FunctionIterator.functionIterator;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
@@ -61,7 +63,8 @@ import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Equality;
-import com.sri.ai.grinder.sgdpll2.core.solver.AbstractSatisfiabilityWithPropagatedAndDefiningLiteralsStepSolver;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
+import com.sri.ai.grinder.sgdpll2.core.solver.AbstractBooleanProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.PairOf;
 import com.sri.ai.util.collect.CartesianProductIterator;
@@ -73,13 +76,37 @@ import com.sri.ai.util.collect.PredicateIterator;
 import com.sri.ai.util.collect.SubsetsOfKIterator;
 
 /**
- * A {@link AbstractSatisfiabilityWithPropagatedAndDefiningLiteralsStepSolver} for a {@link SingleVariableEqualityConstraint}.
- * 
+ * A {@link AbstractBooleanProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver} for a {@link SingleVariableEqualityConstraint}.
+ * <p>
+ * This step solver works by providing propagated literals of the form <code>Y op Z</code>
+ * for every pair of literals <code>X = Y</code> and <code>X op Z</code>,
+ * where <code>X</code> is the constraint's variable and <code>op</code> is either <code>=</code> or </code>!=</code>.
+ * <p>
+ * It also provides a propagated CNF that encodes the requirement that the number of distinct values
+ * from which <code>X</code> is constrained to be disequal from does not exceed the domain size.
+ * For example, <code>X != Y and X != Z and X != a</code>, with <code>X</code>'s type {a, b, c, d},
+ * propagates the CNF <code>(Y != b or Z = c) and (Y != b or Z != d) and (Y != c or Z != b) and (Y != c or Z != d) and (Y != d and Z != b) and (Y != d and Z != c)</code>.
+ * <p>
+ * In general, we must generate a CNF with a clause negating each possible assignment of variables disequal from <code>X</code>
+ * to a permutation of <code>k</code> distinct uniquely named constants not constrained to be disequal from <code>X</code>,
+ * where <code>k</code> is the type size minus the number of uniquely named constants not constrained to be disequal from <code>X</code>.
+ * The reason for that is that, if any of these assignments were true, then <code>X</code> would be constrained
+ * to be difference from the uniquely named constants it already is constrained against in the constraint itself,
+ * plus constrained to be different from <code>k</code> other uniquely named constants,
+ * meaning that has to be disequal from a number of uniquely named constants equal to its type's size,
+ * leaving no possible assignment to it.
+ * <p>
+ * While the size of this propagated CNF depends on <code>X</code>'s type size, which can be very large,
+ * this check is only needed if the number of terms to which <code>X</code> is constrained to be
+ * disequal from is equally large. This preserves
+ * the fact that the algorithm's time complexity depends on the constraint size alone,
+ * not the type size.
+ *
  * @author braz
  *
  */
 @Beta
-public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends AbstractSatisfiabilityWithPropagatedAndDefiningLiteralsStepSolver {
+public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends AbstractBooleanProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver {
 
 	public SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(SingleVariableEqualityConstraint constraint) {
 		super(constraint);
@@ -96,7 +123,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	}
 
 	@Override
-	protected Iterable<Expression> getPropagatedLiterals() {
+	protected Iterable<Expression> getPropagatedLiterals(RewritingProcess process) {
 		
 		Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator = pairsOfEqualsToVariableIterator();
 		Iterator<Expression> propagatedEqualities = functionIterator(pairsOfEqualsToVariableIterator, p -> Equality.make(p.first, p.second));
@@ -156,21 +183,17 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 						() -> new SubsetsOfKIterator<Expression>(variableDisequals, remainingConstants.size()),
 						() -> new PermutationIterator<Expression>(remainingConstants));
 	
-				FunctionIterator<ArrayList<ArrayList<Expression>>, Iterable<Expression>> disjunctsIterator =
+				FunctionIterator<ArrayList<ArrayList<Expression>>, Iterable<Expression>> clausesIterator =
 						FunctionIterator.make(
 								subsetOfVariableDisequalsAndRemainingConstantsPermutationIterator,
 								(ArrayList<ArrayList<Expression>> subsetAndPermutation)
 								->
-								zipApply(
-										DISEQUALITY,
-										list(
-												subsetAndPermutation.get(0).iterator(),
-												subsetAndPermutation.get(1).iterator()))
+								clauseNegatingAssignmentOfSubsetOfVariablesToParticularPermutationOfRemainingConstants(subsetAndPermutation)
 								);
 	
-				Iterable<Iterable<Expression>> conjuncts = in(disjunctsIterator);
+				Iterable<Iterable<Expression>> clauses = in(clausesIterator);
 	
-				return conjuncts;
+				return clauses;
 			}
 		}
 	
@@ -179,7 +202,18 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 		return list();
 	}
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * @param subsetAndPermutation
+	 * @return
+	 */
+	private List<Expression> clauseNegatingAssignmentOfSubsetOfVariablesToParticularPermutationOfRemainingConstants(ArrayList<ArrayList<Expression>> subsetAndPermutation) {
+		return zipApply(
+				DISEQUALITY,
+				list(
+						subsetAndPermutation.get(0).iterator(),
+						subsetAndPermutation.get(1).iterator()));
+	}
+
 	private Iterator<ArrayList<Expression>> arrayListsOfEqualAndDisequalToVariableIterator() {
 		
 		Function<ArrayList<Expression>, ArrayList<Expression>> extractSecondArguments =
@@ -211,5 +245,15 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 		map(e -> e.get(1)). // second arguments of Variable != Term
 		filter(e -> process.isUniquelyNamedConstant(e)). // only constants
 		collect(toLinkedHashSet());
+	}
+
+	@Override
+	protected Iterable<Expression> getDefiningLiterals(RewritingProcess process) {
+		return list();
+	}
+	
+	@Override
+	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint2 contextualConstraint, RewritingProcess process) {
+		return TRUE;
 	}
 }

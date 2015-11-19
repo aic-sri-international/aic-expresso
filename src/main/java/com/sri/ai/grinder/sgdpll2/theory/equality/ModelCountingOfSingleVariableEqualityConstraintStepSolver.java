@@ -57,19 +57,22 @@ import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
-import com.sri.ai.grinder.sgdpll2.core.solver.AbstractModelCountingOfSingleVariableWithPropagatedAndDefiningLiteralsConstraintStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityAndDefiningLiteralsStepSolver;
 import com.sri.ai.util.base.PairOf;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.PairOfElementsInListIterator;
 
 /**
- * A {@link AbstractModelCountingOfConstraintStepSolver} for a {@link SingleVariableEqualityConstraint}.
+ * A {@link AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityAndDefiningLiteralsStepSolver}
+ * for a {@link SingleVariableEqualityConstraint}.
+ * As such, it provides defining literals (propagated literals are delegated, by the super class, to a satisfiability step solver)
+ * and to provide a way of computing a solution when all propagated literals and propagated CNF are satisfied,
+ * and all defining literals are defined by the context.
  * <p>
- * This solver provides literals on which satisfiability depends (because it extends {@link AbstractModelCountingOfConstraintStepSolver},
- * and then what that class defines as "defining literals", which are literals on which satisfiability does not depend,
- * but the model count does.
+ * As established at the {@link AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver},
+ * defining literals are literals on which satisfiability does not depend, but the model count does.
  * <p>
- * For this theory, these literals are none if the constraint's variable is already bound to some value.
+ * For equality theory, defining literals are none if the constraint's variable is already bound to some value.
  * In this case, the model count is, naturally, <code>1</code>.
  * Otherwise, the defining literals are all equalities among "disequals" of the constraint's variable otherwise, where
  * "disequals" are the values to which the variable is constrained to be disequal from.
@@ -83,7 +86,7 @@ import com.sri.ai.util.collect.PairOfElementsInListIterator;
  *
  */
 @Beta
-public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends AbstractModelCountingOfSingleVariableWithPropagatedAndDefiningLiteralsConstraintStepSolver {
+public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityAndDefiningLiteralsStepSolver {
 
 	public ModelCountingOfSingleVariableEqualityConstraintStepSolver(SingleVariableEqualityConstraint constraint) {
 		super(constraint);

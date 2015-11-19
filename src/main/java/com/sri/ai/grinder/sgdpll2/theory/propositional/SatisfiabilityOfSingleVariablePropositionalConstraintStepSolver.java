@@ -37,18 +37,23 @@
  */
 package com.sri.ai.grinder.sgdpll2.theory.propositional;
 
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.util.Util.list;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll2.core.solver.AbstractSatisfiabilityWithPropagatedAndDefiningLiteralsStepSolver;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
+import com.sri.ai.grinder.sgdpll2.core.solver.AbstractBooleanProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
 
 /**
- * A {@link AbstractSatisfiabilityWithPropagatedAndDefiningLiteralsStepSolver} for a {@link SingleVariablePropositionalConstraint}.
+ * A {@link AbstractBooleanProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver} for a {@link SingleVariablePropositionalConstraint}.
  * 
  * @author braz
  *
  */
 @Beta
-public class SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver extends AbstractSatisfiabilityWithPropagatedAndDefiningLiteralsStepSolver {
+public class SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver extends AbstractBooleanProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver {
 
 	public SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver(SingleVariablePropositionalConstraint constraint) {
 		super(constraint);
@@ -61,11 +66,26 @@ public class SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver ext
 	
 	@Override
 	protected boolean usingDefaultImplementationOfGetPropagatedCNF() {
-		return true;
+		return false;
 	}
 
 	@Override
-	public Iterable<Expression> getPropagatedLiterals() {
+	public Iterable<Expression> getPropagatedLiterals(RewritingProcess process) {
 		return getConstraint().getExternalLiterals();
+	}
+
+	@Override
+	protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess process) {
+		return list();
+	}
+
+	@Override
+	protected Iterable<Expression> getDefiningLiterals(RewritingProcess process) {
+		return list();
+	}
+
+	@Override
+	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint2 contextualConstraint, RewritingProcess process) {
+		return TRUE;
 	}
 }

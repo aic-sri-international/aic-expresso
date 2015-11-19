@@ -180,7 +180,7 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinar
 
 	@Override
 	public ContextDependentProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
-		return null;//new SatisfiabilityOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
+		return new SatisfiabilityOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
 	}
 
 	@Override
@@ -194,7 +194,7 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinar
 	@Override
 	public Expression makeRandomAtomOn(String variable, Random random, RewritingProcess process) {
 		
-		int numberOfOtherVariables = random.nextInt(3);
+		int numberOfOtherVariables = random.nextInt(1); // used to be 3, but if literal has more than two variables, it steps out of difference arithmetic and may lead to multiplied variables when literals are propagated. For example, X = Y + Z and X = -Y - Z + 3 imply 2Y + 2Z = 3 
 		ArrayList<String> otherVariablesForAtom = pickKElementsWithoutReplacement(getVariableNamesForTesting(), numberOfOtherVariables, o -> !o.equals(variable), random);
 		
 		int numberOfVariablesToBeNegated = random.nextInt(otherVariablesForAtom.size() + 1);

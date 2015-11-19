@@ -82,7 +82,6 @@ public class CompoundConstraintTheoryTest {
 		Constraint2 constraint = new CompleteMultiVariableConstraint(compound);
 		RewritingProcess process = compound.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		constraint = constraint.conjoin(condition, process);
-		System.out.println("Constraint: " + constraint);
 		Expression expected = parse("not Q and P and (X = Y) and (X = a)");
 		assertEquals(expected, constraint);
 		
@@ -91,7 +90,6 @@ public class CompoundConstraintTheoryTest {
 				"product({{(on X in SomeType) if X = c then 2 else 3 | X = Y and Y = X and P and not Q and P and X != a and X != b}})");
 		process.putGlobalObject(SymbolicCommonInterpreterWithLiteralConditioning.INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(compound));
 		Expression result = interpreter.apply(input, process);
-		System.out.println("Result: " + result);	
 		Expression expectedProduct = parse("if P then if not Q then if Y = c then 2 else if Y != a then if Y != b then 3 else 1 else 1 else 1 else 1");
 		assertEquals(expectedProduct, result);
 	}

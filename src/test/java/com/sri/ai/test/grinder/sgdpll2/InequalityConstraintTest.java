@@ -71,13 +71,13 @@ public class InequalityConstraintTest {
 //	@Test
 //	public void testCompleteMultiVariableConstraints() {
 //		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
-//				new Random(),
-//				new EqualityConstraintTheory(true),
+//				new Random(1),
+//				new InequalityConstraintTheory(true),
 //				200 /* number of tests */,
 //				50 /* number of literals per test */,
 //				true /* output count */);
 //	}
-//
+
 //	@Test
 //	public void testModelCountingForSingleVariableConstraints() {
 //		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(

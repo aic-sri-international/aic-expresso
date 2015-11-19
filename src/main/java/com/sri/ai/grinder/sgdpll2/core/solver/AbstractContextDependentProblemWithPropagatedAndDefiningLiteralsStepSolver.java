@@ -41,14 +41,13 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.iterator;
-import static com.sri.ai.util.Util.list;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
@@ -57,7 +56,7 @@ import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.NestedIterator;
 
 /**
- * An abstract implementation for step solvers for problems based on a propagated and defining literals.
+ * An abstract implementation for step solvers for problems based on a propagated literals, a propagated CNF, and defining literals.
  * <p>
  * Propagated literals are literals required to be true
  * (if they are not, the solution step returns is provided by the abstract method
@@ -65,14 +64,14 @@ import com.sri.ai.util.collect.NestedIterator;
  * In fact, this class allows a generalization of propagated literals in the form of a propagated CNF.
  * <p>
  * Extensions defined which are the propagated literals and propagated CNF
- * through the abstract methods {@link #getPropagatedLiterals()} and
+ * through the abstract methods {@link #getPropagatedLiterals(RewritingProcess)} and
  * {@link #getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess)},
- * which are aggregated by method {@link #getPropagatedLiterals()}.
+ * which are aggregated by method {@link #getPropagatedLiterals(RewritingProcess)}.
  * <p>
  * Defining literals are literals on which the solution of the problem depends.
- * The difference between defining literals is that the solution for when defining literals
- * are not satisfied is not necessarily fixed, and with the case with propagated literals.
- * In fact, propagated literals can be seen as a special case of defining literals
+ * The difference between defining and propagated literals is that the solution for when defining literals
+ * are not satisfied by the context is not necessarily fixed, as it is the case with propagated literals and CNF.
+ * To be more precise, propagated literals can be seen as a special case of defining literals
  * (ones for which the solution if case of unsatisfiability happens to be fixed),
  * and they are distinguished here for convenience purposes only.
  * Once all defining literals are checked to be defined,
@@ -103,15 +102,16 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	 * along with {@link #getPropagatedCNFBesidesPropagatedLiterals()}.
 	 * The reason for this division is convenience;
 	 * when an extension only needs to define propagated literals,
-	 * {@link #getPropagatedLiterals()}can be used to spare a programmer the chore of defining a CNF iterable.
+	 * {@link #getPropagatedLiterals(RewritingProcess)}can be used to spare a programmer the chore of defining a CNF iterable.
 	 * This method <i>must</i> be overridden if {@link #getPropagatedCNF(RewritingProcess)} is not;
 	 * abstract method {@link #usingDefaultImplementationOfGetPropagatedCNF()} ensure extension programmers
 	 * do not forget this.
 	 * If the extension's {@link #usingDefaultImplementationOfGetPropagatedCNF()} returns true,
 	 * this method must be overridden and a suitable definition provided, or an error asking for that will be thrown.
 	 * Otherwise, it should not be invoked, and if it is an error complaining about that will be thrown.
+	 * @param process TODO
 	 */
-	protected Iterable<Expression> getPropagatedLiterals() {
+	protected Iterable<Expression> getPropagatedLiterals(RewritingProcess process) {
 		if (usingDefaultImplementationOfGetPropagatedCNF()) {
 			throw new Error("This method should have been defined in " + getClass().getSimpleName() + " but was not.");
 		}
@@ -122,15 +122,12 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	
 	/**
 	 * Provides information for {@link #getPropagatedCNF(RewritingProcess)},
-	 * along with {@link #getPropagatedLiterals()}.
+	 * along with {@link #getPropagatedLiterals(RewritingProcess)}.
 	 * The reason for this division is convenience;
 	 * when an extension only needs to define propagated literals,
-	 * {@link #getPropagatedLiterals()}can be used to spare a programmer the chore of defining a CNF iterable.
-	 * The default implementation returns an empty iterable.
+	 * {@link #getPropagatedLiterals(RewritingProcess)}can be used to spare a programmer the chore of defining a CNF iterable.
 	 */
-	protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess process) {
-		return new LinkedList<Iterable<Expression>>();
-	}
+	abstract protected Iterable<Iterable<Expression>> getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess process);
 
 	/**
 	 * An abstract method forcing extensions to explicitly indicate whether they intend to
@@ -138,7 +135,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	 * (either by not overriding it, or by overriding, but invoking the super class implementation).
 	 * This serves as a reminder to extending classes that they must
 	 * override (define, really, as the default implementation doesn't do anything)
-	 * at least {@link #getPropagatedLiterals()},
+	 * at least {@link #getPropagatedLiterals(RewritingProcess)},
 	 * since the default implementation of {@link #getPropagatedCNF(RewritingProcess)} uses
 	 * that and {@link #getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess)}.
 	 * 
@@ -149,7 +146,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	/**
 	 * Provides whatever needs to be known for this problem to be solved, in the form of a CNF.
 	 * This default implementation simply puts together what is provided by
-	 * {@link #getPropagatedLiterals()} and {@link #getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess)},
+	 * {@link #getPropagatedLiterals(RewritingProcess)} and {@link #getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess)},
 	 * which are typically a more convenient way for extensions to define this information.
 	 * However, it may be useful in some cases to directly override this method;
 	 * for example, if this information comes from another
@@ -159,23 +156,30 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	 * @return
 	 */
 	public Iterable<Iterable<Expression>> getPropagatedCNF(RewritingProcess process) {
+//		System.out.println("\nconstraint: " + constraint);	
+//		System.out.println("propagated literals: " + join(getPropagatedLiterals(process).iterator()));
+		
 		Iterable<Iterable<Expression>> result =
 				in(
 						NestedIterator.make(
-								fromLiteralsToCNF(getPropagatedLiterals()),
+								fromLiteralsToCNF(getPropagatedLiterals(process)),
 								getPropagatedCNFBesidesPropagatedLiterals(process)));
 		return result;
 	}
 
 	/**
-	 * Methods which extensions can override in order to provide defining literals.
-	 * Default implementation returns no defining literals.
+	 * Methods which extensions can define in order to provide defining literals,
+	 * that is, literals that influence a problem's solution
+	 * without their <i>not</i> being satisfied necessarily leading to a fixed solution,
+	 * as it is the case for propagated literals and propagated CNF.
+	 * For example, in an equality constraint X = Y and X != Z and X != W,
+	 * the number of satisfying assignments depends on Z = W,
+	 * but this type of defining literal does not in itself resolve the whole problem into
+	 * a solution, unlike the propagated literal Y != Z which renders the constraint unsatisfied if false.
 	 * @param process
 	 * @return
 	 */
-	protected Iterable<Expression> getDefiningLiterals(RewritingProcess process) {
-		return list();
-	}
+	abstract protected Iterable<Expression> getDefiningLiterals(RewritingProcess process);
 
 	/**
 	 * The solution to be provided if any of the propagated literals is not satisfied by the contextual constraint.
@@ -222,6 +226,9 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	 * @param process
 	 */
 	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint2 contextualConstraint, RewritingProcess process) {
+//		System.out.println("\nconstraint: " + constraint);	
+//		System.out.println("defining literals: " + join(getDefiningLiterals(process).iterator()));
+
 		SolutionStep definingLiteralsAreDefinedStep = 
 				conjunctiveClauseIsDefined(getDefiningLiterals(process), contextualConstraint, process);
 		
