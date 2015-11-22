@@ -42,6 +42,9 @@ import java.util.Random;
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.plaindpll.problemtype.Max;
+import com.sri.ai.grinder.plaindpll.problemtype.Sum;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 import com.sri.ai.grinder.sgdpll2.theory.inequality.InequalityConstraintTheory;
 
@@ -50,6 +53,8 @@ public class InequalityConstraintTest {
 
 	@Test
 	public void testSingleVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+
 		ConstraintTheoryTester.testSingleVariableConstraints(
 				new Random(),
 				new InequalityConstraintTheory(true),
@@ -60,6 +65,8 @@ public class InequalityConstraintTest {
 
 	@Test
 	public void testMultiVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+
 		ConstraintTheoryTester.testMultiVariableConstraints(
 				new Random(),
 				new InequalityConstraintTheory(true),
@@ -68,86 +75,55 @@ public class InequalityConstraintTest {
 				true /* output count */);
 	}
 
-//	@Test
-//	public void testCompleteMultiVariableConstraints() {
-//		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
-//				new Random(1),
-//				new InequalityConstraintTheory(true),
-//				200 /* number of tests */,
-//				50 /* number of literals per test */,
-//				true /* output count */);
-//	}
+	@Test
+	public void testCompleteMultiVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 
-//	@Test
-//	public void testModelCountingForSingleVariableConstraints() {
-//		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
-//				new Random(),
-//				new EqualityConstraintTheory(true),
-//				200 /* number of tests */,
-//				30 /* number of literals per test */,
-//				true /* output count */);
-//	}
-//
-//	@Test
-//	public void testSumForSingleVariableConstraints() {
-//		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-//		
-//		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
-//				new Random(),
-//				new Sum(),
-//				new EqualityConstraintTheory(true),
-//				10 /* number of tests */,
-//				20 /* number of literals per test */,
-//				3, /* body depth */
-//				true /* output count */);
-//	}
-//
-//	@Test
-//	public void testMaxForSingleVariableConstraints() {
-//		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-//		
-//		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
-//				new Random(),
-//				new Max(),
-//				new EqualityConstraintTheory(true),
-//				10 /* number of tests */,
-//				20 /* number of literals per test */,
-//				3, /* body depth */
-//				true /* output count */);
-//	}
-//
-//	@Test
-//	public void testCompleteSatisfiabilitySpecialCases() {
-//		// This test is to make sure that some more tricky cases are indeed tested,
-//		// even though hopefully the large amount of generated random problems include them.
-//
-//		String conjunction;
-//		Expression expected;
-//		
-//		conjunction = "X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
-//		expected = null;
-//		runCompleteSatisfiabilityTest(conjunction, expected);
-//		
-//		conjunction = "X = Y and X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
-//		expected = null;
-//		runCompleteSatisfiabilityTest(conjunction, expected);
-//		
-//		conjunction = "X = a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
-//		expected = parse("(W = d) and (Z = c) and (X = a) and (X != Z) and (X != W)");
-//		runCompleteSatisfiabilityTest(conjunction, expected);
-//	}
-//
-//	/**
-//	 * @param conjunction
-//	 * @param expected
-//	 */
-//	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected) {
-//		AbstractConstrainTheoryWithBinaryAtoms constraintTheory = new EqualityConstraintTheory(true);
-//		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);
-//		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
-//		for (Expression literal : And.getConjuncts(parse(conjunction))) {
-//			constraint = constraint.conjoin(literal, process);
-//		}
-//		assertEquals(expected, constraint);
-//	}
+		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
+				new Random(),
+				new InequalityConstraintTheory(true),
+				500 /* number of tests */,
+				50 /* number of literals per test */,
+				true /* output count */);
+	}
+
+	@Test
+	public void testModelCountingForSingleVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+
+		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
+				new Random(),
+				new InequalityConstraintTheory(true),
+				500 /* number of tests */,
+				30 /* number of literals per test */,
+				true /* output count */);
+	}
+
+	@Test
+	public void testSumForSingleVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+		
+		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
+				new Random(),
+				new Sum(),
+				new InequalityConstraintTheory(true),
+				50 /* number of tests */,
+				20 /* number of literals per test */,
+				3, /* body depth */
+				true /* output count */);
+	}
+
+	@Test
+	public void testMaxForSingleVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+		
+		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
+				new Random(),
+				new Max(),
+				new InequalityConstraintTheory(true),
+				50 /* number of tests */,
+				20 /* number of literals per test */,
+				3, /* body depth */
+				true /* output count */);
+	}
 }

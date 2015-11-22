@@ -69,7 +69,7 @@ public class Integer0To9 implements Type {
 	 */
 	@Override
 	public Iterator<Expression> iterator() {
-		return functionIterator(new IntegerIterator(0, 9), i -> makeSymbol(i));
+		return functionIterator(new IntegerIterator(0, 10), i -> makeSymbol(i));
 	}
 
 	@Override

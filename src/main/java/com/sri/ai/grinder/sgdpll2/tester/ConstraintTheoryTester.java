@@ -604,21 +604,25 @@ public class ConstraintTheoryTester {
 		
 		AssignmentsIterator assignmentsIterator = new AssignmentsIterator(freeVariables, process);
 		for (Map<Expression, Expression> assignment : in(assignmentsIterator)) {
-			BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter(constraintTheory, assignment);
-			Expression bruteForceResultUnderAssignment = fromInterpreterWithAssignmentToBruteForceSolution.apply(interpreter);
-			Expression symbolicResultUnderAssignment = interpreter.apply(symbolicSolution, process);
-			output("Under free variables assignment " + assignment);
-			output("Symbolic    result becomes " + symbolicResultUnderAssignment);
-			output("Brute force result becomes " + bruteForceResultUnderAssignment + "\n");
-			if ( ! symbolicResultUnderAssignment.equals(bruteForceResultUnderAssignment)) {
-				throw new Error(
-						"Failure in testing of " + problemDescription + "\n"
-								+ "Symbolic solution: " + symbolicSolution + "\n"
-								+ "Under assignment to free variables: " + assignment + "\n"
-								+ "Value of symbolic solution      : " + symbolicResultUnderAssignment + "\n"
-								+ "Value of brute force computation: " + bruteForceResultUnderAssignment + "\n"
-						);
-			}
+			testSymbolicVsBruteForceComputationForAssignment(assignment, constraintTheory, problemDescription, symbolicSolution, fromInterpreterWithAssignmentToBruteForceSolution, process);
+		}
+	}
+
+	private static void testSymbolicVsBruteForceComputationForAssignment(Map<Expression, Expression> assignment, ConstraintTheory constraintTheory, String problemDescription, Expression symbolicSolution, Function<BruteForceCommonInterpreter, Expression> fromInterpreterWithAssignmentToBruteForceSolution, RewritingProcess process) throws Error {
+		BruteForceCommonInterpreter interpreter = new BruteForceCommonInterpreter(constraintTheory, assignment);
+		Expression bruteForceResultUnderAssignment = fromInterpreterWithAssignmentToBruteForceSolution.apply(interpreter);
+		Expression symbolicResultUnderAssignment = interpreter.apply(symbolicSolution, process);
+		output("Under free variables assignment " + assignment);
+		output("Symbolic    result becomes " + symbolicResultUnderAssignment);
+		output("Brute force result becomes " + bruteForceResultUnderAssignment + "\n");
+		if ( ! symbolicResultUnderAssignment.equals(bruteForceResultUnderAssignment)) {
+			throw new Error(
+					"Failure in testing of " + problemDescription + "\n"
+							+ "Symbolic solution: " + symbolicSolution + "\n"
+							+ "Under assignment to free variables: " + assignment + "\n"
+							+ "Value of symbolic solution      : " + symbolicResultUnderAssignment + "\n"
+							+ "Value of brute force computation: " + bruteForceResultUnderAssignment + "\n"
+					);
 		}
 	}
 }

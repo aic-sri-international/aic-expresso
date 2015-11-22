@@ -116,7 +116,7 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinar
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
 						new RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(
 								// it is important to include difference arithmetic simplifiers here because they ensure literals that contain a variable that cancels out (such as X - X > Y) are simplified (here, to 0 > Y) and as a consequence not passed to the single-variable constraint for that variable (here, X), because it is actually *not* a constraint on X
-								makeFunctionApplicationSimplifiersForDifferentArithmetic(),
+								makeFunctionApplicationSimplifiersForDifferenceArithmetic(),
 								map(), // no additional syntactic form simplifiers
 								
 								// basic simplification of involved interpreted functions in this theory:
@@ -129,7 +129,7 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinar
 		setVariableNamesAndTypeNamesForTesting(map("I", "Integer0to9", "J", "Integer0to9", "K", "Integer0to9"));
 	}
 	
-	private static Map<String, Simplifier> makeFunctionApplicationSimplifiersForDifferentArithmetic() {
+	private static Map<String, Simplifier> makeFunctionApplicationSimplifiersForDifferenceArithmetic() {
 		Simplifier differenceArithmeticSimplifier = new DifferenceArithmeticSimplifier((expression, duplicate) -> new Error("Found difference arithmetic expression " + expression + " containing " + duplicate + " more than once"));
 		Map<String, Simplifier> functionApplicationSimplifiers =
 				map(
@@ -185,7 +185,7 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinar
 
 	@Override
 	public ContextDependentProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
-		return null;//new ModelCountingOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
+		return new ModelCountingOfSingleVariableInequalityConstraintStepSolver((SingleVariableInequalityConstraint) constraint);
 	}
 
 	/**

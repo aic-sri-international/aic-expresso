@@ -128,6 +128,7 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 
 	/**
 	 * We override this method to check whether normalized atom violates the bounds of the constraint variable type,
+	 * or is irrelevant regarding those bounds,
 	 * before checking it against all the atoms already in the constraint.
 	 */
 	@Override
@@ -135,19 +136,33 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 		if (normalizedAtom.get(1).getValue() instanceof Number) {
 			Rational value = (Rational) normalizedAtom.get(1).getValue();
 			if (
-					(   sign && normalizedAtom.hasFunctor(LESS_THAN)    &&  value.compareTo(0) <= 0)
+					(   sign && normalizedAtom.hasFunctor(LESS_THAN)    &&  value.intValue() <= 0)
 					||
-					(   sign && normalizedAtom.hasFunctor(GREATER_THAN) &&  value.compareTo(9) >= 0)
+					(   sign && normalizedAtom.hasFunctor(GREATER_THAN) &&  value.intValue() >= 9)
 					||
-					(   sign && normalizedAtom.hasFunctor(EQUALITY)     && (value.compareTo(0) < 0 || value.compareTo(0) > 9) )
+					(   sign && normalizedAtom.hasFunctor(EQUALITY)     && (value.intValue() < 0 || value.intValue() > 9) )
 					||
-					( ! sign && normalizedAtom.hasFunctor(LESS_THAN)    &&  value.compareTo(9) > 0)
+					( ! sign && normalizedAtom.hasFunctor(LESS_THAN)    &&  value.intValue() > 9)
 					||
-					( ! sign && normalizedAtom.hasFunctor(GREATER_THAN) &&  value.compareTo(0) < 0)
+					( ! sign && normalizedAtom.hasFunctor(GREATER_THAN) &&  value.intValue() < 0)
 					) {
 				return null;
 			}
+			else if (
+					(   sign && normalizedAtom.hasFunctor(LESS_THAN)    &&  value.intValue() > 9)
+					||
+					(   sign && normalizedAtom.hasFunctor(GREATER_THAN) &&  value.intValue() < 0)
+					||
+					( ! sign && normalizedAtom.hasFunctor(EQUALITY)     && (value.intValue() < 0 || value.intValue() > 9) )
+					||
+					( ! sign && normalizedAtom.hasFunctor(LESS_THAN)    &&  value.intValue() <= 0)
+					||
+					( ! sign && normalizedAtom.hasFunctor(GREATER_THAN) &&  value.intValue() >= 9)
+					) {
+				return this;
+			}
 		}
+		// TODO: these are simplifications and should be in the theory's provided simplifiers
 	
 		return super.conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, process);
 	}
