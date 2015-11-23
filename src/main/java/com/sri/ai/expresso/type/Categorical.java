@@ -132,7 +132,7 @@ public class Categorical implements Type {
 	}
 
 	@Override
-	public Expression sampleConstant(Random random) {
+	public Expression sampleUniquelyNamedConstant(Random random) {
 		myAssert(
 				() -> ! cardinality().equals("unknown") && ! cardinality().equals(Expressions.INFINITY),
 				() -> "Sampling of constant not implemented for " + Categorical.class + " with unknown or infinity cardinality");

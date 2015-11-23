@@ -146,7 +146,7 @@ public abstract class AbstractConstrainTheoryWithBinaryRelations extends Abstrac
 			otherTerm = makeSymbol(pickUniformly(isNameOfVariableOfSameType, random));
 		}
 		else {
-			otherTerm = process.getType(typeName).sampleConstant(random);
+			otherTerm = process.getType(typeName).sampleUniquelyNamedConstant(random);
 		}
 		
 		String functor = pickUniformly(theoryFunctors, random);

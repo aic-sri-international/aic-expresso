@@ -37,7 +37,13 @@
  */
 package com.sri.ai.expresso.type;
 
+import static com.sri.ai.expresso.helper.Expressions.INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.isNumber;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
+import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
+import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.collect.FunctionIterator.functionIterator;
 
 import java.util.Iterator;
@@ -47,6 +53,8 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.util.collect.BreadthFirstIterator;
 import com.sri.ai.util.collect.IntegerIterator;
 import com.sri.ai.util.math.Rational;
 
@@ -58,18 +66,53 @@ import com.sri.ai.util.math.Rational;
 @Beta
 public class Integer0To9 implements Type {
 
+	private Expression nonStrictLowerBound = Expressions.ZERO;
+	private Expression nonStrictUpperBound = Expressions.makeSymbol(9);
+	
 	@Override
 	public String getName() {
 		return "Integer0to9";
+//		return nonStrictLowerBound + ".." + nonStrictUpperBound;
 	}
 
 	/**
-	 * Naturally, this iterator will never iterate over all integers.
-	 * We iterate over non-negative integers only, as that may be more natural for most applications.
+	 * If type is bounded, iterates over its elements.
+	 * If it is unbounded on the positive side but bounded on the negative side,
+	 * provides an iterator from the least element that never stops.
+	 * If it is unbounded on the negative side but bounded on the positive side,
+	 * provides a backward iterator from the maximum element that never stops.
+	 * If it is unbounded on both sides, iterates over 0, 1, -1, 2, -2, indefinitely.
 	 */
 	@Override
 	public Iterator<Expression> iterator() {
-		return functionIterator(new IntegerIterator(0, 10), i -> makeSymbol(i));
+		Iterator<Integer> integerIterator;
+		if (noLowerBound()) {
+			if (noUpperBound()) {
+				integerIterator = 
+						new BreadthFirstIterator<Integer>( // alternates between the iterators given
+								new IntegerIterator(0), // natural numbers
+								new IntegerIterator(-1, 1 /* upper bound, never reached */, -1)); // backwards from -1
+			}
+			else {
+				myAssert(() -> isNumber(nonStrictUpperBound), () -> "Cannot iterate over elements of undefined interval " + this);
+				// interval is -infinity..nonStrictUpperBound, start from the latter backwards forever
+				integerIterator = new IntegerIterator(nonStrictUpperBound.intValue(), nonStrictUpperBound.intValue() + 1 /* never reached */, -1);
+			}
+		}
+		else {
+			if (noUpperBound()) {
+				myAssert(() -> isNumber(nonStrictLowerBound), () -> "Cannot iterate over elements of undefined interval " + this);
+				// go from integer after strict lower bound, forward forever
+				integerIterator = new IntegerIterator(nonStrictLowerBound.intValue());
+			}
+			else {
+				myAssert(() -> isNumber(nonStrictLowerBound) && isNumber(nonStrictUpperBound), () -> "Cannot iterate over elements of undefined interval " + this);
+				// just regular interval; note that IntegerIterator takes lower bound inclusive, upper bound exclusive, hence the +1's
+				integerIterator = new IntegerIterator(nonStrictLowerBound.intValue(), nonStrictUpperBound.intValue() + 1);
+			}
+		}
+		
+		return functionIterator(integerIterator, i -> makeSymbol(i.intValue()));
 	}
 
 	@Override
@@ -77,19 +120,54 @@ public class Integer0To9 implements Type {
 		boolean result =
 				uniquelyNamedConstant.getValue() instanceof Rational
 				&& ((Rational) uniquelyNamedConstant.getValue()).isInteger()
-				&& ((Rational) uniquelyNamedConstant.getValue()).compareTo(0) >= 0
-				&& ((Rational) uniquelyNamedConstant.getValue()).compareTo(10) < 0;
+				&& (!noLowerBound() || ((Rational) uniquelyNamedConstant.getValue()).compareTo(nonStrictLowerBound) >= 0)
+				&& (!noUpperBound() || ((Rational) uniquelyNamedConstant.getValue()).compareTo(nonStrictUpperBound) <= 0);
 		return result;
 	}
 
 	@Override
-	public Expression sampleConstant(Random random) {
-		Symbol result = makeSymbol(new Rational(random.nextInt(10)));
+	public Expression sampleUniquelyNamedConstant(Random random) {
+		myAssert( () -> boundsAreConstants(), () -> "Cannot sample uniquely named constant from integer interval that is infinite and/or defined by variables: " + getName());
+		Symbol result = makeSymbol(new Rational(nonStrictLowerBound.intValue() + random.nextInt(nonStrictUpperBound.intValue() - nonStrictLowerBound.intValue() + 1)));
 		return result;
 	}
 
+	private Expression cachedCardinality = null;
 	@Override
 	public Expression cardinality() {
-		return makeSymbol(10);
+		if (cachedCardinality == null) {
+			if (noLowerBound() || noUpperBound()) {
+				cachedCardinality = INFINITY;
+			}
+			else if (isNumber(nonStrictLowerBound)) {
+				if (isNumber(nonStrictUpperBound)) {
+					cachedCardinality = makeSymbol(new Rational(nonStrictUpperBound.intValue() - nonStrictLowerBound.intValue() + 1));			
+				}
+				else {
+					cachedCardinality = apply(MINUS, nonStrictUpperBound, makeSymbol(new Rational(nonStrictLowerBound.intValue() - 1)));
+				}
+			}
+			else {
+				if (isNumber(nonStrictUpperBound)) {
+					cachedCardinality = apply(MINUS, makeSymbol(new Rational(nonStrictUpperBound.intValue() + 1)), nonStrictLowerBound);
+				}
+				else {
+					cachedCardinality = apply(PLUS, apply(MINUS, nonStrictUpperBound, nonStrictLowerBound), 1);
+				}
+			}
+		}
+		return cachedCardinality;
+	}
+
+	private boolean noLowerBound() {
+		return nonStrictLowerBound.equals(apply(MINUS, INFINITY));
+	}
+
+	private boolean noUpperBound() {
+		return nonStrictUpperBound.equals(INFINITY);
+	}
+
+	private boolean boundsAreConstants() {
+		return isNumber(nonStrictLowerBound) && isNumber(nonStrictUpperBound);
 	}
 }

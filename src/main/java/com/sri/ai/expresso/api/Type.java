@@ -72,7 +72,7 @@ public interface Type {
 	 * This is useful for generating synthetic problems.
 	 * @return
 	 */
-	Expression sampleConstant(Random random);
+	Expression sampleUniquelyNamedConstant(Random random);
 	
 	/**
 	 * Returns an {@link Expression} with the number of elements in the type, if known,

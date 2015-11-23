@@ -204,7 +204,7 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinar
 		ArrayList<Expression> constants = new ArrayList<Expression>();
 		int numberOfConstants = random.nextInt(3);
 		for (int i = 0; i != numberOfConstants; i++) {
-			constants.add(type.sampleConstant(random));
+			constants.add(type.sampleUniquelyNamedConstant(random));
 		}
 
 		ArrayList<String> variablesForAtom = new ArrayList<String>(otherVariablesForAtom);

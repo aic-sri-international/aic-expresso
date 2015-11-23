@@ -87,7 +87,7 @@ public class IntegerExpressoType implements Type {
 	 * the current internal representation for numerical expressions.
 	 */
 	@Override
-	public Expression sampleConstant(Random random) {
+	public Expression sampleUniquelyNamedConstant(Random random) {
 		Symbol result = makeSymbol(new Rational(random.nextLong()));
 		return result;
 	}
