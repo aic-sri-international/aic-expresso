@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.helper;
 
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
@@ -1340,7 +1341,16 @@ public class GrinderUtil {
 			if (variableType != null) {
 				Type type = process.getType(variableType.toString());
 				if (type != null) {
-					result = type.size(); // includes possibility of -2
+					Expression sizeExpression = type.cardinality();
+					if (sizeExpression.equals(apply(CARDINALITY, type.getName()))) {
+						result = -1;
+					}
+					else if (sizeExpression.equals(Expressions.INFINITY)) {
+						result = -2;
+					}
+					else {
+						result = sizeExpression.intValue();
+					}
 				}
 			}
 		}

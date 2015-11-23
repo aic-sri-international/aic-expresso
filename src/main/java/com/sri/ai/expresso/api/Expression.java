@@ -247,6 +247,12 @@ public interface Expression extends Cloneable, Serializable, Comparable<Object> 
 	int intValue();
 
 	/** 
+	 * Returns the value of the symbol as a long. This may involve rounding or truncation.
+	 * An error is thrown if the value of the symbol is not a number.
+	 */
+	long longValue();
+
+	/** 
 	 * Returns the value of the symbol as an int. This may involve rounding or truncation.
 	 * An {@link java.lang.ArithmeticException.ArithmeticException} is thrown if the value of the symbol is not a number OR not an integral value.
 	 */

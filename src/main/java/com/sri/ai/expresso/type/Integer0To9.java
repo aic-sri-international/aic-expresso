@@ -89,7 +89,7 @@ public class Integer0To9 implements Type {
 	}
 
 	@Override
-	public int size() {
-		return 10;
+	public Expression cardinality() {
+		return makeSymbol(10);
 	}
 }

@@ -47,6 +47,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.collect.IntegerIterator;
 import com.sri.ai.util.math.Rational;
 
@@ -91,12 +92,8 @@ public class IntegerExpressoType implements Type {
 		return result;
 	}
 
-	/**
-	 * Returns -2, which according to {@link Type} stands for infinity.
-	 * TODO: change this method to return Expressions.
-	 */
 	@Override
-	public int size() {
-		return -2;
+	public Expression cardinality() {
+		return Expressions.INFINITY;
 	}
 }

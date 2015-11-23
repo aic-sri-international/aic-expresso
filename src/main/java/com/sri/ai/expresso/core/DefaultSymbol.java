@@ -124,6 +124,14 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 	}
 
 	@Override
+	public long longValue() {
+		if (getSyntaxTree().getLabel() instanceof Number) {
+			return ((Number) getSyntaxTree().getLabel()).longValue();
+		}
+		throw new Error("Expression.longValue() invoked on " + this + ", which is not a number.");
+	}
+
+	@Override
 	public int intValueExact() throws ArithmeticException {
 		if (getSyntaxTree().getLabel() instanceof Rational) {
 			return ((Rational) getSyntaxTree().getLabel()).intValueExact();

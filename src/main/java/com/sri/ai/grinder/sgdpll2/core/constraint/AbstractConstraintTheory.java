@@ -116,7 +116,7 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 		RewritingProcess result = process.put(getTypesForTesting());
 		Map<String, String> mapFromTypeNameToSizeString = map();
 		for (Type type : getTypesForTesting()) {
-			mapFromTypeNameToSizeString.put(type.getName(), Integer.toString(type.size()));
+			mapFromTypeNameToSizeString.put(type.getName(), type.cardinality().toString());
 		}
 		
 		// we only need to provide the variables types, and not the known constant types, because the latter will be extracted from the already registered types.

@@ -41,6 +41,7 @@ import java.util.Iterator;
 import java.util.Random;
 
 import com.google.common.annotations.Beta;
+import com.sri.ai.expresso.helper.Expressions;
 
 /**
  * Represents the type of expressions.
@@ -74,8 +75,9 @@ public interface Type {
 	Expression sampleConstant(Random random);
 	
 	/**
-	 * Returns the number of elements in the type, if finite, or -1 if unknown, or -2 infinite.
+	 * Returns an {@link Expression} with the number of elements in the type, if known,
+	 * or {@link Expressions#INFINITY} or {@code | <type name> |} if unknown.
 	 * @return
 	 */
-	int size();
+	Expression cardinality();
 }

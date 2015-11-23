@@ -48,6 +48,7 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.IntegerIterator;
 import com.sri.ai.util.collect.NestedIterator;
@@ -63,6 +64,7 @@ public class Categorical implements Type {
 	private String name;
 	private String lowerCaseName;
 	private int cardinality;
+	private Expression cardinalityExpression;
 	private ArrayList<Expression> knownConstants;
 	
 	/**
@@ -80,6 +82,7 @@ public class Categorical implements Type {
 		this.name = name;
 		this.lowerCaseName = name.toLowerCase();
 		this.cardinality = cardinality;
+		this.cardinalityExpression = makeSymbol(cardinality);
 		this.knownConstants = knownConstants;
 	}
 
@@ -130,8 +133,12 @@ public class Categorical implements Type {
 
 	@Override
 	public Expression sampleConstant(Random random) {
+		myAssert(
+				() -> ! cardinality().equals("unknown") && ! cardinality().equals(Expressions.INFINITY),
+				() -> "Sampling of constant not implemented for " + Categorical.class + " with unknown or infinity cardinality");
+		
 		Expression result;
-		int index = random.nextInt(size()) + 1;
+		int index = random.nextInt(cardinality().intValue()) + 1;
 		if (index <= knownConstants.size()) {
 			result = knownConstants.get(index - 1);
 		}
@@ -142,10 +149,10 @@ public class Categorical implements Type {
 	}
 
 	@Override
-	public int size() {
-		return cardinality;
+	public Expression cardinality() {
+		return cardinalityExpression;
 	}
-	
+
 	@Override
 	public String toString() {
 		return name;

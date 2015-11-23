@@ -438,6 +438,11 @@ public abstract class AbstractExpression implements Expression {
 	}
 
 	@Override
+	public long longValue() {
+		return 0;
+	}
+
+	@Override
 	public int intValueExact() throws ArithmeticException {
 		return 0;
 	}
