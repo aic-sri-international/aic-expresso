@@ -72,7 +72,7 @@ public class LiteralConditionerStepSolver implements ContextDependentProblemStep
 			Expression literalInExpression = getNonDefinedLiteral(expression, contextualConstraint, process);
 
 			if (literalInExpression != null) {
-				result = new ItDependsOn(literalInExpression);
+				result = new ItDependsOn(literalInExpression, this, this);
 			}
 			else {
 				Expression literalFreeExpression = simplifyGivenContextualConstraint(expression, contextualConstraint, process);

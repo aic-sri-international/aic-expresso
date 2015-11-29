@@ -176,10 +176,11 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	 * the number of satisfying assignments depends on Z = W,
 	 * but this type of defining literal does not in itself resolve the whole problem into
 	 * a solution, unlike the propagated literal Y != Z which renders the constraint unsatisfied if false.
+	 * @param contextualConstraint TODO
 	 * @param process
 	 * @return
 	 */
-	abstract protected Iterable<Expression> getDefiningLiterals(RewritingProcess process);
+	abstract protected Iterable<Expression> getDefiningLiterals(Constraint2 contextualConstraint, RewritingProcess process);
 
 	/**
 	 * The solution to be provided if any of the propagated literals is not satisfied by the contextual constraint.
@@ -230,7 +231,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 //		System.out.println("defining literals: " + join(getDefiningLiterals(process).iterator()));
 
 		SolutionStep definingLiteralsAreDefinedStep = 
-				conjunctiveClauseIsDefined(getDefiningLiterals(process), contextualConstraint, process);
+				conjunctiveClauseIsDefined(getDefiningLiterals(contextualConstraint, process), contextualConstraint, process);
 		
 		SolutionStep result;
 		if (definingLiteralsAreDefinedStep == null) {
@@ -260,7 +261,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the CNF is satisfied is already determined positively or negatively, respectively.
 	 */
-	public static SolutionStep cnfIsSatisfied(Iterable<Iterable<Expression>> cnf, Constraint2 contextualConstraint, RewritingProcess process) {
+	public SolutionStep cnfIsSatisfied(Iterable<Iterable<Expression>> cnf, Constraint2 contextualConstraint, RewritingProcess process) {
 		for (Iterable<Expression> clause : cnf) {
 			boolean clauseIsSatisfied = false;
 			for (Expression literal : clause) {
@@ -268,7 +269,9 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 				
 				switch (contextualConstraintSplitting.getResult()) {
 				case LITERAL_IS_UNDEFINED:
-					return new ItDependsOn(literal); // necessary but undefined
+					return new ItDependsOn(literal, this, this); // literal is necessary, but undefined
+					// Note: the "this, this" means: keep using this step solver in both cases of literal being true or false
+					// Step solvers that "already know" if literal is true or false can be placed here for optimization
 					// OPTIMIZATION: instead of returning this, we could look whether some clause is already unsatisfied
 					// OPTIMIZATION: ItDependsOn could carry conjunctions of contextual constraint and literal,
 					// and of contextual constraint and literal negation, back to client for re-use.
@@ -306,13 +309,13 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	 * or an instance of {@link Solution} with expression {@link Expressions#TRUE} or {@link Expressions#FALSE}
 	 * if whether the conjunctive clause is satisfied is already determined positively or negatively, respectively.
 	 */
-	protected static SolutionStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Constraint2 contextualConstraint, RewritingProcess process) {
+	protected SolutionStep conjunctiveClauseIsDefined(Iterable<Expression> conjunctiveClause, Constraint2 contextualConstraint, RewritingProcess process) {
 		for (Expression literal : conjunctiveClause) {
 			ConstraintSplitting contextualConstraintSplitting = new ConstraintSplitting(contextualConstraint, literal, process);
 
 			switch (contextualConstraintSplitting.getResult()) {
 			case LITERAL_IS_UNDEFINED:
-				return new ItDependsOn(literal); // necessary but undefined
+				return new ItDependsOn(literal, this, this); // necessary but undefined
 				// OPTIMIZATION: ItDependsOn could carry conjunctions of contextual constraint and literal,
 				// and of contextual constraint and literal negation, back to client for re-use.
 			case LITERAL_IS_FALSE:

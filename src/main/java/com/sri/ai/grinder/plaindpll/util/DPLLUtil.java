@@ -258,21 +258,21 @@ public class DPLLUtil {
 		process = GrinderUtil.extendContextualSymbolsWithIndexExpressions(symbolDeclarations, process);
 					
 		for (Map.Entry<String, String> typeNameAndSizeString : mapFromTypeNameToSizeString.entrySet()) {
-			String typeName   = typeNameAndSizeString.getKey();
+			String typeExpressionString = typeNameAndSizeString.getKey();
 			String sizeString = typeNameAndSizeString.getValue();
 
-			Type alreadyPresent = process.getType(typeName);
+			Type alreadyPresent = process.getType(typeExpressionString);
 			if (alreadyPresent == null) {
-				if (typeName.equals("Boolean")) {
+				if (typeExpressionString.equals("Boolean")) {
 					process = process.put(new Categorical("Boolean", 2, arrayList(TRUE, FALSE)));
 				}
 				else {
-					ArrayList<Expression> knownConstants = getKnownUniquelyNamedConstaintsOf(typeName, mapFromSymbolNameToTypeName, isUniquelyNamedConstantPredicate, process);
-					process = process.put(new Categorical(typeName, Integer.parseInt(sizeString), knownConstants));
+					ArrayList<Expression> knownConstants = getKnownUniquelyNamedConstaintsOf(typeExpressionString, mapFromSymbolNameToTypeName, isUniquelyNamedConstantPredicate, process);
+					process = process.put(new Categorical(typeExpressionString, Integer.parseInt(sizeString), knownConstants));
 				}
 			}
 
-			process.putGlobalObject(parse("|" + typeName + "|"), parse(sizeString));
+			process.putGlobalObject(parse("|" + typeExpressionString + "|"), parse(sizeString));
 		}
 		
 		return process;

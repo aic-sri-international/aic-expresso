@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.sgdpll2.theory.inequality;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
@@ -48,21 +49,25 @@ import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
+import static com.sri.ai.util.Util.iterator;
+import static com.sri.ai.util.Util.list;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Not;
+import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractSingleVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractSingleVariableConstraintWithDependentNormalizedAtoms;
 import com.sri.ai.grinder.sgdpll2.theory.base.AbstractSingleVariableConstraintWithBinaryAtoms;
 import com.sri.ai.grinder.sgdpll2.theory.helper.DifferenceArithmeticSimplifier;
 import com.sri.ai.util.Util;
-import com.sri.ai.util.math.Rational;
 
 /**
  * An inequalities on integers constraint solver.
@@ -124,47 +129,6 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 //		System.out.println("\nAtom: " + atom);	
 //		System.out.println("Result: " + result);
 		return result;
-	}
-
-	/**
-	 * We override this method to check whether normalized atom violates the bounds of the constraint variable type,
-	 * or is irrelevant regarding those bounds,
-	 * before checking it against all the atoms already in the constraint.
-	 */
-	@Override
-	protected AbstractSingleVariableConstraintWithDependentNormalizedAtoms conjoinNonTrivialSignAndNormalizedAtom(boolean sign, Expression normalizedAtom, RewritingProcess process) {
-		if (normalizedAtom.get(1).getValue() instanceof Number) {
-			Rational value = (Rational) normalizedAtom.get(1).getValue();
-			if (
-					(   sign && normalizedAtom.hasFunctor(LESS_THAN)    &&  value.intValue() <= 0)
-					||
-					(   sign && normalizedAtom.hasFunctor(GREATER_THAN) &&  value.intValue() >= 9)
-					||
-					(   sign && normalizedAtom.hasFunctor(EQUALITY)     && (value.intValue() < 0 || value.intValue() > 9) )
-					||
-					( ! sign && normalizedAtom.hasFunctor(LESS_THAN)    &&  value.intValue() > 9)
-					||
-					( ! sign && normalizedAtom.hasFunctor(GREATER_THAN) &&  value.intValue() < 0)
-					) {
-				return null;
-			}
-			else if (
-					(   sign && normalizedAtom.hasFunctor(LESS_THAN)    &&  value.intValue() > 9)
-					||
-					(   sign && normalizedAtom.hasFunctor(GREATER_THAN) &&  value.intValue() < 0)
-					||
-					( ! sign && normalizedAtom.hasFunctor(EQUALITY)     && (value.intValue() < 0 || value.intValue() > 9) )
-					||
-					( ! sign && normalizedAtom.hasFunctor(LESS_THAN)    &&  value.intValue() <= 0)
-					||
-					( ! sign && normalizedAtom.hasFunctor(GREATER_THAN) &&  value.intValue() >= 9)
-					) {
-				return this;
-			}
-		}
-		// TODO: these are simplifications and should be in the theory's provided simplifiers
-	
-		return super.conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, process);
 	}
 
 	public Expression getVariableFreeLiteralEquivalentToSign1Atom1ImpliesSign2Atom2(boolean sign1, Expression atom1, boolean sign2, Expression atom2, RewritingProcess process) {
@@ -369,5 +333,30 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 	@Override
 	public AbstractSingleVariableConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, RewritingProcess process) {
 		return this;
+	}
+
+	@Override
+	protected Iterator<Expression> getImplicitPositiveNormalizedAtomsIterator(RewritingProcess process) {
+		return iterator();
+	}
+
+	List<Expression> cachedImplicitNegativeNormalizedAtoms;
+	@Override
+	protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(RewritingProcess process) {
+		if (cachedImplicitNegativeNormalizedAtoms == null) {
+			IntegerInterval type = (IntegerInterval) process.getType(getVariableTypeExpression(process));
+			Expression nonStrictLowerBound = type.getNonStrictLowerBound();
+			Expression nonStrictUpperBound = type.getNonStrictUpperBound();
+			cachedImplicitNegativeNormalizedAtoms = list();
+			if (!nonStrictLowerBound.equals("unknown") && !nonStrictLowerBound.equals(UnaryMinus.make(INFINITY))) {
+				cachedImplicitNegativeNormalizedAtoms.add(apply(LESS_THAN, getVariable(), nonStrictLowerBound));
+				// this is the negation of variable >= nonStrictLowerBound. We need to use a negative normalized atom because applications of >= are not considered normalized atoms
+			}
+			if (!nonStrictUpperBound.equals("unknown") && !nonStrictUpperBound.equals(INFINITY)) {
+				cachedImplicitNegativeNormalizedAtoms.add(apply(GREATER_THAN, getVariable(), nonStrictUpperBound));
+				// this is the negation of variable <= nonStrictUpperBound. We need to use a negative normalized atom because applications of <= are not considered normalized atoms
+			}
+		}
+		return cachedImplicitNegativeNormalizedAtoms.iterator();
 	}
 }

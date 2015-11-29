@@ -41,7 +41,6 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.helper.GrinderUtil.getTypeCardinality;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
-import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
 import static com.sri.ai.util.Util.myAssert;
 
 import java.util.Collection;
@@ -49,8 +48,8 @@ import java.util.Collection;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
-import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractSingleVariableConstraintWithDependentNormalizedAtoms;
@@ -282,16 +281,17 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 	private Expression cachedVariableType;
 	
 	/**
-	 * Return the variable's type.
+	 * Return an expression describing the variable's type.
 	 * @param process
 	 * @return
 	 */
-	public Expression getVariableType(RewritingProcess process) {
+	public Expression getVariableTypeExpression(RewritingProcess process) {
 		if (cachedVariableType == null) {
-			cachedVariableType = process.getContextualSymbolType(getVariable());
-			if (cachedVariableType == null) {
-				cachedVariableType = new DefaultSyntacticFunctionApplication(TYPE, getVariable());
-			}
+			cachedVariableType = GrinderUtil.getType(getVariable(), process);
+//			cachedVariableType = process.getContextualSymbolType(getVariable());
+//			if (cachedVariableType == null) {
+//				cachedVariableType = new DefaultSyntacticFunctionApplication(TYPE, getVariable());
+//			}
 		}
 		return cachedVariableType;
 	}

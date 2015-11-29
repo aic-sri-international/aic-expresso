@@ -48,6 +48,7 @@ import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.CommutativeAssociative;
+import com.sri.ai.grinder.library.CommutativeAssociativeOnNumbers;
 import com.sri.ai.grinder.library.CommutativeAssociativeWithOperationOnConstantsOnly;
 import com.sri.ai.util.Util;
 
@@ -63,6 +64,16 @@ public class Times extends CommutativeAssociativeWithOperationOnConstantsOnly {
 	private final static Expression            neutralElement              = Expressions.makeSymbol(1);
 	private final static Expression            absorbingElement            = Expressions.makeSymbol(0);
 	private final static Predicate<Expression> isOperableArgumentPredicate = new ExpressionIsSymbolOfType(Number.class);
+
+	@Override
+	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		// takes care of infinity arguments before deferring to super method
+		if ( ! expression.hasFunctor(getFunctor())) {
+			return expression;
+		}
+		Expression result = CommutativeAssociativeOnNumbers.dealWithInfinity(expression, process, (e, p) -> super.rewriteAfterBookkeeping(e, p));
+		return result;
+	}
 
 	@Override
 	public Object getFunctor() {

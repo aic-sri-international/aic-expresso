@@ -82,19 +82,7 @@ public class UnionOnExtensionalSets extends CommutativeAssociative {
 	}
 
 	@Override
-	protected Expression operationOnOperables(LinkedList<Expression> operableArguments) {
-		LinkedList<Expression> elements = new LinkedList<Expression>();
-		boolean multiset = false;
-		for (Expression extensionalSet : operableArguments) {
-			elements.addAll(ExtensionalSet.getElements(extensionalSet));
-			multiset = multiset || Sets.isExtensionalMultiSet(extensionalSet);
-		}
-		String label = multiset? ExtensionalSet.MULTI_SET_LABEL : ExtensionalSet.UNI_SET_LABEL;
-		return ExtensionalSet.make(label, elements);
-	}
-
-	@Override
-	protected Expression operationOnExpressionOperables(LinkedList<Expression> operableArguments) {
+	protected Expression operationOnOperableArguments(LinkedList<Expression> operableArguments) {
 		LinkedList<Expression> elements = new LinkedList<Expression>();
 		boolean multiset = false;
 		for (Expression extensionalSet : operableArguments) {

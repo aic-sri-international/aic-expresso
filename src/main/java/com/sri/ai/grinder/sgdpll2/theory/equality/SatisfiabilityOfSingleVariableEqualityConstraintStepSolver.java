@@ -173,8 +173,8 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	
 				Set<Expression> constantDisequals = getConstantDisequals(process);
 	
-				Expression typeDescription = GrinderUtil.getType(getConstraint().getVariable(), process);
-				Type type = process.getType(typeDescription.toString());
+				Expression typeExpression = GrinderUtil.getType(getConstraint().getVariable(), process);
+				Type type = process.getType(typeExpression);
 				ArrayList<Expression> remainingConstants =
 						arrayListFrom(new PredicateIterator(type.iterator(), c -> ! constantDisequals.contains(c)));
 	
@@ -248,7 +248,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	}
 
 	@Override
-	protected Iterable<Expression> getDefiningLiterals(RewritingProcess process) {
+	protected Iterable<Expression> getDefiningLiterals(Constraint2 contextualConstraint, RewritingProcess process) {
 		return list();
 	}
 	

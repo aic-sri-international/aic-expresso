@@ -53,6 +53,7 @@ public interface Type {
 
 	/** The name of the type -- typically, the string used to describe it in a program. */
 	String getName();
+	// TODO: types should not have string names, but be described by an Expression
 	
 	/**
 	 * Provides an iterator ranging over uniquely named constants for the elements of this type.

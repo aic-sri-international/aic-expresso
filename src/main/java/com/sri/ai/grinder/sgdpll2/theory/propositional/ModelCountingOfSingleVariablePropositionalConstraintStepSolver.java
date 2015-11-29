@@ -69,7 +69,7 @@ public class ModelCountingOfSingleVariablePropositionalConstraintStepSolver exte
 	}
 	
 	@Override
-	protected Iterable<Expression> getDefiningLiterals(RewritingProcess process) {
+	protected Iterable<Expression> getDefiningLiterals(Constraint2 contextualConstraint, RewritingProcess process) {
 		return list();
 	}
 

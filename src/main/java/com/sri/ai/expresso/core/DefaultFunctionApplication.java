@@ -238,7 +238,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 				result = "not " + stringAsSubExpression(get(0), precedence);
 			}
 			else if (infixFunctionsStrings.contains(getFunctor().toString())) {
-				List<String> subExpressionsStrings = mapIntoList(getArguments(), e -> stringAsSubExpression(e, precedence));
+				List<String> subExpressionsStrings = mapIntoList(getArguments(), e -> stringAsSubExpressionWithParenthesesIfSamePrecedence(e, precedence));
 				result = Util.join(" " + getFunctor() + " ", subExpressionsStrings);
 			}
 			else {
@@ -254,6 +254,15 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 		String result = expression.toString();
 		int precedence = getPrecedence(expression);
 		if (parentPrecedence > precedence) {
+			result = "(" + result + ")";
+		}
+		return result;
+	}
+
+	private static String stringAsSubExpressionWithParenthesesIfSamePrecedence(Expression expression, int parentPrecedence) {
+		String result = expression.toString();
+		int precedence = getPrecedence(expression);
+		if (parentPrecedence >= precedence) {
 			result = "(" + result + ")";
 		}
 		return result;

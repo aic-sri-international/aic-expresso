@@ -98,7 +98,7 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 	}
 	
 	@Override
-	protected Iterable<Expression> getDefiningLiterals(RewritingProcess process) {
+	protected Iterable<Expression> getDefiningLiterals(Constraint2 contextualConstraint, RewritingProcess process) {
 		Iterable<Expression> result = getDisequalsDisequalities(process);
 		return result;
 	}
@@ -126,7 +126,7 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 			long numberOfNonAvailableValues = computeNumberOfUniqueDisequals(contextualConstraint, process);
 			long variableDomainSize = getConstraint().getVariableTypeSize(process);
 			if (variableDomainSize == -1) {
-				Expression variableDomain = getConstraint().getVariableType(process);
+				Expression variableDomain = getConstraint().getVariableTypeExpression(process);
 				Expression variableDomainCardinality = apply(CARDINALITY, variableDomain);
 				result = Minus.make(variableDomainCardinality, makeSymbol(numberOfNonAvailableValues));
 			}

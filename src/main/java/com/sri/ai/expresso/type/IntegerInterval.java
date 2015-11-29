@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.isNumber;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
 import static com.sri.ai.util.Util.myAssert;
@@ -53,7 +54,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.util.collect.BreadthFirstIterator;
 import com.sri.ai.util.collect.IntegerIterator;
 import com.sri.ai.util.math.Rational;
@@ -64,15 +65,40 @@ import com.sri.ai.util.math.Rational;
  * @author braz
  */
 @Beta
-public class Integer0To9 implements Type {
+public class IntegerInterval implements Type {
 
-	private Expression nonStrictLowerBound = Expressions.ZERO;
-	private Expression nonStrictUpperBound = Expressions.makeSymbol(9);
+	private String name;
+
+	private Expression nonStrictLowerBound;
+	private Expression nonStrictUpperBound;
 	
 	@Override
 	public String getName() {
-		return "Integer0to9";
-//		return nonStrictLowerBound + ".." + nonStrictUpperBound;
+		return name;
+	}
+	
+	public IntegerInterval(String name) {
+		this.name = name;
+		Expression nameParse = parse(name);
+		if (nameParse.equals("Integer")) {
+			nonStrictLowerBound = UnaryMinus.make(INFINITY);
+			nonStrictUpperBound = INFINITY;
+		}
+		else if (nameParse.hasFunctor("Integer") && nameParse.numberOfArguments() == 2) {
+			nonStrictLowerBound = nameParse.get(0);
+			nonStrictUpperBound = nameParse.get(1);
+		}
+		else {
+			throw new Error(this.getClass() + " created with invalid name " + name + ". Must be either 'Integer' or 'Integer(nonStrictLowerBound, nonStrictUpperBound)'");
+		}
+	}
+
+	public Expression getNonStrictLowerBound() {
+		return nonStrictLowerBound;
+	}
+
+	public Expression getNonStrictUpperBound() {
+		return nonStrictUpperBound;
 	}
 
 	/**

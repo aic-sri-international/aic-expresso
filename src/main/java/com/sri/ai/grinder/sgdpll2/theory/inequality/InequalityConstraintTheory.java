@@ -59,7 +59,8 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
-import com.sri.ai.expresso.type.Integer0To9;
+import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
@@ -68,6 +69,7 @@ import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
 import com.sri.ai.grinder.library.number.Plus;
+import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
@@ -125,12 +127,15 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinar
 								new BooleanSimplifier()
 								));
 
-		setTypesForTesting(list(new Integer0To9()));
-		setVariableNamesAndTypeNamesForTesting(map("I", "Integer0to9", "J", "Integer0to9", "K", "Integer0to9"));
+		String typeName = "Integer(0,4)";
+		setTypesForTesting(list(new IntegerInterval(typeName)));
+		setVariableNamesAndTypeNamesForTesting(map("I", typeName, "J", typeName, "K", typeName));
 	}
 	
 	private static Map<String, Simplifier> makeFunctionApplicationSimplifiersForDifferenceArithmetic() {
-		Simplifier differenceArithmeticSimplifier = new DifferenceArithmeticSimplifier((expression, duplicate) -> new Error("Found difference arithmetic expression " + expression + " containing " + duplicate + " more than once"));
+		Simplifier differenceArithmeticSimplifier = new DifferenceArithmeticSimplifier(
+				(expression, duplicate) ->
+				new Error("Found difference arithmetic expression " + expression + " containing " + duplicate + " more than once"));
 		Map<String, Simplifier> functionApplicationSimplifiers =
 				map(
 						EQUALITY,                 differenceArithmeticSimplifier,
@@ -149,7 +154,9 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinar
 	@Override
 	protected boolean isValidArgument(Expression expression, RewritingProcess process) {
 		Expression type = GrinderUtil.getType(expression, process);
-		boolean result = type.equals("Integer0to9");
+		Expression parsedType = Expressions.parse(type.toString());
+		// TODO: currently, types are always represented in RewritingProcess as Symbols with value being the type name. We should instead do it more flexibly and keep an Expression representing the type.
+		boolean result = parsedType.equals("Integer") || (parsedType.hasFunctor("Integer") && parsedType.numberOfArguments() == 2);
 		return result;
 	}
 
@@ -194,25 +201,35 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinar
 	@Override
 	public Expression makeRandomAtomOn(String variable, Random random, RewritingProcess process) {
 		
-		int numberOfOtherVariables = random.nextInt(1); // used to be 3, but if literal has more than two variables, it steps out of difference arithmetic and may lead to multiplied variables when literals are propagated. For example, X = Y + Z and X = -Y - Z + 3 imply 2Y + 2Z = 3 
+		int numberOfOtherVariables = random.nextInt(2); // used to be 3, but if literal has more than two variables, it steps out of difference arithmetic and may lead to multiplied variables when literals are propagated. For example, X = Y + Z and X = -Y - Z + 3 imply 2Y + 2Z = 3 
 		ArrayList<String> otherVariablesForAtom = pickKElementsWithoutReplacement(getVariableNamesForTesting(), numberOfOtherVariables, o -> !o.equals(variable), random);
+		// Note that otherVariablesForAtom contains only one or zero elements
 		
-		int numberOfVariablesToBeNegated = random.nextInt(otherVariablesForAtom.size() + 1);
-		ArrayList<String> otherVariablesToBeNegated = Util.pickKElementsWithoutReplacement(otherVariablesForAtom, numberOfVariablesToBeNegated, random);
-
 		Type type = process.getType(Util.getFirst(getVariableNamesAndTypeNamesForTesting().values()));
 		ArrayList<Expression> constants = new ArrayList<Expression>();
 		int numberOfConstants = random.nextInt(3);
 		for (int i = 0; i != numberOfConstants; i++) {
-			constants.add(type.sampleUniquelyNamedConstant(random));
+			Expression sampledConstant = type.sampleUniquelyNamedConstant(random);
+			Expression constant;
+			if (random.nextBoolean()) {
+				constant = sampledConstant;
+			}
+			else {
+				constant = makeSymbol(-sampledConstant.intValue());
+			}
+			constants.add(constant);
 		}
 
-		ArrayList<String> variablesForAtom = new ArrayList<String>(otherVariablesForAtom);
-		variablesForAtom.add(variable);
-		ArrayList<Expression> leftHandSideArguments = Util.mapIntoArrayList(variablesForAtom, s -> makeSymbol(s));
-		Util.mapIntoList(otherVariablesToBeNegated, v -> apply(MINUS, makeSymbol(v)), leftHandSideArguments);
-
+		ArrayList<Expression> leftHandSideArguments = new ArrayList<Expression>();
+		leftHandSideArguments.add(makeSymbol(variable));
+		Util.mapIntoList(otherVariablesForAtom, s -> UnaryMinus.make(makeSymbol(s)), leftHandSideArguments); // needs to be difference, so it's added as negative
 		leftHandSideArguments.addAll(constants);
+
+		int numberOfOtherVariablesToBeCanceled = random.nextInt(otherVariablesForAtom.size() + 1);
+		ArrayList<String> otherVariablesToBeCanceled = Util.pickKElementsWithoutReplacement(otherVariablesForAtom, numberOfOtherVariablesToBeCanceled, random);
+		Util.mapIntoList(otherVariablesToBeCanceled, v -> makeSymbol(v), leftHandSideArguments); // note that this term is positive, so it will cancel the previously negative term with the same "other variable"
+		// it may seem odd to generate an "other variable" and add another term that will cancel it later. However, this is useful for making sure canceling works properly.
+		
 		Expression leftHandSide = Plus.make(leftHandSideArguments);
 		String functor = pickUniformly(theoryFunctors, random);
 		Expression unsimplifiedResult = apply(functor, leftHandSide, 0);

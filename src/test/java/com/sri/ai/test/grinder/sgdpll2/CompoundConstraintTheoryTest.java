@@ -64,18 +64,23 @@ import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstrainTheoryWithBinaryRelations;
 import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.theory.inequality.InequalityConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
 
 @Beta
 public class CompoundConstraintTheoryTest {
 
+	private CompoundConstraintTheory makeCompoundConstraintTheory() {
+		return new CompoundConstraintTheory(
+				new EqualityConstraintTheory(true),
+				// new InequalityConstraintTheory(true), // not efficient enough yet to be included
+				new PropositionalConstraintTheory());
+	}
+
 	@Test
 	public void basicTests() {
 		
-		ConstraintTheory compound =
-				new CompoundConstraintTheory(
-						new EqualityConstraintTheory(true),
-						new PropositionalConstraintTheory());
+		ConstraintTheory compound = makeCompoundConstraintTheory();
 		
 		Expression condition = parse("X = Y and Y = X and P and not Q and P and X = a and X != b");
 		
@@ -96,9 +101,11 @@ public class CompoundConstraintTheoryTest {
 	
 	@Test
 	public void testSingleVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+
 		ConstraintTheoryTester.testSingleVariableConstraints(
 				new Random(),
-				new CompoundConstraintTheory(new EqualityConstraintTheory(true), new PropositionalConstraintTheory()),
+				makeCompoundConstraintTheory(),
 				100 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -106,29 +113,35 @@ public class CompoundConstraintTheoryTest {
 
 	@Test
 	public void testMultiVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+
 		ConstraintTheoryTester.testMultiVariableConstraints(
 				new Random(),
-				new CompoundConstraintTheory(new EqualityConstraintTheory(true), new PropositionalConstraintTheory()),
-				500 /* number of tests */,
+				makeCompoundConstraintTheory(),
+				300 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}
 
 	@Test
 	public void testCompleteMultiVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+
 		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
 				new Random(),
-				new CompoundConstraintTheory(new EqualityConstraintTheory(true), new PropositionalConstraintTheory()),
-				1000 /* number of tests */,
+				makeCompoundConstraintTheory(),
+				200 /* number of tests */,
 				50 /* number of literals per test */,
 				true /* output count */);
 	}
 
 	@Test
 	public void testModelCountingForSingleVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+
 		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
 				new Random(),
-				new CompoundConstraintTheory(new EqualityConstraintTheory(true), new PropositionalConstraintTheory()),
+				makeCompoundConstraintTheory(),
 				200 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -141,7 +154,7 @@ public class CompoundConstraintTheoryTest {
 		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
 				new Random(),
 				new Sum(),
-				new CompoundConstraintTheory(new EqualityConstraintTheory(true), new PropositionalConstraintTheory()),
+				makeCompoundConstraintTheory(),
 				10 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
@@ -155,7 +168,7 @@ public class CompoundConstraintTheoryTest {
 		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
 				new Random(),
 				new Max(),
-				new CompoundConstraintTheory(new EqualityConstraintTheory(true), new PropositionalConstraintTheory()),
+				makeCompoundConstraintTheory(),
 				10 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */

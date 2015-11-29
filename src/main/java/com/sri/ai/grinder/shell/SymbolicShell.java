@@ -49,6 +49,8 @@ import java.util.Collection;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.type.Categorical;
+import com.sri.ai.expresso.type.IntegerInterval;
+import com.sri.ai.grinder.GrinderConfiguration;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -56,6 +58,7 @@ import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreter;
 import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.theory.inequality.InequalityConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
 import com.sri.ai.util.collect.ConsoleIterator;
 
@@ -71,16 +74,20 @@ public class SymbolicShell {
 	private static boolean debug = false;
 	
 	public static void main(String[] args) {
+
+		GrinderConfiguration.disableTrace();
 		
 		SymbolicCommonInterpreter evaluator =
 				new SymbolicCommonInterpreterWithLiteralConditioning(
 						new CompoundConstraintTheory(
 								new EqualityConstraintTheory(false),
+								new InequalityConstraintTheory(false),
 								new PropositionalConstraintTheory()));
 		
 		RewritingProcess process = new DefaultRewritingProcess(null);
 		process = process.put(new Categorical("Boolean", 2, makeSymbol("true"), makeSymbol("false")));
 		process = process.put(new Categorical("People",  1000000, makeSymbol("ann"), makeSymbol("bob"), makeSymbol("ciaran")));
+		process = process.put(new IntegerInterval("Integer"));
 		
 		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("P"), makeSymbol("Boolean")), process);
 		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("Q"), makeSymbol("Boolean")), process);
@@ -90,6 +97,10 @@ public class SymbolicShell {
 		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("X"), makeSymbol("People")), process);
 		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("Y"), makeSymbol("People")), process);
 		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("Z"), makeSymbol("People")), process);
+
+		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("I"), makeSymbol("Integer")), process);
+		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("J"), makeSymbol("Integer")), process);
+		process = GrinderUtil.extendContextualSymbols(map(makeSymbol("K"), makeSymbol("Integer")), process);
 		
 		help();
 
@@ -169,7 +180,14 @@ public class SymbolicShell {
 	}
 
 	private static String throwableMessage(Throwable e) {
-		return e.getMessage() == null || e.getMessage().equals("null") ? "Sorry, an error without a message occurred\n" : e.getMessage();
+		String message;
+		if (e.getMessage() == null || e.getMessage().equals("null")) {
+			message = "Sorry, an error without a message occurred\n";
+		}
+		else {
+			message = e.getMessage();
+		}
+		return message;
 	}
 
 	/**

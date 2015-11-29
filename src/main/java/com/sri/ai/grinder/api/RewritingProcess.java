@@ -291,5 +291,7 @@ public interface RewritingProcess extends Cloneable {
 	
 	Type getType(String name);
 	
+	Type getType(Expression typeExpression);
+	
 	Collection<Type> getTypes();
 }

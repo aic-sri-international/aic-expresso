@@ -41,8 +41,10 @@ import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.util.Util.removeFromArrayListNonDestructively;
 import static com.sri.ai.util.Util.thereExists;
+import static com.sri.ai.util.collect.NestedIterator.nestedIterator;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -69,6 +71,28 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * Returns an iterator over positive normalized atoms not actually represented in constraint,
+	 * but assumed for purposes of determining redundancy or contradiction of new normalized atoms.
+	 * For example, if an extension defines an inequalities over integers theory,
+	 * and the constraint's variable X is in an integer interval ]n, m[,
+	 * then having this method return X > n and X < m will cause the solver to
+	 * act as if these atoms where actually part of the constraint,
+	 * which will result in contradicting normalized atoms
+	 * stating that X is out of these bounds, and making redundant normalized atoms saying X is within these bounds.
+	 * @param process TODO
+	 * @return an iterator over implicit normalized atoms.
+	 * @see #getImplicitNegativeNormalizedAtomsIterator(RewritingProcess)
+	 */
+	abstract protected Iterator<Expression> getImplicitPositiveNormalizedAtomsIterator(RewritingProcess process);
+
+	/**
+	 * Analogous to {@link #getImplicitPositiveNormalizedAtomsIterator(RewritingProcess)}.
+	 * @param process TODO
+	 * @return
+	 */
+	abstract protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(RewritingProcess process);
+
 	public AbstractSingleVariableConstraintWithDependentNormalizedAtoms(Expression variable, ConstraintTheory constraintTheory) {
 		this(variable, Util.arrayList(), Util.arrayList(), Util.arrayList(), constraintTheory);
 	}
@@ -105,29 +129,58 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 		// while equalities between two variables never affect literals based on distinct atoms.
 		
 		boolean oppositeSign = sign? false : true;
-		if (    thereExists(getPositiveNormalizedAtoms(), p -> impliesLiteralWithDifferentNormalizedAtom(true,  p, sign, normalizedAtom, process)) ||
-				thereExists(getNegativeNormalizedAtoms(), p -> impliesLiteralWithDifferentNormalizedAtom(false, p, sign, normalizedAtom, process))) {
+		if (
+				thereExists(
+						getPositiveNormalizedAtomsIncludingImplicitOnes(process),
+						p -> impliesLiteralWithDifferentNormalizedAtom(true,  p, sign, normalizedAtom, process))
+						||
+						thereExists(
+								getNegativeNormalizedAtomsIncludingImplicitOnes(process),
+								p -> impliesLiteralWithDifferentNormalizedAtom(false, p, sign, normalizedAtom, process))) {
+			
 			result = this; // redundant
 		}
-		else if (thereExists(getPositiveNormalizedAtoms(), p -> impliesLiteralWithDifferentNormalizedAtom(true,  p, oppositeSign, normalizedAtom, process)) ||
-				 thereExists(getNegativeNormalizedAtoms(), p -> impliesLiteralWithDifferentNormalizedAtom(false, p, oppositeSign, normalizedAtom, process))) {
+		else if (
+				thereExists(
+						getPositiveNormalizedAtomsIncludingImplicitOnes(process),
+						p -> impliesLiteralWithDifferentNormalizedAtom(true,  p, oppositeSign, normalizedAtom, process))
+						||
+						thereExists(
+								getNegativeNormalizedAtomsIncludingImplicitOnes(process),
+								p -> impliesLiteralWithDifferentNormalizedAtom(false, p, oppositeSign, normalizedAtom, process))) {
+			
 			result = null; // contradiction
 		}
 		else {
 			// remove redundant literals and add new one
 			ArrayList<Expression> newPositiveNormalizedAtoms = 
-					removeFromArrayListNonDestructively(getPositiveNormalizedAtoms(), p -> impliesLiteralWithDifferentNormalizedAtom(sign, normalizedAtom, true,  p, process));
+					removeFromArrayListNonDestructively(
+							getPositiveNormalizedAtoms(),
+							p -> impliesLiteralWithDifferentNormalizedAtom(sign, normalizedAtom, true,  p, process));
 			ArrayList<Expression> newNegativeNormalizedAtoms = 
-					removeFromArrayListNonDestructively(getNegativeNormalizedAtoms(), p -> impliesLiteralWithDifferentNormalizedAtom(sign, normalizedAtom, false, p, process));
+					removeFromArrayListNonDestructively(
+							getNegativeNormalizedAtoms(),
+							p -> impliesLiteralWithDifferentNormalizedAtom(sign, normalizedAtom, false, p, process));
+			
 			if (sign) {
 				newPositiveNormalizedAtoms.add(normalizedAtom);
 			}
 			else {
 				newNegativeNormalizedAtoms.add(normalizedAtom);
 			}
-			result = (AbstractSingleVariableConstraintWithDependentNormalizedAtoms) setPositiveAndNegativeNormalizedAtoms(newPositiveNormalizedAtoms, newNegativeNormalizedAtoms);
+			result =
+					(AbstractSingleVariableConstraintWithDependentNormalizedAtoms)
+					setPositiveAndNegativeNormalizedAtoms(newPositiveNormalizedAtoms, newNegativeNormalizedAtoms);
 		}
 		return result;
+	}
+
+	private Iterator<Expression> getPositiveNormalizedAtomsIncludingImplicitOnes(RewritingProcess process) {
+		return nestedIterator(getPositiveNormalizedAtoms().iterator(), getImplicitPositiveNormalizedAtomsIterator(process));
+	}
+
+	private Iterator<Expression> getNegativeNormalizedAtomsIncludingImplicitOnes(RewritingProcess process) {
+		return nestedIterator(getNegativeNormalizedAtoms().iterator(), getImplicitNegativeNormalizedAtomsIterator(process));
 	}
 
 	/**

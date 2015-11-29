@@ -104,17 +104,17 @@ public class AssignmentsIterator extends CartesianProductInMapIterator<Expressio
 	/**
 	 * @param fromVariableToIteratorMaker
 	 * @param variable
-	 * @param typeDescription
+	 * @param typeExpression
 	 * @param process
 	 * @throws Error
 	 */
-	private static void putVariableAndIteratorMakerIn(Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker, Expression variable, Expression typeDescription, RewritingProcess process) throws Error {
-		if (typeDescription == null) {
+	private static void putVariableAndIteratorMakerIn(Map<Expression, NullaryFunction<Iterator<Expression>>> fromVariableToIteratorMaker, Expression variable, Expression typeExpression, RewritingProcess process) throws Error {
+		if (typeExpression == null) {
 			throw new Error("Variable " + variable + " is not registered in rewriting process (has no type).");
 		}
-		Type type = process.getType(typeDescription.toString());
+		Type type = process.getType(typeExpression);
 		if (type == null) {
-			throw new Error("Variable " + variable + " has type " + typeDescription + " but rewriting process contains no type with this name.");
+			throw new Error("Variable " + variable + " has type " + typeExpression + " but rewriting process contains no type with this name.");
 		}
 		fromVariableToIteratorMaker.put(variable, () -> type.iterator());
 	}

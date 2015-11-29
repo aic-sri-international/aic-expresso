@@ -113,13 +113,48 @@ public interface ContextDependentProblemStepSolver {
 	
 	public static class ItDependsOn extends AbstractSolutionStep {
 
-		public ItDependsOn(Expression expression) {
+		private ContextDependentProblemStepSolver stepSolverIfExpressionIsTrue;
+		private ContextDependentProblemStepSolver stepSolverIfExpressionIsFalse;
+		
+		/**
+		 * Represents a solution step in which the final solution depends on the definition of a given expression
+		 * by the contextual constraint.
+		 * Step solvers specialized for whether expression is true or false can be provided
+		 * that already know about the definition of expression either way, for efficiency;
+		 * however, if this step solver is provided instead, things still work because 
+		 * the step solver will end up determining anyway that expression is now defined and move on.
+		 * @param expression
+		 * @param stepSolverIfExpressionIsTrue
+		 * @param stepSolverIfExpressionIsFalse
+		 */
+		public ItDependsOn(Expression expression, ContextDependentProblemStepSolver stepSolverIfExpressionIsTrue, ContextDependentProblemStepSolver stepSolverIfExpressionIsFalse) {
 			super(expression);
+			this.stepSolverIfExpressionIsTrue  = stepSolverIfExpressionIsTrue;
+			this.stepSolverIfExpressionIsFalse = stepSolverIfExpressionIsFalse;
 		}
 		
 		@Override
 		public boolean itDepends() {
 			return true;
+		}
+		
+		/**
+		 * Returns a {@link ContextDependentProblemStepSolver} to be used for finding the final solution
+		 * in case the expression is defined as true by the contextual constraint.
+		 * This is merely an optimization, and using the original step solver should still work,
+		 * but will perform wasted working re-discovering that expressions is already true.
+		 * @return
+		 */
+		public ContextDependentProblemStepSolver getStepSolverForIfExpressionIsTrue() {
+			return stepSolverIfExpressionIsTrue;
+		}
+		
+		/**
+		 * Same as {@link #getStepSolverForIfExpressionIsTrue()} but for when expression is false.
+		 * @return
+		 */
+		public ContextDependentProblemStepSolver getStepSolverForIfExpressionIsFalse() {
+			return stepSolverIfExpressionIsFalse;
 		}
 		
 		@Override

@@ -235,6 +235,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 					// the use of 'this' here does not mean that *this* constraint has to be provided as the contextual constraint.
 					// any empty multi-variable constraint would do.
 					// It is just that at this point we know 'this' to be an empty constraint and use it as a conveniently already available one.
+					result = result.check(process);
 				}
 				else {
 					result = null;

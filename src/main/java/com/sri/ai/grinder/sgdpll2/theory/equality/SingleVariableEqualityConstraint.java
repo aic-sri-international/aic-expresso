@@ -40,6 +40,7 @@ package com.sri.ai.grinder.sgdpll2.theory.equality;
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
+import static com.sri.ai.util.Util.iterator;
 import static com.sri.ai.util.Util.list;
 
 import java.util.Collection;
@@ -234,5 +235,15 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	@Override
 	public SingleVariableEqualityConstraint conjoin(Expression formula, RewritingProcess process) {
 		return (SingleVariableEqualityConstraint) super.conjoin(formula, process);
+	}
+
+	@Override
+	protected Iterator<Expression> getImplicitPositiveNormalizedAtomsIterator(RewritingProcess process) {
+		return iterator();
+	}
+
+	@Override
+	protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(RewritingProcess process) {
+		return iterator();
 	}
 }

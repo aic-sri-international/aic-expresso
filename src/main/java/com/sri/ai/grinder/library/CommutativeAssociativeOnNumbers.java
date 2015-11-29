@@ -35,50 +35,59 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.theory.inequality;
+package com.sri.ai.grinder.library;
 
-import static com.sri.ai.expresso.helper.Expressions.ZERO;
-import static com.sri.ai.expresso.helper.Expressions.apply;
-import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
+import static com.sri.ai.expresso.helper.Expressions.INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
+import static com.sri.ai.util.Util.thereExists;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.sgdpll2.api.Constraint2;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
-import com.sri.ai.grinder.sgdpll2.core.solver.AbstractBooleanProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
+import com.sri.ai.util.base.BinaryFunction;
+import com.sri.ai.util.base.Equals;
 
 /**
- * A {@link AbstractBooleanProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver} for a {@link SingleVariableInequalityConstraint}.
- * <p>
- * The solution is guaranteed to be either a boolean constant or a difference arithmetic expression with 0 on the right-hand side.
+ * Utility methods for {@link CommutativeAssociative} operations on numerical expressions.
  * 
  * @author braz
- *
  */
 @Beta
-public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implements ContextDependentProblemStepSolver {
+public class CommutativeAssociativeOnNumbers {
 
-	private Constraint2 constraint;
-	private ContextDependentProblemStepSolver modelCounting;
-	
-	public SatisfiabilityOfSingleVariableInequalityConstraintStepSolver(SingleVariableInequalityConstraint constraint) {
-		this.constraint = constraint;
-		this.modelCounting = new ModelCountingOfSingleVariableInequalityConstraintStepSolver(constraint);
-	}
+	private static final Equals<Expression> EQUALS_INFINITY = Equals.make(INFINITY);
+	private static final Equals<Expression> EQUALS_MINUS_INFINITY = Equals.make(MINUS_INFINITY);
 
-	@Override
-	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
-		SolutionStep result;
-		SolutionStep modelCountingStep = modelCounting.step(contextualConstraint, process);
-		if (modelCountingStep.itDepends()) {
-			result = modelCountingStep;
+	/**
+	 * If arguments of expression contain {@link Expressions#INFINITY} but not {@link Expressions#MINUS_INFINITY}, returns INFINITY;
+	 * if they contain {@link Expressions#MINUS_INFINITY} but not {@link Expressions#INFINITY}, returns MINUS_INFINITY;
+	 * if they contain both or none, returns the result provided by fallback function
+	 * @param expression
+	 * @param process
+	 * @param fallback
+	 * @return
+	 */
+	public static Expression dealWithInfinity(Expression expression, RewritingProcess process, BinaryFunction<Expression, RewritingProcess, Expression> fallback) {
+		Expression result;
+		
+		boolean containsInfinity = thereExists(expression.getArguments(), EQUALS_INFINITY);
+		boolean containsMinusInfinity = thereExists(expression.getArguments(), EQUALS_MINUS_INFINITY);
+		if (containsInfinity) {
+			if (containsMinusInfinity) {
+				result = fallback.apply(expression, process);
+			}
+			else {
+				result = INFINITY;
+			}
 		}
 		else {
-			Expression satisfiable;
-			satisfiable = apply(GREATER_THAN, modelCountingStep.getExpression(), ZERO);
-			Expression simplifiedSatisfiable = constraint.getConstraintTheory().simplify(satisfiable, process);
-			result = new Solution(simplifiedSatisfiable);
+			if (containsMinusInfinity) {
+				result = MINUS_INFINITY;
+			}
+			else {
+				result = fallback.apply(expression, process);
+			}
 		}
 		return result;
 	}

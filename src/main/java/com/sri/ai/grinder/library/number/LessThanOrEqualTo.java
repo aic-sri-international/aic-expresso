@@ -37,6 +37,9 @@
  */
 package com.sri.ai.grinder.library.number;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.isNumber;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
@@ -86,6 +89,18 @@ public class LessThanOrEqualTo extends BinaryOperator {
 		}
 		else if (isNumber(lessThanOrEqualToApplication.get(0)) && isNumber(lessThanOrEqualToApplication.get(1))) {
 			result = makeSymbol(lessThanOrEqualTo(lessThanOrEqualToApplication.get(0).rationalValue(), lessThanOrEqualToApplication.get(1).rationalValue()));
+		}
+		else if ( lessThanOrEqualToApplication.get(0).equals(MINUS_INFINITY) && !lessThanOrEqualToApplication.get(1).equals(MINUS_INFINITY)) {
+			result = TRUE;
+		}
+		else if ( lessThanOrEqualToApplication.get(0).equals(INFINITY)       && !lessThanOrEqualToApplication.get(1).equals(INFINITY)) {
+			result = FALSE;
+		}
+		else if (!lessThanOrEqualToApplication.get(0).equals(MINUS_INFINITY) &&  lessThanOrEqualToApplication.get(1).equals(MINUS_INFINITY)) {
+			result = FALSE;
+		}
+		else if (!lessThanOrEqualToApplication.get(0).equals(INFINITY)       &&  lessThanOrEqualToApplication.get(1).equals(INFINITY)) {
+			result = TRUE;
 		}
 		else {
 			result = lessThanOrEqualToApplication;

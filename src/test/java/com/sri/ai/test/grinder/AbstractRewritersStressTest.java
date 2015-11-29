@@ -48,6 +48,7 @@ import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.Rewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -96,7 +97,7 @@ public abstract class AbstractRewritersStressTest extends AbstractGrinderTest {
 		average = average / numberRewritesToAverage;			
 		
 		if (expected != IGNORE_EXPECTED) {
-			Assert.assertEquals(expected, actual.toString());
+			Assert.assertEquals(Expressions.parse(expected), actual);
 		}
 		
 		return average;

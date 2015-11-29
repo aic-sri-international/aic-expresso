@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.core;
 
 import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
 import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.myAssert;
@@ -145,7 +146,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	//
 	private ConcurrentHashMap<Object, Object>               globalObjects       = null;
 	private ConcurrentHashMap<Class<?>, Rewriter>           lookedUpModuleCache = null;
-	private Map<String, Type> types = new LinkedHashMap<String, Type>();
+	private Map<Expression, Type> types = new LinkedHashMap<Expression, Type>();
 	
 	/**
 	 * A class determining how rewriters are indexed in the rewriter caches.
@@ -714,7 +715,7 @@ public class DefaultRewritingProcess implements RewritingProcess {
 			ConcurrentHashMap<Class<?>, Rewriter> lookedUpModuleCache,
 			AtomicBoolean interrupted,
 			boolean isResponsibleForNotifyingRewritersOfBeginningAndEndOfRewritingProcess,
-			Map<String, Type> types) {
+			Map<Expression, Type> types) {
 		this.id                   = _uniqueIdGenerator.addAndGet(1L);
 		this.parentProcess        = parentProcess;
 		this.rootExpression       = rootExpression;
@@ -789,8 +790,8 @@ public class DefaultRewritingProcess implements RewritingProcess {
 	@Override
 	public RewritingProcess put(Type type) {
 		DefaultRewritingProcess result = new DefaultRewritingProcess(this);
-		result.types = new LinkedHashMap<String, Type>(result.types);
-		result.types.put(type.getName(), type);
+		result.types = new LinkedHashMap<>(result.types);
+		result.types.put(parse(type.getName()), type);
 		Expression unknownTypeSize = apply(CARDINALITY, type.getName());
 		if ( ! type.cardinality().equals(unknownTypeSize)) { // the reason for this test is not storing two equal but distinct instances in case some code replaces one by the other, creating a new expression that is equal but not the same instance, which we assume throughout expresso not to happen
 			result.putGlobalObject(unknownTypeSize, type.cardinality());
@@ -800,7 +801,12 @@ public class DefaultRewritingProcess implements RewritingProcess {
 
 	@Override
 	public Type getType(String name) {
-		return types.get(name);
+		return types.get(parse(name));
+	}
+
+	@Override
+	public Type getType(Expression typeExpression) {
+		return types.get(typeExpression);
 	}
 
 	@Override

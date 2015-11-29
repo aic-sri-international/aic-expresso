@@ -99,7 +99,7 @@ public class EqualityConstraintTheory extends AbstractConstrainTheoryWithBinaryR
 	}
 	
 	private boolean isNonBooleanCategoricalType(Expression type, RewritingProcess process) {
-		boolean result = !type.equals("Boolean") && process.getType(type.toString()) instanceof Categorical;
+		boolean result = !type.equals("Boolean") && process.getType(type) instanceof Categorical;
 		return result;
 	}
 

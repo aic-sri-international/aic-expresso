@@ -57,6 +57,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.SUM;
 import static com.sri.ai.grinder.library.FunctorConstants.TIMES;
 import static com.sri.ai.grinder.library.FunctorConstants.TYPE;
 import static com.sri.ai.util.Util.getFirstOrNull;
+import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
 import static com.sri.ai.util.Util.list;
 
 import java.util.ArrayList;
@@ -815,9 +816,9 @@ public class GrinderUtil {
 				result = process.getContextualSymbolType(expression);
 
 				if (result == null) {
-					Type type = Util.getFirstSatisfyingPredicateOrNull(process.getTypes(), t -> t.contains(expression));
+					Type type = getFirstSatisfyingPredicateOrNull(process.getTypes(), t -> t.contains(expression));
 					if (type != null) {
-						result = makeSymbol(type.getName());
+						result = parse(type.getName());
 					}
 				}
 			}
@@ -1339,7 +1340,7 @@ public class GrinderUtil {
 		if (result == -1) {
 			Expression variableType = process.getContextualSymbolType(symbol);
 			if (variableType != null) {
-				Type type = process.getType(variableType.toString());
+				Type type = process.getType(variableType);
 				if (type != null) {
 					Expression sizeExpression = type.cardinality();
 					if (sizeExpression.equals(apply(CARDINALITY, type.getName()))) {
@@ -1388,9 +1389,9 @@ public class GrinderUtil {
 	 * by iterating over all assignments
 	 * until a satisfying one is found, or returns null.
 	 * Naturally, this may not stop if any of the types involved is infinite.
-	 * The appropriate types must be in the {@link RewritingProcess} from the {@link RewritingProcess#getType(String)} method,
-	 * and the symbols in the formula must be registered as contextual symbols in the process such that
-	 * the generalized variable expressions map to their types through {@link getType}.
+	 * The variables in the formula must be registered as contextual symbols, with their types descriptions, in the rewriting process,
+	 * and the type descriptions must be correspond to a registered {@link Type}s in the rewriting process
+	 * (through the {@link RewritingProcess#putType} and {@link RewritingProcess#putType} methods.
 	 * @param formula
 	 * @param constraintTheory
 	 * @param process

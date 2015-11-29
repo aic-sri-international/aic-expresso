@@ -82,8 +82,7 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 	protected abstract Expression getAbsorbingElement();
 	protected abstract boolean isIdempotent();
 	protected abstract Predicate<Expression> getIsOperableArgumentSyntaxTreePredicate();
-	protected abstract Expression operationOnOperables(LinkedList<Expression> operableArguments);
-	protected abstract Expression operationOnExpressionOperables(LinkedList<Expression> operableArguments);
+	protected abstract Expression operationOnOperableArguments(LinkedList<Expression> operableArguments);
 
 	public Expression getNeutralElementExpression() {
 		return getNeutralElement();
@@ -134,7 +133,7 @@ public abstract class CommutativeAssociative extends AbstractRewriter {
 		}
 		
 		// get result on operable arguments
-		Expression resultOnOperableArgumentsExpression = operationOnExpressionOperables(operableArguments);
+		Expression resultOnOperableArgumentsExpression = operationOnOperableArguments(operableArguments);
 
 		// this next if then else is both an optimization for the case in which there is a single operable,
 		// and a way to make sure
