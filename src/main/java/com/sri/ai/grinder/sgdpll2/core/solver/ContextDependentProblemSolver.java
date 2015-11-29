@@ -73,8 +73,8 @@ public class ContextDependentProblemSolver {
 			case CONSTRAINT_IS_CONTRADICTORY:
 				return null;
 			case LITERAL_IS_UNDEFINED:
-				Expression subSolution1 = solve(stepSolver, split.getConstraintAndLiteral(), process);
-				Expression subSolution2 = solve(stepSolver, split.getConstraintAndLiteralNegation(), process);
+				Expression subSolution1 = solve(step.getStepSolverForWhenExpressionIsTrue (), split.getConstraintAndLiteral(), process);
+				Expression subSolution2 = solve(step.getStepSolverForWhenExpressionIsFalse(), split.getConstraintAndLiteralNegation(), process);
 				if (subSolution1 == null || subSolution2 == null) {
 					return null;
 				}

@@ -69,6 +69,20 @@ public interface ContextDependentProblemStepSolver {
 	public static interface SolutionStep {
 		boolean itDepends();
 		Expression getExpression();
+		/**
+		 * Returns a {@link ContextDependentProblemStepSolver} to be used for finding the final solution
+		 * in case the expression is defined as true by the contextual constraint.
+		 * This is merely an optimization, and using the original step solver should still work,
+		 * but will perform wasted working re-discovering that expressions is already true.
+		 * @return
+		 */
+		ContextDependentProblemStepSolver getStepSolverForWhenExpressionIsTrue();
+		
+		/**
+		 * Same as {@link #getStepSolverForWhenExpressionIsTrue()} but for when expression is false.
+		 * @return
+		 */
+		ContextDependentProblemStepSolver getStepSolverForWhenExpressionIsFalse();
 	}
 	
 	/**
@@ -137,23 +151,14 @@ public interface ContextDependentProblemStepSolver {
 		public boolean itDepends() {
 			return true;
 		}
-		
-		/**
-		 * Returns a {@link ContextDependentProblemStepSolver} to be used for finding the final solution
-		 * in case the expression is defined as true by the contextual constraint.
-		 * This is merely an optimization, and using the original step solver should still work,
-		 * but will perform wasted working re-discovering that expressions is already true.
-		 * @return
-		 */
-		public ContextDependentProblemStepSolver getStepSolverForIfExpressionIsTrue() {
+
+		@Override
+		public ContextDependentProblemStepSolver getStepSolverForWhenExpressionIsTrue() {
 			return stepSolverIfExpressionIsTrue;
 		}
 		
-		/**
-		 * Same as {@link #getStepSolverForIfExpressionIsTrue()} but for when expression is false.
-		 * @return
-		 */
-		public ContextDependentProblemStepSolver getStepSolverForIfExpressionIsFalse() {
+		@Override
+		public ContextDependentProblemStepSolver getStepSolverForWhenExpressionIsFalse() {
 			return stepSolverIfExpressionIsFalse;
 		}
 		
@@ -178,6 +183,16 @@ public interface ContextDependentProblemStepSolver {
 		@Override
 		public String toString() {
 			return getExpression().toString();
+		}
+
+		@Override
+		public ContextDependentProblemStepSolver getStepSolverForWhenExpressionIsTrue() {
+			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
+		}
+
+		@Override
+		public ContextDependentProblemStepSolver getStepSolverForWhenExpressionIsFalse() {
+			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
 		}
 	}
 }

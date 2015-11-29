@@ -147,8 +147,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 					Expression literalOnIndex = bodyStep.getExpression();
 					result = resultIfLiteralContainsIndex(contextualConstraint, literalOnIndex, process);
 				}
-				else { // not on index, just pass it on
-					result = bodyStep;
+				else { // not on index, just pass the expression on which we depend on, but with appropriate sub-step solvers (this, for now)
+					result = new ItDependsOn(bodyStep.getExpression(), this, this);
 				}
 			}
 			else { // body is already literal free
