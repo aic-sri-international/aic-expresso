@@ -39,6 +39,8 @@ package com.sri.ai.grinder.sgdpll2.core.solver;
 
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 
+import java.util.ArrayList;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
@@ -88,12 +90,16 @@ public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSat
 	}
 	
 	@Override
-	protected boolean usingDefaultImplementationOfGetPropagatedCNF() {
+	protected boolean usingDefaultImplementationOfMakePropagatedCNF() {
 		return false;
 	}
 
+	/**
+	 * This is overridden to re-use satisfiability's propagated CNF.
+	 * It overrides caching done by overridden method, but that's fine since satisfiability should be doing that already.
+	 */
 	@Override
-	public Iterable<Iterable<Expression>> getPropagatedCNF(RewritingProcess process) {
+	protected ArrayList<ArrayList<Expression>> getPropagatedCNF(RewritingProcess process) {
 		ConstraintTheory constraintTheory = getConstraint().getConstraintTheory();
 		ContextDependentProblemStepSolver satisfiability =
 				constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(getConstraint(), process);

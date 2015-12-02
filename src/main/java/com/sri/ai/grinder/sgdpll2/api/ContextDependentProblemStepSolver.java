@@ -56,8 +56,22 @@ import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentProblemSolver;
  *
  */
 @Beta
-public interface ContextDependentProblemStepSolver {
+public interface ContextDependentProblemStepSolver extends Cloneable {
 
+	/**
+	 * Cloning is important for this class, because when a problem depends on an expression to be solved
+	 * the {@link ItDependsOn} solution step will carry within it two sub-step solvers
+	 * to be used on the two branches of the search (one for when the expression is enforced to be true,
+	 * and another for false).
+	 * Initially, a newly constructed step solver would be used, but
+	 * it would then wastefully check again for all the expressions that had already been enforced true or false
+	 * by its predecessors.
+	 * By allowing a step solver to clone itself, we are able to provide sub-step solvers
+	 * that already know when to continue the search from.
+	 * @return
+	 */
+	ContextDependentProblemStepSolver clone();
+	
 	/**
 	 * A solution step of a {@link ContextDependentProblemStepSolver}.
 	 * If {@link #itDepends()} returns <code>true</code>, the solution cannot be determined

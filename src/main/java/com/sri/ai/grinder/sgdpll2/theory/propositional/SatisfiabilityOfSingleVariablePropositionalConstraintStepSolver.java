@@ -65,7 +65,7 @@ public class SatisfiabilityOfSingleVariablePropositionalConstraintStepSolver ext
 	}
 	
 	@Override
-	protected boolean usingDefaultImplementationOfGetPropagatedCNF() {
+	protected boolean usingDefaultImplementationOfMakePropagatedCNF() {
 		return false;
 	}
 

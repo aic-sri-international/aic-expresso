@@ -48,6 +48,11 @@ public class LiteralConditionerStepSolver implements ContextDependentProblemStep
 		this.simplifierUnderContextualConstraint = simplifierUnderContextualConstraint;
 	}
 
+	@Override
+	public LiteralConditionerStepSolver clone() {
+		return this;
+	}
+	
 	/**
 	 * Method defining what to do once we obtain a literal-free expression,
 	 * with default implementation simply returning a solution containing
@@ -72,7 +77,7 @@ public class LiteralConditionerStepSolver implements ContextDependentProblemStep
 			Expression literalInExpression = getNonDefinedLiteral(expression, contextualConstraint, process);
 
 			if (literalInExpression != null) {
-				result = new ItDependsOn(literalInExpression, this, this);
+				result = new ItDependsOn(literalInExpression, clone(), clone());
 			}
 			else {
 				Expression literalFreeExpression = simplifyGivenContextualConstraint(expression, contextualConstraint, process);

@@ -43,8 +43,6 @@ import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.plaindpll.problemtype.Max;
-import com.sri.ai.grinder.plaindpll.problemtype.Sum;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 import com.sri.ai.grinder.sgdpll2.theory.inequality.InequalityConstraintTheory;
 
@@ -84,23 +82,23 @@ public class InequalityConstraintTest {
 //		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
 //				new Random(),
 //				new InequalityConstraintTheory(true),
-//				500 /* number of tests */,
+//				100 /* number of tests */,
 //				50 /* number of literals per test */,
 //				true /* output count */);
 //	}
-//
-//	@Test
-//	public void testModelCountingForSingleVariableConstraints() {
-//		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
-//
-//		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
-//				new Random(),
-//				new InequalityConstraintTheory(true),
-//				500 /* number of tests */,
-//				30 /* number of literals per test */,
-//				true /* output count */);
-//	}
-//
+
+	@Test
+	public void testModelCountingForSingleVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+
+		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
+				new Random(),
+				new InequalityConstraintTheory(true),
+				100 /* number of tests */,
+				30 /* number of literals per test */,
+				true /* output count */);
+	}
+
 //	@Test
 //	public void testSumForSingleVariableConstraints() {
 //		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
@@ -109,21 +107,21 @@ public class InequalityConstraintTest {
 //				new Random(),
 //				new Sum(),
 //				new InequalityConstraintTheory(true),
-//				50 /* number of tests */,
+//				10 /* number of tests */,
 //				20 /* number of literals per test */,
 //				3, /* body depth */
 //				true /* output count */);
 //	}
-//
+
 //	@Test
 //	public void testMaxForSingleVariableConstraints() {
 //		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 //		
 //		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
-//				new Random(),
+//				new Random(), // use seed 2 and body depth 1 for problem 22 taking very long
 //				new Max(),
 //				new InequalityConstraintTheory(true),
-//				50 /* number of tests */,
+//				10 /* number of tests */,
 //				20 /* number of literals per test */,
 //				3, /* body depth */
 //				true /* output count */);

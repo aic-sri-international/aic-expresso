@@ -40,7 +40,6 @@ package com.sri.ai.grinder.sgdpll2.theory.inequality;
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
-import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
@@ -51,11 +50,9 @@ import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.util.Util.arrayList;
-import static com.sri.ai.util.Util.count;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.iterator;
-import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.set;
 import static com.sri.ai.util.base.PairOf.makePairOf;
@@ -107,7 +104,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 	}
 	
 	@Override
-	protected boolean usingDefaultImplementationOfGetPropagatedCNF() {
+	protected boolean usingDefaultImplementationOfMakePropagatedCNF() {
 		return true;
 	}
 

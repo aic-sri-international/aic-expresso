@@ -68,11 +68,17 @@ public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implem
 	}
 
 	@Override
+	public SatisfiabilityOfSingleVariableInequalityConstraintStepSolver clone() {
+		return this;
+	}
+	
+	@Override
 	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
 		SolutionStep result;
 		SolutionStep modelCountingStep = modelCounting.step(contextualConstraint, process);
 		if (modelCountingStep.itDepends()) {
-			result = modelCountingStep;
+			// satisfiability depends on the same expression, but sub-step solvers are clones of satisfiability step solver.
+			result = new ItDependsOn(modelCountingStep.getExpression(), clone(), clone());
 		}
 		else {
 			Expression satisfiable;

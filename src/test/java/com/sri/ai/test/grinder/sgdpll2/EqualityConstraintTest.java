@@ -126,7 +126,7 @@ public class EqualityConstraintTest {
 				new Random(),
 				new Max(),
 				new EqualityConstraintTheory(true),
-				10 /* number of tests */,
+				100 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);

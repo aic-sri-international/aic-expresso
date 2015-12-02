@@ -118,7 +118,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	}
 	
 	@Override
-	protected boolean usingDefaultImplementationOfGetPropagatedCNF() {
+	protected boolean usingDefaultImplementationOfMakePropagatedCNF() {
 		return true;
 	}
 
