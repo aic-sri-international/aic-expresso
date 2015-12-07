@@ -55,7 +55,7 @@ public class InequalityConstraintTest {
 
 		ConstraintTheoryTester.testSingleVariableConstraints(
 				new Random(),
-				new InequalityConstraintTheory(true),
+				new InequalityConstraintTheory(true, false),
 				500 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -67,7 +67,7 @@ public class InequalityConstraintTest {
 
 		ConstraintTheoryTester.testMultiVariableConstraints(
 				new Random(),
-				new InequalityConstraintTheory(true),
+				new InequalityConstraintTheory(true, false),
 				500 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -93,7 +93,7 @@ public class InequalityConstraintTest {
 
 		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
 				new Random(),
-				new InequalityConstraintTheory(true),
+				new InequalityConstraintTheory(true, false),
 				100 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);

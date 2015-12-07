@@ -45,6 +45,7 @@ import static com.sri.ai.util.collect.NestedIterator.nestedIterator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -97,8 +98,13 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 		this(variable, Util.arrayList(), Util.arrayList(), Util.arrayList(), constraintTheory);
 	}
 	
-	public AbstractSingleVariableConstraintWithDependentNormalizedAtoms(Expression variable, ArrayList<Expression> positiveNormalizedAtoms, ArrayList<Expression> negativeNormalizedAtoms,
-			ArrayList<Expression> externalLiterals, ConstraintTheory constraintTheory) {
+	public AbstractSingleVariableConstraintWithDependentNormalizedAtoms(
+			Expression variable,
+			ArrayList<Expression> positiveNormalizedAtoms,
+			ArrayList<Expression> negativeNormalizedAtoms,
+			List<Expression> externalLiterals,
+			ConstraintTheory constraintTheory) {
+		
 		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, constraintTheory);
 	}
 

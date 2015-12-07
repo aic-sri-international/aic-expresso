@@ -39,6 +39,7 @@ package com.sri.ai.grinder.sgdpll2.api;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.grinder.library.FunctorConstants.NOT;
 import static com.sri.ai.grinder.library.boole.And.getConjuncts;
 import static com.sri.ai.grinder.library.equality.formula.FormulaUtil.isInterpretedInPropositionalLogicIncludingConditionals;
 import static com.sri.ai.util.Util.addAllToSet;
@@ -58,6 +59,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
 import com.sri.ai.grinder.plaindpll.api.Theory;
 import com.sri.ai.util.Util;
@@ -100,12 +102,30 @@ public interface ConstraintTheory extends Theory {
 	}
 
 	/**
-	 * Indicates whether an expression is a non-trivial literal in this theory.
+	 * Indicates whether an expression is a non-trivial atom in this theory.
 	 * @param expression
 	 * @param process
 	 * @return
 	 */
-	boolean isNonTrivialLiteral(Expression expression, RewritingProcess process);
+	boolean isNonTrivialAtom(Expression expression, RewritingProcess process);
+	
+	/**
+	 * Indicates whether an expression is a non-trivial literal in this theory.
+	 * This is defined as its being either a non-trivial atom, or a non-trivial negative literals,
+	 * which in turn is the negation of a non-trivial atom.
+	 * @param expression
+	 * @param process
+	 * @return
+	 */
+	default boolean isNonTrivialLiteral(Expression expression, RewritingProcess process) {
+		boolean result = isNonTrivialAtom(expression, process) || isNonTrivialNegativeLiteral(expression, process);
+		return result;
+	}
+
+	default boolean isNonTrivialNegativeLiteral(Expression expression, RewritingProcess process) {
+		boolean result = expression.hasFunctor(NOT) && isNonTrivialAtom(expression.get(0), process);
+		return result;
+	}
 	
 	/**
 	 * Make a new single-variable constraint for this constraint theory.
@@ -318,5 +338,8 @@ public interface ConstraintTheory extends Theory {
 	}
 
 	RewritingProcess extendWithTestingInformation(RewritingProcess process);
-	
+
+	default RewritingProcess makeRewritingProcessWithTestingInformation() {
+		return extendWithTestingInformation(new DefaultRewritingProcess(null));
+	}
 }

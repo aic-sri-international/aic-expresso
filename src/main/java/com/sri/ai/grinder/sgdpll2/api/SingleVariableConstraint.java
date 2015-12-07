@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.sgdpll2.api;
 
+import java.util.List;
+
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 
@@ -52,6 +54,38 @@ public interface SingleVariableConstraint extends Expression, Constraint2 {
 	 * @return the variable term constrained by this constraint.
 	 */
 	Expression getVariable();
+	
+	/**
+	 * A single-variable constraint has the ability to temporarily hold literals not on its variable.
+	 * This returns such literals.
+	 * @return
+	 */
+	List<Expression> getExternalLiterals();
+	
+	/**
+	 * Creates a simplification of this constraint
+	 * that is equal to it but for the absence of external literals.
+	 * However, it is important to notice that,
+	 * because the result is considered a simplification,
+	 * it can only be used in contexts in which the original
+	 * constraint (and therefore the external literals) hold,
+	 * because it may still assume them to hold.
+	 * While this may at first seem like an unnecessary restriction,
+	 * it allows implementations to count on the external literal information
+	 * to keep whatever internal bookkeeping that depends on the original
+	 * constraint, avoiding the need to repeated computation.
+	 * <p>
+	 * For example, equality constraints keep track of how many
+	 * disequalities against uniquely named constants have been observed
+	 * on the constraint's variable so far (even the disequalities that
+	 * have been discarded since then).
+	 * Copying this information to the new constraint is only justified
+	 * if we know it is going to be used as a simplification of the original
+	 * constraint, since it may not follow from the normalized atoms and external literals
+	 * alone.
+	 * @return
+	 */
+	SingleVariableConstraint makeSimplificationWithoutExternalLiterals();
 	
 	/**
 	 * Returns a {@link SingleVariableConstraint} on a given variable, according to a given constraint theory,

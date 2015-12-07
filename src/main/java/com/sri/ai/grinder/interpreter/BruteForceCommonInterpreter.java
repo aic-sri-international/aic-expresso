@@ -58,7 +58,7 @@ import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstrainTheoryWithBinaryRelations;
+import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstraintTheoryWithBinaryAtoms;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.util.collect.StackedHashMap;
 
@@ -169,7 +169,7 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 	}
 
 	public static void main(String[] args) {
-		AbstractConstrainTheoryWithBinaryRelations testingConstraintTheory = new EqualityConstraintTheory(true);
+		AbstractConstraintTheoryWithBinaryAtoms testingConstraintTheory = new EqualityConstraintTheory(true, false);
 		AbstractInterpreter interpreter = new BruteForceCommonInterpreter(testingConstraintTheory, map(parse("Hurrah"), parse("awesome")), true);
 		RewritingProcess process = new DefaultRewritingProcess(null);
 		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(testingConstraintTheory);

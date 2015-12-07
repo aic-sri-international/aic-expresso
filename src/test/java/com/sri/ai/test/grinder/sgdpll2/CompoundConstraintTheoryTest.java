@@ -61,10 +61,9 @@ import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
-import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstrainTheoryWithBinaryRelations;
+import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstraintTheoryWithBinaryAtoms;
 import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.theory.inequality.InequalityConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
 
 @Beta
@@ -72,7 +71,7 @@ public class CompoundConstraintTheoryTest {
 
 	private CompoundConstraintTheory makeCompoundConstraintTheory() {
 		return new CompoundConstraintTheory(
-				new EqualityConstraintTheory(true),
+				new EqualityConstraintTheory(true, false),
 				// new InequalityConstraintTheory(true), // not efficient enough yet to be included
 				new PropositionalConstraintTheory());
 	}
@@ -208,7 +207,7 @@ public class CompoundConstraintTheoryTest {
 	 * @param expected
 	 */
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, Map<String, String> variableNamesAndTypeNamesForTesting) {
-		AbstractConstrainTheoryWithBinaryRelations equalityTheory = new EqualityConstraintTheory(true);
+		AbstractConstraintTheoryWithBinaryAtoms equalityTheory = new EqualityConstraintTheory(true, false);
 		equalityTheory.setVariableNamesAndTypeNamesForTesting(variableNamesAndTypeNamesForTesting);
 		ConstraintTheory constraintTheory = new CompoundConstraintTheory(equalityTheory, new PropositionalConstraintTheory());
 		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);

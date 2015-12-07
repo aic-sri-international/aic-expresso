@@ -93,18 +93,8 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public boolean isNonTrivialLiteral(Expression expression, RewritingProcess process) {
-		boolean result = isNonTrivialAtom(expression, process) || isNonTrivialNegativeLiteral(expression, process);
-		return result;
-	}
-
-	private static boolean isNonTrivialAtom(Expression expression, RewritingProcess process) {
+	public boolean isNonTrivialAtom(Expression expression, RewritingProcess process) {
 		boolean result = GrinderUtil.isBooleanTyped(expression, process) && !FormulaUtil.functorIsALogicalConnectiveIncludingConditionals(expression);
-		return result;
-	}
-	
-	private static boolean isNonTrivialNegativeLiteral(Expression expression, RewritingProcess process) {
-		boolean result = expression.hasFunctor(NOT) && isNonTrivialAtom(expression.get(0), process);
 		return result;
 	}
 	

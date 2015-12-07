@@ -52,6 +52,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.PLUS;
 import static com.sri.ai.util.Util.iterator;
 import static com.sri.ai.util.Util.list;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -65,7 +66,7 @@ import com.sri.ai.grinder.library.boole.Not;
 import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractSingleVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.theory.base.AbstractSingleVariableConstraintWithBinaryAtoms;
+import com.sri.ai.grinder.sgdpll2.theory.base.AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpll2.theory.helper.DifferenceArithmeticSimplifier;
 import com.sri.ai.util.Util;
 
@@ -76,7 +77,28 @@ import com.sri.ai.util.Util;
  *
  */
 @Beta
-public class SingleVariableInequalityConstraint extends AbstractSingleVariableConstraintWithBinaryAtoms {
+public class SingleVariableInequalityConstraint extends AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality {
+
+	// these two methods are kept first in the class because they heavily depend
+	// on which super class we are using, so it is good to keep them near the class declaration
+	
+	@Override
+	protected boolean conjoiningRedundantSignAndNormalizedAtomNeverChangesConstraintInstance() {
+		boolean result = ! propagateAllLiteralsWhenVariableIsBound();
+		return result;
+		// Explanation: once we propagate incoming literals, we analyse them less and don't
+		// necessarily detect redundancies between them.
+		// We may produce multiple external literals that may be redundant between themselves
+		// but whose redundancies will only be detected when they are themselves analysed
+		// in their own constraints.
+	}
+	
+	private static boolean propagateAllLiteralsWhenVariableIsBound() {
+		boolean result = SingleVariableInequalityConstraint.class
+		.getGenericSuperclass()
+		.equals(AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality.class);
+		return result;
+	}
 
 	private static final long serialVersionUID = 1L;
 	
@@ -92,12 +114,29 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 			GREATER_THAN_OR_EQUAL_TO, LESS_THAN_OR_EQUAL_TO
 			);
 
-	public SingleVariableInequalityConstraint(Expression variable, ConstraintTheory constraintTheory) {
-		super(variable, constraintTheory);
+	public SingleVariableInequalityConstraint(Expression variable, boolean propagateAllLiteralsWhenVariableIsBound, ConstraintTheory constraintTheory) {
+		super(variable, propagateAllLiteralsWhenVariableIsBound, constraintTheory);
+	}
+
+	public SingleVariableInequalityConstraint(
+			Expression variable,
+			ArrayList<Expression> positiveNormalizedAtoms,
+			ArrayList<Expression> negativeNormalizedAtoms,
+			List<Expression> externalLiterals,
+			boolean propagateAllLiteralsWhenVariableIsBound,
+			ConstraintTheory constraintTheory) {
+		
+		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, propagateAllLiteralsWhenVariableIsBound, constraintTheory);
 	}
 
 	public SingleVariableInequalityConstraint(SingleVariableInequalityConstraint other) {
 		super(other);
+	}
+
+	@Override
+	protected SingleVariableInequalityConstraint makeSimplification(ArrayList<Expression> positiveNormalizedAtoms, ArrayList<Expression> negativeNormalizedAtoms, List<Expression> externalLiterals) {
+		SingleVariableInequalityConstraint result = new SingleVariableInequalityConstraint(getVariable(), positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, getPropagateAllLiteralsWhenVariableIsBound(), getConstraintTheory());
+		return result;
 	}
 
 	@Override

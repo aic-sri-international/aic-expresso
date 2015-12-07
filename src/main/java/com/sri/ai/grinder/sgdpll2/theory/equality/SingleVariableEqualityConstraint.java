@@ -43,8 +43,10 @@ import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.util.Util.iterator;
 import static com.sri.ai.util.Util.list;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
@@ -53,7 +55,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.Disequality;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.theory.base.AbstractSingleVariableConstraintWithBinaryAtoms;
+import com.sri.ai.grinder.sgdpll2.theory.base.AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality;
 import com.sri.ai.util.Util;
 
 /**
@@ -63,20 +65,76 @@ import com.sri.ai.util.Util;
  *
  */
 @Beta
-public class SingleVariableEqualityConstraint extends AbstractSingleVariableConstraintWithBinaryAtoms {
+public class SingleVariableEqualityConstraint extends AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality {
 
+	// these methods are kept first in the class because they heavily depend
+	// on which super class we are using, so it is good to keep them near the class declaration
+	
+	/**
+	 * Indicates whether this implementation is complete with respect to the constraint's variable.
+	 * @return
+	 */
+	public boolean isCompleteWithRespectToVariable() {
+		boolean result = ! getPropagateAllLiteralsWhenVariableIsBound();
+		return result;
+		// Explanation: if we are implementing SingleVariableEqualityConstraint from
+		// AbstractSingleVariableConstraintWithBinaryAtomsIncludingEquality,
+		// when the variable is bound to a value, incoming literals are immediately
+		// propagated as external literals.
+		// This prevents detection of contradictions between them,
+		// because these contradictions no longer involve the constraint variable.
+		// For example, whereas X = Y and X != Z and X = Z contains a contradiction
+		// that would normally be detected,
+		// propagating literals once X is bound to Y would propagate the two last literals as
+		// external literals Y != Z and Y = Z, which are not analysed at this point
+		// to allow the contradiction detection.
+	}
+
+	@Override
+	protected boolean conjoiningRedundantSignAndNormalizedAtomNeverChangesConstraintInstance() {
+		boolean result = ! getPropagateAllLiteralsWhenVariableIsBound();
+		return result;
+		// Explanation: once we propagate incoming literals, we analyse them less and don't
+		// necessarily detect redundancies between them.
+		// We may produce multiple external literals that may be redundant between themselves
+		// but whose redundancies will only be detected when they are themselves analysed
+		// in their own constraints.
+	}
+	
 	private static final long serialVersionUID = 1L;
 	
-	private int numberOfDisequalitiesFromConstantsSeenSoFar;
+	/**
+	 * The number of disequalities from uniquely named constants;
+	 */
+	private int numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable;
 
-	public SingleVariableEqualityConstraint(Expression variable, ConstraintTheory constraintTheory) {
-		super(variable, constraintTheory);
-		this.numberOfDisequalitiesFromConstantsSeenSoFar = 0;
+	public SingleVariableEqualityConstraint(Expression variable, boolean propagateAllLiteralsWhenVariableIsBound, ConstraintTheory constraintTheory) {
+		super(variable, propagateAllLiteralsWhenVariableIsBound, constraintTheory);
+		this.numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable = 0;
+	}
+
+	private SingleVariableEqualityConstraint(
+			Expression variable,
+			ArrayList<Expression> positiveNormalizedAtoms,
+			ArrayList<Expression> negativeNormalizedAtoms,
+			List<Expression> externalLiterals,
+			int numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable,
+			boolean propagateAllLiteralsWhenVariableIsBound,
+			ConstraintTheory constraintTheory) {
+		
+		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, propagateAllLiteralsWhenVariableIsBound, constraintTheory);
+		this.numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable = numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable;
 	}
 
 	public SingleVariableEqualityConstraint(SingleVariableEqualityConstraint other) {
 		super(other);
-		this.numberOfDisequalitiesFromConstantsSeenSoFar = other.numberOfDisequalitiesFromConstantsSeenSoFar;
+		this.numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable = other.numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable;
+	}
+
+	@Override
+	protected SingleVariableEqualityConstraint makeSimplification(ArrayList<Expression> positiveNormalizedAtoms, ArrayList<Expression> negativeNormalizedAtoms, List<Expression> externalLiterals) {
+		SingleVariableEqualityConstraint result = new SingleVariableEqualityConstraint(getVariable(), positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable, getPropagateAllLiteralsWhenVariableIsBound(), getConstraintTheory());
+		return result;
 	}
 
 	@Override
@@ -89,9 +147,9 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	public SingleVariableEqualityConstraint destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean sign, Expression atom, RewritingProcess process) {
 		SingleVariableEqualityConstraint result = this;
 		if (!sign && process.isUniquelyNamedConstant(atom.get(1))) {
-			numberOfDisequalitiesFromConstantsSeenSoFar++;
+			numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable++;
 			long variableDomainSize = getVariableTypeSize(process);
-			if (variableDomainSize >= 0 && numberOfDisequalitiesFromConstantsSeenSoFar == variableDomainSize) {
+			if (variableDomainSize >= 0 && numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable == variableDomainSize) {
 				result = null;
 			}
 		}
@@ -107,7 +165,7 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	 * (some of these disequalities may have been eliminated by a conjunction with an equality that implies them).
 	 */
 	public int getNumberOfDisequalitiesFromConstantsSeenSoFar() {
-		return numberOfDisequalitiesFromConstantsSeenSoFar;
+		return numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable;
 	}
 	
 	/**

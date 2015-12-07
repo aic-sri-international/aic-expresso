@@ -54,7 +54,7 @@ import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstrainTheoryWithBinaryRelations;
+import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstraintTheoryWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
 
 
@@ -62,15 +62,15 @@ import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
  * A {@link ConstraintTheory} for equality literals.
  */
 @Beta
-public class EqualityConstraintTheory extends AbstractConstrainTheoryWithBinaryRelations {
+public class EqualityConstraintTheory extends AbstractConstraintTheoryWithBinaryAtomsIncludingEquality {
 
-	/**
-	 * Creates an equality theory that does <i>not</i> assume equality literals are literal of this theory
-	 * (this is more expensive -- use for a more efficiency setting if all equalities belong to this theory).
-	 */
-	public EqualityConstraintTheory() {
-		this(false);
-	}
+//	/**
+//	 * Creates an equality theory that does <i>not</i> assume equality literals are literal of this theory
+//	 * (this is more expensive -- use for a more efficiency setting if all equalities belong to this theory).
+//	 */
+//	public EqualityConstraintTheory(boolean propagateAllLiteralsWhenVariableIsBound) {
+//		this(false, propagateAllLiteralsWhenVariableIsBound);
+//	}
 	
 	/**
 	 * Creates an equality theory.
@@ -80,12 +80,13 @@ public class EqualityConstraintTheory extends AbstractConstrainTheoryWithBinaryR
 	 * @param assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory
 	 * whether all equalities and disequalities can be safely assumed to belong to this theory
 	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).
+	 * @param propagateAllLiteralsWhenVariableIsBound TODO
 	 */
-	public EqualityConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory) {
+	public EqualityConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
 				set(EQUALITY, DISEQUALITY),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-				new RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(new EqualitySimplifier(), new BooleanSimplifier()));
+				new RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(new EqualitySimplifier(), new BooleanSimplifier()), propagateAllLiteralsWhenVariableIsBound);
 	}
 	
 	@Override
@@ -120,12 +121,12 @@ public class EqualityConstraintTheory extends AbstractConstrainTheoryWithBinaryR
 
 	@Override
 	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, RewritingProcess process) {
-		return new SingleVariableEqualityConstraint(variable, constraintTheory);
+		return new SingleVariableEqualityConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), constraintTheory);
 	}
 
 	@Override
 	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
-		return true; // SingleVariableEqualityConstraint is complete
+		return ! getPropagateAllLiteralsWhenVariableIsBound();
 	}
 
 	@Override

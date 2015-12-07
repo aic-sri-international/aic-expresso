@@ -62,17 +62,33 @@ import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstrai
 @Beta
 public class ContextDependentProblemSolver {
 
+	/**
+	 * Returns the solution for a problem using a step solver, or null if the contextual constraint is found to be inconsistent.
+	 * @param stepSolver
+	 * @param contextualConstraint
+	 * @param process
+	 * @return
+	 */
 	public static Expression solve(ContextDependentProblemStepSolver stepSolver, Constraint2 contextualConstraint, RewritingProcess process) {
 		ContextDependentProblemStepSolver.SolutionStep step = stepSolver.step(contextualConstraint, process);
 //		System.out.println("Step: " + step);
 //		System.out.println("Contextual constraint: " + contextualConstraint);	
-		if (step.itDepends()) {
+		if (step == null) {
+			// contextual constraint is found to be inconsistent
+			return null;
+		}
+		else if (step.itDepends()) {
 			Expression splitter = step.getExpression();
 			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, splitter, process);
 			switch (split.getResult()) {
 			case CONSTRAINT_IS_CONTRADICTORY:
 				return null;
 			case LITERAL_IS_UNDEFINED:
+//				System.out.println("Step solver constraint: " + ((SatisfiabilityOfSingleVariableEqualityConstraintStepSolver)stepSolver).getConstraint());
+//				System.out.println("Step: " + step);
+//				System.out.println("Contextual constraint: " + contextualConstraint);	
+//				System.out.println("Constraint and literal: " + split.getConstraintAndLiteral());	
+//				System.out.println("Constraint and literal negation: " + split.getConstraintAndLiteralNegation());	
 				Expression subSolution1 = solve(step.getStepSolverForWhenExpressionIsTrue (), split.getConstraintAndLiteral(), process);
 				Expression subSolution2 = solve(step.getStepSolverForWhenExpressionIsFalse(), split.getConstraintAndLiteralNegation(), process);
 				if (subSolution1 == null || subSolution2 == null) {
@@ -97,7 +113,7 @@ public class ContextDependentProblemSolver {
 		
 		DefaultRewritingProcess process = new DefaultRewritingProcess(null);
 
-		SingleVariableEqualityConstraint constraint = new SingleVariableEqualityConstraint(parse("X"), new EqualityConstraintTheory(true));
+		SingleVariableEqualityConstraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, new EqualityConstraintTheory(true, false));
 		constraint = constraint.conjoin(parse("X = Y"), process);
 		constraint = constraint.conjoin(parse("X = Z"), process);
 		constraint = constraint.conjoin(parse("X != W"), process);
@@ -105,7 +121,7 @@ public class ContextDependentProblemSolver {
 		
 		ContextDependentProblemStepSolver problem = new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(constraint);
 
-		MultiVariableConstraint contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory(true));
+		MultiVariableConstraint contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory(true, false));
 		
 		Expression result = solve(problem, contextualConstraint, process);
 		

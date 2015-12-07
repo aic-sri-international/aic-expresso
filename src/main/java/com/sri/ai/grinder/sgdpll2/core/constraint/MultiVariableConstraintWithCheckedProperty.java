@@ -222,8 +222,21 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 				else {
 					newSingleVariableConstraint = singleVariableConstraint;
 					newContextualConstraint = contextualConstraint.conjoin(literal, process);
+					
 				}
 		
+				// optional, but good:
+				// we propagate external literals from single-variable constraint
+				// up the chain so they are integrated and simplified in the corresponding single-variable constraints
+				if (newSingleVariableConstraint != null) {
+					for (Expression externalLiteral : newSingleVariableConstraint.getExternalLiterals()) {
+						if (newContextualConstraint != null) {
+							newContextualConstraint = newContextualConstraint.conjoin(externalLiteral, process);
+						}
+					}
+					newSingleVariableConstraint = newSingleVariableConstraint.makeSimplificationWithoutExternalLiterals();
+				}
+
 				result = makeAndCheck(newContextualConstraint, newSingleVariableConstraint, contextDependentProblemStepSolverMaker, process);
 			}
 			else {
@@ -249,7 +262,10 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 		MultiVariableConstraintWithCheckedProperty result;
 		ContextDependentProblemStepSolver problem = contextDependentProblemStepSolverMaker.apply(singleVariableConstraint, process);
 		Expression solution = problem.solve(contextualConstraint, process);
-		if (solution.equals(FALSE)) { // the single-variable constraint is unsatisfiable in all contexts, so it is unsatisfiable.
+		if (solution == null) { // contextual constraint is found to be inconsistent
+			result = null;
+		}
+		else if (solution.equals(FALSE)) { // the single-variable constraint is unsatisfiable in all contexts, so it is unsatisfiable.
 			result = null;
 		}
 		else {

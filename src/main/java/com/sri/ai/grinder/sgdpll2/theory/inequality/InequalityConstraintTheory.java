@@ -73,7 +73,7 @@ import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstrainTheoryWithBinaryRelations;
+import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstraintTheoryWithBinaryAtomsIncludingEquality;
 import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.helper.DifferenceArithmeticSimplifier;
 import com.sri.ai.util.Util;
@@ -83,7 +83,7 @@ import com.sri.ai.util.Util;
  * A {@link ConstraintTheory} for integer inequality literals.
  */
 @Beta
-public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinaryRelations {
+public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBinaryAtomsIncludingEquality {
 
 	static final Map<String, String> negationFunctor =
 	Util.map(
@@ -95,13 +95,13 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinar
 			GREATER_THAN_OR_EQUAL_TO, LESS_THAN
 			);
 
-	/**
-	 * 	 * Creates an inequality theory for integers that does <i>not</i> assume equality literals are literal of this theory
-	 * (this is more expensive -- use for a more efficiency setting if all equalities belong to this theory).
-	 */
-	public InequalityConstraintTheory() {
-		this(false);
-	}
+//	/**
+//	 * 	 * Creates an inequality theory for integers that does <i>not</i> assume equality literals are literal of this theory
+//	 * (this is more expensive -- use for a more efficiency setting if all equalities belong to this theory).
+//	 */
+//	public InequalityConstraintTheory(boolean propagateAllLiteralsWhenVariableIsBound) {
+//		this(false, propagateAllLiteralsWhenVariableIsBound);
+//	}
 	
 	/**
 	 * Creates an inequality theory for integers.
@@ -112,7 +112,7 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinar
 	 * whether all equalities and disequalities can be safely assumed to belong to this theory
 	 * (if you know all such expressions are literals in this theory, invoke this constructor with a <code>true</code> argument).
 	 */
-	public InequalityConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory) {
+	public InequalityConstraintTheory(boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, boolean propagateAllLiteralsWhenVariableIsBound) {
 		super(
 				negationFunctor.keySet(),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
@@ -125,7 +125,8 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinar
 								new EqualitySimplifier(),
 								new InequalitySimplifier(),
 								new BooleanSimplifier()
-								));
+								),
+				propagateAllLiteralsWhenVariableIsBound);
 
 		String typeName = "Integer(0,4)";
 		setTypesForTesting(list(new IntegerInterval(typeName)));
@@ -177,12 +178,12 @@ public class InequalityConstraintTheory extends AbstractConstrainTheoryWithBinar
 
 	@Override
 	public SingleVariableConstraint makeSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory, RewritingProcess process) {
-		return new SingleVariableInequalityConstraint(variable, constraintTheory);
+		return new SingleVariableInequalityConstraint(variable, getPropagateAllLiteralsWhenVariableIsBound(), constraintTheory);
 	}
 
 	@Override
 	public boolean singleVariableConstraintIsCompleteWithRespectToItsVariable() {
-		return false; // SingleVariableInequalityConstraint is complete
+		return false; // SingleVariableInequalityConstraint is not complete
 	}
 
 	@Override

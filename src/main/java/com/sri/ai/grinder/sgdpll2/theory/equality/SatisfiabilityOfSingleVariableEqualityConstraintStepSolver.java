@@ -249,6 +249,33 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 
 	@Override
 	protected Iterable<Expression> getDefiningLiterals(Constraint2 contextualConstraint, RewritingProcess process) {
+//		Iterable<Expression> result;
+//		if ( ! getConstraint().getPositiveNormalizedAtoms().isEmpty()) {
+//			result = list();
+//		}
+//		else if (getConstraint().getVariableTypeSize(process) < 0) { // size is not a defined number
+//			result = list();
+//		}
+//		else {
+//			int numberOfDisequals = getConstraint().getNegativeNormalizedAtoms().size();
+//			int maxPossibleNumberOfDistinctDisequals = numberOfDisequals;
+//			for (int disequalIndex = 0;
+//					maxPossibleNumberOfDistinctDisequals >= getConstraint().getVariableTypeSize(process)
+//							&& disequalIndex != numberOfDisequals;
+//					disequalIndex++) {
+//				
+//				SolutionStep disequalIsDistinctFromAllOthers
+//				= (new DisequalIsDistinctFromAllOthers(getConstraint().getNegativeNormalizedAtoms())).solve(contextualConstraint, process);
+//				
+//				Expression literalToDecideIfDisequalIsDistinctFromAllOthers =
+//						getLiteralToDecideIfDisequalIsDistinctFromAllOthers(disequalIndex, contextualConstraint);
+//				if (literalToDecideIfDisequalIsDistinctFromAllOthers == null) {
+//					
+//				}
+//				
+//			}
+//			result = list();
+//		}
 		return list();
 	}
 	

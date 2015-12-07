@@ -82,6 +82,7 @@ import com.sri.ai.expresso.api.QuantifiedExpressionWithABody;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.AbstractExtensionalSet;
 import com.sri.ai.expresso.core.DefaultSyntacticFunctionApplication;
+import com.sri.ai.expresso.core.DefaultUniversallyQuantifiedFormula;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.helper.MapReplacementFunction;
@@ -1425,5 +1426,18 @@ public class GrinderUtil {
 			variableType = new DefaultSyntacticFunctionApplication(TYPE, variable);
 		}
 		return variableType;
+	}
+
+	/**
+	 * Returns a universal quantification of given expression over its free variables,
+	 * with types as registered in rewriting process.
+	 * @param expression
+	 * @param process
+	 * @return
+	 */
+	public static Expression universallyQuantifyFreeVariables(Expression expression, RewritingProcess process) {
+		IndexExpressionsSet indexExpressions = getIndexExpressionsOfFreeVariablesIn(expression, process);
+		Expression universallyQuantified = new DefaultUniversallyQuantifiedFormula(indexExpressions, expression);
+		return universallyQuantified;
 	}
 }

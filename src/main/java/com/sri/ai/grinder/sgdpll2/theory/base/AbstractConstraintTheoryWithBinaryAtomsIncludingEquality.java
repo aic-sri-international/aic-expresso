@@ -35,40 +35,36 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.core.constraint;
+package com.sri.ai.grinder.sgdpll2.theory.base;
+
+import java.util.Collection;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.sgdpll2.api.Constraint2;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 
-/**
- * A multi-variable constraint whose {@link #conjoin(com.sri.ai.expresso.api.Expression, RewritingProcess)}
- * is guaranteed to return <code>null</code> if it becomes unsatisfiable.
+
+/** 
+ * A {@link ConstraintTheory} for constraint theories with binary atoms, including equality.
+ * This provides a property for turning off propagation of all literals at single-variable constraint level
+ * once the variable is bound.
  * 
  * @author braz
- *
  */
 @Beta
-public class CompleteMultiVariableConstraint extends MultiVariableConstraintWithCheckedProperty {
+abstract public class AbstractConstraintTheoryWithBinaryAtomsIncludingEquality extends AbstractConstraintTheoryWithBinaryAtoms {
 
-	private static final long serialVersionUID = 1L;
+	private boolean propagateAllLiteralsWhenVariableIsBound;
 
-	public CompleteMultiVariableConstraint(ConstraintTheory constraintTheory) {
-		super(constraintTheory, (c, p) -> constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(c, p));
+	public AbstractConstraintTheoryWithBinaryAtomsIncludingEquality(
+			Collection<String> theoryFunctors, boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, Simplifier simplifier, boolean propagateAllLiteralsWhenVariableIsBound) {
+
+		super(theoryFunctors, assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, simplifier);
+		this.propagateAllLiteralsWhenVariableIsBound = propagateAllLiteralsWhenVariableIsBound;
 	}
 
-	/**
-	 * Creates a new instance and conjoins each conjunct in the parse of expressionString to it.
-	 * @param expressionString
-	 * @param constraintTheory
-	 * @param process
-	 * @return
-	 */
-	public static Constraint2 parse(String expressionString, ConstraintTheory constraintTheory, RewritingProcess process) {
-		Constraint2 result = new CompleteMultiVariableConstraint(constraintTheory);
-		result = Expressions.parseAndConjoin(expressionString, result, process);
-		return result;
+	public boolean getPropagateAllLiteralsWhenVariableIsBound() {
+		return propagateAllLiteralsWhenVariableIsBound;
 	}
+	
 }

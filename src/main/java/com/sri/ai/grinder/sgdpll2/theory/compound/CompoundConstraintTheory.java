@@ -137,8 +137,8 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	}
 	
 	@Override
-	public boolean isNonTrivialLiteral(Expression expression, RewritingProcess process) {
-		boolean result = thereExists(getConstraintTheories(), t -> t.isNonTrivialLiteral(expression, process));
+	public boolean isNonTrivialAtom(Expression expression, RewritingProcess process) {
+		boolean result = thereExists(getConstraintTheories(), t -> t.isNonTrivialAtom(expression, process));
 		return result;
 	}
 

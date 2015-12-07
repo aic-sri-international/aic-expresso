@@ -76,15 +76,20 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	private Expression variable;
 	private ArrayList<Expression> positiveNormalizedAtoms;
 	private ArrayList<Expression> negativeNormalizedAtoms;
-	private ArrayList<Expression> externalLiterals; // literals not on variable
+	private List<Expression> externalLiterals; // literals not on variable
 	private ConstraintTheory constraintTheory;
 	
 	public AbstractSingleVariableConstraint(Expression variable, ConstraintTheory constraintTheory) {
 		this(variable, Util.arrayList(), Util.arrayList(), Util.arrayList(), constraintTheory);
 	}
 	
-	public AbstractSingleVariableConstraint(Expression variable, ArrayList<Expression> positiveNormalizedAtoms, ArrayList<Expression> negativeNormalizedAtoms,
-			ArrayList<Expression> externalLiterals, ConstraintTheory constraintTheory) {
+	public AbstractSingleVariableConstraint(
+			Expression variable,
+			ArrayList<Expression> positiveNormalizedAtoms,
+			ArrayList<Expression> negativeNormalizedAtoms,
+			List<Expression> externalLiterals,
+			ConstraintTheory constraintTheory) {
+		
 		this.variable = variable;
 		this.positiveNormalizedAtoms = positiveNormalizedAtoms;
 		this.negativeNormalizedAtoms = negativeNormalizedAtoms;
@@ -117,6 +122,42 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	@Override
 	abstract public AbstractSingleVariableConstraint clone();
 	
+	/**
+	 * Creates a simplification of this constraint out of the
+	 * given normalized atoms and external literals.
+	 * The result is only correctly used in contexts in which the original
+	 * constraint holds.
+	 * That is to say, implementations are allowed to rely
+	 * on this fact to keep whatever internal bookkeeping they may
+	 * have from the original constraint,
+	 * thus avoiding the need to re-compute it.
+	 * <p>
+	 * For example, equality constraints keep track of how many
+	 * disequalities against uniquely named constants have been observed
+	 * on the constraint's variable so far (even the disequalities that
+	 * have been discarded since then).
+	 * Copying this information to the new constraint is only justified
+	 * if we know it is going to be used as refinement of the original
+	 * constraint, since it may not follow from the normalized atoms and external literals
+	 * alone.
+	 * @param positiveNormalizedAtoms
+	 * @param negativeNormalizedAtoms
+	 * @param externalLiterals
+	 * @return
+	 */
+	abstract protected AbstractSingleVariableConstraint makeSimplification(
+			ArrayList<Expression> positiveNormalizedAtoms,
+			ArrayList<Expression> negativeNormalizedAtoms,
+			List<Expression> externalLiterals);
+	
+	@Override
+	public AbstractSingleVariableConstraint makeSimplificationWithoutExternalLiterals() {
+		AbstractSingleVariableConstraint result =
+				makeSimplification(getPositiveNormalizedAtoms(), getNegativeNormalizedAtoms(), list());
+		return result;
+	}
+
+	
 	//////////// GETTERS
 	
 	@Override
@@ -132,6 +173,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 		return negativeNormalizedAtoms;
 	}
 
+	@Override
 	public List<Expression> getExternalLiterals() {
 		return Collections.unmodifiableList(externalLiterals);
 	}
@@ -160,7 +202,7 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 	}
 
 	public AbstractSingleVariableConstraint addExternalLiteral(Expression newExternalLiteral) {
-		AbstractSingleVariableConstraint result = clone();
+		AbstractSingleVariableConstraint result = clone(); // TODO: need to use a stack here to avoid copying everything every time
 		ArrayList<Expression> newExternalLiterals = new ArrayList<Expression>(externalLiterals);
 		newExternalLiterals.add(newExternalLiteral);
 		result.externalLiterals = newExternalLiterals;
@@ -252,13 +294,19 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 			}
 			else {
 				result = conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, process);
-				if (result != this && result != null) {
+				if (conjoiningRedundantSignAndNormalizedAtomNeverChangesConstraintInstance() && result != this && result != null) {
 					result = result.destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(sign, normalizedAtom, process);
 				}
 			}
 		}
 		return result;
 	}
+
+	/**
+	 * Indicates whether implementation guarantees that conjoining redundant atom always results in the same object instance.
+	 * @return
+	 */
+	abstract protected boolean conjoiningRedundantSignAndNormalizedAtomNeverChangesConstraintInstance();
 
 	/**
 	 * Conjoin a literal described by sign and normalized atom.

@@ -99,7 +99,7 @@ public class DirectCardinalityTest extends AbstractGrinderTest {
 			// not identical expressions, trying for equivalence
 			// It would be more natural to evaluate actual = expected
 			// but the equality theory does not yet support equalities among complex expressions
-			SymbolicCommonInterpreterWithLiteralConditioning interpreter = new SymbolicCommonInterpreterWithLiteralConditioning(new EqualityConstraintTheory(true));
+			SymbolicCommonInterpreterWithLiteralConditioning interpreter = new SymbolicCommonInterpreterWithLiteralConditioning(new EqualityConstraintTheory(true, false));
 			Expression subtraction = Expressions.apply(MINUS, actual, expected);
 			Expression subtractionResult = interpreter.apply(subtraction, process);
 			boolean result = subtractionResult.equals(ZERO);

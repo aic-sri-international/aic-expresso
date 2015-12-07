@@ -19,7 +19,7 @@ import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractConstraintTheory;
 import com.sri.ai.util.collect.PredicateIterator;
 
-public abstract class AbstractConstrainTheoryWithBinaryRelations extends AbstractConstraintTheory {
+public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractConstraintTheory {
 
 	/**
 	 * Indicates whether the theory can safely assume that all applications of its theory functors are atoms in it,
@@ -46,7 +46,7 @@ public abstract class AbstractConstrainTheoryWithBinaryRelations extends Abstrac
 	 * @param assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory
 	 * @param simplifier
 	 */
-	public AbstractConstrainTheoryWithBinaryRelations(
+	public AbstractConstraintTheoryWithBinaryAtoms(
 			Collection<String> theoryFunctors,
 			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
 			Simplifier simplifier) {
@@ -108,13 +108,13 @@ public abstract class AbstractConstrainTheoryWithBinaryRelations extends Abstrac
 	}
 
 	/**
-	 * Implements decision of whether an expression is a non-trivial literal by checking
+	 * Implements decision of whether an expression is a non-trivial atom by checking
 	 * if it is a function application of one of the theory functors and,
 	 * if {@link #assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory} is true,
 	 * whether its arguments are valid according to {@link #isValidArgument(Expression, RewritingProcess)}.
 	 */
 	@Override
-	public boolean isNonTrivialLiteral(Expression expression, RewritingProcess process) {
+	public boolean isNonTrivialAtom(Expression expression, RewritingProcess process) {
 		boolean result;
 	
 		boolean hasTheoryFunctor = isApplicationOfTheoryFunctor(expression);
@@ -172,7 +172,7 @@ public abstract class AbstractConstrainTheoryWithBinaryRelations extends Abstrac
 		Expression result;
 		
 		if (literal.hasFunctor(NOT) && isApplicationOfTheoryFunctor(literal.get(0))) {
-			result = literal;
+			result = literal.get(0);
 		}
 		else if (literal.equals(TRUE)) {
 			result = FALSE;

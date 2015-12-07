@@ -40,6 +40,9 @@ package com.sri.ai.grinder.sgdpll2.theory.propositional;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
@@ -61,8 +64,24 @@ public class SingleVariablePropositionalConstraint extends AbstractSingleVariabl
 		super(variable, constraintTheory);
 	}
 
+	public SingleVariablePropositionalConstraint(
+			Expression variable,
+			ArrayList<Expression> positiveNormalizedAtoms,
+			ArrayList<Expression> negativeNormalizedAtoms,
+			List<Expression> externalLiterals,
+			ConstraintTheory constraintTheory) {
+		
+		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, constraintTheory);
+	}
+
 	public SingleVariablePropositionalConstraint(SingleVariablePropositionalConstraint other) {
 		super(other);
+	}
+
+	@Override
+	protected SingleVariablePropositionalConstraint makeSimplification(ArrayList<Expression> positiveNormalizedAtoms, ArrayList<Expression> negativeNormalizedAtoms, List<Expression> externalLiterals) {
+		SingleVariablePropositionalConstraint result = new SingleVariablePropositionalConstraint(getVariable(), positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, getConstraintTheory());
+		return result;
 	}
 
 	@Override

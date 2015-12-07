@@ -147,7 +147,7 @@ public class SymbolicCommonInterpreter extends AbstractCommonInterpreter {
 	public static void main(String[] args) {
 		ConstraintTheory constraintTheory =
 				new CompoundConstraintTheory(
-						new EqualityConstraintTheory(true),
+						new EqualityConstraintTheory(true, false),
 						new PropositionalConstraintTheory());
 		
 		AbstractInterpreter interpreter = new SymbolicCommonInterpreter(constraintTheory, true);

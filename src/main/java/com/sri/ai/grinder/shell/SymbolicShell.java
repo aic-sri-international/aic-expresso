@@ -80,8 +80,8 @@ public class SymbolicShell {
 		SymbolicCommonInterpreter evaluator =
 				new SymbolicCommonInterpreterWithLiteralConditioning(
 						new CompoundConstraintTheory(
-								new EqualityConstraintTheory(false),
-								new InequalityConstraintTheory(false),
+								new EqualityConstraintTheory(false, false),
+								new InequalityConstraintTheory(false, false),
 								new PropositionalConstraintTheory()));
 		
 		RewritingProcess process = new DefaultRewritingProcess(null);

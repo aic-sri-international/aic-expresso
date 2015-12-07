@@ -109,6 +109,15 @@ public class Not extends AbstractRewriter {
 		}
 		return Expressions.apply("not", expression);
 	}
+	
+	/**
+	 * Another name for {@link #makeRewritingProcess(Expression)}.
+	 * @param expression
+	 * @return
+	 */
+	public static Expression not(Expression expression) {
+		return make(expression);
+	}
 
 	public static Expression getFunctor() {
 		return FUNCTOR;

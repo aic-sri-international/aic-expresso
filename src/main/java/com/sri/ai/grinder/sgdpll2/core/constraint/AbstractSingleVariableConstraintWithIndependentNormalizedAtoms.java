@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.sgdpll2.core.constraint;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -63,8 +64,13 @@ public abstract class AbstractSingleVariableConstraintWithIndependentNormalizedA
 		this(variable, Util.arrayList(), Util.arrayList(), Util.arrayList(), constraintTheory);
 	}
 	
-	public AbstractSingleVariableConstraintWithIndependentNormalizedAtoms(Expression variable, ArrayList<Expression> positiveNormalizedAtoms, ArrayList<Expression> negativeNormalizedAtoms,
-			ArrayList<Expression> externalLiterals, ConstraintTheory constraintTheory) {
+	public AbstractSingleVariableConstraintWithIndependentNormalizedAtoms(
+			Expression variable,
+			ArrayList<Expression> positiveNormalizedAtoms,
+			ArrayList<Expression> negativeNormalizedAtoms,
+			List<Expression> externalLiterals,
+			ConstraintTheory constraintTheory) {
+		
 		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, constraintTheory);
 	}
 
@@ -82,5 +88,10 @@ public abstract class AbstractSingleVariableConstraintWithIndependentNormalizedA
 			result = addNegativeNormalizedAtom(normalizedAtom);
 		}
 		return (AbstractSingleVariableConstraintWithIndependentNormalizedAtoms) result;
+	}
+	
+	@Override
+	protected boolean conjoiningRedundantSignAndNormalizedAtomNeverChangesConstraintInstance() {
+		return true;
 	}
 }

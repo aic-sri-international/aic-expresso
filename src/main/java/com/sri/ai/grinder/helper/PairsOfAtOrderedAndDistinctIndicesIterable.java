@@ -35,40 +35,41 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.core.constraint;
+package com.sri.ai.grinder.helper;
+
+import java.util.List;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.sgdpll2.api.Constraint2;
-import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.util.base.ContinuationIterable;
+import com.sri.ai.util.base.ContinuationIterator;
+import com.sri.ai.util.base.Pair;
 
 /**
- * A multi-variable constraint whose {@link #conjoin(com.sri.ai.expresso.api.Expression, RewritingProcess)}
- * is guaranteed to return <code>null</code> if it becomes unsatisfiable.
+ * A continuation iterable providing {@link PairsOfElementsInListAtOrderedAndDistinctIndicesIterator} iterators.
  * 
  * @author braz
  *
  */
 @Beta
-public class CompleteMultiVariableConstraint extends MultiVariableConstraintWithCheckedProperty {
+public class PairsOfAtOrderedAndDistinctIndicesIterable<T> implements ContinuationIterable<Pair<T,T>> {
 
-	private static final long serialVersionUID = 1L;
-
-	public CompleteMultiVariableConstraint(ConstraintTheory constraintTheory) {
-		super(constraintTheory, (c, p) -> constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(c, p));
+	private List<T> list;
+	private int i;
+	private int j;
+	
+	public PairsOfAtOrderedAndDistinctIndicesIterable(List<T> list) {
+		this(list, 0, 1);
 	}
 
-	/**
-	 * Creates a new instance and conjoins each conjunct in the parse of expressionString to it.
-	 * @param expressionString
-	 * @param constraintTheory
-	 * @param process
-	 * @return
-	 */
-	public static Constraint2 parse(String expressionString, ConstraintTheory constraintTheory, RewritingProcess process) {
-		Constraint2 result = new CompleteMultiVariableConstraint(constraintTheory);
-		result = Expressions.parseAndConjoin(expressionString, result, process);
-		return result;
+	public PairsOfAtOrderedAndDistinctIndicesIterable(List<T> list, int i, int j) {
+		super();
+		this.list = list;
+		this.i = i;
+		this.j = j;
+	}
+
+	@Override
+	public ContinuationIterator<Pair<T, T>> iterator() {
+		return new PairsOfElementsInListAtOrderedAndDistinctIndicesIterator<T>(list, i, j);
 	}
 }

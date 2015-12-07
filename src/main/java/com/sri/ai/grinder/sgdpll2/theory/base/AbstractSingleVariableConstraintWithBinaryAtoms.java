@@ -43,7 +43,9 @@ import static com.sri.ai.grinder.helper.GrinderUtil.getTypeCardinality;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
 import static com.sri.ai.util.Util.myAssert;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -86,6 +88,8 @@ import com.sri.ai.util.base.Pair;
 @Beta
 public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends AbstractSingleVariableConstraintWithDependentNormalizedAtoms {
 
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * The collection of functors for normalized atoms in this type of constraint.
 	 * @return the collection of functors for normalized atoms in this type of constraint.
@@ -120,10 +124,18 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 	 */
 	abstract protected Expression isolateVariable(Expression atom, RewritingProcess process);
 
-	private static final long serialVersionUID = 1L;
-	
 	public AbstractSingleVariableConstraintWithBinaryAtoms(Expression variable, ConstraintTheory constraintTheory) {
 		super(variable, constraintTheory);
+	}
+
+	public AbstractSingleVariableConstraintWithBinaryAtoms(
+			Expression variable,
+			ArrayList<Expression> positiveNormalizedAtoms,
+			ArrayList<Expression> negativeNormalizedAtoms,
+			List<Expression> externalLiterals,
+			ConstraintTheory constraintTheory) {
+		
+		super(variable, positiveNormalizedAtoms, negativeNormalizedAtoms, externalLiterals, constraintTheory);
 	}
 
 	public AbstractSingleVariableConstraintWithBinaryAtoms(AbstractSingleVariableConstraintWithBinaryAtoms other) {
@@ -267,7 +279,8 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtoms extends Ab
 	private long cachedIndexTypeSize = -1;
 
 	/**
-	 * Returns the size of the variable's type.
+	 * Returns the size of the variable's type
+	 * by using {@link GrinderUtil#getTypeCardinality(Expression, RewritingProcess)}.
 	 * @param process
 	 * @return
 	 */
