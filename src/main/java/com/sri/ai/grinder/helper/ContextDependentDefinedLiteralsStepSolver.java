@@ -46,8 +46,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
-import com.sri.ai.util.base.ContinuationIterable;
-import com.sri.ai.util.base.ContinuationIterator;
+import com.sri.ai.util.base.CloneableIterator;
 
 /**
  * A step solver for the context-dependent problem of whether all literals 
@@ -56,8 +55,9 @@ import com.sri.ai.util.base.ContinuationIterator;
  * returning a {@link ItDepends} object indicating the first found non-defined literal,
  * or a {@link Solution} with {@link Expressions#TRUE} if all are defined.
  * <p>
- * For efficiency, the iterable is required to be a {@link ContinuationIterable}
- * so that the sub-step solvers are incremental (start from where this one left off).
+ * For efficiency, the iterable is required to be a {@link CloneableIterator}
+ * so that the same literals are examined for multiple uses of this step solver,
+ * and so that the sub-step solvers are incremental (start from where this one left off).
  * <p>
  * When a non-defined literal is found, the step solver returns a {@link ItDependsOn} object
  * with sub-step solvers that will continue the search next time from the next pair,
@@ -69,40 +69,37 @@ import com.sri.ai.util.base.ContinuationIterator;
 @Beta
 public class ContextDependentDefinedLiteralsStepSolver implements ContextDependentProblemStepSolver {
 
-	private ContinuationIterable<Expression> iterable;
+	private CloneableIterator<Expression> initialIterator;
 	
 	/**
-	 * Creates a step solver that checks whether all literals made by a literal maker on ordered pairs
-	 * of elements in given literal are already defined by the contextual constraint.
+	 * Creates a step solver that checks whether all literals provided by an iterator.
+	 * The iterator must be cloneable so that
+	 * using this step solver different contextual expressions always examines the same literals,
+	 * and also so that sub-step solvers are properly incremental
 	 * @param list
 	 * @param literalMaker
 	 */
-	public ContextDependentDefinedLiteralsStepSolver(ContinuationIterable<Expression> iterable) {
-		this.iterable = iterable;
+	public ContextDependentDefinedLiteralsStepSolver(CloneableIterator<Expression> initialIterator) {
+		this.initialIterator = initialIterator;
 	}
 
 	@Override
 	public ContextDependentProblemStepSolver clone() {
-		try {
-			return (ContextDependentProblemStepSolver) super.clone();
-		} catch (CloneNotSupportedException e) {
-			throw new Error(e.getMessage());
-		}
+		return new ContextDependentDefinedLiteralsStepSolver(initialIterator);
 	}
 
 	@Override
 	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
-		ContinuationIterator<Expression> iterator = iterable.iterator();
+		CloneableIterator<Expression> iterator = initialIterator.clone();
 		while (iterator.hasNext()) {
 			Expression literal = iterator.next();
-			System.out.println("Checking : " + literal);	
+			// System.out.println("Checking : " + literal);	
 			boolean defined =
 					contextualConstraint.implies(literal, process)
 					||
 					contextualConstraint.implies(not(literal), process);
 			if ( ! defined) {
-				ContinuationIterable<Expression> iterableFromNowOn = iterator.makeContinuationIterable();
-				ContextDependentProblemStepSolver stepSolverFromNowOn = new ContextDependentDefinedLiteralsStepSolver(iterableFromNowOn);
+				ContextDependentProblemStepSolver stepSolverFromNowOn = new ContextDependentDefinedLiteralsStepSolver(iterator.clone());
 				return new ItDependsOn(literal, stepSolverFromNowOn, stepSolverFromNowOn);
 			}
 		}

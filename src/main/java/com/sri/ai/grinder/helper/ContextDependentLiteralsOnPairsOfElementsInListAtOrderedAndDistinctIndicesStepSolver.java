@@ -44,10 +44,10 @@ import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.util.base.BinaryFunction;
-import com.sri.ai.util.base.ContinuationIterable;
-import com.sri.ai.util.base.ContinuationIterator;
-import com.sri.ai.util.base.Pair;
-import com.sri.ai.util.collect.ContinuationFunctionIterator;
+import com.sri.ai.util.base.CloneableIterator;
+import com.sri.ai.util.base.OrderedPairsOfIntegersIterator;
+import com.sri.ai.util.base.PairOf;
+import com.sri.ai.util.collect.CloneableFunctionIterator;
 
 /**
  * A step solver for the context-dependent problem of whether all literals formed from pairs
@@ -66,7 +66,7 @@ public class ContextDependentLiteralsOnPairsOfElementsInListAtOrderedAndDistinct
 	private List<Expression> list;
 	private int i;
 	private int j;
-	BinaryFunction<Expression, Expression, Expression> literalMaker;
+	private BinaryFunction<Expression, Expression, Expression> literalMaker;
 	
 	/**
 	 * Creates a step solver that checks whether all literals made by a literal maker on ordered pairs
@@ -85,24 +85,21 @@ public class ContextDependentLiteralsOnPairsOfElementsInListAtOrderedAndDistinct
 	 * @param literalMaker
 	 */
 	public ContextDependentLiteralsOnPairsOfElementsInListAtOrderedAndDistinctIndicesStepSolver(List<Expression> list, int i, int j, BinaryFunction<Expression, Expression, Expression> literalMaker) {
-		super(makeIterable(list, i, j, literalMaker));
+		super(makeIterator(list, i, j, literalMaker));
 		this.list = list; // we only keep those for the sake of clone()
 		this.i = i;
 		this.j = j;
 		this.literalMaker = literalMaker;
 	}
 
-	private static ContinuationIterable<Expression> makeIterable(List<Expression> list, int i, int j, BinaryFunction<Expression, Expression, Expression> literalMaker) {
-		return () -> {
-			ContinuationIterator<Pair<Expression, Expression>> iterator = 
-					new PairsOfElementsInListAtOrderedAndDistinctIndicesIterator<Expression>(list, i, j);
-			Function<Pair<Expression, Expression>, Expression> literalMakerFromPair =
-					(pair) -> literalMaker.apply(pair.first, pair.second);
-			ContinuationIterator<Expression> functionIterator =
-					new ContinuationFunctionIterator<Pair<Expression, Expression>, Expression>(iterator, literalMakerFromPair);
-			return functionIterator;
-			
-		};
+	private static CloneableIterator<Expression> makeIterator(List<Expression> list, int i, int j, BinaryFunction<Expression, Expression, Expression> literalMaker) {
+
+		CloneableIterator<PairOf<Integer>> indicesIterator = new OrderedPairsOfIntegersIterator(list.size(), i, j);
+		Function<PairOf<Integer>, Expression> literalMakerFromIndices =
+				(pair) -> literalMaker.apply(list.get(pair.first), list.get(pair.second));
+		CloneableIterator<Expression> functionIterator =
+				new CloneableFunctionIterator<PairOf<Integer>, Expression>(indicesIterator, literalMakerFromIndices);
+		return functionIterator;
 	}
 
 	@Override
