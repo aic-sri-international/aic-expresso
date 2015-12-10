@@ -79,14 +79,14 @@ public class ModelCountingOfSingleVariablePropositionalConstraintStepSolver exte
 	}
 
 	@Override
-	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(
 			Constraint2 contextualConstraint, RewritingProcess process) {
 		
 		boolean variableIsNotConstrained = 
 				getConstraint().getPositiveNormalizedAtoms().isEmpty() && getConstraint().getNegativeNormalizedAtoms().isEmpty();
 		
-		Expression result = variableIsNotConstrained? TWO : ONE;
+		Expression solutionExpression = variableIsNotConstrained? TWO : ONE;
 		
-		return result;
+		return new Solution(solutionExpression);
 	}
 }

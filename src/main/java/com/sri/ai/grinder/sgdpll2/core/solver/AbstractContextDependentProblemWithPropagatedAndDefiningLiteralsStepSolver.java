@@ -115,6 +115,9 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 		return result;
 	}
 	
+	/**
+	 * A cloning method delegating to super.clone().
+	 */
 	@Override
 	public AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver clone() {
 		try {
@@ -249,7 +252,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	 */
 	protected abstract Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied();
 
-	protected abstract Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint2 contextualConstraint, RewritingProcess process);
+	protected abstract SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint2 contextualConstraint, RewritingProcess process);
 
 	@Override
 	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
@@ -302,7 +305,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 			result = definingLiteralsAreDefinedStep;
 		}
 		else if (definingLiteralsAreDefinedStep.getExpression().equals(TRUE)) {
-			result = new Solution(solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(contextualConstraint, process));
+			result = solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(contextualConstraint, process);
 		}
 		else {
 			throw new Error("Illegal value returned");
@@ -331,7 +334,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 		int literalIndex = initialLiteralToConsiderInInitialClauseToConsiderInPropagatedCNF;
 		for (int clauseIndex = initialClauseToConsiderInPropagatedCNF ;
 				clauseIndex != cnf.size();
-				clauseIndex++, literalIndex = 0) { // unusual!
+				clauseIndex++, literalIndex = 0) { // unusual! See above
 			
 			ArrayList<Expression> clause = cnf.get(clauseIndex);
 			boolean clauseIsSatisfied = false;
@@ -346,11 +349,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 					? makeCopyConsideringPropagatedCNFFromNowOn(clauseIndex, literalIndex)
 							: this;
 					return new ItDependsOn(literal, subStepSolver, subStepSolver); // literal is necessary, but undefined
-					// Note: the "this, this" means: keep using this step solver in both cases of literal being true or false
-					// Step solvers that "already know" if literal is true or false can be placed here for optimization
-					// OPTIMIZATION: instead of returning this, we could look whether some clause is already unsatisfied
-					// OPTIMIZATION: ItDependsOn could carry conjunctions of contextual constraint and literal,
-					// and of contextual constraint and literal negation, back to client for re-use.
+					// OPTIMIZATION: instead of returning the first undefined literal, we could look whether some clause is already unsatisfied
 				case LITERAL_IS_TRUE:
 					clauseIsSatisfied = true; // note that there is no 'break' in this case, so we move on to update the contextual constraint below
 				case LITERAL_IS_FALSE:

@@ -40,6 +40,8 @@ package com.sri.ai.grinder.sgdpll2.theory.equality;
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
+import static com.sri.ai.util.Util.addAll;
+import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.iterator;
 import static com.sri.ai.util.Util.list;
 
@@ -105,6 +107,10 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 	
 	/**
 	 * The number of disequalities from uniquely named constants;
+	 * this field is only accurate if {@link #conjoiningRedundantSignAndNormalizedAtomNeverChangesConstraintInstance()}
+	 * returns true.
+	 * This is because this field is maintained by {@link #destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(boolean, Expression, RewritingProcess)},
+	 * which is invoked only in that case.
 	 */
 	private int numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable;
 
@@ -158,14 +164,6 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 		// and one may ask why not do it as soon as the literal is received, in order to save time.
 		// the reason it is done here is so that we know for sure it is the first disequality
 		// we see against this constant, because those already seen are not re-inserted.
-	}
-	
-	/**
-	 * @return the number of disequalities between the variable and uniquely named constants that have been conjoined to this constraint so far
-	 * (some of these disequalities may have been eliminated by a conjunction with an equality that implies them).
-	 */
-	public int getNumberOfDisequalitiesFromConstantsSeenSoFar() {
-		return numberOfDisequalitiesFromUniquelyNamedConstantsSeenSoFarForThisVariable;
 	}
 	
 	/**
@@ -288,6 +286,14 @@ public class SingleVariableEqualityConstraint extends AbstractSingleVariableCons
 		return getNegativeNormalizedAtoms().stream().
 		map(e -> e.get(1)) // second arguments of Variable != Term
 		.iterator();
+	}
+
+	public ArrayList<Expression> getDisequals() {
+		return addAll(arrayList(), getDisequalsIterator());
+	}
+
+	public int numberOfDisequals() {
+		return getNegativeNormalizedAtoms().size();
 	}
 
 	@Override

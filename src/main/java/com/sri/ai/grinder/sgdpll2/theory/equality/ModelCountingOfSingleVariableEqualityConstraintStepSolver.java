@@ -115,12 +115,12 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 	}
 
 	@Override
-	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(
 			Constraint2 contextualConstraint, RewritingProcess process) {
 		
-		Expression result;
+		Expression solutionExpression;
 		if (getConstraint().getEqualsIterator().hasNext()) { // variable is bound to some value
-			result = ONE;
+			solutionExpression = ONE;
 		}
 		else {
 			long numberOfNonAvailableValues = computeNumberOfUniqueDisequals(contextualConstraint, process);
@@ -128,16 +128,16 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 			if (variableDomainSize == -1) {
 				Expression variableDomain = getConstraint().getVariableTypeExpression(process);
 				Expression variableDomainCardinality = apply(CARDINALITY, variableDomain);
-				result = Minus.make(variableDomainCardinality, makeSymbol(numberOfNonAvailableValues));
+				solutionExpression = Minus.make(variableDomainCardinality, makeSymbol(numberOfNonAvailableValues));
 			}
 			else if (variableDomainSize == -2) {
-				result = makeSymbol("infinity");
+				solutionExpression = makeSymbol("infinity");
 			}
 			else {
-				result = makeSymbol(max(0, variableDomainSize - numberOfNonAvailableValues));
+				solutionExpression = makeSymbol(max(0, variableDomainSize - numberOfNonAvailableValues));
 			}
 		}
-		return result;
+		return new Solution(solutionExpression);
 	}
 
 	private int computeNumberOfUniqueDisequals(Constraint2 contextualConstraint, RewritingProcess process) {

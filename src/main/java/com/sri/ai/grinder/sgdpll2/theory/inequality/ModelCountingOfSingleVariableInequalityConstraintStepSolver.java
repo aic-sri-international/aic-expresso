@@ -450,7 +450,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 	}
 
 	@Override
-	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint2 contextualConstraint, RewritingProcess process) {
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint2 contextualConstraint, RewritingProcess process) {
 		// at this point, the context establishes that one of the strict lower bounds L is greater than all the others,
 		// that one of the non-strict upper bounds U is less than all the others, and that
 		// all disequals are in ]L, U], and are disequal from each other.
@@ -461,9 +461,9 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		
 		Expression leastNonStrictUpperBound = computeLeastNonStrictUpperBound(contextualConstraint, process);
 		
-		Expression result;
+		Expression solutionExpression;
 		if (greatestStrictLowerBound.equals(MINUS_INFINITY) || leastNonStrictUpperBound.equals(INFINITY)) {
-			result = INFINITY;
+			solutionExpression = INFINITY;
 		}
 		else {
 			int numberOfDisequals = computeNumberOfDistinctDisequalsWithinBounds(greatestStrictLowerBound, leastNonStrictUpperBound, contextualConstraint, process);
@@ -471,17 +471,17 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 			ArrayList<Expression> boundsDifferenceAndNumberOfDisequals = arrayList(boundsDifference, makeSymbol(numberOfDisequals));
 			Expression numberOfDistinctDisequalsIsLessThanNumberOfValuedAllowedByBounds = applyAndSimplify(GREATER_THAN, boundsDifferenceAndNumberOfDisequals, process);
 			if ( ! contextualConstraint.implies(numberOfDistinctDisequalsIsLessThanNumberOfValuedAllowedByBounds, process)) {
-				result = ZERO; // there are no available values left
+				solutionExpression = ZERO; // there are no available values left
 			}
 			else if (getEquals().hasNext()) { // if bound to a value
-				result = ONE;
+				solutionExpression = ONE;
 			}
 			else {
-				result = applyAndSimplify(MINUS, boundsDifferenceAndNumberOfDisequals, process);
+				solutionExpression = applyAndSimplify(MINUS, boundsDifferenceAndNumberOfDisequals, process);
 			}
 		}
 
-		return result;
+		return new Solution(solutionExpression);
 	}
 
 	private Expression computeLeastNonStrictUpperBound(Constraint2 contextualConstraint, RewritingProcess process) {

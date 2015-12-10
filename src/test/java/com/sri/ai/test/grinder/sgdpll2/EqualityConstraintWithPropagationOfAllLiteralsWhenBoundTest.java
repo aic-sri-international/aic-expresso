@@ -40,10 +40,10 @@ package com.sri.ai.test.grinder.sgdpll2;
 import com.google.common.annotations.Beta;
 
 @Beta
-public class EqualityConstraintWithPropagationOfAllLiteralsWhenBoundTest {//extends AbstractEqualityConstraintTest {
+public class EqualityConstraintWithPropagationOfAllLiteralsWhenBoundTest extends AbstractEqualityConstraintTest {
 
-//	@Override
-//	protected boolean getPropagateAllLiteralsWhenVariableIsBound() {
-//		return true;
-//	}
+	@Override
+	protected boolean getPropagateAllLiteralsWhenVariableIsBound() {
+		return true;
+	}
 }

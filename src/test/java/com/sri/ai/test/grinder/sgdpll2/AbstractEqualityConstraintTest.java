@@ -42,6 +42,9 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
 import static com.sri.ai.grinder.helper.GrinderUtil.universallyQuantifyFreeVariables;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUIVALENCE;
+import static com.sri.ai.util.Util.arrayList;
+import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.map;
 
 import java.util.Random;
 
@@ -50,6 +53,7 @@ import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
@@ -73,7 +77,7 @@ public abstract class AbstractEqualityConstraintTest {
 	 * Provides a way to regulate which seed to use (or none) for all tests at once.
 	 */
 	private Random makeRandom() {
-		return new Random(2);
+		return new Random();
 	}
 
 	private EqualityConstraintTheory makeConstraintTheory() {
@@ -178,6 +182,24 @@ public abstract class AbstractEqualityConstraintTest {
 			expected = null;
 			runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory);
 		}
+
+		EqualityConstraintTheory constraintTheory2 = makeConstraintTheory();
+		constraintTheory2.setTypesForTesting(list(new Categorical("Type", 1, arrayList(parse("a")))));
+		constraintTheory2.setVariableNamesAndTypeNamesForTesting(map("X", "Type", "Y", "Type"));
+		conjunction = "X != Y";
+		expected = null;
+		runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory2);
+
+		EqualityConstraintTheory constraintTheory3 = makeConstraintTheory();
+		constraintTheory3.setTypesForTesting(list(new Categorical("Type", 2, arrayList(parse("a"), parse("b")))));
+		constraintTheory3.setVariableNamesAndTypeNamesForTesting(map("X", "Type", "Y", "Type"));
+		conjunction = "X != Y and X != a";
+		expected = parse("Y != b and X != a and X != Y");
+		runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory3);
+		
+		conjunction = "X != a and X != b and X != c and X != sometype5 and X != Y";
+		expected = parse("Y != d and X != a and X != b and X != c and X != sometype5 and X != Y and X != Y");
+		runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory);
 		
 		conjunction = "X = a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
 		expected = parse("(W = d) and (Z = c) and (X = a) and (X != Z) and (X != W)");

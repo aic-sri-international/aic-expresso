@@ -57,9 +57,9 @@ import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver.SolutionStep;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.theory.equality.NumberOfDistinctExpressionsIsLessThan;
+import com.sri.ai.grinder.sgdpll2.theory.equality.NumberOfDistinctExpressionsIsLessThanStepSolver;
 
-public class NumberOfDistinctExpressionsIsLessThanTest  {
+public class NumberOfDistinctExpressionsIsLessThanStepSolverTest  {
 	
 	@Test
 	public void test() {
@@ -72,7 +72,7 @@ public class NumberOfDistinctExpressionsIsLessThanTest  {
 		int limit = 5;
 		Constraint2 contextualConstraint = CompleteMultiVariableConstraint.parse(contextualConstraintString, constraintTheory, process);
 		ArrayList<Expression> list = mapIntoArrayList(elementsStrings, Expressions::parse);
-		NumberOfDistinctExpressionsIsLessThan stepSolver = new NumberOfDistinctExpressionsIsLessThan(limit, list);
+		NumberOfDistinctExpressionsIsLessThanStepSolver stepSolver = new NumberOfDistinctExpressionsIsLessThanStepSolver(limit, list);
 
 		SolutionStep step = stepSolver.step(contextualConstraint, process);
 		assertEquals(true, step.itDepends());

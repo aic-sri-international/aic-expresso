@@ -43,7 +43,6 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.boole.Not.not;
-import static com.sri.ai.util.Util.myAssert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +62,7 @@ import com.sri.ai.util.base.PairOf;
  *
  */
 @Beta
-public class NumberOfDistinctExpressionsIsLessThan implements ContextDependentProblemStepSolver {
+public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextDependentProblemStepSolver {
 
 	private int limit;
 	private List<Expression> expressions;
@@ -73,21 +72,19 @@ public class NumberOfDistinctExpressionsIsLessThan implements ContextDependentPr
 	// all expressions after the one indexed by i and before the one indexed by j have been checked to be distinct from the one indexed by i
 	private int numberOfNonUniqueExpressionsSoFar; // number of expressions before the one indexed by i that are equal to some element after it (that is, they don't count towards the number of distinct disequals
 	
-	public NumberOfDistinctExpressionsIsLessThan(int limit, ArrayList<Expression> expressions) {
+	public NumberOfDistinctExpressionsIsLessThanStepSolver(int limit, ArrayList<Expression> expressions) {
 		this(limit, expressions, 0, 1, 0);
 	}
 
-	public NumberOfDistinctExpressionsIsLessThan(int limit, List<Expression> expressions, int i, int j, int numberOfUniqueExpressionsSoFar) {
+	public NumberOfDistinctExpressionsIsLessThanStepSolver(int limit, List<Expression> expressions, int i, int j, int numberOfUniqueExpressionsSoFar) {
 		super();
-		myAssert(() -> i >= 0 && i < expressions.size() - 1, () -> "i must be within [0, expressions.size() - 2], but is " + i + " whereas expressions size is " + expressions.size());
-		myAssert(() -> j >  i && j < expressions.size()    , () -> "j must be within [i + 1, expressions.size() - 1], but is " + j + " whereas expressions size is " + expressions.size());
 		this.limit = limit;
 		this.expressions = expressions;
 		this.initialIndices = new OrderedPairsOfIntegersIterator(expressions.size(), i, j);
 		this.numberOfNonUniqueExpressionsSoFar = numberOfUniqueExpressionsSoFar;
 	}
 
-	public NumberOfDistinctExpressionsIsLessThan(int limit, List<Expression> expressions, OrderedPairsOfIntegersIterator initialIndices, int numberOfUniqueExpressionsSoFar) {
+	private NumberOfDistinctExpressionsIsLessThanStepSolver(int limit, List<Expression> expressions, OrderedPairsOfIntegersIterator initialIndices, int numberOfUniqueExpressionsSoFar) {
 		super();
 		this.limit = limit;
 		this.expressions = expressions;
@@ -97,7 +94,11 @@ public class NumberOfDistinctExpressionsIsLessThan implements ContextDependentPr
 
 	@Override
 	public ContextDependentProblemStepSolver clone() {
-		return new NumberOfDistinctExpressionsIsLessThan(limit, expressions, initialIndices.clone(), numberOfNonUniqueExpressionsSoFar);
+		try {
+			return (ContextDependentProblemStepSolver) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new Error(e);
+		}
 	}
 
 	@Override
@@ -134,14 +135,14 @@ public class NumberOfDistinctExpressionsIsLessThan implements ContextDependentPr
 				// if indexed disequals turn out to be equal, move to the next i and register one more non-unique element
 				OrderedPairsOfIntegersIterator nextInitialIndices = initialIndices.clone(); nextInitialIndices.incrementI(); // note that cloning 'indices' might not work because it may have already just skipped to the next i
 				stepSolverForEquality
-				= new NumberOfDistinctExpressionsIsLessThan(limit, expressions, nextInitialIndices, numberOfNonUniqueExpressionsSoFar + 1);
+				= new NumberOfDistinctExpressionsIsLessThanStepSolver(limit, expressions, nextInitialIndices, numberOfNonUniqueExpressionsSoFar + 1);
 			}
 			
 			if (needStepSolverForDisequality) {
 				// if they turn out to be disequal, keep moving like we did above (move to the next j)
 				OrderedPairsOfIntegersIterator nextInitialIndices = indices;
 				stepSolverForDisequality
-				= new NumberOfDistinctExpressionsIsLessThan(limit, expressions, nextInitialIndices, numberOfNonUniqueExpressionsSoFar);
+				= new NumberOfDistinctExpressionsIsLessThanStepSolver(limit, expressions, nextInitialIndices, numberOfNonUniqueExpressionsSoFar);
 			}
 			
 			if (equalityHolds) {

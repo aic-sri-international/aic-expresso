@@ -108,6 +108,9 @@ import com.sri.ai.util.collect.SubsetsOfKIterator;
 @Beta
 public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends AbstractBooleanProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver {
 
+	private boolean alreadyCheckedIfNumberOfDistinctExpressionsIsLessThanStepSolverShouldBeMade = false;
+	private NumberOfDistinctExpressionsIsLessThanStepSolver numberOfDistinctExpressionsIsLessThanStepSolver;
+	
 	public SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(SingleVariableEqualityConstraint constraint) {
 		super(constraint);
 	}
@@ -115,6 +118,21 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	@Override
 	public SingleVariableEqualityConstraint getConstraint() {
 		return (SingleVariableEqualityConstraint) super.getConstraint();
+	}
+	
+	private NumberOfDistinctExpressionsIsLessThanStepSolver getNumberOfDistinctExpressionsIsLessThanStepSolver(RewritingProcess process) {
+		if ( ! alreadyCheckedIfNumberOfDistinctExpressionsIsLessThanStepSolverShouldBeMade) {
+			long variableTypeSize = getConstraint().getVariableTypeSize(process);
+			if (variableTypeSize >= 0) {
+				numberOfDistinctExpressionsIsLessThanStepSolver = new NumberOfDistinctExpressionsIsLessThanStepSolver((int) variableTypeSize, getConstraint().getDisequals());
+			}
+			alreadyCheckedIfNumberOfDistinctExpressionsIsLessThanStepSolverShouldBeMade = true;
+		}
+		return numberOfDistinctExpressionsIsLessThanStepSolver;
+	}
+
+	private void setNumberOfDistinctExpressionsIsLessThanStepSolver(NumberOfDistinctExpressionsIsLessThanStepSolver numberOfDistinctExpressionsIsLessThanStepSolver) {
+		this.numberOfDistinctExpressionsIsLessThanStepSolver = numberOfDistinctExpressionsIsLessThanStepSolver;
 	}
 	
 	@Override
@@ -163,25 +181,23 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 			// the following logic only holds if the variable is not bound to a uniquely named constants,
 			// since that eliminates all disequalities to other uniquely named constants as redundant
 	
-			ArrayList<Expression> variableDisequals = getVariableDisequals(process);
-	
 			long variableDomainSize = getConstraint().getVariableTypeSize(process);
 			if (variableDomainSize >= 0 &&
-					variableDisequals.size() + getConstraint().getNumberOfDisequalitiesFromConstantsSeenSoFar()
-					>= variableDomainSize) {
+					getConstraint().numberOfDisequals() >= variableDomainSize) {
 				// the following procedure can be very expensive but the condition above will rarely be satisfied
 	
-				Set<Expression> constantDisequals = getConstantDisequals(process);
-	
+				ArrayList<Expression> variableDisequals = getVariableDisequals(process);
+				Set<Expression> uniquelyNamedConstantDisequals = getUniquelyNamedConstantDisequals(process);
+		
 				Expression typeExpression = GrinderUtil.getType(getConstraint().getVariable(), process);
 				Type type = process.getType(typeExpression);
-				ArrayList<Expression> remainingConstants =
-						arrayListFrom(new PredicateIterator(type.iterator(), c -> ! constantDisequals.contains(c)));
+				ArrayList<Expression> remainingUniquelyNamedConstants =
+						arrayListFrom(new PredicateIterator(type.iterator(), c -> ! uniquelyNamedConstantDisequals.contains(c)));
 	
 				CartesianProductIterator<ArrayList<Expression>> subsetOfVariableDisequalsAndRemainingConstantsPermutationIterator
 				= new CartesianProductIterator<ArrayList<Expression>>(
-						() -> new SubsetsOfKIterator<Expression>(variableDisequals, remainingConstants.size()),
-						() -> new PermutationIterator<Expression>(remainingConstants));
+						() -> new SubsetsOfKIterator<Expression>(variableDisequals, remainingUniquelyNamedConstants.size()),
+						() -> new PermutationIterator<Expression>(remainingUniquelyNamedConstants));
 	
 				FunctionIterator<ArrayList<ArrayList<Expression>>, Iterable<Expression>> clausesIterator =
 						FunctionIterator.make(
@@ -197,7 +213,6 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 			}
 		}
 	
-		
 		// otherwise, nothing is implied.
 		return list();
 	}
@@ -240,7 +255,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 		collect(Util.toArrayList(10));
 	}
 
-	private LinkedHashSet<Expression> getConstantDisequals(RewritingProcess process) {
+	private LinkedHashSet<Expression> getUniquelyNamedConstantDisequals(RewritingProcess process) {
 		return getConstraint().getNegativeNormalizedAtoms().stream().
 		map(e -> e.get(1)). // second arguments of Variable != Term
 		filter(e -> process.isUniquelyNamedConstant(e)). // only constants
@@ -249,38 +264,34 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 
 	@Override
 	protected Iterable<Expression> getDefiningLiterals(Constraint2 contextualConstraint, RewritingProcess process) {
-//		Iterable<Expression> result;
-//		if ( ! getConstraint().getPositiveNormalizedAtoms().isEmpty()) {
-//			result = list();
-//		}
-//		else if (getConstraint().getVariableTypeSize(process) < 0) { // size is not a defined number
-//			result = list();
-//		}
-//		else {
-//			int numberOfDisequals = getConstraint().getNegativeNormalizedAtoms().size();
-//			int maxPossibleNumberOfDistinctDisequals = numberOfDisequals;
-//			for (int disequalIndex = 0;
-//					maxPossibleNumberOfDistinctDisequals >= getConstraint().getVariableTypeSize(process)
-//							&& disequalIndex != numberOfDisequals;
-//					disequalIndex++) {
-//				
-//				SolutionStep disequalIsDistinctFromAllOthers
-//				= (new DisequalIsDistinctFromAllOthers(getConstraint().getNegativeNormalizedAtoms())).solve(contextualConstraint, process);
-//				
-//				Expression literalToDecideIfDisequalIsDistinctFromAllOthers =
-//						getLiteralToDecideIfDisequalIsDistinctFromAllOthers(disequalIndex, contextualConstraint);
-//				if (literalToDecideIfDisequalIsDistinctFromAllOthers == null) {
-//					
-//				}
-//				
-//			}
-//			result = list();
-//		}
 		return list();
 	}
 	
 	@Override
-	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint2 contextualConstraint, RewritingProcess process) {
-		return TRUE;
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint2 contextualConstraint, RewritingProcess process) {
+		SolutionStep result;
+		if (getNumberOfDistinctExpressionsIsLessThanStepSolver(process) != null) {
+			SolutionStep numberStep = getNumberOfDistinctExpressionsIsLessThanStepSolver(process).step(contextualConstraint, process);
+			if (numberStep.itDepends()) {
+				SatisfiabilityOfSingleVariableEqualityConstraintStepSolver stepSolverIfExpressionIsTrue = clone();
+				stepSolverIfExpressionIsTrue.setNumberOfDistinctExpressionsIsLessThanStepSolver((NumberOfDistinctExpressionsIsLessThanStepSolver) numberStep.getStepSolverForWhenExpressionIsTrue());
+				
+				SatisfiabilityOfSingleVariableEqualityConstraintStepSolver stepSolverIfExpressionIsFalse = clone();
+				stepSolverIfExpressionIsFalse.setNumberOfDistinctExpressionsIsLessThanStepSolver((NumberOfDistinctExpressionsIsLessThanStepSolver) numberStep.getStepSolverForWhenExpressionIsFalse());
+				
+				result = new ItDependsOn(numberStep.getExpression(), stepSolverIfExpressionIsTrue, stepSolverIfExpressionIsFalse);
+			}
+			else {
+				result = new Solution(numberStep.getExpression());
+			}
+		}
+		else {
+			result = new Solution(TRUE);
+		}
+		return result;
+	}
+	
+	public SatisfiabilityOfSingleVariableEqualityConstraintStepSolver clone() {
+		return (SatisfiabilityOfSingleVariableEqualityConstraintStepSolver) super.clone();
 	}
 }

@@ -295,6 +295,8 @@ public abstract class AbstractSingleVariableConstraint extends AbstractExpressio
 			else {
 				result = conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, process);
 				if (conjoiningRedundantSignAndNormalizedAtomNeverChangesConstraintInstance() && result != this && result != null) {
+					// the condition above guarantees that result is not null and that the "new atom" is indeed new;
+					// if the instance is a new one (not 'this'), then the atom is not redundant.
 					result = result.destructiveUpdateOrNullAfterInsertingNewNormalizedAtom(sign, normalizedAtom, process);
 				}
 			}

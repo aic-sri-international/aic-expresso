@@ -133,17 +133,17 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 		}
 		else if (onlyConstraintOnVariableIsBinding()) {
 			result = conjoinNonTrivialSignAndNormalizedAtomToConstraintWithBoundVariable(sign, normalizedAtom, process);
-			System.out.println("Propagated:");	
-			System.out.println("Original: " + this);	
-			System.out.println("Incoming: " + (sign? normalizedAtom : getConstraintTheory().getLiteralNegation(normalizedAtom, process)));	
-			System.out.println("After   : " + result);	
+//			System.out.println("Propagated:");	
+//			System.out.println("Original: " + this);	
+//			System.out.println("Incoming: " + (sign? normalizedAtom : getConstraintTheory().getLiteralNegation(normalizedAtom, process)));	
+//			System.out.println("After   : " + result);	
 		}
 		else if (sign && normalizedAtom.hasFunctor(EQUALITY)) {
 			result = conjoinNonTrivialNormalizedEqualityToConstraintWithNonBoundVariable(sign, normalizedAtom, process);
-			System.out.println("Propagated:");	
-			System.out.println("Original: " + this);	
-			System.out.println("Incoming: " + (sign? normalizedAtom : getConstraintTheory().getLiteralNegation(normalizedAtom, process)));	
-			System.out.println("After   : " + result);	
+//			System.out.println("Propagated:");	
+//			System.out.println("Original: " + this);	
+//			System.out.println("Incoming: " + (sign? normalizedAtom : getConstraintTheory().getLiteralNegation(normalizedAtom, process)));	
+//			System.out.println("After   : " + result);	
 		}
 		else {
 			result = super.conjoinNonTrivialSignAndNormalizedAtom(sign, normalizedAtom, process);

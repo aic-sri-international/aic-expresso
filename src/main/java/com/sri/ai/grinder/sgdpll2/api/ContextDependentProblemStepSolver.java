@@ -59,16 +59,43 @@ import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentProblemSolver;
 public interface ContextDependentProblemStepSolver extends Cloneable {
 
 	/**
-	 * Cloning is important for this class, because when a problem depends on an expression to be solved
+	 * Cloning is important for this interface, because when a problem depends on an expression to be solved
 	 * the {@link ItDependsOn} solution step will carry within it two sub-step solvers
 	 * to be used on the two branches of the search (one for when the expression is enforced to be true,
 	 * and another for false).
-	 * Initially, a newly constructed step solver would be used, but
+	 * <p>
+	 * While it is correct to just re-use the step solver returning the {@link ItDependsOn} object,
 	 * it would then wastefully check again for all the expressions that had already been enforced true or false
-	 * by its predecessors.
+	 * by the contextual constraint.
 	 * By allowing a step solver to clone itself, we are able to provide sub-step solvers
 	 * that already know when to continue the search from.
-	 * @return
+	 * <p>
+	 * Note also that, instead of clone, we could have a copy constructor or just regular constructors
+	 * receiving state information as parameters.
+	 * However, clone provides more flexibility if one is writing code that manipulates
+	 * {@link ContextDependentProblemStepSolver}s in general, and therefore needs
+	 * a way to create copies without knowing its actual class.
+	 * <p>
+	 * Finally, it is recommended that the implementation of clone be the code below
+	 * unless there is a good reason for doing otherwise.
+	 * It may be more elegant to simply create a clone with one of the class's constructors,
+	 * but this will require extensions of that class to override this method,
+	 * whereas the version below will be reusable by extensions.
+	 * If a different choice is made, the new cloning method should check
+	 * if the instance is not that of an extension, or it should be very clearly documented,
+	 * or the class should be made final.
+	 * <code>
+	 * 	@Override
+	 * 	public ContextDependentProblemStepSolver clone() {
+	 * 		try {
+	 * 			return (ContextDependentProblemStepSolver) super.clone();
+	 * 		} catch (CloneNotSupportedException e) {
+	 * 			throw new Error(e);
+	 * 		}
+	 * 	}
+	 * <code>
+	 * 
+	 * @return a clone of this step solver.
 	 */
 	ContextDependentProblemStepSolver clone();
 	
