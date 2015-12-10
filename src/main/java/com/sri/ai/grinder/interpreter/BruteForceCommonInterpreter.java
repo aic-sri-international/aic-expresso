@@ -169,7 +169,7 @@ public class BruteForceCommonInterpreter extends AbstractCommonInterpreter {
 	}
 
 	public static void main(String[] args) {
-		AbstractConstraintTheoryWithBinaryAtoms testingConstraintTheory = new EqualityConstraintTheory(true, false);
+		AbstractConstraintTheoryWithBinaryAtoms testingConstraintTheory = new EqualityConstraintTheory(true, true);
 		AbstractInterpreter interpreter = new BruteForceCommonInterpreter(testingConstraintTheory, map(parse("Hurrah"), parse("awesome")), true);
 		RewritingProcess process = new DefaultRewritingProcess(null);
 		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(testingConstraintTheory);

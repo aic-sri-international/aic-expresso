@@ -113,7 +113,7 @@ public class ContextDependentProblemSolver {
 		
 		DefaultRewritingProcess process = new DefaultRewritingProcess(null);
 
-		SingleVariableEqualityConstraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, new EqualityConstraintTheory(true, false));
+		SingleVariableEqualityConstraint constraint = new SingleVariableEqualityConstraint(parse("X"), false, new EqualityConstraintTheory(true, true));
 		constraint = constraint.conjoin(parse("X = Y"), process);
 		constraint = constraint.conjoin(parse("X = Z"), process);
 		constraint = constraint.conjoin(parse("X != W"), process);
@@ -121,7 +121,7 @@ public class ContextDependentProblemSolver {
 		
 		ContextDependentProblemStepSolver problem = new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(constraint);
 
-		MultiVariableConstraint contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory(true, false));
+		MultiVariableConstraint contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory(true, true));
 		
 		Expression result = solve(problem, contextualConstraint, process);
 		

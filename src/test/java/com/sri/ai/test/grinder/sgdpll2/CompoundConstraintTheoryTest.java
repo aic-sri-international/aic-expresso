@@ -71,7 +71,7 @@ public class CompoundConstraintTheoryTest {
 
 	private CompoundConstraintTheory makeCompoundConstraintTheory() {
 		return new CompoundConstraintTheory(
-				new EqualityConstraintTheory(true, false),
+				new EqualityConstraintTheory(true, true),
 				// new InequalityConstraintTheory(true), // not efficient enough yet to be included
 				new PropositionalConstraintTheory());
 	}
@@ -86,7 +86,7 @@ public class CompoundConstraintTheoryTest {
 		Constraint2 constraint = new CompleteMultiVariableConstraint(compound);
 		RewritingProcess process = compound.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		constraint = constraint.conjoin(condition, process);
-		Expression expected = parse("not Q and P and (X = Y) and (X = a)");
+		Expression expected = parse("(Y = a) and not Q and P and (X = Y)");
 		assertEquals(expected, constraint);
 		
 		Simplifier interpreter = new SymbolicCommonInterpreterWithLiteralConditioning(compound);
@@ -94,7 +94,7 @@ public class CompoundConstraintTheoryTest {
 				"product({{(on X in SomeType) if X = c then 2 else 3 | X = Y and Y = X and P and not Q and P and X != a and X != b}})");
 		process.putGlobalObject(SymbolicCommonInterpreterWithLiteralConditioning.INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(compound));
 		Expression result = interpreter.apply(input, process);
-		Expression expectedProduct = parse("if P then if not Q then if Y = c then 2 else if Y != a then if Y != b then 3 else 1 else 1 else 1 else 1");
+		Expression expectedProduct = parse("if P then if not Q then if not (Y = a) then if not (Y = b) then if Y = c then 2 else 3 else 1 else 1 else 1 else 1");
 		assertEquals(expectedProduct, result);
 	}
 	
@@ -198,7 +198,7 @@ public class CompoundConstraintTheoryTest {
 		runCompleteSatisfiabilityTest(conjunction, expected, variableNamesAndTypeNamesForTesting);
 		
 		conjunction = "X = a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
-		expected = parse("(W = d) and (Z = c) and (X = a) and (X != Z) and (X != W)");
+		expected = parse("(W = d) and (Z = c) and (X = a)");
 		runCompleteSatisfiabilityTest(conjunction, expected, variableNamesAndTypeNamesForTesting);
 	}
 
@@ -207,7 +207,7 @@ public class CompoundConstraintTheoryTest {
 	 * @param expected
 	 */
 	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, Map<String, String> variableNamesAndTypeNamesForTesting) {
-		AbstractConstraintTheoryWithBinaryAtoms equalityTheory = new EqualityConstraintTheory(true, false);
+		AbstractConstraintTheoryWithBinaryAtoms equalityTheory = new EqualityConstraintTheory(true, true);
 		equalityTheory.setVariableNamesAndTypeNamesForTesting(variableNamesAndTypeNamesForTesting);
 		ConstraintTheory constraintTheory = new CompoundConstraintTheory(equalityTheory, new PropositionalConstraintTheory());
 		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);

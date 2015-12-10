@@ -80,7 +80,7 @@ public class SymbolicShell {
 		SymbolicCommonInterpreter evaluator =
 				new SymbolicCommonInterpreterWithLiteralConditioning(
 						new CompoundConstraintTheory(
-								new EqualityConstraintTheory(false, false),
+								new EqualityConstraintTheory(false, true),
 								new InequalityConstraintTheory(false, false),
 								new PropositionalConstraintTheory()));
 		

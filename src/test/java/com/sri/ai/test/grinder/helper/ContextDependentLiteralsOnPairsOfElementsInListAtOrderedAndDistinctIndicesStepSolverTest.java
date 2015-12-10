@@ -66,7 +66,7 @@ public class ContextDependentLiteralsOnPairsOfElementsInListAtOrderedAndDistinct
 	@Test
 	public void test() {
 		
-		EqualityConstraintTheory constraintTheory = new EqualityConstraintTheory(true, false);
+		EqualityConstraintTheory constraintTheory = new EqualityConstraintTheory(true, true);
 		RewritingProcess process = constraintTheory.makeRewritingProcessWithTestingInformation();
 		
 		String contextualConstraintString = "X != Y and X != a and X != b and Y != b";
