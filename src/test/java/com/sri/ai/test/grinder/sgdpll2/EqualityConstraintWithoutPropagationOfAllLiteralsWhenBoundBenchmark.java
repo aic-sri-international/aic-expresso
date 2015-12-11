@@ -42,11 +42,11 @@ import java.util.Random;
 import com.google.common.annotations.Beta;
 
 @Beta
-public class EqualityConstraintWithoutPropagationOfAllLiteralsWhenBoundTest extends AbstractEqualityConstraintTest {
+public class EqualityConstraintWithoutPropagationOfAllLiteralsWhenBoundBenchmark extends AbstractEqualityConstraintTest {
 
 	@Override
 	public Random makeRandom() {
-		return new Random();
+		return new Random(0);
 	}
 	
 	@Override

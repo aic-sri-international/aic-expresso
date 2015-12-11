@@ -79,7 +79,13 @@ public class ContextDependentProblemSolver {
 		}
 		else if (step.itDepends()) {
 			Expression splitter = step.getExpression();
-			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, splitter, process);
+			ConstraintSplitting split;
+			if (step.getConstraintSplitting() != null) {
+				split = step.getConstraintSplitting();
+			}
+			else {
+				split = new ConstraintSplitting(contextualConstraint, splitter, process);
+			}
 			switch (split.getResult()) {
 			case CONSTRAINT_IS_CONTRADICTORY:
 				return null;

@@ -152,7 +152,7 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 				return stepSolverForDisequality.step(contextualConstraint, process);
 			}
 			else {
-				return new ItDependsOn(equality, stepSolverForEquality, stepSolverForDisequality);
+				return new ItDependsOn(equality, null, stepSolverForEquality, stepSolverForDisequality);
 			}
 		}
 		// went over all pairs

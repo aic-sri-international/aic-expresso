@@ -78,7 +78,7 @@ public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implem
 		SolutionStep modelCountingStep = modelCounting.step(contextualConstraint, process);
 		if (modelCountingStep.itDepends()) {
 			// satisfiability depends on the same expression, but sub-step solvers are clones of satisfiability step solver.
-			result = new ItDependsOn(modelCountingStep.getExpression(), clone(), clone());
+			result = new ItDependsOn(modelCountingStep.getExpression(), modelCountingStep.getConstraintSplitting(), clone(), clone());
 		}
 		else {
 			Expression satisfiable;

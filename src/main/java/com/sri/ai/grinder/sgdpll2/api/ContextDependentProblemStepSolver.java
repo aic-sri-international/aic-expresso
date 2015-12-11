@@ -40,6 +40,7 @@ package com.sri.ai.grinder.sgdpll2.api;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentProblemSolver;
 
 /**
@@ -124,6 +125,14 @@ public interface ContextDependentProblemStepSolver extends Cloneable {
 		 * @return
 		 */
 		ContextDependentProblemStepSolver getStepSolverForWhenExpressionIsFalse();
+		
+		/**
+		 * For solutions depending on a split, provides the constraint splitting
+		 * for the contextual constraint and literal used, if available,
+		 * or null otherwise.
+		 * @return
+		 */
+		ConstraintSplitting getConstraintSplitting();
 	}
 	
 	/**
@@ -168,6 +177,7 @@ public interface ContextDependentProblemStepSolver extends Cloneable {
 	
 	public static class ItDependsOn extends AbstractSolutionStep {
 
+		private ConstraintSplitting constraintSplitting;
 		private ContextDependentProblemStepSolver stepSolverIfExpressionIsTrue;
 		private ContextDependentProblemStepSolver stepSolverIfExpressionIsFalse;
 		
@@ -182,8 +192,13 @@ public interface ContextDependentProblemStepSolver extends Cloneable {
 		 * @param stepSolverIfExpressionIsTrue
 		 * @param stepSolverIfExpressionIsFalse
 		 */
-		public ItDependsOn(Expression expression, ContextDependentProblemStepSolver stepSolverIfExpressionIsTrue, ContextDependentProblemStepSolver stepSolverIfExpressionIsFalse) {
+		public ItDependsOn(
+				Expression expression,
+				ConstraintSplitting constraintSplitting,
+				ContextDependentProblemStepSolver stepSolverIfExpressionIsTrue,
+				ContextDependentProblemStepSolver stepSolverIfExpressionIsFalse) {
 			super(expression);
+			this.constraintSplitting = constraintSplitting;
 			this.stepSolverIfExpressionIsTrue  = stepSolverIfExpressionIsTrue;
 			this.stepSolverIfExpressionIsFalse = stepSolverIfExpressionIsFalse;
 		}
@@ -191,6 +206,11 @@ public interface ContextDependentProblemStepSolver extends Cloneable {
 		@Override
 		public boolean itDepends() {
 			return true;
+		}
+
+		@Override
+		public ConstraintSplitting getConstraintSplitting() {
+			return constraintSplitting;
 		}
 
 		@Override
@@ -234,6 +254,11 @@ public interface ContextDependentProblemStepSolver extends Cloneable {
 		@Override
 		public ContextDependentProblemStepSolver getStepSolverForWhenExpressionIsFalse() {
 			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
+		}
+
+		@Override
+		public ConstraintSplitting getConstraintSplitting() {
+			return null;
 		}
 	}
 }

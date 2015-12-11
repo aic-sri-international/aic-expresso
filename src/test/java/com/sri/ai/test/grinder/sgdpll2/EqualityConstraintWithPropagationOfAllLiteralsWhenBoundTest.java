@@ -37,11 +37,18 @@
  */
 package com.sri.ai.test.grinder.sgdpll2;
 
+import java.util.Random;
+
 import com.google.common.annotations.Beta;
 
 @Beta
 public class EqualityConstraintWithPropagationOfAllLiteralsWhenBoundTest extends AbstractEqualityConstraintTest {
 
+	@Override
+	public Random makeRandom() {
+		return new Random();
+	}
+	
 	@Override
 	protected boolean getPropagateAllLiteralsWhenVariableIsBound() {
 		return true;

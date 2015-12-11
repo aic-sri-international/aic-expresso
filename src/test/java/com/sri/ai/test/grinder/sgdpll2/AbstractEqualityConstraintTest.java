@@ -76,9 +76,10 @@ public abstract class AbstractEqualityConstraintTest {
 	/**
 	 * Provides a way to regulate which seed to use (or none) for all tests at once.
 	 */
-	private Random makeRandom() {
+	protected Random makeRandom() {
 		return new Random();
 	}
+	
 
 	private EqualityConstraintTheory makeConstraintTheory() {
 		return new EqualityConstraintTheory(true, getPropagateAllLiteralsWhenVariableIsBound());

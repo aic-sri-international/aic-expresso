@@ -348,7 +348,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 					= MAKE_SUB_STEP_SOLVERS_THAT_START_TO_CHECK_PROPAGATED_CNF_FROM_WHERE_THIS_ONE_LEFT_OFF
 					? makeCopyConsideringPropagatedCNFFromNowOn(clauseIndex, literalIndex)
 							: this;
-					return new ItDependsOn(literal, subStepSolver, subStepSolver); // literal is necessary, but undefined
+					return new ItDependsOn(literal, contextualConstraintSplitting, subStepSolver, subStepSolver); // literal is necessary, but undefined
 					// OPTIMIZATION: instead of returning the first undefined literal, we could look whether some clause is already unsatisfied
 				case LITERAL_IS_TRUE:
 					clauseIsSatisfied = true; // note that there is no 'break' in this case, so we move on to update the contextual constraint below
@@ -390,7 +390,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 
 			switch (contextualConstraintSplitting.getResult()) {
 			case LITERAL_IS_UNDEFINED:
-				return new ItDependsOn(literal, clone(), clone()); // necessary but undefined
+				return new ItDependsOn(literal, contextualConstraintSplitting, clone(), clone()); // necessary but undefined
 				// OPTIMIZATION: ItDependsOn could carry conjunctions of contextual constraint and literal,
 				// and of contextual constraint and literal negation, back to client for re-use.
 			case LITERAL_IS_FALSE:

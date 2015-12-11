@@ -100,7 +100,7 @@ public class ContextDependentDefinedLiteralsStepSolver implements ContextDepende
 					contextualConstraint.implies(not(literal), process);
 			if ( ! defined) {
 				ContextDependentProblemStepSolver stepSolverFromNowOn = new ContextDependentDefinedLiteralsStepSolver(iterator.clone());
-				return new ItDependsOn(literal, stepSolverFromNowOn, stepSolverFromNowOn);
+				return new ItDependsOn(literal, null, stepSolverFromNowOn, stepSolverFromNowOn);
 			}
 		}
 		
