@@ -38,7 +38,6 @@
 package com.sri.ai.grinder.helper;
 
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.grinder.library.boole.Not.not;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -46,6 +45,7 @@ import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 import com.sri.ai.util.base.CloneableIterator;
 
 /**
@@ -94,13 +94,18 @@ public class ContextDependentDefinedLiteralsStepSolver implements ContextDepende
 		while (iterator.hasNext()) {
 			Expression literal = iterator.next();
 			// System.out.println("Checking : " + literal);	
-			boolean defined =
-					contextualConstraint.implies(literal, process)
-					||
-					contextualConstraint.implies(not(literal), process);
-			if ( ! defined) {
+			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, literal, process);
+			switch (split.getResult()) {
+			case CONSTRAINT_IS_CONTRADICTORY:
+				return null;
+			case LITERAL_IS_UNDEFINED:
 				ContextDependentProblemStepSolver stepSolverFromNowOn = new ContextDependentDefinedLiteralsStepSolver(iterator.clone());
-				return new ItDependsOn(literal, null, stepSolverFromNowOn, stepSolverFromNowOn);
+				return new ItDependsOn(literal, split, stepSolverFromNowOn, stepSolverFromNowOn);
+			case LITERAL_IS_TRUE:
+			case LITERAL_IS_FALSE:
+				break; // move on to next literal
+			default:
+				throw new Error("Undefined value for constraint splitting result: " + split.getResult());
 			}
 		}
 		

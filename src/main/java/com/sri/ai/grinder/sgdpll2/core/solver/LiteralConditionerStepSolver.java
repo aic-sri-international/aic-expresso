@@ -1,6 +1,6 @@
 package com.sri.ai.grinder.sgdpll2.core.solver;
 
-import static com.sri.ai.util.Util.getFirstNonNullResultOrNull;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.util.Util.myAssert;
 
 import com.google.common.annotations.Beta;
@@ -72,56 +72,61 @@ public class LiteralConditionerStepSolver implements ContextDependentProblemStep
 
 	@Override
 	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
+
 		SolutionStep result;
+		
+		SolutionStep stepAllLiteralsAreDefined = getSolutionStepForWhetherAllLiteralsAreDefined(expression, contextualConstraint, process);
 
-			Expression literalInExpression = getNonDefinedLiteral(expression, contextualConstraint, process);
-
-			if (literalInExpression != null) {
-				result = new ItDependsOn(literalInExpression, null, clone(), clone());
-			}
-			else {
-				Expression literalFreeExpression = simplifyGivenContextualConstraint(expression, contextualConstraint, process);
-				result = stepGivenLiteralFreeExpression(literalFreeExpression, contextualConstraint, process);
-			}
+		if (stepAllLiteralsAreDefined == null) {
+			result = null;
+		}
+		else if (stepAllLiteralsAreDefined.itDepends()){
+			result = stepAllLiteralsAreDefined;
+		}
+		else {// must be Solution(TRUE)
+			Expression literalFreeExpression = simplifyGivenContextualConstraint(expression, contextualConstraint, process);
+			result = stepGivenLiteralFreeExpression(literalFreeExpression, contextualConstraint, process);
+		}
 
 		return result;
 	}
 
 	/**
-	 * Returns a literal in an expression not implied by contextual constraint,
-	 * or <code>null</code> if there is none.
+	 * Returns a solution step towards defining all literals in expression,
+	 * or null if contextual constraint is found inconsistent,
+	 * or new Solution(TRUE) if all literals are defined.
 	 * @param expression an expression
 	 * @param contextualConstraint a contextual constraint
 	 * @param process a rewriting process
-	 * @return a literal in the expression, which value is not implied by contextual constraint,
-	 * or <code>null</code> if there is none.
+	 * @return a solution step towards defining all literals in expression,
+	 * or null if contextual constraint is found inconsistent,
+	 * or new Solution(TRUE) if all literals are defined
 	 */
-	private Expression getNonDefinedLiteral(Expression expression, Constraint2 contextualConstraint, RewritingProcess process) {
-		Expression result;
-		if (isNonDefinedLiteral(expression, contextualConstraint, process)) {
-			result = expression;
-		}
-		else {
-			myAssert(
-					() -> expression.getSyntacticFormType().equals("Function application") || expression.getSyntacticFormType().equals("Symbol"),
-					() -> this.getClass() + ": applies to function applications or symbols only, but got " + expression );
-			
-			result = getFirstNonNullResultOrNull(
-					expression.getSubExpressions(),
-					s -> getNonDefinedLiteral(s, contextualConstraint, process));
-		}
-		return result;
-	}
-
-	private boolean isNonDefinedLiteral(Expression expression, Constraint2 contextualConstraint, RewritingProcess process) {
+	private SolutionStep getSolutionStepForWhetherAllLiteralsAreDefined(Expression expression, Constraint2 contextualConstraint, RewritingProcess process) {
 		if (contextualConstraint.getConstraintTheory().isLiteral(expression, process)) {
 			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, expression, process);
-			boolean undefined = split.getResult() == ConstraintSplitting.Result.LITERAL_IS_UNDEFINED;
-			return undefined;
+			if (split.getResult() == ConstraintSplitting.Result.CONSTRAINT_IS_CONTRADICTORY) {
+				return null;
+			}
+			else if (split.getResult() == ConstraintSplitting.Result.LITERAL_IS_UNDEFINED) {
+				return new ItDependsOn(expression, split, clone(), clone());
+			}
 		}
-		else {
-			return false;
+
+		myAssert(
+				() -> expression.getSyntacticFormType().equals("Function application") || expression.getSyntacticFormType().equals("Symbol"),
+				() -> this.getClass() + ": applies to function applications or symbols only, but got " + expression );
+
+		// the search below used to be done with Util.getFirstNonNullResultOrNull, but once we started to take null solution steps into account, it was impossible to use that and differentiate between null solution steps, or null for not satisfying the predicate
+		for (Expression subExpression : expression.getSubExpressions()) {
+			SolutionStep subSolutionStep =
+					getSolutionStepForWhetherAllLiteralsAreDefined(subExpression, contextualConstraint, process);
+			if (subSolutionStep == null || subSolutionStep.itDepends()) {
+				return subSolutionStep;
+			}
 		}
+		
+		return new Solution(TRUE);
 	}
 
 	/**
