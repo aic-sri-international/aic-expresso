@@ -143,15 +143,23 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	@Override
 	protected Iterable<Expression> getPropagatedLiterals(RewritingProcess process) {
 		
-		Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator = pairsOfEqualsToVariableIterator();
-		Iterator<Expression> propagatedEqualities = functionIterator(pairsOfEqualsToVariableIterator, p -> Equality.make(p.first, p.second));
-		
-		Iterator<Expression> propagatedDisequalities =
-				functionIterator(arrayListsOfEqualAndDisequalToVariableIterator(), p -> apply(DISEQUALITY, p));
-		
-		Iterator<Expression> propagatedLiteralsIterator =
-				new NestedIterator<>(getConstraint().getExternalLiterals(), propagatedEqualities, propagatedDisequalities);
+		Iterator<Expression> propagatedLiteralsIterator;
 
+		if (getConstraint().getPropagateAllLiteralsWhenVariableIsBound()) {
+			propagatedLiteralsIterator = new NestedIterator<>(getConstraint().getExternalLiterals());
+		}
+		else {
+			
+			Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator = pairsOfEqualsToVariableIterator();
+			Iterator<Expression> propagatedEqualities = functionIterator(pairsOfEqualsToVariableIterator, p -> Equality.make(p.first, p.second));
+
+			Iterator<Expression> propagatedDisequalities =
+					functionIterator(arrayListsOfEqualAndDisequalToVariableIterator(), p -> apply(DISEQUALITY, p));
+
+			propagatedLiteralsIterator =
+					new NestedIterator<>(getConstraint().getExternalLiterals(), propagatedEqualities, propagatedDisequalities);
+		}
+	
 		Iterable<Expression> result = in(propagatedLiteralsIterator);
 		
 		return result;
