@@ -49,13 +49,19 @@ import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
 
 @Beta
-public class PropositionalConstraintTest {
+public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
+
+	@Override
+	public PropositionalConstraintTheory makeConstraintTheory() {
+		return new PropositionalConstraintTheory();
+	}
 
 	@Test
 	public void testSingleVariableConstraints() {
 		ConstraintTheoryTester.testSingleVariableConstraints(
 				new Random(),
-				new PropositionalConstraintTheory(),
+				getTestAgainstBruteForce(),
+				makeConstraintTheory(),
 				30 /* number of tests - only literals are P and not P, and 3 tests already create all cases */,
 				2 /* number of literals per test */,
 				true /* output count */);
@@ -65,7 +71,8 @@ public class PropositionalConstraintTest {
 	public void testMultiVariableConstraints() {
 		ConstraintTheoryTester.testMultiVariableConstraints(
 				new Random(),
-				new PropositionalConstraintTheory(),
+				getTestAgainstBruteForce(),
+				makeConstraintTheory(),
 				100 /* number of tests - many more possibilities when we have multiple variables */,
 				10 /* number of literals per test */,
 				true /* output count */);
@@ -75,7 +82,8 @@ public class PropositionalConstraintTest {
 	public void testModelCountingForSingleVariableConstraints() {
 		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
 				new Random(),
-				new PropositionalConstraintTheory(),
+				getTestAgainstBruteForce(),
+				makeConstraintTheory(),
 				100 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -87,8 +95,9 @@ public class PropositionalConstraintTest {
 		
 		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
 				new Random(),
+				getTestAgainstBruteForce(),
 				new Sum(),
-				new PropositionalConstraintTheory(),
+				makeConstraintTheory(),
 				100 /* number of tests */,
 				30 /* number of literals per test */,
 				3, /* body depth */
@@ -101,8 +110,9 @@ public class PropositionalConstraintTest {
 		
 		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
 				new Random(),
+				getTestAgainstBruteForce(),
 				new Max(),
-				new PropositionalConstraintTheory(),
+				makeConstraintTheory(),
 				100 /* number of tests */,
 				30 /* number of literals per test */,
 				3, /* body depth */
@@ -113,7 +123,8 @@ public class PropositionalConstraintTest {
 	public void testCompleteMultiVariableConstraints() {
 		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
 				new Random(),
-				new PropositionalConstraintTheory(),
+				getTestAgainstBruteForce(),
+				makeConstraintTheory(),
 				100 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);

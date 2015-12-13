@@ -67,19 +67,28 @@ import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
 
 @Beta
-public class CompoundConstraintTheoryTest {
+public class CompoundConstraintTheoryTest extends AbstractConstraintTheoryTest {
 
-	private CompoundConstraintTheory makeCompoundConstraintTheory() {
+	@Override
+	protected CompoundConstraintTheory makeConstraintTheory() {
 		return new CompoundConstraintTheory(
 				new EqualityConstraintTheory(true, true),
 				// new InequalityConstraintTheory(true), // not efficient enough yet to be included
 				new PropositionalConstraintTheory());
 	}
+	
+	/**
+	 * Indicates whether correctness should be checked against brute-force methods when possible.
+	 * @return
+	 */
+	protected boolean getTestAgainstBruteForce() {
+		return true;
+	}
 
 	@Test
 	public void basicTests() {
 		
-		ConstraintTheory compound = makeCompoundConstraintTheory();
+		ConstraintTheory compound = makeConstraintTheory();
 		
 		Expression condition = parse("X = Y and Y = X and P and not Q and P and X = a and X != b");
 		
@@ -104,7 +113,8 @@ public class CompoundConstraintTheoryTest {
 
 		ConstraintTheoryTester.testSingleVariableConstraints(
 				new Random(),
-				makeCompoundConstraintTheory(),
+				getTestAgainstBruteForce(),
+				makeConstraintTheory(),
 				100 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -116,7 +126,8 @@ public class CompoundConstraintTheoryTest {
 
 		ConstraintTheoryTester.testMultiVariableConstraints(
 				new Random(),
-				makeCompoundConstraintTheory(),
+				getTestAgainstBruteForce(),
+				makeConstraintTheory(),
 				300 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -128,7 +139,8 @@ public class CompoundConstraintTheoryTest {
 
 		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
 				new Random(),
-				makeCompoundConstraintTheory(),
+				getTestAgainstBruteForce(),
+				makeConstraintTheory(),
 				200 /* number of tests */,
 				50 /* number of literals per test */,
 				true /* output count */);
@@ -140,7 +152,8 @@ public class CompoundConstraintTheoryTest {
 
 		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
 				new Random(),
-				makeCompoundConstraintTheory(),
+				getTestAgainstBruteForce(),
+				makeConstraintTheory(),
 				200 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -152,8 +165,9 @@ public class CompoundConstraintTheoryTest {
 		
 		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
 				new Random(),
+				getTestAgainstBruteForce(),
 				new Sum(),
-				makeCompoundConstraintTheory(),
+				makeConstraintTheory(),
 				10 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
@@ -166,8 +180,9 @@ public class CompoundConstraintTheoryTest {
 		
 		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
 				new Random(),
+				getTestAgainstBruteForce(),
 				new Max(),
-				makeCompoundConstraintTheory(),
+				makeConstraintTheory(),
 				10 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
@@ -217,5 +232,4 @@ public class CompoundConstraintTheoryTest {
 		}
 		assertEquals(expected, constraint);
 	}
-	
 }

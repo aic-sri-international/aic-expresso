@@ -46,8 +46,6 @@ import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 
-import java.util.Random;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -69,19 +67,12 @@ import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstraint;
 
 @Beta
-public abstract class AbstractEqualityConstraintTest {
+public abstract class AbstractEqualityConstraintTest extends AbstractConstraintTheoryTest {
 
 	abstract protected boolean getPropagateAllLiteralsWhenVariableIsBound();
 	
-	/**
-	 * Provides a way to regulate which seed to use (or none) for all tests at once.
-	 */
-	protected Random makeRandom() {
-		return new Random();
-	}
-	
-
-	private EqualityConstraintTheory makeConstraintTheory() {
+	@Override
+	protected EqualityConstraintTheory makeConstraintTheory() {
 		return new EqualityConstraintTheory(true, getPropagateAllLiteralsWhenVariableIsBound());
 	}
 
@@ -89,6 +80,7 @@ public abstract class AbstractEqualityConstraintTest {
 	public void testSingleVariableConstraints() {
 		ConstraintTheoryTester.testSingleVariableConstraints(
 				makeRandom(),
+				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
 				100 /* number of tests */,
 				30 /* number of literals per test */,
@@ -99,6 +91,7 @@ public abstract class AbstractEqualityConstraintTest {
 	public void testMultiVariableConstraints() {
 		ConstraintTheoryTester.testMultiVariableConstraints(
 				makeRandom(),
+				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
 				500 /* number of tests */,
 				30 /* number of literals per test */,
@@ -109,6 +102,7 @@ public abstract class AbstractEqualityConstraintTest {
 	public void testCompleteMultiVariableConstraints() {
 		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
 				makeRandom(),
+				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
 				200 /* number of tests */,
 				50 /* number of literals per test */,
@@ -119,6 +113,7 @@ public abstract class AbstractEqualityConstraintTest {
 	public void testModelCountingForSingleVariableConstraints() {
 		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
 				makeRandom(),
+				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
 				200 /* number of tests */,
 				30 /* number of literals per test */,
@@ -131,6 +126,7 @@ public abstract class AbstractEqualityConstraintTest {
 		
 		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
 				makeRandom(),
+				getTestAgainstBruteForce(),
 				new Sum(),
 				makeConstraintTheory(),
 				10 /* number of tests */,
@@ -145,6 +141,7 @@ public abstract class AbstractEqualityConstraintTest {
 		
 		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
 				makeRandom(),
+				getTestAgainstBruteForce(),
 				new Max(),
 				makeConstraintTheory(),
 				200 /* number of tests */,

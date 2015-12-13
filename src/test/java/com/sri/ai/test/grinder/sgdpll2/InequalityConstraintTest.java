@@ -43,13 +43,17 @@ import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.plaindpll.problemtype.Max;
-import com.sri.ai.grinder.plaindpll.problemtype.Sum;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 import com.sri.ai.grinder.sgdpll2.theory.inequality.InequalityConstraintTheory;
 
 @Beta
-public class InequalityConstraintTest {
+public class InequalityConstraintTest extends AbstractConstraintTheoryTest {
+
+	@Override
+	protected ConstraintTheory makeConstraintTheory() {
+		return new InequalityConstraintTheory(true, false);
+	}
 
 	@Test
 	public void testSingleVariableConstraints() {
@@ -57,7 +61,8 @@ public class InequalityConstraintTest {
 
 		ConstraintTheoryTester.testSingleVariableConstraints(
 				new Random(),
-				new InequalityConstraintTheory(true, false),
+				getTestAgainstBruteForce(),
+				makeConstraintTheory(),
 				500 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -69,7 +74,8 @@ public class InequalityConstraintTest {
 
 		ConstraintTheoryTester.testMultiVariableConstraints(
 				new Random(),
-				new InequalityConstraintTheory(true, false),
+				getTestAgainstBruteForce(),
+				makeConstraintTheory(),
 				500 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
@@ -83,7 +89,8 @@ public class InequalityConstraintTest {
 
 		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
 				new Random(),
-				new InequalityConstraintTheory(true, false),
+				getTestAgainstBruteForce(),
+				makeConstraintTheory(),
 				100 /* number of tests */,
 				50 /* number of literals per test */,
 				true /* output count */);
@@ -95,8 +102,8 @@ public class InequalityConstraintTest {
 //
 //		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
 //				new Random(),
-//				new InequalityConstraintTheory(true, false),
-//				100 /* number of tests */,
+//				makeConstraintTheory(),
+// 				100 /* number of tests */,
 //				30 /* number of literals per test */,
 //				true /* output count */);
 //	}
@@ -108,7 +115,7 @@ public class InequalityConstraintTest {
 //		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
 //				new Random(),
 //				new Sum(),
-//				new InequalityConstraintTheory(true, false),
+//				makeConstraintTheory(),
 //				10 /* number of tests */,
 //				20 /* number of literals per test */,
 //				3, /* body depth */
@@ -122,7 +129,7 @@ public class InequalityConstraintTest {
 //		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
 //				new Random(), // use seed 2 and body depth 1 for problem 22 taking very long
 //				new Max(),
-//				new InequalityConstraintTheory(true, false),
+//	            makeConstraintTheory(),
 //				10 /* number of tests */,
 //				20 /* number of literals per test */,
 //				3, /* body depth */

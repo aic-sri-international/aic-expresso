@@ -101,10 +101,10 @@ public class ConstraintTheoryTester {
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
-	public static long measureTimeSingleVariableConstraints(Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+	public static long measureTimeSingleVariableConstraints(Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
 		long start = System.currentTimeMillis();
-		testSingleVariableConstraints(random, constraintTheory, numberOfTests, maxNumberOfLiterals, outputCount, false /* no correctness test */);
+		testSingleVariableConstraints(random, testAgainstBruteForce, constraintTheory, numberOfTests, maxNumberOfLiterals, outputCount, false /* no correctness test */);
 		long result = System.currentTimeMillis() - start;
 		if (outputCount) {
 			System.out.println("Total time: " + result + " ms.");
@@ -124,12 +124,12 @@ public class ConstraintTheoryTester {
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
-	public static void testSingleVariableConstraints(Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
-		testSingleVariableConstraints(random, constraintTheory, numberOfTests, maxNumberOfLiterals, true /* correctness test */, outputCount);
+	public static void testSingleVariableConstraints(Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+		testSingleVariableConstraints(random, testAgainstBruteForce, constraintTheory, numberOfTests, maxNumberOfLiterals, true /* correctness test */, outputCount);
 	}
 	
 	private static void testSingleVariableConstraints(
-			Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
+			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
@@ -143,7 +143,7 @@ public class ConstraintTheoryTester {
 		
 		String problemName = (isComplete? "complete" : "incomplete") + " satisfiability for single-variable constraints";
 		
-		runAllTests(random, problemName, tester, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
+		runAllTests(random, problemName, tester, testAgainstBruteForce, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
 	}
 
 	/**
@@ -158,12 +158,12 @@ public class ConstraintTheoryTester {
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
-	public static void testMultiVariableConstraints(Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
-		testMultiVariableConstraints(random, constraintTheory, numberOfTests, maxNumberOfLiterals, true /* correctness test */, outputCount);
+	public static void testMultiVariableConstraints(Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+		testMultiVariableConstraints(random, testAgainstBruteForce, constraintTheory, numberOfTests, maxNumberOfLiterals, true /* correctness test */, outputCount);
 	}
 	
 	private static void testMultiVariableConstraints(
-			Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
+			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
 		NullaryFunction<Constraint2> makeConstraint = () -> new DefaultMultiVariableConstraint(constraintTheory);
 
@@ -173,7 +173,7 @@ public class ConstraintTheoryTester {
 
 		TestRunner tester = ConstraintTheoryTester::testIncompleteSatisfiability; // DefaultMultiVariableConstraint is incomplete
 		
-		runAllTests(random, "incomplete satisfiability", tester, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
+		runAllTests(random, "incomplete satisfiability", tester, testAgainstBruteForce, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
 	}
 
 	/**
@@ -188,12 +188,12 @@ public class ConstraintTheoryTester {
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
-	public static void testCompleteMultiVariableConstraints(Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
-		testCompleteMultiVariableConstraints(random, constraintTheory, numberOfTests, maxNumberOfLiterals, true /* correctness test */, outputCount);
+	public static void testCompleteMultiVariableConstraints(Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+		testCompleteMultiVariableConstraints(random, testAgainstBruteForce, constraintTheory, numberOfTests, maxNumberOfLiterals, true /* correctness test */, outputCount);
 	}
 	
 	private static void testCompleteMultiVariableConstraints(
-			Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
+			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
 		NullaryFunction<Constraint2> makeConstraint = () -> new CompleteMultiVariableConstraint(constraintTheory);
 
@@ -203,11 +203,11 @@ public class ConstraintTheoryTester {
 
 		TestRunner tester = ConstraintTheoryTester::testCompleteSatisfiability; // CompleteMultiVariableConstraint is complete
 		
-		runAllTests(random, "complete satisfiability", tester, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
+		runAllTests(random, "complete satisfiability", tester, testAgainstBruteForce, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
 	}
 
 	private static interface TestRunner {
-		void runOneTest(Random random, Collection<Expression> literals, Constraint2 constraint, ConstraintTheory constraintTheory, RewritingProcess process) throws Error;		
+		void runOneTest(Random random, Collection<Expression> literals, Constraint2 constraint, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, RewritingProcess process) throws Error;		
 	}
 
 	/**
@@ -229,6 +229,7 @@ public class ConstraintTheoryTester {
 			Random random,
 			String problemName,
 			TestRunner tester,
+			boolean testAgainstBruteForce,
 			ConstraintTheory constraintTheory,
 			NullaryFunction<Constraint2> makeConstraint,
 			Function<Constraint2, Expression> makeRandomLiteralGivenConstraint,
@@ -245,23 +246,28 @@ public class ConstraintTheoryTester {
 			output("\n\nStarting new conjunction");	
 			for (int j = 0; constraint != null && j != maxNumberOfLiterals; j++) {
 				Expression literal = makeRandomLiteralGivenConstraint.apply(constraint);
-				constraint = addLiteralToConstraintAndTest(random, tester, literal, constraint, testCorrectness, literals, constraintTheory, process);
+				constraint = addLiteralToConstraintAndTest(random, tester, literal, constraint, testCorrectness, literals, testAgainstBruteForce, constraintTheory, process);
 			}
 			
 			if (outputCount && i % NUMBER_OF_TESTS_TO_INDICATE_ON_CONSOLE == 0) {
+				if (testAgainstBruteForce) {
 				System.out.println("Tested (comparing against brute-force solution) " + i + " examples of " + problemName + " for " + constraintTheory);
+				}
+				else {
+					System.out.println("Computed (without comparing against brute-force solution) " + i + " examples of " + problemName + " for " + constraintTheory);
+				}
 			}	
 		}
 	}
 
-	private static Constraint2 addLiteralToConstraintAndTest(Random random, TestRunner tester, Expression literal, Constraint2 constraint, boolean testCorrectness, Collection<Expression> literals, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
+	private static Constraint2 addLiteralToConstraintAndTest(Random random, TestRunner tester, Expression literal, Constraint2 constraint, boolean testCorrectness, Collection<Expression> literals, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
 		output("Constraint is " + constraint);
 		output("Adding " + literal + " (literals added so far: " + join(literals, " and ") + ")");
 		literals.add(literal);
 		Constraint2 newConstraint = constraint.conjoin(literal, process);
 		output("New constraint is " + newConstraint);
 		if (testCorrectness) {
-			tester.runOneTest(random, literals, newConstraint, constraintTheory, process);
+			tester.runOneTest(random, literals, newConstraint, testAgainstBruteForce, constraintTheory, process);
 		}
 		return newConstraint;
 	}
@@ -270,12 +276,13 @@ public class ConstraintTheoryTester {
 			Random random,
 			Collection<Expression> literals,
 			Constraint2 constraint,
+			boolean testAgainstBruteForce,
 			ConstraintTheory constraintTheory,
 			RewritingProcess process)
 					throws Error {
 		
 		if (constraint == null) {
-			solverSaysItIsUnsatisfiable(literals, constraintTheory, process);
+			solverSaysItIsUnsatisfiable(literals, testAgainstBruteForce, constraintTheory, process);
 		}
 		else {
 			// if constraint is not null, the conjunction of literals may or may not be satisfiable,
@@ -288,15 +295,16 @@ public class ConstraintTheoryTester {
 			Random random,
 			Collection<Expression> literals,
 			Constraint2 constraint,
+			boolean testAgainstBruteForce,
 			ConstraintTheory constraintTheory,
 			RewritingProcess process)
 					throws Error {
 		
 		if (constraint == null) {
-			solverSaysItIsUnsatisfiable(literals, constraintTheory, process);
+			solverSaysItIsUnsatisfiable(literals, testAgainstBruteForce, constraintTheory, process);
 		}
 		else {
-			solverSaysItIsSatisfiable(literals, constraint, constraintTheory, process);
+			solverSaysItIsSatisfiable(literals, constraint, testAgainstBruteForce, constraintTheory, process);
 		}
 	}
 
@@ -307,19 +315,24 @@ public class ConstraintTheoryTester {
 	 * @param process
 	 * @throws Error
 	 */
-	protected static void solverSaysItIsSatisfiable(Collection<Expression> literals, Constraint2 constraint, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
-		output("SolverUnderAssignment thinks it is satisfiable. Current constraint is " + constraint);	
-		Expression literalsConjunction = And.make(literals);
-		boolean isUnsatisfiable = ! ConstraintTheoryTester.isSatisfiableByBruteForce(literalsConjunction, constraintTheory, process);;
-		if (isUnsatisfiable) {
-			String message = join(literals, " and ") + " is unsatisfiable (by brute-force) but " + 
-			constraintTheory.getClass().getSimpleName() + " says it is satisfiable. " +
-			"Current constraint is " + constraint;
-			output(message);
-			throw new Error(message);
+	protected static void solverSaysItIsSatisfiable(Collection<Expression> literals, Constraint2 constraint, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
+		if (testAgainstBruteForce) {
+			output("SolverUnderAssignment thinks it is satisfiable. Current constraint is " + constraint);	
+			Expression literalsConjunction = And.make(literals);
+			boolean isUnsatisfiable = ! ConstraintTheoryTester.isSatisfiableByBruteForce(literalsConjunction, constraintTheory, process);;
+			if (isUnsatisfiable) {
+				String message = join(literals, " and ") + " is unsatisfiable (by brute-force) but " + 
+						constraintTheory.getClass().getSimpleName() + " says it is satisfiable. " +
+						"Current constraint is " + constraint;
+				output(message);
+				throw new Error(message);
+			}
+			else {
+				output("Brute-force satisfiability test agrees that it is satisfiable. Constraint is " + constraint);	
+			}
 		}
 		else {
-			output("Brute-force satisfiability test agrees that it is satisfiable. Constraint is " + constraint);	
+			output("Skipping test againt brute-force.");
 		}
 	}
 
@@ -329,22 +342,27 @@ public class ConstraintTheoryTester {
 	 * @param process
 	 * @throws Error
 	 */
-	protected static void solverSaysItIsUnsatisfiable(Collection<Expression> literals, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
-		output("SolverUnderAssignment thinks it is unsatisfiable.");	
-		Expression formula = And.make(literals);
-		boolean isSatisfiable = ConstraintTheoryTester.isSatisfiableByBruteForce(formula, constraintTheory, process);
-//		Map<Expression, Expression> satisfyingAssignment = getSatisfyingAssignmentByBruteForce(formula, constraintTheory, process);
-//		boolean isSatisfiable = satisfyingAssignment != null;
-		if (isSatisfiable) {
-			String message = join(literals, " and ") + " is satisfiable (by brute-force) but " + 
-			constraintTheory.getClass().getSimpleName() + " says it is not. "
-//			+ "Satisfying assignment is " + satisfyingAssignment + "."
-			;
-			output(message);
-			throw new Error(message);
+	protected static void solverSaysItIsUnsatisfiable(Collection<Expression> literals, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, RewritingProcess process) throws Error {
+		if (testAgainstBruteForce) {
+			output("SolverUnderAssignment thinks it is unsatisfiable.");	
+			Expression formula = And.make(literals);
+			boolean isSatisfiable = ConstraintTheoryTester.isSatisfiableByBruteForce(formula, constraintTheory, process);
+			//		Map<Expression, Expression> satisfyingAssignment = getSatisfyingAssignmentByBruteForce(formula, constraintTheory, process);
+			//		boolean isSatisfiable = satisfyingAssignment != null;
+			if (isSatisfiable) {
+				String message = join(literals, " and ") + " is satisfiable (by brute-force) but " + 
+						constraintTheory.getClass().getSimpleName() + " says it is not. "
+						//			+ "Satisfying assignment is " + satisfyingAssignment + "."
+						;
+				output(message);
+				throw new Error(message);
+			}
+			else {
+				output("Brute-force satisfiability test agrees that it is unsatisfiable.");	
+			}
 		}
 		else {
-			output("Brute-force satisfiability test agrees that it is unsatisfiable.");	
+			output("Skipping test againt brute-force.");
 		}
 	}
 
@@ -381,12 +399,12 @@ public class ConstraintTheoryTester {
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
-	public static void testModelCountingForSingleVariableConstraints(Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
-		testModelCountingForSingleVariableConstraints(random, constraintTheory, numberOfTests, maxNumberOfLiterals, true /* correctness test */, outputCount);
+	public static void testModelCountingForSingleVariableConstraints(Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+		testModelCountingForSingleVariableConstraints(random, testAgainstBruteForce, constraintTheory, numberOfTests, maxNumberOfLiterals, true /* correctness test */, outputCount);
 	}
 	
 	private static void testModelCountingForSingleVariableConstraints(
-			Random random, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
+			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
@@ -396,9 +414,9 @@ public class ConstraintTheoryTester {
 
 		Function<Constraint2, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), random, process);
 
-		TestRunner tester = (r, ls, c, cT, p) -> runModelCountingTest(r, variable, ls, c, cT, p);
+		TestRunner tester = (r, ls, c, tB, cT, p) -> runModelCountingTest(r, variable, ls, c, tB, cT, p);
 		
-		runAllTests(random, "model counting", tester, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
+		runAllTests(random, "model counting", tester, testAgainstBruteForce, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, testCorrectness, outputCount, process);
 	}
 
 	private static void runModelCountingTest(
@@ -406,6 +424,7 @@ public class ConstraintTheoryTester {
 			Expression variable,
 			Collection<Expression> literals,
 			Constraint2 constraint,
+			boolean testAgainstBruteForce,
 			ConstraintTheory constraintTheory,
 			RewritingProcess process)
 					throws Error {
@@ -420,20 +439,25 @@ public class ConstraintTheoryTester {
 
 		output("Symbolic result: " + symbolicSolution);
 		
-		if (singleVariableConstraint == null) {
-			if (!symbolicSolution.equals(ZERO)) {
-				throw new Error("Constraint is contradiction, but symbolic solver does not produce 0, but instead " + symbolicSolution);
+		if (testAgainstBruteForce) {
+			if (singleVariableConstraint == null) {
+				if (!symbolicSolution.equals(ZERO)) {
+					throw new Error("Constraint is contradiction, but symbolic solver does not produce 0, but instead " + symbolicSolution);
+				}
+			}
+			else {
+				Expression testingVariable = singleVariableConstraint.getVariable();
+				Set<Expression> allVariables = getVariables(singleVariableConstraint, process);
+				Collection<Expression> otherVariables = removeFromSetNonDestructively(allVariables, v -> v.equals(testingVariable));
+				Function<BruteForceCommonInterpreter, Expression> fromInterpreterWithAssignmentToOtherVariablesToBruteForceSolution =
+						interpreterWithAssignmentToOtherVariables
+						-> bruteForceModelCounterForVariableGivenInterpreterWithAssignmentToOtherVariables(
+								variable, literalsConjunction, interpreterWithAssignmentToOtherVariables, constraintTheory, process);
+						testSymbolicVsBruteForceComputationForEachAssignment(constraintTheory, problemDescription, otherVariables, symbolicSolution, fromInterpreterWithAssignmentToOtherVariablesToBruteForceSolution, process);
 			}
 		}
 		else {
-			Expression testingVariable = singleVariableConstraint.getVariable();
-			Set<Expression> allVariables = getVariables(singleVariableConstraint, process);
-			Collection<Expression> otherVariables = removeFromSetNonDestructively(allVariables, v -> v.equals(testingVariable));
-			Function<BruteForceCommonInterpreter, Expression> fromInterpreterWithAssignmentToOtherVariablesToBruteForceSolution =
-					interpreterWithAssignmentToOtherVariables
-					-> bruteForceModelCounterForVariableGivenInterpreterWithAssignmentToOtherVariables(
-							variable, literalsConjunction, interpreterWithAssignmentToOtherVariables, constraintTheory, process);
-			testSymbolicVsBruteForceComputationForEachAssignment(constraintTheory, problemDescription, otherVariables, symbolicSolution, fromInterpreterWithAssignmentToOtherVariablesToBruteForceSolution, process);
+			output("Skipping test againt brute-force.");
 		}
 	}
 
@@ -479,6 +503,7 @@ public class ConstraintTheoryTester {
 	 */
 	public static void testGroupProblemForSingleVariableConstraints(
 			Random random,
+			boolean testAgainstBruteForce,
 			GroupProblemType problemType,
 			ConstraintTheory constraintTheory,
 			int numberOfTests,
@@ -492,17 +517,18 @@ public class ConstraintTheoryTester {
 		
 		Function<Constraint2, Expression> makeRandomLiteral = c -> constraintTheory.makeRandomLiteralOn(((SingleVariableConstraint)c).getVariable().toString(), random, process);
 		
-		TestRunner tester = (r, ls, c, cT, p) -> testGroupProblem(r, c, problemType, cT, ls, bodyDepth, p);
+		TestRunner tester = (r, ls, c, tB, cT, p) -> testGroupProblem(r, c, problemType, tB, cT, ls, bodyDepth, p);
 		
 		String problemName = "quantification of " + problemType.getClass().getSimpleName();
 		
-		runAllTests(random, problemName, tester, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, true /* correctness test */, outputCount, process);
+		runAllTests(random, problemName, tester, testAgainstBruteForce, constraintTheory, makeConstraint, makeRandomLiteral, numberOfTests, maxNumberOfLiterals, true /* correctness test */, outputCount, process);
 	}
 	
 	private static void testGroupProblem(
 			Random random,
 			Constraint2 constraint,
 			GroupProblemType problemType,
+			boolean testAgainstBruteForce,
 			ConstraintTheory constraintTheory,
 			Collection<Expression> literals,
 			int bodyDepth,
@@ -514,13 +540,14 @@ public class ConstraintTheoryTester {
 		NullaryFunction<Expression> leafGenerator = () -> makeSymbol(random.nextInt(10) - 5);
 		Expression body = new RandomConditionalExpressionGenerator(random, constraintTheory, bodyDepth, leafGenerator, process).apply();
 		
-		testGroupProblem(problemType, singleVariableConstraint, body, process);
+		testGroupProblem(problemType, singleVariableConstraint, body, testAgainstBruteForce, process);
 	}
 
 	private static void testGroupProblem(
 			GroupProblemType problemType,
 			SingleVariableConstraint singleVariableConstraint,
 			Expression body,
+			boolean testAgainstBruteForce,
 			RewritingProcess process) throws Error {
 
 		if (singleVariableConstraint != null) { // TODO: this would be much more elegant if we did not represent contradictions by null
@@ -538,17 +565,22 @@ public class ConstraintTheoryTester {
 			Expression symbolicSolution = symbolicInterpreter.apply(problem, process);
 			output("Symbolic solution: " + symbolicSolution);
 
-			Collection<Expression> otherVariables = getFreeVariableMinusIndex(singleVariableConstraint, body, process);
-			Function<BruteForceCommonInterpreter, Expression> bruteForceSolutionGivenInterpreterWithAssignmentToOtherVariables = i -> i.apply(problem, process);
-			testSymbolicVsBruteForceComputationForEachAssignment(
-					constraintTheory, problemDescription, otherVariables, symbolicSolution, bruteForceSolutionGivenInterpreterWithAssignmentToOtherVariables, process);
-			// A more elegant approach would be to create a "for all free variables : symbolic = problem" expression
-			// and solve it by brute force instead of using testSymbolicVsBruteForceComputation
-			// which replicates the brute force interpreter to some extent.
-			// The reason we do not do this is simply due to the fact that the brute force interpreter would return "false"
-			// in case of failure, without indicating which assignment failed, which is very useful for debugging.
-			// If interpreters, and in fact the whole framework, provided proofs of its calculations,
-			// then we could simply use the more elegant approach.
+			if (testAgainstBruteForce) {
+				Collection<Expression> otherVariables = getFreeVariableMinusIndex(singleVariableConstraint, body, process);
+				Function<BruteForceCommonInterpreter, Expression> bruteForceSolutionGivenInterpreterWithAssignmentToOtherVariables = i -> i.apply(problem, process);
+				testSymbolicVsBruteForceComputationForEachAssignment(
+						constraintTheory, problemDescription, otherVariables, symbolicSolution, bruteForceSolutionGivenInterpreterWithAssignmentToOtherVariables, process);
+				// A more elegant approach would be to create a "for all free variables : symbolic = problem" expression
+				// and solve it by brute force instead of using testSymbolicVsBruteForceComputation
+				// which replicates the brute force interpreter to some extent.
+				// The reason we do not do this is simply due to the fact that the brute force interpreter would return "false"
+				// in case of failure, without indicating which assignment failed, which is very useful for debugging.
+				// If interpreters, and in fact the whole framework, provided proofs of its calculations,
+				// then we could simply use the more elegant approach.
+			}
+			else {
+				output("Skipping test againt brute-force.");
+			}
 		}
 	}
 
