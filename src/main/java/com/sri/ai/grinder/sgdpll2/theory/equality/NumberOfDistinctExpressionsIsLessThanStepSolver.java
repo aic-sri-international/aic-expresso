@@ -42,7 +42,6 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
-import static com.sri.ai.grinder.library.boole.Not.not;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +51,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 import com.sri.ai.util.base.OrderedPairsOfIntegersIterator;
 import com.sri.ai.util.base.PairOf;
 
@@ -120,17 +120,21 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 			}
 
 			Expression equality = apply(EQUALITY, expressions.get(i), expressions.get(j));
-			Expression disequality = not(equality);
 
-			boolean equalityHolds    =                   contextualConstraint.implies(equality, process);
-			boolean disequalityHolds = !equalityHolds && contextualConstraint.implies(disequality, process);
+			ContextDependentProblemStepSolver stepSolverForEquality    = null; // this null is never used, just making compiler happy
+			ContextDependentProblemStepSolver stepSolverForDisequality = null; // this null is never used, just making compiler happy
+
+			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, equality, process);
+			if (split.getResult().equals(ConstraintSplitting.Result.CONSTRAINT_IS_CONTRADICTORY)) {
+				return null;
+			}
+			
+			boolean equalityHolds    =  split.getResult() == ConstraintSplitting.Result.LITERAL_IS_TRUE;
+			boolean disequalityHolds = !equalityHolds && split.getResult() == ConstraintSplitting.Result.LITERAL_IS_FALSE;
 			boolean undefined = !equalityHolds && !disequalityHolds;
 			boolean needStepSolverForEquality    = equalityHolds    || undefined;
 			boolean needStepSolverForDisequality = disequalityHolds || undefined;
 			
-			ContextDependentProblemStepSolver stepSolverForEquality    = null; // this null is never used, just making compiler happy
-			ContextDependentProblemStepSolver stepSolverForDisequality = null; // this null is never used, just making compiler happy
-
 			if (needStepSolverForEquality) {
 				// if indexed disequals turn out to be equal, move to the next i and register one more non-unique element
 				OrderedPairsOfIntegersIterator nextInitialIndices = initialIndices.clone(); nextInitialIndices.incrementI(); // note that cloning 'indices' might not work because it may have already just skipped to the next i
@@ -146,13 +150,13 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 			}
 			
 			if (equalityHolds) {
-				return stepSolverForEquality.step(contextualConstraint, process);
+				return stepSolverForEquality.step(split.getConstraintAndLiteral(), process);
 			}
 			else if (disequalityHolds) {
-				return stepSolverForDisequality.step(contextualConstraint, process);
+				return stepSolverForDisequality.step(split.getConstraintAndLiteralNegation(), process);
 			}
 			else {
-				return new ItDependsOn(equality, null, stepSolverForEquality, stepSolverForDisequality);
+				return new ItDependsOn(equality, split, stepSolverForEquality, stepSolverForDisequality);
 			}
 		}
 		// went over all pairs
