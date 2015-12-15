@@ -41,6 +41,7 @@ import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 import static com.sri.ai.grinder.library.boole.Not.not;
 import static com.sri.ai.util.Util.arrayList;
+import static com.sri.ai.util.Util.in;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -211,16 +212,16 @@ public abstract class AbstractSingleVariableConstraintWithBinaryAtomsIncludingEq
 			// create a fresh constraint with the binding only and external literals
 			result = makeSimplification(arrayList(binding), arrayList(), getExternalLiterals());
 			// convert all other normalized atoms to external literals with valueVariableIsBoundTo standing for constraint's variable
-			result = conjoinWithSignAndNormalizedAtomsOnValueVariableIsBoundTo(result,  true, getPositiveNormalizedAtoms(), valueVariableIsBoundTo, process);
+			result = conjoinWithSignAndNormalizedAtomsOnValueVariableIsBoundTo(result,  true, in(getPositiveNormalizedAtomsIncludingImplicitOnes(process)), valueVariableIsBoundTo, process);
 			if (result != null) {
-				result = conjoinWithSignAndNormalizedAtomsOnValueVariableIsBoundTo(result, false, getNegativeNormalizedAtoms(), valueVariableIsBoundTo, process);
+				result = conjoinWithSignAndNormalizedAtomsOnValueVariableIsBoundTo(result, false, in(getNegativeNormalizedAtomsIncludingImplicitOnes(process)), valueVariableIsBoundTo, process);
 			}
 		}
 	
 		return (AbstractSingleVariableConstraintWithDependentNormalizedAtoms) result;
 	}
 
-	private Constraint2 conjoinWithSignAndNormalizedAtomsOnValueVariableIsBoundTo(Constraint2 result, boolean sign, ArrayList<Expression> normalizedAtoms, Expression valueVariableIsBoundTo, RewritingProcess process) {
+	private Constraint2 conjoinWithSignAndNormalizedAtomsOnValueVariableIsBoundTo(Constraint2 result, boolean sign, Iterable<Expression> normalizedAtoms, Expression valueVariableIsBoundTo, RewritingProcess process) {
 		for (Expression normalizedAtom : normalizedAtoms) {
 			if ( ! isEqualityBindingVariableToItsValue(sign, normalizedAtom, valueVariableIsBoundTo)) {
 				Expression newLiteral = rewriteSignAndNormalizedAtomForValueVariableIsBoundTo(sign, normalizedAtom, valueVariableIsBoundTo, process);

@@ -73,6 +73,26 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 	private static final long serialVersionUID = 1L;
 	
 	/**
+	 * Returns an iterator to positive normalized atoms, including implicit ones
+	 * (for example, for bounded integers, the type bounds on the variable).
+	 * Default implementation is <code>nestedIterator(getPositiveNormalizedAtoms().iterator(), getImplicitPositiveNormalizedAtomsIterator(process))</code>.
+	 * @return
+	 */
+	protected Iterator<Expression> getPositiveNormalizedAtomsIncludingImplicitOnes(RewritingProcess process) {
+		return nestedIterator(getPositiveNormalizedAtoms().iterator(), getImplicitPositiveNormalizedAtomsIterator(process));
+	}
+
+	/**
+	 * Returns an iterator to negative normalized atoms, including implicit ones
+	 * (for example, for bounded integers, the type bounds on the variable).
+	 * Default implementation is <code>nestedIterator(getNegativeNormalizedAtoms().iterator(), getImplicitNegativeNormalizedAtomsIterator(process))</code>.
+	 * @return
+	 */
+	protected Iterator<Expression> getNegativeNormalizedAtomsIncludingImplicitOnes(RewritingProcess process) {
+		return nestedIterator(getNegativeNormalizedAtoms().iterator(), getImplicitNegativeNormalizedAtomsIterator(process));
+	}
+
+	/**
 	 * Returns an iterator over positive normalized atoms not actually represented in constraint,
 	 * but assumed for purposes of determining redundancy or contradiction of new normalized atoms.
 	 * For example, if an extension defines an inequalities over integers theory,
@@ -81,7 +101,7 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 	 * act as if these atoms where actually part of the constraint,
 	 * which will result in contradicting normalized atoms
 	 * stating that X is out of these bounds, and making redundant normalized atoms saying X is within these bounds.
-	 * @param process TODO
+	 * @param process
 	 * @return an iterator over implicit normalized atoms.
 	 * @see #getImplicitNegativeNormalizedAtomsIterator(RewritingProcess)
 	 */
@@ -89,7 +109,7 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 
 	/**
 	 * Analogous to {@link #getImplicitPositiveNormalizedAtomsIterator(RewritingProcess)}.
-	 * @param process TODO
+	 * @param process
 	 * @return
 	 */
 	abstract protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(RewritingProcess process);
@@ -179,14 +199,6 @@ public abstract class AbstractSingleVariableConstraintWithDependentNormalizedAto
 					setPositiveAndNegativeNormalizedAtoms(newPositiveNormalizedAtoms, newNegativeNormalizedAtoms);
 		}
 		return result;
-	}
-
-	private Iterator<Expression> getPositiveNormalizedAtomsIncludingImplicitOnes(RewritingProcess process) {
-		return nestedIterator(getPositiveNormalizedAtoms().iterator(), getImplicitPositiveNormalizedAtomsIterator(process));
-	}
-
-	private Iterator<Expression> getNegativeNormalizedAtomsIncludingImplicitOnes(RewritingProcess process) {
-		return nestedIterator(getNegativeNormalizedAtoms().iterator(), getImplicitNegativeNormalizedAtomsIterator(process));
 	}
 
 	/**

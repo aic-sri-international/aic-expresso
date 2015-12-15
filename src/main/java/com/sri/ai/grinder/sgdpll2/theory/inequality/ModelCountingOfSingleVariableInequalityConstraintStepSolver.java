@@ -124,45 +124,58 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		Iterator<Expression> comparisonsBetweenStrictLowerAndNonStrictUpperBounds
 		= getIteratorOverComparisonsOfStrictLowerAndNonStrictUpperBounds(process);
 
-		// if X = Y and X = Z, then Y = Z
-		Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator = pairsOfEquals();
-		Iterator<Expression> propagatedEqualities =
-				functionIterator(
-						pairsOfEqualsToVariableIterator,
-						p -> {
-							Expression result = Equality.makeWithConstantSimplification(p.first, p.second, process);
-							// System.out.println("Unsimplified equality of equals: " + p.first + " = " + p.second);	
-							// System.out.println("constraint is: " + constraint);	
-							// System.out.println("Simplified to: " + result);	
-							return result;
-						});
-		// Note: the above could be lumped together with the propagated comparisons below, if
-		// they were modified to include equalities instead of just non-equality comparisons
-		// However, that would go over all pairs of terms equal to the variable, which is unnecessary since equality is symmetrical
-		// The above only goes over pairs that are sorted by position in normalized atoms.
+		Iterator<Expression> propagatedEqualities;
+		if (getConstraint().getPropagateAllLiteralsWhenVariableIsBound()) {
+			propagatedEqualities = iterator(); // the literals below must have already been propagated
+		}
+		else {
+			// if X = Y and X = Z, then Y = Z
+			Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator = pairsOfEquals();
+			propagatedEqualities =
+					functionIterator(
+							pairsOfEqualsToVariableIterator,
+							p -> {
+								Expression result = Equality.makeWithConstantSimplification(p.first, p.second, process);
+								// System.out.println("Unsimplified equality of equals: " + p.first + " = " + p.second);	
+								// System.out.println("constraint is: " + constraint);	
+								// System.out.println("Simplified to: " + result);	
+								return result;
+							});
+			// Note: the above could be lumped together with the propagated comparisons below, if
+			// they were modified to include equalities instead of just non-equality comparisons
+			// However, that would go over all pairs of terms equal to the variable, which is unnecessary since equality is symmetrical
+			// The above only goes over pairs that are sorted by position in normalized atoms.
+		}
+		
 		
 		// if X = Y and X op Z, then Y op Z, for op any atom functor other than equality (which is already covered above).
 		// TODO: the single-variable constraint should be changed so that when X = Y all other constraints are placed on Y
 		// instead and put on external literals
 
-		Iterator<Expression> propagatedComparisons =
-				functionIterator(
-						new CartesianProductIterator<Expression>(
-								() -> getEquals(),
-								() -> getNonEqualityComparisons(process)
-						),
-						equalAndNonEqualityComparison -> {
-							Expression equal = equalAndNonEqualityComparison.get(0);
-							Expression nonEqualityComparison = equalAndNonEqualityComparison.get(1);
-							Expression termBeingCompared = nonEqualityComparison.get(1);
-							Expression unsimplifiedAtom = apply(nonEqualityComparison.getFunctor(), equal, termBeingCompared);
-							Expression result = constraint.getConstraintTheory().simplify(unsimplifiedAtom, process);
-							// System.out.println("Unsimplified comparison of equal and term in non-equality comparison: " + unsimplifiedAtom);	
-							// System.out.println("Non-equality comparison was: " + nonEqualityComparison);	
-							// System.out.println("constraint is: " + constraint);	
-							// System.out.println("Simplified to: " + result);	
-							return result;
-						});
+		Iterator<Expression> propagatedComparisons;
+		if (getConstraint().getPropagateAllLiteralsWhenVariableIsBound()) {
+			propagatedComparisons = iterator();
+		}
+		else {
+			propagatedComparisons =
+					functionIterator(
+							new CartesianProductIterator<Expression>(
+									() -> getEquals(),
+									() -> getNonEqualityComparisons(process)
+									),
+									equalAndNonEqualityComparison -> {
+										Expression equal = equalAndNonEqualityComparison.get(0);
+										Expression nonEqualityComparison = equalAndNonEqualityComparison.get(1);
+										Expression termBeingCompared = nonEqualityComparison.get(1);
+										Expression unsimplifiedAtom = apply(nonEqualityComparison.getFunctor(), equal, termBeingCompared);
+										Expression result = constraint.getConstraintTheory().simplify(unsimplifiedAtom, process);
+										// System.out.println("Unsimplified comparison of equal and term in non-equality comparison: " + unsimplifiedAtom);	
+										// System.out.println("Non-equality comparison was: " + nonEqualityComparison);	
+										// System.out.println("constraint is: " + constraint);	
+										// System.out.println("Simplified to: " + result);	
+										return result;
+									});
+		}
 
 		// provide external literals first
 		Iterator<Expression> propagatedLiteralsIterator =

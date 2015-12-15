@@ -60,6 +60,7 @@ import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.problemtype.Max;
 import com.sri.ai.grinder.plaindpll.problemtype.Sum;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
@@ -67,12 +68,10 @@ import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstraint;
 
 @Beta
-public abstract class AbstractEqualityConstraintTest extends AbstractConstraintTheoryTest {
+public abstract class AbstractEqualityConstraintTheoryTest extends AbstractConstraintTheoryIncludingEqualityTest {
 
-	abstract protected boolean getPropagateAllLiteralsWhenVariableIsBound();
-	
 	@Override
-	protected EqualityConstraintTheory makeConstraintTheory() {
+	protected ConstraintTheory makeConstraintTheory() {
 		return new EqualityConstraintTheory(true, getPropagateAllLiteralsWhenVariableIsBound());
 	}
 
@@ -154,7 +153,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 	public void testSatisfiabilitySpecialCases() {
 		String conjunction;
 		conjunction = "X != a and X != b and X != c and X != Y and X != Z"; // looks unsatisfiable for type size 5, but it is not
-		EqualityConstraintTheory constraintTheory = makeConstraintTheory();
+		ConstraintTheory constraintTheory = makeConstraintTheory();
 		Constraint2 constraint = new SingleVariableEqualityConstraint(parse("X"), false, constraintTheory);
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		constraint = constraint.conjoinWithConjunctiveClause(parse(conjunction), process);
@@ -169,7 +168,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 		String conjunction;
 		Expression expected;
 
-		EqualityConstraintTheory constraintTheory = makeConstraintTheory();
+		ConstraintTheory constraintTheory = makeConstraintTheory();
 		
 		if (constraintTheory.singleVariableConstraintIsCompleteWithRespectToItsVariable()) {
 			conjunction = "X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
@@ -181,14 +180,14 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 			runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory);
 		}
 
-		EqualityConstraintTheory constraintTheory2 = makeConstraintTheory();
+		ConstraintTheory constraintTheory2 = makeConstraintTheory();
 		constraintTheory2.setTypesForTesting(list(new Categorical("Type", 1, arrayList(parse("a")))));
 		constraintTheory2.setVariableNamesAndTypeNamesForTesting(map("X", "Type", "Y", "Type"));
 		conjunction = "X != Y";
 		expected = null;
 		runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory2);
 
-		EqualityConstraintTheory constraintTheory3 = makeConstraintTheory();
+		ConstraintTheory constraintTheory3 = makeConstraintTheory();
 		constraintTheory3.setTypesForTesting(list(new Categorical("Type", 2, arrayList(parse("a"), parse("b")))));
 		constraintTheory3.setVariableNamesAndTypeNamesForTesting(map("X", "Type", "Y", "Type"));
 		conjunction = "X != Y and X != a";
@@ -208,7 +207,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 	 * @param conjunction
 	 * @param expected
 	 */
-	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, EqualityConstraintTheory constraintTheory) {
+	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, ConstraintTheory constraintTheory) {
 		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {

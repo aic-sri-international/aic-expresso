@@ -60,7 +60,7 @@ import com.sri.ai.util.collect.IntegerIterator;
 import com.sri.ai.util.math.Rational;
 
 /**
- * Represents the Integer interval [0, 9].
+ * Represents an Integer interval.
  * 
  * @author braz
  */
