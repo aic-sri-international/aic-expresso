@@ -35,12 +35,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.sgdpll2;
+package com.sri.ai.test.grinder.sgdpll2.theory.inequality;
 
 import com.google.common.annotations.Beta;
 
 @Beta
-public class EqualityConstraintWithPropagationOfAllLiteralsWhenBoundBenchmark extends AbstractEqualityConstraintBenchmark {
+public class InequalityConstraintWithPropagationOfAllLiteralsWhenBoundTest extends AbstractInequalityConstraintIncludingEqualityTest {
 
 	@Override
 	protected boolean getPropagateAllLiteralsWhenVariableIsBound() {

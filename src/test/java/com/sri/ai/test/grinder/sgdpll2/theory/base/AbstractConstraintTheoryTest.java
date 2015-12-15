@@ -1,4 +1,4 @@
-package com.sri.ai.test.grinder.sgdpll2;
+package com.sri.ai.test.grinder.sgdpll2.theory.base;
 
 import java.util.Random;
 

@@ -35,7 +35,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.sgdpll2;
+package com.sri.ai.test.grinder.sgdpll2.theory.propositional;
 
 import java.util.Random;
 
@@ -47,6 +47,7 @@ import com.sri.ai.grinder.plaindpll.problemtype.Max;
 import com.sri.ai.grinder.plaindpll.problemtype.Sum;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
+import com.sri.ai.test.grinder.sgdpll2.theory.base.AbstractConstraintTheoryTest;
 
 @Beta
 public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {

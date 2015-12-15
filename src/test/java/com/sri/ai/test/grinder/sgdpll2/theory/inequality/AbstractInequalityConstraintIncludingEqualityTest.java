@@ -1,4 +1,4 @@
-package com.sri.ai.test.grinder.sgdpll2;
+package com.sri.ai.test.grinder.sgdpll2.theory.inequality;
 
 import java.util.Random;
 
@@ -8,6 +8,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 import com.sri.ai.grinder.sgdpll2.theory.inequality.InequalityConstraintTheory;
+import com.sri.ai.test.grinder.sgdpll2.theory.base.AbstractConstraintTheoryIncludingEqualityTest;
 
 public abstract class AbstractInequalityConstraintIncludingEqualityTest extends AbstractConstraintTheoryIncludingEqualityTest {
 
