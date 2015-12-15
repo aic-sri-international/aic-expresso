@@ -1,17 +1,17 @@
-package com.sri.ai.test.grinder.sgdpll2.theory.equality;
+package com.sri.ai.test.grinder.sgdpll2.theory.inequality;
 
 import java.util.Random;
 
 /**
- * Modifies {@link AbstractEqualityConstraintTest} to work as a benchmark,
+ * Modifies {@link AbstractInequalityConstraintTest} to work as a benchmark,
  * by using a fixed random seed (0) and deactivating testing against brute-force.
  * 
  * @author braz
  *
  */
-public abstract class AbstractEqualityConstraintBenchmark extends AbstractEqualityConstraintTest {
+public abstract class AbstractInequalityConstraintBenchmark extends AbstractInequalityConstraintTest {
 
-	public AbstractEqualityConstraintBenchmark() {
+	public AbstractInequalityConstraintBenchmark() {
 		super();
 	}
 

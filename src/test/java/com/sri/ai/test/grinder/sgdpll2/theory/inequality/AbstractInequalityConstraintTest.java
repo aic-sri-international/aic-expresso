@@ -10,9 +10,9 @@ import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 import com.sri.ai.grinder.sgdpll2.theory.inequality.InequalityConstraintTheory;
 import com.sri.ai.test.grinder.sgdpll2.theory.base.AbstractConstraintTheoryIncludingEqualityTest;
 
-public abstract class AbstractInequalityConstraintIncludingEqualityTest extends AbstractConstraintTheoryIncludingEqualityTest {
+public abstract class AbstractInequalityConstraintTest extends AbstractConstraintTheoryIncludingEqualityTest {
 
-	public AbstractInequalityConstraintIncludingEqualityTest() {
+	public AbstractInequalityConstraintTest() {
 		super();
 	}
 

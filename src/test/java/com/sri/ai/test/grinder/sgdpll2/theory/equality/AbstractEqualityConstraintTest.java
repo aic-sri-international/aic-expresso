@@ -69,7 +69,7 @@ import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstrai
 import com.sri.ai.test.grinder.sgdpll2.theory.base.AbstractConstraintTheoryIncludingEqualityTest;
 
 @Beta
-public abstract class AbstractEqualityConstraintTheoryTest extends AbstractConstraintTheoryIncludingEqualityTest {
+public abstract class AbstractEqualityConstraintTest extends AbstractConstraintTheoryIncludingEqualityTest {
 
 	@Override
 	protected ConstraintTheory makeConstraintTheory() {
