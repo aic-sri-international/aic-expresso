@@ -60,7 +60,8 @@ import com.sri.ai.util.base.Pair;
 /**
  * An {@link Constraint2} on multiple variables,
  * with the ability to ensure all single-variable constraints that are part of it
- * have a property determined by a {@link ContextDependentProblemStepSolver}.
+ * have a property determined by a {@link ContextDependentProblemStepSolver},
+ * or otherwise the total constraint is deemed unsatisfiable.
  * 
  * @author braz
  *
@@ -73,6 +74,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 	private ConstraintTheory constraintTheory;
 	private Constraint2 contextualConstraint;
 	private SingleVariableConstraint singleVariableConstraint;
+	private boolean checked;
 	
 	/**
 	 * A {@link BinaryFunction} making a {@link SingleVariableConstraint} for a given
@@ -115,9 +117,10 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 	public MultiVariableConstraintWithCheckedProperty(
 			ConstraintTheory constraintTheory, ContextDependentProblemStepSolverMaker contextDependentProblemMaker) {
 		this.constraintTheory = constraintTheory;
-		this.contextDependentProblemStepSolverMaker = contextDependentProblemMaker;
 		this.contextualConstraint = null;
 		this.singleVariableConstraint = null;
+		this.checked = false;
+		this.contextDependentProblemStepSolverMaker = contextDependentProblemMaker;
 	}
 	
 	/**
@@ -135,9 +138,10 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 			SingleVariableConstraint singleVariableConstraint,
 			ContextDependentProblemStepSolverMaker contextDependentProblemMaker) {
 		this.constraintTheory = contextualConstraint.getConstraintTheory();
-		this.contextDependentProblemStepSolverMaker = contextDependentProblemMaker;
 		this.contextualConstraint = contextualConstraint;
 		this.singleVariableConstraint = singleVariableConstraint;
+		this.checked = false;
+		this.contextDependentProblemStepSolverMaker = contextDependentProblemMaker;
 	}
 
 	@Override
@@ -174,7 +178,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 		
 		if (formula instanceof SingleVariableConstraint) {
 			SingleVariableConstraint formulaAsSingleVariableConstraint = (SingleVariableConstraint) formula;
-			if ( ! contains(this, formulaAsSingleVariableConstraint.getVariable(), process)) {
+			if ( ! contains(this, formulaAsSingleVariableConstraint.getVariable(), process)) { // TODO: using contains here is overkill
 				result = Pair.make(true, makeAndCheck(this, formulaAsSingleVariableConstraint, contextDependentProblemStepSolverMaker, process));
 				// if the variable is new to this constraint, we can simply tack on its constraint under it. 
 			}
@@ -222,7 +226,6 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 				else {
 					newSingleVariableConstraint = singleVariableConstraint;
 					newContextualConstraint = contextualConstraint.conjoin(literal, process);
-					
 				}
 		
 				// optional, but good:
@@ -237,7 +240,12 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 					newSingleVariableConstraint = newSingleVariableConstraint.makeSimplificationWithoutExternalLiterals();
 				}
 
-				result = makeAndCheck(newContextualConstraint, newSingleVariableConstraint, contextDependentProblemStepSolverMaker, process);
+				if (newSingleVariableConstraint == singleVariableConstraint && newContextualConstraint == contextualConstraint) { // in case nothing changed
+					result = this;
+				}
+				else {
+					result = makeAndCheck(newContextualConstraint, newSingleVariableConstraint, contextDependentProblemStepSolverMaker, process);
+				}
 			}
 			else {
 				Expression firstVariable = getFirstOrNull(variablesInLiteral);
@@ -260,16 +268,22 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 
 	private MultiVariableConstraintWithCheckedProperty check(RewritingProcess process) {
 		MultiVariableConstraintWithCheckedProperty result;
-		ContextDependentProblemStepSolver problem = contextDependentProblemStepSolverMaker.apply(singleVariableConstraint, process);
-		Expression solution = problem.solve(contextualConstraint, process);
-		if (solution == null) { // contextual constraint is found to be inconsistent
-			result = null;
-		}
-		else if (solution.equals(FALSE)) { // the single-variable constraint is unsatisfiable in all contexts, so it is unsatisfiable.
-			result = null;
+		if (checked) {
+			result = this;
 		}
 		else {
-			result = this;
+			ContextDependentProblemStepSolver problem = contextDependentProblemStepSolverMaker.apply(singleVariableConstraint, process);
+			Expression solution = problem.solve(contextualConstraint, process);
+			if (solution == null) { // contextual constraint is found to be inconsistent
+				result = null;
+			}
+			else if (solution.equals(FALSE)) { // the single-variable constraint does not exhibit the property in all contexts, so the total constraint does not either.
+				result = null;
+			}
+			else {
+				this.checked = true;
+				result = this;
+			}
 		}
 		return result;
 	}

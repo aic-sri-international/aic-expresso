@@ -103,6 +103,7 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 //		
 //		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
 //				makeRandom(), // use seed 2 and body depth 1 for problem 22 taking very long
+//				getTestAgainstBruteForce(),
 //				new Max(),
 //	            makeConstraintTheory(),
 //				10 /* number of tests */,
