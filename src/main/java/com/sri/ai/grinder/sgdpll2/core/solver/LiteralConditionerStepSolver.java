@@ -1,14 +1,21 @@
 package com.sri.ai.grinder.sgdpll2.core.solver;
 
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
+import static com.sri.ai.util.Util.collectToArrayList;
 import static com.sri.ai.util.Util.myAssert;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import com.google.common.annotations.Beta;
+import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
 import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
+import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 
@@ -40,6 +47,8 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 public class LiteralConditionerStepSolver implements ContextDependentProblemStepSolver {
 
 	private Expression expression;
+	private ArrayList<Expression> literalsInExpression;
+	private int initialLiteralToConsider;
 	private SimplifierUnderContextualConstraint simplifierUnderContextualConstraint;
 	
 	public LiteralConditionerStepSolver(Expression expression, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint) {
@@ -53,29 +62,34 @@ public class LiteralConditionerStepSolver implements ContextDependentProblemStep
 		return this;
 	}
 	
-	/**
-	 * Method defining what to do once we obtain a literal-free expression,
-	 * with default implementation simply returning a solution containing
-	 * the literal-free expression.
-	 */
-	protected SolutionStep stepGivenLiteralFreeExpression(
-			Expression literalFreeExpression,
-			Constraint2 contextualConstraint,
-			RewritingProcess process) {
-		
-		return new Solution(literalFreeExpression);
-	}
-
 	public Expression getExpression() {
 		return expression;
 	}
 
+	/**
+	 * Returns a cached list of literals in expression,
+	 * computed only the first time this is invoked (unless this is a clone of another step solver for which it has already been computed). 
+	 * @param constraintTheory
+	 * @param process
+	 * @return
+	 */
+	protected ArrayList<Expression> getLiteralsInExpression(ConstraintTheory constraintTheory, RewritingProcess process) {
+		if (literalsInExpression == null) {
+			Iterator<Expression> subExpressionsIterator = new SubExpressionsDepthFirstIterator(expression);
+			Predicate<Expression> literalsOnly = e -> constraintTheory.isLiteral(e, process);
+			literalsInExpression = collectToArrayList(subExpressionsIterator, literalsOnly);
+			initialLiteralToConsider = 0;
+		}
+		return literalsInExpression;
+	}
+	
 	@Override
 	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
 
 		SolutionStep result;
 		
-		SolutionStep stepAllLiteralsAreDefined = getSolutionStepForWhetherAllLiteralsAreDefined(expression, contextualConstraint, process);
+		SolutionStep stepAllLiteralsAreDefined = getSolutionStepForWhetherAllLiteralsAreDefined(contextualConstraint, process);
+//		SolutionStep stepAllLiteralsAreDefined = getSolutionStepForWhetherAllLiteralsAreDefined(expression, contextualConstraint, process); // this versions checks all literals
 
 		if (stepAllLiteralsAreDefined == null) {
 			result = null;
@@ -83,12 +97,49 @@ public class LiteralConditionerStepSolver implements ContextDependentProblemStep
 		else if (stepAllLiteralsAreDefined.itDepends()){
 			result = stepAllLiteralsAreDefined;
 		}
-		else {// must be Solution(TRUE)
+		else { // must be Solution(TRUE)
 			Expression literalFreeExpression = simplifyGivenContextualConstraint(expression, contextualConstraint, process);
-			result = stepGivenLiteralFreeExpression(literalFreeExpression, contextualConstraint, process);
+			result = new Solution(literalFreeExpression);
 		}
 
 		return result;
+	}
+
+
+	/**
+	 * Returns a solution step towards defining all literals in expression,
+	 * or null if contextual constraint is found inconsistent,
+	 * or new Solution(TRUE) if all literals are defined.
+	 * @param contextualConstraint a contextual constraint
+	 * @param process a rewriting process
+	 * @return a solution step towards defining all literals in expression,
+	 * or null if contextual constraint is found inconsistent,
+	 * or new Solution(TRUE) if all literals are defined
+	 */
+	private SolutionStep getSolutionStepForWhetherAllLiteralsAreDefined(Constraint2 contextualConstraint, RewritingProcess process) {
+
+		ArrayList<Expression> literalsInExpression = getLiteralsInExpression(contextualConstraint.getConstraintTheory(), process);
+		
+		for (int i = initialLiteralToConsider; i != literalsInExpression.size(); i++) {
+			
+			Expression literal = literalsInExpression.get(i);
+			
+			myAssert(
+					() -> literal.getSyntacticFormType().equals("Function application") || literal.getSyntacticFormType().equals("Symbol"),
+					() -> this.getClass() + ": applies to function applications or symbols only, but got " + literal );
+			
+			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, literal, process);
+			if (split.getResult() == ConstraintSplitting.Result.CONSTRAINT_IS_CONTRADICTORY) {
+				return null;
+			}
+			else if (split.getResult() == ConstraintSplitting.Result.LITERAL_IS_UNDEFINED) {
+				LiteralConditionerStepSolver stepSolverFromNowOn = clone();
+				stepSolverFromNowOn.initialLiteralToConsider++;
+				return new ItDependsOn(literal, split, stepSolverFromNowOn, stepSolverFromNowOn);
+			}
+		}
+		
+		return new Solution(TRUE);
 	}
 
 	/**
@@ -102,6 +153,7 @@ public class LiteralConditionerStepSolver implements ContextDependentProblemStep
 	 * or null if contextual constraint is found inconsistent,
 	 * or new Solution(TRUE) if all literals are defined
 	 */
+	@SuppressWarnings("unused")
 	private SolutionStep getSolutionStepForWhetherAllLiteralsAreDefined(Expression expression, Constraint2 contextualConstraint, RewritingProcess process) {
 		if (contextualConstraint.getConstraintTheory().isLiteral(expression, process)) {
 			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, expression, process);

@@ -129,7 +129,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 				getTestAgainstBruteForce(),
 				new Sum(),
 				makeConstraintTheory(),
-				10 /* number of tests */,
+				50 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);
@@ -144,9 +144,9 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 				getTestAgainstBruteForce(),
 				new Max(),
 				makeConstraintTheory(),
-				200 /* number of tests */,
+				50 /* number of tests */,
 				20 /* number of literals per test */,
-				1, /* body depth */
+				3, /* body depth */
 				true /* output count */);
 	}
 

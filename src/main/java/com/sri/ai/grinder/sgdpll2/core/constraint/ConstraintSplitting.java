@@ -35,6 +35,7 @@ import com.sri.ai.grinder.sgdpll2.api.Constraint2;
  */
 @Beta
 public class ConstraintSplitting  {
+	public static int counter = 0;
 
 	/**
 	 * The four possible result of splitting a constraint by a literal. See {@link ConstraintSplitting}.
@@ -105,6 +106,7 @@ public class ConstraintSplitting  {
 				result = CONSTRAINT_IS_CONTRADICTORY;
 			}
 		}
+		counter++;
 	}
 	
 	/** The result of the splitting. */
