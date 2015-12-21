@@ -48,7 +48,7 @@ public class LiteralConditionerStepSolver implements ContextDependentProblemStep
 
 	private Expression expression;
 	private ArrayList<Expression> literalsInExpression;
-	private int initialLiteralToConsider;
+	public int initialLiteralToConsider;
 	private SimplifierUnderContextualConstraint simplifierUnderContextualConstraint;
 	
 	public LiteralConditionerStepSolver(Expression expression, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint) {
@@ -59,7 +59,13 @@ public class LiteralConditionerStepSolver implements ContextDependentProblemStep
 
 	@Override
 	public LiteralConditionerStepSolver clone() {
-		return this;
+		LiteralConditionerStepSolver result = null;
+		try {
+			result = (LiteralConditionerStepSolver) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	public Expression getExpression() {

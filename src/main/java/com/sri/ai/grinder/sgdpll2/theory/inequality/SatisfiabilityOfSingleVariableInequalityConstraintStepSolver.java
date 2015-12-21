@@ -69,7 +69,13 @@ public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implem
 
 	@Override
 	public SatisfiabilityOfSingleVariableInequalityConstraintStepSolver clone() {
-		return this;
+		SatisfiabilityOfSingleVariableInequalityConstraintStepSolver result = null;
+		try {
+			result = (SatisfiabilityOfSingleVariableInequalityConstraintStepSolver) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	@Override

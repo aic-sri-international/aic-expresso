@@ -67,6 +67,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 
 	private Expression body;
 	
+	private LiteralConditionerStepSolver bodyStepSolver;
+	
 	private SimplifierUnderContextualConstraint simplifierUnderContextualConstraint;
 	
 	public AbstractQuantifierEliminationStepSolver(AssociativeCommutativeGroup group, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, SingleVariableConstraint indexConstraint, Expression body) {
@@ -129,6 +131,15 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 		return indexConstraint.getVariable();
 	}
 	
+	private LiteralConditionerStepSolver getBodyStepSolver() {
+		if (bodyStepSolver == null) {
+			return new LiteralConditionerStepSolver(body, simplifierUnderContextualConstraint);
+		}
+		else {
+			return bodyStepSolver;
+		}
+	}
+
 	@Override
 	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
 		SolutionStep result;
@@ -138,17 +149,38 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 			result = new Solution(group.additiveIdentityElement());
 		}
 		else {
-			LiteralConditionerStepSolver bodySolver = new LiteralConditionerStepSolver(body, simplifierUnderContextualConstraint);
-			SolutionStep bodyStep = bodySolver.step(contextualConstraintForBody, process);
-			
+//			System.out.println("Selecting body literal");	
+//			System.out.println("Contextual constraint: " + contextualConstraint);	
+//			System.out.println("Index constraint: " + indexConstraint);	
+//			System.out.println("Body: " + body);	
+			LiteralConditionerStepSolver bodyStepSolver = getBodyStepSolver();
+			SolutionStep bodyStep = bodyStepSolver.step(contextualConstraintForBody, process);
+
+//			System.out.println("Body step solver: " + bodyStepSolver);	
+//			System.out.println("Body step solver initial literal: " + bodyStepSolver.initialLiteralToConsider);	
+//			System.out.println("Body step: " + bodyStep);	
+
 			if (bodyStep.itDepends()) {
 				// "intercept" literals containing the index and split the quantifier based on it
 				if (isSubExpressionOf(getIndex(), bodyStep.getExpression())) {
+//					System.out.println("Literal depends on index. Solving two subproblems and combining");	
 					Expression literalOnIndex = bodyStep.getExpression();
 					result = resultIfLiteralContainsIndex(contextualConstraint, literalOnIndex, process);
+//					System.out.println("Combination of two sub-problems is " + result);	
 				}
 				else { // not on index, just pass the expression on which we depend on, but with appropriate sub-step solvers (this, for now)
-					result = new ItDependsOn(bodyStep.getExpression(), null, clone(), clone());
+//					System.out.println("Literal does not depend on index.");	
+					AbstractQuantifierEliminationStepSolver cloneOfThisStepSolver = clone();
+//					cloneOfThisStepSolver.bodyStepSolver = (LiteralConditionerStepSolver) bodyStep.getStepSolverForWhenExpressionIsTrue();
+//					System.out.println("Made clone of AbstractQuantifierEliminationStepSolver");	
+//					System.out.println("Clone's body step solver is " + cloneOfThisStepSolver.bodyStepSolver);	
+//					System.out.println("Clone's body step solver initial literal is " + cloneOfThisStepSolver.bodyStepSolver.initialLiteralToConsider);	
+//					System.out.println("This should be ahead of this body step solver initial literal " + bodyStepSolver.initialLiteralToConsider);	
+					// for now, both true and false sides can use the same solver because they behave the same either way
+					// later, we want to add a record of which literals were chosen true or false in the body step solver
+					// so that it does not need to recompute that from the contextual constraint anymore;
+					// at that point, we will need to create two sub-step solvers here, one for each case.
+					result = new ItDependsOn(bodyStep.getExpression(), null, cloneOfThisStepSolver, cloneOfThisStepSolver);
 					// we cannot directly re-use bodyStep.getConstraintSplitting() because it was not obtained from the same contextual constraint
 				}
 			}
@@ -169,26 +201,32 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 		
 		SolutionStep result;
 		ConstraintSplitting split = new ConstraintSplitting(getIndexConstraint(), literal, contextualConstraint, process);
+		Expression solutionValue;
 		switch (split.getResult()) {
 		case CONSTRAINT_IS_CONTRADICTORY:
-			result = new Solution(group.additiveIdentityElement());
+			solutionValue = null;
 			break;
 		case LITERAL_IS_UNDEFINED:
 			Expression subSolution1 = solveSubProblem(split.getConstraintAndLiteral(),         contextualConstraint, process);
 			Expression subSolution2 = solveSubProblem(split.getConstraintAndLiteralNegation(), contextualConstraint, process);
-			Expression solutionValue = combine(subSolution1, subSolution2, contextualConstraint, process);
-			result = new Solution(solutionValue);
+			solutionValue = combine(subSolution1, subSolution2, contextualConstraint, process);
 			break;
 		case LITERAL_IS_TRUE:
 			solutionValue = solveSubProblem(split.getConstraintAndLiteral(), contextualConstraint, process);
-			result = new Solution(solutionValue);
 			break;
 		case LITERAL_IS_FALSE:
 			solutionValue = solveSubProblem(split.getConstraintAndLiteralNegation(), contextualConstraint, process);
-			result = new Solution(solutionValue);
 			break;
 		default: throw new Error("Unrecognized result for " + ConstraintSplitting.class + ": " + split.getResult());
 		}
+
+		if (solutionValue == null) {
+			result = null;
+		}
+		else {
+			result = new Solution(solutionValue);
+		}
+		
 		return result;
 	}
 

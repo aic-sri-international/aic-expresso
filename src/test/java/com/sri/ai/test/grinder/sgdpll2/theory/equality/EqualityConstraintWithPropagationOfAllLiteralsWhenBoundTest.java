@@ -46,4 +46,10 @@ public class EqualityConstraintWithPropagationOfAllLiteralsWhenBoundTest extends
 	protected boolean getPropagateAllLiteralsWhenVariableIsBound() {
 		return true;
 	}
+
+	// Uncomment to make it deterministic
+//	@Override
+//	protected Random makeRandom() {
+//		return new Random(0);
+//	}
 }
