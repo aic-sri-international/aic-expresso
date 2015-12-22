@@ -391,8 +391,6 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 			switch (contextualConstraintSplitting.getResult()) {
 			case LITERAL_IS_UNDEFINED:
 				return new ItDependsOn(literal, contextualConstraintSplitting, clone(), clone()); // necessary but undefined
-				// OPTIMIZATION: ItDependsOn could carry conjunctions of contextual constraint and literal,
-				// and of contextual constraint and literal negation, back to client for re-use.
 			case LITERAL_IS_FALSE:
 			case LITERAL_IS_TRUE:
 				// register and move to next literal

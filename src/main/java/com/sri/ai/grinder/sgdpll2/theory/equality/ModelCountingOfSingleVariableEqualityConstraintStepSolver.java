@@ -111,6 +111,9 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 						pairs,
 						pair -> Disequality.makeWithConstantSimplification(pair.first, pair.second, process));
 		Iterable<Expression> result = in(disequalities);
+		// TODO: Optimization: generalize NumberOfDistinctExpressionsIsLessThanStepSolver to compute number of distinct expressions
+		// to inform on a limit but without stopping when we know limit will not be reached, instead going on until we get an exact count,
+		// and re-use it here to compute number 
 		return result;
 	}
 

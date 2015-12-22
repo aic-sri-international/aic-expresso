@@ -39,9 +39,7 @@ package com.sri.ai.grinder.sgdpll2.theory.equality;
 
 import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.TRUE;
-import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
-import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,9 +49,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
-import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
-import com.sri.ai.util.base.OrderedPairsOfIntegersIterator;
-import com.sri.ai.util.base.PairOf;
 
 /**
  * A context-dependent problem step solver deciding whether the number of unique given expression is smaller than a given limit
@@ -66,30 +61,23 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 
 	private int limit;
 	private List<Expression> expressions;
-	private OrderedPairsOfIntegersIterator initialIndices;
-	// indices ranges over pairs (i, j) of indices of 'expressions'
-	// all expressions before the one indexed by i have been checked to be distinct or not from all others in front of it
-	// all expressions after the one indexed by i and before the one indexed by j have been checked to be distinct from the one indexed by i
-	private int numberOfNonUniqueExpressionsSoFar; // number of expressions before the one indexed by i that are equal to some element after it (that is, they don't count towards the number of distinct disequals
+	private NumberOfDistinctExpressionsStepSolver counterStepSolver;
 	
 	public NumberOfDistinctExpressionsIsLessThanStepSolver(int limit, ArrayList<Expression> expressions) {
 		this(limit, expressions, 0, 1, 0);
 	}
 
-	public NumberOfDistinctExpressionsIsLessThanStepSolver(int limit, List<Expression> expressions, int i, int j, int numberOfUniqueExpressionsSoFar) {
+	public NumberOfDistinctExpressionsIsLessThanStepSolver(int limit, List<Expression> expressions, int i, int j, int numberOfNonUniqueExpressionsSoFar) {
 		super();
 		this.limit = limit;
 		this.expressions = expressions;
-		this.initialIndices = new OrderedPairsOfIntegersIterator(expressions.size(), i, j);
-		this.numberOfNonUniqueExpressionsSoFar = numberOfUniqueExpressionsSoFar;
+		this.counterStepSolver = new NumberOfDistinctExpressionsStepSolver(expressions, i, j, numberOfNonUniqueExpressionsSoFar);
 	}
 
-	private NumberOfDistinctExpressionsIsLessThanStepSolver(int limit, List<Expression> expressions, OrderedPairsOfIntegersIterator initialIndices, int numberOfUniqueExpressionsSoFar) {
-		super();
+	private NumberOfDistinctExpressionsIsLessThanStepSolver(int limit, List<Expression> expressions, NumberOfDistinctExpressionsStepSolver counterStepSolver) {
 		this.limit = limit;
 		this.expressions = expressions;
-		this.initialIndices = initialIndices;
-		this.numberOfNonUniqueExpressionsSoFar = numberOfUniqueExpressionsSoFar;
+		this.counterStepSolver = counterStepSolver;
 	}
 
 	@Override
@@ -103,72 +91,30 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 
 	@Override
 	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
-
-		OrderedPairsOfIntegersIterator indices = initialIndices.clone();
-		
-		if (indices.hasNext()) {
-			PairOf<Integer> pair = indices.next();
-			int i = pair.first;
-			int j = pair.second;
-
-			if (numberOfUniqueExpressionsSoFar(i) >= limit) {
-				return new Solution(FALSE);
-			}
-			else if (numberOfUniqueExpressionsSoFar(i) + maximumPossibleNumberOfRemainingUniqueExpressions(i) < limit) {
-				// we already know the limit will never be reached
-				return new Solution(TRUE);
-			}
-
-			Expression equality = apply(EQUALITY, expressions.get(i), expressions.get(j));
-
-			ContextDependentProblemStepSolver stepSolverForEquality    = null; // this null is never used, just making compiler happy
-			ContextDependentProblemStepSolver stepSolverForDisequality = null; // this null is never used, just making compiler happy
-
-			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, equality, process);
-			if (split.getResult().equals(ConstraintSplitting.Result.CONSTRAINT_IS_CONTRADICTORY)) {
-				return null;
-			}
-			
-			boolean equalityHolds    =  split.getResult() == ConstraintSplitting.Result.LITERAL_IS_TRUE;
-			boolean disequalityHolds = !equalityHolds && split.getResult() == ConstraintSplitting.Result.LITERAL_IS_FALSE;
-			boolean undefined = !equalityHolds && !disequalityHolds;
-			boolean needStepSolverForEquality    = equalityHolds    || undefined;
-			boolean needStepSolverForDisequality = disequalityHolds || undefined;
-			
-			if (needStepSolverForEquality) {
-				// if indexed disequals turn out to be equal, move to the next i and register one more non-unique element
-				OrderedPairsOfIntegersIterator nextInitialIndices = initialIndices.clone(); nextInitialIndices.incrementI(); // note that cloning 'indices' might not work because it may have already just skipped to the next i
-				stepSolverForEquality
-				= new NumberOfDistinctExpressionsIsLessThanStepSolver(limit, expressions, nextInitialIndices, numberOfNonUniqueExpressionsSoFar + 1);
-			}
-			
-			if (needStepSolverForDisequality) {
-				// if they turn out to be disequal, keep moving like we did above (move to the next j)
-				OrderedPairsOfIntegersIterator nextInitialIndices = indices;
-				stepSolverForDisequality
-				= new NumberOfDistinctExpressionsIsLessThanStepSolver(limit, expressions, nextInitialIndices, numberOfNonUniqueExpressionsSoFar);
-			}
-			
-			if (equalityHolds) {
-				return stepSolverForEquality.step(split.getConstraintAndLiteral(), process);
-			}
-			else if (disequalityHolds) {
-				return stepSolverForDisequality.step(split.getConstraintAndLiteralNegation(), process);
-			}
-			else {
-				return new ItDependsOn(equality, split, stepSolverForEquality, stepSolverForDisequality);
-			}
+		if (counterStepSolver.numberOfUniqueExpressionsSoFar() >= limit) {
+			return new Solution(FALSE);
 		}
-		// went over all pairs
-		int elementsExaminedSoFar = expressions.size();
-		return new Solution(makeSymbol(numberOfUniqueExpressionsSoFar(elementsExaminedSoFar) < limit));
-	}
+		else if (counterStepSolver.numberOfUniqueExpressionsSoFar() + maximumPossibleNumberOfRemainingUniqueExpressions() < limit) {
+			// we already know the limit will never be reached
+			return new Solution(TRUE);
+		}
 
-	private int maximumPossibleNumberOfRemainingUniqueExpressions(int elementsExaminedSoFar) {
-		return expressions.size() - elementsExaminedSoFar;
-	}
+		SolutionStep step = counterStepSolver.step(contextualConstraint, process);
+		if (step.itDepends()) {
+			NumberOfDistinctExpressionsIsLessThanStepSolver subStepSolverWhenFormulaIsTrue
+			= new NumberOfDistinctExpressionsIsLessThanStepSolver(limit, expressions, (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenExpressionIsTrue());
 
-	private int numberOfUniqueExpressionsSoFar(int elementsExaminedSoFar) {
-		return elementsExaminedSoFar - numberOfNonUniqueExpressionsSoFar;
+			NumberOfDistinctExpressionsIsLessThanStepSolver subStepSolverWhenFormulaIsFalse
+			= new NumberOfDistinctExpressionsIsLessThanStepSolver(limit, expressions, (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenExpressionIsFalse());
+
+			return new ItDependsOn(step.getExpression(), step.getConstraintSplitting(), subStepSolverWhenFormulaIsTrue, subStepSolverWhenFormulaIsFalse);
+		}
+		else {
+			return new Solution(makeSymbol(step.getExpression().intValue() < limit));
+		}
+	}
+	
+	private int maximumPossibleNumberOfRemainingUniqueExpressions() {
+		return expressions.size() - counterStepSolver.numberOfElementsExaminedSoFar();
 	}
 }

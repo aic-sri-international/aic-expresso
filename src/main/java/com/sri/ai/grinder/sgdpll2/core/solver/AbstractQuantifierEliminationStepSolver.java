@@ -149,39 +149,23 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 			result = new Solution(group.additiveIdentityElement());
 		}
 		else {
-//			System.out.println("Selecting body literal");	
-//			System.out.println("Contextual constraint: " + contextualConstraint);	
-//			System.out.println("Index constraint: " + indexConstraint);	
-//			System.out.println("Body: " + body);	
 			LiteralConditionerStepSolver bodyStepSolver = getBodyStepSolver();
 			SolutionStep bodyStep = bodyStepSolver.step(contextualConstraintForBody, process);
-
-//			System.out.println("Body step solver: " + bodyStepSolver);	
-//			System.out.println("Body step solver initial literal: " + bodyStepSolver.initialLiteralToConsider);	
-//			System.out.println("Body step: " + bodyStep);	
 
 			if (bodyStep.itDepends()) {
 				// "intercept" literals containing the index and split the quantifier based on it
 				if (isSubExpressionOf(getIndex(), bodyStep.getExpression())) {
-//					System.out.println("Literal depends on index. Solving two subproblems and combining");	
 					Expression literalOnIndex = bodyStep.getExpression();
 					result = resultIfLiteralContainsIndex(contextualConstraint, literalOnIndex, process);
-//					System.out.println("Combination of two sub-problems is " + result);	
 				}
 				else { // not on index, just pass the expression on which we depend on, but with appropriate sub-step solvers (this, for now)
-//					System.out.println("Literal does not depend on index.");	
-					AbstractQuantifierEliminationStepSolver cloneOfThisStepSolver = clone();
-//					cloneOfThisStepSolver.bodyStepSolver = (LiteralConditionerStepSolver) bodyStep.getStepSolverForWhenExpressionIsTrue();
-//					System.out.println("Made clone of AbstractQuantifierEliminationStepSolver");	
-//					System.out.println("Clone's body step solver is " + cloneOfThisStepSolver.bodyStepSolver);	
-//					System.out.println("Clone's body step solver initial literal is " + cloneOfThisStepSolver.bodyStepSolver.initialLiteralToConsider);	
-//					System.out.println("This should be ahead of this body step solver initial literal " + bodyStepSolver.initialLiteralToConsider);	
-					// for now, both true and false sides can use the same solver because they behave the same either way
-					// later, we want to add a record of which literals were chosen true or false in the body step solver
-					// so that it does not need to recompute that from the contextual constraint anymore;
-					// at that point, we will need to create two sub-step solvers here, one for each case.
-					result = new ItDependsOn(bodyStep.getExpression(), null, cloneOfThisStepSolver, cloneOfThisStepSolver);
-					// we cannot directly re-use bodyStep.getConstraintSplitting() because it was not obtained from the same contextual constraint
+					AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsTrue = clone();
+					AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsFalse = clone();
+					subStepSolverForWhenLiteralIsTrue.bodyStepSolver = (LiteralConditionerStepSolver) bodyStep.getStepSolverForWhenExpressionIsTrue();
+					subStepSolverForWhenLiteralIsFalse.bodyStepSolver = (LiteralConditionerStepSolver) bodyStep.getStepSolverForWhenExpressionIsTrue();
+					result = new ItDependsOn(bodyStep.getExpression(), null, subStepSolverForWhenLiteralIsTrue, subStepSolverForWhenLiteralIsFalse);
+					// we cannot directly re-use bodyStep.getConstraintSplitting() because it was not obtained from the same contextual constraint,
+					// but from the contextual constraint conjoined with the index constraint.
 				}
 			}
 			else { // body is already literal free

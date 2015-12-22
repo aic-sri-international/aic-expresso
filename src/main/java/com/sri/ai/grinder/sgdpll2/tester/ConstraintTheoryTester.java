@@ -88,7 +88,7 @@ public class ConstraintTheoryTester {
 	private static final int NUMBER_OF_TESTS_TO_INDICATE_ON_CONSOLE = 1;
 
 	private static void output(String message) {
-//		System.out.println(message); // uncomment out if detailed output is desired.
+		// System.out.println(message); // uncomment out if detailed output is desired.
 	}
 
 	/**
@@ -562,8 +562,10 @@ public class ConstraintTheoryTester {
 			SymbolicCommonInterpreterWithLiteralConditioning symbolicInterpreter = new SymbolicCommonInterpreterWithLiteralConditioning(constraintTheory);
 			CompleteMultiVariableConstraint trueContextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
 			process.putGlobalObject(SymbolicCommonInterpreterWithLiteralConditioning.INTERPRETER_CONTEXTUAL_CONSTRAINT, trueContextualConstraint);
+			long start = System.currentTimeMillis();
 			Expression symbolicSolution = symbolicInterpreter.apply(problem, process);
 			output("Symbolic solution: " + symbolicSolution);
+			output("Computed in " + (System.currentTimeMillis() - start) + " ms");
 
 			if (testAgainstBruteForce) {
 				Collection<Expression> otherVariables = getFreeVariableMinusIndex(singleVariableConstraint, body, process);
