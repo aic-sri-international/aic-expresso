@@ -41,26 +41,16 @@ import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.CARDINALITY;
-import static com.sri.ai.util.Util.arrayListFrom;
-import static com.sri.ai.util.Util.in;
-import static com.sri.ai.util.Util.set;
+import static com.sri.ai.util.Util.list;
 import static java.lang.Math.max;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.library.Disequality;
-import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
+import com.sri.ai.grinder.sgdpll2.core.solver.AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.solver.AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityAndDefiningLiteralsStepSolver;
-import com.sri.ai.util.base.PairOf;
-import com.sri.ai.util.collect.FunctionIterator;
-import com.sri.ai.util.collect.PairOfElementsInListIterator;
 
 /**
  * A {@link AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityAndDefiningLiteralsStepSolver}
@@ -88,8 +78,15 @@ import com.sri.ai.util.collect.PairOfElementsInListIterator;
 @Beta
 public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityAndDefiningLiteralsStepSolver {
 
+	private NumberOfDistinctExpressionsStepSolver numberOfDistinctExpressionsStepSolver;
+	
 	public ModelCountingOfSingleVariableEqualityConstraintStepSolver(SingleVariableEqualityConstraint constraint) {
 		super(constraint);
+		numberOfDistinctExpressionsStepSolver = new NumberOfDistinctExpressionsStepSolver(getConstraint().getDisequals());
+	}
+
+	public ModelCountingOfSingleVariableEqualityConstraintStepSolver clone() {
+		return (ModelCountingOfSingleVariableEqualityConstraintStepSolver) super.clone();
 	}
 	
 	@Override
@@ -99,34 +96,29 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 	
 	@Override
 	protected Iterable<Expression> getDefiningLiterals(Constraint2 contextualConstraint, RewritingProcess process) {
-		Iterable<Expression> result = getDisequalsDisequalities(process);
-		return result;
-	}
-
-	private Iterable<Expression> getDisequalsDisequalities(RewritingProcess process) {
-		ArrayList<Expression> disequals = arrayListFrom(getConstraint().getDisequalsIterator());
-		Iterator<PairOf<Expression>> pairs = PairOfElementsInListIterator.make(disequals);
-		Iterator<Expression> disequalities =
-				FunctionIterator.make(
-						pairs,
-						pair -> Disequality.makeWithConstantSimplification(pair.first, pair.second, process));
-		Iterable<Expression> result = in(disequalities);
-		// TODO: Optimization: generalize NumberOfDistinctExpressionsIsLessThanStepSolver to compute number of distinct expressions
-		// to inform on a limit but without stopping when we know limit will not be reached, instead going on until we get an exact count,
-		// and re-use it here to compute number 
-		return result;
+		return list();
 	}
 
 	@Override
 	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(
 			Constraint2 contextualConstraint, RewritingProcess process) {
-		
+
 		Expression solutionExpression;
 		if (getConstraint().getEqualsIterator().hasNext()) { // variable is bound to some value
 			solutionExpression = ONE;
 		}
 		else {
-			long numberOfNonAvailableValues = computeNumberOfUniqueDisequals(contextualConstraint, process);
+			SolutionStep step = numberOfDistinctExpressionsStepSolver.step(contextualConstraint, process);
+			if (step.itDepends()) {
+				ModelCountingOfSingleVariableEqualityConstraintStepSolver ifTrue = clone();
+				ifTrue.numberOfDistinctExpressionsStepSolver = (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenExpressionIsTrue();
+				ModelCountingOfSingleVariableEqualityConstraintStepSolver ifFalse = clone();
+				ifFalse.numberOfDistinctExpressionsStepSolver = (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenExpressionIsFalse();
+				SolutionStep result = new ItDependsOn(step.getExpression(), step.getConstraintSplitting(), ifTrue, ifFalse);
+				return result;
+			}
+			long numberOfNonAvailableValues = step.getExpression().longValue();
+
 			long variableDomainSize = getConstraint().getVariableTypeSize(process);
 			if (variableDomainSize == -1) {
 				Expression variableDomain = getConstraint().getVariableTypeExpression(process);
@@ -141,22 +133,5 @@ public class ModelCountingOfSingleVariableEqualityConstraintStepSolver extends A
 			}
 		}
 		return new Solution(solutionExpression);
-	}
-
-	private int computeNumberOfUniqueDisequals(Constraint2 contextualConstraint, RewritingProcess process) {
-		ArrayList<Expression> disequals = arrayListFrom(getConstraint().getDisequalsIterator());
-		Set<Expression> equalToAPreviousDisequal = set();
-		for (int i = 0; i < disequals.size() - 1; i++) {
-			for (int j = i + 1; j != disequals.size(); j++) {
-				if (equalToAPreviousDisequal.contains(disequals.get(j))) {
-					continue;
-				}
-				Expression equality = Equality.makeWithConstantSimplification(disequals.get(i), disequals.get(j), process);
-				if (contextualConstraint.implies(equality, process)) {
-					equalToAPreviousDisequal.add(disequals.get(j));
-				}
-			}
-		}
-		return disequals.size() - equalToAPreviousDisequal.size();
 	}
 }
