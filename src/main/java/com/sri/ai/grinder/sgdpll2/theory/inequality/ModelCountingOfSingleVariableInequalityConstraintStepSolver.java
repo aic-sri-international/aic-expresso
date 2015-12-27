@@ -50,6 +50,7 @@ import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN;
 import static com.sri.ai.grinder.library.FunctorConstants.LESS_THAN_OR_EQUAL_TO;
 import static com.sri.ai.grinder.library.FunctorConstants.MINUS;
 import static com.sri.ai.util.Util.arrayList;
+import static com.sri.ai.util.Util.arrayListFrom;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.in;
 import static com.sri.ai.util.Util.iterator;
@@ -94,6 +95,16 @@ import com.sri.ai.util.collect.PairOfElementsInListIterator;
 @Beta
 public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends AbstractNumericalProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver {
 
+	private ArrayList<Expression> equals;
+
+	private ArrayList<Expression> disequals;
+
+	private ArrayList<Expression> strictLowerBounds;
+
+	private ArrayList<Expression> nonStrictUpperBounds;
+
+	private ArrayList<PairOf<Expression>> pairsOfDisequals;
+
 	public ModelCountingOfSingleVariableInequalityConstraintStepSolver(SingleVariableInequalityConstraint constraint) {
 		super(constraint);
 	}
@@ -122,7 +133,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		// each strict lower bound must be strictly less than every non-strict upper bound:
 		// X > Y and X <= Z => Y < Z
 		Iterator<Expression> comparisonsBetweenStrictLowerAndNonStrictUpperBounds
-		= getIteratorOverComparisonsOfStrictLowerAndNonStrictUpperBounds(process);
+		= getComparisonsOfStrictLowerAndNonStrictUpperBoundsIterator(process);
 
 		Iterator<Expression> propagatedEqualities;
 		if (getConstraint().getPropagateAllLiteralsWhenVariableIsBound()) {
@@ -130,7 +141,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		}
 		else {
 			// if X = Y and X = Z, then Y = Z
-			Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator = pairsOfEquals();
+			Iterator<PairOf<Expression>> pairsOfEqualsToVariableIterator = pairsOfEqualsIterator();
 			propagatedEqualities =
 					functionIterator(
 							pairsOfEqualsToVariableIterator,
@@ -160,8 +171,8 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 			propagatedComparisons =
 					functionIterator(
 							new CartesianProductIterator<Expression>(
-									() -> getEquals(),
-									() -> getNonEqualityComparisons(process)
+									() -> getEquals().iterator(),
+									() -> getNonEqualityComparisonsIterator(process)
 									),
 									equalAndNonEqualityComparison -> {
 										Expression equal = equalAndNonEqualityComparison.get(0);
@@ -191,12 +202,12 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		return result;
 	}
 
-	private Iterator<Expression> getIteratorOverComparisonsOfStrictLowerAndNonStrictUpperBounds(RewritingProcess process) {
+	private Iterator<Expression> getComparisonsOfStrictLowerAndNonStrictUpperBoundsIterator(RewritingProcess process) {
 		// determine pairs of such bounds
 		Iterator<ArrayList<Expression>> pairsOfStrictLowerAndNonStricUpperBounds =
 				new CartesianProductIterator<Expression>(
-						() -> getStrictLowerBounds(process),
-						() -> getNonStrictUpperBounds(process));
+						() -> getStrictLowerBounds(process).iterator(),
+						() -> getNonStrictUpperBounds(process).iterator());
 		
 		// make iterator over their comparisons
 		Iterator<Expression> comparisonsBetweenStrictLowerAndNonStrictUpperBounds
@@ -213,79 +224,89 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		return comparisonsBetweenStrictLowerAndNonStrictUpperBounds;
 	}
 
-	private Iterator<Expression> getStrictLowerBounds(RewritingProcess process) {
-		SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
-		
-		FunctionIterator<Expression, Expression> strictLowerBoundsFromPositiveNormalizedAtomsIterator
-		= functionIterator(
-				predicateIterator(
-						inequalitiesConstraint.getPositiveNormalizedAtoms(),
-						e -> e.hasFunctor(GREATER_THAN) // X > Y, so Y is a strict lower bound
-				), 
-				e -> e.get(1));
-		
-		FunctionIterator<Expression, Expression> strictLowerBoundsFromNegativeNormalizedAtomsIterator
-		= functionIterator(
-				predicateIterator(
-						inequalitiesConstraint.getNegativeNormalizedAtoms(),
-						e -> e.hasFunctor(LESS_THAN)
-				), 
-				e -> apply(MINUS, e.get(1), ONE)); // atom is (not (X < Y)), e.g., X >= Y, so X > Y - 1 and Y - 1 is a strict lower bound
-		
-		Expression typeStrictLowerBound = getTypeStrictLowerBound(process);
-		
-		Iterator<Expression> result = new NestedIterator<>(
-				strictLowerBoundsFromPositiveNormalizedAtomsIterator,
-				strictLowerBoundsFromNegativeNormalizedAtomsIterator,
-				typeStrictLowerBound);
-		
-		return result;
+	private ArrayList<Expression> getStrictLowerBounds(RewritingProcess process) {
+		if (strictLowerBounds == null) {
+			SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
+			
+			FunctionIterator<Expression, Expression> strictLowerBoundsFromPositiveNormalizedAtomsIterator
+			= functionIterator(
+					predicateIterator(
+							inequalitiesConstraint.getPositiveNormalizedAtoms(),
+							e -> e.hasFunctor(GREATER_THAN) // X > Y, so Y is a strict lower bound
+					), 
+					e -> e.get(1));
+			
+			FunctionIterator<Expression, Expression> strictLowerBoundsFromNegativeNormalizedAtomsIterator
+			= functionIterator(
+					predicateIterator(
+							inequalitiesConstraint.getNegativeNormalizedAtoms(),
+							e -> e.hasFunctor(LESS_THAN)
+					), 
+					e -> apply(MINUS, e.get(1), ONE)); // atom is (not (X < Y)), e.g., X >= Y, so X > Y - 1 and Y - 1 is a strict lower bound
+			
+			Expression typeStrictLowerBound = getTypeStrictLowerBound(process);
+			
+			Iterator<Expression> strictLowerBoundsIterator = new NestedIterator<>(
+					strictLowerBoundsFromPositiveNormalizedAtomsIterator,
+					strictLowerBoundsFromNegativeNormalizedAtomsIterator,
+					typeStrictLowerBound);
+			
+			strictLowerBounds = arrayListFrom(strictLowerBoundsIterator);
+		}
+		return strictLowerBounds;
 	}
 
-	private Iterator<Expression> getNonStrictUpperBounds(RewritingProcess process) {
-		SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
-		
-		FunctionIterator<Expression, Expression> nonStrictUpperBoundsFromPositiveNormalizedAtomsIterator
-		= functionIterator(
-				predicateIterator(
-						inequalitiesConstraint.getPositiveNormalizedAtoms(),
-						e -> e.hasFunctor(LESS_THAN)
-				),
-				e -> Minus.make(e.get(1), ONE)); // atom is X < Y, so X <= Y - 1, so Y - 1 is a non-strict upper bound
-		
-		FunctionIterator<Expression, Expression> nonStrictUpperBoundsFromNegativeNormalizedAtomsIterator
-		= functionIterator(
-				predicateIterator(
-						inequalitiesConstraint.getNegativeNormalizedAtoms(),
-						e -> e.hasFunctor(GREATER_THAN) // not (X > Y) <=> X <= Y, so Y is a non-strict upper bound
-				), 
-				e -> e.get(1));
-		
-		Expression typeNonStrictUpperBound = getTypeNonStrictUpperBound(process);
-
-		Iterator<Expression> result = new NestedIterator<>(
-				nonStrictUpperBoundsFromPositiveNormalizedAtomsIterator,
-				nonStrictUpperBoundsFromNegativeNormalizedAtomsIterator,
-				typeNonStrictUpperBound);
-		
-		return result;
+	private ArrayList<Expression> getNonStrictUpperBounds(RewritingProcess process) {
+		if (nonStrictUpperBounds == null) {
+			SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
+			
+			FunctionIterator<Expression, Expression> nonStrictUpperBoundsFromPositiveNormalizedAtomsIterator
+			= functionIterator(
+					predicateIterator(
+							inequalitiesConstraint.getPositiveNormalizedAtoms(),
+							e -> e.hasFunctor(LESS_THAN)
+					),
+					e -> Minus.make(e.get(1), ONE)); // atom is X < Y, so X <= Y - 1, so Y - 1 is a non-strict upper bound
+			
+			FunctionIterator<Expression, Expression> nonStrictUpperBoundsFromNegativeNormalizedAtomsIterator
+			= functionIterator(
+					predicateIterator(
+							inequalitiesConstraint.getNegativeNormalizedAtoms(),
+							e -> e.hasFunctor(GREATER_THAN) // not (X > Y) <=> X <= Y, so Y is a non-strict upper bound
+					), 
+					e -> e.get(1));
+			
+			Expression typeNonStrictUpperBound = getTypeNonStrictUpperBound(process);
+			
+			Iterator<Expression> nonStrictUpperBoundsIterator = new NestedIterator<>(
+					nonStrictUpperBoundsFromPositiveNormalizedAtomsIterator,
+					nonStrictUpperBoundsFromNegativeNormalizedAtomsIterator,
+					typeNonStrictUpperBound);
+			
+			nonStrictUpperBounds = arrayListFrom(nonStrictUpperBoundsIterator);
+		}
+		return nonStrictUpperBounds;
 	}
 
-	private Iterator<Expression> getEquals() {
-		SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
-		
-		FunctionIterator<Expression, Expression> result
-		= functionIterator(
-				predicateIterator(
-						inequalitiesConstraint.getPositiveNormalizedAtoms(),
-						e -> e.hasFunctor(FunctorConstants.EQUALITY)
-				), 
-				e -> e.get(1));
-		
-		return result;
+	private ArrayList<Expression> getEquals() {
+		if (equals == null) {
+			SingleVariableInequalityConstraint inequalitiesConstraint
+			= (SingleVariableInequalityConstraint) constraint;
+			
+			Iterator<Expression> equalsIterator =
+					functionIterator(
+							predicateIterator(
+									inequalitiesConstraint.getPositiveNormalizedAtoms(),
+									e -> e.hasFunctor(FunctorConstants.EQUALITY)
+									), 
+									e -> e.get(1));
+			
+			equals = arrayListFrom(equalsIterator);
+		}
+		return equals;
 	}
 
-	private Iterator<Expression> getNonEqualityComparisons(RewritingProcess process) {
+	private Iterator<Expression> getNonEqualityComparisonsIterator(RewritingProcess process) {
 		SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
 		
 		Iterator<Expression> fromPositiveNormalizedAtoms =
@@ -316,21 +337,22 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		return result;
 	}
 
-	private Iterator<Expression> getDisequals(RewritingProcess process) {
-		SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
-		
-		FunctionIterator<Expression, Expression> result
-		= functionIterator(
-				predicateIterator(
-						inequalitiesConstraint.getNegativeNormalizedAtoms(),
-						e -> e.hasFunctor(FunctorConstants.EQUALITY) // negative equality is disequality
-				), 
-				e -> e.get(1));
-		
-		return result;
+	private ArrayList<Expression> getDisequals() {
+		if (disequals == null) {
+			SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
+			Iterator<Expression> disequalsIterator =
+					functionIterator(
+							predicateIterator(
+									inequalitiesConstraint.getNegativeNormalizedAtoms(),
+									e -> e.hasFunctor(FunctorConstants.EQUALITY) // negative equality is disequality
+									), 
+									e -> e.get(1));
+			disequals = Util.arrayListFrom(disequalsIterator);
+		}
+		return disequals;
 	}
 
-	private Iterator<PairOf<Expression>> pairsOfEquals() {
+	private Iterator<PairOf<Expression>> pairsOfEqualsIterator() {
 		ArrayList<Expression> equalities = Util.collectToArrayList(getConstraint().getPositiveNormalizedAtoms(), e -> e.hasFunctor(EQUALITY));
 		
 		PairOfElementsInListIterator<Expression> pairsOfEqualitiesIterator = 
@@ -349,23 +371,26 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		return result;
 	}
 
-	private Iterator<PairOf<Expression>> pairsOfDisequals() {
-		ArrayList<Expression> equalities = Util.collectToArrayList(getConstraint().getNegativeNormalizedAtoms(), e -> e.hasFunctor(EQUALITY));
-		
-		PairOfElementsInListIterator<Expression> pairsOfDisequalitiesIterator = 
-				new PairOfElementsInListIterator<>(equalities);
+	private ArrayList<PairOf<Expression>> getPairsOfDisequals() {
+		if (pairsOfDisequals == null) {
+			ArrayList<Expression> equalities = Util.collectToArrayList(getConstraint().getNegativeNormalizedAtoms(), e -> e.hasFunctor(EQUALITY));
+			
+			PairOfElementsInListIterator<Expression> pairsOfDisequalitiesIterator = 
+					new PairOfElementsInListIterator<>(equalities);
 
-//		Function<PairOf<Expression>, PairOf<Expression>> makePairOfSecondArguments = p -> makePairOf(p.first.get(1), p.second.get(1));
-// above lambda somehow not working at Ciaran's environment, replacing with seemingly identical anonymous class object below		
-		Function<PairOf<Expression>, PairOf<Expression>> makePairOfSecondArguments = new Function<PairOf<Expression>, PairOf<Expression>>() {
-			@Override
-			public PairOf<Expression> apply(PairOf<Expression> p) {
-				return makePairOf(p.first.get(1), p.second.get(1));
-			}
-		};
-		Iterator<PairOf<Expression>> result = functionIterator(pairsOfDisequalitiesIterator, makePairOfSecondArguments);
-		
-		return result;
+//			Function<PairOf<Expression>, PairOf<Expression>> makePairOfSecondArguments = p -> makePairOf(p.first.get(1), p.second.get(1));
+	// above lambda somehow not working at Ciaran's environment, replacing with seemingly identical anonymous class object below		
+			Function<PairOf<Expression>, PairOf<Expression>> makePairOfSecondArguments = new Function<PairOf<Expression>, PairOf<Expression>>() {
+				@Override
+				public PairOf<Expression> apply(PairOf<Expression> p) {
+					return makePairOf(p.first.get(1), p.second.get(1));
+				}
+			};
+			Iterator<PairOf<Expression>> result = functionIterator(pairsOfDisequalitiesIterator, makePairOfSecondArguments);
+
+			pairsOfDisequals = arrayListFrom(result);
+		}
+		return pairsOfDisequals;
 	}
 
 	@Override
@@ -387,8 +412,8 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		Iterator<Expression> strictLowerBoundsAndDisequals =
 				functionIterator(
 						new CartesianProductIterator<Expression>(
-								() -> nestedIterator(getDisequals(process), getStrictLowerBounds(process)),
-								() -> getStrictLowerBounds(process)
+								() -> nestedIterator(getDisequals(), getStrictLowerBounds(process)),
+								() -> getStrictLowerBounds(process).iterator()
 						),
 						anotherAndStrictLowerBound -> {
 							Expression result = applyAndSimplify(LESS_THAN_OR_EQUAL_TO, anotherAndStrictLowerBound, process);
@@ -403,8 +428,8 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		Iterator<Expression> nonStrictUpperBoundsAndDisequals =
 				functionIterator(
 						new CartesianProductIterator<Expression>(
-								() -> nestedIterator(getDisequals(process), getNonStrictUpperBounds(process)),
-								() -> getNonStrictUpperBounds(process)
+								() -> nestedIterator(getDisequals(), getNonStrictUpperBounds(process)),
+								() -> getNonStrictUpperBounds(process).iterator()
 						),
 						anotherAndNonStrictUpperBound -> {
 							Expression result = applyAndSimplify(GREATER_THAN, anotherAndNonStrictUpperBound, process);
@@ -417,7 +442,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		// we also need to know how many distinct disequals there are
 		Iterator<Expression> disequalsComparisons =
 				functionIterator(
-						pairsOfDisequals(), pair -> {
+						getPairsOfDisequals(), pair -> {
 							Expression unsimplifiedAtom = apply(EQUALITY, pair.first, pair.second);
 							return constraint.getConstraintTheory().simplify(unsimplifiedAtom, process);	
 						});
@@ -470,27 +495,33 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		// Therefore, the constraint is satisfiable if and only if U - L > D
 		// where D is the number of disequals.
 		
-		Expression greatestStrictLowerBound = computeGreatestStrictLowerBound(contextualConstraint, process);
-		
-		Expression leastNonStrictUpperBound = computeLeastNonStrictUpperBound(contextualConstraint, process);
-		
 		Expression solutionExpression;
-		if (greatestStrictLowerBound.equals(MINUS_INFINITY) || leastNonStrictUpperBound.equals(INFINITY)) {
-			solutionExpression = INFINITY;
+
+		if (getConstraint().getPropagateAllLiteralsWhenVariableIsBound() && ! getEquals().isEmpty()) {
+			solutionExpression = ONE;
 		}
 		else {
-			int numberOfDisequals = computeNumberOfDistinctDisequalsWithinBounds(greatestStrictLowerBound, leastNonStrictUpperBound, contextualConstraint, process);
-			Expression boundsDifference = apply(MINUS, leastNonStrictUpperBound, greatestStrictLowerBound);
-			ArrayList<Expression> boundsDifferenceAndNumberOfDisequals = arrayList(boundsDifference, makeSymbol(numberOfDisequals));
-			Expression numberOfDistinctDisequalsIsLessThanNumberOfValuedAllowedByBounds = applyAndSimplify(GREATER_THAN, boundsDifferenceAndNumberOfDisequals, process);
-			if ( ! contextualConstraint.implies(numberOfDistinctDisequalsIsLessThanNumberOfValuedAllowedByBounds, process)) {
-				solutionExpression = ZERO; // there are no available values left
-			}
-			else if (getEquals().hasNext()) { // if bound to a value
-				solutionExpression = ONE;
+			Expression greatestStrictLowerBound = computeGreatestStrictLowerBound(contextualConstraint, process);
+
+			Expression leastNonStrictUpperBound = computeLeastNonStrictUpperBound(contextualConstraint, process);
+
+			if (greatestStrictLowerBound.equals(MINUS_INFINITY) || leastNonStrictUpperBound.equals(INFINITY)) {
+				solutionExpression = INFINITY;
 			}
 			else {
-				solutionExpression = applyAndSimplify(MINUS, boundsDifferenceAndNumberOfDisequals, process);
+				int numberOfDisequals = computeNumberOfDistinctDisequalsWithinBounds(greatestStrictLowerBound, leastNonStrictUpperBound, contextualConstraint, process);
+				Expression boundsDifference = apply(MINUS, leastNonStrictUpperBound, greatestStrictLowerBound);
+				ArrayList<Expression> boundsDifferenceAndNumberOfDisequals = arrayList(boundsDifference, makeSymbol(numberOfDisequals));
+				Expression numberOfDistinctDisequalsIsLessThanNumberOfValuedAllowedByBounds = applyAndSimplify(GREATER_THAN, boundsDifferenceAndNumberOfDisequals, process);
+				if ( ! contextualConstraint.implies(numberOfDistinctDisequalsIsLessThanNumberOfValuedAllowedByBounds, process)) {
+					solutionExpression = ZERO; // there are no available values left
+				}
+				else if ( ! getEquals().isEmpty()) { // if bound to a value
+					solutionExpression = ONE;
+				}
+				else {
+					solutionExpression = applyAndSimplify(MINUS, boundsDifferenceAndNumberOfDisequals, process);
+				}
 			}
 		}
 
@@ -499,7 +530,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 
 	private Expression computeLeastNonStrictUpperBound(Constraint2 contextualConstraint, RewritingProcess process) {
 		Expression leastNonStrictUpperBound = getTypeNonStrictUpperBound(process);
-		for (Expression nonStrictUpperBound : in(getNonStrictUpperBounds(process))) {
+		for (Expression nonStrictUpperBound : getNonStrictUpperBounds(process)) {
 			Expression thisIsLessThanCurrentLeast = applyAndSimplify(LESS_THAN, arrayList(nonStrictUpperBound, leastNonStrictUpperBound), process);
 			if (contextualConstraint.implies(thisIsLessThanCurrentLeast, process)) { // by now, this is either implied or not, because previous defining literals decide it
 				leastNonStrictUpperBound = nonStrictUpperBound;
@@ -510,7 +541,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 
 	private Expression computeGreatestStrictLowerBound(Constraint2 contextualConstraint, RewritingProcess process) {
 		Expression greatestStrictLowerBound = getTypeStrictLowerBound(process);
-		for (Expression strictLowerBound : in(getStrictLowerBounds(process))) {
+		for (Expression strictLowerBound : getStrictLowerBounds(process)) {
 			Expression thisIsGreaterThanPreviousGreatest = applyAndSimplify(GREATER_THAN, arrayList(strictLowerBound, greatestStrictLowerBound), process);
 			if (contextualConstraint.implies(thisIsGreaterThanPreviousGreatest, process)) { // by now, this is either implied or not, because previous defining literals decide it
 				greatestStrictLowerBound = strictLowerBound;
@@ -529,7 +560,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		};
 
 		Set<Expression> distinctDisequalsWithinBounds = set();
-		for (Expression disequal : in(getDisequals(process))) {
+		for (Expression disequal : getDisequals()) {
 			boolean greaterThanGreatestStrictLowerBound = implied.apply(apply(GREATER_THAN, disequal, greatestStrictLowerBound));
 			// Note that the two instances of 'apply' above are very different and only coincidentally named the same; one is the application of Function<Expression, Boolean> whereas the other is the construction of a function application Expression
 			if (greaterThanGreatestStrictLowerBound) {
