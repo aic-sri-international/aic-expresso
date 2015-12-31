@@ -196,4 +196,9 @@ public class IntegerInterval implements Type {
 	private boolean boundsAreConstants() {
 		return isNumber(nonStrictLowerBound) && isNumber(nonStrictUpperBound);
 	}
+	
+	@Override
+	public String toString() {
+		return "]" + nonStrictLowerBound + ", " + nonStrictUpperBound + "[";
+	}
 }

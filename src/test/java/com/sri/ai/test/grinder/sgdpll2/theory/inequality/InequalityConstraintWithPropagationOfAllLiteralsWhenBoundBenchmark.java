@@ -46,4 +46,5 @@ public class InequalityConstraintWithPropagationOfAllLiteralsWhenBoundBenchmark 
 	protected boolean getPropagateAllLiteralsWhenVariableIsBound() {
 		return true;
 	}
+	// 12/31/2015: 23.5
 }

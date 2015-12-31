@@ -118,7 +118,8 @@ public abstract class AbstractLinearStepSolver implements ContextDependentProble
 	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
 		SolutionStep result;
 		if (current != n) {
-			Expression literal = makeLiteral();
+			Expression unsimplifiedLiteral = makeLiteral();
+			Expression literal = contextualConstraint.getConstraintTheory().simplify(unsimplifiedLiteral, process);
 			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, literal, process);
 			switch (split.getResult()) {
 			case CONSTRAINT_IS_CONTRADICTORY:
