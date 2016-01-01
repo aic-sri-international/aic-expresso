@@ -58,8 +58,10 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
+import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.sgdpll2.theory.inequality.MaximumExpressionStepSolver;
 import com.sri.ai.grinder.sgdpll2.theory.inequality.InequalityConstraintTheory;
 
@@ -137,14 +139,14 @@ public class MaximumExpressionStepSolverTest {
 	}
 
 	private void runTest(List<String> expressions, String order, Expression orderMinimum, Expression orderMaximum, Expression expected, Constraint2 contextualConstraint, RewritingProcess process) {
-		ContextDependentProblemStepSolver stepSolver =
+		ContextDependentProblemStepSolver<Expression> stepSolver =
 				new MaximumExpressionStepSolver(
 						mapIntoArrayList(expressions, Expressions::parse),
 						makeSymbol(order),
 						orderMinimum,
 						orderMaximum);
 
-		Expression solution = stepSolver.solve(contextualConstraint, process);
+		Expression solution = ContextDependentExpressionProblemSolver.solve(stepSolver, contextualConstraint, process);
 		System.out.println("Maximum of " + expressions + " for order " + order + ": " + solution);
 		assertEquals(expected, solution);
 	}

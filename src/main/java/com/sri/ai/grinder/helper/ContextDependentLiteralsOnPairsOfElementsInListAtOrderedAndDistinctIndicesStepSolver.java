@@ -42,7 +42,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.util.base.BinaryFunction;
 import com.sri.ai.util.base.CloneableIterator;
 import com.sri.ai.util.base.OrderedPairsOfIntegersIterator;
@@ -103,7 +103,7 @@ public class ContextDependentLiteralsOnPairsOfElementsInListAtOrderedAndDistinct
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver clone() {
+	public ContextDependentExpressionProblemStepSolver clone() {
 		return new ContextDependentLiteralsOnPairsOfElementsInListAtOrderedAndDistinctIndicesStepSolver(list, i, j, literalMaker);
 	}
 }

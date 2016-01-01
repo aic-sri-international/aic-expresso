@@ -64,7 +64,7 @@ import com.sri.ai.grinder.core.simplifier.Exhaustive;
 import com.sri.ai.grinder.core.simplifier.Pipeline;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractConstraintTheory;
 import com.sri.ai.util.Util;
@@ -172,16 +172,16 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
+	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
 		ConstraintTheory constraintTheory = getConstraintTheory(constraint.getVariable(), process);
-		ContextDependentProblemStepSolver result = constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, process);
+		ContextDependentExpressionProblemStepSolver result = constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(constraint, process);
 		return result;
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
+	public ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, RewritingProcess process) {
 		ConstraintTheory constraintTheory = getConstraintTheory(constraint.getVariable(), process);
-		ContextDependentProblemStepSolver result = constraintTheory.getSingleVariableConstraintModelCountingStepSolver(constraint, process);
+		ContextDependentExpressionProblemStepSolver result = constraintTheory.getSingleVariableConstraintModelCountingStepSolver(constraint, process);
 		return result;
 	}
 

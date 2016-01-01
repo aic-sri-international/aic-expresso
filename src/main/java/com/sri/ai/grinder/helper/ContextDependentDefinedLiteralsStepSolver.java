@@ -44,7 +44,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 import com.sri.ai.util.base.CloneableIterator;
 
@@ -67,7 +67,7 @@ import com.sri.ai.util.base.CloneableIterator;
  *
  */
 @Beta
-public class ContextDependentDefinedLiteralsStepSolver implements ContextDependentProblemStepSolver {
+public class ContextDependentDefinedLiteralsStepSolver implements ContextDependentExpressionProblemStepSolver {
 
 	private CloneableIterator<Expression> initialIterator;
 	
@@ -84,7 +84,7 @@ public class ContextDependentDefinedLiteralsStepSolver implements ContextDepende
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver clone() {
+	public ContextDependentExpressionProblemStepSolver clone() {
 		return new ContextDependentDefinedLiteralsStepSolver(initialIterator);
 	}
 
@@ -99,7 +99,7 @@ public class ContextDependentDefinedLiteralsStepSolver implements ContextDepende
 			case CONSTRAINT_IS_CONTRADICTORY:
 				return null;
 			case LITERAL_IS_UNDEFINED:
-				ContextDependentProblemStepSolver stepSolverFromNowOn = new ContextDependentDefinedLiteralsStepSolver(iterator.clone());
+				ContextDependentExpressionProblemStepSolver stepSolverFromNowOn = new ContextDependentDefinedLiteralsStepSolver(iterator.clone());
 				return new ItDependsOn(literal, split, stepSolverFromNowOn, stepSolverFromNowOn);
 			case LITERAL_IS_TRUE:
 			case LITERAL_IS_FALSE:

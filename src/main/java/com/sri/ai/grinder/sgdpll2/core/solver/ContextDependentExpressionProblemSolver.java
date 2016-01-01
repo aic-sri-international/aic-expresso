@@ -45,6 +45,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
@@ -54,13 +55,13 @@ import com.sri.ai.grinder.sgdpll2.theory.equality.SatisfiabilityOfSingleVariable
 import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstraint;
 
 /**
- * Solves a {@link ContextDependentProblemStepSolver} by successively conditioning the context on provided splitters.
+ * Solves a {@link ContextDependentExpressionProblemStepSolver} by successively conditioning the context on provided splitters.
  * 
  * @author braz
  *
  */
 @Beta
-public class ContextDependentProblemSolver {
+public class ContextDependentExpressionProblemSolver {
 
 	/**
 	 * Returns the solution for a problem using a step solver, or null if the contextual constraint is found to be inconsistent.
@@ -69,8 +70,8 @@ public class ContextDependentProblemSolver {
 	 * @param process
 	 * @return
 	 */
-	public static Expression solve(ContextDependentProblemStepSolver stepSolver, Constraint2 contextualConstraint, RewritingProcess process) {
-		ContextDependentProblemStepSolver.SolutionStep step = stepSolver.step(contextualConstraint, process);
+	public static Expression solve(ContextDependentProblemStepSolver<Expression> stepSolver, Constraint2 contextualConstraint, RewritingProcess process) {
+		ContextDependentProblemStepSolver.SolutionStep<Expression> step = stepSolver.step(contextualConstraint, process);
 //		System.out.println("Step: " + step);
 //		System.out.println("Contextual constraint: " + contextualConstraint);	
 		if (step == null) {
@@ -95,8 +96,8 @@ public class ContextDependentProblemSolver {
 //				System.out.println("Contextual constraint: " + contextualConstraint);	
 //				System.out.println("Constraint and literal: " + split.getConstraintAndLiteral());	
 //				System.out.println("Constraint and literal negation: " + split.getConstraintAndLiteralNegation());	
-				Expression subSolution1 = solve(step.getStepSolverForWhenExpressionIsTrue (), split.getConstraintAndLiteral(), process);
-				Expression subSolution2 = solve(step.getStepSolverForWhenExpressionIsFalse(), split.getConstraintAndLiteralNegation(), process);
+				Expression subSolution1 = solve(step.getStepSolverForWhenLiteralIsTrue (), split.getConstraintAndLiteral(), process);
+				Expression subSolution2 = solve(step.getStepSolverForWhenLiteralIsFalse(), split.getConstraintAndLiteralNegation(), process);
 				if (subSolution1 == null || subSolution2 == null) {
 					return null;
 				}
@@ -125,7 +126,7 @@ public class ContextDependentProblemSolver {
 		constraint = constraint.conjoin(parse("X != W"), process);
 		constraint = constraint.conjoin(parse("X != U"), process);
 		
-		ContextDependentProblemStepSolver problem = new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(constraint);
+		ContextDependentExpressionProblemStepSolver problem = new SatisfiabilityOfSingleVariableEqualityConstraintStepSolver(constraint);
 
 		MultiVariableConstraint contextualConstraint = new CompleteMultiVariableConstraint(new EqualityConstraintTheory(true, true));
 		

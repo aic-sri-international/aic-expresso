@@ -59,7 +59,7 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  *
  */
 @Beta
-public abstract class AbstractLinearStepSolver implements ContextDependentProblemStepSolver {
+public abstract class AbstractLinearStepSolver<T> implements ContextDependentProblemStepSolver<T> {
 
 	private int n;
 	protected int current;
@@ -74,19 +74,19 @@ public abstract class AbstractLinearStepSolver implements ContextDependentProble
 	 * Provides sub-step solver to be used when literal is (or enforced to be) true.
 	 * @return
 	 */
-	abstract protected ContextDependentProblemStepSolver makeSubStepSolverWhenLiteralIsTrue();
+	abstract protected ContextDependentProblemStepSolver<T> makeSubStepSolverWhenLiteralIsTrue();
 	
 	/**
 	 * Provides sub-step solver to be used when literal is (or enforced to be) false.
 	 * @return
 	 */
-	abstract protected ContextDependentProblemStepSolver makeSubStepSolverWhenLiteralIsFalse();
+	abstract protected ContextDependentProblemStepSolver<T> makeSubStepSolverWhenLiteralIsFalse();
 
 	/**
 	 * Provides solution if all elements have already been checked.
 	 * @return
 	 */
-	abstract protected SolutionStep makeSolutionWhenAllElementsHaveBeenChecked();
+	abstract protected SolutionStep<T> makeSolutionWhenAllElementsHaveBeenChecked();
 
 	/**
 	 * Makes a step solver in this class for the sequence of integers
@@ -115,8 +115,8 @@ public abstract class AbstractLinearStepSolver implements ContextDependentProble
 	}
 	
 	@Override
-	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
-		SolutionStep result;
+	public SolutionStep<T> step(Constraint2 contextualConstraint, RewritingProcess process) {
+		SolutionStep<T> result;
 		if (current != n) {
 			Expression unsimplifiedLiteral = makeLiteral();
 			Expression literal = contextualConstraint.getConstraintTheory().simplify(unsimplifiedLiteral, process);
@@ -132,7 +132,7 @@ public abstract class AbstractLinearStepSolver implements ContextDependentProble
 				result = makeSubStepSolverWhenLiteralIsFalse().step(contextualConstraint, process);
 				break;
 			case LITERAL_IS_UNDEFINED:
-				result = new ItDependsOn(
+				result = new ItDependsOn<T>(
 						literal,
 						split,
 						makeSubStepSolverWhenLiteralIsTrue(),

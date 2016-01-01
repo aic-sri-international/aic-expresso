@@ -16,7 +16,7 @@ import com.sri.ai.grinder.api.SimplifierUnderContextualConstraint;
 import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 
 /**
@@ -44,7 +44,7 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  *
  */
 @Beta
-public class LiteralConditionerStepSolver implements ContextDependentProblemStepSolver {
+public class LiteralConditionerStepSolver implements ContextDependentExpressionProblemStepSolver {
 
 	private Expression expression;
 	private ArrayList<Expression> literalsInExpression;

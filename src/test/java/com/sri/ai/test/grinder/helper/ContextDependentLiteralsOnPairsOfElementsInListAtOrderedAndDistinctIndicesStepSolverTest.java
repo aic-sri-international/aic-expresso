@@ -55,8 +55,8 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.ContextDependentLiteralsOnPairsOfElementsInListAtOrderedAndDistinctIndicesStepSolver;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver.SolutionStep;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver.SolutionStep;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.util.base.BinaryFunction;
@@ -80,7 +80,7 @@ public class ContextDependentLiteralsOnPairsOfElementsInListAtOrderedAndDistinct
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("X != c"), step.getLiteral());
 		
-		ContextDependentProblemStepSolver stepSolver1 = step.getStepSolverForWhenExpressionIsTrue(); // saving to use twice
+		ContextDependentExpressionProblemStepSolver stepSolver1 = step.getStepSolverForWhenLiteralIsTrue(); // saving to use twice
 		
 		step = stepSolver1.step(contextualConstraint, process);
 		assertEquals(true, step.itDepends());
@@ -92,11 +92,11 @@ public class ContextDependentLiteralsOnPairsOfElementsInListAtOrderedAndDistinct
 		assertEquals(parse("Y != a"), step.getLiteral());
 		
 		// ok, moving on
-		step = step.getStepSolverForWhenExpressionIsTrue().step(contextualConstraint, process);
+		step = step.getStepSolverForWhenLiteralIsTrue().step(contextualConstraint, process);
 		assertEquals(true, step.itDepends());
 		assertEquals(parse("Y != c"), step.getLiteral());
 		
-		step = step.getStepSolverForWhenExpressionIsTrue().step(contextualConstraint, process);
+		step = step.getStepSolverForWhenLiteralIsTrue().step(contextualConstraint, process);
 		assertEquals(false, step.itDepends());
 		assertEquals(TRUE, step.getValue());
 	}

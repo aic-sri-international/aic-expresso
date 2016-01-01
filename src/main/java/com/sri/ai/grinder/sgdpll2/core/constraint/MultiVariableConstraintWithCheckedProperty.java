@@ -51,7 +51,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.util.base.BinaryFunction;
@@ -60,7 +60,7 @@ import com.sri.ai.util.base.Pair;
 /**
  * An {@link Constraint2} on multiple variables,
  * with the ability to ensure all single-variable constraints that are part of it
- * have a property determined by a {@link ContextDependentProblemStepSolver},
+ * have a property determined by a {@link ContextDependentExpressionProblemStepSolver},
  * or otherwise the total constraint is deemed unsatisfiable.
  * 
  * @author braz
@@ -84,7 +84,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 	 */
 	public static
 	interface ContextDependentProblemStepSolverMaker
-	extends BinaryFunction<SingleVariableConstraint, RewritingProcess, ContextDependentProblemStepSolver> {}
+	extends BinaryFunction<SingleVariableConstraint, RewritingProcess, ContextDependentExpressionProblemStepSolver> {}
 	
 	ContextDependentProblemStepSolverMaker contextDependentProblemStepSolverMaker;
 	
@@ -272,7 +272,7 @@ public class MultiVariableConstraintWithCheckedProperty extends AbstractExpressi
 			result = this;
 		}
 		else {
-			ContextDependentProblemStepSolver problem = contextDependentProblemStepSolverMaker.apply(singleVariableConstraint, process);
+			ContextDependentExpressionProblemStepSolver problem = contextDependentProblemStepSolverMaker.apply(singleVariableConstraint, process);
 			Expression solution = problem.solve(contextualConstraint, process);
 			if (solution == null) { // contextual constraint is found to be inconsistent
 				result = null;

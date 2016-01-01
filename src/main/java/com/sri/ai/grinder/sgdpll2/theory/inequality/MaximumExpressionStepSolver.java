@@ -45,6 +45,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.theory.equality.AbstractLinearStepSolver;
 
@@ -56,7 +57,9 @@ import com.sri.ai.grinder.sgdpll2.theory.equality.AbstractLinearStepSolver;
  *
  */
 @Beta
-public class MaximumExpressionStepSolver extends AbstractLinearStepSolver {
+public class MaximumExpressionStepSolver
+extends AbstractLinearStepSolver<Expression>
+{
 
 	private List<Expression> expressions;
 	private Expression order;
@@ -91,10 +94,10 @@ public class MaximumExpressionStepSolver extends AbstractLinearStepSolver {
 	}
 	
 	@Override
-	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
-		SolutionStep result;
+	public ContextDependentProblemStepSolver.SolutionStep<Expression> step(Constraint2 contextualConstraint, RewritingProcess process) {
+		ContextDependentProblemStepSolver.SolutionStep<Expression> result;
 		if (maximumSoFar.equals(orderMaximum)) { // short-circuiting if maximum already found
-			result = new Solution(orderMaximum);
+			result = new ContextDependentExpressionProblemStepSolver.Solution(orderMaximum);
 		}
 		else {
 			result = super.step(contextualConstraint, process);
@@ -109,18 +112,18 @@ public class MaximumExpressionStepSolver extends AbstractLinearStepSolver {
 	}
 
 	@Override
-	protected ContextDependentProblemStepSolver makeSubStepSolverWhenLiteralIsTrue() {
+	protected ContextDependentProblemStepSolver<Expression> makeSubStepSolverWhenLiteralIsTrue() {
 		return new MaximumExpressionStepSolver(expressions, order, orderMaximum, getCurrentExpression(), getCurrent() + 1);
 	}
 
 	@Override
-	protected ContextDependentProblemStepSolver makeSubStepSolverWhenLiteralIsFalse() {
+	protected ContextDependentProblemStepSolver<Expression> makeSubStepSolverWhenLiteralIsFalse() {
 		return new MaximumExpressionStepSolver(expressions, order, orderMaximum, maximumSoFar, getCurrent() + 1);
 	}
 
 	@Override
-	protected SolutionStep makeSolutionWhenAllElementsHaveBeenChecked() {
-		Solution result = new Solution(maximumSoFar);
+	protected ContextDependentProblemStepSolver.SolutionStep<Expression> makeSolutionWhenAllElementsHaveBeenChecked() {
+		ContextDependentProblemStepSolver.Solution<Expression> result = new ContextDependentProblemStepSolver.Solution<Expression>(maximumSoFar);
 		return result;
 	}
 

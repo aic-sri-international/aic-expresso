@@ -60,7 +60,7 @@ import com.sri.ai.grinder.library.indexexpression.IndexExpressions;
 import com.sri.ai.util.Util;
 
 /**
- * An abstract implementation of a {@link ContextDependentProblemStepSolver}.
+ * An abstract implementation of a {@link ContextDependentExpressionProblemStepSolver}.
  * 
  * @author braz
  */

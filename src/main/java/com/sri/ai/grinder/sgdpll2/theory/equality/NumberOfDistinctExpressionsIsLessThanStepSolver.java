@@ -48,7 +48,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 
 /**
  * A context-dependent problem step solver deciding whether the number of unique given expression is smaller than a given limit
@@ -57,7 +57,7 @@ import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
  *
  */
 @Beta
-public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextDependentProblemStepSolver {
+public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextDependentExpressionProblemStepSolver {
 
 	private int limit;
 	private List<Expression> expressions;
@@ -81,9 +81,9 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver clone() {
+	public ContextDependentExpressionProblemStepSolver clone() {
 		try {
-			return (ContextDependentProblemStepSolver) super.clone();
+			return (ContextDependentExpressionProblemStepSolver) super.clone();
 		} catch (CloneNotSupportedException e) {
 			throw new Error(e);
 		}
@@ -102,10 +102,10 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 		SolutionStep step = counterStepSolver.step(contextualConstraint, process);
 		if (step.itDepends()) {
 			NumberOfDistinctExpressionsIsLessThanStepSolver subStepSolverWhenFormulaIsTrue
-			= new NumberOfDistinctExpressionsIsLessThanStepSolver(limit, expressions, (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenExpressionIsTrue());
+			= new NumberOfDistinctExpressionsIsLessThanStepSolver(limit, expressions, (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenLiteralIsTrue());
 
 			NumberOfDistinctExpressionsIsLessThanStepSolver subStepSolverWhenFormulaIsFalse
-			= new NumberOfDistinctExpressionsIsLessThanStepSolver(limit, expressions, (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenExpressionIsFalse());
+			= new NumberOfDistinctExpressionsIsLessThanStepSolver(limit, expressions, (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenLiteralIsFalse());
 
 			return new ItDependsOn(step.getLiteral(), step.getConstraintSplitting(), subStepSolverWhenFormulaIsTrue, subStepSolverWhenFormulaIsFalse);
 		}

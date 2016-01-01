@@ -54,7 +54,7 @@ import com.sri.ai.util.collect.StackedLinkedList;
  *
  */
 @Beta
-public abstract class SelectionStepSolver extends AbstractLinearStepSolver {
+public abstract class SelectionStepSolver extends AbstractLinearStepSolver<Expression> {
 
 	private List<Expression> expressions;
 	private List<Expression> selection;
@@ -80,7 +80,7 @@ public abstract class SelectionStepSolver extends AbstractLinearStepSolver {
 	}
 	
 	@Override
-	protected ContextDependentProblemStepSolver makeSubStepSolverWhenLiteralIsTrue() {
+	protected ContextDependentProblemStepSolver<Expression> makeSubStepSolverWhenLiteralIsTrue() {
 		SelectionStepSolver result = (SelectionStepSolver) clone();
 		result.current = getCurrent() + 1;
 		result.selection = new StackedLinkedList<Expression>(expressions.get(getCurrent()), selection);
@@ -88,7 +88,7 @@ public abstract class SelectionStepSolver extends AbstractLinearStepSolver {
 	}
 
 	@Override
-	protected ContextDependentProblemStepSolver makeSubStepSolverWhenLiteralIsFalse() {
+	protected ContextDependentProblemStepSolver<Expression> makeSubStepSolverWhenLiteralIsFalse() {
 		SelectionStepSolver result = (SelectionStepSolver) clone();
 		result.current = getCurrent() + 1;
 		// selection remains the same
@@ -96,8 +96,8 @@ public abstract class SelectionStepSolver extends AbstractLinearStepSolver {
 	}
 
 	@Override
-	protected SolutionStep makeSolutionWhenAllElementsHaveBeenChecked() {
-		Solution result = new Solution(null);
+	protected SolutionStep<Expression> makeSolutionWhenAllElementsHaveBeenChecked() {
+		Solution<Expression> result = new Solution<Expression>(null);
 		return result;
 	}
 }

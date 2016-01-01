@@ -46,7 +46,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 
 /**
@@ -101,7 +101,7 @@ public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSat
 	@Override
 	protected ArrayList<ArrayList<Expression>> getPropagatedCNF(RewritingProcess process) {
 		ConstraintTheory constraintTheory = getConstraint().getConstraintTheory();
-		ContextDependentProblemStepSolver satisfiability =
+		ContextDependentExpressionProblemStepSolver satisfiability =
 				constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(getConstraint(), process);
 		AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver satisfiabilityWithPropagatedLiterals;
 		try {

@@ -45,7 +45,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 import com.sri.ai.util.base.OrderedPairsOfIntegersIterator;
 import com.sri.ai.util.base.PairOf;
@@ -74,7 +74,7 @@ import com.sri.ai.util.base.PairOf;
  *
  */
 @Beta
-public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver implements ContextDependentProblemStepSolver {
+public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver implements ContextDependentExpressionProblemStepSolver {
 
 	private List<Expression> expressions;
 	private OrderedPairsOfIntegersIterator initialIndices;
@@ -101,13 +101,13 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 	 * @param indices the indices of the literal, which can, in the sub-step solver, be assumed to be false.
 	 * @return
 	 */
-	abstract public ContextDependentProblemStepSolver makeSubStepSolverForWhenLiteralIsFalse(OrderedPairsOfIntegersIterator indices);
+	abstract public AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver makeSubStepSolverForWhenLiteralIsFalse(OrderedPairsOfIntegersIterator indices);
 
 	/**
 	 * @param indices the indices of the literal, which can, in the sub-step solver, be assumed to be true.
 	 * @return
 	 */
-	abstract public ContextDependentProblemStepSolver makeSubStepSolverForWhenLiteralIsTrue(OrderedPairsOfIntegersIterator indices);
+	abstract public AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver makeSubStepSolverForWhenLiteralIsTrue(OrderedPairsOfIntegersIterator indices);
 
 	public AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver(ArrayList<Expression> expressions) {
 		this(expressions, 0, 1);
@@ -128,9 +128,9 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 	}
 
 	@Override
-	public ContextDependentProblemStepSolver clone() {
+	public ContextDependentExpressionProblemStepSolver clone() {
 		try {
-			return (ContextDependentProblemStepSolver) super.clone();
+			return (ContextDependentExpressionProblemStepSolver) super.clone();
 		} catch (CloneNotSupportedException e) {
 			throw new Error(e);
 		}
@@ -170,8 +170,8 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 			
 			Expression literal = makeLiteral(i, j);
 
-			ContextDependentProblemStepSolver stepSolverForWhenLiteralIsTrue  = null; // this null is never used, just making compiler happy
-			ContextDependentProblemStepSolver stepSolverForWhenLiteralIsFalse = null; // this null is never used, just making compiler happy
+			AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver stepSolverForWhenLiteralIsTrue  = null; // this null is never used, just making compiler happy
+			AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver stepSolverForWhenLiteralIsFalse = null; // this null is never used, just making compiler happy
 
 			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, literal, process);
 			if (split.getResult().equals(ConstraintSplitting.Result.CONSTRAINT_IS_CONTRADICTORY)) {

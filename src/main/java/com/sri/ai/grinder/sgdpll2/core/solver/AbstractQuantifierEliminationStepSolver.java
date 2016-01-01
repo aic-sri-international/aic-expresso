@@ -14,7 +14,7 @@ import com.sri.ai.grinder.library.controlflow.IfThenElse;
 import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 
@@ -59,7 +59,7 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  *
  */
 @Beta
-public abstract class AbstractQuantifierEliminationStepSolver implements ContextDependentProblemStepSolver, Cloneable {
+public abstract class AbstractQuantifierEliminationStepSolver implements ContextDependentExpressionProblemStepSolver, Cloneable {
 
 	private AssociativeCommutativeGroup group;
 	
@@ -161,8 +161,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 				else { // not on index, just pass the expression on which we depend on, but with appropriate sub-step solvers (this, for now)
 					AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsTrue = clone();
 					AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsFalse = clone();
-					subStepSolverForWhenLiteralIsTrue.bodyStepSolver = (LiteralConditionerStepSolver) bodyStep.getStepSolverForWhenExpressionIsTrue();
-					subStepSolverForWhenLiteralIsFalse.bodyStepSolver = (LiteralConditionerStepSolver) bodyStep.getStepSolverForWhenExpressionIsTrue();
+					subStepSolverForWhenLiteralIsTrue.bodyStepSolver = (LiteralConditionerStepSolver) bodyStep.getStepSolverForWhenLiteralIsTrue();
+					subStepSolverForWhenLiteralIsFalse.bodyStepSolver = (LiteralConditionerStepSolver) bodyStep.getStepSolverForWhenLiteralIsTrue();
 					result = new ItDependsOn(bodyStep.getLiteral(), null, subStepSolverForWhenLiteralIsTrue, subStepSolverForWhenLiteralIsFalse);
 					// we cannot directly re-use bodyStep.getConstraintSplitting() because it was not obtained from the same contextual constraint,
 					// but from the contextual constraint conjoined with the index constraint.
@@ -216,7 +216,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 
 	private Expression solveSubProblem(Constraint2 newIndexConstraint, Constraint2 contextualConstraint, RewritingProcess process) {
 		SingleVariableConstraint newIndexConstraintAsSingleVariableConstraint = (SingleVariableConstraint) newIndexConstraint;
-		ContextDependentProblemStepSolver subProblem = makeWithNewIndexConstraint(newIndexConstraintAsSingleVariableConstraint);
+		ContextDependentExpressionProblemStepSolver subProblem = makeWithNewIndexConstraint(newIndexConstraintAsSingleVariableConstraint);
 		Expression result = subProblem.solve(contextualConstraint, process);
 		return result;
 	}

@@ -514,7 +514,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 					LESS_THAN_SYMBOL, // use total order <
 					getTypeStrictLowerBound(process), // type minimum
 					getTypeStrictUpperBound(process)); // type maximum
-			SolutionStep maximumStrictLowerBoundStep = maximumStrictLowerBoundStepSolver.step(contextualConstraint, process);
+			com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver.SolutionStep<Expression> maximumStrictLowerBoundStep = maximumStrictLowerBoundStepSolver.step(contextualConstraint, process);
 			if (maximumStrictLowerBoundStep.itDepends()) {
 				throw new Error("Should not be here at this point");	
 //				ItDependsOn result = new ItDependsOn(maximumStrictLowerBoundStep.getExpression(), maximumStrictLowerBoundStep.getConstraintSplitting(), clone(), clone());
@@ -528,7 +528,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 					GREATER_THAN_SYMBOL, // use total order > since "minimum" is maximum under it
 					getTypeNonStrictUpperBound(process), // type "minimum" in inverted direction is the upper bound
 					getTypeNonStrictLowerBound(process)); // type "maximum" in inverted direction is the lower bound
-			SolutionStep minimumNonStrictUpperBoundStep = minimumNonStrictUpperBoundStepSolver.step(contextualConstraint, process);
+			com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver.SolutionStep<Expression> minimumNonStrictUpperBoundStep = minimumNonStrictUpperBoundStepSolver.step(contextualConstraint, process);
 			if (minimumNonStrictUpperBoundStep.itDepends()) {
 				throw new Error("Should not be here at this point");	
 //				ItDependsOn result = new ItDependsOn(minimumNonStrictUpperBoundStep.getExpression(), minimumNonStrictUpperBoundStep.getConstraintSplitting(), clone(), clone());

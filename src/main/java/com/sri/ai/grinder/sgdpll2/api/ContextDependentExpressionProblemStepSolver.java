@@ -41,6 +41,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
+import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentExpressionProblemSolver;
 
 /**
  * An interface for step-solvers for problems involving free variables constrained by a contextual {@link Constraint2}.
@@ -56,7 +57,7 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  *
  */
 @Beta
-public interface ContextDependentProblemStepSolver<T> extends Cloneable {
+public interface ContextDependentExpressionProblemStepSolver extends ContextDependentProblemStepSolver<Expression>, Cloneable {
 
 	/**
 	 * Cloning is important for this interface, because when a problem depends on an expression to be solved
@@ -73,7 +74,7 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 	 * Note also that, instead of clone, we could have a copy constructor or just regular constructors
 	 * receiving state information as parameters.
 	 * However, clone provides more flexibility if one is writing code that manipulates
-	 * {@link ContextDependentProblemStepSolver}s in general, and therefore needs
+	 * {@link ContextDependentExpressionProblemStepSolver}s in general, and therefore needs
 	 * a way to create copies without knowing its actual class.
 	 * <p>
 	 * Finally, it is recommended that the implementation of clone be the code below
@@ -97,17 +98,17 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 	 * 
 	 * @return a clone of this step solver.
 	 */
-	ContextDependentProblemStepSolver clone();
+	ContextDependentExpressionProblemStepSolver clone();
 	
 	/**
-	 * A solution step of a {@link ContextDependentProblemStepSolver}.
+	 * A solution step of a {@link ContextDependentExpressionProblemStepSolver}.
 	 * If {@link #itDepends()} returns <code>true</code>, the solution cannot be determined
 	 * unless the contextual constraint be restricted according to the literal returned by {@link #getLiteral()}.
 	 * Otherwise, the expression returned by {@link #getValue()} is the solution.
 	 * @author braz
 	 *
 	 */
-	public static interface SolutionStep<T> {
+	public static interface SolutionStep extends ContextDependentProblemStepSolver.SolutionStep<Expression> {
 		boolean itDepends();
 		
 		/**
@@ -120,22 +121,22 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 		 * If {@link #itDepends()} is false, returns the solution value.
 		 * @return
 		 */
-		T getValue();
+		Expression getValue();
 		
 		/**
-		 * Returns a {@link ContextDependentProblemStepSolver} to be used for finding the final solution
+		 * Returns a {@link ContextDependentExpressionProblemStepSolver} to be used for finding the final solution
 		 * in case the literal is defined as true by the contextual constraint.
 		 * This is merely an optimization, and using the original step solver should still work,
 		 * but will perform wasted working re-discovering that expressions is already true.
 		 * @return
 		 */
-		ContextDependentProblemStepSolver<T> getStepSolverForWhenLiteralIsTrue();
+		ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsTrue();
 		
 		/**
 		 * Same as {@link #getStepSolverForWhenLiteralIsTrue()} but for when literal is false.
 		 * @return
 		 */
-		ContextDependentProblemStepSolver<T> getStepSolverForWhenLiteralIsFalse();
+		ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsFalse();
 		
 		/**
 		 * For solutions depending on a split, provides the constraint splitting
@@ -154,14 +155,27 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 	 * @param process
 	 * @return
 	 */
-	SolutionStep<T> step(Constraint2 contextualConstraint, RewritingProcess process);
+	SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process);
 
-	public static class ItDependsOn<T> implements SolutionStep<T> {
+	/**
+	 * Convenience method invoking
+	 * {@link ContextDependentExpressionProblemSolver#solve(ContextDependentExpressionProblemStepSolver, Constraint2, RewritingProcess)}
+	 * on this step solver.
+	 * @param contextualConstraint
+	 * @param process
+	 * @return
+	 */
+	default Expression solve(Constraint2 contextualConstraint, RewritingProcess process) {
+		Expression result = ContextDependentExpressionProblemSolver.solve(this, contextualConstraint, process);
+		return result;
+	}
+	
+	public static class ItDependsOn implements SolutionStep {
 
 		private Expression literal;
 		private ConstraintSplitting constraintSplitting;
-		private ContextDependentProblemStepSolver<T> stepSolverIfExpressionIsTrue;
-		private ContextDependentProblemStepSolver<T> stepSolverIfExpressionIsFalse;
+		private ContextDependentExpressionProblemStepSolver stepSolverIfExpressionIsTrue;
+		private ContextDependentExpressionProblemStepSolver stepSolverIfExpressionIsFalse;
 		
 		/**
 		 * Represents a solution step in which the final solution depends on the definition of a given expression
@@ -177,8 +191,8 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 		public ItDependsOn(
 				Expression literal,
 				ConstraintSplitting constraintSplitting,
-				ContextDependentProblemStepSolver<T> stepSolverIfExpressionIsTrue,
-				ContextDependentProblemStepSolver<T> stepSolverIfExpressionIsFalse) {
+				ContextDependentExpressionProblemStepSolver stepSolverIfExpressionIsTrue,
+				ContextDependentExpressionProblemStepSolver stepSolverIfExpressionIsFalse) {
 			super();
 			this.literal = literal;
 			this.constraintSplitting = constraintSplitting;
@@ -192,7 +206,7 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 		}
 		
 		@Override
-		public T getValue() {
+		public Expression getValue() {
 			throw new Error("ItDependsOn does not define getValue().");
 		}
 		
@@ -207,12 +221,12 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 		}
 
 		@Override
-		public ContextDependentProblemStepSolver<T> getStepSolverForWhenLiteralIsTrue() {
+		public ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsTrue() {
 			return stepSolverIfExpressionIsTrue;
 		}
 		
 		@Override
-		public ContextDependentProblemStepSolver<T> getStepSolverForWhenLiteralIsFalse() {
+		public ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsFalse() {
 			return stepSolverIfExpressionIsFalse;
 		}
 		
@@ -223,11 +237,11 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 	}
 	
 	
-	public static class Solution<T> implements SolutionStep<T> {
+	public static class Solution implements SolutionStep {
 
-		private T value;
+		private Expression value;
 		
-		public Solution(T value) {
+		public Solution(Expression value) {
 			this.value = value;
 		}
 		
@@ -242,7 +256,7 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 		}
 		
 		@Override
-		public T getValue() {
+		public Expression getValue() {
 			return value;
 		}
 		
@@ -252,12 +266,12 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 		}
 
 		@Override
-		public ContextDependentProblemStepSolver<T> getStepSolverForWhenLiteralIsTrue() {
+		public ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsTrue() {
 			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
 		}
 
 		@Override
-		public ContextDependentProblemStepSolver<T> getStepSolverForWhenLiteralIsFalse() {
+		public ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsFalse() {
 			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
 		}
 

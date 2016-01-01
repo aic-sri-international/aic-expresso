@@ -45,7 +45,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.solver.AbstractBooleanProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
 
 /**
@@ -57,10 +57,10 @@ import com.sri.ai.grinder.sgdpll2.core.solver.AbstractBooleanProblemWithPropagat
  *
  */
 @Beta
-public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implements ContextDependentProblemStepSolver {
+public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implements ContextDependentExpressionProblemStepSolver {
 
 	private Constraint2 constraint;
-	private ContextDependentProblemStepSolver modelCounting;
+	private ContextDependentExpressionProblemStepSolver modelCounting;
 	
 	public SatisfiabilityOfSingleVariableInequalityConstraintStepSolver(SingleVariableInequalityConstraint constraint) {
 		this.constraint = constraint;

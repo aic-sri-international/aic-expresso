@@ -153,19 +153,19 @@ public interface ConstraintTheory extends Theory {
 
 	/**
 	 * Given a single-variable constraint in this theory, returns
-	 * a {@link ContextDependentProblemStepSolver} deciding its satisfiability.
+	 * a {@link ContextDependentExpressionProblemStepSolver} deciding its satisfiability.
 	 * @param process TODO
-	 * @return a {@link ContextDependentProblemStepSolver} deciding a constraint's satisfiability.
+	 * @return a {@link ContextDependentExpressionProblemStepSolver} deciding a constraint's satisfiability.
 	 */
-	ContextDependentProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, RewritingProcess process);
+	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint constraint, RewritingProcess process);
 	
 	/**
 	 * Given a single-variable constraint in this theory, returns
-	 * a {@link ContextDependentProblemStepSolver} computing its model count.
+	 * a {@link ContextDependentExpressionProblemStepSolver} computing its model count.
 	 * @param process TODO
-	 * @return a {@link ContextDependentProblemStepSolver} computing a constraint's model count.
+	 * @return a {@link ContextDependentExpressionProblemStepSolver} computing a constraint's model count.
 	 */
-	ContextDependentProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, RewritingProcess process);
+	ContextDependentExpressionProblemStepSolver getSingleVariableConstraintModelCountingStepSolver(SingleVariableConstraint constraint, RewritingProcess process);
 	
 	/**
 	 * Returns the negation of a literal.

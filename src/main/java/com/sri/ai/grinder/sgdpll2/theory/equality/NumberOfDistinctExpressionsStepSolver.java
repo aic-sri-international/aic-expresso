@@ -46,7 +46,6 @@ import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.theory.base.AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver;
 import com.sri.ai.util.base.OrderedPairsOfIntegersIterator;
 
@@ -102,8 +101,8 @@ public class NumberOfDistinctExpressionsStepSolver extends AbstractDecisionOnAll
 	 * @return
 	 */
 	@Override
-	public ContextDependentProblemStepSolver makeSubStepSolverForWhenLiteralIsFalse(OrderedPairsOfIntegersIterator indices) {
-		ContextDependentProblemStepSolver stepSolverForDisequality;
+	public NumberOfDistinctExpressionsStepSolver makeSubStepSolverForWhenLiteralIsFalse(OrderedPairsOfIntegersIterator indices) {
+		NumberOfDistinctExpressionsStepSolver stepSolverForDisequality;
 		// if they turn out to be disequal, keep moving like we did above (move to the next j)
 		OrderedPairsOfIntegersIterator nextInitialIndices = indices;
 		stepSolverForDisequality
@@ -116,8 +115,8 @@ public class NumberOfDistinctExpressionsStepSolver extends AbstractDecisionOnAll
 	 * @return
 	 */
 	@Override
-	public ContextDependentProblemStepSolver makeSubStepSolverForWhenLiteralIsTrue(OrderedPairsOfIntegersIterator indices) {
-		ContextDependentProblemStepSolver stepSolverForEquality;
+	public NumberOfDistinctExpressionsStepSolver makeSubStepSolverForWhenLiteralIsTrue(OrderedPairsOfIntegersIterator indices) {
+		NumberOfDistinctExpressionsStepSolver stepSolverForEquality;
 		// if indexed disequals turn out to be equal, move to the next i and register one more non-unique element
 		OrderedPairsOfIntegersIterator nextInitialIndices = indices.clone(); nextInitialIndices.makeSureToBeAtRowBeginning(); // note that cloning 'indices' might not work because it may have already just skipped to the next i
 		stepSolverForEquality
