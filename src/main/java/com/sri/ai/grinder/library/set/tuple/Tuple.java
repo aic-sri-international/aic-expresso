@@ -38,7 +38,6 @@
 package com.sri.ai.grinder.library.set.tuple;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
@@ -69,7 +68,6 @@ MutuallyExclusiveCoDomainsModule.Provider {
 
 	public static final String TUPLE_LABEL = "( . )";
 	//
-	private static final List<Integer> _pathZero = Collections.unmodifiableList(Arrays.asList(new Integer(0)));
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {

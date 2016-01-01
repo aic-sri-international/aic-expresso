@@ -62,7 +62,7 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 public abstract class AbstractLinearStepSolver implements ContextDependentProblemStepSolver {
 
 	private int n;
-	private int current;
+	protected int current;
 
 	/**
 	 * Provides the next literal to be checked to make decision.

@@ -508,7 +508,6 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 			solutionExpression = ONE;
 		}
 		else {
-			
 			MaximumExpressionStepSolver maximumStrictLowerBoundStepSolver
 			= new MaximumExpressionStepSolver(
 					getStrictLowerBoundsIncludingImplicitOnes(process),

@@ -65,7 +65,7 @@ public class MaximumExpressionStepSolver extends AbstractLinearStepSolver {
 
 	/**
 	 * Makes step solver
-	 * @param expressionsthe expressions being compared
+	 * @param expressions the expressions being compared
 	 * @param order the operator for "less than" in this order
 	 * @param orderMinimum the minimum value in the order (not the type! For example, the minimum in the < order is -infinity, and the minimum in the > order is infinity).
 	 * @param orderMaximum the maximum value in the type (not the type! For example, the maximum in the < order is infinity, and the maximum in the > order is -infinity).
@@ -76,7 +76,7 @@ public class MaximumExpressionStepSolver extends AbstractLinearStepSolver {
 
 	/**
 	 * Makes step solver
-	 * @param expressionsthe expressions being compared
+	 * @param expressions the expressions being compared
 	 * @param order the operator for "less than" in this order
 	 * @param orderMinimum the minimum value in the type
 	 * @param orderMinimum the minimum value in the order (not the type! For example, the minimum in the < order is -infinity, and the minimum in the > order is infinity).

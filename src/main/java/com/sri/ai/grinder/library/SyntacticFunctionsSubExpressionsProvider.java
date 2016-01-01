@@ -37,14 +37,9 @@
  */
 package com.sri.ai.grinder.library;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.expresso.api.SyntaxTree;
 import com.sri.ai.expresso.helper.Expressions;
-import com.sri.ai.expresso.helper.SyntaxTrees;
 import com.sri.ai.grinder.api.NoOpRewriter;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractRewriter;
@@ -62,24 +57,13 @@ import com.sri.ai.grinder.core.AbstractRewriter;
 public class SyntacticFunctionsSubExpressionsProvider extends AbstractRewriter
 implements NoOpRewriter
 {
-	private Set<SyntaxTree> syntacticFunctionLabels;
-
 	public SyntacticFunctionsSubExpressionsProvider(String... names) {
-		syntacticFunctionLabels = new LinkedHashSet<SyntaxTree>(SyntaxTrees.wrap(names));
 	}
 	
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
 		// Note: is a NoOpRewriter
 		return expression; // this method should be eliminated as some point because this is not really a rewriter.
-	}
-
-	private boolean knowledgeApplies(Expression expression) {
-		boolean result =
-			expression.getSyntaxTree().getRootTree() != null &&
-			syntacticFunctionLabels.contains(expression.getSyntaxTree().getRootTree()) &&
-			expression.getSyntaxTree().numberOfImmediateSubTrees() == 1;
-		return result;
 	}
 
 	@Override
