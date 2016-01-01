@@ -60,69 +60,27 @@ import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentExpressionProblemS
 public interface ContextDependentExpressionProblemStepSolver extends ContextDependentProblemStepSolver<Expression>, Cloneable {
 
 	/**
-	 * Cloning is important for this interface, because when a problem depends on an expression to be solved
-	 * the {@link ItDependsOn} solution step will carry within it two sub-step solvers
-	 * to be used on the two branches of the search (one for when the expression is enforced to be true,
-	 * and another for false).
-	 * <p>
-	 * While it is correct to just re-use the step solver returning the {@link ItDependsOn} object,
-	 * it would then wastefully check again for all the expressions that had already been enforced true or false
-	 * by the contextual constraint.
-	 * By allowing a step solver to clone itself, we are able to provide sub-step solvers
-	 * that already know when to continue the search from.
-	 * <p>
-	 * Note also that, instead of clone, we could have a copy constructor or just regular constructors
-	 * receiving state information as parameters.
-	 * However, clone provides more flexibility if one is writing code that manipulates
-	 * {@link ContextDependentExpressionProblemStepSolver}s in general, and therefore needs
-	 * a way to create copies without knowing its actual class.
-	 * <p>
-	 * Finally, it is recommended that the implementation of clone be the code below
-	 * unless there is a good reason for doing otherwise.
-	 * It may be more elegant to simply create a clone with one of the class's constructors,
-	 * but this will require extensions of that class to override this method,
-	 * whereas the version below will be reusable by extensions.
-	 * If a different choice is made, the new cloning method should check
-	 * if the instance is not that of an extension, or it should be very clearly documented,
-	 * or the class should be made final.
-	 * <code>
-	 * 	@Override
-	 * 	public ContextDependentProblemStepSolver clone() {
-	 * 		try {
-	 * 			return (ContextDependentProblemStepSolver) super.clone();
-	 * 		} catch (CloneNotSupportedException e) {
-	 * 			throw new Error(e);
-	 * 		}
-	 * 	}
-	 * <code>
-	 * 
-	 * @return a clone of this step solver.
+	 * Convenience method invoking
+	 * {@link ContextDependentExpressionProblemSolver#solve(ContextDependentExpressionProblemStepSolver, Constraint2, RewritingProcess)}
+	 * on this step solver.
+	 * @param contextualConstraint
+	 * @param process
+	 * @return
 	 */
+	default Expression solve(Constraint2 contextualConstraint, RewritingProcess process) {
+		Expression result = ContextDependentExpressionProblemSolver.solve(this, contextualConstraint, process);
+		return result;
+	}
+
+	@Override
 	ContextDependentExpressionProblemStepSolver clone();
 	
 	/**
-	 * A solution step of a {@link ContextDependentExpressionProblemStepSolver}.
-	 * If {@link #itDepends()} returns <code>true</code>, the solution cannot be determined
-	 * unless the contextual constraint be restricted according to the literal returned by {@link #getLiteral()}.
-	 * Otherwise, the expression returned by {@link #getValue()} is the solution.
+	 * A specialization of {@link ContextDependentProblemStepSolver#SolutionStep} for Expressions.
 	 * @author braz
 	 *
 	 */
 	public static interface SolutionStep extends ContextDependentProblemStepSolver.SolutionStep<Expression> {
-		boolean itDepends();
-		
-		/**
-		 * If {@link #itDepends()} is true, returns the literal the solution depends on.
-		 * @return
-		 */
-		Expression getLiteral();
-		
-		/**
-		 * If {@link #itDepends()} is false, returns the solution value.
-		 * @return
-		 */
-		Expression getValue();
-		
 		/**
 		 * Returns a {@link ContextDependentExpressionProblemStepSolver} to be used for finding the final solution
 		 * in case the literal is defined as true by the contextual constraint.
@@ -137,16 +95,56 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 		 * @return
 		 */
 		ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsFalse();
-		
-		/**
-		 * For solutions depending on a split, provides the constraint splitting
-		 * for the contextual constraint and literal used, if available,
-		 * or null otherwise.
-		 * @return
-		 */
-		ConstraintSplitting getConstraintSplitting();
 	}
 	
+	/**
+	 * A specialization of {@link ContextDependentProblemStepSolver#ItDependsOn} for Expressions.
+	 * @author braz
+	 *
+	 */
+	public static class ItDependsOn extends ContextDependentProblemStepSolver.ItDependsOn<Expression> implements SolutionStep {
+
+		public ItDependsOn(
+				Expression literal,
+				ConstraintSplitting constraintSplitting,
+				ContextDependentExpressionProblemStepSolver stepSolverIfExpressionIsTrue,
+				ContextDependentExpressionProblemStepSolver stepSolverIfExpressionIsFalse) {
+			super(literal, constraintSplitting, stepSolverIfExpressionIsTrue, stepSolverIfExpressionIsFalse);
+		}
+		
+		@Override
+		public ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsTrue() {
+			return (ContextDependentExpressionProblemStepSolver) super.getStepSolverForWhenLiteralIsTrue();
+		}
+		
+		@Override
+		public ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsFalse() {
+			return (ContextDependentExpressionProblemStepSolver) super.getStepSolverForWhenLiteralIsFalse();
+		}
+	}
+	
+	/**
+	 * A specialization of {@link ContextDependentProblemStepSolver#Solution} for Expressions.
+	 * @author braz
+	 *
+	 */
+	public static class Solution extends ContextDependentProblemStepSolver.Solution<Expression> implements SolutionStep {
+
+		public Solution(Expression value) {
+			super(value);
+		}
+		
+		@Override
+		public ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsTrue() {
+			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
+		}
+
+		@Override
+		public ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsFalse() {
+			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
+		}
+	}
+
 	/**
 	 * Returns a solution step for the problem: either the solution itself, if independent
 	 * on the values for free variables, or a literal that, if used to split the contextual constraint,
@@ -156,128 +154,4 @@ public interface ContextDependentExpressionProblemStepSolver extends ContextDepe
 	 * @return
 	 */
 	SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process);
-
-	/**
-	 * Convenience method invoking
-	 * {@link ContextDependentExpressionProblemSolver#solve(ContextDependentExpressionProblemStepSolver, Constraint2, RewritingProcess)}
-	 * on this step solver.
-	 * @param contextualConstraint
-	 * @param process
-	 * @return
-	 */
-	default Expression solve(Constraint2 contextualConstraint, RewritingProcess process) {
-		Expression result = ContextDependentExpressionProblemSolver.solve(this, contextualConstraint, process);
-		return result;
-	}
-	
-	public static class ItDependsOn implements SolutionStep {
-
-		private Expression literal;
-		private ConstraintSplitting constraintSplitting;
-		private ContextDependentExpressionProblemStepSolver stepSolverIfExpressionIsTrue;
-		private ContextDependentExpressionProblemStepSolver stepSolverIfExpressionIsFalse;
-		
-		/**
-		 * Represents a solution step in which the final solution depends on the definition of a given expression
-		 * by the contextual constraint.
-		 * Step solvers specialized for whether expression is true or false can be provided
-		 * that already know about the definition of expression either way, for efficiency;
-		 * however, if this step solver is provided instead, things still work because 
-		 * the step solver will end up determining anyway that expression is now defined and move on.
-		 * @param literal
-		 * @param stepSolverIfExpressionIsTrue
-		 * @param stepSolverIfExpressionIsFalse
-		 */
-		public ItDependsOn(
-				Expression literal,
-				ConstraintSplitting constraintSplitting,
-				ContextDependentExpressionProblemStepSolver stepSolverIfExpressionIsTrue,
-				ContextDependentExpressionProblemStepSolver stepSolverIfExpressionIsFalse) {
-			super();
-			this.literal = literal;
-			this.constraintSplitting = constraintSplitting;
-			this.stepSolverIfExpressionIsTrue  = stepSolverIfExpressionIsTrue;
-			this.stepSolverIfExpressionIsFalse = stepSolverIfExpressionIsFalse;
-		}
-		
-		@Override
-		public Expression getLiteral() {
-			return literal;
-		}
-		
-		@Override
-		public Expression getValue() {
-			throw new Error("ItDependsOn does not define getValue().");
-		}
-		
-		@Override
-		public boolean itDepends() {
-			return true;
-		}
-
-		@Override
-		public ConstraintSplitting getConstraintSplitting() {
-			return constraintSplitting;
-		}
-
-		@Override
-		public ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsTrue() {
-			return stepSolverIfExpressionIsTrue;
-		}
-		
-		@Override
-		public ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsFalse() {
-			return stepSolverIfExpressionIsFalse;
-		}
-		
-		@Override
-		public String toString() {
-			return "It depends on " + getLiteral();
-		}
-	}
-	
-	
-	public static class Solution implements SolutionStep {
-
-		private Expression value;
-		
-		public Solution(Expression value) {
-			this.value = value;
-		}
-		
-		@Override
-		public boolean itDepends() {
-			return false;
-		}
-
-		@Override
-		public Expression getLiteral() {
-			throw new Error("Solution does not define getLiteral().");
-		}
-		
-		@Override
-		public Expression getValue() {
-			return value;
-		}
-		
-		@Override
-		public String toString() {
-			return getValue().toString();
-		}
-
-		@Override
-		public ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsTrue() {
-			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
-		}
-
-		@Override
-		public ContextDependentExpressionProblemStepSolver getStepSolverForWhenLiteralIsFalse() {
-			throw new Error("Solution has no sub-step solvers since it does not depend on any expression");
-		}
-
-		@Override
-		public ConstraintSplitting getConstraintSplitting() {
-			return null;
-		}
-	}
 }

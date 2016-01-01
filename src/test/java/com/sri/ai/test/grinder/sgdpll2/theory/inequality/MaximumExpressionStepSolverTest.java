@@ -58,12 +58,11 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentExpressionProblemSolver;
-import com.sri.ai.grinder.sgdpll2.theory.inequality.MaximumExpressionStepSolver;
 import com.sri.ai.grinder.sgdpll2.theory.inequality.InequalityConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.theory.inequality.MaximumExpressionStepSolver;
 
 @Beta
 public class MaximumExpressionStepSolverTest {

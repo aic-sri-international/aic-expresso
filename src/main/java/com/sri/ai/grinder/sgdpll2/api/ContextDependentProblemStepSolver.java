@@ -146,16 +146,6 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 		ConstraintSplitting getConstraintSplitting();
 	}
 	
-	/**
-	 * Returns a solution step for the problem: either the solution itself, if independent
-	 * on the values for free variables, or a literal that, if used to split the contextual constraint,
-	 * will bring the problem closer to a solution.
-	 * @param contextualConstraint
-	 * @param process
-	 * @return
-	 */
-	SolutionStep<T> step(Constraint2 contextualConstraint, RewritingProcess process);
-
 	public static class ItDependsOn<T> implements SolutionStep<T> {
 
 		private Expression literal;
@@ -266,4 +256,14 @@ public interface ContextDependentProblemStepSolver<T> extends Cloneable {
 			return null;
 		}
 	}
+
+	/**
+	 * Returns a solution step for the problem: either the solution itself, if independent
+	 * on the values for free variables, or a literal that, if used to split the contextual constraint,
+	 * will bring the problem closer to a solution.
+	 * @param contextualConstraint
+	 * @param process
+	 * @return
+	 */
+	SolutionStep<T> step(Constraint2 contextualConstraint, RewritingProcess process);
 }
