@@ -73,7 +73,7 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 
 		SolutionStep step = stepSolver.step(contextualConstraint, process);
 		assertEquals(true, step.itDepends());
-		assertEquals(parse("X = c"), step.getExpression());
+		assertEquals(parse("X = c"), step.getLiteral());
 		
 		ContextDependentProblemStepSolver stepSolverIfXEqualsC = step.getStepSolverForWhenExpressionIsTrue();
 		ContextDependentProblemStepSolver stepSolverIfXIsDifferentFromC = step.getStepSolverForWhenExpressionIsFalse();
@@ -81,7 +81,7 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 		// if X = c, the number of distinct values can be 3 or 4, depending on whether Y = a, or Y = b
 		step = stepSolverIfXEqualsC.step(contextualConstraint, process);
 		assertEquals(true, step.itDepends());
-		assertEquals(parse("Y = a"), step.getExpression());
+		assertEquals(parse("Y = a"), step.getLiteral());
 
 		ContextDependentProblemStepSolver stepSolverIfXEqualsCAndYEqualsA = step.getStepSolverForWhenExpressionIsTrue();
 		ContextDependentProblemStepSolver stepSolverIfXEqualsCAndYIsDifferentFromA = step.getStepSolverForWhenExpressionIsFalse();
@@ -89,12 +89,12 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 		// if X = c and Y = a, the number of distinct values is 3 (a, b, c)
 		step = stepSolverIfXEqualsCAndYEqualsA.step(contextualConstraint, process);
 		assertEquals(false, step.itDepends());
-		assertEquals(parse("3"), step.getExpression());
+		assertEquals(parse("3"), step.getValue());
 
 		// if X = c and Y != a, the number of distinct values is 3 or 4, depending on Y = c
 		step = stepSolverIfXEqualsCAndYIsDifferentFromA.step(contextualConstraint, process);
 		assertEquals(true, step.itDepends());
-		assertEquals(parse("Y = c"), step.getExpression());
+		assertEquals(parse("Y = c"), step.getLiteral());
 
 		ContextDependentProblemStepSolver stepSolverIfXEqualsCAndYIsDifferentFromAAndYEqualsC = step.getStepSolverForWhenExpressionIsTrue();
 		ContextDependentProblemStepSolver stepSolverIfXEqualsCAndYIsDifferentFromAAndYIsDifferentFromC = step.getStepSolverForWhenExpressionIsFalse();
@@ -102,50 +102,50 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 		// if X = c and Y != a and Y = c, the number of distinct values is 3
 		step = stepSolverIfXEqualsCAndYIsDifferentFromAAndYEqualsC.step(contextualConstraint, process);
 		assertEquals(false, step.itDepends());
-		assertEquals(parse("3"), step.getExpression());
+		assertEquals(parse("3"), step.getValue());
 
 		// if X = c and Y != a and Y != c, the number of distinct values is 4
 		step = stepSolverIfXEqualsCAndYIsDifferentFromAAndYIsDifferentFromC.step(contextualConstraint, process);
 		assertEquals(false, step.itDepends());
-		assertEquals(parse("4"), step.getExpression());
+		assertEquals(parse("4"), step.getValue());
 
 		// if X = c and Y = a, the number of distinct values is 3 (a, b, c)
 		step = stepSolverIfXEqualsCAndYEqualsA.step(contextualConstraint, process);
 		assertEquals(false, step.itDepends());
-		assertEquals(parse("3"), step.getExpression());
+		assertEquals(parse("3"), step.getValue());
 
 		// using again just to make sure it produces the same result
 		step = stepSolverIfXEqualsCAndYEqualsA.step(contextualConstraint, process);
 		assertEquals(false, step.itDepends());
-		assertEquals(parse("3"), step.getExpression());
+		assertEquals(parse("3"), step.getValue());
 		
 
 		// if X != c, the number of distinct value will now depend on Y = a
 		step = stepSolverIfXIsDifferentFromC.step(contextualConstraint, process);
 		assertEquals(true, step.itDepends());
-		assertEquals(parse("Y = a"), step.getExpression());
+		assertEquals(parse("Y = a"), step.getLiteral());
 
 		// using again just to make sure it produces the same result
 		step = stepSolverIfXIsDifferentFromC.step(contextualConstraint, process);
 		assertEquals(true, step.itDepends());
-		assertEquals(parse("Y = a"), step.getExpression());
+		assertEquals(parse("Y = a"), step.getLiteral());
 		
 		// if X != c, the number of distinct values can be 4 or 5, depending on whether Y = a, or Y = b
 		step = stepSolverIfXIsDifferentFromC.step(contextualConstraint, process);
 		assertEquals(true, step.itDepends());
-		assertEquals(parse("Y = a"), step.getExpression());
+		assertEquals(parse("Y = a"), step.getLiteral());
 
 		ContextDependentProblemStepSolver stepSolverIfXIsDifferentFromCAndYEqualsA = step.getStepSolverForWhenExpressionIsTrue();
 		ContextDependentProblemStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromA = step.getStepSolverForWhenExpressionIsFalse();
 
 		step = stepSolverIfXIsDifferentFromCAndYEqualsA.step(contextualConstraint, process);
 		assertEquals(false, step.itDepends());
-		assertEquals(parse("4"), step.getExpression());
+		assertEquals(parse("4"), step.getValue());
 		
 		// if however Y != a, limit will depend on Y = c
 		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromA.step(contextualConstraint, process);
 		assertEquals(true, step.itDepends());
-		assertEquals(parse("Y = c"), step.getExpression());
+		assertEquals(parse("Y = c"), step.getLiteral());
 		
 		ContextDependentProblemStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsEqualToC = step.getStepSolverForWhenExpressionIsTrue();
 		ContextDependentProblemStepSolver stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsDifferentFromC = step.getStepSolverForWhenExpressionIsFalse();
@@ -153,11 +153,11 @@ public class NumberOfDistinctExpressionsStepSolverTest  {
 		// if Y = c, then there are 4 distinct values
 		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsEqualToC.step(contextualConstraint, process);
 		assertEquals(false, step.itDepends());
-		assertEquals(parse("4"), step.getExpression());
+		assertEquals(parse("4"), step.getValue());
 		
 		// if Y != c, then Y is also unique and the number of distinct values is 5
 		step = stepSolverIfXIsDifferentFromCAndYIsDifferentFromAAndYIsDifferentFromC.step(contextualConstraint, process);
 		assertEquals(false, step.itDepends());
-		assertEquals(parse("5"), step.getExpression());
+		assertEquals(parse("5"), step.getValue());
 	}
 }

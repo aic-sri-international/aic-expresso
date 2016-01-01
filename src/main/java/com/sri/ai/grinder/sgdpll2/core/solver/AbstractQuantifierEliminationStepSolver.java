@@ -154,8 +154,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 
 			if (bodyStep.itDepends()) {
 				// "intercept" literals containing the index and split the quantifier based on it
-				if (isSubExpressionOf(getIndex(), bodyStep.getExpression())) {
-					Expression literalOnIndex = bodyStep.getExpression();
+				if (isSubExpressionOf(getIndex(), bodyStep.getLiteral())) {
+					Expression literalOnIndex = bodyStep.getLiteral();
 					result = resultIfLiteralContainsIndex(contextualConstraint, literalOnIndex, process);
 				}
 				else { // not on index, just pass the expression on which we depend on, but with appropriate sub-step solvers (this, for now)
@@ -163,7 +163,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 					AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsFalse = clone();
 					subStepSolverForWhenLiteralIsTrue.bodyStepSolver = (LiteralConditionerStepSolver) bodyStep.getStepSolverForWhenExpressionIsTrue();
 					subStepSolverForWhenLiteralIsFalse.bodyStepSolver = (LiteralConditionerStepSolver) bodyStep.getStepSolverForWhenExpressionIsTrue();
-					result = new ItDependsOn(bodyStep.getExpression(), null, subStepSolverForWhenLiteralIsTrue, subStepSolverForWhenLiteralIsFalse);
+					result = new ItDependsOn(bodyStep.getLiteral(), null, subStepSolverForWhenLiteralIsTrue, subStepSolverForWhenLiteralIsFalse);
 					// we cannot directly re-use bodyStep.getConstraintSplitting() because it was not obtained from the same contextual constraint,
 					// but from the contextual constraint conjoined with the index constraint.
 				}
@@ -171,7 +171,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 			else { // body is already literal free
 				result =
 						eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
-								contextualConstraint, indexConstraint, bodyStep.getExpression(), process);
+								contextualConstraint, indexConstraint, bodyStep.getValue(), process);
 			}
 		}
 

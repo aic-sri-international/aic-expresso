@@ -520,7 +520,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 //				ItDependsOn result = new ItDependsOn(maximumStrictLowerBoundStep.getExpression(), maximumStrictLowerBoundStep.getConstraintSplitting(), clone(), clone());
 //				return result;
 			}
-			Expression greatestStrictLowerBound = maximumStrictLowerBoundStep.getExpression();
+			Expression greatestStrictLowerBound = maximumStrictLowerBoundStep.getValue();
 					
 			MaximumExpressionStepSolver minimumNonStrictUpperBoundStepSolver
 			= new MaximumExpressionStepSolver(
@@ -545,7 +545,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 //				System.exit(-1);
 //			}
 			
-			Expression leastNonStrictUpperBound = minimumNonStrictUpperBoundStep.getExpression();
+			Expression leastNonStrictUpperBound = minimumNonStrictUpperBoundStep.getValue();
 					
 			if (greatestStrictLowerBound.equals(MINUS_INFINITY) || leastNonStrictUpperBound.equals(INFINITY)) {
 				solutionExpression = INFINITY;

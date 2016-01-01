@@ -87,11 +87,11 @@ public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implem
 		}
 		else if (modelCountingStep.itDepends()) {
 			// satisfiability depends on the same expression, but sub-step solvers are clones of satisfiability step solver.
-			result = new ItDependsOn(modelCountingStep.getExpression(), modelCountingStep.getConstraintSplitting(), clone(), clone());
+			result = new ItDependsOn(modelCountingStep.getLiteral(), modelCountingStep.getConstraintSplitting(), clone(), clone());
 		}
 		else {
 			Expression satisfiable;
-			satisfiable = apply(GREATER_THAN, modelCountingStep.getExpression(), ZERO);
+			satisfiable = apply(GREATER_THAN, modelCountingStep.getValue(), ZERO);
 			Expression simplifiedSatisfiable = constraint.getConstraintTheory().simplify(satisfiable, process);
 			result = new Solution(simplifiedSatisfiable);
 		}

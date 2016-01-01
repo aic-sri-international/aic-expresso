@@ -270,10 +270,10 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 		else if (propagatedCNFIsSatisfiedStep.itDepends()) {
 			result = propagatedCNFIsSatisfiedStep;
 		}
-		else if (propagatedCNFIsSatisfiedStep.getExpression().equals(FALSE)) {
+		else if (propagatedCNFIsSatisfiedStep.getValue().equals(FALSE)) {
 			result = new Solution(solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied());
 		}
-		else if (propagatedCNFIsSatisfiedStep.getExpression().equals(TRUE)) {
+		else if (propagatedCNFIsSatisfiedStep.getValue().equals(TRUE)) {
 			result = solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(contextualConstraint, process);
 		}
 		else {
@@ -304,7 +304,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 		else if (definingLiteralsAreDefinedStep.itDepends()) {
 			result = definingLiteralsAreDefinedStep;
 		}
-		else if (definingLiteralsAreDefinedStep.getExpression().equals(TRUE)) {
+		else if (definingLiteralsAreDefinedStep.getValue().equals(TRUE)) {
 			result = solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(contextualConstraint, process);
 		}
 		else {

@@ -47,8 +47,8 @@ import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentProblemSolver;
  * An interface for step-solvers for problems involving free variables constrained by a contextual {@link Constraint2}.
  * The problem may either have the same solution for all free variable assignments under the context, or not.
  * Method {@link #step(Constraint2, RewritingProcess)} returns a {@link SolutionStep},
- * which is either a {@link Solution} with {@link Solution#getExpression()} returning the solution,
- * or a {@link ItDependsOn} with {@link ItDependsOn#getExpression()} returning a literal
+ * which is either a {@link Solution} with {@link Solution#getValue()} returning the solution,
+ * or a {@link ItDependsOn} with {@link ItDependsOn#getLiteral()} returning a literal
  * that, if used to split the contextual constraint
  * (by conjoining the contextual constraint with the literal and with its negation, successively),
  * will help disambiguate the problem.
@@ -103,14 +103,26 @@ public interface ContextDependentProblemStepSolver extends Cloneable {
 	/**
 	 * A solution step of a {@link ContextDependentProblemStepSolver}.
 	 * If {@link #itDepends()} returns <code>true</code>, the solution cannot be determined
-	 * unless the contextual constraint be restricted according to the literal returned by {@link #getExpression()}.
-	 * Otherwise, the expression returned by {@link #getExpression()} is the solution.
+	 * unless the contextual constraint be restricted according to the literal returned by {@link #getLiteral()}.
+	 * Otherwise, the expression returned by {@link #getValue()} is the solution.
 	 * @author braz
 	 *
 	 */
 	public static interface SolutionStep {
 		boolean itDepends();
-		Expression getExpression();
+		
+		/**
+		 * If {@link #itDepends()} is true, returns the literal the solution depends on.
+		 * @return
+		 */
+		Expression getLiteral();
+		
+		/**
+		 * If {@link #itDepends()} is false, returns the solution value.
+		 * @return
+		 */
+		Expression getValue();
+		
 		/**
 		 * Returns a {@link ContextDependentProblemStepSolver} to be used for finding the final solution
 		 * in case the expression is defined as true by the contextual constraint.
@@ -158,25 +170,9 @@ public interface ContextDependentProblemStepSolver extends Cloneable {
 		return result;
 	}
 	
-	public static abstract class AbstractSolutionStep implements SolutionStep {
+	public static class ItDependsOn implements SolutionStep {
 
-		private Expression expression;
-		
-		public AbstractSolutionStep(Expression expression) {
-			this.expression = expression;
-		}
-		
-		@Override
-		public abstract boolean itDepends();
-
-		@Override
-		public Expression getExpression() {
-			return expression;
-		}
-	}
-	
-	public static class ItDependsOn extends AbstractSolutionStep {
-
+		private Expression literal;
 		private ConstraintSplitting constraintSplitting;
 		private ContextDependentProblemStepSolver stepSolverIfExpressionIsTrue;
 		private ContextDependentProblemStepSolver stepSolverIfExpressionIsFalse;
@@ -188,19 +184,30 @@ public interface ContextDependentProblemStepSolver extends Cloneable {
 		 * that already know about the definition of expression either way, for efficiency;
 		 * however, if this step solver is provided instead, things still work because 
 		 * the step solver will end up determining anyway that expression is now defined and move on.
-		 * @param expression
+		 * @param literal
 		 * @param stepSolverIfExpressionIsTrue
 		 * @param stepSolverIfExpressionIsFalse
 		 */
 		public ItDependsOn(
-				Expression expression,
+				Expression literal,
 				ConstraintSplitting constraintSplitting,
 				ContextDependentProblemStepSolver stepSolverIfExpressionIsTrue,
 				ContextDependentProblemStepSolver stepSolverIfExpressionIsFalse) {
-			super(expression);
+			super();
+			this.literal = literal;
 			this.constraintSplitting = constraintSplitting;
 			this.stepSolverIfExpressionIsTrue  = stepSolverIfExpressionIsTrue;
 			this.stepSolverIfExpressionIsFalse = stepSolverIfExpressionIsFalse;
+		}
+		
+		@Override
+		public Expression getLiteral() {
+			return literal;
+		}
+		
+		@Override
+		public Expression getValue() {
+			throw new Error("ItDependsOn does not define getValue().");
 		}
 		
 		@Override
@@ -225,15 +232,17 @@ public interface ContextDependentProblemStepSolver extends Cloneable {
 		
 		@Override
 		public String toString() {
-			return "It depends on " + getExpression();
+			return "It depends on " + getLiteral();
 		}
 	}
 	
 	
-	public static class Solution extends AbstractSolutionStep {
+	public static class Solution implements SolutionStep {
 
-		public Solution(Expression expression) {
-			super(expression);
+		private Expression value;
+		
+		public Solution(Expression value) {
+			this.value = value;
 		}
 		
 		@Override
@@ -242,8 +251,18 @@ public interface ContextDependentProblemStepSolver extends Cloneable {
 		}
 
 		@Override
+		public Expression getLiteral() {
+			throw new Error("Solution does not define getLiteral().");
+		}
+		
+		@Override
+		public Expression getValue() {
+			return value;
+		}
+		
+		@Override
 		public String toString() {
-			return getExpression().toString();
+			return getValue().toString();
 		}
 
 		@Override

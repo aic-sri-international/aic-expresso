@@ -78,26 +78,26 @@ public class ContextDependentLiteralsOnPairsOfElementsInListAtOrderedAndDistinct
 
 		SolutionStep step = stepSolver.step(contextualConstraint, process);
 		assertEquals(true, step.itDepends());
-		assertEquals(parse("X != c"), step.getExpression());
+		assertEquals(parse("X != c"), step.getLiteral());
 		
 		ContextDependentProblemStepSolver stepSolver1 = step.getStepSolverForWhenExpressionIsTrue(); // saving to use twice
 		
 		step = stepSolver1.step(contextualConstraint, process);
 		assertEquals(true, step.itDepends());
-		assertEquals(parse("Y != a"), step.getExpression());
+		assertEquals(parse("Y != a"), step.getLiteral());
 
 		// using again just to make sure it produces the same result
 		step = stepSolver1.step(contextualConstraint, process);
 		assertEquals(true, step.itDepends());
-		assertEquals(parse("Y != a"), step.getExpression());
+		assertEquals(parse("Y != a"), step.getLiteral());
 		
 		// ok, moving on
 		step = step.getStepSolverForWhenExpressionIsTrue().step(contextualConstraint, process);
 		assertEquals(true, step.itDepends());
-		assertEquals(parse("Y != c"), step.getExpression());
+		assertEquals(parse("Y != c"), step.getLiteral());
 		
 		step = step.getStepSolverForWhenExpressionIsTrue().step(contextualConstraint, process);
 		assertEquals(false, step.itDepends());
-		assertEquals(TRUE, step.getExpression());
+		assertEquals(TRUE, step.getValue());
 	}
 }

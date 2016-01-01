@@ -287,10 +287,10 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 				SatisfiabilityOfSingleVariableEqualityConstraintStepSolver stepSolverIfExpressionIsFalse = clone();
 				stepSolverIfExpressionIsFalse.setNumberOfDistinctExpressionsIsLessThanStepSolver((NumberOfDistinctExpressionsIsLessThanStepSolver) numberStep.getStepSolverForWhenExpressionIsFalse());
 				
-				result = new ItDependsOn(numberStep.getExpression(), numberStep.getConstraintSplitting(), stepSolverIfExpressionIsTrue, stepSolverIfExpressionIsFalse);
+				result = new ItDependsOn(numberStep.getLiteral(), numberStep.getConstraintSplitting(), stepSolverIfExpressionIsTrue, stepSolverIfExpressionIsFalse);
 			}
 			else {
-				result = new Solution(numberStep.getExpression());
+				result = new Solution(numberStep.getValue());
 			}
 		}
 		else {

@@ -78,7 +78,7 @@ public class ContextDependentProblemSolver {
 			return null;
 		}
 		else if (step.itDepends()) {
-			Expression splitter = step.getExpression();
+			Expression splitter = step.getLiteral();
 			ConstraintSplitting split;
 			if (step.getConstraintSplitting() != null) {
 				split = step.getConstraintSplitting();
@@ -111,7 +111,7 @@ public class ContextDependentProblemSolver {
 			}
 		}
 		else {
-			return step.getExpression();
+			return step.getValue();
 		}
 	}
 	
