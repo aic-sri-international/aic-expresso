@@ -35,35 +35,33 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.theory.inequality;
+package com.sri.ai.grinder.sgdpll2.theory.base;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
-import com.sri.ai.grinder.sgdpll2.theory.equality.AbstractLinearStepSolver;
+import com.sri.ai.grinder.sgdpll2.theory.inequality.AbstractExpressionsSequenceStepSolver;
 import com.sri.ai.util.collect.StackedLinkedList;
 
 /**
  * A context-dependent problem step solver deciding which in a set of expressions
- * satisfies a literal specified by {@link #makeLiteral()}.
+ * satisfy a literal specified by {@link #makeLiteral()}.
  *
  * @author braz
  *
  */
 @Beta
-public abstract class SelectionStepSolver extends AbstractLinearStepSolver<Expression> {
+public abstract class SelectionStepSolver extends AbstractExpressionsSequenceStepSolver<List<Expression>> {
 
-	private List<Expression> expressions;
 	private List<Expression> selection;
 
 	/**
 	 * Makes step solver
 	 * @param expressions the expressions being examined
 	 */
-	public SelectionStepSolver(List<Expression> expressions, Expression order, Expression orderMinimum, Expression orderMaximum) {
+	public SelectionStepSolver(List<Expression> expressions) {
 		this(expressions, 0, new LinkedList<Expression>());
 	}
 
@@ -74,21 +72,20 @@ public abstract class SelectionStepSolver extends AbstractLinearStepSolver<Expre
 	 * @param selection the expressions that have already been selected
 	 */
 	private SelectionStepSolver(List<Expression> expressions, int current, List<Expression> selection) {
-		super(expressions.size(), current);
-		this.expressions = expressions;
+		super(expressions, current);
 		this.selection = selection;
 	}
 	
 	@Override
-	protected ContextDependentProblemStepSolver<Expression> makeSubStepSolverWhenLiteralIsTrue() {
+	protected SelectionStepSolver makeSubStepSolverWhenLiteralIsTrue() {
 		SelectionStepSolver result = (SelectionStepSolver) clone();
 		result.current = getCurrent() + 1;
-		result.selection = new StackedLinkedList<Expression>(expressions.get(getCurrent()), selection);
+		result.selection = new StackedLinkedList<Expression>(getCurrentExpression(), selection);
 		return result;
 	}
 
 	@Override
-	protected ContextDependentProblemStepSolver<Expression> makeSubStepSolverWhenLiteralIsFalse() {
+	protected SelectionStepSolver makeSubStepSolverWhenLiteralIsFalse() {
 		SelectionStepSolver result = (SelectionStepSolver) clone();
 		result.current = getCurrent() + 1;
 		// selection remains the same
@@ -96,8 +93,8 @@ public abstract class SelectionStepSolver extends AbstractLinearStepSolver<Expre
 	}
 
 	@Override
-	protected SolutionStep<Expression> makeSolutionWhenAllElementsHaveBeenChecked() {
-		Solution<Expression> result = new Solution<Expression>(null);
+	protected SolutionStep<List<Expression>> makeSolutionWhenAllElementsHaveBeenChecked() {
+		Solution<List<Expression>> result = new Solution<List<Expression>>(selection);
 		return result;
 	}
 }
