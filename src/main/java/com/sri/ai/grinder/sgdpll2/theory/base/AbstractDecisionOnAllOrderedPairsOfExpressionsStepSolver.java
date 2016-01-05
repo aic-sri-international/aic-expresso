@@ -168,7 +168,8 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 
 			numberOfElementsExaminedSoFar = i;
 			
-			Expression literal = makeLiteral(i, j);
+			Expression unsimplifiedLiteral = makeLiteral(i, j);
+			Expression literal = contextualConstraint.getConstraintTheory().simplify(unsimplifiedLiteral, process);
 
 			AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver stepSolverForWhenLiteralIsTrue  = null; // this null is never used, just making compiler happy
 			AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver stepSolverForWhenLiteralIsFalse = null; // this null is never used, just making compiler happy

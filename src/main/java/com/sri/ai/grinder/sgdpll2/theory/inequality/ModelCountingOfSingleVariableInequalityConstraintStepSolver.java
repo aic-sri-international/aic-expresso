@@ -37,11 +37,13 @@
  */
 package com.sri.ai.grinder.sgdpll2.theory.inequality;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
 import static com.sri.ai.expresso.helper.Expressions.INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
+import static com.sri.ai.expresso.helper.Expressions.isNumber;
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
@@ -63,6 +65,7 @@ import static com.sri.ai.util.collect.PredicateIterator.predicateIterator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import com.google.common.annotations.Beta;
@@ -76,7 +79,11 @@ import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.library.FunctorConstants;
 import com.sri.ai.grinder.library.number.Minus;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 import com.sri.ai.grinder.sgdpll2.core.solver.AbstractNumericalProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
+import com.sri.ai.grinder.sgdpll2.theory.equality.NumberOfDistinctExpressionsIsLessThanStepSolver;
+import com.sri.ai.grinder.sgdpll2.theory.equality.NumberOfDistinctExpressionsStepSolver;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.PairOf;
 import com.sri.ai.util.collect.CartesianProductIterator;
@@ -104,9 +111,9 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 
 	private ArrayList<Expression> disequals;
 
-	private ArrayList<Expression> strictLowerBounds;
+	private ArrayList<Expression> strictLowerBoundsIncludingImplicitOnes;
 
-	private ArrayList<Expression> nonStrictUpperBounds;
+	private ArrayList<Expression> nonStrictUpperBoundsIncludingImplicitOnes;
 
 	private IntegerInterval type;
 	
@@ -137,10 +144,10 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		// System.out.println("equals to variable: " + join(getEquals()));
 		// System.out.println("non-equality comparisons: " + join(getNonEqualityComparisons(process)));
 		
-		// each strict lower bound must be strictly less than every non-strict upper bound:
-		// X > Y and X <= Z => Y < Z
-		Iterator<Expression> comparisonsBetweenStrictLowerAndNonStrictUpperBounds
-		= getComparisonsOfStrictLowerAndNonStrictUpperBoundsIterator(process);
+//		// each strict lower bound must be strictly less than every non-strict upper bound:
+//		// X > Y and X <= Z => Y < Z
+//		Iterator<Expression> comparisonsBetweenStrictLowerAndNonStrictUpperBounds
+//		= getComparisonsOfStrictLowerAndNonStrictUpperBoundsIterator(process);
 
 		Iterator<Expression> propagatedEqualities;
 		if (getConstraint().getPropagateAllLiteralsWhenVariableIsBound()) {
@@ -199,7 +206,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		Iterator<Expression> propagatedLiteralsIterator =
 				new NestedIterator<>(
 						getConstraint().getExternalLiterals(),
-						comparisonsBetweenStrictLowerAndNonStrictUpperBounds,
+//						comparisonsBetweenStrictLowerAndNonStrictUpperBounds,
 						propagatedEqualities,
 						propagatedComparisons);
 		// TODO: have super class take care of external literals, so extensions don't need to think about them
@@ -232,7 +239,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 	}
 
 	private ArrayList<Expression> getStrictLowerBoundsIncludingImplicitOnes(RewritingProcess process) {
-		if (strictLowerBounds == null) {
+		if (strictLowerBoundsIncludingImplicitOnes == null) {
 			SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
 			
 			FunctionIterator<Expression, Expression> strictLowerBoundsFromPositiveNormalizedAtomsIterator
@@ -258,13 +265,13 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 					strictLowerBoundsFromNegativeNormalizedAtomsIterator,
 					typeStrictLowerBound);
 			
-			strictLowerBounds = arrayListFrom(strictLowerBoundsIterator);
+			strictLowerBoundsIncludingImplicitOnes = arrayListFrom(strictLowerBoundsIterator);
 		}
-		return strictLowerBounds;
+		return strictLowerBoundsIncludingImplicitOnes;
 	}
 
 	private ArrayList<Expression> getNonStrictUpperBoundsIncludingImplicitOnes(RewritingProcess process) {
-		if (nonStrictUpperBounds == null) {
+		if (nonStrictUpperBoundsIncludingImplicitOnes == null) {
 			SingleVariableInequalityConstraint inequalitiesConstraint = (SingleVariableInequalityConstraint) constraint;
 			
 			FunctionIterator<Expression, Expression> nonStrictUpperBoundsFromPositiveNormalizedAtomsIterator
@@ -290,9 +297,9 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 					nonStrictUpperBoundsFromNegativeNormalizedAtomsIterator,
 					typeNonStrictUpperBound);
 			
-			nonStrictUpperBounds = arrayListFrom(nonStrictUpperBoundsIterator);
+			nonStrictUpperBoundsIncludingImplicitOnes = arrayListFrom(nonStrictUpperBoundsIterator);
 		}
-		return nonStrictUpperBounds;
+		return nonStrictUpperBoundsIncludingImplicitOnes;
 	}
 
 	private ArrayList<Expression> getEquals() {
@@ -414,54 +421,54 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 		
 		// before we can reach a decision, we need to know whether each value being compared to the variable is within or without bounds:
 		
-		// if X > Y and X op W (for op in >, !=) is W <= Y (making it irrelevant) or is W > Y?
-		// op does not need to be <= because in this case we would already know that W > Y because that would be a propagated literal
-		Iterator<Expression> strictLowerBoundsAndDisequalsAndOtherStrictLowerBounds =
-				functionIterator(
-						new CartesianProductIterator<Expression>(
-								() -> nestedIterator(getDisequals(), getStrictLowerBoundsIncludingImplicitOnes(process)),
-								() -> getStrictLowerBoundsIncludingImplicitOnes(process).iterator()
-						),
-						anotherAndStrictLowerBound -> {
-							Expression result = applyAndSimplify(LESS_THAN_OR_EQUAL_TO, anotherAndStrictLowerBound, process);
-							// System.out.println("comparison of disequal/lower bound to lower bound: " + apply(LESS_THAN_OR_EQUAL_TO, anotherAndStrictLowerBound));	
-							// System.out.println("simplified to: " + result);	
-							return result;
-						}
-						);
+//		// if X > Y and X op W (for op in >, !=) is W <= Y (making it irrelevant) or is W > Y?
+//		// op does not need to be <= because in this case we would already know that W > Y because that would be a propagated literal
+//		Iterator<Expression> strictLowerBoundsAndDisequalsAndOtherStrictLowerBounds =
+//				functionIterator(
+//						new CartesianProductIterator<Expression>(
+//								() -> nestedIterator(getDisequals(), getStrictLowerBoundsIncludingImplicitOnes(process)),
+//								() -> getStrictLowerBoundsIncludingImplicitOnes(process).iterator()
+//						),
+//						anotherAndStrictLowerBound -> {
+//							Expression result = applyAndSimplify(LESS_THAN_OR_EQUAL_TO, anotherAndStrictLowerBound, process);
+//							// System.out.println("comparison of disequal/lower bound to lower bound: " + apply(LESS_THAN_OR_EQUAL_TO, anotherAndStrictLowerBound));	
+//							// System.out.println("simplified to: " + result);	
+//							return result;
+//						}
+//						);
 		
-		// if X <= Z and X op W (for op in !=, <=), is W > Z (making it irrelevant) or is W <= Z?
-		// op does not need to be > because in this case we would already know that W < Z because that would be a propagated literal
-		Iterator<Expression> nonStrictUpperBoundsAndDisequalsAndOtherNonStrictUpperBounds =
-				functionIterator(
-						new CartesianProductIterator<Expression>(
-								() -> nestedIterator(getDisequals(), getNonStrictUpperBoundsIncludingImplicitOnes(process)),
-								() -> getNonStrictUpperBoundsIncludingImplicitOnes(process).iterator()
-						),
-						anotherAndNonStrictUpperBound -> {
-							Expression result = applyAndSimplify(GREATER_THAN, anotherAndNonStrictUpperBound, process);
-							// System.out.println("comparison of disequal/upper bound to upper bound: " + apply(GREATER_THAN, anotherAndNonStrictUpperBound));	
-							// System.out.println("simplified to: " + result);	
-							return result;
-						}
-						);
+//		// if X <= Z and X op W (for op in !=, <=), is W > Z (making it irrelevant) or is W <= Z?
+//		// op does not need to be > because in this case we would already know that W < Z because that would be a propagated literal
+//		Iterator<Expression> nonStrictUpperBoundsAndDisequalsAndOtherNonStrictUpperBounds =
+//				functionIterator(
+//						new CartesianProductIterator<Expression>(
+//								() -> nestedIterator(getDisequals(), getNonStrictUpperBoundsIncludingImplicitOnes(process)),
+//								() -> getNonStrictUpperBoundsIncludingImplicitOnes(process).iterator()
+//						),
+//						anotherAndNonStrictUpperBound -> {
+//							Expression result = applyAndSimplify(GREATER_THAN, anotherAndNonStrictUpperBound, process);
+//							// System.out.println("comparison of disequal/upper bound to upper bound: " + apply(GREATER_THAN, anotherAndNonStrictUpperBound));	
+//							// System.out.println("simplified to: " + result);	
+//							return result;
+//						}
+//						);
 		
-		// we also need to know how many distinct disequals there are
-		Iterator<Expression> disequalsComparisons =
-				functionIterator(
-						getPairsOfDisequals(), pair -> {
-							Expression unsimplifiedAtom = apply(EQUALITY, pair.first, pair.second);
-							return constraint.getConstraintTheory().simplify(unsimplifiedAtom, process);	
-						});
-
-		Iterator<Expression> numberOfDistinctDisequalsIsLessThanNumberOfValuesAllowedByBounds =
-				definingLiteralsForCheckingIfNumberOfDistinctDisequalsDoesNotExceedNumberOfValuesAllowedByBounds(contextualConstraint, process);
+//		// we also need to know how many distinct disequals there are
+//		Iterator<Expression> disequalsComparisons =
+//				functionIterator(
+//						getPairsOfDisequals(), pair -> {
+//							Expression unsimplifiedAtom = apply(EQUALITY, pair.first, pair.second);
+//							return constraint.getConstraintTheory().simplify(unsimplifiedAtom, process);	
+//						});
+//
+//		Iterator<Expression> numberOfDistinctDisequalsIsLessThanNumberOfValuesAllowedByBounds =
+//				definingLiteralsForCheckingIfNumberOfDistinctDisequalsDoesNotExceedNumberOfValuesAllowedByBounds(contextualConstraint, process);
 
 		Iterator<Expression> result = new NestedIterator<Expression>(
-				strictLowerBoundsAndDisequalsAndOtherStrictLowerBounds,
-				nonStrictUpperBoundsAndDisequalsAndOtherNonStrictUpperBounds,
-				disequalsComparisons,
-				numberOfDistinctDisequalsIsLessThanNumberOfValuesAllowedByBounds
+//				strictLowerBoundsAndDisequalsAndOtherStrictLowerBounds,
+//				nonStrictUpperBoundsAndDisequalsAndOtherNonStrictUpperBounds,
+//				disequalsComparisons,
+//				numberOfDistinctDisequalsIsLessThanNumberOfValuesAllowedByBounds
 				);
 		
 		return in(result);
@@ -512,13 +519,15 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 			= new MaximumExpressionStepSolver(
 					getStrictLowerBoundsIncludingImplicitOnes(process),
 					LESS_THAN_SYMBOL, // use total order <
-					getTypeStrictLowerBound(process), // type minimum
-					getTypeStrictUpperBound(process)); // type maximum
-			com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver.SolutionStep<Expression> maximumStrictLowerBoundStep = maximumStrictLowerBoundStepSolver.step(contextualConstraint, process);
+					MINUS_INFINITY,
+					INFINITY); // at first, I placed the type minimum and maximum strict lower bounds here. This is incorrect because if the type maximum is, say, 4, and I have "X > 3 and X > I" (3 is the maximum strict lower bounds for values in the type), the step solver short-circuits and returns 3, without ever even looking at I. Looking at I is needed because if I is greater than 3 than this constraint is unsatisfiable. 
+//			getTypeStrictLowerBound(process), // type minimum
+//			getTypeStrictUpperBound(process)); // type maximum
+			ContextDependentProblemStepSolver.SolutionStep<Expression> maximumStrictLowerBoundStep = maximumStrictLowerBoundStepSolver.step(contextualConstraint, process);
 			if (maximumStrictLowerBoundStep.itDepends()) {
-				throw new Error("Should not be here at this point");	
-//				ItDependsOn result = new ItDependsOn(maximumStrictLowerBoundStep.getExpression(), maximumStrictLowerBoundStep.getConstraintSplitting(), clone(), clone());
-//				return result;
+//				throw new Error("Should not be here at this point");
+				ItDependsOn result = new ItDependsOn(maximumStrictLowerBoundStep.getLiteral(), maximumStrictLowerBoundStep.getConstraintSplitting(), clone(), clone());
+				return result;
 			}
 			Expression greatestStrictLowerBound = maximumStrictLowerBoundStep.getValue();
 					
@@ -526,13 +535,15 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 			= new MaximumExpressionStepSolver(
 					getNonStrictUpperBoundsIncludingImplicitOnes(process),
 					GREATER_THAN_SYMBOL, // use total order > since "minimum" is maximum under it
-					getTypeNonStrictUpperBound(process), // type "minimum" in inverted direction is the upper bound
-					getTypeNonStrictLowerBound(process)); // type "maximum" in inverted direction is the lower bound
-			com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver.SolutionStep<Expression> minimumNonStrictUpperBoundStep = minimumNonStrictUpperBoundStepSolver.step(contextualConstraint, process);
+					INFINITY, // "minimum" is maximum value because we are operating on the inverse order
+					MINUS_INFINITY); // "maximum" is minimum value because we are operating on the inverse order
+//			getTypeNonStrictUpperBound(process), // type "minimum" in inverted direction is the type upper bound
+//			getTypeNonStrictLowerBound(process)); // type "maximum" in inverted direction is the type lower bound
+			ContextDependentProblemStepSolver.SolutionStep<Expression> minimumNonStrictUpperBoundStep = minimumNonStrictUpperBoundStepSolver.step(contextualConstraint, process);
 			if (minimumNonStrictUpperBoundStep.itDepends()) {
-				throw new Error("Should not be here at this point");	
-//				ItDependsOn result = new ItDependsOn(minimumNonStrictUpperBoundStep.getExpression(), minimumNonStrictUpperBoundStep.getConstraintSplitting(), clone(), clone());
-//				return result;
+//				throw new Error("Should not be here at this point");	
+				ItDependsOn result = new ItDependsOn(minimumNonStrictUpperBoundStep.getLiteral(), minimumNonStrictUpperBoundStep.getConstraintSplitting(), clone(), clone());
+				return result;
 			}
 			
 //			if ( ! leastNonStrictUpperBound.equals(minimumNonStrictUpperBoundStep.getExpression())) {
@@ -551,19 +562,137 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 				solutionExpression = INFINITY;
 			}
 			else {
-				int numberOfDisequals = computeNumberOfDistinctDisequalsWithinBounds(greatestStrictLowerBound, leastNonStrictUpperBound, contextualConstraint, process);
-				Expression boundsDifference = apply(MINUS, leastNonStrictUpperBound, greatestStrictLowerBound);
-				ArrayList<Expression> boundsDifferenceAndNumberOfDisequals = arrayList(boundsDifference, makeSymbol(numberOfDisequals));
-				Expression numberOfDistinctDisequalsIsLessThanNumberOfValuedAllowedByBounds = applyAndSimplify(GREATER_THAN, boundsDifferenceAndNumberOfDisequals, process);
-				if ( ! contextualConstraint.implies(numberOfDistinctDisequalsIsLessThanNumberOfValuedAllowedByBounds, process)) {
-					solutionExpression = ZERO; // there are no available values left
+				
+				Expression lowerBoundIsLessThanUpperBound = applyAndSimplify(LESS_THAN, arrayList(greatestStrictLowerBound, leastNonStrictUpperBound), process);
+				ConstraintSplitting lowerBoundIsLessThanUpperBoundSplit = new ConstraintSplitting(contextualConstraint, lowerBoundIsLessThanUpperBound, process);
+				switch (lowerBoundIsLessThanUpperBoundSplit.getResult()) {
+				case CONSTRAINT_IS_CONTRADICTORY:
+					return null;
+				case LITERAL_IS_FALSE:
+					return new Solution(ZERO);
+				case LITERAL_IS_UNDEFINED:
+//					throw new Error("Should not be here");
+					ModelCountingOfSingleVariableInequalityConstraintStepSolver ifTrue = (ModelCountingOfSingleVariableInequalityConstraintStepSolver) clone();
+					ModelCountingOfSingleVariableInequalityConstraintStepSolver ifFalse = (ModelCountingOfSingleVariableInequalityConstraintStepSolver) clone();
+					return new ItDependsOn(lowerBoundIsLessThanUpperBound, lowerBoundIsLessThanUpperBoundSplit, ifTrue, ifFalse);
+				case LITERAL_IS_TRUE:
+					// ok, bounds difference is positive
 				}
-				else if ( ! getEquals().isEmpty()) { // if bound to a value
-					solutionExpression = ONE;
+				
+				ContextDependentProblemStepSolver<List<Expression>> disequalsGreaterThanGreatestStrictLowerBoundStepSolver
+				= new SelectExpressionsSatisfyingComparisonStepSolver(getDisequals(), GREATER_THAN, greatestStrictLowerBound);
+				ContextDependentProblemStepSolver.SolutionStep<List<Expression>> step
+				= disequalsGreaterThanGreatestStrictLowerBoundStepSolver.step(contextualConstraint, process);
+				if (step.itDepends()) {
+//					throw new Error("Should not be here at this point");
+					ModelCountingOfSingleVariableInequalityConstraintStepSolver ifTrue  = (ModelCountingOfSingleVariableInequalityConstraintStepSolver) clone();
+					ModelCountingOfSingleVariableInequalityConstraintStepSolver ifFalse = (ModelCountingOfSingleVariableInequalityConstraintStepSolver) clone();
+					// TODO: make disequalsGreaterThanGreatestStrictLowerBoundStepSolver a field and set it for each variant here.
+					ItDependsOn result = new ItDependsOn(step.getLiteral(), step.getConstraintSplitting(), ifTrue, ifFalse);
+					return result;
 				}
-				else {
-					solutionExpression = applyAndSimplify(MINUS, boundsDifferenceAndNumberOfDisequals, process);
+				List<Expression> disequalsGreaterThanGreatestStrictLowerBound = step.getValue();
+				
+				ContextDependentProblemStepSolver<List<Expression>> disequalsWithinBoundsStepSolver
+				= new SelectExpressionsSatisfyingComparisonStepSolver(
+						disequalsGreaterThanGreatestStrictLowerBound,
+						LESS_THAN_OR_EQUAL_TO, leastNonStrictUpperBound);
+				ContextDependentProblemStepSolver.SolutionStep<List<Expression>> step2
+				= disequalsWithinBoundsStepSolver.step(contextualConstraint, process);
+				if (step2.itDepends()) {
+//					throw new Error("Should not be here at this point");
+					ModelCountingOfSingleVariableInequalityConstraintStepSolver ifTrue  = (ModelCountingOfSingleVariableInequalityConstraintStepSolver) clone();
+					ModelCountingOfSingleVariableInequalityConstraintStepSolver ifFalse = (ModelCountingOfSingleVariableInequalityConstraintStepSolver) clone();
+					// TODO: make disequalsLessThanOrEqualToLeastNonStrictUpperBoundStepSolver a field and set it for each variant here.
+					ItDependsOn result = new ItDependsOn(step2.getLiteral(), step2.getConstraintSplitting(), ifTrue, ifFalse);
+					return result;
 				}
+				ArrayList<Expression> disequalsWithinBounds = new ArrayList<>(step2.getValue());
+				
+				Expression boundsDifference = applyAndSimplify(MINUS, arrayList(leastNonStrictUpperBound, greatestStrictLowerBound), process);
+//				if (isNumber(boundsDifference)) {
+					NumberOfDistinctExpressionsIsLessThanStepSolver numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver;
+					NumberOfDistinctExpressionsStepSolver numberOfDistinctExpressionsStepSolver;
+
+					boolean weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds;
+					if (isNumber(boundsDifference)) {
+						numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver
+						= new NumberOfDistinctExpressionsIsLessThanStepSolver(boundsDifference.intValue(), disequalsWithinBounds);
+						SolutionStep numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.step(contextualConstraint, process);
+
+						if (numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.itDepends()) {
+//							throw new Error("Should not be here at this point");
+							ModelCountingOfSingleVariableInequalityConstraintStepSolver ifTrue  = (ModelCountingOfSingleVariableInequalityConstraintStepSolver) clone();
+							ModelCountingOfSingleVariableInequalityConstraintStepSolver ifFalse = (ModelCountingOfSingleVariableInequalityConstraintStepSolver) clone();
+							ItDependsOn result = new ItDependsOn(numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getLiteral(), numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getConstraintSplitting(), ifTrue, ifFalse);
+							return result;
+						}
+
+						weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStep.getValue().equals(FALSE);
+						numberOfDistinctExpressionsStepSolver = numberOfDistinctDisequalsIsLessThanBoundsDifferenceStepSolver.getNumberOfDistinctExpressionsStepSolver();
+					}
+					else {
+						weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds = false;
+						numberOfDistinctExpressionsStepSolver = new NumberOfDistinctExpressionsStepSolver(disequalsWithinBounds);
+					}
+					
+					if (weKnowThatNumberOfDistinctDisequalsExceedsNumberOfValuesWithinBounds) {
+						solutionExpression = ZERO; // there are no available values left
+					}
+					else if ( ! getEquals().isEmpty()) { // if bound to a value
+						solutionExpression = ONE;
+					}
+					else {
+						SolutionStep numberOfDistinctDisequalsStep = numberOfDistinctExpressionsStepSolver.step(contextualConstraint, process);
+						if (numberOfDistinctDisequalsStep.itDepends()) {
+//							throw new Error("Should not be here at this point");
+							ModelCountingOfSingleVariableInequalityConstraintStepSolver ifTrue  = (ModelCountingOfSingleVariableInequalityConstraintStepSolver) clone();
+							ModelCountingOfSingleVariableInequalityConstraintStepSolver ifFalse = (ModelCountingOfSingleVariableInequalityConstraintStepSolver) clone();
+							ItDependsOn result = new ItDependsOn(numberOfDistinctDisequalsStep.getLiteral(), numberOfDistinctDisequalsStep.getConstraintSplitting(), ifTrue, ifFalse);
+							return result;
+						}
+						Expression numberOfDistinctDisequals = numberOfDistinctDisequalsStep.getValue();
+						ArrayList<Expression> boundsDifferenceAndNumberOfDisequals = arrayList(boundsDifference, numberOfDistinctDisequals);
+						solutionExpression = applyAndSimplify(MINUS, boundsDifferenceAndNumberOfDisequals, process);
+					}
+//				}
+//				else {
+//					int numberOfDisequals = computeNumberOfDistinctDisequalsWithinBounds(greatestStrictLowerBound, leastNonStrictUpperBound, contextualConstraint, process);
+//					ArrayList<Expression> boundsDifferenceAndNumberOfDisequals = arrayList(boundsDifference, makeSymbol(numberOfDisequals));
+//					Expression numberOfDistinctDisequalsIsLessThanNumberOfValuedAllowedByBounds = applyAndSimplify(GREATER_THAN, boundsDifferenceAndNumberOfDisequals, process);
+//					if ( ! contextualConstraint.implies(numberOfDistinctDisequalsIsLessThanNumberOfValuedAllowedByBounds, process)) {
+//						solutionExpression = ZERO; // there are no available values left
+//					}
+//					else if ( ! getEquals().isEmpty()) { // if bound to a value
+//						solutionExpression = ONE;
+//					}
+//					else {
+//						solutionExpression = applyAndSimplify(MINUS, boundsDifferenceAndNumberOfDisequals, process);
+//					}
+//				}
+
+//					Expression solutionExpression2;
+//					int numberOfDisequals = computeNumberOfDistinctDisequalsWithinBounds(greatestStrictLowerBound, leastNonStrictUpperBound, contextualConstraint, process);
+//					ArrayList<Expression> boundsDifferenceAndNumberOfDisequals = arrayList(boundsDifference, makeSymbol(numberOfDisequals));
+//					Expression numberOfDistinctDisequalsIsLessThanNumberOfValuedAllowedByBounds = applyAndSimplify(GREATER_THAN, boundsDifferenceAndNumberOfDisequals, process);
+//					if ( ! contextualConstraint.implies(numberOfDistinctDisequalsIsLessThanNumberOfValuedAllowedByBounds, process)) {
+//						solutionExpression2 = ZERO; // there are no available values left
+//					}
+//					else if ( ! getEquals().isEmpty()) { // if bound to a value
+//						solutionExpression2 = ONE;
+//					}
+//					else {
+//						solutionExpression2 = applyAndSimplify(MINUS, boundsDifferenceAndNumberOfDisequals, process);
+//					}
+//					
+//					if ( ! solutionExpression.equals(solutionExpression2)) {
+//						System.out.println("Constraint: " + getConstraint());	
+//						System.out.println("Contextual constraint: " + contextualConstraint);	
+//						System.out.println("new solution: " + solutionExpression);	
+//						System.out.println("old solution: " + solutionExpression2);
+////						System.exit(-1);
+//					}
+			
 			}
 		}
 

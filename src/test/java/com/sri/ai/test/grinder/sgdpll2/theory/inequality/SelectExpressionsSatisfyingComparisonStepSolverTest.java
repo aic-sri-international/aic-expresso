@@ -63,7 +63,7 @@ import com.sri.ai.grinder.sgdpll2.theory.inequality.InequalityConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.inequality.SelectExpressionsSatisfyingComparisonStepSolver;
 
 @Beta
-public class SelectExpressionsLessThanStepSolverTest {
+public class SelectExpressionsSatisfyingComparisonStepSolverTest {
 
 	@Test
 	public void test() {

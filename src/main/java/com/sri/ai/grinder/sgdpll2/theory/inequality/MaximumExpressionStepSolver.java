@@ -50,6 +50,15 @@ import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 /**
  * A context-dependent problem step solver deciding which in a set of expressions is the maximum one
  * given an order.
+ * <p>
+ * Unlike many step solvers finding Expression-typed solutions, this one
+ * is not an extension of {@link ContextDependentExpressionProblemStepSolver}
+ * because it extends {@link AbstractExpressionsSequenceStepSolver},
+ * which does not necessarily have Expression-typed solutions.
+ * This has the disadvantage of requiring the use of
+ * generic {@link ContextDependentProblemStepSolver#SolutionStep},
+ * instead of its more common specialization
+ * {@link ContextDependentExpressionProblemStepSolver#SolutionStep}.
  *
  * @author braz
  *

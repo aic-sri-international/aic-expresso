@@ -68,6 +68,7 @@ import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
+import com.sri.ai.grinder.library.number.NumericSimplifier;
 import com.sri.ai.grinder.library.number.Plus;
 import com.sri.ai.grinder.library.number.UnaryMinus;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
@@ -124,7 +125,8 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 								// basic simplification of involved interpreted functions in this theory:
 								new EqualitySimplifier(),
 								new InequalitySimplifier(),
-								new BooleanSimplifier()
+								new BooleanSimplifier(),
+								new NumericSimplifier()
 								),
 				propagateAllLiteralsWhenVariableIsBound);
 

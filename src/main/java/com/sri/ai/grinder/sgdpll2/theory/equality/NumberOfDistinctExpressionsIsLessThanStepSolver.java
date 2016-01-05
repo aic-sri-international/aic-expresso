@@ -89,6 +89,16 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 		}
 	}
 
+	/**
+	 * Returns the underlying {@link NumberOfDistinctExpressionsStepSolver}.
+	 * This is useful if one wants to re-use the work done for counting distinct expressions
+	 * without a limit on their number.
+	 * @return
+	 */
+	public NumberOfDistinctExpressionsStepSolver getNumberOfDistinctExpressionsStepSolver() {
+		return counterStepSolver;
+	}
+	
 	@Override
 	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
 		if (counterStepSolver.numberOfUniqueExpressionsSoFar() >= limit) {

@@ -81,7 +81,7 @@ public class NumericSimplifier extends RecursiveExhaustiveMapBasedSimplifier {
 				plus.rewrite(f, process),
 
 				FunctorConstants.MINUS,           (Simplifier) (f, process) ->
-				(f.numberOfArguments() == 2? Minus.simplify(f) : f),
+				(f.numberOfArguments() == 2? Minus.simplify(f) : f.numberOfArguments() == 1? UnaryMinus.simplify(f) : f),
 
 				FunctorConstants.EXPONENTIATION,  (Simplifier) (f, process) ->
 				exponentiation.rewrite(f, process),

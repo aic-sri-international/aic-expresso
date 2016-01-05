@@ -61,6 +61,15 @@ public class UnaryMinus extends AbstractRewriter {
 
 	@Override
 	public Expression rewriteAfterBookkeeping(Expression expression, RewritingProcess process) {
+		return simplify(expression);
+	}
+
+	/**
+	 * Simplify a unary minus application if possible.
+	 * @param expression
+	 * @return
+	 */
+	public static Expression simplify(Expression expression) {
 		if (expression.get(0).getValue() instanceof Number) {
 			return Expressions.makeSymbol(expression.get(0).rationalValue().negate());
 		}
