@@ -46,7 +46,12 @@ public class InequalityConstraintWithPropagationOfAllLiteralsWhenBoundBenchmark 
 	protected boolean getPropagateAllLiteralsWhenVariableIsBound() {
 		return true;
 	}
-	// 12/31/2015: 23.5
+
+	// on December 31, 2015:
+	// testMultiVariableConstraints: 2.024 s
+	// testCompleteMultiVariableConstraints: 12.038 s
+	// testSingleVariableConstraints: 0.542 s
+	// testModelCountingForSingleVariableConstraints: 10.255 s
 	
 	// on January 5, 2016:
 	// testMultiVariableConstraints: 2.419 s

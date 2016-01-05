@@ -85,7 +85,7 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 				true /* output count */);
 	}
 
-	//@Test
+	@Test
 	public void testSumForSingleVariableConstraints() {
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
@@ -100,7 +100,7 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 				true /* output count */);
 	}
 
-	// @Test
+	@Test
 	public void testMaxForSingleVariableConstraints() {
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
