@@ -74,16 +74,10 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 		this.counterStepSolver = new NumberOfDistinctExpressionsStepSolver(expressions, i, j, numberOfNonUniqueExpressionsSoFar);
 	}
 
-	private NumberOfDistinctExpressionsIsLessThanStepSolver(int limit, List<Expression> expressions, NumberOfDistinctExpressionsStepSolver counterStepSolver) {
-		this.limit = limit;
-		this.expressions = expressions;
-		this.counterStepSolver = counterStepSolver;
-	}
-
 	@Override
-	public ContextDependentExpressionProblemStepSolver clone() {
+	public NumberOfDistinctExpressionsIsLessThanStepSolver clone() {
 		try {
-			return (ContextDependentExpressionProblemStepSolver) super.clone();
+			return (NumberOfDistinctExpressionsIsLessThanStepSolver) super.clone();
 		} catch (CloneNotSupportedException e) {
 			throw new Error(e);
 		}
@@ -111,11 +105,11 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 
 		SolutionStep step = counterStepSolver.step(contextualConstraint, process);
 		if (step.itDepends()) {
-			NumberOfDistinctExpressionsIsLessThanStepSolver subStepSolverWhenFormulaIsTrue
-			= new NumberOfDistinctExpressionsIsLessThanStepSolver(limit, expressions, (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenLiteralIsTrue());
+			NumberOfDistinctExpressionsIsLessThanStepSolver subStepSolverWhenFormulaIsTrue = clone();
+			subStepSolverWhenFormulaIsTrue.counterStepSolver = (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenLiteralIsTrue();
 
-			NumberOfDistinctExpressionsIsLessThanStepSolver subStepSolverWhenFormulaIsFalse
-			= new NumberOfDistinctExpressionsIsLessThanStepSolver(limit, expressions, (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenLiteralIsFalse());
+			NumberOfDistinctExpressionsIsLessThanStepSolver subStepSolverWhenFormulaIsFalse = clone();
+			subStepSolverWhenFormulaIsFalse.counterStepSolver = (NumberOfDistinctExpressionsStepSolver) step.getStepSolverForWhenLiteralIsFalse();
 
 			return new ItDependsOn(step.getLiteral(), step.getConstraintSplitting(), subStepSolverWhenFormulaIsTrue, subStepSolverWhenFormulaIsFalse);
 		}
