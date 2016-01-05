@@ -98,7 +98,9 @@ public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implem
 		}
 		else if (modelCountingStep.itDepends()) {
 			// satisfiability depends on the same expression, but sub-step solvers must be satisfiability step solvers.
-			return new ItDependsOn(modelCountingStep.getLiteral(), modelCountingStep.getConstraintSplitting(), this, this);
+			SatisfiabilityOfSingleVariableInequalityConstraintStepSolver ifTrue = clone();
+			SatisfiabilityOfSingleVariableInequalityConstraintStepSolver ifFalse = clone();
+			return new ItDependsOn(modelCountingStep.getLiteral(), modelCountingStep.getConstraintSplitting(), ifTrue, ifFalse);
 		}
 
 		SolutionStep result;
