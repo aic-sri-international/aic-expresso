@@ -42,13 +42,13 @@ import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.ZERO;
 import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.grinder.library.FunctorConstants.GREATER_THAN;
+import static com.sri.ai.grinder.sgdpll2.theory.base.ExpressionConditionedOnLiteralSolutionStep.stepDependingOnLiteral;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
-import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 import com.sri.ai.grinder.sgdpll2.core.solver.AbstractBooleanProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
 
 /**
@@ -109,28 +109,7 @@ public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implem
 
 		// result = new Solution(simplifiedSatisfiable); // used to be like this; not good, for if simplifiedSatisfiable is inconsistent with contextual constraint, it is not equal to 'false', becoming incomplete even if the contextual constraint is complete.
 
-		ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, simplifiedSatisfiable, process);
-		if (split.getResult() == ConstraintSplitting.Result.CONSTRAINT_IS_CONTRADICTORY) {
-			return null;
-		}
-
-		switch (split.getResult()) {
-		case LITERAL_IS_TRUE:
-			result = new Solution(TRUE);
-			break;
-		case LITERAL_IS_FALSE:
-			result = new Solution(FALSE);
-			break;
-		case LITERAL_IS_UNDEFINED:
-			SatisfiabilityOfSingleVariableInequalityConstraintStepSolver ifTrue = clone();
-			ifTrue.solutionIsTrue = true;
-			SatisfiabilityOfSingleVariableInequalityConstraintStepSolver ifFalse = clone();
-			ifFalse.solutionIsFalse = true;
-			result = new ItDependsOn(simplifiedSatisfiable, split, ifTrue, ifFalse);
-			break;
-		default:
-			throw new Error("Unrecognized result");
-		}
+		result = stepDependingOnLiteral(simplifiedSatisfiable, TRUE, FALSE, contextualConstraint, process);
 
 		return result;
 	}

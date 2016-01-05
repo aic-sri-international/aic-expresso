@@ -35,53 +35,60 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.theory.inequality;
+package com.sri.ai.grinder.sgdpll2.theory.base;
 
-import java.util.List;
+import static com.sri.ai.grinder.sgdpll2.theory.base.ConstantStepSolver.constantStepSolver;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll2.theory.base.AbstractLinearStepSolver;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 
 /**
- * A context-dependent problem step solver making decisions based on a sequence of expressions.
+ * A context-dependent problem step solver
+ * that simply decides whether a literal is true or not.
+ * <p>
  *
  * @author braz
  *
  */
 @Beta
-public abstract class AbstractExpressionsSequenceStepSolver<T> extends AbstractLinearStepSolver<T> {
+public class LiteralStepSolver implements ContextDependentProblemStepSolver<Boolean> {
 
-	private List<Expression> expressions;
+	protected Expression literal;
 
-	/**
-	 * Makes the decision literal based on the {@link #currentExpression()}.
-	 * @param currentExpression
-	 * @return
-	 */
-	protected abstract Expression makeLiteralBasedOn(Expression currentExpression);
-	
-	public AbstractExpressionsSequenceStepSolver(List<Expression> expressions) {
-		this(expressions, 0);
+	public LiteralStepSolver(Expression literal) {
+		super();
+		this.literal = literal;
 	}
 
-	protected AbstractExpressionsSequenceStepSolver(List<Expression> expressions, int current) {
-		super(expressions.size(), current);
-		this.expressions = expressions;
-	}
-
-	public List<Expression> getExpressions() {
-		return expressions;
-	}
-	
 	@Override
-	protected Expression makeLiteral() {
-		Expression result = makeLiteralBasedOn(getCurrentExpression());
-		return result;
+	public LiteralStepSolver clone() {
+		try {
+			return (LiteralStepSolver) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new Error("Trying to clone " + getClass() + " but cloning is not supported for this class.");
+		}
 	}
 
-	protected Expression getCurrentExpression() {
-		Expression result = expressions.get(getCurrent());
-		return result;
+	@Override
+	public ContextDependentProblemStepSolver.SolutionStep<Boolean> step(Constraint2 contextualConstraint, RewritingProcess process) {
+		ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, literal, process);
+		switch (split.getResult()) {
+		case CONSTRAINT_IS_CONTRADICTORY:
+			return null;
+		case LITERAL_IS_TRUE:
+			return new Solution<Boolean>(true);
+		case LITERAL_IS_FALSE:
+			return new Solution<Boolean>(false);
+		case LITERAL_IS_UNDEFINED:
+			ContextDependentProblemStepSolver<Boolean> ifTrue  = constantStepSolver(true);
+			ContextDependentProblemStepSolver<Boolean> ifFalse = constantStepSolver(false);
+			return new ItDependsOn<Boolean>(literal, split, ifTrue, ifFalse);
+		default:
+			throw new Error("Unrecognized splitting result.");
+		}
 	}
 }

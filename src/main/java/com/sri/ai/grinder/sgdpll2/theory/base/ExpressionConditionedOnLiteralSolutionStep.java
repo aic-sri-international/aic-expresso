@@ -35,53 +35,56 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.theory.inequality;
+package com.sri.ai.grinder.sgdpll2.theory.base;
 
-import java.util.List;
+import static com.sri.ai.grinder.sgdpll2.theory.base.ConstantExpressionStepSolver.constantExpressionStepSolver;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll2.theory.base.AbstractLinearStepSolver;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver.ItDependsOn;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver.Solution;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver.SolutionStep;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentProblemStepSolver;
 
 /**
- * A context-dependent problem step solver making decisions based on a sequence of expressions.
+ * Provides a static method for generating {@link Expression}-valued solution steps based on a literal.
  *
  * @author braz
  *
  */
 @Beta
-public abstract class AbstractExpressionsSequenceStepSolver<T> extends AbstractLinearStepSolver<T> {
-
-	private List<Expression> expressions;
+public class ExpressionConditionedOnLiteralSolutionStep {
 
 	/**
-	 * Makes the decision literal based on the {@link #currentExpression()}.
-	 * @param currentExpression
+	 * Produces a solution step based on value of literal, with corresponding given solutions
+	 * (if literal is not defined by contextual constraint, a {@link ItDependsOn} step is returned).
+	 * @param literal
+	 * @param solutionIfTrue
+	 * @param solutionIfFalse
+	 * @param contextualConstraint
+	 * @param process
 	 * @return
 	 */
-	protected abstract Expression makeLiteralBasedOn(Expression currentExpression);
-	
-	public AbstractExpressionsSequenceStepSolver(List<Expression> expressions) {
-		this(expressions, 0);
-	}
-
-	protected AbstractExpressionsSequenceStepSolver(List<Expression> expressions, int current) {
-		super(expressions.size(), current);
-		this.expressions = expressions;
-	}
-
-	public List<Expression> getExpressions() {
-		return expressions;
-	}
-	
-	@Override
-	protected Expression makeLiteral() {
-		Expression result = makeLiteralBasedOn(getCurrentExpression());
-		return result;
-	}
-
-	protected Expression getCurrentExpression() {
-		Expression result = expressions.get(getCurrent());
+	public static SolutionStep
+	stepDependingOnLiteral(Expression literal, Expression solutionIfTrue, Expression solutionIfFalse, Constraint2 contextualConstraint, RewritingProcess process) {
+		
+		SolutionStep result;
+		LiteralStepSolver literalStepSolver = new LiteralStepSolver(literal);
+		ContextDependentProblemStepSolver.SolutionStep<Boolean> step =
+				literalStepSolver.step(contextualConstraint, process);
+		if (step.itDepends()) {
+			result =
+					new ItDependsOn(
+							step.getLiteral(),
+							step.getConstraintSplitting(),
+							constantExpressionStepSolver(solutionIfTrue),
+							constantExpressionStepSolver(solutionIfFalse));
+		}
+		else {
+			result = new Solution(step.getValue()? solutionIfTrue : solutionIfFalse);
+		}
 		return result;
 	}
 }

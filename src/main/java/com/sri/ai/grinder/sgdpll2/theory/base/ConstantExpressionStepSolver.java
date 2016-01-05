@@ -35,53 +35,40 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.grinder.sgdpll2.theory.inequality;
-
-import java.util.List;
+package com.sri.ai.grinder.sgdpll2.theory.base;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
-import com.sri.ai.grinder.sgdpll2.theory.base.AbstractLinearStepSolver;
+import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.sgdpll2.api.Constraint2;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 
 /**
- * A context-dependent problem step solver making decisions based on a sequence of expressions.
+ * A step solver always returning a constant expression solution regardless of the contextual constraint.
  *
  * @author braz
  *
  */
 @Beta
-public abstract class AbstractExpressionsSequenceStepSolver<T> extends AbstractLinearStepSolver<T> {
+public class ConstantExpressionStepSolver implements ContextDependentExpressionProblemStepSolver {
 
-	private List<Expression> expressions;
+	private Solution solution;
 
-	/**
-	 * Makes the decision literal based on the {@link #currentExpression()}.
-	 * @param currentExpression
-	 * @return
-	 */
-	protected abstract Expression makeLiteralBasedOn(Expression currentExpression);
+	public ConstantExpressionStepSolver(Expression value) {
+		this.solution = new Solution(value);
+	}
 	
-	public AbstractExpressionsSequenceStepSolver(List<Expression> expressions) {
-		this(expressions, 0);
-	}
-
-	protected AbstractExpressionsSequenceStepSolver(List<Expression> expressions, int current) {
-		super(expressions.size(), current);
-		this.expressions = expressions;
-	}
-
-	public List<Expression> getExpressions() {
-		return expressions;
+	public static ConstantExpressionStepSolver constantExpressionStepSolver(Expression value) {
+		return new ConstantExpressionStepSolver(value);
 	}
 	
 	@Override
-	protected Expression makeLiteral() {
-		Expression result = makeLiteralBasedOn(getCurrentExpression());
-		return result;
+	public ConstantExpressionStepSolver clone() {
+		return this; // this this is immutable, it is ok to re-use it as its own clone
 	}
 
-	protected Expression getCurrentExpression() {
-		Expression result = expressions.get(getCurrent());
-		return result;
-	}
+	@Override
+	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
+		return solution;
+	}	
 }
