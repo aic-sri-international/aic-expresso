@@ -48,13 +48,17 @@ public class InequalityConstraintWithPropagationOfAllLiteralsWhenBoundBenchmark 
 	}
 
 	// on December 31, 2015:
+	// testMaxForSingleVariableConstraints: too long to wait
 	// testMultiVariableConstraints: 2.024 s
+	// testSumForSingleVariableConstraints: too long to wait
 	// testCompleteMultiVariableConstraints: 12.038 s
 	// testSingleVariableConstraints: 0.542 s
 	// testModelCountingForSingleVariableConstraints: 10.255 s
 	
 	// on January 5, 2016:
+	// testMaxForSingleVariableConstraints: 16.2 s
 	// testMultiVariableConstraints: 2.419 s
+	// testSumForSingleVariableConstraints: 10.926 s
 	// testCompleteMultiVariableConstraints: 1.198 s
 	// testSingleVariableConstraints: 0.948 s
 	// testModelCountingForSingleVariableConstraints: 0.888 s
