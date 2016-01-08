@@ -38,7 +38,9 @@
 package com.sri.ai.expresso.type;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.util.Util.arrayListFrom;
 import static com.sri.ai.util.Util.myAssert;
+import static com.sri.ai.util.collect.FunctionIterator.functionIterator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,7 +71,7 @@ public class Categorical implements Type {
 	
 	/**
 	 * Creates a categorical type of given name, cardinality and known constants;
-	 * unknown constants, if requested, as named "<name>-1", ... "<name>-n",
+	 * unknown constants, if requested, are named "<name>1", ... "<name>n",
 	 * where name is the lower-case version of given name, and n is cardinality minus number of known constants.
 	 * @param name
 	 * @param cardinality number of elements in type (-1 if unknown, -2 if infinite)
@@ -88,6 +90,29 @@ public class Categorical implements Type {
 
 	public Categorical(String name, int cardinality, Expression... knownConstants) {
 		this(name, cardinality, new ArrayList<Expression>((Arrays.asList(knownConstants))));
+	}
+	
+	/**
+	 * Similar to {@link #Categorical(String, int, ArrayList)},
+	 * but known constants are specified how many there are as well as a prefix for their name;
+	 * for example, if the prefix is "a" and the number of known constants is specified as 100,
+	 * then the known constants of this categorical type will be <code>a1,...,a100</code>.
+	 * Currently, this simply creates all known constants explicitly in an array list;
+	 * in the future, that may be replaced by some sort of virtual Collection implementation.
+	 * @param name
+	 * @param cardinality
+	 * @param knownConstantPrefix
+	 * @param numberOfKnownConstants
+	 */
+	public Categorical(String name, int cardinality, String knownConstantPrefix, int numberOfKnownConstants) {
+		this(
+				name,
+				cardinality,
+				arrayListFrom(
+						functionIterator(
+								new IntegerIterator(1, numberOfKnownConstants + 1),
+								i -> makeSymbol(knownConstantPrefix + i))));
+		// TODO: OPTIMIZATION: use some sort of "virtual" Collection implementation to represent this array of expressions.
 	}
 	
 	@Override
