@@ -68,6 +68,14 @@ public class RandomConditionalExpressionGenerator implements NullaryFunction<Exp
 	private NullaryFunction<Expression> leafGenerator;
 	private RewritingProcess process;
 	
+	/**
+	 * Constructs a random conditional expression generator based on given parameters.
+	 * @param random a random generator to be used throughout
+	 * @param constraintTheory the constraint theory used to generate the literals in the conditional's conditions
+	 * @param depth the depth of the conditional tree
+	 * @param leafGenerator a generators for expressions appearing at the leaves of the conditional tree
+	 * @param process
+	 */
 	public RandomConditionalExpressionGenerator(Random random, ConstraintTheory constraintTheory, int depth, NullaryFunction<Expression> leafGenerator, RewritingProcess process) {
 		super();
 		this.random = random;

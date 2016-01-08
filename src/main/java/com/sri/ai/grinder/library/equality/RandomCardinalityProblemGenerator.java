@@ -53,7 +53,7 @@ import com.sri.ai.grinder.library.set.tuple.Tuple;
  * @author braz
  *
  */
-public class RandomCardinalityProblemGenerator extends AbstractRandomDPLLProblemGenerator {
+public class RandomCardinalityProblemGenerator extends AbstractRandomEqualityDPLLProblemGenerator {
 	
 	/**
 	 * Creates an iterator over random cardinality expressions.

@@ -51,7 +51,7 @@ import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
  * @author braz
  *
  */
-public class RandomSatisfiabilityProblemGenerator extends AbstractRandomDPLLProblemGenerator {
+public class RandomSatisfiabilityProblemGenerator extends AbstractRandomEqualityDPLLProblemGenerator {
 	
 	/**
 	 * Creates an iterator over random satisfiability expressions.
