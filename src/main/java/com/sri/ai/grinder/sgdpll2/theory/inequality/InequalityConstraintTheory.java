@@ -64,7 +64,6 @@ import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
@@ -155,10 +154,8 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 	}
 	
 	@Override
-	protected boolean isValidArgument(Expression expression, RewritingProcess process) {
-		Expression type = GrinderUtil.getType(expression, process);
+	protected boolean isValidArgument(Expression expression, Type type) {
 		Expression parsedType = Expressions.parse(type.toString());
-		// TODO: currently, types are always represented in RewritingProcess as Symbols with value being the type name. We should instead do it more flexibly and keep an Expression representing the type.
 		boolean result = parsedType.equals("Integer") || (parsedType.hasFunctor("Integer") && parsedType.numberOfArguments() == 2);
 		return result;
 	}

@@ -39,6 +39,7 @@ package com.sri.ai.grinder.sgdpll2.theory.propositional;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 import static com.sri.ai.grinder.library.FunctorConstants.NOT;
+import static com.sri.ai.grinder.library.equality.formula.FormulaUtil.functorIsALogicalConnectiveIncludingConditionals;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.mapIntoArrayList;
@@ -48,6 +49,7 @@ import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
@@ -67,8 +69,10 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractConstraintTheory;
 public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 
 	@Override
-	public boolean isSuitableFor(Expression variable, RewritingProcess process) {
-		boolean result = isNonTrivialAtom(variable, process);
+	public boolean isSuitableFor(Expression variable, Type type) {
+		boolean result =
+				type.getName().equals("Boolean") &&
+				!functorIsALogicalConnectiveIncludingConditionals(variable);
 		return result;
 	}
 	

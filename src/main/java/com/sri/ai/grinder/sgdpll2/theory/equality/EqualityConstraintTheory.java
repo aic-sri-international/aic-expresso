@@ -39,16 +39,15 @@ package com.sri.ai.grinder.sgdpll2.theory.equality;
 
 import static com.sri.ai.grinder.library.FunctorConstants.DISEQUALITY;
 import static com.sri.ai.grinder.library.FunctorConstants.EQUALITY;
-import static com.sri.ai.util.Util.myAssert;
 import static com.sri.ai.util.Util.set;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
-import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
@@ -90,17 +89,13 @@ public class EqualityConstraintTheory extends AbstractConstraintTheoryWithBinary
 	}
 	
 	@Override
-	protected boolean isValidArgument(Expression expression, RewritingProcess process) {
-		Expression type = GrinderUtil.getType(expression, process);
-		myAssert(
-				() -> type != null, 
-				() -> expression + " has unknown type.");
-		boolean result = isNonBooleanCategoricalType(type, process);
+	protected boolean isValidArgument(Expression expression, Type type) {
+		boolean result = isNonBooleanCategoricalType(type);
 		return result;
 	}
 	
-	private boolean isNonBooleanCategoricalType(Expression type, RewritingProcess process) {
-		boolean result = !type.equals("Boolean") && process.getType(type) instanceof Categorical;
+	private boolean isNonBooleanCategoricalType(Type type) {
+		boolean result = !type.getName().equals("Boolean") && type instanceof Categorical;
 		return result;
 	}
 

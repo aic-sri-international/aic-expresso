@@ -108,8 +108,8 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	}
 	
 	@Override
-	public boolean isSuitableFor(Expression variable, RewritingProcess process) {
-		boolean result = thereExists(getConstraintTheories(), t -> t.isSuitableFor(variable, process));
+	public boolean isSuitableFor(Expression variable, Type type) {
+		boolean result = thereExists(getConstraintTheories(), t -> t.isSuitableFor(variable, type));
 		return result;
 	}
 	
@@ -118,10 +118,13 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	}
 
 	private ConstraintTheory getConstraintTheory(Expression variable, RewritingProcess process) {
+		String typeName = GrinderUtil.getType(variable, process).toString();
+		Type type = process.getType(typeName);
+		
 		ConstraintTheory result =
 				getFirstSatisfyingPredicateOrNull(
 						getConstraintTheories(),
-						t -> t.isSuitableFor(variable, process));
+						t -> t.isSuitableFor(variable, type));
 
 		check(() -> result != null, () -> "There is no sub-constraint theory suitable for " + variable + ", which has type " + GrinderUtil.getType(variable, process));
 		

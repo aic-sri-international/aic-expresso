@@ -14,8 +14,10 @@ import java.util.Random;
 import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractConstraintTheory;
 import com.sri.ai.util.collect.PredicateIterator;
 
@@ -60,13 +62,13 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 	 * Indicates whether an argument to the theory functors is a valid argument to form a literal in this theory.
 	 * By default, the type of theory functor arguments is only tested by this method if
 	 * {@link #assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory} is true.
-	 * On the other hand, {@link #isSuitableFor(Expression, RewritingProcess)} always uses this test
+	 * On the other hand, {@link #isSuitableFor(Expression, Type)} always uses this test
 	 * for deciding whether this theory is suitable for a variable (which is passed as the argument here).
 	 * @param expression
-	 * @param process
+	 * @param type TODO
 	 * @return
 	 */
-	protected abstract boolean isValidArgument(Expression expression, RewritingProcess process);
+	protected abstract boolean isValidArgument(Expression expression, Type type);
 
 	/**
 	 * Must take a non-trivial atom in the theory and return its negation.
@@ -93,11 +95,11 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 
 	/**
 	 * Implements decision about whether theory is suitable for a variable by checking if it is
-	 * a valid argument for a functor in the theory using {@link #isValidArgument(Expression, RewritingProcess)}. 
+	 * a valid argument for a functor in the theory using {@link #isValidArgument(Expression, Type)}. 
 	 */
 	@Override
-	public boolean isSuitableFor(Expression variable, RewritingProcess process) {
-		boolean result = isValidArgument(variable, process);
+	public boolean isSuitableFor(Expression variable, Type type) {
+		boolean result = isValidArgument(variable, type);
 		return result;
 	}
 
@@ -111,7 +113,7 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 	 * Implements decision of whether an expression is a non-trivial atom by checking
 	 * if it is a function application of one of the theory functors and,
 	 * if {@link #assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory} is true,
-	 * whether its arguments are valid according to {@link #isValidArgument(Expression, RewritingProcess)}.
+	 * whether its arguments are valid according to {@link #isValidArgument(Expression, Type)}.
 	 */
 	@Override
 	public boolean isNonTrivialAtom(Expression expression, RewritingProcess process) {
@@ -126,7 +128,12 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 			// the following is good, but expensive
 			result = hasTheoryFunctor
 					&&
-					forAll(expression.getArguments(), e -> isValidArgument(e, process));
+					forAll(expression.getArguments(),
+							e -> {
+								String typeName = GrinderUtil.getType(e, process).toString();
+								Type eType = process.getType(typeName);
+								return isValidArgument(e, eType);
+							});
 		}
 		
 		return result;
