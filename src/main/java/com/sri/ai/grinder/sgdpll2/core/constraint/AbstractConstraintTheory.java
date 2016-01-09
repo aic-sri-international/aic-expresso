@@ -46,6 +46,7 @@ import static com.sri.ai.util.Util.mapIntoArrayList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
@@ -71,14 +72,28 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	 */
 	public AbstractConstraintTheory() {
 		super();
-		ArrayList<Expression> knownConstants = mapIntoArrayList(list("a", "b", "c", "d"), s -> makeSymbol(s));
-		setTypesForTesting(list(new Categorical("SomeType", 5, knownConstants)));
-		setVariableNamesAndTypeNamesForTesting(map("X", "SomeType", "Y", "SomeType", "Z", "SomeType"));
+		Categorical someType = getDefaultTestingType();
+		setTypesForTesting(list(someType));
+		setVariableNamesAndTypesForTesting(map("X", someType, "Y", someType, "Z", someType));
+	}
+
+	private static Categorical someType;
+	
+	/**
+	 * Returns the type used for the default testing variables.
+	 * @return
+	 */
+	static public Categorical getDefaultTestingType() {
+		if (someType == null) {
+			ArrayList<Expression> knownConstants = mapIntoArrayList(list("a", "b", "c", "d"), s -> makeSymbol(s));
+			someType = new Categorical("SomeType", 5, knownConstants);
+		}
+		return someType;
 	}
 	
 	private Collection<Type> typesForTesting = null;
 	
-	private Map<String, String> variableNamesAndTypeNamesForTesting;
+	private Map<String, Type> variableNamesAndTypesForTesting;
 	
 	private ArrayList<String> variableNamesForTesting;
 	
@@ -96,14 +111,14 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	}
 	
 	@Override
-	public void setVariableNamesAndTypeNamesForTesting(Map<String, String> variableNamesAndTypesForTesting) {
-		this.variableNamesAndTypeNamesForTesting = variableNamesAndTypesForTesting;
+	public void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesAndTypesForTesting) {
+		this.variableNamesAndTypesForTesting = variableNamesAndTypesForTesting;
 		this.variableNamesForTesting = new ArrayList<String>(variableNamesAndTypesForTesting.keySet());
 	}
 	
 	@Override
-	public Map<String, String> getVariableNamesAndTypeNamesForTesting() {
-		return Collections.unmodifiableMap(variableNamesAndTypeNamesForTesting);
+	public Map<String, Type> getVariableNamesAndTypesForTesting() {
+		return Collections.unmodifiableMap(variableNamesAndTypesForTesting);
 	}
 
 	@Override
@@ -120,7 +135,10 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 		}
 		
 		// we only need to provide the variables types, and not the known constant types, because the latter will be extracted from the already registered types.
-		Map<String, String> mapFromSymbolNamesToTypeNames = getVariableNamesAndTypeNamesForTesting();
+		Map<String, String> mapFromSymbolNamesToTypeNames = new LinkedHashMap<String, String>();
+		for (Map.Entry<String, Type> symbolAndType : getVariableNamesAndTypesForTesting().entrySet()) {
+			mapFromSymbolNamesToTypeNames.put(symbolAndType.getKey(), symbolAndType.getValue().toString());
+		}
 		
 		result = DPLLUtil.extendProcessWith(mapFromSymbolNamesToTypeNames, mapFromTypeNameToSizeString, result.getIsUniquelyNamedConstantPredicate(), result);
 		return result;

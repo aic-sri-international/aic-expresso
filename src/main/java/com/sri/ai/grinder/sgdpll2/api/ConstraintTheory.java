@@ -219,13 +219,13 @@ public interface ConstraintTheory extends Theory {
 	//////////// AUTOMATIC TESTING 
 	
 	/** Sets variables to be used in randomly generated literals. */
-	void setVariableNamesAndTypeNamesForTesting(Map<String, String> variableNamesForTesting);
+	void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesForTesting);
 	
 	/** Gets variables to be used in randomly generated literals. */
-	Map<String, String> getVariableNamesAndTypeNamesForTesting();
+	Map<String, Type> getVariableNamesAndTypesForTesting();
 
 	/**
-	 * Returns the variable names as returned by {@link #getVariableNamesAndTypeNamesForTesting()}
+	 * Returns the variable names as returned by {@link #getVariableNamesAndTypesForTesting()}
 	 * as an array list (this is cached and updated as needed).
 	 * @return
 	 */
@@ -284,7 +284,7 @@ public interface ConstraintTheory extends Theory {
 	 * @return
 	 */
 	default String pickTestingVariableAtRandom(Random random) {
-		String result = Util.pickUniformly(getVariableNamesAndTypeNamesForTesting().keySet(), random);
+		String result = Util.pickUniformly(getVariableNamesAndTypesForTesting().keySet(), random);
 		return result;
 	}
 	
@@ -301,7 +301,7 @@ public interface ConstraintTheory extends Theory {
 	 * but applied randomly to one of the test variables.
 	 */
 	default Expression makeRandomAtom(Random random, RewritingProcess process) {
-		String variableToBeUsed = Util.pickUniformly(getVariableNamesAndTypeNamesForTesting().keySet().iterator(), random);
+		String variableToBeUsed = Util.pickUniformly(getVariableNamesAndTypesForTesting().keySet().iterator(), random);
 		Expression result = makeRandomAtomOn(variableToBeUsed, random, process);
 		return result;
 	}

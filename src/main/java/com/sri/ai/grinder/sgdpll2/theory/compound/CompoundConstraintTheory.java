@@ -90,21 +90,21 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 		}
 		setTypesForTesting(typesForTesting);
 		
-		Map<String, String> variableNamesAndTypeNamesForTesting = new LinkedHashMap<>();
+		Map<String, Type> variableNamesAndTypesForTesting = new LinkedHashMap<>();
 		for (ConstraintTheory constraintTheory : getConstraintTheories()) {
-			Set<Entry<String, String>> variableNamesAndTypeNameEntries = constraintTheory.getVariableNamesAndTypeNamesForTesting().entrySet();
-			for (Map.Entry<String, String> variableNameAndTypeName : variableNamesAndTypeNameEntries) {
+			Set<Entry<String, Type>> variableNamesAndTypeNameEntries = constraintTheory.getVariableNamesAndTypesForTesting().entrySet();
+			for (Map.Entry<String, Type> variableNameAndTypeName : variableNamesAndTypeNameEntries) {
 				String variableName = variableNameAndTypeName.getKey();
-				String typeName = variableNameAndTypeName.getValue();
-				if (variableNamesAndTypeNamesForTesting.containsKey(variableName)) {
+				Type type = variableNameAndTypeName.getValue();
+				if (variableNamesAndTypesForTesting.containsKey(variableName)) {
 					throw new Error("Variable " + variableName + " is a testing variable for " + constraintTheory.getClass() + " added to a compound constraint theory, but had already been registered by a previous sub-constraint theory.");
 				}
 				else {
-					variableNamesAndTypeNamesForTesting.put(variableName, typeName);
+					variableNamesAndTypesForTesting.put(variableName, type);
 				}
 			}
 		}
-		setVariableNamesAndTypeNamesForTesting(variableNamesAndTypeNamesForTesting);
+		setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
 	}
 	
 	@Override

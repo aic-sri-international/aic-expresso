@@ -84,8 +84,9 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	public PropositionalConstraintTheory() {
 		super();
 		ArrayList<Expression> knownConstants = mapIntoArrayList(list("true", "false"), s -> makeSymbol(s));
-		setTypesForTesting(list(new Categorical("Boolean", 2, knownConstants)));
-		setVariableNamesAndTypeNamesForTesting(map("P", "Boolean", "Q", "Boolean", "R", "Boolean"));
+		Categorical booleanType = new Categorical("Boolean", 2, knownConstants);
+		setTypesForTesting(list(booleanType));
+		setVariableNamesAndTypesForTesting(map("P", booleanType, "Q", booleanType, "R", booleanType));
 	}
 
 	private Simplifier simplifier = new BooleanSimplifier();

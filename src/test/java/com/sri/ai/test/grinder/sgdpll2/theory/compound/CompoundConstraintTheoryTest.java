@@ -48,6 +48,8 @@ import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
@@ -201,30 +203,32 @@ public class CompoundConstraintTheoryTest extends AbstractConstraintTheoryTest {
 
 		String conjunction;
 		Expression expected;
-		Map<String, String> variableNamesAndTypeNamesForTesting = // need W besides the other defaults -- somehow not doing this in equality theory alone does not cause a problem, probably because the type for W is never needed when we have only equality theory
-				map("X", "SomeType", "Y", "SomeType", "Z", "SomeType", "W", "SomeType");
+		Categorical someType = CompoundConstraintTheory.getDefaultTestingType();
+
+		Map<String, Type> variableNamesAndTypesForTesting = // need W besides the other defaults -- somehow not doing this in equality theory alone does not cause a problem, probably because the type for W is never needed when we have only equality theory
+				map("X", someType, "Y", someType, "Z", someType, "W", someType);
 
 		
 		conjunction = "X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
 		expected = null;
-		runCompleteSatisfiabilityTest(conjunction, expected, variableNamesAndTypeNamesForTesting);
+		runCompleteSatisfiabilityTest(conjunction, expected, variableNamesAndTypesForTesting);
 		
 		conjunction = "X = Y and X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
 		expected = null;
-		runCompleteSatisfiabilityTest(conjunction, expected, variableNamesAndTypeNamesForTesting);
+		runCompleteSatisfiabilityTest(conjunction, expected, variableNamesAndTypesForTesting);
 		
 		conjunction = "X = a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
 		expected = parse("(W = d) and (Z = c) and (X = a)");
-		runCompleteSatisfiabilityTest(conjunction, expected, variableNamesAndTypeNamesForTesting);
+		runCompleteSatisfiabilityTest(conjunction, expected, variableNamesAndTypesForTesting);
 	}
 
 	/**
 	 * @param conjunction
 	 * @param expected
 	 */
-	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, Map<String, String> variableNamesAndTypeNamesForTesting) {
+	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, Map<String, Type> variableNamesAndTypesForTesting) {
 		AbstractConstraintTheoryWithBinaryAtoms equalityTheory = new EqualityConstraintTheory(true, true);
-		equalityTheory.setVariableNamesAndTypeNamesForTesting(variableNamesAndTypeNamesForTesting);
+		equalityTheory.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
 		ConstraintTheory constraintTheory = new CompoundConstraintTheory(equalityTheory, new PropositionalConstraintTheory());
 		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));

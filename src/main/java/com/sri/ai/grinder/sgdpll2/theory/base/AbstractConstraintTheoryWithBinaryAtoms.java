@@ -144,16 +144,20 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 	 */
 	@Override
 	public Expression makeRandomAtomOn(String variable, Random random, RewritingProcess process) {
-		Map<String, String> variablesAndTypes = getVariableNamesAndTypeNamesForTesting();
-		String typeName = variablesAndTypes.get(variable);
+		Map<String, Type> variablesAndTypes = getVariableNamesAndTypesForTesting();
+		Type type = variablesAndTypes.get(variable);
 		Set<String> allVariables = variablesAndTypes.keySet();
-		PredicateIterator<String> isNameOfVariableOfSameType = PredicateIterator.make(allVariables, s -> variablesAndTypes.get(s).equals(typeName));
+		PredicateIterator<String> isNameOfOtherVariableOfSameTypeAsMainVariable =
+				PredicateIterator.make(allVariables, s -> {
+					Type typeOfOther = variablesAndTypes.get(s);
+					return typeOfOther.equals(type) || typeOfOther.toString().equals(type.toString());	
+				});
 		Expression otherTerm;
 		if (random.nextBoolean()) {
-			otherTerm = makeSymbol(pickUniformly(isNameOfVariableOfSameType, random));
+			otherTerm = makeSymbol(pickUniformly(isNameOfOtherVariableOfSameTypeAsMainVariable, random));
 		}
 		else {
-			otherTerm = process.getType(typeName).sampleUniquelyNamedConstant(random);
+			otherTerm = type.sampleUniquelyNamedConstant(random);
 		}
 		
 		String functor = pickUniformly(theoryFunctors, random);

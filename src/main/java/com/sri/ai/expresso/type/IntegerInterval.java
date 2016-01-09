@@ -199,6 +199,6 @@ public class IntegerInterval implements Type {
 	
 	@Override
 	public String toString() {
-		return "]" + nonStrictLowerBound + ", " + nonStrictUpperBound + "[";
+		return "Integer(" + nonStrictLowerBound + ", " + nonStrictUpperBound + ")";
 	}
 }

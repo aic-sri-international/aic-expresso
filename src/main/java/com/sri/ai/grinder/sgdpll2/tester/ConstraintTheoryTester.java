@@ -57,6 +57,7 @@ import java.util.function.Function;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Symbol;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
@@ -375,12 +376,12 @@ public class ConstraintTheoryTester {
 	 * @return whether the formula is satisfiable.
 	 */
 	public static boolean isSatisfiableByBruteForce(Expression formula, ConstraintTheory constraintTheory, RewritingProcess process) {
-		Map<String, String> variableNamesAndTypeNamesForTesting = constraintTheory.getVariableNamesAndTypeNamesForTesting();
+		Map<String, Type> variableNamesAndTypesForTesting = constraintTheory.getVariableNamesAndTypesForTesting();
 		Expression quantifiedFormula = formula;
 		Collection<Expression> variables = constraintTheory.getVariablesIn(formula, process);
 		for (Expression variable : variables) {
-			Expression type = parse(variableNamesAndTypeNamesForTesting.get(variable));
-			quantifiedFormula = ThereExists.make(IndexExpressions.makeIndexExpression(variable, type), quantifiedFormula);
+			Expression typeNameExpression = parse(variableNamesAndTypesForTesting.get(variable).toString());
+			quantifiedFormula = ThereExists.make(IndexExpressions.makeIndexExpression(variable, typeNameExpression), quantifiedFormula);
 		}
 		process.putGlobalObject(AbstractInterpreter.INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(constraintTheory));
 		Expression evaluation = new BruteForceCommonInterpreter(constraintTheory).apply(quantifiedFormula, process);

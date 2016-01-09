@@ -182,15 +182,17 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 		}
 
 		ConstraintTheory constraintTheory2 = makeConstraintTheory();
-		constraintTheory2.setTypesForTesting(list(new Categorical("Type", 1, arrayList(parse("a")))));
-		constraintTheory2.setVariableNamesAndTypeNamesForTesting(map("X", "Type", "Y", "Type"));
+		Categorical type = new Categorical("Type", 1, arrayList(parse("a")));
+		constraintTheory2.setTypesForTesting(list(type));
+		constraintTheory2.setVariableNamesAndTypesForTesting(map("X", type, "Y", type));
 		conjunction = "X != Y";
 		expected = null;
 		runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory2);
 
 		ConstraintTheory constraintTheory3 = makeConstraintTheory();
-		constraintTheory3.setTypesForTesting(list(new Categorical("Type", 2, arrayList(parse("a"), parse("b")))));
-		constraintTheory3.setVariableNamesAndTypeNamesForTesting(map("X", "Type", "Y", "Type"));
+		type = new Categorical("Type", 2, arrayList(parse("a"), parse("b")));
+		constraintTheory3.setTypesForTesting(list(type));
+		constraintTheory3.setVariableNamesAndTypesForTesting(map("X", type, "Y", type));
 		conjunction = "X != Y and X != a";
 		expected = parse("Y != b and X != a and X != Y");
 		runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory3);

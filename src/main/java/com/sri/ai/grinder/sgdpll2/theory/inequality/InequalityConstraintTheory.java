@@ -130,8 +130,9 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 				propagateAllLiteralsWhenVariableIsBound);
 
 		String typeName = "Integer(0,4)";
-		setTypesForTesting(list(new IntegerInterval(typeName)));
-		setVariableNamesAndTypeNamesForTesting(map("I", typeName, "J", typeName, "K", typeName));
+		IntegerInterval type = new IntegerInterval(typeName);
+		setTypesForTesting(list(type));
+		setVariableNamesAndTypesForTesting(map("I", type, "J", type, "K", type));
 	}
 	
 	private static Map<String, Simplifier> makeFunctionApplicationSimplifiersForDifferenceArithmetic() {
@@ -205,10 +206,7 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 		ArrayList<String> otherVariablesForAtom = pickKElementsWithoutReplacement(getVariableNamesForTesting(), numberOfOtherVariables, o -> !o.equals(variable), random);
 		// Note that otherVariablesForAtom contains only one or zero elements
 		
-//		Collection<String> typeNames = getVariableNamesAndTypeNamesForTesting().values();
-//		String typeName = getFirst(typeNames);
-		String typeName = getVariableNamesAndTypeNamesForTesting().get(variable);
-		Type type = process.getType(typeName);
+		Type type = getVariableNamesAndTypesForTesting().get(variable);
 		ArrayList<Expression> constants = new ArrayList<Expression>();
 		int numberOfConstants = random.nextInt(3);
 		for (int i = 0; i != numberOfConstants; i++) {
