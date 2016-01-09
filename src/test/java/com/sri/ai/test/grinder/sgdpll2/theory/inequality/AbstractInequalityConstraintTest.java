@@ -94,7 +94,7 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 				getTestAgainstBruteForce(),
 				new Sum(),
 				makeConstraintTheory(),
-				100 /* number of tests */,
+				10 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);
