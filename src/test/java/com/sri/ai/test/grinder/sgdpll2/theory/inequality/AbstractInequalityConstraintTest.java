@@ -27,7 +27,7 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 
 	@Override
 	public Random makeRandom() {
-		return new Random();
+		return new Random(0);
 	}
 	
 	@Test
@@ -94,7 +94,7 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 				getTestAgainstBruteForce(),
 				new Sum(),
 				makeConstraintTheory(),
-				10 /* number of tests */,
+				100 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);

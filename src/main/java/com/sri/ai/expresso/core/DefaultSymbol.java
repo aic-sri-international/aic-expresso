@@ -152,7 +152,8 @@ public class DefaultSymbol extends AbstractNonQuantifiedExpression implements Sy
 		if (getSyntaxTree().getLabel() instanceof Number) {
 			return (Rational) getSyntaxTree().getLabel();
 		}
-		throw new Error("Expression.rationalValue() invoked on " + this + ", which is not a number.");
+		// throw new Error("Expression.rationalValue() invoked on " + this + ", which is not a number.");
+		return null; // returning null for consistency with rationalValue() behavior for function applications
 	}
 	
 	public static Symbol createSymbol(Object value) {
