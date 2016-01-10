@@ -47,10 +47,12 @@ import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.filter;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.myAssert;
+import static java.lang.Integer.parseInt;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -228,26 +230,43 @@ public class DPLLUtil {
 		return makeProcess(trueConstraintOnNoIndices, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
 	}
 
-	public static RewritingProcess makeProcess(Constraint1 trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate, new DefaultRewritingProcess(null));			
+	public static RewritingProcess makeProcess(Constraint1 trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new DefaultRewritingProcess(null));			
 		result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		result.initializeDPLLContextualConstraint(trueConstraintOnNoIndices);
 		return result;
 	}
 
-	public static RewritingProcess makeProcess(Constraint2 trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate, new DefaultRewritingProcess(null));			
+	public static RewritingProcess makeProcess(Constraint2 trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new DefaultRewritingProcess(null));			
 		result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		return result;
 	}
 
 	/**
 	 * @param mapFromSymbolNameToTypeName
-	 * @param mapFromTypeNameToSizeString
+	 * @param mapFromCategoricalTypeNameToSizeString
 	 * @param process
 	 * @return
 	 */
-	public static RewritingProcess extendProcessWith(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate, RewritingProcess process) {
+	public static RewritingProcess extendProcessWith(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate, RewritingProcess process) {
+		Collection<? extends Type> types =
+				getCategoricalTypes(
+						mapFromSymbolNameToTypeName,
+						mapFromCategoricalTypeNameToSizeString,
+						isUniquelyNamedConstantPredicate,
+						process);
+		
+		return extendProcessWith(mapFromSymbolNameToTypeName, types, process);
+	}
+
+	/**
+	 * @param mapFromSymbolNameToTypeName
+	 * @param types
+	 * @param process
+	 * @return
+	 */
+	public static RewritingProcess extendProcessWith(Map<String, String> mapFromSymbolNameToTypeName, Collection<? extends Type> types, RewritingProcess process) {
 		List<Expression> symbolDeclarations = new ArrayList<>();
 		for (Map.Entry<String, String> variableNameAndTypeName : mapFromSymbolNameToTypeName.entrySet()) {
 			String symbolName = variableNameAndTypeName.getKey();
@@ -257,25 +276,55 @@ public class DPLLUtil {
 		}
 		process = GrinderUtil.extendContextualSymbolsWithIndexExpressions(symbolDeclarations, process);
 					
-		for (Map.Entry<String, String> typeNameAndSizeString : mapFromTypeNameToSizeString.entrySet()) {
-			String typeExpressionString = typeNameAndSizeString.getKey();
-			String sizeString = typeNameAndSizeString.getValue();
-
-			Type alreadyPresent = process.getType(typeExpressionString);
-			if (alreadyPresent == null) {
-				if (typeExpressionString.equals("Boolean")) {
-					process = process.put(new Categorical("Boolean", 2, arrayList(TRUE, FALSE)));
-				}
-				else {
-					ArrayList<Expression> knownConstants = getKnownUniquelyNamedConstaintsOf(typeExpressionString, mapFromSymbolNameToTypeName, isUniquelyNamedConstantPredicate, process);
-					process = process.put(new Categorical(typeExpressionString, Integer.parseInt(sizeString), knownConstants));
-				}
-			}
-
-			process.putGlobalObject(parse("|" + typeExpressionString + "|"), parse(sizeString));
+		for (Type type : types) {
+			process = process.put(type);
+			process.putGlobalObject(parse("|" + type.getName() + "|"), type.cardinality());
 		}
 		
 		return process;
+	}
+
+	/**
+	 * @param mapFromSymbolNameToTypeName
+	 * @param mapFromCategoricalTypeNameToSizeString
+	 * @param isUniquelyNamedConstantPredicate
+	 * @param process
+	 * @return
+	 */
+	public static Collection<Categorical> getCategoricalTypes(
+			Map<String, String> mapFromSymbolNameToTypeName,
+			Map<String, String> mapFromCategoricalTypeNameToSizeString,
+			Predicate<Expression> isUniquelyNamedConstantPredicate,
+			RewritingProcess process) {
+		
+		Collection<Categorical> categoricalTypes = new LinkedList<Categorical>();
+		for (Map.Entry<String, String> typeNameAndSizeString : mapFromCategoricalTypeNameToSizeString.entrySet()) {
+			String typeExpressionString = typeNameAndSizeString.getKey();
+			String sizeString = typeNameAndSizeString.getValue();
+
+			// check if already present and, if not, make it
+			Categorical type = (Categorical) process.getType(typeExpressionString);
+			if (type == null) {
+				if (typeExpressionString.equals("Boolean")) {
+					type = new Categorical("Boolean", 2, arrayList(TRUE, FALSE));
+				}
+				else {
+					ArrayList<Expression> knownConstants = 
+							getKnownUniquelyNamedConstaintsOf(
+									typeExpressionString,
+									mapFromSymbolNameToTypeName,
+									isUniquelyNamedConstantPredicate,
+									process);
+					type = 
+							new Categorical(
+									typeExpressionString,
+									parseInt(sizeString),
+									knownConstants);
+				}
+			}
+			categoricalTypes.add(type);
+		}
+		return categoricalTypes;
 	}
 
 	/**

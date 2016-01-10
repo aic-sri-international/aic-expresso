@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.sgdpll2.core.constraint;
 
 import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
+import static com.sri.ai.grinder.plaindpll.util.DPLLUtil.extendProcessWith;
 import static com.sri.ai.util.Util.camelCaseToSpacedString;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
@@ -137,19 +138,13 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	
 	@Override
 	public RewritingProcess extendWithTestingInformation(RewritingProcess process) {
-		RewritingProcess result = process.put(getTypesForTesting());
-		Map<String, String> mapFromTypeNameToSizeString = map();
-		for (Type type : getTypesForTesting()) {
-			mapFromTypeNameToSizeString.put(type.getName(), type.cardinality().toString());
-		}
-		
 		// we only need to provide the variables types, and not the known constant types, because the latter will be extracted from the already registered types.
 		Map<String, String> mapFromSymbolNamesToTypeNames = new LinkedHashMap<String, String>();
 		for (Map.Entry<String, Type> symbolAndType : getVariableNamesAndTypesForTesting().entrySet()) {
 			mapFromSymbolNamesToTypeNames.put(symbolAndType.getKey(), symbolAndType.getValue().toString());
 		}
 		
-		result = DPLLUtil.extendProcessWith(mapFromSymbolNamesToTypeNames, mapFromTypeNameToSizeString, result.getIsUniquelyNamedConstantPredicate(), result);
+		RewritingProcess result = extendProcessWith(mapFromSymbolNamesToTypeNames, getTypesForTesting(), process);
 		return result;
 	}
 	
