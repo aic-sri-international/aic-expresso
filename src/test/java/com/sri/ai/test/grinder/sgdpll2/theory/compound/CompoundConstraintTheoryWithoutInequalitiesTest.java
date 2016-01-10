@@ -35,26 +35,26 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.sri.ai.test.grinder.sgdpll2.theory.equality;
+package com.sri.ai.test.grinder.sgdpll2.theory.compound;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
-import static com.sri.ai.expresso.helper.Expressions.apply;
 import static com.sri.ai.expresso.helper.Expressions.parse;
-import static com.sri.ai.grinder.helper.GrinderUtil.universallyQuantifyFreeVariables;
-import static com.sri.ai.grinder.library.FunctorConstants.EQUIVALENCE;
-import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.map;
+import static org.junit.Assert.assertEquals;
 
-import org.junit.Assert;
+import java.util.Map;
+import java.util.Random;
+
 import org.junit.Test;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreter;
+import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreterWithLiteralConditioning;
 import com.sri.ai.grinder.library.boole.And;
 import com.sri.ai.grinder.plaindpll.problemtype.Max;
 import com.sri.ai.grinder.plaindpll.problemtype.Sum;
@@ -63,22 +63,59 @@ import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.MultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
+import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstraintTheoryWithBinaryAtoms;
+import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
-import com.sri.ai.grinder.sgdpll2.theory.equality.SingleVariableEqualityConstraint;
-import com.sri.ai.test.grinder.sgdpll2.theory.base.AbstractConstraintTheoryIncludingEqualityTest;
+import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
+import com.sri.ai.test.grinder.sgdpll2.theory.base.AbstractConstraintTheoryTest;
 
 @Beta
-public abstract class AbstractEqualityConstraintTest extends AbstractConstraintTheoryIncludingEqualityTest {
+public class CompoundConstraintTheoryWithoutInequalitiesTest extends AbstractConstraintTheoryTest {
 
 	@Override
-	protected ConstraintTheory makeConstraintTheory() {
-		return new EqualityConstraintTheory(true, getPropagateAllLiteralsWhenVariableIsBound());
+	protected CompoundConstraintTheory makeConstraintTheory() {
+		CompoundConstraintTheory compoundConstraintTheory = new CompoundConstraintTheory(
+				new EqualityConstraintTheory(true, true),
+				new PropositionalConstraintTheory());
+		return compoundConstraintTheory;
+	}
+	
+	/**
+	 * Indicates whether correctness should be checked against brute-force methods when possible.
+	 * @return
+	 */
+	protected boolean getTestAgainstBruteForce() {
+		return true;
 	}
 
 	@Test
+	public void basicTests() {
+		
+		ConstraintTheory compound = makeConstraintTheory();
+		
+		Expression condition = parse("X = Y and Y = X and P and not Q and P and X = a and X != b");
+		
+		Constraint2 constraint = new CompleteMultiVariableConstraint(compound);
+		RewritingProcess process = compound.extendWithTestingInformation(new DefaultRewritingProcess(null));
+		constraint = constraint.conjoin(condition, process);
+		Expression expected = parse("(Y = a) and not Q and P and (X = Y)");
+		assertEquals(expected, constraint);
+		
+		Simplifier interpreter = new SymbolicCommonInterpreterWithLiteralConditioning(compound);
+		Expression input = parse(
+				"product({{(on X in SomeType) if X = c then 2 else 3 | X = Y and Y = X and P and not Q and P and X != a and X != b}})");
+		process.putGlobalObject(SymbolicCommonInterpreterWithLiteralConditioning.INTERPRETER_CONTEXTUAL_CONSTRAINT, new CompleteMultiVariableConstraint(compound));
+		Expression result = interpreter.apply(input, process);
+		Expression expectedProduct = parse("if P then if not Q then if not (Y = a) then if not (Y = b) then if Y = c then 2 else 3 else 1 else 1 else 1 else 1");
+		assertEquals(expectedProduct, result);
+	}
+	
+	@Test
 	public void testSingleVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+
 		ConstraintTheoryTester.testSingleVariableConstraints(
-				makeRandom(),
+				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
 				100 /* number of tests */,
@@ -88,19 +125,23 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 
 	@Test
 	public void testMultiVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+
 		ConstraintTheoryTester.testMultiVariableConstraints(
-				makeRandom(),
+				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
-				500 /* number of tests */,
+				300 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}
 
 	@Test
 	public void testCompleteMultiVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+
 		ConstraintTheoryTester.testCompleteMultiVariableConstraints(
-				makeRandom(),
+				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
 				200 /* number of tests */,
@@ -110,8 +151,10 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 
 	@Test
 	public void testModelCountingForSingleVariableConstraints() {
+		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
+
 		ConstraintTheoryTester.testModelCountingForSingleVariableConstraints(
-				makeRandom(),
+				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
 				200 /* number of tests */,
@@ -124,11 +167,11 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
 		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
-				makeRandom(),
+				new Random(),
 				getTestAgainstBruteForce(),
 				new Sum(),
 				makeConstraintTheory(),
-				50 /* number of tests */,
+				10 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);
@@ -139,97 +182,59 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 		
 		ConstraintTheoryTester.testGroupProblemForSingleVariableConstraints(
-				makeRandom(),
+				new Random(),
 				getTestAgainstBruteForce(),
 				new Max(),
 				makeConstraintTheory(),
-				50 /* number of tests */,
+				10 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);
 	}
 
 	@Test
-	public void testSatisfiabilitySpecialCases() {
-		String conjunction;
-		conjunction = "X != a and X != b and X != c and X != Y and X != Z"; // looks unsatisfiable for type size 5, but it is not
-		ConstraintTheory constraintTheory = makeConstraintTheory();
-		Constraint2 constraint = new SingleVariableEqualityConstraint(parse("X"), false, constraintTheory);
-		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
-		constraint = constraint.conjoinWithConjunctiveClause(parse(conjunction), process);
-		Assert.assertNotEquals(null, constraint); // satisfiable if either Y or Z is equal to a, b, c, or each other.
-	}
-
-	@Test
 	public void testCompleteSatisfiabilitySpecialCases() {
 		// This test is to make sure that some more tricky cases are indeed tested,
-		// even though hopefully the large amount of generated random problems include them or their variants.
+		// even though hopefully the large amount of generated random problems include them.
+		
+		// These are copied from the equality constraint theory test,
+		// so it is really just to check whether things hold up
+		// if equality constraint theory is embedded in a compound constraint theory.
 
 		String conjunction;
 		Expression expected;
+		Categorical someType = CompoundConstraintTheory.getDefaultTestingType();
 
-		ConstraintTheory constraintTheory = makeConstraintTheory();
+		Map<String, Type> variableNamesAndTypesForTesting = // need W besides the other defaults -- somehow not doing this in equality theory alone does not cause a problem, probably because the type for W is never needed when we have only equality theory
+				map("X", someType, "Y", someType, "Z", someType, "W", someType);
+
 		
-		if (constraintTheory.singleVariableConstraintIsCompleteWithRespectToItsVariable()) {
-			conjunction = "X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
-			expected = null;
-			runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory);
-
-			conjunction = "X = Y and X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
-			expected = null;
-			runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory);
-		}
-
-		ConstraintTheory constraintTheory2 = makeConstraintTheory();
-		Categorical type = new Categorical("Type", 1, arrayList(parse("a")));
-		constraintTheory2.setVariableNamesAndTypesForTesting(map("X", type, "Y", type));
-		conjunction = "X != Y";
+		conjunction = "X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
 		expected = null;
-		runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory2);
-
-		ConstraintTheory constraintTheory3 = makeConstraintTheory();
-		type = new Categorical("Type", 2, arrayList(parse("a"), parse("b")));
-		constraintTheory3.setVariableNamesAndTypesForTesting(map("X", type, "Y", type));
-		conjunction = "X != Y and X != a";
-		expected = parse("Y != b and X != a and X != Y");
-		runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory3);
+		runCompleteSatisfiabilityTest(conjunction, expected, variableNamesAndTypesForTesting);
 		
-		conjunction = "X != a and X != b and X != c and X != sometype5 and X != Y";
-		expected = parse("Y != d and X != a and X != b and X != c and X != sometype5 and X != Y and X != Y");
-		runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory);
+		conjunction = "X = Y and X != a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
+		expected = null;
+		runCompleteSatisfiabilityTest(conjunction, expected, variableNamesAndTypesForTesting);
 		
 		conjunction = "X = a and X != b and X != sometype5 and X != Z and X != W and Z = c and W = d";
-		expected = parse("(W = d) and (Z = c) and (X = a) and (X != Z) and (X != W)");
-		runCompleteSatisfiabilityTest(conjunction, expected, constraintTheory);
+		expected = parse("(W = d) and (Z = c) and (X = a)");
+		runCompleteSatisfiabilityTest(conjunction, expected, variableNamesAndTypesForTesting);
 	}
 
 	/**
 	 * @param conjunction
 	 * @param expected
 	 */
-	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, ConstraintTheory constraintTheory) {
+	private void runCompleteSatisfiabilityTest(String conjunction, Expression expected, Map<String, Type> variableNamesAndTypesForTesting) {
+		AbstractConstraintTheoryWithBinaryAtoms equalityTheory = new EqualityConstraintTheory(true, true);
+		equalityTheory.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
+		ConstraintTheory constraintTheory = new CompoundConstraintTheory(equalityTheory, new PropositionalConstraintTheory());
 		MultiVariableConstraint constraint = new CompleteMultiVariableConstraint(constraintTheory);
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		for (Expression literal : And.getConjuncts(parse(conjunction))) {
 			constraint = constraint.conjoin(literal, process);
-			if (constraint == null) {
-				break;
-			}
 		}
-		if (expected == null && constraint != null) {
-			throw new AssertionError("Expected null but was <" + constraint + ">");
-		}
-		else if (expected != null && constraint == null) {
-			throw new AssertionError("Expected <" + expected + "> but was null");
-		}
-		else if (expected != null && constraint != null && !expected.equals(constraint)) {
-			SymbolicCommonInterpreter interpreter = new SymbolicCommonInterpreter(constraintTheory);
-			Expression equivalenceDefinition = apply(EQUIVALENCE, expected, constraint);
-			Expression universallyQuantified = universallyQuantifyFreeVariables(equivalenceDefinition, process);
-			Expression equivalent = interpreter.apply(universallyQuantified, process);
-			if (equivalent.equals(FALSE)) {
-				throw new Error("Expected <" + expected + "> but got <" + constraint + ">, which is not equivalent either");
-			}
-		}
+		assertEquals(expected, constraint);
 	}
 }

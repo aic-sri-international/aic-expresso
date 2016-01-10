@@ -43,6 +43,7 @@ import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
 import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.list;
+import static com.sri.ai.util.Util.map;
 import static com.sri.ai.util.Util.mapIntoList;
 import static com.sri.ai.util.Util.thereExists;
 
@@ -58,6 +59,7 @@ import java.util.Set;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.helper.Expressions;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.simplifier.Exhaustive;
@@ -75,23 +77,17 @@ import com.sri.ai.util.Util;
 @Beta
 public class CompoundConstraintTheory extends AbstractConstraintTheory {
 
-	private List<ConstraintTheory> fromTypeToConstraintTheories;
+	private List<ConstraintTheory> subConstraintTheories;
 	
 	public CompoundConstraintTheory(ConstraintTheory... typeStringsAndSubConstraintTheories) {
-		this.fromTypeToConstraintTheories = list(typeStringsAndSubConstraintTheories);
-		Util.myAssert(() -> fromTypeToConstraintTheories.size() != 0, () -> getClass() + " needs to receive at least one sub-constraint theory but got none.");
+		this.subConstraintTheories = list(typeStringsAndSubConstraintTheories);
+		Util.myAssert(() -> subConstraintTheories.size() != 0, () -> getClass() + " needs to receive at least one sub-constraint theory but got none.");
 		aggregateTestingInformation();
 	}
 
 	private void aggregateTestingInformation() throws Error {
-		Collection<Type> typesForTesting = new LinkedHashSet<>();
-		for (ConstraintTheory constraintTheory : getConstraintTheories()) {
-			typesForTesting.addAll(constraintTheory.getTypesForTesting());
-		}
-		setTypesForTesting(typesForTesting);
-		
 		Map<String, Type> variableNamesAndTypesForTesting = new LinkedHashMap<>();
-		for (ConstraintTheory constraintTheory : getConstraintTheories()) {
+		for (ConstraintTheory constraintTheory : getSubConstraintTheories()) {
 			Set<Entry<String, Type>> variableNamesAndTypeNameEntries = constraintTheory.getVariableNamesAndTypesForTesting().entrySet();
 			for (Map.Entry<String, Type> variableNameAndTypeName : variableNamesAndTypeNameEntries) {
 				String variableName = variableNameAndTypeName.getKey();
@@ -107,14 +103,57 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 		setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
 	}
 	
+	/**
+	 * This is overridden so that given variables and types for testing are distributed to their
+	 * respective theories according to {@link #isSuitableFor(Expression, Type)}.
+	 */
+	@Override
+	public void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesAndTypesForTesting) {
+		
+		Map<ConstraintTheory, Map<String, Type>> mapForSubConstraintTheory = map();
+		
+		if (getSubConstraintTheories() != null) { // during construction, these may not be available yet.
+			for (ConstraintTheory subConstraintTheory : getSubConstraintTheories()) {
+				mapForSubConstraintTheory.put(subConstraintTheory, map());
+			}
+	
+			for (Map.Entry<String, Type> variableNameAndType : variableNamesAndTypesForTesting.entrySet()) {
+				String variableName = variableNameAndType.getKey();
+				Expression variable = Expressions.parse(variableName);
+				Type type = variableNameAndType.getValue();
+				for (ConstraintTheory subConstraintTheory : getSubConstraintTheories()) {
+					if (subConstraintTheory.isSuitableFor(variable, type)) {
+						mapForSubConstraintTheory.get(subConstraintTheory).put(variableName, type);
+					}
+				}
+			}
+	
+			for (ConstraintTheory subConstraintTheory : getSubConstraintTheories()) {
+				Map<String, Type> forThisSubTheory = mapForSubConstraintTheory.get(subConstraintTheory);
+				subConstraintTheory.setVariableNamesAndTypesForTesting(forThisSubTheory);
+			}
+		}
+	
+		super.setVariableNamesAndTypesForTesting(variableNamesAndTypesForTesting);
+	}
+
+	@Override
+	public Collection<Type> getNativeTypes() {
+		Collection<Type> result = new LinkedHashSet<Type>();
+		for (ConstraintTheory subConstraintTheory : getSubConstraintTheories()) {
+			result.addAll(subConstraintTheory.getNativeTypes());
+		}
+		return result;
+	}
+
 	@Override
 	public boolean isSuitableFor(Expression variable, Type type) {
-		boolean result = thereExists(getConstraintTheories(), t -> t.isSuitableFor(variable, type));
+		boolean result = thereExists(getSubConstraintTheories(), t -> t.isSuitableFor(variable, type));
 		return result;
 	}
 	
-	public Collection<ConstraintTheory> getConstraintTheories() {
-		return fromTypeToConstraintTheories;
+	public Collection<ConstraintTheory> getSubConstraintTheories() {
+		return subConstraintTheories;
 	}
 
 	private ConstraintTheory getConstraintTheory(Expression variable, RewritingProcess process) {
@@ -123,7 +162,7 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 		
 		ConstraintTheory result =
 				getFirstSatisfyingPredicateOrNull(
-						getConstraintTheories(),
+						getSubConstraintTheories(),
 						t -> t.isSuitableFor(variable, type));
 
 		check(() -> result != null, () -> "There is no sub-constraint theory suitable for " + variable + ", which has type " + GrinderUtil.getType(variable, process));
@@ -141,7 +180,7 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	
 	@Override
 	public boolean isNonTrivialAtom(Expression expression, RewritingProcess process) {
-		boolean result = thereExists(getConstraintTheories(), t -> t.isNonTrivialAtom(expression, process));
+		boolean result = thereExists(getSubConstraintTheories(), t -> t.isNonTrivialAtom(expression, process));
 		return result;
 	}
 
@@ -158,7 +197,7 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 		if (cachedSingleVariableConstraintIsCompleteWithRespectToItsVariable == -1) {
 			boolean trueForAllTheories =
 					forAll(
-							getConstraintTheories(),
+							getSubConstraintTheories(),
 							ConstraintTheory::singleVariableConstraintIsCompleteWithRespectToItsVariable);
 			cachedSingleVariableConstraintIsCompleteWithRespectToItsVariable = trueForAllTheories ? 1 : 0;
 		}
@@ -169,7 +208,7 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
 		boolean result =
 				thereExists(
-						getConstraintTheories(),
+						getSubConstraintTheories(),
 						t -> t.isInterpretedInThisTheoryBesidesBooleanConnectives(expression, process));
 		return result;
 	}
@@ -191,7 +230,7 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 	@Override
 	public Expression getLiteralNegation(Expression literal, RewritingProcess process) {
 		ConstraintTheory constraintTheory =
-				getFirstSatisfyingPredicateOrNull(getConstraintTheories(), t -> t.isLiteral(literal, process));
+				getFirstSatisfyingPredicateOrNull(getSubConstraintTheories(), t -> t.isLiteral(literal, process));
 		Expression result = constraintTheory.getLiteralNegation(literal, process);
 		return result;
 	}
@@ -205,15 +244,14 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 
 	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {
-		Collection<Simplifier> simplifiers = mapIntoList(getConstraintTheories(), t -> (e, p) -> t.simplify(e, p));
+		Collection<Simplifier> simplifiers = mapIntoList(getSubConstraintTheories(), t -> (e, p) -> t.simplify(e, p));
 		Simplifier exhaustivelyOfAll = new Exhaustive(new Pipeline(simplifiers));
 		Expression result = exhaustivelyOfAll.apply(expression, process);
 		return result;
 	}
 	
 	@Override
-	public
-	String toString() {
-		return "Compound constraint theory (" + join(getConstraintTheories()) + ")";
+	public String toString() {
+		return "Compound constraint theory (" + join(getSubConstraintTheories()) + ")";
 	}
 }

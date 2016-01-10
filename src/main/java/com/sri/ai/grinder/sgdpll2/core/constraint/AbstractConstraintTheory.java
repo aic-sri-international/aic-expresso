@@ -47,6 +47,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.annotations.Beta;
@@ -73,7 +75,6 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	public AbstractConstraintTheory() {
 		super();
 		Categorical someType = getDefaultTestingType();
-		setTypesForTesting(list(someType));
 		setVariableNamesAndTypesForTesting(map("X", someType, "Y", someType, "Z", someType));
 	}
 
@@ -91,29 +92,29 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 		return someType;
 	}
 	
-	private Collection<Type> typesForTesting = null;
-	
 	private Map<String, Type> variableNamesAndTypesForTesting;
+	private Collection<Type>  cachedTypesForTesting;
+	private ArrayList<String> cachedVariableNamesForTesting;
 	
-	private ArrayList<String> variableNamesForTesting;
+	@Override
+	public Collection<Type> getNativeTypes() {
+		return list();
+	}
 	
 	@Override
 	public Collection<Type> getTypesForTesting() {
-		if (typesForTesting == null) {
-			return null;
+		if (cachedTypesForTesting == null) {
+			cachedTypesForTesting = new LinkedHashSet<Type>(variableNamesAndTypesForTesting.values());
+			cachedTypesForTesting.addAll(getNativeTypes());
 		}
-		return Collections.unmodifiableCollection(typesForTesting);
+		return Collections.unmodifiableCollection(cachedTypesForTesting);
 	}
 
 	@Override
-	public void setTypesForTesting(Collection<Type> newTypesForTesting) {
-		typesForTesting = newTypesForTesting;
-	}
-	
-	@Override
 	public void setVariableNamesAndTypesForTesting(Map<String, Type> variableNamesAndTypesForTesting) {
 		this.variableNamesAndTypesForTesting = variableNamesAndTypesForTesting;
-		this.variableNamesForTesting = new ArrayList<String>(variableNamesAndTypesForTesting.keySet());
+		this.cachedTypesForTesting = null; // force recomputation if needed.
+		this.cachedVariableNamesForTesting = null; // force recomputation if needed.
 	}
 	
 	@Override
@@ -122,8 +123,16 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	}
 
 	@Override
-	public ArrayList<String> getVariableNamesForTesting() {
-		return variableNamesForTesting;
+	public List<String> getVariableNamesForTesting() {
+		if (cachedVariableNamesForTesting == null) {
+			if (variableNamesAndTypesForTesting == null) {
+				cachedVariableNamesForTesting = null;
+			}
+			else {
+				cachedVariableNamesForTesting = new ArrayList<String>(variableNamesAndTypesForTesting.keySet());
+			}
+		}
+		return Collections.unmodifiableList(cachedVariableNamesForTesting);
 	}
 	
 	@Override

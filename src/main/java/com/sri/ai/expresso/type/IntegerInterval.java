@@ -93,6 +93,15 @@ public class IntegerInterval implements Type {
 		}
 	}
 
+	/**
+	 * Creates the integer interval from first to last.
+	 * @param first
+	 * @param last
+	 */
+	public IntegerInterval(int first, int last) {
+		this("Integer(" + first + ", " + last + ")");
+	}
+	
 	public Expression getNonStrictLowerBound() {
 		return nonStrictLowerBound;
 	}

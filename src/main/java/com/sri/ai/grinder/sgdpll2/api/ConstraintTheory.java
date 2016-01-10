@@ -46,10 +46,10 @@ import static com.sri.ai.util.Util.addAllToSet;
 import static com.sri.ai.util.Util.forAll;
 import static com.sri.ai.util.Util.thereExists;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -229,15 +229,24 @@ public interface ConstraintTheory extends Theory {
 	 * as an array list (this is cached and updated as needed).
 	 * @return
 	 */
-	ArrayList<String> getVariableNamesForTesting();
+	List<String> getVariableNamesForTesting();
 
-	/** Returns a set of types appropriate for testing this constraint theory. */
+	/**
+	 * Returns a set of types appropriate for testing this constraint theory;
+	 * note that this set may include types not related to any of the testing variables. 
+	 */
 	Collection<Type> getTypesForTesting();
 	
-	/** Sets a set of types appropriate for testing this constraint theory. */
-	void setTypesForTesting(Collection<Type> newTypesForTesting);
+	/**
+	 * Provides types that must be present in the rewriting process while using theory,
+	 * even if no testing variable is associated with them.
+	 * Default implementation is no types; override for introducing them.
+	 * @return
+	 */
+	Collection<Type> getNativeTypes();
 	
-//	/** Samples a uniquely named constant of given appropriate for testing this constraint theory. */
+	
+	//	/** Samples a uniquely named constant of given appropriate for testing this constraint theory. */
 //	Expression sampleUniquelyNamedConstantsForTesting(Type type);
 //	
 //	/**

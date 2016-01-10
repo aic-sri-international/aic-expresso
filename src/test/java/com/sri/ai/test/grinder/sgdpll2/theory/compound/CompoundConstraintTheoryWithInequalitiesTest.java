@@ -37,7 +37,10 @@
  */
 package com.sri.ai.test.grinder.sgdpll2.theory.compound;
 
+import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.TRUE;
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.util.Util.arrayList;
 import static com.sri.ai.util.Util.map;
 import static org.junit.Assert.assertEquals;
 
@@ -50,6 +53,7 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
+import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
@@ -66,18 +70,46 @@ import com.sri.ai.grinder.sgdpll2.tester.ConstraintTheoryTester;
 import com.sri.ai.grinder.sgdpll2.theory.base.AbstractConstraintTheoryWithBinaryAtoms;
 import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.theory.inequality.InequalityConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
 import com.sri.ai.test.grinder.sgdpll2.theory.base.AbstractConstraintTheoryTest;
 
+/**
+ * Test of compound theory of equalities, inequalities and propositional theories.
+ * Still quite slow (as of January 2016), hence the small number of test problems.
+ * @author braz
+ *
+ */
 @Beta
-public class CompoundConstraintTheoryTest extends AbstractConstraintTheoryTest {
+public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstraintTheoryTest {
 
 	@Override
 	protected CompoundConstraintTheory makeConstraintTheory() {
-		return new CompoundConstraintTheory(
-				new EqualityConstraintTheory(true, true),
-				// new InequalityConstraintTheory(true), // not efficient enough yet to be included
+		CompoundConstraintTheory compoundConstraintTheory = new CompoundConstraintTheory(
+				new EqualityConstraintTheory(false, true),
+				new InequalityConstraintTheory(false, true),
 				new PropositionalConstraintTheory());
+		
+		// using different testing variables and types to test distribution of testing information
+		// to sub constraint theories.
+		
+		Categorical booleanType = new Categorical("Boolean", 2, arrayList(TRUE, FALSE));
+		Categorical dogsType    = new Categorical("Dogs", 4, arrayList(parse("fido"), parse("rex")));
+		IntegerInterval oneTwoThree = new IntegerInterval(1, 3);
+		
+		Map<String, Type> variablesAndTypes =
+				map(
+						"F", booleanType,
+						"G", booleanType,
+						"R", dogsType,
+						"S", dogsType,
+						"T", oneTwoThree,
+						"U", oneTwoThree
+						);
+		
+		compoundConstraintTheory.setVariableNamesAndTypesForTesting(variablesAndTypes);
+		
+		return compoundConstraintTheory;
 	}
 	
 	/**
@@ -91,7 +123,10 @@ public class CompoundConstraintTheoryTest extends AbstractConstraintTheoryTest {
 	@Test
 	public void basicTests() {
 		
-		ConstraintTheory compound = makeConstraintTheory();
+		ConstraintTheory compound = new CompoundConstraintTheory(
+				new EqualityConstraintTheory(false, true),
+				new InequalityConstraintTheory(false, true),
+				new PropositionalConstraintTheory());
 		
 		Expression condition = parse("X = Y and Y = X and P and not Q and P and X = a and X != b");
 		
@@ -131,7 +166,7 @@ public class CompoundConstraintTheoryTest extends AbstractConstraintTheoryTest {
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
-				300 /* number of tests */,
+				1 /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -144,7 +179,7 @@ public class CompoundConstraintTheoryTest extends AbstractConstraintTheoryTest {
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
-				200 /* number of tests */,
+				20 /* number of tests */,
 				50 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -171,7 +206,7 @@ public class CompoundConstraintTheoryTest extends AbstractConstraintTheoryTest {
 				getTestAgainstBruteForce(),
 				new Sum(),
 				makeConstraintTheory(),
-				10 /* number of tests */,
+				1 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);
@@ -186,7 +221,7 @@ public class CompoundConstraintTheoryTest extends AbstractConstraintTheoryTest {
 				getTestAgainstBruteForce(),
 				new Max(),
 				makeConstraintTheory(),
-				10 /* number of tests */,
+				1 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);

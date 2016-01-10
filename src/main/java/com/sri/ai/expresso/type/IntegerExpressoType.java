@@ -96,4 +96,9 @@ public class IntegerExpressoType implements Type {
 	public Expression cardinality() {
 		return Expressions.INFINITY;
 	}
+	
+	@Override
+	public String toString() {
+		return "Integer";
+	}
 }

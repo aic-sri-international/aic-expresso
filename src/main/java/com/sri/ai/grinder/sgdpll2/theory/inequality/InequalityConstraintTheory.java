@@ -53,6 +53,7 @@ import static com.sri.ai.util.Util.pickKElementsWithoutReplacement;
 import static com.sri.ai.util.Util.pickUniformly;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
 
@@ -60,10 +61,12 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
+import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.equality.EqualitySimplifier;
 import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
@@ -131,7 +134,6 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 
 		String typeName = "Integer(0,4)";
 		IntegerInterval type = new IntegerInterval(typeName);
-		setTypesForTesting(list(type));
 		setVariableNamesAndTypesForTesting(map("I", type, "J", type, "K", type));
 	}
 	
@@ -203,7 +205,7 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 	public Expression makeRandomAtomOn(String variable, Random random, RewritingProcess process) {
 		
 		int numberOfOtherVariables = random.nextInt(2); // used to be 3, but if literal has more than two variables, it steps out of difference arithmetic and may lead to multiplied variables when literals are propagated. For example, X = Y + Z and X = -Y - Z + 3 imply 2Y + 2Z = 3 
-		ArrayList<String> otherVariablesForAtom = pickKElementsWithoutReplacement(getVariableNamesForTesting(), numberOfOtherVariables, o -> !o.equals(variable), random);
+		ArrayList<String> otherVariablesForAtom = pickKElementsWithoutReplacement(new ArrayList<>(getVariableNamesForTesting()), numberOfOtherVariables, o -> !o.equals(variable), random);
 		// Note that otherVariablesForAtom contains only one or zero elements
 		
 		Type type = getVariableNamesAndTypesForTesting().get(variable);
@@ -243,5 +245,18 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 		// allowing us to eliminate them here. TODO
 		
 		return result;
+	}
+	
+	/**
+	 * This is overridden to
+	 * add an instance of {@link IntegerExpressoType} to testing types as well.
+	 * This is needed because arithmetic expressions such as J + 5 are determined to be of
+	 * type name "Integer" by {@link GrinderUtil#getType(Expression expression, RewritingProcess process)},
+	 * so a type with this name is needed by the default implementation of {@link #isNonTrivialAtom(Expression, RewritingProcess)}
+	 * if the flag for analyzing the types of arguments to equalities is true.
+	 */
+	@Override
+	public Collection<Type> getNativeTypes() {
+		return list(new IntegerExpressoType());
 	}
 }
