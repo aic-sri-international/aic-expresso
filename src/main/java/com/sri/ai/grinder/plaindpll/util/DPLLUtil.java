@@ -221,43 +221,45 @@ public class DPLLUtil {
 	}
 
 	
-	public static RewritingProcess makeProcess(ConstraintTheory theory, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
-		return makeProcess(theory, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, new PrologConstantPredicate());
+	public static RewritingProcess makeProcess(ConstraintTheory theory, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes) {
+		return makeProcess(theory, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, new PrologConstantPredicate());
 	}
 
-	public static RewritingProcess makeProcess(ConstraintTheory constraintTheory, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+	public static RewritingProcess makeProcess(ConstraintTheory constraintTheory, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		Constraint1 trueConstraintOnNoIndices = constraintTheory.makeConstraint(list());
-		return makeProcess(trueConstraintOnNoIndices, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
+		return makeProcess(trueConstraintOnNoIndices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate);
 	}
 
-	public static RewritingProcess makeProcess(Constraint1 trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new DefaultRewritingProcess(null));			
+	public static RewritingProcess makeProcess(Constraint1 trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, list(), mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new DefaultRewritingProcess(null));			
 		result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		result.initializeDPLLContextualConstraint(trueConstraintOnNoIndices);
 		return result;
 	}
 
-	public static RewritingProcess makeProcess(Constraint2 trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new DefaultRewritingProcess(null));			
+	public static RewritingProcess makeProcess(Constraint2 trueConstraintOnNoIndices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		RewritingProcess result = extendProcessWith(mapFromSymbolNameToTypeName, additionalTypes, mapFromCategoricalTypeNameToSizeString, isUniquelyNamedConstantPredicate, new DefaultRewritingProcess(null));			
 		result.setIsUniquelyNamedConstantPredicate(isUniquelyNamedConstantPredicate);
 		return result;
 	}
 
 	/**
 	 * @param mapFromSymbolNameToTypeName
+	 * @param additionalTypes TODO
 	 * @param mapFromCategoricalTypeNameToSizeString
 	 * @param process
 	 * @return
 	 */
-	public static RewritingProcess extendProcessWith(Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate, RewritingProcess process) {
-		Collection<? extends Type> types =
+	public static RewritingProcess extendProcessWith(Map<String, String> mapFromSymbolNameToTypeName, Collection<Type> additionalTypes, Map<String, String> mapFromCategoricalTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate, RewritingProcess process) {
+		Collection<Type> allTypes =
 				getCategoricalTypes(
 						mapFromSymbolNameToTypeName,
 						mapFromCategoricalTypeNameToSizeString,
 						isUniquelyNamedConstantPredicate,
 						process);
+		allTypes.addAll(additionalTypes);
 		
-		return extendProcessWith(mapFromSymbolNameToTypeName, types, process);
+		return extendProcessWith(mapFromSymbolNameToTypeName, allTypes, process);
 	}
 
 	/**
@@ -291,16 +293,20 @@ public class DPLLUtil {
 	 * @param process
 	 * @return
 	 */
-	public static Collection<Categorical> getCategoricalTypes(
+	public static Collection<Type> getCategoricalTypes(
 			Map<String, String> mapFromSymbolNameToTypeName,
 			Map<String, String> mapFromCategoricalTypeNameToSizeString,
 			Predicate<Expression> isUniquelyNamedConstantPredicate,
 			RewritingProcess process) {
 		
-		Collection<Categorical> categoricalTypes = new LinkedList<Categorical>();
+		Collection<Type> categoricalTypes = new LinkedList<Type>();
 		for (Map.Entry<String, String> typeNameAndSizeString : mapFromCategoricalTypeNameToSizeString.entrySet()) {
 			String typeExpressionString = typeNameAndSizeString.getKey();
 			String sizeString = typeNameAndSizeString.getValue();
+			
+			if (typeExpressionString.startsWith("Integer")) {
+				throw new Error("Categorical type name starts with 'Integer' -- this is probably due to recent changes in which a map from type names to size strings is now interpreted as a definition for *categorical* types only. There is a new parameter (typically named 'types' or 'additionalTypes') in methods taking that map that takes non-categorical types, including Integer ones. Please modify your code to create these types separately and add them to such argument.");
+			}
 
 			// check if already present and, if not, make it
 			Categorical type = (Categorical) process.getType(typeExpressionString);

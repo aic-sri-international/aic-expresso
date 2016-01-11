@@ -79,7 +79,7 @@ public class ExpressionConstraintTest {
 		Constraint1 compoundConstraint;
 		
 		EqualityConstraintTheory theory = new EqualityConstraintTheory(new SymbolTermTheory());
-		RewritingProcess process = makeProcess(theory, map("X", "Everything", "Y", "Everything", "Z", "Everything"), map("Everything", "10"));
+		RewritingProcess process = makeProcess(theory, map("X", "Everything", "Y", "Everything", "Z", "Everything"), map("Everything", "10"), list());
 		
 		totalIndices    = list(X, Y);
 		countingIndices = list(X, Y);

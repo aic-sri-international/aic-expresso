@@ -42,6 +42,7 @@ import java.util.Map;
 
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 
 /**
  * A {@link QuantifierEliminator} with convenience methods
@@ -62,17 +63,19 @@ public interface QuantifierEliminatorWithSetup extends QuantifierEliminator {
 	/**
 	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess
 	 * given the data required to build it.
+	 * @param additionalTypes TODO
 	 */
 	Expression solve(
 			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
-			Predicate<Expression> isUniquelyNamedConstantPredicate);
+			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
+			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate);
 
 	/**
 	 * Convenience substitute for {@link #solve(Expression, Collection, RewritingProcess)} that takes care of constructing the RewritingProcess
 	 * given the data required to build it.
+	 * @param additionalTypes TODO
 	 */
 	Expression solve(
 			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString);
+			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes);
 }

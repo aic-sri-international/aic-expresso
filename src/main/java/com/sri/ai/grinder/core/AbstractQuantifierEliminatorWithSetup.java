@@ -44,6 +44,7 @@ import java.util.Map;
 
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.QuantifierEliminator;
 import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
@@ -92,14 +93,15 @@ public abstract class AbstractQuantifierEliminatorWithSetup implements Quantifie
 	 * Makes an appropriate rewriting process with the given data.
 	 * @param constraint
 	 * @param mapFromSymbolNameToTypeName
-	 * @param mapFromTypeNameToSizeString
+	 * @param mapFromCategoricalTypeNameToSizeString
+	 * @param additionalTypes TODO
 	 * @param isUniquelyNamedConstantPredicate
 	 * @return
 	 */
 	protected abstract RewritingProcess makeProcess(
 			Constraint constraint,
-			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
-			Predicate<Expression> isUniquelyNamedConstantPredicate);
+			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
+			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate);
 
 	/**
 	 * Returns the summation (or the provided semiring additive operation) of an expression over the provided set of indices and a constraint on them
@@ -147,13 +149,13 @@ public abstract class AbstractQuantifierEliminatorWithSetup implements Quantifie
 	@Override
 	public Expression solve(
 			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
-			Predicate<Expression> isUniquelyNamedConstantPredicate) {
+			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
+			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		
 		topLevelRewritingProcess =
 				makeProcess(makeTrueConstraint(list()),
-						mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString,
-						isUniquelyNamedConstantPredicate);
+						mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString,
+						additionalTypes, isUniquelyNamedConstantPredicate);
 		
 		Expression result = solve(expression, indices, topLevelRewritingProcess);
 		return result;
@@ -162,7 +164,7 @@ public abstract class AbstractQuantifierEliminatorWithSetup implements Quantifie
 	@Override
 	public Expression solve(
 			Expression expression, Collection<Expression> indices,
-			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
-		return solve(expression, indices, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, new PrologConstantPredicate());
+			Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes) {
+		return solve(expression, indices, mapFromVariableNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, new PrologConstantPredicate());
 	}
 }

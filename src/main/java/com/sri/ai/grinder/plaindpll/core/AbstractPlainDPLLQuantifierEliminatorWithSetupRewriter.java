@@ -47,6 +47,7 @@ import java.util.Map;
 
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.api.IndexExpressionsSet;
 import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.Rewriter;
@@ -323,11 +324,11 @@ abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter ext
 		}
 	
 		@Override
-		public RewritingProcess makeProcess(Constraint constraint, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		public RewritingProcess makeProcess(Constraint constraint, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 			RewritingProcess result = DPLLUtil.makeProcess(
 					(Constraint1) constraint,
-					mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString,
-					isUniquelyNamedConstantPredicate);
+					mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString,
+					additionalTypes, isUniquelyNamedConstantPredicate);
 			return result;
 		}
 	
@@ -379,12 +380,12 @@ abstract public class AbstractPlainDPLLQuantifierEliminatorWithSetupRewriter ext
 	}
 
 	@Override
-	public Expression solve(Expression expression, Collection<Expression> indices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Predicate<Expression> isUniquelyNamedConstantPredicate) {
-		return innerAbstractQuantifierEliminatorWithSetup.solve(expression, indices, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);
+	public Expression solve(Expression expression, Collection<Expression> indices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
+		return innerAbstractQuantifierEliminatorWithSetup.solve(expression, indices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate);
 	}
 
 	@Override
-	public Expression solve(Expression expression, Collection<Expression> indices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString) {
-		return innerAbstractQuantifierEliminatorWithSetup.solve(expression, indices, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString);
+	public Expression solve(Expression expression, Collection<Expression> indices, Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes) {
+		return innerAbstractQuantifierEliminatorWithSetup.solve(expression, indices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes);
 	}
 }

@@ -74,7 +74,7 @@ public class ProjectionTest {
 		Expression projection; // Expression in general, but we want to test that it will actually be represented as a constraint.
 		
 		EqualityConstraintTheory theory = new EqualityConstraintTheory(new SymbolTermTheory());
-		RewritingProcess process = makeProcess(theory, map("X", "Everything", "Y", "Everything", "Z", "Everything"), map("Everything", "10"));
+		RewritingProcess process = makeProcess(theory, map("X", "Everything", "Y", "Everything", "Z", "Everything"), map("Everything", "10"), list());
 		
 		totalIndices = list(X, Y);
 		Constraint1 constraint = theory.makeConstraint(totalIndices);

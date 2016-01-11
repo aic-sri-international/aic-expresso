@@ -48,6 +48,7 @@ import java.util.Map;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.core.ExtensionalIndexExpressionsSet;
 import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
@@ -105,13 +106,15 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 	public RewritingProcess makeProcess(
 			Constraint constraint, 
 			Map<String, String> mapFromSymbolNameToTypeName,
-			Map<String, String> mapFromTypeNameToSizeString,
+			Map<String, String> mapFromCategoricalTypeNameToSizeString,
+			Collection<Type> additionalTypes,
 			Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		
 		return DPLLUtil.makeProcess(
 				(Constraint2) constraint,
 				mapFromSymbolNameToTypeName,
-				mapFromTypeNameToSizeString,
+				mapFromCategoricalTypeNameToSizeString,
+				additionalTypes,
 				isUniquelyNamedConstantPredicate) ;
 	}
 

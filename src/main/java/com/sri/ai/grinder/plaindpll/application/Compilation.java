@@ -37,12 +37,14 @@
  */
 package com.sri.ai.grinder.plaindpll.application;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.QuantifierEliminatorWithSetup;
 import com.sri.ai.grinder.core.PrologConstantPredicate;
 import com.sri.ai.grinder.plaindpll.api.GroupProblemType;
@@ -58,7 +60,7 @@ import com.sri.ai.util.Util;
  */
 public class Compilation {
 
-	public static Expression compile(Expression inputExpression, InputTheory inputTheory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromTypeNameToSizeString, Function<QuantifierEliminatorWithSetup, QuantifierEliminatorWithSetup> solverListener) {
+	public static Expression compile(Expression inputExpression, InputTheory inputTheory, Map<String, String> mapFromVariableNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Function<QuantifierEliminatorWithSetup, QuantifierEliminatorWithSetup> solverListener) {
 		GroupProblemType problemType = new Max(); // the problem type actually does not matter, because we are not going to have any indices.
 		
 		// The solver for the parameters above.
@@ -73,7 +75,7 @@ public class Compilation {
 		
 		// Solve the problem.
 		List<Expression> indices = Util.list(); // no indices; we want to keep all variables
-		Expression result = solver.solve(inputExpression, indices, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, isUniquelyNamedConstantPredicate);	
+		Expression result = solver.solve(inputExpression, indices, mapFromVariableNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, isUniquelyNamedConstantPredicate);	
 		
 		if (solverListener != null) {
 			solverListener.apply(null);
@@ -81,7 +83,7 @@ public class Compilation {
 		return result;
 	}
 
-	public static Expression compile(Expression inputExpression, InputTheory inputTheory, Map<String, String> mapFromTypeNameToSizeString, Map<String, String> mapFromVariableNameToTypeName) {
-		return compile(inputExpression, inputTheory, mapFromVariableNameToTypeName, mapFromTypeNameToSizeString, null);
+	public static Expression compile(Expression inputExpression, InputTheory inputTheory, Map<String, String> mapFromCategoricalTypeNameToSizeString, Collection<Type> additionalTypes, Map<String, String> mapFromVariableNameToTypeName) {
+		return compile(inputExpression, inputTheory, mapFromVariableNameToTypeName, mapFromCategoricalTypeNameToSizeString, additionalTypes, null);
 	}
 }

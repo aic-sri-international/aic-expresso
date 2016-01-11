@@ -42,6 +42,7 @@ import java.util.Map;
 
 import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
 import com.sri.ai.grinder.api.Constraint;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.AbstractSGVETQuantifierEliminatorWithSetup;
@@ -99,13 +100,13 @@ public class PlainDPLLSGVET extends AbstractSGVETQuantifierEliminatorWithSetup {
 	@Override
 	public RewritingProcess makeProcess(
 			Constraint constraint,
-			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromTypeNameToSizeString,
-			Predicate<Expression> isUniquelyNamedConstantPredicate) {
+			Map<String, String> mapFromSymbolNameToTypeName, Map<String, String> mapFromCategoricalTypeNameToSizeString,
+			Collection<Type> additionalTypes, Predicate<Expression> isUniquelyNamedConstantPredicate) {
 		
 		RewritingProcess result = DPLLUtil.makeProcess(
 						(Constraint1) constraint,
-						mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString,
-						isUniquelyNamedConstantPredicate);
+						mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString,
+						additionalTypes, isUniquelyNamedConstantPredicate);
 		return result;
 	}
 

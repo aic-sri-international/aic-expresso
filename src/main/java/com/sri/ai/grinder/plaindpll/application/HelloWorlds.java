@@ -37,6 +37,8 @@
  */
 package com.sri.ai.grinder.plaindpll.application;
 
+import static com.sri.ai.util.Util.list;
+
 import java.util.Collection;
 import java.util.Map;
 
@@ -87,14 +89,14 @@ public class HelloWorlds {
 //		Collection<Expression> indices = Util.list(Expressions.parse("X"), Expressions.parse("Y"), Expressions.parse("Z")); // sum is just a number in this case
 
 		/* The definitions of variables, types, and type sizes. */
-		Map<String, String> mapFromTypeNameToSizeString   = Util.map("Everything", "10000");
+		Map<String, String> mapFromCategoricalTypeNameToSizeString   = Util.map("Everything", "10000");
 		Map<String, String> mapFromSymbolNameToTypeName = Util.map("X", "Everything", "Y", "Everything", "Z", "Everything");
 		
 		/* The solver for the parameters above. */
 		PlainSGDPLLT solver = new PlainSGDPLLT(new DefaultInputTheory(theory), problemType, null);
 		
 		/* Solve the problem. */
-		Expression result = solver.solve(expression, indices, mapFromSymbolNameToTypeName, mapFromTypeNameToSizeString);
+		Expression result = solver.solve(expression, indices, mapFromSymbolNameToTypeName, mapFromCategoricalTypeNameToSizeString, list());
 
 		System.out.println(problemType + " of\n" + expression + "\nover assignments to variables\n" + Util.join(indices) + "\nis\n" + result);	
 	}
