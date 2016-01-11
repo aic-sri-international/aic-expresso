@@ -112,8 +112,6 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 
 	private ArrayList<Expression> nonStrictUpperBoundsIncludingImplicitOnes;
 
-	private IntegerInterval type;
-	
 	private ArrayList<PairOf<Expression>> pairsOfEquals;
 	
 	
@@ -590,10 +588,7 @@ public class ModelCountingOfSingleVariableInequalityConstraintStepSolver extends
 	}
 
 	private IntegerInterval getType(RewritingProcess process) {
-		if (type == null) {
-			type = (IntegerInterval) process.getType(getConstraint().getVariableTypeExpression(process));
-		}
-		return type;
+		return getConstraint().getType(process);
 	}
 	
 	private Expression typeStrictLowerBound;

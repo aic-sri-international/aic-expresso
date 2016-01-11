@@ -60,6 +60,8 @@ import java.util.Map;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
+import com.sri.ai.expresso.api.Type;
+import com.sri.ai.expresso.type.IntegerExpressoType;
 import com.sri.ai.expresso.type.IntegerInterval;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.library.boole.Not;
@@ -383,9 +385,9 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 	@Override
 	protected Iterator<Expression> getImplicitNegativeNormalizedAtomsIterator(RewritingProcess process) {
 		if (cachedImplicitNegativeNormalizedAtoms == null) {
-			IntegerInterval type = (IntegerInterval) process.getType(getVariableTypeExpression(process));
-			Expression nonStrictLowerBound = type.getNonStrictLowerBound();
-			Expression nonStrictUpperBound = type.getNonStrictUpperBound();
+			IntegerInterval interval = getType(process);
+			Expression nonStrictLowerBound = interval.getNonStrictLowerBound();
+			Expression nonStrictUpperBound = interval.getNonStrictUpperBound();
 			cachedImplicitNegativeNormalizedAtoms = list();
 			if (!nonStrictLowerBound.equals("unknown") && !nonStrictLowerBound.equals(UnaryMinus.make(INFINITY))) {
 				cachedImplicitNegativeNormalizedAtoms.add(apply(LESS_THAN, getVariable(), nonStrictLowerBound));
@@ -397,5 +399,25 @@ public class SingleVariableInequalityConstraint extends AbstractSingleVariableCo
 			}
 		}
 		return cachedImplicitNegativeNormalizedAtoms.iterator();
+	}
+
+	private IntegerInterval cachedType;
+	
+	/**
+	 * Returns the {@link IntegerInterval} type of the constraint's variable.
+	 * @param process
+	 * @return
+	 */
+	public IntegerInterval getType(RewritingProcess process) {
+		if (cachedType == null) {
+			Type type = process.getType(getVariableTypeExpression(process));
+			if (type instanceof IntegerExpressoType) {
+				cachedType = new IntegerInterval("Integer(-infinity, infinity)");
+			}
+			else {
+				cachedType = (IntegerInterval) type;
+			}
+		}
+		return cachedType ;
 	}
 }

@@ -37,6 +37,11 @@
  */
 package com.sri.ai.grinder.library.number;
 
+import static com.sri.ai.expresso.helper.Expressions.INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.MINUS_INFINITY;
+import static com.sri.ai.expresso.helper.Expressions.ONE;
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.helper.ExpressionIsSymbolOfType;
@@ -69,12 +74,31 @@ public class Division extends AbstractRewriter {
 	}
 
 	public static Expression simplify(Expression expression) {
+
+		if (expression.get(1).equals(INFINITY) || expression.get(1).equals(MINUS_INFINITY)) {
+			if (expression.get(0).equals(INFINITY) || expression.get(0).equals(MINUS_INFINITY)) {
+				throw new Error("Undefined value for division of infinities " + expression);
+			}
+			else {
+				return ZERO;
+			}
+		}
+
+		if (expression.get(0).equals(INFINITY) || expression.get(0).equals(MINUS_INFINITY)) {
+			if (expression.get(1).equals(INFINITY) || expression.get(1).equals(MINUS_INFINITY)) {
+				throw new Error("Undefined value for division of infinities " + expression);
+			}
+			else {
+				return expression.get(0);
+			}
+		}
+
 		if (expression.get(0).equals(expression.get(1))) { // if numerator and denominator are equal, result is 1.
-			return Expressions.ONE;
+			return ONE;
 		}
 
 		if (expression.get(0).equals(0)) { // if numerator is 0, fraction is 0.
-			return Expressions.ZERO;
+			return ZERO;
 		}
 
 		if (expression.get(1).equals(1)) { // if denominator is 1, fraction is numerator.
