@@ -63,4 +63,12 @@ public class InequalityConstraintWithPropagationOfAllLiteralsWhenBoundBenchmark 
 	// testSingleVariableConstraints: 0.948 s
 	// testModelCountingForSingleVariableConstraints: 0.888 s
 	// as we can see, about 10 times improvement for model counting after better splitting order and state preservation
+	
+	// on January 11, 2016: (after realizing it was running on a random seed, and fixing it to seed 0):
+	// testMaxForSingleVariableConstraints: 14.765 s
+	// testMultiVariableConstraints: 1.089 s
+	// testSumForSingleVariableConstraints: 10.099 s
+	// testCompleteMultiVariableConstraints: 0.446 s
+	// testSingleVariableConstraints: 0.302 s
+	// testModelCountingForSingleVariableConstraints: 0.302 s
 }

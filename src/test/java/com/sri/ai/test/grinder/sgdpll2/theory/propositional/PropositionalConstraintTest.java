@@ -63,7 +63,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
-				30 /* number of tests - only literals are P and not P, and 3 tests already create all cases */,
+				scale(30) /* number of tests - only literals are P and not P, and 3 tests already create all cases */,
 				2 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -74,7 +74,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
-				100 /* number of tests - many more possibilities when we have multiple variables */,
+				scale(100) /* number of tests - many more possibilities when we have multiple variables */,
 				10 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -85,7 +85,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
-				100 /* number of tests */,
+				scale(100) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -99,7 +99,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 				getTestAgainstBruteForce(),
 				new Sum(),
 				makeConstraintTheory(),
-				100 /* number of tests */,
+				scale(100) /* number of tests */,
 				30 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);
@@ -114,7 +114,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 				getTestAgainstBruteForce(),
 				new Max(),
 				makeConstraintTheory(),
-				100 /* number of tests */,
+				scale(100) /* number of tests */,
 				30 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);
@@ -126,7 +126,7 @@ public class PropositionalConstraintTest extends AbstractConstraintTheoryTest {
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
-				100 /* number of tests */,
+				scale(100) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}

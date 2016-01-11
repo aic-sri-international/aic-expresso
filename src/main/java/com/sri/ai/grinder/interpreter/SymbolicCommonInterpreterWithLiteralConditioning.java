@@ -48,7 +48,7 @@ import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.solver.LiteralConditionerStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierFreeExpressionSymbolicEvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 
 /**
@@ -92,8 +92,8 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 		Constraint2 trueConstraint = new CompleteMultiVariableConstraint(getConstraintTheory());
 		SymbolicCommonInterpreter simplifierUnderContextualConstraint =
 				new SymbolicCommonInterpreter(getConstraintTheory(), true /* simplify given constraint */);
-		LiteralConditionerStepSolver stepSolver =
-				new LiteralConditionerStepSolver(interpretationResult, simplifierUnderContextualConstraint);
+		QuantifierFreeExpressionSymbolicEvaluatorStepSolver stepSolver = // this normalizes the expression into a decision tree
+				new QuantifierFreeExpressionSymbolicEvaluatorStepSolver(interpretationResult, simplifierUnderContextualConstraint);
 		Expression result = stepSolver.solve(trueConstraint, process);
 		return result;
 	}

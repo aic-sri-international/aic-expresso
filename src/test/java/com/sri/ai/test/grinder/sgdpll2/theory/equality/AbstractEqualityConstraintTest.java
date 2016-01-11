@@ -81,7 +81,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 				makeRandom(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
-				100 /* number of tests */,
+				scale(100) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -92,7 +92,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 				makeRandom(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
-				500 /* number of tests */,
+				scale(500) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -103,7 +103,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 				makeRandom(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
-				200 /* number of tests */,
+				scale(200) /* number of tests */,
 				50 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -114,7 +114,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 				makeRandom(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
-				200 /* number of tests */,
+				scale(200) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -128,7 +128,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 				getTestAgainstBruteForce(),
 				new Sum(),
 				makeConstraintTheory(),
-				50 /* number of tests */,
+				scale(50) /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);
@@ -143,7 +143,7 @@ public abstract class AbstractEqualityConstraintTest extends AbstractConstraintT
 				getTestAgainstBruteForce(),
 				new Max(),
 				makeConstraintTheory(),
-				50 /* number of tests */,
+				scale(50) /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);

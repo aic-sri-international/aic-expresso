@@ -102,7 +102,7 @@ public class ConstraintTheoryTester {
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
-	public static long measureTimeSingleVariableConstraints(Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+	public static long measureTimeSingleVariableConstraints(Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		
 		long start = System.currentTimeMillis();
 		testSingleVariableConstraints(random, testAgainstBruteForce, constraintTheory, numberOfTests, maxNumberOfLiterals, outputCount, false /* no correctness test */);
@@ -125,12 +125,12 @@ public class ConstraintTheoryTester {
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
-	public static void testSingleVariableConstraints(Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+	public static void testSingleVariableConstraints(Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		testSingleVariableConstraints(random, testAgainstBruteForce, constraintTheory, numberOfTests, maxNumberOfLiterals, true /* correctness test */, outputCount);
 	}
 	
 	private static void testSingleVariableConstraints(
-			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
+			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
@@ -159,12 +159,12 @@ public class ConstraintTheoryTester {
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
-	public static void testMultiVariableConstraints(Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+	public static void testMultiVariableConstraints(Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		testMultiVariableConstraints(random, testAgainstBruteForce, constraintTheory, numberOfTests, maxNumberOfLiterals, true /* correctness test */, outputCount);
 	}
 	
 	private static void testMultiVariableConstraints(
-			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
+			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
 		NullaryFunction<Constraint2> makeConstraint = () -> new DefaultMultiVariableConstraint(constraintTheory);
 
@@ -189,12 +189,12 @@ public class ConstraintTheoryTester {
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
-	public static void testCompleteMultiVariableConstraints(Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+	public static void testCompleteMultiVariableConstraints(Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		testCompleteMultiVariableConstraints(random, testAgainstBruteForce, constraintTheory, numberOfTests, maxNumberOfLiterals, true /* correctness test */, outputCount);
 	}
 	
 	private static void testCompleteMultiVariableConstraints(
-			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
+			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
 		NullaryFunction<Constraint2> makeConstraint = () -> new CompleteMultiVariableConstraint(constraintTheory);
 
@@ -234,7 +234,7 @@ public class ConstraintTheoryTester {
 			ConstraintTheory constraintTheory,
 			NullaryFunction<Constraint2> makeConstraint,
 			Function<Constraint2, Expression> makeRandomLiteralGivenConstraint,
-			int numberOfTests,
+			long numberOfTests,
 			int maxNumberOfLiterals,
 			boolean testCorrectness,
 			boolean outputCount,
@@ -400,12 +400,12 @@ public class ConstraintTheoryTester {
 	 * @param maxNumberOfLiterals
 	 * @param outputCount
 	 */
-	public static void testModelCountingForSingleVariableConstraints(Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
+	public static void testModelCountingForSingleVariableConstraints(Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean outputCount) {
 		testModelCountingForSingleVariableConstraints(random, testAgainstBruteForce, constraintTheory, numberOfTests, maxNumberOfLiterals, true /* correctness test */, outputCount);
 	}
 	
 	private static void testModelCountingForSingleVariableConstraints(
-			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, int numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
+			Random random, boolean testAgainstBruteForce, ConstraintTheory constraintTheory, long numberOfTests, int maxNumberOfLiterals, boolean testCorrectness, boolean outputCount) {
 		
 		RewritingProcess process = constraintTheory.extendWithTestingInformation(new DefaultRewritingProcess(null));
 		
@@ -507,7 +507,7 @@ public class ConstraintTheoryTester {
 			boolean testAgainstBruteForce,
 			GroupProblemType problemType,
 			ConstraintTheory constraintTheory,
-			int numberOfTests,
+			long numberOfTests,
 			int maxNumberOfLiterals,
 			int bodyDepth,
 			boolean outputCount) {

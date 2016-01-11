@@ -17,7 +17,7 @@ public abstract class AbstractInequalityConstraintBenchmark extends AbstractIneq
 
 	@Override
 	public Random makeRandom() {
-		return new Random();
+		return new Random(0);
 	}
 
 	@Override

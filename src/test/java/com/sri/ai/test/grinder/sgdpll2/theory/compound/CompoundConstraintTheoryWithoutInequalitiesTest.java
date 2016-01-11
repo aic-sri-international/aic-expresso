@@ -118,7 +118,7 @@ public class CompoundConstraintTheoryWithoutInequalitiesTest extends AbstractCon
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
-				100 /* number of tests */,
+				scale(100) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -131,7 +131,7 @@ public class CompoundConstraintTheoryWithoutInequalitiesTest extends AbstractCon
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
-				300 /* number of tests */,
+				scale(300) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -144,7 +144,7 @@ public class CompoundConstraintTheoryWithoutInequalitiesTest extends AbstractCon
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
-				200 /* number of tests */,
+				scale(200) /* number of tests */,
 				50 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -157,7 +157,7 @@ public class CompoundConstraintTheoryWithoutInequalitiesTest extends AbstractCon
 				new Random(),
 				getTestAgainstBruteForce(),
 				makeConstraintTheory(),
-				200 /* number of tests */,
+				scale(200) /* number of tests */,
 				30 /* number of literals per test */,
 				true /* output count */);
 	}
@@ -171,7 +171,7 @@ public class CompoundConstraintTheoryWithoutInequalitiesTest extends AbstractCon
 				getTestAgainstBruteForce(),
 				new Sum(),
 				makeConstraintTheory(),
-				10 /* number of tests */,
+				scale(10) /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);
@@ -186,7 +186,7 @@ public class CompoundConstraintTheoryWithoutInequalitiesTest extends AbstractCon
 				getTestAgainstBruteForce(),
 				new Max(),
 				makeConstraintTheory(),
-				10 /* number of tests */,
+				scale(10) /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);

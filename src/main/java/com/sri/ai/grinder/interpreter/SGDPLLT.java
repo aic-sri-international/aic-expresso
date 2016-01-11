@@ -63,7 +63,7 @@ import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.solver.LiteralConditionerStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierFreeExpressionSymbolicEvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver;
 import com.sri.ai.util.base.Pair;
 
@@ -190,7 +190,7 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 		}
 		
 		// Normalize final result.
-		currentBody = new LiteralConditionerStepSolver(currentBody, simplifierUnderContextualConstraint).solve(contextualConstraint, process);
+		currentBody = new QuantifierFreeExpressionSymbolicEvaluatorStepSolver(currentBody, simplifierUnderContextualConstraint).solve(contextualConstraint, process);
 		
 		return currentBody;
 	}
@@ -226,7 +226,7 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 			body = quantifierFreeBody;
 			lastIndexConstraint = SingleVariableConstraint.make(constraintTheory, lastIndex, quantifierFreeIndicesCondition, process);
 			return Pair.make(body, lastIndexConstraint);
-		} catch (Error e) { /* proceed to default case before */ }
+		} catch (Error e) { /* proceed to default case below */ }
 		
 		// did not work out because condition is not SingleVariableConstraint on last index
 		body = IfThenElse.make(quantifierFreeIndicesCondition, quantifierFreeBody, group.additiveIdentityElement());

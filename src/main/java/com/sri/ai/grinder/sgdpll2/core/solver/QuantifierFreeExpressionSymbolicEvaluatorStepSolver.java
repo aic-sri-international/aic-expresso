@@ -20,7 +20,7 @@ import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolve
 import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 
 /**
- * An implementation for step solvers based on conditioning on the literals of a given expression.
+ * A step solver for symbolically evaluating a quantifier-free expression.
  * <p>
  * This step solver either returns a step solution containing an literal in the expression
  * as of yet not defined by the contextual constraint
@@ -44,24 +44,30 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  *
  */
 @Beta
-public class LiteralConditionerStepSolver implements ContextDependentExpressionProblemStepSolver {
+public class QuantifierFreeExpressionSymbolicEvaluatorStepSolver implements ContextDependentExpressionProblemStepSolver {
 
 	private Expression expression;
-	private ArrayList<Expression> literalsInExpression;
+	private Predicate<Expression> literalSelector;
+	private ArrayList<Expression> selectedLiteralsInExpression;
 	public int initialLiteralToConsider;
 	private SimplifierUnderContextualConstraint simplifierUnderContextualConstraint;
 	
-	public LiteralConditionerStepSolver(Expression expression, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint) {
+	public QuantifierFreeExpressionSymbolicEvaluatorStepSolver(Expression expression, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint) {
+		this(expression, e -> true, simplifierUnderContextualConstraint);
+	}
+
+	public QuantifierFreeExpressionSymbolicEvaluatorStepSolver(Expression expression, Predicate<Expression> literalSelector, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint) {
 		super();
 		this.expression = expression;
+		this.literalSelector = literalSelector;
 		this.simplifierUnderContextualConstraint = simplifierUnderContextualConstraint;
 	}
 
 	@Override
-	public LiteralConditionerStepSolver clone() {
-		LiteralConditionerStepSolver result = null;
+	public QuantifierFreeExpressionSymbolicEvaluatorStepSolver clone() {
+		QuantifierFreeExpressionSymbolicEvaluatorStepSolver result = null;
 		try {
-			result = (LiteralConditionerStepSolver) super.clone();
+			result = (QuantifierFreeExpressionSymbolicEvaluatorStepSolver) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
@@ -80,13 +86,13 @@ public class LiteralConditionerStepSolver implements ContextDependentExpressionP
 	 * @return
 	 */
 	protected ArrayList<Expression> getLiteralsInExpression(ConstraintTheory constraintTheory, RewritingProcess process) {
-		if (literalsInExpression == null) {
+		if (selectedLiteralsInExpression == null) {
 			Iterator<Expression> subExpressionsIterator = new SubExpressionsDepthFirstIterator(expression);
-			Predicate<Expression> literalsOnly = e -> constraintTheory.isLiteral(e, process);
-			literalsInExpression = collectToArrayList(subExpressionsIterator, literalsOnly);
+			Predicate<Expression> literalsOnly = e -> constraintTheory.isLiteral(e, process) && literalSelector.apply(e);
+			selectedLiteralsInExpression = collectToArrayList(subExpressionsIterator, literalsOnly);
 			initialLiteralToConsider = 0;
 		}
-		return literalsInExpression;
+		return selectedLiteralsInExpression;
 	}
 	
 	@Override
@@ -95,7 +101,6 @@ public class LiteralConditionerStepSolver implements ContextDependentExpressionP
 		SolutionStep result;
 		
 		SolutionStep stepAllLiteralsAreDefined = getSolutionStepForWhetherAllLiteralsAreDefined(contextualConstraint, process);
-//		SolutionStep stepAllLiteralsAreDefined = getSolutionStepForWhetherAllLiteralsAreDefined(expression, contextualConstraint, process); // this versions checks all literals
 
 		if (stepAllLiteralsAreDefined == null) {
 			result = null;
@@ -110,7 +115,6 @@ public class LiteralConditionerStepSolver implements ContextDependentExpressionP
 
 		return result;
 	}
-
 
 	/**
 	 * Returns a solution step towards defining all literals in expression,
@@ -139,48 +143,9 @@ public class LiteralConditionerStepSolver implements ContextDependentExpressionP
 				return null;
 			}
 			else if (split.getResult() == ConstraintSplitting.Result.LITERAL_IS_UNDEFINED) {
-				LiteralConditionerStepSolver stepSolverFromNowOn = clone();
+				QuantifierFreeExpressionSymbolicEvaluatorStepSolver stepSolverFromNowOn = clone();
 				stepSolverFromNowOn.initialLiteralToConsider++;
 				return new ItDependsOn(literal, split, stepSolverFromNowOn, stepSolverFromNowOn);
-			}
-		}
-		
-		return new Solution(TRUE);
-	}
-
-	/**
-	 * Returns a solution step towards defining all literals in expression,
-	 * or null if contextual constraint is found inconsistent,
-	 * or new Solution(TRUE) if all literals are defined.
-	 * @param expression an expression
-	 * @param contextualConstraint a contextual constraint
-	 * @param process a rewriting process
-	 * @return a solution step towards defining all literals in expression,
-	 * or null if contextual constraint is found inconsistent,
-	 * or new Solution(TRUE) if all literals are defined
-	 */
-	@SuppressWarnings("unused")
-	private SolutionStep getSolutionStepForWhetherAllLiteralsAreDefined(Expression expression, Constraint2 contextualConstraint, RewritingProcess process) {
-		if (contextualConstraint.getConstraintTheory().isLiteral(expression, process)) {
-			ConstraintSplitting split = new ConstraintSplitting(contextualConstraint, expression, process);
-			if (split.getResult() == ConstraintSplitting.Result.CONSTRAINT_IS_CONTRADICTORY) {
-				return null;
-			}
-			else if (split.getResult() == ConstraintSplitting.Result.LITERAL_IS_UNDEFINED) {
-				return new ItDependsOn(expression, split, clone(), clone());
-			}
-		}
-
-		myAssert(
-				() -> expression.getSyntacticFormType().equals("Function application") || expression.getSyntacticFormType().equals("Symbol"),
-				() -> this.getClass() + ": applies to function applications or symbols only, but got " + expression );
-
-		// the search below used to be done with Util.getFirstNonNullResultOrNull, but once we started to take null solution steps into account, it was impossible to use that and differentiate between null solution steps, or null for not satisfying the predicate
-		for (Expression subExpression : expression.getSubExpressions()) {
-			SolutionStep subSolutionStep =
-					getSolutionStepForWhetherAllLiteralsAreDefined(subExpression, contextualConstraint, process);
-			if (subSolutionStep == null || subSolutionStep.itDepends()) {
-				return subSolutionStep;
 			}
 		}
 		
