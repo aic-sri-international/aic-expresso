@@ -62,15 +62,29 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 @Beta
 public abstract class AbstractQuantifierEliminationStepSolver implements ContextDependentExpressionProblemStepSolver, Cloneable {
 
-	private boolean conditionOnIndexFreeLiteralsFirst;
-	// TODO: I introduced this option because conditioning on an index-free literal
-	// avoids the need to combine solutions, as it must be done with the literal does contain the index.
-	// Also, splitting on an index-free literal allows us to re-use the contextual constraint splitting
-	// (see code below for details on how this is done).
-	// Surprisingly, however, benchmarks turned slower when this is true.
-	// So, I am making this off by default,
-	// but leaving it in case there is a mistake somewhere, or future code
-	// makes this the best option.
+	/** 
+	 * Indicates whether index-free literals are conditioned first.
+	 * 
+	 * This option has been introduced because conditioning on an index-free literal
+	 * avoids the need to combine solutions, as it must be done with the literal does contain the index.
+	 * Also, splitting on an index-free literal allows us to re-use the contextual constraint splitting
+	 * (see code below for details on how this is done).
+	 * Surprisingly, however, benchmarks turned slower when this is true.
+	 * So, I am making this off by default,
+	 * but leaving it in case there is a mistake somewhere, or future code
+	 * makes this the best option.
+	 * 
+	 * TODO: It's been made static for now because making it a parameter requires
+	 * adding a new parameter to a lot of nested methods all the way from the user code,
+	 * which is too much for an option that is not seriously used at this point,
+	 * but only for testing.
+	 * Another option requiring less code change would be to set it as a
+	 * global object in the rewriting process, but even that is some work
+	 * because the rewriting process is not always readily available at user code level.
+	 * If it is ever adopted for general use, it should be made either
+	 * a parameter or a rewriting process global object.
+	 */
+	public static boolean conditionOnIndexFreeLiteralsFirst = false;
 	
 	private AssociativeCommutativeGroup group;
 	
@@ -85,15 +99,10 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 	private SimplifierUnderContextualConstraint simplifierUnderContextualConstraint;
 	
 	public AbstractQuantifierEliminationStepSolver(AssociativeCommutativeGroup group, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, SingleVariableConstraint indexConstraint, Expression body) {
-		this(group, simplifierUnderContextualConstraint, indexConstraint, body, false);
-	}
-
-	public AbstractQuantifierEliminationStepSolver(AssociativeCommutativeGroup group, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, SingleVariableConstraint indexConstraint, Expression body, boolean conditionOnIndexFreeLiteralsFirst) {
 		this.group = group;
 		this.indexConstraint = indexConstraint;
 		this.body = body;
 		this.simplifierUnderContextualConstraint = simplifierUnderContextualConstraint;
-		this.conditionOnIndexFreeLiteralsFirst = conditionOnIndexFreeLiteralsFirst;
 	}
 
 	/**
