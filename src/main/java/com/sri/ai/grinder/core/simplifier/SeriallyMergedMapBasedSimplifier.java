@@ -54,6 +54,10 @@ import com.sri.ai.grinder.api.Simplifier;
  * with a serialization collision policy, that is, if a new simplifier <code>s2</code> applies to the
  * same function application or syntactic form as a pre-existing simplifier <code>s1</code>,
  * then a new simplifier <code>s3(e) = if s1(e) != e then s1(e) else s2(e)</code> is created.
+ * That is to say, the new simplifier only acts if the old one has nothing to say about it,
+ * thus complementing it.
+ * Therefore, this class is useful for adding functionality to a simplifier,
+ * as opposed to overriding functionality (as done by {@link OverridingMergedMapBasedSimplifier}). 
  * 
  * @see OverridingMergedMapBasedSimplifier
  * 

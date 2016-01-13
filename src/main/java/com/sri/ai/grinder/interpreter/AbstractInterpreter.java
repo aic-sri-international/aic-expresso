@@ -118,6 +118,9 @@ public abstract class AbstractInterpreter implements MapBasedSimplifier, Simplif
 
 		// The reason we use an internal simplifier as opposed to making {@link AbstractInterpreter} an extension of {@link MergedMapBasedSimplifier}
 		// is that we want the makers of sub-simplifiers to be dynamic (non-static), so this class can be extended and they can be overridden.
+		// If it were an extension of {@link MergedMapBasedSimplifier}, those methods
+		// would have to be static because they would have to be used inside a
+		// constructor's super() statement.
 		
 		public InternalSimplifier() {
 			super(makeFunctionApplicationSimplifiers(), makeSyntacticFormTypeSimplifiers(), makeAnotherMapBasedSimplifier());
