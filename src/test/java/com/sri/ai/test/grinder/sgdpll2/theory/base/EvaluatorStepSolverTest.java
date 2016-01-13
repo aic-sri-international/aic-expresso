@@ -47,11 +47,7 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
-import com.sri.ai.grinder.core.simplifier.SeriallyMergedMapBasedSimplifier;
 import com.sri.ai.grinder.helper.GrinderUtil;
-import com.sri.ai.grinder.library.boole.BooleanSimplifier;
-import com.sri.ai.grinder.library.inequality.InequalitySimplifier;
-import com.sri.ai.grinder.library.number.NumericSimplifier;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
@@ -77,11 +73,7 @@ public class EvaluatorStepSolverTest {
 		RewritingProcess process = new DefaultRewritingProcess(null);
 		process = constraintTheory.extendWithTestingInformation(process);
 		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
-		Simplifier topSimplifier
-		= new SeriallyMergedMapBasedSimplifier(
-				new InequalitySimplifier(),
-				new NumericSimplifier(),
-				new BooleanSimplifier());
+		Simplifier topSimplifier = constraintTheory.getTopSimplifier();
 		
 		String expressionString;
 		Expression expected;
@@ -100,6 +92,10 @@ public class EvaluatorStepSolverTest {
 		
 		expressionString = "(if I > J then if P or Q then 1 else 2 else 5) + (if I <= J then 3 else if not Q then 4 else -3)";
 		expected = parse("if I > J then if P then if not Q then 5 else -2 else if Q then -2 else 6 else 8");
+		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
+		
+		expressionString = "(if I > J then if P or X = a or Y != b then 1 else 2 else 5) + (if I <= J then 3 else if not (X != a or Y = c and Q) then 4 else -3)";
+		expected = parse("if I > J then if P then if X != a then -2 else if Y = c then if Q then -2 else 5 else 5 else if X = a then if Y = c then if Q then -2 else 5 else 5 else if Y != b then -2 else -1 else 8");
 		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
 	}
 
