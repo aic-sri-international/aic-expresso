@@ -15,8 +15,8 @@ import java.util.Set;
 
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
+import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll2.core.constraint.AbstractConstraintTheory;
 import com.sri.ai.util.collect.PredicateIterator;
@@ -29,11 +29,6 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 	 */
 	protected boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory;
 
-	/**
-	 * The simplifier for the theory; must simplify short-circuited applications of the theory functors at a minimum.
-	 */
-	protected Simplifier simplifier;
-	
 	/**
 	 * The strings of the theory functors
 	 */
@@ -51,10 +46,9 @@ public abstract class AbstractConstraintTheoryWithBinaryAtoms extends AbstractCo
 	public AbstractConstraintTheoryWithBinaryAtoms(
 			Collection<String> theoryFunctors,
 			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-			Simplifier simplifier) {
-		super();
+			MapBasedSimplifier simplifier) {
+		super(simplifier);
 		this.assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory = assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory;
-		this.simplifier = simplifier;
 		this.theoryFunctors = theoryFunctors;
 	}
 

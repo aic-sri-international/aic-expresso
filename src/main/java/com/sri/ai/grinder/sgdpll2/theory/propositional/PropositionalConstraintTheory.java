@@ -52,7 +52,6 @@ import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.boole.BooleanSimplifier;
 import com.sri.ai.grinder.library.boole.Not;
@@ -82,14 +81,12 @@ public class PropositionalConstraintTheory extends AbstractConstraintTheory {
 	 * and main testing variable as <code>P</code>.
 	 */
 	public PropositionalConstraintTheory() {
-		super();
+		super(new BooleanSimplifier());
 		ArrayList<Expression> knownConstants = mapIntoArrayList(list("true", "false"), s -> makeSymbol(s));
 		Categorical booleanType = new Categorical("Boolean", 2, knownConstants);
 		setVariableNamesAndTypesForTesting(map("P", booleanType, "Q", booleanType, "R", booleanType));
 	}
 
-	private Simplifier simplifier = new BooleanSimplifier();
-	
 	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {
 		Expression result = simplifier.apply(expression, process);

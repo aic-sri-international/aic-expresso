@@ -44,7 +44,7 @@ import static com.sri.ai.util.Util.getFirstSatisfyingPredicateOrNull;
 import static com.sri.ai.util.Util.join;
 import static com.sri.ai.util.Util.list;
 import static com.sri.ai.util.Util.map;
-import static com.sri.ai.util.Util.mapIntoList;
+import static com.sri.ai.util.Util.mapIntoArray;
 import static com.sri.ai.util.Util.thereExists;
 
 import java.util.Collection;
@@ -60,10 +60,9 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.Expressions;
+import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
-import com.sri.ai.grinder.api.Simplifier;
-import com.sri.ai.grinder.core.simplifier.Exhaustive;
-import com.sri.ai.grinder.core.simplifier.Pipeline;
+import com.sri.ai.grinder.core.simplifier.RecursiveExhaustiveSeriallyMergedMapBasedSimplifier;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
@@ -79,8 +78,9 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 
 	private List<ConstraintTheory> subConstraintTheories;
 	
-	public CompoundConstraintTheory(ConstraintTheory... typeStringsAndSubConstraintTheories) {
-		this.subConstraintTheories = list(typeStringsAndSubConstraintTheories);
+	public CompoundConstraintTheory(ConstraintTheory... subConstraintTheoriesArray) {
+		super(makeSimplifier(list(subConstraintTheoriesArray)));
+		this.subConstraintTheories = list(subConstraintTheoriesArray);
 		Util.myAssert(() -> subConstraintTheories.size() != 0, () -> getClass() + " needs to receive at least one sub-constraint theory but got none.");
 		aggregateTestingInformation();
 	}
@@ -244,12 +244,22 @@ public class CompoundConstraintTheory extends AbstractConstraintTheory {
 
 	@Override
 	public Expression simplify(Expression expression, RewritingProcess process) {
-		Collection<Simplifier> simplifiers = mapIntoList(getSubConstraintTheories(), t -> (e, p) -> t.simplify(e, p));
-		Simplifier exhaustivelyOfAll = new Exhaustive(new Pipeline(simplifiers));
-		Expression result = exhaustivelyOfAll.apply(expression, process);
+		Expression result = simplifier.apply(expression, process);
 		return result;
 	}
-	
+
+	private static MapBasedSimplifier makeSimplifier(Collection<ConstraintTheory> subConstraintTheories) {
+		
+		MapBasedSimplifier[] subSimplifiers
+		= mapIntoArray(MapBasedSimplifier.class, subConstraintTheories, t -> t.getTopSimplifier());
+		
+		
+		MapBasedSimplifier simplifier
+		= new RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(subSimplifiers);
+		
+		return simplifier;
+	}
+
 	@Override
 	public String toString() {
 		return "Compound constraint theory (" + join(getSubConstraintTheories()) + ")";

@@ -58,6 +58,7 @@ import com.google.common.base.Predicate;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.helper.SubExpressionsDepthFirstIterator;
+import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.library.equality.formula.FormulaUtil;
@@ -80,6 +81,13 @@ import com.sri.ai.util.collect.PredicateIterator;
 @Beta
 public interface ConstraintTheory extends Theory {
 
+	/**
+	 * Returns a simplifier performing the same simplification as {@link #simplify(Expression, RewritingProcess)},
+	 * but only on the top expression (that is, without recursing to sub-expressions).
+	 * @return
+	 */
+	MapBasedSimplifier getTopSimplifier();
+	
 	boolean isSuitableFor(Expression variable, Type type);
 	
 	/**

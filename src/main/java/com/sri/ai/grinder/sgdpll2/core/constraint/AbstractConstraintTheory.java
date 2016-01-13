@@ -56,7 +56,10 @@ import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.expresso.api.Type;
 import com.sri.ai.expresso.type.Categorical;
+import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.api.RewritingProcess;
+import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.core.simplifier.SeriallyMergedMapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 
 @Beta
@@ -65,15 +68,21 @@ import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
  */
 abstract public class AbstractConstraintTheory implements ConstraintTheory {
 
+	protected Simplifier simplifier;
+	protected MapBasedSimplifier topSimplifier;
+	
 	/**
 	 * Initializes types for testing to be the collection of a single type,
 	 * a {@link Categorical} {@link Type} named <code>SomeType</code>
 	 * with domain size 5 and known constants <code>a, b, c, d</code>,
 	 * variables for testing to <code>X, Y, Z</code> of type <code>SomeType</code>,
 	 * of which <code>X</code> is the main testing variable on which testing literals are generated.
+	 * @param simplifier
 	 */
-	public AbstractConstraintTheory() {
+	public AbstractConstraintTheory(MapBasedSimplifier simplifier) {
 		super();
+		this.simplifier = simplifier;
+		this.topSimplifier = new SeriallyMergedMapBasedSimplifier(simplifier);
 		Categorical someType = getDefaultTestingType();
 		setVariableNamesAndTypesForTesting(map("X", someType, "Y", someType, "Z", someType));
 	}
@@ -99,6 +108,11 @@ abstract public class AbstractConstraintTheory implements ConstraintTheory {
 	@Override
 	public Collection<Type> getNativeTypes() {
 		return list();
+	}
+	
+	@Override
+	public MapBasedSimplifier getTopSimplifier() {
+		return topSimplifier;
 	}
 	
 	@Override

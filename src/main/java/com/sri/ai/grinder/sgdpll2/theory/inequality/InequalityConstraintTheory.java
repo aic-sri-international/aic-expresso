@@ -119,18 +119,18 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 		super(
 				negationFunctor.keySet(),
 				assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
-						new RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(
-								// it is important to include difference arithmetic simplifiers here because they ensure literals that contain a variable that cancels out (such as X - X > Y) are simplified (here, to 0 > Y) and as a consequence not passed to the single-variable constraint for that variable (here, X), because it is actually *not* a constraint on X
-								makeFunctionApplicationSimplifiersForDifferenceArithmetic(),
-								map(), // no additional syntactic form simplifiers
-								
-								// basic simplification of involved interpreted functions in this theory:
-								new EqualitySimplifier(),
-								new InequalitySimplifier(),
-								new BooleanSimplifier(),
-								new NumericSimplifier()
-								),
-				propagateAllLiteralsWhenVariableIsBound);
+				new RecursiveExhaustiveSeriallyMergedMapBasedSimplifier(
+						// it is important to include difference arithmetic simplifiers here because they ensure literals that contain a variable that cancels out (such as X - X > Y) are simplified (here, to 0 > Y) and as a consequence not passed to the single-variable constraint for that variable (here, X), because it is actually *not* a constraint on X
+						makeFunctionApplicationSimplifiersForDifferenceArithmetic(),
+						map(), // no additional syntactic form simplifiers
+
+						// basic simplification of involved interpreted functions in this theory:
+						new EqualitySimplifier(),
+						new InequalitySimplifier(),
+						new BooleanSimplifier(),
+						new NumericSimplifier()
+						),
+						propagateAllLiteralsWhenVariableIsBound);
 
 		String typeName = "Integer(0,4)";
 		IntegerInterval type = new IntegerInterval(typeName);
@@ -204,8 +204,9 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 	@Override
 	public Expression makeRandomAtomOn(String variable, Random random, RewritingProcess process) {
 		
-		int numberOfOtherVariables = random.nextInt(2); // used to be 3, but if literal has more than two variables, it steps out of difference arithmetic and may lead to multiplied variables when literals are propagated. For example, X = Y + Z and X = -Y - Z + 3 imply 2Y + 2Z = 3 
-		ArrayList<String> otherVariablesForAtom = pickKElementsWithoutReplacement(new ArrayList<>(getVariableNamesForTesting()), numberOfOtherVariables, o -> !o.equals(variable), random);
+		int maxNumberOfOtherVariablesInAtom = Math.min(getVariableNamesForTesting().size(), 2);
+		int numberOfOtherVariablesInAtom = random.nextInt(maxNumberOfOtherVariablesInAtom); // used to be 3, but if literal has more than two variables, it steps out of difference arithmetic and may lead to multiplied variables when literals are propagated. For example, X = Y + Z and X = -Y - Z + 3 imply 2Y + 2Z = 3 
+		ArrayList<String> otherVariablesForAtom = pickKElementsWithoutReplacement(new ArrayList<>(getVariableNamesForTesting()), numberOfOtherVariablesInAtom, o -> !o.equals(variable), random);
 		// Note that otherVariablesForAtom contains only one or zero elements
 		
 		Type type = getVariableNamesAndTypesForTesting().get(variable);

@@ -40,7 +40,7 @@ package com.sri.ai.grinder.sgdpll2.theory.base;
 import java.util.Collection;
 
 import com.google.common.annotations.Beta;
-import com.sri.ai.grinder.api.Simplifier;
+import com.sri.ai.grinder.api.MapBasedSimplifier;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 
 
@@ -57,7 +57,10 @@ abstract public class AbstractConstraintTheoryWithBinaryAtomsIncludingEquality e
 	private boolean propagateAllLiteralsWhenVariableIsBound;
 
 	public AbstractConstraintTheoryWithBinaryAtomsIncludingEquality(
-			Collection<String> theoryFunctors, boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, Simplifier simplifier, boolean propagateAllLiteralsWhenVariableIsBound) {
+			Collection<String> theoryFunctors,
+			boolean assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory,
+			MapBasedSimplifier simplifier,
+			boolean propagateAllLiteralsWhenVariableIsBound) {
 
 		super(theoryFunctors, assumeAllTheoryFunctorApplicationsAreAtomsInThisTheory, simplifier);
 		this.propagateAllLiteralsWhenVariableIsBound = propagateAllLiteralsWhenVariableIsBound;

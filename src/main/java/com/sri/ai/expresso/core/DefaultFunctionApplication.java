@@ -38,8 +38,8 @@
 package com.sri.ai.expresso.core;
 
 import static com.sri.ai.util.Util.castOrThrowError;
-import static com.sri.ai.util.Util.mapIntoArray;
 import static com.sri.ai.util.Util.mapIntoList;
+import static com.sri.ai.util.Util.mapIntoObjectArray;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,7 +82,7 @@ public class DefaultFunctionApplication extends AbstractNonQuantifiedExpression 
 		this.functor   = functor;
 		this.arguments = arguments;
 		
-		this.syntaxTree = new DefaultCompoundSyntaxTree(functor.getSyntaxTree(), mapIntoArray(arguments, e -> e == null? null : e.getSyntaxTree()));
+		this.syntaxTree = new DefaultCompoundSyntaxTree(functor.getSyntaxTree(), mapIntoObjectArray(arguments, e -> e == null? null : e.getSyntaxTree()));
 		
 		expressionAndContexts = new LinkedList<ExpressionAndContext>();
 		expressionAndContexts.add(new DefaultExpressionAndContext(functor, new IndexAddress(-1)));

@@ -37,7 +37,7 @@
  */
 package com.sri.ai.expresso.core;
 
-import static com.sri.ai.util.Util.mapIntoArray;
+import static com.sri.ai.util.Util.mapIntoObjectArray;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,7 +96,8 @@ public class DefaultSyntacticFunctionApplication extends AbstractNonQuantifiedEx
 		this.syntacticfunctor   = Expressions.wrap(functor);
 		this.syntacticArguments = syntacticArguments;
 		
-		this.syntaxTree = new DefaultCompoundSyntaxTree(syntacticfunctor.getSyntaxTree(), mapIntoArray(syntacticArguments, e -> e == null? null : e.getSyntaxTree()));
+		Object[] array = mapIntoObjectArray(syntacticArguments, e -> e == null? null : e.getSyntaxTree());
+		this.syntaxTree = new DefaultCompoundSyntaxTree(syntacticfunctor.getSyntaxTree(), array);
 		
 		expressionAndContexts = new LinkedList<ExpressionAndContext>();
 	}
