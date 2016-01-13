@@ -37,16 +37,24 @@
  */
 package com.sri.ai.test.grinder.sgdpll2.theory.inequality;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+
 import com.google.common.annotations.Beta;
 import com.sri.ai.grinder.sgdpll2.core.solver.AbstractQuantifierEliminationStepSolver;
 
 @Beta
 public class InequalityConstraintWithPropagationOfAllLiteralsAndConditioningOfIndexFreeLiteralsFirstWhenBoundTest extends AbstractInequalityConstraintTest {
 
-	public InequalityConstraintWithPropagationOfAllLiteralsAndConditioningOfIndexFreeLiteralsFirstWhenBoundTest() {
-		super();
+    @BeforeClass
+    public static void oneTimeSetUp() {
 		AbstractQuantifierEliminationStepSolver.conditionOnIndexFreeLiteralsFirst = true;
-	}
+    }
+
+    @AfterClass
+    public static void oneTimeTearDown() {
+		AbstractQuantifierEliminationStepSolver.conditionOnIndexFreeLiteralsFirst = false;
+    }
 
 	/**
 	 * Overridden to 0.1 because this is a minor variant we just want to make sure is not
