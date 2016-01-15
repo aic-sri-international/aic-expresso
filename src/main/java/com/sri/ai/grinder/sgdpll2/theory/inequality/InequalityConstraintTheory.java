@@ -174,6 +174,7 @@ public class InequalityConstraintTheory extends AbstractConstraintTheoryWithBina
 	@Override
 	public boolean isInterpretedInThisTheoryBesidesBooleanConnectives(Expression expression, RewritingProcess process) {
 		boolean result = super.isInterpretedInThisTheoryBesidesBooleanConnectives(expression, process)
+				|| expression.equals(PLUS) || expression.equals(MINUS)
 				|| expression.hasFunctor(PLUS) || expression.hasFunctor(MINUS); 
 		return result;
 	}
