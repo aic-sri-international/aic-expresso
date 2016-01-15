@@ -20,6 +20,14 @@ import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolve
 import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
 
 /**
+ * TODO: this is very inefficient because it does not take any advantage
+ * of context-sensitive independence.
+ * It has been replaced by {@link EvaluatorStepSolver}.
+ * However, it is kept for the time being because it still has
+ * one capability its successor does not have: that of selecting
+ * a certain type of literal first for conditioning.
+ * Once the new step solver gets that capability, this should be removed.
+ * <p>
  * A step solver for symbolically evaluating a quantifier-free expression.
  * <p>
  * This step solver either returns a step solution containing an literal in the expression
@@ -44,7 +52,7 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  *
  */
 @Beta
-public class QuantifierFreeExpressionSymbolicEvaluatorStepSolver implements ContextDependentExpressionProblemStepSolver {
+public class HorriblyInefficientEvaluatorStepSolver implements ContextDependentExpressionProblemStepSolver {
 
 	private Expression expression;
 	private Predicate<Expression> literalSelector;
@@ -52,11 +60,11 @@ public class QuantifierFreeExpressionSymbolicEvaluatorStepSolver implements Cont
 	public int initialLiteralToConsider;
 	private SimplifierUnderContextualConstraint simplifierUnderContextualConstraint;
 	
-	public QuantifierFreeExpressionSymbolicEvaluatorStepSolver(Expression expression, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint) {
+	public HorriblyInefficientEvaluatorStepSolver(Expression expression, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint) {
 		this(expression, e -> true, simplifierUnderContextualConstraint);
 	}
 
-	public QuantifierFreeExpressionSymbolicEvaluatorStepSolver(Expression expression, Predicate<Expression> literalSelector, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint) {
+	public HorriblyInefficientEvaluatorStepSolver(Expression expression, Predicate<Expression> literalSelector, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint) {
 		super();
 		this.expression = expression;
 		this.literalSelector = literalSelector;
@@ -64,10 +72,10 @@ public class QuantifierFreeExpressionSymbolicEvaluatorStepSolver implements Cont
 	}
 
 	@Override
-	public QuantifierFreeExpressionSymbolicEvaluatorStepSolver clone() {
-		QuantifierFreeExpressionSymbolicEvaluatorStepSolver result = null;
+	public HorriblyInefficientEvaluatorStepSolver clone() {
+		HorriblyInefficientEvaluatorStepSolver result = null;
 		try {
-			result = (QuantifierFreeExpressionSymbolicEvaluatorStepSolver) super.clone();
+			result = (HorriblyInefficientEvaluatorStepSolver) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
@@ -143,7 +151,7 @@ public class QuantifierFreeExpressionSymbolicEvaluatorStepSolver implements Cont
 				return null;
 			}
 			else if (split.getResult() == ConstraintSplitting.Result.LITERAL_IS_UNDEFINED) {
-				QuantifierFreeExpressionSymbolicEvaluatorStepSolver stepSolverFromNowOn = clone();
+				HorriblyInefficientEvaluatorStepSolver stepSolverFromNowOn = clone();
 				stepSolverFromNowOn.initialLiteralToConsider++;
 				return new ItDependsOn(literal, split, stepSolverFromNowOn, stepSolverFromNowOn);
 			}

@@ -56,7 +56,7 @@ import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.solver.EvaluatorStepSolver;
-import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierFreeExpressionSymbolicEvaluatorStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.HorriblyInefficientEvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpll2.tester.RandomConditionalExpressionGenerator;
 import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
@@ -100,7 +100,7 @@ public class ProfilingOfEvaluatorsTest {
 		String[] evaluatorNames = new String[2];
 		evaluators[0] = new EvaluatorStepSolver(expression, topSimplifier);
 		evaluatorNames[0] = "New evaluator";
-		evaluators[1] = new QuantifierFreeExpressionSymbolicEvaluatorStepSolver(expression, new SymbolicCommonInterpreter(constraintTheory));
+		evaluators[1] = new HorriblyInefficientEvaluatorStepSolver(expression, new SymbolicCommonInterpreter(constraintTheory));
 		evaluatorNames[1] = "Old evaluator";
 
 		long[] totalTimes = new long[]{0, 0};

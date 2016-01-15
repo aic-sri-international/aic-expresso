@@ -23,14 +23,14 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  * An abstract implementation for step solvers for quantified expressions
  * (the quantification being based on an associative commutative group's operation).
  * <p>
- * This is done by applying a {@link QuantifierFreeExpressionSymbolicEvaluatorStepSolver} on the body expression,
+ * This is done by applying a {@link HorriblyInefficientEvaluatorStepSolver} on the body expression,
  * picking literals in it according to the contextual constraint conjoined with the index constraint,
  * and "intercepting" literals containing the indices and splitting the quantifier
  * based on that, solving the two resulting sub-problems.
  * <p>
  * For example, if we have <code>sum({{ (on X in SomeType) if Y != bob then 2 else 3 | X != john }})</code>
  * under contextual constraint <code>Z = alice</code>,
- * {@link QuantifierFreeExpressionSymbolicEvaluatorStepSolver#step(Constraint2, RewritingProcess)} is
+ * {@link HorriblyInefficientEvaluatorStepSolver#step(Constraint2, RewritingProcess)} is
  * invoked with contextual constraint <code>Z = alice and X != john</code>.
  * The solution step will depend on literal <code>Y != bob</code>.
  * <p>
@@ -52,7 +52,7 @@ import com.sri.ai.grinder.sgdpll2.core.constraint.ConstraintSplitting;
  * for the given contextual constraint and index constraint.
  * <p>
  * At the time of this writing,
- * {@link QuantifierFreeExpressionSymbolicEvaluatorStepSolver} supports only expressions that are composed of
+ * {@link HorriblyInefficientEvaluatorStepSolver} supports only expressions that are composed of
  * function applications or symbols only,
  * so this extension inherits this restriction if that is still in place.
  * 
@@ -94,7 +94,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 
 	private Expression body;
 	
-	private QuantifierFreeExpressionSymbolicEvaluatorStepSolver initialBodyEvaluationOnIndexFreeLiteralsStepSolver;
+	private HorriblyInefficientEvaluatorStepSolver initialBodyEvaluationOnIndexFreeLiteralsStepSolver;
 	
 	private ContextDependentExpressionProblemStepSolver initialBodyEvaluationStepSolver;
 	
@@ -159,9 +159,9 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 		return indexConstraint.getVariable();
 	}
 	
-	private QuantifierFreeExpressionSymbolicEvaluatorStepSolver getInitialBodyOnIndexFreeLiteralsStepSolver() {
+	private HorriblyInefficientEvaluatorStepSolver getInitialBodyOnIndexFreeLiteralsStepSolver() {
 		if (initialBodyEvaluationOnIndexFreeLiteralsStepSolver == null) {
-			return new QuantifierFreeExpressionSymbolicEvaluatorStepSolver(
+			return new HorriblyInefficientEvaluatorStepSolver(
 					body,
 					e -> ! isSubExpressionOf(getIndex(), e), // only literals not involving the index
 					simplifierUnderContextualConstraint);
@@ -182,7 +182,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 						conditionOnIndexFreeLiteralsFirst // if this is true, we only need to check the literals involving the index now
 						? e -> isSubExpressionOf(getIndex(), e)
 								: e -> true; // else we need to check all literals
-				initialBodyEvaluationStepSolver = new QuantifierFreeExpressionSymbolicEvaluatorStepSolver(
+				initialBodyEvaluationStepSolver = new HorriblyInefficientEvaluatorStepSolver(
 						body,
 						literalSelector, 
 						simplifierUnderContextualConstraint);
@@ -201,14 +201,14 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 		SolutionStep result;
 
 		if (conditionOnIndexFreeLiteralsFirst) {
-			QuantifierFreeExpressionSymbolicEvaluatorStepSolver symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStepSolver = getInitialBodyOnIndexFreeLiteralsStepSolver();
+			HorriblyInefficientEvaluatorStepSolver symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStepSolver = getInitialBodyOnIndexFreeLiteralsStepSolver();
 			SolutionStep symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStep = symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStepSolver.step(contextualConstraint, process);
 
 			if (symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStep.itDepends()) {
 				AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsTrue = clone();
 				AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsFalse = clone();
-				subStepSolverForWhenLiteralIsTrue.initialBodyEvaluationOnIndexFreeLiteralsStepSolver = (QuantifierFreeExpressionSymbolicEvaluatorStepSolver) symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStep.getStepSolverForWhenLiteralIsTrue();
-				subStepSolverForWhenLiteralIsFalse.initialBodyEvaluationOnIndexFreeLiteralsStepSolver = (QuantifierFreeExpressionSymbolicEvaluatorStepSolver) symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStep.getStepSolverForWhenLiteralIsFalse();
+				subStepSolverForWhenLiteralIsTrue.initialBodyEvaluationOnIndexFreeLiteralsStepSolver = (HorriblyInefficientEvaluatorStepSolver) symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStep.getStepSolverForWhenLiteralIsTrue();
+				subStepSolverForWhenLiteralIsFalse.initialBodyEvaluationOnIndexFreeLiteralsStepSolver = (HorriblyInefficientEvaluatorStepSolver) symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStep.getStepSolverForWhenLiteralIsFalse();
 				result = new ItDependsOn(symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStep.getLiteral(), symbolicEvaluationOnLiteralsOnFreeVariablesOnlyStep.getConstraintSplitting(), subStepSolverForWhenLiteralIsTrue, subStepSolverForWhenLiteralIsFalse);
 			}
 			else {
@@ -359,7 +359,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 		if (useEvaluatorStepSolver()) {
 			evaluator = new EvaluatorStepSolver(expression, constraintTheory.getTopSimplifier());
 		} else {
-			evaluator = new QuantifierFreeExpressionSymbolicEvaluatorStepSolver(expression, simplifierUnderContextualConstraint);
+			evaluator = new HorriblyInefficientEvaluatorStepSolver(expression, simplifierUnderContextualConstraint);
 		}
 		return evaluator;
 	}
