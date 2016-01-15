@@ -47,17 +47,20 @@ else if SEIndex != E.numberOfArguments
             respectively.
     else
         value <- SEStep.getValue()
-        E' <- top-simplify(E[SE/value])
-		if E' == SE // E has been reduced to SE itself, which we just evaluated
-		    return SEStep
-        else if E' == E
+
+        if value == SE
+            // no change to SE, so no change to E. Just move on to next sub-expression
             Evaluator' <- clone
             Evaluator'.Evaluators <- stacked map on Evaluators with new entry { SE -> SEEvaluator // so we remember the solution if a future simplification surfaces an already fully evaluated sub-expression, including SE, as E'
             Evaluator'.SEIndex++ // go to next sub-expression
-            // that is, SE is fully evaluated and causes no changes in E, so move on to next sub-expression
+            return Evaluator'.step
         else
-            Evaluator' <- Evaluators(E') // E' may be a previously evaluated sub-expression or not; re-use evaluator or make a new one 
-        return Evaluator'.step
+            E' <- top-simplify(E[SE/value])
+		    if E' == SE // E has been reduced to SE itself, which we just evaluated
+		        return SEStep
+            else
+                Evaluator' <- Evaluators(E') // E' may be a previously evaluated sub-expression or not; re-use evaluator or make a new one 
+                return Evaluator'.step
 else        
     return Solution(E) // Remember: step solver assumes sub-expressions before SEIndex fully evaluated and E top-simplified already wrt them
 </pre> 
@@ -122,30 +125,33 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 								ifTrue,
 								ifFalse);
 			}
+			else if (subExpressionStep.getValue() == subExpression) {
+				// no change, just record the evaluator for this sub-expression and move on to the next one
+				ContextDependentExpressionProblemStepSolver nextStepSolver;
+				nextStepSolver = clone();
+				((EvaluatorStepSolver) nextStepSolver).setEvaluatorFor(subExpression, subExpressionEvaluator);
+				((EvaluatorStepSolver) nextStepSolver).subExpressionIndex++;
+				result = nextStepSolver.step(contextualConstraint, process);
+			}
 			else {
 				Expression expressionWithSubExpressionReplacedByItsValue
 				= expression.set(subExpressionIndex, subExpressionStep.getValue());
-				
+
 				Expression topSimplified
 				= topSimplifier.apply(expressionWithSubExpressionReplacedByItsValue, process);
 
-				ContextDependentExpressionProblemStepSolver nextStepSolver;
 				if (topSimplified == subExpression) {
 					// topSimplified turns out to be the sub-expression itself
 					// we already know the result for that: the non-dependent subExpressionStep itself.
 					return subExpressionStep;
 				}
-				else if (topSimplified == expression) { // no change; save evaluator for sub-expression and move on
-					nextStepSolver = clone();
-					((EvaluatorStepSolver)nextStepSolver).setEvaluatorFor(subExpression, subExpressionEvaluator);
-					((EvaluatorStepSolver)nextStepSolver).subExpressionIndex++;
-				}
 				else {
 					// topSimplified is either a former sub-expression, or new.
 					// try to reuse evaluator if available, or a make a new one, and use it
-					nextStepSolver = getEvaluatorFor(topSimplified);
+					ContextDependentExpressionProblemStepSolver nextStepSolver
+					= getEvaluatorFor(topSimplified);
+					result = nextStepSolver.step(contextualConstraint, process);
 				}
-				result = nextStepSolver.step(contextualConstraint, process);
 			}
 		}
 		else {

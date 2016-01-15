@@ -206,7 +206,7 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 				getTestAgainstBruteForce(),
 				new Sum(),
 				makeConstraintTheory(),
-				1 /* number of tests */,
+				10 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);
@@ -221,7 +221,7 @@ public class CompoundConstraintTheoryWithInequalitiesTest extends AbstractConstr
 				getTestAgainstBruteForce(),
 				new Max(),
 				makeConstraintTheory(),
-				1 /* number of tests */,
+				10 /* number of tests */,
 				20 /* number of literals per test */,
 				3, /* body depth */
 				true /* output count */);
