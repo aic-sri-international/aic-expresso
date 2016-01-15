@@ -37,13 +37,11 @@
  */
 package com.sri.ai.test.grinder.sgdpll2.theory.base;
 
-import static com.sri.ai.expresso.helper.Expressions.parse;
-import static org.junit.Assert.assertEquals;
+import static com.sri.ai.expresso.helper.Expressions.makeSymbol;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import org.junit.Test;
+import java.util.Random;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
@@ -52,20 +50,24 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.api.Simplifier;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
+import com.sri.ai.grinder.interpreter.SymbolicCommonInterpreter;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.solver.ContextDependentExpressionProblemSolver;
 import com.sri.ai.grinder.sgdpll2.core.solver.EvaluatorStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierFreeExpressionSymbolicEvaluatorStepSolver;
+import com.sri.ai.grinder.sgdpll2.tester.RandomConditionalExpressionGenerator;
 import com.sri.ai.grinder.sgdpll2.theory.compound.CompoundConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.inequality.InequalityConstraintTheory;
 import com.sri.ai.grinder.sgdpll2.theory.propositional.PropositionalConstraintTheory;
+import com.sri.ai.util.base.NullaryFunction;
 
 @Beta
-public class EvaluatorStepSolverTest {
+public class ProfilingOfEvaluatorsTest {
 
-	@Test
+	// @Test
 	public void test() {
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
 
@@ -80,58 +82,47 @@ public class EvaluatorStepSolverTest {
 		variablesAndTypes.put("T", booleanType);
 		variablesAndTypes.put("U", booleanType);
 		constraintTheory.setVariableNamesAndTypesForTesting(variablesAndTypes);
-		
+
 		RewritingProcess process = new DefaultRewritingProcess(null);
 		process = constraintTheory.extendWithTestingInformation(process);
 		Constraint2 contextualConstraint = new CompleteMultiVariableConstraint(constraintTheory);
 		Simplifier topSimplifier = constraintTheory.getTopSimplifier();
-		
-		String expressionString;
-		Expression expected;
-		
-		expressionString = "0";
-		expected = parse("0");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
-		
-		expressionString = "I > J";
-		expected = parse("I > J");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
-		
-		expressionString = "I > J and I < J";
-		expected = parse("false");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
-		
-		expressionString = "(if I > J then 1 else 2) + (if I <= J then 30 else 40)";
-		expected = parse("if I > J then 41 else 32");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
-		
-		expressionString = "(if I > J then 1 else 2) + (if I <= J then 3 else 4)";
-		expected = parse("5");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
-		
-		expressionString = "(if I > J then if P or Q then 1 else 2 else 5) + (if I <= J then 3 else if not Q then 4 else -3)";
-		expected = parse("if I > J then if P then if not Q then 5 else -2 else if Q then -2 else 6 else 8");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
-		
-		expressionString = "(if I > J then if P or X = a or Y != b then 1 else 2 else 5) + (if I <= J then 3 else if not (X != a or Y = c and Q) then 4 else -3)";
-		expected = parse("if I > J then if P then if X != a then -2 else if Y = c then if Q then -2 else 5 else 5 else if X = a then if Y = c then if Q then -2 else 5 else 5 else if Y != b then -2 else -1 else 8");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
-		
-		expressionString = "if P and Q and R then 1 else 0";
-		expected = parse("if P then if Q then if R then 1 else 0 else 0 else 0");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
-		
-		expressionString = "if P and Q and R and S and T and U then 1 else 0";
-		expected = parse("if P then if Q then if R then if S then if T then if U then 1 else 0 else 0 else 0 else 0 else 0 else 0");
-		runTest(expressionString, expected, contextualConstraint, topSimplifier, process);	
-	}
 
-	private void runTest(String expressionString, Expression expected, Constraint2 contextualConstraint, Simplifier topSimplifier, RewritingProcess process) {
-		Expression expression = parse(expressionString);
-		EvaluatorStepSolver stepSolver = new EvaluatorStepSolver(expression, topSimplifier);
-		System.out.println("Evaluating " + expression);
-		Expression solution = ContextDependentExpressionProblemSolver.solve(stepSolver, contextualConstraint, process);
-		System.out.println(expression + " -----> " + solution + "\n");
-		assertEquals(expected, solution);
+		Expression expression;
+		Expression actual;
+
+		Random random = new Random(0);
+		int depth = 3;
+		NullaryFunction<Expression> leafGenerator = () -> makeSymbol(random.nextInt(5));
+		expression = new RandomConditionalExpressionGenerator(random, constraintTheory, depth, leafGenerator, process).apply();
+
+		ContextDependentExpressionProblemStepSolver[] evaluators = new ContextDependentExpressionProblemStepSolver[2];
+		String[] evaluatorNames = new String[2];
+		evaluators[0] = new EvaluatorStepSolver(expression, topSimplifier);
+		evaluatorNames[0] = "New evaluator";
+		evaluators[1] = new QuantifierFreeExpressionSymbolicEvaluatorStepSolver(expression, new SymbolicCommonInterpreter(constraintTheory));
+		evaluatorNames[1] = "Old evaluator";
+
+		long[] totalTimes = new long[]{0, 0};
+
+		int numberOfRuns = 5;
+
+		for (int i = 0; i != numberOfRuns; i++) {
+			for (int evaluatorIndex = 0; evaluatorIndex != evaluators.length; evaluatorIndex++) {
+				System.out.println("\nSolving " + expression);	
+				System.out.println("Using " + evaluatorNames[evaluatorIndex]);	
+				long start = System.currentTimeMillis();
+				actual = evaluators[evaluatorIndex].solve(contextualConstraint, process);
+				long time = System.currentTimeMillis() - start;
+				System.out.println("Result: " + actual);
+				System.out.println("Time  : " + time + " ms");
+				totalTimes[evaluatorIndex] += time;
+			}
+		}
+
+		for (int evaluatorIndex = 0; evaluatorIndex != evaluators.length; evaluatorIndex++) {
+			long average = totalTimes[evaluatorIndex]/numberOfRuns;
+			System.out.println("Average time for " + evaluatorNames[evaluatorIndex] + ": " + average);	
+		}
 	}
 }

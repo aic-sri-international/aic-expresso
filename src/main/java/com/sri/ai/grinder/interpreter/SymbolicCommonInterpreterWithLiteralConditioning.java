@@ -38,6 +38,7 @@
 package com.sri.ai.grinder.interpreter;
 
 import static com.sri.ai.expresso.helper.Expressions.parse;
+import static com.sri.ai.grinder.sgdpll2.core.solver.AbstractQuantifierEliminationStepSolver.makeEvaluator;
 import static com.sri.ai.util.Util.arrayList;
 
 import com.google.common.annotations.Beta;
@@ -47,8 +48,8 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.core.DefaultRewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierFreeExpressionSymbolicEvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpll2.theory.equality.EqualityConstraintTheory;
 
 /**
@@ -92,9 +93,9 @@ public class SymbolicCommonInterpreterWithLiteralConditioning extends SymbolicCo
 		Constraint2 trueConstraint = new CompleteMultiVariableConstraint(getConstraintTheory());
 		SymbolicCommonInterpreter simplifierUnderContextualConstraint =
 				new SymbolicCommonInterpreter(getConstraintTheory(), true /* simplify given constraint */);
-		QuantifierFreeExpressionSymbolicEvaluatorStepSolver stepSolver = // this normalizes the expression into a decision tree
-				new QuantifierFreeExpressionSymbolicEvaluatorStepSolver(interpretationResult, simplifierUnderContextualConstraint);
-		Expression result = stepSolver.solve(trueConstraint, process);
+		ContextDependentExpressionProblemStepSolver evaluator
+		= makeEvaluator(interpretationResult, simplifierUnderContextualConstraint, getConstraintTheory());
+		Expression result = evaluator.solve(trueConstraint, process);
 		return result;
 	}
 	

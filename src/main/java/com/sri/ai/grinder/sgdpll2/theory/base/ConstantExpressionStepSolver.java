@@ -70,5 +70,10 @@ public class ConstantExpressionStepSolver implements ContextDependentExpressionP
 	@Override
 	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
 		return solution;
-	}	
+	}
+	
+	@Override
+	public String toString() {
+		return "Constant " + solution;
+	}
 }

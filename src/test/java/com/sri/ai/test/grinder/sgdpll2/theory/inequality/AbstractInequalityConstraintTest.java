@@ -30,6 +30,13 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 		return new Random(0);
 	}
 	
+	protected int getBodyDepth() {
+		return 3;
+	}
+
+	// DO NOT CHANGE TEST PARAMETERS! IMPLEMENTATIONS HAVE RUN-TIME HISTORY WRITTEN DOWN
+	// AND CHANGING THE TEST WILL MAKE THE TRACKIGN OF PROGRESS IMPOSSIBLE
+	
 	@Test
 	public void testSingleVariableConstraints() {
 		GrinderUtil.setTraceAndJustificationOffAndTurnOffConcurrency();
@@ -96,7 +103,7 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 				makeConstraintTheory(),
 				scale(10) /* number of tests */,
 				20 /* number of literals per test */,
-				3, /* body depth */
+				getBodyDepth(), /* body depth */
 				true /* output count */);
 	}
 
@@ -111,7 +118,7 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 	            makeConstraintTheory(),
 	            scale(10) /* number of tests */,
 				20 /* number of literals per test */,
-				3, /* body depth */
+				getBodyDepth(), /* body depth */
 				true /* output count */);
 	}
 }

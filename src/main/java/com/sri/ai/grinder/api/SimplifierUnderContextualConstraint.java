@@ -57,7 +57,7 @@ import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 public interface SimplifierUnderContextualConstraint extends Simplifier {
 
 	/**
-	 * Simplifies a given expression using enumeration under given contextual constraint.
+	 * Simplifies a given expression under given contextual constraint.
 	 * @param expression
 	 * @param contextualConstraint
 	 * @param process

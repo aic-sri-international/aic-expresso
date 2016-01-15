@@ -86,6 +86,8 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 	 */
 	public static boolean conditionOnIndexFreeLiteralsFirst = false;
 	
+	public static boolean useEvaluatorStepSolverIfNotConditioningOnIndexFreeLiteralsFirst = true;
+	
 	private AssociativeCommutativeGroup group;
 	
 	private SingleVariableConstraint indexConstraint;
@@ -94,7 +96,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 	
 	private QuantifierFreeExpressionSymbolicEvaluatorStepSolver initialBodyEvaluationOnIndexFreeLiteralsStepSolver;
 	
-	private QuantifierFreeExpressionSymbolicEvaluatorStepSolver initialBodyEvaluationStepSolver;
+	private ContextDependentExpressionProblemStepSolver initialBodyEvaluationStepSolver;
 	
 	private SimplifierUnderContextualConstraint simplifierUnderContextualConstraint;
 	
@@ -169,20 +171,24 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 		}
 	}
 
-	private QuantifierFreeExpressionSymbolicEvaluatorStepSolver getInitialBodyStepSolver() {
+	private ContextDependentExpressionProblemStepSolver getInitialBodyStepSolver(ConstraintTheory constraintTheory) {
 		if (initialBodyEvaluationStepSolver == null) {
-			Predicate<Expression> literalSelector = 
-					conditionOnIndexFreeLiteralsFirst // if this is true, we only need to check the literals involving the index now
-					? e -> isSubExpressionOf(getIndex(), e)
-							: e -> true; // else we need to check all literals
-			return new QuantifierFreeExpressionSymbolicEvaluatorStepSolver(
-					body,
-					literalSelector, 
-					simplifierUnderContextualConstraint);
+			if (useEvaluatorStepSolver()) {
+				initialBodyEvaluationStepSolver
+				= new EvaluatorStepSolver(body, constraintTheory.getTopSimplifier());
+			}
+			else {
+				Predicate<Expression> literalSelector = 
+						conditionOnIndexFreeLiteralsFirst // if this is true, we only need to check the literals involving the index now
+						? e -> isSubExpressionOf(getIndex(), e)
+								: e -> true; // else we need to check all literals
+				initialBodyEvaluationStepSolver = new QuantifierFreeExpressionSymbolicEvaluatorStepSolver(
+						body,
+						literalSelector, 
+						simplifierUnderContextualConstraint);
+			}
 		}
-		else {
-			return initialBodyEvaluationStepSolver;
-		}
+		return initialBodyEvaluationStepSolver;
 	}
 
 	@Override
@@ -219,7 +225,7 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 				result = new Solution(group.additiveIdentityElement()); // any solution is vacuously correct
 			}
 			else {
-				QuantifierFreeExpressionSymbolicEvaluatorStepSolver bodyStepSolver = getInitialBodyStepSolver();
+				ContextDependentExpressionProblemStepSolver bodyStepSolver = getInitialBodyStepSolver(contextualConstraint.getConstraintTheory());
 				SolutionStep bodyStep = bodyStepSolver.step(contextualConstraintForBody, process);
 
 				if (bodyStep.itDepends()) {
@@ -231,17 +237,17 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 					else { // not on index, just pass the expression on which we depend on, but with appropriate sub-step solvers (this, for now)
 						AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsTrue = clone();
 						AbstractQuantifierEliminationStepSolver subStepSolverForWhenLiteralIsFalse = clone();
-						subStepSolverForWhenLiteralIsTrue.initialBodyEvaluationStepSolver = (QuantifierFreeExpressionSymbolicEvaluatorStepSolver) bodyStep.getStepSolverForWhenLiteralIsTrue();
-						subStepSolverForWhenLiteralIsFalse.initialBodyEvaluationStepSolver = (QuantifierFreeExpressionSymbolicEvaluatorStepSolver) bodyStep.getStepSolverForWhenLiteralIsFalse();
+						subStepSolverForWhenLiteralIsTrue.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenLiteralIsTrue();
+						subStepSolverForWhenLiteralIsFalse.initialBodyEvaluationStepSolver = bodyStep.getStepSolverForWhenLiteralIsFalse();
 						result = new ItDependsOn(bodyStep.getLiteral(), null, subStepSolverForWhenLiteralIsTrue, subStepSolverForWhenLiteralIsFalse);
 						// we cannot directly re-use bodyStep.getConstraintSplitting() because it was not obtained from the same contextual constraint,
 						// but from the contextual constraint conjoined with the index constraint.
 					}
 				}
 				else { // body is already literal free
-					result =
-							eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
-									contextualConstraint, indexConstraint, bodyStep.getValue(), process);
+					result
+					= eliminateQuantifierForLiteralFreeBodyAndSingleVariableConstraint(
+							contextualConstraint, indexConstraint, bodyStep.getValue(), process);
 				}
 			}
 		}
@@ -339,6 +345,27 @@ public abstract class AbstractQuantifierEliminationStepSolver implements Context
 		else {
 			result = group.add(solution1, solution2, process);
 		}
+		return result;
+	}
+
+	/**
+	 * @param expression
+	 * @param simplifierUnderContextualConstraint
+	 * @param constraintTheory
+	 * @return
+	 */
+	public static ContextDependentExpressionProblemStepSolver makeEvaluator(Expression expression, SimplifierUnderContextualConstraint simplifierUnderContextualConstraint, ConstraintTheory constraintTheory) {
+		ContextDependentExpressionProblemStepSolver evaluator;
+		if (useEvaluatorStepSolver()) {
+			evaluator = new EvaluatorStepSolver(expression, constraintTheory.getTopSimplifier());
+		} else {
+			evaluator = new QuantifierFreeExpressionSymbolicEvaluatorStepSolver(expression, simplifierUnderContextualConstraint);
+		}
+		return evaluator;
+	}
+
+	public static boolean useEvaluatorStepSolver() {
+		boolean result = useEvaluatorStepSolverIfNotConditioningOnIndexFreeLiteralsFirst && !conditionOnIndexFreeLiteralsFirst;
 		return result;
 	}
 }

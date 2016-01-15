@@ -40,6 +40,7 @@ package com.sri.ai.grinder.interpreter;
 import static com.sri.ai.grinder.helper.GrinderUtil.extendContextualSymbolsWithIndexExpressions;
 import static com.sri.ai.grinder.helper.GrinderUtil.makeIndexExpressionsForIndicesInListAndTypesInContext;
 import static com.sri.ai.grinder.library.indexexpression.IndexExpressions.getIndex;
+import static com.sri.ai.grinder.sgdpll2.core.solver.AbstractQuantifierEliminationStepSolver.makeEvaluator;
 import static com.sri.ai.util.Util.getLast;
 
 import java.util.Collection;
@@ -61,9 +62,9 @@ import com.sri.ai.grinder.plaindpll.group.AssociativeCommutativeGroup;
 import com.sri.ai.grinder.plaindpll.util.DPLLUtil;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 import com.sri.ai.grinder.sgdpll2.api.ConstraintTheory;
+import com.sri.ai.grinder.sgdpll2.api.ContextDependentExpressionProblemStepSolver;
 import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 import com.sri.ai.grinder.sgdpll2.core.constraint.CompleteMultiVariableConstraint;
-import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierFreeExpressionSymbolicEvaluatorStepSolver;
 import com.sri.ai.grinder.sgdpll2.core.solver.QuantifierEliminationOnBodyWithIndexInLiteralsOnlyStepSolver;
 import com.sri.ai.util.base.Pair;
 
@@ -190,7 +191,9 @@ public class SGDPLLT extends AbstractQuantifierEliminatorWithSetup {
 		}
 		
 		// Normalize final result.
-		currentBody = new QuantifierFreeExpressionSymbolicEvaluatorStepSolver(currentBody, simplifierUnderContextualConstraint).solve(contextualConstraint, process);
+		ContextDependentExpressionProblemStepSolver evaluator
+		= makeEvaluator(currentBody, simplifierUnderContextualConstraint, constraintTheory);
+		currentBody = evaluator.solve(contextualConstraint, process);
 		
 		return currentBody;
 	}

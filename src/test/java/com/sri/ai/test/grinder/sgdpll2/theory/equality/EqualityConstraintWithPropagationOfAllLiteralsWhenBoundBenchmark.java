@@ -46,4 +46,24 @@ public class EqualityConstraintWithPropagationOfAllLiteralsWhenBoundBenchmark ex
 	protected boolean getPropagateAllLiteralsWhenVariableIsBound() {
 		return true;
 	}
+	
+	// before introducing context-specific evaluator step solver:
+	// testMaxForSingleVariableConstraints: 12.329 s
+	// testCompleteSatisfiabilitySpecialCases: 0.159 s
+	// testSatisfiabilitySpecialCases: 0.003 s
+	// testMultiVariableConstraints: 0.680 s
+	// testSumForSingleVariableConstraints: 11.102 s
+	// testCompleteMultiVariableConstraints: 0.063 s
+	// testSingleVariableConstraints: 0.026 s
+	// testModelCountingForSingleVariableConstraints: 0.168 s
+
+	// on January 14, 2016: (after introducing context-specific evaluator step solver):
+	// testMaxForSingleVariableConstraints: 2.268 s
+	// testCompleteSatisfiabilitySpecialCases: 0.092 s
+	// testSatisfiabilitySpecialCases: 0.002 s
+	// testMultiVariableConstraints: 0.598 s
+	// testSumForSingleVariableConstraints: 1.749 s
+	// testCompleteMultiVariableConstraints: 0.167 s
+	// testSingleVariableConstraints: 0.074 s
+	// testModelCountingForSingleVariableConstraints: 0.471 s
 }

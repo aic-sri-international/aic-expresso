@@ -106,6 +106,7 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 			Expression subExpression = expression.get(subExpressionIndex);
 			ContextDependentExpressionProblemStepSolver subExpressionEvaluator = getEvaluatorFor(subExpression);
 			SolutionStep subExpressionStep = subExpressionEvaluator.step(contextualConstraint, process);
+
 			if (subExpressionStep == null) {
 				return null;
 			}
@@ -171,5 +172,10 @@ public class EvaluatorStepSolver implements ContextDependentExpressionProblemSte
 
 	private boolean expressionIsLiteral(Constraint2 contextualConstraint, RewritingProcess process) {
 		return contextualConstraint.getConstraintTheory().isLiteral(expression, process);
+	}
+	
+	@Override
+	public String toString() {
+		return "Evaluate " + expression + " from " + subExpressionIndex + "-th sub-expression on";
 	}
 }
