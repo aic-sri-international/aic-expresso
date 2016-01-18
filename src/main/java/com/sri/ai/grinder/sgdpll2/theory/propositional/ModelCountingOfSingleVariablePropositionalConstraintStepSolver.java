@@ -39,22 +39,18 @@ package com.sri.ai.grinder.sgdpll2.theory.propositional;
 
 import static com.sri.ai.expresso.helper.Expressions.ONE;
 import static com.sri.ai.expresso.helper.Expressions.TWO;
-import static com.sri.ai.util.Util.list;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
-import com.sri.ai.grinder.sgdpll2.core.solver.AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityAndDefiningLiteralsStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver;
 
 /**
- * A {@link AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityAndDefiningLiteralsStepSolver} for
+ * A {@link AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver} for
  * a {@link SingleVariablePropositionalConstraint}.
- * As such, it is required to provide defining literals (propagated literals are delegated by the super class to a satisfiability step solver)
- * and to provide a way of computing a solution when all propagated literals and propagated CNF are satisfied by the context,
- * and defining literals are defined by the context.
+ * As such, it is required to provide a way of computing a solution when all propagated literals and propagated CNF are satisfied by the context.
  * <p>
- * For propositional theory, the collection of defining literals is empty;
  * if the propagated literals and propagated CNF are defined by the context, then a solution is already defined.
  * The solution is simply 1 if the variable is constrained to be true or false, or 2 otherwise.
  * 
@@ -62,24 +58,19 @@ import com.sri.ai.grinder.sgdpll2.core.solver.AbstractModelCountingWithPropagate
  *
  */
 @Beta
-public class ModelCountingOfSingleVariablePropositionalConstraintStepSolver extends AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityAndDefiningLiteralsStepSolver {
+public class ModelCountingOfSingleVariablePropositionalConstraintStepSolver extends AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver {
 
 	public ModelCountingOfSingleVariablePropositionalConstraintStepSolver(SingleVariablePropositionalConstraint constraint) {
 		super(constraint);
 	}
 	
 	@Override
-	protected Iterable<Expression> getDefiningLiterals(Constraint2 contextualConstraint, RewritingProcess process) {
-		return list();
-	}
-
-	@Override
 	public SingleVariablePropositionalConstraint getConstraint() {
 		return (SingleVariablePropositionalConstraint) super.getConstraint();
 	}
 
 	@Override
-	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(
 			Constraint2 contextualConstraint, RewritingProcess process) {
 		
 		boolean variableIsNotConstrained = 

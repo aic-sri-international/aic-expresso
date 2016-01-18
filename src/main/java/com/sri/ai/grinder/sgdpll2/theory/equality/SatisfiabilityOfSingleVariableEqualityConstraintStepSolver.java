@@ -64,7 +64,7 @@ import com.sri.ai.grinder.api.RewritingProcess;
 import com.sri.ai.grinder.helper.GrinderUtil;
 import com.sri.ai.grinder.library.Equality;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
-import com.sri.ai.grinder.sgdpll2.core.solver.AbstractBooleanProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
+import com.sri.ai.grinder.sgdpll2.core.solver.AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver;
 import com.sri.ai.util.Util;
 import com.sri.ai.util.base.PairOf;
 import com.sri.ai.util.collect.CartesianProductIterator;
@@ -76,7 +76,7 @@ import com.sri.ai.util.collect.PredicateIterator;
 import com.sri.ai.util.collect.SubsetsOfKIterator;
 
 /**
- * A {@link AbstractBooleanProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver} for a {@link SingleVariableEqualityConstraint}.
+ * A {@link AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver} for a {@link SingleVariableEqualityConstraint}.
  * <p>
  * This step solver works by providing propagated literals of the form <code>Y op Z</code>
  * for every pair of literals <code>X = Y</code> and <code>X op Z</code>,
@@ -106,7 +106,7 @@ import com.sri.ai.util.collect.SubsetsOfKIterator;
  *
  */
 @Beta
-public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends AbstractBooleanProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver {
+public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends AbstractBooleanProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver {
 
 	private boolean alreadyCheckedIfNumberOfDistinctExpressionsIsLessThanStepSolverShouldBeMade = false;
 	private NumberOfDistinctExpressionsIsLessThanStepSolver numberOfDistinctExpressionsIsLessThanStepSolver;
@@ -271,12 +271,7 @@ public class SatisfiabilityOfSingleVariableEqualityConstraintStepSolver extends 
 	}
 
 	@Override
-	protected Iterable<Expression> getDefiningLiterals(Constraint2 contextualConstraint, RewritingProcess process) {
-		return list();
-	}
-	
-	@Override
-	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint2 contextualConstraint, RewritingProcess process) {
+	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint2 contextualConstraint, RewritingProcess process) {
 		SolutionStep result;
 		if (getNumberOfDistinctExpressionsIsLessThanStepSolver(process) != null) {
 			SolutionStep numberStep = getNumberOfDistinctExpressionsIsLessThanStepSolver(process).step(contextualConstraint, process);

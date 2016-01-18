@@ -37,40 +37,38 @@
  */
 package com.sri.ai.grinder.sgdpll2.core.solver;
 
-import static com.sri.ai.expresso.helper.Expressions.FALSE;
+import static com.sri.ai.expresso.helper.Expressions.ZERO;
 
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpll2.api.Constraint2;
 
 /**
- * A specialization of {@link AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver}
- * that returns solution <code>false</code> if propagated literals and propagated CNF are not satisfied
+ * A specialization of {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver}
+ * that returns solution <code>0</code> if propagated literals and propagated CNF are not satisfied
  * by the context.
- * This has been written with satisfiability in mind although it could apply to other problems.
+ * This has been written with model counting in mind although it could apply to other problems.
  * <p>
- * Like its super class, this class still requires extensions to provide propagated literals and propagated CNF,
- * as well as defining literals.
+ * Like its super class, this class still requires extensions to provide propagated literals and propagated CNF.
  * <p>
- * While it already provides the solution <code>false</code> for when
+ * While it already provides the solution <code>0</code> for when
  * propagated literals and propagated CNF are not satisfied by the context,
  * it still requires extensions to provide a way to compute the solution
  * for all remaining situations in which those literals and CNF are defined by the context
- * (that is, when all propagated literals and propagated CNF are satisfied,
- * and all defining literals' values are defined by the context).
+ * (that is, when all propagated literals and propagated CNF are satisfied).
  * 
  * @author braz
  *
  */
 @Beta
-public abstract class AbstractBooleanProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver extends AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver {
+public abstract class AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver extends AbstractContextDependentProblemWithPropagatedLiteralsStepSolver {
 
-	public AbstractBooleanProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver(Constraint2 constraint) {
+	public AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver(Constraint2 constraint) {
 		super(constraint);
 	}
 	
 	@Override
 	protected Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied() {
-		return FALSE;
+		return ZERO;
 	}
 }

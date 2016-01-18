@@ -58,7 +58,7 @@ import com.sri.ai.util.collect.FunctionIterator;
 import com.sri.ai.util.collect.NestedIterator;
 
 /**
- * An abstract implementation for step solvers for problems based on a propagated literals, a propagated CNF, and defining literals.
+ * An abstract implementation for step solvers for problems based on a propagated literals, and a propagated CNF.
  * <p>
  * Propagated literals are literals required to be true
  * (if they are not, the solution step returns is provided by the abstract method
@@ -70,16 +70,6 @@ import com.sri.ai.util.collect.NestedIterator;
  * {@link #getPropagatedCNFBesidesPropagatedLiterals(RewritingProcess)},
  * which are aggregated by method {@link #getPropagatedLiterals(RewritingProcess)}.
  * <p>
- * Defining literals are literals on which the solution of the problem depends.
- * The difference between defining and propagated literals is that the solution for when defining literals
- * are not satisfied by the context is not necessarily fixed, as it is the case with propagated literals and CNF.
- * To be more precise, propagated literals can be seen as a special case of defining literals
- * (ones for which the solution if case of unsatisfiability happens to be fixed),
- * and they are distinguished here for convenience purposes only.
- * Once all defining literals are checked to be defined,
- * the abstract method {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint2, RewritingProcess)}
- * is invoked to provide the problem's solution.
- * <p>
  * Such problems will typically involve a {@link Constraint2}, so this class provides
  * methods for storing that as well.
  * 
@@ -87,7 +77,7 @@ import com.sri.ai.util.collect.NestedIterator;
  *
  */
 @Beta
-public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver implements ContextDependentExpressionProblemStepSolver {
+public abstract class AbstractContextDependentProblemWithPropagatedLiteralsStepSolver implements ContextDependentExpressionProblemStepSolver {
 
 	final static boolean MAKE_SUB_STEP_SOLVERS_THAT_START_TO_CHECK_PROPAGATED_CNF_FROM_WHERE_THIS_ONE_LEFT_OFF = false;
 	
@@ -97,7 +87,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	private int initialClauseToConsiderInPropagatedCNF = 0;
 	private int initialLiteralToConsiderInInitialClauseToConsiderInPropagatedCNF = 0;
 
-	public AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver(Constraint2 constraint) {
+	public AbstractContextDependentProblemWithPropagatedLiteralsStepSolver(Constraint2 constraint) {
 		this.constraint = constraint;
 	}
 
@@ -108,8 +98,8 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	 * @param literalIndex TODO
 	 * @return
 	 */
-	private AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver makeCopyConsideringPropagatedCNFFromNowOn(int clauseIndex, int literalIndex) {
-		AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver result = clone();
+	private AbstractContextDependentProblemWithPropagatedLiteralsStepSolver makeCopyConsideringPropagatedCNFFromNowOn(int clauseIndex, int literalIndex) {
+		AbstractContextDependentProblemWithPropagatedLiteralsStepSolver result = clone();
 		result.initialClauseToConsiderInPropagatedCNF = clauseIndex;
 		result.initialLiteralToConsiderInInitialClauseToConsiderInPropagatedCNF = literalIndex;
 		return result;
@@ -119,9 +109,9 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	 * A cloning method delegating to super.clone().
 	 */
 	@Override
-	public AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver clone() {
+	public AbstractContextDependentProblemWithPropagatedLiteralsStepSolver clone() {
 		try {
-			return (AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver) super.clone();
+			return (AbstractContextDependentProblemWithPropagatedLiteralsStepSolver) super.clone();
 		} catch (CloneNotSupportedException e) {
 			throw new Error("Trying to clone " + getClass() + " but cloning is not supported for this class.");
 		}
@@ -199,10 +189,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	 * Makes a CNF that, if not satisfied, means the solution
 	 * is {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied()}.
 	 * If it is satisfied,
-	 * then the step solver will invoke {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint2, RewritingProcess)},
-	 * which in its turn will go over defining literals and,
-	 * after making sure those are defined by the contextual constraint,
-	 * will invoke {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint2, RewritingProcess)}.
+	 * then the step solver will invoke {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint2, RewritingProcess)}.
 	 * <p>
 	 * Note that the result of this method is cached and provided by {@link #getPropagatedCNF(RewritingProcess)}.
 	 * Extensions should override <i>this<i> method in order to keep the caching behavior.
@@ -212,7 +199,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	 * which are typically a more convenient way for extensions to define this information.
 	 * However, it may be useful in some cases to directly override this method;
 	 * for example, if this information comes from another
-	 * {@link AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver}'s own
+	 * {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver}'s own
 	 * {@link #makePropagatedCNF(RewritingProcess)}.
 	 * @param process
 	 * @return
@@ -232,27 +219,12 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	}
 
 	/**
-	 * Methods which extensions can define in order to provide defining literals,
-	 * that is, literals that influence a problem's solution
-	 * without their <i>not</i> being satisfied necessarily leading to a fixed solution,
-	 * as it is the case for propagated literals and propagated CNF.
-	 * For example, in an equality constraint X = Y and X != Z and X != W,
-	 * the number of satisfying assignments depends on Z = W,
-	 * but this type of defining literal does not in itself resolve the whole problem into
-	 * a solution, unlike the propagated literal Y != Z which renders the constraint unsatisfied if false.
-	 * @param contextualConstraint
-	 * @param process
-	 * @return
-	 */
-	abstract protected Iterable<Expression> getDefiningLiterals(Constraint2 contextualConstraint, RewritingProcess process);
-
-	/**
 	 * The solution to be provided if any of the propagated literals is not satisfied by the contextual constraint.
 	 * @return The solution to be provided if any of the propagated literals is not satisfied by the contextual constraint.
 	 */
 	protected abstract Expression solutionIfPropagatedLiteralsAndSplittersCNFAreNotSatisfied();
 
-	protected abstract SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint2 contextualConstraint, RewritingProcess process);
+	protected abstract SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint2 contextualConstraint, RewritingProcess process);
 
 	@Override
 	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
@@ -284,37 +256,6 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 	}
 	
 	/**
-	 * The solution to be provided if all propagated literals and splitter DNF are satisfied.
-	 * Default implementation checks defining literals and, if they are all defined,
-	 * delegates to abstract method
-	 * {@link #solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(Constraint2, RewritingProcess)}.
-	 * @param process
-	 */
-	protected SolutionStep solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfied(Constraint2 contextualConstraint, RewritingProcess process) {
-//		System.out.println("\nconstraint: " + constraint);	
-//		System.out.println("defining literals: " + join(getDefiningLiterals(process).iterator()));
-
-		SolutionStep definingLiteralsAreDefinedStep = 
-				conjunctiveClauseIsDefined(getDefiningLiterals(contextualConstraint, process), contextualConstraint, process);
-		
-		SolutionStep result;
-		if (definingLiteralsAreDefinedStep == null) {
-			result = null;
-		}
-		else if (definingLiteralsAreDefinedStep.itDepends()) {
-			result = definingLiteralsAreDefinedStep;
-		}
-		else if (definingLiteralsAreDefinedStep.getValue().equals(TRUE)) {
-			result = solutionIfPropagatedLiteralsAndSplittersCNFAreSatisfiedAndDefiningLiteralsAreDefined(contextualConstraint, process);
-		}
-		else {
-			throw new Error("Illegal value returned");
-		}
-		
-		return result; 
-	}
-
-	/**
 	 * A convenience method for testing whether a CNF, represented as an iterable of iterables of Expressions,
 	 * is satisfied by a contextual constraint.
 	 * @param cnf
@@ -344,7 +285,7 @@ public abstract class AbstractContextDependentProblemWithPropagatedAndDefiningLi
 				
 				switch (contextualConstraintSplitting.getResult()) {
 				case LITERAL_IS_UNDEFINED:
-					AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver subStepSolver
+					AbstractContextDependentProblemWithPropagatedLiteralsStepSolver subStepSolver
 					= MAKE_SUB_STEP_SOLVERS_THAT_START_TO_CHECK_PROPAGATED_CNF_FROM_WHERE_THIS_ONE_LEFT_OFF
 					? makeCopyConsideringPropagatedCNFFromNowOn(clauseIndex, literalIndex)
 							: this;

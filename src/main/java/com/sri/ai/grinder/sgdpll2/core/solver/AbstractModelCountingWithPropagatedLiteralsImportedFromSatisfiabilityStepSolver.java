@@ -52,30 +52,29 @@ import com.sri.ai.grinder.sgdpll2.api.SingleVariableConstraint;
 /**
  * An abstract step solver for model counting step solvers.
  * <p>
- * It extends {@link AbstractNumericalProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver}
+ * It extends {@link AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver}
  * and provides propagated literals and propagated CNF identical to the ones provided by the satisfiability
  * step solver, which is obtained through the constraint theory's
  * {@link ConstraintTheory#getSingleVariableConstraintSatisfiabilityStepSolver(SingleVariableConstraint, RewritingProcess)}.
  * However, it is important that the satisfiability step solver provided by the constraint theory
- * be an instance of {@link AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver},
+ * be an instance of {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver},
  * because {@link #getPropagatedCNF(RewritingProcess)} is delegated to the satisfiability step solver's
- * {@link AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver#getPropagatedCNF(RewritingProcess)}
+ * {@link AbstractContextDependentProblemWithPropagatedLiteralsStepSolver#getPropagatedCNF(RewritingProcess)}
  * method.
  * An error is thrown if this assumption is violated.
  * <p>
  * This class already defines that the model count is zero if the constraint is not satisfiable according to the
  * satisfiability step solver due to propagated literals and propagated CNF not being satisfied by the contextual constraint.
- * Extensions still need to provide defining literals, and methods
- * to compute the final solution when propagated literals and propagated CNF are satisfied,
- * and defining literals are defined by the context.
+ * Extensions still need to provide methods
+ * to compute the final solution when propagated literals and propagated CNF are satisfied.
  * 
  * @author braz
  *
  */
 @Beta
-public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityAndDefiningLiteralsStepSolver extends AbstractNumericalProblemWithPropagatedAndDefiningLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver {
+public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver extends AbstractNumericalProblemWithPropagatedLiteralsRequiringPropagatedLiteralsAndCNFToBeSatisfiedStepSolver {
 
-	public AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityAndDefiningLiteralsStepSolver(Constraint2 constraint) {
+	public AbstractModelCountingWithPropagatedLiteralsImportedFromSatisfiabilityStepSolver(Constraint2 constraint) {
 		super(constraint);
 	}
 	
@@ -103,14 +102,14 @@ public abstract class AbstractModelCountingWithPropagatedLiteralsImportedFromSat
 		ConstraintTheory constraintTheory = getConstraint().getConstraintTheory();
 		ContextDependentExpressionProblemStepSolver satisfiability =
 				constraintTheory.getSingleVariableConstraintSatisfiabilityStepSolver(getConstraint(), process);
-		AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver satisfiabilityWithPropagatedLiterals;
+		AbstractContextDependentProblemWithPropagatedLiteralsStepSolver satisfiabilityWithPropagatedLiterals;
 		try {
 			satisfiabilityWithPropagatedLiterals =
-					(AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver) satisfiability;
+					(AbstractContextDependentProblemWithPropagatedLiteralsStepSolver) satisfiability;
 		} catch (ClassCastException e) {
 			throw new Error(this.getClass() + 
 					" can only be used with theories providing satisfiability context-dependent step solvers"
-					+ " that are extensions of " + AbstractContextDependentProblemWithPropagatedAndDefiningLiteralsStepSolver.class
+					+ " that are extensions of " + AbstractContextDependentProblemWithPropagatedLiteralsStepSolver.class
 					+ ", but theory " + constraintTheory.getClass() + " provided instead an instance of"
 					+ satisfiability.getClass());
 		}
