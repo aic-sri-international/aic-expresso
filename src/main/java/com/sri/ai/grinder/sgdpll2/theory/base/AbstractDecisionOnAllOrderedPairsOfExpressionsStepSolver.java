@@ -81,8 +81,14 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 	// indices ranges over pairs (i, j) of indices of 'expressions'
 	// all expressions before the one indexed by i have been checked to be distinct or not from all others in front of it
 	// all expressions after the one indexed by i and before the one indexed by j have been checked to be distinct from the one indexed by i
-	private int numberOfElementsExaminedSoFar; // number of expressions before the one indexed by i that are equal to some element after it (that is, they don't count towards the number of distinct disequals
+	private int numberOfElementsExaminedWhenStepSolverWasConstructed; // number of i-th elements for which all pairs of i-th and j-th expressions have been examined
 	
+	/**
+	 * Provides solution step for cases in which there are no, or only one, expressions.
+	 * @return
+	 */
+	abstract public Solution makeSolutionStepWhenThereAreNoPairs();
+
 	/**
 	 * Provides solution step after going over all ordered pairs.
 	 * @return
@@ -117,14 +123,14 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 		super();
 		this.expressions = expressions;
 		this.initialIndices = new OrderedPairsOfIntegersIterator(expressions.size(), i, j);
-		this.numberOfElementsExaminedSoFar = i;
+		this.numberOfElementsExaminedWhenStepSolverWasConstructed = i;
 	}
 
 	protected AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver(List<Expression> expressions, OrderedPairsOfIntegersIterator initialIndices, int numberOfElementsExaminedSoFar) {
 		super();
 		this.expressions = expressions;
 		this.initialIndices = initialIndices;
-		this.numberOfElementsExaminedSoFar = numberOfElementsExaminedSoFar;
+		this.numberOfElementsExaminedWhenStepSolverWasConstructed = numberOfElementsExaminedSoFar;
 	}
 
 	@Override
@@ -148,16 +154,20 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 	 * Number of values for <code>i</code> such that all pairs with indices <code>(i, j)</code>
 	 * have already been examined.
 	 * In other words, the first component of the first pair analysed by this step solver
-	 * has index {@link #getNumberOfElementsExaminedSoFar()}
+	 * has index {@link #getNumberOfElementsExaminedWhenStepSolverWasConstructed()}
 	 * (this method does not say anything about the index of the second component of the first pair).
 	 * @return
 	 */
-	public int getNumberOfElementsExaminedSoFar() {
-		return numberOfElementsExaminedSoFar;
+	public int getNumberOfElementsExaminedWhenStepSolverWasConstructed() {
+		return numberOfElementsExaminedWhenStepSolverWasConstructed;
 	}
 
 	@Override
 	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
+		
+		if (expressions.size() < 2) {
+			return makeSolutionStepWhenThereAreNoPairs();
+		}
 
 		OrderedPairsOfIntegersIterator indices = initialIndices.clone();
 		
@@ -166,8 +176,6 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 			int i = pair.first;
 			int j = pair.second;
 
-			numberOfElementsExaminedSoFar = i;
-			
 			Expression unsimplifiedLiteral = makeLiteral(i, j);
 			Expression literal = contextualConstraint.getConstraintTheory().simplify(unsimplifiedLiteral, process);
 
@@ -204,7 +212,6 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 			}
 		}
 		// went over all pairs
-		numberOfElementsExaminedSoFar = expressions.size();
 		Solution result = makeSolutionStepAfterGoingOverAllPairs();
 		return result;
 	}

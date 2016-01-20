@@ -58,20 +58,26 @@ import com.sri.ai.util.base.OrderedPairsOfIntegersIterator;
 @Beta
 public class NumberOfDistinctExpressionsStepSolver extends AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver {
 
-	private int numberOfNonUniqueExpressionsSoFar; // number of expressions before the one indexed by i that are equal to some element after it (that is, they don't count towards the number of distinct disequals
+	private int numberOfUniqueExpressionsWhenStepSolverWasConstructed;
 	
 	public NumberOfDistinctExpressionsStepSolver(ArrayList<Expression> expressions) {
-		this(expressions, 0, 1, 0);
+		super(expressions, 0, 1);
+		this.numberOfUniqueExpressionsWhenStepSolverWasConstructed = 0;
 	}
 
-	public NumberOfDistinctExpressionsStepSolver(List<Expression> expressions, int i, int j, int numberOfNonUniqueExpressionsSoFar) {
-		super(expressions, i, j);
-		this.numberOfNonUniqueExpressionsSoFar = numberOfNonUniqueExpressionsSoFar;
-	}
-
-	private NumberOfDistinctExpressionsStepSolver(List<Expression> expressions, OrderedPairsOfIntegersIterator initialIndices, int numberOfElementsExaminedSoFar, int numberOfNonUniqueExpressionsSoFar) {
+	private NumberOfDistinctExpressionsStepSolver(List<Expression> expressions, OrderedPairsOfIntegersIterator initialIndices, int numberOfElementsExaminedSoFar, int numberOfUniqueExpressionsSoFar, int numberOfNonUniqueExpressionsSoFar) {
 		super(expressions, initialIndices, numberOfElementsExaminedSoFar);
-		this.numberOfNonUniqueExpressionsSoFar = numberOfNonUniqueExpressionsSoFar;
+		this.numberOfUniqueExpressionsWhenStepSolverWasConstructed = numberOfUniqueExpressionsSoFar;
+	}
+	
+	public int getNumberOfUniqueExpressionsWhenStepSolverWasConstructed() {
+		return numberOfUniqueExpressionsWhenStepSolverWasConstructed;
+	}
+	
+	@Override
+	public Solution makeSolutionStepWhenThereAreNoPairs() {
+		Solution result = new Solution(makeSymbol(getExpressions().size()));
+		return result;
 	}
 
 	/**
@@ -80,7 +86,7 @@ public class NumberOfDistinctExpressionsStepSolver extends AbstractDecisionOnAll
 	 */
 	@Override
 	public Solution makeSolutionStepAfterGoingOverAllPairs() {
-		Solution result = new Solution(makeSymbol(numberOfUniqueExpressionsSoFar()));
+		Solution result = new Solution(makeSymbol(getNumberOfUniqueExpressionsAfterExaminingAllPairs()));
 		return result;
 	}
 
@@ -101,13 +107,13 @@ public class NumberOfDistinctExpressionsStepSolver extends AbstractDecisionOnAll
 	 * @return
 	 */
 	@Override
-	public NumberOfDistinctExpressionsStepSolver makeSubStepSolverForWhenLiteralIsFalse(OrderedPairsOfIntegersIterator indices) {
-		NumberOfDistinctExpressionsStepSolver stepSolverForDisequality;
-		// if they turn out to be disequal, keep moving like we did above (move to the next j)
-		OrderedPairsOfIntegersIterator nextInitialIndices = indices;
-		stepSolverForDisequality
-		= new NumberOfDistinctExpressionsStepSolver(getExpressions(), nextInitialIndices, getNumberOfElementsExaminedSoFar(), numberOfNonUniqueExpressionsSoFar);
-		return stepSolverForDisequality;
+	public NumberOfDistinctExpressionsStepSolver makeSubStepSolverForWhenLiteralIsTrue(OrderedPairsOfIntegersIterator indices) {
+		NumberOfDistinctExpressionsStepSolver stepSolverForEquality;
+		// if indexed disequals turn out to be equal, move to the next i and register one more non-unique element
+		OrderedPairsOfIntegersIterator nextInitialIndices = indices.clone(); nextInitialIndices.makeSureToBeAtRowBeginning(); // note that cloning 'indices' might not work because it may have already just skipped to the next i
+		stepSolverForEquality
+		= new NumberOfDistinctExpressionsStepSolver(getExpressions(), nextInitialIndices, getNumberOfElementsExaminedWhenStepSolverWasConstructed() + 1, numberOfUniqueExpressionsWhenStepSolverWasConstructed, 0);
+		return stepSolverForEquality;
 	}
 
 	/**
@@ -115,16 +121,32 @@ public class NumberOfDistinctExpressionsStepSolver extends AbstractDecisionOnAll
 	 * @return
 	 */
 	@Override
-	public NumberOfDistinctExpressionsStepSolver makeSubStepSolverForWhenLiteralIsTrue(OrderedPairsOfIntegersIterator indices) {
-		NumberOfDistinctExpressionsStepSolver stepSolverForEquality;
-		// if indexed disequals turn out to be equal, move to the next i and register one more non-unique element
-		OrderedPairsOfIntegersIterator nextInitialIndices = indices.clone(); nextInitialIndices.makeSureToBeAtRowBeginning(); // note that cloning 'indices' might not work because it may have already just skipped to the next i
-		stepSolverForEquality
-		= new NumberOfDistinctExpressionsStepSolver(getExpressions(), nextInitialIndices, getNumberOfElementsExaminedSoFar(), numberOfNonUniqueExpressionsSoFar + 1);
-		return stepSolverForEquality;
+	public NumberOfDistinctExpressionsStepSolver makeSubStepSolverForWhenLiteralIsFalse(OrderedPairsOfIntegersIterator indices) {
+		NumberOfDistinctExpressionsStepSolver stepSolverForDisequality;
+		// if they turn out to be disequal, keep moving like we did above (move to the next j)
+		OrderedPairsOfIntegersIterator nextInitialIndices = indices;
+		int newNumberOfUniqueExpressionsSoFar;
+		int newNumberOfElementsExaminedSoFar;
+		if (indices.hadPreviousAndItWasLastOfRow()) { // if row is over, that is, we are done with the current i
+			newNumberOfUniqueExpressionsSoFar = numberOfUniqueExpressionsWhenStepSolverWasConstructed + 1; // we compared i-th against all j-th's, it is equal to none and therefore unique
+			newNumberOfElementsExaminedSoFar = getNumberOfElementsExaminedWhenStepSolverWasConstructed() + 1;
+		}
+		else {
+			newNumberOfUniqueExpressionsSoFar = numberOfUniqueExpressionsWhenStepSolverWasConstructed; // not done with i-th yet, number of uniques remains the same
+			newNumberOfElementsExaminedSoFar = getNumberOfElementsExaminedWhenStepSolverWasConstructed();
+		}
+		stepSolverForDisequality
+		= new NumberOfDistinctExpressionsStepSolver(getExpressions(), nextInitialIndices, newNumberOfElementsExaminedSoFar, newNumberOfUniqueExpressionsSoFar, 0);
+		return stepSolverForDisequality;
 	}
 
-	public int numberOfUniqueExpressionsSoFar() {
-		return getNumberOfElementsExaminedSoFar() - numberOfNonUniqueExpressionsSoFar;
+	private int getNumberOfUniqueExpressionsAfterExaminingAllPairs() {
+		// number of unique expressions after examining all pairs
+		// is the same as number of unique expressions when step solver was constructed
+		// plus one, because the last element is always unique.
+		int numberOfUniqueExpressionsAfterExaminingAllPairs = 
+				numberOfUniqueExpressionsWhenStepSolverWasConstructed + 1;
+		
+		return numberOfUniqueExpressionsAfterExaminingAllPairs;
 	}
 }

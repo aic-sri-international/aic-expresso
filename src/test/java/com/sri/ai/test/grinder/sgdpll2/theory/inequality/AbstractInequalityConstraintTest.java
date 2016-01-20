@@ -27,7 +27,7 @@ public abstract class AbstractInequalityConstraintTest extends AbstractConstrain
 
 	@Override
 	public Random makeRandom() {
-		return new Random(0);
+		return new Random();
 	}
 	
 	protected int getBodyDepth() {

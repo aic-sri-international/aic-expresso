@@ -64,14 +64,10 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 	private NumberOfDistinctExpressionsStepSolver counterStepSolver;
 	
 	public NumberOfDistinctExpressionsIsLessThanStepSolver(int limit, ArrayList<Expression> expressions) {
-		this(limit, expressions, 0, 1, 0);
-	}
-
-	public NumberOfDistinctExpressionsIsLessThanStepSolver(int limit, List<Expression> expressions, int i, int j, int numberOfNonUniqueExpressionsSoFar) {
 		super();
 		this.limit = limit;
 		this.expressions = expressions;
-		this.counterStepSolver = new NumberOfDistinctExpressionsStepSolver(expressions, i, j, numberOfNonUniqueExpressionsSoFar);
+		this.counterStepSolver = new NumberOfDistinctExpressionsStepSolver(expressions);
 	}
 
 	@Override
@@ -95,10 +91,10 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 	
 	@Override
 	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
-		if (counterStepSolver.numberOfUniqueExpressionsSoFar() >= limit) {
+		if (counterStepSolver.getNumberOfUniqueExpressionsWhenStepSolverWasConstructed() >= limit) {
 			return new Solution(FALSE);
 		}
-		else if (counterStepSolver.numberOfUniqueExpressionsSoFar() + maximumPossibleNumberOfRemainingUniqueExpressions() < limit) {
+		else if (counterStepSolver.getNumberOfUniqueExpressionsWhenStepSolverWasConstructed() + maximumPossibleNumberOfRemainingUniqueExpressions() < limit) {
 			// we already know the limit will never be reached
 			return new Solution(TRUE);
 		}
@@ -119,6 +115,6 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 	}
 	
 	private int maximumPossibleNumberOfRemainingUniqueExpressions() {
-		return expressions.size() - counterStepSolver.getNumberOfElementsExaminedSoFar();
+		return expressions.size() - counterStepSolver.getNumberOfElementsExaminedWhenStepSolverWasConstructed();
 	}
 }
