@@ -64,8 +64,6 @@ public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implem
 
 	private Constraint2 constraint;
 	private ContextDependentExpressionProblemStepSolver modelCounting;
-	private boolean solutionIsTrue = false;
-	private boolean solutionIsFalse = false;
 	
 	public SatisfiabilityOfSingleVariableInequalityConstraintStepSolver(SingleVariableInequalityConstraint constraint) {
 		this.constraint = constraint;
@@ -85,13 +83,6 @@ public class SatisfiabilityOfSingleVariableInequalityConstraintStepSolver implem
 	
 	@Override
 	public SolutionStep step(Constraint2 contextualConstraint, RewritingProcess process) {
-		if (solutionIsTrue) {
-			return new Solution(TRUE);
-		}
-		else if (solutionIsFalse) {
-			return new Solution(FALSE);
-		}
-		
 		SolutionStep modelCountingStep = modelCounting.step(contextualConstraint, process);
 		if (modelCountingStep == null) {
 			return null;

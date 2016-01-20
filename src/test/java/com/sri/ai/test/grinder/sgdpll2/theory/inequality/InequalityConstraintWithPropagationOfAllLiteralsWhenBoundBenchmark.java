@@ -79,4 +79,12 @@ public class InequalityConstraintWithPropagationOfAllLiteralsWhenBoundBenchmark 
 	// testCompleteMultiVariableConstraints: 0.861 s
 	// testSingleVariableConstraints: 0.733 s
 	// testModelCountingForSingleVariableConstraints: 0.991 s
+	
+	// on January 20, 2016: (after realizing now all inner sub-solvers were being re-used):
+	// testMaxForSingleVariableConstraints: 3.290 s
+	// testMultiVariableConstraints: 1.659 s
+	// testSumForSingleVariableConstraints: 1.856 s
+	// testCompleteMultiVariableConstraints: 0.861 s
+	// testSingleVariableConstraints: 0.733 s
+	// testModelCountingForSingleVariableConstraints: 0.991 s
 }

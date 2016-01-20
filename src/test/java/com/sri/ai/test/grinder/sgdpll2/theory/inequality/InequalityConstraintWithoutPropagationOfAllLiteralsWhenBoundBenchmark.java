@@ -79,4 +79,12 @@ public class InequalityConstraintWithoutPropagationOfAllLiteralsWhenBoundBenchma
 	// testCompleteMultiVariableConstraints: 0.852 s
 	// testSingleVariableConstraints: 0.615 s
 	// testModelCountingForSingleVariableConstraints: 0.802 s
+
+	// on January 20, 2016: (after changing track on unique disequals to be direct, times went up, then down again after realizing now all inner sub-solvers were being re-used):
+	// testMaxForSingleVariableConstraints: 3.705 s
+	// testMultiVariableConstraints: 1.311 s
+	// testSumForSingleVariableConstraints: 2.344 s
+	// testCompleteMultiVariableConstraints: 0.952 s
+	// testSingleVariableConstraints: 0.615 s
+	// testModelCountingForSingleVariableConstraints: 0.942 s
 }
