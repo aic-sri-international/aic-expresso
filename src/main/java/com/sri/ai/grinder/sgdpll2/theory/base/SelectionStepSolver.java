@@ -43,7 +43,7 @@ import java.util.List;
 import com.google.common.annotations.Beta;
 import com.sri.ai.expresso.api.Expression;
 import com.sri.ai.grinder.sgdpll2.theory.inequality.AbstractExpressionsSequenceStepSolver;
-import com.sri.ai.util.collect.StackedLinkedList;
+import com.sri.ai.util.collect.ImmutableStackedLinkedList;
 
 /**
  * A context-dependent problem step solver deciding which in a set of expressions
@@ -80,7 +80,7 @@ public abstract class SelectionStepSolver extends AbstractExpressionsSequenceSte
 	protected SelectionStepSolver makeSubStepSolverWhenLiteralIsTrue() {
 		SelectionStepSolver result = (SelectionStepSolver) clone();
 		result.current = getCurrent() + 1;
-		result.selection = new StackedLinkedList<Expression>(getCurrentExpression(), selection);
+		result.selection = new ImmutableStackedLinkedList<Expression>(getCurrentExpression(), selection);
 		return result;
 	}
 
