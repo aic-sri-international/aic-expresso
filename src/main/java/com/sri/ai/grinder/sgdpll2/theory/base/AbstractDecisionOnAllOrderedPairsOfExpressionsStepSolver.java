@@ -61,12 +61,12 @@ import com.sri.ai.util.base.PairOf;
  * <p>
  * The list is randomly accessed, and therefore it is preferable that it offers constant-time random access.
  * <p> 
- * The way the literal is formed is specified by abstract method {@link #makeLiteral(int, int)}.
+ * The way the literal is formed is specified by abstract method {@link #makeLiteral()}.
  * <p>
  * Implementing classes must provide implementations for methods
- * {@link #makeSubStepSolverForWhenLiteralIsTrue(OrderedPairsOfIntegersIterator)}
+ * {@link #makeSubStepSolverForWhenLiteralIsTrue()}
  * and 
- * {@link #makeSubStepSolverForWhenLiteralIsFalse(OrderedPairsOfIntegersIterator)}
+ * {@link #makeSubStepSolverForWhenLiteralIsFalse()}
  * which must be step solvers for the same problem, but which are
  * allowed to assume the literal to be defined as true and false in the contextual constraint, respectively.
  *
@@ -81,8 +81,16 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 	// indices ranges over pairs (i, j) of indices of 'expressions'
 	// all expressions before the one indexed by i have been checked to be distinct or not from all others in front of it
 	// all expressions after the one indexed by i and before the one indexed by j have been checked to be distinct from the one indexed by i
-	private int numberOfElementsExaminedWhenStepSolverWasConstructed; // number of i-th elements for which all pairs of i-th and j-th expressions have been examined
 	
+	private boolean setFieldsForCaseInWhichThereArePairs = false;
+	private boolean hasPair;
+	protected PairOf<Integer> pair;
+	protected OrderedPairsOfIntegersIterator nextIndices;
+	protected int i;
+	protected int j;
+	protected Expression iThExpression;
+	protected Expression jThExpression;
+
 	/**
 	 * Provides solution step for cases in which there are no, or only one, expressions.
 	 * @return
@@ -97,40 +105,37 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 
 	/**
 	 * Creates literal for splitting based on ordered pair (i, j).
-	 * @param i
-	 * @param j
 	 * @return
 	 */
-	abstract public Expression makeLiteral(int i, int j);
+	abstract public Expression makeLiteral();
 
 	/**
-	 * @param indices the indices of the literal, which can, in the sub-step solver, be assumed to be false.
+	 * Makes sub-step solver for when literal is true.
 	 * @return
 	 */
-	abstract public AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver makeSubStepSolverForWhenLiteralIsFalse(OrderedPairsOfIntegersIterator indices);
+	abstract public AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver makeSubStepSolverForWhenLiteralIsTrue();
 
 	/**
-	 * @param indices the indices of the literal, which can, in the sub-step solver, be assumed to be true.
+	 * Makes sub-step solver for when literal is false.
 	 * @return
 	 */
-	abstract public AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver makeSubStepSolverForWhenLiteralIsTrue(OrderedPairsOfIntegersIterator indices);
+	abstract public AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver makeSubStepSolverForWhenLiteralIsFalse();
 
 	public AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver(ArrayList<Expression> expressions) {
 		this(expressions, 0, 1);
 	}
 
 	public AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver(List<Expression> expressions, int i, int j) {
-		super();
-		this.expressions = expressions;
-		this.initialIndices = new OrderedPairsOfIntegersIterator(expressions.size(), i, j);
-		this.numberOfElementsExaminedWhenStepSolverWasConstructed = i;
+		this(expressions, new OrderedPairsOfIntegersIterator(expressions.size(), i, j));
 	}
 
-	protected AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver(List<Expression> expressions, OrderedPairsOfIntegersIterator initialIndices, int numberOfElementsExaminedSoFar) {
+	protected AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver(List<Expression> expressions, OrderedPairsOfIntegersIterator initialIndices) {
 		super();
 		this.expressions = expressions;
 		this.initialIndices = initialIndices;
-		this.numberOfElementsExaminedWhenStepSolverWasConstructed = numberOfElementsExaminedSoFar;
+		if (expressions.size() > 1) {
+			setFieldsForCaseInWhichThereArePairs();
+		}
 	}
 
 	@Override
@@ -150,16 +155,36 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 		return Collections.unmodifiableList(expressions);
 	}
 
+	public boolean hasPair() {
+		return hasPair;
+	}
+
+	private void setFieldsForCaseInWhichThereArePairs() {
+		if ( ! setFieldsForCaseInWhichThereArePairs) {
+			nextIndices = initialIndices.clone();
+			hasPair = nextIndices.hasNext();
+			if (hasPair) {
+				pair = nextIndices.next();
+				i = pair.first;
+				j = pair.second;
+				iThExpression = getExpressions().get(i);
+				jThExpression = getExpressions().get(j);
+			}
+			setFieldsForCaseInWhichThereArePairs = true;
+		}
+	}
+
 	/**
-	 * Number of values for <code>i</code> such that all pairs with indices <code>(i, j)</code>
-	 * have already been examined.
-	 * In other words, the first component of the first pair analysed by this step solver
-	 * has index {@link #getNumberOfElementsExaminedWhenStepSolverWasConstructed()}
-	 * (this method does not say anything about the index of the second component of the first pair).
+	 * Return how many elements have been checked against all its successors in the sequence of expressions.
 	 * @return
 	 */
-	public int getNumberOfElementsExaminedWhenStepSolverWasConstructed() {
-		return numberOfElementsExaminedWhenStepSolverWasConstructed;
+	public int numberOfElementsAlreadyExamined() {
+		if (expressions.size() < 2) {
+			return expressions.size(); // no pairs, so no examination needed, so all are considered examined.
+		}
+		else {
+			return i;
+		}
 	}
 
 	@Override
@@ -169,14 +194,9 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 			return makeSolutionStepWhenThereAreNoPairs();
 		}
 
-		OrderedPairsOfIntegersIterator indices = initialIndices.clone();
-		
-		if (indices.hasNext()) {
-			PairOf<Integer> pair = indices.next();
-			int i = pair.first;
-			int j = pair.second;
+		if (hasPair()) {
 
-			Expression unsimplifiedLiteral = makeLiteral(i, j);
+			Expression unsimplifiedLiteral = makeLiteral();
 			Expression literal = contextualConstraint.getConstraintTheory().simplify(unsimplifiedLiteral, process);
 
 			AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver stepSolverForWhenLiteralIsTrue  = null; // this null is never used, just making compiler happy
@@ -194,11 +214,11 @@ public abstract class AbstractDecisionOnAllOrderedPairsOfExpressionsStepSolver i
 			boolean needSubStepSolverForWhenLiteralIsFalse = literalIsFalse || undefined;
 			
 			if (needSubStepSolverForWhenLiteralIsTrue) {
-				stepSolverForWhenLiteralIsTrue = makeSubStepSolverForWhenLiteralIsTrue(indices);
+				stepSolverForWhenLiteralIsTrue = makeSubStepSolverForWhenLiteralIsTrue();
 			}
 			
 			if (needSubStepSolverForWhenLiteralIsFalse) {
-				stepSolverForWhenLiteralIsFalse = makeSubStepSolverForWhenLiteralIsFalse(indices);
+				stepSolverForWhenLiteralIsFalse = makeSubStepSolverForWhenLiteralIsFalse();
 			}
 			
 			if (literalIsTrue) {

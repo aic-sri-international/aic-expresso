@@ -66,12 +66,18 @@ public class NumberOfDistinctExpressionsStepSolver extends AbstractDecisionOnAll
 	
 	public NumberOfDistinctExpressionsStepSolver(ArrayList<Expression> expressions) {
 		super(expressions, 0, 1);
-		this.numberOfUniqueExpressionsWhenStepSolverWasConstructed = 0;
-		this.uniqueValuesWhenStepSolverWasConstructed = list();
+		if (expressions.size() < 2) {
+			this.uniqueValuesWhenStepSolverWasConstructed = expressions;
+			this.numberOfUniqueExpressionsWhenStepSolverWasConstructed = expressions.size();
+		}
+		else {
+			this.uniqueValuesWhenStepSolverWasConstructed = list();
+			this.numberOfUniqueExpressionsWhenStepSolverWasConstructed = 0;
+		}
 	}
 
-	private NumberOfDistinctExpressionsStepSolver(List<Expression> expressions, OrderedPairsOfIntegersIterator initialIndices, int numberOfElementsExamined, List<Expression> uniqueValues, int numberOfUniqueExpressions) {
-		super(expressions, initialIndices, numberOfElementsExamined);
+	private NumberOfDistinctExpressionsStepSolver(List<Expression> expressions, OrderedPairsOfIntegersIterator initialIndices, List<Expression> uniqueValues, int numberOfUniqueExpressions) {
+		super(expressions, initialIndices);
 		this.uniqueValuesWhenStepSolverWasConstructed = uniqueValues;
 		this.numberOfUniqueExpressionsWhenStepSolverWasConstructed = numberOfUniqueExpressions;
 	}
@@ -108,63 +114,53 @@ public class NumberOfDistinctExpressionsStepSolver extends AbstractDecisionOnAll
 
 	/**
 	 * Creates literal for splitting based on ordered pair (i, j).
-	 * @param i
-	 * @param j
 	 * @return
 	 */
 	@Override
-	public Expression makeLiteral(int i, int j) {
-		Expression result = apply(EQUALITY, getExpressions().get(i), getExpressions().get(j));
+	public Expression makeLiteral() {
+		Expression result = apply(EQUALITY, iThExpression, jThExpression);
 		return result;
 	}
 
 	/**
-	 * @param indices
 	 * @return
 	 */
 	@Override
-	public NumberOfDistinctExpressionsStepSolver makeSubStepSolverForWhenLiteralIsTrue(OrderedPairsOfIntegersIterator indices) {
+	public NumberOfDistinctExpressionsStepSolver makeSubStepSolverForWhenLiteralIsTrue() {
 		NumberOfDistinctExpressionsStepSolver stepSolverForEquality;
 		// if indexed disequals turn out to be equal, move to the next i and register one more non-unique element
-		OrderedPairsOfIntegersIterator nextInitialIndices = indices.clone(); nextInitialIndices.makeSureToBeAtRowBeginning(); // note that cloning 'indices' might not work because it may have already just skipped to the next i
+		OrderedPairsOfIntegersIterator nextInitialIndices = nextIndices.clone(); nextInitialIndices.makeSureToBeAtRowBeginning(); // note that cloning 'indices' might not work because it may have already just skipped to the next i
 		stepSolverForEquality
 		= new NumberOfDistinctExpressionsStepSolver(
 				getExpressions(), 
 				nextInitialIndices, 
-				getNumberOfElementsExaminedWhenStepSolverWasConstructed() + 1, 
 				uniqueValuesWhenStepSolverWasConstructed, 
 				numberOfUniqueExpressionsWhenStepSolverWasConstructed);
 		return stepSolverForEquality;
 	}
 
 	/**
-	 * @param indices
 	 * @return
 	 */
 	@Override
-	public NumberOfDistinctExpressionsStepSolver makeSubStepSolverForWhenLiteralIsFalse(OrderedPairsOfIntegersIterator indices) {
+	public NumberOfDistinctExpressionsStepSolver makeSubStepSolverForWhenLiteralIsFalse() {
 		NumberOfDistinctExpressionsStepSolver stepSolverForDisequality;
 		// if they turn out to be disequal, keep moving like we did above (move to the next j)
-		OrderedPairsOfIntegersIterator nextInitialIndices = indices;
 		List<Expression> newUniqueValues;
 		int newNumberOfUniqueExpressions;
-		int newNumberOfElementsExamined;
-		if (indices.hadPreviousAndItWasLastOfRow()) { // if row is over, that is, we are done with the current i
+		if (nextIndices.hadPreviousAndItWasLastOfRow()) { // if row is over, that is, we are done with the current i
 			newUniqueValues = new ImmutableStackedLinkedList<>(TRUE, uniqueValuesWhenStepSolverWasConstructed);
 			//newUniqueValues.add(null);
 			newNumberOfUniqueExpressions = numberOfUniqueExpressionsWhenStepSolverWasConstructed + 1; // we compared i-th against all j-th's, it is equal to none and therefore unique
-			newNumberOfElementsExamined = getNumberOfElementsExaminedWhenStepSolverWasConstructed() + 1;
 		}
 		else {
 			newUniqueValues = uniqueValuesWhenStepSolverWasConstructed;
 			newNumberOfUniqueExpressions = numberOfUniqueExpressionsWhenStepSolverWasConstructed; // not done with i-th yet, number of uniques remains the same
-			newNumberOfElementsExamined = getNumberOfElementsExaminedWhenStepSolverWasConstructed();
 		}
 		stepSolverForDisequality
 		= new NumberOfDistinctExpressionsStepSolver(
 				getExpressions(), 
-				nextInitialIndices, 
-				newNumberOfElementsExamined, 
+				nextIndices, 
 				newUniqueValues, 
 				newNumberOfUniqueExpressions);
 		return stepSolverForDisequality;

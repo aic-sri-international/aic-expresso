@@ -115,6 +115,6 @@ public class NumberOfDistinctExpressionsIsLessThanStepSolver implements ContextD
 	}
 	
 	private int maximumPossibleNumberOfRemainingUniqueExpressions() {
-		return expressions.size() - counterStepSolver.getNumberOfElementsExaminedWhenStepSolverWasConstructed();
+		return expressions.size() - counterStepSolver.numberOfElementsAlreadyExamined();
 	}
 }
